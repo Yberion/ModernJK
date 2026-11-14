@@ -1,6 +1,6 @@
 # Step 14: fixed simulation tick, lag compensation, and the rest of "beyond the codec"
 
-Status (14 November 2026): parts 1 to 7 and 10 done and committed (part 7: section 15); part 8 dropped (owner, 14 November 2026: no lag compensation, section 5); part 9 in progress (section 16: the lagometer in time done; the scoreboard's freeze measured, the image libraries replaced by Wuffs as its first change, the textures' compression by the driver next); part 11 to do (section 5). Part 1: the server's CPU time in `svnetstats` and the fixed rate of 200,000 bytes per second. Part 2 (game timing): the game's logic at its 20 Hz pace on a 100 Hz tick, proven identical to `sv_fps` 20 with scripted scenarios (section 9; the working notes, audits and traces are in [step-14-audit-100hz.md](step-14-audit-100hz.md)). Part 3, the tick loop: section 10. Part 4, the commands per tick: section 11. Part 5, the snapshot store: section 12. Part 6, the other players interpolated only: section 13. Part 10, the review of the prediction: section 14. What the branch does now, in plain words, with the delays before and after: [../CHANGES.md](../CHANGES.md). The survey, the measurements and the owner's choices that lead here are in [../surveys/tick-and-lag-compensation.md](../surveys/tick-and-lag-compensation.md). Paths are relative to `codemp/`.
+Status (14 November 2026): parts 1 to 7 and 10 done and committed (part 7: section 15); part 8 dropped (owner, 14 November 2026: no lag compensation, section 5); part 9 in progress (section 16: the lagometer in time done; the scoreboard's freeze measured, the image libraries replaced by Wuffs as its first change, then the textures' compression by the driver off by default and the shader text searched once: a model loads in 20 ms instead of 71; left: the images decoded off the main thread, not decided); part 11 to do (section 5). Part 1: the server's CPU time in `svnetstats` and the fixed rate of 200,000 bytes per second. Part 2 (game timing): the game's logic at its 20 Hz pace on a 100 Hz tick, proven identical to `sv_fps` 20 with scripted scenarios (section 9; the working notes, audits and traces are in [step-14-audit-100hz.md](step-14-audit-100hz.md)). Part 3, the tick loop: section 10. Part 4, the commands per tick: section 11. Part 5, the snapshot store: section 12. Part 6, the other players interpolated only: section 13. Part 10, the review of the prediction: section 14. What the branch does now, in plain words, with the delays before and after: [../CHANGES.md](../CHANGES.md). The survey, the measurements and the owner's choices that lead here are in [../surveys/tick-and-lag-compensation.md](../surveys/tick-and-lag-compensation.md). Paths are relative to `codemp/`.
 
 Owner's choices (11 November 2026): a fixed simulation tick of 125 Hz (revised the same evening: **100 Hz**, so that every 20 Hz instant is a tick, and the game's logic runs at its 20 Hz pace, identical to `sv_fps` 20: section 9) shared by client and server, lag compensation by tick, rate 200,000 bytes per second; designed from recent games rather than from the JKA mods, cleanly and optimised, even if it means starting again from zero; every defect found on the way fixed; the analysis covers the engine (client and dedicated server), the shared movement (`bg_*`), the game module, cgame, qcommon and the codec.
 
@@ -1006,7 +1006,7 @@ Checked here:
 - The multiplayer client, the dedicated server, the single-player engine and the three renderers build with clang, with no warning from the new file. The multiplayer client plays the logos video (a RoQ file read in pieces from the archive), restarts its file system (`fs_restart`) while the menu's video is open and goes on drawing it, and loads `mp/ffa3`; the single-player client loads `academy1` and plays its opening scene; no warning in either log.
 - Built by the owner on the VMs the same day, with MSVC (x64) and with GCC 12, the multiplayer and the single-player targets: everything compiles, with no warning from the new file or from zlib-ng. The two logs showed one defect, fixed: zlib-ng's CMake file includes CPack as this project does, and its package description had replaced the project's (`CPackConfig.cmake` named `zlib-ng`); the top-level file now sends it to zlib-ng's own build folder.
 
-Not checked: the builds were not run on the VMs' side (the game with MSVC, the server on the VPS); the client's profile was not taken again, so the gain in a model's load stays the survey's estimate (under 1 ms of 18.8); the streamed music was not listened to (volume 0.02, no error); Jedi Outcast.
+Not checked: the builds were not run on the VMs' side (the game with MSVC, the server on the VPS); the client's profile was not taken again, so the gain in a model's load stays the survey's estimate (under 1 ms of 18.8). The streamed music was listened to by the owner the same evening: it plays right.
 
 ### One file system for the two engines (14 November 2026)
 
@@ -1026,7 +1026,35 @@ Checked here (clang):
 - The single-player client, the same scripted session before and after with `fs_debug 1` (`academy1`, the automatic save written, then loaded): the same log, 2,489 lines, 2,324 files opened in the same order (the menus' load times apart); the save is written and loaded, the scene after the load is the same.
 - The three engines, the three renderers and the four modules build, with no new warning; the shared file also compiles without `FINAL_BUILD` in both engines and with `JK2_MODE`.
 
-Not checked: MSVC and GCC (the owner's builds); Jedi Outcast run; a single-player mod folder (`fs_game`) and the `fs_restart` it causes; macOS.
+Built by the owner the same evening from clean, with MSVC (x64) and GCC 12, every multiplayer and single-player target: no warning from the shared file or its headers, and the CPack warning of zlib-ng's CMake file is gone from both configurations. Not checked: a single-player mod folder (`fs_game`) and the `fs_restart` it causes; macOS. Checked by the owner the same evening: the streamed music plays right.
+
+### 9b, second change: the textures no longer compressed by the driver, the shader text searched once (14 November 2026)
+
+The owner's choices of the same evening ([../surveys/asset-loading.md](../surveys/asset-loading.md), options A and B, section 6): the driver's compression off by default, the cvar kept "in case"; the second search of the shader text removed. Only the multiplayer renderer: the single-player one is not changed (owner).
+
+What changed:
+
+- `r_ext_compress_textures` defaults to 0 (`rd-vanilla/tr_init.cpp`): the renderer hands each texture to the driver as it was decoded (RGBA, 32 bits per texel) and asks for no compressed format, so the driver has nothing to do during the call. Set to 1, the driver compresses again, for a graphics card short of memory. The cvar is archived only when it differs from its default (`CVAR_ARCHIVE_ND`): a configuration file holds it only where a player had set 0, so nothing is to reset. The toggle of the game's setup menus (`ui_r_ext_compress_textures`, in the menus of `assets1.pk3`) still sets it. `rd-dedicated` registers the same cvar with 1 and uses it for nothing (no texture): not changed.
+- `FindShaderInShaderText` (`rd-vanilla/tr_shader.cpp`) looks a name up in the hash table of the shader scripts only. When the table had no such name, it then read the whole text of all the scripts from its start, name by name, to find nothing: the table holds every name that walk reaches, since `ScanAndLoadShaderFiles` builds it by the same walk; most textures of a player's model have no script, so each paid that read. Checked on the game's scripts before removing it, by a temporary check run at load: the walk reaches 3,391 names (3,365 distinct), and the table gives each one at the place the walk finds it first, none missing, none elsewhere. The two walks differ only on a line starting with `#`, which the table's walk skips and the full scan read as names (a mis-reading, not a capability); the game's scripts have none.
+- The GitHub workflow (`.github/workflows/build.yml`) no longer installs libjpeg, libpng and zlib, which no build links since the image and the compression libraries were vendored (not run: no CI here).
+
+Measured in the client's own time, not by a profile: a temporary timing in cgame around the loading of the deferred players (`CG_ActualLoadDeferredPlayers`, the ten models of section 16 loaded in one frame by `loaddeferred`), a local game on `mp/ffa3`, clang, an NVIDIA RTX 5070 Ti (driver 617.14), a window of 640 x 480; the build of the commit before and the new renderer run in turns, 10 runs each (4 with the compression on):
+
+| ten models in one frame | median | range | per model |
+|---|---|---|---|
+| before, as shipped (`r_ext_compress_textures` 1) | 709 ms | 689 to 751 | 71 ms |
+| before, `r_ext_compress_textures` 0 | 278 ms | 231 to 294 | 28 ms |
+| now, the defaults | 202 ms | 162 to 324 | 20 ms |
+
+The driver's compression cost 43 ms per model and the second search 7.6 ms, more than its share in the profile (3.4 ms); that difference was not looked into. These times are above the profile's (71 against 54.7 ms as shipped): the profile counts the samples of the running thread, not its waits for the files or the driver. The highest run of the new build (324 ms) is its first, in a fresh home folder.
+
+Video memory, from the texels `imagelist` lists (`mp/ffa3` with the ten models, 897 images, mip levels included, 4 bytes per texel without compression and 1 in DXT5; computed, not read from the driver): 130 MB as shipped, 436 MB now, about 2.6 and 10.5 MB per player's model. The renderer asked for DXT5 even for the opaque textures (`r_texturebits` 0). The map's own load went from 2.06 to 0.89 s without the compression in the profile of the first change (not measured again).
+
+Checked here: the renderer builds with clang without a warning; with no cvar set it reports "compressed textures: disabled" at start; the logs of the old and the new build hold the same warnings (no shader missing).
+
+Built by the owner the same evening from clean with MSVC (x64) and GCC 12, no warning from the two files, and tried in a local game: nothing wrong seen. Not checked: other drivers (AMD, Intel, Mesa on Linux), whose compression may cost more or less; the image by eye (the textures are now the files' own pixels, without the losses of DXT5).
+
+What is left of the freeze: 20 ms per model, so about 100 ms when five players are loaded at once: the images read and decoded on the main thread (option D of the survey, not decided).
 
 ## 17. Part 11, an item added on 14 November 2026: the drawn delay of the other players depends on the frame rate
 

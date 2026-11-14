@@ -3209,8 +3209,9 @@ static shader_t *FinishShader( void ) {
 ====================
 FindShaderInShaderText
 
-Scans the combined text description of all the shader files for
-the given shader name.
+Looks up the given shader name in the hash table of the combined text
+of all the shader files, which holds every shader name of that text
+(ScanAndLoadShaderFiles): a name not in the table is in no shader file.
 
 return NULL if not found
 
@@ -3231,28 +3232,6 @@ static const char *FindShaderInShaderText( const char *shadername ) {
 			token = COM_ParseExt(&p, qtrue);
 			if ( !Q_stricmp( token, shadername ) )
 				return p;
-		}
-	}
-
-	p = s_shaderText;
-
-	if ( !p ) {
-		return NULL;
-	}
-
-	// look for label
-	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
-		if ( token[0] == 0 ) {
-			break;
-		}
-
-		if ( !Q_stricmp( token, shadername ) ) {
-			return p;
-		}
-		else {
-			// skip the definition
-			SkipBracedSection( &p, 0 );
 		}
 	}
 

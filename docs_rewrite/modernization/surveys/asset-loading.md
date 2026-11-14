@@ -14,7 +14,7 @@ Each source is labelled as in the other surveys:
 2. Without the driver's compression (`r_ext_compress_textures 0`) the same ten models take 27 ms each, and the map itself loads in 1.16 s instead of 2.20 s.
 3. Recent engines never compress a texture when it is loaded: textures are stored in the GPU's format, read and prepared on other threads, and handed to the GPU a few milliseconds per frame. A synchronous load in play is described as the usual cause of a stall.
 4. ioquake3 already ships with the driver's compression off; OpenJK kept it on.
-5. Nothing is decided. The options are in section 5.
+5. Nothing is decided. The options are in section 5. (Note of 14 November 2026, evening: the owner's choices are in section 6.)
 
 ## 2. What this engine does, and what it costs
 
@@ -74,13 +74,13 @@ A and B correct the two parts of the cause that are plain waste; together they l
 
 ## 6. The owner's choices
 
-None yet (14 November 2026).
+Owner, 14 November 2026: the image libraries first, by better ones vendored on every platform, in place of C (Wuffs, [image-libraries.md](image-libraries.md): a model's images read and decoded in 6.8 ms instead of 14.6), then the compression libraries ([compression-libraries.md](compression-libraries.md)). The same evening: A, as the default only (`r_ext_compress_textures` 0; the cvar stays for a player who wants the compression, "in case"), and B, after checking that the hash table holds every name the full scan can find. D, E, F and G are not taken; D is the point left. What was done and measured: [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 16.
 
 ## 7. What was not read or verified
 
 - The measure is one machine, one graphics driver and the clang build: the driver's share depends on the driver. MSVC and Linux are not measured.
 - The model file itself (`.glm`) does not show in the measure: in a local game the server part of the program had loaded it. Against a remote server the client loads it.
-- The video memory of a map with and without the compression is not measured.
+- The video memory of a map with and without the compression is not measured. Measured on 14 November 2026, evening: `mp/ffa3` with ten players' models, 897 images, 130 MB of textures with the compression and 436 MB without, mip levels included, about 2.6 and 10.5 MB per player's model (computed from the texels `imagelist` lists, 1 byte per texel in DXT5 and 4 without; not read from the driver). With `r_texturebits` 0, its default, the renderer asks for DXT5 even for the opaque textures, never for DXT1.
 - The Khronos wiki page on S3TC refused automated reading (HTTP 403), and the text of NVIDIA's paper on `ARB_texture_compression` could not be extracted: no primary source is quoted here on the speed of a driver's compression, only this page's own measure.
 - Unreal's 30 to 200 ms and its remedies come from two guides, not from Epic. Epic's page on texture streaming gives its figures for version 4.15.
 - No engineering source was found on how Valorant, Counter-Strike 2 or Overwatch load the players' models; that they are loaded before a round starts is not established here.

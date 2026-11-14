@@ -71,6 +71,7 @@ The client side is OpenJK with its defaults (`cl_maxpackets 63`, `cl_timeNudge 0
 | Length of a movement step | a drawn frame: 8 ms at 125 frames per second, 3 ms at 333 | the same | 10 ms for everyone | [2](#2-one-command-per-tick) |
 | A decision of the game (a saber hit, damage, a block) | at the next server frame: 25 ms | 12.5 ms, at a rate the game was not tuned on | at the next 20 Hz instant: 25 ms, as the base game | [1](#1-server-tick-of-100-hz-with-the-rules-of-the-game-at-20-hz) |
 | The ping shown | counted in server frames: steps of 50 ms | steps of 25 ms | the real round trip, to the millisecond | [7](#7-ping-measured-in-real-time) |
+| A player's model loaded during the game (at the first scoreboard, or when you die: the client stops and sends nothing meanwhile) | more than 71 ms per model (measured with the textures compressed by the driver, as OpenJK does, and this branch's image decoder, which is faster than OpenJK's) | the same | 20 ms per model (measured: ten models in 202 ms) | [25](#25-client-fixes-outside-the-netcode) |
 
 The whole chain, from your key to another player's screen, both clients at 125 frames per second, in milliseconds (sums of the averages above, computed, not measured end to end):
 
@@ -154,7 +155,7 @@ Each line links to its section.
 |---|---|---|
 | [23. Server](#23-server-fixes) | an idle Linux server used a tenth of a core; a clock change could freeze it; work repeated for nothing at every tick | it sleeps; a clock that only moves forward; about a third less time per tick |
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step | fixed |
-| [25. Client](#25-client-fixes-outside-the-netcode) | menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast |
+| [25. Client](#25-client-fixes-outside-the-netcode) | menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
 **Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Compatibility](#28-compatibility), [29. Not changed yet](#29-not-changed-yet).
 
@@ -937,6 +938,8 @@ Made on the way while testing, mostly as TaystJK does.
 | Dropped while connecting | a client dropped before its game screen runs (kicked while loading, for example) keeps waiting | back to the menu with the reason | `cl_parse.cpp` |
 | Image files | JPEG decoded by libjpeg 9a on Windows and by the system's library on Linux, which give other pixels (up to 71 levels of 255 on a channel of a player's skin); PNG refused unless 8-bit RGB or RGBA with sides that are powers of two; a malformed TGA stops the game | one decoder for JPEG, PNG and TGA on every platform, the same pixels everywhere (those the Linux build drew), every PNG accepted, a malformed image refused with a warning. The game's JPEG files decode 2.4 times as fast and its PNG files 2.0 times: a map loads in 0.89 s instead of 1.16 s and a player's model in 19 ms instead of 27 (measured with the textures' compression off) | `shared/rd-common/tr_image_codec.cpp`, `tr_image_load.cpp` |
 | Archive files (pk3) | read through minizip (2010) on zlib 1.2.8 (2013) on Windows and on the system's zlib on Linux; an archive's directory read entry by entry, twice; the CRC-32 of a file computed and never looked at; a file that could not be inflated handed to the game as it was | one reader on every platform, on zlib-ng 2.3.3 built with the project: all of the game's files read in 2.08 s instead of 3.70 (1.8 times as fast), the directories of its four archives in 0.5 ms instead of 81; a file whose CRC-32 is wrong, or that cannot be inflated, is refused with a warning, as a file that is not there; a file read in pieces (a video, music) is still inflated as it is read | `shared/qcommon/q_pk3.cpp`, `q_pk3.h`, `shared/qcommon/files.cpp` |
+| Textures handed to the graphics card | compressed by the graphics driver as each one is loaded (`r_ext_compress_textures` 1), in DXT5 even when opaque: the client waits for the driver, 43 ms of the 71 a player's model takes, and a map loads in 2.06 s; the textures lose detail | handed as they were decoded (`r_ext_compress_textures` 0; 1 brings the compression back, for a graphics card short of memory): a player's model loads in 28 ms instead of 71 and a map in 0.89 s; the textures keep the files' pixels; they take more video memory, 436 MB instead of 130 on `mp/ffa3` with ten players' models | `rd-vanilla/tr_init.cpp` |
+| Shader scripts | a texture with no script is looked up in the scripts' table, then searched again by reading the whole text of every script: 7.6 ms of each player's model, for nothing | looked up in the table only, which holds every script (checked on the game's scripts): a player's model loads in 20 ms instead of 28 | `rd-vanilla/tr_shader.cpp` |
 | Server browser | a ping of 0 means "request sent", "no answer" and "answered in 0 ms" at once, so a server answering in under 1 ms (same machine or LAN) is hidden | each server has a state of its own (not asked, waiting, answered, no answer); the ping is only a measure | `client.h`, `cl_main.cpp`, `cl_lan.cpp`, `cl_uiapi.cpp`, `ui_public.h`, `ui_main.c`, `ui_syscalls.c` |
 
 The server browser's change adds an import for the UI module, `trap->ext.LAN_GetServerState`, and makes `serverInfo_t` larger, so an existing `servercache.dat` is discarded once, favourites included.
@@ -961,7 +964,7 @@ Removed cvars. A removed cvar keeps the behaviour of its default, except `cg_smo
 | `g_randFix` | the default's correct range | 12 |
 | `sv_padPackets` | nothing: it padded only OpenJK's format | 13 |
 
-Changed: `cl_shownet` has levels 1, 2 and 3 (section 13). `g_userinfoValidate` has a new default (section 8).
+Changed: `cl_shownet` has levels 1, 2 and 3 (section 13). `g_userinfoValidate` has a new default (section 8). `r_ext_compress_textures` defaults to 0: the graphics driver no longer compresses the textures (section 25); a configuration file holds it only where a player had set 0, so nothing is to reset.
 
 Changed: the lagometer (`cg_lagometer 1`) counts in time and shows one more measure. A column was one drawn frame (upper graph) or one snapshot (lower graph): the graph held 0.48 s at 100 frames per second and 0.14 s at 333, so a loss left it before it could be read, sooner for a player at a high frame rate. A column is now 50 ms of real time and shows the worst of what happened in it: 2.4 s for everyone. Every bar is a delay, so a thin graph is a good connection: the usual values are about one pixel high.
 
@@ -1013,6 +1016,7 @@ Added commands. The statistics commands print their counters since the previous 
 | Tests of the library | | round trip on about 36,000 recorded messages, 100,100 synthetic messages, malformed-input test and fuzzer, determinism hashes per compiler, movement determinism (game against cgame, compiler against compiler); client packets: 100,000 synthetic packets, the recorded packets through the library and through the engine interface, 400,000 malformed packets, and a fuzzer |
 | Compilers checked | | MSVC (x64, x86), GCC 12 (x64, x86) and 16 (x64), Clang (llvm-mingw on Windows, Clang 14 on Linux) |
 | `.gitattributes`, `.gitignore` | | line endings of scripts, demo files and local traces ignored |
+| GitHub workflow | installs libjpeg, libpng and zlib on Linux and macOS | installs none of them, since no build links them (not run) |
 | Study, plan, progress | | `docs_rewrite/modernization/` (this folder) |
 
 ### 28. Compatibility
@@ -1033,7 +1037,7 @@ Added commands. The statistics commands print their counters since the previous 
 | subject | where |
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
-| The freeze when the scoreboard first shows players whose models are not loaded | plan step 14, part 9 |
+| The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the images are still read and decoded while the game waits | plan step 14, part 9 |
 | The size of demos at 100 messages per second, a long client hitch, the sound louder at 333 frames per second than at 125 (as in OpenJK), priority and culling per client | plan step 14, part 11 |
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | plan step 14, part 11 |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
