@@ -1037,7 +1037,7 @@ Added commands. The statistics commands print their counters since the previous 
 | subject | where |
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
-| The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the images are still read and decoded while the game waits | plan step 14, part 9 |
+| The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (owner, 14 November 2026: enough for now) |
 | The size of demos at 100 messages per second, a long client hitch, the sound louder at 333 frames per second than at 125 (as in OpenJK), priority and culling per client | plan step 14, part 11 |
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | plan step 14, part 11 |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
