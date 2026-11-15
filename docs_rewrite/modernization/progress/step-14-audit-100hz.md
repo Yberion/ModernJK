@@ -159,7 +159,7 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 | X5 demos 5 times larger | done on 15 November 2026: 2.2 times the base game's measured, one snapshot in two kept, no event lost (step 14 part 11, [step-14-fixed-tick.md](step-14-fixed-tick.md) section 18) |
 | lagometer 48 columns | written in part 9a: a column is 50 ms of real time, 2.4 s in all (to check in game) |
 | interpolation redesign (agent 6) and its 20 Hz bugs | done in part 4e: the drawing clock rewritten on the proposal |
-| dead code reported by the agents (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused) | reported only: part 11 of step 14 (the owner decides on the list) |
+| dead code reported by the agents (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused) | reported only: part 11 of step 14, then plan step 16 (set aside on 15 November 2026; the owner decides on the list) |
 
 **Found on the way, fixed in part 3:** the Linux `Sys_Milliseconds` (`shared/sys/sys_unix.cpp`) used `gettimeofday`, the wall clock: an NTP step moves the server's clock (frames run in a burst or stop). A monotonic clock (`clock_gettime(CLOCK_MONOTONIC)`) fixes it.
 

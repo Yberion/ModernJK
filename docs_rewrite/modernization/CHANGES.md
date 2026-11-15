@@ -1060,7 +1060,8 @@ Added commands. The statistics commands print their counters since the previous 
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
 | The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (owner, 14 November 2026: enough for now) |
-| A long client hitch, priority and culling per client | plan step 14, part 11; the culling set aside after its prototype (owner, 15 November 2026) |
+| A long client hitch: beyond 1.28 s the oldest snapshots are skipped (1.6 s in the base game) | tested, left as it is (plan step 14, part 11) |
+| Priority and culling per client: no priority; the culling against wallhacks prototyped | plan step 16, set aside (owner, 15 November 2026) |
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (owner, 15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |
