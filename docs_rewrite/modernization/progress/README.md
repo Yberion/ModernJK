@@ -171,7 +171,7 @@ Last update: 15 November 2026. Step 14 part 11 started: the anti-wallhack cullin
 
 ## Open questions for the owner
 
-- None open.
+- The anti-wallhack culling (step 14 part 11), paused on 15 November 2026 until the owner chooses, each with its numbers in [../surveys/visibility-culling.md](../surveys/visibility-culling.md) sections 8.5 and 9: the table with today's PVS or in its place; the camera's damping fixed at the defaults or not; the unit of the far part (blocks on the floor proposed). Decided the same day: the file made beforehand by a tool, never on a server; compressed with zlib-ng; the camera fixed at the defaults (range 80, height 16, no angle or pitch offset); a server setting to turn the culling off.
 - The transport questions of [../study/07-transport-study.md](../study/07-transport-study.md) section 7.7 were answered on 10 November 2026 (step 10).
 
 ## Known issues found on the way (not fixed)
