@@ -14,7 +14,7 @@ Each source is labelled as in the other surveys:
 2. Recent games test the line of sight on the server and send a player shortly before he can become visible: VALORANT from a precomputed cell-to-cell table (less than 2 % of its server frame), Counter-Strike with an occlusion test, Enemy Territory: Legacy (the same engine family) with point traces to the corners of a box. They all reveal early to cover the latency and accept that a player audible or about to appear is known to a cheat.
 3. In JKA the camera is behind the player (third person is forced with the saber), its distance and height are the player's own settings, Force Sense level 2 draws players through walls, sounds come from the players' entities, and a saber blade reaches past a corner before its owner.
 4. Measured here with 32 players on `mp/ffa3`: 91 bytes per snapshot for a client, 4.1 to 4.8 % of a core per tick for the server, 27 % of the pairs of players in each other's PVS, a point trace 1.9 to 3.3 microseconds under that load.
-5. Tracing rays every tick for every pair would cost several times the server's present tick; a test reused while the players stay within a margin, or a table computed per map, is needed. Nothing is decided; the options and the decisions are in sections 6 and 7.
+5. Tracing rays every tick for every pair would cost several times the server's present tick; a test reused while the players stay within a margin, or a table computed per map, is needed. The options are in section 6; the owner's choices of the same day in section 7 (a table per map, prototyped first; the audible players kept; no limit for spectators and demos).
 
 ## 2. What this engine sends today
 
@@ -84,13 +84,14 @@ The sounds, a decision of their own:
 
 Taken on 15 November 2026: no update rate by distance (it costs precision on the players far away); no priority per client (it would act only on a snapshot over its budget of 2,000 bytes, and step 9 already keeps the nearest entities when a message does not fit); interest culling wanted against wallhacks, exact, revealed a little early, with the camera.
 
-To take:
+Taken later the same day (owner), after the options above:
 
-1. The test: A, B or C, after a prototype has measured A's CPU with 32 players (here and on the VPS) and B's build time and memory on two or three maps.
-2. The camera's limits the server uses and cgame enforces: range, height, angle and pitch offsets (today 80 and 16 by default, no bound).
-3. The sounds: S1 to S4.
-4. Spectators not following anyone: everything, as today (a spectator could tell a player where the others are), or the culling of the spectator's own view.
-5. The server's demos (`svrecord`, `sv_autoDemo`): what the client was sent, culled, or every player in the PVS for an administrator's review (another set of entities to build per recorded client).
+1. The test: B at first sight, a table per map, since it costs nearly no CPU at run time; C, which adds rays for the pairs on the edge of the table's cells, only if B's early reveal (up to a cell) proves too generous. Neither may lower the precision or the responsiveness of the game: a player is never sent late, only early. A prototype measures B's build time and memory on two or three maps (and the cell size that keeps the early reveal to the edge of a wall) before it is written.
+2. Where the table comes from: a file in a pk3 when the map has one; otherwise computed by the server and kept in a cache; a tool to make the file, for those who want to ship it. How long the computation takes is measured first (the server's choice of computing it in the background while the map plays with today's PVS is to decide then).
+3. The camera's limits: a range of at most 120 and a height of at most 32 (the defaults 80 and 16 unchanged), enforced by cgame and used by the server. The angle and pitch offsets need no limit: they turn the camera within the same sphere around the head.
+4. The sounds: S2. A player one can hear stays heard exactly as today (players guess who is coming by the sound, and recent games keep it so); a hidden player within hearing distance is sent with his position and his sounds, not drawn by the client. His position is then in the packets, so a cheat can mark him: only the silent players are hidden from a wallhack, as in VALORANT and Counter-Strike, which publish nothing more against that and rely on their client-side anti-cheats (Vanguard, VAC) for it (not verified further). Sending a hidden player only while one of his sounds plays was looked at and not kept (owner): a sound follows its entity's position while it plays.
+5. Spectators: no limit; a spectator can follow any player, and sees everything as today.
+6. The server's demos: every player of the PVS, with no culling, for an administrator's review: the demo records the list of entities as it is before the culling (the demo already has its own frames, so only that list is kept for a recorded client). A client's own demo can only hold what the client was sent.
 
 ## 8. What was not read or verified
 
