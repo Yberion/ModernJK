@@ -161,6 +161,7 @@ Read in SDL 3's documentation and source (branch `main`) and in this repository 
 - **P8**: (b), the main loop waits with `SDL_DelayPrecise` instead of its busy last millisecond, in the last part; the process's CPU use and `netstats`' input margin at 100, 125, 144 with vertical sync and 333 frames per second check it.
 - **P9**: (b), macOS not built nor tested (no Mac), the code kept portable as SDL 3 is; an ARM64 build could be tested on the owner's Raspberry Pi 4B (Linux) if ARM64 becomes a target.
 - **The version**: SDL 3.4.20 (owner), the latest stable release, published on 3 November 2026; downloaded and vendored in part 1, on the owner's go.
+- **The menus** (owner, the same evening): a menu that shows a removed or changed setting is changed in the game's own pk3, with the part that changes the setting, and the UI's code that drives it (`codemp/ui/ui_main.c`, `UI_Update`) with it. Read in the game's menus (`ui/jamp/` in `assets0` to `assets3`): `setup.menu` and `ingame_setup.menu` hold the display's mode list, fullscreen and colour depth (through `ui_r_mode`, `ui_r_fullscreen`, `ui_r_colorbits`), the brightness (`r_gamma`, which then drives the pass of P2), the vertical sync, and the sound's quality and EAX (`s_khz`, `s_UseOpenAL`, removed with the audio library); `controls.menu` and `ingame_controls.menu` the joystick (`in_joystick`, with part 5). The menu files are the retail game's (Raven's and Activision's), not GPL code: a changed copy in the game's pk3 is what mods do.
 
 ## 8. The checks
 
