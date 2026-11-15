@@ -732,6 +732,7 @@ Survey and measurements: [surveys/random-numbers.md](surveys/random-numbers.md).
 
 - A base is kept up to 1.25 s of round trip or of loss.
 - Tested with 95 % of the server's messages dropped on the client: no whole snapshot needed, 2,171 snapshots coded against a base 9 messages back or more.
+- A client that stands still for a moment (a load, a hitch of the system) reads the snapshots that waited all at once: up to 1.28 s none is lost, events included (tested frozen 0.5, 1.0 and 1.2 s). With 32 snapshots, a freeze of a third of a second already lost some at 100 per second; the base game kept 1.6 s at 20.
 - Cost: the client keeps 17.4 MB of entity states instead of 4.4 MB. The server's memory is in section 18.
 
 <details>

@@ -145,7 +145,7 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 | staff and dual duplicate `EV_SABER_BLOCK` | kept (OpenJK's behaviour) |
 | B1 delta base refused above 29 messages (290 ms of round trip at 100 Hz) | done in part 5b: a window of 128 messages, a base up to 125 messages back (1.25 s); checked in game with 95 % of the messages dropped on the client |
 | B2 `svs.nextSnapshotEntities` wraps (about 2.3 h with 32 clients at 100 Hz) | done in part 5a: counted on 64 bits, the forced restart removed |
-| B3 cgame drops snapshots after a 320 ms hitch | follows part 5b: `CL_GetSnapshot` keeps `PACKET_BACKUP` snapshots, 1.28 s at 128; to test with a hitch in part 11 of step 14 |
+| B3 cgame drops snapshots after a 320 ms hitch | done with part 5b, tested on 15 November 2026: a client frozen up to 1.2 s loses no snapshot, 22 of 150 after 1.5 s (step 14 part 11, [step-14-fixed-tick.md](step-14-fixed-tick.md) section 19) |
 | B4 client ping 999 above 256 ms | done in part 4e: the client's ping over its last 256 packets, in real time |
 | S2 (the step document's inventory: packets drained once per frame) | wrong: the server runs each packet on arrival (`NET_Sleep` returns from `select`, `NET_Event` runs it); the step document is corrected |
 | W1 catch-up frames send one snapshot | kept (part 3): the snapshot holds the newest state; one per catch-up tick would send up to 25 messages at once |
