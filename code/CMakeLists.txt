@@ -17,9 +17,9 @@
 #============================================================================
 
 # Make sure the user is not executing this script directly
-if(NOT InOpenJK)
+if(NOT InModernJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InOpenJK)
+endif(NOT InModernJK)
 
 #    Add Game Project
 if(BuildSPGame)
@@ -59,7 +59,7 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		if(UseInternalOpenAL)
 			# There's a libs/OpenAL32.lib
 			# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
-			find_library(OpenALLibrary NAMES OpenAL32 PATHS "${OpenJKLibDir}")
+			find_library(OpenALLibrary NAMES OpenAL32 PATHS "${ModernJKLibDir}")
 			if(NOT OpenALLibrary)
 				message(FATAL_ERROR "UseInternalOpenAL enabled, but lib/OpenAL32.lib not found!")
 			endif(NOT OpenALLibrary)
@@ -82,20 +82,20 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 			set(SPEngineLibraries
 				${SPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x86/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x86/SDL2.lib
+				${ModernJKLibDir}/SDL2/lib/x86/SDL2main.lib
+				${ModernJKLibDir}/SDL2/lib/x86/SDL2.lib
 				)
 		else()
 			set(SPEngineLibraries
 				${SPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x64/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x64/SDL2.lib
+				${ModernJKLibDir}/SDL2/lib/x64/SDL2main.lib
+				${ModernJKLibDir}/SDL2/lib/x64/SDL2.lib
 				)
 		endif()
 
 		set(SPEngineIncludeDirectories
 			${SPEngineIncludeDirectories}
-			${OpenJKLibDir}/SDL2/include
+			${ModernJKLibDir}/SDL2/include
 			)
 	else()
 		find_package(SDL2 REQUIRED CONFIG)
@@ -162,7 +162,7 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/qcommon/common.cpp"
 		"${SPDir}/qcommon/cvar.cpp"
 
-		"${SPDir}/qcommon/files.cpp"
+		"${SPDir}/qcommon/files_engine.h"
 
 		"${SPDir}/qcommon/md4.cpp"
 		"${SPDir}/qcommon/msg.cpp"
@@ -193,6 +193,10 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/qcommon/ojk_saved_game_helper.h"
 		"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
 		"${SPDir}/qcommon/ojk_scope_guard.h"
+		"${SharedDir}/qcommon/files.cpp"
+		"${SharedDir}/qcommon/files.h"
+		"${SharedDir}/qcommon/q_pk3.cpp"
+		"${SharedDir}/qcommon/q_pk3.h"
 
 		${SharedCommonFiles}
 		)
@@ -365,13 +369,8 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 	source_group("sys" FILES ${SPEngineSysFiles})
 	set(SPEngineFiles ${SPEngineFiles} ${SPEngineSysFiles})
 
-    # Transparently use our bundled minizip.
-    list(APPEND SPEngineIncludeDirectories ${MINIZIP_INCLUDE_DIRS})
-    list(APPEND SPEngineLibraries          ${MINIZIP_LIBRARIES})
-
-    # Transparently use either bundled or system zlib.
-    list(APPEND SPEngineIncludeDirectories ${ZLIB_INCLUDE_DIR})
-    list(APPEND SPEngineLibraries          ${ZLIB_LIBRARIES})
+    # The library that inflates the pk3 files, vendored (lib/zlib-ng) and known to shared/qcommon/q_pk3.cpp only.
+    list(APPEND SPEngineLibraries zlib-ng)
 
 	# project macro so we can invoke it twice: for jk2 and for ja
 	function(add_sp_project ProjectName Label SPDirName InstallDir Component)
@@ -388,23 +387,23 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 			if(UseInternalSDL2)
 				if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 					set(SPEngineExtraInstallFiles
-						${OpenJKLibDir}/SDL2/bin/x86/SDL2.dll
+						${ModernJKLibDir}/SDL2/bin/x86/SDL2.dll
 						)
 				else()
 					set(SPEngineExtraInstallFiles
-						${OpenJKLibDir}/SDL2/bin/x64/SDL2.dll
+						${ModernJKLibDir}/SDL2/bin/x64/SDL2.dll
 						)
 				endif()
 			endif()
 		else(WIN32)
 			if(MakeApplicationBundles)
-				set_source_files_properties(${SPDirName}/macosx/OpenJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-				set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/OpenJK.icns)
+				set_source_files_properties(${SPDirName}/macosx/ModernJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+				set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/ModernJK.icns)
 				set_source_files_properties(${SPDirName}/macosx/English.lproj/InfoPlist.strings PROPERTIES MACOSX_PACKAGE_LOCATION Resources/English.lproj)
 				set(SPEngineFiles ${SPEngineFiles} ${SPDirName}/macosx/English.lproj/InfoPlist.strings)
 				
 				add_executable(${ProjectName} MACOSX_BUNDLE ${SPEngineFiles})
-				set_target_properties(${ProjectName} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${SPDirName}/macosx/OpenJKInfo.plist")
+				set_target_properties(${ProjectName} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${SPDirName}/macosx/ModernJKInfo.plist")
 			else(MakeApplicationBundles)
 				add_executable(${ProjectName} ${SPEngineFiles})
 			endif(MakeApplicationBundles)
@@ -436,12 +435,12 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		set_target_properties(${ProjectName} PROPERTIES COMPILE_DEFINITIONS "${SPEngineDefines}")
 
 		# Hide symbols not explicitly marked public.
-		set_property(TARGET ${ProjectName} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+		set_property(TARGET ${ProjectName} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 		set_target_properties(${ProjectName} PROPERTIES INCLUDE_DIRECTORIES "${SPEngineIncludeDirectories}")
 		set_target_properties(${ProjectName} PROPERTIES PROJECT_LABEL ${Label})
 		if(SPEngineLibraries)
-			target_link_libraries(${ProjectName} ${SPEngineLibraries})
+			target_link_libraries(${ProjectName} ${SPEngineLibraries} qlibm)
 		endif(SPEngineLibraries)
 	endfunction(add_sp_project)
 	if(BuildSPEngine)

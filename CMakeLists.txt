@@ -21,9 +21,9 @@
 cmake_minimum_required(VERSION 3.1...3.31)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 
-set(InOpenJK ON)
+set(InModernJK ON)
 
-set(ProjectName "OpenJK" CACHE STRING "Project Name")
+set(ProjectName "ModernJK" CACHE STRING "Project Name")
 project(${ProjectName})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -35,15 +35,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 #=============================================================================
 option(BuildPortableVersion "Build portable version (does not read or write files from your user/home directory" OFF)
 
-option(BuildMPEngine "Whether to create projects for the MP client (openjk.exe)" ON)
+option(BuildMPEngine "Whether to create projects for the MP client (modernjk.exe)" ON)
 option(BuildMPRdVanilla "Whether to create projects for the MP default renderer (rd-vanilla_x86.dll)" ON)
-option(BuildMPDed "Whether to create projects for the MP dedicated server (openjkded.exe)" ON)
+option(BuildMPDed "Whether to create projects for the MP dedicated server (modernjkded.exe)" ON)
 option(BuildMPGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
 option(BuildMPCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
 option(BuildMPUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
 option(BuildMPRend2 "Whether to create projects for the EXPERIMENTAL MP rend2 renderer (rd-rend2_x86.dll)" ON)
 
-option(BuildSPEngine "Whether to create projects for the SP engine (openjk_sp.exe)" ON)
+option(BuildSPEngine "Whether to create projects for the SP engine (modernjk_sp.exe)" ON)
 option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
 option(BuildSPRdVanilla "Whether to create projects for the SP default renderer (rdsp-vanilla_x86.dll)" ON)
 
@@ -60,33 +60,16 @@ cmake_dependent_option(BuildSymbolServer "Build WIP Windows Symbol Server (exper
 
 # Configure the use of bundled libraries.  By default, we assume the user is on
 # a platform that does not require any bundling.
-#
-# Note that we always use the bundled copy of minizip, since it is modified to
-# use Z_Malloc.
 
 set(UseInternalOpenALDefault OFF)
-set(UseInternalZlibDefault   OFF)
-set(UseInternalPNGDefault    OFF)
-set(UseInternalJPEGDefault   OFF)
 set(UseInternalSDL2Default   OFF)
 
 if(UseInternalLibs OR WIN32)
   set(UseInternalOpenALDefault ON)
-  set(UseInternalZlibDefault   ON)
-  set(UseInternalPNGDefault    ON)
-  set(UseInternalJPEGDefault   ON)
   set(UseInternalSDL2Default   ON)
 endif()
 
-if(APPLE)
-  set(UseInternalJPEGDefault ON)
-  set(UseInternalPNGDefault  ON)
-endif()
-
 option(UseInternalOpenAL "If set, use bundled OpenAL."  ${UseInternalOpenALDefault})
-option(UseInternalZlib   "If set, use bundled zlib."    ${UseInternalZlibDefault})
-option(UseInternalPNG    "If set, use bundled libpng."  ${UseInternalPNGDefault})
-option(UseInternalJPEG   "If set, use bundled libjpeg." ${UseInternalJPEGDefault})
 option(UseInternalSDL2   "If set, use bundled SDL2."    ${UseInternalSDL2Default})
 
 # This option won't appear on non-Apple platforms.
@@ -163,12 +146,12 @@ endif()
 # Binary names
 #
 #=============================================================================
-set(SPEngine "openjk_sp.${Architecture}")
+set(SPEngine "modernjk_sp.${Architecture}")
 set(SPGame "jagame${Architecture}")
 set(SPRDVanillaRenderer "rdsp-vanilla_${Architecture}")
-set(MPEngine "openjk.${Architecture}")
+set(MPEngine "modernjk.${Architecture}")
 set(MPVanillaRenderer "rd-vanilla_${Architecture}")
-set(MPDed "openjkded.${Architecture}")
+set(MPDed "modernjkded.${Architecture}")
 set(MPGame "jampgame${Architecture}")
 set(MPCGame "cgame${Architecture}")
 set(MPUI "ui${Architecture}")
@@ -176,7 +159,7 @@ set(MPRend2 "rd-rend2_${Architecture}")
 set(JK2SPEngine "openjo_sp.${Architecture}")
 set(JK2SPGame "jospgame${Architecture}")
 set(JK2SPVanillaRenderer "rdjosp-vanilla_${Architecture}")
-set(AssetsPk3 "openjk-${Architecture}.pk3")
+set(AssetsPk3 "modernjk-${Architecture}.pk3")
 # Library names
 set(MPBotLib "botlib")
 set(SharedLib "shared")
@@ -190,8 +173,8 @@ set(SPDir "${CMAKE_SOURCE_DIR}/code")
 set(MPDir "${CMAKE_SOURCE_DIR}/codemp")
 set(JK2SPDir "${CMAKE_SOURCE_DIR}/codeJK2")
 set(SharedDir ${CMAKE_SOURCE_DIR}/shared)
-set(OpenJKLibDir "${CMAKE_SOURCE_DIR}/lib")
-set(GSLIncludeDirectory "${OpenJKLibDir}/gsl-lite/include")
+set(ModernJKLibDir "${CMAKE_SOURCE_DIR}/lib")
+set(GSLIncludeDirectory "${ModernJKLibDir}/gsl-lite/include")
 
 include(InstallConfig)
 
@@ -232,7 +215,7 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
 	# We don't try to control symbol visibility under MSVC.
-	set(OPENJK_VISIBILITY_FLAGS "")
+	set(MODERNJK_VISIBILITY_FLAGS "")
 elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" MATCHES "Clang"))
 	# I hope this doesn't come back to bite me in the butt later on.
 	# Realistically though, can the C and CXX compilers be different?
@@ -242,7 +225,7 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	# ZLib explicitly declares symbols hidden, rather than defaulting to hidden.
 	#
 	# Note that -fvisibility=hidden is stronger than -fvisibility-inlines-hidden.
-	set(OPENJK_VISIBILITY_FLAGS "-fvisibility=hidden")
+	set(MODERNJK_VISIBILITY_FLAGS "-fvisibility=hidden")
 
 	# removes the -rdynamic flag at linking (which causes crashes for some reason)
 	set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
@@ -272,6 +255,11 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 
 	# enable somewhat modern C++
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+	# the same floating-point results on every compiler and target: no fused multiply-add contracted from a separate
+	# multiply and add (MSVC's /fp:precise does not contract); docs_rewrite/modernization/surveys/deterministic-math.md
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=off")
 
 	if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
@@ -372,11 +360,24 @@ set(SharedCommonFiles
 	"${SharedDir}/qcommon/q_color.c"
 	"${SharedDir}/qcommon/q_math.h"
 	"${SharedDir}/qcommon/q_math.c"
+	"${SharedDir}/qcommon/q_rand.h"
+	"${SharedDir}/qcommon/q_rand.c"
 	"${SharedDir}/qcommon/q_string.h"
 	"${SharedDir}/qcommon/q_string.c"
 	"${SharedDir}/qcommon/q_platform.h"
 	"${CMAKE_BINARY_DIR}/shared/qcommon/q_version.h"
 	)
+# The math functions whose results IEEE 754 does not fix (shared/qcommon/q_libm.h, included by q_math.h), the same
+# bits on every platform: LLVM libc's correctly rounded functions (lib/llvm-libc, C++17 inside). Every binary built
+# with SharedCommonFiles links it.
+add_library(qlibm STATIC "${SharedDir}/qcommon/q_libm.h" "${SharedDir}/qcommon/q_libm.cpp")
+target_include_directories(qlibm PRIVATE "${CMAKE_SOURCE_DIR}/lib/llvm-libc")
+target_compile_definitions(qlibm PRIVATE ${SharedDefines})   # ARCH_STRING and the others, for q_platform.h
+# an explicit flag: the -std=c++11 of CMAKE_CXX_FLAGS wins when the compiler's default already satisfies cxx_std_17
+target_compile_options(qlibm PRIVATE $<IF:$<CXX_COMPILER_ID:MSVC>,/std:c++17,-std=c++17>)
+set_target_properties(qlibm PROPERTIES POSITION_INDEPENDENT_CODE ON CXX_VISIBILITY_PRESET hidden
+	VISIBILITY_INLINES_HIDDEN ON)
+
 set(SharedCommonSafeFiles
 	"${SharedDir}/qcommon/safe/gsl.h"
 	"${SharedDir}/qcommon/safe/string.cpp"
@@ -390,26 +391,23 @@ set(SharedCommonSafeFiles
 # Adding all of the projects
 #
 #=============================================================================
-if(UseInternalJPEG)
-  add_subdirectory(lib/jpeg-9a)
-else()
-  find_package(JPEG REQUIRED)
-endif()
-
-if(UseInternalZlib)
-  add_subdirectory(lib/zlib)
-else()
-  find_package(ZLIB REQUIRED)
-endif()
-
-if(UseInternalPNG)
-  add_subdirectory(lib/libpng)
-else()
-  find_package(PNG REQUIRED)
-endif()
-
-# Always use bundled minizip (sets MINIZIP_{LIBRARIES,INCLUDE_DIR})
-add_subdirectory(lib/minizip)
+# zlib-ng, vendored (lib/zlib-ng/README.md): it inflates the pk3 files, for shared/qcommon/q_pk3.cpp only, under
+# its own names (zng_...). Built by its own CMake file on every platform; in a function, so that the settings of
+# its build stay out of this project's.
+function(modernjk_add_zlib_ng)
+	set(BUILD_SHARED_LIBS OFF)
+	set(BUILD_TESTING OFF)
+	set(SKIP_INSTALL_ALL ON)
+	set(WITH_GZFILEOP OFF)
+	# its CMake file includes CPack as this project did already: its package description goes to its own folder,
+	# not over this project's
+	unset(CPack_CMake_INCLUDED)
+	set(CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/lib/zlib-ng/CPackConfig.cmake")
+	set(CPACK_SOURCE_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/lib/zlib-ng/CPackSourceConfig.cmake")
+	add_subdirectory(lib/zlib-ng EXCLUDE_FROM_ALL)
+	set_target_properties(zlib-ng PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endfunction()
+modernjk_add_zlib_ng()
 
 # Add projects
 add_subdirectory(${SPDir})

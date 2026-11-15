@@ -1265,7 +1265,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	{
 		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
 			r_aviMotionJpegQuality->integer,
-			cmd->width, cmd->height, cBuf, padlen);
+			cmd->width, cmd->height, cBuf, padlen, false);
 		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
 	}
 	else
@@ -1564,7 +1564,8 @@ void R_Register( void )
 	// latched and archived variables
 	//
 	r_allowExtensions					= ri.Cvar_Get( "r_allowExtensions",				"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
-	r_ext_compressed_textures			= ri.Cvar_Get( "r_ext_compress_textures",			"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
+	// off by default: the driver compressing each texture as it is handed over stalled every load (most of a player model's)
+	r_ext_compressed_textures			= ri.Cvar_Get( "r_ext_compress_textures",			"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_compressed_lightmaps			= ri.Cvar_Get( "r_ext_compress_lightmaps",			"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_preferred_tc_method			= ri.Cvar_Get( "r_ext_preferred_tc_method",		"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_gamma_control					= ri.Cvar_Get( "r_ext_gamma_control",				"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
@@ -1742,7 +1743,7 @@ void R_Init( void ) {
 	//
 	for ( i = 0; i < FUNCTABLE_SIZE; i++ )
 	{
-		tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) ) );
+		tr.sinTable[i]		= Q_sinpif( i * 2.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) );
 		tr.squareTable[i]	= ( i < FUNCTABLE_SIZE/2 ) ? 1.0f : -1.0f;
 		tr.sawToothTable[i] = (float)i / FUNCTABLE_SIZE;
 		tr.inverseSawToothTable[i] = 1.0f - tr.sawToothTable[i];

@@ -1177,8 +1177,8 @@ static void SV_Status_f( void )
 	Com_Printf( "players : %i humans, %i bots (%i max)\n", humans, bots, sv_maxclients->integer - sv_privateClients->integer );
 	Com_Printf( "uptime  : %s\n", SV_CalcUptime() );
 
-	Com_Printf ("cl score ping name            address                                 rate \n");
-	Com_Printf ("-- ----- ---- --------------- --------------------------------------- -----\n");
+	Com_Printf ("cl score ping name            address                                \n");
+	Com_Printf ("-- ----- ---- --------------- ---------------------------------------\n");
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
 		if ( !cl->state )
@@ -1198,24 +1198,22 @@ static void SV_Status_f( void )
 
 		if (!avoidTruncation)
 		{
-			Com_Printf ("%2i %5i %s %-15.15s ^7%39s %5i\n",
+			Com_Printf ("%2i %5i %s %-15.15s ^7%39s\n",
 				i,
 				ps->persistant[PERS_SCORE],
 				state,
 				cl->name,
-				s,
-				cl->rate
+				s
 				);
 		}
 		else
 		{
-			Com_Printf ("%2i %5i %s %s ^7%39s %5i\n",
+			Com_Printf ("%2i %5i %s %s ^7%39s\n",
 				i,
 				ps->persistant[PERS_SCORE],
 				state,
 				cl->name,
-				s,
-				cl->rate
+				s
 				);
 		}
 	}
@@ -1524,21 +1522,6 @@ static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
 
-void SV_WriteDemoMessage ( client_t *cl, msg_t *msg, int headerBytes ) {
-	int		len, swlen;
-
-	// write the packet sequence
-	len = cl->netchan.outgoingSequence;
-	swlen = LittleLong( len );
-	FS_Write( &swlen, 4, cl->demo.demofile );
-
-	// skip the packet sequencing information
-	len = msg->cursize - headerBytes;
-	swlen = LittleLong( len );
-	FS_Write( &swlen, 4, cl->demo.demofile );
-	FS_Write( msg->data + headerBytes, len, cl->demo.demofile );
-}
-
 void SV_StopRecordDemo( client_t *cl ) {
 	int		len;
 
@@ -1548,6 +1531,7 @@ void SV_StopRecordDemo( client_t *cl ) {
 	}
 
 	// finish up
+	SV_NetcodecDemoStop( cl );
 	len = -1;
 	FS_Write (&len, 4, cl->demo.demofile);
 	FS_Write (&len, 4, cl->demo.demofile);
@@ -1616,14 +1600,8 @@ void SV_DemoFilename( char *buf, int bufSize ) {
 	Com_sprintf( buf, bufSize, "demo%s", timeStr );
 }
 
-// defined in sv_client.cpp
-extern void SV_CreateClientGameStateMessage( client_t *client, msg_t* msg );
-
 void SV_RecordDemo( client_t *cl, char *demoName ) {
 	char		name[MAX_OSPATH];
-	byte		bufData[MAX_MSGLEN];
-	msg_t		msg;
-	int			len;
 
 	if ( cl->demo.demorecording ) {
 		Com_Printf( "Already recording.\n" );
@@ -1646,32 +1624,17 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 	}
 	cl->demo.demorecording = qtrue;
 
-	// don't start saving messages until a non-delta compressed message is received
-	cl->demo.demowaiting = qtrue;
-
 	cl->demo.isBot = ( cl->netchan.remoteAddress.type == NA_BOT ) ? qtrue : qfalse;
 	cl->demo.botReliableAcknowledge = cl->reliableSent;
 
-	// write out the gamestate message
-	MSG_Init( &msg, bufData, sizeof( bufData ) );
-
-	// NOTE, MRE: all server->client messages now acknowledge
-	int tmp = cl->reliableSent;
-	SV_CreateClientGameStateMessage( cl, &msg );
-	cl->reliableSent = tmp;
-
-	// finished writing the client packet
-	MSG_WriteByte( &msg, svc_EOF );
-
-	// write it to the demo file
-	len = LittleLong( cl->netchan.outgoingSequence - 1 );
-	FS_Write( &len, 4, cl->demo.demofile );
-
-	len = LittleLong( msg.cursize );
-	FS_Write( &len, 4, cl->demo.demofile );
-	FS_Write( msg.data, msg.cursize, cl->demo.demofile );
-
-	// the rest of the demo file will be copied from net messages
+	// write out the gamestate message; the messages sent to the client from now on are coded again into the demo
+	// against the demo's own last snapshot (sv_netcodec.cpp, qcommon/demo_record.cpp)
+	if ( !SV_NetcodecDemoStart( cl ) ) {
+		Com_Printf( "ERROR: the gamestate could not be coded.\n" );
+		FS_FCloseFile( cl->demo.demofile );
+		cl->demo.demofile = 0;
+		cl->demo.demorecording = qfalse;
+	}
 }
 
 void SV_AutoRecordDemo( client_t *cl ) {
@@ -1982,6 +1945,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("weapontoggle", SV_WeaponToggle_f, "Toggle g_weaponDisable bits" );
 	Cmd_AddCommand ("svrecord", SV_Record_f, "Record a server-side demo" );
 	Cmd_AddCommand ("svstoprecord", SV_StopRecord_f, "Stop recording a server-side demo" );
+	Cmd_AddCommand ("svnetstats", SV_NetcodecStats_f, "Server CPU time and message codec statistics of each client since the last call" );
 	Cmd_AddCommand ("sv_rehashbans", SV_RehashBans_f, "Reloads banlist from file" );
 	Cmd_AddCommand ("sv_listbans", SV_ListBans_f, "Lists bans" );
 	Cmd_AddCommand ("sv_banaddr", SV_BanAddr_f, "Bans a user" );

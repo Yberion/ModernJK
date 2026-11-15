@@ -17,9 +17,9 @@
 #============================================================================
 
 # Make sure the user is not executing this script directly
-if(NOT InOpenJK)
+if(NOT InModernJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InOpenJK)
+endif(NOT InModernJK)
 
 set(MPCGameIncludeDirectories
 	"${MPDir}"
@@ -150,7 +150,7 @@ endif()
 if(MakeApplicationBundles AND BuildMPEngine)
 	install(TARGETS ${MPCGame}
 		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/OpenJK"
+		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 	install(TARGETS ${MPCGame}
 		LIBRARY
@@ -159,10 +159,10 @@ if(MakeApplicationBundles AND BuildMPEngine)
 elseif(WIN32)
 	install(TARGETS ${MPCGame}
 		RUNTIME
-		DESTINATION "${JKAInstallDir}/OpenJK"
+		DESTINATION "${JKAInstallDir}/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 
-	# Use OpenJK modules as default
+	# Use ModernJK modules as default
 	install(TARGETS ${MPCGame}
 		RUNTIME
 		DESTINATION "${JKAInstallDir}/base"
@@ -170,7 +170,7 @@ elseif(WIN32)
 else()
 	install(TARGETS ${MPCGame}
 		LIBRARY
-		DESTINATION "${JKAInstallDir}/OpenJK"
+		DESTINATION "${JKAInstallDir}/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 	install(TARGETS ${MPCGame}
 		LIBRARY
@@ -181,7 +181,7 @@ endif()
 set_target_properties(${MPCGame} PROPERTIES COMPILE_DEFINITIONS "${MPCGameDefines}")
 
 # Hide symbols not explicitly marked public.
-set_property(TARGET ${MPCGame} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+set_property(TARGET ${MPCGame} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 set_target_properties(${MPCGame} PROPERTIES INCLUDE_DIRECTORIES "${MPCGameIncludeDirectories}")
 set_target_properties(${MPCGame} PROPERTIES PROJECT_LABEL "MP Client Game Library")
@@ -189,3 +189,4 @@ set_target_properties(${MPCGame} PROPERTIES PROJECT_LABEL "MP Client Game Librar
 if(MPCGameLibraries)
 	target_link_libraries(${MPCGame} ${MPCGameLibraries})
 endif(MPCGameLibraries)
+target_link_libraries(${MPCGame} qlibm)

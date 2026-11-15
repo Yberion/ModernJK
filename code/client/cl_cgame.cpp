@@ -787,11 +787,11 @@ Ghoul2 Insert End
 		case CG_ANYLANGUAGE_READFROMSTRING2_JK2:
 			return CG_ANYLANGUAGE_READFROMSTRING2;
 			break;
-		case CG_OPENJK_MENU_PAINT_JK2:
-			return CG_OPENJK_MENU_PAINT;
+		case CG_MODERNJK_MENU_PAINT_JK2:
+			return CG_MODERNJK_MENU_PAINT;
 			break;
-		case CG_OPENJK_GETMENU_BYNAME_JK2:
-			return CG_OPENJK_GETMENU_BYNAME;
+		case CG_MODERNJK_GETMENU_BYNAME_JK2:
+			return CG_MODERNJK_GETMENU_BYNAME;
 			break;
 	}
 	return (cgameImport_t)-1;
@@ -1193,11 +1193,11 @@ Ghoul2 Insert End
 		Menu_PaintAll();
 		return 0;
 
-	case CG_OPENJK_MENU_PAINT:
+	case CG_MODERNJK_MENU_PAINT:
 		Menu_Paint( (menuDef_t *)VMA(1), (qboolean)(args[2] != 0) );
 		return 0;
 
-	case CG_OPENJK_GETMENU_BYNAME:
+	case CG_MODERNJK_GETMENU_BYNAME:
 		return (intptr_t)Menus_FindByName( (const char *)VMA(1) );
 
 	case CG_UI_STRING_INIT:

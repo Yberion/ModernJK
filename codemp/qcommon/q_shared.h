@@ -27,16 +27,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME			"openjk"
+#define PRODUCT_NAME			"modernjk"
 
-#define CLIENT_WINDOW_TITLE "OpenJK (MP)"
-#define CLIENT_CONSOLE_TITLE "OpenJK Console (MP)"
-#define HOMEPATH_NAME_UNIX "openjk"
-#define HOMEPATH_NAME_WIN "OpenJK"
+#define CLIENT_WINDOW_TITLE "ModernJK (MP)"
+#define CLIENT_CONSOLE_TITLE "ModernJK Console (MP)"
+#define HOMEPATH_NAME_UNIX "modernjk"
+#define HOMEPATH_NAME_WIN "ModernJK"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 
 #define	BASEGAME "base"
-#define OPENJKGAME "OpenJK"
+#define MODERNJKGAME "ModernJK"
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
@@ -883,6 +883,11 @@ typedef enum {
 #define	SNAPFLAG_RATE_DELAYED	1
 #define	SNAPFLAG_NOT_ACTIVE		2	// snapshot used during connection and for zombies
 #define SNAPFLAG_SERVERCOUNT	4	// toggled every map_restart so transitions can be detected
+
+// The fixed simulation tick in milliseconds, shared by the server, the client and the game module (plan step 14; it
+// replaces the sv_fps cvar): the server runs a game frame and sends a snapshot every tick, and every 20 Hz instant, where
+// the game's logic runs (game/g_local.h), is a tick.
+#define	TICK_MSEC				10
 
 //
 // per-level limits

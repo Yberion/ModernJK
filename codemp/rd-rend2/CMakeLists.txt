@@ -1,7 +1,7 @@
 # Make sure the user is not executing this script directly
-if(NOT InOpenJK)
+if(NOT InModernJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InOpenJK)
+endif(NOT InModernJK)
 
 set(MPRend2IncludeDirectories
 	"${SharedDir}"
@@ -93,10 +93,8 @@ set(MPRend2RdCommonFiles
 	"${MPDir}/rd-common/tr_common.h"
 	"${MPDir}/rd-common/tr_font.cpp"
 	"${MPDir}/rd-common/tr_font.h"
-	"${MPDir}/rd-common/tr_image_load.cpp"
-	"${MPDir}/rd-common/tr_image_jpg.cpp"
-	"${MPDir}/rd-common/tr_image_tga.cpp"
-	"${MPDir}/rd-common/tr_image_png.cpp"
+	"${SharedDir}/rd-common/tr_image_load.cpp"
+	"${SharedDir}/rd-common/tr_image_codec.cpp"
 	"${MPDir}/rd-common/tr_noise.cpp"
 	"${MPDir}/rd-common/tr_public.h"
 	"${MPDir}/rd-common/tr_types.h")
@@ -116,22 +114,8 @@ set(MPRend2CommonSafeFiles
 source_group("common/safe" FILES ${MPRend2CommonSafeFiles})
 set(MPRend2Files ${MPRend2Files} ${MPRend2CommonSafeFiles})
 
-# Transparently use either bundled or system libjpeg.
-list(APPEND MPRend2IncludeDirectories ${JPEG_INCLUDE_DIR})
-list(APPEND MPRend2Libraries          ${JPEG_LIBRARIES})
-
-# Transparently use either bundled or system libpng.  Order is important --
-# libpng used zlib, so it must come before it on the linker command line.
-list(APPEND MPRend2IncludeDirectories ${PNG_INCLUDE_DIRS})
-list(APPEND MPRend2Libraries          ${PNG_LIBRARIES})
-
-# Transparently use either bundled or system zlib.
-list(APPEND MPRend2IncludeDirectories ${ZLIB_INCLUDE_DIR})
-list(APPEND MPRend2Libraries          ${ZLIB_LIBRARIES})
-
-# Transparently use our bundled minizip.
-list(APPEND MPRend2IncludeDirectories ${MINIZIP_INCLUDE_DIRS})
-list(APPEND MPRend2Libraries          ${MINIZIP_LIBRARIES})
+# The image libraries, vendored and compiled inside shared/rd-common/tr_image_codec.cpp: Wuffs decodes, stb_image_write writes.
+list(APPEND MPRend2IncludeDirectories "${CMAKE_SOURCE_DIR}/lib/wuffs" "${CMAKE_SOURCE_DIR}/lib/stb")
 
 find_package(OpenGL REQUIRED)
 set(MPRend2IncludeDirectories ${MPRend2IncludeDirectories} ${OPENGL_INCLUDE_DIR})
@@ -146,7 +130,7 @@ set(MPRend2Files
 	${CMAKE_CURRENT_BINARY_DIR}/glsl_shaders.h
 	${CMAKE_CURRENT_BINARY_DIR}/glsl_shaders.cpp)
 
-set(MPRend2IncludeDirectories ${MPRend2IncludeDirectories} ${OpenJKLibDir})
+set(MPRend2IncludeDirectories ${MPRend2IncludeDirectories} ${ModernJKLibDir})
 add_library(${MPRend2} SHARED ${MPRend2Files})
 
 if(NOT MSVC)
@@ -176,10 +160,10 @@ endif()
 set_target_properties(${MPRend2} PROPERTIES COMPILE_DEFINITIONS "${SharedDefines}")
 
 # Hide symbols not explicitly marked public.
-set_property(TARGET ${MPRend2} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+set_property(TARGET ${MPRend2} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 set_target_properties(${MPRend2} PROPERTIES INCLUDE_DIRECTORIES "${MPRend2IncludeDirectories}")
 set_target_properties(${MPRend2} PROPERTIES PROJECT_LABEL "MP Rend2 Renderer")
-target_link_libraries(${MPRend2} ${MPRend2Libraries})
+target_link_libraries(${MPRend2} ${MPRend2Libraries} qlibm)
 target_include_directories(${MPRend2} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # GLSL shader file generator

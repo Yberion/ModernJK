@@ -584,10 +584,10 @@ Since the modules are incompatible, might as well break base compat even further
 
 void *cgi_UI_GetMenuByName( const char *menu )
 {
-	return (void *)Q_syscall( CG_OPENJK_GETMENU_BYNAME, menu );
+	return (void *)Q_syscall( CG_MODERNJK_GETMENU_BYNAME, menu );
 }
 
 void cgi_UI_Menu_Paint( void *menu, qboolean force )
 {
-	Q_syscall( CG_OPENJK_MENU_PAINT, menu, force );
+	Q_syscall( CG_MODERNJK_MENU_PAINT, menu, force );
 }

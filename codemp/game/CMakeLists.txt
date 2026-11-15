@@ -17,9 +17,9 @@
 #============================================================================
 
 # Make sure the user is not executing this script directly
-if(NOT InOpenJK)
+if(NOT InModernJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InOpenJK)
+endif(NOT InModernJK)
 
 set(MPGameIncludeDirectories
 	"${MPDir}"
@@ -68,6 +68,7 @@ set(MPGameGameFiles
 	"${MPDir}/game/g_saga.c"
 	"${MPDir}/game/g_session.c"
 	"${MPDir}/game/g_spawn.c"
+	"${MPDir}/game/g_scenario.c"
 	"${MPDir}/game/g_svcmds.c"
 	"${MPDir}/game/g_syscalls.c"
 	"${MPDir}/game/g_target.c"
@@ -218,7 +219,7 @@ endif()
 if(MakeApplicationBundles AND BuildMPEngine)
 	install(TARGETS ${MPGame}
 		LIBRARY
-		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/OpenJK"
+		DESTINATION "${JKAInstallDir}/${MPEngine}.app/Contents/MacOS/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 	install(TARGETS ${MPGame}
 		LIBRARY
@@ -227,10 +228,10 @@ if(MakeApplicationBundles AND BuildMPEngine)
 elseif(WIN32)
 	install(TARGETS ${MPGame}
 		RUNTIME
-		DESTINATION "${JKAInstallDir}/OpenJK"
+		DESTINATION "${JKAInstallDir}/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 
-	# Use OpenJK modules as default
+	# Use ModernJK modules as default
 	install(TARGETS ${MPGame}
 		RUNTIME
 		DESTINATION "${JKAInstallDir}/base"
@@ -238,7 +239,7 @@ elseif(WIN32)
 else()
 	install(TARGETS ${MPGame}
 		LIBRARY
-		DESTINATION "${JKAInstallDir}/OpenJK"
+		DESTINATION "${JKAInstallDir}/ModernJK"
 		COMPONENT ${JKAMPCoreComponent})
 	install(TARGETS ${MPGame}
 		LIBRARY
@@ -249,7 +250,7 @@ endif()
 set_target_properties(${MPGame} PROPERTIES COMPILE_DEFINITIONS "${MPGameDefines}")
 
 # Hide symbols not explicitly marked public.
-set_property(TARGET ${MPGame} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+set_property(TARGET ${MPGame} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 set_target_properties(${MPGame} PROPERTIES INCLUDE_DIRECTORIES "${MPGameIncludeDirectories}")
 set_target_properties(${MPGame} PROPERTIES PROJECT_LABEL "MP Game Library")
@@ -257,3 +258,4 @@ set_target_properties(${MPGame} PROPERTIES PROJECT_LABEL "MP Game Library")
 if(MPGameLibraries)
 	target_link_libraries(${MPGame} ${MPGameLibraries})
 endif(MPGameLibraries)
+target_link_libraries(${MPGame} qlibm)

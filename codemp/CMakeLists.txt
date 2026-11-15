@@ -17,11 +17,15 @@
 #============================================================================
 
 # Make sure the user is not executing this script directly
-if(NOT InOpenJK)
+if(NOT InModernJK)
 	message(FATAL_ERROR "Use the top-level cmake script!")
-endif(NOT InOpenJK)
+endif(NOT InModernJK)
 
 set(MPSharedDefines ${SharedDefines})
+
+# Message codec of the new netcode: the static library netcodec::netcodec (C++20 inside; the engine includes
+# netcodec/engine.h, which is C++11). Linked by the client and the dedicated server (plan step 7).
+add_subdirectory("${MPDir}/netcodec")
 
 #    Add Game Project
 if(BuildMPGame)
@@ -164,7 +168,7 @@ if(BuildMPEngine OR BuildMPDed)
 	add_library(${MPBotLib} STATIC ${MPBotlibFiles})
 
 	# Hide symbols not explicitly marked public.
-	set_property(TARGET ${MPBotLib} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+	set_property(TARGET ${MPBotLib} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 	set_target_properties(${MPBotLib} PROPERTIES COMPILE_DEFINITIONS "${MPBotlibDefines}")
 	set_target_properties(${MPBotLib} PROPERTIES INCLUDE_DIRECTORIES "${MPBotlibIncludeDirectories}")
@@ -173,7 +177,7 @@ if(BuildMPEngine OR BuildMPDed)
 	#    Common files/libraries/defines of both Engine and Dedicated Server
 
 	# libraries: Botlib
-	set(MPEngineAndDedLibraries ${MPBotLib})
+	set(MPEngineAndDedLibraries ${MPBotLib} netcodec::netcodec qlibm)
 	# Platform-specific libraries
 	if(WIN32)
 		set(MPEngineAndDedLibraries ${MPEngineAndDedLibraries} "winmm" "wsock32")
@@ -182,13 +186,8 @@ if(BuildMPEngine OR BuildMPDed)
 	# Include directories
 	set(MPEngineAndDedIncludeDirectories ${MPDir} ${SharedDir} ${GSLIncludeDirectory} ${CMAKE_BINARY_DIR}/shared)
 
-	# Transparently use our bundled minizip.
-	list(APPEND MPEngineAndDedIncludeDirectories ${MINIZIP_INCLUDE_DIRS})
-	list(APPEND MPEngineAndDedLibraries          ${MINIZIP_LIBRARIES})
-
-	# Transparently use either bundled or system zlib.
-	list(APPEND MPEngineAndDedIncludeDirectories ${ZLIB_INCLUDE_DIR})
-	list(APPEND MPEngineAndDedLibraries          ${ZLIB_LIBRARIES})
+	# The library that inflates the pk3 files, vendored (lib/zlib-ng) and known to shared/qcommon/q_pk3.cpp only.
+	list(APPEND MPEngineAndDedLibraries zlib-ng)
 
 	set(MPEngineAndDedCgameFiles
 		"${MPDir}/cgame/cg_public.h"
@@ -230,8 +229,10 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/cmd.cpp"
 		"${MPDir}/qcommon/common.cpp"
 		"${MPDir}/qcommon/cvar.cpp"
+		"${MPDir}/qcommon/demo_record.cpp"
+		"${MPDir}/qcommon/demo_record.h"
 		"${MPDir}/qcommon/disablewarnings.h"
-		"${MPDir}/qcommon/files.cpp"
+		"${MPDir}/qcommon/files_engine.h"
 		"${MPDir}/qcommon/game_version.h"
 		"${MPDir}/qcommon/GenericParser2.cpp"
 		"${MPDir}/qcommon/GenericParser2.h"
@@ -260,6 +261,10 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/timing.h"
 		"${MPDir}/qcommon/vm.cpp"
 		"${MPDir}/qcommon/z_memman_pc.cpp"
+		"${SharedDir}/qcommon/files.cpp"
+		"${SharedDir}/qcommon/files.h"
+		"${SharedDir}/qcommon/q_pk3.cpp"
+		"${SharedDir}/qcommon/q_pk3.h"
 
 		${SharedCommonFiles}
 		)
@@ -325,6 +330,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/server/sv_init.cpp"
 		"${MPDir}/server/sv_main.cpp"
 		"${MPDir}/server/sv_net_chan.cpp"
+		"${MPDir}/server/sv_netcodec.cpp"
 		"${MPDir}/server/sv_snapshot.cpp"
 		"${MPDir}/server/sv_world.cpp"
 		"${MPDir}/server/sv_gameapi.cpp"
@@ -369,7 +375,7 @@ if(BuildMPEngine)
 		if(UseInternalOpenAL)
 			# There's a libs/OpenAL32.lib
 			# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
-			find_library(OpenALLibrary NAMES OpenAL32 PATHS ${OpenJKLibDir})
+			find_library(OpenALLibrary NAMES OpenAL32 PATHS ${ModernJKLibDir})
 			if(NOT OpenALLibrary)
 				message(FATAL_ERROR "UseInternalOpenAL enabled, but lib/OpenAL32.lib not found!")
 			endif(NOT OpenALLibrary)
@@ -385,20 +391,20 @@ if(BuildMPEngine)
 		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 			set(MPEngineLibraries
 				${MPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x86/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x86/SDL2.lib
+				${ModernJKLibDir}/SDL2/lib/x86/SDL2main.lib
+				${ModernJKLibDir}/SDL2/lib/x86/SDL2.lib
 				)
 		else()
 			set(MPEngineLibraries
 				${MPEngineLibraries}
-				${OpenJKLibDir}/SDL2/lib/x64/SDL2main.lib
-				${OpenJKLibDir}/SDL2/lib/x64/SDL2.lib
+				${ModernJKLibDir}/SDL2/lib/x64/SDL2main.lib
+				${ModernJKLibDir}/SDL2/lib/x64/SDL2.lib
 				)
 		endif()
 
 		set(MPEngineIncludeDirectories
 			${MPEngineIncludeDirectories}
-			${OpenJKLibDir}/SDL2/include
+			${ModernJKLibDir}/SDL2/include
 			)
 	else()
 		find_package(SDL2 REQUIRED CONFIG)
@@ -437,6 +443,7 @@ if(BuildMPEngine)
 		"${MPDir}/client/cl_main.cpp"
 		"${MPDir}/client/cl_net_chan.cpp"
 		"${MPDir}/client/cl_parse.cpp"
+		"${MPDir}/client/cl_netcodec.cpp"
 		"${MPDir}/client/cl_scrn.cpp"
 		"${MPDir}/client/cl_ui.cpp"
 		"${MPDir}/client/cl_uiapi.cpp"
@@ -532,7 +539,7 @@ if(BuildMPEngine)
 	if(WIN32)
 		set(MPEngineWin32Files
 			"${MPDir}/win32/resource.h"
-			"${MPDir}/win32/openjk.rc"
+			"${MPDir}/win32/modernjk.rc"
 			"${SharedDir}/sys/win_manifest.manifest"
 			)
 
@@ -558,9 +565,9 @@ if(BuildMPEngine)
 	if(MakeApplicationBundles)
 		set(MACOSX_BUNDLE_BUNDLE_NAME ${MPEngine})
 		set(MACOSX_BUNDLE_DISPLAY_NAME ${MPEngine})
-		set(MACOSX_BUNDLE_ICON_FILE OpenJK.icns)
-		set_source_files_properties(${MPDir}/macosx/OpenJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-		set(MPEngineFiles ${MPEngineFiles} ${MPDir}/macosx/OpenJK.icns)
+		set(MACOSX_BUNDLE_ICON_FILE ModernJK.icns)
+		set_source_files_properties(${MPDir}/macosx/ModernJK.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+		set(MPEngineFiles ${MPEngineFiles} ${MPDir}/macosx/ModernJK.icns)
 		set_source_files_properties(${MPDir}/macosx/English.lproj/InfoPlist.strings PROPERTIES MACOSX_PACKAGE_LOCATION Resources/English.lproj)
 		set(MPEngineFiles ${MPEngineFiles} ${MPDir}/macosx/English.lproj/InfoPlist.strings)
 	endif(MakeApplicationBundles)
@@ -570,18 +577,18 @@ if(BuildMPEngine)
 		if(UseInternalSDL2)
 			if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 				set(MPEngineExtraInstallFiles
-					${OpenJKLibDir}/SDL2/bin/x86/SDL2.dll
+					${ModernJKLibDir}/SDL2/bin/x86/SDL2.dll
 					)
 			else()
 				set(MPEngineExtraInstallFiles
-					${OpenJKLibDir}/SDL2/bin/x64/SDL2.dll
+					${ModernJKLibDir}/SDL2/bin/x64/SDL2.dll
 					)
 			endif()
 		endif()
 	else(WIN32)
 		if(MakeApplicationBundles)
 			add_executable(${MPEngine} MACOSX_BUNDLE ${MPEngineFiles})
-			set_target_properties(${MPEngine} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${MPDir}/macosx/OpenJKInfo.plist")
+			set_target_properties(${MPEngine} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${MPDir}/macosx/ModernJKInfo.plist")
 		else(MakeApplicationBundles)
 			add_executable(${MPEngine} ${MPEngineFiles})
 		endif(MakeApplicationBundles)
@@ -613,7 +620,7 @@ if(BuildMPEngine)
 	set_target_properties(${MPEngine} PROPERTIES COMPILE_DEFINITIONS "${MPEngineDefines}")
 
 	# Hide symbols not explicitly marked public.
-	set_property(TARGET ${MPEngine} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+	set_property(TARGET ${MPEngine} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 	set_target_properties(${MPEngine} PROPERTIES INCLUDE_DIRECTORIES "${MPEngineIncludeDirectories}")
 	set_target_properties(${MPEngine} PROPERTIES PROJECT_LABEL "MP Client")
@@ -660,7 +667,7 @@ if(BuildMPDed)
 	set(MPDedFiles ${MPDedFiles} ${MPDedNullFiles})
 	if(WIN32)
 		set(MPDedWin32Files
-			"${MPDir}/win32/openjkded.rc"
+			"${MPDir}/win32/modernjkded.rc"
 			)
 		source_group("win32" FILES ${MPDedWin32Files})
 		set(MPDedFiles ${MPDedFiles} ${MPDedWin32Files})
@@ -705,7 +712,7 @@ if(BuildMPDed)
 	set_target_properties(${MPDed} PROPERTIES COMPILE_DEFINITIONS "${MPDedDefines}")
 
 	# Hide symbols not explicitly marked public.
-	set_property(TARGET ${MPDed} APPEND PROPERTY COMPILE_OPTIONS ${OPENJK_VISIBILITY_FLAGS})
+	set_property(TARGET ${MPDed} APPEND PROPERTY COMPILE_OPTIONS ${MODERNJK_VISIBILITY_FLAGS})
 
 	set_target_properties(${MPDed} PROPERTIES INCLUDE_DIRECTORIES "${MPDedIncludeDirectories}")
 	set_target_properties(${MPDed} PROPERTIES PROJECT_LABEL "MP Dedicated Server")
