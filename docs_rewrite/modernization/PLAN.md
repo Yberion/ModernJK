@@ -211,19 +211,19 @@ Placed on 14 November 2026 (owner: every open point gets a place; the parts are 
 
 ### Step 15: a new platform layer on SDL 3 (L)
 
-Depends on: step 14 (it touches the input that step 14 settles). Added on 14 November 2026 (owner). The survey, the design and the decisions to take are in [surveys/platform-layer.md](surveys/platform-layer.md); nothing is implemented.
+Depends on: step 14 (it touches the input that step 14 settles). Added on 14 November 2026 (owner). The survey, the design and the decisions are in [surveys/platform-layer.md](surveys/platform-layer.md); the decisions P1 to P9 were taken on 15 November 2026 (owner, that survey's section 7), and the parts below carry them; nothing is implemented.
 
 The client's platform code (window and OpenGL context, input, sound device, joystick: `shared/sdl/`, SDL 2.0.12 of 2020, inherited from ioquake3 and adapted from SDL 1.2) is replaced by a layer written from zero on SDL 3: the same features for the player, no workaround, no fallback for hardware that no longer exists, the present practices, as few settings as possible. Not a port: the present files are kept only for the knowledge they hold (the key translation, the character set). The dedicated server is not concerned (it does not use SDL).
 
 - A module of its own, `codemp/platform/`, in C++20 by the C++ Core Guidelines, with a public header the engine can include; for the multiplayer client only. `shared/sdl/` stays for the single-player and Jedi Outcast trees, and stays selectable by a CMake option for the multiplayer client until the new layer is accepted.
-- SDL 3 at a pinned release, built from source with the project (it is in neither Debian 12 nor Ubuntu 24.04) and shipped with the client.
+- SDL 3 at a pinned release, 3.4.20 (owner, 15 November 2026), built from source with the project (it is in neither Debian 12 nor Ubuntu 24.04) and shipped with the client. macOS: the code kept portable, not built nor tested (decision P9); 32-bit is not a criterion (owner).
 - Parts, in this order, each built and checked on Windows and Linux before the next:
-  1. the build and the window with its OpenGL context: three states (window, borderless fullscreen, exclusive fullscreen with one of the screen's modes), the switch without a video restart, several screens, the pixel density, one request for the context and one retry;
-  2. the keyboard and the mouse: events with their time, the keys by their place (decision P1), text only while a text field is open, relative mode without warp; read at the frames and at the ticks (step 14 part 10);
-  3. the sound device: the mixer asked for samples by the device, the system's default device followed (the loudness that depended on the frame rate was in cgame: fixed in step 14 part 11 on 15 November 2026);
-  4. the gamma in the renderer, since SDL 3 has no gamma ramp: one pass at the end of the frame (decision P2);
+  1. the build and the window with its OpenGL context: three states (window, borderless fullscreen by default, exclusive fullscreen with one of the screen's modes; decision P4), the switch without a video restart, alt-tab without a change of the screen's mode, several screens, the pixel density, one request for the context and one retry; the settings for hardware that no longer exists removed (P3); measured: whether Windows presents a borderless OpenGL window directly or through the compositor;
+  2. the keyboard and the mouse: events with their own time (on Windows the raw keyboard, decision P7), the keys by the layout's symbol, every key bindable (P1), the console key the key under Escape (with Shift it types its character), text only while a text field is open, relative mode without warp; read at the frames and at the ticks (step 14 part 10);
+  3. the sound: one library for every system behind a simple interface, chosen by a survey of the audio libraries ([surveys/audio-libraries.md](surveys/audio-libraries.md); decisions P5 and P6), every feature kept, the reverb included; the system's default device followed; muted when the window loses the focus, by default (the loudness that depended on the frame rate was in cgame: fixed in step 14 part 11 on 15 November 2026);
+  4. the gamma in the renderer, since SDL 3 has no gamma ramp: one pass at the end of the frame with today's ramp values (decision P2);
   5. the gamepad through SDL's gamepad API;
-  6. optional: the main loop's wait on a high-resolution timer instead of its busy loop.
+  6. the main loop's wait with `SDL_DelayPrecise` instead of its busy last millisecond (decision P8).
 - Check: on Windows 11 and Linux (X11 and Wayland), the feel of the mouse and the keys unchanged (the same turn for the same mouse movement, the binds, the keypad, the console key on QWERTY and AZERTY, text with accents); `netstats`' input margin no higher at 100, 125 and 333 frames per second; the display's three states, two screens, alt-tab; the same brightness on screenshots; the sound following the default device; no setting needed.
 
 ### Step 16: points set aside (no order)
