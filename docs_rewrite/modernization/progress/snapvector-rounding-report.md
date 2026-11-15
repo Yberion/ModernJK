@@ -1,6 +1,6 @@
 # SnapVector / Sys_SnapVector rounding: findings and one change to make
 
-Date: 10 November 2026. Branch: `feature/poc-netcode` (the fix: the commit of plan step 6 that makes `Sys_SnapVector` and `SnapVector` round ties to even).
+Date: 10 November 2026. Repository: ModernJK (the fix: the commit of plan step 6 that makes `Sys_SnapVector` and `SnapVector` round ties to even).
 Audience: the agent that edits the ModernJK tree. Everything needed is in this file.
 
 ## What to do

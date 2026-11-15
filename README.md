@@ -2,7 +2,7 @@
 
 ModernJK is a fork of [OpenJK](https://github.com/JACoders/OpenJK) that modernizes the multiplayer game of Jedi Academy: a new network codec in both directions, a fixed 100 Hz tick with the game's rules kept at their 20 Hz pace, the same results on Windows and Linux (one math library, one random generator), network settings fixed or computed instead of set by the player, and every library built with the project. It is not compatible with OpenJK or the base game: a ModernJK client does not play on their servers, and their demos do not play on ModernJK.
 
-The work is in progress on the branch `feature/poc-netcode`. Only the multiplayer game is worked on; the single-player and Jedi Outcast code is kept compiling and is not tested.
+The work is in progress. Only the multiplayer game is worked on; the single-player and Jedi Outcast code is kept compiling and is not tested.
 
 ## Documentation
 

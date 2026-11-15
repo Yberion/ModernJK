@@ -730,8 +730,9 @@ Ghoul2 Insert End
 			BG_GiveMeVectorFromMatrix(&boltMatrix, POSITIVE_X, flashdir);
 		}
 
-		if ( cg.time - cent->muzzleFlashTime <= MUZZLE_FLASH_TIME + 10 )
-		{	// Handle muzzle flashes
+		if ( cent->muzzleEffectTime != cent->muzzleFlashTime )
+		{	// Handle muzzle flashes: once per shot, not at every frame of the flash (the effect carries the shot's sound)
+			cent->muzzleEffectTime = cent->muzzleFlashTime;
 			if ( cent->currentState.eFlags & EF_ALT_FIRING )
 			{	// Check the alt firing first.
 				if (weapon->altMuzzleEffect)

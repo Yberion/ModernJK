@@ -16,7 +16,7 @@ shift
 SCRATCH="${GAMESTATS_DIR:-C:/Users/Yberion/AppData/Local/Temp/gamestats}"
 mkdir -p "$SCRATCH"
 BUILD="${BUILD:-E:/Git/jka/ModernJK/build-netcodec/modernjk-clang}"	# the folder of modernjkded.x86_64.exe
-GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
+GAME="E:/Jeux/Jedi Academy default - ModernJK"
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/x86_64-w64-mingw32/bin:/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 
 # kills the dedicated server whose command line holds this text (its own fs_homepath)

@@ -4,7 +4,7 @@
 tag="$1"; map="$2"; mode="$3"
 BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
-GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
+GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
 home="$SCR/cov_$tag"; rm -rf "$home"; mkdir -p "$home/base"; cp "$BUILD/jampgamex86_64.dll" "$home/base/"
 names=(Alora Chewbacca Cultist Desann Gran Noghri Rodian Tavion)

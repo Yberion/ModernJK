@@ -2,7 +2,7 @@
 
 This plan turns [04](study/04-recommendations.md) into steps to do one after the other. Each step has a deliverable, a check that says when it is done, and the steps it depends on. Progress, results of finished steps and the next action are in [progress/README.md](progress/README.md). The plan follows the owner's goals listed in the study's [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, netcode that other JKA forks can reuse, and Windows and Linux (x86 and x64) as targets.
 
-The work happens in this repository (ModernJK, a fork of OpenJK, branch `feature/poc-netcode`). Paths are relative to `codemp/`; where a function is cited, its line in this tree is in [study/08-openjk.md](study/08-openjk.md) section 8.6. Effort labels: S = days, M = weeks, L = months, for one engineer who knows the code.
+The work happens in this repository (ModernJK, a fork of OpenJK). Paths are relative to `codemp/`; where a function is cited, its line in this tree is in [study/08-openjk.md](study/08-openjk.md) section 8.6. Effort labels: S = days, M = weeks, L = months, for one engineer who knows the code.
 
 ## 1. Principles
 
@@ -220,7 +220,7 @@ The client's platform code (window and OpenGL context, input, sound device, joys
 - Parts, in this order, each built and checked on Windows and Linux before the next:
   1. the build and the window with its OpenGL context: three states (window, borderless fullscreen, exclusive fullscreen with one of the screen's modes), the switch without a video restart, several screens, the pixel density, one request for the context and one retry;
   2. the keyboard and the mouse: events with their time, the keys by their place (decision P1), text only while a text field is open, relative mode without warp; read at the frames and at the ticks (step 14 part 10);
-  3. the sound device: the mixer asked for samples by the device, the system's default device followed; with it the loudness that depends on the frame rate (step 14 part 11);
+  3. the sound device: the mixer asked for samples by the device, the system's default device followed (the loudness that depended on the frame rate was in cgame: fixed in step 14 part 11 on 15 November 2026);
   4. the gamma in the renderer, since SDL 3 has no gamma ramp: one pass at the end of the frame (decision P2);
   5. the gamepad through SDL's gamepad API;
   6. optional: the main loop's wait on a high-resolution timer instead of its busy loop.

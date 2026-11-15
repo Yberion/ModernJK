@@ -344,6 +344,7 @@ typedef struct centity_s {
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
+	int				muzzleEffectTime;	// the muzzleFlashTime of the shot whose muzzle effect was played
 	int				previousEvent;
 //	int				teleportFlag;
 

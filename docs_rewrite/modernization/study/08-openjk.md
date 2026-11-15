@@ -1,6 +1,6 @@
 # 8. OpenJK: what differs from the 1.01 tree, and where the code is
 
-This repository, ModernJK, is a fork of OpenJK (branch `feature/poc-netcode`, forked from OpenJK `260c59c2`, 29 September 2026) and is the proof-of-concept base of the rewrite. The analysis in [02](02-engine-code-findings.md) and [07](07-transport-study.md) cites the 1.01 tree (`E:\Git\jka\jediacademy\codemp`), the code of the server that produced the captures. This page says what is different in OpenJK, what was re-checked here, and where every function is in this tree. Paths are relative to `codemp/` unless stated.
+This repository, ModernJK, is a fork of OpenJK (forked from OpenJK `260c59c2`, 29 September 2026) and is the proof-of-concept base of the rewrite. The analysis in [02](02-engine-code-findings.md) and [07](07-transport-study.md) cites the 1.01 tree (`E:\Git\jka\jediacademy\codemp`), the code of the server that produced the captures. This page says what is different in OpenJK, what was re-checked here, and where every function is in this tree. Paths are relative to `codemp/` unless stated.
 
 **The 1.01 server stays the reference for the measurements.** Where OpenJK differs, the difference is either a default setting (a cvar that can be set back) or one rule of the pilot player state, described below.
 

@@ -4,7 +4,7 @@
 map="$1"; out="$2"; K="${3:-64}"; every="${4:-8}"
 BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
-GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
+GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
 home="$SCR/dump_${map//\//_}"
 rm -rf "$home"; mkdir -p "$home/base"

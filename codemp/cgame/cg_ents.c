@@ -163,6 +163,7 @@ void CG_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t veloc
 	{ //if this is the case, just update the properties of the looping sound and return.
 		VectorCopy(origin, cSound->origin);
 		VectorCopy(velocity, cSound->velocity);
+		return;
 	}
 	else if (cent->numLoopingSounds >= MAX_CG_LOOPSOUNDS)
 	{ //Just don't add it then I suppose.

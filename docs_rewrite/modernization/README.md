@@ -1,6 +1,6 @@
 # Modernizing Jedi Academy multiplayer: documentation of the branch
 
-This folder documents the work of the branch `feature/poc-netcode` of ModernJK, a fork of OpenJK, on its multiplayer code. The work began on 3 November 2026 as a study of the network coding and now covers more than the netcode. By subject, with the documents and the tools of each:
+This folder documents the work on the multiplayer code of ModernJK, a fork of OpenJK. The work began on 3 November 2026 as a study of the network coding and now covers more than the netcode. By subject, with the documents and the tools of each:
 
 | subject | state | documents | tools and code |
 |---|---|---|---|

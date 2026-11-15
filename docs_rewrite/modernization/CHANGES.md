@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 15 November 2026. Branch `feature/poc-netcode`, compared with OpenJK `master` at `260c59c29`. Multiplayer only (`codemp/` and the shared code it uses); single player is not built.
+Last update: 15 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`codemp/` and the shared code it uses); single player is not built.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the owner's goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -155,7 +155,7 @@ Each line links to its section.
 |---|---|---|
 | [23. Server](#23-server-fixes) | an idle Linux server used a tenth of a core; a clock change could freeze it; work repeated for nothing at every tick | it sleeps; a clock that only moves forward; about a third less time per tick |
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step | fixed |
-| [25. Client](#25-client-fixes-outside-the-netcode) | menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
+| [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
 **Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. Not changed yet](#30-not-changed-yet).
 
@@ -944,6 +944,8 @@ Made on the way while testing, mostly as TaystJK does.
 | Textures handed to the graphics card | compressed by the graphics driver as each one is loaded (`r_ext_compress_textures` 1), in DXT5 even when opaque: the client waits for the driver, 43 ms of the 71 a player's model takes, and a map loads in 2.06 s; the textures lose detail | handed as they were decoded (`r_ext_compress_textures` 0; 1 brings the compression back, for a graphics card short of memory): a player's model loads in 28 ms instead of 71 and a map in 0.89 s; the textures keep the files' pixels; they take more video memory, 436 MB instead of 130 on `mp/ffa3` with ten players' models | `rd-vanilla/tr_init.cpp` |
 | Shader scripts | a texture with no script is looked up in the scripts' table, then searched again by reading the whole text of every script: 7.6 ms of each player's model, for nothing | looked up in the table only, which holds every script (checked on the game's scripts): a player's model loads in 20 ms instead of 28 | `rd-vanilla/tr_shader.cpp` |
 | Server browser | a ping of 0 means "request sent", "no answer" and "answered in 0 ms" at once, so a server answering in under 1 ms (same machine or LAN) is hidden | each server has a state of its own (not asked, waiting, answered, no answer); the ping is only a measure | `client.h`, `cl_main.cpp`, `cl_lan.cpp`, `cl_uiapi.cpp`, `ui_public.h`, `ui_main.c`, `ui_syscalls.c` |
+| Shots' sound and muzzle flash | the muzzle effect, which carries the shot's own sound, started again at every frame drawn during the 20 ms of the flash: 3 copies of the sound at 125 frames per second, 7 at 333, so a shot was louder the higher the frame rate (rocket launcher: -10.9 and -6.5 dBFS while firing), with more of the flash's particles | once per shot at every frame rate, as the single-player game does (rocket launcher: -12.2 dBFS at 125 and at 333) | `cg_weapons.c`, `cg_local.h` |
+| A looping sound set again on an entity | added in a new slot each time (up to 8), the copies summed by the mixer | updated in place | `cg_ents.c` |
 
 The server browser's change adds an import for the UI module, `trap->ext.LAN_GetServerState`, and makes `serverInfo_t` larger, so an existing `servercache.dat` is discarded once, favourites included.
 
@@ -1058,7 +1060,7 @@ Added commands. The statistics commands print their counters since the previous 
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
 | The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (owner, 14 November 2026: enough for now) |
-| A long client hitch, the sound louder at 333 frames per second than at 125 (as in OpenJK), priority and culling per client | plan step 14, part 11 |
+| A long client hitch, priority and culling per client | plan step 14, part 11; the culling set aside after its prototype (owner, 15 November 2026) |
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (owner, 15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |

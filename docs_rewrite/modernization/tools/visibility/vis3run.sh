@@ -4,7 +4,7 @@
 tag="$1"; map="$2"; fp="$3"; air="$4"; spots="$5"; dirs="$6"; K="$7"; bots="${8:-31}"; samples="${9:-60}"
 BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
-GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
+GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
 prefix="$SCR/v3_${tag}_slice"
 start=$(date +%s)

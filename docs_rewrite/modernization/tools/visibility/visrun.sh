@@ -4,7 +4,7 @@
 tag="$1"; map="$2"; build="$3"; bots="${4:-31}"; samples="${5:-60}"; lead="${6:-110}"
 BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
-GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
+GAME="E:/Jeux/Jedi Academy default - ModernJK"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
 home="$SCR/run_$tag"
 rm -rf "$home"; mkdir -p "$home/base"

@@ -2,7 +2,7 @@
 usage: python -I bsptris.py <map name, e.g. mp/ffa3> <out.tris>"""
 import re, struct, sys, zipfile
 
-BASE = "E:/Jeux/Jedi Academy default - netcodev_openjk/base/"
+BASE = "E:/Jeux/Jedi Academy default - ModernJK/base/"
 PAKS = ["assets0.pk3", "assets1.pk3", "assets2.pk3", "assets3.pk3"]  # later ones override earlier ones
 SURF_NODRAW, SURF_SKY = 0x00200000, 0x00002000
 CONTENTS_WATER, CONTENTS_FOG, CONTENTS_TRANSLUCENT = 0x4, 0x8, 0x80000000
