@@ -1,6 +1,6 @@
 # Not sending the players a client cannot see: what recent games do, what JKA shows, the measures and the options against wallhacks
 
-Written on 15 November 2026, for plan step 14 part 11 ([../PLAN.md](../PLAN.md); [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 5). A wallhack draws the players the client was sent, wherever they are; the only defence that does not rely on the client is the server not sending a player the client cannot see. The owner wants it, on one condition: it must be exact, with no loss of sight and no player shown late; a player may be revealed a little early, so that a wallhack shows only the very edge of a wall; the camera must be taken into account. Update rates by distance and priorities per client were set aside the same day (section 7).
+Written on 15 November 2026, for plan step 14 part 11 ([../PLAN.md](../PLAN.md); [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 5). A wallhack draws the players the client was sent, wherever they are; the only defence that does not rely on the client is the server not sending a player the client cannot see. The owner wants it, on one condition: it must be exact, with no loss of sight and no player shown late; a player may be revealed a little early, so that a wallhack shows only the very edge of a wall; the camera must be taken into account. Update rates by distance and priorities per client were set aside the same day (section 7). The prototype of option B, measured the same day, is in section 8; the design it leads to, still to decide, in section 9.
 
 Each source is labelled as in the other surveys:
 
@@ -15,6 +15,7 @@ Each source is labelled as in the other surveys:
 3. In JKA the camera is behind the player (third person is forced with the saber), its distance and height are the player's own settings, Force Sense level 2 draws players through walls, sounds come from the players' entities, and a saber blade reaches past a corner before its owner.
 4. Measured here with 32 players on `mp/ffa3`: 91 bytes per snapshot for a client, 4.1 to 4.8 % of a core per tick for the server, 27 % of the pairs of players in each other's PVS, a point trace 1.9 to 3.3 microseconds under that load.
 5. Tracing rays every tick for every pair would cost several times the server's present tick; a test reused while the players stay within a margin, or a table computed per map, is needed. The options are in section 6; the owner's choices of the same day in section 7 (a table per map, prototyped first; the audible players kept; no limit for spectators and demos).
+6. The prototype (section 8): a table built from the map alone, on the places a player can stand and the positions his camera can take, traced on the drawn triangles with tinybvh, misses 0.01 to 0.1 % of the visible pairs on the base maps (`mp/ffa2`, `mp/ffa3`, `mp/ctf5`), none seen from the eye. Combined with the PVS it sends 21 to 52 % fewer pairs of players than the PVS alone; in place of the PVS, it also sends what the third-person camera sees beyond the eye's PVS, which the base game leaves out, and then sends 1 to 52 % fewer (on the closed maps, close to today). It takes 5 to 16 s on one core of the owner's machine per base map and 95 s on `mp/siege_desert`, the largest, where it culls little at long range. Proposed after it (section 9): the table made beforehand by a tool and shipped with the map or placed by the administrator, never computed by a server.
 
 ## 2. What this engine sends today
 
@@ -87,21 +88,114 @@ Taken on 15 November 2026: no update rate by distance (it costs precision on the
 Taken later the same day (owner), after the options above:
 
 1. The test: B at first sight, a table per map, since it costs nearly no CPU at run time; C, which adds rays for the pairs on the edge of the table's cells, only if B's early reveal (up to a cell) proves too generous. Neither may lower the precision or the responsiveness of the game: a player is never sent late, only early. A prototype measures B's build time and memory on two or three maps (and the cell size that keeps the early reveal to the edge of a wall) before it is written.
-2. Where the table comes from: a file in a pk3 when the map has one; otherwise computed by the server and kept in a cache; a tool to make the file, for those who want to ship it. How long the computation takes is measured first (the server's choice of computing it in the background while the map plays with today's PVS is to decide then).
+2. Where the table comes from: a file in a pk3 when the map has one; otherwise computed by the server and kept in a cache; a tool to make the file, for those who want to ship it. How long the computation takes is measured first (the server's choice of computing it in the background while the map plays with today's PVS is to decide then). Revisited after the prototype (owner's proposal the same evening, to confirm): no computation on a server, which is often a single virtual core where the game must not be slowed; the file is made beforehand by the tool, on any machine, and shipped in the map's pk3 or placed by the administrator; without it, today's PVS (section 9).
 3. The camera's limits: a range of at most 120 and a height of at most 32 (the defaults 80 and 16 unchanged), enforced by cgame and used by the server. The angle and pitch offsets need no limit: they turn the camera within the same sphere around the head.
 4. The sounds: S2. A player one can hear stays heard exactly as today (players guess who is coming by the sound, and recent games keep it so); a hidden player within hearing distance is sent with his position and his sounds, not drawn by the client. His position is then in the packets, so a cheat can mark him: only the silent players are hidden from a wallhack, as in VALORANT and Counter-Strike, which publish nothing more against that and rely on their client-side anti-cheats (Vanguard, VAC) for it (not verified further). Sending a hidden player only while one of his sounds plays was looked at and not kept (owner): a sound follows its entity's position while it plays.
 5. Spectators: no limit; a spectator can follow any player, and sees everything as today.
 6. The server's demos: every player of the PVS, with no culling, for an administrator's review: the demo records the list of entities as it is before the culling (the demo already has its own frames, so only that list is kept for a recorded client). A client's own demo can only hold what the client was sent.
 
-## 8. What was not read or verified
+## 8. The prototype (15 November 2026)
+
+Measured with temporary server commands and offline tools ([../tools/visibility/](../tools/visibility/README.md)), each removed from the engine after its measure. A dedicated server built by clang on the owner's machine; 31 bots of skill 4 with the owner's settings (sabers, force jump); 60 instants of a game per map; at each, every ordered pair of players in the game (55,800 pairs on `mp/ffa2`, `mp/ffa3` and `mp/ctf5`, 20,460 on `mp/siege_desert`, where fewer bots join). For each pair: sent today (the PVS of the eye and the areas), sent with the table, and the truth: a clear segment from the eye, from the camera's target (the head raised by 32) or from 26 camera positions at 120 units (traced as cgame traces the camera) to the corners, the centre or the eye of the target's box. A table that says hidden where the truth says visible is a miss: a player not sent whom the client could see. The truth is itself sampled (28 by 10 segments) and takes the camera at its bounds in every direction.
+
+At run time the table is read for the viewer's cell and the cells he can move into before the snapshot is drawn (his speed times 110 ms), against the cells the target's box touches, widened by the saber's reach (50) and two ticks of the target's movement; a viewer or a target whose position is in no cell is sent.
+
+### 8.1 A table of every open cube: the first attempt
+
+The map cut into cubes of 128 units; two cubes see each other if a segment between their corners is clear, traced by the engine's collision (`CM_BoxTrace`) and blocked only by an opaque surface that is drawn (not glass, `trans` or `nodraw` surfaces, except terrain).
+
+| map | cubes | build, one core | table | today (PVS) | with the table | with the table widened by a cube | visible | misses (widened) |
+|---|---|---|---|---|---|---|---|---|
+| `mp/ffa3` | 18,882 | 90 s | 42.5 MB | 32.2 % | 28.5 % | 32.1 % | 16.6 % | 69 (1) |
+| `mp/ffa2` | 21,969 | 45 s | 57.5 MB | 23.3 % | 20.4 % | 22.7 % | 13.7 % | 14 (4) |
+| `mp/ctf5` | 42,421 | 191 s | 214.5 MB | 69.0 % | 41.9 % | 44.0 % | 35.1 % | 97 (32) |
+
+It failed on three counts: misses (a cube astride a wall has its corners on one side and the player on the other), a gain that vanishes once the table is widened enough to remove them, and a cost that grows with the square of the cubes (at 64 units on `mp/ffa3`: 111,089 cubes, a table of 1.47 GB, about an hour; at 128 units, an estimated 39 minutes and 259 MB for `mp/siege_hoth`).
+
+Seen on the way: today's PVS, taken from the eye, leaves out players the third-person camera sees. With the camera bounded at 120 and 32, 19 to 383 pairs of 55,800 were visible from the camera and outside the eye's PVS (up to 4 % of the visible pairs on `mp/ffa3`); from the eye alone, 0 to 6. The base game culls them today.
+
+### 8.2 Where a player can be: the walkable layer, from the map alone
+
+The player's box (30 by 30 by 64) traced down every 16 units finds each place where it rests (a slope of 0.7 at most, inside the world); above it, the ceiling, up to the highest jump (426: a force jump of level 3 with the step and the crouch). From the spawn points, a flood follows walking (steps of 18), jumping up to that ceiling and falling between neighbouring columns. Cells: a floor cell per footprint of 64 by 64 and per level of floor (the places of a footprint grouped by height), from the feet to the head plus a normal jump; air cells of 128 above, up to the ceiling or the highest jump. 0.4 to 8.6 s per map with the engine's collision.
+
+| map | resting places | reached | floor cells | air cells |
+|---|---|---|---|---|
+| `mp/ffa2` | 167,130 | 52,426 | 4,132 | 3,735 |
+| `mp/ffa3` | 135,039 | 38,323 | 3,146 | 2,630 |
+| `mp/ctf5` | 237,579 | 68,626 | 5,751 | 4,736 |
+| `mp/siege_desert` | 2,098,716 | 422,450 | 32,438 | 30,885 |
+
+The bots' positions fall in a cell 99.5 % of the time on `mp/ffa3`, 99.8 % on `mp/ctf5` and 96.2 % on `mp/siege_desert` (120 instants, the same game for every variant). Tried and not kept: jumps over a gap (16 directions, up to 384 units), the teleporters' destinations and the push targets as seeds, steep slopes as places: at most one point more of coverage, for 6 to 11 times the layer's time or 12,000 more cells. What stays outside is players in mid-jump over a drop, 600 to 1,000 units above the floor below them, after leaving a high ledge: brief, and sent.
+
+### 8.3 The camera in the table
+
+Each cell's samples are real places of the layer: two per floor cell (the most central, then the farthest from it), at the body's centre and at the eye. With the camera reached through the cells around the viewer (a symmetric table, the cells within 152 units that the viewer's cell sees), the misses come from the camera: on `mp/ctf5`, 155 of 169 seen only from a camera position between 80 and 120 units, where an air cell has a single sample. With each cell's own camera positions in its row (32 directions from the head, traced as cgame does), they fall by about three (`mp/ffa2` from 12 to 1, `mp/ffa3` from 32 and 59 in two games to 24, `mp/ctf5` from 169 to 53), and the row already holds the camera, so the run time reads one row per viewer; but the build then costs 9 to 56 minutes of the engine's tracer per base map (in 16 processes, 37 to 219 s).
+
+### 8.4 The tracer
+
+The engine's collision traces brushes through the BSP tree, a box or a point, made for movement. A bounding volume hierarchy over the drawn triangles (the BSP's draw surfaces: planar faces, patches tessellated, models compiled into the map; without the shaders that are not opaque) answers a segment's occlusion only. Recorded segments of the table (1 to 4 million per map), the time per segment on one core:
+
+| map | triangles | engine's collision | a scalar BVH written here | tinybvh `BVH4_CPU`, SSE4.2 | tinybvh `BVH4_CPU`, AVX2 | madmann91/bvh v2 |
+|---|---|---|---|---|---|---|
+| `mp/ffa2` | 23,886 | 576 ns | 126 ns | 47 ns | 43 ns | 112 ns |
+| `mp/ffa3` | 130,490 | 1,747 ns | 141 ns | 57 ns | 52 ns | 139 ns |
+| `mp/ctf5` | 149,993 | 1,155 ns | 169 ns | 72 ns | 68 ns | 169 ns |
+| `mp/siege_desert` | 33,863 | 1,164 ns | | 44 ns | | |
+
+tinybvh (MIT, one header) builds its hierarchy in 8 to 18 ms; its 8-wide layout is no faster here; its SSE4.2 build is within 10 % of AVX2, so a processor without AVX2 loses little. madmann91/bvh v2, built with FMA contraction, let through 3,484 segments on `mp/ffa3` and 16,666 on `mp/ctf5` that the triangles block: not kept. Embree, the reference, is under the Apache 2.0 licence, incompatible with the GPL v2: not considered.
+
+The verdicts differ from the engine's on 0.003 to 0.09 % of the segments. Where the triangles block and the engine does not, the surfaces are drawn and opaque: on `mp/ctf5`, 1,919 of 3,602 such segments cross the pillars of `textures/factory/piller` (patches, contents solid and opaque, a first stage without blending) that the engine's point traces pass through; the rest are walls without scripts and models compiled into the map. The triangles are the right geometry for what a player sees. The engine's traces through those patches are noted for plan step 13.
+
+### 8.5 A shared lattice of camera points, and a fan of rays for the far
+
+Two changes take the build from minutes to seconds:
+
+- **A lattice of camera points shared by the cells.** Above each floor cell, points at the eye, 64 and 128 above it (under the ceiling), and the eye of its second place; each air cell's point. For each cell, the lattice points its camera reaches (within 152 units of the head, a box of 4 traced from the head as cgame does): 41 to 44 on average. A cell's row is the union of what its lattice points see, and each lattice point is judged once per target cell.
+- **Near and far.** Within 2,048 units (between the cells' boxes), the rows are exact to the cell: a ray from a lattice point to one of the target cell's samples. Beyond, a fan of 1,024 rays from each lattice point marks the blocks of 512 units it crosses, widened where the rays spread more than a block apart; a far target is sent if its block was crossed.
+
+Traced on the drawn triangles with tinybvh (SSE4.2), one core of the owner's machine; the truth judged again on the same triangles; the run-time rule that a target whose own position is in no cell is sent (without it, a target outside the layer was judged on the cells his widened box touched, which caused most of the misses on `mp/siege_desert`):
+
+| map | layer (engine) | table (one core) | compact size (near bits, far rows) | today (PVS) | PVS and table | areas and table | visible | misses (PVS and table / areas and table) | from the eye | from a camera beyond 80 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `mp/ffa2` | 0.4 s | 6.1 s | 4.6 MB | 25.7 % | 18.9 % | 25.5 % | 13.8 % | 1 / 4 | 0 | 1 |
+| `mp/ffa3` | 0.8 s | 4.6 s | 2.6 MB | 31.8 % | 25.1 % | 30.2 % | 18.0 % | 3 / 3 | 0 | 3 |
+| `mp/ctf5` | 1.2 s | 15 s | 6.4 MB | 67.5 % | 32.3 % | 32.7 % | 26.7 % | 15 / 15 | 0 | 15 |
+| `mp/siege_desert` | 8.2 s | 95 s | 63 MB | 100 % | 91.9 % | 91.9 % | 36.4 % | 10 / 10 | 8 | 2 |
+
+"PVS and table" keeps today's test from the eye and adds the table to it: it culls more, and keeps the base game's loss of what the camera sees beyond the eye's PVS (section 8.1). "Areas and table" puts the table in place of the PVS, the areas (doors) kept: nothing is lost any more, the camera's view included, but on the closed maps what the table removes behind walls the camera's view adds back, and the pairs sent are close to today's.
+
+The `mp/ffa2` line is from the run before the rule (the rule can only add pairs). The misses are counted against the truth on the drawn triangles. The run time costs 5 to 7 microseconds per viewer and his targets, without a cache. Earlier tables compressed 10 to 25 times; this format was not compressed.
+
+By distance, the far part works on closed maps and not on open ones: beyond 2,048 units `mp/ffa3` sends 2,430 pairs of 24,333 for 542 visible, `mp/ctf5` 479 of 31,103 for none, `mp/siege_desert` about 90 % for 7 %. A block is a cube: a ray passing high over a distant floor marks the whole block, the floor hidden behind a dune included; blocks of 256 and 2,048 rays per point changed nothing (87.8 % sent, 112 s). `mp/siege_desert` has no useful PVS (every pair is in it).
+
+### 8.6 What the prototype leaves open
+
+- The misses from camera positions between 80 and 120 units: 0.01 to 0.1 % of the visible pairs; a camera bounded at 80, the default, would remove them (decision 3 set 120).
+- The far part on open maps: marking the floor cells a ray actually passes through, at the height of a body above the floor, instead of blocks; estimated at minutes on open maps (long rays), not prototyped.
+- `mp/siege_desert`: 95 s on one core of the owner's machine, and 8 misses from the eye at a few places with floors on several levels.
+- 27 % of the pairs on `mp/siege_desert` had a player outside the layer in one game (mostly jumps over drops): sent, so no loss, but no culling for them.
+
+## 9. The design proposed (to decide)
+
+From the prototype, to implement after the owner's decisions:
+
+- **The file.** Made beforehand by a tool, on any machine and on all its cores, never by a server (owner's proposal, 15 November 2026, to confirm): the tool is a command of the dedicated server, so that it uses the engine's own collision for the layer and the same code on Windows and Linux. The file is shipped in the map's pk3 or placed by the administrator; it holds the BSP's checksum, and a server refuses a file that does not match the map. Without a file: today's PVS.
+- **Its content.** The layer's cells (floor cells by footprint of 64 and level, air cells of 128), the near rows (a bit per pair of cells within 2,048 units, in an order recomputed from the cells) and the far rows (a bit per block of 512): 2.6 to 6.4 MB on the base maps before compression, 63 MB on `mp/siege_desert`.
+- **The build.** The layer by the engine's collision (0.4 to 8 s); the shared lattice of camera points; the near rows by segments and the far rows by fans, traced on the drawn opaque triangles with tinybvh (MIT, vendored at a pinned commit), SSE4.2 everywhere (AVX2 gains under 10 %). 5 to 16 s per base map and 95 s for `mp/siege_desert` on one core of the owner's machine, divided by the cores the tool is given.
+- **At run time.** For each client, the union of the rows of his cell and of the cells he can move into before the snapshot is drawn, kept until he changes cell; a target is sent if one of the cells his widened box touches is in it; a viewer or a target whose position is in no cell is sent; then either today's PVS of the eye and the areas, or the areas alone (to decide, section 8.5). Unchanged from section 7: teammates, Force Sense from level 2, spectators and the server's demos are not culled; a hidden player one can hear is sent with his sounds, not drawn.
+- **To decide.** Decision 2 revisited as above; the table with the PVS (more culling, the base game's loss of the camera's view beyond the eye's PVS kept) or in place of it (no loss at all, less culling on closed maps; section 8.5); the camera's bound, 120 as decided or 80 (section 8.6); whether the far part of open maps deserves the exact marking (section 8.6); the format's compression.
+
+## 10. What was not read or verified
 
 - VALORANT's cell size, its look-ahead time and how it treats audible enemies are not published; CS2's implementation neither.
 - `sv_occlude_players`' method in CS:GO is known from forum posts only.
-- The CPU figures of options A and B are estimates from the measured trace cost; nothing was prototyped. The trace cost moved by a factor of 2 to 5 with the load of the machine.
-- One map (`mp/ffa3`); the pairs in the PVS depend on the map.
+- The CPU figure of option A is an estimate from the measured trace cost; option B was prototyped (section 8). The engine's trace cost moved by a factor of 2 to 5 with the load of the machine.
+- The measures of section 5 are on one map (`mp/ffa3`); the prototype measured four maps, with bots, not human players; the build was timed on the owner's machine, not on a server's core.
+- The prototype's truth is sampled (28 by 10 segments per pair) and puts the camera at its bounds in every direction; a miss it does not see is possible.
+- The engine's point traces through the solid curved patches of section 8.4 were not tested in game.
 - The hearing distance of JKA's sounds was not read.
 
-## 9. Sources
+## 11. Sources
 
 - Riot Games, "Demolishing Wallhacks with VALORANT's Fog of War": https://www.riotgames.com/en/news/demolishing-wallhacks-valorants-fog-war
 - Enemy Territory: Legacy, `src/server/sv_wallhack.c`: https://github.com/etlegacy/etlegacy/blob/master/src/server/sv_wallhack.c ; its anti-cheat notes, `docs/game/anticheat.html`: https://github.com/etlegacy/etlegacy/blob/master/docs/game/anticheat.html
@@ -111,3 +205,6 @@ Taken later the same day (owner), after the options above:
 - PepperEyes, CS2 server-side occlusion culling: https://peppereyes.com/personal-safety/cs2-fog-of-war-server-sided-anti-wallhack-occlusion-culling-for-cs2-servers/
 - GameRiv, a CS2 server-side anti-wallhack plugin: https://gameriv.com/cs2-modder-builds-a-server-side-anti-wallhack-that-could-also-boost-your-fps/
 - Hacker News, why the culling must be on the server: https://news.ycombinator.com/item?id=41938847
+- tinybvh (Jacco Bikker, MIT): https://github.com/jbikker/tinybvh ; its manual: https://jacco.ompf2.com/2025/01/24/tinybvh-manual-basic-use/
+- madmann91/bvh (MIT): https://github.com/madmann91/bvh
+- Embree (Apache 2.0): https://github.com/RenderKit/embree
