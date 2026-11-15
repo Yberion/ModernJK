@@ -235,9 +235,39 @@ Added on 15 November 2026: the points set aside on the way, out of the order of 
 - The dead code the agents of the step 14 audit reported (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused; [progress/step-14-audit-100hz.md](progress/step-14-audit-100hz.md) section 10): to remove or keep, the list to be decided.
 - Check: none until a point is taken back; it then gets its own check.
 
+### Step 17: C++20, and only Windows, Linux and macOS in 64-bit (S to M)
+
+Depends on: nothing. Added on 15 November 2026, done before step 15 (section 3). Nothing is implemented.
+
+The platforms kept: Windows x64 (MSVC, and MinGW with llvm-mingw clang), Linux x86_64, and macOS kept portable (decision P9 of step 15); the arm64 code paths stay, for macOS and for Linux on ARM64 (a Raspberry Pi 4B can build and test there). Everything else goes: 32-bit x86 and ARM, PowerPC, Alpha, the BSDs, Solaris, IRIX, Cygwin.
+
+- C++20 for every C++ target, the single-player and Jedi Outcast trees included: `CMAKE_CXX_STANDARD` 20, required, without extensions, in place of the `-std=c++11` added to every target (`CMakeLists.txt:257`) and of the C++17 forced on `qlibm` (`:377`); MSVC in strict standard mode (`/permissive-`, the default with `/std:c++20`), the code fixed where it does not pass. The C files stay C until step 18. netcodec's public header `engine.h` no longer has to stay C++11.
+- Measured on 15 November 2026 with clang 23, the sources unchanged (`-std=c++20` added to a separate build): the multiplayer engine, the dedicated server and rd-vanilla build with no error and 16 warnings that C++20 adds (12 enumeration and floating-point conversions deprecated, 4 literal operators deprecated in `shared/qcommon/safe/gsl.h`); the single-player tree with no error, and 1,913 `-Wnon-c-typedef-for-linkage`, 42 literal operators and 33 enumeration and floating-point conversions. MSVC and GCC 12 not tried yet.
+- Removed with the 32-bit support: the configuration refused on a 32-bit target; the `x86`, `i386` and `arm` architectures, `-mstackrealign`, `-mfpmath=sse` and `/arch:SSE2` (which MSVC x64 ignores) in `CMakeLists.txt`; the x86 assembler mixer of MSVC (`codemp/client/snd_mix.cpp:65`) and `id386` (`codemp/qcommon/q_shared.h:130`); the 32-bit branches of `codemp/qcommon/vm.cpp`, `codemp/mp3code/port.h`, `shared/qcommon/q_platform.h` and netcodec's `src/numeric.h`; `lib/OpenAL32.lib`, `lib/ALut.lib` and the x86 binaries of `lib/SDL2`; the multiplayer OpenAL and EAX path (compiled only with MSVC in 32-bit; the sound is replaced in step 15 anyway); the `#if 0 //_M_IX86` blocks of `tr_ghoul2.cpp`; the presets `mingw-clang-x86`, `msvc-x86` and `gcc-x86`, the x86 runs of `validate.sh` and `validate.bat`, `M32=1` and `ABM_ARCH=Win32` of the A/B scripts, the x86 builds of `tools/mathlib`.
+- Removed with the other platforms: PowerPC (`idppc`, `__ppc__`, the `ppc` and `ppc64` architectures; the `register` keyword left in the code is only in two `#if idppc` blocks of `tr_surface.cpp`, rd-vanilla and rend2), Alpha (`_M_ALPHA`), the BSDs (`__FreeBSD__`, `__FreeBSD_kernel__`, `__OpenBSD__`, `__NetBSD__`, the `BSD` block of `CMakeLists.txt`), Solaris (`__sun`), IRIX (`__sgi`), Cygwin (`__CYGWIN__`).
+- The documents follow: the goals' item 5 of the README, section 27 of CHANGES (the compilers), every mention of x86 and x64 as targets.
+- With the first pass in the code: the comments that still name a person as the author of a decision, rephrased with the date only (12 lines: `codemp/netcodec/scripts/ab_clang.sh`, `ab_gcc.sh`, `ab_gcc_multi.sh`, `ab_gcc_podman.sh`, `ab_msvc.bat`, `codemp/netcodec/test/pmove/pmove_det.c`, `codemp/game/bg_pmove.c`, `codemp/cgame/cg_predict.c`, `docs_rewrite/modernization/tools/gamestats/gamestats.sh`, `gamestats_windows.sh`, `scenarios40.sh`).
+- Check: the VM validations (netcodec changes) with every preset left; the determinism hashes, the round-trip hashes and the codec benchmarks unchanged in x64 (its x64 code does not change); the 40 scenarios `golden: SAME`; no new warning with MSVC, GCC and clang; the multiplayer game played on the loopback and on the VPS as before.
+
+### Step 18: the C code in C++ (M)
+
+Depends on: step 17. Added on 15 November 2026 (everything in one language): the multiplayer game, cgame and UI modules (`codemp/game`, 86 files; `codemp/cgame`, 35; `codemp/ui`, 8), the MP3 decoder (`codemp/mp3code` and `code/mp3code`, 21 files each), `shared/qcommon` (4), `codemp/qcommon` (1), netcodec's movement test (`test/pmove`, 2) and rend2's MikkTSpace (1): 179 files of the project in C, about 267,000 lines with the decoder. The vendored libraries (zlib-ng, Wuffs, stb, LLVM libc) stay as they are.
+
+- Measured on 15 November 2026: the 201 compilations of C files in the multiplayer build (a file shared by several modules counted for each) done as C++20 with clang (syntax only, nothing changed): 79 with errors, 1,059 errors (game 634, mp3code 286, cgame 88, UI 51; `shared` and `codemp/qcommon` none). By kind: an integer stored, returned or given where an enumeration is expected (`qboolean` and the game's enumerations), about 600; narrowing conversions in initialisers, 276; 22 unknown type names, 12 literal suffixes against a string (`"..."PRId64`), 10 `register`. The number grows when these are fixed if errors hide others (not measured).
+- `qboolean` keeps its type and size: it is in the structures the engine and the modules share and in the networked states (the codec codes fields by their C type).
+- The modules keep their C entry points (`extern "C"`) so that the engine finds them.
+- Check: the 40 scenarios `golden: SAME` (the game unchanged), the VM validations, no new warning with MSVC, GCC and clang, a game played on the loopback and on the VPS.
+
+### Step 19: a modern CMake project (M)
+
+Depends on: step 18. Added on 15 November 2026: the build of the whole project written after cpp-best-practices/cmake_template, as `codemp/netcodec` already is for its warnings, sanitizers and static analyzers (`codemp/netcodec/cmake/`): interface targets carrying the options and the warnings, given to every target; warnings as errors; AddressSanitizer and UndefinedBehaviorSanitizer; clang-tidy and cppcheck; presets for every compiler and build type; the tests through CTest. 21 `CMakeLists.txt` today, about 4,000 lines, `cmake_minimum_required(VERSION 3.1...3.31)`.
+
+- To decide at the start of the step: the template asks CMake 3.29 and Debian 12 ships 3.25 (the version the Debian VM uses to check); the template fetches its dependencies while configuring (CPM), against the rule of vendored libraries, so `lib/` stays; it aims at C++23, the project stays at C++20; hardening and link-time optimization, each measured in time before it is kept.
+- Check: every target built with MSVC, GCC and clang with no warning; the VM validations; the scenarios and the benchmarks unchanged.
+
 ## 3. Order at a glance
 
-Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build).
+Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15.
 
 | step | what | depends on | effort |
 |---|---|---|---|
@@ -257,6 +287,9 @@ Order of work (10 November 2026): step 14 comes right after step 11, before step
 | 14 | beyond the codec (after step 11) | 11 | L |
 | 15 | a new platform layer on SDL 3, from zero | 14 | L |
 | 16 | points set aside: culling against wallhacks, dead code | none; when decided | M |
+| 17 | C++20; only Windows, Linux and macOS in 64-bit (before step 15) | none | S to M |
+| 18 | the C code in C++ | 17 | M |
+| 19 | a modern CMake project | 18 | M |
 
 ## 4. Test matrix
 
