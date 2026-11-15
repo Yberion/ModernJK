@@ -2,7 +2,7 @@
 
 Working notes kept so that nothing is lost between sessions. Status of each item: **verified** (read in the code by the main session), **reported** (an audit's claim, not yet checked), **done**, **open**.
 
-## 1. Decisions (owner, 11 November 2026, evening)
+## 1. Decisions (11 November 2026, evening)
 
 - **Tick 100 Hz** (was 125): at 125 Hz, 50 ms is 6.25 ticks, so thinks every 50 ms ran every 56 ms, NPC decisions "every 100 ms" alternated 100/150 ms, 20 Hz deadlines jittered. At 100 Hz every 20 Hz instant is a tick.
 - **The game must play identically to sv_fps 20** (damage, blocks, attack bounces, timings, AI), and be as precise as possible only where that does not change outcomes. No damage regression.
@@ -12,7 +12,7 @@ Working notes kept so that nothing is lost between sessions. Status of each item
 
 ## 2. Why the per-tick tuning failed (verified)
 
-- Every saber against saber reaction (bounce, deflection, knockaway, broken parry, lock) is gated by `dmg > SABER_NONATTACK_DAMAGE`, where `dmg = ceil(fDmg * traceLength * 0.033)` and `traceLength` is the blade's move in one server frame (`w_saber.c:4163-4170`, tests from 4400 to 5103 in OpenJK's file). At 100 Hz the move is 5 times shorter, `dmg` is nearly always 1, attacks are no longer bounced: the owner's "fewer attack cancels", dual sabers and staff stronger. No coefficient can fix it.
+- Every saber against saber reaction (bounce, deflection, knockaway, broken parry, lock) is gated by `dmg > SABER_NONATTACK_DAMAGE`, where `dmg = ceil(fDmg * traceLength * 0.033)` and `traceLength` is the blade's move in one server frame (`w_saber.c:4163-4170`, tests from 4400 to 5103 in OpenJK's file). At 100 Hz the move is 5 times shorter, `dmg` is nearly always 1, attacks are no longer bounced: the "fewer attack cancels" reported in play, dual sabers and staff stronger. No coefficient can fix it.
 - My `P_RecentDamage` (pain threshold over 50 ms) was wrong: in OpenJK the early return of `P_DamageFeedback` skips the clearing, so damage already accumulates across frames until 10 (rate-independent). Mine re-counted the accumulated total every frame (threshold about 2 to 3 points at 100 Hz). Reverted (verified, done).
 - My "pain 750 with >=" halved lava damage (lava is paced by `pain_debounce_time`, hits at T, T+700, T+750...). Reverted (done).
 - Bench flaw (verified): `ClientThink` skips `ClientThink_real` for `SVF_BOT` (`g_active.c`, ClientThink); `G_RunClient` runs it once per server frame with `pers.cmd.serverTime = level.time`. So with `bot_debugClientRate` the bots' 10 ms commands collapsed into one 50 ms Pmove at 20 Hz and 10 ms Pmoves at 100 Hz: every bot comparison so far mixed the Pmove step with the server rate. To fix: bots execute every command (open).
@@ -24,7 +24,7 @@ Working notes kept so that nothing is lost between sessions. Status of each item
 - Per tick: snapshots, user commands (Pmove with the command's time), networking (movers moved every tick until 12 November; since then on the grid, section 10).
 - The same module at sv_fps 20 is the exact reference (all gates true at 20 Hz).
 - Consequences: the per-tick saber tuning (coefficient 0.030, contact effect limiter, decision windows, scaled lookahead, head-on check, `WP_SaberStoreBase`) and the force timer rewrites are reverted to OpenJK's code (done in the working tree: `w_saber.c` and `w_force.c` are master plus counters; `w_saber.c` keeps `fVSpeed *= 1.6f/20.0f` instead of `1.6f/sv_fps.value` (G3) and `w_force.c` the mind trick window of 200 ms instead of `g_TimeSinceLastFrame*4`, with `g_TimeSinceLastFrame`/`g_LastFrameTime` removed). Saber contact is found at the 20 Hz instants, up to 40 ms later than per-tick tracing: the price of identity.
-- Known limits: timescale (`frameMsec = 1000/sv_fps*timescale`, `sv_main.cpp:1135`, verified): during the slow-motion duel end the grid runs every 50 ms of game time (OpenJK ran logic every frame); `g_slowmoDuelEnd` is 0 on the owner's servers. First frame after map load: `previousTime == time` (settle frames, `sv_init.cpp:624-632`, verified): handled by `logicFrame` forced on the first frame (open).
+- Known limits: timescale (`frameMsec = 1000/sv_fps*timescale`, `sv_main.cpp:1135`, verified): during the slow-motion duel end the grid runs every 50 ms of game time (OpenJK ran logic every frame); `g_slowmoDuelEnd` is 0 on the test servers. First frame after map load: `previousTime == time` (settle frames, `sv_init.cpp:624-632`, verified): handled by `logicFrame` forced on the first frame (open).
 
 ## 4. Audit findings to apply or check (game module)
 
@@ -36,7 +36,7 @@ Client and frame code (agent 3): saber lock presses once per server frame (`g_ac
 
 World (agent 4): NPC thinks every 50 ms (`NPC.c:1812`) exact at 100 Hz; NPC first think `level.time + FRAMETIME + Q_irand(0,100)` (`NPC_spawn.c:1134`) off-grid (grid gate fixes); mover `reached` at the first tick past the end (`g_mover.c:494`; logic clock fixes), crusher damage per blocked tick (`g_mover.c:1053`, `:379`, `:196`; blocked() on the grid), trigger "same frame" tests `== level.time` (`g_trigger.c:339, 93, 326, 942`; logic clock fixes), `g_object.c:43,105` hitTime from previousTime (logic previousTime fixes), turrets and vehicles fine (vehicle physics run in Pmove), `INITIAL_SUFFOCATION_DELAY` one-off.
 
-Feedback (agent 5): no attacker hit confirmation sound exists; non-client victims got effects every tick (moot on the grid); EV_SHIELD_HIT per G_Damage call (per tick only for per-tick damage sources); staff/dual duplicate EV_SABER_BLOCK (OpenJK behaviour, kept for identity); proposals B (size the first effect by projected damage) and E (shield shell per window) are optional improvements, to show the owner after identity is proven.
+Feedback (agent 5): no attacker hit confirmation sound exists; non-client victims got effects every tick (moot on the grid); EV_SHIELD_HIT per G_Damage call (per tick only for per-tick damage sources); staff/dual duplicate EV_SABER_BLOCK (OpenJK behaviour, kept for identity); proposals B (size the first effect by projected damage) and E (shield shell per window) are optional improvements, to present after identity is proven.
 
 ## 5. Engine and cgame findings (agents 6 and 7; reported unless marked)
 
@@ -103,13 +103,13 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 
 **Next.** The items of section 7 step 5; the documentation of the decisions in step-14-fixed-tick.md, CHANGES.md, PLAN, README and the progress table; Linux on the VPS.
 
-## 10. Owner's decisions of 12 November 2026 and the status of every audit item
+## 10. The decisions of 12 November 2026 and the status of every audit item
 
-**Decisions (owner, 12 November 2026).**
+**Decisions (12 November 2026).**
 - The saber stays on the 20 Hz instants: what the 100 Hz tick gains is perception (the other players drawn about 11 ms behind the newest snapshot instead of about 53, 100 snapshots per second), not earlier hit decisions; the per-tick prototype decided saber contacts about 20 ms sooner on average but changed the balance. More reactivity would be a deliberate gameplay change (the saber's reactions remodelled in time and retuned), not planned.
 - Packet rate: `MAX_PACKET_RATE` 125 to 100, `SV_PACKET_RATE` 137 to 110, `SV_PACKET_BURST` 125 to 100 only with part 4 (one command per tick, sampled every 10 ms whatever `com_maxfps`; display at `com_maxfps` with the partial step of D5). Nothing changes before.
 - Movers on the 20 Hz instants (done, below).
-- CG5: a 5-bit field for `saberAttackChainCount` (no gameplay change). It changes the alphabets of its contexts (`KindAlphabet` in `netcodec/src/contexts.h`: 16 to 32 symbols, 6 to 7), so the trained tables (`jka_tables.inc`) must be retrained, and the training corpus (`data/traces/train.bin`) is no longer on this machine: done with step 13 (retraining on recordings of this build, which regenerates the schema and the tables anyway; owner, 12 November 2026). Until then a chain of 16 attacks or more (fast style; staff and dual chain without the counter) is mispredicted once.
+- CG5: a 5-bit field for `saberAttackChainCount` (no gameplay change). It changes the alphabets of its contexts (`KindAlphabet` in `netcodec/src/contexts.h`: 16 to 32 symbols, 6 to 7), so the trained tables (`jka_tables.inc`) must be retrained, and the training corpus (`data/traces/train.bin`) is no longer on this machine: done with step 13 (retraining on recordings of this build, which regenerates the schema and the tables anyway; 12 November 2026). Until then a chain of 16 attacks or more (fast style; staff and dual chain without the counter) is mispredicted once.
 - `PM_irand_timesync` fixed (done, below).
 - B1 and B2 wait for the snapshot store D3 (part 5).
 - X1: the dedicated server sleeps its last millisecond (done, below; measured on the VPS on 12 November 2026).
@@ -159,7 +159,7 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 | X5 demos 5 times larger | done on 15 November 2026: 2.2 times the base game's measured, one snapshot in two kept, no event lost (step 14 part 11, [step-14-fixed-tick.md](step-14-fixed-tick.md) section 18) |
 | lagometer 48 columns | written in part 9a: a column is 50 ms of real time, 2.4 s in all (to check in game) |
 | interpolation redesign (agent 6) and its 20 Hz bugs | done in part 4e: the drawing clock rewritten on the proposal |
-| dead code reported by the agents (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused) | reported only: part 11 of step 14, then plan step 16 (set aside on 15 November 2026; the owner decides on the list) |
+| dead code reported by the agents (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused) | reported only: part 11 of step 14, then plan step 16 (set aside on 15 November 2026; the list to be decided) |
 
 **Found on the way, fixed in part 3:** the Linux `Sys_Milliseconds` (`shared/sys/sys_unix.cpp`) used `gettimeofday`, the wall clock: an NTP step moves the server's clock (frames run in a burst or stop). A monotonic clock (`clock_gettime(CLOCK_MONOTONIC)`) fixes it.
 
@@ -167,7 +167,7 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 
 **Linux (VPS, GCC 12 build from the Debian VM).** X1 measured (section 10). The 40 scenario cases of section 9: identical at `sv_fps` 20 and 100 with the module of the morning; with the module of this section: identical at 20 and 100 Hz as well (40 of 40).
 
-**Rare differences between two runs at the same rate.** On the VPS about one run in 40 of the staff and dual attack scenarios gave other counts than the other runs at the same rate (locally, with clang, about one in several hundred). Never a difference between the rates: every pair of runs with the same history gave the same counts at 20 and 100 Hz. The cause was the bench, not the game's timing: the free play before a scenario (30 s of bots playing) left state in the bots and in the level that the reset did not clear, and the free play itself depended on the machine's load, since `fixedtime` is set only after `devmap` and the first frames of the map followed the real time (one bot frame for several game frames under load). With the owner's game running, the differences came back (2 in 48 runs); with the seed and the fixed frame set before the map loads, never.
+**Rare differences between two runs at the same rate.** On the VPS about one run in 40 of the staff and dual attack scenarios gave other counts than the other runs at the same rate (locally, with clang, about one in several hundred). Never a difference between the rates: every pair of runs with the same history gave the same counts at 20 and 100 Hz. The cause was the bench, not the game's timing: the free play before a scenario (30 s of bots playing) left state in the bots and in the level that the reset did not clear, and the free play itself depended on the machine's load, since `fixedtime` is set only after `devmap` and the first frames of the map followed the real time (one bot frame for several game frames under load). With a game running on the machine, the differences came back (2 in 48 runs); with the seed and the fixed frame set before the map loads, never.
 
 Found and fixed in `g_scenario.c`, each with the scenario that showed it:
 

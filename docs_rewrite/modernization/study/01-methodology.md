@@ -24,7 +24,7 @@ No real traffic was available, so a capture tool was written in the server modul
 - Output: `ybeproxy_netcapture.bin` in the server working directory, written in append mode through a 256 KB buffered `FILE`, enabled by the cvar `proxy_sv_captureNet 1`. The format is described in 06, section 6.2.
 - Only messages sent to human clients are captured. Bots are never sent snapshots (`SV_SendClientSnapshot`, `server/sv_snapshot.cpp:768`), so their view of the world is not available.
 - The capture must be switched on **before** the map loads, because the gamestate (which carries the entity baselines the decoder needs) is only sent at connection or map load. A first capture made after joining contained 1,105 undecodable messages for that reason.
-- The capture code was written without a compiler in the assistant's environment; the owner compiled and ran it.
+- The capture code was written without a compiler in the assistant's environment; it was compiled and run outside that environment.
 
 Captures used (all map `mp/ffa3`, game type 6 = FFA, `sv_fps` 20, `sv_maxclients` 28 with bots for two of them):
 

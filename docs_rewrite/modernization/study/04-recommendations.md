@@ -11,7 +11,7 @@ What became of these recommendations (note of 14 November 2026; the page is kept
 | Entropy coder | Static, offline-trained, per-packet-independent rANS with 12 to 15-bit probabilities. First implementation: a ryg_rans-style 32-bit byte-renormalising rANS (CC0, 319 lines). Keep the coder behind a small interface; FSE (tANS) saves 2 bytes per packet and can replace it later. | measured |
 | Do not use | Adaptive coders (qbc, nibrans, adaptive binary), generic compressors (zstd, deflate, lzma), context mixing, anything whose state survives across packets | measured, judgement |
 | Message model | Replace the snapshot encoding by the schema in 4.2: one stream per message, delta against an acknowledged base, no `lc` byte, changed fields listed as gaps with context, per-field trained distributions | measured |
-| Precision | Never less precise than today (owner's goal). Code view angles and entity angles as 16-bit indices (lossless). Do not round positions, on the client or on the server. | measured, read |
+| Precision | Never less precise than today (goal 1). Code view angles and entity angles as 16-bit indices (lossless). Do not round positions, on the client or on the server. | measured, read |
 | Prediction | Add lossless prediction modes (time against `serverTime`, position from velocity in integer arithmetic, second-order angle) to the per-field chooser: 139.1 to 107.3 real bytes, rANS initial-state trick included (03 section 3.13) | measured |
 | Tables | Generate the probability tables offline from recorded states, version them, load them as data, and ship a fallback of uniform contexts | judgement |
 | Safety | Add a raw-format escape path and a hard cap on message size | measured (worst case) |
@@ -50,7 +50,7 @@ Each field has a mode chosen offline: **absolute** or **delta against the base v
 
 Floating-point fields have a kind symbol: zero; integral value within +-4096; **16-bit angle index**; any other float. An integral float is coded as an integer (absolute or delta). An angle index is coded as a delta from the old angle's index. Any other float is coded as the signed difference of the two 32-bit patterns (monotonic for floats of the same sign), or 32 raw bits.
 
-Booleans and C types (added 5 November 2026, owner's request to revisit every legacy choice): the generated descriptors give each field its C type (step 2, schema version 2). A `qboolean` field needs only "changed" on the wire, because a changed boolean is the inverse of the old value; no value symbol. The mod fields `user*` should be coded by their C type (32-bit integer, float) rather than by their legacy 1-bit width (02 section 2.2), which removes the reason for the overrides files (4.6). Gain to measure; it is small for booleans because the trained value distributions already make the redundant bit almost free, but the rule makes it zero by construction and independent of training.
+Booleans and C types (added 5 November 2026, at the request to revisit every legacy choice): the generated descriptors give each field its C type (step 2, schema version 2). A `qboolean` field needs only "changed" on the wire, because a changed boolean is the inverse of the old value; no value symbol. The mod fields `user*` should be coded by their C type (32-bit integer, float) rather than by their legacy 1-bit width (02 section 2.2), which removes the reason for the overrides files (4.6). Gain to measure; it is small for booleans because the trained value distributions already make the redundant bit almost free, but the rule makes it zero by construction and independent of training.
 
 ### Why these choices
 
@@ -64,7 +64,7 @@ Offer three more modes to the per-field chooser: a time field against the messag
 
 ## 4.3 Precision policy
 
-**Rule: the client must never receive less precise values than today** (owner's goal 1, README). With float32 positions, that means the decoded values are identical to today's. The study's equality criterion (the round-trip tests) is "equal to what the current client sees", which includes truncation to the declared width and `-0.0` becoming `+0.0`.
+**Rule: the client must never receive less precise values than today** (goal 1, README). With float32 positions, that means the decoded values are identical to today's. The study's equality criterion (the round-trip tests) is "equal to what the current client sees", which includes truncation to the declared width and `-0.0` becoming `+0.0`.
 
 Reasons for not rounding positions (read, 02 section 2.8):
 
@@ -104,12 +104,12 @@ Rejected, with measured reasons: static Huffman per context (+10 %), adaptive bi
 
 ## 4.6 Mods, game modules and reuse by other forks
 
-Compatibility with existing mods and with the old protocol is not required (owner's goal 2). What matters is that the netcode can be reused by other JKA forks.
+Compatibility with existing mods and with the old protocol is not required (goal 2). What matters is that the netcode can be reused by other JKA forks.
 
 - The codec should consume and produce `entityState_t` and `playerState_t`, so `game` and `cgame` need no change: they see the same `trap_GetSnapshot` data. They may still be changed for their own reasons.
 - Prediction rules must rely only on fields every Quake 3 derived game has (`trType`, `trBase`, `trDelta`, `trTime`, `serverTime`, `origin`, `velocity`, `commandTime`) and must handle both `TR_LINEAR_STOP` and `TR_INTERPOLATE` players, because the game module decides which is sent (03 section 3.12).
 - The field list and widths (`entityStateFields`, `playerStateFields`) must remain the single description of what is networked. The codec's tables should be generated from it (the study extracted them from `msg.cpp` by pattern; a build step or code generation from the same arrays is better). Done in plan step 2: `data/fields.json`, generated by `tools/python/gen_fields.py` and `tools/fieldinfo` ([../progress/step-02-field-descriptors.md](../progress/step-02-field-descriptors.md)).
-- Runtime width overrides (`netf_overrides.txt`, `psf_overrides.txt`, 02 section 2.3) let a mod widen the `user*` fields. According to the owner (5 November 2026), no mod ships `netf_overrides.txt` or `psf_overrides.txt`. Decide explicitly: keep the mechanism (tables regenerated or widths read at start, with the generic tables as a fallback for those fields), or remove it and put the needed width in the field list. Do not silently ignore it. Decided (5 November 2026): removed, since coding `user*` by their C type (4.2, "Values") sends every value whole. Whether a mod ships these files does not matter (owner's goal 2).
+- Runtime width overrides (`netf_overrides.txt`, `psf_overrides.txt`, 02 section 2.3) let a mod widen the `user*` fields. As reported on 5 November 2026, no mod ships `netf_overrides.txt` or `psf_overrides.txt`. Decide explicitly: keep the mechanism (tables regenerated or widths read at start, with the generic tables as a fallback for those fields), or remove it and put the needed width in the field list. Do not silently ignore it. Decided (5 November 2026): removed, since coding `user*` by their C type (4.2, "Values") sends every value whole. Whether a mod ships these files does not matter (goal 2).
 
 ## 4.7 Transport
 
@@ -140,7 +140,7 @@ Recommendation: do the codec first on the existing netchan (steps 1 to 9 of the 
 - **Time base** (5 November 2026). `serverTime` is the game clock, which follows real time in steps of `1000 / sv_fps` ms (02 section 2.4); it must stay the time the positions refer to, so replacing it by `Sys_Milliseconds()` would be wrong. What the client lacks is the real send time and the server's processing delay, which would help its clock synchronisation (`CL_AdjustTimeDelta`) and the computed interpolation delay of 4.10. To evaluate in step 11 as an additional timestamp, costed in bytes.
 - **Not studied (and potentially large):** per-client priority and bandwidth budgets, distance-based update frequency, interest management (culling entities the client does not need), and delta coding of entities relative to each other. The study measured only how well a given set of updates is coded, not which updates to send.
 
-## 4.10 Settings to remove or compute (owner's goal 3 in the README)
+## 4.10 Settings to remove or compute (goal 3 in the README)
 
 Network settings found in OpenJK (defaults in brackets; `cl_maxpackets` is 63 and `sv_snapsPolicy` 1 in OpenJK, 08 section 8.2). The aim is that players and administrators set none of them; the engine measures and adapts. New commands and cvars for debugging and statistics are welcome (for example forcing a value to test it, or printing the measured bandwidth, RTT, jitter, base age and bytes per snapshot); they must not be needed for normal play. Judgement, not measured.
 

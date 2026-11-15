@@ -3,7 +3,7 @@
 ## 6.1 Environment used
 
 - Windows 11, Git Bash; Python 3.14.2 (standard library only, apart from the standard `compression.zstd` module used by `bench4.py` for the zstd comparison; no third-party Python package).
-- C and C++ benchmarks: CMake and Visual Studio 2022 (MSVC, x64, Release) on the owner's machine. The assistant's environment had no compiler; the C code was written without being compiled by its author and then compiled and run by the owner, who also supplied the executables for the final runs.
+- C and C++ benchmarks: CMake and Visual Studio 2022 (MSVC, x64, Release) on the development machine. The assistant's environment had no compiler; the C code was written without being compiled by its author and then compiled and run, who also supplied the executables for the final runs.
 - No network access is needed to re-run anything except cloning the third-party sources (6.4).
 
 ## 6.2 Capture file format (written by the proxy)
@@ -69,7 +69,7 @@ C++ (`codemp/netcodec/`, plan step 6; build with the presets of `CMakePresets.js
 | `worst.py` | Crowded and adversarial snapshots; writes `bench_worst_*.bin` for the C benchmark. |
 | `dump_bench.py` | Writes `bench_input.bin` (6.8) for the C benchmark. |
 
-`tools/fieldinfo/`: `fieldinfo.cpp` and `CMakeLists.txt`, a program that prints the offsets, sizes and C types of the fields listed in `fields.inc` (built by the owner; `build/` is not committed).
+`tools/fieldinfo/`: `fieldinfo.cpp` and `CMakeLists.txt`, a program that prints the offsets, sizes and C types of the fields listed in `fields.inc` (built; `build/` is not committed).
 
 `tools/cpubench/`: `bench.c` (own coders A to D), `bench_libs.cpp` (ryg_rans, FSE, qbc, nibrans), `nibrans_impl.c` (nibrans compiled as C), `CMakeLists.txt` (expects the third-party sources under `third_party/`).
 

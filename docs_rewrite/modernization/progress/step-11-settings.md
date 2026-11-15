@@ -1,8 +1,8 @@
 # Step 11: network settings fixed or computed at run time
 
-Status: **done** (11 November 2026; checked in game, locally and on the VPS with `net_dropsim`). Plan: [PLAN.md](../PLAN.md), step 11. The survey of what other games do, the options with their costs and the owner's choice for each point are in [network-settings.md](../surveys/network-settings.md); this page records what was built, what the checks found and how they were made. Changed since by step 14 ([step-14-fixed-tick.md](step-14-fixed-tick.md)): the fixed rate (200,000 bytes per second), the client packet rate (one packet per tick, 100 per second; the server decodes 110 with a burst of 100) and the rule of the interpolation delay (section 11, "4e").
+Status: **done** (11 November 2026; checked in game, locally and on the VPS with `net_dropsim`). Plan: [PLAN.md](../PLAN.md), step 11. The survey of what other games do, the options with their costs and the choice for each point are in [network-settings.md](../surveys/network-settings.md); this page records what was built, what the checks found and how they were made. Changed since by step 14 ([step-14-fixed-tick.md](step-14-fixed-tick.md)): the fixed rate (200,000 bytes per second), the client packet rate (one packet per tick, 100 per second; the server decodes 110 with a burst of 100) and the rule of the interpolation delay (section 11, "4e").
 
-## Scope (owner, 10 November 2026)
+## Scope (10 November 2026)
 
 The plan asked for a bandwidth estimate per connection that would set the snapshot and packet rates. A survey of recent games (the network settings survey, section 1) showed that competitive games run fixed rates and adapt only the interpolation delay and the input redundancy, and this branch's traffic (about 100 bytes per snapshot with headers, 2 KB per second at 20 Hz) does not need an estimate. The step was revised: fixed values where nothing needs measuring, and only the interpolation delay computed. Decisions by point (the network settings survey, sections 3 to 11):
 
@@ -43,7 +43,7 @@ Measured on the VPS (GCC dedicated server, one player, `com_maxfps` 125, `cl_max
 - **Game module, cgame, UI** (`g_client.c`, `g_bot.c`, `g_xcvar.h`, `cg_servercmds.c`, `ui_main.c`): the advice to set `/snaps` removed; bots no longer send `rate` and `snaps`; cgame no longer sets `snaps`; `ui_setRate` removed. The userinfo validation required `rate` and `snaps`, so every client was refused at connection ("Failed userinfo validation", found in the first test): both fields are removed from `userinfoFields`. `g_userinfoValidate` is a bit mask indexed by the position of each field, so its default becomes 6291455 (the same checks as 25165823); a configuration that still stores the old value turns on the extended ASCII check until `reset g_userinfoValidate` (the cvar is archived even at its default value).
 - **Fixes after a review of the code** (in the commit of part 3): `1000 / sv_fps` in `SV_SendMessageToClient` could divide by zero, since a gamestate can be sent from a client packet before `SV_Frame` corrects `sv_fps 0`; the 10 % margin of the packet limit above; the send-time measure restarts at a gamestate and with a snapshot sent without a base asked (a `map_restart` showed a change of 360 ms).
 
-Checks (owner, 11 November 2026, VPS and local, `svnetstats` with the packet rate derived from packets per snapshot at 20 per second):
+Checks (11 November 2026, VPS and local, `svnetstats` with the packet rate derived from packets per snapshot at 20 per second):
 
 | client | packets per second | user commands per packet | payload bytes per packet | dropped by the server |
 |---|---|---|---|---|
@@ -70,9 +70,9 @@ Defects found by the checks in game and fixed before the commit:
 
 1. With `net_dropsim 10` the delay averaged 74.7 ms instead of about 100, 55 of 688 intervals extrapolated: the fast adjustment, still measured against the newest snapshot, halved every delay above 100 ms, so the delay swung between about 50 and 100 ms.
 2. Found by reading the code: snapshots read within one frame counted as lost (a client at a low frame rate, or `sv_fps` 40, would have turned the loss margin on), then, recorded one by one, the snapshots that waited during a client freeze would have raised the delay by the freeze for 3 s; the split between offsets (newest of a frame) and losses (every snapshot) fixes both.
-3. After a `map_restart`, the lagometer's blue bar grew large and cgame showed "Connection Interrupted": the older offsets held the client about 350 ms behind the newest snapshot for 3 s, past the 64 user commands it keeps (`CG_DrawDisconnect`). A first fix restarted the window (back to normal in 2 to 3 s); the owner asked for the clock to follow the jump at once; measured on the first snapshot after the restart, the jump was about 40 ms short (that snapshot leaves late, by the time the server takes to restart), so it is measured on the second (about 400 ms; the delay moves by 2 ms afterwards).
+3. After a `map_restart`, the lagometer's blue bar grew large and cgame showed "Connection Interrupted": the older offsets held the client about 350 ms behind the newest snapshot for 3 s, past the 64 user commands it keeps (`CG_DrawDisconnect`). A first fix restarted the window (back to normal in 2 to 3 s); a second makes the clock follow the jump at once, measured on the first snapshot after the restart, the jump was about 40 ms short (that snapshot leaves late, by the time the server takes to restart), so it is measured on the second (about 400 ms; the delay moves by 2 ms afterwards).
 
-Checks (owner, 11 November 2026, VPS, `netstats`):
+Checks (11 November 2026, VPS, `netstats`):
 
 | condition | delay behind the newest snapshot when it arrives | jitter | extrapolated intervals | loss margin |
 |---|---|---|---|---|
@@ -82,7 +82,7 @@ Checks (owner, 11 November 2026, VPS, `netstats`):
 | scoreboard freezes (Tab) | 52.7 ms | 4 ms | 0 of 104 (114 snapshots: those read together not counted lost) | off |
 | `map_restart` | `<JUMP 398>` to `<JUMP 400>` with `cl_showTimeDelta 1`, then the delay moves by 2 ms; no "Connection Interrupted" | | | |
 
-The old algorithm with `cl_timeNudge 0` gave about 55 to 56 ms on a stable link (estimated from its code, not measured): the same within 2 to 3 ms. Less delay (the world closer to the newest snapshot for everyone, as the owner's former `cl_timeNudge -14`) was considered and not kept: it means extrapolated positions part of each interval; the delay will drop with `sv_fps` 40 and stop mattering for hits with lag compensation (step 14).
+The old algorithm with `cl_timeNudge 0` gave about 55 to 56 ms on a stable link (estimated from its code, not measured): the same within 2 to 3 ms. Less delay (the world closer to the newest snapshot for everyone, as a former `cl_timeNudge -14` setting) was considered and not kept: it means extrapolated positions part of each interval; the delay will drop with `sv_fps` 40 and stop mattering for hits with lag compensation (step 14).
 
 ## Left to step 14
 

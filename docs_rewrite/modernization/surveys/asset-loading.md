@@ -1,6 +1,6 @@
 # Loading assets during a game: what engines do, the measure and the options for the freeze at the first scoreboard
 
-Written on 14 November 2026, for plan step 14 part 9b ([../PLAN.md](../PLAN.md); [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 16). The client stops when the scoreboard first shows players who joined during the game (about 150 ms noted in step 11; 65 ms per model measured here): their models are loaded then, all in one frame, and no command leaves meanwhile. The owner asked for the cause to be found and corrected at its source rather than for a better moment to freeze. This page records the measure, what recent engines and the Quake 3 family do about loading in play, and the options with their costs.
+Written on 14 November 2026, for plan step 14 part 9b ([../PLAN.md](../PLAN.md); [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 16). The client stops when the scoreboard first shows players who joined during the game (about 150 ms noted in step 11; 65 ms per model measured here): their models are loaded then, all in one frame, and no command leaves meanwhile. The aim is the cause found and corrected at its source rather than for a better moment to freeze. This page records the measure, what recent engines and the Quake 3 family do about loading in play, and the options with their costs.
 
 Each source is labelled as in the other surveys:
 
@@ -14,7 +14,7 @@ Each source is labelled as in the other surveys:
 2. Without the driver's compression (`r_ext_compress_textures 0`) the same ten models take 27 ms each, and the map itself loads in 1.16 s instead of 2.20 s.
 3. Recent engines never compress a texture when it is loaded: textures are stored in the GPU's format, read and prepared on other threads, and handed to the GPU a few milliseconds per frame. A synchronous load in play is described as the usual cause of a stall.
 4. ioquake3 already ships with the driver's compression off; OpenJK kept it on.
-5. Nothing is decided. The options are in section 5. (Note of 14 November 2026, evening: the owner's choices are in section 6.)
+5. Nothing is decided. The options are in section 5. (Note of 14 November 2026, evening: the choices are in section 6.)
 
 ## 2. What this engine does, and what it costs
 
@@ -58,7 +58,7 @@ What they share: the storage format is the GPU's, the reading and any decoding r
 
 ## 5. Options
 
-No message changes with any of them. The times are per model, from section 2, on the owner's machine with clang; an estimate is marked.
+No message changes with any of them. The times are per model, from section 2, on the development machine with clang; an estimate is marked.
 
 | option | the freeze per model | memory | work |
 |---|---|---|---|
@@ -72,9 +72,9 @@ No message changes with any of them. The times are per model, from section 2, on
 
 A and B correct the two parts of the cause that are plain waste; together they leave about 23 ms per model, two to three ticks, and five new players loaded at once would still stop the client for about 115 ms. Only D removes the stop, as the engines of section 3 do; C shortens it; E removes its two largest parts but needs every asset converted; F and G go around it.
 
-## 6. The owner's choices
+## 6. The choices
 
-Owner, 14 November 2026: the image libraries first, by better ones vendored on every platform, in place of C (Wuffs, [image-libraries.md](image-libraries.md): a model's images read and decoded in 6.8 ms instead of 14.6), then the compression libraries ([compression-libraries.md](compression-libraries.md)). The same evening: A, as the default only (`r_ext_compress_textures` 0; the cvar stays for a player who wants the compression, "in case"), and B, after checking that the hash table holds every name the full scan can find. D, E, F and G are not taken. The rest was looked at and left by the owner the same evening, what is done being enough for now: D, and the deferred models loaded one per frame instead of all in one frame (a few lines in cgame: the same total, spread over frames, no frame longer than one model's load). What was done and measured: [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 16.
+14 November 2026: the image libraries first, by better ones vendored on every platform, in place of C (Wuffs, [image-libraries.md](image-libraries.md): a model's images read and decoded in 6.8 ms instead of 14.6), then the compression libraries ([compression-libraries.md](compression-libraries.md)). The same evening: A, as the default only (`r_ext_compress_textures` 0; the cvar stays for a player who wants the compression, "in case"), and B, after checking that the hash table holds every name the full scan can find. D, E, F and G are not taken. The rest was looked at and left the same evening, what is done being enough for now: D, and the deferred models loaded one per frame instead of all in one frame (a few lines in cgame: the same total, spread over frames, no frame longer than one model's load). What was done and measured: [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 16.
 
 ## 7. What was not read or verified
 

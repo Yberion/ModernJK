@@ -2,7 +2,7 @@
 
 Last update: 15 November 2026. ModernJK compared with OpenJK `master` at `260c59c29`. Multiplayer only (`codemp/` and the shared code it uses); single player is not built.
 
-This page lists every change of the branch, with its reason and what it gives. The work follows the owner's goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
+This page lists every change of the branch, with its reason and what it gives. The work follows the goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
 ## How to read this page
 
@@ -352,7 +352,7 @@ The first rule of this branch (plan step 11) took the second latest arrival of t
 
 - cgame: `CG_CalcEntityLerpPositions` (`cgame/cg_ents.c`) always interpolates, which is what `cg_smoothClients 0` did. The filter on the drawn origin (`cgame/cg_players.c`) is gone; it stays for a player held or thrown by another.
 - Game module: `g_smoothClients` is removed and the player's entity state keeps the form of its default (the velocity and the command's time, `BG_PlayerStateToEntityStateExtraPolate`). So the messages do not change: the same bytes, and the form the codec's position prediction and tables were made for.
-- This removal takes the other value than the default of `cg_smoothClients`, by the owner's decision, against the usual rule (a removed cvar keeps its default's behaviour).
+- This removal takes the other value than the default of `cg_smoothClients`,'s decision, against the usual rule (a removed cvar keeps its default's behaviour).
 - Details: [progress/step-14-fixed-tick.md](progress/step-14-fixed-tick.md) section 13.
 
 </details>
@@ -440,7 +440,7 @@ The ping is the average over the acknowledged messages among the last 256 (`SV_C
 
 **Now.** None of them exists. Every client gets a snapshot per tick and sends a packet per tick; each packet repeats the commands of the 2 packets before it; the timeouts are fixed.
 
-**Why.** One of the owner's goals: a value that needs no measuring is a constant, a value that depends on the link is computed (section 4), and what must not be bypassed is enforced by the server. Recent competitive games do the same ([surveys/network-settings.md](surveys/network-settings.md)).
+**Why.** One of the goals: a value that needs no measuring is a constant, a value that depends on the link is computed (section 4), and what must not be bypassed is enforced by the server. Recent competitive games do the same ([surveys/network-settings.md](surveys/network-settings.md)).
 
 **Gain.**
 
@@ -1030,7 +1030,7 @@ Added commands. The statistics commands print their counters since the previous 
 
 **Now.** Everything a player sees is named ModernJK: `modernjk.x86_64` and `modernjkded.x86_64`, the window "ModernJK (MP)", `modernjk.cfg` and `modernjk_server.cfg`, `Documents\My Games\ModernJK` and `~/.local/share/modernjk`, the folder `ModernJK`, the version "ModernJK-MP". The single-player game is renamed the same way: `modernjk_sp.x86_64`, the window "ModernJK (SP)", `modernjk_sp.cfg`, the version "ModernJK".
 
-**Why.** The branch is a game of its own (owner, 15 November 2026): it does not play with OpenJK or the base game (section 29), so it does not take their names or their files.
+**Why.** The branch is a game of its own (15 November 2026): it does not play with OpenJK or the base game (section 29), so it does not take their names or their files.
 
 **Gain.** An OpenJK and a ModernJK installation no longer share a configuration file or a settings folder. The cost: a configuration of OpenJK is not read any more; copy `openjk.cfg` to `modernjk.cfg` (and `openjk_server.cfg` to `modernjk_server.cfg` on a server) to keep it.
 
@@ -1059,10 +1059,10 @@ Added commands. The statistics commands print their counters since the previous 
 | subject | where |
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
-| The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (owner, 14 November 2026: enough for now) |
+| The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (14 November 2026: enough for now) |
 | A long client hitch: beyond 1.28 s the oldest snapshots are skipped (1.6 s in the base game) | tested, left as it is (plan step 14, part 11) |
-| Priority and culling per client: no priority; the culling against wallhacks prototyped | plan step 16, set aside (owner, 15 November 2026) |
-| The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (owner, 15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
+| Priority and culling per client: no priority; the culling against wallhacks prototyped | plan step 16, set aside (15 November 2026) |
+| The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |
 | The client's window, input and sound device rewritten on SDL 3 | plan step 15 |

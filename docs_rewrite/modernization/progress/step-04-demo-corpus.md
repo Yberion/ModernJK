@@ -4,7 +4,7 @@ Status: **done**, 5 November 2026. Plan: [PLAN.md](../PLAN.md), step 4.
 
 ## Data supplied
 
-The owner supplied 3.8 GB of client demos from a friend, all in `data/demos/train/` (not committed; demo files contain player names, which are not copied into these documents). 1,116 demo files: 676 named `.dm_26` and 440 without extension (names cut by the archive tool; same format, checked by decoding). 11 archives (`.zip`, `.rar`) were not extracted and are skipped.
+3.8 GB of client demos were supplied, recorded by another player, all in `data/demos/train/` (not committed; demo files contain player names, which are not copied into these documents). 1,116 demo files: 676 named `.dm_26` and 440 without extension (names cut by the archive tool; same format, checked by decoding). 11 archives (`.zip`, `.rar`) were not extracted and are skipped.
 
 All decisions about which demos are used belong to the index and the selection below, not to the folder layout: the plan's `train/` and `holdout/` folders are replaced by a column of the list file.
 
@@ -42,7 +42,7 @@ All games come from the 1.01 base game module family (players sent as `TR_LINEAR
 
 4. **The codec dropped pilot fields.** A siege demo on `siege_hoth3_v6` (server `JAmp: v1.0.1.0 linux-i386 Feb 12 2022`, `base_entranced`) failed the round trip from its first pilot state on: that server sends pilot states with `lc` up to 96, not the 1.01 limit of 58 (it has the OpenJK fix), and `codec2.py` still applied the 1.01 rule (`size - 82`) and lost `bobCycle`, `groundEntityNum`, `inAirAnim`. `codec2.py` now codes all 140 fields of the pilot table, in line with the decision not to restore the rule (08 section 8.1); `fuzz.py` follows automatically. The captures contain no pilot state: `run_full.py` (139.1) and `run_pred.py pi --fuzz` (107.3, fuzz 0 failures) are unchanged, and so is `sim_loss.py` (the 20 runs of 03 section 3.9 give the same figures, 0 failures; rerun 5 November 2026).
 
-## Selection (decided with the owner, 5 November 2026)
+## Selection (decided on 5 November 2026)
 
 `demo_select.py` (new) writes `data/demos/selection.tsv` from the index:
 
@@ -67,7 +67,7 @@ All games come from the 1.01 base game module family (players sent as `TR_LINEAR
 | List files | `data/demos/index.tsv` (all files), `data/demos/selection.tsv` (the sets) |
 | Train and held-out sets separate | yes, by file and by map |
 
-## Corpus scope (owner, 5 November 2026)
+## Corpus scope (5 November 2026)
 
 No race, JA+ or JAPRO demos will be added. FFA can be recorded with bots. The target game module is the base one (08 section 8.3) (players as `TR_LINEAR_STOP`, like the corpus), so no `TR_INTERPOLATE` recording is needed; a FFA bot demo on this branch with the base game module would only add the FFA game type.
 

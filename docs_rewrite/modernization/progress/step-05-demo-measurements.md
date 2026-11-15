@@ -68,11 +68,11 @@ Held-out maps:
 
 Per game type, most of the gain is in team FFA (−5.5 %), and one held-out map loses (`mp/ctf_gerona`, 28.9 to 33.0 bytes, +14 %). The age context helps mostly the messages without a base (11 held-out messages, 272.7 to 237.5 bytes). The two variants combined were not tested.
 
-**Decided with the owner (5 November 2026): one global table set, without the base age as a context.** The gains of about 2 % are smaller than the differences between maps, and each variant multiplies the size of the tables shipped with the binary (04 section 4.5).
+**Decided on 5 November 2026: one global table set, without the base age as a context.** The gains of about 2 % are smaller than the differences between maps, and each variant multiplies the size of the tables shipped with the binary (04 section 4.5).
 
 ## Snapshot interval (`sv_fps`)
 
-The codec makes no assumption about the snapshot interval: time fields are coded against the snapshot's `serverTime`, whatever the gap. The interval changes only the content (more movement between two snapshots). The goal (owner, 5 November 2026) is one table set that works at any `sv_fps`.
+The codec makes no assumption about the snapshot interval: time fields are coded against the snapshot's `serverTime`, whatever the gap. The interval changes only the content (more movement between two snapshots). The goal (5 November 2026) is one table set that works at any `sv_fps`.
 
 | game type, interval | set | messages | mean | ratio to engine |
 |---|---|---|---|---|

@@ -2,11 +2,11 @@
 
 Status: **done** (10 November 2026; checked in game). Plan: [PLAN.md](../PLAN.md), step 10.
 
-## Transport decisions (owner, 10 November 2026)
+## Transport decisions (10 November 2026)
 
 The questions of [07-transport-study.md](../study/07-transport-study.md) section 7.7: no authenticated encryption for now (it stays possible later, in plan step 12, as a layer on libsodium without a backend); 32 players per server (`MAX_CLIENTS` unchanged); IPv6 later; the server browser and master-server protocols are kept. So the netchan is improved in place (07 option A), and this step works on it.
 
-## Scope, from the measurements (owner, 10 November 2026)
+## Scope, from the measurements (10 November 2026)
 
 The plan's items were written before steps 7 and 8 measured the real traffic. Re-read against those measurements:
 
@@ -24,7 +24,7 @@ The plan's items were written before steps 7 and 8 measured the real traffic. Re
 1. **Server commands not repeated while in flight** (`codemp/server/sv_netcodec.cpp`, `SV_NetcodecBegin`, `SV_NetcodecCommandsDue`). A message sends the commands not yet acknowledged only when there is a new command, or when the last message that sent them is known lost (the client acknowledged that message or a later one without acknowledging the commands: each client packet carries both numbers), or is still unacknowledged after twice the ping; otherwise it sends none. A message that sends commands sends all of them from the client's acknowledge on, as before, so the client receives them in order (it keeps only the next command in sequence) and the codec's record of the commands the client holds stays true (a message without commands takes its base's). Bots (their demos) and clients not yet in the game (no ping measured yet) send every command until acknowledged, as before. No format or client change. Cost: a command in a lost message arrives about one ping later than before, when the next message repeated it; a burst of commands within a round trip still repeats the earlier ones, so that they stay in order. `svnetstats` counts the commands sent and how many were repeats.
 2. **Gamestate resent quickly** (`codemp/client/cl_input.cpp`, `CL_ReadyToSendPacket`): the client sent one packet a second until it had the gamestate; it now sends at its normal rate, so the server, which resends the gamestate as soon as the client acknowledges a later message (`SV_ExecuteClientMessage`), resends a lost one about one round trip later. Cost: about 60 packets of about 10 bytes per second during the wait.
 
-## Check in game (owner, 10 November 2026, MSVC x64 client, MSVC local server and GCC server on the VPS)
+## Check in game (10 November 2026, MSVC x64 client, MSVC local server and GCC server on the VPS)
 
 Results:
 

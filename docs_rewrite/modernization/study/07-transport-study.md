@@ -70,11 +70,11 @@ Evidence is from [03](03-results.md) unless noted. "Must" means the codec's gain
 | T3 | Reliable ordered channel for the gamestate, server commands, client commands and downloads, with its own fast retransmission | should | the engine resends a lost gamestate only after about 1,000 ms (3.10); a lost fragment loses the whole message |
 | T4 | Message size above the MTU handled by the transport (fragmentation with reassembly), or avoided by the codec | should | 2 of 8,836 messages exceed 1,300 bytes for ordinary play; the gamestate (4,024 bytes) and crowd snapshots do |
 | T5 | Low fixed overhead per packet | should | the solo payload is 7 to 9 bytes; the netchan header is 4 bytes plus 28 bytes of IP and UDP |
-| T6 | Bandwidth control that adapts, with no setting to tune (owner's goal 3) | must | at the default `rate` 4000 the engine delays 93 % of snapshots (3.10) |
-| T7 | Authenticated and encrypted packets | could / decision for the owner | the current scheme has none (7.2) |
+| T6 | Bandwidth control that adapts, with no setting to tune (goal 3) | must | at the default `rate` 4000 the engine delays 93 % of snapshots (3.10) |
+| T7 | Authenticated and encrypted packets | could / to decide | the current scheme has none (7.2) |
 | T8 | Connection handshake with stateless, unpredictable cookies and amplification limits | should | challenge from `rand()`, `getstatus` amplification (7.1, 7.2) |
 | T9 | IPv6 | should | no IPv6 in `win_net.cpp` (7.1) |
-| T10 | 32 to 64 or more simultaneous clients on a dedicated server (Windows and Linux) | must | the owner's player count is not fixed (`MAX_CLIENTS` is 32 in OpenJK); the engine has a Linux dedicated server |
+| T10 | 32 to 64 or more simultaneous clients on a dedicated server (Windows and Linux) | must | the player count is not fixed (`MAX_CLIENTS` is 32 in OpenJK); the engine has a Linux dedicated server |
 | T11 | Licence compatible with GPL v2 (BSD-2, BSD-3, MIT, zlib, CC0), no Apache-2.0 / GPL v3 dependency in the linked code, or an explicit decision on the licence of the whole | must | most CleanJK files are GPL v2 only (02, section 2.9) |
 | T12 | The server-browser and master-server queries (`getinfo`, `getstatus`, heartbeats) keep working or are replaced | must | the server list is how players find games |
 | T13 | Statistics: RTT, jitter, loss per connection, to drive T6 | must | step 11 of the plan computes the settings from these measurements; today only the ping in the snapshots exists |
@@ -131,7 +131,7 @@ So an authenticated transport adds roughly 10 to 17 % to a normal snapshot and 4
 
 ## 7.5 Proposed way to decide (to start once the codec exists)
 
-1. **Fix the owner's constraints** (questions in 7.7).
+1. **Fix the constraints** (questions in 7.7).
 2. **Prototype the in-place improvements in the simulator** (ack bitfield, faster gamestate resend) using `sim_loss.py`-style simulation with the real codec; measure the effect on bytes and gamestate time.
 3. **Build a small test harness**, outside the game, that sends the codec's recorded messages through (a) the netchan model, (b) netcode + reliable, and optionally (c) GameNetworkingSockets, with emulated latency, jitter and loss. Measure: overhead per packet, CPU per client at 64 clients, behaviour under 5 / 10 / 20 % loss, behaviour with large messages (gamestate), reconnect time.
 4. **Review the licences and builds** on the target platforms (Windows and Linux dedicated server), including libsodium and OpenSSL if used, with a legal reading where the licence is not plainly compatible.
@@ -151,11 +151,11 @@ Design notes whichever option is chosen:
 - `usercmd` coding (`msg.cpp:685-860`) beyond noting the key.
 - Voice, server-side demo recording and other users of the netchan.
 - Any benchmark or build of a transport library. Licences were read from the repository files; library behaviour comes from their documentation.
-- Whether the encrypted-transport overhead is acceptable for the owner's target: that is a product decision, not a measurement.
+- Whether the encrypted-transport overhead is acceptable for the target: that is a product decision, not a measurement.
 
-## 7.7 Questions for the owner (needed before step 1)
+## 7.7 Questions to answer (needed before step 1)
 
-Answered so far (4 November 2026): compatibility with the old protocol and mods is not required; network settings should be computed, not configured. Answered on 10 November 2026 (owner, plan step 10): no authenticated encryption for now (possible later as a libsodium layer without a backend); 32 players (`MAX_CLIENTS` unchanged); IPv6 later; the server browser and master-server protocols are kept; so the netchan is improved in place (option A). Question 6 (Apache-2.0 / OpenSSL 3) does not arise with that choice.
+Answered so far (4 November 2026): compatibility with the old protocol and mods is not required; network settings should be computed, not configured. Answered on 10 November 2026 (plan step 10): no authenticated encryption for now (possible later as a libsodium layer without a backend); 32 players (`MAX_CLIENTS` unchanged); IPv6 later; the server browser and master-server protocols are kept; so the netchan is improved in place (option A). Question 6 (Apache-2.0 / OpenSSL 3) does not arise with that choice.
 
 1. Is authenticated encryption a requirement? If yes, is a backend that issues connect tokens acceptable, or must anyone be able to connect to a public server directly?
 2. Target number of simultaneous players per server (the answer decides between libraries with client caps, 100 for yojimbo as documented, and larger designs).

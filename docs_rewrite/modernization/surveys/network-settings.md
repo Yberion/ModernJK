@@ -1,6 +1,6 @@
 # Network settings: what other games do, and the options for step 11
 
-Written on 10 November 2026, before plan step 11 (settings computed at run time, [../PLAN.md](../PLAN.md)). For each setting the step is meant to remove, this page records what recent games and network libraries do, the options for this branch with their cost in CPU, bytes and memory, and the owner's choice where one was made. Nothing here was measured on a network: the numbers about other games come from the sources in section 12, read on 10 November 2026, and the numbers about this branch come from the step documents of [progress/](../progress/README.md). Engine statements carry a `file:line` reference relative to `codemp/`.
+Written on 10 November 2026, before plan step 11 (settings computed at run time, [../PLAN.md](../PLAN.md)). For each setting the step is meant to remove, this page records what recent games and network libraries do, the options for this branch with their cost in CPU, bytes and memory, and the choice where one was made. Nothing here was measured on a network: the numbers about other games come from the sources in section 12, read on 10 November 2026, and the numbers about this branch come from the step documents of [progress/](../progress/README.md). Engine statements carry a `file:line` reference relative to `codemp/`.
 
 What plan step 14 changed after this survey (11 to 14 November 2026; each choice below is kept as it was taken): the server ticks at a fixed 100 Hz with the game's logic at 20 Hz, instead of `sv_fps` 20 then 40 (point 2); the fixed rate is 200,000 bytes per second (point 1); the client makes one command and sends one packet per tick, 100 per second, and the server decodes at most 110 per second with a burst of 100 (points 3 and 8); the server keeps an input buffer and steers the client's command clock with the input margin it sends in each snapshot, the repeat of the commands of 2 packets staying (point 4, option 4d, and point 6, option 6d); the interpolation delay has a new rule, 7 to 11 ms measured behind the newest snapshot, and `cg_smoothClients` is removed, the other players always interpolated (point 5). The present state, change by change: [../CHANGES.md](../CHANGES.md).
 
@@ -56,7 +56,7 @@ Options:
 | 1b. 1a plus a fallback: halve the snapshot rate while loss lasts (as Overwatch) | protects weak links | effort S; a rule to tune | negligible | 0 | a few bytes per client |
 | 1c. bandwidth estimation with priorities (Unreal, Tribes) | adapts to a saturated link | effort M, risk of oscillation; useless at 2 to 9 KB/s | negligible | 0 | a few hundred bytes per client |
 
-**Owner's choice (10 November 2026): 1a.** 1b can be added later if measurements show weak links. (Raised to 200,000 bytes per second on 11 November 2026 for the fixed tick of step 14, 125 Hz then and 100 Hz since the same evening, so that no single message delays the next snapshot: the tick survey, section 8.)
+**Choice (10 November 2026): 1a.** 1b can be added later if measurements show weak links. (Raised to 200,000 bytes per second on 11 November 2026 for the fixed tick of step 14, 125 Hz then and 100 Hz since the same evening, so that no single message delays the next snapshot: the tick survey, section 8.)
 
 ## 4. Point 2: snapshot rate and server frame rate
 
@@ -79,7 +79,7 @@ Options:
 | 2b. snapshots at 40 Hz with the game at 20 Hz | fresher player positions (movement runs per command), about 25 ms of interpolation, saber unchanged | no precedent found; needs a snapshot time of its own (point 6, 6c); missiles, movers and saber stay at 20 Hz | snapshot building doubled (to measure) | about +640 bytes/s of headers per client | `PACKET_BACKUP` 32 covers 0.8 s instead of 1.6 s; 64 doubles the server's frame memory |
 | 2c. `sv_fps` 40 with the saber adapted to it (as Quake Live; the usual answer) | everything at 40 Hz | a gameplay change, validated by playing; belongs to step 14 | game CPU doubled | about doubled (about 4 KB/s) | unchanged |
 
-**Owner's choice (10 November 2026): 2a in step 11 (nothing changes in game), then 2c in step 14** (`sv_fps` 40 with the saber adapted to it, once the saber code is read): 40 Hz is smoother and more precise (half the interpolation delay, the saber checked twice as often). (Revised on 11 November 2026 after measuring the server's CPU time: a fixed simulation tick shared by client and server, the tick survey, section 8; 125 Hz at first, 100 Hz since the same evening, with the game's logic kept at 20 Hz: the saber is not adapted, it runs on the 20 Hz instants of the tick.)
+**Choice (10 November 2026): 2a in step 11 (nothing changes in game), then 2c in step 14** (`sv_fps` 40 with the saber adapted to it, once the saber code is read): 40 Hz is smoother and more precise (half the interpolation delay, the saber checked twice as often). (Revised on 11 November 2026 after measuring the server's CPU time: a fixed simulation tick shared by client and server, the tick survey, section 8; 125 Hz at first, 100 Hz since the same evening, with the game's logic kept at 20 Hz: the saber is not adapted, it runs on the 20 Hz instants of the tick.)
 
 ## 5. Point 3: client packet rate
 
@@ -103,7 +103,7 @@ Options (the client sends one packet per frame, up to the cap; above it, a packe
 | 3b. cap at 250 Hz | about 2 ms | twice the packets for the server | twice 3a | 10 to 11 KB/s up | 0 |
 | 3c. send at the server's rate (as CS2, Overwatch, Valorant) | | does not fit this engine: movement runs per command, so 20 Hz would add about 25 ms | lower | lower | 0 |
 
-**Owner's choice (10 November 2026): 3a**, a fixed cap of 125 with no adaptation: the frame rate does the rest (60 fps sends 60 packets per second; 333 fps sends 125 packets of 2 or 3 commands). Commands, and so movement precision, still follow the frame rate.
+**Choice (10 November 2026): 3a**, a fixed cap of 125 with no adaptation: the frame rate does the rest (60 fps sends 60 packets per second; 333 fps sends 125 packets of 2 or 3 commands). Commands, and so movement precision, still follow the frame rate.
 
 Found while measuring (10 November 2026, VPS, `com_maxfps` 125, `cl_maxpackets` 100): the client sent 62.7 packets per second, not 100. The cap is a minimum gap between two packets, `1000 / cl_maxpackets` ms in integer milliseconds, checked once per frame (`client/cl_input.cpp:1460-1464`): 10 ms against frames of 8 ms lets a packet leave every second frame only. The fixed cap of 3a has the same trap (8 ms against frames of 6.9 ms at 144 fps gives 72 packets per second, at 165 fps 82), so it must be a budget instead: the unused part of the interval carries over to the next frame, within a bound, so that the client sends min(frame rate, 125) packets per second on average.
 
@@ -129,7 +129,7 @@ Options:
 | 4c. sliding window with a cap (as Overwatch) | no parameter | clients at 333 fps make about 33 commands per 100 ms of round trip: the cap is mandatory | negligible | grows with the round trip | 0 |
 | 4d. input buffer and client time scaling (Overwatch, Rocket League, Unity) | the modern model | changes the movement model to a fixed tick: step 14 | | | |
 
-**Owner's choice (10 November 2026): measure first** (the real loss of client packets on Internet links, and the byte cost of a repeated command in netcodec), then choose between 4a and 4b.
+**Choice (10 November 2026): measure first** (the real loss of client packets on Internet links, and the byte cost of a repeated command in netcodec), then choose between 4a and 4b.
 
 Measured on 10 November 2026 (VPS over the Internet, `com_maxfps` 125, `cl_maxpackets` 100, so 62.5 packets per second and 2 new commands per packet, about 4 to 6 minutes per run, `svnetstats`):
 
@@ -141,7 +141,7 @@ Measured on 10 November 2026 (VPS over the Internet, `com_maxfps` 125, `cl_maxpa
 
 A repeated command costs 1.5 to 1.9 bytes. No client packet was lost in 51,541 on this link, so the loss that 4b would measure is zero here, and the saving 4b offers over a fixed redundancy is at most about 0.4 KB/s of upload.
 
-**Owner's choice (10 November 2026): 4a, each packet repeats the commands of the 2 previous packets** (as QuakeWorld; `cl_packetdup` removed). Two client packets lost in a row then cost no command: without the repeat, the server runs the next command over the missing time with that command's input, so a jump, an attack or a change of direction in a lost command never happens on the server, and the client, which predicted it, is corrected. With 1, as today, two losses in a row lose commands. Two packets cover 32 ms of commands at 62.5 packets per second and 16 ms at 125; a longer burst still loses commands.
+**Choice (10 November 2026): 4a, each packet repeats the commands of the 2 previous packets** (as QuakeWorld; `cl_packetdup` removed). Two client packets lost in a row then cost no command: without the repeat, the server runs the next command over the missing time with that command's input, so a jump, an attack or a change of direction in a lost command never happens on the server, and the client, which predicted it, is corrected. With 1, as today, two losses in a row lose commands. Two packets cover 32 ms of commands at 62.5 packets per second and 16 ms at 125; a longer burst still loses commands.
 
 ## 7. Point 5: interpolation delay
 
@@ -167,7 +167,7 @@ Options:
 
 How 5c works: for each snapshot the client records the difference between its arrival time and its `serverTime`; the spread of that difference over the last 64 snapshots or so is the jitter, and lost snapshots are counted as well. The target is the edge used today plus a margin proportional to the jitter. The client's time drifts slowly towards the target, as `CL_AdjustTimeDelta` already drifts, and never moves backwards. On a good link the margin is about zero.
 
-**Owner's choice (10 November 2026): 5c, with the margin.** The game should be as precise and responsive as possible in as many cases as possible: the edge gives the least delay without guessing positions, and the margin keeps the positions shown real (interpolated, not extrapolated) on unstable links. Going below the edge, an automatic negative `cl_timeNudge`, would extrapolate, so positions would be wrong whenever a player turns; it is not proposed. The largest gain in responsiveness comes from point 2 (40 Hz halves the interval).
+**Choice (10 November 2026): 5c, with the margin.** The game should be as precise and responsive as possible in as many cases as possible: the edge gives the least delay without guessing positions, and the margin keeps the positions shown real (interpolated, not extrapolated) on unstable links. Going below the edge, an automatic negative `cl_timeNudge`, would extrapolate, so positions would be wrong whenever a player turns; it is not proposed. The largest gain in responsiveness comes from point 2 (40 Hz halves the interval).
 
 Interpolating shows the other players between two snapshots already received: slightly in the past, at real positions. Extrapolating continues their last known movement beyond the newest snapshot: closer to the present, but a guess that is wrong whenever they change direction, and they jump to their real position when the next snapshot arrives. In saber combat directions change all the time, so a real position a few milliseconds late is more reliable than a guess. With lag compensation (step 14) the server rewinds the world to the time the shooter saw, so an interpolated position is exactly right and an extrapolated one is wrong even for the server: interpolation is the model to keep.
 
@@ -177,13 +177,13 @@ Design agreed on 10 November 2026:
 
 - At each frame that brings snapshots, the client records the offset between the newest one's `serverTime` and its arrival time (`cls.realtime` of the frame that processes it: the moment it becomes usable for display), over the last 64 such frames (3.2 s at 20 Hz). Only the newest snapshot of a frame gives an offset: the older ones read in the same frame waited for the client (a long frame, the scoreboard loading models), not for the network, and would raise the delay for 3 s after every client freeze. The server messages missing are counted for every snapshot read, from the gaps in their numbers, so that snapshots read together do not count as lost.
 - The target is the client time at which the next snapshot has already arrived in 63 cases out of 64: the second latest arrival of the window minus one snapshot interval (the second, so that one isolated spike does not raise the delay). On a stable link it shows the world about 5 ms more recent than before, at real positions; on an unstable link the delay grows by about the jitter, and about 1.5 % of the intervals are extrapolated instead of 8 to 18 % (estimates).
-- When the newest snapshot arrives more than 100 ms earlier against its `serverTime` than any snapshot of the window, the server's clock jumped forward against the client's (jitter only makes arrivals later): the client's time and every offset of the window move forward at once by the jump, estimated against the window's median, so the delay stays what it was (owner, 11 November 2026). The jump is measured on the second snapshot that shows it: the first one after a `map_restart` leaves late, by the time the server takes to restart the map, which made the jump about 40 ms short (seen in game: the delay then crept up by 37 to 42 ms over the next 5 s); measured on the second, the jump is about 400 ms and the delay moves by 2 ms afterwards. `map_restart` does that: it runs three frames of 100 ms at once to let the game settle (`server/sv_ccmds.cpp:318-323`, id Software's code; a map load does the same, but the client starts again from its gamestate). Without it, the older offsets held the client 350 ms behind the newest snapshot for 3 s, past the 64 user commands it keeps, so cgame showed "Connection Interrupted" (found in game); a first fix restarted the window, which brought the delay back in 2 to 3 s; the old engine's fast adjustment took about 3 snapshots.
-- One interval of delay is added (50 ms at 20 Hz) while more than 5 % of the server messages of the window are lost, and removed below 2 % (owner: such a link is bad, and 50 ms are better than an extrapolation every second); below that, a lost snapshot is bridged by extrapolation as before.
+- When the newest snapshot arrives more than 100 ms earlier against its `serverTime` than any snapshot of the window, the server's clock jumped forward against the client's (jitter only makes arrivals later): the client's time and every offset of the window move forward at once by the jump, estimated against the window's median, so the delay stays what it was (11 November 2026). The jump is measured on the second snapshot that shows it: the first one after a `map_restart` leaves late, by the time the server takes to restart the map, which made the jump about 40 ms short (seen in game: the delay then crept up by 37 to 42 ms over the next 5 s); measured on the second, the jump is about 400 ms and the delay moves by 2 ms afterwards. `map_restart` does that: it runs three frames of 100 ms at once to let the game settle (`server/sv_ccmds.cpp:318-323`, id Software's code; a map load does the same, but the client starts again from its gamestate). Without it, the older offsets held the client 350 ms behind the newest snapshot for 3 s, past the 64 user commands it keeps, so cgame showed "Connection Interrupted" (found in game); a first fix restarted the window, which brought the delay back in 2 to 3 s; the old engine's fast adjustment took about 3 snapshots.
+- One interval of delay is added (50 ms at 20 Hz) while more than 5 % of the server messages of the window are lost, and removed below 2 % (such a link is bad, and 50 ms are better than an extrapolation every second); below that, a lost snapshot is bridged by extrapolation as before.
 - The client's time moves towards the target by the same steps as before, +1 or -2 ms per snapshot: no jump, and it never moves backwards. The engine's fast adjustment (half the difference when it exceeds 100 ms) is measured against the target, not against the newest snapshot as before: measured against the newest snapshot, it cut in half every delay above 100 ms, so with the loss margin the delay swung between about 50 and 100 ms (found in game with `net_dropsim 10`: 74.7 ms on average, 55 of 688 intervals extrapolated).
 - `cl_timeNudge` is removed. Two `CVAR_CHEAT` cvars force the delay for debugging (an explicit flag, not a magic value): `cl_debugInterpForce` (0 computed, 1 forced) and `cl_debugInterpDelay` (the forced delay behind the newest snapshot when it arrives, in ms). `netstats` prints the measured delay, the jitter, the extrapolated intervals and whether the loss margin is on.
 - Measured in game (11 November 2026, VPS): 53.0 ms behind the newest snapshot when it arrives, 0 extrapolated intervals without loss; 102.8 ms and 0.6 % extrapolated with 9 % of the messages lost (loss margin on); unchanged after a client freeze (Tab). The old algorithm with `cl_timeNudge 0` gave about 55 to 56 ms (estimated from its code, not measured): the same within 2 to 3 ms.
-- Less delay was considered (owner, 11 November 2026, who played with `cl_timeNudge -14` to see half blue and half yellow on the lagometer: about 14 ms more recent, guessed half of the time): showing the world closer to the newest snapshot for everyone means extrapolated positions part of each interval. Kept as designed (no extrapolation): the delay will drop with `sv_fps` 40 (half the interval: about 25 ms when a snapshot arrives) and stop mattering for hits with lag compensation, both in step 14.
-- `cg_smoothClients` (1: the other players follow the trajectory the server sends, carried forward to the displayed time, which extrapolates; 0: they are interpolated between snapshots) is decided in step 14 with the audit of prediction and interpolation (owner, 10 November 2026).
+- Less delay was considered (11 November 2026, who played with `cl_timeNudge -14` to see half blue and half yellow on the lagometer: about 14 ms more recent, guessed half of the time): showing the world closer to the newest snapshot for everyone means extrapolated positions part of each interval. Kept as designed (no extrapolation): the delay will drop with `sv_fps` 40 (half the interval: about 25 ms when a snapshot arrives) and stop mattering for hits with lag compensation, both in step 14.
+- `cg_smoothClients` (1: the other players follow the trajectory the server sends, carried forward to the displayed time, which extrapolates; 0: they are interpolated between snapshots) is decided in step 14 with the audit of prediction and interpolation (10 November 2026).
 
 ## 8. Point 6: a snapshot time stamp for the client's clock
 
@@ -207,7 +207,7 @@ Options:
 | 6c. a time of its own in each snapshot | required by 2b | only useful with 2b | negligible | about 1 byte per message | 0 |
 | 6d. a tick-based clock as in Overwatch | | goes with 4d: step 14 | | | |
 
-**Owner's choice (10 November 2026), after asking whether a real server time would be better: measure first, then 6b if it helps.** The offset between the real send time and the game clock is added to `svnetstats`; if it varies by 1 ms or more, it is sent in each snapshot (6b) together with 5c, so that the jitter 5c measures is the network's only and its margin stays as small as possible. If it stays constant, nothing is sent (6a).
+**Choice (10 November 2026), after the question of whether a real server time would be better: measure first, then 6b if it helps.** The offset between the real send time and the game clock is added to `svnetstats`; if it varies by 1 ms or more, it is sent in each snapshot (6b) together with 5c, so that the jitter 5c measures is the network's only and its margin stays as small as possible. If it stays constant, nothing is sent (6a).
 
 Measured on 10 November 2026 (VPS, GCC dedicated server, one player, 6,770 snapshots, about 5.6 minutes): mean change 0.105 ms, 45 changes of 1 ms or more out of 6,769 (0.7 %), largest 2.56 ms. This is far below the jitter of an Internet path and below the client's arrival resolution (one client frame, 8 ms at 125 fps), so nothing is sent (6a). With 32 players the coding order shifts each client by about the same amount at every frame, so the change between consecutive snapshots should stay small; not measured.
 
@@ -219,7 +219,7 @@ What others do:
 - Source and CS2: `cl_timeout` 30 s (community).
 - Unreal Engine: `InitialConnectTimeout` 60 s and `ConnectionTimeout` 60 s in `BaseEngine.ini` (community, quoting the file); shipped games often use 15 to 30 s.
 - All of them separate the connection phase from the game.
-- This engine: 200 s on both sides (section 2). The fixed 3 s of the connection stay (owner, 10 November 2026).
+- This engine: 200 s on both sides (section 2). The fixed 3 s of the connection stay (10 November 2026).
 
 Options:
 
@@ -229,7 +229,7 @@ Options:
 | 7b. a multiple of the keep-alive interval | | the client sends every frame anyway; only loading matters | 0 | 0 | 0 |
 | 7c. keep 200 s, as a constant | | a dead client holds its slot for over 3 minutes | 0 | 0 | 0 |
 
-**Owner's choice (10 November 2026): 7a, with 60 s until the client is active and 30 s in game.**
+**Choice (10 November 2026): 7a, with 60 s until the client is active and 30 s in game.**
 
 ## 10. Point 8: debug cvars and statistics
 
@@ -247,7 +247,7 @@ Options:
 | 8b. display only | | forcing a value needs a rebuild |
 | 8c. 8a plus an on-screen display for players (ping, loss, delay), as Overwatch and CS2 | | more work in cgame |
 
-**Owner's choice (10 November 2026): 8a, and it must not be a way around the computed values**, with the following protection (agreed the same day):
+**Choice (10 November 2026): 8a, and it must not be a way around the computed values**, with the following protection (agreed the same day):
 
 - Server-side forcing cvars (bandwidth, timeouts) can only be set by the server's administrator.
 - Client-side forcing cvars (interpolation delay, packet rate) are flagged `CVAR_CHEAT`, so the engine resets them unless the server sets `sv_cheats 1`.
@@ -255,17 +255,17 @@ Options:
 
 ## 11. Point 9: removing the old settings
 
-The old cvars are removed, with the menu that sets them (`ui/ui_main.c:4686-4693`), and the change is described in [../CHANGES.md](../CHANGES.md). Owner's choice (10 November 2026): agreed.
+The old cvars are removed, with the menu that sets them (`ui/ui_main.c:4686-4693`), and the change is described in [../CHANGES.md](../CHANGES.md). Choice (10 November 2026): agreed.
 
-The owner notes that JKA players care a great deal about `cl_timenudge` and impose 0, so that no player gains an advantage by changing it. With 5c:
+JKA players care a great deal about `cl_timenudge` and impose 0, so that no player gains an advantage by changing it. With 5c:
 
 - the minimum is exactly today's behaviour with `cl_timenudge 0` (the edge);
 - no player can go below it: the setting no longer exists, and the debug cvar is `CVAR_CHEAT`;
 - a player on an unstable link gets more delay, so sees the others slightly later: a disadvantage for that player rather than an advantage, replacing the extrapolation jumps such a link gives today.
 
-This is the equivalent of `cl_timenudge 0` imposed on everyone, with an automatic margin for bad links (the owner chose the margin, point 5).
+This is the equivalent of `cl_timenudge 0` imposed on everyone, with an automatic margin for bad links (the margin was chosen, point 5).
 
-The owner asked whether `cl_timeNudge` stays useful on connections with a high ping. It does not reduce the ping: a negative value shows the other players up to 30 ms earlier by extrapolating their positions, a positive one adds margin, whatever the ping. What hurts at a high ping is that a player must aim ahead of the target by their ping, since the base game has no lag compensation (nothing in `game/`). Recent games rewind the world on the server to the time the shooter saw (Valorant and Apex Legends, primary; Overwatch, secondary): that is an item of step 14.
+The question was whether `cl_timeNudge` stays useful on connections with a high ping. It does not reduce the ping: a negative value shows the other players up to 30 ms earlier by extrapolating their positions, a positive one adds margin, whatever the ping. What hurts at a high ping is that a player must aim ahead of the target by their ping, since the base game has no lag compensation (nothing in `game/`). Recent games rewind the world on the server to the time the shooter saw (Valorant and Apex Legends, primary; Overwatch, secondary): that is an item of step 14.
 
 ## 12. What was not read or verified
 

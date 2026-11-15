@@ -69,7 +69,7 @@ Script: `bench3.py`, `bench4.py`.
 
 Per snapshot: 283 symbols and 1,510 binary decisions on the test part (310 and 1,645 on the CPU-benchmark sample).
 
-## 3.5 Speed (C benchmark, MSVC Release, owner's machine)
+## 3.5 Speed (C benchmark, MSVC Release, the development machine)
 
 Script: `tools/cpubench/bench.c` and `bench_libs.cpp` with `dump_bench.py`. Nanoseconds per snapshot; sample of 1,000 test snapshots (one in three), so bytes differ from 3.2. Each method is verified by a round trip. Symbol construction (state comparison, delta application) is not included. "Core" columns are the share of one core spent on encoding for N clients at 20 snapshots per second.
 

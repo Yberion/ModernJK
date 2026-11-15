@@ -1,6 +1,6 @@
 # Tick rate and lag compensation: what other games do, the measurements and the choices for step 14
 
-Written on 11 November 2026, at the start of plan step 14 (beyond the codec, [../PLAN.md](../PLAN.md)). This page records what recent games and network libraries do about lag compensation and the simulation rate, how other games handle melee, what this engine already has, the measurements of the server's CPU time at 20, 40 and 125 Hz, and the owner's choices. It continues [network-settings.md](network-settings.md), whose points 2, 5 and 9 led here. The design that follows from it, with the inventory of the code to change, is in [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md).
+Written on 11 November 2026, at the start of plan step 14 (beyond the codec, [../PLAN.md](../PLAN.md)). This page records what recent games and network libraries do about lag compensation and the simulation rate, how other games handle melee, what this engine already has, the measurements of the server's CPU time at 20, 40 and 125 Hz, and the choices. It continues [network-settings.md](network-settings.md), whose points 2, 5 and 9 led here. The design that follows from it, with the inventory of the code to change, is in [../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md).
 
 Each source is labelled as in the network settings survey:
 
@@ -8,15 +8,15 @@ Each source is labelled as in the network settings survey:
 - **secondary**: a summary written by someone else (a press article quoting the developers, a third-party write-up of a talk);
 - **community**: forum posts, player guides, cvar dumps, hosting guides.
 
-What changed after this survey (each choice below is kept as it was taken): **the tick is 100 Hz, not 125** (owner, the evening of 11 November 2026). Every 20 Hz instant is then a tick, and the game's logic (saber, force powers, missiles, thinks) keeps its 20 Hz pace on those instants, identical to `sv_fps` 20, after tuning the saber per tick failed ([../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 9). The saber and the force powers get no lag compensation (decision D2 of that document); the hitscan shots will (its part 8, not done). The fixed tick, the commands per tick, the two clocks and the interpolation are done; the measurements at 100 Hz are in that document and, in plain words, in [../CHANGES.md](../CHANGES.md).
+What changed after this survey (each choice below is kept as it was taken): **the tick is 100 Hz, not 125** (the evening of 11 November 2026). Every 20 Hz instant is then a tick, and the game's logic (saber, force powers, missiles, thinks) keeps its 20 Hz pace on those instants, identical to `sv_fps` 20, after tuning the saber per tick failed ([../progress/step-14-fixed-tick.md](../progress/step-14-fixed-tick.md) section 9). The saber and the force powers get no lag compensation (decision D2 of that document); the hitscan shots will (its part 8, not done). The fixed tick, the commands per tick, the two clocks and the interpolation are done; the measurements at 100 Hz are in that document and, in plain words, in [../CHANGES.md](../CHANGES.md).
 
-**Lag compensation was dropped** (owner, 14 November 2026): it was planned for the hitscan shots only (step 14, part 8) and is not done; the shots stay judged with the positions the server holds. Sections 2 to 4 and the choices of section 8 about it are kept as they were written.
+**Lag compensation was dropped** (14 November 2026): it was planned for the hitscan shots only (step 14, part 8) and is not done; the shots stay judged with the positions the server holds. Sections 2 to 4 and the choices of section 8 about it are kept as they were written.
 
-The owner asked (11 November 2026) that the design follow recent games and be done well even if it means starting again from zero, rather than follow what exists in the Jedi Academy community. The JKA mods read for this page (jaPRO, SaberMod, base_entranced, and Unlagged for Quake 3) are used only to locate the game code a change touches, never as the model.
+The design is to follow recent games (asked on 11 November 2026) and be done well even if it means starting again from zero, rather than follow what exists in the Jedi Academy community. The JKA mods read for this page (jaPRO, SaberMod, base_entranced, and Unlagged for Quake 3) are used only to locate the game code a change touches, never as the model.
 
 ## 1. Summary
 
-Owner's choices (11 November 2026):
+Choices (11 November 2026):
 
 1. The client and the server share a **fixed simulation tick**, as Valorant, Overwatch and Rocket League do: movement runs once per tick instead of once per user command, the client sends one input per tick and the server buffers them, the client runs ahead of the server and adjusts its speed slightly to keep that buffer small, the other players are interpolated, and lag compensation rewinds the world by tick. This one model covers the items of step 14 that were listed apart: `sv_fps`, the fixed physics step, part of the prediction misses, `cg_smoothClients` and lag compensation.
 2. The tick runs at **125 Hz** (8 ms). The code is written to work at any rate, so the value stays a constant that later measurements with real players can change. (Revised the same evening: 100 Hz, 10 ms.)
@@ -101,7 +101,7 @@ What the games that use it describe:
 
 ## 7. Measurements on the VPS
 
-Measured on 11 November 2026 by the owner on the VPS (GCC 12 build of the dedicated server), with `svnetstats`, which prints the server's CPU time since step 14 part 1 (CHANGES.md, `svnetstats`): one human over the Internet and 31 bots on `mp/ffa3`, FFA with sabers only, `sv_maxclients 32`, about 100 to 120 s per rate. The game behaves wrongly above 20 Hz (tuned on 50 ms), which does not change the CPU time measured.
+Measured on 11 November 2026 on the VPS (GCC 12 build of the dedicated server), with `svnetstats`, which prints the server's CPU time since step 14 part 1 (CHANGES.md, `svnetstats`): one human over the Internet and 31 bots on `mp/ffa3`, FFA with sabers only, `sv_maxclients 32`, about 100 to 120 s per rate. The game behaves wrongly above 20 Hz (tuned on 50 ms), which does not change the CPU time measured.
 
 | | 20 Hz | 40 Hz | 125 Hz |
 |---|---|---|---|
@@ -131,7 +131,7 @@ What it shows:
 - **Defect** (step 10): server commands are sent again although no packet was lost, more often as the interval shortens (0, 6, 28). Two causes are possible: a message that sends a new command also sends the earlier ones still in flight (by design of step 10, and there are more messages per round trip at 125 Hz), or the wait of twice the ping before resending is too short (the ping counts the time the server waits before reading packets). To count by cause and fix in step 14.
 - With 31 bots the snapshot leaves 0.2 to 0.4 ms later or earlier from one frame to the next (0.1 ms without bots in step 11): it is sent after a game frame whose length varies.
 
-## 8. Options and the owner's choices
+## 8. Options and the choices
 
 ### Tick rate
 
@@ -144,9 +144,9 @@ Estimated interpolation delay: one interval plus about 3 ms (measured only at 20
 | 125 Hz | about 11 ms | 36 % (measured) | about 21 KB/s | yes (8 ms) |
 | 128 Hz (Valorant) | about 11 ms | about 37 % | about 21 KB/s | no: 7.8125 ms |
 
-**Owner's choice (11 November 2026): 125 Hz** (revised the same evening to 100 Hz, so that every 20 Hz instant is a tick: the note at the top of this page). It is the level of recent competitive games; the CPU and the bandwidth fit without optimisation; one input per tick matches the 125 client packets per second of step 11 (`MAX_PACKET_RATE`); 8 ms is a whole number of milliseconds; and every player gets the physics of "125 fps", the most common client frame rate in the JKA community, in identical 8 ms steps.
+**Choice (11 November 2026): 125 Hz** (revised the same evening to 100 Hz, so that every 20 Hz instant is a tick: the note at the top of this page). It is the level of recent competitive games; the CPU and the bandwidth fit without optimisation; one input per tick matches the 125 client packets per second of step 11 (`MAX_PACKET_RATE`); 8 ms is a whole number of milliseconds; and every player gets the physics of "125 fps", the most common client frame rate in the JKA community, in identical 8 ms steps.
 
-The owner asked whether to align on Valorant's 128 Hz, with the client packet rate and `com_maxfps`. Not done: every clock of the engine and the game counts whole milliseconds (`sv.time`, `level.time`, `serverTime`, `commandTime`, `trTime`, the timers), so 7.8125 ms would mean ticks of 7 and 8 ms in turn (thirteen of 8 and three of 7 every 125 ms) and uneven physics, or every clock moved to microseconds or tick numbers, for 0.19 ms less interval. The client packet rate follows the tick (125). `com_maxfps` stays the player's display setting: with the fixed tick the movement no longer depends on the frame rate, and the display interpolates between the predicted ticks, so a 144, 240 or 360 Hz screen stays smooth.
+The question was whether to align on Valorant's 128 Hz, with the client packet rate and `com_maxfps`. Not done: every clock of the engine and the game counts whole milliseconds (`sv.time`, `level.time`, `serverTime`, `commandTime`, `trTime`, the timers), so 7.8125 ms would mean ticks of 7 and 8 ms in turn (thirteen of 8 and three of 7 every 125 ms) and uneven physics, or every clock moved to microseconds or tick numbers, for 0.19 ms less interval. The client packet rate follows the tick (125). `com_maxfps` stays the player's display setting: with the fixed tick the movement no longer depends on the frame rate, and the display interpolates between the predicted ticks, so a 144, 240 or 360 Hz screen stays smooth.
 
 ### Fixed rate to each client
 
@@ -160,7 +160,7 @@ The server delays the next snapshot when a message takes longer than an interval
 
 Snapshots of 135 to 167 bytes are never delayed at any of these rates; only large messages are (a full snapshot at connection or after a long loss, a gamestate, a download). A higher rate costs nothing in normal play (it is a cap, not a use); a link slower than the rate loses packets during such a burst instead of being paced (below 200 KB/s, that is 1.6 Mbit/s).
 
-**Owner's choice (11 November 2026): 200,000 bytes per second** (`SV_CLIENT_RATE`).
+**Choice (11 November 2026): 200,000 bytes per second** (`SV_CLIENT_RATE`).
 
 ### Lag compensation
 

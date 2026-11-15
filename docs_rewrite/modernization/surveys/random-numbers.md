@@ -1,6 +1,6 @@
 # Random numbers identical on every platform: generators, what other projects do, and the options for step 14
 
-Written on 12 November 2026, during plan step 14, after the math functions ([deterministic-math.md](deterministic-math.md)). The owner asked for one random number generator, modern, fast and of quality, the same on every platform, chosen after a survey as for the math library. This page records what the code draws today, the candidate generators with their quality, speed, state and licence, what engines and languages use, the draws the client must predict, and the options with their costs.
+Written on 12 November 2026, during plan step 14, after the math functions ([deterministic-math.md](deterministic-math.md)). One random number generator was asked for, modern, fast and of quality, the same on every platform, chosen after a survey as for the math library. This page records what the code draws today, the candidate generators with their quality, speed, state and licence, what engines and languages use, the draws the client must predict, and the options with their costs.
 
 Sources are labelled as in the other surveys: **primary** (the authors' own paper, code or documentation), **secondary** (a summary by someone else), **community** (forums, unofficial code).
 
@@ -9,7 +9,7 @@ Sources are labelled as in the other surveys: **primary** (the authors' own pape
 - The game draws from three generators today: Raven's `holdrand` (an LCG copied from MSVC's `rand`, 15 bits per value) behind `Q_irand`, `Q_flrand`, `irand`, `flrand` (about 1,400 calls in the game, cgame, UI, client, botlib and renderers), the C library's `rand()` (37 calls in the game, 36 in cgame, a few in the engine), and `PM_irand_timesync`, which draws from the command's time so that the server and the client's prediction agree. glibc's and the UCRT's `rand()` give different sequences from the same seed, so a Linux and a Windows server play differently; `holdrand` is identical everywhere but of low quality (15-bit values, low bits with short periods). The engine's connection challenges are made from `rand()` and the clock, which an attacker can guess.
 - Every modern candidate costs about 1 ns per value on x64, measured on this machine (section 5): speed does not separate them, nor does it matter at the game's draw rate (estimated at tens of thousands per second at most, well under 0.1 ms per second). Quality, state size, simplicity, licence and predictability do.
 - Recent engines and languages use the xoshiro family (.NET 6 for `new Random()`, Rust's `SmallRng`, Lua 5.4), PCG32 (Godot), LXM (Java 17), xorshift (Unity.Mathematics) or an LCG (Unreal's `FRandomStream`); for unpredictable numbers, a stream cipher (Rust's `StdRng` uses ChaCha12). Valve's Source engine gives each user command a random seed derived from its number (`MD5_PseudoRandom( sequence_number )`), which the client and the server both use for the weapon spread; cheats use the same seed to cancel the spread.
-- Recommended: **xoshiro128++** for every stream (public domain, 32-bit operations, 128-bit state, "passes all tests we are aware of", the authors' current recommendation for 32-bit output), seeded through SplitMix64; integers in a range by **Lemire's unbiased method**, floats from the top 24 bits; **the SplitMix64 finalizer of (command time, draw index)** for the draws `Pmove` makes on both sides; the engine's connection challenges from the operating system's random bytes. One entry point, as for the math functions. The owner decides (section 7).
+- Recommended: **xoshiro128++** for every stream (public domain, 32-bit operations, 128-bit state, "passes all tests we are aware of", the authors' current recommendation for 32-bit output), seeded through SplitMix64; integers in a range by **Lemire's unbiased method**, floats from the top 24 bits; **the SplitMix64 finalizer of (command time, draw index)** for the draws `Pmove` makes on both sides; the engine's connection challenges from the operating system's random bytes. One entry point, as for the math functions. The decision is in section 7.
 
 ## 2. What the code draws today
 
@@ -97,7 +97,7 @@ A 32-bit hash of a 32-bit time combined with an index has to fold two inputs int
 | hash: Philox4x32-10 | 5.24 | 6.42 |
 | a draw in [0, n) with xoshiro128**: modulo / multiply-shift / Lemire unbiased | 1.26 / 1.11 / 1.31 | 1.61 / 1.62 / 1.68 |
 
-On the VMs (the owner's runs, 12 November 2026): the same hashes with GCC 12 (Debian) and MSVC 2026 (only the C library's `rand()` differs, glibc against the UCRT). Through the function pointer GCC takes 3.5 to 3.7 ns for xoshiro128**/++ and SFC32 and about 1 ns for the 64-bit generators; MSVC 1.3 to 2.0 ns for all. Inlined with the state in a global variable, as the game will call them:
+On the VMs (12 November 2026): the same hashes with GCC 12 (Debian) and MSVC 2026 (only the C library's `rand()` differs, glibc against the UCRT). Through the function pointer GCC takes 3.5 to 3.7 ns for xoshiro128**/++ and SFC32 and about 1 ns for the 64-bit generators; MSVC 1.3 to 2.0 ns for all. Inlined with the state in a global variable, as the game will call them:
 
 | inlined | clang 23 | GCC 12 | MSVC 2026 |
 |---|---|---|---|
@@ -130,7 +130,7 @@ In every option:
 
 Why A: speed is a non-issue, so the choice is quality and simplicity. xoshiro128++ is the generators' authors' current 32-bit recommendation, public domain, two dozen lines of 32-bit operations, and the family is what .NET and Rust ship; Lemire's method removes the bias of today's ranges for 0.2 ns. ChaCha8 (C) would also make the server's stream unpredictable from outside, for 2 ns per value; its benefit is small while the stream serves every server event in an order an observer cannot reproduce, and it does nothing for the predicted draws (section 6).
 
-**Owner's choice (12 November 2026): A, xoshiro128++**, confirmed by the inlined timings of section 5 on the three compilers.
+**Choice (12 November 2026): A, xoshiro128++**, confirmed by the inlined timings of section 5 on the three compilers.
 
 ## 8. Integration (12 November 2026)
 
