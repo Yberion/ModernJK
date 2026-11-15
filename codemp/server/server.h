@@ -473,7 +473,9 @@ void SV_NetcodecResetClient( const client_t *client );
 void SV_NetcodecSendGameState( client_t *client );
 void SV_NetcodecSendMapChange( client_t *client );
 void SV_NetcodecSendSnapshot( client_t *client, const char *setGame );
-size_t SV_NetcodecDemoGameState( client_t *client, byte *out, size_t outSize );
+qboolean SV_NetcodecDemoStart( client_t *client );
+void SV_NetcodecDemoStop( const client_t *client );
+void SV_NetcodecDemoTick( void );
 void SV_NetcodecStats_f( void );
 const netcodec::engine::ClientPacket *SV_NetcodecDecodeClientPacket( client_t *client, const msg_t *msg );
 

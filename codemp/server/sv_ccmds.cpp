@@ -1522,21 +1522,6 @@ static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
 
-void SV_WriteDemoMessage ( client_t *cl, msg_t *msg, int headerBytes ) {
-	int		len, swlen;
-
-	// write the packet sequence
-	len = cl->netchan.outgoingSequence;
-	swlen = LittleLong( len );
-	FS_Write( &swlen, 4, cl->demo.demofile );
-
-	// skip the packet sequencing information
-	len = msg->cursize - headerBytes;
-	swlen = LittleLong( len );
-	FS_Write( &swlen, 4, cl->demo.demofile );
-	FS_Write( msg->data + headerBytes, len, cl->demo.demofile );
-}
-
 void SV_StopRecordDemo( client_t *cl ) {
 	int		len;
 
@@ -1546,6 +1531,7 @@ void SV_StopRecordDemo( client_t *cl ) {
 	}
 
 	// finish up
+	SV_NetcodecDemoStop( cl );
 	len = -1;
 	FS_Write (&len, 4, cl->demo.demofile);
 	FS_Write (&len, 4, cl->demo.demofile);
@@ -1616,9 +1602,6 @@ void SV_DemoFilename( char *buf, int bufSize ) {
 
 void SV_RecordDemo( client_t *cl, char *demoName ) {
 	char		name[MAX_OSPATH];
-	byte		bufData[MAX_MSGLEN];
-	size_t		size;
-	int			len;
 
 	if ( cl->demo.demorecording ) {
 		Com_Printf( "Already recording.\n" );
@@ -1644,26 +1627,14 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 	cl->demo.isBot = ( cl->netchan.remoteAddress.type == NA_BOT ) ? qtrue : qfalse;
 	cl->demo.botReliableAcknowledge = cl->reliableSent;
 
-	// write out the gamestate message, coded by the message codec (which from now on codes this client's messages
-	// only against messages of the demo)
-	size = SV_NetcodecDemoGameState( cl, bufData, sizeof( bufData ) );
-	if ( !size ) {
+	// write out the gamestate message; the messages sent to the client from now on are coded again into the demo
+	// against the demo's own last snapshot (sv_netcodec.cpp, qcommon/demo_record.cpp)
+	if ( !SV_NetcodecDemoStart( cl ) ) {
 		Com_Printf( "ERROR: the gamestate could not be coded.\n" );
 		FS_FCloseFile( cl->demo.demofile );
 		cl->demo.demofile = 0;
 		cl->demo.demorecording = qfalse;
-		return;
 	}
-
-	// write it to the demo file
-	len = LittleLong( cl->netchan.outgoingSequence - 1 );
-	FS_Write( &len, 4, cl->demo.demofile );
-
-	len = LittleLong( (int)size );
-	FS_Write( &len, 4, cl->demo.demofile );
-	FS_Write( bufData, (int)size, cl->demo.demofile );
-
-	// the rest of the demo file will be copied from net messages
 }
 
 void SV_AutoRecordDemo( client_t *cl ) {

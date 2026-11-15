@@ -581,6 +581,7 @@ void CL_ParseDownload( int block, int fileSize, const byte *data, int size );
 void CL_NetcodecReset( void );
 void CL_NetcodecParseServerMessage( msg_t *msg );
 qboolean CL_NetcodecRecordGameState( void );
+void CL_NetcodecDemoStop( void );
 void CL_NetcodecStats_f( void );
 void CL_InterpStats( void );	// cl_cgame.cpp: the interpolation delay's line of netstats
 void CL_CmdClockStats( void );	// cl_cgame.cpp: the command clock's line of netstats

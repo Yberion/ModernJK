@@ -156,7 +156,7 @@ Further result (same module, `saber 64 medium idle`, one server per rate): 20 Hz
 | W7 ping mean over 32 frames | done (part 3): over the last 256 messages |
 | X1 busy wait | done (Linux dedicated server): an empty server at 100 Hz 9.7 % of a core before, 1.1 % after (VPS) |
 | X3 server CPU at 100 Hz | open: part 7 |
-| X5 demos 5 times larger | open: part 11 of step 14 |
+| X5 demos 5 times larger | done on 15 November 2026: 2.2 times the base game's measured, one snapshot in two kept, no event lost (step 14 part 11, [step-14-fixed-tick.md](step-14-fixed-tick.md) section 18) |
 | lagometer 48 columns | written in part 9a: a column is 50 ms of real time, 2.4 s in all (to check in game) |
 | interpolation redesign (agent 6) and its 20 Hz bugs | done in part 4e: the drawing clock rewritten on the proposal |
 | dead code reported by the agents (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused) | reported only: part 11 of step 14 (the owner decides on the list) |

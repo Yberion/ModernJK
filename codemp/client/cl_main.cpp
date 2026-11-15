@@ -208,6 +208,7 @@ void CL_StopRecord_f( void ) {
 	}
 
 	// finish up
+	CL_NetcodecDemoStop();
 	len = -1;
 	FS_Write (&len, 4, clc.demofile);
 	FS_Write (&len, 4, clc.demofile);
@@ -299,7 +300,8 @@ void CL_Record_f( void ) {
 	Q_strncpyz( clc.demoName, demoName, sizeof( clc.demoName ) );
 
 	// write out the gamestate message; every message decoded from now on is coded again into the demo against the
-	// demo's own previous snapshot (cl_netcodec.cpp), so no full snapshot needs to be asked of the server
+	// demo's own last snapshot (cl_netcodec.cpp, qcommon/demo_record.cpp), so no full snapshot needs to be asked of
+	// the server
 	if ( !CL_NetcodecRecordGameState() ) {
 		Com_Printf( "ERROR: the gamestate could not be coded.\n" );
 		FS_FCloseFile( clc.demofile );

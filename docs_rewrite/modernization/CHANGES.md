@@ -146,7 +146,7 @@ Each line links to its section.
 | [18. Entity store of the server](#18-entity-store-of-the-server-shared) | a copy per client and per snapshot; a forced map restart after hours | one copy while a state does not change; less memory, no restart |
 | [19. Messages too large](#19-messages-too-large) | sent empty | sent with the nearest entities |
 | [20. Obfuscation](#20-obfuscation-removed) | messages scrambled with a guessable key | not scrambled |
-| [21. Demos](#21-demos) | a copy of the network messages | coded for the demo; old demos do not play |
+| [21. Demos](#21-demos) | a copy of the network messages | coded for the demo, one snapshot in two, no event lost; old demos do not play |
 | [22. Downloads](#22-downloads-over-udp) | several blocks per message, by the rate | one block per message |
 
 **Fixes found on the way**
@@ -812,14 +812,15 @@ Survey and measurements: [surveys/random-numbers.md](surveys/random-numbers.md).
 
 **Before.** A demo is a copy of the network messages. A client demo asks the server for a full snapshot to start.
 
-**Now.** A server demo is still a copy of the messages sent. A client demo codes each message again for the demo, so that the file refers only to what it contains.
+**Now.** A client demo and a server demo are both coded again for the demo, so that the file refers only to what it contains. A demo keeps one snapshot in two (50 per second) and the player draws between them, as recent engines do; a snapshot in between is kept as well when it holds an event the next one no longer shows, so that no sound or effect is lost.
 
 **Why.** A demo is played back from an empty state, so each message may only refer to snapshots and commands that are in the demo. The client cannot know which earlier messages the server's next ones will refer to, and lost messages would leave holes.
 
 **Gain.**
 
 - A client demo is complete by construction, also after losses, and starts without asking the server for anything.
-- Cost: one more coding per message on the player's machine, about 1.5 microseconds. Demos hold 100 messages per second (their size is not measured yet).
+- Size, measured with ten bots: about 12 MB per hour, 1.2 to 1.35 times a demo of the base game at 20 Hz (9.1 MB per hour); keeping every message, it was 2.2 times. Every event of the game is in it.
+- Cost: one coding per message kept, about 1.5 microseconds, on the player's machine for a client demo and on the server for each player recorded; the server codes its demos once every message of the tick has left, so no player's message waits.
 - What it implies: demos recorded with OpenJK or the base game do not play on this build, and the reverse.
 
 <details>
@@ -827,12 +828,13 @@ Survey and measurements: [surveys/random-numbers.md](surveys/random-numbers.md).
 
 | | OpenJK | this branch |
 |---|---|---|
-| Server demo (`svrecord`, `sv_autoDemo`) content | copy of the messages sent | the same |
-| Server demo start | waits for a full snapshot (`demowaiting`), then forbids older bases (`minDeltaFrame`) | resets the codec's view of the client: the next message has no base and the later ones refer only to messages of the demo |
-| Client demo (`record`) content | copy of the messages received | each decoded message coded again against the demo's previous snapshot, with the commands it brought and without its download block |
+| Server demo (`svrecord`, `sv_autoDemo`) content | copy of the messages sent | coded again, as a client demo, from the messages sent, after the tick's sends |
+| Server demo start | waits for a full snapshot (`demowaiting`), then forbids older bases (`minDeltaFrame`) | a coded gamestate; the player's own messages are not touched |
+| Client demo (`record`) content | copy of the messages received | each decoded message coded again against the demo's last snapshot, with the commands not written yet and without its download block |
+| Snapshots kept | every one | one every 20 ms, and any other whose entity event, external event or predictable events the next one would lose (`qcommon/demo_record.cpp`, shared by both demos); a message with a gamestate, a game dir or a map change always |
 | Client demo start | asks the server for a full snapshot and waits for it | nothing asked of the server |
 | Gamestate at the start | OpenJK's format | coded, with the last 127 server commands |
-| Cost | none | server: none with `sv_autoDemo`; about one round trip of full snapshots after a `svrecord` in the middle of a game |
+| Cost | none | one coding per message kept (about 1.5 microseconds), after the tick's sends on the server |
 
 The files keep the `.dm_26` extension for now. As in OpenJK, server demos still open when the server quits have no end marker; the player stops cleanly at the end of such a file. A reader or converter for old demos is decided with the protocol number, at the end of the plan. Details: [progress/step-07-engine-integration.md](progress/step-07-engine-integration.md), part 3.
 
@@ -1038,7 +1040,7 @@ Added commands. The statistics commands print their counters since the previous 
 |---|---|
 | Lag compensation: none, as in OpenJK (planned for the hitscan shots, dropped on 14 November 2026) | plan step 14, part 8 |
 | The freeze when the scoreboard first shows players whose models are not loaded: shorter (20 ms per model instead of 71, section 25), but the models waiting are still loaded in one frame, their images read and decoded while the game waits | not planned (owner, 14 November 2026: enough for now) |
-| The size of demos at 100 messages per second, a long client hitch, the sound louder at 333 frames per second than at 125 (as in OpenJK), priority and culling per client | plan step 14, part 11 |
+| A long client hitch, the sound louder at 333 frames per second than at 125 (as in OpenJK), priority and culling per client | plan step 14, part 11 |
 | The delay the other players are drawn with depends on your frame rate: about 2 ms at 100 frames per second, 7 at 125, 11 at 333 | kept as it is (owner, 15 November 2026): extrapolating would make the delay equal but guess the positions and the angles; a fixed delay would add a few milliseconds at 100 and 125 frames per second |
 | Encryption, or a replacement for the removed obfuscation; several download blocks per message | plan step 12 |
 | Tables retrained on games of this build; the force power levels the prediction lacks; a wider `saberAttackChainCount` | plan step 13 |

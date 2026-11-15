@@ -146,8 +146,7 @@ clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe_out ) {
 		oldframe = NULL;
 		lastframe = 0;
 	} else {
-		// (a server demo needs no rule here: its start resets the message codec's frames, which then code only
-		// against messages of the demo, SV_NetcodecDemoGameState)
+		// (a server demo needs no rule here: it is coded for itself, SV_NetcodecDemoStart)
 		// we have a valid snapshot to delta from
 		oldframe = &client->frames[ deltaMessage & PACKET_MASK ];
 		lastframe = client->netchan.outgoingSequence - deltaMessage;
@@ -677,7 +676,6 @@ static int SV_RateMsec( int messageSize ) {
 	return ( messageSize + HEADER_RATE_BYTES ) * 1000 / ((int) (SV_CLIENT_RATE * com_timescale->value));
 }
 
-extern void SV_WriteDemoMessage ( client_t *cl, msg_t *msg, int headerBytes );
 /*
 =======================
 SV_SendMessageToClient
@@ -703,11 +701,6 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	auto &ping = client->pingTimes[client->netchan.outgoingSequence & ( SV_PING_WINDOW - 1 )];
 	ping.sent = Sys_Milliseconds();	// real time: svs.time moves once per server frame
 	ping.isAcked = qfalse;
-
-	// save the message to demo.  this must happen before sending over network as that encodes the backing databuf
-	if ( client->demo.demorecording ) {
-		SV_WriteDemoMessage( client, msg, 0 );
-	}
 
 	// bots need to have their snapshots built, but
 	// they query them directly without needing to be sent
@@ -834,5 +827,8 @@ void SV_SendClientMessages( void ) {
 	}
 
 	s_sendingAll = qfalse;
+
+	// the demos, once every message of the tick has left
+	SV_NetcodecDemoTick();
 }
 

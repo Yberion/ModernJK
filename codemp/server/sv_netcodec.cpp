@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "server.h"
 #include "netcodec/engine.h"
+#include "qcommon/demo_record.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -338,6 +339,8 @@ static size_t SV_NetcodecFitSnapshot( client_t *client, eng::ServerMessage &sm, 
 	return code( fits );	// the list, delta and record of the last call must be those of the message sent
 }
 
+static void SV_NetcodecDemoMessage( const client_t *client, const eng::ServerMessage &sm );
+
 // codes the message, keeps its snapshot's Frame and sends it; false if it could not be coded (sent empty)
 static bool SV_NetcodecSend( client_t *client, eng::ServerMessage &sm, clientSnapshot_t *oldframe, int lastframe ) {
 	static byte buf[MAX_MSGLEN];
@@ -402,6 +405,9 @@ static bool SV_NetcodecSend( client_t *client, eng::ServerMessage &sm, clientSna
 		SV_NetcodecMeasureSend( client, sm.delta != 0 );
 	}
 	SV_SendMessageToClient( &msg, client );
+	if ( size && client->demo.demorecording ) {
+		SV_NetcodecDemoMessage( client, sm );
+	}
 	return size != 0;
 }
 
@@ -424,14 +430,68 @@ void SV_NetcodecSendGameState( client_t *client ) {
 	}
 }
 
-// The gamestate at the start of a server demo (svrecord, sv_autoDemo); the demo then holds every message sent. The
-// client's frames are reset, so the next message is coded without a base and the later ones only against messages of
-// the demo. The commands a later message carries start after the client's acknowledge, and each may be coded against
-// one up to kCommandWindow earlier: the gamestate holds those, so the demo holds every command a message refers to.
-size_t SV_NetcodecDemoGameState( client_t *client, byte *out, size_t outSize ) {
+// Server demos (svrecord, sv_autoDemo): a stream of their own, coded from the messages sent to the client by the
+// recorder shared with the client's demos (qcommon/demo_record.cpp); the client's own stream is not touched. A snapshot
+// message reaches the recorder at the end of the tick's sends (SV_NetcodecDemoTick), so that no client's message waits
+// for a demo; any other message (a gamestate, a map change) at once, after the one queued.
+static struct {
+	DemoRecorder		recorder;
+	qboolean			queued;
+	eng::ServerMessage	msg;
+	int					lastCommand;	// the last server command of the queued message
+} s_demo[MAX_CLIENTS];
+
+// what the demo's messages are coded against: the shared entity ring, the client's server commands, the baselines
+static demoSources_t SV_DemoSources( const client_t *client ) {
+	demoSources_t src;
+	src.ring.states = svs.snapshotEntities;
+	src.ring.count = (uint32_t)svs.numSnapshotEntities;
+	src.nextEntity = svs.nextSnapshotEntities;
+	src.commands.texts = client->reliableCommands[0];
+	src.commands.stride = MAX_STRING_CHARS;
+	src.commands.count = MAX_RELIABLE_COMMANDS;
+	src.commands.last = client->reliableSequence;
+	src.baselines.bytes = &sv.svEntities[0].baseline;
+	src.baselines.stride = sizeof( svEntity_t );
+	return src;
+}
+
+static void SV_NetcodecDemoFlush( const client_t *client ) {
+	auto &d = s_demo[ClientIndex( client )];
+	if ( d.queued ) {
+		d.queued = qfalse;
+		d.recorder.Message( d.msg, d.lastCommand, SV_DemoSources( client ) );
+	}
+}
+
+// a message sent to a client whose demo is recorded
+static void SV_NetcodecDemoMessage( const client_t *client, const eng::ServerMessage &sm ) {
+	auto &d = s_demo[ClientIndex( client )];
+	SV_NetcodecDemoFlush( client );
+	if ( sm.snapshot && !sm.gameState ) {
+		d.queued = qtrue;
+		d.msg = sm;
+		d.msg.download = false;	// never recorded
+		d.msg.data = NULL;
+		d.lastCommand = client->reliableSequence;
+		return;
+	}
+	d.recorder.Message( sm, client->reliableSequence, SV_DemoSources( client ) );
+}
+
+// after the tick's sends: the snapshot messages queued for the demos
+void SV_NetcodecDemoTick( void ) {
+	for ( int i = 0; i < sv_maxclients->integer; i++ ) {
+		if ( s_demo[i].queued && svs.clients[i].demo.demorecording ) {
+			SV_NetcodecDemoFlush( &svs.clients[i] );
+		}
+	}
+}
+
+// The demo's first message, written to client->demo.demofile: a gamestate holding the commands later messages may be
+// coded against (the ones from the client's acknowledge on, each coded against one up to kCommandWindow earlier).
+qboolean SV_NetcodecDemoStart( client_t *client ) {
 	eng::ServerMessage sm = {};
-	eng::Record record = {};
-	uint32_t delta = 0;
 	int first = SV_NetcodecAcknowledged( client ) + 1 - (int)eng::kCommandWindow;
 
 	if ( first <= client->reliableSequence - MAX_RELIABLE_COMMANDS ) {
@@ -441,7 +501,6 @@ size_t SV_NetcodecDemoGameState( client_t *client, byte *out, size_t outSize ) {
 		first = 1;
 	}
 
-	SV_NetcodecResetClient( client );
 	sm.seq = client->netchan.outgoingSequence - 1;
 	sm.ack = client->lastClientCommand;
 	sm.serverId = sv.serverId;
@@ -452,7 +511,14 @@ size_t SV_NetcodecDemoGameState( client_t *client, byte *out, size_t outSize ) {
 	sm.numConfigStrings = MAX_CONFIGSTRINGS;
 	sm.clientNum = ClientIndex( client );
 	sm.checksum = sv.checksumFeed;
-	return SV_NetcodecEncode( client, sm, out, outSize, delta, record );
+	s_demo[ClientIndex( client )].queued = qfalse;
+	return s_demo[ClientIndex( client )].recorder.Start( client->demo.demofile, sm, client->reliableSequence, SV_DemoSources( client ) );
+}
+
+// the end of the demo: the messages queued or held back are written
+void SV_NetcodecDemoStop( const client_t *client ) {
+	SV_NetcodecDemoFlush( client );
+	s_demo[ClientIndex( client )].recorder.Stop( SV_DemoSources( client ) );
 }
 
 void SV_NetcodecSendMapChange( client_t *client ) {
