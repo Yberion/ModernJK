@@ -31,7 +31,7 @@ Status: **done** (8 to 9 November 2026). Plan: [PLAN.md](../PLAN.md), step 7.
 
 ## Test setup (8 November 2026)
 
-- MSVC x64, portable build (`-DBuildPortableVersion=ON`, nothing in `Documents\My Games`), single player off, built on the Windows VM in `build-openjk\msvc-x64` and installed to `build-openjk\install-x64`; `update_from_build.bat` copies it into a game folder. The reference install (`build-openjk\install-ref-x64`, commit in its `COMMIT.txt`) is frozen; the `openjk` folder's script reads it.
+- MSVC x64, portable build (`-DBuildPortableVersion=ON`, nothing in `Documents\My Games`), single player off, built on the Windows VM in `build-modernjk\msvc-x64` and installed to `build-modernjk\install-x64`; `update_from_build.bat` copies it into a game folder. The reference install (`build-openjk\install-ref-x64` of the former folder `E:\Git\jka\OpenJK_Netcode`, commit in its `COMMIT.txt`) is frozen; the `openjk` folder's script reads it.
 - Client fixes made on the way, not netcode (each its own commit): menu cursor speed (`ui_main.c`), font aspect (`tr_font.cpp`), keypad and right modifier keys (`sdl_input.cpp`, `cl_keys.cpp`, `ui_shared.c`); see [README.md](README.md), "State of the repository".
 
 ## Results

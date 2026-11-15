@@ -15,13 +15,13 @@ MINUTES="$1"
 shift
 SCRATCH="${GAMESTATS_DIR:-C:/Users/Yberion/AppData/Local/Temp/gamestats}"
 mkdir -p "$SCRATCH"
-BUILD="${BUILD:-E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang}"	# the folder of openjkded.x86_64.exe
+BUILD="${BUILD:-E:/Git/jka/ModernJK/build-netcodec/modernjk-clang}"	# the folder of modernjkded.x86_64.exe
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/x86_64-w64-mingw32/bin:/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 
 # kills the dedicated server whose command line holds this text (its own fs_homepath)
 kill_server() {
-	powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='openjkded.x86_64.exe'\" | Where-Object { \$_.CommandLine -like '*$1*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }" > /dev/null 2>&1
+	powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='modernjkded.x86_64.exe'\" | Where-Object { \$_.CommandLine -like '*$1*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }" > /dev/null 2>&1
 }
 
 run() {
@@ -37,7 +37,7 @@ run() {
 		echo "set fraglimit 0"
 		echo "set timelimit 0"
 		echo "set g_weaponDisable 524279"
-		# the owner's server settings, set here because the dedicated server also reads the openjk_server.cfg of
+		# the owner's server settings, set here because the dedicated server also reads the modernjk_server.cfg of
 		# fs_basepath, which differs between machines: sabers and force jump only, no saber locks, no private duels
 		echo "set g_forcePowerDisable 163837"
 		echo "set g_saberLocking 0"
@@ -83,7 +83,7 @@ run() {
 		echo "svnetstats"
 		echo "quit"
 	} > "$home/base/measure.cfg"
-	( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe \
+	( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe \
 		+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set logfile 2 +exec measure.cfg ) > "$home/lldb.txt" 2>&1 &
 	local pid=$!
 	# watchdog: once the second statistics are written, give the server 10 seconds to quit, then kill it

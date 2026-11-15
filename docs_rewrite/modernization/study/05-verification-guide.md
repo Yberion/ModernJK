@@ -42,7 +42,7 @@ Confidence: **high** = checked several independent ways; **medium** = checked on
 | C20 | No licence conflict for ryg_rans, FSE, qbc, nibrans | licence files read | medium: legal reading of file headers across CleanJK is a grep | read the headers file by file |
 | C21 | Multi-human traffic behaves like bot traffic | assumed by the cloning scenario | **low, untested** | record two or more humans |
 | C22 | Prediction (time fields against `serverTime`, positions from velocity, second-order angles) saves a further 23 % (139.1 to 107.3 real bytes with the rANS trick) | `bench5.py` (ideal), `run_pred.py` (real codec; round trip on real, synthetic and simulated-loss messages) | medium: bots only, one map, 20 Hz; the `TR_INTERPOLATE` rule is untested on data | re-run on the demos of step 4 of the plan |
-| C23 | OpenJK (this repository) is wire-compatible with the 1.01 server except for the pilot player state | tables and Huffman frequencies compared; captures and demos decoded with OpenJK's tables (08) | high | `gen_fields.py`; `jkadec.py` |
+| C23 | OpenJK (the base of this repository) is wire-compatible with the 1.01 server except for the pilot player state | tables and Huffman frequencies compared; captures and demos decoded with OpenJK's tables (08) | high | `gen_fields.py`; `jkadec.py` |
 
 ## 5.3 The synthetic corpus: what it covers and what it proves
 

@@ -2,7 +2,7 @@
 # TMP option b: the camera rows computed by K server processes, then measured with bots
 # usage: vis3run.sh <tag> <map> <footprint> <air> <spots> <directions> <K> [bots] [samples]
 tag="$1"; map="$2"; fp="$3"; air="$4"; spots="$5"; dirs="$6"; K="$7"; bots="${8:-31}"; samples="${9:-60}"
-BUILD=E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang
+BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
@@ -13,7 +13,7 @@ for (( k = 0; k < K; k++ )); do
 	rm -rf "$home"; mkdir -p "$home/base"
 	cp "$BUILD/jampgamex86_64.dll" "$home/base/"
 	{ echo "set g_gametype ${GT:-0}"; echo "map $map"; echo "wait 100"; echo "TMPvis3slice $fp $air $spots $dirs $K $k $prefix$k.bin"; echo "quit"; } > "$home/base/s.cfg"
-	( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe \
+	( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe \
 		+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec s.cfg ) > "$home/lldb.txt" 2>&1 &
 done
 wait
@@ -36,6 +36,6 @@ names=(Alora Chewbacca Cultist Desann Gran Noghri Rodian Tavion)
 	fi
 	echo "quit"
 } > "$home/base/g.cfg"
-( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe \
+( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe \
 	+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec g.cfg ) > "$home/lldb.txt" 2>&1
 grep -a "TMPVIS" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* //'

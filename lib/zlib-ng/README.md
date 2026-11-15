@@ -1,7 +1,7 @@
 # zlib-ng (vendored source tree)
 
 zlib-ng inflates the files of the pk3 archives. It is linked by the engines and the dedicated server, built by its
-own `CMakeLists.txt` from the top-level one (`openjk_add_zlib_ng`), under its own names (`zng_inflate`, `zng_crc32`,
+own `CMakeLists.txt` from the top-level one (`modernjk_add_zlib_ng`), under its own names (`zng_inflate`, `zng_crc32`,
 header `zlib-ng.h`); only `shared/qcommon/q_pk3.cpp` includes it: the file systems call the functions of
 `shared/qcommon/q_pk3.h` (survey and measurements: `docs_rewrite/modernization/surveys/compression-libraries.md`).
 

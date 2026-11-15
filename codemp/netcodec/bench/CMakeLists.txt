@@ -10,18 +10,18 @@ target_include_directories(netcodec_bench_size PRIVATE "${PROJECT_SOURCE_DIR}/te
 
 # Codec benchmark against the legacy coding: OpenJK's own codemp/qcommon/msg.cpp and huffman.cpp, built as the
 # engine builds them (C++11, FINAL_BUILD, its headers), without the project's warnings (engine code, unchanged).
-set(netcodec_OPENJK_DIR "${PROJECT_SOURCE_DIR}/../.." CACHE PATH "OpenJK source tree, for the legacy benchmark")
-if(EXISTS "${netcodec_OPENJK_DIR}/codemp/qcommon/msg.cpp")
+set(netcodec_MODERNJK_DIR "${PROJECT_SOURCE_DIR}/../.." CACHE PATH "ModernJK source tree, for the legacy benchmark")
+if(EXISTS "${netcodec_MODERNJK_DIR}/codemp/qcommon/msg.cpp")
 	add_library(netcodec_legacy OBJECT
-		"${netcodec_OPENJK_DIR}/codemp/qcommon/msg.cpp"
-		"${netcodec_OPENJK_DIR}/codemp/qcommon/huffman.cpp"
+		"${netcodec_MODERNJK_DIR}/codemp/qcommon/msg.cpp"
+		"${netcodec_MODERNJK_DIR}/codemp/qcommon/huffman.cpp"
 		legacy/legacy_codec.cpp
 		legacy/legacy_stubs.cpp)
 	set_target_properties(netcodec_legacy PROPERTIES CXX_STANDARD 11 CXX_EXTENSIONS OFF)
 	target_include_directories(netcodec_legacy PRIVATE
-		"${netcodec_OPENJK_DIR}/codemp" "${netcodec_OPENJK_DIR}/shared" "${netcodec_OPENJK_DIR}/lib/gsl-lite/include")
+		"${netcodec_MODERNJK_DIR}/codemp" "${netcodec_MODERNJK_DIR}/shared" "${netcodec_MODERNJK_DIR}/lib/gsl-lite/include")
 	target_compile_definitions(netcodec_legacy PRIVATE FINAL_BUILD $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
-	if(NOT WIN32)   # OpenJK's CMakeLists.txt defines it outside Windows (q_platform.h does on Windows)
+	if(NOT WIN32)   # ModernJK's CMakeLists.txt defines it outside Windows (q_platform.h does on Windows)
 		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 			target_compile_definitions(netcodec_legacy PRIVATE ARCH_STRING="x86_64")
 		else()
@@ -52,5 +52,5 @@ if(EXISTS "${netcodec_OPENJK_DIR}/codemp/qcommon/msg.cpp")
 	target_include_directories(netcodec_bench_client PRIVATE "${PROJECT_SOURCE_DIR}/test" "${CMAKE_CURRENT_SOURCE_DIR}")
 	target_link_libraries(netcodec_bench_client PRIVATE netcodec_legacy)
 else()
-	message(STATUS "netcodec: OpenJK sources not found in ${netcodec_OPENJK_DIR}, no legacy benchmark")
+	message(STATUS "netcodec: ModernJK sources not found in ${netcodec_MODERNJK_DIR}, no legacy benchmark")
 endif()

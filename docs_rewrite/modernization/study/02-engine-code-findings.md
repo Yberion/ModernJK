@@ -1,6 +1,6 @@
 # 2. What was read in the code
 
-All references are to the original 1.01 tree (`E:\Git\jka\jediacademy\codemp`, the code of the server that produced the captures) unless stated otherwise. The same functions in this repository (OpenJK), and the differences found there, are listed in [08-openjk.md](08-openjk.md). Line numbers are those of the files as they were on 3 November 2026. CleanJK (`E:\Git\jka\CleanJK\Game\code`) has the same structure; its files were not re-read line by line, so check the numbers there before relying on them.
+All references are to the original 1.01 tree (`E:\Git\jka\jediacademy\codemp`, the code of the server that produced the captures) unless stated otherwise. The same functions in this repository (ModernJK), and the differences found there, are listed in [08-openjk.md](08-openjk.md). Line numbers are those of the files as they were on 3 November 2026. CleanJK (`E:\Git\jka\CleanJK\Game\code`) has the same structure; its files were not re-read line by line, so check the numbers there before relying on them.
 
 Everything below was read directly. Items that are inferences are marked "inferred".
 

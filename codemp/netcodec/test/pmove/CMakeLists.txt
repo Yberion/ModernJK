@@ -1,29 +1,29 @@
 # Determinism test of the game's player movement (pmove_det.c): bg_pmove.c and its files built as the game module
-# (_GAME) and as cgame (_CGAME), with OpenJK's own compiler settings for the modules (not netcodec's: the point is
+# (_GAME) and as cgame (_CGAME), with ModernJK's own compiler settings for the modules (not netcodec's: the point is
 # how the shipped game code behaves). Its output is compared between builds and compilers (validate.sh, validate.bat).
-set(netcodec_OPENJK_DIR "${PROJECT_SOURCE_DIR}/../.." CACHE PATH "OpenJK source tree, for the legacy benchmark")
-set(netcodec_ojk "${netcodec_OPENJK_DIR}")
+set(netcodec_MODERNJK_DIR "${PROJECT_SOURCE_DIR}/../.." CACHE PATH "ModernJK source tree, for the legacy benchmark")
+set(netcodec_root "${netcodec_MODERNJK_DIR}")
 set(netcodec_pmove_sources
-	"${netcodec_ojk}/codemp/game/bg_g2_utils.c"
-	"${netcodec_ojk}/codemp/game/bg_misc.c"
-	"${netcodec_ojk}/codemp/game/bg_panimate.c"
-	"${netcodec_ojk}/codemp/game/bg_pmove.c"
-	"${netcodec_ojk}/codemp/game/bg_saber.c"
-	"${netcodec_ojk}/codemp/game/bg_saberLoad.c"
-	"${netcodec_ojk}/codemp/game/bg_saga.c"
-	"${netcodec_ojk}/codemp/game/bg_slidemove.c"
-	"${netcodec_ojk}/codemp/game/bg_vehicleLoad.c"
-	"${netcodec_ojk}/codemp/game/bg_weapons.c"
-	"${netcodec_ojk}/codemp/qcommon/q_shared.c"
-	"${netcodec_ojk}/shared/qcommon/q_math.c"
-	"${netcodec_ojk}/shared/qcommon/q_libm.cpp"
-	"${netcodec_ojk}/shared/qcommon/q_rand.c"
-	"${netcodec_ojk}/shared/qcommon/q_string.c"
-	"${netcodec_ojk}/shared/qcommon/q_color.c"
+	"${netcodec_root}/codemp/game/bg_g2_utils.c"
+	"${netcodec_root}/codemp/game/bg_misc.c"
+	"${netcodec_root}/codemp/game/bg_panimate.c"
+	"${netcodec_root}/codemp/game/bg_pmove.c"
+	"${netcodec_root}/codemp/game/bg_saber.c"
+	"${netcodec_root}/codemp/game/bg_saberLoad.c"
+	"${netcodec_root}/codemp/game/bg_saga.c"
+	"${netcodec_root}/codemp/game/bg_slidemove.c"
+	"${netcodec_root}/codemp/game/bg_vehicleLoad.c"
+	"${netcodec_root}/codemp/game/bg_weapons.c"
+	"${netcodec_root}/codemp/qcommon/q_shared.c"
+	"${netcodec_root}/shared/qcommon/q_math.c"
+	"${netcodec_root}/shared/qcommon/q_libm.cpp"
+	"${netcodec_root}/shared/qcommon/q_rand.c"
+	"${netcodec_root}/shared/qcommon/q_string.c"
+	"${netcodec_root}/shared/qcommon/q_color.c"
 	pmove_det.c)
-# the math functions' entry point on LLVM libc, as OpenJK's qlibm target builds it (top-level CMakeLists.txt)
-set_source_files_properties("${netcodec_ojk}/shared/qcommon/q_libm.cpp" PROPERTIES
-	INCLUDE_DIRECTORIES "${netcodec_ojk}/lib/llvm-libc"
+# the math functions' entry point on LLVM libc, as ModernJK's qlibm target builds it (top-level CMakeLists.txt)
+set_source_files_properties("${netcodec_root}/shared/qcommon/q_libm.cpp" PROPERTIES
+	INCLUDE_DIRECTORIES "${netcodec_root}/lib/llvm-libc"
 	COMPILE_OPTIONS "$<IF:$<CXX_COMPILER_ID:MSVC>,/std:c++17,-std=c++17>")
 
 foreach(side game cgame)
@@ -31,7 +31,7 @@ foreach(side game cgame)
 	add_executable(${t} ${netcodec_pmove_sources})
 	string(TOUPPER "_${side}" def)
 	target_compile_definitions(${t} PRIVATE ${def})
-	# OpenJK's SharedDefines (top-level CMakeLists.txt)
+	# ModernJK's SharedDefines (top-level CMakeLists.txt)
 	target_compile_definitions(${t} PRIVATE $<IF:$<CONFIG:Debug>,_DEBUG,FINAL_BUILD>)
 	if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
 		target_compile_definitions(${t} PRIVATE WIN64)
@@ -41,8 +41,8 @@ foreach(side game cgame)
 	if(MSVC)
 		target_compile_definitions(${t} PRIVATE NOMINMAX _CRT_NONSTDC_NO_DEPRECATE)
 	endif()
-	target_include_directories(${t} PRIVATE "${netcodec_ojk}/codemp" "${netcodec_ojk}/shared" include)
-	# OpenJK's settings for C (top-level CMakeLists.txt): SSE2 math on 32-bit x86, signed char, no contraction, -O3 in
+	target_include_directories(${t} PRIVATE "${netcodec_root}/codemp" "${netcodec_root}/shared" include)
+	# ModernJK's settings for C (top-level CMakeLists.txt): SSE2 math on 32-bit x86, signed char, no contraction, -O3 in
 	# Release
 	if(MSVC)
 		target_compile_options(${t} PRIVATE /W0)   # /W0, not /w: CMake maps /W0 to the project's warning level (/w comes after MSBuild's default /W1: D9025)
@@ -66,7 +66,7 @@ endforeach()
 # The original 1.01 game code (E:\Git\jka\jediacademy, next to this repository; on the VMs' shared folders too), built
 # as 1.01 was: 32-bit with x87 math (Visual C++ 7.1 for Windows, GCC for the Linux server), QAGAME, its own rounding.
 # Only on 32-bit presets: the original headers hold x86 inline assembly.
-set(netcodec_JKA101_DIR "${netcodec_OPENJK_DIR}/../jediacademy" CACHE PATH "Original 1.01 source tree, for the pmove test")
+set(netcodec_JKA101_DIR "${netcodec_MODERNJK_DIR}/../jediacademy" CACHE PATH "Original 1.01 source tree, for the pmove test")
 if(EXISTS "${netcodec_JKA101_DIR}/codemp/game/bg_pmove.c" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
 	set(g "${netcodec_JKA101_DIR}/codemp/game")
 	add_executable(netcodec_pmove_101 "${g}/bg_g2_utils.c" "${g}/bg_misc.c" "${g}/bg_panimate.c" "${g}/bg_pmove.c" "${g}/bg_saber.c"

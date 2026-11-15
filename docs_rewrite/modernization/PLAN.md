@@ -2,7 +2,7 @@
 
 This plan turns [04](study/04-recommendations.md) into steps to do one after the other. Each step has a deliverable, a check that says when it is done, and the steps it depends on. Progress, results of finished steps and the next action are in [progress/README.md](progress/README.md). The plan follows the owner's goals listed in the study's [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, netcode that other JKA forks can reuse, and Windows and Linux (x86 and x64) as targets.
 
-The work happens in this repository (a fork of OpenJK, branch `feature/poc-netcode`). Paths are relative to `codemp/`; where a function is cited, its line in this tree is in [study/08-openjk.md](study/08-openjk.md) section 8.6. Effort labels: S = days, M = weeks, L = months, for one engineer who knows the code.
+The work happens in this repository (ModernJK, a fork of OpenJK, branch `feature/poc-netcode`). Paths are relative to `codemp/`; where a function is cited, its line in this tree is in [study/08-openjk.md](study/08-openjk.md) section 8.6. Effort labels: S = days, M = weeks, L = months, for one engineer who knows the code.
 
 ## 1. Principles
 

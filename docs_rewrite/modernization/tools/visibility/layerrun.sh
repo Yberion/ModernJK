@@ -1,6 +1,6 @@
 #!/bin/bash
 # TMP walkable layer count on each map given
-BUILD=E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang
+BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
@@ -21,7 +21,7 @@ for map in "$@"; do
 		fi
 		echo "quit"
 	} > "$home/base/l.cfg"
-	( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe \
+	( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe \
 		+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec l.cfg ) > "$home/lldb.txt" 2>&1
 	echo "== $map"
 	grep -a "TMPLAYER" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* TMPLAYER //'

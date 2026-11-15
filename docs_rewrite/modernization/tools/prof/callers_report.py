@@ -13,7 +13,7 @@ TARGETS = sys.argv[3:]
 ROOT = "SV_Frame"
 TOP = 7
 
-th = max((t for t in prof["threads"] if t.get("processName", "").startswith("openjkded")),
+th = max((t for t in prof["threads"] if t.get("processName", "").startswith("modernjkded")),
          key=lambda t: t["samples"]["length"])
 libs = prof["libs"]
 res_lib = th["resourceTable"]["lib"]

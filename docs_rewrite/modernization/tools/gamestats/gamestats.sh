@@ -3,7 +3,7 @@
 # sv_fps 20. Runs local dedicated servers (no network, sabers only, 16 bots on mp/ffa3, or a scripted scenario of two
 # bots) in parallel and prints the "gamestats" and "svnetstats" lines of each after the measured time.
 #
-# Usage: [FAST=1] [SEED=<n>] [PREMAP='<cvar> <value>;...'] [SCENARIO='saber 96 medium idle'] gamestats.sh <openjkded binary> <fs_basepath> <game module> <minutes> '<tag>[|<cvars>]' ...
+# Usage: [FAST=1] [SEED=<n>] [PREMAP='<cvar> <value>;...'] [SCENARIO='saber 96 medium idle'] gamestats.sh <modernjkded binary> <fs_basepath> <game module> <minutes> '<tag>[|<cvars>]' ...
 #   <fs_basepath>  the directory holding base/assets*.pk3
 #   <game module>  the jampgame module to test (jampgamex86_64.so); each run copies it into its own fs_homepath
 #   <cvars>        cheat cvars set after devmap, separated by "; set "; pass each configuration as one
@@ -16,7 +16,7 @@
 #                  from before the map loads, so that every run replays the same game; without it the seed comes from
 #                  the clock and the free play from the machine's load
 # Example (four servers; FAST=1 on a machine nobody plays on):
-#   FAST=1 gamestats.sh /srv/jka/openjkded.x86_64 /srv/jka /srv/jka/base/jampgamex86_64.so 10 \
+#   FAST=1 gamestats.sh /srv/jka/modernjkded.x86_64 /srv/jka /srv/jka/base/jampgamex86_64.so 10 \
 #     ra rb rc rd
 #   FAST=1 SCENARIO='saber 96 strong attack' gamestats.sh ... 4 s
 #
@@ -50,7 +50,7 @@ run() {
 		echo "set fraglimit 0"
 		echo "set timelimit 0"
 		echo "set g_weaponDisable 524279"
-		# the owner's server settings, set here because the dedicated server also reads the openjk_server.cfg of
+		# the owner's server settings, set here because the dedicated server also reads the modernjk_server.cfg of
 		# fs_basepath, which differs between machines: sabers and force jump only, no saber locks, no private duels
 		echo "set g_forcePowerDisable 163837"
 		echo "set g_saberLocking 0"

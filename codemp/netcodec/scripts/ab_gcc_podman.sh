@@ -21,7 +21,7 @@ cp -r "$W/cur/codemp" "$W/noinl/"
 F="$W/noinl/codemp/netcodec/src/field_codec.h"
 sed -i 's/\[\[nodiscard\]\] NETCODEC_ALWAYS_INLINE std::optional<int64_t> PredictAngle(/[[nodiscard]] inline std::optional<int64_t> PredictAngle(/' "$F"
 grep -q "nodiscard\]\] inline std::optional<int64_t> PredictAngle" "$F" || { echo "noinl: PredictAngle not found in $F"; exit 1; }
-# the OpenJK sources of the legacy benchmark, copied: rootless podman cannot read the VirtualBox shared folder
+# the ModernJK sources of the legacy benchmark, copied: rootless podman cannot read the VirtualBox shared folder
 mkdir -p "$W/oj/lib/gsl-lite" && cp -r "$R/codemp" "$R/shared" "$W/oj/" && cp -r "$R/lib/gsl-lite/include" "$W/oj/lib/gsl-lite/"
 echo "building in $IMG ..."
 podman run --rm -v "$W:/w" "$IMG" bash -c '
@@ -32,7 +32,7 @@ podman run --rm -v "$W:/w" "$IMG" bash -c '
 		cmake -S /w/$v/codemp/netcodec -B /w/build-$v -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++ \
 			-DCMAKE_CXX_FLAGS="-falign-functions=64 -falign-loops=64 -falign-jumps=64" \
 			-DCMAKE_EXE_LINKER_FLAGS=-static \
-			-Dnetcodec_OPENJK_DIR=/w/oj -Dnetcodec_TRACE_DIR=/w/no-traces > /w/build-$v.log 2>&1 &&
+			-Dnetcodec_MODERNJK_DIR=/w/oj -Dnetcodec_TRACE_DIR=/w/no-traces > /w/build-$v.log 2>&1 &&
 		cmake --build /w/build-$v --target netcodec_bench_codec -j 4 >> /w/build-$v.log 2>&1 ||
 		{ echo "build of $v failed:"; tail -30 /w/build-$v.log; exit 1; }
 	done'

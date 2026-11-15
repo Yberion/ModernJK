@@ -12,7 +12,7 @@ Why wait for the codec:
 
 ### Connection
 
-This section describes the 1.01 code. OpenJK (this repository) replaces the `rand()` challenge by a stateless HMAC-MD5 challenge and rate-limits connectionless packets per address; see [08-openjk.md](08-openjk.md) section 8.3.
+This section describes the 1.01 code. OpenJK (the base of this repository) replaces the `rand()` challenge by a stateless HMAC-MD5 challenge and rate-limits connectionless packets per address; see [08-openjk.md](08-openjk.md) section 8.3.
 
 
 - Out-of-band (OOB) packets carry the handshake: `getchallenge`, `challengeResponse`, `connect`, plus `getinfo` and `getstatus` for server browsers and master servers. The `connect` string is compressed with the adaptive Huffman coder (`Huff_Compress`).

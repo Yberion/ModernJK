@@ -82,5 +82,5 @@ netcodec_add_program(netcodec_test_client_robustness test_client_robustness.cpp 
 target_include_directories(netcodec_test_client_robustness PRIVATE "${PROJECT_SOURCE_DIR}/src")
 add_test(NAME netcodec.client_robustness COMMAND netcodec_test_client_robustness 20000 20)
 
-# Determinism of the game's player movement (bg_pmove.c) as the game module and as cgame, with OpenJK's own settings.
+# Determinism of the game's player movement (bg_pmove.c) as the game module and as cgame, with ModernJK's own settings.
 add_subdirectory(pmove)

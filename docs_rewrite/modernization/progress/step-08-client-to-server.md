@@ -41,7 +41,7 @@ The model is step 7: a small C++11 interface in `engine.h`, the conversions in `
 
 ## Part 3: results
 
-Validation: `validate.sh` (GCC 12 and Clang 14) and `validate.bat` (MSVC x64, x86, ASan) all OK, with `netcodec.client_roundtrip` also through `engine.h` (163,578 codings, 0 failures) and, from this part on, the game itself (Debian: `build-openjk/gcc-ded` and `build-openjk/gcc-mp`, every multiplayer target; Windows: `build-openjk\msvc-x64` in Release): no warning in the files of this part.
+Validation: `validate.sh` (GCC 12 and Clang 14) and `validate.bat` (MSVC x64, x86, ASan) all OK, with `netcodec.client_roundtrip` also through `engine.h` (163,578 codings, 0 failures) and, from this part on, the game itself (Debian: `build-modernjk/gcc-ded` and `build-modernjk/gcc-mp`, every multiplayer target; Windows: `build-modernjk\msvc-x64` in Release): no warning in the files of this part.
 
 In game, owner, 10 November 2026, MSVC x64 client, bots. Each line is one window between two calls of `netstats` (client) and `svnetstats` (server):
 

@@ -30,7 +30,7 @@ for d in "$@"; do
 	rm -rf "$W/$n/codemp/netcodec/build-netcodec"
 	echo "$n = $d"
 	cmake -S "$W/$n/codemp/netcodec" -B "$W/build-$n" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="$CXX" -DCMAKE_C_COMPILER="$CC" \
-		-DCMAKE_CXX_FLAGS="$ALIGN $M32FLAG" -DCMAKE_C_FLAGS="$M32FLAG" -Dnetcodec_OPENJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" \
+		-DCMAKE_CXX_FLAGS="$ALIGN $M32FLAG" -DCMAKE_C_FLAGS="$M32FLAG" -Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" \
 		> "$W/build-$n.log" 2>&1 &&
 	cmake --build "$W/build-$n" --target netcodec_bench_codec -j 4 >> "$W/build-$n.log" 2>&1 ||
 	{ echo "build of $n failed:"; tail -30 "$W/build-$n.log"; exit 1; }

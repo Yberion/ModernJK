@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Validation of netcodec on Linux (GCC and Clang): configure, build and test every Linux preset, then the size
 # benchmark (Release and ASan + UBSan), the codec benchmark (two runs) and the x86 trainers, which must rewrite the
-# committed tables unchanged, then the game in Release when its build directory exists: build-openjk/gcc-ded (the
-# dedicated server and the game module, the VPS build) and build-openjk/gcc-mp (every multiplayer target: client,
+# committed tables unchanged, then the game in Release when its build directory exists: build-modernjk/gcc-ded (the
+# dedicated server and the game module, the VPS build) and build-modernjk/gcc-mp (every multiplayer target: client,
 # renderer, cgame and ui as well). Needs the traces of docs_rewrite/modernization/data/traces (export_rans_trace.py,
 # export_codec_trace.py, export_demo_traces.py, and the client traces of netcodec_bench_client --trace).
 # Run from anywhere: codemp/netcodec/scripts/validate.sh
@@ -48,7 +48,7 @@ step "client trainer gcc-x86 writes the committed client tables" bash -c \
 
 # the engine and its glue to the codec (sv_netcodec.cpp, cl_netcodec.cpp, ...), which the presets above do not build
 for g in gcc-ded gcc-mp; do
-	G=../../build-openjk/$g
+	G=../../build-modernjk/$g
 	if [ -f "$G/CMakeCache.txt" ]; then
 		step "game build, $g" cmake --build "$G" -j "$JOBS"
 	else

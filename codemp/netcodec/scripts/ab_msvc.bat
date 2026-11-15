@@ -100,7 +100,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ab_summary.ps1" "%W%"
 exit /b 0
 
 :build
-cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A %ABM_ARCH% -Dnetcodec_OPENJK_DIR="%R%" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
+cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A %ABM_ARCH% -Dnetcodec_MODERNJK_DIR="%R%" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
 if errorlevel 1 (type "%W%\cfg.txt" & exit /b 1)
 cmake --build "%~2" --config Release --target netcodec_bench_%ABM_BENCH% --parallel > "%W%\bld.txt" 2>&1
 if errorlevel 1 (type "%W%\bld.txt" & exit /b 1)

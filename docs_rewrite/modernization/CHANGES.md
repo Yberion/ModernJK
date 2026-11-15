@@ -1,6 +1,6 @@
 # What this branch changes compared with OpenJK
 
-Last update: 14 November 2026. Branch `feature/poc-netcode`, compared with OpenJK `master` at `260c59c29`. Multiplayer only (`codemp/` and the shared code it uses); single player is not built.
+Last update: 15 November 2026. Branch `feature/poc-netcode`, compared with OpenJK `master` at `260c59c29`. Multiplayer only (`codemp/` and the shared code it uses); single player is not built.
 
 This page lists every change of the branch, with its reason and what it gives. The work follows the owner's goals stated in the [README](README.md): no loss of precision, no compatibility constraint, as few network settings as possible, a netcode other JKA forks can reuse, Windows and Linux. The measurements in full, and the history of each change, are in the step documents of [progress/](progress/README.md).
 
@@ -157,7 +157,7 @@ Each line links to its section.
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step | fixed |
 | [25. Client](#25-client-fixes-outside-the-netcode) | menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
-**Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Compatibility](#28-compatibility), [29. Not changed yet](#29-not-changed-yet).
+**Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. Not changed yet](#30-not-changed-yet).
 
 ## A. Responsiveness and equality
 
@@ -1022,7 +1022,24 @@ Added commands. The statistics commands print their counters since the previous 
 | GitHub workflow | installs libjpeg, libpng and zlib on Linux and macOS | installs none of them, since no build links them (not run) |
 | Study, plan, progress | | `docs_rewrite/modernization/` (this folder) |
 
-### 28. Compatibility
+### 28. Name: ModernJK
+
+**Before.** The game carries OpenJK's names: the programs `openjk.x86_64` and `openjkded.x86_64`, the window "OpenJK (MP)", the configuration `openjk.cfg` (`openjk_server.cfg` for the dedicated server), the settings folder `Documents\My Games\OpenJK` on Windows and `~/.local/share/openjk` on Linux, the modules in a folder `OpenJK`, the version "OpenJK-MP".
+
+**Now.** Everything a player sees is named ModernJK: `modernjk.x86_64` and `modernjkded.x86_64`, the window "ModernJK (MP)", `modernjk.cfg` and `modernjk_server.cfg`, `Documents\My Games\ModernJK` and `~/.local/share/modernjk`, the folder `ModernJK`, the version "ModernJK-MP". The single-player game is renamed the same way: `modernjk_sp.x86_64`, the window "ModernJK (SP)", `modernjk_sp.cfg`, the version "ModernJK".
+
+**Why.** The branch is a game of its own (owner, 15 November 2026): it does not play with OpenJK or the base game (section 29), so it does not take their names or their files.
+
+**Gain.** An OpenJK and a ModernJK installation no longer share a configuration file or a settings folder. The cost: a configuration of OpenJK is not read any more; copy `openjk.cfg` to `modernjk.cfg` (and `openjk_server.cfg` to `modernjk_server.cfg` on a server) to keep it.
+
+<details>
+<summary>Technical details</summary>
+
+`codemp/qcommon/q_shared.h`: `PRODUCT_NAME` (which names the configuration files), the window and console titles, the settings folder's names, and `MODERNJKGAME` (formerly `OPENJKGAME`), the folder the engine looks in for the modules; `codemp/qcommon/game_version.h`: `JK_VERSION`. The top-level `CMakeLists.txt` names the programs (`MPEngine`, `MPDed`) and the project; `codemp/cgame`, `codemp/game`, `codemp/ui` and the single-player `code/game` install the modules in `ModernJK`; the Windows resources (`codemp/win32/modernjk.rc`, `modernjkded.rc` and the modules') and the icons (`shared/icons/ModernJK.ico`, `modernjkcmd.ico`) are renamed, as are the installer's names (`cmake/Modules/InstallConfig.cmake`). The names in the build and the code that meant this repository are renamed too: `InModernJK`, `MODERNJK_VISIBILITY_FLAGS`, `ModernJKLibDir`, `modernjk_add_zlib_ng`, `netcodec_MODERNJK_DIR`, the single-player cgame calls `CG_MODERNJK_MENU_PAINT` and `CG_MODERNJK_GETMENU_BYNAME`, the build folders `build-modernjk/` and `build-netcodec/modernjk-clang`. Unchanged: the copyright notices, the comments that name OpenJK's own code or choices, and the names of the Jedi Outcast engine (`openjo_sp`, OpenJK's name for it).
+
+</details>
+
+### 29. Compatibility
 
 | combination | works |
 |---|---|
@@ -1033,9 +1050,9 @@ Added commands. The statistics commands print their counters since the previous 
 | Game and cgame modules built from OpenJK with the branch engine | not checked since the server ticks at 100 Hz (it worked before plan step 14). OpenJK's game code run at 100 Hz does not play as at 20 Hz (section 1). The server's game and the client's cgame must come from the same source, or the prediction misses |
 | Mods that widened `user*` fields with the overrides files | they get the full values without the files (section 13) |
 | Server browser, master server, `getstatus`, `getinfo` | yes, unchanged |
-| Configuration files from OpenJK | yes; removed cvars are stored and never read |
+| Configuration files from OpenJK | yes, once copied under the new name (section 28); removed cvars are stored and never read |
 
-### 29. Not changed yet
+### 30. Not changed yet
 
 | subject | where |
 |---|---|

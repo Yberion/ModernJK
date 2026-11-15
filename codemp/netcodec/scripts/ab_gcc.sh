@@ -40,7 +40,7 @@ ALIGN="-falign-functions=64 -falign-loops=64 -falign-jumps=64"
 build() {   # $1 = name (ref, cur)
 	cmake -S "$W/$1/codemp/netcodec" -B "$W/build-$1" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++ \
 		-DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" \
-		-Dnetcodec_OPENJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$W/build-$1.log" 2>&1 &&
+		-Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$W/build-$1.log" 2>&1 &&
 	cmake --build "$W/build-$1" --target "netcodec_bench_$BENCH" -j 4 >> "$W/build-$1.log" 2>&1 ||
 	{ echo "build of $1 failed:"; tail -30 "$W/build-$1.log"; exit 1; }
 }

@@ -4,7 +4,7 @@ The tools that produced the numbers of [../../surveys/visibility-culling.md](../
 
 ## How they were run
 
-The server side is a temporary patch: one of the `.inc` files was included at the top of `codemp/server/sv_ccmds.cpp` (an `#include` of its absolute path after `server/sv_gameapi.h`) and its commands were added at the start of `SV_AddOperatorCommands`; both lines were removed after each measure. The dedicated server was the clang build of `build-netcodec/openjk-clang`, started under lldb with a home folder per run. The scripts expect `SCR` to name a work folder holding the built tools; they write their runs there.
+The server side is a temporary patch: one of the `.inc` files was included at the top of `codemp/server/sv_ccmds.cpp` (an `#include` of its absolute path after `server/sv_gameapi.h`) and its commands were added at the start of `SV_AddOperatorCommands`; both lines were removed after each measure. The dedicated server was the clang build of `build-netcodec/modernjk-clang`, started under lldb with a home folder per run. The scripts expect `SCR` to name a work folder holding the built tools; they write their runs there.
 
 The offline tools are C++20, built with llvm-mingw clang (`-O2 -msse4.2 -static`); those using tinybvh need its header folder on the include path: tinybvh (MIT) at commit `f1c18c3f22e878ebb10d9ff088b47b68004d5daa` (31 October 2026; it publishes no releases), from https://github.com/jbikker/tinybvh. `libbench.cpp` also needs madmann91/bvh (MIT) at commit `ad9f7ee3fa` (16 October 2026), from https://github.com/madmann91/bvh, its `src` folder on the include path. Neither library is in this repository.
 

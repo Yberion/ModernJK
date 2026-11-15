@@ -1,4 +1,4 @@
-// Engine-side glue of the legacy benchmark (see legacy_codec.h). Compiled like the engine (C++11, OpenJK headers).
+// Engine-side glue of the legacy benchmark (see legacy_codec.h). Compiled like the engine (C++11, ModernJK headers).
 // The loops below follow codemp/server/sv_snapshot.cpp and codemp/client/cl_parse.cpp; the engine's msg functions
 // take non-const pointers but do not modify their sources, hence the const_casts.
 #include "legacy_codec.h"

@@ -2,7 +2,7 @@
 # TMP: export cells from the server, compute the table offline (vistool, tinybvh), measure it with bots
 # usage: vis4run.sh <tag> <map> <vistool mode and arguments...>   (GT=<gametype>, BOTS, SAMPLES)
 tag="$1"; map="$2"; shift 2
-BUILD=E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang
+BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
@@ -12,7 +12,7 @@ exp="$SCR/$name.export2"
 if [ ! -f "$exp" ]; then
 	home="$SCR/v5_${tag}_exp"; rm -rf "$home"; mkdir -p "$home/base"; cp "$BUILD/jampgamex86_64.dll" "$home/base/"
 	{ echo "set g_gametype ${GT:-0}"; echo "map $map"; echo "wait 100"; echo "TMPvisexport2 64 128 2 $exp"; echo "quit"; } > "$home/base/e.cfg"
-	( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec e.cfg ) > "$home/lldb.txt" 2>&1
+	( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec e.cfg ) > "$home/lldb.txt" 2>&1
 	grep -a "TMPVIS export2" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* //'
 fi
 prefix="$SCR/v5_${tag}_table"
@@ -31,6 +31,6 @@ bots="${BOTS:-31}"
 	for (( i = 0; i < ${SAMPLES:-60}; i++ )); do echo "TMPvis2game ${LEAD:-110}"; echo "wait 100"; done
 	echo "TMPvisgamedump stop"; echo "TMPvis2game print"; echo "quit"
 } > "$home/base/g.cfg"
-( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec g.cfg ) > "$home/lldb.txt" 2>&1
+( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec g.cfg ) > "$home/lldb.txt" 2>&1
 grep -a "TMPVIS" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* //'
 "$SCR/truth.exe" "$SCR/$name.tris" "$SCR/v5_${tag}_pairs.bin"

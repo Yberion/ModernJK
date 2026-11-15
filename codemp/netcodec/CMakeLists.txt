@@ -4,7 +4,7 @@
 # Two uses:
 #  - top-level project (development, tests, benchmarks): see CMakePresets.json, for example
 #      cmake --preset gcc-release && cmake --build --preset gcc-release && ctest --preset gcc-release
-#  - inside OpenJK (add_subdirectory): only the library target netcodec::netcodec; no tests, no warnings as errors,
+#  - inside ModernJK (add_subdirectory): only the library target netcodec::netcodec; no tests, no warnings as errors,
 #    and none of the development settings below reach the engine's targets.
 cmake_minimum_required(VERSION 3.21)
 

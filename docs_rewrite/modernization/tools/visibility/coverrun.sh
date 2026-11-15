@@ -2,7 +2,7 @@
 # TMP: where the bots stand against the layer, for one layer mode (the same game with the same seed)
 # usage: coverrun.sh <tag> <map> <layer mode>   (GT=<gametype>)
 tag="$1"; map="$2"; mode="$3"
-BUILD=E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang
+BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
@@ -19,5 +19,5 @@ names=(Alora Chewbacca Cultist Desann Gran Noghri Rodian Tavion)
 	for (( i = 0; i < 120; i++ )); do echo "TMPviscover"; echo "wait 100"; done
 	echo "TMPviscover print"; echo "quit"
 } > "$home/base/c.cfg"
-( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec c.cfg ) > "$home/lldb.txt" 2>&1
+( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe +set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec c.cfg ) > "$home/lldb.txt" 2>&1
 grep -a "TMPVIS" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* //'

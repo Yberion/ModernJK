@@ -27,7 +27,7 @@ ALIGN="-falign-functions=64 -falign-loops=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN=""
 build() {   # $1 = name (ref, cur)
 	(cd "$S/$1/codemp/netcodec" &&
-	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_OPENJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
+	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
 	 cmake --build --preset "$PRESET" --target "netcodec_bench_$BENCH" >> "$S/build-$1.log" 2>&1) ||
 	{ echo "build of $1 failed:"; tail -30 "$S/build-$1.log"; exit 1; }
 }

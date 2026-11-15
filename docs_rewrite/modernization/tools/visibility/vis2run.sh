@@ -2,7 +2,7 @@
 # TMP layer visibility table: build, then measure with bots
 # usage: vis2run.sh <tag> <map> <build args> [bots] [samples]
 tag="$1"; map="$2"; build="$3"; bots="${4:-31}"; samples="${5:-60}"
-BUILD=E:/Git/jka/OpenJK_Netcode/build-netcodec/openjk-clang
+BUILD=E:/Git/jka/ModernJK/build-netcodec/modernjk-clang
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:$PATH"
 GAME="E:/Jeux/Jedi Academy default - netcodev_openjk"
 SCR="${SCR:?set SCR to the work folder: the tools built there, their outputs written there}"
@@ -23,6 +23,6 @@ names=(Alora Chewbacca Cultist Desann Gran Noghri Rodian Tavion)
 	fi
 	echo "quit"
 } > "$home/base/v.cfg"
-( cd "$BUILD" && lldb -b -o run -- ./openjkded.x86_64.exe \
+( cd "$BUILD" && lldb -b -o run -- ./modernjkded.x86_64.exe \
 	+set fs_basepath "$GAME" +set fs_homepath "$home" +set net_enabled 0 +set dedicated 1 +set logfile 2 +exec v.cfg ) > "$home/lldb.txt" 2>&1
 grep -a "TMPVIS2" "$home/base/qconsole.log" | sed 's/^[0-9-]* [0-9:]* TMPVIS2 //'
