@@ -102,7 +102,7 @@ Cmd_Argc() / Cmd_Argv()
 =================
 */
 bool UI_ConsoleCommand( int realTime ) {
-	consoleCommand_t *command = NULL;
+	consoleCommand_t *command = nullptr;
 
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realTime;
@@ -155,7 +155,7 @@ Coordinates are 640*480 virtual values
 void UI_FillRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 void UI_DrawSides(float x, float y, float w, float h) {
@@ -180,5 +180,5 @@ void UI_DrawRect( float x, float y, float width, float height, const float *colo
 	UI_DrawTopBottom(x, y, width, height);
 	UI_DrawSides(x, y, width, height);
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }

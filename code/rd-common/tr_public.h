@@ -89,7 +89,7 @@ typedef struct {
 
 	e_status			(*CIN_RunCinematic)					( int handle );
 	int					(*CIN_PlayCinematic)				( const char *arg0, int xpos, int ypos, int width, int height,
-															int bits, const char *psAudioFile /* = NULL */ );
+															int bits, const char *psAudioFile /* = nullptr */ );
 	void				(*CIN_UploadCinematic)				( int handle );
 
 	// window handling
@@ -183,7 +183,7 @@ typedef struct {
 	void	(*RenderScene)( const refdef_t *fd );
 	bool(*GetLighting)( const vec3_t org, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
-	void	(*SetColor)( const float *rgba );	// NULL = 1,1,1,1
+	void	(*SetColor)( const float *rgba );	// nullptr = 1,1,1,1
 	void	(*DrawStretchPic) ( float x, float y, float w, float h,
 		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 	void	(*DrawRotatePic) ( float x, float y, float w, float h,
@@ -199,7 +199,7 @@ typedef struct {
 
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
 
-	// if the pointers are not NULL, timing info will be returned
+	// if the pointers are not nullptr, timing info will be returned
 	void	(*EndFrame)( int *frontEndMsec, int *backEndMsec );
 
 	bool (*ProcessDissolve)(void);
@@ -244,8 +244,8 @@ typedef struct {
 	int		(*Font_StrLenChars) (const char *s);
 	bool (*Language_IsAsian) (void);
 	bool (*Language_UsesSpaces) (void);
-	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int * piAdvanceCount, bool *pbIsTrailingPunctuation /* = NULL */);
-	unsigned int (*AnyLanguage_ReadCharFromString2)( char **psText, bool *pbIsTrailingPunctuation /* = NULL */);
+	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int * piAdvanceCount, bool *pbIsTrailingPunctuation /* = nullptr */);
+	unsigned int (*AnyLanguage_ReadCharFromString2)( char **psText, bool *pbIsTrailingPunctuation /* = nullptr */);
 
 	// Misc
 	void	(*R_InitWorldEffects)(void);
@@ -378,7 +378,7 @@ typedef struct {
 } refexport_t;
 
 // this is the only function actually exported at the linker level
-// If the module can't init to a valid rendering state, NULL will be
+// If the module can't init to a valid rendering state, nullptr will be
 // returned.
 
 typedef	refexport_t* (QDECL *GetRefAPI_t) (int apiVersion, refimport_t *rimp);

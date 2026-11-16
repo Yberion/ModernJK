@@ -157,7 +157,7 @@ void DemoRecorder::Message( const eng::ServerMessage &msg, int lastCommand, cons
 		held = true;
 		heldMsg = msg;
 		heldMsg.download = false;
-		heldMsg.data = NULL;
+		heldMsg.data = nullptr;
 		heldLastCommand = lastCommand;
 		heldMsg.numAreas = msg.numAreas < sizeof( heldAreas ) ? msg.numAreas : (uint32_t)sizeof( heldAreas );
 		if ( heldMsg.numAreas ) {

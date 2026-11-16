@@ -58,7 +58,7 @@ Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt )
 	{
 		return g_entities[ent->s.m_iVehicleNum].m_pVehicle;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -89,7 +89,7 @@ void G_VehicleSpawn( gentity_t *self )
 
 	if ( !vehEnt )
 	{
-		return;//return NULL;
+		return;//return nullptr;
 	}
 
 	vehEnt->s.angles[YAW] = yaw;
@@ -137,7 +137,7 @@ void G_AttachToVehicle( gentity_t *pEnt, usercmd_t **ucmd )
 	// Get the driver tag.
 	trap->G2API_GetBoltMatrix( vehEnt->ghoul2, 0, crotchBolt, &boltMatrix,
 							vehEnt->m_pVehicle->m_vOrientation, vehEnt->r.currentOrigin,
-							level.time, NULL, vehEnt->modelScale );
+							level.time, nullptr, vehEnt->modelScale );
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, ent->client->ps.origin );
 	G_SetOrigin(ent, ent->client->ps.origin);
 	trap->LinkEntity( (sharedEntity_t *)ent );
@@ -174,7 +174,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 	}
 
-	if ( pVeh->m_pPilot != NULL )
+	if ( pVeh->m_pPilot != nullptr )
 	{//already have a driver!
 		if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
 		{//I know, I know, this should by in the fighters's validateboard()
@@ -217,7 +217,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	VectorNormalize( vVehToEnt );
 
 	// Get the right vector.
-	AngleVectors( vVehAngles, NULL, vVehDir, NULL );
+	AngleVectors( vVehAngles, nullptr, vVehDir, nullptr );
 	VectorNormalize( vVehDir );
 
 	// Find the angle between the vehicle right vector and the vehicle to entity vector.
@@ -238,7 +238,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	else
 	{
 		// The forward vector of the vehicle.
-	//	AngleVectors( vVehAngles, vVehDir, NULL, NULL );
+	//	AngleVectors( vVehAngles, vVehDir, nullptr, nullptr );
 	//	VectorNormalize( vVehDir );
 
 		// Find the angle between the vehicle forward and the vehicle to entity vector.
@@ -263,7 +263,7 @@ bool ValidateBoard( Vehicle_t *pVeh, bgEntity_t *pEnt )
 void FighterStorePilotViewAngles( Vehicle_t *pVeh, bgEntity_t *parent )
 {
 	playerState_t *riderPS;
-	bgEntity_t *rider = NULL;
+	bgEntity_t *rider = nullptr;
 	if (parent->s.owner != ENTITYNUM_NONE)
 	{
 		rider = PM_BGEntForNum(parent->s.owner); //&g_entities[parent->r.ownerNum];
@@ -323,7 +323,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 			// Find an empty slot and put that passenger here.
 			for ( i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++ )
 			{
-				if ( pVeh->m_ppPassengers[i] == NULL )
+				if ( pVeh->m_ppPassengers[i] == nullptr )
 				{
 					pVeh->m_ppPassengers[i] = (bgEntity_t *)ent;
 #ifdef _GAME
@@ -387,7 +387,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	else
 	{
 		// If there's no pilot, try to drive this vehicle.
-		if ( pVeh->m_pPilot == NULL )
+		if ( pVeh->m_pPilot == nullptr )
 		{
 			pVeh->m_pVehicleInfo->SetPilot( pVeh, (bgEntity_t *)ent );
 			// TODO: Set pilot should do all this stuff....
@@ -409,7 +409,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 			// Find an empty slot and put that passenger here.
 			for ( i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++ )
 			{
-				if ( pVeh->m_ppPassengers[i] == NULL )
+				if ( pVeh->m_ppPassengers[i] == nullptr )
 				{
 					pVeh->m_ppPassengers[i] = (bgEntity_t *)ent;
 #ifdef _GAME
@@ -492,29 +492,29 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	{
 		// Left.
 		case VEH_EJECT_LEFT:
-			AngleVectors( vVehAngles, NULL, vVehLeaveDir, NULL );
+			AngleVectors( vVehAngles, nullptr, vVehLeaveDir, nullptr );
 			vVehLeaveDir[0] = -vVehLeaveDir[0];
 			vVehLeaveDir[1] = -vVehLeaveDir[1];
 			vVehLeaveDir[2] = -vVehLeaveDir[2];
 			break;
 		// Right.
 		case VEH_EJECT_RIGHT:
-			AngleVectors( vVehAngles, NULL, vVehLeaveDir, NULL );
+			AngleVectors( vVehAngles, nullptr, vVehLeaveDir, nullptr );
 			break;
 		// Front.
 		case VEH_EJECT_FRONT:
-			AngleVectors( vVehAngles, vVehLeaveDir, NULL, NULL );
+			AngleVectors( vVehAngles, vVehLeaveDir, nullptr, nullptr );
 			break;
 		// Rear.
 		case VEH_EJECT_REAR:
-			AngleVectors( vVehAngles, vVehLeaveDir, NULL, NULL );
+			AngleVectors( vVehAngles, vVehLeaveDir, nullptr, nullptr );
 			vVehLeaveDir[0] = -vVehLeaveDir[0];
 			vVehLeaveDir[1] = -vVehLeaveDir[1];
 			vVehLeaveDir[2] = -vVehLeaveDir[2];
 			break;
 		// Top.
 		case VEH_EJECT_TOP:
-			AngleVectors( vVehAngles, NULL, NULL, vVehLeaveDir );
+			AngleVectors( vVehAngles, nullptr, nullptr, vVehLeaveDir );
 			break;
 		// Bottom?.
 		case VEH_EJECT_BOTTOM:
@@ -594,11 +594,11 @@ void G_EjectDroidUnit( Vehicle_t *pVeh, bool kill )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(droidEnt->s.number, CHAN_VOICE);
-			G_Damage( droidEnt, NULL, NULL, NULL, droidEnt->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+			G_Damage( droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 		}
 	}
 #endif
-	pVeh->m_pDroidUnit = NULL;
+	pVeh->m_pDroidUnit = nullptr;
 }
 
 // Eject the pilot from the vehicle.
@@ -701,7 +701,7 @@ getItOutOfMe:
 	{
 		int j = 0;
 
-		pVeh->m_pPilot = NULL;
+		pVeh->m_pPilot = nullptr;
 		parent->r.ownerNum = ENTITYNUM_NONE;
 		parent->s.owner = parent->r.ownerNum; //for prediction
 
@@ -728,13 +728,13 @@ getItOutOfMe:
 					((gentity_t *)pVeh->m_ppPassengers[j])->client->ps.generic1 = 0;
 				}
 #endif
-				pVeh->m_ppPassengers[j] = NULL;
+				pVeh->m_ppPassengers[j] = nullptr;
 				while (k < pVeh->m_iNumPassengers)
 				{
 					if (!pVeh->m_ppPassengers[k-1])
 					{ //move down
 						pVeh->m_ppPassengers[k-1] = pVeh->m_ppPassengers[k];
-						pVeh->m_ppPassengers[k] = NULL;
+						pVeh->m_ppPassengers[k] = nullptr;
 #ifdef _GAME
 						//Server just needs to tell client which passenger he is
 						if ( pVeh->m_ppPassengers[k-1] && ((gentity_t *)pVeh->m_ppPassengers[k-1])->client )
@@ -754,7 +754,7 @@ getItOutOfMe:
 	}
 	else if (ent==(gentity_t *)pVeh->m_pOldPilot)
 	{
-		pVeh->m_pOldPilot = 0;
+		pVeh->m_pOldPilot = nullptr;
 	}
 	else
 	{
@@ -772,7 +772,7 @@ getItOutOfMe:
 					((gentity_t *)pVeh->m_ppPassengers[i])->client->ps.generic1 = 0;
 				}
 #endif
-				pVeh->m_ppPassengers[i] = NULL;
+				pVeh->m_ppPassengers[i] = nullptr;
 				pVeh->m_iNumPassengers--;
 				break;
 			}
@@ -794,7 +794,7 @@ getItOutOfMe:
 	}
 
 	// If the vehicle now has no pilot...
-	if ( pVeh->m_pPilot == NULL  )
+	if ( pVeh->m_pPilot == nullptr  )
 	{
 		parent->client->ps.loopSound = parent->s.loopSound = 0;
 		// Completely empty vehicle...?
@@ -910,7 +910,7 @@ bool EjectAll( Vehicle_t *pVeh )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, NULL, NULL, NULL, pilot->s.origin, 10000, 0, MOD_SUICIDE );
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, 0, MOD_SUICIDE );
 		}
 #endif
 	}
@@ -925,7 +925,7 @@ bool EjectAll( Vehicle_t *pVeh )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, NULL, NULL, NULL, pilot->s.origin, 10000, 0, MOD_SUICIDE );
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, 0, MOD_SUICIDE );
 		}
 #endif
 	}
@@ -946,7 +946,7 @@ bool EjectAll( Vehicle_t *pVeh )
 				{//Kill them, too
 					//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 					G_MuteSound(rider->s.number, CHAN_VOICE);
-					G_Damage( rider, NULL, NULL, NULL, rider->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+					G_Damage( rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 				}
 #endif
 			}
@@ -1000,7 +1000,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				{
 					//FIXME: does this give proper credit to the enemy who shot you down?
 					G_Damage((gentity_t *)pVeh->m_pPilot, (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
-						NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
+						nullptr, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
 				}
 				if ( pVeh->m_iNumPassengers )
 				{
@@ -1012,7 +1012,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 						{
 							//FIXME: does this give proper credit to the enemy who shot you down?
 							G_Damage((gentity_t *)pVeh->m_ppPassengers[i], (gentity_t *)pVeh->m_pParentEntity, (gentity_t *)pVeh->m_pParentEntity,
-								NULL, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
+								nullptr, pVeh->m_pParentEntity->playerState->origin, 999, DAMAGE_NO_PROTECTION, MOD_SUICIDE );
 						}
 					}
 				}
@@ -1053,7 +1053,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				VectorCopy( parent->r.currentOrigin, bottom );
 				bottom[2] += parent->r.mins[2] - 32;
 				G_VehicleTrace( &trace, parent->r.currentOrigin, lMins, lMaxs, bottom, parent->s.number, CONTENTS_SOLID );
-				G_RadiusDamage( trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_SUICIDE );//FIXME: extern damage and radius or base on fuel
+				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, nullptr, MOD_SUICIDE );//FIXME: extern damage and radius or base on fuel
 			}
 
 			parent->think = G_FreeEntity;
@@ -1123,7 +1123,7 @@ bool Initialize( Vehicle_t *pVeh )
 		// Allocate an array of entity pointers.
 		for ( i = 0; i < pVeh->m_pVehicleInfo->maxPassengers; i++ )
 		{
-			pVeh->m_ppPassengers[i] = NULL;
+			pVeh->m_ppPassengers[i] = nullptr;
 		}
 	}
 
@@ -1142,9 +1142,9 @@ bool Initialize( Vehicle_t *pVeh )
 	pVeh->m_fTimeModifier = 1.0f;
 	pVeh->m_iBoarding = 0;
 	pVeh->m_bWasBoarding = false;
-	pVeh->m_pOldPilot = NULL;
+	pVeh->m_pOldPilot = nullptr;
 	VectorClear(pVeh->m_vBoardingVelocity);
-	pVeh->m_pPilot = NULL;
+	pVeh->m_pPilot = nullptr;
 	memset( &pVeh->m_ucmd, 0, sizeof( usercmd_t ) );
 	pVeh->m_iDieTime = 0;
 	pVeh->m_EjectDir = VEH_EJECT_LEFT;
@@ -1298,12 +1298,12 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		// Setup the move direction.
 		if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
 		{
-			AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, NULL, NULL );
+			AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, nullptr, nullptr );
 		}
 		else
 		{
 			VectorSet(vVehAngles, 0, pVeh->m_vOrientation[YAW], 0);
-			AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL );
+			AngleVectors( vVehAngles, parent->client->ps.moveDir, nullptr, nullptr );
 		}
 		pVeh->m_pVehicleInfo->DeathUpdate( pVeh );
 		return false;
@@ -1345,7 +1345,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			if (!oldPilot->inuse || !oldPilot->client ||
 				oldPilot->client->pers.connected != CON_CONNECTED)
 			{ //no longer in the game?
-				G_Damage(parent, parent, parent, NULL, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+				G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 			}
 			else
 			{
@@ -1358,7 +1358,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 				}
 				else if (pVeh->m_iPilotTime < level.time)
 				{ //dying time
-					G_Damage(parent, parent, parent, NULL, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+					G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 				}
 			}
 		}
@@ -1579,12 +1579,12 @@ maintainSelfDuringBoarding:
 	// Setup the move direction.
 	if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
 	{
-		AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, NULL, NULL );
+		AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, nullptr, nullptr );
 	}
 	else
 	{
 		VectorSet(vVehAngles, 0, pVeh->m_vOrientation[YAW], 0);
-		AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL );
+		AngleVectors( vVehAngles, parent->client->ps.moveDir, nullptr, nullptr );
 	}
 
 	if (pVeh->m_pVehicleInfo->surfDestruction)
@@ -1610,7 +1610,7 @@ maintainSelfDuringBoarding:
 
 			// 3 seconds max on death.
 			dmg = (float)parent->client->ps.stats[STAT_MAX_HEALTH] * pVeh->m_fTimeModifier / 180.0f;
-			G_Damage(parent, killer, killer, NULL, parent->client->ps.origin, dmg, DAMAGE_NO_SELF_PROTECTION|DAMAGE_NO_HIT_LOC|DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR, MOD_SUICIDE);
+			G_Damage(parent, killer, killer, nullptr, parent->client->ps.origin, dmg, DAMAGE_NO_SELF_PROTECTION|DAMAGE_NO_HIT_LOC|DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR, MOD_SUICIDE);
 		}
 
 		//make sure playerstate value stays in sync
@@ -1864,7 +1864,7 @@ static void AttachRiders( Vehicle_t *pVeh )
 			// Get the driver tag.
 			trap->G2API_GetBoltMatrix( parent->ghoul2, 0, crotchBolt, &boltMatrix,
 									yawOnlyAngles, parent->client->ps.origin,
-									level.time, NULL, parent->modelScale );
+									level.time, nullptr, parent->modelScale );
 			BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, pilot->client->ps.origin );
 
 			G_SetOrigin( pilot, pilot->client->ps.origin );
@@ -1893,7 +1893,7 @@ static void AttachRiders( Vehicle_t *pVeh )
 			// Get the droid tag.
 			trap->G2API_GetBoltMatrix( parent->ghoul2, 0, pVeh->m_iDroidUnitTag, &boltMatrix,
 									yawOnlyAngles, parent->r.currentOrigin,
-									level.time, NULL, parent->modelScale );
+									level.time, nullptr, parent->modelScale );
 			BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, droid->client->ps.origin );
 			BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, fwd );
 			vectoangles( fwd, droid->client->ps.viewangles );
@@ -2009,7 +2009,7 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	else
 	{ //oh well, DIE!
 		//FIXME: does this give proper credit to the enemy who shot you down?
-		G_Damage(parent, parent, parent, NULL, parent->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+		G_Damage(parent, parent, parent, nullptr, parent->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 	}
 }
 
@@ -2031,7 +2031,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 		return -1;
 	}
 
-	AngleVectors(veh->client->ps.viewangles, fwd, right, 0);
+	AngleVectors(veh->client->ps.viewangles, fwd, right, nullptr);
 	VectorSet(testMins, -24.0f, -24.0f, -24.0f);
 	VectorSet(testMaxs, 24.0f, 24.0f, 24.0f);
 
@@ -2160,7 +2160,7 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 					//make it vulnerable
 					droidEnt->flags &= ~FL_UNDYING;
 					//blow it up
-					G_Damage( droidEnt, veh->enemy, veh->enemy, NULL, NULL, 99999, 0, MOD_UNKNOWN );
+					G_Damage( droidEnt, veh->enemy, veh->enemy, nullptr, nullptr, 99999, 0, MOD_UNKNOWN );
 				}
 			}
 		}
@@ -2353,7 +2353,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 	veh->m_pVehicle->m_iRemovedSurfaces |= smashedBits;
 
 	//do some explosive damage, but don't damage this ship with it
-	G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, NULL, MOD_SUICIDE);
+	G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, nullptr, MOD_SUICIDE);
 
 	//when spiraling to your death, do the electical shader
 	veh->client->ps.electrifyTime = level.time + 10000;

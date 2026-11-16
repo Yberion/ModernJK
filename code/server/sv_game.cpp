@@ -102,7 +102,7 @@ void SV_GameSendServerCommand( int clientNum, const char *fmt, ... ) {
 	va_end (argptr);
 
 	if ( clientNum == -1 ) {
-		SV_SendServerCommand( NULL, "%s", msg );
+		SV_SendServerCommand( nullptr, "%s", msg );
 	} else {
 		if ( clientNum < 0 || clientNum >= 1 ) {
 			return;
@@ -207,7 +207,7 @@ const char *SV_SetActiveSubBSP(int index)
 		sv.mLocalSubBSPIndex = -1;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -410,8 +410,8 @@ void SV_ShutdownGameProgs (bool shutdownCin) {
 
 	Sys_UnloadDll( gameLibrary );
 
-	ge = NULL;
-	cgvm.entryPoint = 0;
+	ge = nullptr;
+	cgvm.entryPoint = nullptr;
 }
 
 // this is a compile-helper function since Z_Malloc can now become a macro with __LINE__ etc
@@ -1089,7 +1089,7 @@ void SV_InitGameProgs (void) {
 	// clear all gentity pointers that might still be set from
 	// a previous level
 	for ( i = 0 ; i < 1 ; i++ ) {
-		svs.clients[i].gentity = NULL;
+		svs.clients[i].gentity = nullptr;
 	}
 }
 

@@ -52,8 +52,8 @@ extern saberInfo_t *BG_MySaber( int clientNum, int saberNum );
 pmove_t		*pm;
 pml_t		pml;
 
-bgEntity_t *pm_entSelf = NULL;
-bgEntity_t *pm_entVeh = NULL;
+bgEntity_t *pm_entSelf = nullptr;
+bgEntity_t *pm_entVeh = nullptr;
 
 bool gPMDoSlowFall = false;
 
@@ -61,8 +61,8 @@ bool pm_cancelOutZoom = false;
 
 #ifdef _CGAME
 // The player state a command is being predicted for and its animations before the command (BG_StartLegsAnim and
-// BG_StartTorsoAnim, bg_panimate.cpp); NULL outside Pmove
-const playerState_t	*pm_startPs = NULL;
+// BG_StartTorsoAnim, bg_panimate.cpp); nullptr outside Pmove
+const playerState_t	*pm_startPs = nullptr;
 int					pm_startLegsAnim, pm_startTorsoAnim;
 #endif
 
@@ -205,19 +205,19 @@ bgEntity_t *PM_BGEntForNum( int num )
 	if (!pm)
 	{
 		assert(!"You cannot call PM_BGEntForNum outside of pm functions!");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!pm->baseEnt)
 	{
 		assert(!"Base entity address not set");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!pm->entSize)
 	{
 		assert(!"sizeof(ent) is 0, impossible (not set?)");
-		return NULL;
+		return nullptr;
 	}
 
 	assert(num >= 0 && num < MAX_GENTITIES);
@@ -404,18 +404,18 @@ void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t sto
 
 		tempAngles[PITCH] = tempAngles[ROLL] = 0;
 		tempAngles[YAW] = pVeh->m_vOrientation[YAW];
-		AngleVectors( tempAngles, ovf, ovr, NULL );
+		AngleVectors( tempAngles, ovf, ovr, nullptr );
 	}
 	else
 	{
-		AngleVectors( pm->ps->viewangles, ovf, ovr, NULL );
+		AngleVectors( pm->ps->viewangles, ovf, ovr, nullptr );
 	}
 
 	vectoangles( slope, new_angles );
 	pitch = new_angles[PITCH] + 90;
 	new_angles[ROLL] = new_angles[PITCH] = 0;
 
-	AngleVectors( new_angles, nvf, NULL, NULL );
+	AngleVectors( new_angles, nvf, nullptr, nullptr );
 
 	mod = DotProduct( nvf, ovr );
 
@@ -587,7 +587,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 
 			VectorCopy( pVeh->m_vOrientation, tempVAngles );
 			tempVAngles[ROLL] = 0;
-			AngleVectors( tempVAngles, NULL, rt, NULL );
+			AngleVectors( tempVAngles, nullptr, rt, nullptr );
 			dp = DotProduct( velocity, rt );
 			side = speed * dp;
 			vAngles[ROLL] -= side;
@@ -841,7 +841,7 @@ void PM_HoverTrace( void )
 	}
 	else
 	{
-		PM_SetVehicleAngles( NULL );
+		PM_SetVehicleAngles( nullptr );
 		// We're flying in the air.
 		pVeh->m_ulFlags |= VEH_FLYING;
 		//groundTrace
@@ -978,7 +978,7 @@ static void PM_Friction( void ) {
 	float	*vel;
 	float	speed, newspeed, control;
 	float	drop;
-	bgEntity_t *pEnt = NULL;
+	bgEntity_t *pEnt = nullptr;
 
 	vel = pm->ps->velocity;
 
@@ -1342,7 +1342,7 @@ bool PM_AdjustAngleForWallRun( playerState_t *ps, usercmd_t *ucmd, bool doMove )
 		VectorSet(maxs, 15, 15, 24);
 		VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
 
-		AngleVectors( fwdAngles, fwd, rt, NULL );
+		AngleVectors( fwdAngles, fwd, rt, nullptr );
 		if ( (ps->legsAnim) == BOTH_WALL_RUN_RIGHT )
 		{
 			dist = 128;
@@ -1366,7 +1366,7 @@ bool PM_AdjustAngleForWallRun( playerState_t *ps, usercmd_t *ucmd, bool doMove )
 
 			VectorClear( wallRunAngles );
 			wallRunAngles[YAW] = vectoyaw( trace.plane.normal )+yawAdjust;
-			AngleVectors( wallRunAngles, wallRunFwd, NULL, NULL );
+			AngleVectors( wallRunAngles, wallRunFwd, nullptr, nullptr );
 
 			VectorMA( pm->ps->origin, 32, wallRunFwd, traceTo2 );
 			pm->trace( &trace2, pm->ps->origin, mins, maxs, traceTo2, pm->ps->clientNum, MASK_PLAYERSOLID );
@@ -1458,7 +1458,7 @@ bool PM_AdjustAngleForWallRunUp( playerState_t *ps, usercmd_t *ucmd, bool doMove
 		VectorSet(maxs, 15,15,24);
 		VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
 
-		AngleVectors( fwdAngles, fwd, NULL, NULL );
+		AngleVectors( fwdAngles, fwd, nullptr, nullptr );
 		VectorMA( ps->origin, dist, fwd, traceTo );
 		pm->trace( &trace, ps->origin, mins, maxs, traceTo, ps->clientNum, MASK_PLAYERSOLID );
 		if ( trace.fraction > 0.5f )
@@ -1599,23 +1599,23 @@ bool PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, bool doMove 
 		{
 		case BOTH_FORCEWALLREBOUND_RIGHT:
 		case BOTH_FORCEWALLHOLD_RIGHT:
-			AngleVectors( fwdAngles, NULL, checkDir, NULL );
+			AngleVectors( fwdAngles, nullptr, checkDir, nullptr );
 			yawAdjust = -90;
 			break;
 		case BOTH_FORCEWALLREBOUND_LEFT:
 		case BOTH_FORCEWALLHOLD_LEFT:
-			AngleVectors( fwdAngles, NULL, checkDir, NULL );
+			AngleVectors( fwdAngles, nullptr, checkDir, nullptr );
 			VectorScale( checkDir, -1, checkDir );
 			yawAdjust = 90;
 			break;
 		case BOTH_FORCEWALLREBOUND_FORWARD:
 		case BOTH_FORCEWALLHOLD_FORWARD:
-			AngleVectors( fwdAngles, checkDir, NULL, NULL );
+			AngleVectors( fwdAngles, checkDir, nullptr, nullptr );
 			yawAdjust = 180;
 			break;
 		case BOTH_FORCEWALLREBOUND_BACK:
 		case BOTH_FORCEWALLHOLD_BACK:
-			AngleVectors( fwdAngles, checkDir, NULL, NULL );
+			AngleVectors( fwdAngles, checkDir, nullptr, nullptr );
 			VectorScale( checkDir, -1, checkDir );
 			yawAdjust = 0;
 			break;
@@ -1957,7 +1957,7 @@ static bool PM_CheckJump( void )
 
 								VectorSet(facingAngles, 0, pm->ps->viewangles[YAW], 0);
 
-								AngleVectors( facingAngles, facingFwd, facingRight, NULL );
+								AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 								dotR = DotProduct( facingRight, pm->ps->velocity );
 								dotF = DotProduct( facingFwd, pm->ps->velocity );
 
@@ -2079,7 +2079,7 @@ static bool PM_CheckJump( void )
 		vec3_t	forward, back;
 		trace_t	trace;
 
-		AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
+		AngleVectors( pm->ps->viewangles, forward, nullptr, nullptr );
 		VectorMA( pm->ps->origin, -8, forward, back );
 		pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, back, pm->ps->clientNum, pm->tracemask );
 
@@ -2216,7 +2216,7 @@ static bool PM_CheckJump( void )
 
 				memset(&trace, 0, sizeof(trace)); //to shut the compiler up
 
-				AngleVectors( fwdAngles, fwd, right, NULL );
+				AngleVectors( fwdAngles, fwd, right, nullptr );
 
 				//trace-check for a wall, if necc.
 				switch ( anim )
@@ -2333,7 +2333,7 @@ static bool PM_CheckJump( void )
 				VectorSet(maxs, pm->maxs[0], pm->maxs[0], 24);
 				VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
 
-				AngleVectors( fwdAngles, NULL, right, NULL );
+				AngleVectors( fwdAngles, nullptr, right, nullptr );
 
 				if ( legsAnim == BOTH_WALL_RUN_LEFT )
 				{
@@ -2404,7 +2404,7 @@ static bool PM_CheckJump( void )
 				VectorSet(maxs, pm->maxs[0], pm->maxs[0], 24.0f);
 				//hmm, did you mean [1] and [1]?
 				VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0.0f);
-				AngleVectors( fwdAngles, fwd, NULL, NULL );
+				AngleVectors( fwdAngles, fwd, nullptr, nullptr );
 
 				assert(pm_entSelf); //null pm_entSelf would be a Bad Thing<tm>
 				animLen = BG_AnimLength( pm_entSelf->localAnimIndex, BOTH_FORCEWALLRUNFLIP_START );
@@ -2456,7 +2456,7 @@ static bool PM_CheckJump( void )
 				VectorSet(maxs, pm->maxs[0],pm->maxs[1],pm->maxs[2]);
 				VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
 
-				AngleVectors( fwdAngles, fwd, NULL, NULL );
+				AngleVectors( fwdAngles, fwd, nullptr, nullptr );
 				VectorMA( pm->ps->origin, 32, fwd, traceto );
 
 				pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, MASK_PLAYERSOLID );//FIXME: clip brushes too?
@@ -2530,7 +2530,7 @@ static bool PM_CheckJump( void )
 						VectorSet(maxs, pm->maxs[0], pm->maxs[1], 24.0f);
 						VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0.0f);
 
-						AngleVectors( fwdAngles, fwd, NULL, NULL );
+						AngleVectors( fwdAngles, fwd, nullptr, nullptr );
 						VectorMA( pm->ps->origin, 32, fwd, traceto );
 
 						pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents );//FIXME: clip brushes too?
@@ -2610,24 +2610,24 @@ static bool PM_CheckJump( void )
 						if ( pm->cmd.rightmove > 0 )
 						{
 							anim = BOTH_FORCEWALLREBOUND_RIGHT;
-							AngleVectors( fwdAngles, NULL, checkDir, NULL );
+							AngleVectors( fwdAngles, nullptr, checkDir, nullptr );
 						}
 						else if ( pm->cmd.rightmove < 0 )
 						{
 							anim = BOTH_FORCEWALLREBOUND_LEFT;
-							AngleVectors( fwdAngles, NULL, checkDir, NULL );
+							AngleVectors( fwdAngles, nullptr, checkDir, nullptr );
 							VectorScale( checkDir, -1, checkDir );
 						}
 					}
 					else if ( pm->cmd.forwardmove > 0 )
 					{
 						anim = BOTH_FORCEWALLREBOUND_FORWARD;
-						AngleVectors( fwdAngles, checkDir, NULL, NULL );
+						AngleVectors( fwdAngles, checkDir, nullptr, nullptr );
 					}
 					else if ( pm->cmd.forwardmove < 0 )
 					{
 						anim = BOTH_FORCEWALLREBOUND_BACK;
-						AngleVectors( fwdAngles, checkDir, NULL, NULL );
+						AngleVectors( fwdAngles, checkDir, nullptr, nullptr );
 						VectorScale( checkDir, -1, checkDir );
 					}
 					if ( anim != -1 )
@@ -3050,7 +3050,7 @@ static void PM_AirMove( void ) {
 	float		scale;
 	float		accelerate;
 	usercmd_t	cmd;
-	Vehicle_t	*pVeh = NULL;
+	Vehicle_t	*pVeh = nullptr;
 
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
@@ -3114,7 +3114,7 @@ static void PM_AirMove( void ) {
 
 			VectorCopy( pVeh->m_vOrientation, vAngles );
 			vAngles[ROLL] = 0;//since we're a hovercraft, we really don't want to stafe up into the air if we're banking
-			AngleVectors( vAngles, vfwd, vrt, NULL );
+			AngleVectors( vAngles, vfwd, vrt, nullptr );
 
 			float speed = pm->ps->speed;
 			float strafeSpeed = 0;
@@ -3619,7 +3619,7 @@ static int PM_TryRoll( void )
 
 	VectorSet(fwdAngles, 0, pm->ps->viewangles[YAW], 0);
 
-	AngleVectors( fwdAngles, fwd, right, NULL );
+	AngleVectors( fwdAngles, fwd, right, nullptr );
 
 	if ( pm->cmd.forwardmove )
 	{ //check forward/backward rolls
@@ -4657,13 +4657,13 @@ void PM_AnglesForSlope( const float yaw, const vec3_t slope, vec3_t angles )
 	float	pitch, mod, dot;
 
 	VectorSet( angles, 0, yaw, 0 );
-	AngleVectors( angles, ovf, ovr, NULL );
+	AngleVectors( angles, ovf, ovr, nullptr );
 
 	vectoangles( slope, new_angles );
 	pitch = new_angles[PITCH] + 90;
 	new_angles[ROLL] = new_angles[PITCH] = 0;
 
-	AngleVectors( new_angles, nvf, NULL, NULL );
+	AngleVectors( new_angles, nvf, nullptr, nullptr );
 
 	mod = DotProduct( nvf, ovr );
 
@@ -4696,12 +4696,12 @@ void PM_FootSlopeTrace( float *pDiff, float *pInterval )
 
 	interval = 4;//?
 
-	trap->G2API_GetBoltMatrix( pm->ghoul2, 0, pm->g2Bolts_LFoot, &boltMatrix, G2Angles, pm->ps->origin, pm->cmd.serverTime, NULL, pm->modelScale );
+	trap->G2API_GetBoltMatrix( pm->ghoul2, 0, pm->g2Bolts_LFoot, &boltMatrix, G2Angles, pm->ps->origin, pm->cmd.serverTime, nullptr, pm->modelScale );
 	footLPoint[0] = boltMatrix.matrix[0][3];
 	footLPoint[1] = boltMatrix.matrix[1][3];
 	footLPoint[2] = boltMatrix.matrix[2][3];
 
-	trap->G2API_GetBoltMatrix( pm->ghoul2, 0, pm->g2Bolts_RFoot, &boltMatrix, G2Angles, pm->ps->origin, pm->cmd.serverTime, NULL, pm->modelScale );
+	trap->G2API_GetBoltMatrix( pm->ghoul2, 0, pm->g2Bolts_RFoot, &boltMatrix, G2Angles, pm->ps->origin, pm->cmd.serverTime, nullptr, pm->modelScale );
 	footRPoint[0] = boltMatrix.matrix[0][3];
 	footRPoint[1] = boltMatrix.matrix[1][3];
 	footRPoint[2] = boltMatrix.matrix[2][3];
@@ -4730,11 +4730,11 @@ void PM_FootSlopeTrace( float *pDiff, float *pInterval )
 
 	diff = footLBot[2] - footRBot[2];
 
-	if ( pDiff != NULL )
+	if ( pDiff != nullptr )
 	{
 		*pDiff = diff;
 	}
-	if ( pInterval != NULL )
+	if ( pInterval != nullptr )
 	{
 		*pInterval = interval;
 	}
@@ -5173,7 +5173,7 @@ static bool BG_AreRunWalkAnimsFixed(void) {
 	return !!g_fixRunWalkAnims.integer;
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
-	const uint32_t legacyFixes = strtoul(cs, NULL, 0);
+	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
 	return !!(legacyFixes & (1 << LEGACYFIX_RUNWALKANIMS));
 #endif
 }
@@ -5923,7 +5923,7 @@ void PM_RocketLock( float lockDist, bool vehicleLock )
 	{
 		AngleVectors( pm->ps->viewangles, forward, right, up );
 
-		AngleVectors(pm->ps->viewangles, ang, NULL, NULL);
+		AngleVectors(pm->ps->viewangles, ang, nullptr, nullptr);
 
 		VectorCopy( pm->ps->origin, muzzlePoint );
 		VectorCopy(WP_MuzzlePoint[WP_ROCKET_LAUNCHER], muzzleOffPoint);
@@ -5937,7 +5937,7 @@ void PM_RocketLock( float lockDist, bool vehicleLock )
 	}
 
 
-	pm->trace(&tr, muzzlePoint, NULL, NULL, ang, pm->ps->clientNum, MASK_PLAYERSOLID);
+	pm->trace(&tr, muzzlePoint, nullptr, nullptr, ang, pm->ps->clientNum, MASK_PLAYERSOLID);
 
 	if ( vehicleLock )
 	{//vehicles also do a trace from the camera point if the main one misses
@@ -6339,7 +6339,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		VectorSet( mins, -8, -8, 0 );
 		VectorSet( maxs, 8, 8, 24 );
 
-		AngleVectors(yawonly, fwd, NULL, NULL);
+		AngleVectors(yawonly, fwd, nullptr, nullptr);
 
 		fwdorg[0] = ps->origin[0] + fwd[0]*64;
 		fwdorg[1] = ps->origin[1] + fwd[1]*64;
@@ -6367,7 +6367,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		maxs[1] = 8;
 		maxs[2] = 8;
 
-		AngleVectors (ps->viewangles, fwd, NULL, NULL);
+		AngleVectors (ps->viewangles, fwd, nullptr, nullptr);
 		fwd[2] = 0;
 		VectorMA(ps->origin, 64, fwd, dest);
 		pm->trace(&tr, ps->origin, mins, maxs, dest, ps->clientNum, MASK_SHOT );
@@ -6669,7 +6669,7 @@ static void PM_Weapon( void )
 	int		addTime;
 	int amount;
 	int		killAfterItem = 0;
-	bgEntity_t *veh = NULL;
+	bgEntity_t *veh = nullptr;
 	bool vehicleRocketLock = false;
 
 #ifdef _GAME
@@ -7924,7 +7924,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 	int		i;
 	float	rootPitch = 0, pitchMin=-90, pitchMax=90, yawMin=0, yawMax=0, lockedYawValue = 0;	//just to shut up warnings
 	bool	lockedYaw = false, clamped = false;
-	bgEntity_t *vehEnt = NULL;
+	bgEntity_t *vehEnt = nullptr;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION) {
 		return;		// no view changes at all
@@ -8640,7 +8640,7 @@ void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, in
 		//we want to call with a null bone name first. This will init all of the
 		//ik system stuff on the g2 instance, because we need ragdoll effectors
 		//in order for our pcj's to know how to angle properly.
-		if (!trap->G2API_SetBoneIKState(ghoul2, time, NULL, IKS_DYNAMIC, &ikP))
+		if (!trap->G2API_SetBoneIKState(ghoul2, time, nullptr, IKS_DYNAMIC, &ikP))
 		{
 			assert(!"Failed to init IK system for g2 instance!");
 		}
@@ -8671,7 +8671,7 @@ void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, in
 		VectorCopy(angles, tAngles);
 		tAngles[PITCH] = tAngles[ROLL] = 0;
 
-		trap->G2API_GetBoltMatrix(ghoul2, 0, lHandBolt, &lHandMatrix, tAngles, origin, time, 0, scale);
+		trap->G2API_GetBoltMatrix(ghoul2, 0, lHandBolt, &lHandMatrix, tAngles, origin, time, nullptr, scale);
 
 		//Get the point position from the matrix.
 		lHand[0] = lHandMatrix.matrix[0][3];
@@ -8730,20 +8730,20 @@ void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, in
 		float cFrame, animSpeed;
 		int sFrame, eFrame, flags;
 
-		trap->G2API_SetBoneIKState(ghoul2, time, "lhumerus", IKS_NONE, NULL);
-		trap->G2API_SetBoneIKState(ghoul2, time, "lradius", IKS_NONE, NULL);
+		trap->G2API_SetBoneIKState(ghoul2, time, "lhumerus", IKS_NONE, nullptr);
+		trap->G2API_SetBoneIKState(ghoul2, time, "lradius", IKS_NONE, nullptr);
 
 		//then reset the angles/anims on these PCJs
-		trap->G2API_SetBoneAngles(ghoul2, 0, "lhumerus", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, time);
-		trap->G2API_SetBoneAngles(ghoul2, 0, "lradius", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, time);
+		trap->G2API_SetBoneAngles(ghoul2, 0, "lhumerus", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+		trap->G2API_SetBoneAngles(ghoul2, 0, "lradius", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 
 		//Get the anim/frames that the pelvis is on exactly, and match the left arm back up with them again.
-		trap->G2API_GetBoneAnim(ghoul2, "pelvis", (const int)time, &cFrame, &sFrame, &eFrame, &flags, &animSpeed, 0, 0);
+		trap->G2API_GetBoneAnim(ghoul2, "pelvis", (const int)time, &cFrame, &sFrame, &eFrame, &flags, &animSpeed, nullptr, 0);
 		trap->G2API_SetBoneAnim(ghoul2, 0, "lhumerus", sFrame, eFrame, flags, animSpeed, time, sFrame, 300);
 		trap->G2API_SetBoneAnim(ghoul2, 0, "lradius", sFrame, eFrame, flags, animSpeed, time, sFrame, 300);
 
 		//And finally, get rid of all the ik state effector data by calling with null bone name (similar to how we init it).
-		trap->G2API_SetBoneIKState(ghoul2, time, NULL, IKS_NONE, NULL);
+		trap->G2API_SetBoneIKState(ghoul2, time, nullptr, IKS_NONE, nullptr);
 
 		*ikInProgress = false;
 	}
@@ -8880,9 +8880,9 @@ static void BG_G2ClientNeckAngles( void *ghoul2, int time, const vec3_t lookAngl
 	}
 	*/
 
-	trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", headAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-	trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", neckAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", headAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", neckAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 }
 
 //rww - Finally decided to convert all this stuff to BG form.
@@ -8972,7 +8972,7 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 		vec3_t		motionRt, tempAng;
 		int			ang;
 
-		trap->G2API_GetBoltMatrix_NoRecNoRot( ghoul2, 0, motionBolt, &boltMatrix, vec3_origin, cent_lerpOrigin, time, 0, modelScale);
+		trap->G2API_GetBoltMatrix_NoRecNoRot( ghoul2, 0, motionBolt, &boltMatrix, vec3_origin, cent_lerpOrigin, time, nullptr, modelScale);
 		//BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, motionFwd );
 		motionFwd[0] = -boltMatrix.matrix[0][1];
 		motionFwd[1] = -boltMatrix.matrix[1][1];
@@ -9140,11 +9140,11 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 
 		if (cent->number < MAX_CLIENTS)
 		{
-			trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 		}
 		return;
 	}
@@ -9409,9 +9409,9 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 				}
 
 				BG_G2ClientSpineAngles(ghoul2, motionBolt, cent_lerpOrigin, cent_lerpAngles, cent, time, viewAngles, ciLegs, ciTorso, angles, thoracicAngles, ulAngles, llAngles, modelScale, tPitchAngle, tYawAngle, corrTime);
-				trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-				trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-				trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+				trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+				trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+				trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 
 				VectorAdd(facingAngles, thoracicAngles, facingAngles);
 
@@ -9424,17 +9424,17 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 			{
 			//	trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
 			//	trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-				trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+				trap->G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 			}
 
-			VectorScale(facingAngles, 0.6f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			VectorScale(facingAngles, 0.8f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-			VectorScale(facingAngles, 0.8f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+			VectorScale(facingAngles, 0.6f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			VectorScale(facingAngles, 0.8f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+			VectorScale(facingAngles, 0.8f, facingAngles);	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 
 			//Now we want the head angled toward where we are facing
 			VectorSet(facingAngles, 0.0f, dif, 0.0f);
 			VectorScale(facingAngles, 0.6f, facingAngles);
-			trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+			trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 
 			return; //don't have to bother with the rest then
 		}
@@ -9471,15 +9471,15 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	}
 #endif
 
-	trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-	trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
+	trap->G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time);
 //	trap->G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
 }
 
 void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles )
 {//																							up			right		fwd
-	trap->G2API_SetBoneAngles( ghoul2, 0, "thoracic", cent_lerpAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time );
+	trap->G2API_SetBoneAngles( ghoul2, 0, "thoracic", cent_lerpAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, time );
 }
 
 static bool PM_AdjustAnglesForDualJumpAttack( playerState_t *ps, usercmd_t *ucmd )
@@ -9625,7 +9625,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 
 				//push backwards some?
 				VectorSet( yawAngles, 0, pm->ps->viewangles[YAW]+180, 0 );
-				AngleVectors( yawAngles, backDir, 0, 0 );
+				AngleVectors( yawAngles, backDir, nullptr, nullptr );
 				VectorScale( backDir, 100, pm->ps->velocity );
 
 				//jump!
@@ -10222,7 +10222,7 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 	else
 	{ //no vehicle ent
-		pm_entVeh = NULL;
+		pm_entVeh = nullptr;
 	}
 
 	gPMDoSlowFall = PM_DoSlowFall();
@@ -10619,7 +10619,7 @@ void PmoveSingle (pmove_t *pmove) {
 		vec3_t vFwd, fwdAng;
 		VectorSet(fwdAng, 0.0f, pm->ps->viewangles[YAW], 0.0f);
 
-		AngleVectors( fwdAng, vFwd, NULL, NULL );
+		AngleVectors( fwdAng, vFwd, nullptr, nullptr );
 		if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 		{
 			float savZ = pm->ps->velocity[2];
@@ -11012,14 +11012,14 @@ void PmoveSingle (pmove_t *pmove) {
 					// Setup the move direction.
 					if ( veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
 					{
-						AngleVectors( veh->m_pVehicle->m_vOrientation, veh->playerState->moveDir, NULL, NULL );
+						AngleVectors( veh->m_pVehicle->m_vOrientation, veh->playerState->moveDir, nullptr, nullptr );
 					}
 					else
 					{
 						vec3_t vVehAngles;
 
 						VectorSet(vVehAngles, 0, veh->m_pVehicle->m_vOrientation[YAW], 0);
-						AngleVectors( vVehAngles, veh->playerState->moveDir, NULL, NULL );
+						AngleVectors( vVehAngles, veh->playerState->moveDir, nullptr, nullptr );
 					}
 				}
 			}
@@ -11236,7 +11236,7 @@ void Pmove (pmove_t *pmove) {
 	}
 
 #ifdef _CGAME
-	pm_startPs = NULL;
+	pm_startPs = nullptr;
 #endif
 }
 

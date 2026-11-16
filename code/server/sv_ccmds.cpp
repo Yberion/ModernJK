@@ -45,7 +45,7 @@ bool qbLoadTransition = false;
 //
 static bool SV_Map_( ForceReload_e eForceReload )
 {
-	const char		*map = NULL;
+	const char		*map = nullptr;
 	char		expanded[MAX_QPATH] = {0};
 
 	map = Cmd_Argv(1);
@@ -63,7 +63,7 @@ static bool SV_Map_( ForceReload_e eForceReload )
 
 	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
 
-	if ( FS_ReadFile (expanded, NULL) == -1 ) {
+	if ( FS_ReadFile (expanded, nullptr) == -1 ) {
 		Com_Printf ("Can't find map %s\n", expanded);
 		extern	cvar_t	*com_buildScript;
 		if (com_buildScript && com_buildScript->integer)

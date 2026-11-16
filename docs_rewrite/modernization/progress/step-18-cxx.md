@@ -1,6 +1,6 @@
 # Step 18: the C code in C++
 
-Status: **in progress** (16 November 2026). Parts 1 and 3 done together (the C code in C++, and `bool` in place of `qboolean`), checked with clang 23 on this machine and on the VMs (GCC 15, Clang 23, MSVC: no warning); part 2 (`nullptr`), part 4 (the enumerations), netcodec's timing and the game test are to come (section 5). Plan: [PLAN.md](../PLAN.md), step 18.
+Status: **in progress** (16 November 2026). Parts 1 and 3 done together (the C code in C++, and `bool` in place of `qboolean`), checked with clang 23 on this machine and on the VMs (GCC 15, Clang 23, MSVC: no warning), netcodec as fast as before, committed. Part 2 (`nullptr`) done, checked with clang on this machine and on the VMs; part 4 (the enumerations), the line endings and the game test are to come (section 5). Plan: [PLAN.md](../PLAN.md), step 18.
 
 ## 1. Decisions (16 November 2026)
 
@@ -38,6 +38,8 @@ One more, the same day: parts 1 and 3 done together. After the files were rename
 - the patches' border test (`cm_patch.cpp`, multiplayer and single player): `borderInward`, an `int` that holds 0 or 1, compared with `!= 0`;
 - the navigator's `trace.startsolid == true` and `trace.allsolid == true` on a `byte` (`navigator.cpp`): the byte tested, the same test since only 0 or 1 is stored there.
 
+**`nullptr` (part 2, D5).** clang-tidy's `modernize-use-nullptr` with `--fix` on the 701 C++ files of a compile database of every target (multiplayer, single player, Jedi Outcast; clang, this machine), one file at a time, so that a header fixed by one file is read fixed by the next (llvm-mingw has no `clang-apply-replacements` to merge the fixes of a parallel run); headers fixed when under `code`, `codemp`, `codeJK2` or `shared`, never under `lib/` or the MP3 decoders. Then the 1,088 `NULL` it could not reach replaced by a script that leaves comments and string literals alone: the arguments of macros (the cvar tables `*_xcvar.h`, the `VALID` macros), the code this machine does not compile (`shared/sys/sys_unix.cpp`, `con_tty.cpp`, the `#ifdef` branches of other platforms or options, `codemp/icarus/Tokenizer.cpp` and its Jedi Outcast copy, which no target builds), the three `shared/sdl` files clang-tidy could not parse (`SDL_stdinc.h` without `memcpy`), netcodec's pmove test and legacy benchmark. 10,252 `NULL` replaced in 597 files, and 917 literal `0` given as a null pointer (`return 0;` in a function returning a pointer, `AngleVectors( ..., 0, 0 )`); kept: `docs_rewrite/` (a copy of the original `msg.cpp` among its data). Every target built without an error afterwards: no `NULL` served as an integer in the code compiled here. Then, the same day: the fallback definitions of `NULL` in the two `q_shared.h` removed (`#ifndef NULL`; the standard headers they include define it); `nullptr` in the comments too (846), "NULL terminate" written "null-terminate" where it means the `'\0'` character (4); left: the `//#` and `//##` annotations of `Q3_Interface.cpp` and the enumerations' headers (199), which ICARUS's BehavEd reads and where `"NULL"` is the scripts' keyword, a quoted `"NULL"` in comments, and the 180 string literals: the keyword `"NULL"` of the scripts and data files (the NPC files, the camera groups: `Q_stricmp( "NULL", name )`) and the error messages.
+
 ## 3. What the compiler could not see, checked by hand
 
 C stored any integer in a `qboolean` (an `int`-sized enumeration); a `bool` keeps only true or false, and a cast to `int *` writes 4 bytes into its one. Every place where that could change the program was looked for:
@@ -74,6 +76,9 @@ C linked functions by name, C++ by signature, which showed two declarations that
 | the final code, `ab_clang.sh`, 6 rounds, the VMs off | warm encoding +0.2 %, cold +0.1 %, decoding -0.4 % and -1.2 %; the original coder's encoder +5.0 %, its decoder +5.1 % |
 | `MSG_CopyField` (one test of the size per copied field, no `!= 0`): `ab_clang.sh`, 6 rounds | the original coder's decoder +3.7 %, its encoder +2.1 % (a busy round); netcodec unchanged (-0.3 %, -0.3 %) |
 | the VM validations of the final code (`validate.sh`, `validate.bat`) | all pass, no warning |
+| part 2: a clang build of every target (multiplayer, single player, Jedi Outcast), netcodec's 11 tests and clang-tidy, the 40 scenarios | no error, no warning; all pass; `golden: SAME` |
+| part 2, after the comments and the fallback definitions: a clang build of every target | no error, no warning |
+| part 2: the VM validations (`validate.sh`: GCC 15 and Clang 23, `sys_unix.cpp` and `con_tty.cpp` included; `validate.bat`: MSVC) | all pass, no warning |
 | the netcodec pmove test (`test/pmove`), which builds the game's movement code | compiled with the compiler's default standard (gnu++17, MSVC C++14), so `std::ssize` failed: C++20 without extensions, as ModernJK |
 | netcodec `mingw-clang-release`: the 11 tests | all pass. The round trip on the corpus (`netcodec.roundtrip`, `netcodec.engine`), the determinism, the client packets (synthetic and recorded): the same hashes as before. `netcodec.synthetic` changes hash (0x71CFD4AED775CF37): its generator draws any 32-bit value for a boolean field, which the format sends whole when it is neither 0 nor 1 (a `qboolean` was an `int`); a `bool` holds 1 there, so the generated messages differ (4 % fewer bytes); the decoder still reads such a value, the encoder no longer produces it (the format and tables change with the retraining of plan step 13) |
 | netcodec `mingw-clang-tidy` | clean |
@@ -82,5 +87,5 @@ C linked functions by name, C++ by signature, which showed two declarations that
 
 ## 5. To come
 
-- Part 2: `nullptr` (D5). Part 4: the enumerations (D3).
+- Part 4: the enumerations (D3). Then the line endings (PLAN, step 18).
 - The game played on Windows and on Linux.

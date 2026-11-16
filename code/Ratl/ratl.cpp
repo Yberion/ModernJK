@@ -63,7 +63,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 
-void (*ratl::ratl_base::OutputPrint)(const char*) = 0;
+void (*ratl::ratl_base::OutputPrint)(const char*) = nullptr;
 
 
 

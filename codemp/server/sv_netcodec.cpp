@@ -423,7 +423,7 @@ void SV_NetcodecSendGameState( client_t *client ) {
 	sm.numConfigStrings = MAX_CONFIGSTRINGS;
 	sm.clientNum = ClientIndex( client );
 	sm.checksum = sv.checksumFeed;
-	if ( !SV_NetcodecSend( client, sm, NULL, 0 ) ) {
+	if ( !SV_NetcodecSend( client, sm, nullptr, 0 ) ) {
 		// the client cannot play without it: dropped, with the reason (CL_ParseCommandString shows it before cgame runs)
 		Com_Printf( S_COLOR_YELLOW "WARNING: the gamestate does not fit in a message: %s dropped\n", client->name );
 		SV_DropClient( client, "gamestate too large for a message" );
@@ -472,7 +472,7 @@ static void SV_NetcodecDemoMessage( const client_t *client, const eng::ServerMes
 		d.queued = true;
 		d.msg = sm;
 		d.msg.download = false;	// never recorded
-		d.msg.data = NULL;
+		d.msg.data = nullptr;
 		d.lastCommand = client->reliableSequence;
 		return;
 	}
@@ -526,10 +526,10 @@ void SV_NetcodecSendMapChange( client_t *client ) {
 
 	SV_NetcodecBegin( client, sm );
 	sm.mapChange = true;
-	SV_NetcodecSend( client, sm, NULL, 0 );
+	SV_NetcodecSend( client, sm, nullptr, 0 );
 }
 
-// after SV_BuildClientSnapshot: the commands, the game dir (setGame, or NULL), the snapshot and a download block
+// after SV_BuildClientSnapshot: the commands, the game dir (setGame, or nullptr), the snapshot and a download block
 void SV_NetcodecSendSnapshot( client_t *client, const char *setGame ) {
 	eng::ServerMessage sm = {};
 	clientSnapshot_t *frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
@@ -551,7 +551,7 @@ void SV_NetcodecSendSnapshot( client_t *client, const char *setGame ) {
 	sm.numAreas = (uint32_t)frame->areabytes;
 	sm.frame.seq = sm.seq;
 	sm.frame.ps = &frame->ps;
-	sm.frame.vps = frame->ps.m_iVehicleNum ? &frame->vps : NULL;
+	sm.frame.vps = frame->ps.m_iVehicleNum ? &frame->vps : nullptr;
 	sm.frame.firstEntity = frame->first_entity;
 	sm.frame.numEntities = (uint32_t)frame->num_entities;
 	sm.frame.index = frame->entities;
@@ -637,7 +637,7 @@ static void SV_NetcodecComparePacket( client_t *client, const eng::ClientPacket 
 	SV_NetcodecCompareAdd( s_cmpPackets, "client packets", "packet", codecBytes, msg.cursize );
 }
 
-// Decodes a client packet (the payload after the netchan header). NULL if it is malformed or coded against a message
+// Decodes a client packet (the payload after the netchan header). nullptr if it is malformed or coded against a message
 // whose PacketBase the server no longer holds: the packet is then dropped. The packet points into the codec until the
 // next one is decoded.
 const eng::ClientPacket *SV_NetcodecDecodeClientPacket( client_t *client, const msg_t *msg ) {
@@ -652,18 +652,18 @@ const eng::ClientPacket *SV_NetcodecDecodeClientPacket( client_t *client, const 
 	}
 	if ( !SV_NetcodecPacketAllowed( client ) ) {
 		st.packetsLimited++;
-		return NULL;
+		return nullptr;
 	}
 	if ( size <= 0 ) {
 		st.packetsNotDecoded++;
-		return NULL;
+		return nullptr;
 	}
 	st.packetBytes += size;
 	if ( !Codec().DecodePacket( msg->data + msg->readcount, (size_t)size, client->netchan.outgoingSequence - 1,
 		s_packetBases[ClientIndex( client )], packet ) ) {
 		st.packetsNotDecoded++;
 		Com_DPrintf( "netcodec: packet of %s not decoded\n", client->name );
-		return NULL;
+		return nullptr;
 	}
 	if ( packet.move != eng::Move::kNone ) {
 		st.userCmds += (int)packet.numUserCmds;

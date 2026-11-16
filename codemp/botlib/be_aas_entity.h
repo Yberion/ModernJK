@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void AAS_InvalidateEntities(void);
 //unlink not updated entities
 void AAS_UnlinkInvalidEntities(void);
-//resets the entity AAS and BSP links (sets areas and leaves pointers to NULL)
+//resets the entity AAS and BSP links (sets areas and leaves pointers to nullptr)
 void AAS_ResetEntityLinks(void);
 //updates an entity
 int AAS_UpdateEntity(int ent, bot_entitystate_t *state);

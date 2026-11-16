@@ -52,7 +52,7 @@ void trigger_cleared_fire (gentity_t *self);
 // so wait for the delay time before firing
 void multi_trigger_run( gentity_t *ent )
 {
-	ent->think = 0;
+	ent->think = nullptr;
 
 	G_ActivateBehavior( ent, BSET_USE );
 
@@ -102,8 +102,8 @@ void multi_trigger_run( gentity_t *ent )
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
 		ent->r.contents &= ~CONTENTS_TRIGGER;//so the EntityContact trace doesn't have to be done against me
-		ent->think = 0;
-		ent->use = 0;
+		ent->think = nullptr;
+		ent->use = nullptr;
 		//Don't remove, Icarus may barf?
 		//ent->nextthink = level.time + FRAMETIME;
 		//ent->think = G_FreeEntity;
@@ -407,7 +407,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 	{
 		if ( self->spawnflags & 16 )
 		{//NPCONLY
-			if ( other->NPC == NULL )
+			if ( other->NPC == nullptr )
 			{
 				return;
 			}
@@ -433,7 +433,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 	{//FACING
 		vec3_t	forward;
 
-		AngleVectors( other->client->ps.viewangles, forward, NULL, NULL );
+		AngleVectors( other->client->ps.viewangles, forward, nullptr, nullptr );
 
 		if ( DotProduct( self->movedir, forward ) < 0.5 )
 		{//Not Within 45 degrees
@@ -549,7 +549,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
 			other->client->ps.torsoAnim != BOTH_CONSOLE1)
 		{
-			G_SetAnim( other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( other, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
 		else
 		{
@@ -570,7 +570,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 void trigger_cleared_fire (gentity_t *self)
 {
 	G_UseTargets2( self, self->activator, self->target2 );
-	self->think = 0;
+	self->think = nullptr;
 	// should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
 	if ( self->wait > 0 )
 	{
@@ -669,7 +669,7 @@ void SP_trigger_multiple( gentity_t *ent )
 	if ( ent->team && ent->team[0] )
 	{
 		ent->alliedTeam = atoi(ent->team);
-		ent->team = NULL;
+		ent->team = nullptr;
 	}
 
 	InitTrigger( ent );
@@ -742,7 +742,7 @@ void SP_trigger_once( gentity_t *ent )
 	if ( ent->team && ent->team[0] )
 	{
 		ent->alliedTeam = atoi(ent->team);
-		ent->team = NULL;
+		ent->team = nullptr;
 	}
 
 	ent->delay *= 1000;//1 = 1 msec, 1000 = 1 sec
@@ -780,7 +780,7 @@ void Do_Strike(gentity_t *ent)
 	strikeFrom[2] = ent->r.absmax[2]-4.0f;
 
 	//now trace for damaging stuff, and do the effect
-	trap->Trace(&localTrace, strikeFrom, NULL, NULL, strikePoint, ent->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&localTrace, strikeFrom, nullptr, nullptr, strikePoint, ent->s.number, MASK_PLAYERSOLID, false, 0, 0);
 	VectorCopy(localTrace.endpos, strikePoint);
 
 	if (localTrace.startsolid || localTrace.allsolid)
@@ -791,7 +791,7 @@ void Do_Strike(gentity_t *ent)
 
 	if (ent->radius)
 	{ //do a radius damage at the end pos
-		G_RadiusDamage(strikePoint, ent, ent->damage, ent->radius, ent, NULL, MOD_SUICIDE);
+		G_RadiusDamage(strikePoint, ent, ent->damage, ent->radius, ent, nullptr, MOD_SUICIDE);
 	}
 	else
 	{ //only damage individuals
@@ -799,7 +799,7 @@ void Do_Strike(gentity_t *ent)
 
 		if (trHit->inuse && trHit->takedamage)
 		{ //damage it then
-			G_Damage(trHit, ent, ent, NULL, trHit->r.currentOrigin, ent->damage, 0, MOD_SUICIDE);
+			G_Damage(trHit, ent, ent, nullptr, trHit->r.currentOrigin, ent->damage, 0, MOD_SUICIDE);
 		}
 	}
 
@@ -981,7 +981,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	{
 		if ( self->spawnflags & 8 )
 		{//NPCONLY
-			if ( other->NPC == NULL )
+			if ( other->NPC == nullptr )
 			{
 				return;
 			}
@@ -1034,7 +1034,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	if ( self->wait == -1 )
 	{
-		self->touch = NULL;
+		self->touch = nullptr;
 	}
 	else if ( self->wait > 0 )
 	{
@@ -1305,7 +1305,7 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	}
 	else
 	{
-		self->activator = NULL;
+		self->activator = nullptr;
 	}
 
 	G_ActivateBehavior(self,BSET_USE);
@@ -1419,11 +1419,11 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		}
 		if (self->activator && self->activator->inuse && self->activator->client)
 		{
-			G_Damage (other, self->activator, self->activator, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
+			G_Damage (other, self->activator, self->activator, nullptr, nullptr, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
 		}
 		else
 		{
-			G_Damage (other, self, self, NULL, NULL, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
+			G_Damage (other, self, self, nullptr, nullptr, dmg, dflags|DAMAGE_NO_PROTECTION, MOD_TRIGGER_HURT);
 		}
 	}
 }
@@ -1525,7 +1525,7 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	ent = G_Find (NULL, FOFS(targetname), self->target);
+	ent = G_Find (nullptr, FOFS(targetname), self->target);
 	if (!ent || !ent->inuse)
 	{ //this is bad
 		trap->Error( ERR_DROP, "trigger_shipboundary has invalid target '%s'\n", self->target );
@@ -1534,7 +1534,7 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
 	{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-		G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+		G_Damage(other, other, other, nullptr, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 		return;
 	}
 
@@ -1574,7 +1574,7 @@ void shipboundary_think(gentity_t *ent)
 				Vehicle_t *pVeh = listedEnt->m_pVehicle;
 				if (pVeh && pVeh->m_pVehicleInfo->type == VH_FIGHTER)
 				{
-                    shipboundary_touch(ent, listedEnt, NULL);
+                    shipboundary_touch(ent, listedEnt, nullptr);
 				}
 			}
 		}
@@ -1635,7 +1635,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 				//take off the flag so we only do this once
 				other->client->ps.eFlags2 &= ~EF2_HYPERSPACE;
 				//Get the offset from the local position
-				ent = G_Find (NULL, FOFS(targetname), self->target);
+				ent = G_Find (nullptr, FOFS(targetname), self->target);
 				if (!ent || !ent->inuse)
 				{ //this is bad
 					trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
@@ -1647,7 +1647,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 				rDiff = DotProduct( right, diff );
 				uDiff = DotProduct( up, diff );
 				//Now get the base position of the destination
-				ent = G_Find (NULL, FOFS(targetname), self->target2);
+				ent = G_Find (nullptr, FOFS(targetname), self->target2);
 				if (!ent || !ent->inuse)
 				{ //this is bad
 					trap->Error( ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
@@ -1678,7 +1678,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	}
 	else
 	{
-		ent = G_Find (NULL, FOFS(targetname), self->target);
+		ent = G_Find (nullptr, FOFS(targetname), self->target);
 		if (!ent || !ent->inuse)
 		{ //this is bad
 			trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
@@ -1687,7 +1687,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
 		{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-			G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+			G_Damage(other, other, other, nullptr, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 			return;
 		}
 		//other->client->ps.hyperSpaceIndex = ent->s.number;
@@ -1699,15 +1699,15 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 /*
 void trigger_hyperspace_find_targets( gentity_t *self )
 {
-	gentity_t *targEnt = NULL;
-	targEnt = G_Find (NULL, FOFS(targetname), self->target);
+	gentity_t *targEnt = nullptr;
+	targEnt = G_Find (nullptr, FOFS(targetname), self->target);
 	if (!targEnt || !targEnt->inuse)
 	{ //this is bad
 		trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
 		return;
 	}
 	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
-	targEnt = G_Find (NULL, FOFS(targetname), self->target2);
+	targEnt = G_Find (nullptr, FOFS(targetname), self->target2);
 	if (!targEnt || !targEnt->inuse)
 	{ //this is bad
 		trap->Error( ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
@@ -1812,9 +1812,9 @@ void SP_func_timer( gentity_t *self ) {
 gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
 {
 	int			t_count = 0, pick;
-	gentity_t	*t = NULL;
+	gentity_t	*t = nullptr;
 
-	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != nullptr )
 	{
 		if (t != self)
 		{
@@ -1824,7 +1824,7 @@ gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
 
 	if(!t_count)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if(t_count == 1)
@@ -1835,7 +1835,7 @@ gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
 	//FIXME: need a seed
 	pick = Q_irand(1, t_count);
 	t_count = 0;
-	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != nullptr )
 	{
 		if (t != self)
 		{
@@ -1851,7 +1851,7 @@ gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
 			return t;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 int asteroid_count_num_asteroids( gentity_t *self )

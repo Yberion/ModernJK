@@ -44,7 +44,7 @@ int			delayedShutDown = 0;
 
 //NOTENOTE: Be sure to change the mirrored code in cgmain.cpp
 typedef	std::map< sstring_t, unsigned char  >	namePrecache_m;
-namePrecache_m	*as_preCacheMap = NULL;
+namePrecache_m	*as_preCacheMap = nullptr;
 
 char *G_AddSpawnVarToken( const char *string );
 
@@ -369,7 +369,7 @@ field_t fields[] = {
 	{"redcrosshair", 0, F_IGNORE},		//for red crosshairs on breakables
 	{"nodelay", 0, F_IGNORE},		//for Reborn & Cultist NPCs
 
-	{NULL}
+	{nullptr}
 };
 
 
@@ -858,7 +858,7 @@ spawn_t	spawns[] = {
 	{"emplaced_gun", SP_emplaced_gun},
 	{"emplaced_eweb", SP_emplaced_eweb},
 
-	{NULL, NULL}
+	{nullptr, nullptr}
 };
 
 /*
@@ -916,8 +916,8 @@ char *G_NewString( const char *string ) {
 
 	if(!string || !string[0])
 	{
-		//gi.Printf(S_COLOR_RED"Error: G_NewString called with NULL string!\n");
-		return NULL;
+		//gi.Printf(S_COLOR_RED"Error: G_NewString called with nullptr string!\n");
+		return nullptr;
 	}
 
 	l = strlen(string) + 1;
@@ -1556,7 +1556,7 @@ G_ParsePrecaches
 
 void G_ParsePrecaches( void )
 {
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 
 	//Clear any old lists
 	if(!as_preCacheMap) {
@@ -1581,7 +1581,7 @@ void G_ASPreCacheFree(void)
 {
 	if(as_preCacheMap) {
 		delete as_preCacheMap;
-		as_preCacheMap = NULL;
+		as_preCacheMap = nullptr;
 	}
 }
 

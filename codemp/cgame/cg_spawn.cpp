@@ -323,7 +323,7 @@ void CG_ParseEntityFromSpawnVars( void ) {
 		}
 	}
 
-	if( CG_SpawnString( "gametype", NULL, &value ) ) {
+	if( CG_SpawnString( "gametype", nullptr, &value ) ) {
 		if( cgs.gametype >= GT_FFA && cgs.gametype < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[cgs.gametype];
 
@@ -441,7 +441,7 @@ Parses textual entity definitions out of an entstring
 */
 void CG_ParseEntitiesFromString( void ) {
 	// make sure it is reset
-	trap->R_GetEntityToken( NULL, -1 );
+	trap->R_GetEntityToken( nullptr, -1 );
 
 	// allow calls to CG_Spawn*()
 	cg.spawning	= true;

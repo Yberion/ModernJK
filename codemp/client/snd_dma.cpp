@@ -251,11 +251,11 @@ static void DynamicMusicInfoPrint(void)
 		//
 		const char *psRequestMusicState	= Music_BaseStateToString( eMusic_StateRequest );
 		const char *psActualMusicState	= Music_BaseStateToString( eMusic_StateActual, true );
-		if (psRequestMusicState == NULL)
+		if (psRequestMusicState == nullptr)
 		{
 			psRequestMusicState = "<unknown>";
 		}
-		if (psActualMusicState	== NULL)
+		if (psActualMusicState	== nullptr)
 		{
 			psActualMusicState	= "<unknown>";
 		}
@@ -716,7 +716,7 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 				// always override sound from same entity
 				if ( s_show->integer == 1 && ch->thesfx ) {
 					Com_Printf( S_COLOR_YELLOW"...overrides %s\n", ch->thesfx->sSoundName );
-					ch->thesfx = 0;	//just to clear the next error msg
+					ch->thesfx = nullptr;	//just to clear the next error msg
 				}
 				firstToDie = ch;
 				foundChan = true;
@@ -936,7 +936,7 @@ void S_MuteSound(int entityNum, int entchannel)
 	ch->master_vol = 0;
 	ch->entnum = 0;
 	ch->entchannel = 0;
-	ch->thesfx = 0;
+	ch->thesfx = nullptr;
 	ch->startSample = 0;
 
 	ch->leftvol = 0;
@@ -948,7 +948,7 @@ void S_MuteSound(int entityNum, int entchannel)
 S_StartSound
 
 Validates the parms and ques the sound up
-if pos is NULL, the sound will be dynamically sourced from the entity
+if pos is nullptr, the sound will be dynamically sourced from the entity
 entchannel 0 will never override a playing sound
 ====================
 */
@@ -1037,7 +1037,7 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 		Com_Error( ERR_DROP, "S_StartLocalSound: handle %i out of range", sfxHandle );
 	}
 
-	S_StartSound (NULL, listener_number, channelNum, sfxHandle );
+	S_StartSound (nullptr, listener_number, channelNum, sfxHandle );
 }
 
 
@@ -1140,7 +1140,7 @@ void S_CIN_StopSound(sfxHandle_t sfxHandle)
 		if (ch->thesfx == sfx)
 		{
 			SND_FreeSFXMem(ch->thesfx);	// heh, may as well...
-			ch->thesfx = NULL;
+			ch->thesfx = nullptr;
 			memset(&ch->MP3StreamHeader, 0, sizeof(MP3STREAM));
 			ch->bLooping = false;
 			ch->bProcessed = false;
@@ -1871,7 +1871,7 @@ bool S_ScanChannelStarts( void ) {
 
 		// if it is completely finished by now, clear it
 		if ( (int)(ch->startSample + ch->thesfx->iSoundLengthInSamples) <= s_paintedtime ) {
-			ch->thesfx = NULL;
+			ch->thesfx = nullptr;
 			continue;
 		}
 	}
@@ -2121,7 +2121,7 @@ void S_SetLipSyncs()
 				// have been played and lookup the value in the lip-sync table
 				samples = (timePlayed * 22050) / 1000;
 
-				if (ch->thesfx->lipSyncData == NULL)
+				if (ch->thesfx->lipSyncData == nullptr)
 				{
 #ifdef _DEBUG
 					Com_OPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
@@ -2145,7 +2145,7 @@ void S_SetLipSyncs()
 				// have been played and lookup the value in the lip-sync table
 				samples = (timePlayed * 22050) / 1000;
 
-				if (ch->thesfx->lipSyncData == NULL)
+				if (ch->thesfx->lipSyncData == nullptr)
 				{
 #ifdef _DEBUG
 					Com_OPrintf("Missing lip-sync info. for %s\n", ch->thesfx->sSoundName);
@@ -2296,7 +2296,7 @@ void S_SoundList_f( void ) {
 	int		size, total;
 	int		iVariantCap = -1;	// for %d-inquiry stuff
 	int		iTotalBytes = 0;
-	const char	*arg = NULL;
+	const char	*arg = nullptr;
 
 	bool bWavOnly = false;
 	bool bShouldBeMP3 = false;
@@ -2546,7 +2546,7 @@ static void FreeMusic( MusicInfo_t *pMusicInfo )
 	if (pMusicInfo->pLoadedData)
 	{
 		Z_Free(pMusicInfo->pLoadedData);
-		pMusicInfo->pLoadedData		= NULL;		// these two MUST be kept as valid/invalid together
+		pMusicInfo->pLoadedData		= nullptr;		// these two MUST be kept as valid/invalid together
 		pMusicInfo->sLoadedDataName[0]= '\0';	//
 		pMusicInfo->iLoadedDataLen	= 0;
 	}
@@ -2612,7 +2612,7 @@ static bool S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, bool qbDynam
 
 		MP3MusicStream_Reset( pMusicInfo );
 
-		byte *pbMP3DataSegment	= NULL;
+		byte *pbMP3DataSegment	= nullptr;
 		int iInitialMP3ReadSize = 8192;		// fairly arbitrary, whatever size this is then the decoder is allowed to
 											// scan up to halfway of it to find floating headers, so don't make it
 											// too small. 8k works fine.
@@ -2649,7 +2649,7 @@ static bool S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, bool qbDynam
 													true	// bStereoDesired
 													);
 
-			if (psError == NULL)
+			if (psError == nullptr)
 			{
 				// init sfx struct & setup the few fields I actually need...
 				//
@@ -3325,7 +3325,7 @@ static const char *S_Music_GetRequestedState(void)
 	*/
 	//rwwFIXMEFIXME: Maybe use the above for something in MP?
 
-	return NULL;
+	return nullptr;
 }
 
 // scan the configstring to see if there's been a state-change requested...
@@ -3510,7 +3510,7 @@ static void S_UpdateBackgroundTrack( void )
 	}
 }
 
-cvar_t *s_soundpoolmegs = NULL;
+cvar_t *s_soundpoolmegs = nullptr;
 
 // currently passing in sfx as a param in case I want to do something with it later.
 //
@@ -3574,7 +3574,7 @@ static int SND_FreeSFXMem(sfx_t *sfx)
 	if (						sfx->pSoundData) {
 		iBytesFreed +=	Z_Size(	sfx->pSoundData);
 						Z_Free(	sfx->pSoundData );
-								sfx->pSoundData = NULL;
+								sfx->pSoundData = nullptr;
 	}
 
 	sfx->bInMemory = false;
@@ -3582,7 +3582,7 @@ static int SND_FreeSFXMem(sfx_t *sfx)
 	if (						sfx->pMP3StreamHeader) {
 		iBytesFreed +=	Z_Size(	sfx->pMP3StreamHeader);
 						Z_Free(	sfx->pMP3StreamHeader );
-								sfx->pMP3StreamHeader = NULL;
+								sfx->pMP3StreamHeader = nullptr;
 	}
 
 	return iBytesFreed;
@@ -3637,7 +3637,7 @@ void S_FreeAllSFXMem(void)
 //
 // new param is so we can be usre of not freeing ourselves (without having to rely on possible uninitialised timers etc)
 //
-int SND_FreeOldestSound(sfx_t *pButNotThisOne /* = NULL */)
+int SND_FreeOldestSound(sfx_t *pButNotThisOne /* = nullptr */)
 {
 	int iBytesFreed = 0;
 	sfx_t *sfx;
@@ -3689,7 +3689,7 @@ int SND_FreeOldestSound(sfx_t *pButNotThisOne /* = NULL */)
 }
 int SND_FreeOldestSound(void)
 {
-	return SND_FreeOldestSound(NULL);	// I had to add a void-arg version of this because of link issues, sigh
+	return SND_FreeOldestSound(nullptr);	// I had to add a void-arg version of this because of link issues, sigh
 }
 
 // just before we drop into a level, ensure the audio pool is under whatever the maximum

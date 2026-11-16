@@ -312,7 +312,7 @@ static void ST_HoldPosition( void )
 	if ( !trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, TID_MOVE_NAV ) )
 	{//don't have a script waiting for me to get to my point, okay to stop trying and stand
 		AI_GroupUpdateSquadstates( NPCS.NPCInfo->group, NPCS.NPC, SQUAD_STAND_AND_SHOOT );
-		NPCS.NPCInfo->goalEntity = NULL;
+		NPCS.NPCInfo->goalEntity = nullptr;
 	}
 
 	/*if ( TIMER_Done( NPC, "stand" ) )
@@ -384,7 +384,7 @@ static bool ST_Move( void )
 	{//FIXME: if we're going to a combat point, need to pick a different one
 		if ( !trap->ICARUS_TaskIDPending( (sharedEntity_t *)NPCS.NPC, TID_MOVE_NAV ) )
 		{//can't transfer movegoal or stop when a script we're running is waiting to complete
-			if ( info.blocker && info.blocker->NPC && NPCS.NPCInfo->group != NULL && info.blocker->NPC->group == NPCS.NPCInfo->group )//(NPCInfo->aiFlags&NPCAI_BLOCKED) && NPCInfo->group != NULL )
+			if ( info.blocker && info.blocker->NPC && NPCS.NPCInfo->group != nullptr && info.blocker->NPC->group == NPCS.NPCInfo->group )//(NPCInfo->aiFlags&NPCAI_BLOCKED) && NPCInfo->group != nullptr )
 			{//dammit, something is in our way
 				//see if it's one of ours
 				int j;
@@ -479,8 +479,8 @@ void NPC_BSST_Sleep( void )
 			int			i;
 			float		dist;
 			float		bestDist	= 16384.0f;
-			gentity_t	*bestCl		= NULL;
-			gentity_t	*ent		= NULL;
+			gentity_t	*bestCl		= nullptr;
+			gentity_t	*ent		= nullptr;
 
 			for ( i=0; i<MAX_CLIENTS; i++ ) {
 				ent = &g_entities[i];
@@ -521,7 +521,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 	bool	clearLOS;
 
 	//In case we aquired one some other way
-	if ( NPCS.NPC->enemy != NULL )
+	if ( NPCS.NPC->enemy != nullptr )
 		return true;
 
 	//Ignore notarget
@@ -877,7 +877,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			else
 			{
 				VectorCopy( trace.endpos, NPCS.NPCInfo->investigateGoal );
-				NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->investigateGoal, 16, true, -1, NULL );
+				NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->investigateGoal, 16, true, -1, nullptr );
 				NPCS.NPCInfo->localState = LSTATE_INVESTIGATE;
 			}
 		}
@@ -887,7 +887,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 
 			if ( id != -1 )
 			{
-				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[id].origin, 16, true, id, NULL );
+				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[id].origin, 16, true, id, nullptr );
 				NPCS.NPCInfo->localState = LSTATE_INVESTIGATE;
 			}
 		}
@@ -964,7 +964,7 @@ static void ST_OffsetLook( float offset, vec3_t out )
 
 	GetAnglesForDirection( NPCS.NPC->r.currentOrigin, NPCS.NPCInfo->investigateGoal, angles );
 	angles[YAW] += offset;
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 	VectorMA( NPCS.NPC->r.currentOrigin, 64, forward, out );
 
 	CalcEntitySpot( NPCS.NPC, SPOT_HEAD, temp );
@@ -1073,7 +1073,7 @@ void NPC_BSST_Investigate( void )
 	//FIXME: else, look for new alerts
 
 	//See if we're searching for the noise's origin
-	if ( NPCS.NPCInfo->localState == LSTATE_INVESTIGATE && (NPCS.NPCInfo->goalEntity!=NULL) )
+	if ( NPCS.NPCInfo->localState == LSTATE_INVESTIGATE && (NPCS.NPCInfo->goalEntity!=nullptr) )
 	{
 		//See if we're there
 		if ( NAV_HitNavGoal( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPCInfo->goalEntity->r.currentOrigin, 32, FlyingCreature( NPCS.NPC ) ) == false )
@@ -1353,7 +1353,7 @@ static void ST_CheckMoveState( void )
 	}
 
 	//See if we're moving towards a goal, not the enemy
-	if ( ( NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy ) && ( NPCS.NPCInfo->goalEntity != NULL ) )
+	if ( ( NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy ) && ( NPCS.NPCInfo->goalEntity != nullptr ) )
 	{
 		//Did we make it?
 		if ( NAV_HitNavGoal( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPCS.NPC ) ) ||
@@ -1487,7 +1487,7 @@ static void ST_CheckFireState( void )
 					trace_t tr;
 					//vec3_t	mins = {-2,-2,-2}, maxs = {2,2,2};
 					vec3_t	forward, end;
-					AngleVectors( NPCS.NPC->client->ps.viewangles, forward, NULL, NULL );
+					AngleVectors( NPCS.NPC->client->ps.viewangles, forward, nullptr, nullptr );
 					VectorMA( muzzle, 8192, forward, end );
 					trap->Trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
 					VectorCopy( tr.endpos, impactPos );
@@ -1580,7 +1580,7 @@ void ST_TrackEnemy( gentity_t *self, vec3_t enemyPos )
 	//leave my combat point
 	NPC_FreeCombatPoint( self->NPC->combatPoint, false );
 	//go after his last seen pos
-	NPC_SetMoveGoal( self, enemyPos, 16, false, -1, NULL );
+	NPC_SetMoveGoal( self, enemyPos, 16, false, -1, nullptr );
 }
 
 int ST_ApproachEnemy( gentity_t *self )
@@ -1643,7 +1643,7 @@ void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 	{//I must be going for a goal, give that to him instead
 		if ( self->NPC->goalEntity == self->NPC->tempGoal )
 		{
-			NPC_SetMoveGoal( other, self->NPC->tempGoal->r.currentOrigin, self->NPC->goalRadius, ((self->NPC->tempGoal->flags&FL_NAVGOAL)?true:false), -1, NULL );
+			NPC_SetMoveGoal( other, self->NPC->tempGoal->r.currentOrigin, self->NPC->goalRadius, ((self->NPC->tempGoal->flags&FL_NAVGOAL)?true:false), -1, nullptr );
 		}
 		else
 		{
@@ -1773,7 +1773,7 @@ void ST_Commander( void )
 
 	group->processed = true;
 
-	if ( group->enemy == NULL || group->enemy->client == NULL )
+	if ( group->enemy == nullptr || group->enemy->client == nullptr )
 	{//hmm, no enemy...?!
 		return;
 	}
@@ -1818,7 +1818,7 @@ void ST_Commander( void )
 				NPC_BSSearchStart( group->enemy->waypoint, BS_SEARCH );
 			}
 		}
-		group->enemy = NULL;
+		group->enemy = nullptr;
 		RestoreNPCGlobals();
 		return;
 	}
@@ -1954,7 +1954,7 @@ void ST_Commander( void )
 		{//not already retreating
 			if ( NPCS.NPC->client->ps.weapon == WP_NONE )
 			{//weaponless, should be hiding
-				if ( NPCS.NPCInfo->goalEntity == NULL || NPCS.NPCInfo->goalEntity->enemy == NULL || NPCS.NPCInfo->goalEntity->enemy->s.eType != ET_ITEM )
+				if ( NPCS.NPCInfo->goalEntity == nullptr || NPCS.NPCInfo->goalEntity->enemy == nullptr || NPCS.NPCInfo->goalEntity->enemy->s.eType != ET_ITEM )
 				{//not running after a pickup
 					if ( TIMER_Done( NPCS.NPC, "hideTime" ) || (DistanceSquared( group->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin ) < 65536 && NPC_ClearLOS4( NPCS.NPC->enemy )) )
 					{//done hiding or enemy near and can see us
@@ -2340,7 +2340,7 @@ void ST_Commander( void )
 				TIMER_Set( NPCS.NPC, "roamTime", Q3_INFINITE );
 				TIMER_Set( NPCS.NPC, "verifyCP", Q_irand( 1000, 3000 ) );//don't make sure you're in your CP for 1 - 3 seconds
 				NPC_SetCombatPoint( cp );
-				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, NULL );
+				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, nullptr );
 				//okay, try a move right now to see if we can even get there
 
 				//if ( ST_Move() )
@@ -2458,7 +2458,7 @@ void NPC_BSST_Attack( void )
 	//If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(false) == false )//!NPC->enemy )//
 	{
-		NPCS.NPC->enemy = NULL;
+		NPCS.NPC->enemy = nullptr;
 		if( NPCS.NPC->client->playerTeam == NPCTEAM_PLAYER )
 		{
 			NPC_BSPatrol();
@@ -2530,7 +2530,7 @@ void NPC_BSST_Attack( void )
 
 	VectorSubtract( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, enemyDir );
 	VectorNormalize( enemyDir );
-	AngleVectors( NPCS.NPC->client->ps.viewangles, shootDir, NULL, NULL );
+	AngleVectors( NPCS.NPC->client->ps.viewangles, shootDir, nullptr, nullptr );
 	dot = DotProduct( enemyDir, shootDir );
 	if ( dot > 0.5f ||( enemyDist * (1.0f-dot)) < 10000 )
 	{//enemy is in front of me or they're very close and not behind me

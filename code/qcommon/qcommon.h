@@ -301,7 +301,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function );
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
-// if function is NULL, the command will be forwarded to the server
+// if function is nullptr, the command will be forwarded to the server
 // as a clc_clientCommand instead of executed locally
 
 void	Cmd_RemoveCommand( const char *cmd_name );
@@ -320,7 +320,7 @@ char	*Cmd_Args (void);
 char	*Cmd_ArgsFrom( int arg );
 void	Cmd_ArgsBuffer( char *buffer, int bufferLength );
 // The functions that execute commands get their parameters with these
-// functions. Cmd_Argv () will return an empty string, not a NULL
+// functions. Cmd_Argv () will return an empty string, not a nullptr
 // if arg > argc, so string operations are allways safe.
 
 void	Cmd_TokenizeString( const char *text );
@@ -488,7 +488,7 @@ void		Com_RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
 
 void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs
-// if match is NULL, all set commands will be executed, otherwise
+// if match is nullptr, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
 

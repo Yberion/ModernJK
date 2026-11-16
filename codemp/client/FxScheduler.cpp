@@ -146,7 +146,7 @@ void CFxScheduler::AddLoopedEffects()
 			data->mEntityNum = entNum;
 			CGVM_GetLerpOrigin();
 
-			PlayEffect( mLoopedEffectArray[i].mId, data->mPoint, 0, mLoopedEffectArray[i].mBoltInfo, mLoopedEffectArray[i].mGhoul2, -1, mLoopedEffectArray[i].mPortalEffect, false, mLoopedEffectArray[i].mIsRelative );	//very important to send FALSE to not recursively add me!
+			PlayEffect( mLoopedEffectArray[i].mId, data->mPoint, nullptr, mLoopedEffectArray[i].mBoltInfo, mLoopedEffectArray[i].mGhoul2, -1, mLoopedEffectArray[i].mPortalEffect, false, mLoopedEffectArray[i].mIsRelative );	//very important to send FALSE to not recursively add me!
 			mLoopedEffectArray[i].mNextTime = theFxHelper.mTime + mEffectTemplates[mLoopedEffectArray[i].mId].mRepeatDelay;
 			if (mLoopedEffectArray[i].mLoopStopTime && mLoopedEffectArray[i].mLoopStopTime < theFxHelper.mTime)	//time's up
 			{//kill this entry
@@ -297,7 +297,7 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 	int				len = 0;
 	fileHandle_t	fh;
 	char			data[65536];
-	char			*bufParse = 0;
+	char			*bufParse = nullptr;
 
 	// if our file doesn't have an extension, add one
 	std::string finalFilename = file;
@@ -406,7 +406,7 @@ int CFxScheduler::ParseEffect( const char *file, CGPGroup *base )
 	CGPGroup			*primitiveGroup;
 	CPrimitiveTemplate	*prim;
 	const char			*grpName;
-	SEffectTemplate		*effect = 0;
+	SEffectTemplate		*effect = nullptr;
 	EPrimType			type;
 	int					handle;
 	CGPValue			*pair;
@@ -418,7 +418,7 @@ int CFxScheduler::ParseEffect( const char *file, CGPGroup *base )
 		// failure
 		return 0;
 	}
-	if ((pair = base->GetPairs())!=0)
+	if ((pair = base->GetPairs())!=nullptr)
 	{
 		grpName = pair->GetName();
 		if ( !Q_stricmp( grpName, "repeatDelay" ))
@@ -496,7 +496,7 @@ void CFxScheduler::AddPrimitiveToEffect( SEffectTemplate *fx, CPrimitiveTemplate
 //
 // Input:
 //	pointer to an id that will be filled in,
-//	file name-- should be NULL when requesting a copy
+//	file name-- should be nullptr when requesting a copy
 //
 // Return:
 //	the id of the added effect template
@@ -531,7 +531,7 @@ SEffectTemplate *CFxScheduler::GetNewEffectTemplate( int *id, const char *file )
 
 	theFxHelper.Print( "FxScheduler:  Error--reached max effects\n" );
 	*id = 0;
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------
@@ -573,7 +573,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 		theFxHelper.Print( "FxScheduler: Bad effect file copy request: id = %d\n", fxHandle );
 
 		*newHandle = 0;
-		return 0;
+		return nullptr;
 	}
 
 	if (!mEffectTemplates[fxHandle].mInUse )
@@ -582,7 +582,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 		theFxHelper.Print( "FxScheduler: Bad effect file copy request: id %d not inuse\n", fxHandle );
 
 		*newHandle = 0;
-		return 0;
+		return nullptr;
 	}
 
 #ifdef _DEBUG
@@ -594,7 +594,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 #endif
 
 	// Copies shouldn't have names, otherwise they could trash our stl map used for getting ID from name
-	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, NULL );
+	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, nullptr );
 
 	if ( copy && *newHandle )
 	{
@@ -608,7 +608,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 
 	// No space left to return an effect
 	*newHandle = 0;
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------
@@ -626,7 +626,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 {
 	if ( !effectCopy || !effectCopy->mInUse )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	for ( int i = 0; i < effectCopy->mPrimitiveCount; i++ )
@@ -639,7 +639,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 	}
 
 	// bah, no good.
-	return NULL;
+	return nullptr;
 }
 
 
@@ -718,7 +718,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t forward, int vol, i
 	VectorCopy( forward, axis[0] );
 	MakeNormalVectors( forward, axis[1], axis[2] );
 
-	PlayEffect( id, origin, axis, -1, 0, -1, vol, rad, isPortal );
+	PlayEffect( id, origin, axis, -1, nullptr, -1, vol, rad, isPortal );
 }
 
 
@@ -927,7 +927,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 			{
 				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
 
-				if ( sfx == NULL )
+				if ( sfx == nullptr )
 				{
 					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
 					return;
@@ -940,7 +940,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 
 				if ( boltInfo == -1 )
 				{
-					sfx->ghoul2 = NULL;
+					sfx->ghoul2 = nullptr;
 					if ( entityNum == -1 )
 					{
 						// we aren't bolting, so make sure the spawn system knows this by putting -1's in these fields
@@ -1213,7 +1213,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 	AxisCopy( axis, ax );
 
 	int flags = fx->mFlags;
-	if (ghoul2 != NULL && modelNum>=0 && boltNum>=0)
+	if (ghoul2 != nullptr && modelNum>=0 && boltNum>=0)
 	{//since you passed in these values, mark as relative to use them if it is supported
 		switch( fx->mType )
 		{
@@ -1415,7 +1415,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 				}
 			}
 
-			theFxHelper.Trace( tr, org, NULL, NULL, temp, -1, MASK_SOLID );
+			theFxHelper.Trace( tr, org, nullptr, nullptr, temp, -1, MASK_SOLID );
 
 			VectorCopy( tr.endpos, org2 );
 

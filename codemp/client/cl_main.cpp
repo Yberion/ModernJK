@@ -121,8 +121,8 @@ netadr_t rcon_address;
 cvar_t	*cl_reconnectArgs;
 
 // Structure containing functions exported from refresh DLL
-refexport_t	*re = NULL;
-static void	*rendererLib = NULL;
+refexport_t	*re = nullptr;
+static void	*rendererLib = nullptr;
 
 ping_t	cl_pinglist[MAX_PINGREQUESTS];
 
@@ -139,7 +139,7 @@ typedef struct serverStatus_s
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int serverStatusCount;
 
-IHeapAllocator *G2VertSpaceClient = 0;
+IHeapAllocator *G2VertSpaceClient = nullptr;
 
 extern void SV_BotFrame( int time );
 void CL_CheckForResend( void );
@@ -756,7 +756,7 @@ void CL_Disconnect( bool showMainMenu ) {
 		CL_CloseAVI( );
 	}
 
-	CL_UpdateGUID( NULL, 0 );
+	CL_UpdateGUID( nullptr, 0 );
 }
 
 
@@ -974,7 +974,7 @@ void CL_Connect_f( void ) {
 	if( cl_guidServerUniq->integer )
 		CL_UpdateGUID( serverString, strlen( serverString ) );
 	else
-		CL_UpdateGUID( NULL, 0 );
+		CL_UpdateGUID( nullptr, 0 );
 
 	// if we aren't playing on a lan, we need to authenticate
 	if ( NET_IsLocalAddress( &clc.serverAddress ) ) {
@@ -1391,14 +1391,14 @@ void CL_NextDownload(void) {
 			s++;
 		remoteName = s;
 
-		if ( (s = strchr(s, '@')) == NULL ) {
+		if ( (s = strchr(s, '@')) == nullptr ) {
 			CL_DownloadsComplete();
 			return;
 		}
 
 		*s++ = 0;
 		localName = s;
-		if ( (s = strchr(s, '@')) != NULL )
+		if ( (s = strchr(s, '@')) != nullptr )
 			*s++ = 0;
 		else
 			s = localName + strlen(localName); // point at the nul byte
@@ -2225,11 +2225,11 @@ static void CL_ShutdownRef( bool restarting ) {
 		}
 	}
 
-	re = NULL;
+	re = nullptr;
 
-	if ( rendererLib != NULL ) {
+	if ( rendererLib != nullptr ) {
 		Sys_UnloadDll (rendererLib);
-		rendererLib = NULL;
+		rendererLib = nullptr;
 	}
 }
 
@@ -2312,7 +2312,7 @@ static void CM_SetCachedMapDiskImage( void *ptr ) { gpvCachedMapDiskImage = ptr;
 static void CM_SetUsingCache( bool usingCache ) { gbUsingCachedMapDataRightNow = usingCache; }
 
 #define G2_VERT_SPACE_SERVER_SIZE 256
-IHeapAllocator *G2VertSpaceServer = NULL;
+IHeapAllocator *G2VertSpaceServer = nullptr;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 
 static IHeapAllocator *GetG2VertSpaceServer( void ) {
@@ -2804,7 +2804,7 @@ void CL_Init( void ) {
 	G2VertSpaceClient = new CMiniHeap (G2_VERT_SPACE_CLIENT_SIZE * 1024);
 
 	CL_GenerateQKey();
-	CL_UpdateGUID( NULL, 0 );
+	CL_UpdateGUID( nullptr, 0 );
 
 //	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
@@ -2830,7 +2830,7 @@ void CL_Shutdown( void ) {
 	if (G2VertSpaceClient)
 	{
 		delete G2VertSpaceClient;
-		G2VertSpaceClient = 0;
+		G2VertSpaceClient = nullptr;
 	}
 
 	CL_Disconnect( true );
@@ -3149,7 +3149,7 @@ void CL_ServerStatusResponse( const netadr_t *from, msg_t *msg ) {
 	int		len;
 	serverStatus_t *serverStatus;
 
-	serverStatus = NULL;
+	serverStatus = nullptr;
 	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
 		if ( NET_CompareAdr( from, &cl_serverStatusList[i].address ) ) {
 			serverStatus = &cl_serverStatusList[i];
@@ -3552,7 +3552,7 @@ void CL_Ping_f( void ) {
 	pingptr->time  = 0;
 	pingptr->answered = false;
 
-	CL_SetServerInfoByAddress(&pingptr->adr, NULL, LANSERVER_WAITING, 0);
+	CL_SetServerInfoByAddress(&pingptr->adr, nullptr, LANSERVER_WAITING, 0);
 
 	NET_OutOfBandPrint( NS_CLIENT, &to, "getinfo xxx" );
 }
@@ -3577,7 +3577,7 @@ bool CL_UpdateVisiblePings_f(int source) {
 
 	slots = CL_GetPingQueueCount();
 	if (slots < MAX_PINGREQUESTS) {
-		serverInfo_t *server = NULL;
+		serverInfo_t *server = nullptr;
 
 		switch (source) {
 			case AS_LOCAL :
@@ -3667,7 +3667,7 @@ CL_ServerStatus_f
 ==================
 */
 void CL_ServerStatus_f(void) {
-	netadr_t	to, *toptr = NULL;
+	netadr_t	to, *toptr = nullptr;
 	const char		*server;
 	serverStatus_t *serverStatus;
 
@@ -3732,7 +3732,7 @@ void CL_DrawMenuRect( float x, float y, float width, float height, float borderS
 	}
 
 	// Prevent color from leaking
-	re->SetColor( NULL );
+	re->SetColor( nullptr );
 }
 
 void CL_DrawCenterStringAt( int x, int y, const char *str, int font, float scale ) {
@@ -3756,7 +3756,7 @@ static int menuButtonsActive = 0;
 
 static menuButton_t *CL_RegisterMenuButtonArea( int x, int y, float width, float height, const char *text, int font, float scale, void (*action)(void) ) {
 	// Too many buttons? Silently discard it to avoid console spam
-	if ( menuButtonsActive >= (int)ARRAY_LEN(menuButtons) ) return NULL;
+	if ( menuButtonsActive >= (int)ARRAY_LEN(menuButtons) ) return nullptr;
 
 	// Set the values
 	menuButtons[menuButtonsActive].x = x;
@@ -3906,8 +3906,8 @@ void CL_DrawDownloadRequest( void ) {
 
 		// Bar with percentage
 		CL_DrawCenterStringAt( centerX, centerY - 10, "Progress:", cls.menuFont, scale );
-		CL_DrawMenuRect( centerX - width*2 + 10, centerY+5, (width * 4 - 20 - 3) * dlFrac, 20, 3, barBackgroundColor, NULL );
-		CL_DrawMenuRect( centerX - width*2 + 10, centerY+5, width * 4 - 20 - 3, 20, 3, NULL, barBorderColor );
+		CL_DrawMenuRect( centerX - width*2 + 10, centerY+5, (width * 4 - 20 - 3) * dlFrac, 20, 3, barBackgroundColor, nullptr );
+		CL_DrawMenuRect( centerX - width*2 + 10, centerY+5, width * 4 - 20 - 3, 20, 3, nullptr, barBorderColor );
 		CL_DrawCenterStringAt( centerX, centerY+10, va("%.02f%%", dlFrac * 100), cls.menuFont, scale );
 
 		// Draw size info

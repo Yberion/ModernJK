@@ -67,7 +67,7 @@ static void ATST_PlayEffect( gentity_t *self, const int boltID, const char *fx )
 		trap->G2API_GetBoltMatrix( self->ghoul2, 0,
 					boltID,
 					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
-					NULL, self->modelScale );
+					nullptr, self->modelScale );
 
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
 		BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, dir );
@@ -152,7 +152,7 @@ ATST_Hunt
 void ATST_Hunt( bool visible, bool advance )
 {
 
-	if ( NPCS.NPCInfo->goalEntity == NULL )
+	if ( NPCS.NPCInfo->goalEntity == nullptr )
 	{//hunt
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 	}
@@ -207,7 +207,7 @@ void ATST_Attack( void )
 
 	if ( NPC_CheckEnemyExt(false) == false )//!NPC->enemy )//
 	{
-		NPCS.NPC->enemy = NULL;
+		NPCS.NPC->enemy = nullptr;
 		return;
 	}
 

@@ -77,7 +77,7 @@ const char *bgToggleableSurfaces[BG_NUM_TOGGLEABLE_SURFACES] =
 	"head",
 	"head_concussion_charger",
 	"head_light_blaster_cann",		//29
-	NULL
+	nullptr
 };
 
 const int bgToggleableSurfaceDebris[BG_NUM_TOGGLEABLE_SURFACES] =
@@ -146,7 +146,7 @@ const char	*bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS] =
 	"*tac_hold",
 	"*tac_split",
 	"*tac_together",
-	NULL
+	nullptr
 };
 
 //rww - not putting @ in front of these because
@@ -327,7 +327,7 @@ void BG_FixWeaponAttackAnim(void) {
 	const bool doFix = !!g_fixWeaponAttackAnim.integer;
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
-	const uint32_t legacyFixes = strtoul(cs, NULL, 0);
+	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
 	const bool doFix = !!(legacyFixes & (1 << LEGACYFIX_WEAPONATTACKANIM));
 #elif defined(UI_BUILD)
 	const bool doFix = true; // no chance of prediction error from UI code
@@ -712,14 +712,14 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 gitem_t	bg_itemlist[] =
 {
 	{
-		NULL,				// classname
-		NULL,				// pickup_sound
-		{	NULL,			// world_model[0]
-			NULL,			// world_model[1]
-			0, 0} ,			// world_model[2],[3]
-		NULL,				// view_model
-/* icon */		NULL,		// icon
-/* pickup */	//NULL,		// pickup_name
+		nullptr,				// classname
+		nullptr,				// pickup_sound
+		{	nullptr,			// world_model[0]
+			nullptr,			// world_model[1]
+			nullptr, nullptr} ,			// world_model[2],[3]
+		nullptr,				// view_model
+/* icon */		nullptr,		// icon
+/* pickup */	//nullptr,		// pickup_name
 		0,					// quantity
 		IT_BAD,				// giType (IT_*)
 		0,					// giTag
@@ -739,8 +739,8 @@ Instant shield pickup, restores 25
 		"item_shield_sm_instant",
 		"sound/player/pickupshield.wav",
         { "models/map_objects/mp/psd_sm.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/small_shield",
 /* pickup *///	"Shield Small",
 		25,
@@ -758,8 +758,8 @@ Instant shield pickup, restores 100
 		"item_shield_lrg_instant",
 		"sound/player/pickupshield.wav",
         { "models/map_objects/mp/psd.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/large_shield",
 /* pickup *///	"Shield Large",
 		100,
@@ -777,8 +777,8 @@ Instant medpack pickup, heals 25
 		"item_medpak_instant",
 		"sound/player/pickuphealth.wav",
         { "models/map_objects/mp/medpac.md3",
-		0, 0, 0 },
-/* view */		NULL,
+		nullptr, nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_medkit",
 /* pickup *///	"Medpack",
 		25,
@@ -801,8 +801,8 @@ Instant medpack pickup, heals 25
 		"item_seeker",
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/remote.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_seeker",
 /* pickup *///	"Seeker Drone",
 		120,
@@ -820,8 +820,8 @@ Portable shield
 		"item_shield",
 		"sound/weapons/w_pkup.wav",
 		{ "models/map_objects/mp/shield.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_shieldwall",
 /* pickup *///	"Forcefield",
 		120,
@@ -839,8 +839,8 @@ Bacta canister pickup, heals 25 on use
 		"item_medpac",	//should be item_bacta
 		"sound/weapons/w_pkup.wav",
 		{ "models/map_objects/mp/bacta.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_bacta",
 /* pickup *///	"Bacta Canister",
 		25,
@@ -858,8 +858,8 @@ Big bacta canister pickup, heals 50 on use
 		"item_medpac_big",	//should be item_bacta
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/big_bacta.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_big_bacta",
 /* pickup *///	"Bacta Canister",
 		25,
@@ -877,8 +877,8 @@ These will be standard equipment on the player - DO NOT PLACE
 		"item_binoculars",
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/binoculars.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_zoom",
 /* pickup *///	"Binoculars",
 		60,
@@ -896,8 +896,8 @@ Sentry gun inventory pickup.
 		"item_sentry_gun",
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/psgun.glm",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_sentrygun",
 /* pickup *///	"Sentry Gun",
 		120,
@@ -915,8 +915,8 @@ Do not place.
 		"item_jetpack",
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/psgun.glm", //FIXME: no model
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_jetpack",
 /* pickup *///	"Sentry Gun",
 		120,
@@ -934,8 +934,8 @@ Do not place. For siege classes ONLY.
 		"item_healthdisp",
 		"sound/weapons/w_pkup.wav",
 		{ "models/map_objects/mp/bacta.md3", //replace me
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_healthdisp",
 /* pickup *///	"Sentry Gun",
 		120,
@@ -953,8 +953,8 @@ Do not place. For siege classes ONLY.
 		"item_ammodisp",
 		"sound/weapons/w_pkup.wav",
 		{ "models/map_objects/mp/bacta.md3", //replace me
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_ammodisp",
 /* pickup *///	"Sentry Gun",
 		120,
@@ -972,8 +972,8 @@ Do not place. For siege classes ONLY.
 		"item_eweb_holdable",
 		"sound/interface/shieldcon_empty",
 		{ "models/map_objects/hoth/eweb_model.glm",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_eweb",
 /* pickup *///	"Sentry Gun",
 		120,
@@ -991,8 +991,8 @@ Do not place. For siege classes ONLY.
 		"item_cloak",
 		"sound/weapons/w_pkup.wav",
 		{ "models/items/psgun.glm", //FIXME: no model
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_cloak",
 /* pickup *///	"Seeker Drone",
 		120,
@@ -1010,8 +1010,8 @@ Adds one rank to all Force powers temporarily. Only light jedi can use.
 		"item_force_enlighten_light",
 		"sound/player/enlightenment.wav",
 		{ "models/map_objects/mp/jedi_enlightenment.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_jlight",
 /* pickup *///	"Light Force Enlightenment",
 		25,
@@ -1029,8 +1029,8 @@ Adds one rank to all Force powers temporarily. Only dark jedi can use.
 		"item_force_enlighten_dark",
 		"sound/player/enlightenment.wav",
 		{ "models/map_objects/mp/dk_enlightenment.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_dklight",
 /* pickup *///	"Dark Force Enlightenment",
 		25,
@@ -1048,8 +1048,8 @@ Unlimited Force Pool for a short time.
 		"item_force_boon",
 		"sound/player/boon.wav",
 		{ "models/map_objects/mp/force_boon.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_fboon",
 /* pickup *///	"Force Boon",
 		25,
@@ -1067,8 +1067,8 @@ A small lizard carried on the player, which prevents the possessor from using an
 		"item_ysalimari",
 		"sound/player/ysalimari.wav",
 		{ "models/map_objects/mp/ysalimari.md3",
-		0, 0, 0} ,
-/* view */		NULL,
+		nullptr, nullptr, nullptr} ,
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_ysamari",
 /* pickup *///	"Ysalamiri",
 		25,
@@ -1090,7 +1090,7 @@ Don't place this
 		"weapon_stun_baton",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/stun_baton/baton_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/stun_baton/baton.md3",
 /* icon */		"gfx/hud/w_icon_stunbaton",
 /* pickup *///	"Stun Baton",
@@ -1109,7 +1109,7 @@ Don't place this
 		"weapon_melee",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/stun_baton/baton_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/stun_baton/baton.md3",
 /* icon */		"gfx/hud/w_icon_melee",
 /* pickup *///	"Stun Baton",
@@ -1128,7 +1128,7 @@ Don't place this
 		"weapon_saber",
 		"sound/weapons/w_pkup.wav",
         { DEFAULT_SABER_MODEL,
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/saber/saber_w.md3",
 /* icon */		"gfx/hud/w_icon_lightsaber",
 /* pickup *///	"Lightsaber",
@@ -1148,7 +1148,7 @@ Don't place this
 		"weapon_blaster_pistol",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/blaster_pistol/blaster_pistol_w.glm",//"models/weapons2/briar_pistol/briar_pistol_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/blaster_pistol/blaster_pistol.md3",//"models/weapons2/briar_pistol/briar_pistol.md3",
 /* icon */		"gfx/hud/w_icon_blaster_pistol",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Bryar Pistol",
@@ -1166,7 +1166,7 @@ Don't place this
 		"weapon_concussion_rifle",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/concussion/c_rifle_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/concussion/c_rifle.md3",
 /* icon */		"gfx/hud/w_icon_c_rifle",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Concussion Rifle",
@@ -1185,7 +1185,7 @@ Don't place this
 		"weapon_bryar_pistol",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/briar_pistol/briar_pistol_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/briar_pistol/briar_pistol.md3",
 /* icon */		"gfx/hud/w_icon_briar",//"gfx/hud/w_icon_rifle",
 /* pickup *///	"Bryar Pistol",
@@ -1203,7 +1203,7 @@ Don't place this
 		"weapon_blaster",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/blaster_r/blaster_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/blaster_r/blaster.md3",
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"E11 Blaster Rifle",
@@ -1221,7 +1221,7 @@ Don't place this
 		"weapon_disruptor",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/disruptor/disruptor_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/disruptor/disruptor.md3",
 /* icon */		"gfx/hud/w_icon_disruptor",
 /* pickup *///	"Tenloss Disruptor Rifle",
@@ -1239,7 +1239,7 @@ Don't place this
 		"weapon_bowcaster",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/bowcaster/bowcaster_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/bowcaster/bowcaster.md3",
 /* icon */		"gfx/hud/w_icon_bowcaster",
 /* pickup *///	"Wookiee Bowcaster",
@@ -1257,7 +1257,7 @@ Don't place this
 		"weapon_repeater",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/heavy_repeater/heavy_repeater_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/heavy_repeater/heavy_repeater.md3",
 /* icon */		"gfx/hud/w_icon_repeater",
 /* pickup *///	"Imperial Heavy Repeater",
@@ -1276,7 +1276,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_demp2",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/demp2/demp2_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/demp2/demp2.md3",
 /* icon */		"gfx/hud/w_icon_demp2",
 /* pickup *///	"DEMP2",
@@ -1294,7 +1294,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_flechette",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/golan_arms/golan_arms_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/golan_arms/golan_arms.md3",
 /* icon */		"gfx/hud/w_icon_flechette",
 /* pickup *///	"Golan Arms Flechette",
@@ -1312,7 +1312,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_rocket_launcher",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/merr_sonn/merr_sonn_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/merr_sonn/merr_sonn.md3",
 /* icon */		"gfx/hud/w_icon_merrsonn",
 /* pickup *///	"Merr-Sonn Missile System",
@@ -1330,7 +1330,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"ammo_thermal",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/thermal/thermal_pu.md3",
-		"models/weapons2/thermal/thermal_w.glm", 0, 0},
+		"models/weapons2/thermal/thermal_w.glm", nullptr, nullptr},
 /* view */		"models/weapons2/thermal/thermal.md3",
 /* icon */		"gfx/hud/w_icon_thermal",
 /* pickup *///	"Thermal Detonators",
@@ -1348,7 +1348,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"ammo_tripmine",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/laser_trap/laser_trap_pu.md3",
-		"models/weapons2/laser_trap/laser_trap_w.glm", 0, 0},
+		"models/weapons2/laser_trap/laser_trap_w.glm", nullptr, nullptr},
 /* view */		"models/weapons2/laser_trap/laser_trap.md3",
 /* icon */		"gfx/hud/w_icon_tripmine",
 /* pickup *///	"Trip Mines",
@@ -1365,7 +1365,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 	{
 		"ammo_detpack",
 		"sound/weapons/w_pkup.wav",
-        { "models/weapons2/detpack/det_pack_pu.md3", "models/weapons2/detpack/det_pack_proj.glm", "models/weapons2/detpack/det_pack_w.glm", 0},
+        { "models/weapons2/detpack/det_pack_pu.md3", "models/weapons2/detpack/det_pack_proj.glm", "models/weapons2/detpack/det_pack_w.glm", nullptr},
 /* view */		"models/weapons2/detpack/det_pack.md3",
 /* icon */		"gfx/hud/w_icon_detpack",
 /* pickup *///	"Det Packs",
@@ -1383,7 +1383,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_thermal",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/thermal/thermal_w.glm", "models/weapons2/thermal/thermal_pu.md3",
-		0, 0 },
+		nullptr, nullptr },
 /* view */		"models/weapons2/thermal/thermal.md3",
 /* icon */		"gfx/hud/w_icon_thermal",
 /* pickup *///	"Thermal Detonator",
@@ -1401,7 +1401,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_trip_mine",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/laser_trap/laser_trap_w.glm", "models/weapons2/laser_trap/laser_trap_pu.md3",
-		0, 0},
+		nullptr, nullptr},
 /* view */		"models/weapons2/laser_trap/laser_trap.md3",
 /* icon */		"gfx/hud/w_icon_tripmine",
 /* pickup *///	"Trip Mine",
@@ -1418,7 +1418,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 	{
 		"weapon_det_pack",
 		"sound/weapons/w_pkup.wav",
-        { "models/weapons2/detpack/det_pack_proj.glm", "models/weapons2/detpack/det_pack_pu.md3", "models/weapons2/detpack/det_pack_w.glm", 0},
+        { "models/weapons2/detpack/det_pack_proj.glm", "models/weapons2/detpack/det_pack_pu.md3", "models/weapons2/detpack/det_pack_w.glm", nullptr},
 /* view */		"models/weapons2/detpack/det_pack.md3",
 /* icon */		"gfx/hud/w_icon_detpack",
 /* pickup *///	"Det Pack",
@@ -1436,7 +1436,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_emplaced",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/blaster_r/blaster_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/blaster_r/blaster.md3",
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Emplaced Gun",
@@ -1454,7 +1454,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 		"weapon_turretwp",
 		"sound/weapons/w_pkup.wav",
         { "models/weapons2/blaster_r/blaster_w.glm",
-		0, 0, 0},
+		nullptr, nullptr, nullptr},
 /* view */		"models/weapons2/blaster_r/blaster.md3",
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Turret Gun",
@@ -1477,8 +1477,8 @@ Don't place this
 		"ammo_force",
 		"sound/player/pickupenergy.wav",
         { "models/items/energy_cell.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/hud/w_icon_blaster",
 /* pickup *///	"Force??",
 		100,
@@ -1496,8 +1496,8 @@ Ammo for the Bryar and Blaster pistols.
 		"ammo_blaster",
 		"sound/player/pickupenergy.wav",
         { "models/items/energy_cell.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_battery",
 /* pickup *///	"Blaster Pack",
 		100,
@@ -1515,8 +1515,8 @@ Ammo for Tenloss Disruptor, Wookie Bowcaster, and the Destructive Electro Magnet
 		"ammo_powercell",
 		"sound/player/pickupenergy.wav",
         { "models/items/power_cell.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/ammo_power_cell",
 /* pickup *///	"Power Cell",
 		100,
@@ -1534,8 +1534,8 @@ Ammo for Imperial Heavy Repeater and the Golan Arms Flechette
 		"ammo_metallic_bolts",
 		"sound/player/pickupenergy.wav",
         { "models/items/metallic_bolts.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/ammo_metallic_bolts",
 /* pickup *///	"Metallic Bolts",
 		100,
@@ -1553,8 +1553,8 @@ Ammo for Merr-Sonn portable missile launcher
 		"ammo_rockets",
 		"sound/player/pickupenergy.wav",
         { "models/items/rockets.md3",
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/ammo_rockets",
 /* pickup *///	"Rockets",
 		3,
@@ -1573,8 +1573,8 @@ dispensing ability
 		"ammo_all",
 		"sound/player/pickupenergy.wav",
         { "models/items/battery.md3",  //replace me
-		0, 0, 0},
-/* view */		NULL,
+		nullptr, nullptr, nullptr},
+/* view */		nullptr,
 /* icon */		"gfx/mp/ammo_rockets", //replace me
 /* pickup *///	"Rockets",
 		0,
@@ -1593,10 +1593,10 @@ Only in CTF games
 */
 	{
 		"team_CTF_redflag",
-		NULL,
+		nullptr,
         { "models/flags/r_flag.md3",
-		"models/flags/r_flag_ysal.md3", 0, 0 },
-/* view */		NULL,
+		"models/flags/r_flag_ysal.md3", nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_rflag",
 /* pickup *///	"Red Flag",
 		0,
@@ -1612,10 +1612,10 @@ Only in CTF games
 */
 	{
 		"team_CTF_blueflag",
-		NULL,
+		nullptr,
         { "models/flags/b_flag.md3",
-		"models/flags/b_flag_ysal.md3", 0, 0 },
-/* view */		NULL,
+		"models/flags/b_flag_ysal.md3", nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"gfx/hud/mpi_bflag",
 /* pickup *///	"Blue Flag",
 		0,
@@ -1635,10 +1635,10 @@ Only in One Flag CTF games
 */
 	{
 		"team_CTF_neutralflag",
-		NULL,
+		nullptr,
         { "models/flags/n_flag.md3",
-		0, 0, 0 },
-/* view */		NULL,
+		nullptr, nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"icons/iconf_neutral1",
 /* pickup *///	"Neutral Flag",
 		0,
@@ -1653,8 +1653,8 @@ Only in One Flag CTF games
 		"item_redcube",
 		"sound/player/pickupenergy.wav",
         { "models/powerups/orb/r_orb.md3",
-		0, 0, 0 },
-/* view */		NULL,
+		nullptr, nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"icons/iconh_rorb",
 /* pickup *///	"Red Cube",
 		0,
@@ -1669,8 +1669,8 @@ Only in One Flag CTF games
 		"item_bluecube",
 		"sound/player/pickupenergy.wav",
         { "models/powerups/orb/b_orb.md3",
-		0, 0, 0 },
-/* view */		NULL,
+		nullptr, nullptr, nullptr },
+/* view */		nullptr,
 /* icon */		"icons/iconh_borb",
 /* pickup *///	"Blue Cube",
 		0,
@@ -1682,7 +1682,7 @@ Only in One Flag CTF games
 	},
 
 	// end of list marker
-	{NULL}
+	{nullptr}
 };
 
 int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
@@ -1806,7 +1806,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1826,7 +1826,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 
 	Com_Error( ERR_DROP, "HoldableItem not found" );
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1846,7 +1846,7 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1865,7 +1865,7 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", ammo);
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1882,7 +1882,7 @@ gitem_t	*BG_FindItem( const char *classname ) {
 			return it;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3066,7 +3066,7 @@ PLAYER ANGLES
 int BG_ModelCache(const char *modelName, const char *skinName)
 {
 	#ifdef _GAME
-		void *g2 = NULL;
+		void *g2 = nullptr;
 
 		if ( VALIDSTRING( skinName ) )
 			trap->R_RegisterSkin( skinName );
@@ -3119,7 +3119,7 @@ void *BG_Alloc ( int size )
 	if (bg_poolSize + size > bg_poolTail)
 	{
 		Com_Error( ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
-		return 0;
+		return nullptr;
 	}
 
 	bg_poolSize += size;
@@ -3132,7 +3132,7 @@ void *BG_AllocUnaligned ( int size )
 	if (bg_poolSize + size > bg_poolTail)
 	{
 		Com_Error( ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
-		return 0;
+		return nullptr;
 	}
 
 	bg_poolSize += size;
@@ -3147,7 +3147,7 @@ void *BG_TempAlloc( int size )
 	if (bg_poolTail - size < bg_poolSize)
 	{
 		Com_Error( ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
-		return 0;
+		return nullptr;
 	}
 
 	bg_poolTail -= size;

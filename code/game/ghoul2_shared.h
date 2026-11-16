@@ -499,15 +499,15 @@ public:
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
 	mFlags(0),
-	mTransformedVertsArray(0),
-	mBoneCache(0),
+	mTransformedVertsArray(nullptr),
+	mBoneCache(nullptr),
 	mSkin(0),
 	mValid(false),
-	currentModel(0),
+	currentModel(nullptr),
 	currentModelSize(0),
-	animModel(0),
+	animModel(nullptr),
 	currentAnimModelSize(0),
-	aHeader(0)
+	aHeader(nullptr)
 	{
 		mFileName[0] = 0;
 	}
@@ -653,8 +653,8 @@ public:
 			int i;
 			for (i=0;i<size();i++)
 			{
-				Array()[i].mBoneCache=0;
-				Array()[i].mTransformedVertsArray=0;
+				Array()[i].mBoneCache=nullptr;
+				Array()[i].mTransformedVertsArray=nullptr;
 				Array()[i].mSkelFrameNum=0;
 				Array()[i].mMeshFrameNum=0;
 			}

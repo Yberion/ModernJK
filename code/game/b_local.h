@@ -63,7 +63,7 @@ extern cvar_t		*debugNPCName;
 extern cvar_t		*d_JediAI;
 extern cvar_t		*d_saberCombat;
 extern void NPC_Think ( gentity_t *self);
-extern void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope = NULL, vec3_t storeAngles = NULL, bool keepPitch = false );
+extern void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope = nullptr, vec3_t storeAngles = nullptr, bool keepPitch = false );
 
 //NPC_reactions.cpp
 extern void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod ,int hitLoc);
@@ -134,7 +134,7 @@ extern gentity_t *NPC_PickAlly ( bool facingEachOther, float range, bool ignoreG
 extern void NPC_LostEnemyDecideChase(void);
 extern float NPC_MaxDistSquaredForWeapon( void );
 extern bool NPC_EvaluateShot( int hit, bool glassOK );
-extern int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos = NULL );
+extern int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos = nullptr );
 
 //NPC_formation
 extern bool NPC_SlideMoveToGoal (void);
@@ -325,7 +325,7 @@ extern void ClearPlayerAlertEvents( void );
 
 extern bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
 
-extern void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal = false, int combatPoint = -1, gentity_t *targetEnt = NULL );
+extern void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal = false, int combatPoint = -1, gentity_t *targetEnt = nullptr );
 
 extern void NPC_ApplyWeaponFireDelay(void);
 

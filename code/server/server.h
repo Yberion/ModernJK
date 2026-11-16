@@ -304,8 +304,8 @@ bool SG_WriteSavegame(const char *psPathlessBaseName, bool qbAutosave);
 bool SG_ReadSavegame(const char *psPathlessBaseName);
 void SG_WipeSavegame(const char *psPathlessBaseName);
 bool SG_Append(unsigned int chid, const void *data, int length);
-int SG_Read			(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
-int SG_ReadOptional	(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
+int SG_Read			(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = nullptr);
+int SG_ReadOptional	(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = nullptr);
 void SG_Shutdown();
 void SG_TestSave(void);
 //
@@ -331,7 +331,7 @@ private:
 	char			*Reference;
 
 public:
-					 cStrings(unsigned int initFlags = 0, char *initReference = NULL);
+					 cStrings(unsigned int initFlags = 0, char *initReference = nullptr);
 	virtual			~cStrings(void);
 
 	virtual void	Clear(void);
@@ -356,7 +356,7 @@ private:
 	void			SetText(const char *newText);
 
 public:
-					 cStringsSingle(unsigned int initFlags = 0, char *initReference = NULL);
+					 cStringsSingle(unsigned int initFlags = 0, char *initReference = nullptr);
 	virtual			~cStringsSingle();
 
 	char			*GetText(void) { return Text; }

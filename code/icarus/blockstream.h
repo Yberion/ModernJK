@@ -188,7 +188,7 @@ public:
 
 	CBlockStream()
 	{
-		m_stream = NULL;
+		m_stream = nullptr;
 		m_streamPos = 0;
 	}
 	~CBlockStream() {};

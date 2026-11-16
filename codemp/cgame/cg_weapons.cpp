@@ -90,7 +90,7 @@ Ghoul2 Insert Start
 		handle = trap->G2API_InitGhoul2Model(&itemInfo->g2Models[0], item->world_model[0], 0 , 0, 0, 0, 0);
 		if (handle<0)
 		{
-			itemInfo->g2Models[0] = NULL;
+			itemInfo->g2Models[0] = nullptr;
 		}
 		else
 		{
@@ -323,12 +323,12 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 			}
 		}
 
-		AngleVectors(angle, forward, NULL, NULL );
+		AngleVectors(angle, forward, nullptr, nullptr );
 		VectorCopy(cent->lerpOrigin, muzzlePoint );
 //		VectorCopy(cg.refdef.vieworg, muzzlePoint );
 	} else {
 		// !CPMA
-		AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+		AngleVectors( cent->lerpAngles, forward, nullptr, nullptr );
 		VectorCopy(cent->lerpOrigin, muzzlePoint );
 	}
 
@@ -412,7 +412,7 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 =============
 CG_AddPlayerWeapon
 
-Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
+Used for both the view weapon (ps is valid) and the world modelother character models (ps is nullptr)
 The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
@@ -671,7 +671,7 @@ Ghoul2 Insert End
 		fxSArgs.shader = shader;
 		fxSArgs.flags = 0x08000000;
 
-		//FX_AddSprite( flash.origin, NULL, NULL, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
+		//FX_AddSprite( flash.origin, nullptr, nullptr, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
 		trap->FX_AddSprite(&fxSArgs);
 	}
 
@@ -1374,7 +1374,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 
@@ -1913,7 +1913,7 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-		//trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		//trap->S_StartSound (nullptr, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
 
@@ -1930,12 +1930,12 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 			c = Q_irand( 0, c - 1 );
 			if ( weap->altFlashSound[c] )
 			{
-				trap->S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSound[c] );
+				trap->S_StartSound( nullptr, ent->number, CHAN_WEAPON, weap->altFlashSound[c] );
 			}
 		}
 //		if ( weap->altFlashSnd )
 //		{
-//			trap->S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSnd );
+//			trap->S_StartSound( nullptr, ent->number, CHAN_WEAPON, weap->altFlashSnd );
 //		}
 	}
 	else
@@ -1950,7 +1950,7 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 			c = Q_irand( 0, c - 1 );
 			if ( weap->flashSound[c] )
 			{
-				trap->S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
+				trap->S_StartSound( nullptr, ent->number, CHAN_WEAPON, weap->flashSound[c] );
 			}
 		}
 	}
@@ -2239,12 +2239,12 @@ bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 		if (cg.renderingThirdPerson)
 		{
 			VectorCopy( pEnt->lerpOrigin, gunpoint );
-			AngleVectors( pEnt->lerpAngles, forward, right, NULL );
+			AngleVectors( pEnt->lerpAngles, forward, right, nullptr );
 		}
 		else
 		{
 			VectorCopy( cg.refdef.vieworg, gunpoint );
-			AngleVectors( cg.refdef.viewangles, forward, right, NULL );
+			AngleVectors( cg.refdef.viewangles, forward, right, nullptr );
 		}
 
 		if (weapontype == WP_EMPLACED_GUN && cg.snap->ps.emplacedIndex)
@@ -2271,7 +2271,7 @@ bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 				{
 					pitchConstraint[PITCH] = 40;
 				}
-				AngleVectors( pitchConstraint, forward, right, NULL );
+				AngleVectors( pitchConstraint, forward, right, nullptr );
 			}
 		}
 
@@ -2303,7 +2303,7 @@ bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 
 	VectorCopy( cent->currentState.pos.trBase, muzzle );
 
-	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
+	AngleVectors( cent->currentState.apos.trBase, forward, nullptr, nullptr );
 	anim = cent->currentState.legsAnim;
 	if ( anim == BOTH_CROUCH1WALK || anim == BOTH_CROUCH1IDLE ) {
 		muzzle[2] += CROUCH_VIEWHEIGHT;
@@ -2377,7 +2377,7 @@ void CG_ShutDownG2Weapons(void)
 
 void *CG_G2WeaponInstance(centity_t *cent, int weapon)
 {
-	clientInfo_t *ci = NULL;
+	clientInfo_t *ci = nullptr;
 
 	if (weapon != WP_SABER)
 	{
@@ -2424,7 +2424,7 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2)
 	{
 		if (weaponNum == WP_SABER)
 		{
-			clientInfo_t *ci = NULL;
+			clientInfo_t *ci = nullptr;
 
 			if (cent->currentState.eType == ET_NPC)
 			{
@@ -2523,20 +2523,20 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 
 	if (cent->currentState.eFlags & EF_DEAD)
 	{ //no updating weapons when dead
-		cent->ghoul2weapon = NULL;
+		cent->ghoul2weapon = nullptr;
 		return;
 	}
 
 	if (cent->torsoBolt)
 	{ //got our limb cut off, no updating weapons until it's restored
-		cent->ghoul2weapon = NULL;
+		cent->ghoul2weapon = nullptr;
 		return;
 	}
 
 	if (cgs.clientinfo[ps->clientNum].team == TEAM_SPECTATOR ||
 		ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
-		cent->ghoul2weapon = cg_entities[ps->clientNum].ghoul2weapon = NULL;
+		cent->ghoul2weapon = cg_entities[ps->clientNum].ghoul2weapon = nullptr;
 		cent->weapon = cg_entities[ps->clientNum].weapon = 0;
 		return;
 	}

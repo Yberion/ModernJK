@@ -431,7 +431,7 @@ const mdxaHeader_t *G2_GetModA(CGhoul2Info &ghoul2)
 {
 	if (!ghoul2.mBoneCache)
 	{
-		return 0;
+		return nullptr;
 	}
 
 	CBoneCache &boneCache=*ghoul2.mBoneCache;
@@ -517,7 +517,7 @@ char *G2_GetBoneNameFromSkel(CGhoul2Info &ghoul2, int boneNum)
 {
 	if (!ghoul2.mBoneCache)
 	{
-		return NULL;
+		return nullptr;
 	}
 	CBoneCache &boneCache=*ghoul2.mBoneCache;
 	assert(boneCache.mod);
@@ -2173,7 +2173,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 	}
 	else if (boltList[boltNum].surfaceNumber>=0)
 	{
-		const surfaceInfo_t *surfInfo=0;
+		const surfaceInfo_t *surfInfo=nullptr;
 		{
 			for (size_t i=0;i<ghoul2.mSlist.size();i++)
 			{
@@ -2184,7 +2184,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 				}
 			}
 		}
-		mdxmSurface_t *surface = 0;
+		mdxmSurface_t *surface = nullptr;
 		if (!surfInfo)
 		{
 			surface = (mdxmSurface_t *)G2_FindSurface(boneCache.mod,boltList[boltNum].surfaceNumber, 0);
@@ -2239,7 +2239,7 @@ void G2API_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin)
 void RenderSurfaces(CRenderSurface &RS)
 {
 	int			i;
-	const shader_t	*shader = 0;
+	const shader_t	*shader = nullptr;
 	int			offFlags = 0;
 #ifdef _G2_GORE
 	bool		drawGore = true;
@@ -2367,7 +2367,7 @@ void RenderSurfaces(CRenderSurface &RS)
 					{
 						CRenderableSurface *newSurf2 = AllocRS();
 						*newSurf2=*newSurf;
-						newSurf2->goreChain=0;
+						newSurf2->goreChain=nullptr;
 						newSurf2->alternateTex=tex->tex[RS.lod];
 						newSurf2->scale=1.0f;
 						newSurf2->fade=1.0f;
@@ -2556,9 +2556,9 @@ R_AddGHOULSurfaces
 ==============
 */
 void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
-	shader_t		*cust_shader = 0;
+	shader_t		*cust_shader = nullptr;
 #ifdef _G2_GORE
-	shader_t		*gore_shader = 0;
+	shader_t		*gore_shader = nullptr;
 #endif
 	int				fogNum = 0;
 	bool		personalModel;
@@ -2634,14 +2634,14 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			//
 			// figure out whether we should be using a custom shader for this model
 			//
-			skin = NULL;
+			skin = nullptr;
 			if (ent->e.customShader)
 			{
 				cust_shader = R_GetShaderByHandle(ent->e.customShader );
 			}
 			else
 			{
-				cust_shader = NULL;
+				cust_shader = nullptr;
 				// figure out the custom skin thing
 				if (ent->e.customSkin)
 				{
@@ -2674,7 +2674,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			}
 			G2_FindOverrideSurface(-1,ghoul2[i].mSlist); //reset the quick surface override lookup;
 #ifdef _G2_GORE
-			CGoreSet *gore=0;
+			CGoreSet *gore=nullptr;
 			if (ghoul2[i].mGoreSetTag)
 			{
 				gore=FindGoreSet(ghoul2[i].mGoreSetTag);
@@ -3630,7 +3630,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 
 	char	animGLAName[MAX_QPATH];
 	char	*strippedName;
-	char	*slash = NULL;
+	char	*slash = nullptr;
 	const char*mapname = sv_mapname->string;
 
 	if (strcmp(mapname,"nomap") )
@@ -3753,7 +3753,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 
 		if( !sh )
 		{
-			surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
+			surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (intptr_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surfInfo->numChildren ] ));
 			continue;
 		}
 
@@ -3774,7 +3774,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 #endif
 
 		// find the next surface
-		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
+		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (intptr_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surfInfo->numChildren ] ));
   	}
 
 	// swap all the LOD's	(we need to do the middle part of this even for intel, because of shader reg and err-check)

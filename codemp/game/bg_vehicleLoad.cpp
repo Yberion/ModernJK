@@ -260,7 +260,7 @@ int VEH_LoadVehWeapon( const char *vehWeaponName )
 	char		parmName[128];//we'll assume that no parm name is longer than 128
 	char		*value;
 	const char	*p;
-	vehWeaponInfo_t	*vehWeapon = NULL;
+	vehWeaponInfo_t	*vehWeapon = nullptr;
 
 	//BG_VehWeaponSetDefaults( &g_vehWeaponInfo[0] );//set the first vehicle to default data
 
@@ -605,7 +605,7 @@ stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
 	ENUM2STRING(VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
 	ENUM2STRING(VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
 	ENUM2STRING(VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
-	{0,	-1}
+	{nullptr,	-1}
 };
 
 // Setup the shared functions (one's that all vehicles would generally use).
@@ -695,17 +695,17 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	strcpy(vehicle->model, "models/map_objects/ships/swoop.md3");
 
 	vehicle->modelIndex = 0;							//set internally, not until this vehicle is spawned into the level
-	vehicle->skin = NULL;								//what skin to use - if make it an NPC's primary model, don't need this?
+	vehicle->skin = nullptr;								//what skin to use - if make it an NPC's primary model, don't need this?
 	vehicle->riderAnim = BOTH_GUNSIT1;					//what animation the rider uses
 
-	vehicle->soundOn = NULL;							//sound to play when get on it
-	vehicle->soundLoop = NULL;							//sound to loop while riding it
-	vehicle->soundOff = NULL;							//sound to play when get off
-	vehicle->exhaustFX = NULL;							//exhaust effect, played from "*exhaust" bolt(s)
-	vehicle->trailFX = NULL;							//trail effect, played from "*trail" bolt(s)
-	vehicle->impactFX = NULL;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
-	vehicle->explodeFX = NULL;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
-	vehicle->wakeFX = NULL;								//effect itmakes when going across water
+	vehicle->soundOn = nullptr;							//sound to play when get on it
+	vehicle->soundLoop = nullptr;							//sound to loop while riding it
+	vehicle->soundOff = nullptr;							//sound to play when get off
+	vehicle->exhaustFX = nullptr;							//exhaust effect, played from "*exhaust" bolt(s)
+	vehicle->trailFX = nullptr;							//trail effect, played from "*trail" bolt(s)
+	vehicle->impactFX = nullptr;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
+	vehicle->explodeFX = nullptr;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
+	vehicle->wakeFX = nullptr;								//effect itmakes when going across water
 
 	//other misc stats
 	vehicle->gravity = VEH_DEFAULT_GRAVITY;				//normal is 800
@@ -906,9 +906,9 @@ int VEH_LoadVehicle( const char *vehicleName )
 	char		weapMuzzle8[128] = { 0 };
 	char		weapMuzzle9[128] = { 0 };
 	char		weapMuzzle10[128] = { 0 };
-	char		*value = NULL;
-	const char	*p = NULL;
-	vehicleInfo_t	*vehicle = NULL;
+	char		*value = nullptr;
+	const char	*p = nullptr;
+	vehicleInfo_t	*vehicle = nullptr;
 
 	// Load the vehicle parms if no vehicles have been loaded yet.
 	if ( numVehicles == 0 )
@@ -1468,7 +1468,7 @@ void AttachRidersGeneric( Vehicle_t *pVeh )
 		VectorSet(yawOnlyAngles, 0, parent->playerState->viewangles[YAW], 0);
 
 		// Get the driver tag.
-		trap->G2API_GetBoltMatrix( parent->ghoul2, 0, crotchBolt, &boltMatrix, yawOnlyAngles, parent->playerState->origin, BG_GetTime(), NULL, parent->modelScale );
+		trap->G2API_GetBoltMatrix( parent->ghoul2, 0, crotchBolt, &boltMatrix, yawOnlyAngles, parent->playerState->origin, BG_GetTime(), nullptr, parent->modelScale );
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, pilot->playerState->origin );
 	}
 }

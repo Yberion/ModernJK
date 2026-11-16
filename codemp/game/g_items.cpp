@@ -284,7 +284,7 @@ void CreateShield(gentity_t *ent)
 	// trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
 	end[2] += MAX_SHIELD_HEIGHT;
-	trap->Trace (&tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, ent->r.currentOrigin, nullptr, nullptr, end, ent->s.number, MASK_SHOT, false, 0, 0 );
 	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
 
 	// use angles to find the proper axis along which to align the shield
@@ -310,10 +310,10 @@ void CreateShield(gentity_t *ent)
 	// positive trace
 	VectorCopy(ent->r.currentOrigin, start);
 	start[2] += (height>>1);
-	trap->Trace (&tr, start, 0, 0, posTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, start, nullptr, nullptr, posTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
 	posWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 	// negative trace
-	trap->Trace (&tr, start, 0, 0, negTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, start, nullptr, nullptr, negTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
 	negWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 
 	// kef -- monkey with dimensions and place origin in center
@@ -402,8 +402,8 @@ void CreateShield(gentity_t *ent)
 
 bool PlaceShield(gentity_t *playerent)
 {
-	static const gitem_t *shieldItem = NULL;
-	gentity_t	*shield = NULL;
+	static const gitem_t *shieldItem = nullptr;
+	gentity_t	*shield = nullptr;
 	trace_t		tr;
 	vec3_t		fwd, pos, dest, mins = {-4,-4, 0}, maxs = {4,4,4};
 	static bool registered = false;
@@ -420,7 +420,7 @@ bool PlaceShield(gentity_t *playerent)
 	}
 
 	// can we place this in front of us?
-	AngleVectors (playerent->client->ps.viewangles, fwd, NULL, NULL);
+	AngleVectors (playerent->client->ps.viewangles, fwd, nullptr, nullptr);
 	fwd[2] = 0;
 	VectorMA(playerent->client->ps.origin, SHIELD_PLACEDIST, fwd, dest);
 	trap->Trace (&tr, playerent->client->ps.origin, mins, maxs, dest, playerent->s.number, MASK_SHOT, false, 0, 0 );
@@ -457,9 +457,9 @@ bool PlaceShield(gentity_t *playerent)
 
 			shield->r.contents = CONTENTS_TRIGGER;
 
-			shield->touch = 0;
+			shield->touch = nullptr;
 			// using an item causes it to respawn
-			shield->use = 0; //Use_Item;
+			shield->use = nullptr; //Use_Item;
 
 			// allow to ride movers
 			shield->s.groundEntityNum = tr.entityNum;
@@ -632,7 +632,7 @@ static bool pas_find_enemies( gentity_t *self )
 			VectorCopy( target->r.currentOrigin, org );
 		}
 
-		trap->Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -688,7 +688,7 @@ void pas_adjust_enemy( gentity_t *ent )
 			VectorCopy( ent->enemy->r.currentOrigin, org );
 		}
 
-		trap->Trace( &tr, org2, NULL, NULL, org, ent->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, false, 0, 0 );
 
 		if ( tr.allsolid || tr.startsolid || tr.fraction < 0.9f || tr.entityNum == ent->s.number )
 		{
@@ -706,7 +706,7 @@ void pas_adjust_enemy( gentity_t *ent )
 	}
 	else if ( ent->bounceCount < level.time && ent->enemy ) // don't ping pong on and off
 	{
-		ent->enemy = NULL;
+		ent->enemy = nullptr;
 		// shut-down sound
 		G_Sound( ent, CHAN_BODY, G_SoundIndex( "sound/chars/turret/shutdown.wav" ));
 
@@ -828,15 +828,15 @@ void pas_think( gentity_t *ent )
 	{
 		if (!ent->enemy->client)
 		{
-			ent->enemy = NULL;
+			ent->enemy = nullptr;
 		}
 		else if (ent->enemy->s.number == ent->s.number)
 		{
-			ent->enemy = NULL;
+			ent->enemy = nullptr;
 		}
 		else if (ent->enemy->health < 1)
 		{
-			ent->enemy = NULL;
+			ent->enemy = nullptr;
 		}
 	}
 
@@ -964,8 +964,8 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 //------------------------------------------------------------------------------------------------------------
 {
 	// Turn off the thinking of the base & use it's targets
-	self->think = 0;//NULL;
-	self->use = 0;//NULL;
+	self->think = nullptr;//nullptr;
+	self->use = nullptr;//nullptr;
 
 	if ( self->target )
 	{
@@ -979,7 +979,7 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	}
 
 	// clear my data
-	self->die  = 0;//NULL;
+	self->die  = nullptr;//nullptr;
 	self->takedamage = false;
 	self->health = 0;
 
@@ -1068,7 +1068,7 @@ void ItemUse_Sentry( gentity_t *ent )
 	yawonly[PITCH] = 0;
 	yawonly[YAW] = ent->client->ps.viewangles[YAW];
 
-	AngleVectors(yawonly, fwd, NULL, NULL);
+	AngleVectors(yawonly, fwd, nullptr, nullptr);
 
 	fwdorg[0] = ent->client->ps.origin[0] + fwd[0]*64;
 	fwdorg[1] = ent->client->ps.origin[1] + fwd[1]*64;
@@ -1134,7 +1134,7 @@ void ItemUse_Seeker(gentity_t *ent)
 {
 	if ( level.gametype == GT_SIEGE && d_siegeSeekerNPC.integer )
 	{//actualy spawn a remote NPC
-		gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, false );
+		gentity_t *remote = NPC_SpawnType( ent, "remote", nullptr, false );
 		if ( remote && remote->client )
 		{//set it to my team
 			remote->s.owner = remote->r.ownerNum = ent->s.number;
@@ -1324,7 +1324,7 @@ void SpecialItemThink(gentity_t *ent)
 		return;
 	}
 
-	G_RunExPhys(ent, gravity, mass, bounce, false, NULL, 0);
+	G_RunExPhys(ent, gravity, mass, bounce, false, nullptr, 0);
 	VectorCopy(ent->r.currentOrigin, ent->s.origin);
 	ent->nextthink = level.time + 50;
 }
@@ -1389,7 +1389,7 @@ void G_PrecacheDispensers(void)
 
 void ItemUse_UseDisp(gentity_t *ent, int type)
 {
-	gitem_t *item = NULL;
+	gitem_t *item = nullptr;
 	gentity_t *eItem;
 
 	if (!ent->client ||
@@ -1433,11 +1433,11 @@ void ItemUse_UseDisp(gentity_t *ent, int type)
 
 		G_SpecialSpawnItem(eItem, item);
 
-		AngleVectors(ent->client->ps.viewangles, fwd, NULL, NULL);
+		AngleVectors(ent->client->ps.viewangles, fwd, nullptr, nullptr);
 		VectorScale(fwd, 128.0f, eItem->epVelocity);
 		eItem->epVelocity[2] = 16.0f;
 
-	//	G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_THERMAL_THROW, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+	//	G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_THERMAL_THROW, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 
 		te = G_TempEntity( ent->client->ps.origin, EV_LOCALTIMER );
 		te->s.time = level.time;
@@ -1534,12 +1534,12 @@ void EWebPain(gentity_t *self, gentity_t *attacker, int damage)
 void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 {
 	int *thebone = &ent->s.boneIndex1;
-	int *firstFree = NULL;
+	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
 	int flags, up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
-	vec3_t *freeBoneVec = NULL;
+	vec3_t *freeBoneVec = nullptr;
 
 	while (thebone)
 	{
@@ -1571,8 +1571,8 @@ void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 			boneVector = &ent->s.boneAngles4;
 			break;
 		default:
-			thebone = NULL;
-			boneVector = NULL;
+			thebone = nullptr;
+			boneVector = nullptr;
 			break;
 		}
 
@@ -1622,7 +1622,7 @@ void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 					up,
 					right,
 					forward,
-					NULL,
+					nullptr,
 					100,
 					level.time );
 }
@@ -1664,7 +1664,7 @@ void EWebFire(gentity_t *owner, gentity_t *eweb)
 	}
 
 	//get the muzzle point
-	trap->G2API_GetBoltMatrix(eweb->ghoul2, 0, eweb->genericValue10, &boltMatrix, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, NULL, eweb->modelScale);
+	trap->G2API_GetBoltMatrix(eweb->ghoul2, 0, eweb->genericValue10, &boltMatrix, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, nullptr, eweb->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, p);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, d);
 
@@ -1700,7 +1700,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	vec3_t p, d;
 	trace_t tr;
 
-	trap->G2API_GetBoltMatrix(eweb->ghoul2, 0, eweb->genericValue9, &boltMatrix, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, NULL, eweb->modelScale);
+	trap->G2API_GetBoltMatrix(eweb->ghoul2, 0, eweb->genericValue9, &boltMatrix, eweb->s.apos.trBase, eweb->r.currentOrigin, level.time, nullptr, eweb->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, p);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, d);
 
@@ -1876,7 +1876,7 @@ void EWebThink(gentity_t *self)
 	}
 
 	//run some physics on it real quick so it falls and stuff properly
-	G_RunExPhys(self, gravity, mass, bounce, false, NULL, 0);
+	G_RunExPhys(self, gravity, mass, bounce, false, nullptr, 0);
 
 	self->nextthink = level.time;
 }
@@ -1897,7 +1897,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	VectorSet(maxs, 32, 32, 24);
 
 	VectorSet(fAng, 0, spawner->client->ps.viewangles[1], 0);
-	AngleVectors(fAng, fwd, 0, 0);
+	AngleVectors(fAng, fwd, nullptr, nullptr);
 
 	VectorCopy(spawner->client->ps.origin, s);
 	//allow some fudge
@@ -1910,7 +1910,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	if (tr.allsolid || tr.startsolid || tr.fraction != 1.0f)
 	{ //can't spawn here, we are in solid
 		G_Sound(spawner, CHAN_AUTO, failSound);
-		return NULL;
+		return nullptr;
 	}
 
 	ent = G_Spawn();
@@ -1931,7 +1931,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	{ //didn't hit ground.
 		G_FreeEntity(ent);
 		G_Sound(spawner, CHAN_AUTO, failSound);
-		return NULL;
+		return nullptr;
 	}
 
 	VectorCopy(tr.endpos, pos);
@@ -1972,7 +1972,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	if (!ent->ghoul2)
 	{ //should not happen, but just to be safe.
 		G_FreeEntity(ent);
-		return NULL;
+		return nullptr;
 	}
 
 	//initialize bone angles
@@ -2110,13 +2110,13 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		}
 
 		// if not facing, no sound
-		AngleVectors( client->ps.viewangles, forward, NULL, NULL );
+		AngleVectors( client->ps.viewangles, forward, nullptr, nullptr );
 		if ( DotProduct( delta, forward ) < 0.4 ) {
 			continue;
 		}
 
 		// if not line of sight, no sound
-		trap->Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0 );
+		trap->Trace( &tr, client->ps.origin, nullptr, nullptr, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0 );
 		if ( tr.fraction != 1.0 ) {
 			continue;
 		}
@@ -2478,7 +2478,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	{
 		if ( other->NPC && other->NPC->goalEntity && other->NPC->goalEntity->enemy == ent )
 		{//they were running to pick me up, they did, so clear goal
-			other->NPC->goalEntity = NULL;
+			other->NPC->goalEntity = nullptr;
 			other->NPC->squadState = SQUAD_STAND_AND_SHOOT;
 		}
 	}
@@ -2672,7 +2672,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
-		ent->think = 0;
+		ent->think = nullptr;
 	} else {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
@@ -2782,7 +2782,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	angles[YAW] += angle;
 	angles[PITCH] = 0;	// always forward
 
-	AngleVectors( angles, velocity, NULL, NULL );
+	AngleVectors( angles, velocity, nullptr, nullptr );
 	VectorScale( velocity, 150, velocity );
 	velocity[2] += 200 + Q_flrand(-1.0f, 1.0f) * 50;
 

@@ -300,15 +300,15 @@ public:
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
 	mFlags(0),
-	mTransformedVertsArray(0),
-	mBoneCache(0),
+	mTransformedVertsArray(nullptr),
+	mBoneCache(nullptr),
 	mSkin(0),
 	mValid(false),
-	currentModel(0),
+	currentModel(nullptr),
 	currentModelSize(0),
-	animModel(0),
+	animModel(nullptr),
 	currentAnimModelSize(0),
-	aHeader(0)
+	aHeader(nullptr)
 #ifdef _G2_LISTEN_SERVER_OPT
 	, entityNum(ENTITYNUM_NONE)
 #endif

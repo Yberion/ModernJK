@@ -92,7 +92,7 @@ void ImperialProbe_MaintainHeight( void )
 	}
 	else
 	{
-		gentity_t *goal = NULL;
+		gentity_t *goal = nullptr;
 
 		if ( NPCS.NPCInfo->goalEntity )	// Is there a goal?
 			goal = NPCS.NPCInfo->goalEntity;
@@ -127,7 +127,7 @@ void ImperialProbe_MaintainHeight( void )
 
 		// Stay at a given height until we take on an enemy
 /*		VectorSet( endPos, NPC->r.currentOrigin[0], NPC->r.currentOrigin[1], NPC->r.currentOrigin[2] - 512 );
-		trap->Trace( &trace, NPC->r.currentOrigin, NULL, NULL, endPos, NPC->s.number, MASK_SOLID );
+		trap->Trace( &trace, NPC->r.currentOrigin, nullptr, nullptr, endPos, NPC->s.number, MASK_SOLID );
 
 		if ( trace.fraction != 1.0f )
 		{
@@ -194,14 +194,14 @@ void ImperialProbe_Strafe( void )
 	vec3_t	end, right;
 	trace_t	tr;
 
-	AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
+	AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, nullptr, right, nullptr );
 
 	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, NULL, NULL, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -289,7 +289,7 @@ void ImperialProbe_FireBlaster(void)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				genBolt1,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 
@@ -452,7 +452,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		trace_t	trace;
 
 		VectorSet( endPos, self->r.currentOrigin[0], self->r.currentOrigin[1], self->r.currentOrigin[2] - 128 );
-		trap->Trace( &trace, self->r.currentOrigin, NULL, NULL, endPos, self->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &trace, self->r.currentOrigin, nullptr, nullptr, endPos, self->s.number, MASK_SOLID, false, 0, 0 );
 
 		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) // demp2 always does this
 		{
@@ -578,11 +578,11 @@ void ImperialProbe_Wait(void)
 		NPCS.NPCInfo->desiredYaw = AngleNormalize360( NPCS.NPCInfo->desiredYaw + 25 );
 
 		VectorSet( endPos, NPCS.NPC->r.currentOrigin[0], NPCS.NPC->r.currentOrigin[1], NPCS.NPC->r.currentOrigin[2] - 32 );
-		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, NULL, NULL, endPos, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, nullptr, nullptr, endPos, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
 
 		if ( trace.fraction != 1.0f )
 		{
-			G_Damage(NPCS.NPC, NPCS.NPC->enemy, NPCS.NPC->enemy, NULL, NULL, 2000, 0,MOD_UNKNOWN);
+			G_Damage(NPCS.NPC, NPCS.NPC->enemy, NPCS.NPC->enemy, nullptr, nullptr, 2000, 0,MOD_UNKNOWN);
 		}
 	}
 

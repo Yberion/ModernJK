@@ -66,7 +66,7 @@ surfaceInfo_t *G2_FindOverrideSurface(int surfaceNum, surfaceInfo_v &surfaceList
 		}
 	}
 	// didn't find it.
-	return NULL;
+	return nullptr;
 }
 
 // given a surface name, lets see if it's legal in the model
@@ -85,7 +85,7 @@ int G2_IsSurfaceLegal(void *mod, const char *surfaceName, int *flags)
 			return i;
 		}
 		// find the next surface
-  		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
+  		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surf->numChildren ] ));
 	}
 	return -1;
 }
@@ -97,14 +97,14 @@ int G2_IsSurfaceLegal(void *mod, const char *surfaceName, int *flags)
  *
  * Input
  *    filename of model, surface list of model instance, name of surface, int to be filled in
- * with the index of this surface (defaults to NULL)
+ * with the index of this surface (defaults to nullptr)
  *
  * Output
  *    pointer to surface if successful, false otherwise
  *
  ************************************************************************************************/
 mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName,
-							 int *surfIndex/*NULL*/)
+							 int *surfIndex/*nullptr*/)
 {
 	int						i = 0;
 	// find the model we want
@@ -120,7 +120,7 @@ mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const 
 		{
 			*surfIndex = -1;
 		}
-		return 0;
+		return nullptr;
 	}
 
  	// first find if we already have this surface in the list
@@ -149,7 +149,7 @@ mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const 
 	{
 		*surfIndex = -1;
 	}
-	return 0;
+	return nullptr;
 }
 
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
@@ -238,7 +238,7 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 {
 	model_t				*mod = (model_t *)ghlInfo->currentModel;
 	int					surfIndex = -1;
-	mdxmSurface_t		*surf = 0;
+	mdxmSurface_t		*surf = nullptr;
 
 	// did we find a ghoul 2 model or not?
 	if (!mod->mdxm)
@@ -264,7 +264,7 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 			return surface->flags;
 		}
 		// find the next surface
-  		surface = (mdxmSurfHierarchy_t *)( (byte *)surface + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surface->numChildren ] ));
+  		surface = (mdxmSurfHierarchy_t *)( (byte *)surface + (intptr_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surface->numChildren ] ));
 	}
 
 	assert(0);
@@ -594,9 +594,9 @@ bool G2_RemoveSurface(surfaceInfo_v &slist, const int index)
 int G2_GetParentSurface(CGhoul2Info *ghlInfo, const int index)
 {
 	model_t					*mod = (model_t *)ghlInfo->currentModel;
-	mdxmSurface_t			*surf = 0;
+	mdxmSurface_t			*surf = nullptr;
 	mdxmHierarchyOffsets_t	*surfIndexes = (mdxmHierarchyOffsets_t *)((byte *)mod->mdxm + sizeof(mdxmHeader_t));
-	mdxmSurfHierarchy_t		*surfInfo = 0;
+	mdxmSurfHierarchy_t		*surfInfo = nullptr;
 
 	// walk each surface and see if this index is listed in it's children
 	surf = (mdxmSurface_t *)G2_FindSurface((void *)mod, index, 0);

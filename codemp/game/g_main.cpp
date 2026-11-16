@@ -115,7 +115,7 @@ void G_FindTeams( void ) {
 				// make sure that targets only point at the master
 				if ( e2->targetname ) {
 					e->targetname = e2->targetname;
-					e2->targetname = NULL;
+					e2->targetname = nullptr;
 				}
 			}
 		}
@@ -413,7 +413,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	if ( level.gametype == GT_JEDIMASTER ) {
-		gentity_t *ent = NULL;
+		gentity_t *ent = nullptr;
 		int i=0;
 		for ( i=0, ent=g_entities; i<level.num_entities; i++, ent++ ) {
 			if ( ent->isSaberEntity )
@@ -461,7 +461,7 @@ void G_ShutdownGame( int restart ) {
 		if (ent->ghoul2 && trap->G2API_HaveWeGhoul2Models(ent->ghoul2))
 		{
 			trap->G2API_CleanGhoul2Models(&ent->ghoul2);
-			ent->ghoul2 = NULL;
+			ent->ghoul2 = nullptr;
 		}
 		if (ent->client)
 		{
@@ -481,12 +481,12 @@ void G_ShutdownGame( int restart ) {
 	if (g2SaberInstance && trap->G2API_HaveWeGhoul2Models(g2SaberInstance))
 	{
 		trap->G2API_CleanGhoul2Models(&g2SaberInstance);
-		g2SaberInstance = NULL;
+		g2SaberInstance = nullptr;
 	}
 	if (precachedKyle && trap->G2API_HaveWeGhoul2Models(precachedKyle))
 	{
 		trap->G2API_CleanGhoul2Models(&precachedKyle);
-		precachedKyle = NULL;
+		precachedKyle = nullptr;
 	}
 
 //	Com_Printf ("... ICARUS_Shutdown\n");
@@ -552,7 +552,7 @@ void AddTournamentPlayer( void ) {
 //		return;
 //	}
 
-	nextInLine = NULL;
+	nextInLine = nullptr;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
@@ -677,7 +677,7 @@ void AddPowerDuelPlayers( void )
 		return;
 	}
 
-	nextInLine = NULL;
+	nextInLine = nullptr;
 
 	G_PowerDuelCount(&nonspecLoners, &nonspecDoubles, false);
 	if (nonspecLoners >= 1 && nonspecDoubles >= 2)
@@ -1036,7 +1036,7 @@ bool g_noPDuelCheck = false;
 void G_ResetDuelists(void)
 {
 	int i;
-	gentity_t *ent = NULL;
+	gentity_t *ent = nullptr;
 
 	i = 0;
 	while (i < 3)
@@ -1282,7 +1282,7 @@ extern bool	gSiegeRoundBegun;
 extern bool	gSiegeRoundEnded;
 extern int	gSiegeRoundWinningTeam;
 void FindIntermissionPoint( void ) {
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 	gentity_t	*target;
 	vec3_t		dir;
 
@@ -1294,7 +1294,7 @@ void FindIntermissionPoint( void ) {
 	{
 	   	if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM1)
 		{
-			ent = G_Find (NULL, FOFS(classname), "info_player_intermission_red");
+			ent = G_Find (nullptr, FOFS(classname), "info_player_intermission_red");
 			if ( ent && ent->target2 )
 			{
 				G_UseTargets2( ent, ent, ent->target2 );
@@ -1302,7 +1302,7 @@ void FindIntermissionPoint( void ) {
 		}
 	   	else if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM2)
 		{
-			ent = G_Find (NULL, FOFS(classname), "info_player_intermission_blue");
+			ent = G_Find (nullptr, FOFS(classname), "info_player_intermission_blue");
 			if ( ent && ent->target2 )
 			{
 				G_UseTargets2( ent, ent, ent->target2 );
@@ -1311,7 +1311,7 @@ void FindIntermissionPoint( void ) {
 	}
 	if ( !ent )
 	{
-		ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
+		ent = G_Find (nullptr, FOFS(classname), "info_player_intermission");
 	}
 	if ( !ent ) {	// the map creator forgot to put in an intermission point...
 		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, TEAM_SPECTATOR, false );
@@ -1444,7 +1444,7 @@ void ExitLevel (void) {
 			if ( !level.restarted ) {
 				trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 				level.restarted = true;
-				level.changemap = NULL;
+				level.changemap = nullptr;
 				level.intermissiontime = 0;
 			}
 			return;
@@ -1464,7 +1464,7 @@ void ExitLevel (void) {
 	{
 		trap->SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
 	}
-	level.changemap = NULL;
+	level.changemap = nullptr;
 	level.intermissiontime = 0;
 
 	if (level.gametype == GT_SIEGE &&
@@ -2846,7 +2846,7 @@ runicarus:
 	if ( ent->inuse )
 	{
 		SaveNPCGlobals();
-		if(NPCS.NPCInfo == NULL && ent->NPC != NULL)
+		if(NPCS.NPCInfo == nullptr && ent->NPC != nullptr)
 		{
 			SetNPCGlobals( ent );
 		}
@@ -3140,7 +3140,7 @@ void G_RunFrame( int levelTime ) {
 				float mass = 0.14f;
 				float bounce = 1.15f;
 
-				G_RunExPhys(ent, grav, mass, bounce, false, NULL, 0);
+				G_RunExPhys(ent, grav, mass, bounce, false, nullptr, 0);
 			}
 			else
 			{
@@ -3196,7 +3196,7 @@ void G_RunFrame( int levelTime ) {
 						{ //suffocate!
 							if (ent->health > 0 && ent->takedamage)
 							{ //if they're still alive..
-								G_Damage(ent, spacetrigger, spacetrigger, NULL, ent->client->ps.origin, Q_irand(50, 70), DAMAGE_NO_ARMOR, MOD_SUICIDE);
+								G_Damage(ent, spacetrigger, spacetrigger, nullptr, ent->client->ps.origin, Q_irand(50, 70), DAMAGE_NO_ARMOR, MOD_SUICIDE);
 
 								if (ent->health > 0)
 								{ //did that last one kill them?
@@ -3224,7 +3224,7 @@ void G_RunFrame( int levelTime ) {
 					//keep him in the "use" anim
 					if (ent->client->ps.torsoAnim != BOTH_CONSOLE1)
 					{
-						G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+						G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 					}
 					else
 					{
@@ -3501,7 +3501,7 @@ static bool G_ICARUS_Set( void ) {
 }
 static void G_ICARUS_Lerp2Pos( void ) {
 	T_G_ICARUS_LERP2POS *sharedMem = &gSharedBuffer.lerp2Pos;
-	Q3_Lerp2Pos( sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->nullAngles ? NULL : sharedMem->angles, sharedMem->duration );
+	Q3_Lerp2Pos( sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->nullAngles ? nullptr : sharedMem->angles, sharedMem->duration );
 }
 static void G_ICARUS_Lerp2Origin( void ) {
 	T_G_ICARUS_LERP2ORIGIN *sharedMem = &gSharedBuffer.lerp2Origin;
@@ -3549,7 +3549,7 @@ static int G_ICARUS_GetVector( void ) {
 }
 static int G_ICARUS_GetString( void ) {
 	T_G_ICARUS_GETSTRING *sharedMem = &gSharedBuffer.getString;
-	const char *crap = NULL; //I am sorry for this -rww
+	const char *crap = nullptr; //I am sorry for this -rww
 	const char **morecrap = &crap; //and this
 	int r = Q3_GetString( sharedMem->entID, sharedMem->type, sharedMem->name, morecrap );
 
@@ -3582,11 +3582,11 @@ GetModuleAPI
 ============
 */
 
-gameImport_t *trap = NULL;
+gameImport_t *trap = nullptr;
 
 extern "C" Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import )
 {
-	static gameExport_t ge = {0};
+	static gameExport_t ge = {nullptr};
 
 	assert( import );
 	trap = import;
@@ -3597,7 +3597,7 @@ extern "C" Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport
 
 	if ( apiVersion != GAME_API_VERSION ) {
 		trap->Print( "Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	ge.InitGame							= G_InitGame;
@@ -3668,7 +3668,7 @@ extern "C" Q_EXPORT intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, 
 		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
 
 	case GAME_CLIENT_THINK:
-		ClientThink( arg0, NULL );
+		ClientThink( arg0, nullptr );
 		return 0;
 
 	case GAME_CLIENT_USERINFO_CHANGED:

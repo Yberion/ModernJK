@@ -335,7 +335,7 @@ void ThrowSaberToAttacker(gentity_t *self, gentity_t *attacker)
 	ent->s.eFlags &= ~(EF_NODRAW);
 	ent->s.modelGhoul2 = 1;
 	ent->s.eType = ET_MISSILE;
-	ent->enemy = NULL;
+	ent->enemy = nullptr;
 
 	if (!attacker || !attacker->client)
 	{
@@ -380,7 +380,7 @@ void JMSaberThink(gentity_t *ent)
 			ent->s.eFlags &= ~(EF_NODRAW);
 			ent->s.modelGhoul2 = 1;
 			ent->s.eType = ET_MISSILE;
-			ent->enemy = NULL;
+			ent->enemy = nullptr;
 
 			ent->pos2[0] = 1;
 			ent->pos2[1] = 0; //respawn next think
@@ -491,7 +491,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	return;
 }
 
-gentity_t *gJMSaberEnt = NULL;
+gentity_t *gJMSaberEnt = nullptr;
 
 /*QUAKED info_jedimaster_start (1 0 0) (-16 -16 -24) (16 16 32)
 "jedi master" saber spawn point
@@ -500,12 +500,12 @@ void SP_info_jedimaster_start(gentity_t *ent)
 {
 	if (level.gametype != GT_JEDIMASTER)
 	{
-		gJMSaberEnt = NULL;
+		gJMSaberEnt = nullptr;
 		G_FreeEntity(ent);
 		return;
 	}
 
-	ent->enemy = NULL;
+	ent->enemy = nullptr;
 
 	ent->flags = FL_BOUNCE_HALF;
 
@@ -617,10 +617,10 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
 	gentity_t	*nearestSpot;
 
 	nearestDist = 999999;
-	nearestSpot = NULL;
-	spot = NULL;
+	nearestSpot = nullptr;
+	spot = nullptr;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != nullptr) {
 
 		VectorSubtract( spot->s.origin, from, delta );
 		dist = VectorLength( delta );
@@ -649,9 +649,9 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 	gentity_t	*spots[MAX_SPAWN_POINTS];
 
 	count = 0;
-	spot = NULL;
+	spot = nullptr;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL && count < MAX_SPAWN_POINTS) {
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != nullptr && count < MAX_SPAWN_POINTS) {
 		if ( SpotWouldTelefrag( spot ) ) {
 			continue;
 		}
@@ -668,7 +668,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 	}
 
 	if ( !count ) {	// no spots that won't telefrag
-		return G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+		return G_Find( nullptr, FOFS(classname), "info_player_deathmatch");
 	}
 
 	selection = Q_irand( 0, count - 1 );
@@ -691,14 +691,14 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	int			numSpots, rnd, i, j;
 
 	numSpots = 0;
-	spot = NULL;
+	spot = nullptr;
 
 	//in Team DM, look for a team start spot first, if any
 	if ( level.gametype == GT_TEAM
 		&& team != TEAM_FREE
 		&& team != TEAM_SPECTATOR )
 	{
-		const char *classname = NULL;
+		const char *classname = nullptr;
 		if ( team == TEAM_RED )
 		{
 			classname = "info_player_start_red";
@@ -707,7 +707,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 		{
 			classname = "info_player_start_blue";
 		}
-		while ((spot = G_Find (spot, FOFS(classname), classname)) != NULL) {
+		while ((spot = G_Find (spot, FOFS(classname), classname)) != nullptr) {
 			if ( SpotWouldTelefrag( spot ) ) {
 				continue;
 			}
@@ -745,7 +745,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
 	if ( !numSpots )
 	{//couldn't find any of the above
-		while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+		while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != nullptr) {
 			if ( SpotWouldTelefrag( spot ) ) {
 				continue;
 			}
@@ -780,7 +780,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			}
 		}
 		if (!numSpots) {
-			spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+			spot = G_Find( nullptr, FOFS(classname), "info_player_deathmatch");
 			if (!spot)
 				trap->Error( ERR_DROP, "Couldn't find a spawn point" );
 			VectorCopy (spot->s.origin, origin);
@@ -829,9 +829,9 @@ gentity_t *SelectDuelSpawnPoint( int team, vec3_t avoidPoint, vec3_t origin, vec
 tryAgain:
 
 	numSpots = 0;
-	spot = NULL;
+	spot = nullptr;
 
-	while ((spot = G_Find (spot, FOFS(classname), spotName)) != NULL) {
+	while ((spot = G_Find (spot, FOFS(classname), spotName)) != nullptr) {
 		if ( SpotWouldTelefrag( spot ) ) {
 			continue;
 		}
@@ -874,7 +874,7 @@ tryAgain:
 		}
 
 		//If we got here we found no free duel or DM spots, just try the first DM spot
-		spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
+		spot = G_Find( nullptr, FOFS(classname), "info_player_deathmatch");
 		if (!spot)
 			trap->Error( ERR_DROP, "Couldn't find a spawn point" );
 		VectorCopy (spot->s.origin, origin);
@@ -943,8 +943,8 @@ use normal spawn selection.
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_t team, bool isbot ) {
 	gentity_t	*spot;
 
-	spot = NULL;
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	spot = nullptr;
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != nullptr) {
 		if(((spot->flags & FL_NO_BOTS) && isbot) ||
 		   ((spot->flags & FL_NO_HUMANS) && !isbot))
 		{
@@ -979,7 +979,7 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 	VectorCopy( level.intermission_origin, origin );
 	VectorCopy( level.intermission_angle, angles );
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1553,7 +1553,7 @@ animated and rendered by the system.  The final is the game ghoul2 model.  This 
 is used for determining where the lightsaber should be, and for per-poly collision tests.
 ===========
 */
-void *g2SaberInstance = NULL;
+void *g2SaberInstance = nullptr;
 
 bool BG_IsValidCharacterModel(const char *modelName, const char *skinName);
 bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
@@ -1686,7 +1686,7 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 							ent->client->ps.customRGBA[2] = colorOverride[2]*255.0f;
 						}
 
-						//BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, NULL );
+						//BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, nullptr );
 					}
 					else if (level.gametype == GT_SIEGE)
 					{ //force skin for class if appropriate
@@ -1728,7 +1728,7 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 				{
 					trap->G2API_CleanGhoul2Models(&(ent->ghoul2));
 				}
-				ent->ghoul2 = NULL;
+				ent->ghoul2 = nullptr;
 				trap->G2API_DuplicateGhoul2Instance(precachedKyle, &ent->ghoul2);
 			}
 			else
@@ -1741,7 +1741,7 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 				if (!GLAName[0] || (!strstr(GLAName, "players/_humanoid/") && ent->s.number < MAX_CLIENTS && !G_PlayerHasCustomSkeleton(ent)))
 				{ //a bad model
 					trap->G2API_CleanGhoul2Models(&(ent->ghoul2));
-					ent->ghoul2 = NULL;
+					ent->ghoul2 = nullptr;
 					trap->G2API_DuplicateGhoul2Instance(precachedKyle, &ent->ghoul2);
 				}
 
@@ -1808,7 +1808,7 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 			{
 				strcpy(slash, "/animation.cfg");
 
-				ent->localAnimIndex = BG_ParseAnimationFile(GLAName, NULL, false);
+				ent->localAnimIndex = BG_ParseAnimationFile(GLAName, nullptr, false);
 			}
 		}
 		else
@@ -1903,8 +1903,8 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 		trap->G2API_AddBolt(ent->ghoul2, 0, "*l_hand_cap_l_arm");
 
 		trap->G2API_SetBoneAnim(ent->ghoul2, 0, "model_root", 0, 12, BONE_ANIM_OVERRIDE_LOOP, 1.0f, level.time, -1, -1);
-		trap->G2API_SetBoneAngles(ent->ghoul2, 0, "upper_lumbar", tempVec, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, level.time);
-		trap->G2API_SetBoneAngles(ent->ghoul2, 0, "cranium", tempVec, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, POSITIVE_X, NULL, 0, level.time);
+		trap->G2API_SetBoneAngles(ent->ghoul2, 0, "upper_lumbar", tempVec, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr, 0, level.time);
+		trap->G2API_SetBoneAngles(ent->ghoul2, 0, "cranium", tempVec, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, POSITIVE_X, nullptr, 0, level.time);
 
 		if (!g2SaberInstance)
 		{
@@ -2027,7 +2027,7 @@ void Svcmd_ToggleUserinfoValidation_f( void ) {
 const char *G_ValidateUserinfo( const char *userinfo ) {
 	unsigned int		i=0, count=0;
 	size_t				length = strlen( userinfo );
-	userinfoValidate_t	*info = NULL;
+	userinfoValidate_t	*info = nullptr;
 	char				key[BIG_INFO_KEY], value[BIG_INFO_VALUE];
 	const char			*s;
 	unsigned int		fieldCount[ARRAY_LEN( userinfoFields )];
@@ -2101,15 +2101,15 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent = g_entities + clientNum;
 	gclient_t *client = ent->client;
 	int team=TEAM_FREE, health=100, maxHealth=100, teamLeader;
-	const char *s=NULL;
-	const char *value=NULL;
+	const char *s=nullptr;
+	const char *value=nullptr;
 	char userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
 		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], className[MAX_QPATH], color1[16], color2[16];
 	bool modelChanged = false;
@@ -2350,10 +2350,10 @@ bool ClientUserinfoChanged( int clientNum ) {
 	if ( modelChanged ) {
 		// update the server g2 instance if appropriate
 		const char *modelname = Info_ValueForKey( userinfo, "model" );
-		SetupGameGhoul2Model( ent, modelname, NULL );
+		SetupGameGhoul2Model( ent, modelname, nullptr );
 
 		if ( ent->ghoul2 && ent->client )
-			ent->client->renderInfo.lastG2 = NULL; //update the renderinfo bolts next update.
+			ent->client->renderInfo.lastG2 = nullptr; //update the renderinfo bolts next update.
 
 		client->torsoAnimExecute = client->legsAnimExecute = -1;
 		client->torsoLastFlip = client->legsLastFlip = false;
@@ -2379,7 +2379,7 @@ Called again for every map change or tournament restart.
 
 The session information will be valid after exit.
 
-Return NULL if the client should be allowed, otherwise return
+Return nullptr if the client should be allowed, otherwise return
 a string with the reason for denial.
 
 Otherwise, the client will be sent the current gamestate
@@ -2406,8 +2406,8 @@ static bool CompareIPs( const char *ip1, const char *ip2 )
 }
 
 const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
-	const char		*value = NULL;
-	gentity_t	*ent = NULL, *te = NULL;
+	const char		*value = nullptr;
+	gentity_t	*ent = nullptr, *te = nullptr;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING] = {0},
 				tmpIP[NET_ADDRSTRMAXLEN] = {0},
@@ -2576,9 +2576,9 @@ const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 	// for statistics
 //	client->areabits = areabits;
 //	if ( !client->areabits )
-//		client->areabits = G_Alloc( (trap->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
+//		client->areabits = G_Alloc( (trap->AAS_PointReachabilityAreaIndex( nullptr ) + 7) / 8 );
 
-	return NULL;
+	return nullptr;
 }
 
 void G_WriteClientSessionData( gclient_t *client );
@@ -2656,8 +2656,8 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 		trap->UnlinkEntity( (sharedEntity_t *)ent );
 	}
 	G_InitGentity( ent );
-	ent->touch = 0;
-	ent->pain = 0;
+	ent->touch = nullptr;
+	ent->pain = nullptr;
 	ent->client = client;
 
 	//assign the pointer for bg entity access
@@ -2713,10 +2713,10 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 	// First time model setup for that player.
 	trap->GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 	modelname = Info_ValueForKey (userinfo, "model");
-	SetupGameGhoul2Model(ent, modelname, NULL);
+	SetupGameGhoul2Model(ent, modelname, nullptr);
 
 	if ( ent->ghoul2 && ent->client )
-		ent->client->renderInfo.lastG2 = NULL; //update the renderinfo bolts next update.
+		ent->client->renderInfo.lastG2 = nullptr; //update the renderinfo bolts next update.
 
 	if ( level.gametype == GT_POWERDUEL && client->sess.sessionTeam != TEAM_SPECTATOR && client->sess.duelTeam == DUELTEAM_FREE )
 		SetTeam( ent, "s" );
@@ -3040,7 +3040,7 @@ tryTorso:
 		}
 		else if (self->client->brokenLimbs)
 		{ //remove the bone now so it can be set again
-			char *brokenBone = NULL;
+			char *brokenBone = nullptr;
 			int broken = 0;
 
 			//Warning: Don't remove bones that you've added as bolts unless you want to invalidate your bolt index
@@ -3086,8 +3086,8 @@ extern bool WP_HasForcePowers( const playerState_t *ps );
 void ClientSpawn(gentity_t *ent) {
 	int					i = 0, index = 0, saveSaberNum = ENTITYNUM_NONE, wDisable = 0, savedSiegeIndex = 0, maxHealth = 100;
 	vec3_t				spawn_origin, spawn_angles;
-	gentity_t			*spawnPoint = NULL, *tent = NULL;
-	gclient_t			*client = NULL;
+	gentity_t			*spawnPoint = nullptr, *tent = nullptr;
+	gclient_t			*client = nullptr;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	forcedata_t			savedForce;
@@ -3095,8 +3095,8 @@ void ClientSpawn(gentity_t *ent) {
 	int					persistant[MAX_PERSISTANT] = {0};
 	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
 	void				*g2WeaponPtrs[MAX_SABERS];
-	char				userinfo[MAX_INFO_STRING] = {0}, *key = NULL, *saber = NULL;
-	const char			*value = NULL;
+	char				userinfo[MAX_INFO_STRING] = {0}, *key = nullptr, *saber = nullptr;
+	const char			*value = nullptr;
 	bool			changedSaber = false, inSiegeWithClass = false;
 
 	index = ent - g_entities;
@@ -3756,11 +3756,11 @@ void ClientSpawn(gentity_t *ent) {
 
 			if (client->ps.weapon == WP_SABER)
 			{
-				G_SetAnim(ent, NULL, SETANIM_BOTH, BOTH_STAND1TO2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
+				G_SetAnim(ent, nullptr, SETANIM_BOTH, BOTH_STAND1TO2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
 			}
 			else
 			{
-				G_SetAnim(ent, NULL, SETANIM_TORSO, TORSO_RAISEWEAP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
+				G_SetAnim(ent, nullptr, SETANIM_TORSO, TORSO_RAISEWEAP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
 				client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
 			}
 			client->ps.weaponstate = WEAPON_RAISING;
@@ -3823,7 +3823,7 @@ void ClientSpawn(gentity_t *ent) {
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
-	ClientThink( ent-g_entities, NULL );
+	ClientThink( ent-g_entities, nullptr );
 
 	// run the presend to set anything else, follow spectators wait
 	// until all clients have been reconnected after map_restart
@@ -3980,7 +3980,7 @@ void ClientDisconnect( int clientNum ) {
 	if ( level.gametype == GT_DUEL && ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime ) {
 		trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 		level.restarted = true;
-		level.changemap = NULL;
+		level.changemap = nullptr;
 		level.intermissiontime = 0;
 	}
 

@@ -90,7 +90,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define BASE_SAVE_COMPAT // this is defined to disable/fix some changes that break save compatibility
 
-#define VALIDSTRING( a )	( ( a != NULL ) && ( a[0] != '\0' ) )
+#define VALIDSTRING( a )	( ( a != nullptr ) && ( a[0] != '\0' ) )
 
 //JAC: Added
 #define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
@@ -166,11 +166,6 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 #define QALIGN(x) __attribute__((aligned(x)))
 #else
 #define QALIGN(x)
-#endif
-
-#ifndef NULL
-// NOTE: This is all c++ so casting to void * is wrong
-#define NULL ((void *)0)
 #endif
 
 #define INT_ID( a, b, c, d ) (uint32_t)((((a) & 0xff) << 24) | (((b) & 0xff) << 16) | (((c) & 0xff) << 8) | ((d) & 0xff))

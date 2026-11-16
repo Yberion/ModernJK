@@ -134,7 +134,7 @@ extern gentity_t *NPC_PickAlly ( bool facingEachOther, float range, bool ignoreG
 extern void NPC_LostEnemyDecideChase(void);
 extern float NPC_MaxDistSquaredForWeapon( void );
 extern bool NPC_EvaluateShot( int hit, bool glassOK );
-extern int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos ); //impactedPos = NULL
+extern int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos ); //impactedPos = nullptr
 
 //NPC_formation
 extern bool NPC_SlideMoveToGoal (void);
@@ -295,7 +295,7 @@ extern void ClearPlayerAlertEvents( void );
 extern bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
 extern bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int radius, bool flying );
 
-extern void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, int combatPoint, gentity_t *targetEnt ); //isNavGoal = false, combatPoint = -1, targetEnt = NULL
+extern void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, int combatPoint, gentity_t *targetEnt ); //isNavGoal = false, combatPoint = -1, targetEnt = nullptr
 
 extern bool NAV_ClearPathToPoint(gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt );
 extern void NPC_ApplyWeaponFireDelay(void);

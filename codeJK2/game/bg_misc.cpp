@@ -211,7 +211,7 @@ gitem_t	*FindItemForWeapon( weapon_t weapon ) {
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
-	return NULL;
+	return nullptr;
 }
 
 //----------------------------------------------
@@ -235,7 +235,7 @@ gitem_t	*FindItemForInventory( int inv )
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for inventory %i", inv );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -257,7 +257,7 @@ gitem_t	*FindItemForAmmo( ammo_t ammo )
 	}
 
 	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", ammo );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -274,7 +274,7 @@ gitem_t	*FindItem( const char *className ) {
 			return &bg_itemlist[i];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -626,7 +626,7 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s ) {
 		float		side;
 		float		value;
 
-		AngleVectors( ps->viewangles, NULL, right, NULL );
+		AngleVectors( ps->viewangles, nullptr, right, nullptr );
 
 		side = DotProduct (ps->velocity, right);
 		sign = side < 0 ? -1 : 1;

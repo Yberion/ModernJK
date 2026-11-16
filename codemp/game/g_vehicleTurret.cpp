@@ -223,7 +223,7 @@ static bool VEH_TurretFindEnemies( Vehicle_t *pVeh,
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
 	bool	foundClient = false;
-	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = NULL;
+	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = nullptr;
 
 	WP_CalcVehMuzzle( parent, curMuzzle );
 	VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], org2 );
@@ -296,7 +296,7 @@ static bool VEH_TurretFindEnemies( Vehicle_t *pVeh,
 
 		VectorCopy( target->r.currentOrigin, org );
 
-		trap->Trace( &tr, org2, NULL, NULL, org, parent->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, parent->s.number, MASK_SHOT, false, 0, 0 );
 
 		if ( tr.entityNum == target->s.number
 			|| (!tr.allsolid && !tr.startsolid && tr.fraction == 1.0 ) )
@@ -338,7 +338,7 @@ void VEH_TurretObeyPassengerControl( Vehicle_t *pVeh, gentity_t *parent, int tur
 		vec3_t aimAngles;
 		VectorCopy( passenger->client->ps.viewangles, aimAngles );
 
-		VEH_TurretAim( pVeh, parent, NULL, turretStats, vehWeapon, turretNum, curMuzzle, aimAngles );
+		VEH_TurretAim( pVeh, parent, nullptr, turretStats, vehWeapon, turretNum, curMuzzle, aimAngles );
 		if ( (passenger->client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//he's pressing an attack button, so fire!
 			VEH_TurretCheckFire( pVeh, parent, turretStats, vehWeapon, turretNum, curMuzzle );
@@ -353,8 +353,8 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 	float		enemyDist, rangeSq;
 	vec3_t		enemyDir;
 	turretStats_t *turretStats = &pVeh->m_pVehicleInfo->turret[turretNum];
-	vehWeaponInfo_t	*vehWeapon = NULL;
-	gentity_t	*turretEnemy = NULL;
+	vehWeaponInfo_t	*vehWeapon = nullptr;
+	gentity_t	*turretEnemy = nullptr;
 	int			curMuzzle = 0;//?
 
 
@@ -389,7 +389,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 			|| ( turretEnemy->client && turretEnemy->client->sess.sessionTeam == TEAM_SPECTATOR )
 			|| ( turretEnemy->client && turretEnemy->client->tempSpectate >= level.time ) )
 		{//don't keep going after spectators, pilot, self, dead people, etc.
-			turretEnemy = NULL;
+			turretEnemy = nullptr;
 			pVeh->turretStatus[turretNum].enemyEntNum = ENTITYNUM_NONE;
 		}
 	}
@@ -418,7 +418,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 			}
 		}
 	}
-	if ( turretEnemy != NULL )
+	if ( turretEnemy != nullptr )
 	{
 		if ( turretEnemy->health > 0 )
 		{
@@ -438,7 +438,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 					VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], start );
 
 					VectorCopy( turretEnemy->r.currentOrigin, end );
-					trap->Trace( &tr, start, NULL, NULL, end, parent->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace( &tr, start, nullptr, nullptr, end, parent->s.number, MASK_SHOT, false, 0, 0 );
 
 					if ( tr.entityNum == turretEnemy->s.number
 						|| (!tr.allsolid && !tr.startsolid ) )

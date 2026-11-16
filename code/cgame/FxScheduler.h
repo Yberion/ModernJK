@@ -408,7 +408,7 @@ public:
 	{
 		if ( numFree == 0 )
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		T *ptr = new (&pool[freeAndAllocated[0]]) T;
@@ -430,8 +430,8 @@ public:
 
 		highWatermark = 0;
 		numFree = N;
-		freeAndAllocated = NULL;
-		pool = NULL;
+		freeAndAllocated = nullptr;
+		pool = nullptr;
 	}
 
 	bool OwnsPtr ( const T *ptr ) const
@@ -501,13 +501,13 @@ class PagedPoolAllocator
 
 		T *Alloc ()
 		{
-			T *ptr = NULL;
-			for ( int i = 0; i < numPages && ptr == NULL; i++ )
+			T *ptr = nullptr;
+			for ( int i = 0; i < numPages && ptr == nullptr; i++ )
 			{
 				ptr = pages[i].Alloc ();
 			}
 
-			if ( ptr == NULL )
+			if ( ptr == nullptr )
 			{
 				PoolAllocator<T, N> *newPages = new PoolAllocator<T, N>[numPages + 1] ();
 				for ( int i = 0; i < numPages; i++ )
@@ -519,9 +519,9 @@ class PagedPoolAllocator
 				pages = newPages;
 
 				ptr = pages[numPages].Alloc ();
-				if ( ptr == NULL )
+				if ( ptr == nullptr )
 				{
-					return NULL;
+					return nullptr;
 				}
 
 				numPages++;

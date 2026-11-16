@@ -510,7 +510,7 @@ int		spl;
 				index += 5;
 				break;
 		}
-	} while ( status[index] != NULL );
+	} while ( status[index] != nullptr );
 }
 
 /******************************************************************************
@@ -987,7 +987,7 @@ static void setupQuad( long xOff, long yOff )
 		for(x=0;x<(long)cinTable[currentHandle].xsize;x+=16)
 			recurseQuad( x, y, 16, xOff, yOff );
 
-	temp = NULL;
+	temp = nullptr;
 
 	for(i=(numQuadCels-64);i<numQuadCels;i++) {
 		cin.qStatus[0][i] = temp;			  // eoq
@@ -1098,7 +1098,7 @@ static void initRoQ( void )
 static byte* RoQFetchInterlaced( byte *source ) {
 	int x, *src, *dst;
 
-	if (currentHandle < 0) return NULL;
+	if (currentHandle < 0) return nullptr;
 
 	src = (int *)source;
 	dst = (int *)cinTable[currentHandle].buf2;
@@ -1475,13 +1475,13 @@ CL_PlayCinematic
 
 ==================
 */
-int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits, const char *psAudioFile /* = NULL */ )
+int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits, const char *psAudioFile /* = nullptr */ )
 {
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
 	int		i;
 
-	if (strstr(arg, "/") == NULL && strstr(arg, "\\") == NULL) {
+	if (strstr(arg, "/") == nullptr && strstr(arg, "\\") == nullptr) {
 		Com_sprintf (name, sizeof(name), "video/%s", arg);
 	} else {
 		Com_sprintf (name, sizeof(name), "%s", arg);
@@ -1838,7 +1838,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 	Com_DPrintf("CL_PlayCinematic_f\n");
 
 	char sTemp[1024];
-	if (strstr(arg, "/") == NULL && strstr(arg, "\\") == NULL) {
+	if (strstr(arg, "/") == nullptr && strstr(arg, "\\") == nullptr) {
 		Com_sprintf (sTemp, sizeof(sTemp), "video/%s", arg);
 	} else {
 		Com_sprintf (sTemp, sizeof(sTemp), "%s", arg);
@@ -1878,7 +1878,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 		//
 		extern cvar_t *s_language;
 		bool	bIsForeign	= (s_language && Q_stricmp(s_language->string,"english") && Q_stricmp(s_language->string,""));
-		const char *psAudioFile	= NULL;
+		const char *psAudioFile	= nullptr;
 		qhandle_t	hCrawl = 0;
 		if (!Q_stricmp(arg,"video/jk0101_sw.roq"))
 		{
@@ -1925,7 +1925,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 			{
 				SCR_RunCinematic();
 			}
-			while (cinTable[currentHandle].buf == NULL && cinTable[currentHandle].status == FMV_PLAY);		// wait for first frame (load codebook and sound)
+			while (cinTable[currentHandle].buf == nullptr && cinTable[currentHandle].status == FMV_PLAY);		// wait for first frame (load codebook and sound)
 
 			if (qbInGame)
 			{
@@ -1970,7 +1970,7 @@ bool CL_CheckPendingCinematic(void)
 	if ( gbPendingCinematic && CIN_HardwareReadyToPlayVideos() )
 	{
 		gbPendingCinematic = false;	// BEFORE next line, or we get recursion
-		PlayCinematic(sPendingCinematic_Arg,sPendingCinematic_s[0]?sPendingCinematic_s:NULL,false);
+		PlayCinematic(sPendingCinematic_Arg,sPendingCinematic_s[0]?sPendingCinematic_s:nullptr,false);
 		return true;
 	}
 	return false;
@@ -2000,7 +2000,7 @@ void CL_PlayInGameCinematic_f(void)
 	const char *arg = Cmd_Argv( 1 );
 	if (cls.state == CA_ACTIVE)
 	{
-		PlayCinematic(arg,NULL,true);
+		PlayCinematic(arg,nullptr,true);
 	}
 	else if( !qbInGameCinematicOnStandBy )
 	{
@@ -2022,11 +2022,11 @@ void SCR_DrawCinematic (void)
 {
 	if (CL_InGameCinematicOnStandBy())
 	{
-		PlayCinematic(sInGameCinematicStandingBy,NULL,true);
+		PlayCinematic(sInGameCinematicStandingBy,nullptr,true);
 	}
 	else if( qbTextCrawlFixed && stopCinematicCallCount > 1)
 	{
-		PlayCinematic(sTextCrawlFixedCinematic, NULL, true);
+		PlayCinematic(sTextCrawlFixedCinematic, nullptr, true);
 	}
 
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {

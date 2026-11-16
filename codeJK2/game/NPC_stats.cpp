@@ -357,7 +357,7 @@ bool G_ParseAnimationFile( const char *af_filename )
 	int			animNum;
 	animation_t	*animations = level.knownAnimFileSets[level.numKnownAnimFileSets].animations;
 
-	len = gi.RE_GetAnimationCFG(af_filename, NULL, 0);
+	len = gi.RE_GetAnimationCFG(af_filename, nullptr, 0);
 	if (len <= 0)
 	{
 		return false;
@@ -519,7 +519,7 @@ void G_LoadAnimFileSet( gentity_t *ent, const char *modelName )
 //load its animation config
 	char	animName[MAX_QPATH];
 	char	*GLAName;
-	char	*slash = NULL;
+	char	*slash = nullptr;
 	const char	*strippedName;
 
 	if ( ent->playerModel == -1 )
@@ -638,7 +638,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 			}
 			char	animName[MAX_QPATH];
 			char	*GLAName;
-			char	*slash = NULL;
+			char	*slash = nullptr;
 			char	*strippedName;
 
 			int handle = gi.G2API_PrecacheGhoul2Model( va( "models/players/%s/model.glm", value ) );
@@ -1071,7 +1071,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	char	customSkin[MAX_QPATH];
 	clientInfo_t	*ci = &NPC->client->clientInfo;
 	renderInfo_t	*ri = &NPC->client->renderInfo;
-	gNPCstats_t		*stats = NULL;
+	gNPCstats_t		*stats = nullptr;
 	bool	md3Model = true;
 	char	surfOff[1024];
 	char	surfOn[1024];
@@ -1118,7 +1118,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	}
 	else
 	{
-		stats = NULL;
+		stats = nullptr;
 	}
 
 	Q_strncpyz( ci->name, NPCName, sizeof( ci->name ) );

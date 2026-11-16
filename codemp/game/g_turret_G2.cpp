@@ -46,12 +46,12 @@ void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 void G2Tur_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 {
 	int *thebone = &ent->s.boneIndex1;
-	int *firstFree = NULL;
+	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
 	int flags, up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
-	vec3_t *freeBoneVec = NULL;
+	vec3_t *freeBoneVec = nullptr;
 
 	while (thebone)
 	{
@@ -83,8 +83,8 @@ void G2Tur_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 			boneVector = &ent->s.boneAngles4;
 			break;
 		default:
-			thebone = NULL;
-			boneVector = NULL;
+			thebone = nullptr;
+			boneVector = nullptr;
 			break;
 		}
 
@@ -134,7 +134,7 @@ void G2Tur_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 					up,
 					right,
 					forward,
-					NULL,
+					nullptr,
 					100,
 					level.time );
 }
@@ -256,12 +256,12 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	vec3_t	forward = { 0,0,-1 }, pos;
 
 	// Turn off the thinking of the base & use it's targets
-	//self->think = NULL;
-	self->use = NULL;
+	//self->think = nullptr;
+	self->use = nullptr;
 
 	// clear my data
-	self->die  = NULL;
-	self->pain = NULL;
+	self->die  = nullptr;
+	self->pain = nullptr;
 	self->takedamage = false;
 	self->s.health = self->health = 0;
 	self->s.loopSound = 0;
@@ -286,7 +286,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 						self->splashDamage,
 						self->splashRadius,
 						attacker,
-						NULL,
+						nullptr,
 						MOD_UNKNOWN );
 	}
 
@@ -368,7 +368,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		vectoangles( dir, ang );
 		ang[PITCH] += Q_flrand( -ent->random, ent->random );
 		ang[YAW] += Q_flrand( -ent->random, ent->random );
-		AngleVectors( ang, dir, NULL, NULL );
+		AngleVectors( ang, dir, nullptr, nullptr );
 	}
 
 	vectoangles(dir, ang);
@@ -464,7 +464,7 @@ void turretG2_head_think( gentity_t *self )
 					self->r.currentAngles,
 					self->r.currentOrigin,
 					level.time,
-					NULL,
+					nullptr,
 					self->modelScale );
 		if ( (self->spawnflags&SPF_TURRETG2_TURBO) )
 		{
@@ -551,7 +551,7 @@ static void turretG2_aim( gentity_t *self )
 					self->r.currentAngles,
 					self->s.origin,
 					level.time,
-					NULL,
+					nullptr,
 					self->modelScale );
 
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org2 );
@@ -632,7 +632,7 @@ static void turretG2_aim( gentity_t *self )
 						POSITIVE_Y,
 						POSITIVE_Z,
 						POSITIVE_X,
-						NULL,
+						nullptr,
 						100,
 						level.time );
 						*/
@@ -659,7 +659,7 @@ static void turretG2_aim( gentity_t *self )
 static void turretG2_turnoff( gentity_t *self )
 //-----------------------------------------------------
 {
-	if ( self->enemy == NULL )
+	if ( self->enemy == nullptr )
 	{
 		// we don't need to turnoff
 		return;
@@ -678,7 +678,7 @@ static void turretG2_turnoff( gentity_t *self )
 	self->aimDebounceTime = level.time + 5000;
 
 	// Clear enemy
-	self->enemy = NULL;
+	self->enemy = nullptr;
 }
 
 //-----------------------------------------------------
@@ -691,7 +691,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
 	bool	foundClient = false;
-	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = NULL;
+	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = nullptr;
 
 	if ( self->aimDebounceTime > level.time ) // time since we've been shut off
 	{
@@ -785,7 +785,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 			org[2] += 5;
 		}
 
-		trap->Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -878,7 +878,7 @@ void turretG2_base_think( gentity_t *self )
 		if ( self->enemy->health < 0
 			|| !self->enemy->inuse )
 		{
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 	}
 
@@ -898,15 +898,15 @@ void turretG2_base_think( gentity_t *self )
 		}
 	}
 
-	if ( self->enemy != NULL )
+	if ( self->enemy != nullptr )
 	{
 		if ( self->enemy->client && self->enemy->client->sess.sessionTeam == TEAM_SPECTATOR )
 		{//don't keep going after spectators
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 		else if ( self->enemy->client && self->enemy->client->tempSpectate >= level.time )
 		{//don't keep going after spectators
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 		else
 		{//FIXME: remain single-minded or look for a new enemy every now and then?
@@ -939,7 +939,7 @@ void turretG2_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap->Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
@@ -1109,7 +1109,7 @@ void finish_spawning_turretG2( gentity_t *base )
 	}
 
 	G_SetAngles( base, base->s.angles );
-	AngleVectors( base->r.currentAngles, fwd, NULL, NULL );
+	AngleVectors( base->r.currentAngles, fwd, nullptr, nullptr );
 
 	G_SetOrigin(base, base->s.origin);
 
@@ -1120,7 +1120,7 @@ void finish_spawning_turretG2( gentity_t *base )
 	{
 		base->teamnodmg = atoi(base->team);
 	}
-	base->team = NULL;
+	base->team = nullptr;
 
 	// Set up our explosion effect for the ExplodeDeath code....
 	G_EffectIndex( "turret/explode" );

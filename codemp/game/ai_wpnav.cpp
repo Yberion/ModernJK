@@ -492,7 +492,7 @@ void RemoveWP(void)
 		memset( gWPArray[gWPNum], 0, sizeof(*gWPArray[gWPNum]) );
 	}
 
-	//gWPArray[gWPNum] = NULL;
+	//gWPArray[gWPNum] = nullptr;
 
 	if (gWPArray[gWPNum])
 	{
@@ -554,7 +554,7 @@ void RemoveWP_InTrail(int afterindex)
 			//Keep reusing the memory
 			memset( gWPArray[i], 0, sizeof(*gWPArray[i]) );
 
-			//gWPArray[i] = NULL;
+			//gWPArray[i] = nullptr;
 			gWPArray[i]->inuse = 0;
 			didchange = 1;
 		}
@@ -566,7 +566,7 @@ void RemoveWP_InTrail(int afterindex)
 			//Keep reusing the memory
 			memset( gWPArray[i], 0, sizeof(*gWPArray[i]) );
 
-			//gWPArray[i] = NULL;
+			//gWPArray[i] = nullptr;
 			gWPArray[i]->inuse = 0;
 		}
 
@@ -862,7 +862,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
 
 	vectoangles(a, ang);
 
-	AngleVectors(ang, fwd, NULL, NULL);
+	AngleVectors(ang, fwd, nullptr, nullptr);
 
 	fLen = VectorLength(a)/2;
 
@@ -873,14 +873,14 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
 	VectorCopy(org1, dmid);
 	dmid[2] -= 1024;
 
-	trap->Trace(&tr, midpos, NULL, NULL, dmid, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, midpos, nullptr, nullptr, dmid, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 	startheight = org1[2] - tr.endpos[2];
 
 	VectorCopy(midpos, dmid);
 	dmid[2] -= 1024;
 
-	trap->Trace(&tr, midpos, NULL, NULL, dmid, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, midpos, nullptr, nullptr, dmid, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 	if (tr.startsolid || tr.allsolid)
 	{
@@ -1104,7 +1104,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	starttrace[2] -= 4096;
 
-	trap->Trace(&tr, startplace, NULL, NULL, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, startplace, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 	baseheight = startplace[2] - tr.endpos[2];
 
@@ -1177,7 +1177,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, NULL, NULL, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1208,7 +1208,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, NULL, NULL, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1239,7 +1239,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, NULL, NULL, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1270,7 +1270,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, NULL, NULL, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1443,7 +1443,7 @@ int DoorBlockingSection(int start, int end)
 		return 0;
 	}
 
-	trap->Trace(&tr, gWPArray[start]->origin, NULL, NULL, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, gWPArray[start]->origin, nullptr, nullptr, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1464,7 +1464,7 @@ int DoorBlockingSection(int start, int end)
 
 	start_trace_index = tr.entityNum;
 
-	trap->Trace(&tr, gWPArray[end]->origin, NULL, NULL, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, gWPArray[end]->origin, nullptr, nullptr, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1726,11 +1726,11 @@ void CalculatePaths(void)
 
 gentity_t *GetObjectThatTargets(gentity_t *ent)
 {
-	gentity_t *next = NULL;
+	gentity_t *next = nullptr;
 
 	if (!ent->targetname)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	next = G_Find( next, FOFS(target), ent->targetname );
@@ -1740,7 +1740,7 @@ gentity_t *GetObjectThatTargets(gentity_t *ent)
 		return next;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CalculateSiegeGoals(void)
@@ -1750,13 +1750,13 @@ void CalculateSiegeGoals(void)
 	int wpindex = 0;
 	vec3_t dif;
 	gentity_t *ent;
-	gentity_t *tent = NULL, *t2ent = NULL;
+	gentity_t *tent = nullptr, *t2ent = nullptr;
 
 	while (i < level.num_entities)
 	{
 		ent = &g_entities[i];
 
-		tent = NULL;
+		tent = nullptr;
 
 		if (ent && ent->classname && strcmp(ent->classname, "info_siege_objective") == 0)
 		{
@@ -1773,7 +1773,7 @@ void CalculateSiegeGoals(void)
 
 			if (looptracker >= 2048)
 			{ //something unpleasent has happened
-				tent = NULL;
+				tent = nullptr;
 				break;
 			}
 		}
@@ -2270,8 +2270,8 @@ void FlagObjects(void)
 	vec3_t a, mins, maxs;
 	trace_t tr;
 
-	flag_red = NULL;
-	flag_blue = NULL;
+	flag_red = nullptr;
+	flag_blue = nullptr;
 
 	mins[0] = -15;
 	mins[1] = -15;
@@ -2391,7 +2391,7 @@ int SavePathData(const char *filename)
 	float flLen;
 	int i, n;
 
-	fileString = NULL;
+	fileString = nullptr;
 	i = 0;
 
 	if (!gWPNum)
@@ -2669,7 +2669,7 @@ int G_RecursiveConnection(int start, int end, int weight, bool traceCheck, float
 
 		if (indexDirections[i] != -1 && traceCheck)
 		{ //if we care about trace visibility between nodes, perform the check and mark as not valid if the trace isn't clear.
-			trap->Trace(&tr, nodetable[start].origin, NULL, NULL, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0);
+			trap->Trace(&tr, nodetable[start].origin, nullptr, nullptr, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0);
 
 			if (tr.fraction != 1)
 			{
@@ -2700,7 +2700,7 @@ void G_DebugNodeFile()
 	int i = 0;
 	float placeX;
 	char fileString[131072];
-	gentity_t *terrain = G_Find( NULL, FOFS(classname), "terrain" );
+	gentity_t *terrain = G_Find( nullptr, FOFS(classname), "terrain" );
 
 	fileString[0] = 0;
 
@@ -2743,7 +2743,7 @@ void CreateAsciiTableRepresentation()
 	int oldY;
 	char fileString[ALLOWABLE_DEBUG_FILE_SIZE];
 	char bChr = '+';
-	gentity_t *terrain = G_Find( NULL, FOFS(classname), "terrain" );
+	gentity_t *terrain = G_Find( nullptr, FOFS(classname), "terrain" );
 
 	placeX = terrain->r.absmin[0];
 	placeY = terrain->r.absmin[1];
@@ -2866,7 +2866,7 @@ void CreateAsciiNodeTableRepresentation(int start, int end)
 	int oldX;
 	int oldY;
 	char fileString[ALLOWABLE_DEBUG_FILE_SIZE];
-	gentity_t *terrain = G_Find( NULL, FOFS(classname), "terrain" );
+	gentity_t *terrain = G_Find( nullptr, FOFS(classname), "terrain" );
 
 	placeX = terrain->r.absmin[0];
 	placeY = terrain->r.absmin[1];
@@ -3065,7 +3065,7 @@ void G_RMGPathing(void)
 #endif
 	vec3_t downVec, trMins, trMaxs;
 	trace_t tr;
-	gentity_t *terrain = G_Find( NULL, FOFS(classname), "terrain" );
+	gentity_t *terrain = G_Find( nullptr, FOFS(classname), "terrain" );
 
 	if (!terrain || !terrain->inuse || terrain->s.eType != ET_TERRAIN)
 	{
@@ -3221,7 +3221,7 @@ void G_RMGPathing(void)
 void BeginAutoPathRoutine(void)
 { //Called for RMG levels.
 	int i = 0;
-	gentity_t *ent = NULL;
+	gentity_t *ent = nullptr;
 	vec3_t v;
 
 	gSpawnPointNum = 0;
@@ -3283,7 +3283,7 @@ void LoadPath_ThisLevel(void)
 {
 	vmCvar_t	mapname;
 	int			i = 0;
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 
 	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
@@ -3352,11 +3352,11 @@ void LoadPath_ThisLevel(void)
 gentity_t *GetClosestSpawn(gentity_t *ent)
 {
 	gentity_t	*spawn;
-	gentity_t	*closestSpawn = NULL;
+	gentity_t	*closestSpawn = nullptr;
 	float		closestDist = -1;
 	int			i = MAX_CLIENTS;
 
-	spawn = NULL;
+	spawn = nullptr;
 
 	while (i < level.num_entities)
 	{
@@ -3386,10 +3386,10 @@ gentity_t *GetClosestSpawn(gentity_t *ent)
 gentity_t *GetNextSpawnInIndex(gentity_t *currentSpawn)
 {
 	gentity_t	*spawn;
-	gentity_t	*nextSpawn = NULL;
+	gentity_t	*nextSpawn = nullptr;
 	int			i = currentSpawn->s.number+1;
 
-	spawn = NULL;
+	spawn = nullptr;
 
 	while (i < level.num_entities)
 	{
@@ -3440,8 +3440,8 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 	OptionalArgument = 0;
 	i = 0;
 	FlagsFromArgument = 0;
-	OptionalSArgument = NULL;
-	RequiredSArgument = NULL;
+	OptionalSArgument = nullptr;
+	RequiredSArgument = nullptr;
 
 	//if a waypoint editing related command is issued, bots will deactivate.
 	//once bot_wp_save is issued and the trail is recalculated, bots will activate again.

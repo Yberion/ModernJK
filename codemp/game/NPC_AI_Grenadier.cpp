@@ -94,7 +94,7 @@ void NPC_Grenadier_PlayConfusionSound( gentity_t *self )
 	self->NPC->tempBehavior = BS_DEFAULT;
 
 	//self->NPC->behaviorState = BS_PATROL;
-	G_ClearEnemy( self );//FIXME: or just self->enemy = NULL;?
+	G_ClearEnemy( self );//FIXME: or just self->enemy = nullptr;?
 
 	self->NPC->investigateCount = 0;
 }
@@ -130,7 +130,7 @@ ST_HoldPosition
 static void Grenadier_HoldPosition( void )
 {
 	NPC_FreeCombatPoint( NPCS.NPCInfo->combatPoint, true );
-	NPCS.NPCInfo->goalEntity = NULL;
+	NPCS.NPCInfo->goalEntity = nullptr;
 
 	/*if ( TIMER_Done( NPC, "stand" ) )
 	{//FIXME: what if can't shoot from this pos?
@@ -189,7 +189,7 @@ static bool Grenadier_Move( void )
 			if ( cp != -1 )
 			{//found a combat point that has a clear shot to enemy
 				NPC_SetCombatPoint( cp );
-				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, NULL );
+				NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, nullptr );
 				return moved;
 			}
 		}
@@ -359,7 +359,7 @@ static void Grenadier_CheckMoveState( void )
 	*/
 
 	//See if we're moving towards a goal, not the enemy
-	if ( ( NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy ) && ( NPCS.NPCInfo->goalEntity != NULL ) )
+	if ( ( NPCS.NPCInfo->goalEntity != NPCS.NPC->enemy ) && ( NPCS.NPCInfo->goalEntity != nullptr ) )
 	{
 		//Did we make it?
 		if ( NAV_HitNavGoal( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPCS.NPC ) ) ||
@@ -490,7 +490,7 @@ void NPC_BSGrenadier_Attack( void )
 	//If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(false) == false )//!NPC->enemy )//
 	{
-		NPCS.NPC->enemy = NULL;
+		NPCS.NPC->enemy = nullptr;
 		NPC_BSGrenadier_Patrol();//FIXME: or patrol?
 		return;
 	}
@@ -563,7 +563,7 @@ void NPC_BSGrenadier_Attack( void )
 		{//in front of me
 			//can we shoot our target?
 			//FIXME: how accurate/necessary is this check?
-			int hit = NPC_ShotEntity( NPCS.NPC->enemy, NULL );
+			int hit = NPC_ShotEntity( NPCS.NPC->enemy, nullptr );
 			gentity_t *hitEnt = &g_entities[hit];
 			if ( hit == NPCS.NPC->enemy->s.number
 				|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPCS.NPC->client->enemyTeam ) )

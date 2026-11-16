@@ -109,7 +109,7 @@ const char *showPowersName[] =
 	"SABER_OFFENSE2",//FP_SABER_OFFENSE
 	"SABER_DEFENSE2",//FP_SABER_DEFENSE
 	"SABER_THROW2",//FP_SABERTHROW
-	NULL
+	nullptr
 };
 
 //Called from UI shared code. For now we'll just redirect to the normal anim load function.
@@ -540,7 +540,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, bool force2
 		} else {
 			return;
 		}
-		CG_Draw3DModel( x, y, w, h, handle, NULL, 0, 0, origin, angles );
+		CG_Draw3DModel( x, y, w, h, handle, nullptr, 0, 0, origin, angles );
 	} else if ( cg_drawIcons.integer ) {
 		gitem_t *item;
 
@@ -1046,7 +1046,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 		if (cg.forceHUDNextFlashTime < cg.time)
 		{
 			cg.forceHUDNextFlashTime = cg.time + 400;
-			trap->S_StartSound (NULL, 0, CHAN_LOCAL, cgs.media.noforceSound );
+			trap->S_StartSound (nullptr, 0, CHAN_LOCAL, cgs.media.noforceSound );
 
 			if (cg.forceHUDActive)
 			{
@@ -1289,7 +1289,7 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 		if ( cg.forceHUDNextFlashTime < cg.time )
 		{
 			cg.forceHUDNextFlashTime = cg.time + 400;
-			trap->S_StartSound( NULL, 0, CHAN_LOCAL, cgs.media.noforceSound );
+			trap->S_StartSound( nullptr, 0, CHAN_LOCAL, cgs.media.noforceSound );
 			if ( cg.forceHUDActive )
 			{
 				cg.forceHUDActive = false;
@@ -1322,9 +1322,9 @@ CG_DrawHUD
 */
 void CG_DrawHUD(centity_t	*cent)
 {
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*focusItem = NULL;
-	const char *scoreStr = NULL;
+	menuDef_t	*menuHUD = nullptr;
+	itemDef_t	*focusItem = nullptr;
+	const char *scoreStr = nullptr;
 	int	scoreBias;
 	char scoreBiasStr[16];
 
@@ -1604,7 +1604,7 @@ void CG_DrawForceSelect( void )
 		i = MAX_SHOWPOWERS - 1;
 	}
 
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 	// Work backwards from current icon
 	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -1787,7 +1787,7 @@ void CG_DrawInvenSelect( void )
 
 		if (cgs.media.invenIcons[i])
 		{
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, cgs.media.invenIcons[i] );
 
 			trap->R_SetColor(colorTable[CT_ICON_BLUE]);
@@ -1803,7 +1803,7 @@ void CG_DrawInvenSelect( void )
 	if (cgs.media.invenIcons[cg.itemSelect] && BG_IsItemSelectable(&cg.predictedPlayerState, cg.itemSelect))
 	{
 		int itemNdex;
-		trap->R_SetColor(NULL);
+		trap->R_SetColor(nullptr);
 		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, cgs.media.invenIcons[cg.itemSelect] );
 	//	addX = (float) bigIconSize * .75;
 		trap->R_SetColor(colorTable[CT_ICON_BLUE]);
@@ -1861,7 +1861,7 @@ void CG_DrawInvenSelect( void )
 
 		if (cgs.media.invenIcons[i])
 		{
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, cgs.media.invenIcons[i] );
 
 			trap->R_SetColor(colorTable[CT_ICON_BLUE]);
@@ -1878,7 +1878,7 @@ int cg_targVehLastTime = 0;
 bool CG_CheckTargetVehicle( centity_t **pTargetVeh, float *alpha )
 {
 	int targetNum = ENTITYNUM_NONE;
-	centity_t	*targetVeh = NULL;
+	centity_t	*targetVeh = nullptr;
 
 	if ( !pTargetVeh || !alpha )
 	{//hey, where are my pointers?
@@ -1925,7 +1925,7 @@ bool CG_CheckTargetVehicle( centity_t **pTargetVeh, float *alpha )
 		}
 		else
 		{
-			targetVeh = NULL;
+			targetVeh = nullptr;
 		}
 	}
 	if ( targetVeh )
@@ -2307,7 +2307,7 @@ void CG_DrawVehicleWeaponsLinked( const menuDef_t	*menuHUD, const centity_t *veh
 	if ( cg_drawLink != drawLink )
 	{//state changed, play sound
 		cg_drawLink = drawLink;
-		trap->S_StartSound (NULL, cg.predictedPlayerState.clientNum, CHAN_LOCAL, trap->S_RegisterSound( "sound/vehicles/common/linkweaps.wav" ) );
+		trap->S_StartSound (nullptr, cg.predictedPlayerState.clientNum, CHAN_LOCAL, trap->S_RegisterSound( "sound/vehicles/common/linkweaps.wav" ) );
 	}
 
 	if ( drawLink )
@@ -2844,7 +2844,7 @@ static void CG_DrawPickupItem( void ) {
 			CG_RegisterItemVisuals( value );
 			trap->R_SetColor( fadeColor );
 			CG_DrawPic( 573, 320, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
-			trap->R_SetColor( NULL );
+			trap->R_SetColor( nullptr );
 		}
 	}
 }
@@ -2875,7 +2875,7 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 
 	CG_FillRect ( x, y, w, h, hcolor );
 //	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 
@@ -3321,7 +3321,7 @@ float CG_DrawRadar ( float y )
 		distance  = distance / cg_radarRange;
 		distance *= RADAR_RADIUS;
 
-		AngleVectors ( cg.predictedPlayerState.viewangles, dirLook, NULL, NULL );
+		AngleVectors ( cg.predictedPlayerState.viewangles, dirLook, nullptr, nullptr );
 
 		dirLook[2] = 0;
 		anglePlayer = Q_atan2(dirPlayer[0],dirPlayer[1]);
@@ -3506,7 +3506,7 @@ float CG_DrawRadar ( float y )
 						}
 						else
 						{
-							trap->R_SetColor ( NULL );
+							trap->R_SetColor ( nullptr );
 						}
 						CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cent->m_pVehicle->m_pVehicleInfo->radarIconHandle );
 					}
@@ -3538,7 +3538,7 @@ float CG_DrawRadar ( float y )
 							//asteroid dir, speed, size, + my dir & speed...
 							BG_EvaluateTrajectory( &cent->currentState.pos, cg.time+predictTime, asteroidPos );
 							//FIXME: I don't think it's calcing "myPos" correctly
-							AngleVectors( cg.predictedVehicleState.viewangles, moveDir, NULL, NULL );
+							AngleVectors( cg.predictedVehicleState.viewangles, moveDir, nullptr, nullptr );
 							VectorMA( cg.predictedVehicleState.origin, cg.predictedVehicleState.speed*predictTime/1000.0f, moveDir, myPos );
 							newDist = Distance( myPos, asteroidPos );
 							if ( (newDist-cent->currentState.speed) <= RADAR_MIN_ASTEROID_SURF_WARN_DIST )//200.0f )
@@ -3710,7 +3710,7 @@ float CG_DrawRadar ( float y )
 					}
 					else
 					{
-						trap->R_SetColor ( NULL );
+						trap->R_SetColor ( nullptr );
 					}
 					CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cgs.media.mAutomapRocketIcon );
 				}
@@ -3920,7 +3920,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 	}
 	trap->R_SetColor( hcolor );
 	CG_DrawPic( x + xOffset, y, w, h, cgs.media.teamStatusBar );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
@@ -4012,7 +4012,7 @@ static void CG_DrawPowerupIcons(int y)
 	int xOffset = 0;
 	gitem_t	*item;
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if (!cg.snap)
 	{
@@ -4172,7 +4172,7 @@ static void CG_DrawReward( void ) {
 			x += ICON_SIZE;
 		}
 	}
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 #endif
 
@@ -4245,7 +4245,7 @@ CG_AddLagometerSnapshotInfo
 Each time a snapshot is received, log its ping time, its input margin and
 whether snapshots were dropped before it.
 
-Pass NULL for a dropped packet.
+Pass nullptr for a dropped packet.
 ==============
 */
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
@@ -4348,11 +4348,11 @@ static void CG_LagometerBar( float x, float y, float h, int colour, int *current
 	trap->R_DrawStretchPic( x, y, 1, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
-// the slice drawn in column a (0: the present one), NULL when nothing happened in it
+// the slice drawn in column a (0: the present one), nullptr when nothing happened in it
 static lagSlice_t *CG_LagometerColumn( int now, int a ) {
 	lagSlice_t	*slice = &lagometer[( now - a ) & ( LAG_SLICES - 1 )];
 
-	return slice->number == now - a ? slice : NULL;
+	return slice->number == now - a ? slice : nullptr;
 }
 
 /*
@@ -4384,7 +4384,7 @@ static void CG_DrawLagometer( void ) {
 	ax = 640 - 48;
 	ay = 480 - 144;
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 	CG_DrawPic( ax, ay, LAG_COLUMNS, LAG_HEIGHT, cgs.media.lagometerShader );
 
 	colour = -1;
@@ -4442,7 +4442,7 @@ static void CG_DrawLagometer( void ) {
 		}
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if ( cg_noPredict.integer ) {
 		CG_DrawBigString( ax, ay, "snc", 1.0 );
@@ -4621,7 +4621,7 @@ static void CG_DrawCenterString( void ) {
 		//[/BugFix19]
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 
@@ -4966,7 +4966,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	float		x, y;
 	bool	corona = false;
 	vec4_t		ecolor = {0,0,0,0};
-	centity_t	*crossEnt = NULL;
+	centity_t	*crossEnt = nullptr;
 	float		chX, chY;
 
 	if ( worldPoint )
@@ -5001,7 +5001,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		//set color based on what kind of ent is under crosshair
 		if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
 		{
-			trap->R_SetColor( NULL );
+			trap->R_SetColor( nullptr );
 		}
 		//rwwFIXMEFIXME: Write this a different way, it's getting a bit too sloppy looking
 		else if (chEntValid &&
@@ -5344,7 +5344,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 			w, h, 0, 0, 1, 1, cgs.media.forceCoronaShader );
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 bool CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
@@ -5416,7 +5416,7 @@ void CG_SaberClashFlare( void )
 		return;
 	}
 
-	CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, cg_saberFlashPos, -1, CONTENTS_SOLID );
+	CG_Trace( &tr, cg.refdef.vieworg, nullptr, nullptr, cg_saberFlashPos, -1, CONTENTS_SOLID );
 
 	if ( tr.fraction < 1.0f )
 	{
@@ -5501,7 +5501,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 			return;
 		}
 
-		CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, cent->lerpOrigin, -1, CONTENTS_OPAQUE );
+		CG_Trace( &tr, cg.refdef.vieworg, nullptr, nullptr, cent->lerpOrigin, -1, CONTENTS_OPAQUE );
 
 		//don't bracket if can't see them
 		if ( tr.fraction < 1.0f )
@@ -5557,7 +5557,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 	}
 	else
 	{//FIXME: if we want to ever bracket anything besides vehicles (like siege objectives we want to blow up), we should handle the coloring here
-		trap->R_SetColor ( NULL );
+		trap->R_SetColor ( nullptr );
 	}
 
 	if ( len <= 1.0f )
@@ -5789,7 +5789,7 @@ static void CG_DrawActivePowers(void)
 		return;
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	while (i < NUM_FORCE_POWERS)
 	{
@@ -5844,7 +5844,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 		centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
 		if ( veh->m_pVehicle )
 		{
-			vehWeaponInfo_t *vehWeapon = NULL;
+			vehWeaponInfo_t *vehWeapon = nullptr;
 			if ( cg.predictedVehicleState.weaponstate == WEAPON_CHARGING_ALT )
 			{
 				if ( veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID > VEH_WEAPON_BASE
@@ -5861,7 +5861,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 					vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID];
 				}
 			}
-			if ( vehWeapon != NULL )
+			if ( vehWeapon != nullptr )
 			{//we are trying to lock on with a valid vehicle weapon, so use *its* locktime, not the hard-coded one
 				if ( !vehWeapon->iLockOnTime )
 				{//instant lock-on
@@ -5880,7 +5880,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 	if (cg.snap->ps.rocketLockIndex >= 0 &&
 		cg.snap->ps.rocketLockIndex < ENTITYNUM_NONE)
 	{
-		clientInfo_t *ci = NULL;
+		clientInfo_t *ci = nullptr;
 
 		if (cg.snap->ps.rocketLockIndex < MAX_CLIENTS)
 		{
@@ -6042,7 +6042,7 @@ bool CG_CalcVehicleMuzzlePoint( int entityNum, vec3_t start, vec3_t d_f, vec3_t 
 		bolt = trap->G2API_AddBolt( vehCent->ghoul2, 0, "*flash1");
 		trap->G2API_GetBoltMatrix( vehCent->ghoul2, 0, bolt, &boltMatrix,
 									yawOnlyAngles, vehCent->lerpOrigin, cg.time,
-									NULL, vehCent->modelScale );
+									nullptr, vehCent->modelScale );
 
 		// work the matrix axis stuff into the original axis and origins used.
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, start );
@@ -6114,7 +6114,7 @@ void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_
 	{
 		mdxaBone_t boltMatrix;
 
-		trap->G2API_GetBoltMatrix_NoRecNoRot(cent->ghoul2, 0, bolt, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, NULL, cent->modelScale);
+		trap->G2API_GetBoltMatrix_NoRecNoRot(cent->ghoul2, 0, bolt, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, nullptr, cent->modelScale);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, start);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, d_f);
 
@@ -6397,7 +6397,7 @@ static void CG_DrawCrosshairNames( void ) {
 	// draw the name of the player being looked at
 	color = CG_FadeColor( cg.crosshairClientTime, 1000 );
 	if ( !color ) {
-		trap->R_SetColor( NULL );
+		trap->R_SetColor( nullptr );
 		return;
 	}
 
@@ -6473,7 +6473,7 @@ static void CG_DrawCrosshairNames( void ) {
 		CG_DrawProportionalString(320, 170, name, UI_CENTER, tcolor);
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 
@@ -6567,7 +6567,7 @@ CG_DrawVote
 =================
 */
 static void CG_DrawVote(void) {
-	const char *s = NULL, *sParm = NULL;
+	const char *s = nullptr, *sParm = nullptr;
 	int sec;
 	char sYes[20] = {0}, sNo[20] = {0}, sVote[20] = {0}, sCmd[100] = {0};
 
@@ -6862,9 +6862,9 @@ static void CG_DrawWarmup( void ) {
 		// find the two active players
 		clientInfo_t	*ci1, *ci2, *ci3;
 
-		ci1 = NULL;
-		ci2 = NULL;
-		ci3 = NULL;
+		ci1 = nullptr;
+		ci2 = nullptr;
+		ci3 = nullptr;
 
 		if (cgs.gametype == GT_POWERDUEL)
 		{
@@ -6993,7 +6993,7 @@ void CG_DrawFlagStatus()
 	int ico_size = 32;
 
 	//Raz: was missing this
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if (!cg.snap)
 	{
@@ -7247,8 +7247,8 @@ static void CG_DrawSiegeTimer(int timeRemaining, bool isMyTeam)
 	int minutes = 0;
 	int seconds = 0;
 	char timeStr[1024];
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*item = NULL;
+	menuDef_t	*menuHUD = nullptr;
+	itemDef_t	*item = nullptr;
 
 	menuHUD = Menus_FindByName("mp_timer");
 	if (!menuHUD)
@@ -7310,8 +7310,8 @@ static void CG_DrawSiegeDeathTimer( int timeRemaining )
 	int minutes = 0;
 	int seconds = 0;
 	char timeStr[1024];
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*item = NULL;
+	menuDef_t	*menuHUD = nullptr;
+	itemDef_t	*item = nullptr;
 
 	menuHUD = Menus_FindByName("mp_timer");
 	if (!menuHUD)
@@ -7381,7 +7381,7 @@ static void CG_DrawSiegeHUDItem(void)
 	else
 	{
 		handle = cgs.gameModels[cent->currentState.modelindex];
-		g2 = NULL;
+		g2 = nullptr;
 	}
 
 	if (handle)
@@ -8090,7 +8090,7 @@ static void CG_Draw2D( void ) {
 */
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		CG_DrawSpectator();
-		CG_DrawCrosshair(NULL, 0);
+		CG_DrawCrosshair(nullptr, 0);
 		CG_DrawCrosshairNames();
 		CG_SaberClashFlare();
 	} else {

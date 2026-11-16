@@ -83,7 +83,7 @@ typedef struct refexport_s {
 
 	void				(*RenderScene)							( const refdef_t *fd );
 
-	void				(*SetColor)								( const float *rgba );	// NULL = 1,1,1,1
+	void				(*SetColor)								( const float *rgba );	// nullptr = 1,1,1,1
 	void				(*DrawStretchPic)						( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 	void				(*DrawRotatePic)						( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, qhandle_t hShader );	// 0 = white
 	void				(*DrawRotatePic2)						( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, qhandle_t hShader );	// 0 = white
@@ -94,7 +94,7 @@ typedef struct refexport_s {
 
 	void				(*BeginFrame)							( stereoFrame_t stereoFrame );
 
-	// if the pointers are not NULL, timing info will be returned
+	// if the pointers are not nullptr, timing info will be returned
 	void				(*EndFrame)								( int *frontEndMsec, int *backEndMsec );
 
 
@@ -111,7 +111,7 @@ typedef struct refexport_s {
 	void				(*Font_DrawString)						( int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale );
 	bool			(*Language_IsAsian)						( void );
 	bool			(*Language_UsesSpaces)					( void );
-	unsigned int		(*AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation/* = NULL*/ );
+	unsigned int		(*AnyLanguage_ReadCharFromString)		( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation/* = nullptr*/ );
 
 	void				(*RemapShader)							( const char *oldShader, const char *newShader, const char *offsetTime );
 	bool			(*GetEntityToken)						( char *buffer, int size );
@@ -340,7 +340,7 @@ typedef struct refimport_s {
 	void			(*CM_SetUsingCache)					( bool usingCache );
 
 	// even the server will have this, which is a singleton
-	// so before assigning to this in R_Init, check if it's NULL!
+	// so before assigning to this in R_Init, check if it's nullptr!
 	IHeapAllocator *(*GetG2VertSpaceServer)				( void );
 
 	// Persistent data store
@@ -349,7 +349,7 @@ typedef struct refimport_s {
 } refimport_t;
 
 // this is the only function actually exported at the linker level
-// If the module can't init to a valid rendering state, NULL will be
+// If the module can't init to a valid rendering state, nullptr will be
 // returned.
 #ifdef DEDICATED // dedicated server will statically compile rd-dedicated
 	refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp );

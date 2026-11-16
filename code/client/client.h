@@ -411,7 +411,7 @@ void SCR_DrawCinematic (void);
 void SCR_RunCinematic (void);
 void SCR_StopCinematic( bool bAllowRefusal = false );
 
-int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = NULL */);
+int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = nullptr */);
 e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);

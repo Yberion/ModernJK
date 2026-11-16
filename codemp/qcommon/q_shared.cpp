@@ -36,7 +36,7 @@ int GetIDForString ( stringID_table_t *table, const char *string )
 {
 	int	index = 0;
 
-	while ( ( table[index].name != NULL ) &&
+	while ( ( table[index].name != nullptr ) &&
 			( table[index].name[0] != 0 ) )
 	{
 		if ( !Q_stricmp( table[index].name, string ) )
@@ -58,7 +58,7 @@ const char *GetStringForID( stringID_table_t *table, int id )
 {
 	int	index = 0;
 
-	while ( ( table[index].name != NULL ) &&
+	while ( ( table[index].name != nullptr ) &&
 			( table[index].name[0] != 0 ) )
 	{
 		if ( table[index].id == id )
@@ -67,7 +67,7 @@ const char *GetStringForID( stringID_table_t *table, int id )
 		index++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -223,7 +223,7 @@ void COM_ParseWarning( const char *format, ... )
 COM_Parse
 
 Parse a token out of a string
-Will never return NULL, just empty strings
+Will never return nullptr, just empty strings
 
 If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
@@ -235,7 +235,7 @@ const char *SkipWhitespace( const char *data, bool *hasNewLines ) {
 
 	while( (c = *(const unsigned char* /*eurofix*/)data) <= ' ') {
 		if( !c ) {
-			return NULL;
+			return nullptr;
 		}
 		if( c == '\n' ) {
 			com_lines++;
@@ -330,7 +330,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 	// make sure incoming data is valid
 	if ( !data )
 	{
-		*data_p = NULL;
+		*data_p = nullptr;
 		return com_token;
 	}
 
@@ -340,7 +340,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data )
 		{
-			*data_p = NULL;
+			*data_p = nullptr;
 			return com_token;
 		}
 		if ( hasNewLines && !allowLineBreaks )
@@ -437,7 +437,7 @@ bool COM_ParseString( const char **data, const char **s )
 {
 //	*s = COM_ParseExt( data, true );
 	*s = COM_ParseExt( data, false );
-	if ( s[0] == 0 )
+	if ( s[0] == nullptr )
 	{
 		COM_ParseWarning( "COM_ParseString: unexpected EOF" );
 		return true;
@@ -842,7 +842,7 @@ Info_RemoveKey
 ===================
 */
 void Info_RemoveKey( char *s, const char *key ) {
-	char	*start = NULL, *o = NULL;
+	char	*start = nullptr, *o = nullptr;
 	char	pkey[MAX_INFO_KEY] = {0};
 	char	value[MAX_INFO_VALUE] = {0};
 
@@ -1137,5 +1137,5 @@ void *Q_LinearSearch( const void *key, const void *ptr, size_t count,
 		if ( cmp( key, ptr ) == 0 ) return (void *)ptr;
 		ptr = (const char *)ptr + size;
 	}
-	return NULL;
+	return nullptr;
 }

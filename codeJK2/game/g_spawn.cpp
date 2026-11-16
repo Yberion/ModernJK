@@ -310,7 +310,7 @@ field_t fields[] = {
 	{"height", 0, F_IGNORE},
 
 
-	{NULL}
+	{nullptr}
 };
 
 
@@ -691,7 +691,7 @@ spawn_t	spawns[] = {
 
 	{"emplaced_gun", SP_emplaced_gun},
 
-	{NULL, NULL}
+	{nullptr, nullptr}
 };
 
 /*
@@ -746,7 +746,7 @@ char *G_NewString( const char *string ) {
 
 	if(!string || !string[0])
 	{
-		//gi.Printf(S_COLOR_RED"Error: G_NewString called with NULL string!\n");
+		//gi.Printf(S_COLOR_RED"Error: G_NewString called with nullptr string!\n");
 		return (char *)string;
 	}
 
@@ -1315,7 +1315,7 @@ G_ParsePrecaches
 
 void G_ParsePrecaches( void )
 {
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 
 	//Clear any old lists
 	if(!as_preCacheMap) {
@@ -1339,7 +1339,7 @@ void G_ASPreCacheFree(void)
 {
 	if(as_preCacheMap) {
 		delete as_preCacheMap;
-		as_preCacheMap = NULL;
+		as_preCacheMap = nullptr;
 	}
 }
 

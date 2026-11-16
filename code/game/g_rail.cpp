@@ -138,7 +138,7 @@ public:
 		mSpeedUnitsPerMillisecond	= mSpeedGridCellsPerSecond * mGridCellSize / 1000.0f;
 		mTravelTimeMilliseconds		= mTravelDistanceUnits / mSpeedUnitsPerMillisecond;
 
-		AngleVectors(ent->s.angles, mDirection.v, 0, 0);
+		AngleVectors(ent->s.angles, mDirection.v, nullptr, nullptr);
 		mDirection.SafeNorm();
 		mVelocity					= mDirection;
 		mVelocity					*= (mSpeedGridCellsPerSecond * mGridCellSize);
@@ -335,7 +335,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	void		Initialize()
 	{
-		mTrack		= 0;
+		mTrack		= nullptr;
 		mMinCol		= 0;
 		mMaxCol		= 0;
 
@@ -450,8 +450,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	void		Initialize()
 	{
-		mTrack	= 0;
-		mLane	= 0;
+		mTrack	= nullptr;
+		mLane	= nullptr;
 		mCols	= 0;
 		mRows	= 0;
 
@@ -464,7 +464,7 @@ public:
 				break;
 			}
 		}
-		if (mTrack==0)
+		if (mTrack==nullptr)
 		{
 			for (int lane=0; lane<mRailLanes.size(); lane++)
 			{

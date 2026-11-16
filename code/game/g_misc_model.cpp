@@ -148,7 +148,7 @@ void CrystalAmmoSettings(gentity_t *ent)
 */
 //------------------------------------------------------------
 #include "anims.h"
-extern int G_ParseAnimFileSet( const char *skeletonName, const char *modelName=0);
+extern int G_ParseAnimFileSet( const char *skeletonName, const char *modelName=nullptr);
 int temp_animFileIndex;
 void set_MiscAnim( gentity_t *ent)
 {
@@ -297,7 +297,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 	gentity_t	*it_ent = G_Spawn();
 	bool	rotate = true;
 
-	AngleVectors( angs, fwd, right, NULL );
+	AngleVectors( angs, fwd, right, nullptr );
 
 	if ( it_ent && gun )
 	{
@@ -406,7 +406,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 //---------------------------------------------
 void SP_misc_model_gun_rack( gentity_t *ent )
 {
-	gitem_t		*blaster = NULL, *repeater = NULL, *rocket = NULL;
+	gitem_t		*blaster = nullptr, *repeater = nullptr, *rocket = nullptr;
 	int			ct = 0;
 	float		ofz[3];
 	gitem_t		*itemList[3];
@@ -554,9 +554,9 @@ void SP_misc_model_ammo_rack( gentity_t *ent )
 void spawn_rack_goods( gentity_t *ent )
 {
 	float		v_off = 0;
-	gitem_t		*blaster = NULL, *metal_bolts = NULL, *rockets = NULL, *it = NULL;
-	gitem_t		*am_blaster = NULL, *am_metal_bolts = NULL, *am_rockets = NULL, *am_pwr_cell = NULL;
-	gitem_t		*health = NULL;
+	gitem_t		*blaster = nullptr, *metal_bolts = nullptr, *rockets = nullptr, *it = nullptr;
+	gitem_t		*am_blaster = nullptr, *am_metal_bolts = nullptr, *am_rockets = nullptr, *am_pwr_cell = nullptr;
+	gitem_t		*health = nullptr;
 	int			pos = 0, ct = 0;
 	gitem_t		*itemList[4]; // allocating 4, but we only use 3.  done so I don't have to validate that the array isn't full before I add another
 
@@ -728,7 +728,7 @@ void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 {
 	int		flags;
 	vec3_t	org, temp;
-	gitem_t *health = NULL, *shields = NULL, *bacta = NULL, *batteries = NULL;
+	gitem_t *health = nullptr, *shields = nullptr, *bacta = nullptr, *batteries = nullptr;
 
 	// copy these for later
 	flags = self->spawnflags;
@@ -753,7 +753,7 @@ void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 			temp[0] = org[0] + Q_flrand(-1.0f, 1.0f) * 8 + 16;
 			temp[1] = org[1] + Q_flrand(-1.0f, 1.0f) * 8 + 16;
 
-			LaunchItem( health, temp, vec3_origin, NULL );
+			LaunchItem( health, temp, vec3_origin, nullptr );
 		}
 	}
 	if (( flags & DROP_SHIELDS ))
@@ -765,7 +765,7 @@ void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 			temp[0] = org[0] + Q_flrand(-1.0f, 1.0f) * 8 - 16;
 			temp[1] = org[1] + Q_flrand(-1.0f, 1.0f) * 8 + 16;
 
-			LaunchItem( shields, temp, vec3_origin, NULL );
+			LaunchItem( shields, temp, vec3_origin, nullptr );
 		}
 	}
 
@@ -778,7 +778,7 @@ void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 			temp[0] = org[0] + Q_flrand(-1.0f, 1.0f) * 8 - 16;
 			temp[1] = org[1] + Q_flrand(-1.0f, 1.0f) * 8 - 16;
 
-			LaunchItem( bacta, temp, vec3_origin, NULL );
+			LaunchItem( bacta, temp, vec3_origin, nullptr );
 		}
 	}
 
@@ -791,7 +791,7 @@ void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 			temp[0] = org[0] + Q_flrand(-1.0f, 1.0f) * 8 + 16;
 			temp[1] = org[1] + Q_flrand(-1.0f, 1.0f) * 8 - 16;
 
-			LaunchItem( batteries, temp, vec3_origin, NULL );
+			LaunchItem( batteries, temp, vec3_origin, nullptr );
 		}
 	}
 }

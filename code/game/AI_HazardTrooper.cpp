@@ -209,7 +209,7 @@ public:
 	void	Initialize(int TroopHandle=0)
 	{
 		mActors.clear();
-		mTarget			= 0;
+		mTarget			= nullptr;
 		mState			= TS_NONE;
 		mTroopHandle	= TroopHandle;
 		mTroopTeam		= 0;
@@ -252,7 +252,7 @@ private:
 	{
 		if (index!=0)
 		{
-			mActors[0]->client->leader = 0;
+			mActors[0]->client->leader = nullptr;
 			mActors.swap(index, 0);
 		}
 		mActors[0]->client->leader = mActors[0];
@@ -993,7 +993,7 @@ public:
 		int	numEnts = mActors.size();
 		for (int i=0; i<numEnts; i++)
 		{
-			mActors[i]->client->leader = 0;
+			mActors[i]->client->leader = nullptr;
 			mActors[i]->NPC->troop = 0;
 			Other.AddActor(mActors[i]);
 		}
@@ -1066,7 +1066,7 @@ public:
 			//----------------------------------------------
 			if (actor==mActors[i])
 			{
-				return 0;
+				return nullptr;
 			}
 		//	if (mActors[i]->resultspeed<10.0f)
 		//	{
@@ -1089,7 +1089,7 @@ public:
 			}
 		}
 		assert("Somehow this actor is not actually in the troop..."==0);
-		return 0;
+		return nullptr;
 	}
 };
 typedef		ratl::handle_pool_vs<CTroop, MAX_TROOPS>		TTroopPool;
@@ -1315,7 +1315,7 @@ int			Trooper_CanHitTarget(gentity_t* actor, gentity_t* target, CTroop& troop, f
 	{
 		// Clear Line Of Sight To Target?
 		//--------------------------------
-		gi.trace(&tr, MuzzlePoint.v, NULL, NULL, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT, (EG2_Collision)0, 0);
+		gi.trace(&tr, MuzzlePoint.v, nullptr, nullptr, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT, (EG2_Collision)0, 0);
 		if (tr.startsolid || tr.allsolid)
 		{
 			return ENTITYNUM_NONE;
@@ -1335,7 +1335,7 @@ int			Trooper_CanHitTarget(gentity_t* actor, gentity_t* target, CTroop& troop, f
 ////////////////////////////////////////////////////////////////////////////////////////
 void		Trooper_Think(gentity_t* actor)
 {
-	gentity_t* target = (actor->NPC->troop)?(mTroops[actor->NPC->troop].TrackingTarget()):(0);
+	gentity_t* target = (actor->NPC->troop)?(mTroops[actor->NPC->troop].TrackingTarget()):(nullptr);
 	if (target)
 	{
 		G_SetEnemy(actor, target);

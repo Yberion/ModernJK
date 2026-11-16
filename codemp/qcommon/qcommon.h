@@ -414,11 +414,11 @@ typedef void ( *callbackFunc_t )( const char *s );
 
 void	Cmd_Init (void);
 
-void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_desc=NULL );
+void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_desc=nullptr );
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
-// if function is NULL, the command will be forwarded to the server
+// if function is nullptr, the command will be forwarded to the server
 // as a clc_clientCommand instead of executed locally
 
 void	Cmd_RemoveCommand( const char *cmd_name );
@@ -452,7 +452,7 @@ void	Cmd_ArgsFromBuffer( int arg, char *buffer, int bufferLength );
 char	*Cmd_Cmd (void);
 void	Cmd_Args_Sanitize( size_t length = MAX_CVAR_VALUE_STRING, const char *strip = "\n\r;", const char *repl = "   " );
 // The functions that execute commands get their parameters with these
-// functions. Cmd_Argv () will return an empty string, not a NULL
+// functions. Cmd_Argv () will return an empty string, not a nullptr
 // if arg > argc, so string operations are allways safe.
 
 void	Cmd_TokenizeString( const char *text );
@@ -492,7 +492,7 @@ modules of the program.
 
 */
 
-cvar_t *Cvar_Get( const char *var_name, const char *value, uint32_t flags, const char *var_desc=NULL );
+cvar_t *Cvar_Get( const char *var_name, const char *value, uint32_t flags, const char *var_desc=nullptr );
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
@@ -646,7 +646,7 @@ void		Com_RunAndTimeServerPacket(const netadr_t *evFrom, msg_t *buf);
 
 void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs
-// if match is NULL, all set commands will be executed, otherwise
+// if match is nullptr, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
 

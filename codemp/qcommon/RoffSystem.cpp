@@ -46,8 +46,8 @@ CROFFSystem::CROFF::CROFF( const char *file, int id )
 	strcpy( mROFFFilePath, file );
 
 	mID				= id;
-	mMoveRotateList = NULL;
-	mNoteTrackIndexes = 0;
+	mMoveRotateList = nullptr;
+	mNoteTrackIndexes = nullptr;
 	mUsedByClient = mUsedByServer = false;
 }
 
@@ -172,9 +172,9 @@ bool CROFFSystem::InitROFF( unsigned char *data, CROFF *obj )
 	obj->mFrameTime			= 1000 / ROFF_SAMPLE_RATE;		// default 10 hz
 	obj->mLerp				= ROFF_SAMPLE_RATE;
 	obj->mNumNoteTracks		= 0;
-	obj->mNoteTrackIndexes	= 0;
+	obj->mNoteTrackIndexes	= nullptr;
 
-	if ( obj->mMoveRotateList != 0 )
+	if ( obj->mMoveRotateList != nullptr )
 	{ // Step past the header to get to the goods
 		TROFFEntry *roff_data = ( TROFFEntry *)&hdr[1];
 
@@ -229,7 +229,7 @@ bool CROFFSystem::InitROFF2( unsigned char *data, CROFF *obj )
 	obj->mLerp				= 1000 / LittleLong(hdr->mFrameRate);
 	obj->mNumNoteTracks		= LittleLong(hdr->mNumNotes);
 
-	if ( obj->mMoveRotateList != 0 )
+	if ( obj->mMoveRotateList != nullptr )
 	{ // Step past the header to get to the goods
 		TROFF2Entry *roff_data = ( TROFF2Entry *)&hdr[1];
 
@@ -624,13 +624,13 @@ bool CROFFSystem::List( int id )
 //---------------------------------------------------------------------------
 bool CROFFSystem::Play( int entID, int id, bool doTranslation, bool isClient )
 {
-	sharedEntity_t *ent = NULL;
+	sharedEntity_t *ent = nullptr;
 
 	if ( !isClient )
 	{
 		ent = SV_GentityNum( entID );
 
-		if ( ent == NULL )
+		if ( ent == nullptr )
 		{ // shame on you..
 			return false;
 		}
@@ -757,7 +757,7 @@ bool CROFFSystem::PurgeEnt( int entID, bool isClient )
 //---------------------------------------------------------------------------
 bool CROFFSystem::PurgeEnt( char *name )
 {
-/* rjr	CEntity *ent = entitySystem->GetEntityFromName( NULL, name );
+/* rjr	CEntity *ent = entitySystem->GetEntityFromName( nullptr, name );
 
 	if ( ent && ent->GetInUse() == true )
 	{
@@ -859,9 +859,9 @@ void CROFFSystem::UpdateEntities(bool isClient)
 bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 {
 	vec3_t			f, r, u, result;
-	sharedEntity_t	*ent = NULL;
-	trajectory_t	*originTrajectory = NULL, *angleTrajectory = NULL;
-	float			*origin = NULL, *angle = NULL;
+	sharedEntity_t	*ent = nullptr;
+	trajectory_t	*originTrajectory = nullptr, *angleTrajectory = nullptr;
+	float			*origin = nullptr, *angle = nullptr;
 
 
 	if ( sv.time < roff_ent->mNextROFFTime )
@@ -886,7 +886,7 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 		// Find the entity to apply the roff to
 		ent = SV_GentityNum( roff_ent->mEntID );
 
-		if ( ent == 0 )
+		if ( ent == nullptr )
 		{	// bad stuff
 			return false;
 		}
@@ -900,8 +900,8 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 
 	if ( roff_ent->mROFFFrame >= roff->mROFFEntries )
 	{ // we are done roffing, so stop moving and flag this ent to be removed
-		SetLerp( originTrajectory, TR_STATIONARY, origin, NULL, sv.time, roff->mLerp );
-		SetLerp( angleTrajectory, TR_STATIONARY, angle, NULL, sv.time, roff->mLerp );
+		SetLerp( originTrajectory, TR_STATIONARY, origin, nullptr, sv.time, roff->mLerp );
+		SetLerp( angleTrajectory, TR_STATIONARY, angle, nullptr, sv.time, roff->mLerp );
 		if (!roff_ent->mIsClient)
 		{
 			ent->r.mIsRoffing = false;
@@ -1012,9 +1012,9 @@ void CROFFSystem::ProcessNote(SROFFEntity *roff_ent, char *note)
 //---------------------------------------------------------------------------
 bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 {
-	sharedEntity_t	*ent = NULL;
-	trajectory_t	*originTrajectory = NULL, *angleTrajectory = NULL;
-	float			*origin = NULL, *angle = NULL;
+	sharedEntity_t	*ent = nullptr;
+	trajectory_t	*originTrajectory = nullptr, *angleTrajectory = nullptr;
+	float			*origin = nullptr, *angle = nullptr;
 
 #ifndef DEDICATED
 	vec3_t		originTemp, angleTemp;
@@ -1033,7 +1033,7 @@ bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 		// Find the entity to apply the roff to
 		ent = SV_GentityNum( roff_ent->mEntID );
 
-		if ( ent == 0 )
+		if ( ent == nullptr )
 		{	// bad stuff
 			return false;
 		}
@@ -1044,8 +1044,8 @@ bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 		angle = ent->r.currentAngles;
 	}
 
-	SetLerp( originTrajectory, TR_STATIONARY, origin, NULL, sv.time, ROFF_SAMPLE_RATE );
-	SetLerp( angleTrajectory, TR_STATIONARY, angle, NULL, sv.time, ROFF_SAMPLE_RATE );
+	SetLerp( originTrajectory, TR_STATIONARY, origin, nullptr, sv.time, ROFF_SAMPLE_RATE );
+	SetLerp( angleTrajectory, TR_STATIONARY, angle, nullptr, sv.time, ROFF_SAMPLE_RATE );
 
 	return true;
 }
@@ -1067,7 +1067,7 @@ void CROFFSystem::SetLerp( trajectory_t *tr, trType_t type, vec3_t origin, vec3_
 	tr->trTime = time;
 	VectorCopy( origin, tr->trBase );
 
-	// Check for a NULL delta
+	// Check for a nullptr delta
 	if ( delta )
 	{
 		VectorScale( delta, rate, tr->trDelta );

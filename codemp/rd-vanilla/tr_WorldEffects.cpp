@@ -486,7 +486,7 @@ public:
 		for (int wz=0; wz<mWeatherZones.size(); wz++)
 		{
 			Z_Free(mWeatherZones[wz].mPointCache);
-			mWeatherZones[wz].mPointCache = 0;
+			mWeatherZones[wz].mPointCache = nullptr;
 		}
 		mWeatherZones.clear();
 	}
@@ -830,7 +830,7 @@ public:
 
 
 
-		CWeatherParticle*	part=0;
+		CWeatherParticle*	part=nullptr;
 		for (int particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
 			part = &(mParticles[particleNum]);
@@ -855,13 +855,13 @@ public:
 		{
 			// TODO: Free Image?
 		}
-		mImage				= 0;
+		mImage				= nullptr;
 		if (mParticleCount)
 		{
 			delete [] mParticles;
 		}
 		mParticleCount		= 0;
-		mParticles			= 0;
+		mParticles			= nullptr;
 
 		mPopulated			= 0;
 
@@ -911,7 +911,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	CWeatherParticleCloud()
 	{
-		mImage = 0;
+		mImage = nullptr;
 		mParticleCount = 0;
 		Reset();
 	}
@@ -939,7 +939,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	void		Update()
 	{
-		CWeatherParticle*	part=0;
+		CWeatherParticle*	part=nullptr;
 		CVec3		partForce;
 		CVec3		partMoved;
 		CVec3		partToCamera;
@@ -1211,7 +1211,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	void		Render()
 	{
-		CWeatherParticle*	part=0;
+		CWeatherParticle*	part=nullptr;
 		int			particleNum;
 
 

@@ -153,10 +153,10 @@ cvar_t	*r_modelpoolmegs;
 cvar_t	*r_noGhoul2;
 cvar_t	*r_Ghoul2AnimSmooth;
 cvar_t	*r_Ghoul2UnSqash;
-cvar_t	*r_Ghoul2TimeBase=0;
+cvar_t	*r_Ghoul2TimeBase=nullptr;
 cvar_t	*r_Ghoul2NoLerp;
 cvar_t	*r_Ghoul2NoBlend;
-cvar_t	*r_Ghoul2BlendMultiplier=0;
+cvar_t	*r_Ghoul2BlendMultiplier=nullptr;
 cvar_t	*r_Ghoul2UnSqashAfterSmooth;
 
 cvar_t	*broadsword;
@@ -460,9 +460,9 @@ static void GLimp_InitExtensions( void )
 	Com_Printf ("...using GL_EXT_texture_edge_clamp\n" );
 
 	// GL_ARB_multitexture
-	qglMultiTexCoord2fARB = NULL;
-	qglActiveTextureARB = NULL;
-	qglClientActiveTextureARB = NULL;
+	qglMultiTexCoord2fARB = nullptr;
+	qglActiveTextureARB = nullptr;
+	qglClientActiveTextureARB = nullptr;
 	if ( ri.GL_ExtensionSupported( "GL_ARB_multitexture" ) )
 	{
 		if ( r_ext_multitexture->integer )
@@ -481,9 +481,9 @@ static void GLimp_InitExtensions( void )
 				}
 				else
 				{
-					qglMultiTexCoord2fARB = NULL;
-					qglActiveTextureARB = NULL;
-					qglClientActiveTextureARB = NULL;
+					qglMultiTexCoord2fARB = nullptr;
+					qglActiveTextureARB = nullptr;
+					qglClientActiveTextureARB = nullptr;
 					Com_Printf ("...not using GL_ARB_multitexture, < 2 texture units\n" );
 				}
 			}
@@ -499,8 +499,8 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// GL_EXT_compiled_vertex_array
-	qglLockArraysEXT = NULL;
-	qglUnlockArraysEXT = NULL;
+	qglLockArraysEXT = nullptr;
+	qglUnlockArraysEXT = nullptr;
 	if ( ri.GL_ExtensionSupported( "GL_EXT_compiled_vertex_array" ) )
 	{
 		if ( r_ext_compiled_vertex_array->integer )
@@ -554,8 +554,8 @@ static void GLimp_InitExtensions( void )
 				 !qglGetCombinerOutputParameterfvNV || !qglGetCombinerOutputParameterivNV || !qglGetFinalCombinerInputParameterfvNV || !qglGetFinalCombinerInputParameterivNV )
 			{
 				bNVRegisterCombiners = false;
-				qglCombinerParameterfvNV = NULL;
-				qglCombinerParameteriNV = NULL;
+				qglCombinerParameterfvNV = nullptr;
+				qglCombinerParameteriNV = nullptr;
 				Com_Printf ("...GL_NV_register_combiners failed\n" );
 			}
 		}
@@ -632,8 +632,8 @@ static void GLimp_InitExtensions( void )
 		{
 			bARBVertexProgram = false;
 			bARBFragmentProgram = false;
-			qglGenProgramsARB = NULL;	//clear ptrs that get checked
-			qglProgramEnvParameter4fARB = NULL;
+			qglGenProgramsARB = nullptr;	//clear ptrs that get checked
+			qglProgramEnvParameter4fARB = nullptr;
 			Com_Printf ("...ignoring GL_ARB_vertex_program\n" );
 			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
 		}
@@ -896,7 +896,7 @@ R_TakeScreenshotPNG
 ==================
 */
 void R_TakeScreenshotPNG( int x, int y, int width, int height, char *fileName ) {
-	byte *buffer=NULL;
+	byte *buffer=nullptr;
 	size_t offset=0;
 	int padlen=0;
 
@@ -1312,8 +1312,8 @@ void GfxInfo_f( void )
 	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
 	if ( r_texturebitslm->integer > 0 )
 		ri.Printf( PRINT_ALL, "lightmap texture bits: %d\n", r_texturebitslm->integer );
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
-	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
+	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != nullptr] );
+	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != nullptr ] );
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
 	ri.Printf( PRINT_ALL, "compressed lightmaps: %s\n", enablestrings[(r_ext_compressed_lightmaps->integer != 0 && glConfig.textureCompression != TC_NONE)] );
@@ -1986,7 +1986,7 @@ extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *
 	if ( apiVersion != REF_API_VERSION ) {
 		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n",
 			REF_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	// the RE_ functions are Renderer Entry points

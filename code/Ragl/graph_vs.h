@@ -1420,7 +1420,7 @@ public:
 
 		////////////////////////////////////////////////////////////////////////////////
 		// The current estimated cost of reaching a give node, if the node was never
-		// visited, but IS closed, it returns NULL cost
+		// visited, but IS closed, it returns nullptr cost
 		////////////////////////////////////////////////////////////////////////////////
 		float			visited_cost(int NodeIndex)
 		{

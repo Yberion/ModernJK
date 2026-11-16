@@ -202,7 +202,7 @@ public:
 	}
 }; // AIGroupInfo_t
 
-int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *avoid = NULL );
+int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *avoid = nullptr );
 int AI_GetGroupSize( gentity_t *ent, int radius );
 
 void AI_GetGroup( gentity_t *self );

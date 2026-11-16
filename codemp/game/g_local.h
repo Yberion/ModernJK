@@ -219,7 +219,7 @@ struct gentity_s {
 	// EXPECTS THE FIELDS IN THAT ORDER!
 	//================================
 
-	struct gclient_s	*client;			// NULL if not a client
+	struct gclient_s	*client;			// nullptr if not a client
 
 	gNPC_t		*NPC;//Only allocated if the entity becomes an NPC
 	int			cantHitEnemyCounter;//HACK - Makes them look for another enemy on the same team if the one they're after can't be hit
@@ -254,7 +254,7 @@ struct gentity_s {
 	int			attackDebounceTime;
 	int			alliedTeam;			// only useable by this team, never target this team
 
-	int			roffid;				// if roffname != NULL then set on spawn
+	int			roffid;				// if roffname != nullptr then set on spawn
 
 	bool	neverFree;			// if true, FreeEntity will only unlink
 									// bodyque uses this

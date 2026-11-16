@@ -102,10 +102,10 @@ Sys_GetClipboardData
 */
 char *Sys_GetClipboardData( void ) {
 #ifdef DEDICATED
-	return NULL;
+	return nullptr;
 #else
 	if ( !SDL_HasClipboardText() )
-		return NULL;
+		return nullptr;
 
 	char *cbText = SDL_GetClipboardText();
 	size_t len = strlen( cbText ) + 1;
@@ -211,7 +211,7 @@ static void Sys_ErrorDialog( const char *error )
 		fclose( fp );
 
 		const char *errorMessage = va( "%s\n\nThe crash log was written to %s", error, crashLogPath );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, NULL ) < 0 )
+		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
 		{
 			fprintf( stderr, "%s", errorMessage );
 		}
@@ -224,7 +224,7 @@ static void Sys_ErrorDialog( const char *error )
 
 		const char *errorMessage = va( "%s\nCould not write the crash log file, but we printed it to stderr.\n"
 										"Try running the game using a command line interface.", error );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, NULL ) < 0 )
+		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
 		{
 			// We really have hit rock bottom here :(
 			fprintf( stderr, "%s", errorMessage );
@@ -301,13 +301,13 @@ from executable path, then fs_basepath.
 */
 void *Sys_LoadDll( const char *name, bool useSystemLib )
 {
-	void *dllhandle = NULL;
+	void *dllhandle = nullptr;
 
 	// Don't load any DLLs that end with the pk3 extension
 	if ( COM_CompareExtension( name, ".pk3" ) )
 	{
 		Com_Printf( S_COLOR_YELLOW "WARNING: Rejecting DLL named \"%s\"", name );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( useSystemLib )
@@ -347,14 +347,14 @@ void *Sys_LoadDll( const char *name, bool useSystemLib )
 
 		Com_Printf( "%s(%s) failed: \"%s\"\n", __FUNCTION__, fn, Sys_LibraryError() );
 	}
-	return NULL;
+	return nullptr;
 }
 
 #if defined(MACOS_X) && !defined(_JK2EXE)
 void *Sys_LoadMachOBundle( const char *name )
 {
 	if ( !FS_LoadMachOBundle(name) )
-		return NULL;
+		return nullptr;
 
 	char *homepath = Cvar_VariableString( "fs_homepath" );
 	char *gamedir = Cvar_VariableString( "fs_game" );
@@ -367,7 +367,7 @@ void *Sys_LoadMachOBundle( const char *name )
 
 	void    *libHandle = Sys_LoadLibrary( fn );
 
-	if ( libHandle != NULL ) {
+	if ( libHandle != nullptr ) {
 		Com_Printf( "Loaded pk3 bundle %s.\n", name );
 	}
 
@@ -457,7 +457,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 static void FreeUnpackDLLResult(UnpackDLLResult *result)
@@ -468,7 +468,7 @@ static void FreeUnpackDLLResult(UnpackDLLResult *result)
 
 void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallProc *systemcalls )
 {
-	void	*libHandle = NULL;
+	void	*libHandle = nullptr;
 	char	filename[MAX_OSPATH];
 
 	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
@@ -486,7 +486,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 				{
 					FreeUnpackDLLResult(&unpackResult);
 					Com_DPrintf( "Sys_LoadLegacyGameDll: Failed to unpack %s from PK3.\n", filename );
-					return NULL;
+					return nullptr;
 				}
 			}
 			else
@@ -526,7 +526,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 
 				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
-					return NULL;
+					return nullptr;
 			}
 		}
 	}
@@ -539,7 +539,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 	if ( !*vmMain || !dllEntry ) {
 		Com_DPrintf ( "Sys_LoadLegacyGameDll(%s) failed to find vmMain function:\n...%s!\n", name, Sys_LibraryError() );
 		Sys_UnloadLibrary( libHandle );
-		return NULL;
+		return nullptr;
 	}
 
 	Com_DPrintf ( "Sys_LoadLegacyGameDll(%s) found vmMain function at 0x%" PRIxPTR "\n", name, *vmMain );
@@ -550,7 +550,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 
 void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 {
-	void	*libHandle = NULL;
+	void	*libHandle = nullptr;
 	char	filename[MAX_OSPATH];
 
 	assert( GetGameAPI );
@@ -586,14 +586,14 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 											SEARCH_PATH_BASE | SEARCH_PATH_MOD | SEARCH_PATH_MODERNJK | SEARCH_PATH_ROOT,
 											__FUNCTION__ );
 		if ( !libHandle )
-			return NULL;
+			return nullptr;
 	}
 
 	*GetGameAPI = (GetGameAPIProc *)Sys_LoadFunction( libHandle, "GetGameAPI" );
 	if ( !*GetGameAPI ) {
 		Com_DPrintf ( "%s(%s) failed to find GetGameAPI function:\n...%s!\n", __FUNCTION__, name, Sys_LibraryError() );
 		Sys_UnloadLibrary( libHandle );
-		return NULL;
+		return nullptr;
 	}
 
 	return libHandle;
@@ -601,7 +601,7 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 
 void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 {
-	void	*libHandle = NULL;
+	void	*libHandle = nullptr;
 	char	filename[MAX_OSPATH];
 
 	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
@@ -619,7 +619,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 				{
 					FreeUnpackDLLResult(&unpackResult);
 					Com_DPrintf( "Sys_LoadLegacyGameDll: Failed to unpack %s from PK3.\n", filename );
-					return NULL;
+					return nullptr;
 				}
 			}
 			else
@@ -659,7 +659,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 
 				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
-					return NULL;
+					return nullptr;
 			}
 		}
 	}
@@ -668,7 +668,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 	if ( !*moduleAPI ) {
 		Com_DPrintf ( "Sys_LoadGameDll(%s) failed to find GetModuleAPI function:\n...%s!\n", name, Sys_LibraryError() );
 		Sys_UnloadLibrary( libHandle );
-		return NULL;
+		return nullptr;
 	}
 
 	return libHandle;
@@ -765,7 +765,7 @@ int main ( int argc, char* argv[] )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const bool containsSpaces = (strchr(argv[i], ' ') != NULL);
+		const bool containsSpaces = (strchr(argv[i], ' ') != nullptr);
 		if (containsSpaces)
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 

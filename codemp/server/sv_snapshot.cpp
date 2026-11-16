@@ -66,8 +66,8 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 		from_num_entities = from->num_entities;
 	}
 
-	newent = NULL;
-	oldent = NULL;
+	newent = nullptr;
+	oldent = nullptr;
 	newindex = 0;
 	oldindex = 0;
 	while ( newindex < to->num_entities || oldindex < from_num_entities ) {
@@ -104,7 +104,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 
 		if ( newnum > oldnum ) {
 			// the old entity isn't present in the new message
-			MSG_WriteDeltaEntity (msg, oldent, NULL, true );
+			MSG_WriteDeltaEntity (msg, oldent, nullptr, true );
 			oldindex++;
 			continue;
 		}
@@ -119,7 +119,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 ==================
 SV_SnapshotBase
 
-The earlier snapshot to code this one against and its distance in messages, or NULL and 0
+The earlier snapshot to code this one against and its distance in messages, or nullptr and 0
 ==================
 */
 clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe_out ) {
@@ -137,13 +137,13 @@ clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe_out ) {
 	// try to use a previous frame as the source for delta compressing the snapshot
 	if ( deltaMessage <= 0 || client->state != CS_ACTIVE ) {
 		// client is asking for a retransmit
-		oldframe = NULL;
+		oldframe = nullptr;
 		lastframe = 0;
 	} else if ( client->netchan.outgoingSequence - deltaMessage
 		>= (PACKET_BACKUP - 3) ) {
 		// client hasn't gotten a good message through in a long time
 		Com_DPrintf ("%s: Delta request from out of date packet.\n", client->name);
-		oldframe = NULL;
+		oldframe = nullptr;
 		lastframe = 0;
 	} else {
 		// (a server demo needs no rule here: it is coded for itself, SV_NetcodecDemoStart)
@@ -154,7 +154,7 @@ clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe_out ) {
 		// the snapshot's entities may still have rolled off the buffer, though
 		if ( oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities ) {
 			Com_DPrintf ("%s: Delta request from out of date entities.\n", client->name);
-			oldframe = NULL;
+			oldframe = nullptr;
 			lastframe = 0;
 		}
 	}
@@ -235,9 +235,9 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 			{ //if last frame didn't have vehicle, then the old vps isn't gonna delta
 				//properly (because our vps on the client could be anything)
 #ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, true );
+				MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->vps, nullptr, nullptr, true );
 #else
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, true );
+				MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->vps, true );
 #endif
 			}
 			else
@@ -251,16 +251,16 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 		}
 	} else {
 #ifdef _ONEBIT_COMBO
-		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps, NULL, NULL );
+		MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->ps, nullptr, nullptr );
 #else
-		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
+		MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->ps );
 #endif
 		if (frame->ps.m_iVehicleNum)
 		{ //then write the vehicle's playerstate too
 #ifdef _ONEBIT_COMBO
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, true );
+			MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->vps, nullptr, nullptr, true );
 #else
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, true );
+			MSG_WriteDeltaPlayerstate( msg, nullptr, &frame->vps, true );
 #endif
 		}
 	}
@@ -754,7 +754,7 @@ Also called by SV_FinalMessage
 */
 extern cvar_t	*fs_gamedirvar;
 void SV_SendClientSnapshot( client_t *client ) {
-	const char *setGame = NULL;
+	const char *setGame = nullptr;
 
 	if (!client->sentGamedir)
 	{ //rww - the game dir goes with the next message (svc_setgame, a message of its own before the message codec)

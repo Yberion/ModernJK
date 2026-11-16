@@ -864,7 +864,7 @@ void NPC_Begin (gentity_t *ent)
 	vec3_t	spawn_origin, spawn_angles;
 	gclient_t	*client;
 	usercmd_t	ucmd;
-	gentity_t	*spawnPoint = NULL;
+	gentity_t	*spawnPoint = nullptr;
 
 	memset( &ucmd, 0, sizeof( ucmd ) );
 
@@ -1082,7 +1082,7 @@ void NPC_Begin (gentity_t *ent)
 	if ( ent->s.m_iVehicleNum )
 	{//I'm an NPC in a vehicle (or a vehicle), I already have owner set
 	}
-	else if ( client->NPC_class == CLASS_SEEKER && ent->activator != NULL )
+	else if ( client->NPC_class == CLASS_SEEKER && ent->activator != nullptr )
 	{//somebody else "owns" me
 		ent->s.owner = ent->r.ownerNum = ent->activator->s.number;
 	}
@@ -1109,7 +1109,7 @@ void NPC_Begin (gentity_t *ent)
 //==NPC initialization
 	SetNPCGlobals( ent );
 
-	ent->enemy = NULL;
+	ent->enemy = nullptr;
 	NPCS.NPCInfo->timeOfDeath = 0;
 	NPCS.NPCInfo->shotTime = 0;
 	NPC_ClearGoal();
@@ -1203,8 +1203,8 @@ void NPC_Begin (gentity_t *ent)
 		//check for droidunit
 		if ( ent->m_pVehicle->m_iDroidUnitTag != -1 )
 		{
-			const char	*droidNPCType = NULL;
-			gentity_t *droidEnt = NULL;
+			const char	*droidNPCType = nullptr;
+			gentity_t *droidEnt = nullptr;
 			if ( ent->model2
 				&& ent->model2[0] )
 			{//specified on the NPC_Vehicle spawner ent
@@ -1216,7 +1216,7 @@ void NPC_Begin (gentity_t *ent)
 				droidNPCType = ent->m_pVehicle->m_pVehicleInfo->droidNPC;
 			}
 
-			if ( droidNPCType != NULL )
+			if ( droidNPCType != nullptr )
 			{
 				if ( Q_stricmp( "random", droidNPCType ) == 0
 					|| Q_stricmp( "default", droidNPCType ) == 0 )
@@ -1230,8 +1230,8 @@ void NPC_Begin (gentity_t *ent)
 						droidNPCType = "r5d2";
 					}
 				}
-				droidEnt = NPC_SpawnType( ent, droidNPCType, NULL, false );
-				if ( droidEnt != NULL )
+				droidEnt = NPC_SpawnType( ent, droidNPCType, nullptr, false );
+				if ( droidEnt != nullptr )
 				{
 					if ( droidEnt->client )
 					{
@@ -1301,7 +1301,7 @@ bool NPC_StasisSpawn_Go( gentity_t *ent )
 	//Setup an owner pointer if we need it
 	if VALIDSTRING( ent->ownername )
 	{
-		ent->parent = G_Find( NULL, FOFS( targetname ), ent->ownername );
+		ent->parent = G_Find( nullptr, FOFS( targetname ), ent->ownername );
 
 		if ( ( ent->parent ) && ( ent->parent->health <= 0 ) )
 		{//our spawner thing is broken
@@ -1359,7 +1359,7 @@ extern void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType );
 
 gentity_t *NPC_Spawn_Do( gentity_t *ent )
 {
-	gentity_t	*newent = NULL;
+	gentity_t	*newent = nullptr;
 	int			index;
 	vec3_t		saveOrg;
 
@@ -1394,27 +1394,27 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 
 		if( ent->count <= 0 )
 		{
-			ent->use = 0;//never again
+			ent->use = nullptr;//never again
 			//FIXME: why not remove me...?  Because of all the string pointers?  Just do G_NewStrings?
 		}
 	}
 
 	newent = G_Spawn();
 
-	if ( newent == NULL )
+	if ( newent == nullptr )
 	{
 		Com_Printf ( S_COLOR_RED "ERROR: NPC G_Spawn failed\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	newent->fullName = ent->fullName;
 
 	newent->NPC = New_NPC_t(newent->s.number);
-	if ( newent->NPC == NULL )
+	if ( newent->NPC == nullptr )
 	{
 		Com_Printf ( S_COLOR_RED "ERROR: NPC G_Alloc NPC failed\n" );
 		goto finish;
-	//	return NULL;
+	//	return nullptr;
 	}
 
 	//newent->client = (gclient_s *)G_Alloc (sizeof(gclient_s));
@@ -1422,22 +1422,22 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 
 	newent->NPC->tempGoal = G_Spawn();
 
-	if ( newent->NPC->tempGoal == NULL )
+	if ( newent->NPC->tempGoal == nullptr )
 	{
-		newent->NPC = NULL;
+		newent->NPC = nullptr;
 		goto finish;
-	//	return NULL;
+	//	return nullptr;
 	}
 
 	newent->NPC->tempGoal->classname = "NPC_goal";
 	newent->NPC->tempGoal->parent = newent;
 	newent->NPC->tempGoal->r.svFlags |= SVF_NOCLIENT;
 
-	if ( newent->client == NULL )
+	if ( newent->client == nullptr )
 	{
 		Com_Printf ( S_COLOR_RED "ERROR: NPC BG_Alloc client failed\n" );
 		goto finish;
-	//	return NULL;
+	//	return nullptr;
 	}
 
 	memset ( newent->client, 0, sizeof(*newent->client) );
@@ -1447,7 +1447,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 
 //==NPC_Connect( newent, net_name );===================================
 
-	if ( ent->NPC_type == NULL )
+	if ( ent->NPC_type == nullptr )
 	{
 		ent->NPC_type = "random";
 	}
@@ -1486,7 +1486,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 			G_FreeEntity( newent );
 			//get rid of the spawner, too, I guess
 			G_FreeEntity( ent );
-			return NULL;
+			return nullptr;
 		}
 		// NOTE: If you change/add any of these, update NPC_Spawn_f for the new vehicle you
 		// want to be able to spawn in manually.
@@ -1516,7 +1516,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 				G_FreeEntity( newent );
 				//get rid of the spawner, too, I guess
 				G_FreeEntity( ent );
-				return NULL;
+				return nullptr;
 		}
 
 		assert(newent->m_pVehicle &&
@@ -1580,7 +1580,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 		G_FreeEntity( newent );
 		//get rid of the spawner, too, I guess
 		G_FreeEntity( ent );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( ent->NPC_type )
@@ -1731,7 +1731,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 		{//last guy should fire this target when he dies
 			newent->target = ent->closetarget;
 		}
-		ent->targetname = NULL;
+		ent->targetname = nullptr;
 		//why not remove me...?  Because of all the string pointers?  Just do G_NewStrings?
 		G_FreeEntity( ent );//bye!
 	}
@@ -1764,7 +1764,7 @@ void NPC_StasisSpawnEffect( gentity_t *ent )
 	//Floor or wall?
 	if ( ent->spawnflags & 1 )
 	{
-		AngleVectors( ent->s.angles, forward, NULL, NULL );
+		AngleVectors( ent->s.angles, forward, nullptr, nullptr );
 		VectorMA( ent->r.currentOrigin,  24, forward, end );
 		VectorMA( ent->r.currentOrigin, -20, forward, start );
 
@@ -1807,7 +1807,7 @@ void NPC_ShySpawn( gentity_t *ent )
 		if ( (NPC_ClearLOS2( &g_entities[0], ent->r.currentOrigin )) )
 			return;
 
-	ent->think = 0;
+	ent->think = nullptr;
 	ent->nextthink = 0;
 
 	NPC_Spawn_Go( ent );
@@ -2084,7 +2084,7 @@ teamnodmg - team that NPC does not take damage from (turrets and other auto-defe
 */
 bool NPC_VehiclePrecache( gentity_t *spawner )
 {
-	const char *droidNPCType = NULL;
+	const char *droidNPCType = nullptr;
 	//This will precache the vehicle
 	vehicleInfo_t *pVehInfo;
 	int iVehIndex = BG_VehicleGetIndex( spawner->NPC_type );
@@ -2098,7 +2098,7 @@ bool NPC_VehiclePrecache( gentity_t *spawner )
 	pVehInfo = &g_vehicleInfo[iVehIndex];
 	if (pVehInfo->model && pVehInfo->model[0])
 	{
-		void *tempG2 = NULL;
+		void *tempG2 = nullptr;
 		int skin = 0;
 		if (pVehInfo->skin && pVehInfo->skin[0])
 		{
@@ -2119,7 +2119,7 @@ bool NPC_VehiclePrecache( gentity_t *spawner )
 				{
 					strcpy(slash, "/animation.cfg");
 
-					BG_ParseAnimationFile(GLAName, NULL, false);
+					BG_ParseAnimationFile(GLAName, nullptr, false);
 				}
 			}
 			trap->G2API_CleanGhoul2Models(&tempG2);
@@ -2321,7 +2321,7 @@ void SP_NPC_Kyle( gentity_t *self)
 {
 	self->NPC_type = "Kyle";
 
-	WP_SetSaberModel( NULL, CLASS_KYLE );
+	WP_SetSaberModel( nullptr, CLASS_KYLE );
 
 	SP_NPC_spawner( self );
 }
@@ -2365,7 +2365,7 @@ void SP_NPC_Luke( gentity_t *self)
 {
 	self->NPC_type = "Luke";
 
-	WP_SetSaberModel( NULL, CLASS_LUKE );
+	WP_SetSaberModel( nullptr, CLASS_LUKE );
 
 	SP_NPC_spawner( self );
 }
@@ -2395,7 +2395,7 @@ void SP_NPC_Tavion( gentity_t *self)
 {
 	self->NPC_type = "Tavion";
 
-	WP_SetSaberModel( NULL, CLASS_TAVION );
+	WP_SetSaberModel( nullptr, CLASS_TAVION );
 
 	SP_NPC_spawner( self );
 }
@@ -2664,7 +2664,7 @@ void SP_NPC_Cultist( gentity_t *self)
 	{
 		if ( (self->spawnflags&1) )
 		{
-			self->NPC_type = NULL;
+			self->NPC_type = nullptr;
 			self->spawnflags = 0;//fast, no throw
 			switch ( Q_irand( 0, 2 ) )
 			{
@@ -2789,7 +2789,7 @@ void SP_NPC_Desann( gentity_t *self)
 {
 	self->NPC_type = "Desann";
 
-	WP_SetSaberModel( NULL, CLASS_DESANN );
+	WP_SetSaberModel( nullptr, CLASS_DESANN );
 
 	SP_NPC_spawner( self );
 }
@@ -2912,7 +2912,7 @@ void SP_NPC_Jedi( gentity_t *self)
 		}
 	}
 
-	WP_SetSaberModel( NULL, CLASS_JEDI );
+	WP_SetSaberModel( nullptr, CLASS_JEDI );
 
 	SP_NPC_spawner( self );
 }
@@ -3476,7 +3476,7 @@ void SP_NPC_Reborn( gentity_t *self)
 		}
 	}
 
-	WP_SetSaberModel( NULL, CLASS_REBORN );
+	WP_SetSaberModel( nullptr, CLASS_REBORN );
 	SP_NPC_spawner( self );
 }
 
@@ -3502,7 +3502,7 @@ void SP_NPC_ShadowTrooper( gentity_t *self)
 	}
 
 	NPC_ShadowTrooper_Precache();
-	WP_SetSaberModel( NULL, CLASS_SHADOWTROOPER );
+	WP_SetSaberModel( nullptr, CLASS_SHADOWTROOPER );
 
 	SP_NPC_spawner( self );
 }
@@ -3959,7 +3959,7 @@ gentity_t *NPC_SpawnType( gentity_t *ent, const char *npc_type, char *targetname
 	if(!NPCspawner)
 	{
 		Com_Printf( S_COLOR_RED"NPC_Spawn Error: Out of entities!\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	NPCspawner->think = G_FreeEntity;
@@ -3967,30 +3967,30 @@ gentity_t *NPC_SpawnType( gentity_t *ent, const char *npc_type, char *targetname
 
 	if ( !npc_type )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!npc_type[0])
 	{
 		Com_Printf( S_COLOR_RED"Error, expected one of:\n" S_COLOR_WHITE" NPC spawn [NPC type (from ext_data/NPCs)]\n NPC spawn vehicle [VEH type (from ext_data/vehicles)]\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !ent || !ent->client )
 	{//screw you, go away
-		return NULL;
+		return nullptr;
 	}
 
 	//rwwFIXMEFIXME: Care about who is issuing this command/other clients besides 0?
 	//Spawn it at spot of first player
 	//FIXME: will gib them!
-	AngleVectors(ent->client->ps.viewangles, forward, NULL, NULL);
+	AngleVectors(ent->client->ps.viewangles, forward, nullptr, nullptr);
 	VectorNormalize(forward);
 	VectorMA(ent->r.currentOrigin, 64, forward, end);
-	trap->Trace(&trace, ent->r.currentOrigin, NULL, NULL, end, 0, MASK_SOLID, false, 0, 0);
+	trap->Trace(&trace, ent->r.currentOrigin, nullptr, nullptr, end, 0, MASK_SOLID, false, 0, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] -= 24;
-	trap->Trace(&trace, trace.endpos, NULL, NULL, end, 0, MASK_SOLID, false, 0, 0);
+	trap->Trace(&trace, trace.endpos, nullptr, nullptr, end, 0, MASK_SOLID, false, 0, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] += 24;
 	G_SetOrigin(NPCspawner, end);
@@ -4052,7 +4052,7 @@ gentity_t *NPC_SpawnType( gentity_t *ent, const char *npc_type, char *targetname
 	}
 	else if ( !Q_stricmp( "interrogator", NPCspawner->NPC_type))
 	{
-		NPC_Interrogator_Precache(NULL);
+		NPC_Interrogator_Precache(nullptr);
 	}
 	else if ( !Q_stricmp( "probe", NPCspawner->NPC_type))
 	{
@@ -4290,7 +4290,7 @@ void Cmd_NPC_f( gentity_t *ent )
 	else if ( Q_stricmp ( cmd, "score" ) == 0 )
 	{
 		char		cmd2[1024];
-		gentity_t *thisent = NULL;
+		gentity_t *thisent = nullptr;
 
 		trap->Argv( 2, cmd2, sizeof( cmd2 ) );
 
@@ -4311,7 +4311,7 @@ void Cmd_NPC_f( gentity_t *ent )
 		}
 		else
 		{
-			if ( (thisent = G_Find( NULL, FOFS(targetname), cmd2 )) != NULL && thisent->client )
+			if ( (thisent = G_Find( nullptr, FOFS(targetname), cmd2 )) != nullptr && thisent->client )
 			{
 				NPC_PrintScore( thisent );
 			}

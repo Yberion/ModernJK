@@ -316,7 +316,7 @@ void CG_InitSiegeMode(void)
 	}
 
 	//Load the player class types
-	BG_SiegeLoadClasses(NULL);
+	BG_SiegeLoadClasses(nullptr);
 
 	if (!bgNumSiegeClasses)
 	{ //We didn't find any?!
@@ -459,7 +459,7 @@ static char QINLINE *CG_SiegeObjectiveBuffer(int team, int objective)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CG_ParseSiegeObjectiveStatus(const char *str)
@@ -579,7 +579,7 @@ void CG_SiegeRoundOver(centity_t *ent, int won)
 	char			appstring[1024];
 	char			soundstr[1024];
 	int				success = 0;
-	playerState_t	*ps = NULL;
+	playerState_t	*ps = nullptr;
 
 	if (!siege_valid)
 	{
@@ -891,7 +891,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, int won, int objectivenum)
 	char			appstring[1024];
 	char			soundstr[1024];
 	int				success = 0;
-	playerState_t	*ps = NULL;
+	playerState_t	*ps = nullptr;
 
 	if (!siege_valid)
 	{

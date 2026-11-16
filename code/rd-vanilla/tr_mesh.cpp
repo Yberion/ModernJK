@@ -301,11 +301,11 @@ R_AddMD3Surfaces
 */
 void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	int				i;
-	md3Header_t		*header = 0;
-	md3Surface_t	*surface = 0;
-	md3Shader_t		*md3Shader = 0;
-	shader_t		*shader = 0;
-	shader_t		*main_shader = 0;
+	md3Header_t		*header = nullptr;
+	md3Surface_t	*surface = nullptr;
+	md3Shader_t		*md3Shader = nullptr;
+	shader_t		*shader = nullptr;
+	shader_t		*main_shader = nullptr;
 	int				cull;
 	int				lod;
 	int				fogNum;

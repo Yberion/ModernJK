@@ -45,7 +45,7 @@ static void AddPlane(hbrush_t *b, float nx, float ny, float nz, float dist) {
 	p->dist = dist;
 }
 
-// an axis-aligned box; extra: an optional slanted plane (normal, dist), else NULL
+// an axis-aligned box; extra: an optional slanted plane (normal, dist), else nullptr
 static void AddBox(float x0, float y0, float z0, float x1, float y1, float z1, const float *extra) {
 	hbrush_t *b = &world[numBrushes++];
 	b->numPlanes = 0;
@@ -63,16 +63,16 @@ static void BuildWorld(void) {
 	const float s = 0.5f, c = 0.86602540378f;
 	const float ramp[4] = { -s, 0.0f, c, -s * 600.0f };
 	numBrushes = 0;
-	AddBox(-2048, -2048, -64, 2048, 2048, 0, NULL);       // floor
-	AddBox(-2112, -2048, 0, -2048, 2048, 512, NULL);      // walls
-	AddBox(2048, -2048, 0, 2112, 2048, 512, NULL);
-	AddBox(-2048, -2112, 0, 2048, -2048, 512, NULL);
-	AddBox(-2048, 2048, 0, 2048, 2112, 512, NULL);
-	AddBox(-2048, -2048, 512, 2048, 2048, 576, NULL);     // ceiling
-	AddBox(256, -256, 0, 512, 256, 16, NULL);             // a step
-	AddBox(-512, -128, 0, -384, 0, 40, NULL);             // a crate (too high to step on)
+	AddBox(-2048, -2048, -64, 2048, 2048, 0, nullptr);       // floor
+	AddBox(-2112, -2048, 0, -2048, 2048, 512, nullptr);      // walls
+	AddBox(2048, -2048, 0, 2112, 2048, 512, nullptr);
+	AddBox(-2048, -2112, 0, 2048, -2048, 512, nullptr);
+	AddBox(-2048, 2048, 0, 2048, 2112, 512, nullptr);
+	AddBox(-2048, -2048, 512, 2048, 2048, 576, nullptr);     // ceiling
+	AddBox(256, -256, 0, 512, 256, 16, nullptr);             // a step
+	AddBox(-512, -128, 0, -384, 0, 40, nullptr);             // a crate (too high to step on)
 	AddBox(600, -200, 0, 1000, 200, 231, ramp);           // the ramp
-	AddBox(-1200, 600, 0, -1000, 800, 120, NULL);         // a pillar
+	AddBox(-1200, 600, 0, -1000, 800, 120, nullptr);         // a pillar
 }
 
 #define SURF_EPS 0.125f   // SURFACE_CLIP_EPSILON of the engine's collision code
@@ -92,7 +92,7 @@ static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, cons
 	for (i = 0; i < numBrushes; i++) {
 		const hbrush_t *b = &world[i];
 		float enterFrac = -1.0f, leaveFrac = 1.0f;
-		const hplane_t *clip = NULL;
+		const hplane_t *clip = nullptr;
 		bool getout = false, startout = false, skip = false;
 		for (j = 0; j < b->numPlanes; j++) {
 			const hplane_t *p = &b->planes[j];
@@ -189,8 +189,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, bool force) {
 	(void)veh; (void)trace; (void)magnitude; (void)force;
 }
-gentity_t *G_PlayEffect(int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return NULL; }
-gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return NULL; }
+gentity_t *G_PlayEffect(int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return nullptr; }
+gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return nullptr; }
 int G_SoundIndex(const char *name) { (void)name; return 0; }
 int G_ModelIndex(const char *name) { (void)name; return 0; }
 int G_EffectIndex(const char *name) { (void)name; return 0; }
@@ -358,7 +358,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 
 int main(int argc, char **argv) {
 	int commands = 20000, a, s, i;
-	FILE *dump = NULL;
+	FILE *dump = nullptr;
 	for (a = 1; a < argc; a++) {
 		if (strncmp(argv[a], "--dump=", 7) == 0) dump = fopen(argv[a] + 7, "w");
 		else commands = atoi(argv[a]);

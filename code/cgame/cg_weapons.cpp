@@ -916,7 +916,7 @@ static void CG_DoMuzzleFlash( centity_t *cent, vec3_t org, vec3_t dir, weaponDat
 	if ( cent->muzzleFlashTime > 0 )
 	{
 		cent->muzzleFlashTime  = 0;
-		const char *effect = NULL;
+		const char *effect = nullptr;
 
 //		CG_PositionEntityOnTag( &flash, &gun, gun.hModel, "tag_flash");
 
@@ -950,7 +950,7 @@ static void CG_DoMuzzleFlash( centity_t *cent, vec3_t org, vec3_t dir, weaponDat
 	}
 	else
 	{
-//		CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash", NULL);
+//		CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash", nullptr);
 	}
 }
 
@@ -1007,7 +1007,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 		}
 		else
 		{//line
-			//AngleVectors( tAng, fxDir, NULL, NULL );
+			//AngleVectors( tAng, fxDir, nullptr, nullptr );
 			theFxScheduler.PlayEffect( cgs.effects.forceLightning, temp, cg.refdef.viewaxis[0] );
 		}
 	}
@@ -1027,7 +1027,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 		}
 		else
 		{//line
-			//AngleVectors( tAng, fxDir, NULL, NULL );
+			//AngleVectors( tAng, fxDir, nullptr, nullptr );
 			theFxScheduler.PlayEffect( cgs.effects.forceDrain, temp, cg.refdef.viewaxis[0] );
 		}
 	}
@@ -1150,7 +1150,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 		float currentFrame;
 		int startFrame,endFrame,flags;
 		float animSpeed;
-		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed,0) )
+		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed,nullptr) )
 		{
 			hand.oldframe = CG_MapTorsoToWeaponFrame( ci,floor(currentFrame), torsoAnim, cent->currentState.weapon, ( cent->currentState.eFlags & EF_FIRING ) );
 			hand.frame = CG_MapTorsoToWeaponFrame( ci,ceil(currentFrame), torsoAnim, cent->currentState.weapon, ( cent->currentState.eFlags & EF_FIRING ) );
@@ -1258,10 +1258,10 @@ void CG_AddViewWeapon( playerState_t *ps )
 			AnglesToAxis( angles, barrel.axis );
 			if (!i)
 			{
-				CG_PositionRotatedEntityOnTag( &barrel, &hand, weapon->handsModel, "tag_barrel", NULL );
+				CG_PositionRotatedEntityOnTag( &barrel, &hand, weapon->handsModel, "tag_barrel", nullptr );
 			} else
 			{
-				CG_PositionRotatedEntityOnTag( &barrel, &hand, weapon->handsModel, va("tag_barrel%d",i+1), NULL );
+				CG_PositionRotatedEntityOnTag( &barrel, &hand, weapon->handsModel, va("tag_barrel%d",i+1), nullptr );
 			}
 
 			cgi_R_AddRefEntityToScene( &barrel );
@@ -1336,7 +1336,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 
 		val += Q_flrand(0.0f, 1.0f) * 0.5f;
 
-		FX_AddSprite( flash.origin, NULL, NULL, 3.0f * val * scale, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA | FX_DEPTH_HACK );
+		FX_AddSprite( flash.origin, nullptr, nullptr, 3.0f * val * scale, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA | FX_DEPTH_HACK );
 	}
 
 	// Check if the heavy repeater is finishing up a sustained burst
@@ -1692,7 +1692,7 @@ void CG_DrawDataPadWeaponSelect( void )
 				);
 	}
 
-	cgi_R_SetColor( NULL );
+	cgi_R_SetColor( nullptr );
 }
 
 /*
@@ -1806,7 +1806,7 @@ void CG_DrawWeaponSelect( void )
 
 	// count the number of weapons owned
 	count = 0;
-	isOnVeh = (G_IsRidingVehicle(cg_entities[0].gent)!=0);
+	isOnVeh = (G_IsRidingVehicle(cg_entities[0].gent)!=nullptr);
  	for ( i = 1 ; i < MAX_PLAYER_WEAPONS ; i++ )
 	{
 		if ((bits & ( 1 << i ))  &&
@@ -1942,7 +1942,7 @@ void CG_DrawWeaponSelect( void )
 
 	// Current Center Icon
 	//height = bigIconSize * cg.iconHUDPercent;
-	cgi_R_SetColor(NULL);
+	cgi_R_SetColor(nullptr);
 	if (weaponData[cg.weaponSelect].weaponIcon[0])
 	{
 		weaponInfo_t	*weaponInfo;
@@ -2057,7 +2057,7 @@ void CG_DrawWeaponSelect( void )
 		}
 	}
 
-	cgi_R_SetColor( NULL );
+	cgi_R_SetColor( nullptr );
 }
 
 
@@ -2481,7 +2481,7 @@ void CG_ChangeWeapon( int num )
 		return;
 	}
 
-	if ( player->client != NULL && !(player->client->ps.stats[STAT_WEAPONS] & ( 1 << num )) )
+	if ( player->client != nullptr && !(player->client->ps.stats[STAT_WEAPONS] & ( 1 << num )) )
 	{
 		return;		// don't have the weapon
 	}
@@ -2598,11 +2598,11 @@ void CG_Weapon_f( void )
 						if ( cg_entities[0].gent->client->ps.saberInFlight )
 						{//play it on the saber
 							cgi_S_UpdateEntityPosition( cg_entities[0].gent->client->ps.saberEntityNum, g_entities[cg_entities[0].gent->client->ps.saberEntityNum].currentOrigin );
-							cgi_S_StartSound (NULL, cg_entities[0].gent->client->ps.saberEntityNum, CHAN_AUTO, cgs.sound_precache[cg_entities[0].gent->client->ps.saber[0].soundOff] );
+							cgi_S_StartSound (nullptr, cg_entities[0].gent->client->ps.saberEntityNum, CHAN_AUTO, cgs.sound_precache[cg_entities[0].gent->client->ps.saber[0].soundOff] );
 						}
 						else
 						{
-							cgi_S_StartSound (NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.sound_precache[cg_entities[0].gent->client->ps.saber[0].soundOff] );
+							cgi_S_StartSound (nullptr, cg.snap->ps.clientNum, CHAN_AUTO, cgs.sound_precache[cg_entities[0].gent->client->ps.saber[0].soundOff] );
 						}
 					}
 					else
@@ -2801,11 +2801,11 @@ void CG_FireWeapon( centity_t *cent, bool alt_fire )
 				break;
 
 			case WP_BLASTER:
-				cgi_S_StartSound( NULL, ent->number, CHAN_AUTO, cgs.media.overchargeFastSound );
+				cgi_S_StartSound( nullptr, ent->number, CHAN_AUTO, cgs.media.overchargeFastSound );
 				break;
 
 			default:
-				cgi_S_StartSound( NULL, ent->number, CHAN_AUTO, cgs.media.overchargeSlowSound );
+				cgi_S_StartSound( nullptr, ent->number, CHAN_AUTO, cgs.media.overchargeSlowSound );
 				break;
 			}
 		}
@@ -2821,11 +2821,11 @@ void CG_FireWeapon( centity_t *cent, bool alt_fire )
 				break;
 
 			case WP_REPEATER:
-				cgi_S_StartSound( NULL, ent->number, CHAN_AUTO, cgs.media.overchargeFastSound );
+				cgi_S_StartSound( nullptr, ent->number, CHAN_AUTO, cgs.media.overchargeFastSound );
 				break;
 
 			default:
-				cgi_S_StartSound( NULL, ent->number, CHAN_AUTO, cgs.media.overchargeSlowSound );
+				cgi_S_StartSound( nullptr, ent->number, CHAN_AUTO, cgs.media.overchargeSlowSound );
 				break;
 			}
 		}
@@ -2892,7 +2892,7 @@ void CG_MissileStick( centity_t *cent, int weapon, vec3_t position )
 
 	if ( snd )
 	{
-		cgi_S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, snd );
+		cgi_S_StartSound( nullptr, cent->currentState.number, CHAN_AUTO, snd );
 	}
 }
 
@@ -3042,7 +3042,7 @@ CG_MissileHitPlayer
 
 void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, bool altFire )
 {
-	gentity_t *other = NULL;
+	gentity_t *other = nullptr;
 	bool	humanoid = true;
 
 	if ( cent->gent )

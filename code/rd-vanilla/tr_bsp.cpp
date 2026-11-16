@@ -748,8 +748,8 @@ static	void R_LoadSubmodels( lump_t *l, world_t &worldData, int index  ) {
 
 		model = R_AllocModel();
 
-		assert( model != NULL );			// this should never happen
-		if ( model == NULL ) {
+		assert( model != nullptr );			// this should never happen
+		if ( model == nullptr ) {
 			ri.Error(ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
 		}
 
@@ -874,7 +874,7 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump, world_t &wo
 	}
 
 	// chain decendants
-	R_SetParent (worldData.nodes, NULL);
+	R_SetParent (worldData.nodes, nullptr);
 }
 
 //=============================================================================
@@ -1198,7 +1198,7 @@ void R_LoadLightGridArray( lump_t *l, world_t &worldData ) {
 	if ( l->filelen != (int)(w->numGridArrayElements * sizeof(*w->lightGridArray)) ) {
 		if (l->filelen>0)//don't warn if not even lit
 			ri.Printf( PRINT_WARNING, "WARNING: light grid array mismatch\n" );
-		w->lightGridData = NULL;
+		w->lightGridData = nullptr;
 		return;
 	}
 
@@ -1327,7 +1327,7 @@ Called directly from cgame
 */
 void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 	dheader_t	*header;
-	byte		*buffer = NULL;
+	byte		*buffer = nullptr;
 	bool	loadedSubBSP = false;
 
 	if ( tr.worldMapLoaded && !index ) {
@@ -1350,7 +1350,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 
 		// clear tr.world so if the level fails to load, the next
 		// try will not look at the partially loaded version
-		tr.world = NULL;
+		tr.world = nullptr;
 	}
 
 	// check for cached disk file from the server first...
@@ -1369,7 +1369,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 			//
 	//		assert(0);
 	//		R_Free(gpvCachedMapDiskImage);
-	//			   gpvCachedMapDiskImage = NULL;
+	//			   gpvCachedMapDiskImage = nullptr;
 			//rww - this is a valid possibility now because of sub-bsp loading.\
 			//it's alright, just keep the current cache
 			loadedSubBSP = true;
@@ -1378,7 +1378,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 
 	tr.worldDir[0] = '\0';
 
-	if (buffer == NULL)
+	if (buffer == nullptr)
 	{
 		// still needs loading...
 		//
@@ -1444,7 +1444,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 		//  So don't do this...
 		//
 		//		R_Free( gpvCachedMapDiskImage );
-		//				gpvCachedMapDiskImage = NULL;
+		//				gpvCachedMapDiskImage = nullptr;
 	}
 	else
 	{

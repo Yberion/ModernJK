@@ -55,7 +55,7 @@ NPC_UnBlocked
 */
 void NPC_ClearBlocked( gentity_t *self )
 {
-	if ( self->NPC == NULL )
+	if ( self->NPC == nullptr )
 		return;
 
 	//self->NPC->aiFlags &= ~NPCAI_BLOCKED;
@@ -64,7 +64,7 @@ void NPC_ClearBlocked( gentity_t *self )
 
 void NPC_SetBlocked( gentity_t *self, gentity_t *blocker )
 {
-	if ( self->NPC == NULL )
+	if ( self->NPC == nullptr )
 		return;
 
 	//self->NPC->aiFlags |= NPCAI_BLOCKED;
@@ -279,7 +279,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 			arcAngle *= -1;
 		}//else right
 		avoidAngles[YAW] = AngleNormalize360( yaw + arcAngle );
-		AngleVectors( avoidAngles, movedir, NULL, NULL );
+		AngleVectors( avoidAngles, movedir, nullptr, nullptr );
 		VectorMA( self->r.currentOrigin, blocked_dist, movedir, block_pos );
 		trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, 0, 0 );
 		return (tr.fraction==1.0&&!tr.allsolid&&!tr.startsolid);
@@ -287,7 +287,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 
 	//test right
 	avoidAngles[YAW] = AngleNormalize360( yaw + arcAngle );
-	AngleVectors( avoidAngles, avoidRight_dir, NULL, NULL );
+	AngleVectors( avoidAngles, avoidRight_dir, nullptr, nullptr );
 
 	VectorMA( self->r.currentOrigin, blocked_dist, avoidRight_dir, block_pos );
 
@@ -313,7 +313,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 	arcAngle *= -1;
 
 	avoidAngles[YAW] = AngleNormalize360( yaw + arcAngle );
-	AngleVectors( avoidAngles, avoidLeft_dir, NULL, NULL );
+	AngleVectors( avoidAngles, avoidLeft_dir, nullptr, nullptr );
 
 	VectorMA( self->r.currentOrigin, blocked_dist, avoidLeft_dir, block_pos );
 
@@ -378,7 +378,7 @@ bool NAVNEW_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, flo
 
 	vectoangles( movedir, moveangles );
 	moveangles[2] = 0;
-	AngleVectors( moveangles, NULL, right, NULL );
+	AngleVectors( moveangles, nullptr, right, nullptr );
 
 	//Check to see what dir the other guy is moving in (if any) and pick the opposite dir
 	if ( NAVNEW_DanceWithBlocker( self, blocker, movedir, right ) )
@@ -610,7 +610,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t *info )
 	memcpy( &tempInfo, info, sizeof( tempInfo ) );
 
 	//Must have a goal entity to move there
-	if( self->NPC->goalEntity == NULL )
+	if( self->NPC->goalEntity == nullptr )
 		return WAYPOINT_NONE;
 
 	if ( self->waypoint == WAYPOINT_NONE && self->noWaypointTime > level.time )

@@ -56,7 +56,7 @@ void NPC_BSAdvanceFight (void)
 		//VectorCopy( NPCInfo->captureGoal->r.currentOrigin, NPCInfo->tempGoal->r.currentOrigin );
 		//NPCInfo->goalEntity = NPCInfo->tempGoal;
 
-		NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->captureGoal->r.currentOrigin, 16, true, -1, NULL );
+		NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->captureGoal->r.currentOrigin, 16, true, -1, nullptr );
 
 //		NAV_ClearLastRoute(NPC);
 		NPCS.NPCInfo->goalTime = level.time + 100000;
@@ -110,13 +110,13 @@ void NPC_BSAdvanceFight (void)
 					trace_t		tr;
 					gentity_t	*traceEnt;
 					//are we gonna hit him if we shoot at his center?
-					trap->Trace ( &tr, muzzle, NULL, NULL, enemy_org, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_org, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
 					traceEnt = &g_entities[tr.entityNum];
 					if( traceEnt != NPCS.NPC->enemy &&
 						(!traceEnt || !traceEnt->client || !NPCS.NPC->client->enemyTeam || NPCS.NPC->client->enemyTeam != traceEnt->client->playerTeam) )
 					{//no, so shoot for the head
 						attack_scale *= 0.75;
-						trap->Trace ( &tr, muzzle, NULL, NULL, enemy_head, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+						trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_head, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
 						traceEnt = &g_entities[tr.entityNum];
 					}
 
@@ -153,7 +153,7 @@ void NPC_BSAdvanceFight (void)
 					if( !dead_on )
 					{//We're not going to hit him directly, try a suppressing fire
 						//see if where we're going to shoot is too far from his origin
-						AngleVectors (NPCS.NPCInfo->shootAngles, forward, NULL, NULL);
+						AngleVectors (NPCS.NPCInfo->shootAngles, forward, nullptr, nullptr);
 						VectorMA ( muzzle, distanceToEnemy, forward, hitspot);
 						VectorSubtract(hitspot, enemy_org, diff);
 						aim_off = VectorLength(diff);
@@ -204,7 +204,7 @@ void Disappear(gentity_t *self)
 {
 //	ClientDisconnect(self);
 	self->s.eFlags |= EF_NODRAW;
-	self->think = 0;
+	self->think = nullptr;
 	self->nextthink = -1;
 }
 
@@ -223,7 +223,7 @@ void BeamOut (gentity_t *self)
 	//fixme: doesn't actually go away!
 	self->nextthink = level.time + 1500;
 	self->think = Disappear;
-	self->client->squadname = NULL;
+	self->client->squadname = nullptr;
 	self->s.teamowner = self->client->playerTeam = NPCTEAM_FREE;
 	//self->r.svFlags |= SVF_BEAMING; //this appears unused in SP as well
 }
@@ -949,7 +949,7 @@ void NPC_BSRemove (void)
 		NPCS.NPC->s.eType = ET_INVISIBLE;
 		NPCS.NPC->r.contents = 0;
 		NPCS.NPC->health = 0;
-		NPCS.NPC->targetname = NULL;
+		NPCS.NPC->targetname = nullptr;
 
 		//Disappear in half a second
 		NPCS.NPC->think = G_FreeEntity;
@@ -975,7 +975,7 @@ void NPC_BSSearch (void)
 		return;
 	}
 
-	//FIXME: what if our goalEntity is not NULL and NOT our tempGoal - they must
+	//FIXME: what if our goalEntity is not nullptr and NOT our tempGoal - they must
 	//want us to do something else?  If tempBehavior, just default, else set
 	//to run and shoot...?
 
@@ -1191,7 +1191,7 @@ void NPC_BSNoClip ( void )
 		vectoangles( dir, angles );
 		NPCS.NPCInfo->desiredYaw = angles[YAW];
 
-		AngleVectors( NPCS.NPC->r.currentAngles, forward, right, NULL );
+		AngleVectors( NPCS.NPC->r.currentAngles, forward, right, nullptr );
 
 		VectorNormalize( dir );
 
@@ -1346,7 +1346,7 @@ void NPC_Surrender( void )
 		NPCS.NPC->s.weapon != WP_STUN_BATON &&
 		NPCS.NPC->s.weapon != WP_SABER )
 	{
-		//WP_DropWeapon( NPC, NULL ); //rwwFIXMEFIXME: Do this (gonna need a system for notifying client of removal)
+		//WP_DropWeapon( NPC, nullptr ); //rwwFIXMEFIXME: Do this (gonna need a system for notifying client of removal)
 	}
 	if ( NPCS.NPCInfo->surrenderTime < level.time - 5000 )
 	{//haven't surrendered for at least 6 seconds, tell them what you're doing
@@ -1528,7 +1528,7 @@ void NPC_BSFlee( void )
 						continue;
 					}
 					//FIXME: don't want to ping-pong back and forth
-					NPC_SetMoveGoal( NPCS.NPC, branchPos, 0, true, -1, NULL );
+					NPC_SetMoveGoal( NPCS.NPC, branchPos, 0, true, -1, nullptr );
 					reverseCourse = false;
 					break;
 				}
@@ -1621,7 +1621,7 @@ void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int f
 	if ( cp != -1 )
 	{//found a combat point
 		NPC_SetCombatPoint( cp );
-		NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, NULL );
+		NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, true, cp, nullptr );
 		NPCS.NPCInfo->behaviorState = BS_HUNT_AND_KILL;
 		NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
 	}
@@ -1636,7 +1636,7 @@ void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int f
 			//FIXME: other evasion AI?  Duck?  Strafe?  Dodge?
 			NPCS.NPCInfo->tempBehavior = BS_FLEE;
 			//Run straight away from here... FIXME: really want to find farthest waypoint/navgoal from this pos... maybe based on alert event radius?
-			NPC_SetMoveGoal( NPCS.NPC, dangerPoint, 0, true, -1, NULL );
+			NPC_SetMoveGoal( NPCS.NPC, dangerPoint, 0, true, -1, nullptr );
 			//store the danger point
 			VectorCopy( dangerPoint, NPCS.NPCInfo->investigateGoal );//FIXME: make a new field for this?
 		}

@@ -94,7 +94,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	}
 	if ( missile->s.weapon == WP_ROCKET_LAUNCHER )
 	{//stop homing
-		missile->think = 0;
+		missile->think = nullptr;
 		missile->nextthink = 0;
 	}
 }
@@ -112,7 +112,7 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	if (ent->client)
 	{
 		//VectorSubtract( ent->r.currentOrigin, missile->r.currentOrigin, missile_dir );
-		AngleVectors(ent->client->ps.viewangles, missile_dir, 0, 0);
+		AngleVectors(ent->client->ps.viewangles, missile_dir, nullptr, nullptr);
 		VectorCopy(missile_dir, bounce_dir);
 		//VectorCopy( missile->s.pos.trDelta, bounce_dir );
 		VectorScale( bounce_dir, DotProduct( forward, missile_dir ), bounce_dir );
@@ -139,7 +139,7 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	}
 	if ( missile->s.weapon == WP_ROCKET_LAUNCHER )
 	{//stop homing
-		missile->think = 0;
+		missile->think = nullptr;
 		missile->nextthink = 0;
 	}
 }
@@ -264,7 +264,7 @@ void G_RunStuckMissile( gentity_t *ent )
 			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
 				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
-				G_Damage( ent, other, other, NULL, NULL, 99999, 0, MOD_CRUSH );
+				G_Damage( ent, other, other, nullptr, nullptr, 99999, 0, MOD_CRUSH );
 				return;
 			}
 		}
@@ -314,7 +314,7 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
 
 	missile->s.pos.trType = TR_LINEAR;
 	missile->s.pos.trTime = level.time;// - MISSILE_PRESTEP_TIME;	// NOTENOTE This is a Quake 3 addition over JK2
-	missile->target_ent = NULL;
+	missile->target_ent = nullptr;
 
 	VectorCopy( org, missile->s.pos.trBase );
 	VectorScale( dir, vel, missile->s.pos.trDelta );
@@ -451,7 +451,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 			else
 			{ //oh well
-				AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
+				AngleVectors(other->r.currentAngles, fwd, nullptr, nullptr);
 			}
 
 			G_DeflectMissile(other, ent, fwd);
@@ -479,11 +479,11 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 		if (other->client)
 		{
-			AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
+			AngleVectors(other->client->ps.viewangles, fwd, nullptr, nullptr);
 		}
 		else
 		{
-			AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
+			AngleVectors(other->r.currentAngles, fwd, nullptr, nullptr);
 		}
 
 		G_DeflectMissile(other, ent, fwd);
@@ -530,7 +530,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 		}
 
-		AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
+		AngleVectors(other->client->ps.viewangles, fwd, nullptr, nullptr);
 		if (otherDefLevel == FORCE_LEVEL_1)
 		{
 			//if def is only level 1, instead of deflecting the shot it should just die here
@@ -606,7 +606,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				}
 			}
 
-			AngleVectors(otherOwner->client->ps.viewangles, fwd, NULL, NULL);
+			AngleVectors(otherOwner->client->ps.viewangles, fwd, nullptr, nullptr);
 
 			if (otherDefLevel == FORCE_LEVEL_1)
 			{
@@ -915,7 +915,7 @@ void G_RunMissile( gentity_t *ent ) {
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			// If grapple, reset owner
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
-				ent->parent->client->hook = NULL;
+				ent->parent->client->hook = nullptr;
 			}
 
 			if ((ent->s.weapon == WP_SABER && ent->isSaberEntity) || isKnockedSaber)

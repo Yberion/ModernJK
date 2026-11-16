@@ -245,7 +245,7 @@ bool trap_Language_IsAsian(void) {
 bool trap_Language_UsesSpaces(void) {
 	return Q_syscall( CG_LANGUAGE_USESSPACES );
 }
-unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation/* = NULL*/ ) {
+unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation/* = nullptr*/ ) {
 	return Q_syscall( CG_ANYLANGUAGE_READCHARFROMSTRING, psText, piAdvanceCount, pbIsTrailingPunctuation);
 }
 void trap_R_ClearScene( void ) {

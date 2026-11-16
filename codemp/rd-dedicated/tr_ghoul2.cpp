@@ -516,7 +516,7 @@ const mdxaHeader_t *G2_GetModA(CGhoul2Info &ghoul2)
 {
 	if (!ghoul2.mBoneCache)
 	{
-		return 0;
+		return nullptr;
 	}
 
 	CBoneCache &boneCache=*ghoul2.mBoneCache;
@@ -602,7 +602,7 @@ char *G2_GetBoneNameFromSkel(CGhoul2Info &ghoul2, int boneNum)
 {
 	if (!ghoul2.mBoneCache)
 	{
-		return NULL;
+		return nullptr;
 	}
 	CBoneCache &boneCache=*ghoul2.mBoneCache;
 	assert(boneCache.mod);
@@ -2234,7 +2234,7 @@ void G2_ProcessGeneratedSurfaceBolts(CGhoul2Info &ghoul2, mdxaBone_v &bonePtr, m
 			// yes - ok, processing time.
 			if (boltNum != -1)
 			{
-				G2_ProcessSurfaceBolt(bonePtr, NULL, boltNum, ghoul2.mBltlist, &ghoul2.mSlist[i], mod_t);
+				G2_ProcessSurfaceBolt(bonePtr, nullptr, boltNum, ghoul2.mBltlist, &ghoul2.mSlist[i], mod_t);
 			}
 		}
 	}
@@ -2770,7 +2770,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 	}
 	else if (boltList[boltNum].surfaceNumber>=0)
 	{
-		const surfaceInfo_t *surfInfo=0;
+		const surfaceInfo_t *surfInfo=nullptr;
 		{
 			for (size_t i=0;i<ghoul2.mSlist.size();i++)
 			{
@@ -2781,7 +2781,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 				}
 			}
 		}
-		mdxmSurface_t *surface = 0;
+		mdxmSurface_t *surface = nullptr;
 		if (!surfInfo)
 		{
 			surface = (mdxmSurface_t *)G2_FindSurface_BC(boneCache.mod,boltList[boltNum].surfaceNumber, 0);
@@ -3404,7 +3404,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 		RE_RegisterModels_StoreShaderRequest(mod_name, &surfInfo->shader[0], &surfInfo->shaderIndex);
 
 		// find the next surface
-		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
+		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (size_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surfInfo->numChildren ] ));
   	}
 
 	// swap all the LOD's	(we need to do the middle part of this even for intel, because of shader reg and err-check)
@@ -3621,7 +3621,7 @@ int BoneParentChildIndex(mdxaHeader_t *mdxa, mdxaSkelOffsets_t *offsets, mdxaSke
 	int i = 0;
 	int matchindex = -1;
 	mdxaSkel_t *bone;
-	const char *match = NULL;
+	const char *match = nullptr;
 
 	while (BoneHierarchyList[i])
 	{
@@ -3714,7 +3714,7 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 	mdxa = mod->mdxa = (mdxaHeader_t*) //Hunk_Alloc( size );
 										RE_RegisterModels_Malloc(size,
 										#ifdef CREATE_LIMB_HIERARCHY
-											NULL,	// I think this'll work, can't really test on PC
+											nullptr,	// I think this'll work, can't really test on PC
 										#else
 											buffer,
 										#endif
@@ -3812,7 +3812,7 @@ bool R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 					}
 					else
 					{
-						boneParent = NULL;
+						boneParent = nullptr;
 					}
 
 					if (boneParent)

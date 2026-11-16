@@ -57,7 +57,7 @@ public:
 	char		*GetPool(void) { return mPool; }
 	int			GetUsed(void) { return mUsed; }
 
-	char		*AllocText(const char *text, bool addNULL = true, CTextPool **poolPtr = 0);
+	char		*AllocText(const char *text, bool addNULL = true, CTextPool **poolPtr = nullptr);
 };
 
 void CleanTextPool(CTextPool *pool);
@@ -92,17 +92,17 @@ private:
 	CGPObject	*mList;
 
 public:
-					CGPValue(const char *initName, const char *initValue = 0);
+					CGPValue(const char *initName, const char *initValue = nullptr);
 					~CGPValue(void);
 
 	CGPValue		*GetNext(void) { return (CGPValue *)mNext; }
 
-	CGPValue		*Duplicate(CTextPool **textPool = 0);
+	CGPValue		*Duplicate(CTextPool **textPool = nullptr);
 
 	bool			IsList(void);
 	const char		*GetTopValue(void);
 	CGPObject		*GetList(void) { return mList; }
-	void			AddValue(const char *newValue, CTextPool **textPool = 0);
+	void			AddValue(const char *newValue, CTextPool **textPool = nullptr);
 
 	bool			Parse(char **dataPtr, CTextPool **textPool);
 
@@ -125,7 +125,7 @@ private:
 					   CGPObject **lastObject);
 
 public:
-				CGPGroup(const char *initName = "Top Level", CGPGroup *initParent = 0);
+				CGPGroup(const char *initName = "Top Level", CGPGroup *initParent = nullptr);
 				~CGPGroup(void);
 
 	CGPGroup	*GetParent(void) { return mParent; }
@@ -134,7 +134,7 @@ public:
 	int			GetNumPairs(void);
 
 	void		Clean(void);
-	CGPGroup	*Duplicate(CTextPool **textPool = 0, CGPGroup *initParent = 0);
+	CGPGroup	*Duplicate(CTextPool **textPool = nullptr, CGPGroup *initParent = nullptr);
 
 	void		SetWriteable(const bool writeable) { mWriteable = writeable; }
 	CGPValue	*GetPairs(void) { return mPairs; }
@@ -142,16 +142,16 @@ public:
 	CGPGroup	*GetSubGroups(void) { return mSubGroups; }
 	CGPGroup	*GetInOrderSubGroups(void) { return mInOrderSubGroups; }
 
-	CGPValue	*AddPair(const char *name, const char *value, CTextPool **textPool = 0);
+	CGPValue	*AddPair(const char *name, const char *value, CTextPool **textPool = nullptr);
 	void		AddPair(CGPValue *NewPair);
-	CGPGroup	*AddGroup(const char *name, CTextPool **textPool = 0);
+	CGPGroup	*AddGroup(const char *name, CTextPool **textPool = nullptr);
 	void		AddGroup(CGPGroup *NewGroup);
 	CGPGroup	*FindSubGroup(const char *name);
 	bool		Parse(char **dataPtr, CTextPool **textPool);
 	bool		Write(CTextPool **textPool, int depth);
 
 	CGPValue	*FindPair(const char *key);
-	const char	*FindPairValue(const char *key, const char *defaultVal = 0);
+	const char	*FindPairValue(const char *key, const char *defaultVal = nullptr);
 };
 
 class CGenericParser2

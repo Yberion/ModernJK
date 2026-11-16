@@ -266,7 +266,7 @@ void	Boba_DustFallNear(const vec3_t origin, int dustcount)
 		testDirection[2] = 1.0f;
 
 		VectorMA(origin, 1000.0f, testDirection, testEndPos);
-		gi.trace (&testTrace, origin, NULL, NULL, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace (&testTrace, origin, nullptr, nullptr, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT, (EG2_Collision)0, 0 );
 
 		if (!testTrace.startsolid &&
 			!testTrace.allsolid &&
@@ -310,7 +310,7 @@ bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDi
 	float	fDot, rDot;
 	int		strafeTime = Q_irand( 1000, 2000 );
 
-	AngleVectors( ang, fwd, right, NULL );
+	AngleVectors( ang, fwd, right, nullptr );
 	VectorNormalize2( pushDir, pDir );
 	fDot = DotProduct( pDir, fwd );
 	rDot = DotProduct( pDir, right );
@@ -471,10 +471,10 @@ void Boba_FireFlameThrower( gentity_t *self )
 	vec3_t		start, end, dir;
 	CVec3		traceMins(self->mins);
 	CVec3		traceMaxs(self->maxs);
-	gentity_t*	traceEnt	= NULL;
+	gentity_t*	traceEnt	= nullptr;
 	int			damage		= Q_irand( BOBA_FLAMETHROWDAMAGEMIN, BOBA_FLAMETHROWDAMAGEMAX );
 
-  	AngleVectors(self->currentAngles, dir, 0, 0);
+  	AngleVectors(self->currentAngles, dir, nullptr, nullptr);
 	dir[2] = 0.0f;
 	VectorCopy(self->currentOrigin, start);
 	traceMins *= 0.5f;
@@ -599,7 +599,7 @@ void		Boba_DoSniper( gentity_t *self)
 	if (TIMER_Done(NPC, "PickNewSniperPoint"))
 	{
 		TIMER_Set(NPC, "PickNewSniperPoint", Q_irand(15000, 25000));
- 		int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, 0, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+ 		int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
 		if (SniperPoint!=-1)
 		{
 			NPC_SetCombatPoint(SniperPoint);
@@ -836,7 +836,7 @@ void	Boba_TacticsSelect()
 
 		if (Q_irand(0, NPC->count)>0)
 		{
-			int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, 0, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+			int		SniperPoint = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_SNIPE|CP_CLEAR|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
 			if (SniperPoint!=-1)
 			{
 				NPC_SetCombatPoint(SniperPoint);
@@ -971,11 +971,11 @@ bool	Boba_Respawn()
 
 	// Try To Predict Where The Enemy Is Going
 	//-----------------------------------------
-	if (AverageEnemyDirectionSamples && NPC->behaviorSet[BSET_DEATH]==0)
+	if (AverageEnemyDirectionSamples && NPC->behaviorSet[BSET_DEATH]==nullptr)
 	{
 		vec3_t	endPos;
 	 	VectorMA(NPC->enemy->currentOrigin, 1000.0f / (float)AverageEnemyDirectionSamples, AverageEnemyDirection, endPos);
-		cp = NPC_FindCombatPoint(endPos, 0, endPos, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		cp = NPC_FindCombatPoint(endPos, nullptr, endPos, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
 		Boba_Printf("Attempting Predictive Spawn Point");
 	}
 
@@ -983,7 +983,7 @@ bool	Boba_Respawn()
 	//-------------------------------------------------
 	if (cp==-1)
 	{
-		cp = NPC_FindCombatPoint(NPC->enemy->currentOrigin, 0, NPC->enemy->currentOrigin, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		cp = NPC_FindCombatPoint(NPC->enemy->currentOrigin, nullptr, NPC->enemy->currentOrigin, CP_FLEE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
 		Boba_Printf("Attempting Closest Current Spawn Point");
 	}
 
@@ -1033,7 +1033,7 @@ void	Boba_Update()
 			trace_t		testTrace;
 			vec3_t		eyes;
 			CalcEntitySpot( NPC, SPOT_HEAD_LEAN, eyes );
-			gi.trace (&testTrace, eyes, NULL, NULL, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0);
+			gi.trace (&testTrace, eyes, nullptr, nullptr, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0);
 
 			bool	wasSeen = Boba_CanSeeEnemy(NPC);
 
@@ -1081,7 +1081,7 @@ void	Boba_Update()
 
 	// Make Sure He Always Appears In The Last Area With Full Health When His Death Script Is Turned On
 	//--------------------------------------------------------------------------------------------------
-	if (!BobaHadDeathScript && NPC->behaviorSet[BSET_DEATH]!=0)
+	if (!BobaHadDeathScript && NPC->behaviorSet[BSET_DEATH]!=nullptr)
 	{
 		if (!gi.inPVS(NPC->enemy->currentOrigin, NPC->currentOrigin))
 		{
@@ -1126,7 +1126,7 @@ void	Boba_Update()
 
 		// Find The Closest Flee Point That I Can Get To
 		//-----------------------------------------------
-		int cp = NPC_FindCombatPoint(NPC->currentOrigin, 0, NPC->currentOrigin, CP_FLEE|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
+		int cp = NPC_FindCombatPoint(NPC->currentOrigin, nullptr, NPC->currentOrigin, CP_FLEE|CP_HAS_ROUTE|CP_TRYFAR|CP_HORZ_DIST_COLL, 0, -1);
 		if (cp!=-1)
 		{
 			NPC_SetCombatPoint( cp );

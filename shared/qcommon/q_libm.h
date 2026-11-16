@@ -77,8 +77,8 @@ double Q_pow( double x, double y ) Q_LIBM_NOEXCEPT;
 
 // Text to numbers, correctly rounded and the same on every platform (the UCRT's strtof and sscanf %f round a decimal
 // exactly halfway between two floats away from even). As strtof and strtod: white space skipped first, *end set
-// after the number (to str when there is none) unless end is NULL, errno set to ERANGE on overflow and underflow; the
-// C locale's decimal point. Q_atof is Q_strtod( str, NULL ).
+// after the number (to str when there is none) unless end is nullptr, errno set to ERANGE on overflow and underflow; the
+// C locale's decimal point. Q_atof is Q_strtod( str, nullptr ).
 float Q_strtof( const char *str, const char **end ) Q_LIBM_NOEXCEPT;
 double Q_strtod( const char *str, const char **end ) Q_LIBM_NOEXCEPT;
 double Q_atof( const char *str ) Q_LIBM_NOEXCEPT;

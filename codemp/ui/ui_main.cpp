@@ -138,11 +138,11 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_JUMPUP_FROM_KNOCKDOWN",	"@MENUS_JUMPUP_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN3",				MDS_NONE },
 		{ "@MENUS_JUMPKICK_FROM_KNOCKDOWN",	"@MENUS_JUMPKICK_FROM_KNOCKDOWN_DESC",	"BOTH_KNOCKDOWN2",				MDS_NONE },
 		{ "@MENUS_ROLL_FROM_KNOCKDOWN",		"@MENUS_ROLL_FROM_KNOCKDOWN_DESC",		"BOTH_KNOCKDOWN1",				MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
 	},
 	{//Single Saber, Fast Style
 		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			MDS_SABER },
@@ -151,16 +151,16 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
 		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
 		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
 	},
 	{//Single Saber, Medium Style
 		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
@@ -169,16 +169,16 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
 		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
 		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
 	},
 	{//Single Saber, Strong Style
 		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
@@ -187,16 +187,16 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_ATTACK_ENEMYONGROUND",	"@MENUS_ATTACK_ENEMYONGROUND_DESC",		"BOTH_STABDOWN",				MDS_FORCE_JUMP },
 		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
 		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
 	},
 	{//Dual Sabers
 		{ "@MENUS_SLASH_BACK",				"@MENUS_SLASH_BACK_DESC",				"BOTH_ATTACK_BACK",				MDS_SABER },
@@ -208,13 +208,13 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_DUAL_STAB_LEFT_RIGHT",	"@MENUS_DUAL_STAB_LEFT_RIGHT_DESC",		"BOTH_A6_LR",					MDS_SABER },
 		{ "@MENUS_CARTWHEEL",				"@MENUS_CARTWHEEL_DESC",				"BOTH_ARIAL_RIGHT",				MDS_FORCE_JUMP },
 		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
 	},
 	{// Saber Staff
 		{ "@MENUS_STAB_BACK",				"@MENUS_STAB_BACK_DESC",				"BOTH_A2_STABBACK1",			MDS_SABER },
@@ -226,18 +226,18 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 		{ "@MENUS_JUMP_KICK",				"@MENUS_JUMP_KICK_DESC",				"BOTH_A7_KICK_F_AIR",			MDS_FORCE_JUMP },
 		{ "@MENUS_BUTTERFLY_ATTACK",		"@MENUS_BUTTERFLY_ATTACK_DESC",			"BOTH_BUTTERFLY_FR1",			MDS_SABER },
 		{ "@MENUS_BOTH_ROLL_STAB",			"@MENUS_BOTH_ROLL_STAB2_DESC",			"BOTH_ROLL_STAB",				MDS_SABER },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE },
-		{ NULL,								NULL,									NULL,							MDS_NONE }
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE },
+		{ nullptr,								nullptr,									nullptr,							MDS_NONE }
 	}
 };
 
 static siegeClassDesc_t g_UIClassDescriptions[MAX_SIEGE_CLASSES];
-static siegeTeam_t *siegeTeam1 = NULL, *siegeTeam2 = NULL;
+static siegeTeam_t *siegeTeam1 = nullptr, *siegeTeam2 = nullptr;
 static int g_UIGloballySelectedSiegeClass = -1;
 
 //Cut down version of the stuff used in the game code
@@ -428,7 +428,7 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 	/*
 	for(i = 0; i < MAX_ANIMATIONS; i++)
 	{
-		if (animTable[i].name != NULL)		// This animation reference exists.
+		if (animTable[i].name != nullptr)		// This animation reference exists.
 		{
 			if (animset[i].firstFrame <= 0 && animset[i].numFrames <=0)
 			{	// This is an empty animation reference.
@@ -521,7 +521,7 @@ static const int numGameTypes = ARRAY_LEN( gameTypes );
 static const char* netNames[] = {
 	"???",
 	"UDP",
-	NULL
+	nullptr
 };
 
 static const int numNetNames = ARRAY_LEN( netNames ) - 1;
@@ -538,7 +538,7 @@ const char *UI_TeamName(int team) {
 	return "FREE";
 }
 
-// returns either string or NULL for OOR...
+// returns either string or nullptr for OOR...
 //
 static const char *GetCRDelineatedString( const char *psStripFileRef, const char *psStripStringRef, int iIndex)
 {
@@ -550,7 +550,7 @@ static const char *GetCRDelineatedString( const char *psStripFileRef, const char
 	{
 		psList = strchr(psList,'\n');
 		if (!psList){
-			return NULL;	// OOR
+			return nullptr;	// OOR
 		}
 		psList++;
 	}
@@ -623,7 +623,7 @@ static const char *GetNetSourceString(int iSource)
 
 void AssetCache(void) {
 	int n;
-	//if (Assets.textFont == NULL) {
+	//if (Assets.textFont == nullptr) {
 	//}
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	uiInfo.uiDC.Assets.gradientBar			= trap->R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
@@ -680,7 +680,7 @@ void _UI_DrawRect( float x, float y, float width, float height, float size, cons
 	_UI_DrawTopBottom(x, y, width, height, size);
 	_UI_DrawSides(x, y, width, height, size);
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 int MenuFontToHandle(int iMenuFont)
@@ -795,7 +795,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 			int iAdvanceCount;
 			psOutLastGood = psOut;
 
-			uiLetter = trap->R_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, NULL);
+			uiLetter = trap->R_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, nullptr);
 			psText += iAdvanceCount;
 
 			if (uiLetter > 255)
@@ -824,7 +824,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 
 void UI_LoadNonIngame() {
 	const char *menuSet = UI_Cvar_VariableString("ui_menuFilesMP");
-	if (menuSet == NULL || menuSet[0] == '\0') {
+	if (menuSet == nullptr || menuSet[0] == '\0') {
 		menuSet = "ui/jampmenus.txt";
 	}
 	UI_LoadMenus(menuSet, false);
@@ -919,7 +919,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 				//	trap->Cvar_Set( "sv_killserver", "1" );
 				trap->Key_SetCatcher( KEYCATCH_UI );
 				//	trap->S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", false) , CHAN_LOCAL_SOUND );
-				//	trap->S_StartBackgroundTrack("sound/misc/menu_background.wav", NULL);
+				//	trap->S_StartBackgroundTrack("sound/misc/menu_background.wav", nullptr);
 				if (uiInfo.inGameLoad)
 					UI_LoadNonIngame();
 
@@ -1056,7 +1056,7 @@ void UI_Shutdown( void ) {
 	UI_FreeAllSpecies();
 }
 
-char *defaultMenu = NULL;
+char *defaultMenu = nullptr;
 
 char *GetMenuBuffer(const char *filename) {
 	int	len;
@@ -1487,7 +1487,7 @@ void UI_Load( void ) {
 	{
 		menuSet = UI_Cvar_VariableString("ui_menuFilesMP");
 	}
-	if (menuSet == NULL || menuSet[0] == '\0') {
+	if (menuSet == nullptr || menuSet[0] == '\0') {
 		menuSet = "ui/jampmenus.txt";
 	}
 
@@ -1524,7 +1524,7 @@ const char *UI_FilterDir( int value ) {
 	return uiInfo.modList[value - 1].modName;
 }
 
-static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",NULL};
+static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
 	int i, h;
@@ -1603,7 +1603,7 @@ static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int t
 static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
 	int switchVal = trap->Cvar_VariableValue("cg_autoswitch");
 	const char *switchString = "AUTOSWITCH1";
-	const char *stripString = NULL;
+	const char *stripString = nullptr;
 
 	switch(switchVal)
 	{
@@ -1666,7 +1666,7 @@ static void UI_DrawClanLogo(rectDef_t *rect, float scale, vec4_t color) {
 		}
 
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
-		trap->R_SetColor(NULL);
+		trap->R_SetColor(nullptr);
 	}
 }
 
@@ -1685,13 +1685,13 @@ static void UI_DrawClanCinematic(rectDef_t *rect, float scale, vec4_t color) {
 			} else {
 				trap->R_SetColor( color );
 				UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal);
-				trap->R_SetColor(NULL);
+				trap->R_SetColor(nullptr);
 				uiInfo.teamList[i].cinematic = -2;
 			}
 		} else {
 			trap->R_SetColor( color );
 			UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 		}
 	}
 }
@@ -2497,7 +2497,7 @@ static void	UI_DrawPlayerLogo(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void	UI_DrawPlayerLogoMetal(rectDef_t *rect, vec3_t color) {
@@ -2510,7 +2510,7 @@ static void	UI_DrawPlayerLogoMetal(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void	UI_DrawPlayerLogoName(rectDef_t *rect, vec3_t color) {
@@ -2523,7 +2523,7 @@ static void	UI_DrawPlayerLogoName(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void	UI_DrawOpponentLogo(rectDef_t *rect, vec3_t color) {
@@ -2536,7 +2536,7 @@ static void	UI_DrawOpponentLogo(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void	UI_DrawOpponentLogoMetal(rectDef_t *rect, vec3_t color) {
@@ -2549,7 +2549,7 @@ static void	UI_DrawOpponentLogoMetal(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void	UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
@@ -2562,7 +2562,7 @@ static void	UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
 
 	trap->R_SetColor(color);
 	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name);
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 }
 
 static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, bool net, int iMenuFont) {
@@ -2579,7 +2579,7 @@ static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int 
 static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 	int i, h, value, findex, iUse = 0;
 	const char *text;
-	const char *s = NULL;
+	const char *s = nullptr;
 
 	switch (ownerDraw) {
     case UI_HANDICAP:
@@ -2835,7 +2835,7 @@ static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
 
 	size = Q_min( rect->w, rect->h );
 	UI_DrawHandlePic( rect->x, rect->y, size, size, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
- 	trap->R_SetColor( NULL );
+ 	trap->R_SetColor( nullptr );
 }
 
 static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
@@ -2951,7 +2951,7 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	y = rect->y + 45;
 
 	extensionName = strtok (buff, " ");
-	while ( y < rect->y + rect->h && extensionName != NULL )
+	while ( y < rect->y + rect->h && extensionName != nullptr )
 	{
 		if ( (i % 2) == 0 )
 		{
@@ -2963,7 +2963,7 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 			y += 11;
 		}
 
-		extensionName = strtok (NULL, " ");
+		extensionName = strtok (nullptr, " ");
 		i++;
 	}
 }
@@ -3716,7 +3716,7 @@ static bool UI_GameType_HandleKey(int flags, float *special, int key, bool reset
 		if (resetMap && oldCount != UI_MapCountByGameType(true)) {
 			trap->Cvar_Set( "ui_currentMap", "0");
 			trap->Cvar_Update(&ui_currentMap);
-			Menu_SetFeederSelection(NULL, FEEDER_MAPS, 0, NULL);
+			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, 0, nullptr);
 		}
 		return true;
 	}
@@ -3791,7 +3791,7 @@ static bool UI_NetGameType_HandleKey(int flags, float *special, int key)
 		trap->Cvar_Set( "ui_currentNetMap", "0");
 		trap->Cvar_Update(&ui_currentNetMap);
 		UI_MapCountByGameType(false);
-		Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, NULL);
+		Menu_SetFeederSelection(nullptr, FEEDER_ALLMAPS, 0, nullptr);
 		return true;
 	}
 	return false;
@@ -4438,7 +4438,7 @@ typedef struct loadDemoContext_s
 
 static void UI_LoadDemosInDirectory( loadDemoContext_t *ctx, const char *directory )
 {
-	char *demoname = NULL;
+	char *demoname = nullptr;
 	char demoExt[32] = {0};
 	int protocol = trap->Cvar_VariableValue( "com_protocol" );
 	int protocolLegacy = trap->Cvar_VariableValue( "com_legacyprotocol" );
@@ -4559,7 +4559,7 @@ static bool UI_SetNextMap(int actual, int index) {
 	int i;
 	for (i = actual + 1; i < uiInfo.mapCount; i++) {
 		if (uiInfo.mapList[i].active) {
-			Menu_SetFeederSelection(NULL, FEEDER_MAPS, index + 1, "skirmish");
+			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, index + 1, "skirmish");
 			return true;
 		}
 	}
@@ -4581,9 +4581,9 @@ static void UI_StartSkirmish(bool next) {
 		UI_SelectedMap(index, &actual);
 		if (UI_SetNextMap(actual, index)) {
 		} else {
-			UI_GameType_HandleKey(0, 0, A_MOUSE1, false);
+			UI_GameType_HandleKey(0, nullptr, A_MOUSE1, false);
 			UI_MapCountByGameType(true);
-			Menu_SetFeederSelection(NULL, FEEDER_MAPS, 0, "skirmish");
+			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, 0, "skirmish");
 		}
 	}
 
@@ -4896,25 +4896,25 @@ interface versions of the cvars.
 */
 void UI_GetVideoSetup ( void )
 {
-	trap->Cvar_Register ( NULL, "ui_r_glCustom",				"4", CVAR_INTERNAL|CVAR_ARCHIVE );
+	trap->Cvar_Register ( nullptr, "ui_r_glCustom",				"4", CVAR_INTERNAL|CVAR_ARCHIVE );
 
 	// Make sure the cvars are registered as read only.
-	trap->Cvar_Register ( NULL, "ui_r_mode",					"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_fullscreen",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_colorbits",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_lodbias",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_picmip",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_texturebits",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_texturemode",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_detailtextures",		"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_ext_compress_textures",	"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_depthbits",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_subdivisions",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_fastSky",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_inGameVideo",			"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_allowExtensions",		"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_cg_shadows",				"0", CVAR_ROM|CVAR_INTERNAL );
-	trap->Cvar_Register ( NULL, "ui_r_modified",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_mode",					"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_fullscreen",			"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_colorbits",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_lodbias",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_picmip",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_texturebits",			"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_texturemode",			"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_detailtextures",		"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_ext_compress_textures",	"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_depthbits",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_subdivisions",			"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_fastSky",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_inGameVideo",			"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_allowExtensions",		"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_cg_shadows",				"0", CVAR_ROM|CVAR_INTERNAL );
+	trap->Cvar_Register ( nullptr, "ui_r_modified",				"0", CVAR_ROM|CVAR_INTERNAL );
 
 	// Copy over the real video cvars into their temporary counterparts
 	trap->Cvar_Set ( "ui_r_mode",						UI_Cvar_VariableString ( "r_mode" ) );
@@ -5392,7 +5392,7 @@ static void UI_UpdateSaberHilt( bool secondSaber )
 		}
 		else
 		{
-			ItemParse_model_g2skin_go( item, NULL );//apply the skin
+			ItemParse_model_g2skin_go( item, nullptr );//apply the skin
 		}
 	}
 }
@@ -5814,7 +5814,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 static int g_siegedFeederForcedSet = 0;
 void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
 {
-	siegeClass_t *holdClass=0;
+	siegeClass_t *holdClass=nullptr;
 	char *holdBuf;
 
 	// Is it a valid team
@@ -5836,7 +5836,7 @@ void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
 						g_UIGloballySelectedSiegeClass = UI_SiegeClassNum(holdClass);
 						trap->Cvar_Set("ui_classDesc", g_UIClassDescriptions[g_UIGloballySelectedSiegeClass].desc);
 						g_siegedFeederForcedSet = 1;
-						Menu_SetFeederSelection(NULL, FEEDER_SIEGE_BASE_CLASS, -1, NULL);
+						Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_BASE_CLASS, -1, nullptr);
 						UI_SiegeSetCvarsForClass(holdClass);
 
 						holdBuf = BG_GetUIPortraitFile(team, baseClass, index);
@@ -5999,9 +5999,9 @@ static void UI_RunMenuScript(char **args)
 			UI_MapCountByGameType(true);
 			trap->Cvar_SetValue("ui_mapIndex", UI_GetIndexFromSelection(ui_currentMap.integer));
 			trap->Cvar_Update(&ui_mapIndex);
-			Menu_SetFeederSelection(NULL, FEEDER_MAPS, ui_mapIndex.integer, "skirmish");
-			UI_GameType_HandleKey(0, 0, A_MOUSE1, false);
-			UI_GameType_HandleKey(0, 0, A_MOUSE2, false);
+			Menu_SetFeederSelection(nullptr, FEEDER_MAPS, ui_mapIndex.integer, "skirmish");
+			UI_GameType_HandleKey(0, nullptr, A_MOUSE1, false);
+			UI_GameType_HandleKey(0, nullptr, A_MOUSE2, false);
 		} else if (Q_stricmp(name, "resetDefaults") == 0) {
 			trap->Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
 			Controls_SetDefaults();
@@ -6011,7 +6011,7 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "loadArenas") == 0) {
 			UI_LoadArenas();
 			UI_MapCountByGameType(false);
-			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
+			Menu_SetFeederSelection(nullptr, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
 			uiForceRank = trap->Cvar_VariableValue("g_maxForceRank");
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig();
@@ -6068,7 +6068,7 @@ static void UI_RunMenuScript(char **args)
 				UI_StartServerRefresh(true);
 			}
 			UI_BuildServerDisplayList(true);
-			UI_FeederSelection(FEEDER_SERVERS, 0, NULL );
+			UI_FeederSelection(FEEDER_SERVERS, 0, nullptr );
 
 			UI_LoadMods();
 		} else if (Q_stricmp(name, "ServerStatus") == 0) {
@@ -6077,12 +6077,12 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "FoundPlayerServerStatus") == 0) {
 			Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer], sizeof(uiInfo.serverStatusAddress));
 			UI_BuildServerStatus(true);
-			Menu_SetFeederSelection(NULL, FEEDER_FINDPLAYER, 0, NULL);
+			Menu_SetFeederSelection(nullptr, FEEDER_FINDPLAYER, 0, nullptr);
 		} else if (Q_stricmp(name, "FindPlayer") == 0) {
 			UI_BuildFindPlayerList(true);
 			// clear the displayed server status info
 			uiInfo.serverStatusInfo.numLines = 0;
-			Menu_SetFeederSelection(NULL, FEEDER_FINDPLAYER, 0, NULL);
+			Menu_SetFeederSelection(nullptr, FEEDER_FINDPLAYER, 0, nullptr);
 		}
 		else if (Q_stricmp(name, "checkservername") == 0)
 		{
@@ -6134,7 +6134,7 @@ static void UI_RunMenuScript(char **args)
 			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_SIEGE)
 			{
 				// fake out the handler to advance to the next game type
-				UI_NetGameType_HandleKey(0, NULL, A_MOUSE1);
+				UI_NetGameType_HandleKey(0, nullptr, A_MOUSE1);
 			}
 		}
 		else if (Q_stricmp(name, "updatevideosetup") == 0)
@@ -6328,7 +6328,7 @@ static void UI_RunMenuScript(char **args)
 			{
 				if ( Q_stricmp( "none", teamArg ) == 0 )
 				{
-					UI_UpdateClientForcePowers(NULL);
+					UI_UpdateClientForcePowers(nullptr);
 				}
 				else if ( Q_stricmp( "same", teamArg ) == 0 )
 				{//stay on current team
@@ -6339,7 +6339,7 @@ static void UI_RunMenuScript(char **args)
 					}
 					else
 					{
-						UI_UpdateClientForcePowers(NULL);//just update powers
+						UI_UpdateClientForcePowers(nullptr);//just update powers
 					}
 				}
 				else
@@ -6349,7 +6349,7 @@ static void UI_RunMenuScript(char **args)
 			}
 			else
 			{
-				UI_UpdateClientForcePowers(NULL);
+				UI_UpdateClientForcePowers(nullptr);
 			}
 		}
 		else if (Q_stricmp(name, "setsiegeclassandteam") == 0)
@@ -6655,7 +6655,7 @@ static void UI_RunMenuScript(char **args)
 				for (j = 0; j < count; j++)
 				{
 					item = Menu_GetMatchingItemByNumber( menu, j, itemName);
-					if (item != NULL)
+					if (item != nullptr)
 					{
 						item->window.flags &= ~WINDOW_MOUSEOVER;
 					}
@@ -7074,7 +7074,7 @@ static void UI_GetTeamColor(vec4_t *color) {
 void UI_SetSiegeTeams(void)
 {
 	char			info[MAX_INFO_VALUE];
-	const char			*mapname = NULL;
+	const char			*mapname = nullptr;
 	char			levelname[MAX_QPATH];
 	char			btime[1024];
 	char			teams[2048];
@@ -7182,8 +7182,8 @@ void UI_SetSiegeTeams(void)
 		Com_Error(ERR_DROP, "Error loading teams in UI");
 	}
 
-	Menu_SetFeederSelection(NULL, FEEDER_SIEGE_TEAM1, 0, NULL);
-	Menu_SetFeederSelection(NULL, FEEDER_SIEGE_TEAM2, -1, NULL);
+	Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM1, 0, nullptr);
+	Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM2, -1, nullptr);
 }
 
 static void UI_SiegeClassCnt( const int team )
@@ -7430,7 +7430,7 @@ static void UI_BuildServerDisplayList(int force) {
 		uiInfo.serverStatus.numDisplayServers = 0;
 		uiInfo.serverStatus.numPlayersOnServers = 0;
 		// set list box index to zero
-		Menu_SetFeederSelection(NULL, FEEDER_SERVERS, 0, NULL);
+		Menu_SetFeederSelection(nullptr, FEEDER_SERVERS, 0, nullptr);
 		// mark all servers as visible so we store ping updates for them
 		trap->LAN_MarkServerVisible(lanSource, -1, true);
 	}
@@ -7547,7 +7547,7 @@ serverStatusCvar_t serverStatusCvars[] = {
 	{"protocol", ""},
 	{"timelimit", ""},
 	{"fraglimit", ""},
-	{NULL, NULL}
+	{nullptr, nullptr}
 };
 
 /*
@@ -7597,7 +7597,7 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
 	int i, len;
 
 	if (!info) {
-		trap->LAN_ServerStatus( serverAddress, NULL, 0);
+		trap->LAN_ServerStatus( serverAddress, nullptr, 0);
 		return false;
 	}
 	memset(info, 0, sizeof(*info));
@@ -7719,7 +7719,7 @@ static void UI_BuildFindPlayerList(bool force) {
 		}
 		trap->Cvar_Set("cl_serverStatusResendTime", va("%d", resend));
 		// reset all server status requests
-		trap->LAN_ServerStatus( NULL, NULL, 0);
+		trap->LAN_ServerStatus( nullptr, nullptr, 0);
 		//
 		uiInfo.numFoundPlayerServers = 1;
 
@@ -7782,7 +7782,7 @@ static void UI_BuildFindPlayerList(bool force) {
 				// timed out
 			}
 			// reset server status request for this address
-			UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, NULL );
+			UI_GetServerStatusInfo( uiInfo.pendingServerStatus.server[i].adrstr, nullptr );
 			// reuse pending slot
 			uiInfo.pendingServerStatus.server[i].valid = false;
 			// if we didn't try to get the status of all servers in the main browser yet
@@ -7833,7 +7833,7 @@ static void UI_BuildFindPlayerList(bool force) {
 		}
 		uiInfo.nextFindPlayerRefresh = 0;
 		// show the server status info for the selected server
-		UI_FeederSelection(FEEDER_FINDPLAYER, uiInfo.currentFoundPlayerServer, NULL);
+		UI_FeederSelection(FEEDER_FINDPLAYER, uiInfo.currentFoundPlayerServer, nullptr);
 	}
 }
 
@@ -7853,17 +7853,17 @@ static void UI_BuildServerStatus(bool force) {
 		}
 	}
 	else {
-		Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
+		Menu_SetFeederSelection(nullptr, FEEDER_SERVERSTATUS, 0, nullptr);
 		uiInfo.serverStatusInfo.numLines = 0;
 		// reset all server status requests
-		trap->LAN_ServerStatus( NULL, NULL, 0);
+		trap->LAN_ServerStatus( nullptr, nullptr, 0);
 	}
 	if (uiInfo.serverStatus.currentServer < 0 || uiInfo.serverStatus.currentServer > uiInfo.serverStatus.numDisplayServers || uiInfo.serverStatus.numDisplayServers == 0) {
 		return;
 	}
 	if (UI_GetServerStatusInfo( uiInfo.serverStatusAddress, &uiInfo.serverStatusInfo ) ) {
 		uiInfo.nextServerStatusRefresh = 0;
-		UI_GetServerStatusInfo( uiInfo.serverStatusAddress, NULL );
+		UI_GetServerStatusInfo( uiInfo.serverStatusAddress, nullptr );
 	}
 	else {
 		uiInfo.nextServerStatusRefresh = uiInfo.uiDC.realTime + 500;
@@ -8236,11 +8236,11 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 					index += uiInfo.forceConfigLightIndexBegin;
 					if (index < 0)
 					{
-						return NULL;
+						return nullptr;
 					}
 					if (index >= uiInfo.forceConfigCount)
 					{
-						return NULL;
+						return nullptr;
 					}
 					return uiInfo.forceConfigNames[index];
 				}
@@ -8249,21 +8249,21 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 					index += uiInfo.forceConfigDarkIndexBegin;
 					if (index < 0)
 					{
-						return NULL;
+						return nullptr;
 					}
 					if (index > uiInfo.forceConfigLightIndexBegin)
 					{ //dark gets read in before light
-						return NULL;
+						return nullptr;
 					}
 					if (index >= uiInfo.forceConfigCount)
 					{
-						return NULL;
+						return nullptr;
 					}
 					return uiInfo.forceConfigNames[index];
 				}
 				else
 				{
-					return NULL;
+					return nullptr;
 				}
 			}
 		}
@@ -8438,7 +8438,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 	}
 	else if (feederID == FEEDER_LANGUAGES)
 	{
-		return 0;
+		return nullptr;
 	}
 	else if (feederID == FEEDER_COLORCHOICES)
 	{
@@ -8512,7 +8512,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				{
 					uiInfo.q3SelectedHead = selModel;
 					//UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead);
-					Menu_SetFeederSelection(NULL, FEEDER_Q3HEADS, selModel, NULL);
+					Menu_SetFeederSelection(nullptr, FEEDER_Q3HEADS, selModel, nullptr);
 				}
 			}
 
@@ -8886,7 +8886,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 			trap->Cvar_Set("ui_classDesc", g_UIClassDescriptions[g_UIGloballySelectedSiegeClass].desc);
 
 			//g_siegedFeederForcedSet = 1;
-			//Menu_SetFeederSelection(NULL, FEEDER_SIEGE_TEAM2, -1, NULL);
+			//Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM2, -1, nullptr);
 
 			UI_SiegeSetCvarsForClass(siegeTeam1->classes[index]);
 		}
@@ -8900,7 +8900,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 			trap->Cvar_Set("ui_classDesc", g_UIClassDescriptions[g_UIGloballySelectedSiegeClass].desc);
 
 			//g_siegedFeederForcedSet = 1;
-			//Menu_SetFeederSelection(NULL, FEEDER_SIEGE_TEAM2, -1, NULL);
+			//Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM2, -1, nullptr);
 
 			UI_SiegeSetCvarsForClass(siegeTeam2->classes[index]);
 		}
@@ -8936,7 +8936,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 	else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS)
 	{
 		int actual, map;
-		const char *checkValid = NULL;
+		const char *checkValid = nullptr;
 
 		map = (feederID == FEEDER_ALLMAPS) ? ui_currentNetMap.integer : ui_currentMap.integer;
 		if (uiInfo.mapList[map].cinematic >= 0) {
@@ -8968,7 +8968,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		}
 
 	} else if (feederID == FEEDER_SERVERS) {
-		const char *mapName = NULL;
+		const char *mapName = nullptr;
 		uiInfo.serverStatus.currentServer = index;
 		trap->LAN_GetServerInfo(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS);
 		uiInfo.serverStatus.currentServerPreview = trap->R_RegisterShaderNoMip(va("levelshots/%s", Info_ValueForKey(info, "mapname")));
@@ -8988,7 +8988,7 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		if ( index < uiInfo.numFoundPlayerServers-1) {
 			// build a new server status for this server
 			Q_strncpyz(uiInfo.serverStatusAddress, uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer], sizeof(uiInfo.serverStatusAddress));
-			Menu_SetFeederSelection(NULL, FEEDER_SERVERSTATUS, 0, NULL);
+			Menu_SetFeederSelection(nullptr, FEEDER_SERVERSTATUS, 0, nullptr);
 			UI_BuildServerStatus(true);
 		}
 	} else if (feederID == FEEDER_PLAYER_LIST) {
@@ -9209,7 +9209,7 @@ static bool MapList_Parse(char **p) {
 static void UI_ParseGameInfo(const char *teamFile) {
 	char	*token;
 	char *p;
-	char *buff = NULL;
+	char *buff = nullptr;
 	//int mode = 0; TTimo: unused
 
 	buff = GetMenuBuffer(teamFile);
@@ -9322,7 +9322,7 @@ void UI_LoadForceConfig_List( void )
 	int			numfiles = 0;
 	char		filelist[2048];
 	char		configname[128];
-	char		*fileptr = NULL;
+	char		*fileptr = nullptr;
 	int			j = 0;
 	int			filelen = 0;
 	bool	lightSearch = false;
@@ -9683,7 +9683,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			char                 skinname[64];
 			int                  numfiles;
 			int                  iSkinParts=0;
-			char                *buffer = NULL;
+			char                *buffer = nullptr;
 
 			buffer = (char *)malloc(filelen + 1);
 			if(!buffer)
@@ -9779,7 +9779,7 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 			if (!inGameLoad && ui_PrecacheModels.integer)
 			{
 				int g2Model;
-				void *ghoul2 = 0;
+				void *ghoul2 = nullptr;
 				Com_sprintf( fpath, sizeof( fpath ), "models/players/%s/model.glm", dirptr );
 				g2Model = trap->G2API_InitGhoul2Model(&ghoul2, fpath, 0, 0, 0, 0, 0);
 				if (g2Model >= 0)
@@ -9826,7 +9826,7 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.inGameLoad = inGameLoad;
 
 	//initialize all these cvars to "0"
-	UI_SiegeSetCvarsForClass( NULL );
+	UI_SiegeSetCvarsForClass( nullptr );
 
 	UI_SiegeInit();
 
@@ -9929,7 +9929,7 @@ void UI_Init( bool inGameLoad ) {
 	UI_ParseGameInfo("ui/jamp/gameinfo.txt");
 
 	menuSet = UI_Cvar_VariableString("ui_menuFilesMP");
-	if (menuSet == NULL || menuSet[0] == '\0') {
+	if (menuSet == nullptr || menuSet[0] == '\0') {
 		menuSet = "ui/jampmenus.txt";
 	}
 
@@ -9950,7 +9950,7 @@ void UI_Init( bool inGameLoad ) {
 	{
 		char buf[MAX_NETNAME] = {0};
 		Q_strncpyz( buf, UI_Cvar_VariableString( "name" ), sizeof( buf ) );
-		trap->Cvar_Register( NULL, "ui_Name", buf, CVAR_INTERNAL );
+		trap->Cvar_Register( nullptr, "ui_Name", buf, CVAR_INTERNAL );
 	}
 
 	Menus_CloseAll();
@@ -9972,7 +9972,7 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
-	trap->Cvar_Register(NULL, "debug_protocol", "", 0 );
+	trap->Cvar_Register(nullptr, "debug_protocol", "", 0 );
 
 	trap->Cvar_Set("ui_actualNetGameType", va("%d", ui_netGametype.integer));
 	trap->Cvar_Update(&ui_actualNetGametype);
@@ -10023,7 +10023,7 @@ void UI_Refresh( int realtime )
 		UI_BuildFindPlayerList(false);
 	}
 	// draw cursor
-	UI_SetColor( NULL );
+	UI_SetColor( nullptr );
 	if (Menu_Count() > 0 && (trap->Key_GetCatcher() & KEYCATCH_UI)) {
 		UI_DrawHandlePic( (float)uiInfo.uiDC.cursorx, (float)uiInfo.uiDC.cursory, 40.0f, 40.0f, uiInfo.uiDC.Assets.cursor);
 		//UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
@@ -10192,7 +10192,7 @@ void UI_MouseEvent( int dx, int dy )
 	if (Menu_Count() > 0) {
 		//menuDef_t *menu = Menu_GetFocused();
 		//Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
-		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+		Display_MouseMove(nullptr, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
 }
 
@@ -10543,11 +10543,11 @@ GetModuleAPI
 ============
 */
 
-uiImport_t *trap = NULL;
+uiImport_t *trap = nullptr;
 
 extern "C" Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
 {
-	static uiExport_t uie = {0};
+	static uiExport_t uie = {nullptr};
 
 	assert( import );
 	trap = import;
@@ -10558,7 +10558,7 @@ extern "C" Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *
 
 	if ( apiVersion != UI_API_VERSION ) {
 		trap->Print( "Mismatched UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	uie.Init				= UI_Init;

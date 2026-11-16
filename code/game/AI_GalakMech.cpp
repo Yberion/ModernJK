@@ -144,15 +144,15 @@ void	Pilot_Update(void)
 
 			VectorCopy(pVeh->m_pParentEntity->currentAngles, anglesNoRoll);
 			anglesNoRoll[2] = 0;
-			AngleVectors(anglesNoRoll, projectedDirection, projectedRight, 0);
+			AngleVectors(anglesNoRoll, projectedDirection, projectedRight, nullptr);
 
 			VectorMA(player->currentOrigin, 1.2f, pVeh->m_pParentEntity->client->ps.velocity, projectedPosition);
 			VectorMA(projectedPosition, Q_flrand(-200.0f, 200.0f), projectedRight, projectedPosition);
 
 			gi.trace(&mPilotViewTrace,
 				player->currentOrigin,
-				0,
-				0,
+				nullptr,
+				nullptr,
 				projectedPosition,
 				player->s.number,
  				MASK_SHOT, (EG2_Collision)0, 0);
@@ -221,7 +221,7 @@ void	Vehicle_Remove(gentity_t *ent)
 ////////////////////////////////////////////////////////////////////////////////////////
 gentity_t*	Vehicle_Find(gentity_t *ent)
 {
-	gentity_t*		closest = 0;
+	gentity_t*		closest = nullptr;
 	float			closestDist = 0;
 	float			curDist = 0;
 
@@ -301,7 +301,7 @@ bool	Pilot_MasterUpdate()
 			{
 				return true;
 			}
-			NPCInfo->greetEnt = 0;
+			NPCInfo->greetEnt = nullptr;
 		}
 
 		// Otherwise Nothing To See Here
@@ -381,8 +381,8 @@ void	Pilot_Update_Enemy()
 			mPilotViewTraceCount ++;
 			gi.trace(&mPilotViewTrace,
 				NPC->currentOrigin,
-				0,
-				0,
+				nullptr,
+				nullptr,
 				NPC->enemy->currentOrigin,
 				NPC->s.number,
 				MASK_SHOT,
@@ -485,7 +485,7 @@ void	Pilot_Steer_Vehicle()
 	}
 
 	CVec3		ActorDirection;
-				AngleVectors(ActorAngles.v, ActorDirection.v, 0, 0);
+				AngleVectors(ActorAngles.v, ActorDirection.v, nullptr, nullptr);
 
 	CVec3		ActorFuturePos(ActorPos);
 				ActorFuturePos.ScaleAdd(ActorDirection, FUTURE_PRED_DIST);
@@ -501,7 +501,7 @@ void	Pilot_Steer_Vehicle()
 	CVec3		EnemyPos(NPC->enemy->currentOrigin);
 	CVec3		EnemyAngles(NPC->enemy->currentAngles);
 				EnemyAngles[2]	= 0;
-	Vehicle_t*	EnemyVeh		= (NPC->enemy->s.m_iVehicleNum)?(g_entities[NPC->enemy->s.m_iVehicleNum].m_pVehicle):(0);
+	Vehicle_t*	EnemyVeh		= (NPC->enemy->s.m_iVehicleNum)?(g_entities[NPC->enemy->s.m_iVehicleNum].m_pVehicle):(nullptr);
 	bool		EnemyInTurbo	= (EnemyVeh && EnemyVeh->m_iTurboTime>level.time);
 	float		EnemySpeed		= (EnemyVeh)?(EnemyVeh->m_pParentEntity->client->ps.speed):(NPC->enemy->resultspeed);
 	bool		EnemySlideBreak	= (EnemyVeh && (EnemyVeh->m_ulFlags&VEH_SLIDEBREAKING || EnemyVeh->m_ulFlags&VEH_STRAFERAM));
@@ -511,7 +511,7 @@ void	Pilot_Steer_Vehicle()
 
 	CVec3		EnemyDirection;
 	CVec3		EnemyRight;
-				AngleVectors(EnemyAngles.v, EnemyDirection.v, EnemyRight.v, 0);
+				AngleVectors(EnemyAngles.v, EnemyDirection.v, EnemyRight.v, nullptr);
 
 	CVec3		EnemyFuturePos(EnemyPos);
 				EnemyFuturePos.ScaleAdd(EnemyDirection, FUTURE_PRED_DIST);

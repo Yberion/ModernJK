@@ -238,7 +238,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 	vec3_t		bmins, bmaxs;
 	vec3_t		origin, angles;
 	centity_t	*cent;
-	centity_t	*ignored = NULL;
+	centity_t	*ignored = nullptr;
 
 	if (skipNumber != -1 && skipNumber != ENTITYNUM_NONE)
 	{
@@ -282,7 +282,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 				float *old = cent->m_pVehicle->m_vOrientation;
 				cent->m_pVehicle->m_vOrientation = &cent->lerpAngles[0];
 				BG_VehicleAdjustBBoxForOrientation(cent->m_pVehicle, cent->lerpOrigin, bmins, bmaxs,
-											cent->currentState.number, MASK_PLAYERSOLID, NULL);
+											cent->currentState.number, MASK_PLAYERSOLID, nullptr);
 				cent->m_pVehicle->m_vOrientation = old;
 			}
 
@@ -882,7 +882,7 @@ void CG_PmoveClientPointerUpdate()
 	cg_pmove.baseEnt = (bgEntity_t *)cg_entities;
 	cg_pmove.entSize = sizeof(centity_t);
 
-	cg_pmove.ghoul2 = NULL;
+	cg_pmove.ghoul2 = nullptr;
 }
 
 //check if local client is on an eweb
@@ -996,10 +996,10 @@ static void CG_RecordPredictedMove( const pmove_t *pm, int from ) {
 	}
 }
 
-// the state predicted for commandTime, NULL if it is no longer held
+// the state predicted for commandTime, nullptr if it is no longer held
 static const playerState_t *CG_PredictedAt( int commandTime ) {
 	const unsigned slot = (unsigned)commandTime / TICK_MSEC % PREDICTED_STATES;
-	return ( cg_predicted[slot].valid && cg_predicted[slot].ps.commandTime == commandTime ) ? &cg_predicted[slot].ps : NULL;
+	return ( cg_predicted[slot].valid && cg_predicted[slot].ps.commandTime == commandTime ) ? &cg_predicted[slot].ps : nullptr;
 }
 
 static int CG_ShownAnim( int anim, bool flip ) {
@@ -1054,7 +1054,7 @@ static void CG_CarryUnsentFields( playerState_t *base ) {
 // time reaches them (CG_ProcessSnapshots): its next snapshot is the first one after the drawn time, which is the newest
 // received as long as the drawn time is less than an interval behind it. With loss or jitter the client draws further
 // behind, and one or two newer snapshots wait. The local player's prediction does not need to wait for them: started
-// from the newest, it has fewer ticks to predict and shows sooner what the server decided about the player. NULL when
+// from the newest, it has fewer ticks to predict and shows sooner what the server decided about the player. nullptr when
 // there is none, or when a teleport, a respawn, another followed player or a restart of the map lies between: those
 // stay with cgame's own transition, as before.
 static snapshot_t *CG_SnapshotAhead( const snapshot_t *next ) {
@@ -1062,12 +1062,12 @@ static snapshot_t *CG_SnapshotAhead( const snapshot_t *next ) {
 	static int			aheadNum = -1;
 
 	if ( cg.latestSnapshotTime <= next->serverTime ) {
-		return NULL;
+		return nullptr;
 	}
 	if ( aheadNum != cg.latestSnapshotNum ) {
 		aheadNum = -1;
 		if ( !trap->GetSnapshot( cg.latestSnapshotNum, &ahead ) ) {
-			return NULL;
+			return nullptr;
 		}
 		aheadNum = cg.latestSnapshotNum;
 	}
@@ -1076,7 +1076,7 @@ static snapshot_t *CG_SnapshotAhead( const snapshot_t *next ) {
 		|| ahead.ps.persistant[PERS_SPAWN_COUNT] != next->ps.persistant[PERS_SPAWN_COUNT]
 		|| ( ( ahead.snapFlags ^ next->snapFlags ) & SNAPFLAG_SERVERCOUNT )
 		|| ( ahead.ps.pm_flags & PMF_FOLLOW ) || ahead.ps.m_iVehicleNum != next->ps.m_iVehicleNum ) {
-		return NULL;
+		return nullptr;
 	}
 	return &ahead;
 }
@@ -1151,7 +1151,7 @@ static void CG_KeepPredictMiss( int kind, float d, const playerState_t *predicte
 	m->d = d;
 	m->predicted = *predicted;
 	m->server = *base;
-	m->haveStart = start != NULL && start != predicted;
+	m->haveStart = start != nullptr && start != predicted;
 	if ( m->haveStart ) {
 		m->start = *start;
 	}
@@ -1533,7 +1533,7 @@ void CG_PredictPlayerState( void ) {
 		}
 		else
 		{
-			cg_pmove.ghoul2 = NULL;
+			cg_pmove.ghoul2 = nullptr;
 		}
 	}
 

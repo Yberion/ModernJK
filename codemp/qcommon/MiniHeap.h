@@ -76,7 +76,7 @@ public:
 			mCurrentHeap += size;
 			return tempAddress;
 		}
-		return NULL;
+		return nullptr;
 	}
 
 };

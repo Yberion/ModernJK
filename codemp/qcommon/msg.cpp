@@ -1061,7 +1061,7 @@ MSG_WriteDeltaEntity
 
 Writes part of a packetentities message, including the entity number.
 Can delta from either a baseline or a previous packet_entity
-If to is NULL, a remove entity update will be sent
+If to is nullptr, a remove entity update will be sent
 If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
@@ -1083,9 +1083,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	// struct without updating the message fields
 	assert( numFields + 1 == sizeof( *from )/4 );
 
-	// a NULL to is a delta remove message
-	if ( to == NULL ) {
-		if ( from == NULL ) {
+	// a nullptr to is a delta remove message
+	if ( to == nullptr ) {
+		if ( from == nullptr ) {
 			return;
 		}
 		MSG_WriteBits( msg, from->number, GENTITYNUM_BITS );
@@ -1906,8 +1906,8 @@ struct bitStorage_s
 	int				bits;
 };
 
-static bitStorage_t		*g_netfBitStorage = NULL;
-static bitStorage_t		*g_psfBitStorage = NULL;
+static bitStorage_t		*g_netfBitStorage = nullptr;
+static bitStorage_t		*g_psfBitStorage = nullptr;
 
 //rww - Check the overrides files to see if the mod wants anything changed
 void MSG_CheckNETFPSFOverrides(bool psfOverrides)

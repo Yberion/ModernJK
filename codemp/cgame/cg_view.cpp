@@ -396,7 +396,7 @@ static void CG_ResetThirdPersonViewDamp(void)
 		cameraFocusAngles[PITCH] = -89.0;
 	}
 
-	AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
+	AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
 	// Set the cameraIdealTarget
 	CG_CalcIdealThirdPersonViewTarget();
@@ -748,7 +748,7 @@ static void CG_OffsetThirdPersonView( void )
 			}
 		}
 
-		AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
+		AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
 		deltayaw = Q_fabs(cameraFocusAngles[YAW] - cameraLastYaw);
 		if (deltayaw > 180.0f)
@@ -852,7 +852,7 @@ static void CG_OffsetThirdPersonView( void ) {
 	if ( focusAngles[PITCH] > 45 ) {
 		focusAngles[PITCH] = 45;		// don't go too far overhead
 	}
-	AngleVectors( focusAngles, forward, NULL, NULL );
+	AngleVectors( focusAngles, forward, nullptr, nullptr );
 
 	VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
 
@@ -1057,7 +1057,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	vec3_t			forward, up;
 
 	cg.refdef.vieworg[2] -= NECK_LENGTH;
-	AngleVectors( cg.refdef.viewangles, forward, NULL, up );
+	AngleVectors( cg.refdef.viewangles, forward, nullptr, up );
 	VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
 	VectorMA( cg.refdef.vieworg, NECK_LENGTH, up, cg.refdef.vieworg );
 	}
@@ -1109,7 +1109,7 @@ static void CG_OffsetFighterView( void )
 	cg.refdef.viewangles[PITCH] += pitchOffset;
 
 	//Now bring the cam back from that pos and angles at range
-	AngleVectors( cg.refdef.viewangles, backDir, NULL, NULL );
+	AngleVectors( cg.refdef.viewangles, backDir, nullptr, nullptr );
 	VectorScale( backDir, -1, backDir );
 
 	VectorMA( camOrg, range, backDir, camBackOrg );
@@ -1380,7 +1380,7 @@ static bool CG_ThirdPersonActionCam(void)
 
 	//trace to the desired pos to see how far that way we can actually go before we hit something
 	//the endpos will be valid for our desiredpos no matter what
-	CG_Trace(&tr, cent->lerpOrigin, NULL, NULL, desiredPos, cent->currentState.number, MASK_SOLID);
+	CG_Trace(&tr, cent->lerpOrigin, nullptr, nullptr, desiredPos, cent->currentState.number, MASK_SOLID);
 	VectorCopy(tr.endpos, desiredPos);
 
 	if ((cg.time - cg_actionCamLastTime) > 300)
@@ -1409,7 +1409,7 @@ static bool CG_ThirdPersonActionCam(void)
 	}
 
 	//Make sure the point is alright
-	CG_Trace(&tr, cent->lerpOrigin, NULL, NULL, cg.refdef.vieworg, cent->currentState.number, MASK_SOLID);
+	CG_Trace(&tr, cent->lerpOrigin, nullptr, nullptr, cg.refdef.vieworg, cent->currentState.number, MASK_SOLID);
 	VectorCopy(tr.endpos, cg.refdef.vieworg);
 
 	VectorSubtract(cent->lerpOrigin, cg.refdef.vieworg, positionDir);
@@ -1465,7 +1465,7 @@ bool CG_CheckPassengerTurretView( void )
 							mdxaBone_t boltMatrix;
 							vec3_t fwd, up;
 							trap->G2API_GetBoltMatrix_NoRecNoRot(vehCent->ghoul2, 0, boltIndex, &boltMatrix, vehCent->lerpAngles,
-								vehCent->lerpOrigin, cg.time, NULL, vehCent->modelScale);
+								vehCent->lerpOrigin, cg.time, nullptr, vehCent->modelScale);
 							BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, cg.refdef.vieworg);
 							if ( hackPosAndAngle )
 							{
@@ -1670,7 +1670,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			//trap->S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			//trap->S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }
@@ -2249,7 +2249,7 @@ void CG_DrawAutoMap(void)
 	VectorCopy(cg_autoMapAngle, refdef.viewangles);
 
 	//scale out in the direction of the view angles base on the zoom factor
-	AngleVectors(refdef.viewangles, fwd, 0, 0);
+	AngleVectors(refdef.viewangles, fwd, nullptr, nullptr);
 	VectorMA(refdef.vieworg, -cg_autoMapZoom, fwd, refdef.vieworg);
 
 	AnglesToAxis(refdef.viewangles, refdef.viewaxis);
@@ -2418,7 +2418,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	float mSensitivity = cg.zoomSensitivity;
 	float mPitchOverride = 0.0f;
 	float mYawOverride = 0.0f;
-	static centity_t *veh = NULL;
+	static centity_t *veh = nullptr;
 #ifdef VEH_CONTROL_SCHEME_4
 	float mSensitivityOverride = 0.0f;
 	bool bUseFighterPitch = false;
@@ -2552,7 +2552,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 			bg_fighterAltControl.integer)
 		{
 			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, true );
-			veh = NULL; //this is done because I don't want an extra assign each frame because I am so perfect and super efficient.
+			veh = nullptr; //this is done because I don't want an extra assign each frame because I am so perfect and super efficient.
 		}
 		else
 		{

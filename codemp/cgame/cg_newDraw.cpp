@@ -401,7 +401,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			}
 #endif
 
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			h = CG_StatusHandle(ci->teamTask);
 
 			if (h) {
@@ -498,7 +498,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
 	float value = 0;
-	const char *text = NULL;
+	const char *text = nullptr;
 	color[3] = 0.25;
 
 	switch (ownerDraw) {
@@ -555,7 +555,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 		value = CG_Text_Width(text, scale, 0);
 		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , scale, color, text, 0, 0, 0, FONT_MEDIUM);
 	}
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 
 }
 
@@ -779,7 +779,7 @@ void CG_MouseEvent(int x, int y) {
 	if (cgs.capturedItem) {
 		Display_MouseMove(cgs.capturedItem, x, y);
 	} else {
-		Display_MouseMove(NULL, cgs.cursorX, cgs.cursorY);
+		Display_MouseMove(nullptr, cgs.cursorX, cgs.cursorY);
 	}
 
 }
@@ -853,7 +853,7 @@ void CG_KeyEvent(int key, bool down) {
 	Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
 
 	if (cgs.capturedItem) {
-		cgs.capturedItem = NULL;
+		cgs.capturedItem = nullptr;
 	}	else {
 		if (key == A_MOUSE2 && down) {
 			cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY);

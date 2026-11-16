@@ -62,7 +62,7 @@ typedef struct sfx_s {
 	bool		bDefaultSound;			// couldn't be loaded, so use buzz
 	bool		bInMemory;				// not in Memory, set true when loaded, and false when its buffers are freed up because of being old, so can be reloaded
 	SoundCompressionMethod_t eSoundCompressionMethod;
-	MP3STREAM		*pMP3StreamHeader;		// NULL ptr unless this sfx_t is an MP3. Use Z_Malloc and Z_Free
+	MP3STREAM		*pMP3StreamHeader;		// nullptr ptr unless this sfx_t is an MP3. Use Z_Malloc and Z_Free
 	int 			iSoundLengthInSamples;	// length in samples, always kept as 16bit now so this is #shorts (watch for stereo later for music?)
 	char 			sSoundName[MAX_QPATH];
 	int				iLastTimeUsed;
@@ -191,7 +191,7 @@ void S_Spatialize(channel_t *ch);
 
 byte	*SND_malloc(int iSize, sfx_t *sfx);
 void	 SND_setup();
-int		 SND_FreeOldestSound(sfx_t *pButNotThisOne = NULL);
+int		 SND_FreeOldestSound(sfx_t *pButNotThisOne = nullptr);
 void	 SND_TouchSFX(sfx_t *sfx);
 
 bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99% false */);

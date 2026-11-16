@@ -82,7 +82,7 @@ char* Q_strrchr( const char* string, int c )
 {
 	char cc = c;
 	char *s;
-	char *sp=(char *)0;
+	char *sp=(char *)nullptr;
 
 	s = (char*)string;
 
@@ -117,13 +117,13 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
 
-	if ( s1 == NULL ) {
-		if ( s2 == NULL )
+	if ( s1 == nullptr ) {
+		if ( s2 == nullptr )
 			return 0;
 		else
 			return -1;
 	}
-	else if ( s2==NULL )
+	else if ( s2==nullptr )
 		return 1;
 
 	do {
@@ -232,7 +232,7 @@ const char *Q_stristr( const char *s, const char *find )
 			do
 			{
 				if ((sc = *s++) == 0)
-					return NULL;
+					return nullptr;
 				if (sc >= 'a' && sc <= 'z')
 				{
 					sc -= ('a' - 'A');
@@ -365,7 +365,7 @@ Return:			--
 
 Examples:		Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" );	// "Bo1b is h2airy33"
 Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" );	// "Bo1b is h2airy"
-Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL );	// "Bob is hairy"
+Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", nullptr );	// "Bob is hairy"
 */
 
 void Q_strstrip( char *string, const char *strip, const char *repl )
@@ -402,7 +402,7 @@ Q_strchrs
 Description:	Find any characters in a string. Think of it as a shorthand strchr loop.
 Mutates:		--
 Return:			first instance of any characters found
-otherwise NULL
+otherwise nullptr
 */
 
 const char *Q_strchrs( const char *string, const char *search )
@@ -419,7 +419,7 @@ const char *Q_strchrs( const char *string, const char *search )
 		p++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 #if defined(_MSC_VER)

@@ -175,7 +175,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, trace_t &trace, cbrush_t *brush, boo
 
 	tw->enterFrac = -1.0f;
 	tw->leaveFrac = 1.0f;
-	tw->clipplane = NULL;
+	tw->clipplane = nullptr;
 
 	if ( !brush->numsides )
 	{
@@ -184,7 +184,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, trace_t &trace, cbrush_t *brush, boo
 
 	tw->getout = false;
 	tw->startout = false;
-	tw->leadside = NULL;
+	tw->leadside = nullptr;
 
 	//
 	// compare the trace against all planes of the brush
@@ -393,7 +393,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 
 	enterFrac = -1.0;
 	leaveFrac = 1.0;
-	clipplane = NULL;
+	clipplane = nullptr;
 
 	if ( !brush->numsides ) {
 		return;
@@ -417,7 +417,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 	getout = false;
 	startout = false;
 
-	leadside = NULL;
+	leadside = nullptr;
 
 	//
 	// compare the trace against all planes of the brush
@@ -756,7 +756,7 @@ void CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 	traceWork_t	tw;
 	vec3_t		offset;
 	cmodel_t	*cmod;
-	clipMap_t	*local = 0;
+	clipMap_t	*local = nullptr;
 
 	cmod = CM_ClipHandleToModel( model, &local );
 
@@ -774,7 +774,7 @@ void CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 		return;	// map not loaded, shouldn't happen
 	}
 
-	// allow NULL to be passed in for 0,0,0
+	// allow nullptr to be passed in for 0,0,0
 	if ( !mins ) {
 		mins = vec3_origin;
 	}

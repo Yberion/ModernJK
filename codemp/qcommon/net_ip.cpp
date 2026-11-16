@@ -206,7 +206,7 @@ static bool Sys_StringToSockaddr( const char *s, struct sockaddr_in *sadr )
 	}
 	else
 	{
-		if( ( h = gethostbyname( s ) ) == 0 )
+		if( ( h = gethostbyname( s ) ) == nullptr )
 			return false;
 		sadr->sin_addr.s_addr = *(uint32_t *)h->h_addr_list[0];
 	}
@@ -499,7 +499,7 @@ void NET_OpenSocks( int port ) {
 	}
 
 	h = gethostbyname( net_socksServer->string );
-	if ( h == NULL ) {
+	if ( h == nullptr ) {
 		Com_Printf( "WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -785,7 +785,7 @@ void NET_GetLocalAddress( void )
 
 	Com_Printf( "Hostname: %s\n", hostInfo->h_name );
 	n = 0;
-	while( ( p = hostInfo->h_aliases[n++] ) != NULL ) {
+	while( ( p = hostInfo->h_aliases[n++] ) != nullptr ) {
 		Com_Printf( "Alias: %s\n", p );
 	}
 
@@ -793,7 +793,7 @@ void NET_GetLocalAddress( void )
 		return;
 	}
 
-	while( ( p = hostInfo->h_addr_list[numIP] ) != NULL && numIP < MAX_IPS ) {
+	while( ( p = hostInfo->h_addr_list[numIP] ) != nullptr && numIP < MAX_IPS ) {
 		ip = ntohl( *(uint32_t *)p );
 		localIP[ numIP ][0] = p[0];
 		localIP[ numIP ][1] = p[1];
@@ -1061,7 +1061,7 @@ void NET_Sleep( int usec ) {
 	timeout.tv_sec = usec / 1000000;
 	timeout.tv_usec = usec % 1000000;
 
-	retval = select(highestfd + 1, &fdset, NULL, NULL, &timeout);
+	retval = select(highestfd + 1, &fdset, nullptr, nullptr, &timeout);
 
 	if(retval == SOCKET_ERROR)
 		Com_Printf("Warning: select() syscall failed: %s\n", NET_ErrorString());

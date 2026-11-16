@@ -86,8 +86,8 @@ CM_ClearLevelPatches
 =================
 */
 void CM_ClearLevelPatches( void ) {
-	debugPatchCollide = NULL;
-	debugFacet = NULL;
+	debugPatchCollide = nullptr;
+	debugFacet = nullptr;
 }
 
 /*
@@ -412,7 +412,7 @@ static	patchPlane_t	planes[MAX_PATCH_PLANES];
 
 //static	int				numFacets;
 //static	facet_t			facets[MAX_PATCH_PLANES]; //maybe MAX_FACETS ??
-static		facet_t			*facets = NULL;
+static		facet_t			*facets = nullptr;
 
 #define	NORMAL_EPSILON	0.00015
 #define	DIST_EPSILON	0.0235
@@ -1140,7 +1140,7 @@ static inline void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) 
 	}
 	else
 	{
-		pf->facets = 0;
+		pf->facets = nullptr;
 	}
 	pf->planes = (patchPlane_t *)Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
 	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );

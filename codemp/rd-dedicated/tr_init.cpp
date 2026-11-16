@@ -145,7 +145,7 @@ cvar_t	*r_portalOnly;
 cvar_t	*r_subdivisions;
 cvar_t	*r_lodCurveError;
 
-cvar_t	*r_fullscreen = 0;
+cvar_t	*r_fullscreen = nullptr;
 cvar_t	*r_noborder;
 cvar_t	*r_centerWindow;
 
@@ -183,27 +183,27 @@ cvar_t	*r_noPrecacheGLA;
 #endif
 
 cvar_t	*r_noServerGhoul2;
-cvar_t	*r_Ghoul2AnimSmooth=0;
-cvar_t	*r_Ghoul2UnSqashAfterSmooth=0;
+cvar_t	*r_Ghoul2AnimSmooth=nullptr;
+cvar_t	*r_Ghoul2UnSqashAfterSmooth=nullptr;
 //cvar_t	*r_Ghoul2UnSqash;
 //cvar_t	*r_Ghoul2TimeBase=0; from single player
 //cvar_t	*r_Ghoul2NoLerp;
 //cvar_t	*r_Ghoul2NoBlend;
 //cvar_t	*r_Ghoul2BlendMultiplier=0;
 
-cvar_t	*broadsword=0;
-cvar_t	*broadsword_kickbones=0;
-cvar_t	*broadsword_kickorigin=0;
-cvar_t	*broadsword_playflop=0;
-cvar_t	*broadsword_dontstopanim=0;
-cvar_t	*broadsword_waitforshot=0;
-cvar_t	*broadsword_smallbbox=0;
-cvar_t	*broadsword_extra1=0;
-cvar_t	*broadsword_extra2=0;
+cvar_t	*broadsword=nullptr;
+cvar_t	*broadsword_kickbones=nullptr;
+cvar_t	*broadsword_kickorigin=nullptr;
+cvar_t	*broadsword_playflop=nullptr;
+cvar_t	*broadsword_dontstopanim=nullptr;
+cvar_t	*broadsword_waitforshot=nullptr;
+cvar_t	*broadsword_smallbbox=nullptr;
+cvar_t	*broadsword_extra1=nullptr;
+cvar_t	*broadsword_extra2=nullptr;
 
-cvar_t	*broadsword_effcorr=0;
-cvar_t	*broadsword_ragtobase=0;
-cvar_t	*broadsword_dircap=0;
+cvar_t	*broadsword_effcorr=nullptr;
+cvar_t	*broadsword_ragtobase=nullptr;
+cvar_t	*broadsword_dircap=nullptr;
 
 /*
 Ghoul2 Insert End
@@ -564,7 +564,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	if ( apiVersion != REF_API_VERSION ) {
 		Com_Printf ( "Mismatched REF_API_VERSION: expected %i, got %i\n", REF_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	// the RE_ functions are Renderer Entry points

@@ -897,7 +897,7 @@ extern stringID_table_t BSETTable[];
 bool G_ActivateBehavior (gentity_t *self, int bset )
 {
 	bState_t	bSID = (bState_t)-1;
-	char *bs_name = NULL;
+	char *bs_name = nullptr;
 
 	if ( !self )
 	{
@@ -963,7 +963,7 @@ NPC_ValidEnemy
 bool G_ValidEnemy( gentity_t *self, gentity_t *enemy )
 {
 	//Must be a valid pointer
-	if ( enemy == NULL )
+	if ( enemy == nullptr )
 		return false;
 
 	//Must not be me
@@ -983,7 +983,7 @@ bool G_ValidEnemy( gentity_t *self, gentity_t *enemy )
 		return false;
 
 	//Must be an NPC
-	if ( enemy->client == NULL )
+	if ( enemy->client == nullptr )
 	{
 		if ( enemy->svFlags&SVF_NONNPC_ENEMY )
 		{//still potentially valid
@@ -1183,7 +1183,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts = false )
 
 			//Don't pay attention to our own alerts
 			if ( event->owner == NPC )
-				return NULL;
+				return nullptr;
 
 			if ( event->level >= AEL_DISCOVERED )
 			{
@@ -1198,7 +1198,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts = false )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1221,7 +1221,7 @@ NPC_CheckPlayerDistance
 static bool NPC_CheckPlayerDistance( void )
 {
 	//Make sure we have an enemy
-	if ( NPC->enemy == NULL )
+	if ( NPC->enemy == nullptr )
 		return false;
 
 	//Only do this for non-players
@@ -1416,10 +1416,10 @@ NPC_FaceEnemy
 
 bool NPC_FaceEnemy( bool doPitch )
 {
-	if ( NPC == NULL )
+	if ( NPC == nullptr )
 		return false;
 
-	if ( NPC->enemy == NULL )
+	if ( NPC->enemy == nullptr )
 		return false;
 
 	return NPC_FaceEntity( NPC->enemy, doPitch );
@@ -1533,7 +1533,7 @@ void G_CheckCharmed( gentity_t *self )
 		team_t	savTeam = self->client->enemyTeam;
 		self->client->enemyTeam = self->client->playerTeam;
 		self->client->playerTeam = savTeam;
-		self->client->leader = NULL;
+		self->client->leader = nullptr;
 		self->NPC->charmedTime = 0;
 		if ( self->health > 0 )
 		{
@@ -1561,7 +1561,7 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 	gi.G2API_GetBoltMatrix( self->ghoul2, modelIndex,
 				boltIndex,
 				&boltMatrix, angles, self->currentOrigin, (cg.time?cg.time:level.time),
-				NULL, self->s.modelScale );
+				nullptr, self->s.modelScale );
 	if ( pos )
 	{
         gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, result );

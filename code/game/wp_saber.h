@@ -210,7 +210,7 @@ extern void WP_SaberFreeStrings( saberInfo_t &saber );
 extern bool G_EnoughPowerForSpecialMove( int forcePower, int cost, bool kataMove = false );
 extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int cost, bool kataMove = false );
 extern int G_CostForSpecialMove( int cost, bool kataMove = false );
-extern gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, vec3_t saberPos, vec3_t saberVel, vec3_t saberAngles, gentity_t *copySaber = NULL );
+extern gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, vec3_t saberPos, vec3_t saberVel, vec3_t saberAngles, gentity_t *copySaber = nullptr );
 
 typedef enum
 {

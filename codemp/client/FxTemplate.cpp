@@ -199,7 +199,7 @@ CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that
 bool CPrimitiveTemplate::ParseFloat( const char *val, float *min, float *max )
 {
 	// We don't allow passing in a null for either of the fields
-	if ( min == 0 || max == 0 )
+	if ( min == nullptr || max == nullptr )
 	{ // failue
 		return false;
 	}
@@ -239,7 +239,7 @@ bool CPrimitiveTemplate::ParseFloat( const char *val, float *min, float *max )
 bool CPrimitiveTemplate::ParseVector( const char *val, vec3_t min, vec3_t max )
 {
 	// we don't allow passing in a null
-	if ( min == 0 || max == 0 )
+	if ( min == nullptr || max == nullptr )
 	{
 		return false;
 	}
@@ -280,7 +280,7 @@ bool CPrimitiveTemplate::ParseVector( const char *val, vec3_t min, vec3_t max )
 bool CPrimitiveTemplate::ParseGroupFlags( const char *val, int *flags )
 {
 	// Must pass in a non-null pointer
-	if ( flags == 0 )
+	if ( flags == nullptr )
 	{
 		return false;
 	}

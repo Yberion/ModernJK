@@ -73,7 +73,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 	float magnitude = VectorLength( pm->ps->velocity ) * pSelfVeh->m_pVehicleInfo->mass / 50.0f;
 	bool forceSurfDestruction = false;
 #ifdef _GAME
-	gentity_t *hitEnt = trace!=NULL?&g_entities[trace->entityNum]:NULL;
+	gentity_t *hitEnt = trace!=nullptr?&g_entities[trace->entityNum]:nullptr;
 
 	if (!hitEnt ||
 		(pSelfVeh && pSelfVeh->m_pPilot &&
@@ -91,7 +91,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		{//hit another vehicle, explode!
 			//Give credit to whoever got me into this death spiral state
 			gentity_t *parent = (gentity_t *)pSelfVeh->m_pParentEntity;
-			gentity_t *killer = NULL;
+			gentity_t *killer = nullptr;
 			if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
 				parent->client->ps.otherKillerTime > level.time)
 			{
@@ -103,7 +103,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				}
 			}
 			//FIXME: damage hitEnt, some, too?  Our explosion should hurt them some, but...
-			G_Damage( (gentity_t *)pEnt, killer, killer, NULL, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+			G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
 			return;
 		}
 		else if ( !VectorCompare( trace->plane.normal, vec3_origin )
@@ -118,7 +118,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			{// Just DIE now
 				//Give credit to whoever got me into this death spiral state
 				gentity_t *parent = (gentity_t *)pSelfVeh->m_pParentEntity;
-				gentity_t *killer = NULL;
+				gentity_t *killer = nullptr;
 				if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
 					parent->client->ps.otherKillerTime > level.time)
 				{
@@ -129,7 +129,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 						killer = potentialKiller;
 					}
 				}
-				G_Damage( (gentity_t *)pEnt, killer, killer, NULL, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+				G_Damage( (gentity_t *)pEnt, killer, killer, nullptr, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
 				return;
 			}
 		}
@@ -448,7 +448,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				return;
 			}
 
-			AngleVectors( pSelfVeh->m_vOrientation, NULL, NULL, vehUp );
+			AngleVectors( pSelfVeh->m_vOrientation, nullptr, nullptr, vehUp );
 			if ( pSelfVeh->m_pVehicleInfo->iImpactFX )
 			{
 				//G_PlayEffectID( pSelfVeh->m_pVehicleInfo->iImpactFX, pm->ps->origin, vehUp );
@@ -487,7 +487,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				pSelfVeh->m_iLastImpactDmg = magnitude;
 				//FIXME: what about proper death credit to the guy who shot you down?
 				//FIXME: actually damage part of the ship that impacted?
-				G_Damage( (gentity_t *)pEnt, NULL, NULL, NULL, pm->ps->origin, magnitude*5, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+				G_Damage( (gentity_t *)pEnt, nullptr, nullptr, nullptr, pm->ps->origin, magnitude*5, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
 
 				if (pSelfVeh->m_pVehicleInfo->surfDestruction)
 				{
@@ -553,7 +553,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				{
 					finalD = 1;
 				}
-				G_Damage( hitEnt, attackEnt, attackEnt, NULL, pm->ps->origin, finalD, 0, MOD_MELEE );//FIXME: MOD_IMPACT
+				G_Damage( hitEnt, attackEnt, attackEnt, nullptr, pm->ps->origin, finalD, 0, MOD_MELEE );//FIXME: MOD_IMPACT
 			}
 #else	//this is gonna result in "double effects" for the client doing the prediction.
 		//it doesn't look bad though. could just use predicted events, but I'm too lazy.
@@ -561,7 +561,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 
 			if (!hitEnt || hitEnt->s.owner != pEnt->s.number)
 			{ //don't hit your own missiles!
-				AngleVectors( pSelfVeh->m_vOrientation, NULL, NULL, vehUp );
+				AngleVectors( pSelfVeh->m_vOrientation, nullptr, nullptr, vehUp );
 				pEnt->m_pVehicle->m_iHitDebounce = pm->cmd.serverTime + 200;
 				trap->FX_PlayEffectID( pSelfVeh->m_pVehicleInfo->iImpactFX, pm->ps->origin, vehUp, -1, -1, false );
 

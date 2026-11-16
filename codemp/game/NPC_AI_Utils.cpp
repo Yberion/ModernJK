@@ -66,11 +66,11 @@ int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *av
 		check = &g_entities[radiusEnts[j]];
 
 		//Validate clients
-		if ( check->client == NULL )
+		if ( check->client == nullptr )
 			continue;
 
 		//Skip the requested avoid ent if present
-		if ( ( avoid != NULL ) && ( check == avoid ) )
+		if ( ( avoid != nullptr ) && ( check == avoid ) )
 			continue;
 
 		//Must be on the same team
@@ -91,7 +91,7 @@ int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *av
 
 int AI_GetGroupSize2( gentity_t *ent, int radius )
 {
-	if ( ( ent == NULL ) || ( ent->client == NULL ) )
+	if ( ( ent == nullptr ) || ( ent->client == nullptr ) )
 		return -1;
 
 	return AI_GetGroupSize( ent->r.currentOrigin, radius, (team_t)ent->client->playerTeam, ent );
@@ -125,7 +125,7 @@ void AI_SortGroupByPathCostToEnemy( AIGroupInfo_t *group )
 	int				i, j, k;
 	bool		sort = false;
 
-	if ( group->enemy != NULL )
+	if ( group->enemy != nullptr )
 	{//FIXME: just use enemy->waypoint?
 		group->enemyWP = NAV_FindClosestWaypointForEnt( group->enemy, WAYPOINT_NONE );
 	}
@@ -202,7 +202,7 @@ bool AI_FindSelfInPreviousGroup( gentity_t *self )
 	int	i, j;
 	for ( i = 0; i < MAX_FRAME_GROUPS; i++ )
 	{
-		if ( level.groups[i].numGroup )//&& level.groups[i].enemy != NULL )
+		if ( level.groups[i].numGroup )//&& level.groups[i].enemy != nullptr )
 		{//check this one
 			for ( j = 0; j < level.groups[i].numGroup; j++ )
 			{
@@ -251,7 +251,7 @@ bool AI_TryJoinPreviousGroup( gentity_t *self )
 	{
 		if ( level.groups[i].numGroup
 			&& level.groups[i].numGroup < (MAX_GROUP_MEMBERS - 1)
-			//&& level.groups[i].enemy != NULL
+			//&& level.groups[i].enemy != nullptr
 			&& level.groups[i].enemy == self->enemy )
 		{//has members, not full and has my enemy
 			if ( AI_ValidateGroupMember( &level.groups[i], self ) )
@@ -290,7 +290,7 @@ bool AI_GetNextEmptyGroup( gentity_t *self )
 
 	//if ( i >= MAX_FRAME_GROUPS )
 	{//WTF?  Out of groups!
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return false;
 	}
 }
@@ -330,15 +330,15 @@ bool AI_ValidateNoEnemyGroupMember( AIGroupInfo_t *group, gentity_t *member )
 bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 {
 	//Validate ents
-	if ( member == NULL )
+	if ( member == nullptr )
 		return false;
 
 	//Validate clients
-	if ( member->client == NULL )
+	if ( member->client == nullptr )
 		return false;
 
 	//Validate NPCs
-	if ( member->NPC == NULL )
+	if ( member->NPC == nullptr )
 		return false;
 
 	//must be aware
@@ -350,7 +350,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		return false;
 
 	//Must not be in another group
-	if ( member->NPC->group != NULL && member->NPC->group != group )
+	if ( member->NPC->group != nullptr && member->NPC->group != group )
 	{//FIXME: if that group's enemy is mine, why not absorb that group into mine?
 		return false;
 	}
@@ -399,7 +399,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 	//should have same enemy
 	if ( member->enemy != group->enemy )
 	{
-		if ( member->enemy != NULL )
+		if ( member->enemy != nullptr )
 		{//he's fighting someone else, leave him out
 			return false;
 		}
@@ -408,7 +408,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 			return false;
 		}
 	}
-	else if ( group->enemy == NULL )
+	else if ( group->enemy == nullptr )
 	{//if the group is a patrol group, only take those within the room and radius
 		if ( !AI_ValidateNoEnemyGroupMember( group, member ) )
 		{
@@ -440,25 +440,25 @@ void AI_GetGroup( gentity_t *self )
 
 	if ( d_noGroupAI.integer )
 	{
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return;
 	}
 
 	if ( !self->client )
 	{
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return;
 	}
 
 	if ( self->NPC->scriptFlags&SCF_NO_GROUPS )
 	{
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return;
 	}
 
 	if ( self->enemy && (!self->enemy->client || (level.time - self->NPC->enemyLastSeenTime > 7000 )))
 	{
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return;
 	}
 
@@ -529,7 +529,7 @@ void AI_GetGroup( gentity_t *self )
 
 	if ( self->NPC->group->numGroup <= 0 )
 	{//none in group
-		self->NPC->group = NULL;
+		self->NPC->group = nullptr;
 		return;
 	}
 
@@ -539,10 +539,10 @@ void AI_GetGroup( gentity_t *self )
 
 void AI_SetNewGroupCommander( AIGroupInfo_t *group )
 {
-	gentity_t *member = NULL;
+	gentity_t *member = nullptr;
 	int i;
 
-	group->commander = NULL;
+	group->commander = nullptr;
 	for ( i = 0; i < group->numGroup; i++ )
 	{
 		member = &g_entities[group->member[i].number];
@@ -560,11 +560,11 @@ void AI_DeleteGroupMember( AIGroupInfo_t *group, int memberNum )
 
 	if ( group->commander && group->commander->s.number == group->member[memberNum].number )
 	{
-		group->commander = NULL;
+		group->commander = nullptr;
 	}
 	if ( g_entities[group->member[memberNum].number].NPC )
 	{
-		g_entities[group->member[memberNum].number].NPC->group = NULL;
+		g_entities[group->member[memberNum].number].NPC->group = nullptr;
 	}
 	for ( i = memberNum; i < (group->numGroup-1); i++ )
 	{
@@ -749,7 +749,7 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 					for ( j = 0; j < group->numGroup; j++ )
 					{
 						member = &g_entities[group->member[j].number];
-						if ( level.groups[i].enemy == NULL )
+						if ( level.groups[i].enemy == nullptr )
 						{//special case for groups without enemies, must be in range
 							if ( !AI_ValidateNoEnemyGroupMember( &level.groups[i], member ) )
 							{
@@ -780,7 +780,7 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 	}
 
 	//go through group and validate each membership
-	group->commander = NULL;
+	group->commander = nullptr;
 	for ( i = 0; i < group->numGroup; i++ )
 	{
 		/*
@@ -959,7 +959,7 @@ void AI_UpdateGroups( void )
 	//Clear all Groups
 	for ( i = 0; i < MAX_FRAME_GROUPS; i++ )
 	{
-		if ( !level.groups[i].numGroup || AI_RefreshGroup( &level.groups[i] ) == false )//level.groups[i].enemy == NULL ||
+		if ( !level.groups[i].numGroup || AI_RefreshGroup( &level.groups[i] ) == false )//level.groups[i].enemy == nullptr ||
 		{
 			memset( &level.groups[i], 0, sizeof( level.groups[i] ) );
 		}
@@ -988,7 +988,7 @@ bool AI_GroupContainsEntNum( AIGroupInfo_t *group, int entNum )
 /*
 void AI_GetGroup( AIGroupInfo_t &group, gentity_t *ent, int radius )
 {
-	if ( ent->client == NULL )
+	if ( ent->client == nullptr )
 		return;
 
 	vec3_t	temp, angles;
@@ -1018,7 +1018,7 @@ bool AI_CheckEnemyCollision( gentity_t *ent, bool takeEnemy )
 {
 	navInfo_t	info;
 
-	if ( ent == NULL )
+	if ( ent == nullptr )
 		return false;
 
 //	if ( ent->svFlags & SVF_LOCKEDENEMY )
@@ -1100,7 +1100,7 @@ gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t te
 		check = &g_entities[radiusEnts[j]];
 
 		//Validate clients
-		if ( check->client == NULL )
+		if ( check->client == nullptr )
 			continue;
 
 		//Skip the requested avoid ent if present
@@ -1122,5 +1122,5 @@ gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t te
 		return check;
 	}
 
-	return NULL;
+	return nullptr;
 }

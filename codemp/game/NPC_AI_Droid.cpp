@@ -57,7 +57,7 @@ void R2D2_PartsMove(void)
 		/*
 		if (NPC->genericBone1)
 		{
-			trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL );
+			trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr );
 		}
 		*/
 		NPC_SetBoneAngles(NPCS.NPC, "f_eye", NPCS.NPC->pos1);
@@ -322,7 +322,7 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 						if ( self->client->ps.m_iVehicleNum )
 						{
 							vec3_t	up;
-							AngleVectors( self->r.currentAngles, NULL, NULL, up );
+							AngleVectors( self->r.currentAngles, nullptr, nullptr, up );
 							G_PlayEffectID( G_EffectIndex("chunks/r5d2head_veh"), self->r.currentOrigin, up );
 						}
 						else
@@ -400,7 +400,7 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 						if ( self->client->ps.m_iVehicleNum )
 						{
 							vec3_t	up;
-							AngleVectors( self->r.currentAngles, NULL, NULL, up );
+							AngleVectors( self->r.currentAngles, nullptr, nullptr, up );
 							G_PlayEffectID( G_EffectIndex("chunks/r2d2head_veh"), self->r.currentOrigin, up );
 						}
 						else
@@ -569,7 +569,7 @@ static void R5D2_OffsetLook( float offset, vec3_t out )
 
 	GetAnglesForDirection( NPC->r.currentOrigin, NPCInfo->investigateGoal, angles );
 	angles[YAW] += offset;
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 	VectorMA( NPC->r.currentOrigin, 64, forward, out );
 
 	CalcEntitySpot( NPC, SPOT_HEAD, temp );

@@ -78,7 +78,7 @@ typedef struct {
 	int			get, send;
 } loopback_t;
 
-static loopback_t	*loopbacks = NULL;
+static loopback_t	*loopbacks = nullptr;
 
 
 /*
@@ -104,7 +104,7 @@ void Netchan_Shutdown()
 	if (loopbacks)
 	{
 		Z_Free(loopbacks);
-		loopbacks = 0;
+		loopbacks = nullptr;
 	}
 }
 

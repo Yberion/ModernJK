@@ -75,14 +75,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 //Pointer safety utilities
-#define VALID( a )		( a != NULL )
+#define VALID( a )		( a != nullptr )
 #define	VALIDATE( a )	( assert( a ) )
 
-#define	VALIDATEV( a )	if ( a == NULL ) {	assert(0);	return;			}
-#define	VALIDATEB( a )	if ( a == NULL ) {	assert(0);	return false;	}
-#define VALIDATEP( a )	if ( a == NULL ) {	assert(0);	return NULL;	}
+#define	VALIDATEV( a )	if ( a == nullptr ) {	assert(0);	return;			}
+#define	VALIDATEB( a )	if ( a == nullptr ) {	assert(0);	return false;	}
+#define VALIDATEP( a )	if ( a == nullptr ) {	assert(0);	return nullptr;	}
 
-#define VALIDSTRING( a )	( ( a != NULL ) && ( a[0] != '\0' ) )
+#define VALIDSTRING( a )	( ( a != nullptr ) && ( a[0] != '\0' ) )
 
 //animations
 class animFileSet_t

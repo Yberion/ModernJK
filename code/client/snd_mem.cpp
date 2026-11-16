@@ -78,7 +78,7 @@ void FindNextChunk(const char *name)
 
 		if (data_p >= iff_end)
 		{	// didn't find the chunk
-			data_p = NULL;
+			data_p = nullptr;
 			return;
 		}
 
@@ -86,7 +86,7 @@ void FindNextChunk(const char *name)
 		iff_chunk_len = GetLittleLong();
 		if (iff_chunk_len < 0)
 		{
-			data_p = NULL;
+			data_p = nullptr;
 			return;
 		}
 		data_p -= 8;
@@ -296,7 +296,7 @@ char *Filename_WithoutExt(const char *psFilename)
 
 	// special check, make sure the first suffix we found from the end wasn't just a directory suffix (eg on a path'd filename with no extension anyway)
 	//
-	if (p && (p2==0 || (p2 && p>p2)))
+	if (p && (p2==nullptr || (p2 && p>p2)))
 		*p=0;
 
 	return sString;
@@ -343,7 +343,7 @@ void R_CheckMP3s( const char *psDir )
 
 		// read it in...
 		//
-		byte *pbData = NULL;
+		byte *pbData = nullptr;
 		int iSize = FS_ReadFile( sFilename, (void **)&pbData);
 
 		if (pbData)
@@ -354,7 +354,7 @@ void R_CheckMP3s( const char *psDir )
 			//
 			bool qbTagNeedsUpdating = (/* qbForceRescan || */ !MP3_ReadSpecialTagInfo(pbData, iSize, &pTAG))?true:false;
 
-			if (pTAG == NULL || qbTagNeedsUpdating || qbForceRescan)
+			if (pTAG == nullptr || qbTagNeedsUpdating || qbForceRescan)
 			{
 				Com_Printf(" ( Updating )\n");
 
@@ -367,10 +367,10 @@ void R_CheckMP3s( const char *psDir )
 				//sfx_t SFX = {0};
 				extern sfx_t *S_FindName( const char *name );
 				//
-				static sfx_t *pSFX = NULL;
+				static sfx_t *pSFX = nullptr;
 				const char sReservedSFXEntrynameForMP3[] = "reserved_for_mp3";	// ( strlen() < MAX_QPATH )
 
-				if (pSFX == NULL)	// once only
+				if (pSFX == nullptr)	// once only
 				{
 					pSFX = S_FindName(sReservedSFXEntrynameForMP3);	// always returns, else ERR_FATAL
 				}
@@ -649,7 +649,7 @@ static bool S_LoadSound_FileLoadAndNameAdjuster(char *psFilename, byte **pData, 
 		}
 		else
 		{
-			psVoice = NULL;	// use this ptr as a flag as to whether or not we substituted with a foreign version
+			psVoice = nullptr;	// use this ptr as a flag as to whether or not we substituted with a foreign version
 		}
 	}
 
@@ -874,7 +874,7 @@ static bool S_LoadSound_Actual( sfx_t *sfx )
 
 		sfx->eSoundCompressionMethod = ct_16;
 		sfx->iSoundLengthInSamples	 = info.samples;
-		sfx->pSoundData = NULL;
+		sfx->pSoundData = nullptr;
 		ResampleSfx( sfx, info.rate, info.width, data + info.dataofs );
 
 		// Open AL

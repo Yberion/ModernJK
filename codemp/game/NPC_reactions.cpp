@@ -82,7 +82,7 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 	//rwwFIXMEFIXME: support this
 
 	//If we haven't taken a target, just get mad
-	if ( NPCS.NPC->enemy == NULL )//was using "other", fixed to NPC
+	if ( NPCS.NPC->enemy == nullptr )//was using "other", fixed to NPC
 	{
 		G_SetEnemy( NPCS.NPC, other );
 		return;
@@ -386,10 +386,10 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	VectorCopy(gPainPoint, point);
 
-	if ( self->NPC == NULL )
+	if ( self->NPC == nullptr )
 		return;
 
-	if ( other == NULL )
+	if ( other == nullptr )
 		return;
 
 	//or just remove ->pain in player_die?
@@ -597,13 +597,13 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			if ( keyTaken )
 			{//remove my key
 				NPC_SetSurfaceOnOff( self, "l_arm_key", 0x00000002 );
-				self->message = NULL;
+				self->message = nullptr;
 				//FIXME: temp pickup sound
 				G_Sound( player, G_SoundIndex( "sound/weapons/key_pkup.wav" ) );
 				//FIXME: need some event to pass to cgame for sound/graphic/message?
 			}
 			//FIXME: temp message
-			trap->SendServerCommand( NULL, text );
+			trap->SendServerCommand( nullptr, text );
 			*/
 		}
 	}

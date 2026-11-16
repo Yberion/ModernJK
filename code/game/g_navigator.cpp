@@ -508,7 +508,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	void	ClearActor()
 	{
-		mActor = 0;
+		mActor = nullptr;
 		mActorSize = 0;
 		mDangerSpotRadiusSq = 0;
 	}
@@ -613,7 +613,7 @@ public:
 
 							// Look For A Key
 							//----------------
-							if (mActor!=0 && (owner->spawnflags & MOVER_GOODIE))
+							if (mActor!=nullptr && (owner->spawnflags & MOVER_GOODIE))
 							{
 								int key = INV_GoodieKeyCheck(mActor);
 								if (!key)
@@ -831,7 +831,7 @@ bool		ViewTrace(const CVec3& a, const CVec3& b)
 	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, 0, 0, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -848,7 +848,7 @@ bool		ViewNavTrace(const CVec3& a, const CVec3& b)
 	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, 0, 0, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -1433,7 +1433,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 				// We'll start by assuming the door is it's own master
 				//-----------------------------------------------------
 				at.mOwnerNum = ent->s.number;
-				gentity_t*	owner = 0;
+				gentity_t*	owner = nullptr;
 
 				// If There Is A Target Name, See If This Thing Is Controlled From A Switch Or Something
 				//---------------------------------------------------------------------------------------
@@ -1677,7 +1677,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 			// Clear The Name In The Array, So Save Is Not Corrupted
 			//-------------------------------------------------------
-			at->mTargets[tgtNum] = 0;
+			at->mTargets[tgtNum] = nullptr;
 
 
 			// Try To Find The Node This Target Name Refers To
@@ -2185,7 +2185,7 @@ void			NAV::DecayDangerSenses()
 ////////////////////////////////////////////////////////////////////////////////////////
 void			NAV::RegisterDangerSense(gentity_t* actor, int alertEventIndex)
 {
-	if (actor==0 || alertEventIndex<0)
+	if (actor==nullptr || alertEventIndex<0)
 	{
 		assert(0);
 		return;
@@ -3447,7 +3447,7 @@ bool			NAV::InSafeRadius(CVec3 at, TNodeHandle atNode, TNodeHandle targetNode)
 bool			NAV::FindPath(gentity_t* actor, gentity_t* target, float MaxDangerLevel)
 {
 	assert(target!=0 && actor!=0);
-	if (target!=0 && actor!=0)
+	if (target!=nullptr && actor!=nullptr)
 	{
 		if (target->waypoint==WAYPOINT_NONE)
 		{
@@ -4150,7 +4150,7 @@ void			STEER::Activate(gentity_t* actor)
 	CVec3	Maxs(suser.mPosition + Range);
 
 	gentity_t*	EntityList[MAX_GENTITIES];
-	gentity_t*	neighbor = 0;
+	gentity_t*	neighbor = nullptr;
 
 	int	numFound = gi.EntitiesInBox(Mins.v, Maxs.v, EntityList, MAX_GENTITIES);
 	for (int i=0; i<numFound && !suser.mNeighbors.full(); i++)
@@ -4353,7 +4353,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 
 			// If Navigation Or Steering Had A Target Entity (Trying To Go To), Record That Here
 			//-----------------------------------------------------------------------------------
-			actor->NPC->blockedTargetEntity  = 0;
+			actor->NPC->blockedTargetEntity  = nullptr;
 			if (suser.mBlockedTgtEntity!=ENTITYNUM_NONE)
 			{
 				actor->NPC->blockedTargetEntity	 = &g_entities[suser.mBlockedTgtEntity];
@@ -4368,7 +4368,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 			{
 				actor->NPC->aiFlags				&= ~NPCAI_BLOCKED;
 				actor->NPC->blockedDebounceTime  = 0;
-				actor->NPC->blockedTargetEntity	 = 0;
+				actor->NPC->blockedTargetEntity	 = nullptr;
 			}
 		}
 
@@ -4990,7 +4990,7 @@ gentity_t*		STEER::SelectLeader(gentity_t* actor)
 		}
 
 	}
-	return 0;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -5206,7 +5206,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 	{
 		// Did We Hit A Client?
 		//----------------------
-		if (ContactNum!=ENTITYNUM_WORLD && ContactNum!=ENTITYNUM_NONE && g_entities[ContactNum].client!=0)
+		if (ContactNum!=ENTITYNUM_WORLD && ContactNum!=ENTITYNUM_NONE && g_entities[ContactNum].client!=nullptr)
 		{
 			gentity_t*		Contact			= &g_entities[ContactNum];
 			//bool			ContactIsPlayer = (Contact->client->ps.clientNum==0);

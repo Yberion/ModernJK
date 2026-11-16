@@ -729,7 +729,7 @@ static void SG_WriteComment(bool qbAutosave, const char *psMapName)
 		sComment);
 
 	// Add Date/Time/Map stamp
-	unsigned int timestamp = SG_UnixTimestamp (time (NULL));
+	unsigned int timestamp = SG_UnixTimestamp (time (nullptr));
 
 	saved_game.write_chunk<uint32_t>(
 		INT_ID('C', 'M', 'T', 'M'),
@@ -864,13 +864,13 @@ int SG_GetSaveGameComment(
 
 // read the mapname field from the supplied savegame file
 //
-// returns NULL if not found
+// returns nullptr if not found
 //
 static char *SG_GetSaveGameMapName(const char *psPathlessBaseName)
 {
 	static char sMapName[iSG_MAPCMD_SIZE]={0};
-	char *psReturn = NULL;
-	if (SG_GetSaveGameComment(psPathlessBaseName, NULL, sMapName))
+	char *psReturn = nullptr;
+	if (SG_GetSaveGameComment(psPathlessBaseName, nullptr, sMapName))
 	{
 		psReturn = sMapName;
 	}
@@ -926,7 +926,7 @@ static bool SG_ReadScreenshot(
 	//
 	// decompress JPG data...
 	//
-	byte* image = NULL;
+	byte* image = nullptr;
 	int width;
 	int height;
 
@@ -1028,8 +1028,8 @@ static void SG_WriteScreenshot(bool qbAutosave, const char *psMapName)
 	ojk::SavedGameHelper saved_game(
 		&ojk::SavedGame::get_instance());
 
-	byte *pbRawScreenShot = NULL;
-	byte *byBlank = NULL;
+	byte *pbRawScreenShot = nullptr;
+	byte *byBlank = nullptr;
 	byte *src, *dst;
 
 	if( qbAutosave )
@@ -1062,7 +1062,7 @@ static void SG_WriteScreenshot(bool qbAutosave, const char *psMapName)
 
 	if (!pbRawScreenShot)
 	{
-		if (byBlank != NULL)
+		if (byBlank != nullptr)
 		{
 			delete[] byBlank;
 		}
@@ -1070,7 +1070,7 @@ static void SG_WriteScreenshot(bool qbAutosave, const char *psMapName)
 		const size_t bySize = SG_SCR_WIDTH * SG_SCR_HEIGHT * 3;
 
 		byBlank = new byte[bySize];
-		pbRawScreenShot = SCR_GetScreenshot(0);
+		pbRawScreenShot = SCR_GetScreenshot(nullptr);
 		
 		// We can't just do the same resampling as with qbAutosave as we would alter the cached buffer
 		// That might be used elsewhere and is expected to have RGBA data, like for drawing the level transition screenshot
@@ -1132,7 +1132,7 @@ bool SG_GameAllowedToSaveHere(bool inCamera)
 		}
 
 		//No savegames from "_" maps
-		if ( !sv_mapname || (sv_mapname->string != NULL && sv_mapname->string[0] == '_') )
+		if ( !sv_mapname || (sv_mapname->string != nullptr && sv_mapname->string[0] == '_') )
 		{
 			return false;	//		Com_Printf (S_COLOR_RED "Cannot save on holodeck or brig.\n");
 		}

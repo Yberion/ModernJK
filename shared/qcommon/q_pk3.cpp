@@ -166,7 +166,7 @@ static bool PK3_FindDirectory64( pk3Archive_t *archive, uint64_t endAt, uint64_t
 	return true;
 }
 
-// where the directory is: the end record, found from the archive's last bytes. NULL, or why it was not found.
+// where the directory is: the end record, found from the archive's last bytes. nullptr, or why it was not found.
 static const char *PK3_FindDirectory( pk3Archive_t *archive, uint64_t *at, uint64_t *size, uint64_t *count ) {
 	const size_t	tailLen = archive->length < ZIP_END_SIZE + ZIP_END_COMMENT ? (size_t)archive->length : ZIP_END_SIZE + ZIP_END_COMMENT;
 	const char		*why = "it has no ZIP directory";
@@ -194,7 +194,7 @@ static const char *PK3_FindDirectory( pk3Archive_t *archive, uint64_t *at, uint6
 			} else if ( *size > PK3_MAX_SIZE || *at > archive->length || *size > archive->length - *at || *count > *size / ZIP_ENTRY_SIZE ) {
 				why = "its directory is not valid";		// outside the file, too large to hold, or too small for its entries
 			} else {
-				why = NULL;
+				why = nullptr;
 			}
 			break;
 		}
@@ -250,7 +250,7 @@ static void PK3_Zip64Sizes( const byte *extra, uint32_t extraLen, pk3Slot_t *e )
 	}
 }
 
-// the archive's entries, from its directory held in memory (cd, size bytes): the first pass (entries NULL) checks
+// the archive's entries, from its directory held in memory (cd, size bytes): the first pass (entries nullptr) checks
 // every record and returns the bytes their names need, the second fills the entries and the names. -1 on a
 // directory that is not what its records say.
 static int64_t PK3_ParseDirectory( const byte *cd, uint32_t size, int count, pk3Slot_t *entries, char *names ) {
@@ -291,16 +291,16 @@ static int64_t PK3_ParseDirectory( const byte *cd, uint32_t size, int count, pk3
 	return namesLen;
 }
 
-// the archive with its directory read. NULL, with the reason in *why.
+// the archive with its directory read. nullptr, with the reason in *why.
 static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 	pk3Archive_t	*archive;
 	uint64_t		at = 0, size = 0, count = 0, bytes = 0;
 	int64_t			namesLen = 0;
-	byte			*cd = NULL;
+	byte			*cd = nullptr;
 
 	*why = PK3_FindDirectory( opened, &at, &size, &count );		// size fits an int, count is at most size / 46
 	if ( *why ) {
-		return NULL;
+		return nullptr;
 	}
 	if ( size ) {
 		cd = (byte *)Z_Malloc( (int)size, TAG_FILESYS, false );
@@ -309,7 +309,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 		}
 	}
 	if ( namesLen == 0 ) {
-		namesLen = PK3_ParseDirectory( cd, (uint32_t)size, (int)count, NULL, NULL );
+		namesLen = PK3_ParseDirectory( cd, (uint32_t)size, (int)count, nullptr, nullptr );
 	}
 	if ( namesLen >= 0 ) {
 		bytes = sizeof( *archive ) + count * sizeof( pk3Slot_t ) + (uint64_t)namesLen;
@@ -319,7 +319,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 			Z_Free( cd );
 		}
 		*why = namesLen < 0 ? "its directory is damaged" : "its directory is too large";
-		return NULL;
+		return nullptr;
 	}
 
 	archive = (pk3Archive_t *)Z_Malloc( (int)bytes, TAG_FILESYS, true );
@@ -336,7 +336,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 
 pk3Archive_t *PK3_Open( const char *ospath ) {
 	pk3Archive_t	opened;
-	pk3Archive_t	*archive = NULL;
+	pk3Archive_t	*archive = nullptr;
 	const char		*why = "it cannot be opened";
 
 	memset( &opened, 0, sizeof( opened ) );
@@ -386,12 +386,12 @@ void PK3_GetEntry( const pk3Archive_t *archive, int index, pk3Entry_t *entry ) {
 pk3File_t *PK3_OpenFile( pk3Archive_t *archive, int index ) {
 	const pk3Slot_t	*e;
 	pk3File_t		*file;
-	const char		*why = NULL;
+	const char		*why = nullptr;
 	byte			local[ZIP_LOCAL_SIZE];
 	uint64_t		data = 0;
 
 	if ( index < 0 || index >= archive->count ) {
-		return NULL;
+		return nullptr;
 	}
 	e = &archive->entries[index];
 	if ( e->flags & ZIP_FLAG_ENCRYPTED ) {
@@ -410,7 +410,7 @@ pk3File_t *PK3_OpenFile( pk3Archive_t *archive, int index ) {
 	}
 	if ( why ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: %s in %s is not read: %s\n", e->name, archive->path, why );
-		return NULL;
+		return nullptr;
 	}
 
 	file = (pk3File_t *)Z_Malloc( sizeof( *file ), TAG_FILESYS, false );
@@ -422,7 +422,7 @@ pk3File_t *PK3_OpenFile( pk3Archive_t *archive, int index ) {
 	file->whole = true;
 	if ( e->method == ZIP_DEFLATED && zng_inflateInit2( &file->z, -15 ) != Z_OK ) {	// -15: deflate with no header
 		Z_Free( file );
-		return NULL;
+		return nullptr;
 	}
 	archive->users++;
 	return file;

@@ -336,7 +336,7 @@ Cmd_Argc() / Cmd_Argv()
 =================
 */
 bool CG_ConsoleCommand( void ) {
-	consoleCommand_t	*command = NULL;
+	consoleCommand_t	*command = nullptr;
 
 	command = (consoleCommand_t *)Q_LinearSearch( CG_Argv( 0 ), commands, numCommands, sizeof( commands[0] ), cmdcmp );
 

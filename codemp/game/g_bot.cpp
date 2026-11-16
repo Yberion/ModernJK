@@ -179,7 +179,7 @@ bool G_DoesMapSupportGametype(const char *mapname, int gametype)
 	int			typeBits = 0;
 	int			thisLevel = -1;
 	int			n = 0;
-	const char		*type = NULL;
+	const char		*type = nullptr;
 
 	if (!level.arenas.infos[0])
 	{
@@ -225,18 +225,18 @@ const char *G_RefreshNextMap(int gametype, bool forced)
 	int			thisLevel = 0;
 	int			desiredMap = 0;
 	int			n = 0;
-	const char		*type = NULL;
+	const char		*type = nullptr;
 	bool	loopingUp = false;
 	vmCvar_t	mapname;
 
 	if (!g_autoMapCycle.integer && !forced)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!level.arenas.infos[0])
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
@@ -381,7 +381,7 @@ const char *G_GetArenaInfoByMap( const char *map ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 #if 0
@@ -825,12 +825,12 @@ G_AddBot
 ===============
 */
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
-	gentity_t		*bot = NULL;
+	gentity_t		*bot = nullptr;
 	int				clientNum;
 	team_t			preTeam = TEAM_FREE;
-	char			userinfo[MAX_INFO_STRING] = {0}, *botinfo = NULL;
-	const char	*key = NULL;
-	const char		*s = NULL, *botname = NULL, *model = NULL;
+	char			userinfo[MAX_INFO_STRING] = {0}, *botinfo = nullptr;
+	const char	*key = nullptr;
+	const char		*s = nullptr, *botname = nullptr, *model = nullptr;
 
 	// have the server allocate a client slot
 	clientNum = trap->BotAllocateClient();
@@ -1261,7 +1261,7 @@ G_GetBotInfoByNumber
 char *G_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= level.bots.num ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
-		return NULL;
+		return nullptr;
 	}
 	return level.bots.infos[num];
 }
@@ -1282,7 +1282,7 @@ char *G_GetBotInfoByName( const char *name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 //rww - pd

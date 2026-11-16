@@ -288,7 +288,7 @@ void InitSiegeMode(void)
 	}
 
 	//Load the player class types
-	BG_SiegeLoadClasses(NULL);
+	BG_SiegeLoadClasses(nullptr);
 
 	if (!bgNumSiegeClasses)
 	{ //We didn't find any?!
@@ -399,7 +399,7 @@ failure:
 
 void G_SiegeSetObjectiveComplete(int team, int objective, bool failIt)
 {
-	char *p = NULL;
+	char *p = nullptr;
 	int onObjective = 0;
 
 	if (team == SIEGETEAM_TEAM1)
@@ -454,7 +454,7 @@ void G_SiegeSetObjectiveComplete(int team, int objective, bool failIt)
 //Returns true if objective complete currently, otherwise false
 bool G_SiegeGetCompletionStatus(int team, int objective)
 {
-	char *p = NULL;
+	char *p = nullptr;
 	int onObjective = 0;
 
 	if (team == SIEGETEAM_TEAM1)
@@ -528,8 +528,8 @@ void UseSiegeTarget(gentity_t *other, gentity_t *en, char *target)
 		return;
 	}
 
-	t = NULL;
-	while ( (t = G_Find (t, FOFS(targetname), target)) != NULL )
+	t = nullptr;
+	while ( (t = G_Find (t, FOFS(targetname), target)) != nullptr )
 	{
 		if ( t == ent )
 		{
@@ -1406,7 +1406,7 @@ static void SiegeItemRespawnOnOriginalSpot(gentity_t *ent, gentity_t *carrier)
 
 void SiegeItemThink(gentity_t *ent)
 {
-	gentity_t *carrier = NULL;
+	gentity_t *carrier = nullptr;
 
 	if (ent->genericValue12)
 	{ //recharge health
@@ -1433,7 +1433,7 @@ void SiegeItemThink(gentity_t *ent)
 	}
 	else if (ent->genericValue1)
 	{ //this means we want to run physics on the object
-		G_RunExPhys(ent, ent->radius, ent->mass, ent->random, false, NULL, 0);
+		G_RunExPhys(ent, ent->radius, ent->mass, ent->random, false, nullptr, 0);
 	}
 
 	//Bolt us to whoever is carrying us if a client
@@ -1454,7 +1454,7 @@ void SiegeItemThink(gentity_t *ent)
 			(carrier->client->sess.sessionTeam != SIEGETEAM_TEAM1 && carrier->client->sess.sessionTeam != SIEGETEAM_TEAM2) ||
 			(carrier->client->ps.pm_flags & PMF_FOLLOW))
 		{ //respawn on the original spot
-			SiegeItemRespawnOnOriginalSpot(ent, NULL);
+			SiegeItemRespawnOnOriginalSpot(ent, nullptr);
 		}
 		else if (carrier->health < 1)
 		{ //The carrier died so pop out where he is (unless in nodrop).
@@ -1486,7 +1486,7 @@ void SiegeItemThink(gentity_t *ent)
 						//away from where the dude was facing (in case the carrier was
 						//close to something they were attacking.)
 						vec3_t fwd;
-						AngleVectors(carrier->client->ps.viewangles,fwd, NULL, NULL);
+						AngleVectors(carrier->client->ps.viewangles,fwd, nullptr, nullptr);
 						VectorMA(TracePoint, -30, fwd, TracePoint);
 						trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);
 
@@ -1670,7 +1670,7 @@ void SiegeItemUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	if (ent->paintarget && ent->paintarget[0])
 	{ //want to be on this guy's origin now then
-		gentity_t *targ = G_Find (NULL, FOFS(targetname), ent->paintarget);
+		gentity_t *targ = G_Find (nullptr, FOFS(targetname), ent->paintarget);
 
 		if (targ && targ->inuse)
 		{
@@ -1693,11 +1693,11 @@ void SiegeItemUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 					vec3_t fwd;
 					if(targ->client)
 					{
-						AngleVectors(targ->client->ps.viewangles,fwd, NULL, NULL);
+						AngleVectors(targ->client->ps.viewangles,fwd, nullptr, nullptr);
 					}
 					else
 					{
-						AngleVectors(targ->r.currentAngles,fwd, NULL, NULL);
+						AngleVectors(targ->r.currentAngles,fwd, nullptr, nullptr);
 					}
 					VectorMA(TracePoint, -30, fwd, TracePoint);
 					trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);

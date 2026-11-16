@@ -178,7 +178,7 @@ char *COM_Parse( const char **data_p )
 COM_Parse
 
 Parse a token out of a string
-Will never return NULL, just empty strings
+Will never return nullptr, just empty strings
 
 If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
@@ -196,7 +196,7 @@ const char *SkipWhitespace( const char *data, bool *hasNewLines )
 	{
 		if( !c )
 		{
-			return NULL;
+			return nullptr;
 		}
 		if( c == '\n' )
 		{
@@ -293,7 +293,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 	// make sure incoming data is valid
 	if ( !data )
 	{
-		*data_p = NULL;
+		*data_p = nullptr;
 		return com_token;
 	}
 
@@ -306,7 +306,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data )
 		{
-			*data_p = NULL;
+			*data_p = nullptr;
 			return com_token;
 		}
 		if ( hasNewLines && !allowLineBreaks )
@@ -402,7 +402,7 @@ COM_ParseString
 bool COM_ParseString( const char **data, const char **s )
 {
 	*s = COM_ParseExt( data, false );
-	if ( s[0] == 0 )
+	if ( s[0] == nullptr )
 	{
 		Com_Printf("unexpected EOF in COM_ParseString\n");
 		return true;
@@ -1021,7 +1021,7 @@ const char *GetStringForID( const stringID_table_t *table, int id )
 		index++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte ) {
@@ -1045,5 +1045,5 @@ void *Q_LinearSearch( const void *key, const void *ptr, size_t count,
 		if ( cmp( key, ptr ) == 0 ) return (void *)ptr;
 		ptr = (const char *)ptr + size;
 	}
-	return NULL;
+	return nullptr;
 }

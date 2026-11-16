@@ -255,7 +255,7 @@ private:
 			if (tmp==tree_node::NULL_NODE)
 			{
 
-				link_left(at,mLastAdd);//T::node(mPool[at]).set_left(mLastAdd);			// If mLeft Of The Current Node Is NULL, We Must Have Added DIRECTLY Below nAt
+				link_left(at,mLastAdd);//T::node(mPool[at]).set_left(mLastAdd);			// If mLeft Of The Current Node Is nullptr, We Must Have Added DIRECTLY Below nAt
 			}
 			nxtChild = T::node(mPool[at]).left();
 			//altChild = T::node(mPool[at]).right();
@@ -269,7 +269,7 @@ private:
 
 			if (tmp==tree_node::NULL_NODE)
 			{
-				link_right(at,mLastAdd); // T::node(mPool[at]).set_right(mLastAdd);			// If mRight Of The Current Node Is NULL, We Must Have Added DIRECTLY Below nAt
+				link_right(at,mLastAdd); // T::node(mPool[at]).set_right(mLastAdd);			// If mRight Of The Current Node Is nullptr, We Must Have Added DIRECTLY Below nAt
 			}
 			nxtChild = T::node(mPool[at]).right();
 			//altChild = T::node(mPool[at]).left();

@@ -63,7 +63,7 @@ bool R_ImageLoader_Add( const char *extension, ImageLoaderFn imageLoader );
 // Load an image from file.
 void R_LoadImage( const char *shortname, byte **pic, int *width, int *height );
 
-// Decode an image file held in memory (JPEG, PNG or TGA, told from its content) to RGBA from R_ImageMalloc; NULL after
+// Decode an image file held in memory (JPEG, PNG or TGA, told from its content) to RGBA from R_ImageMalloc; nullptr after
 // a warning when it cannot. shared/rd-common/tr_image_codec.cpp, the only file that knows the image libraries.
 byte *R_DecodeImage( const char *name, const byte *file, int length, int *width, int *height );
 

@@ -394,7 +394,7 @@ typedef struct {
 	void		(*ReadLevel)  (bool qbAutosave, bool qbLoadTransition);
 	bool	(*GameAllowedToSaveHere)(void);
 
-	// return NULL if the client is allowed to connect, otherwise return
+	// return nullptr if the client is allowed to connect, otherwise return
 	// a text string with the reason for denial
 	char		*(*ClientConnect)( int clientNum, bool firstTime, SavedGameJustLoaded_e eSavedGameJustLoaded );
 

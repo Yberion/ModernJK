@@ -74,7 +74,7 @@ void CorpsePhysics( gentity_t *self )
 	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !(self->s.eFlags&EF_DISINTEGRATION) )
 	{//on the ground
 		//FIXME: check 4 corners
-		pitch_roll_for_slope( self, NULL );
+		pitch_roll_for_slope( self, nullptr );
 	}
 
 	if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
@@ -374,13 +374,13 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope )
 		VectorCopy( pass_slope, slope );
 	}
 
-	AngleVectors( forwhom->r.currentAngles, ovf, ovr, NULL );
+	AngleVectors( forwhom->r.currentAngles, ovf, ovr, nullptr );
 
 	vectoangles( slope, new_angles );
 	pitch = new_angles[PITCH] + 90;
 	new_angles[ROLL] = new_angles[PITCH] = 0;
 
-	AngleVectors( new_angles, nvf, NULL, NULL );
+	AngleVectors( new_angles, nvf, nullptr, nullptr );
 
 	mod = DotProduct( nvf, ovr );
 
@@ -478,7 +478,7 @@ static void DeadThink ( void )
 	//NPC_PostDeathThink();
 
 	/*
-	if ( !NPCInfo->timeOfDeath && NPC->client != NULL && NPCInfo != NULL )
+	if ( !NPCInfo->timeOfDeath && NPC->client != nullptr && NPCInfo != nullptr )
 	{
 		//haven't finished death anim yet and were NOT given a specific amount of time to wait before removal
 		int				legsAnim	= NPC->client->ps.legsAnim;
@@ -583,9 +583,9 @@ void RestoreNPCGlobals(void)
 //We MUST do this, other funcs were using NPC illegally when "self" wasn't the global NPC
 void ClearNPCGlobals( void )
 {
-	NPCS.NPC = NULL;
-	NPCS.NPCInfo = NULL;
-	NPCS.client = NULL;
+	NPCS.NPC = nullptr;
+	NPCS.NPCInfo = nullptr;
+	NPCS.client = nullptr;
 }
 //===============
 
@@ -602,10 +602,10 @@ void NPC_ShowDebugInfo (void)
 {
 	if ( showBBoxes )
 	{
-		gentity_t	*found = NULL;
+		gentity_t	*found = nullptr;
 		vec3_t		mins, maxs;
 
-		while( (found = G_Find( found, FOFS(classname), "NPC" ) ) != NULL )
+		while( (found = G_Find( found, FOFS(classname), "NPC" ) ) != nullptr )
 		{
 			if ( trap->InPVS( found->r.currentOrigin, g_entities[0].r.currentOrigin ) )
 			{
@@ -738,7 +738,7 @@ void NPC_HandleAIFlags (void)
 				{//Did at least one of the things above
 					//Don't greet again for 2 - 4 seconds
 					NPCInfo->greetingDebounceTime = level.time + Q_irand( 2000, 4000 );
-					NPCInfo->greetEnt = NULL;
+					NPCInfo->greetEnt = nullptr;
 				}
 			}
 		}
@@ -1667,7 +1667,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}
 
 	// end of thinking cleanup
-	NPCS.NPCInfo->touchedByPlayer = NULL;
+	NPCS.NPCInfo->touchedByPlayer = nullptr;
 
 	NPC_CheckPlayerAim();
 	NPC_CheckAllClear();
@@ -2000,7 +2000,7 @@ void NPC_InitGame( void )
 void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
 	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
-	G_SetAnim(ent, NULL, setAnimParts, anim, setAnimFlags, 0);
+	G_SetAnim(ent, nullptr, setAnimParts, anim, setAnimFlags, 0);
 /*
 	if(ent->client)
 	{//Players, NPCs

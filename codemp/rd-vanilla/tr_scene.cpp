@@ -161,7 +161,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 		r_numpolyverts += numVerts;
 
 		// if no world is loaded
-		if ( tr.world == NULL ) {
+		if ( tr.world == nullptr ) {
 			fogIndex = 0;
 		}
 		// see if it is in a fog volume

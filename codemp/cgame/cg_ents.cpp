@@ -141,7 +141,7 @@ Set the current looping sounds on the entity.
 void CG_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx)
 {
 	centity_t *cent = &cg_entities[entityNum];
-	cgLoopSound_t *cSound = NULL;
+	cgLoopSound_t *cSound = nullptr;
 	int i = 0;
 	bool alreadyPlaying = false;
 
@@ -692,7 +692,7 @@ void CG_Disintegration(centity_t *cent, refEntity_t *ent)
 	tempLength = VectorNormalize( ent->oldorigin );
 	vectoangles( ent->oldorigin, tempAng );
 	tempAng[YAW] -= cent->lerpAngles[YAW];
-	AngleVectors( tempAng, ent->oldorigin, NULL, NULL );
+	AngleVectors( tempAng, ent->oldorigin, nullptr, nullptr );
 	VectorScale( ent->oldorigin, tempLength, ent->oldorigin );
 
 	ent->endTime = cent->dustTrailTime;
@@ -806,7 +806,7 @@ static void CG_SiegeEntRenderAboveHead(centity_t *cent)
 	}
 	else
 	{
-		ent.ghoul2 = NULL;
+		ent.ghoul2 = nullptr;
 		ent.hModel = cgs.gameModels[cent->currentState.modelindex];
 	}
 
@@ -983,7 +983,7 @@ static void CG_General( centity_t *cent ) {
 
 		if (cent->ghoul2 && trap->G2_HaveWeGhoul2Models(cent->ghoul2))
 		{ //May not be valid, in the case of a ragged entity being removed and a non-g2 ent filling its slot.
-			trap->G2API_SetRagDoll(cent->ghoul2, NULL); //calling with null parms resets to no ragdoll.
+			trap->G2API_SetRagDoll(cent->ghoul2, nullptr); //calling with null parms resets to no ragdoll.
 		}
 	}
 
@@ -1337,7 +1337,7 @@ static void CG_General( centity_t *cent ) {
 		}
 		empAngles[YAW] -= cent->currentState.angles[YAW];
 
-		trap->G2API_SetBoneAngles( cent->ghoul2, 0, "Bone02", empAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_X, POSITIVE_Z, NULL, 0, cg.time);
+		trap->G2API_SetBoneAngles( cent->ghoul2, 0, "Bone02", empAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_X, POSITIVE_Z, nullptr, 0, cg.time);
 	}
 
 	s1 = &cent->currentState;
@@ -1540,11 +1540,11 @@ Ghoul2 Insert End
 					cent->dustTrailTime = cg.time;
 					if (lightSide)
 					{
-						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/see.wav") );
+						trap->S_StartSound ( nullptr, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/see.wav") );
 					}
 					else
 					{
-						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/lightning") );
+						trap->S_StartSound ( nullptr, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/lightning") );
 					}
 				}
 				ent.endTime = cent->dustTrailTime;
@@ -1567,7 +1567,7 @@ Ghoul2 Insert End
 			tempLength = VectorNormalize( ent.oldorigin );
 			vectoangles( ent.oldorigin, tempAng );
 			tempAng[YAW] -= cent->lerpAngles[YAW];
-			AngleVectors( tempAng, ent.oldorigin, NULL, NULL );
+			AngleVectors( tempAng, ent.oldorigin, nullptr, nullptr );
 			VectorScale( ent.oldorigin, tempLength, ent.oldorigin );
 
 			if (lightSide)
@@ -1595,7 +1595,7 @@ Ghoul2 Insert End
 				{
 					if (curTimeDif < 2200)
 					{ //probably temporary
-						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
+						trap->S_StartSound ( nullptr, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
 					}
 				}
 				else
@@ -1614,7 +1614,7 @@ Ghoul2 Insert End
 					}
 					if ( Q_flrand(0.0f, 1.0f) > 0.9f )
 					{
-						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
+						trap->S_StartSound ( nullptr, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
 					}
 					trap->R_AddRefEntityToScene( &ent );
 				}
@@ -1672,7 +1672,7 @@ Ghoul2 Insert End
 			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
 			fxSArgs.flags = 0x08000000;
 
-			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 	}
@@ -1851,7 +1851,7 @@ static void CG_Speaker( centity_t *cent ) {
 		return;
 	}
 
-	trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
+	trap->S_StartSound (nullptr, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
@@ -2075,7 +2075,7 @@ Ghoul2 Insert End
 		AnglesToAxis(cent->lerpAngles, ent.axis);
 	}
 
-	wi = NULL;
+	wi = nullptr;
 	// the weapons have their origin where they attatch to player
 	// models, so we need to offset them or they will rotate
 	// eccentricly
@@ -2464,7 +2464,7 @@ static void CG_Missile( centity_t *cent ) {
 			if (cent->ghoul2)
 			{ //clean if we already have one (because server changed model string index)
 				trap->G2API_CleanGhoul2Models(&(cent->ghoul2));
-				cent->ghoul2 = 0;
+				cent->ghoul2 = nullptr;
 			}
 
 			if (saberModel && saberModel[0])
@@ -2712,7 +2712,7 @@ Ghoul2 Insert End
 			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
 			fxSArgs.flags = 0x08000000;
 
-			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 
@@ -2818,7 +2818,7 @@ void CG_PlayDoorSound( centity_t *cent, int type )
 		return;
 	}
 
-	trap->S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, sfx );
+	trap->S_StartSound( nullptr, cent->currentState.number, CHAN_AUTO, sfx );
 }
 
 /*
@@ -3059,7 +3059,7 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 
 	// it would be an internal error to find an entity that interpolates without
 	// a snapshot ahead of the current one
-	if ( cg.nextSnap == NULL ) {
+	if ( cg.nextSnap == nullptr ) {
 		trap->Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
 		return;
 	}
@@ -3256,7 +3256,7 @@ static void CG_FX( centity_t *cent )
 
 	cent->miscTime = cg.time + s1->speed + Q_flrand(0.0f, 1.0f) * s1->time;
 
-	AngleVectors(s1->angles, fxDir, 0, 0);
+	AngleVectors(s1->angles, fxDir, nullptr, nullptr);
 
 	if (!fxDir[0] && !fxDir[1] && !fxDir[2])
 	{

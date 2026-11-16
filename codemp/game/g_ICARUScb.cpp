@@ -350,10 +350,10 @@ static char *Q3_GetAnimLower( gentity_t *ent )
 {
 	int anim = 0;
 
-	if ( ent->client == NULL )
+	if ( ent->client == nullptr )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimLower: attempted to read animation state off non-client!\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	anim = ent->client->ps.legsAnim;
@@ -370,10 +370,10 @@ static char *Q3_GetAnimUpper( gentity_t *ent )
 {
 	int anim = 0;
 
-	if ( ent->client == NULL )
+	if ( ent->client == nullptr )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimUpper: attempted to read animation state off non-client!\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	anim = ent->client->ps.torsoAnim;
@@ -396,13 +396,13 @@ static char *Q3_GetAnimBoth( gentity_t *ent )
 	if ( !lowerName || !lowerName[0] )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimBoth: NULL legs animation string found!\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !upperName || !upperName[0] )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_GetAnimBoth: NULL torso animation string found!\n" );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( Q_stricmp( lowerName, upperName ) )
@@ -598,10 +598,10 @@ void anglerCallback( gentity_t *ent )
 	ent->s.apos.trTime = level.time;
 
 	//Stop thinking
-	ent->reached = 0;
+	ent->reached = nullptr;
 	if ( ent->think == anglerCallback )
 	{
-		ent->think = 0;
+		ent->think = nullptr;
 	}
 
 	//link
@@ -641,7 +641,7 @@ void moverCallback( gentity_t *ent )
 
 	if ( ent->blocked == Blocked_Mover )
 	{
-		ent->blocked = 0;
+		ent->blocked = nullptr;
 	}
 
 //	if ( !Q_stricmp( "misc_model_breakable", ent->classname ) && ent->physicsBounce )
@@ -671,7 +671,7 @@ void Blocked_Mover( gentity_t *ent, gentity_t *other )
 	}
 
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
 	}
 }
 
@@ -853,7 +853,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 	//SetMoverState( ent, moverState, level.time );
 
 	//Only do the angles if specified
-	if ( angles != NULL )
+	if ( angles != nullptr )
 	{
 		//
 		// Rotation
@@ -1027,7 +1027,7 @@ Q3_Kill
 void Q3_Kill( int entID, const char *name )
 {
 	gentity_t	*ent = &g_entities[entID];
-	gentity_t	*victim = NULL;
+	gentity_t	*victim = nullptr;
 	int			o_health;
 
 	if( !Q_stricmp( name, "self") )
@@ -1040,7 +1040,7 @@ void Q3_Kill( int entID, const char *name )
 	}
 	else
 	{
-		victim = G_Find (NULL, FOFS(targetname), (char *) name );
+		victim = G_Find (nullptr, FOFS(targetname), (char *) name );
 	}
 
 	if ( !victim )
@@ -1062,9 +1062,9 @@ void Q3_Kill( int entID, const char *name )
 		victim->flags |= FL_NO_KNOCKBACK;
 	}
 	//G_SetEnemy(victim, ent);
-	if( victim->die != NULL )	// check can be omitted
+	if( victim->die != nullptr )	// check can be omitted
 	{
-		//GEntity_DieFunc( victim, NULL, NULL, o_health, MOD_UNKNOWN );
+		//GEntity_DieFunc( victim, nullptr, nullptr, o_health, MOD_UNKNOWN );
 		victim->die(victim, victim, victim, o_health, MOD_UNKNOWN);
 	}
 }
@@ -1105,12 +1105,12 @@ void Q3_RemoveEnt( gentity_t *victim )
 		victim->s.eType = ET_INVISIBLE;
 		victim->contents = 0;
 		victim->health = 0;
-		victim->targetname = NULL;
+		victim->targetname = nullptr;
 
-		if ( victim->NPC && victim->NPC->tempGoal != NULL )
+		if ( victim->NPC && victim->NPC->tempGoal != nullptr )
 		{
 			G_FreeEntity( victim->NPC->tempGoal );
-			victim->NPC->tempGoal = NULL;
+			victim->NPC->tempGoal = nullptr;
 		}
 		if ( victim->client->ps.saberEntityNum != ENTITYNUM_NONE && victim->client->ps.saberEntityNum > 0 )
 		{
@@ -1146,7 +1146,7 @@ Q3_Remove
 void Q3_Remove( int entID, const char *name )
 {
 	gentity_t *ent = &g_entities[entID];
-	gentity_t	*victim = NULL;
+	gentity_t	*victim = nullptr;
 
 	if( !Q_stricmp( "self", name ) )
 	{
@@ -1170,7 +1170,7 @@ void Q3_Remove( int entID, const char *name )
 	}
 	else
 	{
-		victim = G_Find( NULL, FOFS(targetname), (char *) name );
+		victim = G_Find( nullptr, FOFS(targetname), (char *) name );
 		if ( !victim )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_Remove: can't find %s\n", name );
@@ -1236,7 +1236,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_PARM14:
 	case SET_PARM15:
 	case SET_PARM16:
-		if (ent->parms == NULL)
+		if (ent->parms == nullptr)
 		{
 			G_DebugPrint( WL_ERROR, "GET_PARM: %s %s did not have any parms set!\n", ent->classname, ent->targetname );
 			return 0;	// would prefer false, but I'm fitting in with what's here <sigh>
@@ -1257,7 +1257,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		break;
 
 	case SET_XVELOCITY://## %f="0.0" # Velocity along X axis
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_XVELOCITY, %s not a client\n", ent->targetname );
 			return 0;
@@ -1266,7 +1266,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		break;
 
 	case SET_YVELOCITY://## %f="0.0" # Velocity along Y axis
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_YVELOCITY, %s not a client\n", ent->targetname );
 			return 0;
@@ -1275,7 +1275,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		break;
 
 	case SET_ZVELOCITY://## %f="0.0" # Velocity along Z axis
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_ZVELOCITY, %s not a client\n", ent->targetname );
 			return 0;
@@ -1339,7 +1339,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		break;
 	//# #sep ints
 	case SET_ANIM_HOLDTIME_LOWER://## %d="0" # Hold lower anim for number of milliseconds
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_LOWER, %s not a client\n", ent->targetname );
 			return 0;
@@ -1347,7 +1347,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		*value = ent->client->ps.legsTimer;
 		break;
 	case SET_ANIM_HOLDTIME_UPPER://## %d="0" # Hold upper anim for number of milliseconds
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_ANIM_HOLDTIME_UPPER, %s not a client\n", ent->targetname );
 			return 0;
@@ -1359,7 +1359,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_ARMOR://## %d="0" # Change armor
-		if ( ent->client == NULL )
+		if ( ent->client == nullptr )
 		{
 			G_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_ARMOR, %s not a client\n", ent->targetname );
 			return 0;
@@ -1990,7 +1990,7 @@ Copies origin of found ent into ent running script
 */
 static void Q3_SetCopyOrigin( int entID, const char *name )
 {
-	gentity_t	*found = G_Find( NULL, FOFS(targetname), (char *) name);
+	gentity_t	*found = G_Find( nullptr, FOFS(targetname), (char *) name);
 
 	if(found)
 	{
@@ -2185,14 +2185,14 @@ static void Q3_SetEnemy( int entID, const char *name )
 		}
 		else
 		{
-			ent->enemy = NULL;
+			ent->enemy = nullptr;
 		}
 	}
 	else
 	{
-		gentity_t	*enemy = G_Find( NULL, FOFS(targetname), (char *) name);
+		gentity_t	*enemy = G_Find( nullptr, FOFS(targetname), (char *) name);
 
-		if(enemy == NULL)
+		if(enemy == nullptr)
 		{
 			G_DebugPrint( WL_ERROR, "Q3_SetEnemy: no such enemy: '%s'\n", name );
 			return;
@@ -2243,13 +2243,13 @@ static void Q3_SetLeader( int entID, const char *name )
 
 	if( !Q_stricmp("NONE", name) || !Q_stricmp("NULL", name))
 	{
-		ent->client->leader = NULL;
+		ent->client->leader = nullptr;
 	}
 	else
 	{
-		gentity_t	*leader = G_Find( NULL, FOFS(targetname), (char *) name);
+		gentity_t	*leader = G_Find( nullptr, FOFS(targetname), (char *) name);
 
-		if(leader == NULL)
+		if(leader == nullptr)
 		{
 			//G_DebugPrint( WL_ERROR,"Q3_SetEnemy: unable to locate enemy: '%s'\n", name );
 			return;
@@ -2301,16 +2301,16 @@ static bool Q3_SetNavGoal( int entID, const char *name )
 	if( Q_stricmp( "null", name) == 0
 		|| Q_stricmp( "NULL", name) == 0 )
 	{
-		ent->NPC->goalEntity = NULL;
+		ent->NPC->goalEntity = nullptr;
 		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)ent, TID_MOVE_NAV );
 		return false;
 	}
 	else
 	{
 		//Get the position of the goal
-		if ( TAG_GetOrigin2( NULL, name, goalPos ) == false )
+		if ( TAG_GetOrigin2( nullptr, name, goalPos ) == false )
 		{
-			gentity_t	*targ = G_Find(NULL, FOFS(targetname), (char*)name);
+			gentity_t	*targ = G_Find(nullptr, FOFS(targetname), (char*)name);
 			if ( !targ )
 			{
 				G_DebugPrint( WL_ERROR, "Q3_SetNavGoal: can't find NAVGOAL \"%s\"\n", name );
@@ -2325,8 +2325,8 @@ static bool Q3_SetNavGoal( int entID, const char *name )
 		}
 		else
 		{
-			int	goalRadius = TAG_GetRadius( NULL, name );
-			NPC_SetMoveGoal( ent, goalPos, goalRadius, true, -1, NULL );
+			int	goalRadius = TAG_GetRadius( nullptr, name );
+			NPC_SetMoveGoal( ent, goalPos, goalRadius, true, -1, nullptr );
 			//We know we want to clear the lastWaypoint here
 			ent->NPC->goalEntity->lastWaypoint = WAYPOINT_NONE;
 			ent->NPC->aiFlags &= ~NPCAI_TOUCHED_GOAL;
@@ -2364,7 +2364,7 @@ static void SetLowerAnim( int entID, int animID)
 		return;
 	}
 
-	G_SetAnim(ent,NULL,SETANIM_LEGS,animID,SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE,0);
+	G_SetAnim(ent,nullptr,SETANIM_LEGS,animID,SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE,0);
 }
 
 /*
@@ -2392,7 +2392,7 @@ static void SetUpperAnim ( int entID, int animID)
 		return;
 	}
 
-	G_SetAnim(ent,NULL,SETANIM_TORSO,animID,SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE,0);
+	G_SetAnim(ent,nullptr,SETANIM_TORSO,animID,SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE,0);
 }
 
 /*
@@ -3190,7 +3190,7 @@ Q3_SetViewTarget
 static void Q3_SetViewTarget (int entID, const char *name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	gentity_t	*viewtarget = G_Find( NULL, FOFS(targetname), (char *) name);
+	gentity_t	*viewtarget = G_Find( nullptr, FOFS(targetname), (char *) name);
 	vec3_t		viewspot, selfspot, viewvec, viewangles;
 
 	if ( !self )
@@ -3206,7 +3206,7 @@ static void Q3_SetViewTarget (int entID, const char *name)
 	}
 
 	//FIXME: Exception handle here
-	if (viewtarget == NULL)
+	if (viewtarget == nullptr)
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetViewTarget: can't find ViewTarget: '%s'\n", name );
 		return;
@@ -3247,7 +3247,7 @@ Q3_SetWatchTarget
 static void Q3_SetWatchTarget (int entID, const char *name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	gentity_t	*watchTarget = NULL;
+	gentity_t	*watchTarget = nullptr;
 
 	if ( !self )
 	{
@@ -3263,11 +3263,11 @@ static void Q3_SetWatchTarget (int entID, const char *name)
 
 	if ( Q_stricmp( "NULL", name ) == 0 || Q_stricmp( "NONE", name ) == 0 || ( self->targetname && (Q_stricmp( self->targetname, name ) == 0) ) )
 	{//clearing watchTarget
-		self->NPC->watchTarget = NULL;
+		self->NPC->watchTarget = nullptr;
 	}
 
-	watchTarget = G_Find( NULL, FOFS(targetname), (char *) name);
-	if ( watchTarget == NULL )
+	watchTarget = G_Find( nullptr, FOFS(targetname), (char *) name);
+	if ( watchTarget == nullptr )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetWatchTarget: can't find WatchTarget: '%s'\n", name );
 		return;
@@ -3303,10 +3303,10 @@ void Q3_SetLoopSound(int entID, const char *name)
 
 void Q3_SetICARUSFreeze( int entID, const char *name, bool freeze )
 {
-	gentity_t	*self  = G_Find( NULL, FOFS(targetname), name );
+	gentity_t	*self  = G_Find( nullptr, FOFS(targetname), name );
 	if ( !self )
 	{//hmm, targetname failed, try script_targetname?
-		self = G_Find( NULL, FOFS(script_targetname), name );
+		self = G_Find( nullptr, FOFS(script_targetname), name );
 	}
 
 	if ( !self )
@@ -3788,7 +3788,7 @@ static void Q3_SetTargetName (int entID, const char *targetname)
 
 	if(!Q_stricmp("NULL", ((char *)targetname)))
 	{
-		self->targetname = NULL;
+		self->targetname = nullptr;
 	}
 	else
 	{
@@ -3818,7 +3818,7 @@ static void Q3_SetTarget (int entID, const char *target)
 
 	if(!Q_stricmp("NULL", ((char *)target)))
 	{
-		self->target = NULL;
+		self->target = nullptr;
 	}
 	else
 	{
@@ -3849,7 +3849,7 @@ static void Q3_SetTarget2 (int entID, const char *target2)
 
 	if(!Q_stricmp("NULL", ((char *)target2)))
 	{
-		self->target2 = NULL;
+		self->target2 = nullptr;
 	}
 	else
 	{
@@ -3884,7 +3884,7 @@ static void Q3_SetRemoveTarget (int entID, const char *target)
 
 	if( !Q_stricmp("NULL", ((char *)target)) )
 	{
-		self->target3 = NULL;
+		self->target3 = nullptr;
 	}
 	else
 	{
@@ -3916,7 +3916,7 @@ static void Q3_SetPainTarget (int entID, const char *targetname)
 
 	if(Q_stricmp("NULL", ((char *)targetname)) == 0)
 	{
-		self->paintarget = NULL;
+		self->paintarget = nullptr;
 	}
 	else
 	{
@@ -3946,7 +3946,7 @@ static void Q3_SetFullName (int entID, const char *fullName)
 
 	if(!Q_stricmp("NULL", ((char *)fullName)))
 	{
-		self->fullName = NULL;
+		self->fullName = nullptr;
 	}
 	else
 	{
@@ -4064,7 +4064,7 @@ Sets the capture spot goal of an entity
 static void Q3_SetCaptureGoal( int entID, const char *name )
 {
 	gentity_t	*ent  = &g_entities[entID];
-	gentity_t	*goal = G_Find( NULL, FOFS(targetname), (char *) name);
+	gentity_t	*goal = G_Find( nullptr, FOFS(targetname), (char *) name);
 
 	if ( !ent )
 	{
@@ -4079,7 +4079,7 @@ static void Q3_SetCaptureGoal( int entID, const char *name )
 	}
 
 	//FIXME: Exception handle here
-	if (goal == NULL)
+	if (goal == nullptr)
 	{
 		G_DebugPrint( WL_ERROR, "Q3_SetCaptureGoal: can't find CaptureGoal target: '%s'\n", name );
 		return;
@@ -5353,7 +5353,7 @@ Q3_LookTarget
 static void Q3_LookTarget( int entID, char *targetName)
 {
 	gentity_t	*ent  = &g_entities[entID];
-	gentity_t	*targ = NULL;
+	gentity_t	*targ = nullptr;
 
 	if ( !ent )
 	{
@@ -5373,13 +5373,13 @@ static void Q3_LookTarget( int entID, char *targetName)
 		return;
 	}
 
-	targ = G_Find(NULL, FOFS(targetname), targetName);
+	targ = G_Find(nullptr, FOFS(targetname), targetName);
 	if(!targ)
 	{
-		targ  = G_Find(NULL, FOFS(script_targetname), targetName);
+		targ  = G_Find(nullptr, FOFS(script_targetname), targetName);
 		if (!targ)
 		{
-			targ  = G_Find(NULL, FOFS(NPC_targetname), targetName);
+			targ  = G_Find(nullptr, FOFS(NPC_targetname), targetName);
 			if (!targ)
 			{
 				G_DebugPrint( WL_ERROR, "Q3_LookTarget: Can't find ent %s\n", targetName );
@@ -5536,19 +5536,19 @@ static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 
 	if(!Q_stricmp("NULL", scriptname))
 	{
-		if ( ent->behaviorSet[bSet] != NULL )
+		if ( ent->behaviorSet[bSet] != nullptr )
 		{
 //			trap->TagFree( ent->behaviorSet[bSet] );
 		}
 
-		ent->behaviorSet[bSet] = NULL;
+		ent->behaviorSet[bSet] = nullptr;
 		//memset( &ent->behaviorSet[bSet], 0, sizeof(ent->behaviorSet[bSet]) );
 	}
 	else
 	{
 		if ( scriptname )
 		{
-			if ( ent->behaviorSet[bSet] != NULL )
+			if ( ent->behaviorSet[bSet] != nullptr )
 			{
 //				trap->TagFree( ent->behaviorSet[bSet] );
 			}
@@ -6497,7 +6497,7 @@ bool Q3_Set( int taskID, int entID, const char *type_name, const char *data )
 	case SET_TREASONED:
 		G_DebugPrint( WL_VERBOSE, "SET_TREASONED is disabled, do not use\n" );
 		/*
-		G_TeamRetaliation( NULL, SV_GentityNum(0), false );
+		G_TeamRetaliation( nullptr, SV_GentityNum(0), false );
 		ffireLevel = FFIRE_LEVEL_RETALIATION;
 		*/
 		break;

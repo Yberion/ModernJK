@@ -335,7 +335,7 @@ void CFxScheduler::AddPrimitiveToEffect( SEffectTemplate *fx, CPrimitiveTemplate
 //
 // Input:
 //	pointer to an id that will be filled in,
-//	file name-- should be NULL when requesting a copy
+//	file name-- should be nullptr when requesting a copy
 //
 // Return:
 //	the id of the added effect template
@@ -411,17 +411,17 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 		theFxHelper.Print( "FxScheduler: Bad effect file copy request\n" );
 
 		*newHandle = 0;
-		return 0;
+		return nullptr;
 	}
 
 	// never get a copy when time is frozen
 	if ( fx_freeze.integer )
 	{
-		return 0;
+		return nullptr;
 	}
 
 	// Copies shouldn't have names, otherwise they could trash our stl map used for getting ID from name
-	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, NULL );
+	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, nullptr );
 
 	if ( copy && *newHandle )
 	{
@@ -435,7 +435,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 
 	// No space left to return an effect
 	*newHandle = 0;
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------
@@ -453,7 +453,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 {
 	if ( !effectCopy || !effectCopy->mInUse )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	for ( int i = 0; i < effectCopy->mPrimitiveCount; i++ )
@@ -466,7 +466,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 	}
 
 	// bah, no good.
-	return NULL;
+	return nullptr;
 }
 
 //------------------------------------------------------
@@ -649,7 +649,7 @@ void CFxScheduler::PlayEffect( const char *file, int clientID )
 			{
 				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
 
-				if ( sfx == NULL )
+				if ( sfx == nullptr )
 				{
 					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
 					return;
@@ -772,7 +772,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 	//---------
 
 		// bolted sounds actually play on the client....
-		theFxHelper.PlaySound( NULL, clientID, CHAN_WEAPON, fx->mMediaHandles.GetHandle() );
+		theFxHelper.PlaySound( nullptr, clientID, CHAN_WEAPON, fx->mMediaHandles.GetHandle() );
 		break;
 
 	//---------
@@ -935,7 +935,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 			{
 				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
 
-				if ( sfx == NULL )
+				if ( sfx == nullptr )
 				{
 					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
 					return;
@@ -1348,7 +1348,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 				}
 			}
 
-			theFxHelper.Trace( &tr, org, NULL, NULL, temp, -1, CONTENTS_SOLID | CONTENTS_SHOTCLIP );//MASK_SHOT );
+			theFxHelper.Trace( &tr, org, nullptr, nullptr, temp, -1, CONTENTS_SOLID | CONTENTS_SHOTCLIP );//MASK_SHOT );
 
 			if ( tr.startsolid || tr.allsolid )
 			{

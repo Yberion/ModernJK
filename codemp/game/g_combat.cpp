@@ -400,7 +400,7 @@ void ExplodeDeath( gentity_t *self )
 	VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
 
 //	tent = G_TempEntity( self->s.origin, EV_FX_EXPLOSION );
-	AngleVectors(self->s.angles, forward, NULL, NULL);
+	AngleVectors(self->s.angles, forward, nullptr, nullptr);
 
 /*
 	if ( self->fxID > 0 )
@@ -423,7 +423,7 @@ void ExplodeDeath( gentity_t *self )
 			attacker = self->parent;
 		}
 		G_RadiusDamage( self->r.currentOrigin, attacker, self->splashDamage, self->splashRadius,
-				attacker, NULL, MOD_UNKNOWN );
+				attacker, nullptr, MOD_UNKNOWN );
 	}
 
 	ObjectDie( self, self, self, 20, 0 );
@@ -846,7 +846,7 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
 				classname = "team_CTF_blueflag";
 			}
 		}
-		ent = NULL;
+		ent = nullptr;
 		do
 		{
 			ent = G_Find(ent, FOFS(classname), classname);
@@ -968,7 +968,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -996,7 +996,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 				if ( thrown < -150 )
 				{
@@ -1028,7 +1028,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1060,7 +1060,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 			{//crouching
 				vec3_t fwd;
 				float thrown = 0;
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1093,7 +1093,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1136,7 +1136,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1166,7 +1166,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1203,7 +1203,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1240,7 +1240,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1317,7 +1317,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 				vec3_t fwd;
 				float thrown = 0;
 
-				AngleVectors( self->client->ps.viewangles, fwd, NULL, NULL );
+				AngleVectors( self->client->ps.viewangles, fwd, nullptr, nullptr );
 				thrown = DotProduct( fwd, self->client->ps.velocity );
 
 				if ( thrown < -150 )
@@ -1776,7 +1776,7 @@ gentity_t *G_GetJediMaster(void)
 		i++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1794,7 +1794,7 @@ void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float so
 	int			i;
 	float		distSq, sndDistSq = (soundDist*soundDist);
 
-	if ( attacker == NULL || attacker->client == NULL )
+	if ( attacker == nullptr || attacker->client == nullptr )
 		return;
 
 	//Setup the bbox to search in
@@ -1813,11 +1813,11 @@ void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float so
 		check = &g_entities[radiusEnts[i]];
 
 		//Validate clients
-		if ( check->client == NULL )
+		if ( check->client == nullptr )
 			continue;
 
 		//only want NPCs
-		if ( check->NPC == NULL )
+		if ( check->NPC == nullptr )
 			continue;
 
 		//Don't bother if they're ignoring enemies
@@ -1852,7 +1852,7 @@ void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float so
 		if ( check->health <= 0 )
 			continue;
 
-		if ( check->enemy == NULL )
+		if ( check->enemy == nullptr )
 		{//only do this if they're not already mad at someone
 			distSq = DistanceSquared( check->r.currentOrigin, victim->r.currentOrigin );
 			if ( distSq > 16384 /*128 squared*/ && !trap->InPVS( victim->r.currentOrigin, check->r.currentOrigin ) )
@@ -1925,7 +1925,7 @@ void DeathFX( gentity_t *ent )
 		break;
 
 	case CLASS_ATST:
-		AngleVectors( ent->r.currentAngles, NULL, right, NULL );
+		AngleVectors( ent->r.currentAngles, nullptr, right, nullptr );
 		VectorMA( ent->r.currentOrigin, 20, right, effectPos );
 		effectPos[2] += 180;
 		G_PlayEffectID( G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir );
@@ -1977,7 +1977,7 @@ void DeathFX( gentity_t *ent )
 		break;
 
 	case CLASS_MARK1:
-		AngleVectors( ent->r.currentAngles, NULL, right, NULL );
+		AngleVectors( ent->r.currentAngles, nullptr, right, nullptr );
 		VectorMA( ent->r.currentOrigin, 10, right, effectPos );
 		effectPos[2] -= 15;
 		G_PlayEffectID( G_EffectIndex("explosions/droidexplosion1"), effectPos, defaultDir );
@@ -2136,7 +2136,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		!self->m_pVehicle->m_pVehicleInfo->explosionDelay &&
 		(self->m_pVehicle->m_pPilot || self->m_pVehicle->m_iNumPassengers > 0 || self->m_pVehicle->m_pDroidUnit))
 	{ //kill everyone on board in the name of the attacker... if the vehicle has no death delay
-		gentity_t *murderer = NULL;
+		gentity_t *murderer = nullptr;
 		gentity_t *killEnt;
 
 		if (self->client->ps.otherKillerTime >= level.time)
@@ -2144,7 +2144,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			murderer = &g_entities[self->client->ps.otherKiller];
 			if (!murderer->inuse || !murderer->client)
 			{
-				murderer = NULL;
+				murderer = nullptr;
 			}
 			else
 			{
@@ -2176,12 +2176,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 					murderer = &g_entities[murderer->client->ps.otherKiller];
 					if (!murderer->inuse || !murderer->client)
 					{
-						murderer = NULL;
+						murderer = nullptr;
 					}
 				}
 				else
 				{
-					murderer = NULL;
+					murderer = nullptr;
 				}
 			}
 			else
@@ -2194,7 +2194,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			murderer = (gentity_t *)self->m_pVehicle->m_pPilot;
 			if (!murderer->inuse || !murderer->client)
 			{
-				murderer = NULL;
+				murderer = nullptr;
 			}
 		}
 
@@ -2209,7 +2209,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			killEnt = (gentity_t *)self->m_pVehicle->m_pPilot;
 			if (killEnt && killEnt->inuse && killEnt->client)
 			{
-				G_Damage(killEnt, murderer, murderer, NULL, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
+				G_Damage(killEnt, murderer, murderer, nullptr, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
 			}
 			if ( self->m_pVehicle->m_pVehicleInfo )
 			{//FIXME: this wile got stuck in an endless loop, that's BAD!!  This method SUCKS (not initting "i", not incrementing it or using it directly, all sorts of badness), so I'm rewriting it
@@ -2223,7 +2223,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 						self->m_pVehicle->m_pVehicleInfo->Eject(self->m_pVehicle, (bgEntity_t *)killEnt, true);
 						if ( killEnt->inuse && killEnt->client )
 						{
-							G_Damage(killEnt, murderer, murderer, NULL, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
+							G_Damage(killEnt, murderer, murderer, nullptr, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
 						}
 					}
 				}
@@ -2233,7 +2233,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if (killEnt && killEnt->inuse && killEnt->client)
 		{
 			killEnt->flags &= ~FL_UNDYING;
-			G_Damage(killEnt, murderer, murderer, NULL, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
+			G_Damage(killEnt, murderer, murderer, nullptr, killEnt->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_BLASTER);
 		}
 	}
 
@@ -2287,7 +2287,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if ( !trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "head" ) )
 			{
 				vec3_t	up;
-				AngleVectors( self->r.currentAngles, NULL, NULL, up );
+				AngleVectors( self->r.currentAngles, nullptr, nullptr, up );
 				G_PlayEffectID( G_EffectIndex("chunks/r2d2head_veh"), self->r.currentOrigin, up );
 			}
 			break;
@@ -2296,7 +2296,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if ( !trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "head" ) )
 			{
 				vec3_t	up;
-				AngleVectors( self->r.currentAngles, NULL, NULL, up );
+				AngleVectors( self->r.currentAngles, nullptr, nullptr, up );
 				G_PlayEffectID( G_EffectIndex("chunks/r5d2head_veh"), self->r.currentOrigin, up );
 			}
 			break;
@@ -2322,7 +2322,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( self->NPC->tempGoal )
 		{
 			G_FreeEntity( self->NPC->tempGoal );
-			self->NPC->tempGoal = NULL;
+			self->NPC->tempGoal = nullptr;
 		}
 		/*
 		if ( self->s.eFlags & EF_LOCKED_TO_WEAPON )
@@ -2355,7 +2355,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	}
 	if ( attacker && attacker->NPC && attacker->NPC->group && attacker->NPC->group->enemy == self )
 	{
-		attacker->NPC->group->enemy = NULL;
+		attacker->NPC->group->enemy = nullptr;
 	}
 
 	//Cheap method until/if I decide to put fancier stuff in (e.g. sabers falling out of hand and slowly
@@ -2562,7 +2562,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				{ //killed ourself so return the saber to the original position
 				  //(to avoid people jumping off ledges and making the saber
 				  //unreachable for 60 seconds)
-					ThrowSaberToAttacker(self, NULL);
+					ThrowSaberToAttacker(self, nullptr);
 					self->client->ps.isJediMaster = false;
 				}
 			}
@@ -2622,7 +2622,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		{ //killed ourself so return the saber to the original position
 		  //(to avoid people jumping off ledges and making the saber
 		  //unreachable for 60 seconds)
-			ThrowSaberToAttacker(self, NULL);
+			ThrowSaberToAttacker(self, nullptr);
 			self->client->ps.isJediMaster = false;
 		}
 
@@ -2789,7 +2789,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 			if (self->inuse)
 			{ //not disconnecting
-				G_SetAnim(self, NULL, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 0);
+				G_SetAnim(self, nullptr, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 0);
 			}
 
 			self->client->ps.pm_type = sPMType;
@@ -3182,7 +3182,7 @@ void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
 	//matrix3_t legAxis;
 	mdxaBone_t	boltMatrix;
 	float fVSpeed = 0;
-	const char *rotateBone = NULL;
+	const char *rotateBone = nullptr;
 
 	switch (limbType)
 	{
@@ -3263,13 +3263,13 @@ void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
 	properAngles[1] = self->client->ps.viewangles[YAW];
 	properAngles[2] = 0;
 
-	trap->G2API_GetBoltMatrix(self->ghoul2, 0, useBolt, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
+	trap->G2API_GetBoltMatrix(self->ghoul2, 0, useBolt, &boltMatrix, properAngles, properOrigin, level.time, nullptr, self->modelScale);
 
 	boltPoint[0] = boltMatrix.matrix[0][3];
 	boltPoint[1] = boltMatrix.matrix[1][3];
 	boltPoint[2] = boltMatrix.matrix[2][3];
 
-	trap->G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
+	trap->G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, nullptr, self->modelScale);
 
 	if (self->client && limbType == G2_MODELPART_RHAND)
 	{ //Make some saber hit sparks over the severed wrist area
@@ -3336,7 +3336,7 @@ void LimbThink( gentity_t *ent )
 
 	if (ent->genericValue5 <= level.time)
 	{ //this will be every frame by standard, but we want to compensate in case sv_fps is not 20.
-		G_RunExPhys(ent, gravity, mass, bounce, true, NULL, 0);
+		G_RunExPhys(ent, gravity, mass, bounce, true, nullptr, 0);
 		ent->genericValue5 = level.time + 50;
 	}
 
@@ -3639,7 +3639,7 @@ int G_GetHitQuad( gentity_t *self, vec3_t hitloc )
 		fwdangles[1] = self->s.apos.trBase[1];
 	}
 	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-	AngleVectors( fwdangles, NULL, right, NULL );
+	AngleVectors( fwdangles, nullptr, right, nullptr );
 
 	rightdot = DotProduct(right, diff);
 	zdiff = hitloc[2] - clEye[2];
@@ -3839,7 +3839,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	if ( !Q_strncmp( "hips", surfName, 4 ) )
 	{//FIXME: test properly for legs
 		*hitLoc = HL_WAIST;
-		if ( ent->client != NULL && ent->ghoul2 )
+		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
 			vec3_t	tagOrg, angles;
@@ -3849,7 +3849,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			{
 				trap->G2API_GetBoltMatrix( ent->ghoul2, 0, kneeLBolt,
 								&boltMatrix, angles, ent->r.currentOrigin,
-								actualTime, NULL, ent->modelScale );
+								actualTime, nullptr, ent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the knee
@@ -3862,7 +3862,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				{
 					trap->G2API_GetBoltMatrix( ent->ghoul2, 0, kneeRBolt,
 									&boltMatrix, angles, ent->r.currentOrigin,
-									actualTime, NULL, ent->modelScale );
+									actualTime, nullptr, ent->modelScale );
 					BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 					if ( DistanceSquared( point, tagOrg ) < 100 )
 					{//actually hit the knee
@@ -3957,7 +3957,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	else if ( !Q_strncmp( "r_arm", surfName, 5 ) )
 	{
 		*hitLoc = HL_ARM_RT;
-		if ( ent->client != NULL && ent->ghoul2 )
+		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
 			vec3_t	tagOrg, angles;
@@ -3967,7 +3967,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			{
 				trap->G2API_GetBoltMatrix( ent->ghoul2, 0, handRBolt,
 								&boltMatrix, angles, ent->r.currentOrigin,
-								actualTime, NULL, ent->modelScale );
+								actualTime, nullptr, ent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 256 )
 				{//actually hit the hand
@@ -3979,7 +3979,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	else if ( !Q_strncmp( "l_arm", surfName, 5 ) )
 	{
 		*hitLoc = HL_ARM_LT;
-		if ( ent->client != NULL && ent->ghoul2 )
+		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
 			vec3_t	tagOrg, angles;
@@ -3989,7 +3989,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			{
 				trap->G2API_GetBoltMatrix( ent->ghoul2, 0, handLBolt,
 								&boltMatrix, angles, ent->r.currentOrigin,
-								actualTime, NULL, ent->modelScale );
+								actualTime, nullptr, ent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 256 )
 				{//actually hit the hand
@@ -4001,7 +4001,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	else if ( !Q_strncmp( "r_leg", surfName, 5 ) )
 	{
 		*hitLoc = HL_LEG_RT;
-		if ( ent->client != NULL && ent->ghoul2 )
+		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
 			vec3_t	tagOrg, angles;
@@ -4011,7 +4011,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			{
 				trap->G2API_GetBoltMatrix( ent->ghoul2, 0, footRBolt,
 								&boltMatrix, angles, ent->r.currentOrigin,
-								actualTime, NULL, ent->modelScale );
+								actualTime, nullptr, ent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the foot
@@ -4023,7 +4023,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	else if ( !Q_strncmp( "l_leg", surfName, 5 ) )
 	{
 		*hitLoc = HL_LEG_LT;
-		if ( ent->client != NULL && ent->ghoul2 )
+		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
 			vec3_t	tagOrg, angles;
@@ -4033,7 +4033,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			{
 				trap->G2API_GetBoltMatrix( ent->ghoul2, 0, footLBolt,
 								&boltMatrix, angles, ent->r.currentOrigin,
-								actualTime, NULL, ent->modelScale );
+								actualTime, nullptr, ent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the foot
@@ -4072,7 +4072,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			//if ( g_dismemberProbabilities->value<=0.0f||G_Dismemberable( ent, *hitLoc ) )
 			if (1) //Fix me?
 			{//either we don't care about probabilties or the probability let us continue
-				const char *tagName = NULL;
+				const char *tagName = nullptr;
 				float	aoa = 0.5f;
 				//dir must be roughly perpendicular to the hitLoc's cap bolt
 				switch ( *hitLoc )
@@ -4126,7 +4126,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 						VectorSet( angles, 0, ent->r.currentAngles[YAW], 0 );
 						trap->G2API_GetBoltMatrix( ent->ghoul2, 0, tagBolt,
 										&boltMatrix, angles, ent->r.currentOrigin,
-										actualTime, NULL, ent->modelScale );
+										actualTime, nullptr, ent->modelScale );
 						BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 						BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, tagDir );
 						if ( DistanceSquared( point, tagOrg ) < 256 )
@@ -4412,7 +4412,7 @@ point		point at which the damage is being inflicted, used for headshots
 damage		amount of damage being inflicted
 knockback	force to be applied against targ as a result of the damage
 
-inflictor, attacker, dir, and point can be NULL for environmental effects
+inflictor, attacker, dir, and point can be nullptr for environmental effects
 
 dflags		these flags are used to control how G_Damage works
 	DAMAGE_RADIUS			damage was indirect (from a nearby explosion)
@@ -5072,7 +5072,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 						impactStrength = 10.0f;
 					}
 					//pitch or roll us based on where we were hit
-					AngleVectors( targ->m_pVehicle->m_vOrientation, NULL, NULL, vUp );
+					AngleVectors( targ->m_pVehicle->m_vOrientation, nullptr, nullptr, vUp );
 					VectorSubtract( point, targ->r.currentOrigin, impactDir );
 					VectorNormalize( impactDir );
 					if ( surface <= 0 )
@@ -5710,11 +5710,11 @@ bool G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float ra
 				attacker->s.eType == ET_NPC && attacker->s.NPC_class == CLASS_VEHICLE &&
 				attacker->m_pVehicle && attacker->m_pVehicle->m_pPilot)
 			{ //say my pilot did it.
-				G_Damage (ent, NULL, (gentity_t *)attacker->m_pVehicle->m_pPilot, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+				G_Damage (ent, nullptr, (gentity_t *)attacker->m_pVehicle->m_pPilot, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 			}
 			else
 			{
-				G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+				G_Damage (ent, nullptr, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 			}
 
 			if (ent && ent->client && roastPeople && missile &&

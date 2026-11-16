@@ -108,7 +108,7 @@ void NPC_Mark1_Part_Explode( gentity_t *self, int bolt )
 		trap->G2API_GetBoltMatrix( self->ghoul2, 0,
 					bolt,
 					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
-					NULL, self->modelScale );
+					nullptr, self->modelScale );
 
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
 		BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, dir );
@@ -150,7 +150,7 @@ void Mark1Dead_FireRocket (void)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				bolt,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 	BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, muzzle_dir );
@@ -198,7 +198,7 @@ void Mark1Dead_FireBlaster (void)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				bolt,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 	BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, muzzle_dir );
@@ -298,7 +298,7 @@ void Mark1_dying( gentity_t *self )
 //		vec3_t	right;
 
 		// Shove to the side
-//		AngleVectors( self->client->renderInfo.eyeAngles, NULL, right, NULL );
+//		AngleVectors( self->client->renderInfo.eyeAngles, nullptr, right, nullptr );
 //		VectorMA( self->client->ps.velocity, -80, right, self->client->ps.velocity );
 
 		// See which weapons are there
@@ -409,7 +409,7 @@ void NPC_Mark1_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	if ((trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "l_arm" )>0) &&
 		(trap->G2API_GetSurfaceRenderStatus( self->ghoul2, 0, "r_arm" )>0))
 	{
-		G_Damage(self,NULL,NULL,NULL,NULL,self->health,0,MOD_UNKNOWN);
+		G_Damage(self,nullptr,nullptr,nullptr,nullptr,self->health,0,MOD_UNKNOWN);
 	}
 }
 
@@ -422,7 +422,7 @@ Mark1_Hunt
 void Mark1_Hunt(void)
 {
 
-	if ( NPCS.NPCInfo->goalEntity == NULL )
+	if ( NPCS.NPCInfo->goalEntity == nullptr )
 	{
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 	}
@@ -473,7 +473,7 @@ void Mark1_FireBlaster(void)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				bolt,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 
@@ -583,7 +583,7 @@ void Mark1_FireRocket(void)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				bolt,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 
@@ -661,7 +661,7 @@ void Mark1_AttackDecision( void )
 	// Enemy is dead or he has no enemy.
 	if ((NPCS.NPC->enemy->health<1) || ( NPC_CheckEnemyExt(false) == false ))
 	{
-		NPCS.NPC->enemy = NULL;
+		NPCS.NPC->enemy = nullptr;
 		return;
 	}
 

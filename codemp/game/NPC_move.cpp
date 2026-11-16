@@ -148,7 +148,7 @@ static QINLINE bool NPC_GetMoveInformation( vec3_t dir, float *distance )
 	//NOTENOTE: Use path stacks!
 
 	//Make sure we have somewhere to go
-	if ( NPCS.NPCInfo->goalEntity == NULL )
+	if ( NPCS.NPCInfo->goalEntity == nullptr )
 		return false;
 
 	//Get our move info
@@ -346,7 +346,7 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	vec3_t	forward, right;
 	float	fDot, rDot;
 
-	AngleVectors( self->r.currentAngles, forward, right, NULL );
+	AngleVectors( self->r.currentAngles, forward, right, nullptr );
 
 	dir[2] = 0;
 	VectorNormalize( dir );

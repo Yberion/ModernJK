@@ -83,7 +83,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				VectorCopy( parent->currentOrigin, bottom );
 				bottom[2] += parent->mins[2] - 32;
 				trap->trace( &trace, parent->currentOrigin, mins, maxs, bottom, parent->s.number, CONTENTS_SOLID );
-				G_RadiusDamage( trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
+				G_RadiusDamage( trace.endpos, nullptr, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, nullptr, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
 			}
 
 			parent->e_ThinkFunc = thinkF_G_FreeEntity;
@@ -256,7 +256,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	bgEntity_t *parent = pVeh->m_pParentEntity;
 	playerState_t *parentPS, *riderPS;
 
-	bgEntity_t *rider = NULL;
+	bgEntity_t *rider = nullptr;
 	if (parent->s.owner != ENTITYNUM_NONE)
 	{
 		rider = PM_BGEntForNum(parent->s.owner); //&g_entities[parent->r.ownerNum];

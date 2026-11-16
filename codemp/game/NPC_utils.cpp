@@ -873,7 +873,7 @@ extern stringID_table_t BSETTable[];
 bool G_ActivateBehavior (gentity_t *self, int bset )
 {
 	bState_t	bSID = (bState_t)-1;
-	char *bs_name = NULL;
+	char *bs_name = nullptr;
 
 	if ( !self )
 	{
@@ -928,12 +928,12 @@ bool G_ActivateBehavior (gentity_t *self, int bset )
 void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 {
 	int *thebone = &ent->s.boneIndex1;
-	int *firstFree = NULL;
+	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
 	int flags, up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
-	vec3_t *freeBoneVec = NULL;
+	vec3_t *freeBoneVec = nullptr;
 
 	while (thebone)
 	{
@@ -965,8 +965,8 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 			boneVector = &ent->s.boneAngles4;
 			break;
 		default:
-			thebone = NULL;
-			boneVector = NULL;
+			thebone = nullptr;
+			boneVector = nullptr;
 			break;
 		}
 
@@ -1008,7 +1008,7 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
 	ent->s.boneOrient = ((forward)|(right<<3)|(up<<6));
 
-	trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, NULL, 100, level.time);
+	trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, nullptr, 100, level.time);
 }
 
 //rww - and another method of automatically managing surface status for the client and server at once
@@ -1115,7 +1115,7 @@ bool NPC_ValidEnemy( gentity_t *ent )
 	int entTeam = TEAM_FREE;
 
 	//Must be a valid pointer
-	if ( ent == NULL )
+	if ( ent == nullptr )
 		return false;
 
 	//Must not be me
@@ -1135,7 +1135,7 @@ bool NPC_ValidEnemy( gentity_t *ent )
 		return false;
 
 	//Must be an NPC
-	if ( ent->client == NULL )
+	if ( ent->client == nullptr )
 	{
 	//	if ( ent->svFlags&SVF_NONNPC_ENEMY )
 		if (ent->s.eType != ET_NPC)
@@ -1341,7 +1341,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts )
 
 			//Don't pay attention to our own alerts
 			if ( event->owner == NPCS.NPC )
-				return NULL;
+				return nullptr;
 
 			if ( event->level >= AEL_DISCOVERED )
 			{
@@ -1357,7 +1357,7 @@ gentity_t *NPC_PickEnemyExt( bool checkAlerts )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1385,7 +1385,7 @@ static bool NPC_CheckPlayerDistance( void )
 	float distance;
 
 	//Make sure we have an enemy
-	if ( NPC->enemy == NULL )
+	if ( NPC->enemy == nullptr )
 		return false;
 
 	//Only do this for non-players
@@ -1584,10 +1584,10 @@ NPC_FaceEnemy
 
 bool NPC_FaceEnemy( bool doPitch )
 {
-	if ( NPCS.NPC == NULL )
+	if ( NPCS.NPC == nullptr )
 		return false;
 
-	if ( NPCS.NPC->enemy == NULL )
+	if ( NPCS.NPC->enemy == nullptr )
 		return false;
 
 	return NPC_FaceEntity( NPCS.NPC->enemy, doPitch );
@@ -1707,7 +1707,7 @@ void NPC_CheckCharmed( void )
 		NPCS.NPC->client->enemyTeam		= (npcteam_t)NPCS.NPC->genericValue2;
 		NPCS.NPC->s.teamowner			= NPCS.NPC->genericValue3;
 
-		NPCS.NPC->client->leader = NULL;
+		NPCS.NPC->client->leader = nullptr;
 		if ( NPCS.NPCInfo->tempBehavior == BS_FOLLOW_LEADER )
 		{
 			NPCS.NPCInfo->tempBehavior = BS_DEFAULT;
@@ -1746,7 +1746,7 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 	trap->G2API_GetBoltMatrix( self->ghoul2, modelIndex,
 				boltIndex,
 				&boltMatrix, angles, self->r.currentOrigin, level.time,
-				NULL, self->modelScale );
+				nullptr, self->modelScale );
 	if ( pos )
 	{
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, result );

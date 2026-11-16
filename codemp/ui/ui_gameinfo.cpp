@@ -322,7 +322,7 @@ UI_GetBotInfoByNumber
 char *UI_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= ui_numBots ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
-		return NULL;
+		return nullptr;
 	}
 	return ui_botInfos[num];
 }
@@ -344,7 +344,7 @@ char *UI_GetBotInfoByName( const char *name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int UI_GetNumBots() {

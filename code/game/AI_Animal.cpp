@@ -47,7 +47,7 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 {
 	// Find The Closest Pack Leader, Not Counting Myself
 	//---------------------------------------------------
-	gentity_t*	closestLeader = 0;
+	gentity_t*	closestLeader = nullptr;
 	float		closestDist = 0;
 	int			myLeaderNum = 0;
 
@@ -55,18 +55,18 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 	{
 		// Dump Dead Leaders
 		//-------------------
-		if (mPacks[i]==0 || mPacks[i]->health<=0)
+		if (mPacks[i]==nullptr || mPacks[i]->health<=0)
 		{
 			if (mPacks[i]==NPC->client->leader)
 			{
-				NPC->client->leader = 0;
+				NPC->client->leader = nullptr;
 			}
 
 			mPacks.erase_swap(i);
 
 			if (i>=mPacks.size())
 			{
-				closestLeader = 0;
+				closestLeader = nullptr;
 				break;
 			}
 		}
@@ -116,7 +116,7 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 
 			if ( NPC->client->leader->health<=0 || NPC->client->leader->inuse == 0)
 			{
-				NPC->client->leader = 0;
+				NPC->client->leader = nullptr;
 			}
 
 			// If My Leader Isn't His Own Leader, Then, Use His Leader
@@ -131,7 +131,7 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 			//------------------------------------------------------
 			else if ( Distance(NPC->client->leader->currentOrigin, NPC->currentOrigin)>LEAVE_PACK_DISTANCE)
 			{
-				NPC->client->leader = 0;
+				NPC->client->leader = nullptr;
 			}
 		}
 

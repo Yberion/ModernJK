@@ -103,7 +103,7 @@ void Interrogator_PartsMove(void)
 			NPCS.NPC->pos1[1]=Q_irand( 0, 60 );	// Pitch
 		}
 
-	//	trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL );
+	//	trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone1, NPC->pos1, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr );
 		NPC_SetBoneAngles(NPCS.NPC, "left_arm", NPCS.NPC->pos1);
 
 		TIMER_Set( NPCS.NPC, "syringeDelay", Q_irand( 100, 1000 ) );
@@ -134,7 +134,7 @@ void Interrogator_PartsMove(void)
 		}
 
 		NPCS.NPC->pos2[0] = AngleNormalize360( NPCS.NPC->pos2[0]);
-	//	trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone2, NPC->pos2, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL );
+	//	trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone2, NPC->pos2, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr );
 
 		NPC_SetBoneAngles(NPCS.NPC, "right_arm", NPCS.NPC->pos2);
 	}
@@ -142,7 +142,7 @@ void Interrogator_PartsMove(void)
 	// Claw
 	NPCS.NPC->pos3[1] += Q_irand( 10, 30 );
 	NPCS.NPC->pos3[1] = AngleNormalize360( NPCS.NPC->pos3[1]);
-	//trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone3, NPC->pos3, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL );
+	//trap->G2API_SetBoneAnglesIndex( &NPC->ghoul2[NPC->playerModel], NPC->genericBone3, NPC->pos3, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, nullptr );
 
 	NPC_SetBoneAngles(NPCS.NPC, "claw", NPCS.NPC->pos3);
 
@@ -185,7 +185,7 @@ void Interrogator_MaintainHeight( void )
 	}
 	else
 	{
-		gentity_t *goal = NULL;
+		gentity_t *goal = nullptr;
 
 		if ( NPCS.NPCInfo->goalEntity )	// Is there a goal?
 		{
@@ -264,14 +264,14 @@ void Interrogator_Strafe( void )
 	trace_t	tr;
 	float	dif;
 
-	AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
+	AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, nullptr, right, nullptr );
 
 	// Pick a random strafe direction, then check to see if doing a strafe would be
 	//	reasonable valid
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, NULL, NULL, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -374,7 +374,7 @@ void Interrogator_Melee( bool visible, bool advance )
 			//gentity_t *tent;
 
 			TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 500, 3000 ) );
-			G_Damage( NPCS.NPC->enemy, NPCS.NPC, NPCS.NPC, 0, 0, 2, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+			G_Damage( NPCS.NPC->enemy, NPCS.NPC, NPCS.NPC, nullptr, nullptr, 2, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
 
 		//	NPC->enemy->client->poisonDamage = 18;
 		//	NPC->enemy->client->poisonTime = level.time + 1000;

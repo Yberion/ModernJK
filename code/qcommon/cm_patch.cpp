@@ -444,7 +444,7 @@ static	patchPlane_t	planes[MAX_PATCH_PLANES];
 //static	int				numFacets;
 // static	facet_t			facets[MAX_PATCH_PLANES]; //maybe MAX_FACETS ??
 //static	facet_t			facets[MAX_FACETS];	// Switched to MAX_FACETS = VV_FIXME, allocate these only during use
-static	facet_t			*facets = NULL;
+static	facet_t			*facets = nullptr;
 
 #define	NORMAL_EPSILON	0.00015
 #define	DIST_EPSILON	0.0235
@@ -1171,7 +1171,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	}
 	else
 	{
-		pf->facets = 0;
+		pf->facets = nullptr;
 	}
 	pf->planes = (patchPlane_t *) Z_Malloc( numPlanes * sizeof( *pf->planes ), TAG_BSP, false);
 	memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
@@ -1179,13 +1179,13 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	Z_Free(facets);
 }
 
-static patchCollide_t *pfScratch = 0;
+static patchCollide_t *pfScratch = nullptr;
 void CM_PreparePatchCollide(int num)
 {
 	pfScratch = (patchCollide_t *) Z_Malloc( sizeof( *pfScratch ) * num, TAG_BSP, false );
 }
 
-cGrid_t *cm_grid = 0;
+cGrid_t *cm_grid = nullptr;
 void CM_GridAlloc()
 {
 	if (cm_grid) return;
@@ -1195,7 +1195,7 @@ void CM_GridAlloc()
 void CM_GridDealloc()
 {
 	Z_Free(cm_grid);
-	cm_grid = 0;
+	cm_grid = nullptr;
 }
 
 /*

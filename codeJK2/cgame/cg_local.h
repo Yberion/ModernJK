@@ -310,7 +310,7 @@ typedef struct {
 	int			latestSnapshotTime;	// the time from latestSnapshotNum, so we don't need to read the snapshot yet
 	int			processedSnapshotNum;// the number of snapshots cgame has requested
 	snapshot_t	*snap;				// cg.snap->serverTime <= cg.time
-	snapshot_t	*nextSnap;			// cg.nextSnap->serverTime > cg.time, or NULL
+	snapshot_t	*nextSnap;			// cg.nextSnap->serverTime > cg.time, or nullptr
 
 	float		frameInterpolation;	// (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
@@ -1002,8 +1002,8 @@ int			cgi_R_Font_HeightPixels(const int iFontIndex, const float scale = 1.0f);
 void		cgi_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iMaxPixelWidth, const float scale = 1.0f);
 bool	cgi_Language_IsAsian(void);
 bool	cgi_Language_UsesSpaces(void);
-unsigned int 	cgi_AnyLanguage_ReadCharFromString( const char **ppText, bool *pbIsTrailingPunctuation = NULL );
-unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, int *ppos, bool *pbIsTrailingPunctuation /* = NULL */ );
+unsigned int 	cgi_AnyLanguage_ReadCharFromString( const char **ppText, bool *pbIsTrailingPunctuation = nullptr );
+unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, int *ppos, bool *pbIsTrailingPunctuation /* = nullptr */ );
 
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
 // Nothing is drawn until R_RenderScene is called.
@@ -1016,7 +1016,7 @@ void	cgi_R_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t directe
 void	cgi_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts );
 void	cgi_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void	cgi_R_RenderScene( const refdef_t *fd );
-void	cgi_R_SetColor( const float *rgba );	// NULL = 1,1,1,1
+void	cgi_R_SetColor( const float *rgba );	// nullptr = 1,1,1,1
 void	cgi_R_DrawStretchPic( float x, float y, float w, float h,
 	float s1, float t1, float s2, float t2, qhandle_t hShader );
 void	cgi_R_DrawScreenShot( float x, float y, float w, float h);
@@ -1150,7 +1150,7 @@ void	trap_Com_SetOrgAngles(vec3_t org,vec3_t angles);
 void	trap_R_GetLightStyle(int style, color4ub_t color);
 void	trap_R_SetLightStyle(int style, int color);
 
-int		trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile = NULL);
+int		trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile = nullptr);
 e_status trap_CIN_StopCinematic(int handle);
 e_status trap_CIN_RunCinematic (int handle);
 void	trap_CIN_DrawCinematic (int handle);

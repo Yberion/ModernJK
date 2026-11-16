@@ -65,7 +65,7 @@ cvar_t	*sv_paused;
 cvar_t	*com_cameraMode;
 cvar_t  *com_homepath;
 #ifndef _WIN32
-cvar_t	*com_ansiColor = NULL;
+cvar_t	*com_ansiColor = nullptr;
 #endif
 cvar_t	*com_busyWait;
 
@@ -111,9 +111,9 @@ void Com_EndRedirect (void)
 		rd_flush(rd_buffer);
 	}
 
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 }
 
 /*
@@ -159,7 +159,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 		size_t			lineLen;
 
 		if (newLine && com_timestamps && com_timestamps->integer) {
-			time_t t = time( NULL );
+			time_t t = time( nullptr );
 			struct tm *tms = localtime( &t );
 			Com_sprintf(line, sizeof(line), "%04i-%02i-%02i %02i:%02i:%02i ",
 				1900 + tms->tm_year, 1 + tms->tm_mon, tms->tm_mday, tms->tm_hour, tms->tm_min, tms->tm_sec);
@@ -431,7 +431,7 @@ bool Com_SafeMode( void ) {
 Com_StartupVariable
 
 Searches for command line parameters that are set commands.
-If match is not NULL, only that cvar will be looked for.
+If match is not nullptr, only that cvar will be looked for.
 That is necessary because cddir and basedir need to be set
 before the filesystem is started, but all other sets shouls
 be after execing the config and default.
@@ -556,7 +556,7 @@ const char *Com_StringContains(const char *str1, const char *str2, int casesensi
 			return str1;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -696,7 +696,7 @@ int Com_RealTime(qtime_t *qtime) {
 	time_t t;
 	struct tm *tms;
 
-	t = time(NULL);
+	t = time(nullptr);
 	if (!qtime)
 		return t;
 	tms = localtime(&t);
@@ -1040,7 +1040,7 @@ A way to force a bus error for development reasons
 =================
 */
 static void NORETURN Com_Crash_f( void ) {
-	* ( volatile int * ) 0 = 0x12345678;
+	* ( volatile int * ) nullptr = 0x12345678;
 	/* that should crash already, but to reassure the compiler: */
 	abort();
 }
@@ -1077,7 +1077,7 @@ static void Com_InitRand(void)
 	unsigned int seed;
 
 	if(!Sys_RandomBytes((byte *) &seed, sizeof(seed)))
-		seed = (unsigned int)time(NULL);
+		seed = (unsigned int)time(nullptr);
 	Rand_Init((int)seed);
 }
 
@@ -1177,7 +1177,7 @@ void Com_Init( char *commandLine ) {
 		Cbuf_Init ();
 
 		// override anything from the config files with command line args
-		Com_StartupVariable( NULL );
+		Com_StartupVariable( nullptr );
 
 		Com_InitZoneMemoryVars();
 		Cmd_Init ();
@@ -1213,7 +1213,7 @@ void Com_Init( char *commandLine ) {
 		Com_ExecuteCfg();
 
 		// override anything from the config files with command line args
-		Com_StartupVariable( NULL );
+		Com_StartupVariable( nullptr );
 
 	  // get dedicated here for proper hunk megs initialization
 	#ifdef DEDICATED
@@ -1887,7 +1887,7 @@ static char *Field_FindFirstSeparator( char *s ) {
 			return &s[ i ];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*

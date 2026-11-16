@@ -47,8 +47,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 char		siege_info[MAX_SIEGE_INFO_SIZE];
 int			siege_valid = 0;
 
-siegeTeam_t *team1Theme = NULL;
-siegeTeam_t *team2Theme = NULL;
+siegeTeam_t *team1Theme = nullptr;
+siegeTeam_t *team2Theme = nullptr;
 
 siegeClass_t bgSiegeClasses[MAX_SIEGE_CLASSES];
 int bgNumSiegeClasses = 0;
@@ -1120,7 +1120,7 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 	stm = BG_SiegeFindThemeForTeam(team);
 	if (!stm)
 	{
-		return(0);
+		return(nullptr);
 
 	}
 
@@ -1138,7 +1138,7 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 		}
 	}
 
-	return(0);
+	return(nullptr);
 }
 
 int BG_GetUIPortrait(const int team, const short classIndex, const short cntIndex)
@@ -1179,7 +1179,7 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 	stm = BG_SiegeFindThemeForTeam(team);
 	if (!stm)
 	{
-		return(0);
+		return(nullptr);
 	}
 
 	// Loop through all the classes for this team
@@ -1196,7 +1196,7 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 		}
 	}
 
-	return(0);
+	return(nullptr);
 }
 
 void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer)
@@ -1226,7 +1226,7 @@ void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer)
 		}
 		else
 		{
-			BG_SiegeParseClassFile(filename, NULL);
+			BG_SiegeParseClassFile(filename, nullptr);
 		}
 	}
 }
@@ -1251,7 +1251,7 @@ siegeClass_t *BG_SiegeFindClassByName(const char *classname)
 		i++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void BG_SiegeParseTeamFile(const char *filename)
@@ -1375,7 +1375,7 @@ siegeTeam_t *BG_SiegeFindThemeForTeam(int team)
 		return team2Theme;
 	}
 
-    return NULL;
+    return nullptr;
 }
 
 #if defined(_GAME) || defined(_CGAME) //only for game/cgame
@@ -1411,7 +1411,7 @@ void BG_PrecacheSabersForSiegeTeam(int team)
 					saberName = &t->classes[i]->saber2[0];
 					break;
 				default:
-					saberName = NULL;
+					saberName = nullptr;
 					break;
 				}
 
@@ -1422,7 +1422,7 @@ void BG_PrecacheSabersForSiegeTeam(int team)
 					{ //found the matching saber
 						if (saber.model[0])
 						{
-							BG_ModelCache(saber.model, NULL);
+							BG_ModelCache(saber.model, nullptr);
 						}
 					}
 				}
@@ -1438,7 +1438,7 @@ void BG_PrecacheSabersForSiegeTeam(int team)
 
 bool BG_SiegeCheckClassLegality(int team, char *classname)
 {
-	siegeTeam_t **teamPtr = NULL;
+	siegeTeam_t **teamPtr = nullptr;
 	int i = 0;
 
 	if (team == SIEGETEAM_TEAM1)
@@ -1490,12 +1490,12 @@ siegeTeam_t *BG_SiegeFindTeamForTheme(char *themeName)
 		i++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void BG_SiegeSetTeamTheme(int team, char *themeName)
 {
-	siegeTeam_t **teamPtr = NULL;
+	siegeTeam_t **teamPtr = nullptr;
 
 	if (team == SIEGETEAM_TEAM1)
 	{

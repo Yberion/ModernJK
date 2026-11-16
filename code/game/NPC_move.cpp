@@ -307,7 +307,7 @@ bool NPC_TryJump(const vec3_t& pos,	float max_xy_dist, float max_z_diff)
 				return false;	//no ground = no jump
 			}
 		}
-		NPCInfo->jumpTarget			= 0;
+		NPCInfo->jumpTarget			= nullptr;
 		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
 		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
 		NPCInfo->jumpTime			= 0;
@@ -677,7 +677,7 @@ inline bool NPC_GetMoveInformation( vec3_t dir, float *distance )
 	//NOTENOTE: Use path stacks!
 
 	//Make sure we have somewhere to go
-	if ( NPCInfo->goalEntity == NULL )
+	if ( NPCInfo->goalEntity == nullptr )
 		return false;
 
 	//Get our move info
@@ -705,7 +705,7 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 {
 	vec3_t	forward, right;
 
-	AngleVectors( self->currentAngles, forward, right, NULL );
+	AngleVectors( self->currentAngles, forward, right, nullptr );
 
 	dir[2] = 0;
 	VectorNormalize( dir );

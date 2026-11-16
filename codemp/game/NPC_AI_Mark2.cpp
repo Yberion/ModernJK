@@ -76,7 +76,7 @@ void NPC_Mark2_Part_Explode( gentity_t *self, int bolt )
 		trap->G2API_GetBoltMatrix( self->ghoul2, 0,
 					bolt,
 					&boltMatrix, self->r.currentAngles, self->r.currentOrigin, level.time,
-					NULL, self->modelScale );
+					nullptr, self->modelScale );
 
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org );
 		BG_GiveMeVectorFromMatrix( &boltMatrix, NEGATIVE_Y, dir );
@@ -125,7 +125,7 @@ void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	// If any pods were blown off, kill him
 	if (self->count > 0)
 	{
-		G_Damage( self, NULL, NULL, NULL, NULL, self->health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN );
+		G_Damage( self, nullptr, nullptr, nullptr, nullptr, self->health, DAMAGE_NO_PROTECTION, MOD_UNKNOWN );
 	}
 }
 
@@ -136,7 +136,7 @@ Mark2_Hunt
 */
 void Mark2_Hunt(void)
 {
-	if ( NPCS.NPCInfo->goalEntity == NULL )
+	if ( NPCS.NPCInfo->goalEntity == nullptr )
 	{
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 	}
@@ -165,7 +165,7 @@ void Mark2_FireBlaster(bool advance)
 	trap->G2API_GetBoltMatrix( NPCS.NPC->ghoul2, 0,
 				bolt,
 				&boltMatrix, NPCS.NPC->r.currentAngles, NPCS.NPC->r.currentOrigin, level.time,
-				NULL, NPCS.NPC->modelScale );
+				nullptr, NPCS.NPC->modelScale );
 
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, muzzle1 );
 

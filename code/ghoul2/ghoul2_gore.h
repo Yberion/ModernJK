@@ -35,7 +35,7 @@ struct GoreTextureCoordinates
 		int i;
 		for (i=0;i<MAX_LODS;i++)
 		{
-			tex[i]=0;
+			tex[i]=nullptr;
 		}
 	}
 	~GoreTextureCoordinates()
@@ -47,7 +47,7 @@ struct GoreTextureCoordinates
 			{
 				extern void R_Free(void *pvAddress);
 				R_Free(tex[i]);
-				tex[i] = 0;
+				tex[i] = nullptr;
 			}
 		}
 	}

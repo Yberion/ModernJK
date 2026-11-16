@@ -96,7 +96,7 @@ private:
 R_DecodeImage
 
 Decodes an image file held in memory, of any format the game loads: the format is found from the file's content, not
-from its name. Returns width * height * 4 bytes of RGBA from R_ImageMalloc, rows from the top, or NULL after a
+from its name. Returns width * height * 4 bytes of RGBA from R_ImageMalloc, rows from the top, or nullptr after a
 warning.
 =================
 */
@@ -110,7 +110,7 @@ byte *R_DecodeImage( const char *name, const byte *file, int length, int *width,
 			R_ImageFree( callbacks.pixels );
 		}
 		ri.Printf( PRINT_WARNING, "R_DecodeImage: %s: %s\n", name, result.error_message.c_str() );
-		return NULL;
+		return nullptr;
 	}
 	*width = static_cast<int>( result.pixbuf.pixcfg.width() );
 	*height = static_cast<int>( result.pixbuf.pixcfg.height() );

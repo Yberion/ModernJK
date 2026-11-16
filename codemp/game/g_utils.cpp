@@ -235,8 +235,8 @@ G_Find
 Searches all active entities for the next one that holds
 the matching string at fieldofs (use the FOFS() macro) in the structure.
 
-Searches beginning at the entity after from, or the beginning if NULL
-NULL will be returned if the end of the list is reached.
+Searches beginning at the entity after from, or the beginning if nullptr
+nullptr will be returned if the end of the list is reached.
 
 =============
 */
@@ -260,7 +260,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 			return from;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -529,14 +529,14 @@ Selects a random entity from among the targets
 
 gentity_t *G_PickTarget (char *targetname)
 {
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 	int		num_choices = 0;
 	gentity_t	*choice[MAXCHOICES];
 
 	if (!targetname)
 	{
 		trap->Print("G_PickTarget called with NULL targetname\n");
-		return NULL;
+		return nullptr;
 	}
 
 	while(1)
@@ -552,7 +552,7 @@ gentity_t *G_PickTarget (char *targetname)
 	if (!num_choices)
 	{
 		trap->Print("G_PickTarget: target %s not found\n", targetname);
-		return NULL;
+		return nullptr;
 	}
 
 	return choice[Q_irand( 0, num_choices - 1 )];
@@ -589,8 +589,8 @@ void G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string ) {
 		return;
 	}
 
-	t = NULL;
-	while ( (t = G_Find (t, FOFS(targetname), string)) != NULL ) {
+	t = nullptr;
+	while ( (t = G_Find (t, FOFS(targetname), string)) != nullptr ) {
 		if ( t == ent ) {
 			trap->Print ("WARNING: Entity used itself.\n");
 		} else {
@@ -695,7 +695,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else if ( VectorCompare (angles, VEC_DOWN) ) {
 		VectorCopy (MOVEDIR_DOWN, movedir);
 	} else {
-		AngleVectors (angles, movedir, NULL, NULL);
+		AngleVectors (angles, movedir, nullptr, nullptr);
 	}
 	VectorClear( angles );
 }
@@ -809,7 +809,7 @@ gentity_t *G_Spawn( void ) {
 	int			i, force;
 	gentity_t	*e;
 
-	e = NULL;	// shut up warning
+	e = nullptr;	// shut up warning
 	i = 0;		// shut up warning
 	for ( force = 0 ; force < 2 ; force++ ) {
 		// if we go through all entities and can't find one to free,
@@ -1193,7 +1193,7 @@ void G_KillBox (gentity_t *ent) {
 		}
 
 		// nail it
-		G_Damage ( hit, ent, ent, NULL, NULL,
+		G_Damage ( hit, ent, ent, nullptr, nullptr,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
 	}
 
@@ -1574,7 +1574,7 @@ bool TryHeal(gentity_t *ent, gentity_t *target)
 			}
 			else
 			{
-				G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+				G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 			}
 
 			return true;
@@ -1669,7 +1669,7 @@ void TryUse( gentity_t *ent )
 	viewspot[2] += ent->client->ps.viewheight;
 
 	VectorCopy( viewspot, src );
-	AngleVectors( ent->client->ps.viewangles, vf, NULL, NULL );
+	AngleVectors( ent->client->ps.viewangles, vf, nullptr, nullptr );
 
 	VectorMA( src, USE_DISTANCE, vf, dest );
 
@@ -1749,7 +1749,7 @@ void TryUse( gentity_t *ent )
 				}
 				else
 				{
-					G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+					G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 				}
 				ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 				return;
@@ -1777,7 +1777,7 @@ void TryUse( gentity_t *ent )
 		}
 		else
 		{
-			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		return;
@@ -1799,7 +1799,7 @@ void TryUse( gentity_t *ent )
 		}
 		else
 		{
-			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		/*
@@ -1811,7 +1811,7 @@ void TryUse( gentity_t *ent )
 		*/
 		if ( target->touch == Touch_Button )
 		{//pretend we touched it
-			target->touch(target, ent, NULL);
+			target->touch(target, ent, nullptr);
 		}
 		else
 		{
@@ -1844,7 +1844,7 @@ tryJetPack:
 		vec3_t fwd;
 
 		VectorSet(fAng, 0.0f, ent->client->ps.viewangles[YAW], 0.0f);
-		AngleVectors(fAng, fwd, 0, 0);
+		AngleVectors(fAng, fwd, nullptr, nullptr);
 
         VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
 		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, 0, 0);

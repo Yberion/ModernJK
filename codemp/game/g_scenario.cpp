@@ -63,9 +63,9 @@ bool G_ScenarioControls( int clientNum ) {
 static bool G_ScenarioFindPlace( void ) {
 	const vec3_t mins = { -15, -15, DEFAULT_MINS_2 };
 	const vec3_t maxs = { 15, 15, DEFAULT_MAXS_2 };
-	gentity_t *spot = NULL;
+	gentity_t *spot = nullptr;
 
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL ) {
+	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
 		vec3_t fwd, start, front, below;
 		trace_t tr;
 

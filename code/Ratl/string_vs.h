@@ -346,7 +346,7 @@ public:
 		void		operator++(int)
 		{
 			assert(mLoc && mGap[0]);
-			mLoc = str::tok(NULL, mGap);
+			mLoc = str::tok(nullptr, mGap);
 		}
 
 		// Data

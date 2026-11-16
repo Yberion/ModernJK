@@ -180,7 +180,7 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 
 			if (uiForcePowersDisabled[forceindex])
 			{
-				trap->R_SetColor(NULL);
+				trap->R_SetColor(nullptr);
 			}
 
 			xPos += width + pad;
@@ -287,7 +287,7 @@ void UI_SaveForceTemplate()
 			if ((uiForceSide == FORCE_LIGHTSIDE && uiInfo.forceConfigSide[i]) ||
 				(uiForceSide == FORCE_DARKSIDE && !uiInfo.forceConfigSide[i]))
 			{
-				Menu_SetFeederSelection(NULL, FEEDER_FORCECFG, UI_TranslateFCFIndex(i), NULL);
+				Menu_SetFeederSelection(nullptr, FEEDER_FORCECFG, UI_TranslateFCFIndex(i), nullptr);
 				foundFeederItem = true;
 			}
 		}
@@ -298,7 +298,7 @@ void UI_SaveForceTemplate()
 	//Else, go back to 0
 	if (!foundFeederItem)
 	{
-		Menu_SetFeederSelection(NULL, FEEDER_FORCECFG, 0, NULL);
+		Menu_SetFeederSelection(nullptr, FEEDER_FORCECFG, 0, nullptr);
 	}
 }
 
@@ -378,7 +378,7 @@ void UpdateForceUsed()
 				}
 				else
 				{
-					UI_UpdateClientForcePowers(NULL);//just update powers
+					UI_UpdateClientForcePowers(nullptr);//just update powers
 				}
 			}
 		}
@@ -642,7 +642,7 @@ void UI_ReadLegalForce(void)
 	if (updateForceLater)
 	{
 		gTouchedForce = true;
-		UI_UpdateClientForcePowers(NULL);
+		UI_UpdateClientForcePowers(nullptr);
 	}
 }
 
@@ -769,7 +769,7 @@ validitycheck:
 			i++;
 		}
 
-		UI_UpdateClientForcePowers(NULL);
+		UI_UpdateClientForcePowers(nullptr);
 	}
 
 	UpdateForceUsed();
@@ -807,7 +807,7 @@ bool UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min
 
 	uiHoldSkinColor = uiSkinColor;
 
-	UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead, NULL);
+	UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead, nullptr);
 
     return true;
   }
@@ -843,7 +843,7 @@ bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min
 		int x = 0;
 
 		//update the feeder item selection, it might be different depending on side
-		Menu_SetFeederSelection(NULL, FEEDER_FORCECFG, 0, NULL);
+		Menu_SetFeederSelection(nullptr, FEEDER_FORCECFG, 0, nullptr);
 
 		if (key == A_MOUSE2)
 		{
@@ -939,7 +939,7 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 			}
 			else
 			{
-				UI_UpdateClientForcePowers(NULL);//just update powers
+				UI_UpdateClientForcePowers(nullptr);//just update powers
 			}
 		}
 		else if ( num )

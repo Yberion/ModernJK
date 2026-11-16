@@ -78,7 +78,7 @@ typedef struct {
 	int			(*R_Font_StrLenChars)(const char *text);
 	bool	(*Language_IsAsian) (void);
 	bool	(*Language_UsesSpaces) (void);
-	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation /* = NULL */);
+	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation /* = nullptr */);
 
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
@@ -90,7 +90,7 @@ typedef struct {
 
 	void		(*R_ModelBounds)( qhandle_t handle, vec3_t mins, vec3_t maxs );
 
-	void		(*R_SetColor)( const float *rgba );	// NULL = 1,1,1,1
+	void		(*R_SetColor)( const float *rgba );	// nullptr = 1,1,1,1
 	void		(*R_DrawStretchPic) ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 	void		(*R_ScissorPic) ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 

@@ -33,7 +33,7 @@ typedef struct pk3Entry_s {
 	unsigned int	size;		// of the file's data once inflated
 } pk3Entry_t;
 
-// NULL, with a warning, when the file is not an archive these functions read. A closed archive stays open for the
+// nullptr, with a warning, when the file is not an archive these functions read. A closed archive stays open for the
 // files still open on it (the music and the videos are read across a restart of the file system) and goes with
 // the last of them.
 pk3Archive_t	*PK3_Open( const char *ospath );
@@ -45,7 +45,7 @@ void			PK3_GetEntry( const pk3Archive_t *archive, int index, pk3Entry_t *entry )
 
 // Any number of files of one archive may be open at once. A file is inflated as it is read; the CRC-32 of a file
 // read from its start to its end is checked, and the read that ends it fails when it is wrong.
-pk3File_t		*PK3_OpenFile( pk3Archive_t *archive, int index );		// NULL when the entry cannot be read
+pk3File_t		*PK3_OpenFile( pk3Archive_t *archive, int index );		// nullptr when the entry cannot be read
 void			PK3_CloseFile( pk3File_t *file );
 int				PK3_Read( pk3File_t *file, void *buffer, int len );		// the bytes delivered, fewer than len at the file's end; -1 on an error
 int				PK3_Tell( const pk3File_t *file );

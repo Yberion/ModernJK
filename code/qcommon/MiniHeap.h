@@ -78,7 +78,7 @@ char *MiniHeapAlloc(int size)
 		mCurrentHeap += size;
 		return tempAddress;
 	}
-	return NULL;
+	return nullptr;
 }
 
 };

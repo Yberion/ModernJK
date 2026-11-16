@@ -129,7 +129,7 @@ void G2_DEBUG_RemovePtrFromTracker(CGhoul2Info_v *g2)
 	{
 		if (g_G2AllocTrack[i] == g2)
 		{
-			g_G2AllocTrack[i] = NULL;
+			g_G2AllocTrack[i] = nullptr;
 			return;
 		}
 		i++;
@@ -224,7 +224,7 @@ void G2API_AttachInstanceToEntNum(CGhoul2Info_v &ghoul2, int entityNum, bool ser
 void G2API_ClearAttachedInstance(int entityNum)
 {
 #ifdef _G2_LISTEN_SERVER_OPT
-	g2ClientAttachments[entityNum] = NULL;
+	g2ClientAttachments[entityNum] = nullptr;
 #endif
 }
 
@@ -235,7 +235,7 @@ void G2API_CleanEntAttachments(void)
 
 	while (i < MAX_GENTITIES)
 	{
-		g2ClientAttachments[i] = NULL;
+		g2ClientAttachments[i] = nullptr;
 		i++;
 	}
 #endif
@@ -416,7 +416,7 @@ class Ghoul2InfoArray : public IGhoul2InfoArray
 			if (mInfos[idx][model].mBoneCache)
 			{
 				RemoveBoneCache(mInfos[idx][model].mBoneCache);
-				mInfos[idx][model].mBoneCache=0;
+				mInfos[idx][model].mBoneCache=nullptr;
 			}
 		}
 
@@ -651,7 +651,7 @@ public:
 #endif
 };
 
-static Ghoul2InfoArray *singleton = NULL;
+static Ghoul2InfoArray *singleton = nullptr;
 IGhoul2InfoArray &TheGhoul2InfoArray()
 {
 	if(!singleton) {
@@ -664,14 +664,14 @@ IGhoul2InfoArray &TheGhoul2InfoArray()
 
 void RestoreGhoul2InfoArray()
 {
-	if (singleton == NULL)
+	if (singleton == nullptr)
 	{
 		// Create the ghoul2 info array
 		TheGhoul2InfoArray();
 
 		size_t size;
 		const void *data = ri.PD_Load (PERSISTENT_G2DATA, &size);
-		if ( data == NULL )
+		if ( data == nullptr )
 		{
 			return;
 		}
@@ -708,7 +708,7 @@ void Ghoul2InfoArray_Free(void)
 {
 	if(singleton) {
 		delete singleton;
-		singleton = NULL;
+		singleton = nullptr;
 	}
 }
 
@@ -779,7 +779,7 @@ void G2API_CleanGhoul2Models(CGhoul2Info_v **ghoul2Ptr)
 #endif
 
 		delete *ghoul2Ptr;
-		*ghoul2Ptr = NULL;
+		*ghoul2Ptr = nullptr;
 	}
 }
 
@@ -917,7 +917,7 @@ bool G2API_SetShader(CGhoul2Info *ghlInfo, qhandle_t customShader)
 
 bool G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags)
 {
-	CGhoul2Info *ghlInfo = NULL;
+	CGhoul2Info *ghlInfo = nullptr;
 
 	if (ghoul2.size()>0)
 	{
@@ -1033,7 +1033,7 @@ bool G2API_RemoveGhoul2Model(CGhoul2Info_v **ghlRemove, const int modelIndex)
 		if (ghlInfo[modelIndex].mBoneCache)
 		{
 			RemoveBoneCache(ghlInfo[modelIndex].mBoneCache);
-			ghlInfo[modelIndex].mBoneCache=0;
+			ghlInfo[modelIndex].mBoneCache=nullptr;
 		}
 
 		// clear out the vectors this model used.
@@ -1080,7 +1080,7 @@ bool G2API_RemoveGhoul2Model(CGhoul2Info_v **ghlRemove, const int modelIndex)
 			g_Ghoul2Allocations -= sizeof(*ghlRemove);
 #endif
 			delete *ghlRemove;
-			*ghlRemove = NULL;
+			*ghlRemove = nullptr;
 		}
 	}
 
@@ -1120,7 +1120,7 @@ bool G2API_RemoveGhoul2Models(CGhoul2Info_v **ghlRemove)
 		if (ghlInfo[modelIndex].mBoneCache)
 		{
 			RemoveBoneCache(ghlInfo[modelIndex].mBoneCache);
-			ghlInfo[modelIndex].mBoneCache=0;
+			ghlInfo[modelIndex].mBoneCache=nullptr;
 		}
 
 		// clear out the vectors this model used.
@@ -1168,7 +1168,7 @@ bool G2API_RemoveGhoul2Models(CGhoul2Info_v **ghlRemove)
 		g_Ghoul2Allocations -= sizeof(*ghlRemove);
 #endif
 		delete *ghlRemove;
-		*ghlRemove = NULL;
+		*ghlRemove = nullptr;
 	}
 	return true;
 }
@@ -1697,21 +1697,21 @@ static inline boneInfo_t *G2_GetRagBoneConveniently(CGhoul2Info_v &ghoul2, const
 
 	if (!(ghlInfo->mFlags & GHOUL2_RAG_STARTED))
 	{ //can't do this if not in ragdoll
-		return NULL;
+		return nullptr;
 	}
 
 	int boneIndex = G2_Find_Bone_Rag(ghlInfo, ghlInfo->mBlist, boneName);
 
 	if (boneIndex < 0)
 	{ //bad bone specification
-		return NULL;
+		return nullptr;
 	}
 
 	boneInfo_t *bone = &ghlInfo->mBlist[boneIndex];
 
 	if (!(bone->flags & BONE_ANGLES_RAGDOLL))
 	{ //only want to return rag bones
-		return NULL;
+		return nullptr;
 	}
 
 	return bone;
@@ -2327,7 +2327,7 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 
 		// now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
 #ifdef _G2_GORE
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,0,false);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,nullptr,false);
 #else
 		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius);
 #endif
@@ -2379,7 +2379,7 @@ void G2API_CollisionDetect(CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2,
 
 		// now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
 #ifdef _G2_GORE
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,0,false);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,nullptr,false);
 #else
 		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius);
 #endif
@@ -2526,7 +2526,7 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 			if (ghoul2To[modelTo].mBoneCache)
 			{
 				RemoveBoneCache(ghoul2To[modelTo].mBoneCache);
-				ghoul2To[modelTo].mBoneCache = 0;
+				ghoul2To[modelTo].mBoneCache = nullptr;
 			}
 		}
 		ghoul2To[modelTo] = ghoul2From[modelFrom];
@@ -2581,8 +2581,8 @@ char *G2API_GetSurfaceName(CGhoul2Info_v& ghoul2, int modelIndex, int surfNumber
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		model_t	*mod = (model_t *)ghlInfo->currentModel;
-		mdxmSurface_t		*surf = 0;
-		mdxmSurfHierarchy_t	*surfInfo = 0;
+		mdxmSurface_t		*surf = nullptr;
+		mdxmSurfHierarchy_t	*surfInfo = nullptr;
 
 #ifndef FINAL_BUILD
 		if (!mod || !mod->mdxm)
@@ -2640,12 +2640,12 @@ char *G2API_GetGLAName(CGhoul2Info_v &ghoul2, int modelIndex)
 			return ghoul2[modelIndex].currentModel->mdxm->animName;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex)
 {
-	CGhoul2Info *ghlInfo = NULL;
+	CGhoul2Info *ghlInfo = nullptr;
 
 	if (ghoul2.size()>0)
 	{
@@ -2736,7 +2736,7 @@ bool G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
                     return false;
 				}
 
-  				surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
+  				surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (intptr_t)( &((mdxmSurfHierarchy_t *)nullptr)->childIndexes[ surf->numChildren ] ));
 			}
 		}
 	}
@@ -2796,7 +2796,7 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 	}
 
 	// make sure we have transformed the whole skeletons for each model
-	//G2_ConstructGhoulSkeleton(ghoul2, gore.currentTime, NULL, true, gore.angles, gore.position, gore.scale, false);
+	//G2_ConstructGhoulSkeleton(ghoul2, gore.currentTime, nullptr, true, gore.angles, gore.position, gore.scale, false);
 	G2_ConstructGhoulSkeleton(ghoul2, gore.currentTime, true, gore.scale);
 
 	// pre generate the world matrix - used to transform the incoming ray
@@ -2819,7 +2819,7 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 		G2_TransformModel(ghoul2, gore.currentTime, gore.scale,ri.GetG2VertSpaceServer(),lod,true);
 
 		// now walk each model and compute new texture coordinates
-		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, 0, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,true);
+		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, nullptr, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,true);
 	}
 }
 #endif
@@ -2878,11 +2878,11 @@ bool G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is 
 	}
 	if (!ghlInfo->mValid)
 	{
-		ghlInfo->currentModel=0;
+		ghlInfo->currentModel=nullptr;
 		ghlInfo->currentModelSize=0;
-		ghlInfo->animModel=0;
+		ghlInfo->animModel=nullptr;
 		ghlInfo->currentAnimModelSize=0;
-		ghlInfo->aHeader=0;
+		ghlInfo->aHeader=nullptr;
 	}
 	return ghlInfo->mValid;
 }
@@ -2978,11 +2978,11 @@ bool G2_SetupModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is
 	}
 	if (!ghlInfo->mValid)
 	{
-		ghlInfo->currentModel=0;
+		ghlInfo->currentModel=nullptr;
 		ghlInfo->currentModelSize=0;
-		ghlInfo->animModel=0;
+		ghlInfo->animModel=nullptr;
 		ghlInfo->currentAnimModelSize=0;
-		ghlInfo->aHeader=0;
+		ghlInfo->aHeader=nullptr;
 	}
 
 #ifdef G2_PERFORMANCE_ANALYSIS

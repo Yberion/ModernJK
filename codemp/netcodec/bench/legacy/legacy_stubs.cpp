@@ -1,5 +1,5 @@
 // Engine functions and globals that OpenJK's msg.cpp refers to, reduced to what the benchmark needs:
-// no console output (cl_shownet stays NULL), no file system (no netf / psf override file: default field widths,
+// no console output (cl_shownet stays nullptr), no file system (no netf / psf override file: default field widths,
 // as in the recordings), errors abort.
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-cvar_t *cl_shownet = NULL;
+cvar_t *cl_shownet = nullptr;
 server_t sv;
 
 void QDECL Com_Printf(const char *fmt, ...) {
@@ -48,4 +48,4 @@ long FS_FOpenFileRead(const char *, fileHandle_t *file, bool) {
 int FS_Read(void *, int, fileHandle_t) { return 0; }
 void FS_FCloseFile(fileHandle_t) {}
 void *Z_Malloc(int iSize, memtag_t, bool, int) { return calloc(1, iSize); }
-sharedEntity_t *SV_GentityNum(int) { return NULL; }
+sharedEntity_t *SV_GentityNum(int) { return nullptr; }

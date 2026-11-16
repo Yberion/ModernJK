@@ -245,7 +245,7 @@ typedef struct textScrollDef_s
 	// changed spelling to make them fall out during compile while I made them asian-aware	-Ste
 	//
 	int				iLineCount;
-	const char*		pLines[MAX_TEXTSCROLL_LINES];	// can contain NULL ptrs that you should skip over during paint.
+	const char*		pLines[MAX_TEXTSCROLL_LINES];	// can contain nullptr ptrs that you should skip over during paint.
 
 } textScrollDef_t;
 

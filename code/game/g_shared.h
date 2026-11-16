@@ -970,7 +970,7 @@ typedef struct centity_s centity_t;
 // !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!!!!
 struct gentity_s {
 	entityState_t	s;				// communicated by server to clients
-	gclient_t	*client;	// NULL if not a player (unless it's NPC ( if (this->NPC != NULL)  )  <sigh>... -slc)
+	gclient_t	*client;	// nullptr if not a player (unless it's NPC ( if (this->NPC != nullptr)  )  <sigh>... -slc)
 	bool	inuse;
 	bool	linked;				// false if not in any good cluster
 

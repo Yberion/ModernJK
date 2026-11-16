@@ -73,7 +73,7 @@ bool	Music_StateIsTransition		( MusicState_e eMusicState );
 bool	Music_StateCanBeInterrupted	( MusicState_e eMusicState, MusicState_e eProposedMusicState );
 float		Music_GetRandomEntryTime	( MusicState_e eMusicState );
 
-bool	Music_AllowedToTransition	( float fPlayingTimeElapsed, MusicState_e eMusicState, MusicState_e	*peTransition = NULL, float *pfNewTrackEntryTime = NULL);
+bool	Music_AllowedToTransition	( float fPlayingTimeElapsed, MusicState_e eMusicState, MusicState_e	*peTransition = nullptr, float *pfNewTrackEntryTime = nullptr);
 
 const char *Music_BaseStateToString		( MusicState_e eMusicState, bool bDebugPrintQuery = false);
 

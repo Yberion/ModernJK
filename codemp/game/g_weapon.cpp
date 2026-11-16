@@ -358,7 +358,7 @@ void WP_Explode( gentity_t *self )
 //	VectorCopy( self->currentOrigin, self->s.pos.trBase );
 	if ( !self->client )
 	{
-	AngleVectors( self->s.angles, forwardVec, NULL, NULL );
+	AngleVectors( self->s.angles, forwardVec, nullptr, nullptr );
 	}
 
 	// FIXME
@@ -382,7 +382,7 @@ void WP_Explode( gentity_t *self )
 
 	if ( self->splashDamage > 0 && self->splashRadius > 0 )
 	{
-		G_RadiusDamage( self->r.currentOrigin, attacker, self->splashDamage, self->splashRadius, 0/*don't ignore attacker*/, self, MOD_UNKNOWN );
+		G_RadiusDamage( self->r.currentOrigin, attacker, self->splashDamage, self->splashRadius, nullptr/*don't ignore attacker*/, self, MOD_UNKNOWN );
 	}
 
 	if ( self->target )
@@ -533,7 +533,7 @@ static void WP_FireBlaster( gentity_t *ent, bool altFire )
 		angs[YAW]       += Q_flrand(-1.0f, 1.0f) * BLASTER_SPREAD;
 	}
 
-	AngleVectors( angs, dir, NULL, NULL );
+	AngleVectors( angs, dir, nullptr, nullptr );
 
 	// FIXME: if temp_org does not have clear trace to inside the bbox, don't shoot!
 	WP_FireBlasterMissile( ent, muzzle, dir, altFire );
@@ -579,11 +579,11 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 	{//need to loop this in case we hit a Jedi who dodges the shot
 		if (d_projectileGhoul2Collision.integer)
 		{
-			trap->Trace( &tr, start, NULL, NULL, end, ignore, MASK_SHOT, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
+			trap->Trace( &tr, start, nullptr, nullptr, end, ignore, MASK_SHOT, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 		}
 		else
 		{
-			trap->Trace( &tr, start, NULL, NULL, end, ignore, MASK_SHOT, false, 0, 0 );
+			trap->Trace( &tr, start, nullptr, nullptr, end, ignore, MASK_SHOT, false, 0, 0 );
 		}
 
 		traceEnt = &g_entities[tr.entityNum];
@@ -622,7 +622,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		{
 			if (WP_SaberCanBlock(traceEnt, tr.endpos, 0, MOD_DISRUPTOR, true, 0))
 			{ //broadcast and stop the shot because it was blocked
-				gentity_t *te = NULL;
+				gentity_t *te = nullptr;
 
 				tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
 				VectorCopy( muzzle, tent->s.origin2 );
@@ -780,11 +780,11 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		if (d_projectileGhoul2Collision.integer)
 		{
-			trap->Trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
+			trap->Trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 		}
 		else
 		{
-			trap->Trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT, false, 0, 0 );
+			trap->Trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, false, 0, 0 );
 		}
 
 		if ( tr.entityNum == ent->s.number )
@@ -839,7 +839,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		{
 			if (WP_SaberCanBlock(traceEnt, tr.endpos, 0, MOD_DISRUPTOR_SNIPER, true, 0))
 			{ //broadcast and stop the shot because it was blocked
-				gentity_t *te = NULL;
+				gentity_t *te = nullptr;
 
 				tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_SHOT );
 				VectorCopy( muzzle, tent->s.origin2 );
@@ -1091,7 +1091,7 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BOWCASTER_ALT_SPREAD * 0.2f;
 		angs[YAW]	+= ((i+0.5f) * BOWCASTER_ALT_SPREAD - count * 0.5f * BOWCASTER_ALT_SPREAD );
 
-		AngleVectors( angs, dir, NULL, NULL );
+		AngleVectors( angs, dir, nullptr, nullptr );
 
 		missile = CreateMissile( muzzle, dir, vel, 10000, ent, true );
 
@@ -1207,7 +1207,7 @@ static void WP_FireRepeater( gentity_t *ent, bool altFire )
 		angs[PITCH] += Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
 		angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * REPEATER_SPREAD;
 
-		AngleVectors( angs, dir, NULL, NULL );
+		AngleVectors( angs, dir, nullptr, nullptr );
 
 		WP_RepeaterMainFire( ent, dir );
 	}
@@ -1251,7 +1251,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 	gentity_t	*gent;
 	int			iEntityList[MAX_GENTITIES];
 	gentity_t	*entityList[MAX_GENTITIES];
-	gentity_t	*myOwner = NULL;
+	gentity_t	*myOwner = nullptr;
 	int			numListedEntities, i, e;
 	vec3_t		mins, maxs;
 	vec3_t		v, dir;
@@ -1455,7 +1455,7 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 		damage = 1;
 	}
 
-	trap->Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_SHOT, false, 0, 0);
+	trap->Trace( &tr, start, nullptr, nullptr, end, ent->s.number, MASK_SHOT, false, 0, 0);
 
 	missile = G_Spawn();
 	G_SetOrigin(missile, tr.endpos);
@@ -1527,7 +1527,7 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 			angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * FLECHETTE_SPREAD;
 		}
 
-		AngleVectors( angs, fwd, NULL, NULL );
+		AngleVectors( angs, fwd, nullptr, nullptr );
 
 		missile = CreateMissile( muzzle, fwd, FLECHETTE_VEL, 10000, ent, false);
 
@@ -1703,7 +1703,7 @@ static void WP_FlechetteAltFire( gentity_t *self )
 
 		dir[PITCH] -= Q_flrand(0.0f, 1.0f) * 4 + 8; // make it fly upwards
 		dir[YAW] += Q_flrand(-1.0f, 1.0f) * 2;
-		AngleVectors( dir, fwd, NULL, NULL );
+		AngleVectors( dir, fwd, nullptr, nullptr );
 
 		WP_CreateFlechetteBouncyThing( start, fwd, self );
 	}
@@ -1817,7 +1817,7 @@ void rocketThink( gentity_t *ent )
 					}
 					else
 					{
-						ent->think = NULL;
+						ent->think = nullptr;
 						ent->nextthink = -1;
 					}
 					*/
@@ -1899,7 +1899,7 @@ void rocketThink( gentity_t *ent )
 extern void G_ExplodeMissile( gentity_t *ent );
 void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
-	self->die = 0;
+	self->die = nullptr;
 	self->r.contents = 0;
 
 	G_ExplodeMissile( self );
@@ -2384,7 +2384,7 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 	  //in the air after getting stuck to a moving door
 		if ( ent->activator != other )
 		{
-			ent->touch = 0;
+			ent->touch = nullptr;
 			ent->nextthink = level.time + FRAMETIME;
 			ent->think = laserTrapExplode;
 			VectorCopy(trace->plane.normal, ent->s.pos.trDelta);
@@ -2392,7 +2392,7 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 	}
 	else
 	{
-		ent->touch = 0;
+		ent->touch = nullptr;
 		if (trace->entityNum != ENTITYNUM_NONE)
 		{
 			ent->enemy = &g_entities[trace->entityNum];
@@ -2405,7 +2405,7 @@ void proxMineThink(gentity_t *ent)
 {
 	int i = 0;
 	gentity_t *cl;
-	gentity_t *owner = NULL;
+	gentity_t *owner = nullptr;
 
 	if (ent->r.ownerNum < ENTITYNUM_WORLD)
 	{
@@ -2468,7 +2468,7 @@ void laserTrapThink ( gentity_t *ent )
 
 	// Find the main impact point
 	VectorMA ( ent->s.pos.trBase, 1024, ent->movedir, end );
-	trap->Trace ( &tr, ent->r.currentOrigin, NULL, NULL, end, ent->s.number, MASK_SHOT, false, 0, 0);
+	trap->Trace ( &tr, ent->r.currentOrigin, nullptr, nullptr, end, ent->s.number, MASK_SHOT, false, 0, 0);
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -2477,7 +2477,7 @@ void laserTrapThink ( gentity_t *ent )
 	if ( traceEnt->client || tr.startsolid )
 	{
 		//go boom
-		ent->touch = 0;
+		ent->touch = nullptr;
 		ent->nextthink = level.time + LT_DELAY_TIME;
 		ent->think = laserTrapExplode;
 	}
@@ -2614,7 +2614,7 @@ void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owner )
 void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 {
 	gentity_t	*laserTrap;
-	gentity_t	*found = NULL;
+	gentity_t	*found = nullptr;
 	vec3_t		dir, start;
 	int			trapcount = 0;
 	int			foundLaserTraps[MAX_GENTITIES];
@@ -2632,7 +2632,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 
 	//limit to 10 placed at any one time
 	//see how many there are now
-	while ( (found = G_Find( found, FOFS(classname), "laserTrap" )) != NULL )
+	while ( (found = G_Find( found, FOFS(classname), "laserTrap" )) != nullptr )
 	{
 		if ( found->parent != ent )
 		{
@@ -2641,7 +2641,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 		foundLaserTraps[trapcount++] = found->s.number;
 	}
 	//now remove first ones we find until there are only 9 left
-	found = NULL;
+	found = nullptr;
 	trapcount_org = trapcount;
 	lowestTimeStamp = level.time;
 	while ( trapcount > 9 )
@@ -2755,8 +2755,8 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 	{ //hit an entity that we just want to explode on (probably another projectile or something)
 		vec3_t v;
 
-		self->touch = 0;
-		self->think = 0;
+		self->touch = nullptr;
+		self->think = nullptr;
 		self->nextthink = 0;
 
 		self->takedamage = false;
@@ -2788,7 +2788,7 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 	//	been primed to detonate
 
 	if ( self->think == G_RunObject ) {
-		self->touch = 0;
+		self->touch = nullptr;
 		self->think = DetPackBlow;
 		self->nextthink = level.time + 30000;
 	}
@@ -2827,8 +2827,8 @@ void DetPackBlow(gentity_t *self)
 {
 	vec3_t v;
 
-	self->pain = 0;
-	self->die = 0;
+	self->pain = nullptr;
+	self->die = nullptr;
 	self->takedamage = false;
 
 	if ( self->target_ent )
@@ -2936,11 +2936,11 @@ void drop_charge (gentity_t *self, vec3_t start, vec3_t dir)
 
 void BlowDetpacks(gentity_t *ent)
 {
-	gentity_t *found = NULL;
+	gentity_t *found = nullptr;
 
 	if ( ent->client->ps.hasDetPackPlanted )
 	{
-		while ( (found = G_Find( found, FOFS(classname), "detpack") ) != NULL )
+		while ( (found = G_Find( found, FOFS(classname), "detpack") ) != nullptr )
 		{//loop through all ents and blow the crap out of them!
 			if ( found->parent == ent )
 			{
@@ -2955,11 +2955,11 @@ void BlowDetpacks(gentity_t *ent)
 }
 void RemoveDetpacks(gentity_t *ent)
 {
-	gentity_t *found = NULL;
+	gentity_t *found = nullptr;
 
 	if ( ent->client->ps.hasDetPackPlanted )
 	{
-		while ( (found = G_Find( found, FOFS(classname), "detpack") ) != NULL )
+		while ( (found = G_Find( found, FOFS(classname), "detpack") ) != nullptr )
 		{//loop through all ents and blow the crap out of them!
 			if ( found->parent == ent )
 			{
@@ -2984,7 +2984,7 @@ bool CheatsOn(void)
 
 void WP_DropDetPack( gentity_t *ent, bool alt_fire )
 {
-	gentity_t	*found = NULL;
+	gentity_t	*found = nullptr;
 	int			trapcount = 0;
 	int			foundDetPacks[MAX_GENTITIES] = {ENTITYNUM_NONE};
 	int			trapcount_org;
@@ -2999,7 +2999,7 @@ void WP_DropDetPack( gentity_t *ent, bool alt_fire )
 
 	//limit to 10 placed at any one time
 	//see how many there are now
-	while ( (found = G_Find( found, FOFS(classname), "detpack" )) != NULL )
+	while ( (found = G_Find( found, FOFS(classname), "detpack" )) != nullptr )
 	{
 		if ( found->parent != ent )
 		{
@@ -3008,7 +3008,7 @@ void WP_DropDetPack( gentity_t *ent, bool alt_fire )
 		foundDetPacks[trapcount++] = found->s.number;
 	}
 	//now remove first ones we find until there are only 9 left
-	found = NULL;
+	found = nullptr;
 	trapcount_org = trapcount;
 	lowestTimeStamp = level.time;
 	while ( trapcount > 9 )
@@ -3112,7 +3112,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 		//NOTE: if you want to be able to hit guys in emplaced guns, use "G2_COLLIDE, 10" instead of "G2_RETURNONHIT, 0"
 		//alternately, if you end up hitting an emplaced_gun that has a sitter, just redo this one trace with the "G2_COLLIDE, 10" to see if we it the sitter
-		//trap->trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
+		//trap->trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
 		if (d_projectileGhoul2Collision.integer)
 		{
 			trap->Trace( &tr, start, shot_mins, shot_maxs, end, skip, MASK_SHOT, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
@@ -3654,7 +3654,7 @@ void WP_CalcVehMuzzle(gentity_t *ent, int muzzleNum)
 	}
 
 	trap->G2API_GetBoltMatrix_NoRecNoRot(ent->ghoul2, 0, pVeh->m_iMuzzleTag[muzzleNum], &boltMatrix, vehAngles,
-		ent->client->ps.origin, level.time, NULL, ent->modelScale);
+		ent->client->ps.origin, level.time, nullptr, ent->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, pVeh->m_vMuzzlePos[muzzleNum]);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, pVeh->m_vMuzzleDir[muzzleNum]);
 }
@@ -3679,12 +3679,12 @@ void WP_VehWeapSetSolidToOwner( gentity_t *self )
 #define VEH_HOMING_MISSILE_THINK_TIME		100
 gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWeaponInfo_t *vehWeapon, bool alt_fire, bool isTurretWeap )
 {
-	gentity_t	*missile = NULL;
+	gentity_t	*missile = nullptr;
 
 	//FIXME: add some randomness...?  Inherent inaccuracy stat of weapon?  Pilot skill?
 	if ( !vehWeapon )
 	{//invalid vehicle weapon
-		return NULL;
+		return nullptr;
 	}
 	else if ( vehWeapon->bIsProjectile )
 	{//projectile entity
@@ -3955,7 +3955,7 @@ void G_EstimateCamPos( vec3_t viewAngles, vec3_t cameraFocusLoc, float viewheigh
 			cameraFocusAngles[PITCH] = -80.0;
 		}
 	}
-	AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
+	AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
 	cameraFocusLoc[2] += viewheight;
 
@@ -4097,7 +4097,7 @@ bool WP_VehCheckTraceFromCamPos( gentity_t *ent, const vec3_t shotStart, vec3_t 
 		vec3_t	dir, start, end;
 		if ( ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
 		{//for some reason, the walker always draws the crosshair out from from the first muzzle point
-			AngleVectors( ent->client->ps.viewangles, dir, NULL, NULL );
+			AngleVectors( ent->client->ps.viewangles, dir, nullptr, nullptr );
 			VectorCopy( ent->r.currentOrigin, start );
 			start[2] += ent->m_pVehicle->m_pVehicleInfo->height-DEFAULT_MINS_2-48;
 		}
@@ -4112,7 +4112,7 @@ bool WP_VehCheckTraceFromCamPos( gentity_t *ent, const vec3_t shotStart, vec3_t 
 			{
 				VectorCopy(ent->m_pVehicle->m_vOrientation, ang);
 			}
-			AngleVectors( ang, dir, NULL, NULL );
+			AngleVectors( ang, dir, nullptr, nullptr );
 			VectorCopy( ent->r.currentOrigin, start );
 		}
 		VectorMA( start, g_cullDistance, dir, end );
@@ -4145,8 +4145,8 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 {
 	Vehicle_t *pVeh = ent->m_pVehicle;
 	int muzzlesFired = 0;
-	gentity_t *missile = NULL;
-	vehWeaponInfo_t *vehWeapon = NULL;
+	gentity_t *missile = nullptr;
+	vehWeaponInfo_t *vehWeapon = nullptr;
 	bool	clearRocketLockEntity = false;
 
 	if ( !pVeh )
@@ -4334,7 +4334,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 							{
 								VectorCopy(pVeh->m_vOrientation, ang);
 							}
-							AngleVectors( ang, fixedDir, NULL, NULL );
+							AngleVectors( ang, fixedDir, nullptr, nullptr );
 							VectorMA( ent->r.currentOrigin, 32768, fixedDir, end );
 							//VectorMA( ent->r.currentOrigin, 8192, dir, end );
 							trap->Trace( &trace, ent->r.currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, MASK_SHOT, false, 0, 0 );
@@ -4646,7 +4646,7 @@ static void WP_FireEmplaced( gentity_t *ent, bool altFire )
 	VectorCopy(gun->s.origin, gunpoint);
 	gunpoint[2] += 46;
 
-	AngleVectors(ent->client->ps.viewangles, NULL, right, NULL);
+	AngleVectors(ent->client->ps.viewangles, nullptr, right, nullptr);
 
 	if (gun->genericValue10)
 	{ //fire out of the right cannon side
@@ -4664,7 +4664,7 @@ static void WP_FireEmplaced( gentity_t *ent, bool altFire )
 
 	vectoangles( forward, angs );
 
-	AngleVectors( angs, dir, NULL, NULL );
+	AngleVectors( angs, dir, nullptr, nullptr );
 
 	WP_FireEmplacedMissile( gun, gunpoint, dir, altFire, ent );
 }
@@ -4758,10 +4758,10 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 	}
 
 	// Let's get some direction vectors for the user
-	AngleVectors( activator->client->ps.viewangles, fwd1, NULL, NULL );
+	AngleVectors( activator->client->ps.viewangles, fwd1, nullptr, nullptr );
 
 	// Get the guns direction vector
-	AngleVectors( self->pos1, fwd2, NULL, NULL );
+	AngleVectors( self->pos1, fwd2, nullptr, nullptr );
 
 	dot = DotProduct( fwd1, fwd2 );
 
@@ -4813,7 +4813,7 @@ tryHeal: //well, not in the right dir, try healing it instead...
 
 void emplaced_gun_realuse( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	emplaced_gun_use(self, other, NULL);
+	emplaced_gun_use(self, other, nullptr);
 }
 
 //----------------------------------------------------------
@@ -4871,7 +4871,7 @@ void emplaced_gun_update(gentity_t *self)
 
 		self->genericValue3 = level.time + Q_irand(2500, 3500);
 
-		G_RadiusDamage(self->r.currentOrigin, self, self->splashDamage, self->splashRadius, self, NULL, MOD_UNKNOWN);
+		G_RadiusDamage(self->r.currentOrigin, self, self->splashDamage, self->splashRadius, self, nullptr, MOD_UNKNOWN);
 
 		self->s.time = -1;
 
@@ -4924,7 +4924,7 @@ void emplaced_gun_update(gentity_t *self)
 		self->activator->client->ps.emplacedTime = level.time + 1000;
 		self->activator->client->ps.emplacedIndex = 0;
 		self->activator->client->ps.saberHolstered = 0;
-		self->activator = NULL;
+		self->activator = nullptr;
 
 		self->s.activeForcePass = 0;
 	}

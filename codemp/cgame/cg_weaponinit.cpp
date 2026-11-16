@@ -290,7 +290,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
 		weaponInfo->missileHitSound		= NULL_SOUND;
-		weaponInfo->missileTrailFunc	= 0;
+		weaponInfo->missileTrailFunc	= nullptr;
 
 		weaponInfo->altFlashSound[0]	= trap->S_RegisterSound( "sound/weapons/disruptor/alt_fire.wav");
 		weaponInfo->altFiringSound		= NULL_SOUND;
@@ -301,7 +301,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
-		weaponInfo->altMissileTrailFunc = 0;
+		weaponInfo->altMissileTrailFunc = nullptr;
 
 		cgs.effects.disruptorRingsEffect		= trap->FX_RegisterEffect( "disruptor/rings" );
 		cgs.effects.disruptorProjectileEffect	= trap->FX_RegisterEffect( "disruptor/projectile" );
@@ -416,7 +416,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
-		weaponInfo->altMissileTrailFunc = 0;
+		weaponInfo->altMissileTrailFunc = nullptr;
 
 		cgs.effects.demp2ProjectileEffect		= trap->FX_RegisterEffect( "demp2/projectile" );
 		cgs.effects.demp2WallImpactEffect		= trap->FX_RegisterEffect( "demp2/wall_impact" );
@@ -507,7 +507,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
 		weaponInfo->missileHitSound		= NULL_SOUND;
-		weaponInfo->missileTrailFunc	= 0;
+		weaponInfo->missileTrailFunc	= nullptr;
 
 		weaponInfo->altFlashSound[0]	= trap->S_RegisterSound( "sound/weapons/thermal/fire.wav");
 		weaponInfo->altFiringSound		= NULL_SOUND;
@@ -518,7 +518,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
-		weaponInfo->altMissileTrailFunc = 0;
+		weaponInfo->altMissileTrailFunc = nullptr;
 
 		cgs.effects.thermalExplosionEffect		= trap->FX_RegisterEffect( "thermal/explosion" );
 		cgs.effects.thermalShockwaveEffect		= trap->FX_RegisterEffect( "thermal/shockwave" );
@@ -543,7 +543,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
 		weaponInfo->missileHitSound		= NULL_SOUND;
-		weaponInfo->missileTrailFunc	= 0;
+		weaponInfo->missileTrailFunc	= nullptr;
 
 		weaponInfo->altFlashSound[0]	= trap->S_RegisterSound( "sound/weapons/laser_trap/fire.wav");
 		weaponInfo->altFiringSound		= NULL_SOUND;
@@ -554,7 +554,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
-		weaponInfo->altMissileTrailFunc = 0;
+		weaponInfo->altMissileTrailFunc = nullptr;
 
 		cgs.effects.tripmineLaserFX = trap->FX_RegisterEffect("tripMine/laserMP.efx");
 		cgs.effects.tripmineGlowFX = trap->FX_RegisterEffect("tripMine/glowbit.efx");
@@ -577,7 +577,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
 		weaponInfo->missileHitSound		= NULL_SOUND;
-		weaponInfo->missileTrailFunc	= 0;
+		weaponInfo->missileTrailFunc	= nullptr;
 
 		weaponInfo->altFlashSound[0]	= trap->S_RegisterSound( "sound/weapons/detpack/fire.wav");
 		weaponInfo->altFiringSound		= NULL_SOUND;
@@ -588,7 +588,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
-		weaponInfo->altMissileTrailFunc = 0;
+		weaponInfo->altMissileTrailFunc = nullptr;
 
 		trap->R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
 		trap->S_RegisterSound( "sound/weapons/detpack/stick.wav" );

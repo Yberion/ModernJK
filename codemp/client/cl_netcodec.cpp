@@ -87,7 +87,7 @@ static void CL_NetcodecDemoGameState( eng::ServerMessage &sm ) {
 
 	for ( int i = 0; i < MAX_CONFIGSTRINGS; i++ ) {
 		const int offset = cl.gameState.stringOffsets[i];
-		configStrings[i] = offset ? cl.gameState.stringData + offset : NULL;
+		configStrings[i] = offset ? cl.gameState.stringData + offset : nullptr;
 	}
 	sm.gameState = true;
 	sm.relSeq = clc.serverCommandSequence;
@@ -322,7 +322,7 @@ void CL_NetcodecParseServerMessage( msg_t *msg ) {
 		s_arrival[slot] = cls.realtime;
 		f.seq = seq;
 		f.ps = &cl.snapshots[slot].ps;
-		f.vps = cm.vehicle ? &cl.snapshots[slot].vps : NULL;
+		f.vps = cm.vehicle ? &cl.snapshots[slot].vps : nullptr;
 		f.firstEntity = newSnap.parseEntitiesNum;
 		f.numEntities = cm.numEntities;
 		f.record = cm.record;
@@ -391,17 +391,17 @@ static const eng::Frame *CL_NetcodecPacketBase( void ) {
 	const int seq = clc.serverMessageSequence;
 	const eng::Frame &f = s_frames[seq & PACKET_MASK];
 	if ( f.seq != seq || f.record.olderSeq < 0 ) {
-		return NULL;	// no snapshot held, or no earlier one for the time between messages
+		return nullptr;	// no snapshot held, or no earlier one for the time between messages
 	}
 	const eng::Frame &older = s_frames[f.record.olderSeq & PACKET_MASK];
 	const int64_t between = f.record.time - older.record.time;	// over seq - olderSeq messages
 	int rtt = 0;
 	if ( older.seq != f.record.olderSeq || between <= 0 || !CL_NetcodecRoundTrip( f, rtt ) ) {
-		return NULL;
+		return nullptr;
 	}
 	const int64_t elapsed = (int64_t)( cls.realtime - s_arrival[seq & PACKET_MASK] ) + rtt;
 	if ( elapsed * ( seq - f.record.olderSeq ) >= (int64_t)( eng::kAckWindow / 2 ) * between ) {
-		return NULL;
+		return nullptr;
 	}
 	return &f;
 }
@@ -438,7 +438,7 @@ bool CL_NetcodecWritePacket( msg_t *buf, int count, bool delta ) {
 	if ( frame ) {
 		base = eng::PacketBaseOf( *frame );
 	}
-	const size_t size = Codec().EncodePacket( p, frame ? &base : NULL, buf->data, (size_t)buf->maxsize );
+	const size_t size = Codec().EncodePacket( p, frame ? &base : nullptr, buf->data, (size_t)buf->maxsize );
 	if ( !size ) {
 		Com_Printf( "WARNING: client packet not coded (too large)\n" );
 		return false;

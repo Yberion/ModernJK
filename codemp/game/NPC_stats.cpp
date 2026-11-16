@@ -413,7 +413,7 @@ void SpewDebugStuffToFile(animation_t *anims)
 
 bool G_ParseAnimFileSet( const char *filename, const char *animCFG, int *animFileIndex )
 {
-	*animFileIndex = BG_ParseAnimationFile(filename, NULL, false);
+	*animFileIndex = BG_ParseAnimationFile(filename, nullptr, false);
 	//if it's humanoid we should have it cached and return it, if it is not it will be loaded (unless it's also cached already)
 
 	if (*animFileIndex == -1)
@@ -506,7 +506,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 			/*
 			char	animName[MAX_QPATH];
 			char	*GLAName;
-			char	*slash = NULL;
+			char	*slash = nullptr;
 			char	*strippedName;
 
 			int handle = trap->G2API_PrecacheGhoul2Model( va( "models/players/%s/model.glm", value ) );
@@ -976,7 +976,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	char	customSkin[MAX_QPATH];
 	char	sessionName[MAX_QPATH+17];
 	renderInfo_t	*ri = &NPC->client->renderInfo;
-	gNPCstats_t		*stats = NULL;
+	gNPCstats_t		*stats = nullptr;
 	bool	md3Model = true;
 	char	surfOff[1024];
 	char	surfOn[1024];
@@ -995,7 +995,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		NPCName = "Player";
 	}
 
-	if ( !NPC->s.number && NPC->client != NULL )
+	if ( !NPC->s.number && NPC->client != nullptr )
 	{//player, only want certain data
 		parsingPlayer = true;
 	}
@@ -1035,7 +1035,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	}
 	else
 	{
-		stats = NULL;
+		stats = nullptr;
 	}
 
 	//Set defaults
@@ -3532,7 +3532,7 @@ Ghoul2 Insert Start
 
 		if (setTypeBack)
 		{ //don't want this being set if we aren't ready yet.
-			NPC->NPC_type = NULL;
+			NPC->NPC_type = nullptr;
 		}
 	}
 	else

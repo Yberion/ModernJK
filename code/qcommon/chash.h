@@ -58,9 +58,9 @@ public:
 	CHash(void)
 	{
 		memset(mHashTable, 0, sizeof(mHashTable));
-		mNext = NULL;
+		mNext = nullptr;
 		mCount = 0;
-		mPrevious = NULL;
+		mPrevious = nullptr;
 		mHash = 0;
 	}
 	// Destructor
@@ -90,7 +90,7 @@ public:
 	{
 		CreateHash(key);
 		T *item = mHashTable[mHash];
-		mPrevious = NULL;
+		mPrevious = nullptr;
 		while(item)
 		{
 			mNext = item->GetNext();
@@ -101,7 +101,7 @@ public:
 			mPrevious = item;
 			item = mNext;
 		}
-		return(NULL);
+		return(nullptr);
 	}
 	// Remove item from the hash table referenced by key
 	bool remove(const char *key)
@@ -133,7 +133,7 @@ public:
 	T *head(void)
 	{
 		mHash = -1;
-		mNext = NULL;
+		mNext = nullptr;
 		return(next());
 	}
 	// Returns the next entry in the hash table
@@ -160,7 +160,7 @@ public:
 				return(item);
 			}
 		}
-		return(NULL);
+		return(nullptr);
 	}
 	// Destroy all entries in the hash table
 	void clear(void)

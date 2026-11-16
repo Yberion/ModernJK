@@ -271,7 +271,7 @@ bool FighterSuspended( Vehicle_t *pVeh, playerState_t *parentPS )
 	if (!pVeh->m_pPilot//empty
 		&& !parentPS->speed//not moving
 		&& pVeh->m_ucmd.forwardmove <= 0//not trying to go forward for whatever reason
-		&& pVeh->m_pParentEntity != NULL
+		&& pVeh->m_pParentEntity != nullptr
 		&& (((gentity_t *)pVeh->m_pParentEntity)->spawnflags&2) )//SUSPENDED spawnflag is on
 	{
 		return true;
@@ -326,7 +326,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #ifdef _GAME
 					//G_EntitySound( ((gentity_t *)(pVeh->m_pParentEntity)), CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
 #elif _CGAME
-					trap->S_StartSound( NULL, pm->ps->clientNum, CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
+					trap->S_StartSound( nullptr, pm->ps->clientNum, CHAN_LOCAL, pVeh->m_pVehicleInfo->soundHyper );
 #endif
 				}
 
@@ -633,7 +633,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		float strafeSpeed = (pVeh->m_pVehicleInfo->strafePerc*speedMax)*5.0f;
 		VectorCopy( pVeh->m_vOrientation, vAngles );
 		vAngles[PITCH] = vAngles[ROLL] = 0;
-		AngleVectors( vAngles, NULL, vRight, NULL );
+		AngleVectors( vAngles, nullptr, vRight, nullptr );
 
 		if ( pVeh->m_ucmd.rightmove > 0 )
 		{//strafe right
@@ -1295,7 +1295,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	int curTime = pm->cmd.serverTime;
 #endif
 
-	bgEntity_t *rider = NULL;
+	bgEntity_t *rider = nullptr;
 	if (parent->s.owner != ENTITYNUM_NONE)
 	{
 		rider = PM_BGEntForNum(parent->s.owner); //&g_entities[parent->r.ownerNum];

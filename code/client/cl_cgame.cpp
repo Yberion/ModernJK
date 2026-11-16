@@ -272,7 +272,7 @@ void CL_SetUserCmdAngles( float pitchOverride, float yawOverride, float rollOver
 }
 
 void CL_AddCgameCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
+	Cmd_AddCommand( cmdName, nullptr );
 }
 
 /*
@@ -431,7 +431,7 @@ void CL_ShutdownCGame( void ) {
 	VM_Call( CG_SHUTDOWN );
 
 //	VM_Free( cgvm );
-//	cgvm = NULL;
+//	cgvm = nullptr;
 }
 
 #ifdef JK2_MODE
@@ -1022,7 +1022,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 		// The below was commented out for whatever reason... /me shrugs --eez
 	case CG_R_DRAWSCREENSHOT:
-		re.DrawStretchRaw( VMF(1), VMF(2), VMF(3), VMF(4), SG_SCR_WIDTH, SG_SCR_HEIGHT, SCR_GetScreenshot(0), 0, true);
+		re.DrawStretchRaw( VMF(1), VMF(2), VMF(3), VMF(4), SG_SCR_WIDTH, SG_SCR_HEIGHT, SCR_GetScreenshot(nullptr), 0, true);
 		return 0;
 	case CG_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *) VMA(2), (float *) VMA(3) );
@@ -1138,7 +1138,7 @@ Ghoul2 Insert End
 		return 0;
 
 	case CG_UI_SETACTIVE_MENU:
-		UI_SetActiveMenu((const char *) VMA(1),NULL);
+		UI_SetActiveMenu((const char *) VMA(1),nullptr);
 		return 0;
 
 	case CG_UI_MENU_OPENBYNAME:
@@ -1328,7 +1328,7 @@ Ghoul2 Insert End
 		const char* text;
 
 		assert(VMA(1));
-//		assert(VMA(2));	// can now pass in NULL to just query the size
+//		assert(VMA(2));	// can now pass in nullptr to just query the size
 
 		if (args[0] == CG_SP_GETSTRINGTEXT)
 		{

@@ -56,15 +56,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
 //Pointer safety utilities
-#define VALID( a )		( a != NULL )
+#define VALID( a )		( a != nullptr )
 #define	VALIDATE( a )	( assert( a ) )
 
-#define	VALIDATEV( a )	if ( a == NULL ) {	assert(0);	return;			}
-#define	VALIDATEB( a )	if ( a == NULL ) {	assert(0);	return false;	}
-#define VALIDATEP( a )	if ( a == NULL ) {	assert(0);	return NULL;	}
+#define	VALIDATEV( a )	if ( a == nullptr ) {	assert(0);	return;			}
+#define	VALIDATEB( a )	if ( a == nullptr ) {	assert(0);	return false;	}
+#define VALIDATEP( a )	if ( a == nullptr ) {	assert(0);	return nullptr;	}
 
-#define VALIDSTRING( a )	( ( a != NULL ) && ( a[0] != '\0' ) )
-#define VALIDENT( e )		( ( e != NULL ) && ( (e)->inuse ) )
+#define VALIDSTRING( a )	( ( a != nullptr ) && ( a[0] != '\0' ) )
+#define VALIDENT( e )		( ( e != nullptr ) && ( (e)->inuse ) )
 
 #define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
 #define STRING( a ) #a
@@ -150,10 +150,6 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 #define QALIGN(x) __attribute__((aligned(x)))
 #else
 #define QALIGN(x)
-#endif
-
-#ifndef NULL
-#define NULL ((void *)0)
 #endif
 
 #define INT_ID( a, b, c, d ) (uint32_t)((((a) & 0xff) << 24) | (((b) & 0xff) << 16) | (((c) & 0xff) << 8) | ((d) & 0xff))

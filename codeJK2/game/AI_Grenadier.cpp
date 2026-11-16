@@ -96,7 +96,7 @@ void NPC_Grenadier_PlayConfusionSound( gentity_t *self )
 	self->NPC->tempBehavior = BS_DEFAULT;
 
 	//self->NPC->behaviorState = BS_PATROL;
-	G_ClearEnemy( self );//FIXME: or just self->enemy = NULL;?
+	G_ClearEnemy( self );//FIXME: or just self->enemy = nullptr;?
 
 	self->NPC->investigateCount = 0;
 }
@@ -132,7 +132,7 @@ ST_HoldPosition
 static void Grenadier_HoldPosition( void )
 {
 	NPC_FreeCombatPoint( NPCInfo->combatPoint, true );
-	NPCInfo->goalEntity = NULL;
+	NPCInfo->goalEntity = nullptr;
 
 	/*if ( TIMER_Done( NPC, "stand" ) )
 	{//FIXME: what if can't shoot from this pos?
@@ -358,7 +358,7 @@ static void Grenadier_CheckMoveState( void )
 	*/
 
 	//See if we're moving towards a goal, not the enemy
-	if ( ( NPCInfo->goalEntity != NPC->enemy ) && ( NPCInfo->goalEntity != NULL ) )
+	if ( ( NPCInfo->goalEntity != NPC->enemy ) && ( NPCInfo->goalEntity != nullptr ) )
 	{
 		//Did we make it?
 		if ( NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, NPCInfo->goalEntity->currentOrigin, 16, FlyingCreature( NPC ) ) ||
@@ -489,7 +489,7 @@ void NPC_BSGrenadier_Attack( void )
 	//If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt() == false )//!NPC->enemy )//
 	{
-		NPC->enemy = NULL;
+		NPC->enemy = nullptr;
 		NPC_BSGrenadier_Patrol();//FIXME: or patrol?
 		return;
 	}

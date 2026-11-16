@@ -374,7 +374,7 @@ bool BG_SuperBreakLoseAnim( int anim );
 
 static QINLINE void SetSaberBoxSize(gentity_t *saberent)
 {
-	gentity_t *owner = NULL;
+	gentity_t *owner = nullptr;
 	vec3_t saberOrg, saberTip;
 	int i;
 	int j = 0;
@@ -563,7 +563,7 @@ static QINLINE void SetSaberBoxSize(gentity_t *saberent)
 
 void WP_SaberInitBladeData( gentity_t *ent )
 {
-	gentity_t *saberent = NULL;
+	gentity_t *saberent = nullptr;
 	gentity_t *checkEnt;
 	int i = 0;
 
@@ -922,7 +922,7 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 	if (ent->localAnimIndex <= 1)
 	{ //don't do these things on non-humanoids
 		vec3_t lookAngles;
-		entityState_t *emplaced = NULL;
+		entityState_t *emplaced = nullptr;
 
 		if (ent->client->ps.hasLookTarget)
 		{
@@ -944,7 +944,7 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 		BG_G2PlayerAngles(ent->ghoul2, ent->client->renderInfo.motionBolt, &ent->s, level.time, lerpOrg, lerpAng, legs,
 			legsAngles, &tYawing, &tPitching, &lYawing, &tYawAngle, &tPitchAngle, &lYawAngle, FRAMETIME, turAngles,
 			ent->modelScale, ciLegs, ciTorso, &ent->client->corrTime, lookAngles, ent->client->lastHeadAngles,
-			ent->client->lookTime, emplaced, NULL);
+			ent->client->lookTime, emplaced, nullptr);
 
 		if (ent->client->ps.heldByClient && ent->client->ps.heldByClient <= MAX_CLIENTS)
 		{ //then put our arm in this client's hand
@@ -972,7 +972,7 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 				VectorCopy(other->client->ps.viewangles, tAngles);
 				tAngles[PITCH] = tAngles[ROLL] = 0;
 
-				trap->G2API_GetBoltMatrix(other->ghoul2, 0, lHandBolt, &boltMatrix, tAngles, other->client->ps.origin, level.time, 0, other->modelScale);
+				trap->G2API_GetBoltMatrix(other->ghoul2, 0, lHandBolt, &boltMatrix, tAngles, other->client->ps.origin, level.time, nullptr, other->modelScale);
 				boltOrg[0] = boltMatrix.matrix[0][3];
 				boltOrg[1] = boltMatrix.matrix[1][3];
 				boltOrg[2] = boltMatrix.matrix[2][3];
@@ -1377,10 +1377,10 @@ static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defende
 		}
 	}
 
-	G_SetAnim(attacker, NULL, SETANIM_BOTH, attAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
+	G_SetAnim(attacker, nullptr, SETANIM_BOTH, attAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 	attacker->client->ps.saberLockFrame = bgAllAnims[attacker->localAnimIndex].anims[attAnim].firstFrame+(bgAllAnims[attacker->localAnimIndex].anims[attAnim].numFrames*attStart);
 
-	G_SetAnim(defender, NULL, SETANIM_BOTH, defAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
+	G_SetAnim(defender, nullptr, SETANIM_BOTH, defAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 	defender->client->ps.saberLockFrame = bgAllAnims[defender->localAnimIndex].anims[defAnim].firstFrame+(bgAllAnims[defender->localAnimIndex].anims[defAnim].numFrames*defStart);
 
 	attacker->client->ps.saberLockHits = 0;
@@ -2090,9 +2090,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 
 		VectorCopy(attacker->client->lastSaberBase_Always, temp);
 
-		AngleVectors(attacker->client->lastSaberDir_Always, att_HitDir, 0, 0);
+		AngleVectors(attacker->client->lastSaberDir_Always, att_HitDir, nullptr, nullptr);
 
-		AngleVectors(defender->client->lastSaberDir_Always, def_BladeDir, 0, 0);
+		AngleVectors(defender->client->lastSaberDir_Always, def_BladeDir, nullptr, nullptr);
 
 		//now compare
 		hitDot = DotProduct( att_HitDir, def_BladeDir );
@@ -2118,7 +2118,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 
 			//need to know the direction of the deflectoin relative to the attacker's facing
 			VectorSet( temp, 0, attacker->client->ps.viewangles[YAW], 0 );//presumes no pitch!
-			AngleVectors( temp, NULL, att_Right, att_Up );
+			AngleVectors( temp, nullptr, att_Right, att_Up );
 			swingRDot = DotProduct( att_Right, att_DeflectionDir );
 			swingUDot = DotProduct( att_Up, att_DeflectionDir );
 
@@ -2420,7 +2420,7 @@ static QINLINE void G_BuildSaberFaces(vec3_t base, vec3_t tip, float radius, vec
 {
 	static saberFace_t faces[12];
 	int i = 0;
-	float *d1 = NULL, *d2 = NULL;
+	float *d1 = nullptr, *d2 = nullptr;
 	vec3_t invFwd;
 	vec3_t invRight;
 
@@ -2701,7 +2701,7 @@ static QINLINE bool G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_t atkSta
 					//Now get relative angles between the points
 					VectorSubtract(tip, base, v);
 					vectoangles(v, v);
-					AngleVectors(v, NULL, right, fwd);
+					AngleVectors(v, nullptr, right, fwd);
 
 					//now build collision faces for this blade
 					G_BuildSaberFaces(base, tip, blade->radius*3.0f, fwd, right, &fNum, &fList);
@@ -3547,7 +3547,7 @@ void WP_SaberApplyDamage( gentity_t *self )
 	}
 	for ( i = 0; i < numVictims; i++ )
 	{
-		gentity_t *victim = NULL;
+		gentity_t *victim = nullptr;
 		int dflags = 0;
 
 		victim = &g_entities[victimEntityNum[i]];
@@ -3587,7 +3587,7 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 	}
 	for ( i = 0; i < numVictims; i++ )
 	{
-		gentity_t *te = NULL, *victim = NULL;
+		gentity_t *te = nullptr, *victim = nullptr;
 		bool isDroid = false;
 
 		if ( victimHitEffectDone[i] )
@@ -3689,7 +3689,7 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 	{
 		vec3_t		mins, maxs, entDir;
 		int			radiusEnts[128];
-		gentity_t	*radiusEnt = NULL;
+		gentity_t	*radiusEnt = nullptr;
 		int			numEnts, i;
 		float		dist;
 
@@ -3716,7 +3716,7 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 				continue;
 			}
 
-			if ( radiusEnt->client == NULL )
+			if ( radiusEnt->client == nullptr )
 			{//must be a client
 				if ( G_EntIsBreakable( radiusEnt->s.number ) )
 				{//damage breakables within range, but not as much
@@ -4474,7 +4474,7 @@ static QINLINE bool CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeN
 		if (!skipIt && (!onlyIfNotSpecial || !BG_SaberInSpecial(self->client->ps.saberMove)))
 		*/
 		{
-			gentity_t *te = NULL;
+			gentity_t *te = nullptr;
 			/*
 			bool pre = saberDoClashEffect;
 
@@ -5305,7 +5305,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 			{
 				md2ang[xx] = LerpAngle( ma1[xx], ma2[xx], saberHitFraction );
 			}
-			AngleVectors( md2ang, md2, NULL, NULL );
+			AngleVectors( md2ang, md2, nullptr, nullptr );
 			//shorten the base pos
 			VectorSubtract( mp2, mp1, baseDiff );
 			VectorMA( mp1, saberHitFraction, baseDiff, baseNew );
@@ -5359,7 +5359,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 				{
 					md2ang[xx] = LerpAngle( ma1[xx], ma2[xx], curDirFrac );
 				}
-				AngleVectors( md2ang, curMD2, NULL, NULL );
+				AngleVectors( md2ang, curMD2, nullptr, nullptr );
 				//VectorMA( md1, curDirFrac, mdDiff, curMD2 );
 				VectorSubtract( baseNew, baseOld, baseDiff );
 				VectorMA( baseOld, curDirFrac, baseDiff, curBase2 );
@@ -5400,7 +5400,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 					{
 						md2ang[xx] = LerpAngle( curMA1[xx], curMA2[xx], saberHitFraction );
 					}
-					AngleVectors( md2ang, curMD2, NULL, NULL );
+					AngleVectors( md2ang, curMD2, nullptr, nullptr );
 					saberHitSaber = true;
 				}
 				if (saberHitWall)
@@ -5456,7 +5456,7 @@ void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 {
 	float		dist;
-	gentity_t	*ent, *incoming = NULL;
+	gentity_t	*ent, *incoming = nullptr;
 	int			entityList[MAX_GENTITIES];
 	int			numListedEntities;
 	vec3_t		mins, maxs;
@@ -5467,7 +5467,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	vec3_t		traceTo, entDir;
 	float		dot1, dot2;
 	float		lookTDist = -1;
-	gentity_t	*lookT = NULL;
+	gentity_t	*lookT = nullptr;
 	bool	doFullRoutine = true;
 
 	//keep this updated even if we don't get below
@@ -5545,7 +5545,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	}
 
 	fwdangles[1] = self->client->ps.viewangles[1];
-	AngleVectors( fwdangles, forward, NULL, NULL );
+	AngleVectors( fwdangles, forward, nullptr, nullptr );
 
 	for ( i = 0 ; i < 3 ; i++ )
 	{
@@ -5588,7 +5588,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 				VectorCopy(self->client->ps.origin, myEyes);
 				myEyes[2] += self->client->ps.viewheight;
 
-				trap->Trace(&tr, myEyes, NULL, NULL, ent->client->ps.origin, self->s.number, MASK_PLAYERSOLID, false, 0, 0);
+				trap->Trace(&tr, myEyes, nullptr, nullptr, ent->client->ps.origin, self->s.number, MASK_PLAYERSOLID, false, 0, 0);
 
 				if (tr.fraction == 1.0f || tr.entityNum == ent->s.number)
 				{ //we have a clear line of sight to him, so it's all good.
@@ -5694,7 +5694,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 							ent->s.eType = ET_MISSILE;
 							ent->s.eFlags &= ~EF_MISSILE_STICK;
 							ent->flags |= FL_BOUNCE_HALF;
-							AngleVectors( ent->r.currentAngles, throwDir, NULL, NULL );
+							AngleVectors( ent->r.currentAngles, throwDir, nullptr, nullptr );
 							VectorMA( ent->r.currentOrigin, ent->r.maxs[0]+4, throwDir, ent->r.currentOrigin );
 							VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
 							VectorScale( throwDir, 300, ent->s.pos.trDelta );
@@ -5822,7 +5822,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 					self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + Q_irand( 1000, 2000 );
 				}
 			}
-			else if ( Jedi_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
+			else if ( Jedi_SaberBlockGo( self, &self->NPC->last_ucmd, nullptr, nullptr, incoming, 0.0f ) != EVASION_NONE )
 			{//make sure to turn on your saber if it's not on
 				if ( self->client->NPC_class != CLASS_BOBAFETT )
 				{
@@ -5898,7 +5898,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 		{ //within range
 			trace_t tr;
 
-			trap->Trace(&tr, saberent->r.currentOrigin, NULL, NULL, ent->client->ps.origin, saberent->s.number, MASK_SHOT, false, 0, 0);
+			trap->Trace(&tr, saberent->r.currentOrigin, nullptr, nullptr, ent->client->ps.origin, saberent->s.number, MASK_SHOT, false, 0, 0);
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{ //Slice them
@@ -5924,7 +5924,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 
 					if (!returning)
 					{ //return to owner if blocked
-						thrownSaberTouch(saberent, saberent, NULL);
+						thrownSaberTouch(saberent, saberent, nullptr);
 					}
 
 					saberOwner->client->ps.saberAttackWound = level.time + 500;
@@ -5978,7 +5978,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 
 					if (!returning)
 					{ //return to owner if blocked
-						thrownSaberTouch(saberent, saberent, NULL);
+						thrownSaberTouch(saberent, saberent, nullptr);
 					}
 				}
 
@@ -6017,7 +6017,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 				VectorCopy(ent->r.currentOrigin, entOrigin);
 			}
 
-			trap->Trace(&tr, saberent->r.currentOrigin, NULL, NULL, entOrigin, saberent->s.number, MASK_SHOT, false, 0, 0);
+			trap->Trace(&tr, saberent->r.currentOrigin, nullptr, nullptr, entOrigin, saberent->s.number, MASK_SHOT, false, 0, 0);
 
 			if (tr.fraction == 1 || tr.entityNum == ent->s.number)
 			{
@@ -6082,7 +6082,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 
 				if (!returning)
 				{ //return to owner if blocked
-					thrownSaberTouch(saberent, saberent, NULL);
+					thrownSaberTouch(saberent, saberent, nullptr);
 				}
 
 				saberOwner->client->ps.saberAttackWound = level.time + 500;
@@ -6219,7 +6219,7 @@ void MakeDeadSaber(gentity_t *ent)
 	vec3_t startorg;
 	vec3_t startang;
 	gentity_t *saberent;
-	gentity_t *owner = NULL;
+	gentity_t *owner = nullptr;
 	//trace stuct used for determining if it's safe to spawn at current location
 	trace_t		tr;
 
@@ -6300,7 +6300,7 @@ void MakeDeadSaber(gentity_t *ent)
 		}
 		else
 		{
-			//WP_SaberAddG2Model( saberent, NULL, 0 );
+			//WP_SaberAddG2Model( saberent, nullptr, 0 );
 			//argh!!!!
 			G_FreeEntity(saberent);
 			return;
@@ -6333,7 +6333,7 @@ void saberBackToOwner(gentity_t *saberent);
 
 void DownedSaberThink(gentity_t *saberent)
 {
-	gentity_t *saberOwn = NULL;
+	gentity_t *saberOwn = nullptr;
 	bool notDisowned = false;
 	bool pullBack = false;
 
@@ -6573,7 +6573,7 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 			vec3_t otherFwd;
 			float deflectSpeed = 200;
 
-			AngleVectors(other->client->ps.viewangles, otherFwd, 0, 0);
+			AngleVectors(other->client->ps.viewangles, otherFwd, nullptr, nullptr);
 
 			saberent->s.pos.trDelta[0] = otherFwd[0]*deflectSpeed;
 			saberent->s.pos.trDelta[1] = otherFwd[1]*deflectSpeed;
@@ -7184,25 +7184,25 @@ void saberFirstThrown(gentity_t *saberent)
 	{
 		if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK))
 		{ //If owner releases altattack 500ms or later after throwing saber, it autoreturns
-			thrownSaberTouch(saberent, saberent, NULL);
+			thrownSaberTouch(saberent, saberent, nullptr);
 			goto runMin;
 		}
 		else if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 6000)
 		{ //if it's out longer than 6 seconds, return it
-			thrownSaberTouch(saberent, saberent, NULL);
+			thrownSaberTouch(saberent, saberent, nullptr);
 			goto runMin;
 		}
 	}
 
 	if (BG_HasYsalamiri(level.gametype, &saberOwn->client->ps))
 	{
-		thrownSaberTouch(saberent, saberent, NULL);
+		thrownSaberTouch(saberent, saberent, nullptr);
 		goto runMin;
 	}
 
 	if (!BG_CanUseFPNow(level.gametype, &saberOwn->client->ps, level.time, FP_SABERTHROW))
 	{
-		thrownSaberTouch(saberent, saberent, NULL);
+		thrownSaberTouch(saberent, saberent, nullptr);
 		goto runMin;
 	}
 
@@ -7211,7 +7211,7 @@ void saberFirstThrown(gentity_t *saberent)
 
 	if (vLen >= (SABER_MAX_THROW_DISTANCE*saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW]))
 	{
-		thrownSaberTouch(saberent, saberent, NULL);
+		thrownSaberTouch(saberent, saberent, nullptr);
 		goto runMin;
 	}
 
@@ -7221,7 +7221,7 @@ void saberFirstThrown(gentity_t *saberent)
 		vec3_t fwd, traceFrom, traceTo, dir;
 		trace_t tr;
 
-		AngleVectors(saberOwn->client->ps.viewangles, fwd, 0, 0);
+		AngleVectors(saberOwn->client->ps.viewangles, fwd, nullptr, nullptr);
 
 		VectorCopy(saberOwn->client->ps.origin, traceFrom);
 		traceFrom[2] += saberOwn->client->ps.viewheight;
@@ -7236,11 +7236,11 @@ void saberFirstThrown(gentity_t *saberent)
 
 		if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
 		{ //if highest saber throw rank, we can direct the saber toward players directly by looking at them
-			trap->Trace(&tr, traceFrom, NULL, NULL, traceTo, saberOwn->s.number, MASK_PLAYERSOLID, false, 0, 0);
+			trap->Trace(&tr, traceFrom, nullptr, nullptr, traceTo, saberOwn->s.number, MASK_PLAYERSOLID, false, 0, 0);
 		}
 		else
 		{
-			trap->Trace(&tr, traceFrom, NULL, NULL, traceTo, saberOwn->s.number, MASK_SOLID, false, 0, 0);
+			trap->Trace(&tr, traceFrom, nullptr, nullptr, traceTo, saberOwn->s.number, MASK_SOLID, false, 0, 0);
 		}
 
 		VectorSubtract(tr.endpos, saberent->r.currentOrigin, dir);
@@ -7284,43 +7284,43 @@ void UpdateClientRenderBolts(gentity_t *self, vec3_t renderOrigin, vec3_t render
 	else
 	{
 		//head
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->headBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->headBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->headPoint[0] = boltMatrix.matrix[0][3];
 		ri->headPoint[1] = boltMatrix.matrix[1][3];
 		ri->headPoint[2] = boltMatrix.matrix[2][3];
 
 		//right hand
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->handRPoint[0] = boltMatrix.matrix[0][3];
 		ri->handRPoint[1] = boltMatrix.matrix[1][3];
 		ri->handRPoint[2] = boltMatrix.matrix[2][3];
 
 		//left hand
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->handLPoint[0] = boltMatrix.matrix[0][3];
 		ri->handLPoint[1] = boltMatrix.matrix[1][3];
 		ri->handLPoint[2] = boltMatrix.matrix[2][3];
 
 		//chest
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->torsoBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->torsoBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->torsoPoint[0] = boltMatrix.matrix[0][3];
 		ri->torsoPoint[1] = boltMatrix.matrix[1][3];
 		ri->torsoPoint[2] = boltMatrix.matrix[2][3];
 
 		//crotch
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->crotchBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->crotchBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->crotchPoint[0] = boltMatrix.matrix[0][3];
 		ri->crotchPoint[1] = boltMatrix.matrix[1][3];
 		ri->crotchPoint[2] = boltMatrix.matrix[2][3];
 
 		//right foot
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->footRPoint[0] = boltMatrix.matrix[0][3];
 		ri->footRPoint[1] = boltMatrix.matrix[1][3];
 		ri->footRPoint[2] = boltMatrix.matrix[2][3];
 
 		//left foot
-		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+		trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 		ri->footLPoint[0] = boltMatrix.matrix[0][3];
 		ri->footLPoint[1] = boltMatrix.matrix[1][3];
 		ri->footLPoint[2] = boltMatrix.matrix[2][3];
@@ -7414,43 +7414,43 @@ void UpdateClientRenderinfo(gentity_t *self, vec3_t renderOrigin, vec3_t renderA
 			else
 			{
 				//head
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->headBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->headBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->headPoint[0] = boltMatrix.matrix[0][3];
 				ri->headPoint[1] = boltMatrix.matrix[1][3];
 				ri->headPoint[2] = boltMatrix.matrix[2][3];
 
 				//right hand
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->handRPoint[0] = boltMatrix.matrix[0][3];
 				ri->handRPoint[1] = boltMatrix.matrix[1][3];
 				ri->handRPoint[2] = boltMatrix.matrix[2][3];
 
 				//left hand
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->handLPoint[0] = boltMatrix.matrix[0][3];
 				ri->handLPoint[1] = boltMatrix.matrix[1][3];
 				ri->handLPoint[2] = boltMatrix.matrix[2][3];
 
 				//chest
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->torsoBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->torsoBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->torsoPoint[0] = boltMatrix.matrix[0][3];
 				ri->torsoPoint[1] = boltMatrix.matrix[1][3];
 				ri->torsoPoint[2] = boltMatrix.matrix[2][3];
 
 				//crotch
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->crotchBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->crotchBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->crotchPoint[0] = boltMatrix.matrix[0][3];
 				ri->crotchPoint[1] = boltMatrix.matrix[1][3];
 				ri->crotchPoint[2] = boltMatrix.matrix[2][3];
 
 				//right foot
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footRBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->footRPoint[0] = boltMatrix.matrix[0][3];
 				ri->footRPoint[1] = boltMatrix.matrix[1][3];
 				ri->footRPoint[2] = boltMatrix.matrix[2][3];
 
 				//left foot
-				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, NULL, self->modelScale);
+				trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->footLBolt, &boltMatrix, renderAngles, renderOrigin, level.time, nullptr, self->modelScale);
 				ri->footLPoint[0] = boltMatrix.matrix[0][3];
 				ri->footLPoint[1] = boltMatrix.matrix[1][3];
 				ri->footLPoint[2] = boltMatrix.matrix[2][3];
@@ -7469,7 +7469,7 @@ void UpdateClientRenderinfo(gentity_t *self, vec3_t renderOrigin, vec3_t renderA
 		VectorCopy(ri->muzzlePoint, ri->muzzlePointOld);
 		VectorCopy(self->client->ps.origin, ri->muzzlePoint);
 		VectorCopy(ri->muzzleDir, ri->muzzleDirOld);
-		AngleVectors(self->client->ps.viewangles, ri->muzzleDir, 0, 0);
+		AngleVectors(self->client->ps.viewangles, ri->muzzleDir, nullptr, nullptr);
 		ri->mPCalcTime = level.time;
 
 		VectorCopy(self->client->ps.origin, ri->eyePoint);
@@ -7538,7 +7538,7 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 {
 	vec3_t	traceOrg, traceEnd, kickMins, kickMaxs;
 	trace_t	trace;
-	gentity_t	*hitEnt = NULL;
+	gentity_t	*hitEnt = nullptr;
 	VectorSet(kickMins, -2.0f, -2.0f, -2.0f);
 	VectorSet(kickMaxs, 2.0f, 2.0f, 2.0f);
 	//FIXME: variable kick height?
@@ -7570,7 +7570,7 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 		{
 			if (trace.entityNum == ent->client->jediKickIndex)
 			{ //we are hitting the same ent we last hit in this same anim, don't hit it again
-				return NULL;
+				return nullptr;
 			}
 		}
 		ent->client->jediKickIndex = trace.entityNum;
@@ -7679,7 +7679,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 			}
 			else
 			{//guess
-				AngleVectors( fwdAngs, kickDir, NULL, NULL );
+				AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 			}
 		}
 	}
@@ -7703,7 +7703,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 			}
 			break;
@@ -7723,7 +7723,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 			}
 			break;
@@ -7741,7 +7741,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 			}
 			break;
@@ -7759,7 +7759,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 			}
@@ -7778,7 +7778,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 				}
 			}
 			break;
@@ -7796,7 +7796,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 			}
@@ -7822,48 +7822,48 @@ static void G_KickSomeMofos(gentity_t *ent)
 				if ( elapsedTime >= 400 && elapsedTime < 500 )
 				{//front
 					doKick = true;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 				else if ( elapsedTime >= 500 && elapsedTime < 600 )
 				{//front-right?
 					doKick = true;
 					fwdAngs[YAW] += 45;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 				else if ( elapsedTime >= 600 && elapsedTime < 700 )
 				{//right
 					doKick = true;
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 				}
 				else if ( elapsedTime >= 700 && elapsedTime < 800 )
 				{//back-right?
 					doKick = true;
 					fwdAngs[YAW] += 45;
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 				}
 				else if ( elapsedTime >= 800 && elapsedTime < 900 )
 				{//back
 					doKick = true;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 				else if ( elapsedTime >= 900 && elapsedTime < 1000 )
 				{//back-left?
 					doKick = true;
 					fwdAngs[YAW] += 45;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 				else if ( elapsedTime >= 1000 && elapsedTime < 1100 )
 				{//left
 					doKick = true;
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 				else if ( elapsedTime >= 1100 && elapsedTime < 1200 )
 				{//front-left?
 					doKick = true;
 					fwdAngs[YAW] += 45;
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 			}
@@ -7896,12 +7896,12 @@ static void G_KickSomeMofos(gentity_t *ent)
 				if ( elapsedTime >= 250 && elapsedTime < 350 )
 				{//front
 					doKick = true;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 				}
 				else if ( elapsedTime >= 350 && elapsedTime < 450 )
 				{//back
 					doKick = true;
-					AngleVectors( fwdAngs, kickDir, NULL, NULL );
+					AngleVectors( fwdAngs, kickDir, nullptr, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 			}
@@ -7929,7 +7929,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 				}
 			}
 			//else if ( elapsedTime >= 350 && elapsedTime < 450 )
@@ -7947,7 +7947,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 				}
 				else
 				{//guess
-					AngleVectors( fwdAngs, NULL, kickDir, NULL );
+					AngleVectors( fwdAngs, nullptr, kickDir, nullptr );
 					VectorScale( kickDir, -1, kickDir );
 				}
 			}
@@ -7958,7 +7958,7 @@ static void G_KickSomeMofos(gentity_t *ent)
 	if ( doKick )
 	{
 //		G_KickTrace( ent, kickDir, kickDist, kickEnd, kickDamage, kickPush );
-		G_KickTrace( ent, kickDir, kickDist, NULL, kickDamage, kickPush );
+		G_KickTrace( ent, kickDir, kickDist, nullptr, kickDamage, kickPush );
 	}
 }
 
@@ -7989,7 +7989,7 @@ static void G_GrabSomeMofos(gentity_t *self)
 
     VectorSet(flatAng, 0.0f, self->client->ps.viewangles[1], 0.0f);
 	trap->G2API_GetBoltMatrix(self->ghoul2, 0, ri->handRBolt, &boltMatrix, flatAng, self->client->ps.origin,
-		level.time, NULL, self->modelScale);
+		level.time, nullptr, self->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, pos);
 
 	VectorSet(grabMins, -4.0f, -4.0f, -4.0f);
@@ -8091,7 +8091,7 @@ static void G_GrabSomeMofos(gentity_t *self)
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 { //rww - keep the saber position as updated as possible on the server so that we can try to do realistic-looking contact stuff
   //Note that this function also does the majority of working in maintaining the server g2 client instance (updating angles/anims/etc)
-	gentity_t *mySaber = NULL;
+	gentity_t *mySaber = nullptr;
 	mdxaBone_t	boltMatrix;
 	vec3_t properAngles, properOrigin;
 	vec3_t boltAngles, boltOrigin;
@@ -8104,7 +8104,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 	float animSpeedScale = 1.0f;
 	int saberNum;
 	bool clientOverride;
-	gentity_t *vehEnt = NULL;
+	gentity_t *vehEnt = nullptr;
 	int rSaberNum = 0;
 	int rBladeNum = 0;
 
@@ -8227,7 +8227,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 						idealDist = 34.0f;
 					}
 
-					AngleVectors(grappler->client->ps.viewangles, gFwd, 0, 0);
+					AngleVectors(grappler->client->ps.viewangles, gFwd, nullptr, nullptr);
 					VectorMA(grappler->client->ps.origin, idealDist, gFwd, idealSpot);
 
 					trap->Trace(&trace, self->client->ps.origin, self->r.mins, self->r.maxs, idealSpot, self->s.number, self->clipmask, false, 0, 0);
@@ -8266,7 +8266,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 								int grapplerAnim = grappler->client->ps.torsoAnim;
 								int grapplerTime = grappler->client->ps.torsoTimer;
 
-								G_Damage(grappler, self, self, NULL, self->client->ps.origin, 10, 0, MOD_MELEE);
+								G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, 0, MOD_MELEE);
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
 								//it might try to put them into a pain anim or something, so override it back again
@@ -8288,7 +8288,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 								int grapplerAnim = grappler->client->ps.torsoAnim;
 								int grapplerTime = grappler->client->ps.torsoTimer;
 
-								G_Damage(grappler, self, self, NULL, self->client->ps.origin, 10, 0, MOD_MELEE);
+								G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, 0, MOD_MELEE);
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
 								//it might try to put them into a pain anim or something, so override it back again
@@ -8309,7 +8309,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 							{
 								vec3_t tossDir;
 
-								G_Damage(grappler, self, self, NULL, self->client->ps.origin, 30, 0, MOD_MELEE);
+								G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, 0, MOD_MELEE);
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
 								self->client->grappleState = 0;
@@ -8338,7 +8338,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 								int grapplerAnim = grappler->client->ps.torsoAnim;
 								int grapplerTime = grappler->client->ps.torsoTimer;
 
-								G_Damage(grappler, self, self, NULL, self->client->ps.origin, 20, 0, MOD_MELEE);
+								G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 20, 0, MOD_MELEE);
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
 								//it might try to put them into a pain anim or something, so override it back again
@@ -8357,7 +8357,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 						{ //smashed on the ground
 							if (self->client->ps.torsoTimer < 2000)
 							{
-								//G_Damage(grappler, self, self, NULL, self->client->ps.origin, 10, 0, MOD_MELEE);
+								//G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 10, 0, MOD_MELEE);
 								//don't do damage on this one, it would look very freaky if they died
 								G_EntitySound( grappler, CHAN_VOICE, G_SoundIndex("*pain100.wav") );
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
@@ -8368,7 +8368,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 						{ //and another smash
 							if (self->client->ps.torsoTimer < 1000)
 							{
-								G_Damage(grappler, self, self, NULL, self->client->ps.origin, 30, 0, MOD_MELEE);
+								G_Damage(grappler, self, self, nullptr, self->client->ps.origin, 30, 0, MOD_MELEE);
 								//G_Sound( grappler, CHAN_AUTO, G_SoundIndex( va( "sound/weapons/melee/punch%d", Q_irand( 1, 4 ) ) ) );
 
 								//it might try to put them into a pain anim or something, so override it back again
@@ -8538,7 +8538,7 @@ nextStep:
 		else
 		{
 			properAngles[1] = self->client->ps.viewangles[YAW];
-			vehEnt = NULL;
+			vehEnt = nullptr;
 		}
 	}
 	else
@@ -8581,7 +8581,7 @@ nextStep:
 
 	//We'll get data for blade 0 first no matter what it is and stick them into
 	//the constant ("_Always") values. Later we will handle going through each blade.
-	trap->G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
+	trap->G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, nullptr, self->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, boltOrigin);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, boltAngles);
 
@@ -8670,7 +8670,7 @@ nextStep:
 				self->client->ps.saberEntityState = 1;
 
 				//Projectile stuff:
-				AngleVectors(self->client->ps.viewangles, dir, NULL, NULL);
+				AngleVectors(self->client->ps.viewangles, dir, nullptr, nullptr);
 
 				saberent->nextthink = level.time + FRAMETIME;
 				saberent->think = saberFirstThrown;
@@ -8889,7 +8889,7 @@ nextStep:
 							VectorSubtract( self->r.currentOrigin, saberOrg, saberDir );
 							vectoangles( saberDir, saberAngles );
 						}
-						trap->G2API_GetBoltMatrix(saberEnt->ghoul2, 0, rBladeNum, &boltMatrix, saberAngles, saberOrg, level.time, NULL, self->modelScale);
+						trap->G2API_GetBoltMatrix(saberEnt->ghoul2, 0, rBladeNum, &boltMatrix, saberAngles, saberOrg, level.time, nullptr, self->modelScale);
 						BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, self->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint);
 						BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, self->client->saber[rSaberNum].blade[rBladeNum].muzzleDir);
 						VectorCopy( self->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint, boltOrigin );
@@ -8899,7 +8899,7 @@ nextStep:
 				}
 				else
 				{
-					trap->G2API_GetBoltMatrix(self->ghoul2, rSaberNum+1, rBladeNum, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
+					trap->G2API_GetBoltMatrix(self->ghoul2, rSaberNum+1, rBladeNum, &boltMatrix, properAngles, properOrigin, level.time, nullptr, self->modelScale);
 					BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, self->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint);
 					BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, self->client->saber[rSaberNum].blade[rBladeNum].muzzleDir);
 					VectorCopy( self->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint, boltOrigin );
@@ -9007,7 +9007,7 @@ nextStep:
 										saberMidPoint[1] = boltOrigin[1] + (saberSubBase[1]*0.5);
 										saberMidPoint[2] = boltOrigin[2] + (saberSubBase[2]*0.5);
 
-										AngleVectors(saberMidAngle, saberMidDir, 0, 0);
+										AngleVectors(saberMidAngle, saberMidDir, nullptr, nullptr);
 										saberMidEnd[0] = saberMidPoint[0] + saberMidDir[0]*self->client->saber[rSaberNum].blade[rBladeNum].lengthMax;
 										saberMidEnd[1] = saberMidPoint[1] + saberMidDir[1]*self->client->saber[rSaberNum].blade[rBladeNum].lengthMax;
 										saberMidEnd[2] = saberMidPoint[2] + saberMidDir[2]*self->client->saber[rSaberNum].blade[rBladeNum].lengthMax;
@@ -9156,7 +9156,7 @@ void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, bool missileBlock )
 
 	fwdangles[1] = self->client->ps.viewangles[1];
 	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-	AngleVectors( fwdangles, NULL, right, NULL );
+	AngleVectors( fwdangles, nullptr, right, nullptr );
 
 	rightdot = DotProduct(right, diff);
 	zdiff = hitloc[2] - clEye[2];
@@ -9224,7 +9224,7 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, bool missileBlock )
 
 	fwdangles[1] = playerent->client->ps.viewangles[1];
 	// Ultimately we might care if the shot was ahead or behind, but for now, just quadrant is fine.
-	AngleVectors( fwdangles, NULL, right, NULL );
+	AngleVectors( fwdangles, nullptr, right, nullptr );
 
 	rightdot = DotProduct(right, diff) + Q_flrand(-0.2f,0.2f);
 	zdiff = hitloc[2] - playerent->client->ps.origin[2] + Q_irand(-8,8);

@@ -649,7 +649,7 @@ static void ProjectDlightTexture2( void ) {
 		}
 
 
-		dStage = NULL;
+		dStage = nullptr;
 		if (tess.shader && qglActiveTextureARB)
 		{
 			int i = 0;
@@ -1001,7 +1001,7 @@ static void ProjectDlightTexture( void ) {
 		}
 
 
-		dStage = NULL;
+		dStage = nullptr;
 		if (tess.shader && qglActiveTextureARB)
 		{
 			int i = 0;
@@ -1559,7 +1559,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 	int stage;
 	bool	UseGLFog = false;
 	bool	FogColorChange = false;
-	fog_t	*fog = NULL;
+	fog_t	*fog = nullptr;
 
 	if (tess.fogNum && tess.shader->fogPass && (tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs)
 		&& r_drawfog->value == 2)
@@ -1686,7 +1686,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		//
 		// do multitexture
 		//
-		if ( pStage->bundle[1].image != 0 )
+		if ( pStage->bundle[1].image != nullptr )
 		{
 			DrawMultitextured( input, stage );
 		}

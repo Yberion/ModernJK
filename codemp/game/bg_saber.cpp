@@ -350,7 +350,7 @@ void BG_FixSaberMoveData(void) {
 	const bool doFix = !!g_fixSaberMoveData.integer;
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
-	const uint32_t legacyFixes = strtoul(cs, NULL, 0);
+	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
 	const bool doFix = !!(legacyFixes & (1 << LEGACYFIX_SABERMOVEDATA));
 #endif
 	saberMoveData_t *move;
@@ -585,7 +585,7 @@ saberMoveName_t PM_CheckStabDown( void )
 {
 	vec3_t faceFwd, facingAngles;
 	vec3_t fwd;
-	bgEntity_t *ent = NULL;
+	bgEntity_t *ent = nullptr;
 	trace_t tr;
 	//yeah, vm's may complain, but.. who cares!
 	vec3_t trmins = {-15, -15, -15};
@@ -615,7 +615,7 @@ saberMoveName_t PM_CheckStabDown( void )
 	}
 
 	VectorSet(facingAngles, 0, pm->ps->viewangles[YAW], 0);
-	AngleVectors( facingAngles, faceFwd, NULL, NULL );
+	AngleVectors( facingAngles, faceFwd, nullptr, nullptr );
 
 	//FIXME: need to only move forward until we bump into our target...?
 	VectorMA(pm->ps->origin, 164.0f, faceFwd, fwd);
@@ -1570,7 +1570,7 @@ bool PM_CanBackstab(void)
 	VectorCopy(pm->ps->viewangles, flatAng);
 	flatAng[PITCH] = 0;
 
-	AngleVectors(flatAng, fwd, 0, 0);
+	AngleVectors(flatAng, fwd, nullptr, nullptr);
 
 	back[0] = pm->ps->origin[0] - fwd[0]*BACK_STAB_DISTANCE;
 	back[1] = pm->ps->origin[1] - fwd[1]*BACK_STAB_DISTANCE;
@@ -1631,7 +1631,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	//just do it
 	VectorCopy( pm->ps->viewangles, fwdAngles );
 	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
-	AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
+	AngleVectors( fwdAngles, jumpFwd, nullptr, nullptr );
 	VectorScale( jumpFwd, 150, pm->ps->velocity );//was 50
 	pm->ps->velocity[2] = 400;
 
@@ -1749,7 +1749,7 @@ bool PM_SomeoneInFront(trace_t *tr)
 	VectorCopy(pm->ps->viewangles, flatAng);
 	flatAng[PITCH] = 0;
 
-	AngleVectors(flatAng, fwd, 0, 0);
+	AngleVectors(flatAng, fwd, nullptr, nullptr);
 
 	back[0] = pm->ps->origin[0] + fwd[0]*FLIPHACK_DISTANCE;
 	back[1] = pm->ps->origin[1] + fwd[1]*FLIPHACK_DISTANCE;
@@ -1809,7 +1809,7 @@ saberMoveName_t PM_SaberLungeAttackMove( bool noSpecials )
 		VectorCopy( pm->ps->viewangles, fwdAngles );
 		fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
 		//do the lunge
-		AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
+		AngleVectors( fwdAngles, jumpFwd, nullptr, nullptr );
 		VectorScale( jumpFwd, 150, pm->ps->velocity );
 		PM_AddEvent( EV_JUMP );
 
@@ -1918,7 +1918,7 @@ saberMoveName_t PM_SaberJumpAttackMove( void )
 	//just do it
 	VectorCopy( pm->ps->viewangles, fwdAngles );
 	fwdAngles[PITCH] = fwdAngles[ROLL] = 0;
-	AngleVectors( fwdAngles, jumpFwd, NULL, NULL );
+	AngleVectors( fwdAngles, jumpFwd, nullptr, nullptr );
 	VectorScale( jumpFwd, 300, pm->ps->velocity );
 	pm->ps->velocity[2] = 280;
 	PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
@@ -2014,17 +2014,17 @@ static bool PM_CheckEnemyPresence( int dir, float radius )
 	switch( dir )
 	{
 	case DIR_RIGHT:
-		AngleVectors( angles, NULL, checkDir, NULL );
+		AngleVectors( angles, nullptr, checkDir, nullptr );
 		break;
 	case DIR_LEFT:
-		AngleVectors( angles, NULL, checkDir, NULL );
+		AngleVectors( angles, nullptr, checkDir, nullptr );
 		VectorScale( checkDir, -1, checkDir );
 		break;
 	case DIR_FRONT:
-		AngleVectors( angles, checkDir, NULL, NULL );
+		AngleVectors( angles, checkDir, nullptr, nullptr );
 		break;
 	case DIR_BACK:
-		AngleVectors( angles, checkDir, NULL, NULL );
+		AngleVectors( angles, checkDir, nullptr, nullptr );
 		VectorScale( checkDir, -1, checkDir );
 		break;
 	}
@@ -2101,7 +2101,7 @@ saberMoveName_t PM_CheckPullAttack( void )
 					&& !PM_SuperBreakLoseAnim( targEnt->client->ps.legsAnim )
 					&& !PM_SuperBreakWinAnim( targEnt->client->ps.legsAnim )
 					&& targEnt->client->ps.saberLockTime <= 0
-					&& WP_ForceThrowable( targEnt, targEnt, pm->gent, true, 1.0f, 0.0f, NULL ) )
+					&& WP_ForceThrowable( targEnt, targEnt, pm->gent, true, 1.0f, 0.0f, nullptr ) )
 				{
 					if ( !g_saberNewControlScheme->integer )
 					{//in old control scheme, make sure they're close or far enough away for the move we'll be doing
@@ -2268,7 +2268,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 
 				VectorSet(fwdAngles, 0.0f, pm->ps->viewangles[YAW], 0.0f);
 
-				AngleVectors( fwdAngles, NULL, right, NULL );
+				AngleVectors( fwdAngles, nullptr, right, nullptr );
 				pm->ps->velocity[0] = pm->ps->velocity[1] = 0.0f;
 				VectorMA( pm->ps->velocity, 190.0f, right, pm->ps->velocity );
 				if ( pm->ps->fd.saberAnimLevel == SS_STAFF )
@@ -2329,7 +2329,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				vec3_t right, fwdAngles;
 
 				VectorSet(fwdAngles, 0.0f, pm->ps->viewangles[YAW], 0.0f);
-				AngleVectors( fwdAngles, NULL, right, NULL );
+				AngleVectors( fwdAngles, nullptr, right, nullptr );
 				pm->ps->velocity[0] = pm->ps->velocity[1] = 0.0f;
 				VectorMA( pm->ps->velocity, -190.0f, right, pm->ps->velocity );
 				if ( pm->ps->fd.saberAnimLevel == SS_STAFF )
@@ -3001,7 +3001,7 @@ void PM_WeaponLightsaber(void)
 			VectorSet( sabMins, SABERMINS_X, SABERMINS_Y, SABERMINS_Z );
 			VectorSet( sabMaxs, SABERMAXS_X, SABERMAXS_Y, SABERMAXS_Z );
 
-			AngleVectors( pm->ps->viewangles, fwd, NULL, NULL );
+			AngleVectors( pm->ps->viewangles, fwd, nullptr, nullptr );
 			VectorMA( pm->ps->origin, SABER_MIN_THROW_DIST, fwd, minFwd );
 
 			pm->trace(&sabTr, pm->ps->origin, sabMins, sabMaxs, minFwd, pm->ps->clientNum, MASK_PLAYERSOLID);
@@ -4042,12 +4042,12 @@ saberInfo_t *BG_MySaber( int clientNum, int saberNum )
 	{
 		if ( !ent->client->saber[saberNum].model[0] )
 		{ //don't have saber anymore!
-			return NULL;
+			return nullptr;
 		}
 		return &ent->client->saber[saberNum];
 	}
 #elif defined(_CGAME)
-	clientInfo_t *ci = NULL;
+	clientInfo_t *ci = nullptr;
 	if (clientNum < MAX_CLIENTS)
 	{
 		ci = &cgs.clientinfo[clientNum];
@@ -4065,12 +4065,12 @@ saberInfo_t *BG_MySaber( int clientNum, int saberNum )
 	{
 		if ( !ci->saber[saberNum].model[0] )
 		{ //don't have sabers anymore!
-			return NULL;
+			return nullptr;
 		}
 		return &ci->saber[saberNum];
 	}
 #endif
 
-	return NULL;
+	return nullptr;
 }
 

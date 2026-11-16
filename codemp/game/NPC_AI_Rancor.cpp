@@ -202,9 +202,9 @@ void Rancor_DropVictim( gentity_t *self )
 		}
 		if ( self->enemy == self->activator )
 		{
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
-		self->activator = NULL;
+		self->activator = nullptr;
 	}
 	self->count = 0;//drop him
 }
@@ -233,7 +233,7 @@ void Rancor_Swing( bool tryGrab )
 			continue;
 		}
 
-		if ( radiusEnt->client == NULL )
+		if ( radiusEnt->client == nullptr )
 		{//must be a client
 			continue;
 		}
@@ -305,7 +305,7 @@ void Rancor_Swing( bool tryGrab )
 				VectorCopy( NPCS.NPC->client->ps.viewangles, angs );
 				angs[YAW] += Q_flrand( 25, 50 );
 				angs[PITCH] = Q_flrand( -25, -15 );
-				AngleVectors( angs, pushDir, NULL, NULL );
+				AngleVectors( angs, pushDir, nullptr, nullptr );
 				if ( radiusEnt->client->NPC_class != CLASS_RANCOR
 					&& radiusEnt->client->NPC_class != CLASS_ATST )
 				{
@@ -349,7 +349,7 @@ void Rancor_Smash( void )
 			continue;
 		}
 
-		if ( radiusEnt->client == NULL )
+		if ( radiusEnt->client == nullptr )
 		{//must be a client
 			continue;
 		}
@@ -406,7 +406,7 @@ void Rancor_Bite( void )
 			continue;
 		}
 
-		if ( radiusEnt->client == NULL )
+		if ( radiusEnt->client == nullptr )
 		{//must be a client
 			continue;
 		}
@@ -480,7 +480,7 @@ void Rancor_Attack( float distance, bool doCharge )
 		{//charge
 			vec3_t	fwd, yawAng;
 			VectorSet( yawAng, 0, NPCS.NPC->client->ps.viewangles[YAW], 0 );
-			AngleVectors( yawAng, fwd, NULL, NULL );
+			AngleVectors( yawAng, fwd, nullptr, nullptr );
 			VectorScale( fwd, distance*1.5f, NPCS.NPC->client->ps.velocity );
 			NPCS.NPC->client->ps.velocity[2] = 150;
 			NPCS.NPC->client->ps.groundEntityNum = ENTITYNUM_NONE;
@@ -512,7 +512,7 @@ void Rancor_Attack( float distance, bool doCharge )
 		case BOTH_MELEE1:
 			Rancor_Smash();
 			G_GetBoltPosition( NPCS.NPC, NPCS.NPC->client->renderInfo.handLBolt, shakePos, 0 );
-			G_ScreenShake( shakePos, NULL, 4.0f, 1000, false );
+			G_ScreenShake( shakePos, nullptr, 4.0f, 1000, false );
 			//CGCam_Shake( 1.0f*playerDist/128.0f, 1000 );
 			break;
 		case BOTH_MELEE2:
@@ -830,7 +830,7 @@ void Rancor_Crush(void)
 	crush = &g_entities[NPCS.NPC->client->ps.groundEntityNum];
 	if (crush->inuse && crush->client && !crush->localAnimIndex)
 	{ //a humanoid, smash them good.
-		G_Damage(crush, NPCS.NPC, NPCS.NPC, NULL, NPCS.NPC->r.currentOrigin, 200, 0, MOD_CRUSH);
+		G_Damage(crush, NPCS.NPC, NPCS.NPC, nullptr, NPCS.NPC->r.currentOrigin, 200, 0, MOD_CRUSH);
 	}
 }
 
@@ -919,7 +919,7 @@ void NPC_BSRancor_Default( void )
 				TIMER_Remove( NPCS.NPC, "lookForNewEnemy" );//make them look again right now
 				if ( !NPCS.NPC->enemy->inuse || level.time - NPCS.NPC->enemy->s.time > Q_irand( 10000, 15000 ) )
 				{//it's been a while since the enemy died, or enemy is completely gone, get bored with him
-					NPCS.NPC->enemy = NULL;
+					NPCS.NPC->enemy = nullptr;
 					Rancor_Patrol();
 					NPC_UpdateAngles( true, true );
 					return;
@@ -928,7 +928,7 @@ void NPC_BSRancor_Default( void )
 			if ( TIMER_Done( NPCS.NPC, "lookForNewEnemy" ) )
 			{
 				gentity_t *newEnemy, *sav_enemy = NPCS.NPC->enemy;//FIXME: what about NPC->lastEnemy?
-				NPCS.NPC->enemy = NULL;
+				NPCS.NPC->enemy = nullptr;
 				newEnemy = NPC_CheckEnemy( NPCS.NPCInfo->confusionTime < level.time, false, false );
 				NPCS.NPC->enemy = sav_enemy;
 				if ( newEnemy && newEnemy != sav_enemy )

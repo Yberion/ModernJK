@@ -78,7 +78,7 @@ typedef struct sysEvent_s {
 	sysEventType_t	evType;
 	int				evValue, evValue2;
 	int				evPtrLength;	// bytes of data pointed to by evPtr, for journaling
-	void			*evPtr;			// this must be manually freed if not NULL
+	void			*evPtr;			// this must be manually freed if not nullptr
 } sysEvent_t;
 
 extern cvar_t *com_minimized;

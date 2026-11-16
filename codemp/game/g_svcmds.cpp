@@ -212,7 +212,7 @@ G_ProcessIPBans
 =================
 */
 void G_ProcessIPBans( void ) {
-	char *s = NULL, *t = NULL, str[MAX_CVAR_VALUE_STRING] = {0};
+	char *s = nullptr, *t = nullptr, str[MAX_CVAR_VALUE_STRING] = {0};
 
 	Q_strncpyz( str, g_banIPs.string, sizeof( str ) );
 
@@ -414,7 +414,7 @@ gclient_t	*ClientForString( const char *s ) {
 	}
 
 	trap->Print( "User %s is not on the server\n", s );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -447,7 +447,7 @@ void	Svcmd_ForceTeam_f( void ) {
 
 char *ConcatArgs( int start );
 void Svcmd_Say_f( void ) {
-	char *p = NULL;
+	char *p = nullptr;
 	// don't let text be too long for malicious reasons
 	char text[MAX_SAY_TEXT] = {0};
 
@@ -593,7 +593,7 @@ ConsoleCommand
 */
 bool	ConsoleCommand( void ) {
 	char	cmd[MAX_TOKEN_CHARS] = {0};
-	svcmd_t	*command = NULL;
+	svcmd_t	*command = nullptr;
 
 	trap->Argv( 0, cmd, sizeof( cmd ) );
 

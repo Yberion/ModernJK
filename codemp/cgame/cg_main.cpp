@@ -151,7 +151,7 @@ static void C_G2Mark( void ) {
 	vec3_t end;
 
 	VectorMA( td->start, 64.0f, td->dir, end );
-	CG_G2Trace( &tr, td->start, NULL, NULL, end, ENTITYNUM_NONE, MASK_PLAYERSOLID );
+	CG_G2Trace( &tr, td->start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_PLAYERSOLID );
 
 	if ( tr.entityNum < ENTITYNUM_WORLD && cg_entities[tr.entityNum].ghoul2 ) {
 		// hit someone with a ghoul2 instance, let's project the decal on them then.
@@ -1433,7 +1433,7 @@ Ghoul2 Insert Start
 
 	for(i = 1; i < MAX_SUB_BSP; i++)
 	{
-		const char		*bspName = 0;
+		const char		*bspName = nullptr;
 		vec3_t			mins, maxs;
 		int				j;
 		int				sub = 0;
@@ -1660,12 +1660,12 @@ char *CG_GetMenuBuffer(const char *filename) {
 	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "menu file not found: %s, using default\n", filename );
-		return NULL;
+		return nullptr;
 	}
 	if ( len >= MAX_MENUFILE ) {
 		trap->Print( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i\n", filename, len, MAX_MENUFILE );
 		trap->FS_Close( f );
-		return NULL;
+		return nullptr;
 	}
 
 	trap->FS_Read( buf, len, f );
@@ -1960,7 +1960,7 @@ void CG_SetScoreSelection(void *p) {
 		}
 	}
 
-	if (menu == NULL) {
+	if (menu == nullptr) {
 		// just interested in setting the selected score
 		return;
 	}
@@ -1972,9 +1972,9 @@ void CG_SetScoreSelection(void *p) {
 			feeder = FEEDER_BLUETEAM_LIST;
 			i = blue;
 		}
-		Menu_SetFeederSelection(menu, feeder, i, NULL);
+		Menu_SetFeederSelection(menu, feeder, i, nullptr);
 	} else {
-		Menu_SetFeederSelection(menu, FEEDER_SCOREBOARD, cg.selectedScore, NULL);
+		Menu_SetFeederSelection(menu, FEEDER_SCOREBOARD, cg.selectedScore, nullptr);
 	}
 }
 
@@ -2001,9 +2001,9 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 									 qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3) {
 	gitem_t *item;
 	int scoreIndex = 0;
-	clientInfo_t *info = NULL;
+	clientInfo_t *info = nullptr;
 	int team = -1;
-	score_t *sp = NULL;
+	score_t *sp = nullptr;
 
 	*handle1 = *handle2 = *handle3 = -1;
 
@@ -2313,7 +2313,7 @@ void CG_LoadHudMenu()
 }
 
 void CG_AssetCache() {
-	//if (Assets.textFont == NULL) {
+	//if (Assets.textFont == nullptr) {
 	//  trap->R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
 	//}
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
@@ -2674,7 +2674,7 @@ void CG_DestroyAllGhoul2(void)
 			if (cg_items[i].g2Models[j] && trap->G2_HaveWeGhoul2Models(cg_items[i].g2Models[j]))
 			{
 				trap->G2API_CleanGhoul2Models(&cg_items[i].g2Models[j]);
-				cg_items[i].g2Models[j] = NULL;
+				cg_items[i].g2Models[j] = nullptr;
 			}
 			j++;
 		}
@@ -2949,11 +2949,11 @@ GetModuleAPI
 ============
 */
 
-cgameImport_t *trap = NULL;
+cgameImport_t *trap = nullptr;
 
 extern "C" Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import )
 {
-	static cgameExport_t cge = {0};
+	static cgameExport_t cge = {nullptr};
 
 	assert( import );
 	trap = import;
@@ -2964,7 +2964,7 @@ extern "C" Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImpo
 
 	if ( apiVersion != CGAME_API_VERSION ) {
 		trap->Print( "Mismatched CGAME_API_VERSION: expected %i, got %i\n", CGAME_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	cge.Init					= CG_Init;

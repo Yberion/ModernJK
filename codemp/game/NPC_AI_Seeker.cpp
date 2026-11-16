@@ -57,7 +57,7 @@ void NPC_Seeker_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	if ( !(self->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY ))
 	{
-		G_Damage( self, NULL, NULL, (float*)vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
+		G_Damage( self, nullptr, nullptr, (float*)vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
 	}
 
 	SaveNPCGlobals();
@@ -114,7 +114,7 @@ void Seeker_MaintainHeight( void )
 	}
 	else
 	{
-		gentity_t *goal = NULL;
+		gentity_t *goal = nullptr;
 
 		if ( NPCS.NPCInfo->goalEntity )	// Is there a goal?
 		{
@@ -179,14 +179,14 @@ void Seeker_Strafe( void )
 	if ( Q_flrand(0.0f, 1.0f) > 0.7f || !NPCS.NPC->enemy || !NPCS.NPC->enemy->client )
 	{
 		// Do a regular style strafe
-		AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
+		AngleVectors( NPCS.NPC->client->renderInfo.eyeAngles, nullptr, right, nullptr );
 
 		// Pick a random strafe direction, then check to see if doing a strafe would be
 		//	reasonably valid
 		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		VectorMA( NPCS.NPC->r.currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
-		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, NULL, NULL, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -214,7 +214,7 @@ void Seeker_Strafe( void )
 		float stDis;
 
 		// Do a strafe to try and keep on the side of their enemy
-		AngleVectors( NPCS.NPC->enemy->client->renderInfo.eyeAngles, dir, right, NULL );
+		AngleVectors( NPCS.NPC->enemy->client->renderInfo.eyeAngles, dir, right, nullptr );
 
 		// Pick a random side
 		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
@@ -228,7 +228,7 @@ void Seeker_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, NULL, NULL, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -358,7 +358,7 @@ void Seeker_Ranged( bool visible, bool advance )
 	//		NPC->client->ps.gravity = 900;
 	//		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
 	//		NPC->client->ps.velocity[2] += 16;
-			G_Damage( NPCS.NPC, NPCS.NPC, NPCS.NPC, NULL, NULL, 999, 0, MOD_UNKNOWN );
+			G_Damage( NPCS.NPC, NPCS.NPC, NPCS.NPC, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
 		}
 	}
 
@@ -407,7 +407,7 @@ void Seeker_FindEnemy( void )
 	float		dis, bestDis = SEEKER_SEEK_RADIUS * SEEKER_SEEK_RADIUS + 1;
 	vec3_t		mins, maxs;
 	int			entityList[MAX_GENTITIES];
-	gentity_t	*ent, *best = NULL;
+	gentity_t	*ent, *best = nullptr;
 	int			i;
 
 	VectorSet( maxs, SEEKER_SEEK_RADIUS, SEEKER_SEEK_RADIUS, SEEKER_SEEK_RADIUS );
@@ -549,7 +549,7 @@ void NPC_BSSeeker_Default( void )
 		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 		{
 			// cameras make me commit suicide....
-			G_Damage( NPC, NPC, NPC, NULL, NULL, 999, 0, MOD_UNKNOWN );
+			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
 		}
 	}
 	*/
@@ -562,7 +562,7 @@ void NPC_BSSeeker_Default( void )
 			|| (owner->client && owner->client->pers.connected == CON_DISCONNECTED) )
 		{//owner is dead or gone
 			//remove me
-			G_Damage( NPCS.NPC, NULL, NULL, NULL, NULL, 10000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
+			G_Damage( NPCS.NPC, nullptr, nullptr, nullptr, nullptr, 10000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 			return;
 		}
 	}
@@ -579,7 +579,7 @@ void NPC_BSSeeker_Default( void )
 		if ( NPCS.NPC->client->NPC_class != CLASS_BOBAFETT && ( NPCS.NPC->enemy->s.number == 0 || ( NPCS.NPC->enemy->client && NPCS.NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
 		{
 			//hacked to never take the player as an enemy, even if the player shoots at it
-			NPCS.NPC->enemy = NULL;
+			NPCS.NPC->enemy = nullptr;
 		}
 		else
 		{

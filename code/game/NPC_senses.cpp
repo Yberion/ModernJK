@@ -39,7 +39,7 @@ bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, in
 {
 	trace_t		tr;
 
-	gi.trace ( &tr, point1, NULL, NULL, point2, ignore, clipmask, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, (EG2_Collision)0, 0 );
 	if ( tr.fraction == 1.0 )
 	{
 		return true;
@@ -50,7 +50,7 @@ bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, in
 	{
 		vec3_t	newpoint1;
 		VectorCopy(tr.endpos, newpoint1);
-		gi.trace (&tr, newpoint1, NULL, NULL, point2, hit->s.number, clipmask, (EG2_Collision)0, 0 );
+		gi.trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, (EG2_Collision)0, 0 );
 
 		if ( tr.fraction == 1.0 )
 		{
@@ -79,7 +79,7 @@ bool CanSee ( gentity_t *ent )
 	CalcEntitySpot( NPC, SPOT_HEAD_LEAN, eyes );
 
 	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
-	gi.trace ( &tr, eyes, NULL, NULL, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -87,7 +87,7 @@ bool CanSee ( gentity_t *ent )
 	}
 
 	CalcEntitySpot( ent, SPOT_HEAD, spot );
-	gi.trace ( &tr, eyes, NULL, NULL, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -95,7 +95,7 @@ bool CanSee ( gentity_t *ent )
 	}
 
 	CalcEntitySpot( ent, SPOT_LEGS, spot );
-	gi.trace ( &tr, eyes, NULL, NULL, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, eyes, nullptr, nullptr, spot, NPC->s.number, MASK_OPAQUE, (EG2_Collision)0, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -116,7 +116,7 @@ bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.
 
 	VectorCopy( fromAngles, angles );
 	angles[0] = 0;
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	dot = DotProduct( dir, forward );
 
@@ -134,7 +134,7 @@ float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles )
 
 	VectorCopy( fromAngles, angles );
 	angles[0] = 0;
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	dot = DotProduct( dir, forward );
 
@@ -766,7 +766,7 @@ void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 		}
 	}
 
-	if ( owner == NULL && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
+	if ( owner == nullptr && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
 		return;
 
 	//FIXME: why are Sand creatures suddenly crashlanding?
@@ -820,7 +820,7 @@ void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 		}
 	}
 
-	if ( owner == NULL && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
+	if ( owner == nullptr && alertLevel < AEL_DANGER )	//allows un-owned danger alerts
 		return;
 
 	//FIXME: if owner is not a player or player ally, and there are no player allies present,
@@ -932,14 +932,14 @@ bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 	int			traceCount = 0;
 
 	//FIXME: ENTITYNUM_NONE ok?
-	gi.trace ( &tr, start, NULL, NULL, end, ENTITYNUM_NONE, CONTENTS_OPAQUE/*CONTENTS_SOLID*//*(CONTENTS_SOLID|CONTENTS_MONSTERCLIP)*/, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, CONTENTS_OPAQUE/*CONTENTS_SOLID*//*(CONTENTS_SOLID|CONTENTS_MONSTERCLIP)*/, (EG2_Collision)0, 0 );
 	while ( tr.fraction < 1.0 && traceCount < 3 )
 	{//can see through 3 panes of glass
 		if ( tr.entityNum < ENTITYNUM_WORLD )
 		{
 			if ( (g_entities[tr.entityNum].svFlags&SVF_GLASS_BRUSH) )
 			{//can see through glass, trace again, ignoring me
-				gi.trace ( &tr, tr.endpos, NULL, NULL, end, tr.entityNum, MASK_OPAQUE, (EG2_Collision)0, 0 );
+				gi.trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, (EG2_Collision)0, 0 );
 				traceCount++;
 				continue;
 			}

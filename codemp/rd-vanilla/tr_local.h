@@ -1687,11 +1687,11 @@ public:
 
 CRenderableSurface():
 	ident(SF_MDX),
-	boneCache(0),
+	boneCache(nullptr),
 #ifdef _G2_GORE
-	surfaceData(0),
-	alternateTex(0),
-	goreChain(0)
+	surfaceData(nullptr),
+	alternateTex(nullptr),
+	goreChain(nullptr)
 #else
 	surfaceData(0)
 #endif
@@ -1701,10 +1701,10 @@ CRenderableSurface():
 	void Init()
 	{
 		ident = SF_MDX;
-		boneCache=0;
-		surfaceData=0;
-		alternateTex=0;
-		goreChain=0;
+		boneCache=nullptr;
+		surfaceData=nullptr;
+		alternateTex=nullptr;
+		goreChain=nullptr;
 	}
 #endif
 };

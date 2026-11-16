@@ -131,7 +131,7 @@ void MineMonster_TryDamage( gentity_t *enemy, int damage )
 		return;
 	}
 
-	AngleVectors( NPCS.NPC->client->ps.viewangles, dir, NULL, NULL );
+	AngleVectors( NPCS.NPC->client->ps.viewangles, dir, nullptr, nullptr );
 	VectorMA( NPCS.NPC->r.currentOrigin, MIN_DISTANCE, dir, end );
 
 	// Should probably trace from the mouth, but, ah well.
