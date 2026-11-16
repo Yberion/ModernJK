@@ -94,7 +94,7 @@ void IN_UseGivenForce(void)
 {
 	const char *c = Cmd_Argv(1);
 	int forceNum =-1;
-	int genCmdNum = 0;
+	genCmds_t genCmdNum = GENCMD_NONE;
 
 	if(c) {
 		forceNum = atoi(c);
@@ -153,9 +153,9 @@ void IN_UseGivenForce(void)
 		break;
 	}
 
-	if(genCmdNum != 0) {
+	if(genCmdNum != GENCMD_NONE) {
 		cl.gcmdSendValue = true;
-		cl.gcmdValue = genCmdNum;
+		cl.gcmdValue = to_underlying( genCmdNum );
 	}
 }
 
@@ -174,109 +174,109 @@ void IN_MLookUp( void ) {
 void IN_GenCMD1( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_SABERSWITCH;
+	cl.gcmdValue = to_underlying( GENCMD_SABERSWITCH );
 }
 
 void IN_GenCMD2( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_ENGAGE_DUEL;
+	cl.gcmdValue = to_underlying( GENCMD_ENGAGE_DUEL );
 }
 
 void IN_GenCMD3( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_HEAL;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_HEAL );
 }
 
 void IN_GenCMD4( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_SPEED;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_SPEED );
 }
 
 void IN_GenCMD5( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_PULL;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_PULL );
 }
 
 void IN_GenCMD6( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_DISTRACT;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_DISTRACT );
 }
 
 void IN_GenCMD7( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_RAGE;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_RAGE );
 }
 
 void IN_GenCMD8( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_PROTECT;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_PROTECT );
 }
 
 void IN_GenCMD9( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_ABSORB;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_ABSORB );
 }
 
 void IN_GenCMD10( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_HEALOTHER;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_HEALOTHER );
 }
 
 void IN_GenCMD11( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_FORCEPOWEROTHER;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_FORCEPOWEROTHER );
 }
 
 void IN_GenCMD12( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_SEEING;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_SEEING );
 }
 
 void IN_GenCMD13( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_SEEKER;
+	cl.gcmdValue = to_underlying( GENCMD_USE_SEEKER );
 }
 
 void IN_GenCMD14( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_FIELD;
+	cl.gcmdValue = to_underlying( GENCMD_USE_FIELD );
 }
 
 void IN_GenCMD15( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_BACTA;
+	cl.gcmdValue = to_underlying( GENCMD_USE_BACTA );
 }
 
 void IN_GenCMD16( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_ELECTROBINOCULARS;
+	cl.gcmdValue = to_underlying( GENCMD_USE_ELECTROBINOCULARS );
 }
 
 void IN_GenCMD17( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_ZOOM;
+	cl.gcmdValue = to_underlying( GENCMD_ZOOM );
 }
 
 void IN_GenCMD18( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_SENTRY;
+	cl.gcmdValue = to_underlying( GENCMD_USE_SENTRY );
 }
 
 void IN_GenCMD19( void )
@@ -286,79 +286,79 @@ void IN_GenCMD19( void )
 		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
 	}
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
+	cl.gcmdValue = to_underlying( GENCMD_SABERATTACKCYCLE );
 }
 
 void IN_GenCMD20( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_THROW;
+	cl.gcmdValue = to_underlying( GENCMD_FORCE_THROW );
 }
 
 void IN_GenCMD21( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_JETPACK;
+	cl.gcmdValue = to_underlying( GENCMD_USE_JETPACK );
 }
 
 void IN_GenCMD22( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_BACTABIG;
+	cl.gcmdValue = to_underlying( GENCMD_USE_BACTABIG );
 }
 
 void IN_GenCMD23( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_HEALTHDISP;
+	cl.gcmdValue = to_underlying( GENCMD_USE_HEALTHDISP );
 }
 
 void IN_GenCMD24( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_AMMODISP;
+	cl.gcmdValue = to_underlying( GENCMD_USE_AMMODISP );
 }
 
 void IN_GenCMD25( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_EWEB;
+	cl.gcmdValue = to_underlying( GENCMD_USE_EWEB );
 }
 
 void IN_GenCMD26( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_CLOAK;
+	cl.gcmdValue = to_underlying( GENCMD_USE_CLOAK );
 }
 
 void IN_GenCMD27( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_TAUNT;
+	cl.gcmdValue = to_underlying( GENCMD_TAUNT );
 }
 
 void IN_GenCMD28( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_BOW;
+	cl.gcmdValue = to_underlying( GENCMD_BOW );
 }
 
 void IN_GenCMD29( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_MEDITATE;
+	cl.gcmdValue = to_underlying( GENCMD_MEDITATE );
 }
 
 void IN_GenCMD30( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FLOURISH;
+	cl.gcmdValue = to_underlying( GENCMD_FLOURISH );
 }
 
 void IN_GenCMD31( void )
 {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_GLOAT;
+	cl.gcmdValue = to_underlying( GENCMD_GLOAT );
 }
 
 
@@ -963,10 +963,10 @@ Joystick values stay set until changed
 =================
 */
 void CL_JoystickEvent( int axis, int value, int time ) {
-	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
+	if ( axis < 0 || axis >= to_underlying( MAX_JOYSTICK_AXIS ) ) {
 		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
 	}
-	cl.joystickAxis[axis] = value;
+	cl.joystickAxis[static_cast<joystickAxis_t>( axis )] = value;
 }
 
 /*

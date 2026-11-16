@@ -61,7 +61,7 @@ namespace NAV
 	typedef		int		TEdgeHandle;
 
 
-	enum	EPointType
+	enum class EPointType
 	{
 		PT_NONE = 0,
 
@@ -71,6 +71,7 @@ namespace NAV
 
 		PT_MAX
 	};
+	using enum EPointType;
 
 
 
@@ -133,9 +134,9 @@ namespace NAV
 
 	bool			SafePathExists(const CVec3& start, const CVec3& stop, const CVec3& danger, float dangerDistSq);
 
-	bool			HasPath(gentity_t* actor, TNodeHandle target=PT_NONE);
+	bool			HasPath(gentity_t* actor, TNodeHandle target=0);
 	void			ClearPath(gentity_t* actor);
-	bool			UpdatePath(gentity_t* actor, TNodeHandle target=PT_NONE, float MaxDangerLevel=1.0f);
+	bool			UpdatePath(gentity_t* actor, TNodeHandle target=0, float MaxDangerLevel=1.0f);
 	float			PathDangerLevel(gentity_t* actor);
 	int				PathNodesRemaining(gentity_t* actor);
 

@@ -584,7 +584,7 @@ void G_Roff( gentity_t *ent )
 		//make it true linear... FIXME: sticks around after ROFF is done, but do we really care?
 		ent->alt_fire = true;
 
-		if ( !ent->e_ThinkFunc
+		if ( ent->e_ThinkFunc == thinkF_NULL
 			&& ent->s.eType != ET_MISSILE
 			&& ent->s.eType != ET_ITEM
 			&& ent->s.eType != ET_MOVER )

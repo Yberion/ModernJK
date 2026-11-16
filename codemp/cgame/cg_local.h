@@ -91,7 +91,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 
-typedef enum {
+enum class footstep_t {
 	FOOTSTEP_STONEWALK,
 	FOOTSTEP_STONERUN,
 	FOOTSTEP_METALWALK,
@@ -119,7 +119,8 @@ typedef enum {
 	FOOTSTEP_WOODRUN,
 
 	FOOTSTEP_TOTAL
-} footstep_t;
+};
+using enum footstep_t;
 
 enum class impactSound_t {
 	IMPACTSOUND_DEFAULT,
@@ -213,7 +214,7 @@ typedef struct clientInfo_s {
 	char			cleanname[MAX_QPATH];
 	team_t			team;
 
-	int				duelTeam;
+	duelTeam_t		duelTeam;
 
 	int				botSkill;		// -1 = not bot, 0-5 = bot
 
@@ -234,7 +235,7 @@ typedef struct clientInfo_s {
 	int				handicap;
 	int				wins, losses;	// in tourney mode
 
-	int				teamTask;		// task in teamplay (offence/defence)
+	teamtask_t		teamTask;		// task in teamplay (offence/defence)
 	bool		teamLeader;		// true when this is a team leader
 
 	int				powerups;		// so can display quad/flag status
@@ -495,12 +496,14 @@ enum class leType_t {
 };
 using enum leType_t;
 
-typedef enum {
+enum class leFlag_t {
 	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
 	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
 	LEF_FADE_RGB		= 0x0004,			// explicitly fade
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
-} leFlag_t;
+};
+using enum leFlag_t;
+template <> inline constexpr bool enableEnumFlags<leFlag_t> = true;
 
 enum class leMarkType_t {
 	LEMT_NONE,
@@ -521,7 +524,7 @@ using enum leBounceSoundType_t;	// fragment local entities can make sounds on im
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
 	leType_t		leType;
-	int				leFlags;
+	leFlag_t		leFlags;
 
 	int				startTime;
 	int				endTime;
@@ -1258,7 +1261,7 @@ typedef struct cgMedia_s {
 
 	// sounds
 	sfxHandle_t	selectSound;
-	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
+	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
 
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
@@ -1366,7 +1369,7 @@ typedef struct cgMedia_s {
 	qhandle_t weaponIcons_NA[WP_NUM_WEAPONS];
 
 	//holdable inventory item icons
-	qhandle_t invenIcons[HI_NUM_HOLDABLE];
+	qhandle_t invenIcons[to_underlying( HI_NUM_HOLDABLE )];
 
 	//force power icons
 	qhandle_t forcePowerIcons[NUM_FORCE_POWERS];
@@ -1599,8 +1602,8 @@ typedef struct cgs_s {
 	int				duelist2health;
 	int				duelist3health;
 
-	int				redflag, blueflag;		// flag status from configstrings
-	int				flagStatus;
+	flagStatus_t	redflag, blueflag;		// flag status from configstrings
+	flagStatus_t	flagStatus;
 
 	bool  newHud;
 
@@ -1684,7 +1687,7 @@ int CG_LastAttacker( void );
 void CG_LoadMenus(const char *menuFile);
 void CG_KeyEvent(int key, bool down);
 void CG_MouseEvent(int x, int y);
-void CG_EventHandling(int type);
+void CG_EventHandling(cgameEvent_t type);
 void CG_RankRunFrame( void );
 void CG_SetScoreSelection(void *menu);
 void CG_BuildSpectatorString(void);
@@ -1785,7 +1788,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, void *
 void CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
 bool CG_YourTeamHasFlag(void);
 bool CG_OtherTeamHasFlag(void);
-qhandle_t CG_StatusHandle(int task);
+qhandle_t CG_StatusHandle(teamtask_t task);
 
 
 
@@ -1920,7 +1923,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p,
 				   float duration,
 				   int startTime,
 				   int fadeInTime,
-				   int leFlags,
+				   leFlag_t leFlags,
 				   qhandle_t hShader );
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 void CG_GlassShatter(int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards);
@@ -1932,7 +1935,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numframes, qhandle_t shader, int msec,
-								bool isSprite, float scale, int flags );// Overloaded in single player
+								bool isSprite, float scale, leFlag_t flags );// Overloaded in single player
 
 void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke );
 

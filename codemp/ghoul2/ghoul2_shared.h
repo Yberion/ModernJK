@@ -326,12 +326,13 @@ class CGhoul2Info_v;
 
 
 // calling defines for the trace function
-enum EG2_Collision
+enum class EG2_Collision
 {
 	G2_NOCOLLIDE,
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
+using enum EG2_Collision;
 
 
 //====================================================================

@@ -241,8 +241,7 @@ void WP_ThermalThink( gentity_t *ent )
 			|| !ent->activator->client
 			|| !ent->activator->client->ps.legsAnimTimer )
 		{//either something happened to the sand creature or it's done with it's attack anim
-			//blow!
-			ent->e_ThinkFunc = thinkF_thermalDetonatorExplode;
+			//blowent->e_ThinkFunc == thinkF_NULL = thinkF_thermalDetonatorExplode;
 			ent->nextthink = level.time + Q_irand( 50, 2000 );
 		}
 		else

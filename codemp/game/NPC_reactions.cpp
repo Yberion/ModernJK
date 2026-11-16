@@ -217,8 +217,8 @@ NPC_ChoosePainAnimation
 
 #define	MIN_PAIN_TIME	200
 
-extern int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc );
-void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, int mod, int hitLoc, int voiceEvent )
+extern int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, hitLocation_t hitLoc );
+void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, int mod, hitLocation_t hitLoc, int voiceEvent )
 {
 	int		pain_anim = -1;
 	float	pain_chance;
@@ -381,7 +381,7 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	int		voiceEvent = -1;
 	gentity_t *other = attacker;
 	int mod = gPainMOD;
-	int hitLoc = gPainHitLoc;
+	hitLocation_t hitLoc = static_cast<hitLocation_t>( gPainHitLoc );
 	vec3_t point;
 
 	VectorCopy(gPainPoint, point);
@@ -409,7 +409,7 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	//	}
 	}
 
-	if ( self->client->playerTeam
+	if ( self->client->playerTeam != NPCTEAM_FREE
 		&& other->client
 		&& otherTeam == self->client->playerTeam
 	/*	&& (!player->client->ps.viewEntity || other->s.number != player->client->ps.viewEntity)*/)
@@ -623,7 +623,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 		if( /*!(self->svFlags&SVF_LOCKEDENEMY) && !(self->svFlags&SVF_IGNORE_ENEMIES) &&*/ !(other->flags & FL_NOTARGET) )
 		{
-			if ( self->client->enemyTeam )
+			if ( self->client->enemyTeam != NPCTEAM_FREE )
 			{//See if we bumped into an enemy
 				if ( other->client->playerTeam == self->client->enemyTeam )
 				{//bumped into an enemy

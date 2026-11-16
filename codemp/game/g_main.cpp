@@ -133,8 +133,8 @@ void G_CacheGametype( void )
 	// check some things
 	if ( g_gametype.string[0] && isalpha( g_gametype.string[0] ) )
 	{
-		int gt = BG_GetGametypeForString( g_gametype.string );
-		if ( gt == -1 )
+		gametype_t gt = BG_GetGametypeForString( g_gametype.string );
+		if ( gt == GT_UNKNOWN )
 		{
 			trap->Print( "Gametype '%s' unrecognised, defaulting to FFA/Deathmatch\n", g_gametype.string );
 			level.gametype = GT_FFA;
@@ -142,7 +142,7 @@ void G_CacheGametype( void )
 		else
 			level.gametype = (gametype_t)gt;
 	}
-	else if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE )
+	else if ( g_gametype.integer < 0 || g_gametype.integer >= to_underlying( GT_MAX_GAME_TYPE ) )
 	{
 		trap->Print( "g_gametype %i is out of range, defaulting to 0 (FFA/Deathmatch)\n", g_gametype.integer );
 		level.gametype = GT_FFA;
@@ -2244,7 +2244,7 @@ FUNCTIONS CALLED EVERY FRAME
 ========================================================================
 */
 
-void G_RemoveDuelist(int team)
+void G_RemoveDuelist(duelTeam_t team)
 {
 	int i = 0;
 	gentity_t *ent;
@@ -2599,7 +2599,7 @@ void CheckVote( void ) {
 
 			if (g_fraglimitVoteCorrection.integer)
 			{ //This means to auto-correct fraglimit when voting to and from duel.
-				const int currentGT = level.gametype;
+				const gametype_t currentGT = level.gametype;
 				const int currentFL = fraglimit.integer;
 				const int currentTL = timelimit.integer;
 
@@ -2625,7 +2625,7 @@ void CheckVote( void ) {
 			}
 
 			level.votingGametype = false;
-			level.votingGametypeTo = 0;
+			level.votingGametypeTo = GT_FFA;
 		}
 	}
 	if ( !level.voteTime ) {
@@ -3313,7 +3313,7 @@ void G_RunFrame( int levelTime ) {
 
 				if (level.gametype == GT_SIEGE &&
 					ent->client->siegeClass != -1 &&
-					(bgSiegeClasses[ent->client->siegeClass].classflags & (1<<CFL_STATVIEWER)))
+					(bgSiegeClasses[ent->client->siegeClass].classflags & Bit( CFL_STATVIEWER )))
 				{ //see if it's time to send this guy an update of extended info
 					if (ent->client->siegeEDataSend < level.time)
 					{

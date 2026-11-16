@@ -26,17 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef G_FUNCTIONS
 #define G_FUNCTIONS
 
-#undef thinkFunc_t
-#undef clThinkFunc_t
-#undef reachedFunc_t
-#undef blockedFunc_t
-#undef touchFunc_t
-#undef useFunc_t
-#undef painFunc_t
-#undef dieFunc_t
-
 //	void		(*think)(gentity_t *self);
-typedef enum
+enum class thinkFunc_t
 {
 	thinkF_NULL = 0,
 	//
@@ -133,7 +124,8 @@ typedef enum
 	thinkF_poll_converter,
 	thinkF_spawn_rack_goods,
 
-} thinkFunc_t;
+};
+using enum thinkFunc_t;
 
 // THINK functions...
 //
@@ -232,7 +224,7 @@ extern void poll_converter			( gentity_t *self );
 extern void spawn_rack_goods		( gentity_t *self );
 
 //	void		(*clThink)(centity_s *cent);	//Think func for equivalent centity
-typedef enum
+enum class clThinkFunc_t
 {
 	clThinkF_NULL = 0,
 	//
@@ -240,7 +232,8 @@ typedef enum
 	clThinkF_CG_MatrixEffect,
 	clThinkF_CG_Limb,
 
-} clThinkFunc_t;
+};
+using enum clThinkFunc_t;
 
 // CEntity THINK functions...
 //
@@ -249,7 +242,7 @@ extern void CG_MatrixEffect ( centity_t *cent );
 extern void CG_Limb ( centity_t *cent );
 
 //	void		(*reached)(gentity_t *self);	// movers call this when hitting endpoint
-typedef enum
+enum class reachedFunc_t
 {
 	reachedF_NULL = 0,
 	//
@@ -258,7 +251,8 @@ typedef enum
 	reachedF_moverCallback,
 	reachedF_moveAndRotateCallback
 
-} reachedFunc_t;
+};
+using enum reachedFunc_t;
 
 // REACHED functions...
 //
@@ -269,14 +263,15 @@ extern void moveAndRotateCallback( gentity_t *ent );
 
 
 //	void		(*blocked)(gentity_t *self, gentity_t *other);
-typedef enum
+enum class blockedFunc_t
 {
 	blockedF_NULL = 0,
 	//
 	blockedF_Blocked_Door,
 	blockedF_Blocked_Mover
 
-} blockedFunc_t;
+};
+using enum blockedFunc_t;
 
 // BLOCKED functions...
 //
@@ -286,7 +281,7 @@ extern void Blocked_Mover		(gentity_t *self, gentity_t *other);
 
 
 //	void		(*touch)(gentity_t *self, gentity_t *other, trace_t *trace);
-typedef enum
+enum class touchFunc_t
 {
 	touchF_NULL = 0,
 	//
@@ -308,7 +303,8 @@ typedef enum
 	touchF_prox_mine_stick,
 	touchF_func_rotating_touch,
 
-} touchFunc_t;
+};
+using enum touchFunc_t;
 
 // TOUCH functions...
 //
@@ -331,7 +327,7 @@ extern void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 extern void func_rotating_touch				(gentity_t *self, gentity_t *other, trace_t *trace);
 
 //	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
-typedef enum
+enum class useFunc_t
 {
 	useF_NULL = 0,
 	//
@@ -408,7 +404,8 @@ typedef enum
 	useF_pas_use,
 	useF_item_spawn_use,
 
-} useFunc_t;
+};
+using enum useFunc_t;
 
 // USE functions...
 //
@@ -487,7 +484,7 @@ extern void pas_use					( gentity_t *self, gentity_t *other, gentity_t *activato
 extern void item_spawn_use			( gentity_t *self, gentity_t *other, gentity_t *activator );
 
 //	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage,int mod,int hitLoc);
-typedef enum
+enum class painFunc_t
 {
 	painF_NULL = 0,
 	//
@@ -515,7 +512,8 @@ typedef enum
 	painF_CrystalCratePain,
 	painF_TurretPain,
 
-} painFunc_t;
+};
+using enum painFunc_t;
 
 // PAIN functions...
 //
@@ -544,7 +542,7 @@ extern void CrystalCratePain			( gentity_t *self, gentity_t *inflictor, gentity_
 extern void TurretPain					( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc=HL_NONE );
 
 //	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
-typedef enum
+enum class dieFunc_t
 {
 	dieF_NULL = 0,
 	//
@@ -570,7 +568,8 @@ typedef enum
 	dieF_misc_panel_turret_die,
 	dieF_thermal_die,
 
-} dieFunc_t;
+};
+using enum dieFunc_t;
 
 // DIE functions...
 //

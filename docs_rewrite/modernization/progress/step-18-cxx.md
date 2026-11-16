@@ -1,6 +1,6 @@
 # Step 18: the C code in C++
 
-Status: **in progress** (16 November 2026). Parts 1 and 3 done together (the C code in C++, and `bool` in place of `qboolean`), checked with clang 23 on this machine and on the VMs (GCC 15, Clang 23, MSVC: no warning), netcodec as fast as before, committed. Part 2 (`nullptr`) done, checked with clang on this machine and on the VMs; part 4 (the enumerations), the line endings and the game test are to come (section 5). Plan: [PLAN.md](../PLAN.md), step 18.
+Status: **in progress** (16 November 2026). Part 4 (the enumerations) in progress, section 5. Parts 1 and 3 done together (the C code in C++, and `bool` in place of `qboolean`), checked with clang 23 on this machine and on the VMs (GCC 15, Clang 23, MSVC: no warning), netcodec as fast as before, committed. Part 2 (`nullptr`) done, checked with clang on this machine and on the VMs; part 4 (the enumerations), the line endings and the game test are to come (section 5). Plan: [PLAN.md](../PLAN.md), step 18.
 
 ## 1. Decisions (16 November 2026)
 
@@ -84,8 +84,20 @@ C linked functions by name, C++ by signature, which showed two declarations that
 | netcodec `mingw-clang-tidy` | clean |
 | the modules' exports | `GetModuleAPI`, `dllEntry`, `vmMain` under their C names |
 | the 40 scenarios (clang build, Windows) | `golden: SAME` |
+| part 4, after each stage below: a clang build of every target (multiplayer, single player, Jedi Outcast), the 40 scenarios | no error, no warning; `golden: SAME` |
+| part 4, after the third set of enumerations: the MSVC build (VM) and a game played on Windows | builds after one fix (below); no crash |
 
-## 5. To come
+## 5. Part 4, in progress (16 November 2026)
 
-- Part 4: the enumerations, after the C++ Core Guidelines' Enum section, in every tree (D3 revised on 16 November 2026, [PLAN.md](../PLAN.md) step 18): the inventory found 577 enumerations (170 unnamed, 11 scoped, 396 named unscoped under 208 names); scoping the named ones with `using enum` breaks 30,700 lines (`codemp` 12,885, `code` 11,078, `codeJK2` 6,614, `shared` 119), 45 of them compile scoped unchanged. Decided the same day: the numeric `#define` constants `inline constexpr` in every tree (those of `#if`, C files, `ui/menudef.h` and token pasting kept); the multiplayer MP3 decoder no longer includes `q_shared.h`; the modules' legacy interface (`dllEntry`, `vmMain`, the system call numbers) removed first. Then the line endings (PLAN, step 18).
-- The game played on Windows and on Linux.
+The decisions are in [PLAN.md](../PLAN.md), step 18 (D3 revised, and the two entries after it). Done so far (the legacy interface, the 45 enumerations that needed no change and the MP3 decoder committed; the rest not yet):
+
+- **The modules' legacy interface removed**: `dllEntry`, `vmMain`, `g_syscalls.cpp`, `cg_syscalls.cpp`, `ui_syscalls.cpp`, the engine's `SV_GameSystemCalls`, `CL_CgameSystemCalls`, `CL_UISystemCalls`, `VM_CreateLegacy`, `VM_Call`, `VM_DllSyscall`, `Sys_LoadLegacyGameDll`, the `vm_legacy` cvar, `sharedTraps_t` and the six `*ImportLegacy_t`/`*ExportLegacy_t` enumerations, with `C_ImpactMark` and `ConvertedEntity`, which only they used (about 4,100 lines); the modules export `GetModuleAPI` alone. `docs/libraries.md` says so.
+- **The multiplayer MP3 decoder** includes `q_libm.h` in place of `q_shared.h` (`mp3struct.h`); the `<stdbool.h>` for C files left `q_platform.h`.
+- **The operations** (`shared/qcommon/q_enum.h`, included by both `q_shared.h` and by `q_color.h`): `to_underlying`, `EnumArray`, the arithmetic opted in by `enableEnumArithmetic`, the flag operators and `Any` opted in by `enableEnumFlags`, `Bit`; checked by `static_assert`s at the end of the header. `ENUM2STRING` converts with `to_underlying`.
+- **176 enumerations made class enums** (of about 350 named ones): the 45 that needed no change, then three sets by size (52, 61, 18). The fields, parameters and return types that hold them took their type; among the networked states' fields, `saberBlocked`, `pm_type`, `forceHandExtend` (multiplayer) and `persistant` (an `EnumArray`, `persEnum_t`), with the same size and offsets. The enumerations a header needs before their definition are declared ahead (`enum class persEnum_t;` in `q_shared.h`, the eight function ids of the single-player entities in `g_shared.h`, which replace its `#define thinkFunc_t int` trick).
+- **Explicit values in place of sentinels**: `CT_UNSET` (face culling, was `-1`), `AEL_NONE` (no alert yet), `GT_UNKNOWN` (a game type name that matches none), `GENCMD_NONE` (no generic command); `tc_table` got the name of `TC_S3TC_ARB`, which had none.
+- **Found and fixed**: `ps.saberBlocking >= level.time` (`g_active.cpp`, twice) compared a block type with the time, so it was always false: removed, the behaviour unchanged (`saberBlockTime` was probably meant: not changed without a decision).
+- **Left as integers that mix two enumerations, as in the original**: `hitLoc`, `hitLocUse` and `gPainHitLoc` in multiplayer `g_combat.cpp` (hit locations, model parts and `-1`), `locationDamage` (indexed by hit locations for NPCs, by ship surfaces for vehicles), `alliedTeam` (team_t values, not NPC teams), `statusTextIndex` in single player (status texts, mission failures and `-1`), `NPCInfo->localState`, `state_Forced`.
+- **MSVC puts a function's return type in its symbol**, GCC and clang do not: a function whose return type changes needs every declaration changed, the local `extern` ones included, or only MSVC fails to link (`WP_GetVelocityForForceJump` in `NPC_AI_Jedi.cpp`).
+
+To come in part 4: the other named enumerations (the largest: `animNumber_t`, `weapon_t`, `setType_t`, `entity_event_t`, `saberMoveName_t`, `forcePowers_t`, `meansOfDeath_t`, `errorParm_t`, `entityType_t`, `team_t`, `statIndex_t`, `ammo_t`, `powerup_t`), the unnamed ones (Enum.6), the families of flags as flag enumerations, the numeric `#define` constants, the qualified names (`weapon_t::WP_SABER`) in one pass at the end, then netcodec's schema generated again for the typed fields, netcodec's tests and benchmark, the VM validations. Then the line endings (PLAN, step 18) and the game played on Windows and on Linux.

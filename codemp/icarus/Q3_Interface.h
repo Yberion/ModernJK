@@ -313,5 +313,5 @@ extern	void		Q3_SetVelocity( int entID, vec3_t angles );
 extern	void		Q3_DeclareVariable ( int type, const char *name );
 extern	void		Q3_FreeVariable( const char *name );
 
-extern	void		Q3_DebugPrint( int level, const char *format, ... );
+extern	void		Q3_DebugPrint( WL_e level, const char *format, ... );
 #endif //__cplusplus

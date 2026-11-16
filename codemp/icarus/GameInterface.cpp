@@ -36,7 +36,7 @@ bufferlist_t		ICARUS_BufferList;
 entlist_t			ICARUS_EntList;
 
 extern uint32_t Com_BlockChecksum (const void *buffer, int length);
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
+extern	void	Q3_DebugPrint( WL_e level, const char *format, ... );
 
 int			ICARUS_entFilter = -1;
 
@@ -719,7 +719,7 @@ void Svcmd_ICARUS_f( void )
 
 	if ( Q_stricmp( cmd, "log" ) == 0 )
 	{
-		//g_ICARUSDebug->integer = WL_DEBUG;
+		//g_ICARUSDebug->integer = to_underlying( WL_DEBUG );
 		if ( VALIDSTRING( Cmd_Argv( 2 ) ) )
 		{
 			sharedEntity_t	*ent = G_Find( nullptr, FOFS( script_targetname ), gi.argv(2) );

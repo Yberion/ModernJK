@@ -51,7 +51,7 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
 extern bool PM_HasAnimation( gentity_t *ent, int animation );
 extern int PM_SaberAnimTransitionAnim( int curmove, int newmove );
-extern saberMoveName_t PM_AttackMoveForQuad( int quad );
+extern saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad );
 extern bool PM_SaberInTransition( int move );
 extern bool PM_SaberInTransitionAny( int move );
 extern bool PM_SaberInBounce( int move );
@@ -61,7 +61,7 @@ extern bool PM_InAnimForSaberMove( int anim, int saberMove );
 extern int PM_SaberBounceForAttack( int move );
 extern int PM_SaberAttackForMovement( int forwardmove, int rightmove, int move );
 extern int PM_BrokenParryForParry( int move );
-extern int PM_KnockawayForParry( int move );
+extern int PM_KnockawayForParry( saberBlockedType_t move );
 extern bool PM_SaberInParry( int move );
 extern bool PM_SaberInKnockaway( int move );
 extern bool PM_SaberInBrokenParry( int move );
@@ -138,7 +138,7 @@ extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
 extern void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf );
 
 #define	PHASER_RECHARGE_TIME	100
-extern saberMoveName_t transitionMove[Q_NUM_QUADS][Q_NUM_QUADS];
+extern EnumArray<EnumArray<saberMoveName_t, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove;
 
 extern bool G_ControlledByPlayer( gentity_t *self );
 bool PM_ControlledByPlayer( void )
@@ -2631,7 +2631,7 @@ static void PM_CrashLand( void )
 		if( pm->ps->legsAnim == BOTH_FALLDEATH1 || pm->ps->legsAnim == BOTH_FALLDEATH1INAIR)
 		{//FIXME: add a little bounce?
 			//FIXME: cut voice channel?
-			int old_pm_type = pm->ps->pm_type;
+			pmtype_t old_pm_type = pm->ps->pm_type;
 			pm->ps->pm_type = PM_NORMAL;
 			//Hack because for some reason PM_SetAnim just returns if you're dead...???
 			PM_SetAnim(pm, SETANIM_BOTH, BOTH_FALLDEATH1LAND, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
@@ -5927,7 +5927,7 @@ void PM_Use( void )
 }
 
 extern int PM_AttackForEnemyPos( bool allowFB );
-int PM_NPCSaberAttackFromQuad( int quad )
+int PM_NPCSaberAttackFromQuad( saberQuadrant_t quad )
 {
 	//FIXME: this should be an AI decision
 	// It should be based on the enemy's current LS_ move, saberAnimLevel,
@@ -6043,7 +6043,7 @@ int PM_NPCSaberAttackFromQuad( int quad )
 		case Q_B:
 			if ( ( pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG ) )
 			{//fencers and above can do bottom-up attack
-				if ( Q_irand( 0, pm->gent->NPC->rank ) >= RANK_LT_JG )
+				if ( Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) >= to_underlying( RANK_LT_JG ) )
 				{//but not overly likely
 					newmove = LS_A_LUNGE;
 				}
@@ -6056,7 +6056,7 @@ int PM_NPCSaberAttackFromQuad( int quad )
 	}
 }
 
-int PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
+saberQuadrant_t PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
 {
 	if ( ucmd->rightmove > 0 )
 	{//moving right
@@ -6852,7 +6852,7 @@ void PM_WeaponLightsaber(void)
 	}
 
 	// Now we react to a block action by the player's lightsaber.
-	if ( pm->ps->saberBlocked )
+	if ( pm->ps->saberBlocked != BLOCKED_NONE )
 	{
 		if ( pm->ps->saberMove > LS_PUTAWAY && pm->ps->saberMove <= LS_A_BL2TR && pm->ps->saberBlocked != BLOCKED_PARRY_BROKEN &&
 			(pm->ps->saberBlocked < BLOCKED_UPPER_RIGHT_PROJ || pm->ps->saberBlocked > BLOCKED_TOP_PROJ))//&& Q_irand( 0, 2 )
@@ -6939,11 +6939,11 @@ void PM_WeaponLightsaber(void)
 						}
 						else
 						{//player
-							int newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
+							saberQuadrant_t newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
 							while ( newQuad == saberMoveData[pm->ps->saberMove].startQuad )
 							{//player is still in same attack quad, don't repeat that attack because it looks bad,
 								//FIXME: try to pick one that might look cool?
-								newQuad = Q_irand( Q_BR, Q_BL );
+								newQuad = static_cast<saberQuadrant_t>( Q_irand( to_underlying( Q_BR ), to_underlying( Q_BL ) ) );
 								//FIXME: sanity check, just in case?
 							}//else player is switching up anyway, take the new attack dir
 							nextMove = transitionMove[saberMoveData[pm->ps->saberMove].startQuad][newQuad];
@@ -6963,11 +6963,11 @@ void PM_WeaponLightsaber(void)
 							}
 							else if ( saberMoveData[pm->ps->saberMove].startQuad < Q_T )
 							{
-								nextMove = LS_R_TL2BR+saberMoveData[pm->ps->saberMove].startQuad-Q_BR;
+								nextMove = LS_R_TL2BR+(saberMoveData[pm->ps->saberMove].startQuad-Q_BR);
 							}
 							else// if ( saberMoveData[pm->ps->saberMove].startQuad > Q_T )
 							{
-								nextMove = LS_R_BR2TL+saberMoveData[pm->ps->saberMove].startQuad-Q_TL;
+								nextMove = LS_R_BR2TL+(saberMoveData[pm->ps->saberMove].startQuad-Q_TL);
 							}
 						}
 					}
@@ -7359,6 +7359,9 @@ void PM_WeaponLightsaber(void)
 						newmove = LS_A_BL2TR;
 						break;
 					//shouldn't be a parry that ends at L, R or B
+					
+					default:
+						break;
 					}
 				}
 			}

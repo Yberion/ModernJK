@@ -66,7 +66,7 @@ enum class saberLockResult_t
 };
 using enum saberLockResult_t;
 
-typedef enum
+enum class sabersLockMode_t
 {
 	LOCK_FIRST = 0,
 	LOCK_TOP = LOCK_FIRST,
@@ -81,7 +81,8 @@ typedef enum
 	LOCK_KYLE_GRAB2,
 	LOCK_KYLE_GRAB3,
 	LOCK_FORCE_DRAIN
-} sabersLockMode_t;
+};
+using enum sabersLockMode_t;
 
 enum
 {
@@ -167,7 +168,7 @@ extern void ForceSpeed( gentity_t *self, int duration = 0 );
 extern float forceSpeedValue[];
 extern float forceSpeedRangeMod[];
 extern float forceSpeedFOVMod[];
-extern const char *saberColorStringForColor[];
+extern const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE ) + 1> saberColorStringForColor;
 #define FORCE_SPEED_DURATION 10000.0f
 #define FORCE_RAGE_DURATION 10000.0f
 
@@ -229,12 +230,13 @@ enum class evasionType_t
 };
 using enum evasionType_t;
 
-typedef enum
+enum class swingType_t
 {
 	SWING_FAST,
 	SWING_MEDIUM,
 	SWING_STRONG
-} swingType_t;
+};
+using enum swingType_t;
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.
 // Ideally this will be replaced with an external file or more sophisticated move-picker
@@ -439,7 +441,7 @@ typedef enum {
 
 void PM_SetSaberMove(saberMoveName_t newMove);
 
-typedef enum {
+enum class saberQuadrant_t {
 	Q_BR,
 	Q_R,
 	Q_TR,
@@ -449,17 +451,19 @@ typedef enum {
 	Q_BL,
 	Q_B,
 	Q_NUM_QUADS
-} saberQuadrant_t;
+};
+using enum saberQuadrant_t;
+template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct
 {
 	const char *name;
 	int animToUse;
-	int	startQuad;
-	int	endQuad;
+	saberQuadrant_t	startQuad;
+	saberQuadrant_t	endQuad;
 	unsigned animSetFlags;
 	int blendTime;
-	int blocking;
+	saberBlockType_t blocking;
 	saberMoveName_t chain_idle;			// What move to call if the attack button is not pressed at the end of this anim
 	saberMoveName_t chain_attack;		// What move to call if the attack button (and nothing else) is pressed
 	int trailLength;

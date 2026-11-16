@@ -120,7 +120,7 @@ const char *ctfStateNames[] = {
 	"CTFSTATE_MAXCTFSTATES"
 };
 
-const char *ctfStateDescriptions[] = {
+const EnumArray<const char *, bot_ctf_state_t, CTFSTATE_MAXCTFSTATES> ctfStateDescriptions = {
 	"I'm not occupied",
 	"I'm attacking the enemy's base",
 	"I'm defending our base",
@@ -129,27 +129,27 @@ const char *ctfStateDescriptions[] = {
 	"I've got the enemy's flag"
 };
 
-const char *siegeStateDescriptions[] = {
+const EnumArray<const char *, bot_siege_state_t, SIEGESTATE_MAXSIEGESTATES> siegeStateDescriptions = {
 	"I'm not occupied",
 	"I'm attempting to complete the current objective",
 	"I'm preventing the enemy from completing their objective"
 };
 
-const char *teamplayStateDescriptions[] = {
+const EnumArray<const char *, bot_teamplay_state_t, TEAMPLAYSTATE_MAXTPSTATES> teamplayStateDescriptions = {
 	"I'm not occupied",
 	"I'm following my squad commander",
 	"I'm assisting my commanding",
 	"I'm attempting to regroup and form a new squad"
 };
 
-void BotStraightTPOrderCheck(gentity_t *ent, int ordernum, bot_state_t *bs)
+void BotStraightTPOrderCheck(gentity_t *ent, bot_teamplay_state_t ordernum, bot_state_t *bs)
 {
 	switch (ordernum)
 	{
-	case 0:
+	case TEAMPLAYSTATE_NONE:
 		if (bs->squadLeader == ent)
 		{
-			bs->teamplayState = 0;
+			bs->teamplayState = TEAMPLAYSTATE_NONE;
 			bs->squadLeader = nullptr;
 		}
 		break;
@@ -226,18 +226,18 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 
 	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
 	{
-		stateMin = CTFSTATE_NONE;
-		stateMax = CTFSTATE_MAXCTFSTATES;
+		stateMin = to_underlying( CTFSTATE_NONE );
+		stateMax = to_underlying( CTFSTATE_MAXCTFSTATES );
 	}
 	else if (level.gametype == GT_SIEGE)
 	{
-		stateMin = SIEGESTATE_NONE;
-		stateMax = SIEGESTATE_MAXSIEGESTATES;
+		stateMin = to_underlying( SIEGESTATE_NONE );
+		stateMax = to_underlying( SIEGESTATE_MAXSIEGESTATES );
 	}
 	else if (level.gametype == GT_TEAM)
 	{
-		stateMin = TEAMPLAYSTATE_NONE;
-		stateMax = TEAMPLAYSTATE_MAXTPSTATES;
+		stateMin = to_underlying( TEAMPLAYSTATE_NONE );
+		stateMax = to_underlying( TEAMPLAYSTATE_MAXTPSTATES );
 	}
 
 	if ((ordernum < stateMin && ordernum != -1) || ordernum >= stateMax)
@@ -253,7 +253,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 		}
 		else
 		{
-			BotStraightTPOrderCheck(ent, ordernum, botstates[clientnum]);
+			BotStraightTPOrderCheck(ent, static_cast<bot_teamplay_state_t>( ordernum ), botstates[clientnum]);
 			botstates[clientnum]->state_Forced = ordernum;
 			botstates[clientnum]->chatObject = ent;
 			botstates[clientnum]->chatAltObject = nullptr;
@@ -275,7 +275,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 				}
 				else
 				{
-					BotStraightTPOrderCheck(ent, ordernum, botstates[i]);
+					BotStraightTPOrderCheck(ent, static_cast<bot_teamplay_state_t>( ordernum ), botstates[i]);
 					botstates[i]->state_Forced = ordernum;
 					botstates[i]->chatObject = ent;
 					botstates[i]->chatAltObject = nullptr;
@@ -1811,7 +1811,7 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		return 0;
 	}
 
-	if (!en->client->pers.connected)
+	if (en->client->pers.connected == CON_DISCONNECTED)
 	{ //a "zombie" client?
 		return 0;
 	}
@@ -2948,7 +2948,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		flagBlue = oFlagBlue;
 	}
 
-	if (!bs->ctfState)
+	if (bs->ctfState == CTFSTATE_NONE)
 	{
 		return 0;
 	}
@@ -3004,12 +3004,12 @@ int CTFTakesPriority(bot_state_t *bs)
 	}
 	else if (bs->ctfState == CTFSTATE_GETFLAGHOME)
 	{
-		bs->ctfState = 0;
+		bs->ctfState = CTFSTATE_NONE;
 	}
 
 	if (bs->state_Forced)
 	{
-		bs->ctfState = bs->state_Forced;
+		bs->ctfState = static_cast<bot_ctf_state_t>( bs->state_Forced );
 	}
 
 	if (bs->ctfState == CTFSTATE_DEFENDER)
@@ -3036,7 +3036,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 		else
 		{ //can't find anyone on another team being a carrier, so ignore this priority
-			bs->ctfState = 0;
+			bs->ctfState = CTFSTATE_NONE;
 		}
 	}
 
@@ -3048,7 +3048,7 @@ int CTFTakesPriority(bot_state_t *bs)
 		}
 		else
 		{ //can't find anyone on our team being a carrier, so ignore this priority
-			bs->ctfState = 0;
+			bs->ctfState = CTFSTATE_NONE;
 		}
 	}
 
@@ -3370,7 +3370,7 @@ int SiegeTakesPriority(bot_state_t *bs)
 
 	if (bs->state_Forced)
 	{
-		bs->siegeState = bs->state_Forced;
+		bs->siegeState = static_cast<bot_siege_state_t>( bs->state_Forced );
 	}
 
 	if (bs->siegeState == SIEGESTATE_ATTACKER)
@@ -3733,7 +3733,7 @@ void GetIdealDestination(bot_state_t *bs)
 
 	if (!badthing && CTFTakesPriority(bs))
 	{
-		if (bs->ctfState)
+		if (bs->ctfState != CTFSTATE_NONE)
 		{
 			bs->runningToEscapeThreat = 1;
 		}
@@ -3741,7 +3741,7 @@ void GetIdealDestination(bot_state_t *bs)
 	}
 	else if (!badthing && SiegeTakesPriority(bs))
 	{
-		if (bs->siegeState)
+		if (bs->siegeState != SIEGESTATE_NONE)
 		{
 			bs->runningToEscapeThreat = 1;
 		}
@@ -4158,7 +4158,7 @@ void CommanderBotSiegeAI(bot_state_t *bs)
 
 		if (bst)
 		{
-			bst->state_Forced = bs->siegeState;
+			bst->state_Forced = to_underlying( bs->siegeState );
 			bst->siegeState = bs->siegeState;
 			commanded++;
 		}
@@ -4172,7 +4172,7 @@ void BotDoTeamplayAI(bot_state_t *bs)
 {
 	if (bs->state_Forced)
 	{
-		bs->teamplayState = bs->state_Forced;
+		bs->teamplayState = static_cast<bot_teamplay_state_t>( bs->state_Forced );
 	}
 
 	if (bs->teamplayState == TEAMPLAYSTATE_REGROUP)
@@ -5791,44 +5791,44 @@ stillmadeit:
 //see if it would be beneficial at this time to use one of our inv items
 int BotUseInventoryItem(bot_state_t *bs)
 {
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC))
+	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC ))
 	{
 		if (g_entities[bs->client].health <= 75)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_MEDPAC, IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_MEDPAC ), IT_HOLDABLE);
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG))
+	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC_BIG ))
 	{
 		if (g_entities[bs->client].health <= 50)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_MEDPAC_BIG, IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_MEDPAC_BIG ), IT_HOLDABLE);
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SEEKER))
+	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SEEKER ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_SEEKER, IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SEEKER ), IT_HOLDABLE);
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SENTRY_GUN))
+	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SENTRY_GUN ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_SENTRY_GUN, IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SENTRY_GUN ), IT_HOLDABLE);
 			goto wantuseitem;
 		}
 	}
-	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD))
+	if (bs->cur_ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SHIELD ))
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis && bs->runningToEscapeThreat)
 		{ //this will (hopefully) result in the bot placing the shield down while facing
 		  //the enemy and running away
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_SHIELD, IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SHIELD ), IT_HOLDABLE);
 			goto wantuseitem;
 		}
 	}

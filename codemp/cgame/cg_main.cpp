@@ -2538,8 +2538,8 @@ Ghoul2 Insert End
 
 	cg.weaponSelect = WP_BRYAR_PISTOL;
 
-	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
-	cgs.flagStatus = -1;
+	cgs.redflag = cgs.blueflag = FLAG_UNSET; // For compatibily, default to unset for
+	cgs.flagStatus = FLAG_UNSET;
 	// old servers
 
 	// get the rendering configuration from the client system

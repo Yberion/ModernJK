@@ -1,5 +1,6 @@
 #pragma once
 
+#include "q_enum.h"
 #include "q_math.h"
 
 #if defined(__cplusplus)
@@ -39,7 +40,7 @@ extern "C" {
 #define S_COLOR_ORANGE	"^8"
 #define S_COLOR_GREY	"^9"
 
-typedef enum ct_table_e
+enum class ct_table_t
 {
 	CT_NONE,
 	CT_BLACK,
@@ -124,7 +125,8 @@ typedef enum ct_table_e
 	CT_TITLE,
 
 	CT_MAX
-} ct_table_t;
+};
+using enum ct_table_t;
 
 extern vec4_t colorBlack;
 extern vec4_t colorRed;
@@ -142,7 +144,7 @@ extern vec4_t colorLtBlue;
 extern vec4_t colorDkBlue;
 
 extern vec4_t g_color_table[Q_COLOR_BITS+1];
-extern vec4_t colorTable[CT_MAX];
+extern EnumArray<vec4_t, ct_table_t, CT_MAX> colorTable;
 
 unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);

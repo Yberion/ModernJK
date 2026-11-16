@@ -314,7 +314,7 @@ static void GLW_InitTextureCompression( void )
 	else
 	{
 		// some form of supported texture compression is avaiable, so see if the user has a preference
-		if ( r_ext_preferred_tc_method->integer == TC_NONE )
+		if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_NONE )
 		{
 			// No preference, so pick the best
 			if ( newer_tc )
@@ -336,7 +336,7 @@ static void GLW_InitTextureCompression( void )
 			if ( old_tc && newer_tc )
 			{
 				// both are avaiable, so we can use the desired tc method
-				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
+				if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_S3TC )
 				{
 					Com_Printf ("...using preferred tc method, GL_S3_s3tc\n" );
 					glConfig.textureCompression = TC_S3TC;
@@ -350,7 +350,7 @@ static void GLW_InitTextureCompression( void )
 			else
 			{
 				// Both methods are not available, so this gets trickier
-				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
+				if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_S3TC )
 				{
 					// Preferring to user older compression
 					if ( old_tc )
@@ -1242,7 +1242,7 @@ void GfxInfo_f( void )
 		"noborder "
 	};
 
-	const char *tc_table[] =
+	const EnumArray<const char *, textureCompression_t, to_underlying( TC_S3TC_DXT ) + 1> tc_table =
 	{
 		"None",
 		"GL_S3_s3tc",
@@ -1958,7 +1958,7 @@ extern void G2API_AnimateG2Models(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDo
 extern bool G2API_GetRagBonePos(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale);
 extern bool G2API_RagEffectorKick(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
 extern bool G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force);
-extern bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+extern bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params);
 extern bool G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
 extern bool G2API_RagEffectorGoal(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos);
 extern bool G2API_RagPCJGradientSpeed(CGhoul2Info_v &ghoul2, const char *boneName, const float speed);

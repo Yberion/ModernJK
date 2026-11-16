@@ -43,12 +43,12 @@ void OBJ_SetPendingObjectives(gentity_t *ent)
 {
 	int i;
 
-	for (i=0;i<MAX_OBJECTIVES;++i)
+	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
 	{
-		if ((ent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_PENDING) &&
-			(ent->client->sess.mission_objectives[i].display))
+		if ((ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status == OBJECTIVE_STAT_PENDING) &&
+			(ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display))
 		{
-			ent->client->sess.mission_objectives[i].status = OBJECTIVE_STAT_FAILED;
+			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status = OBJECTIVE_STAT_FAILED;
 		}
 	}
 }
@@ -65,7 +65,7 @@ void OBJ_SaveMissionObjectives( gclient_t *client )
 
 	saved_game.write_chunk(
 		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives);
+		client->sess.mission_objectives.elems);
 }
 
 
@@ -95,7 +95,7 @@ void OBJ_LoadMissionObjectives( gclient_t *client )
 
 	saved_game.read_chunk(
 		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives);
+		client->sess.mission_objectives.elems);
 }
 
 

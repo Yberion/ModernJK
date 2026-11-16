@@ -189,7 +189,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, bool force) {
 	(void)veh; (void)trace; (void)magnitude; (void)force;
 }
-gentity_t *G_PlayEffect(int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return nullptr; }
+gentity_t *G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return nullptr; }
 gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang) { (void)fxID; (void)org; (void)ang; return nullptr; }
 int G_SoundIndex(const char *name) { (void)name; return 0; }
 int G_ModelIndex(const char *name) { (void)name; return 0; }

@@ -344,7 +344,7 @@ CG_DrawAmmo
 static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 {
 	playerState_t	*ps;
-	int			numColor_i;
+	ct_table_t	numColor_i;
 	int			i;
 	vec4_t		calcColor;
 	float		value,inc,percent;

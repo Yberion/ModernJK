@@ -47,7 +47,7 @@ int G_WeaponLogFrags[MAX_CLIENTS][MAX_CLIENTS];
 int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogLastTime[MAX_CLIENTS];
 bool G_WeaponLogClientTouch[MAX_CLIENTS];
-int G_WeaponLogPowerups[MAX_CLIENTS][HI_NUM_HOLDABLE];
+int G_WeaponLogPowerups[MAX_CLIENTS][to_underlying( HI_NUM_HOLDABLE )];
 int	G_WeaponLogItems[MAX_CLIENTS][PW_NUM_POWERUPS];
 
 // MOD-weapon mapping array.
@@ -963,7 +963,7 @@ bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 		player = g_entities + i;
 		if (!player->inuse)
 			continue;
-		for (j = HI_NONE+1; j < HI_NUM_HOLDABLE; j++)
+		for (j = to_underlying( HI_NONE )+1; j < to_underlying( HI_NUM_HOLDABLE ); j++)
 		{
 			if (G_WeaponLogPowerups[i][j])
 			{
@@ -1406,7 +1406,7 @@ enum class awardType_t {
 };
 using enum awardType_t;
 
-typedef enum
+enum class teamAward_e
 {
 	TEAM_NONE = 0,			// ha ha! you suck!
 	TEAM_MVP,				// most overall points
@@ -1416,7 +1416,8 @@ typedef enum
 	TEAM_INTERCEPTOR,		// returned your own flag the most
 	TEAM_BRAVERY,			// Red Shirt Award (tm). you died more than anybody.
 	TEAM_MAX
-} teamAward_e;
+};
+using enum teamAward_e;
 
 int CalculateTeamAward(gentity_t *ent)
 {
@@ -1424,31 +1425,31 @@ int CalculateTeamAward(gentity_t *ent)
 
 	if (CalculateTeamMVP(ent))
 	{
-		teamAwards |= (1<<TEAM_MVP);
+		teamAwards |= Bit( TEAM_MVP );
 	}
 	if (GT_CTF == level.gametype ||
 		GT_CTY == level.gametype)
 	{
 		if (CalculateTeamDefender(ent))
 		{
-			teamAwards |= (1<<TEAM_DEFENDER);
+			teamAwards |= Bit( TEAM_DEFENDER );
 		}
 		if (CalculateTeamWarrior(ent))
 		{
-			teamAwards |= (1<<TEAM_WARRIOR);
+			teamAwards |= Bit( TEAM_WARRIOR );
 		}
 		if (CalculateTeamCarrier(ent))
 		{
-			teamAwards |= (1<<TEAM_CARRIER);
+			teamAwards |= Bit( TEAM_CARRIER );
 		}
 		if (CalculateTeamInterceptor(ent))
 		{
-			teamAwards |= (1<<TEAM_INTERCEPTOR);
+			teamAwards |= Bit( TEAM_INTERCEPTOR );
 		}
 	}
 	if ( !teamAwards && CalculateTeamRedShirt(ent) )
 	{//if you got nothing else and died a lot, at least get bravery
-		teamAwards |= (1<<TEAM_BRAVERY);
+		teamAwards |= Bit( TEAM_BRAVERY );
 	}
 	return teamAwards;
 }
@@ -1713,7 +1714,7 @@ void QDECL G_ClearClientLog(int client)
 	}
 	G_WeaponLogLastTime[client] = 0;
 	G_WeaponLogClientTouch[client] = false;
-	for (i = 0; i < HI_NUM_HOLDABLE; i++)
+	for (i = 0; i < to_underlying( HI_NUM_HOLDABLE ); i++)
 	{
 		G_WeaponLogPowerups[client][i] = 0;
 	}

@@ -35,7 +35,7 @@ functions exported to the main executable
 ==================================================================
 */
 
-typedef enum {
+enum class cgameExport_t {
 	CG_INIT,
 	CG_SHUTDOWN,
 	CG_CONSOLE_COMMAND,
@@ -61,7 +61,8 @@ Ghoul2 Insert End
 	CG_DRAW_DATAPAD_INVENTORY,
 	CG_DRAW_DATAPAD_FORCEPOWERS
 
-} cgameExport_t;
+};
+using enum cgameExport_t;
 
 /*
 ==============================================================
@@ -79,7 +80,7 @@ typedef struct vm_s {
 
 extern vm_t cgvm;
 
-intptr_t	VM_Call( int callnum, ... );
+intptr_t	VM_Call( cgameExport_t callnum, ... );
 intptr_t	VM_DllSyscall( intptr_t arg, ... );
 void		CL_ShutdownCGame( void );
 

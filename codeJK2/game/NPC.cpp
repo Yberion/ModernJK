@@ -923,7 +923,7 @@ void NPC_ApplyScriptFlags (void)
 	}
 }
 
-void Q3_DebugPrint( int level, const char *format, ... );
+void Q3_DebugPrint( WL_e level, const char *format, ... );
 void NPC_HandleAIFlags (void)
 {
 	//FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers

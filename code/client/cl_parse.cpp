@@ -387,7 +387,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			break;
 		}
 
-		if ( cmd == svc_configstring ) {
+		if ( cmd == to_underlying( svc_configstring ) ) {
 			int		len;
 
 			i = MSG_ReadShort( msg );
@@ -408,7 +408,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  CS# %d %s (%d)\n",msg->readcount, i,s,len);
 			}
-		} else if ( cmd == svc_baseline ) {
+		} else if ( cmd == to_underlying( svc_baseline ) ) {
 			assert(0);
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
@@ -518,7 +518,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 		}
 
 	// other commands
-		switch ( cmd ) {
+		switch ( static_cast<svc_ops_e>( cmd ) ) {
 		default:
 			Com_Error (ERR_DROP,"CL_ParseServerMessage: Illegible server message\n");
 			break;

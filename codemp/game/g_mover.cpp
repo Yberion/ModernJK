@@ -33,7 +33,7 @@ PUSHMOVE
 ===============================================================================
 */
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
+void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
 
 typedef struct pushed_s {
 	gentity_t	*ent;
@@ -631,7 +631,7 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
+void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
@@ -2395,7 +2395,7 @@ void G_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkT
 	VectorCopy(maxs, te->s.origin2);
 	VectorCopy(mins, te->s.angles2);
 	te->s.time = size;
-	te->s.eventParm = chunkType;
+	te->s.eventParm = to_underlying( chunkType );
 }
 
 void G_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs,
@@ -2411,7 +2411,7 @@ void G_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins,
 	VectorCopy(mins, te->s.angles2);
 	te->s.speed = speed;
 	te->s.eventParm = numChunks;
-	te->s.trickedentindex = chunkType;
+	te->s.trickedentindex = to_underlying( chunkType );
 	te->s.modelindex = customChunk;
 	te->s.apos.trBase[0] = baseScale;
 }

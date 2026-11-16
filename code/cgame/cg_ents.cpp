@@ -738,7 +738,7 @@ Ghoul2 Insert End
 
 	if ( cent->gent->health <= 0
 		&& cent->gent->s.weapon == WP_EMPLACED_GUN
-		&& cent->gent->e_ThinkFunc )
+		&& cent->gent->e_ThinkFunc != thinkF_NULL )
 	{
 		// make the gun pulse red to warn about it exploding
 		float val = (1.0f - (float)(cent->gent->nextthink - cg.time) / 3200.0f ) * 0.3f;

@@ -84,7 +84,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //#endif //__DEBUG
 
-typedef enum {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT} visibility_t;
+enum class visibility_t {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT};
+using enum visibility_t;
 enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
 using enum spot_t;
 

@@ -99,11 +99,12 @@ void CG_MissionFailed(void)
 		cgi_UI_SetActive_Menu("missionfailed_menu");
 		cg.missionFailedScreen = true;
 
-		switch (statusTextIndex)
+		if ( statusTextIndex == -1 )	//Our HERO DIED!!!
 		{
-			case -1:	//Our HERO DIED!!!
-				text = "@SP_INGAME_MISSIONFAILED_PLAYER";
-				break;
+			text = "@SP_INGAME_MISSIONFAILED_PLAYER";
+		}
+		else switch ( static_cast<missionFailed_t>( statusTextIndex ) )
+		{
 			case MISSIONFAILED_JAN:
 				text = "@SP_INGAME_MISSIONFAILED_JAN";
 					break;

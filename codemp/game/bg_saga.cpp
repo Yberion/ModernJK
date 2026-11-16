@@ -760,7 +760,7 @@ int BG_SiegeTranslateGenericTable(char *buf, stringID_table_t *table, bool bitfl
 	return items;
 }
 
-const char *classTitles[SPC_MAX] =
+const EnumArray<const char *, siegePlayerClassFlags_t, SPC_MAX> classTitles =
 {
 "infantry",			// SPC_INFANTRY
 "vanguard",			// SPC_VANGUARD
@@ -1032,27 +1032,28 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 			// Find the base player class based on the icon name - very bad, I know.
 			int titleLength, arrayTitleLength;
 			char *holdBuf;
+			siegePlayerClassFlags_t pc;
 
 			titleLength = strlen(parseBuf);
-			for (i=0;i<SPC_MAX;i++)
+			for (pc = SPC_INFANTRY; pc < SPC_MAX; pc++)
 			{
 				// Back up
-				arrayTitleLength = strlen(classTitles[i]);
+				arrayTitleLength = strlen(classTitles[pc]);
 				if (arrayTitleLength>titleLength)	// Too long
 				{
 					break;
 				}
 
 				holdBuf = parseBuf + ( titleLength - arrayTitleLength);
-				if (!strcmp(holdBuf,classTitles[i]))
+				if (!strcmp(holdBuf,classTitles[pc]))
 				{
-					bgSiegeClasses[bgNumSiegeClasses].playerClass = i;
+					bgSiegeClasses[bgNumSiegeClasses].playerClass = pc;
 					break;
 				}
 			}
 
 			// In case the icon name doesn't match up
-			if (i>=SPC_MAX)
+			if (pc>=SPC_MAX)
 			{
 				bgSiegeClasses[bgNumSiegeClasses].playerClass = SPC_INFANTRY;
 			}
@@ -1104,7 +1105,7 @@ int BG_SiegeCountBaseClass(const int team, const short classIndex)
 	for (i=0;i<stm->numClasses;i++)
 	{
 
-		if (stm->classes[i]->playerClass == classIndex)
+		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
 		{
 			count++;
 		}
@@ -1128,7 +1129,7 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == classIndex)
+		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
 		{
 			if (count==cntIndex)
 			{
@@ -1157,7 +1158,7 @@ int BG_GetUIPortrait(const int team, const short classIndex, const short cntInde
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == classIndex)
+		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
 		{
 			if (count==cntIndex)
 			{
@@ -1186,7 +1187,7 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == classIndex)
+		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
 		{
 			if (count==cntIndex)
 			{

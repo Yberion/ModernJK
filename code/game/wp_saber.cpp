@@ -100,7 +100,7 @@ extern bool PM_SaberInBrokenParry( int move );
 extern bool PM_SpinningSaberAnim( int anim );
 extern saberMoveName_t PM_SaberBounceForAttack( int move );
 extern saberMoveName_t PM_BrokenParryForAttack( int move );
-extern saberMoveName_t PM_KnockawayForParry( int move );
+extern saberMoveName_t PM_KnockawayForParry( saberBlockedType_t move );
 extern bool PM_FlippingAnim( int anim );
 extern bool PM_RollingAnim( int anim );
 extern bool PM_CrouchAnim( int anim );
@@ -1087,7 +1087,7 @@ void WP_SaberUpdateOldBladeData( gentity_t *ent )
 //SABER DAMAGE==============================================================================
 int WPDEBUG_SaberColor( saber_colors_t saberColor )
 {
-	switch( (int)(saberColor) )
+	switch( saberColor )
 	{
 		case SABER_RED:
 			return 0x000000ff;
@@ -2567,7 +2567,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 					 }
 					 else if ( owner->client->NPC_class == CLASS_TAVION
 							/*|| (owner->client->NPC_class == CLASS_SHADOWTROOPER && !Q_irand( 0, g_spskill->integer*3 ))
-							|| (Q_irand( -5, owner->NPC->rank ) > RANK_CIVILIAN && !Q_irand( 0, g_spskill->integer*3 ))*/ )
+							|| (Q_irand( -5, to_underlying( owner->NPC->rank ) ) > to_underlying( RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
 					{//Tavion can toss a blocked thrown saber aside
 						WP_SaberKnockaway( attacker, &tr );
 						Jedi_PlayDeflectSound( owner );
@@ -2650,7 +2650,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 							if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
 							{//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
 								//FIXME: also take into account the owner's FP_DEFENSE?
-								if ( Q_irand( 0, owner->NPC->rank ) >= RANK_CIVILIAN )
+								if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( RANK_CIVILIAN ) )
 								{//lower-rank Jedi aren't as good blockers
 									vec3_t attDir;
 									VectorSubtract( end2, start, attDir );
@@ -2748,7 +2748,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 						if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
 						{//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
 							//FIXME: also take into account the owner's FP_DEFENSE?
-							if ( Q_irand( 0, owner->NPC->rank ) >= RANK_CIVILIAN )
+							if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( RANK_CIVILIAN ) )
 							{//lower-rank Jedi aren't as good blockers
 								vec3_t attDir;
 								VectorSubtract( end2, start, attDir );
@@ -6971,7 +6971,7 @@ void WP_SaberPull( gentity_t *self, gentity_t *saber )
 	}
 }
 
-const char *saberColorStringForColor[SABER_PURPLE+1] =
+const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE ) + 1> saberColorStringForColor =
 {
 	"red",//SABER_RED
 	"orange",//SABER_ORANGE
@@ -7240,7 +7240,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 //SABER BLOCKING============================================================================
 //SABER BLOCKING============================================================================
 //SABER BLOCKING============================================================================
-int WP_MissileBlockForBlock( int saberBlock )
+saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock )
 {
 	switch( saberBlock )
 	{
@@ -7258,6 +7258,9 @@ int WP_MissileBlockForBlock( int saberBlock )
 		break;
 	case BLOCKED_TOP:
 		return BLOCKED_TOP_PROJ;
+		break;
+	
+	default:
 		break;
 	}
 	return saberBlock;
@@ -7848,7 +7851,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 //GENERAL SABER============================================================================
 //GENERAL SABER============================================================================
 
-void WP_SetSaberMove(gentity_t *self, short blocked)
+void WP_SetSaberMove(gentity_t *self, saberBlockedType_t blocked)
 {
 	self->client->ps.saberBlocked = blocked;
 }
@@ -7922,7 +7925,7 @@ void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd )
 
 		Vehicle_t *pVeh = G_IsRidingVehicle( self );
 		if ( !self->client->ps.SaberActive()
-			|| !self->client->ps.saberBlocking
+			|| self->client->ps.saberBlocking == BLK_NO
 			|| PM_InKnockDown( &self->client->ps )
 			|| PM_SuperBreakLoseAnim( self->client->ps.torsoAnim )
 			|| (pVeh && pVeh->m_pVehicleInfo && pVeh->m_pVehicleInfo->type != VH_ANIMAL && pVeh->m_pVehicleInfo->type != VH_FLIER) )//riding a vehicle that you cannot block shots on
@@ -7969,7 +7972,7 @@ void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd )
 			{
 				noBlocking = true;
 			}
-			else if ( !self->client->ps.saberBlocking )
+			else if ( self->client->ps.saberBlocking == BLK_NO )
 			{//turn blocking on!
 				self->client->ps.saberBlocking = BLK_TIGHT;
 			}
@@ -9794,7 +9797,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 							&& InFront(self->enemy->currentOrigin, self->currentOrigin, self->currentAngles, 0.75f)//enemy is pretty much right in front of me
 							&& !InFront(push_list[x]->currentOrigin, self->enemy->currentOrigin, self->enemy->currentAngles, -0.25f)//object is generally behind enemy
 							//FIXME: check dist to enemy and clear LOS to enemy and clear Path between object and enemy?
-							&& ( (self->NPC&&(noResist||Q_irand(0,RANK_CAPTAIN)<self->NPC->rank) )//NPC with enough skill
+							&& ( (self->NPC&&(noResist||Q_irand( 0, to_underlying( RANK_CAPTAIN ) ) < to_underlying( self->NPC->rank )) )//NPC with enough skill
 								||( self->s.number<MAX_CLIENTS ) )
 							)
 						{//if I have an auto-enemy & he's in front of me, push it toward him!
@@ -9841,7 +9844,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 							&& InFront(self->enemy->currentOrigin, self->currentOrigin, self->currentAngles, 0.75f)//enemy is pretty much right in front of me
 							&& InFront(push_list[x]->currentOrigin, self->enemy->currentOrigin, self->enemy->currentAngles, 0.25f)//object is generally in front of enemy
 							//FIXME: check dist to enemy and clear LOS to enemy and clear Path between object and enemy?
-							&& ( (self->NPC&&(noResist||Q_irand(0,RANK_CAPTAIN)<self->NPC->rank) )//NPC with enough skill
+							&& ( (self->NPC&&(noResist||Q_irand( 0, to_underlying( RANK_CAPTAIN ) ) < to_underlying( self->NPC->rank )) )//NPC with enough skill
 								||( self->s.number<MAX_CLIENTS ) )
 							)
 						{//if I have an auto-enemy & he's in front of me, push it toward him!

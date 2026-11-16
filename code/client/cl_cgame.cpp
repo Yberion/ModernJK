@@ -1117,10 +1117,10 @@ Ghoul2 Insert End
 	  return CIN_PlayCinematic( (const char *) VMA(1), args[2], args[3], args[4], args[5], args[6], (const char *) VMA(7));
 
 	case CG_CIN_STOPCINEMATIC:
-	  return CIN_StopCinematic(args[1]);
+	  return to_underlying( CIN_StopCinematic(args[1]) );
 
 	case CG_CIN_RUNCINEMATIC:
-	  return CIN_RunCinematic(args[1]);
+	  return to_underlying( CIN_RunCinematic(args[1]) );
 
 	case CG_CIN_DRAWCINEMATIC:
 	  CIN_DrawCinematic(args[1]);

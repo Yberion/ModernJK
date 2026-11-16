@@ -46,7 +46,7 @@ PUSHMOVE
 ===============================================================================
 */
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
+void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
 extern bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
 
 typedef struct {
@@ -688,7 +688,7 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
+void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {

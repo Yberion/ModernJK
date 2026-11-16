@@ -105,7 +105,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //#endif //__DEBUG
 
-typedef enum {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT} visibility_t;
+enum class visibility_t {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT};
+using enum visibility_t;
 enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
 using enum spot_t;
 
@@ -215,6 +216,8 @@ public:
 #define	ENEMY_POS_LAG_STEPS	(MAX_ENEMY_POS_LAG/ENEMY_POS_LAG_INTERVAL)
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
+enum class ESide;	// Ravl/CVec.h
+
 class gNPC_t
 {
 public:
@@ -294,9 +297,9 @@ public:
 	int			blockedSpeechDebounceTime;
 
 	int			homeWp;
-	int			avoidSide;
+	ESide		avoidSide;
 	int			leaderAvoidSide;
-	int			lastAvoidSteerSide;
+	ESide		lastAvoidSteerSide;
 	int			lastAvoidSteerSideDebouncer;
 	AIGroupInfo_t	*group;
 	int			troop;

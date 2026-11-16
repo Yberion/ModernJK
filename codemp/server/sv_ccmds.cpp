@@ -85,14 +85,14 @@ static client_t *SV_GetPlayerByHandle( void ) {
 		{
 			cl = &svs.clients[plid];
 
-			if(cl->state)
+			if ( cl->state != CS_FREE )
 				return cl;
 		}
 	}
 
 	// check for a name match
 	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( !cl->state ) {
+		if ( cl->state == CS_FREE ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->name, s ) ) {
@@ -150,7 +150,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	}
 
 	cl = &svs.clients[idnum];
-	if ( !cl->state ) {
+	if ( cl->state == CS_FREE ) {
 		Com_Printf( "Client %i is not active\n", idnum );
 		return nullptr;
 	}
@@ -391,7 +391,7 @@ static void SV_KickBlankPlayers( void ) {
 
 	// check for a name match
 	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( !cl->state ) {
+		if ( cl->state == CS_FREE ) {
 			continue;
 		}
 		if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
@@ -444,7 +444,7 @@ static void SV_Kick_f( void ) {
 	if ( !cl ) {
 		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
+				if ( cl->state == CS_FREE ) {
 					continue;
 				}
 				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
@@ -456,7 +456,7 @@ static void SV_Kick_f( void ) {
 		}
 		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
 			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
+				if ( cl->state == CS_FREE ) {
 					continue;
 				}
 				if( cl->netchan.remoteAddress.type != NA_BOT ) {
@@ -495,7 +495,7 @@ static void SV_KickBots_f( void ) {
 	}
 
 	for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
-		if( !cl->state ) {
+		if( cl->state == CS_FREE ) {
 			continue;
 		}
 
@@ -525,7 +525,7 @@ static void SV_KickAll_f( void ) {
 	}
 
 	for( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
-		if( !cl->state ) {
+		if( cl->state == CS_FREE ) {
 			continue;
 		}
 
@@ -1183,7 +1183,7 @@ static void SV_Status_f( void )
 	Com_Printf ("-- ----- ---- --------------- ---------------------------------------\n");
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
-		if ( !cl->state )
+		if ( cl->state == CS_FREE )
 			continue;
 
 		if ( cl->state == CS_CONNECTED )
@@ -1202,7 +1202,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %-15.15s ^7%39s\n",
 				i,
-				ps->persistant[PERS_SCORE],
+				ps->persistant.data()[PERS_SCORE],
 				state,
 				cl->name,
 				s
@@ -1212,7 +1212,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %s ^7%39s\n",
 				i,
-				ps->persistant[PERS_SCORE],
+				ps->persistant.data()[PERS_SCORE],
 				state,
 				cl->name,
 				s
@@ -1387,7 +1387,7 @@ static void SV_WeaponToggle_f( void ) {
 	const char *s;
 	const char *cvarStr = nullptr;
 
-	if ( sv_gametype->integer == GT_DUEL || sv_gametype->integer == GT_POWERDUEL ) {
+	if ( sv_gametype->integer == to_underlying( GT_DUEL ) || sv_gametype->integer == to_underlying( GT_POWERDUEL ) ) {
 		cvarStr = "g_duelWeaponDisable";
 		bits = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
 	}
@@ -1820,7 +1820,7 @@ static void SV_Record_f( void ) {
 	} else {
 		for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++, cl++ )
 		{
-			if ( !cl->state )
+			if ( cl->state == CS_FREE )
 			{
 				continue;
 			}

@@ -4353,7 +4353,7 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 			}
 
 			// change to surface identifier
-			surf->ident = SF_MDX;
+			surf->ident = to_underlying( SF_MDX );
 			// register the shaders
 #ifdef Q3_BIG_ENDIAN
 			// swap the LOD offset

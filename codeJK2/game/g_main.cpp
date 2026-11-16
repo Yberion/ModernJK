@@ -1165,7 +1165,7 @@ void G_CheckEndLevelTimers( gentity_t *ent )
 		{
 			G_PlayerGuiltDeath();
 			//cg.missionStatusShow = true;
-			statusTextIndex = MAX_MISSIONFAILED;
+			statusTextIndex = to_underlying( MAX_MISSIONFAILED );
 			//debounce respawn time
 			ent->client->respawnTime = level.time + 2000;
 			//stop all scripts

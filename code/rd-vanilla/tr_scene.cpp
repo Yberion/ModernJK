@@ -217,7 +217,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 #endif
 		return;
 	}
-	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
+	if ( to_underlying( ent->reType ) < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
 		Com_Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
 	}
 

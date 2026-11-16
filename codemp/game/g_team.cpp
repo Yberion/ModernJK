@@ -119,7 +119,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
 //plIndex used to print pl->client->pers.netname
 //teamIndex used to print team name
-void PrintCTFMessage(int plIndex, int teamIndex, int ctfMessage)
+void PrintCTFMessage(int plIndex, int teamIndex, ctfMsg_t ctfMessage)
 {
 	gentity_t *te;
 
@@ -134,7 +134,7 @@ void PrintCTFMessage(int plIndex, int teamIndex, int ctfMessage)
 
 	te = G_TempEntity(vec3_origin, EV_CTFMESSAGE);
 	te->r.svFlags |= SVF_BROADCAST;
-	te->s.eventParm = ctfMessage;
+	te->s.eventParm = to_underlying( ctfMessage );
 	te->s.trickedentindex = plIndex;
 	if (ctfMessage == CTFMESSAGE_PLAYER_CAPTURED_FLAG)
 	{
@@ -170,31 +170,31 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 	if ( team == TEAM_RED ) {
 		if ( level.teamScores[ TEAM_RED ] + score == level.teamScores[ TEAM_BLUE ] ) {
 			//teams are tied sound
-			te->s.eventParm = GTS_TEAMS_ARE_TIED;
+			te->s.eventParm = to_underlying( GTS_TEAMS_ARE_TIED );
 		}
 		else if ( level.teamScores[ TEAM_RED ] <= level.teamScores[ TEAM_BLUE ] &&
 					level.teamScores[ TEAM_RED ] + score > level.teamScores[ TEAM_BLUE ]) {
 			// red took the lead sound
-			te->s.eventParm = GTS_REDTEAM_TOOK_LEAD;
+			te->s.eventParm = to_underlying( GTS_REDTEAM_TOOK_LEAD );
 		}
 		else {
 			// red scored sound
-			te->s.eventParm = GTS_REDTEAM_SCORED;
+			te->s.eventParm = to_underlying( GTS_REDTEAM_SCORED );
 		}
 	}
 	else {
 		if ( level.teamScores[ TEAM_BLUE ] + score == level.teamScores[ TEAM_RED ] ) {
 			//teams are tied sound
-			te->s.eventParm = GTS_TEAMS_ARE_TIED;
+			te->s.eventParm = to_underlying( GTS_TEAMS_ARE_TIED );
 		}
 		else if ( level.teamScores[ TEAM_BLUE ] <= level.teamScores[ TEAM_RED ] &&
 					level.teamScores[ TEAM_BLUE ] + score > level.teamScores[ TEAM_RED ]) {
 			// blue took the lead sound
-			te->s.eventParm = GTS_BLUETEAM_TOOK_LEAD;
+			te->s.eventParm = to_underlying( GTS_BLUETEAM_TOOK_LEAD );
 		}
 		else {
 			// blue scored sound
-			te->s.eventParm = GTS_BLUETEAM_SCORED;
+			te->s.eventParm = to_underlying( GTS_BLUETEAM_SCORED );
 		}
 	}
 	level.teamScores[ team ] += score;
@@ -288,7 +288,7 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	return false;
 }
 
-static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
+static const EnumArray<char, flagStatus_t, to_underlying( FLAG_DROPPED ) + 1> ctfFlagStatusRemap = { '0', '1', '*', '*', '2' };
 
 void Team_SetFlagStatus( int team, flagStatus_t status ) {
 	bool modified = false;
@@ -585,10 +585,10 @@ void Team_ReturnFlagSound( gentity_t *ent, int team ) {
 
 	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
 	if( team == TEAM_BLUE ) {
-		te->s.eventParm = GTS_RED_RETURN;
+		te->s.eventParm = to_underlying( GTS_RED_RETURN );
 	}
 	else {
-		te->s.eventParm = GTS_BLUE_RETURN;
+		te->s.eventParm = to_underlying( GTS_BLUE_RETURN );
 	}
 	te->r.svFlags |= SVF_BROADCAST;
 }
@@ -623,10 +623,10 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 
 	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
 	if( team == TEAM_BLUE ) {
-		te->s.eventParm = GTS_RED_TAKEN;
+		te->s.eventParm = to_underlying( GTS_RED_TAKEN );
 	}
 	else {
-		te->s.eventParm = GTS_BLUE_TAKEN;
+		te->s.eventParm = to_underlying( GTS_BLUE_TAKEN );
 	}
 	te->r.svFlags |= SVF_BROADCAST;
 }
@@ -641,10 +641,10 @@ void Team_CaptureFlagSound( gentity_t *ent, int team ) {
 
 	te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
 	if( team == TEAM_BLUE ) {
-		te->s.eventParm = GTS_BLUE_CAPTURE;
+		te->s.eventParm = to_underlying( GTS_BLUE_CAPTURE );
 	}
 	else {
-		te->s.eventParm = GTS_RED_CAPTURE;
+		te->s.eventParm = to_underlying( GTS_RED_CAPTURE );
 	}
 	te->r.svFlags |= SVF_BROADCAST;
 }
@@ -1031,7 +1031,7 @@ go to a random point that doesn't telefrag
 ================
 */
 #define	MAX_TEAM_SPAWN_POINTS	32
-gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClass ) {
+gentity_t *SelectRandomTeamSpawnPoint( playerTeamStateState_t teamstate, team_t team, int siegeClass ) {
 	gentity_t	*spot;
 	int			count;
 	int			selection;
@@ -1129,7 +1129,7 @@ SelectCTFSpawnPoint
 
 ============
 */
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
+gentity_t *SelectCTFSpawnPoint ( team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
 	gentity_t	*spot;
 
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team, -1 );
@@ -1151,7 +1151,7 @@ SelectSiegeSpawnPoint
 
 ============
 */
-gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, int teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
+gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
 	gentity_t	*spot;
 
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team, siegeClass );

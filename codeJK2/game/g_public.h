@@ -342,7 +342,7 @@ Ghoul2 Insert Start
 	bool	(*G2API_RagEffectorKick)(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
 	bool	(*G2API_RagForceSolve)(CGhoul2Info_v &ghoul2, bool force);
 
-	bool	(*G2API_SetBoneIKState)(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, void *params);
+	bool	(*G2API_SetBoneIKState)(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, void *params);
 	bool	(*G2API_IKMove) (CGhoul2Info_v &ghoul2, int time, void *params);
 	//rww - RAGDOLL_END
 

@@ -504,7 +504,7 @@ static const char *skillLevels[] = {
 };
 static const int numSkillLevels = ARRAY_LEN( skillLevels );
 
-static const char *gameTypes[GT_MAX_GAME_TYPE] = {
+static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gameTypes = {
 	"FFA",
 	"Holocron",
 	"JediMaster",
@@ -516,7 +516,7 @@ static const char *gameTypes[GT_MAX_GAME_TYPE] = {
 	"CTF",
 	"CTY",
 };
-static const int numGameTypes = ARRAY_LEN( gameTypes );
+static const int numGameTypes = static_cast<int>( gameTypes.size() );
 
 static const char* netNames[] = {
 	"???",
@@ -1552,9 +1552,9 @@ static void UI_SetCapFragLimits(bool uiVars) {
 	}
 }
 
-static const char* UI_GetGameTypeName(int gtEnum)
+static const char* UI_GetGameTypeName(gametype_t gtEnum)
 {
-	switch ( gtEnum )
+	switch ( static_cast<gametype_t>( gtEnum ) )
 	{
 	case GT_FFA:
 		return UI_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
@@ -1576,6 +1576,9 @@ static const char* UI_GetGameTypeName(int gtEnum)
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 	case GT_CTY:
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
+	
+	default:
+		break;
 	}
 	return UI_GetStringEdString("MENUS", "SAGA");//"Team FFA";
 }
@@ -1748,7 +1751,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 		i = max;
 	}
 
-	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
+	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[static_cast<forceMasteries_t>( i )]);
 	Text_Paint(rect->x, rect->y, scale, color, s, 0, 0, textStyle, iMenuFont);
 }
 
@@ -1855,7 +1858,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 	Text_Paint(rect->x, rect->y, scale, color, s,0, 0, textStyle, iMenuFont);
 }
 
-bool UI_HasSetSaberOnly( const char *info, const int gametype )
+bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 {
 	int i = 0;
 	int wDisable = 0;
@@ -1911,7 +1914,8 @@ static bool UI_AllForceDisabled(int force)
 bool UI_TrueJediEnabled( void )
 {
 	char	info[MAX_INFO_STRING] = {0};
-	int		gametype = 0, disabledForce = 0, trueJedi = 0;
+	int		disabledForce = 0, trueJedi = 0;
+	gametype_t	gametype = GT_FFA;
 	bool saberOnly = false, allForceDisabled = false;
 
 	trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) );
@@ -1921,7 +1925,7 @@ bool UI_TrueJediEnabled( void )
 	//if (atoi(Info_ValueForKey(info, "g_forcePowerDisable")))
 	disabledForce = atoi(Info_ValueForKey(info, "g_forcePowerDisable"));
 	allForceDisabled = UI_AllForceDisabled(disabledForce);
-	gametype = atoi(Info_ValueForKey(info, "g_gametype"));
+	gametype = static_cast<gametype_t>( atoi(Info_ValueForKey(info, "g_gametype")) );
 	saberOnly = UI_HasSetSaberOnly(info, gametype);
 
 	if ( gametype == GT_HOLOCRON
@@ -2177,7 +2181,7 @@ void UpdateForceStatus()
 	{
 		uiForceRank = uiMaxRank;
 		uiForceUsed = 0;
-		uiForceAvailable = forceMasteryPoints[uiForceRank];
+		uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
 	}
 */
 	menu = Menus_FindByName("ingame_player");
@@ -2242,7 +2246,7 @@ void UpdateForceStatus()
 		else
 		{
 			// Set or reset buttons based on choices
-			if (atoi(Info_ValueForKey(info, "g_gametype")) >= GT_TEAM)
+			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( GT_TEAM ))
 			{	// This is a team-based game.
 				Menu_ShowItemByName(menu, "playerforcespectate", true);
 
@@ -2298,7 +2302,7 @@ void UpdateForceStatus()
 		default:
 			trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 
-			if (atoi(Info_ValueForKey(info, "g_gametype")) >= GT_TEAM)
+			if (atoi(Info_ValueForKey(info, "g_gametype")) >= to_underlying( GT_TEAM ))
 			{
 				uiSkinColor = TEAM_FREE;
 			}
@@ -2645,7 +2649,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			i = 1;
 		}
 
-		s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
+		s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[static_cast<forceMasteries_t>( i )]);
 		break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -3015,7 +3019,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawJediNonJedi(&rect, scale, color, textStyle, uiJediNonJedi, 0, 1, iMenuFont);
       break;
     case UI_FORCE_POINTS:
-      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[MAX_FORCE_RANK], ownerDraw,iMenuFont);
+      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[static_cast<forceMasteries_t>( MAX_FORCE_RANK )], ownerDraw,iMenuFont);
       break;
 	case UI_FORCE_MASTERY_SET:
       UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
@@ -4567,7 +4571,8 @@ static bool UI_SetNextMap(int actual, int index) {
 }
 
 static void UI_StartSkirmish(bool next) {
-	int i, k, g, delay, temp;
+	int i, k, delay, temp;
+	gametype_t g;
 	float skill;
 	char buff[MAX_STRING_CHARS];
 
@@ -4588,7 +4593,7 @@ static void UI_StartSkirmish(bool next) {
 	}
 
 	g = uiInfo.gameTypes[ui_gametype.integer].gtEnum;
-	trap->Cvar_SetValue( "g_gametype", g );
+	trap->Cvar_SetValue( "g_gametype", to_underlying( g ) );
 	trap->Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentMap.integer].mapLoadName) );
 	skill = trap->Cvar_VariableValue( "g_spSkill" );
 	trap->Cvar_Set("ui_scoreMap", uiInfo.mapList[ui_currentMap.integer].mapName);
@@ -4948,7 +4953,7 @@ static void UI_SetBotButton ( void )
 	server = trap->Cvar_VariableValue( "sv_running" );
 
 	// If in siege or a client, don't show add bot button
-	if ((gameType==GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
+	if ((gameType == to_underlying( GT_SIEGE )) || (server==0))	// If it's not siege, don't worry about it
 	{
 		menu = Menu_GetFocused();	// Get current menu (either video or ingame video, I would assume)
 
@@ -5155,7 +5160,7 @@ void UI_FindCurrentSiegeTeamClass( void )
 	baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
 
 	// Find correct class button and activate it.
-	switch ( baseClass ) {
+	switch ( static_cast<siegePlayerClassFlags_t>( baseClass ) ) {
 	case SPC_INFANTRY:
 		itemname = "class1_button";
 		break;
@@ -5673,7 +5678,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 	//now for inventory items
 	i = 0;
-	while (i < HI_NUM_HOLDABLE)
+	while (i < to_underlying( HI_NUM_HOLDABLE ))
 	{
 		trap->Cvar_Set(va("ui_class_item%i", i), "gfx/2d/select");
 		i++;
@@ -5756,7 +5761,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	i = 0;
 	count = 0;
 
-	while (i < HI_NUM_HOLDABLE)
+	while (i < to_underlying( HI_NUM_HOLDABLE ))
 	{
 		if (scl->invenItems & (1<<i))
 		{
@@ -5823,7 +5828,7 @@ void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
 	{
 
 		// Is it a valid base class?
-		if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+		if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
 		{
 			// A valid index?
 			if ((index>=0) && (index < BG_SiegeCountBaseClass( team, baseClass )))
@@ -5917,7 +5922,7 @@ static void UI_RunMenuScript(char **args)
 			{
 				trap->Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
 			}
-			trap->Cvar_SetValue( "g_gametype", Com_Clamp( 0, GT_MAX_GAME_TYPE, uiInfo.gameTypes[ui_netGametype.integer].gtEnum ) );
+			trap->Cvar_SetValue( "g_gametype", Com_Clamp( 0, to_underlying( GT_MAX_GAME_TYPE ), to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum ) ) );
 			//trap->Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			//trap->Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 			trap->Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
@@ -5962,7 +5967,7 @@ static void UI_RunMenuScript(char **args)
 
 					if (numval <= maxcl)
 					{
-						if (ui_actualNetGametype.integer >= GT_TEAM) {
+						if (ui_actualNetGametype.integer >= to_underlying( GT_TEAM )) {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s\n", UI_GetBotNameByNumber(bot-2), skill, "Blue");
 						} else {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f \n", UI_GetBotNameByNumber(bot-2), skill);
@@ -5979,7 +5984,7 @@ static void UI_RunMenuScript(char **args)
 
 					if (numval <= maxcl)
 					{
-						if (ui_actualNetGametype.integer >= GT_TEAM) {
+						if (ui_actualNetGametype.integer >= to_underlying( GT_TEAM )) {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f %s\n", UI_GetBotNameByNumber(bot-2), skill, "Red");
 						} else {
 							Com_sprintf( buff, sizeof(buff), "addbot \"%s\" %f \n", UI_GetBotNameByNumber(bot-2), skill);
@@ -7082,7 +7087,7 @@ void UI_SetSiegeTeams(void)
 	char			team1[1024];
 	char			team2[1024];
 	int				len = 0;
-	int				gametype;
+	gametype_t				gametype;
 	fileHandle_t	f;
 
 	//Get the map name from the server info
@@ -7096,7 +7101,7 @@ void UI_SetSiegeTeams(void)
 		return;
 	}
 
-	gametype = atoi(Info_ValueForKey(info, "g_gametype"));
+	gametype = static_cast<gametype_t>( atoi(Info_ValueForKey(info, "g_gametype")) );
 
 	//If the server we are connected to is not siege we cannot choose a class anyway
 	if (gametype != GT_SIEGE)
@@ -7204,7 +7209,8 @@ UI_MapCountByGameType
 ==================
 */
 static int UI_MapCountByGameType(bool singlePlayer) {
-	int i, c, game;
+	int i, c;
+	gametype_t game;
 	c = 0;
 	game = singlePlayer ? uiInfo.gameTypes[ui_gametype.integer].gtEnum : uiInfo.gameTypes[ui_netGametype.integer].gtEnum;
 	if (game == GT_TEAM)
@@ -7216,9 +7222,9 @@ static int UI_MapCountByGameType(bool singlePlayer) {
 
 	for (i = 0; i < uiInfo.mapCount; i++) {
 		uiInfo.mapList[i].active = false;
-		if ( uiInfo.mapList[i].typeBits & (1 << game)) {
+		if ( uiInfo.mapList[i].typeBits & Bit( game )) {
 			if (singlePlayer) {
-				if (!(uiInfo.mapList[i].typeBits & (1 << GT_SINGLE_PLAYER))) {
+				if (!(uiInfo.mapList[i].typeBits & Bit( GT_SINGLE_PLAYER ))) {
 					continue;
 				}
 			}
@@ -7497,9 +7503,9 @@ static void UI_BuildServerDisplayList(int force) {
 				}
 			}
 
-			if (uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum != -1) {
+			if (uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum != GT_UNKNOWN) {
 				game = atoi(Info_ValueForKey(info, "gametype"));
-				if (game != uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum) {
+				if (static_cast<gametype_t>( game ) != uiInfo.joinGameTypes[ui_joinGametype.integer].gtEnum) {
 					trap->LAN_MarkServerVisible(lanSource, i, false);
 					continue;
 				}
@@ -8023,7 +8029,7 @@ static int UI_FeederCount(float feederID)
 				(team == SIEGETEAM_TEAM2))
 			{
 				// Is it a valid base class?
-				if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+				if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
 				{
 					return (BG_SiegeCountBaseClass( team, baseClass ));
 				}
@@ -8047,7 +8053,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of inventory
 		case FEEDER_SIEGE_CLASS_INVENTORY:
 			//count them up
-			for (i=0;i< HI_NUM_HOLDABLE;i++)
+			for (i=0;i< to_underlying( HI_NUM_HOLDABLE );i++)
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
 				// A hack so health and ammo dispenser icons don't show up.
@@ -8285,7 +8291,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 					if (!answered) {
 						return Info_ValueForKey(info, "addr");
 					} else {
-						int gametype = atoi( Info_ValueForKey( info, "gametype" ) );
+						gametype_t gametype = static_cast<gametype_t>( atoi( Info_ValueForKey( info, "gametype" ) ) );
 						//check for password
 						if ( atoi(Info_ValueForKey(info, "needpass")) )
 						{
@@ -8369,7 +8375,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				case SORT_GAME :
 					game = atoi(Info_ValueForKey(info, "gametype"));
 					if (game >= 0 && game < numGameTypes) {
-						Q_strncpyz( needPass, gameTypes[game], sizeof( needPass ) );
+						Q_strncpyz( needPass, gameTypes[static_cast<gametype_t>( game )], sizeof( needPass ) );
 					} else {
 						if ( !answered )
 							Q_strncpyz( needPass, "Inactive", sizeof( needPass ) );
@@ -8654,7 +8660,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 			(team == SIEGETEAM_TEAM2))
 		{
 			// Is it a valid base class?
-			if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
+			if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
 			{
 				if (index >= 0)
 				{
@@ -8684,7 +8690,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	{
 		validCnt = 0;
 		//count them up
-		for (i=0;i< HI_NUM_HOLDABLE;i++)
+		for (i=0;i< to_underlying( HI_NUM_HOLDABLE );i++)
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
 			// A hack so health and ammo dispenser icons don't show up.
@@ -9113,13 +9119,17 @@ static bool GameType_Parse(char **p, bool join) {
 		if (token[0] == '{') {
 			// two tokens per line, character name and sex
 			if (join) {
-				if (!String_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) || !Int_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum)) {
+				int gtEnum;
+				if (!String_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) || !Int_Parse(p, &gtEnum)) {
 					return false;
 				}
+				uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum = static_cast<gametype_t>( gtEnum );
 			} else {
-				if (!String_Parse(p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameType) || !Int_Parse(p, &uiInfo.gameTypes[uiInfo.numGameTypes].gtEnum)) {
+				int gtEnum;
+				if (!String_Parse(p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameType) || !Int_Parse(p, &gtEnum)) {
 					return false;
 				}
+				uiInfo.gameTypes[uiInfo.numGameTypes].gtEnum = static_cast<gametype_t>( gtEnum );
 			}
 
 			if (join) {

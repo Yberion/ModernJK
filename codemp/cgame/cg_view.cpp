@@ -574,7 +574,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 			if (mover->currentState.pos.trType != TR_STATIONARY &&
 				mover->currentState.pos.trType != TR_LINEAR)
 			{
-				int curTr = mover->currentState.pos.trType;
+				trType_t curTr = mover->currentState.pos.trType;
 				vec3_t curTrB;
 
 				VectorCopy(mover->currentState.pos.trBase, curTrB);

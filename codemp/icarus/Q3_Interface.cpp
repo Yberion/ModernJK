@@ -162,7 +162,7 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 
 		//See if any other tasks have the name number and clear them so we don't complete more than once
 		int	clearTask = ent->taskID[taskType];
-		for ( int tid = 0; tid < NUM_TIDS; tid++ )
+		for ( taskID_t tid = TID_CHAN_VOICE; tid < NUM_TIDS; tid++ )
 		{
 			if ( ent->taskID[tid] == clearTask )
 			{
@@ -653,10 +653,10 @@ static void Q3_CameraPath( const char *name )
 Q3_DebugPrint
 -------------------------
 */
-void Q3_DebugPrint( int level, const char *format, ... )
+void Q3_DebugPrint( WL_e level, const char *format, ... )
 {
 	//Don't print messages they don't want to see
-	//if ( g_ICARUSDebug->integer < level )
+	//if ( g_ICARUSDebug->integer < to_underlying( level ) )
 	if (!com_developer || !com_developer->integer)
 		return;
 

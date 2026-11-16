@@ -192,7 +192,7 @@ void Wampa_Move( bool visible )
 
 //---------------------------------------------------------
 extern void G_Knockdown( gentity_t *victim );
-extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath );
+extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath );
 extern int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 
 void Wampa_Slash( int boltIndex, bool backhand )
@@ -257,7 +257,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 			{//killed them, chance of dismembering
 				if ( !Q_irand( 0, 1 ) )
 				{//bite something off
-					int hitLoc = Q_irand( G2_MODELPART_HEAD, G2_MODELPART_RLEG );
+					g2ModelParts_t hitLoc = static_cast<g2ModelParts_t>( Q_irand( to_underlying( G2_MODELPART_HEAD ), to_underlying( G2_MODELPART_RLEG ) ) );
 					if ( hitLoc == G2_MODELPART_HEAD )
 					{
 						NPC_SetAnim( radiusEnt, SETANIM_BOTH, BOTH_DEATH17, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );

@@ -482,7 +482,7 @@ void trap_CIN_SetExtents (int handle, int x, int y, int w, int h) {
   Q_syscall(CG_CIN_SETEXTENTS, handle, x, y, w, h);
 }
 
-void *cgi_Z_Malloc( int size, int tag )
+void *cgi_Z_Malloc( int size, memtag_t tag )
 {
 	return (void *)Q_syscall(CG_Z_MALLOC,size,tag);
 }

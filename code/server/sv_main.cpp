@@ -126,7 +126,7 @@ void SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	client_t	*client;
 	int			j;
 
-	message[0] = svc_serverCommand;
+	message[0] = to_underlying( svc_serverCommand );
 
 	va_start (argptr,fmt);
 	Q_vsnprintf( (char *)message+1, sizeof(message)-1, fmt, argptr );

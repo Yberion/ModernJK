@@ -924,7 +924,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	self->lastEnemy = attacker;
 
 	// we defer explosion so the player has time to get out
-	if ( self->e_DieFunc )
+	if ( self->e_DieFunc != dieF_NULL )
 	{
 		self->e_ThinkFunc = thinkF_emplaced_blow;
 		self->nextthink = level.time + 3000; // don't blow for a couple of seconds

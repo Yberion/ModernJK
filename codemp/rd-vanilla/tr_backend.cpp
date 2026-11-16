@@ -127,7 +127,7 @@ void GL_SelectTexture( int unit )
 /*
 ** GL_Cull
 */
-void GL_Cull( int cullType ) {
+void GL_Cull( cullType_t cullType ) {
 	if ( glState.faceCulling == cullType ) {
 		return;
 	}
@@ -531,7 +531,7 @@ void RB_BeginDrawingView (void) {
 		backEnd.isHyperspace = false;
 	}
 
-	glState.faceCulling = -1;		// force face culling to set next time
+	glState.faceCulling = CT_UNSET;		// force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = false;
@@ -1961,7 +1961,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));
 
-		switch ( *(const int *)data ) {
+		switch ( static_cast<renderCommand_t>( *(const int *)data ) ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
 			break;

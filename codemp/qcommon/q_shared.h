@@ -44,6 +44,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_TEAMNAME 32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers
 
+#include "qcommon/q_enum.h"
 #include "qcommon/q_math.h"
 #include "qcommon/q_color.h"
 #include "qcommon/q_string.h"
@@ -189,12 +190,13 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 #define	MAX_SAY_TEXT	150
 
 // paramters for command buffer stuffing
-typedef enum {
+enum class cbufExec_t {
 	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
 						// because some commands might cause the VM to be unloaded...
 	EXEC_INSERT,		// insert at current position, but don't run yet
 	EXEC_APPEND			// add to end of the command buffer (normal case)
-} cbufExec_t;
+};
+using enum cbufExec_t;
 
 
 //
@@ -212,12 +214,13 @@ typedef enum {
 #endif
 
 //For system-wide prints
-enum WL_e {
+enum class WL_e {
 	WL_ERROR=1,
 	WL_WARNING,
 	WL_VERBOSE,
 	WL_DEBUG
 };
+using enum WL_e;
 
 extern float forceSpeedLevels[4];
 
@@ -287,11 +290,12 @@ typedef enum {
 	#define HUNK_DEBUG
 #endif
 
-typedef enum {
+enum class ha_pref {
 	h_high,
 	h_low,
 	h_dontcare
-} ha_pref;
+};
+using enum ha_pref;
 
 void *Hunk_Alloc( int size, ha_pref preference );
 
@@ -304,13 +308,14 @@ void *Hunk_Alloc( int size, ha_pref preference );
 #define CIN_silent	8
 #define CIN_shader	16
 
-typedef enum {
+enum class saberBlockType_t {
 	BLK_NO,
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
 	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
-} saberBlockType_t;
+};
+using enum saberBlockType_t;
 
-typedef enum {
+enum class saberBlockedType_t {
 	BLOCKED_NONE,
 	BLOCKED_BOUNCE_MOVE,
 	BLOCKED_PARRY_BROKEN,
@@ -325,9 +330,10 @@ typedef enum {
 	BLOCKED_LOWER_RIGHT_PROJ,
 	BLOCKED_LOWER_LEFT_PROJ,
 	BLOCKED_TOP_PROJ
-} saberBlockedType_t;
+};
+using enum saberBlockedType_t;
 
-typedef enum
+enum class saber_colors_t
 {
 	SABER_RED,
 	SABER_ORANGE,
@@ -336,7 +342,8 @@ typedef enum
 	SABER_BLUE,
 	SABER_PURPLE,
 	NUM_SABER_COLORS
-} saber_colors_t;
+};
+using enum saber_colors_t;
 
 typedef enum
 {
@@ -374,7 +381,7 @@ typedef enum forcePowerLevels_e {
 #define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
 
 //rww - a C-ified structure version of the class which fires off callbacks and gives arguments to update ragdoll status.
-enum sharedERagPhase
+enum class sharedERagPhase
 {
 	RP_START_DEATH_ANIM,
 	RP_END_DEATH_ANIM,
@@ -384,6 +391,7 @@ enum sharedERagPhase
 	RP_SET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
 	RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 };
+using enum sharedERagPhase;
 
 enum sharedERagEffector
 {
@@ -433,7 +441,7 @@ typedef struct sharedRagDollParams_s {
 
 	bool CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
 
-	int RagPhase;
+	sharedERagPhase RagPhase;
 
 // effector control, used for RP_DISABLE_EFFECTORS call
 
@@ -474,14 +482,15 @@ typedef struct sharedSetBoneIKStateParams_s {
 	bool forceAnimOnBone; //normally if the bone has specified start/end frames already it will leave it alone.. if this is true, then the animation will be restarted on the bone with the specified frames anyway.
 } sharedSetBoneIKStateParams_t;
 
-enum sharedEIKMoveState
+enum class sharedEIKMoveState
 {
 	IKS_NONE = 0,
 	IKS_DYNAMIC
 };
+using enum sharedEIKMoveState;
 
 //material stuff needs to be shared
-typedef enum //# material_e
+enum class material_t //# material_e
 {
 	MAT_METAL = 0,	// scorched blue-grey metal
 	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
@@ -502,7 +511,8 @@ typedef enum //# material_e
 	MAT_SNOWY_ROCK,	// gray & brown chunks
 
 	NUM_MATERIALS
-} material_t;
+};
+using enum material_t;
 
 //rww - bot stuff that needs to be shared
 #define MAX_WPARRAY_SIZE 4096
@@ -614,18 +624,20 @@ char *Com_SkipCharset( char *s, const char *sep );
 void Com_RandomBytes( byte *string, int len );
 
 // mode parm for FS_FOpenFile
-typedef enum {
+enum class fsMode_t {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
 	FS_APPEND_SYNC
-} fsMode_t;
+};
+using enum fsMode_t;
 
-typedef enum {
+enum class fsOrigin_t {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
-} fsOrigin_t;
+};
+using enum fsOrigin_t;
 
 //=============================================
 
@@ -939,7 +951,7 @@ typedef struct gameState_s {
 //=========================================================
 
 // all the different tracking "channels"
-typedef enum {
+enum class trackchan_t {
 	TRACK_CHANNEL_NONE = 50,
 	TRACK_CHANNEL_1,
 	TRACK_CHANNEL_2, // force speed
@@ -947,9 +959,11 @@ typedef enum {
 	TRACK_CHANNEL_4,
 	TRACK_CHANNEL_5, // force sight
 	NUM_TRACK_CHANNELS
-} trackchan_t;
+};
+using enum trackchan_t;
+template <> inline constexpr bool enableEnumArithmetic<trackchan_t> = true;
 
-#define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS-50)
+#define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS - TRACK_CHANNEL_NONE)
 
 typedef struct forcedata_s {
 	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
@@ -1009,12 +1023,13 @@ typedef struct forcedata_s {
 } forcedata_t;
 
 
-typedef enum {
+enum class itemUseFail_t {
 	SENTRY_NOROOM = 1,
 	SENTRY_ALREADYPLACED,
 	SHIELD_NOROOM,
 	SEEKER_ALREADYDEPLOYED
-} itemUseFail_t;
+};
+using enum itemUseFail_t;
 
 // bit field limits
 #define	MAX_STATS				16
@@ -1054,9 +1069,13 @@ typedef enum {
 // playerState_t is a full superset of entityState_t as it is used by players,
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
+enum class persEnum_t;	// bg_public.h
+enum class forceHandAnims_t;	// bg_public.h
+enum class pmtype_t;	// bg_public.h
+
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
-	int			pm_type;
+	pmtype_t	pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
 	int			pm_flags;		// ducked, jump_held, etc
 	int			pm_time;
@@ -1128,7 +1147,7 @@ typedef struct playerState_s {
 	bool	pitching;		// NOT sent across the network
 
 	int			stats[MAX_STATS];
-	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;	// stats that aren't cleared on death
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_AMMO];
 
@@ -1147,8 +1166,8 @@ typedef struct playerState_s {
 	bool	saberInFlight;
 
 	int			saberMove;
-	int			saberBlocking;
-	int			saberBlocked;
+	saberBlockType_t	saberBlocking;
+	saberBlockedType_t	saberBlocked;
 
 	int			saberLockTime;
 	int			saberLockEnemy;
@@ -1208,7 +1227,7 @@ typedef struct playerState_s {
 
 	forcedata_t	fd;
 	bool	forceJumpFlip;
-	int			forceHandExtend;
+	forceHandAnims_t	forceHandExtend;
 	int			forceHandExtendTime;
 
 	int			forceRageDrainTime;
@@ -1371,8 +1390,9 @@ typedef struct siegePers_s
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
 
-typedef enum
+enum class genCmds_t
 {
+	GENCMD_NONE = 0,	// no command
 	GENCMD_SABERSWITCH = 1,
 	GENCMD_ENGAGE_DUEL,
 	GENCMD_FORCE_HEAL,
@@ -1404,7 +1424,8 @@ typedef enum
 	GENCMD_MEDITATE,
 	GENCMD_FLOURISH,
 	GENCMD_GLOAT
-} genCmds_t;
+};
+using enum genCmds_t;
 
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s {
@@ -1525,7 +1546,7 @@ typedef struct addElectricityArgStruct_s {
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define	SOLID_BMODEL	0xffffff
 
-typedef enum {
+enum class trType_t {
 	TR_STATIONARY,
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
 	TR_LINEAR,
@@ -1533,7 +1554,8 @@ typedef enum {
 	TR_NONLINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY
-} trType_t;
+};
+using enum trType_t;
 
 typedef struct trajectory_s {
 	trType_t	trType;
@@ -1754,7 +1776,7 @@ typedef struct qtime_s {
 #define AS_MPLAYER			3 // (Obsolete)
 
 // cinematic states
-typedef enum {
+enum class e_status {
 	FMV_IDLE,
 	FMV_PLAY,		// play
 	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
@@ -1762,7 +1784,8 @@ typedef enum {
 	FMV_ID_IDLE,
 	FMV_LOOPED,
 	FMV_ID_WAIT
-} e_status;
+};
+using enum e_status;
 
 #define	MAX_GLOBAL_SERVERS			2048
 #define	MAX_OTHER_SERVERS			128
@@ -1783,7 +1806,7 @@ typedef struct mdxaBone_s {
 
 // For ghoul2 axis use
 
-typedef enum Eorientations
+enum class orientations_t
 {
 	ORIGIN = 0,
 	POSITIVE_X,
@@ -1792,7 +1815,9 @@ typedef enum Eorientations
 	NEGATIVE_X,
 	NEGATIVE_Z,
 	NEGATIVE_Y
-} orientations_t;
+};
+using enum orientations_t;
+typedef orientations_t Eorientations;
 /*
 Ghoul2 Insert End
 */
@@ -1800,10 +1825,12 @@ Ghoul2 Insert End
 // define the new memory tags for the zone, used by all modules now
 //
 #define TAGDEF(blah) TAG_ ## blah
-typedef enum {
+enum class memtag {
 	#include "qcommon/tags.h"
-} memtag;
-typedef unsigned memtag_t;
+};
+using enum memtag;
+template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
+typedef memtag memtag_t;
 
 //rww - conveniently toggle "gore" code, for model decals and stuff.
 #define _G2_GORE
@@ -1849,7 +1876,7 @@ String ID Tables
 
 ========================================================================
 */
-#define ENUM2STRING(arg)   { #arg, arg }
+#define ENUM2STRING(arg)   { #arg, to_underlying( arg ) }
 typedef struct stringID_table_s
 {
 	const char	*name;

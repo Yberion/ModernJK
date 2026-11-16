@@ -49,12 +49,12 @@ int		ysalamiriLoopSound	= 0;
 
 int ForceShootDrain( gentity_t *self );
 
-gentity_t *G_PreDefSound(vec3_t org, int pdSound)
+gentity_t *G_PreDefSound(vec3_t org, pdSounds_t pdSound)
 {
 	gentity_t	*te;
 
 	te = G_TempEntity( org, EV_PREDEFSOUND );
-	te->s.eventParm = pdSound;
+	te->s.eventParm = to_underlying( pdSound );
 	VectorCopy(org, te->s.origin);
 
 	return te;
@@ -74,7 +74,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	char userinfo[MAX_INFO_STRING], forcePowers[DEFAULT_FORCEPOWERS_LEN+1], readBuf[DEFAULT_FORCEPOWERS_LEN+1];
 
 	// if server has no max rank, default to max (50)
-	if ( g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= NUM_FORCE_MASTERY_LEVELS ) {
+	if ( g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= to_underlying( NUM_FORCE_MASTERY_LEVELS ) ) {
 		// ack, prevent user from being dumb
 		trap->Cvar_Set( "g_maxForceRank", va( "%i", FORCE_MASTERY_JEDI_MASTER ) );
 		trap->Cvar_Update( &g_maxForceRank );
@@ -1390,7 +1390,7 @@ void ForceSpeed( gentity_t *self, int forceDuration )
 
 	WP_ForcePowerStart( self, FP_SPEED, forceDuration );
 	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );
-	G_Sound( self, TRACK_CHANNEL_2, speedLoopSound );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_2 ), speedLoopSound );
 }
 
 void ForceSeeing( gentity_t *self )
@@ -1417,7 +1417,7 @@ void ForceSeeing( gentity_t *self )
 	WP_ForcePowerStart( self, FP_SEE, 0 );
 
 	G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/weapons/force/see.wav") );
-	G_Sound( self, TRACK_CHANNEL_5, seeLoopSound );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_5 ), seeLoopSound );
 }
 
 void ForceProtect( gentity_t *self )
@@ -1453,7 +1453,7 @@ void ForceProtect( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_PROTECT, 0 );
 	G_PreDefSound(self->client->ps.origin, PDSOUND_PROTECT);
-	G_Sound( self, TRACK_CHANNEL_3, protectLoopSound );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), protectLoopSound );
 }
 
 void ForceAbsorb( gentity_t *self )
@@ -1489,7 +1489,7 @@ void ForceAbsorb( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_ABSORB, 0 );
 	G_PreDefSound(self->client->ps.origin, PDSOUND_ABSORB);
-	G_Sound( self, TRACK_CHANNEL_3, absorbLoopSound );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), absorbLoopSound );
 }
 
 void ForceRage( gentity_t *self )
@@ -1535,8 +1535,8 @@ void ForceRage( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_RAGE, 0 );
 
-	G_Sound( self, TRACK_CHANNEL_4, G_SoundIndex("sound/weapons/force/rage.wav") );
-	G_Sound( self, TRACK_CHANNEL_3, rageLoopSound );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_4 ), G_SoundIndex("sound/weapons/force/rage.wav") );
+	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), rageLoopSound );
 }
 
 void ForceLightning( gentity_t *self )
@@ -2098,7 +2098,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 
 	if (self->client->ps.fd.forcePower < forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION])
 	{
-		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		return;
 	}
 
@@ -2115,7 +2115,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 	//need to play sound
 	if ( !self->client->ps.fd.forceJumpCharge )
 	{
-		G_Sound( self, TRACK_CHANNEL_1, G_SoundIndex("sound/weapons/force/jumpbuild.wav") );
+		G_Sound( self, to_underlying( TRACK_CHANNEL_1 ), G_SoundIndex("sound/weapons/force/jumpbuild.wav") );
 	}
 
 	//Increment
@@ -2129,20 +2129,20 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 	if ( self->client->ps.fd.forceJumpCharge > forceJumpStrength[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]] )
 	{
 		self->client->ps.fd.forceJumpCharge = forceJumpStrength[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]];
-		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 	}
 
 	//clamp to max available force power
 	if ( self->client->ps.fd.forceJumpCharge/forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME)*forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION] > self->client->ps.fd.forcePower )
 	{//can't use more than you have
-		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		self->client->ps.fd.forceJumpCharge = self->client->ps.fd.forcePower*forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME);
 	}
 
 	//trap->Print("%f\n", self->client->ps.fd.forceJumpCharge);
 }
 
-int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd )
+forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd )
 {
 	float pushFwd = 0, pushRt = 0;
 	vec3_t	view, forward, right;
@@ -2188,7 +2188,7 @@ int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd
 		}
 	}
 
-	G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+	G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 
 	G_PreDefSound(self->client->ps.origin, PDSOUND_FORCEJUMP);
 
@@ -2420,13 +2420,13 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 							}
 						}
 						//store these for retrieval later
-						traceEnt->genericValue1 = traceEnt->client->playerTeam;
-						traceEnt->genericValue2 = traceEnt->client->enemyTeam;
+						traceEnt->genericValue1 = to_underlying( traceEnt->client->playerTeam );
+						traceEnt->genericValue2 = to_underlying( traceEnt->client->enemyTeam );
 						traceEnt->genericValue3 = traceEnt->s.teamowner;
 						//set the new values
 						traceEnt->client->playerTeam = newPlayerTeam;
 						traceEnt->client->enemyTeam = newEnemyTeam;
-						traceEnt->s.teamowner = newPlayerTeam;
+						traceEnt->s.teamowner = to_underlying( newPlayerTeam );
 						//FIXME: need a *charmed* timer on this...?  Or do TEAM_PLAYERS assume that "confusion" means they should switch to team_enemy when done?
 						traceEnt->NPC->charmedTime = level.time + mindTrickTime[self->client->ps.fd.forcePowerLevel[FP_TELEPATHY]];
 					}
@@ -2573,7 +2573,7 @@ void ForceTelepathy(gentity_t *self)
 			tr.entityNum != ENTITYNUM_NONE &&
 			g_entities[tr.entityNum].inuse &&
 			g_entities[tr.entityNum].client &&
-			g_entities[tr.entityNum].client->pers.connected &&
+			g_entities[tr.entityNum].client->pers.connected != CON_DISCONNECTED &&
 			g_entities[tr.entityNum].client->sess.sessionTeam != TEAM_SPECTATOR)
 		{
 			WP_AddAsMindtricked(&self->client->ps.fd, tr.entityNum);
@@ -3607,7 +3607,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	case FP_SPEED:
 		if (wasActive & (1 << FP_SPEED))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_2-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_2 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_PUSH:
@@ -3627,7 +3627,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	case FP_SEE:
 		if (wasActive & (1 << FP_SEE))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_5-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_5 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_GRIP:
@@ -3648,7 +3648,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 			g_entities[self->client->ps.fd.forceGripEntityNum].inuse)
 		{
 
-			g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.forceGripChangeMovetype = PM_NORMAL;
+			g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.forceGripChangeMovetype = to_underlying( PM_NORMAL );
 		}
 
 		if (self->client->ps.forceHandExtend == HANDEXTEND_FORCE_HOLD)
@@ -3680,19 +3680,19 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		self->client->ps.fd.forceRageRecoveryTime = level.time + 10000;
 		if (wasActive & (1 << FP_RAGE))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_ABSORB:
 		if (wasActive & (1 << FP_ABSORB))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_PROTECT:
 		if (wasActive & (1 << FP_PROTECT))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_DRAIN:
@@ -3737,7 +3737,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 
 		if (gripEnt && gripEnt->client && gripEnt->inuse)
 		{
-			gripEnt->client->ps.forceGripChangeMovetype = PM_NORMAL;
+			gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_NORMAL );
 		}
 		return;
 	}
@@ -3814,7 +3814,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		gripEnt->client->ps.otherKillerTime = level.time + 5000;
 		gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
 
-		gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
+		gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_FLOAT );
 
 		if ((level.time - gripEnt->client->ps.fd.forceGripStarted) > 3000 && !self->client->ps.fd.forceGripDamageDebounceTime)
 		{ //if we managed to lift him into the air for 2 seconds, give him a crack
@@ -3847,7 +3847,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		gripEnt->client->ps.otherKillerTime = level.time + 5000;
 		gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
 
-		gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
+		gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_FLOAT );
 
 		if (gripEnt->client->ps.forceGripMoveInterval < level.time)
 		{
@@ -4313,7 +4313,7 @@ int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepow
 		if ( self->client->ps.groundEntityNum == ENTITYNUM_NONE )
 		{
 			self->client->ps.fd.forceJumpCharge = 0;
-			G_MuteSound( self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE );
+			G_MuteSound( self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE );
 			//This only happens if the groundEntityNum == ENTITYNUM_NONE when the button is actually released
 		}
 		else
@@ -4975,8 +4975,8 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.forceHandExtendTime >= level.time)
 	{
 		self->client->ps.saberMove = 0;
-		self->client->ps.saberBlocking = 0;
-		self->client->ps.saberBlocked = 0;
+		self->client->ps.saberBlocking = BLK_NO;
+		self->client->ps.saberBlocked = BLOCKED_NONE;
 		self->client->ps.weaponTime = 0;
 		self->client->ps.weaponstate = WEAPON_READY;
 	}
@@ -5092,7 +5092,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 		if (self->client->ps.fd.forceJumpCharge)
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 			self->client->ps.fd.forceJumpCharge = 0;
 		}
 	}
@@ -5231,7 +5231,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{ //this was for the "charge" jump method... I guess
 		if (ucmd->upmove < 10 && (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LEVITATION))
 		{
-			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
+			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 			self->client->ps.fd.forceJumpCharge = 0;
 		}
 	}
@@ -5370,7 +5370,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			{
 				if ( self->client->holdingObjectiveItem && g_entities[self->client->holdingObjectiveItem].inuse && g_entities[self->client->holdingObjectiveItem].genericValue15 )
 					self->client->ps.fd.forcePowerRegenDebounceTime += 7000; //1 point per 7 seconds.. super slow
-				else if (self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_FASTFORCEREGEN)))
+				else if (self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & Bit( CFL_FASTFORCEREGEN )))
 					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer*0.2, 1); //if this is siege and our player class has the fast force regen ability, then recharge with 1/5th the usual delay
 				else
 					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer, 1);
@@ -5408,7 +5408,7 @@ powersetcheck:
 	}
 }
 
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 {
 	int	dodgeAnim = -1;
 

@@ -1605,9 +1605,9 @@ bool G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force)
 	return true;
 }
 
-bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params);
 
-bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
+bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params)
 {
 	return G2_SetBoneIKState(ghoul2, time, boneName, ikState, params);
 }

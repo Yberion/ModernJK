@@ -222,12 +222,14 @@ enum class leType_t {
 };
 using enum leType_t;
 
-typedef enum {
+enum class leFlag_t {
 	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
 	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
 	LEF_FADE_RGB		= 0x0004,			// explicitly fade
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
-} leFlag_t;
+};
+using enum leFlag_t;
+template <> inline constexpr bool enableEnumFlags<leFlag_t> = true;
 
 enum class leBounceSound_t
 {
@@ -240,7 +242,7 @@ using enum leBounceSound_t;	// fragment local entities can make sounds on impact
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
 	leType_t		leType;
-	int				leFlags;
+	leFlag_t		leFlags;
 
 	int				startTime;
 	int				endTime;
@@ -1195,7 +1197,7 @@ e_status trap_CIN_StopCinematic(int handle);
 e_status trap_CIN_RunCinematic (int handle);
 void	trap_CIN_DrawCinematic (int handle);
 void	trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
-void	*cgi_Z_Malloc( int size, int tag );
+void	*cgi_Z_Malloc( int size, memtag_t tag );
 void	cgi_Z_Free( void *ptr );
 
 int		cgi_SP_GetStringTextString(const char *text, char *buf, int bufferlength);

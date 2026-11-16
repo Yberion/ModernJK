@@ -240,7 +240,7 @@ static saber_colors_t TranslateSaberColor( const char *name )
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
+		return static_cast<saber_colors_t>( Q_irand( to_underlying( SABER_ORANGE ), to_underlying( SABER_PURPLE ) ) );
 	}
 	return SABER_BLUE;
 }
@@ -279,7 +279,7 @@ static int ItemNameToNumber( const char *name, int itemType ) {
 }
 */
 
-static int MoveTypeNameToEnum( const char *name )
+static movetype_t MoveTypeNameToEnum( const char *name )
 {
 	if(!Q_stricmp("runjump", name))
 	{
@@ -2013,7 +2013,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 
 				if ( NPC->NPC )
 				{
-					stats->moveType = (movetype_t)MoveTypeNameToEnum(value);
+					stats->moveType = MoveTypeNameToEnum(value);
 				}
 				continue;
 			}

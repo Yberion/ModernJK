@@ -168,9 +168,9 @@ void CL_ShutdownUI( void ) {
 	cls.uiStarted = false;
 }
 
-void CL_DrawDatapad(int HUDType)
+void CL_DrawDatapad(dpTypes_t HUDType)
 {
-	switch(HUDType)
+	switch( HUDType )
 	{
 	case DP_HUD:
 		VM_Call( CG_DRAW_DATAPAD_HUD );
@@ -370,7 +370,7 @@ The ui module is making a system call
 intptr_t CL_UISystemCalls( intptr_t *args )
 {
 
-	switch( args[0] )
+	switch( static_cast<uiImport_t>( args[0] ) )
 	{
 	case UI_ERROR:
 		Com_Error( ERR_DROP, "%s", VMA(1) );
@@ -403,7 +403,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return 0;
 
 	case UI_CMD_EXECUTETEXT:
-		Cbuf_ExecuteText( args[1], (const char *) VMA(2) );
+		Cbuf_ExecuteText( static_cast<cbufExec_t>( args[1] ), (const char *) VMA(2) );
 		return 0;
 
 	case UI_CVAR_VARIABLEVALUE:
@@ -472,10 +472,10 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 	  return CIN_PlayCinematic((const char *)VMA(1), args[2], args[3], args[4], args[5], args[6], (const char *)VMA(7));
 
 	case UI_CIN_STOPCINEMATIC:
-	  return CIN_StopCinematic(args[1]);
+	  return to_underlying( CIN_StopCinematic(args[1]) );
 
 	case UI_CIN_RUNCINEMATIC:
-	  return CIN_RunCinematic(args[1]);
+	  return to_underlying( CIN_RunCinematic(args[1]) );
 
 	case UI_CIN_DRAWCINEMATIC:
 	  CIN_DrawCinematic(args[1]);

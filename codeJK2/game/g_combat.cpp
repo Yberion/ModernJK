@@ -675,20 +675,20 @@ void G_SetMissionStatusText( gentity_t *attacker, int mod )
 
 	if ( mod == MOD_FALLING )
 	{//fell to your death
-		statusTextIndex = STAT_WATCHYOURSTEP;
+		statusTextIndex = to_underlying( STAT_WATCHYOURSTEP );
 	}
 	else if ( mod == MOD_CRUSH )
 	{//crushed
-		statusTextIndex = STAT_JUDGEMENTMUCHDESIRED;
+		statusTextIndex = to_underlying( STAT_JUDGEMENTMUCHDESIRED );
 	}
 	else if ( attacker && Q_stricmp( "trigger_hurt", attacker->classname ) == 0 )
 	{//Killed by something that should have been clearly dangerous
 //		statusTextIndex = Q_irand( IGT_JUDGEMENTDESIRED, IGT_JUDGEMENTMUCHDESIRED );
-		statusTextIndex = STAT_JUDGEMENTMUCHDESIRED;
+		statusTextIndex = to_underlying( STAT_JUDGEMENTMUCHDESIRED );
 	}
 	else if ( attacker && attacker->s.number != 0 && attacker->client && attacker->client->playerTeam == TEAM_PLAYER )
 	{//killed by a teammate
-		statusTextIndex = STAT_INSUBORDINATION;
+		statusTextIndex = to_underlying( STAT_INSUBORDINATION );
 	}
 }
 

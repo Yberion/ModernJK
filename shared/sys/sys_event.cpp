@@ -43,7 +43,7 @@ static uint32_t		eventHead = 0, eventTail = 0;
 
 static const char *Sys_EventName( sysEventType_t evType ) {
 
-	static const char *evNames[SE_MAX] = {
+	static const EnumArray<const char *, sysEventType_t, SE_MAX> evNames = {
 		"SE_NONE",
 		"SE_KEY",
 		"SE_CHAR",

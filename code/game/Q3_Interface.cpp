@@ -45,7 +45,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern	cvar_t	*com_buildScript;
 
 extern void InitMover( gentity_t *ent );
-extern void MatchTeam( gentity_t *teamLeader, int moverState, int time );
+extern void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void NPC_BSSearchStart( int homeWp, bState_t bState );
@@ -178,7 +178,7 @@ stringID_table_t eventTable[] =
 {
 	//BOTH_h
 	//END
-	{ "",				EV_BAD }
+	{ "",				to_underlying( EV_BAD ) }
 };
 
 stringID_table_t DMSTable[] =
@@ -625,7 +625,7 @@ void Q3_TaskIDComplete( gentity_t *ent, taskID_t taskType )
 
 		//See if any other tasks have the name number and clear them so we don't complete more than once
 		int	clearTask = ent->taskID[taskType];
-		for ( int tid = 0; tid < NUM_TIDS; tid++ )
+		for ( taskID_t tid = TID_CHAN_VOICE; tid < NUM_TIDS; tid++ )
 		{
 			if ( ent->taskID[tid] == clearTask )
 			{
@@ -757,7 +757,7 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 	client = &level.clients[0];
 
 	objectiveID = GetIDForString( objectiveTable, ObjEnum );
-	objective = &client->sess.mission_objectives[objectiveID];
+	objective = &client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveID )];
 
 
 	switch (status)
@@ -792,7 +792,7 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 		break;
 	}
 
-	if ( objectiveID == LIGHTSIDE_OBJ
+	if ( objectiveID == to_underlying( LIGHTSIDE_OBJ )
 		&& status == SET_OBJ_FAILED )
 	{//don't do this unless we just set that specific objective (just turned to the dark side) with this SET_OBJECTIVE command
 		G_CheckPlayerDarkSide();
@@ -837,7 +837,7 @@ static void Q3_SetStatusText(const char *StatusTextEnum)
 
 	statusTextID = GetIDForString( statusTextTable, StatusTextEnum );
 
-	switch (statusTextID)
+	switch ( static_cast<statusText_t>( statusTextID ) )
 	{
 	case STAT_INSUBORDINATION:
 	case STAT_YOUCAUSEDDEATHOFTEAMMATE:
@@ -864,7 +864,7 @@ Q3_ObjectiveClearAll
 static void Q3_ObjectiveClearAll(void)
 {
 	client = &level.clients[0];
-	memset(client->sess.mission_objectives,0,sizeof(client->sess.mission_objectives));
+	client->sess.mission_objectives = {};
 }
 
 /*
@@ -3918,7 +3918,7 @@ static void Q3_SetMusicState( const char *dms )
 	int newDMS = GetIDForString( DMSTable, dms );
 	if ( newDMS != -1 )
 	{
-		level.dmState = newDMS;
+		level.dmState = static_cast<dynamicMusic_t>( newDMS );
 	}
 }
 
@@ -4155,7 +4155,7 @@ static void Q3_SetEvent( int entID, const char *event_name )
 	}
 
 	event = GetIDForString( eventTable, event_name );
-	switch( event )
+	switch( static_cast<eventType_t>( event ) )
 	{
 /*
 	case EV_DISINTEGRATE:
@@ -10765,7 +10765,7 @@ int		CQuake3GameInterface::GetString( int entID, const char *name, const char **
 		}
 		break;
 	case SET_MUSIC_STATE:
-		*value = (char *)GetStringForID( DMSTable, level.dmState );
+		*value = (char *)GetStringForID( DMSTable, to_underlying( level.dmState ) );
 		break;
 	//The below cannot be gotten
 	case SET_NAVGOAL://## %s="NULL" # *Move to this navgoal then continue script

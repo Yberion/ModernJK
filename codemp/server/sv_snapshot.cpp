@@ -203,7 +203,7 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 	// this is the snapshot we are creating
 	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
 
-	MSG_WriteByte (msg, svc_snapshot);
+	MSG_WriteByte( msg, to_underlying( svc_snapshot ) );
 
 	// NOTE, MRE: now sent at the start of every message from server to client
 	// let the client know which reliable clientCommands we have received
@@ -289,7 +289,7 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 
 	// write any unacknowledged serverCommands
 	for ( i = reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		MSG_WriteByte( msg, svc_serverCommand );
+		MSG_WriteByte( msg, to_underlying( svc_serverCommand ) );
 		MSG_WriteLong( msg, i );
 		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -375,7 +375,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
 	// specfically check for it
-	if ( !sv.state ) {
+	if ( sv.state == SS_DEAD ) {
 		return;
 	}
 
@@ -688,7 +688,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 	// MW - my attempt to fix illegible server message errors caused by
 	// packet fragmentation of initial snapshot.
-	while(client->state&&client->netchan.unsentFragments)
+	while(client->state != CS_FREE &&client->netchan.unsentFragments)
 	{
 		// send additional message fragments if the last message
 		// was too large to send at once
@@ -805,7 +805,7 @@ void SV_SendClientMessages( void ) {
 
 	// send a message to each connected client
 	for (i=0, c = svs.clients ; i < sv_maxclients->integer ; i++, c++) {
-		if (!c->state) {
+		if (c->state == CS_FREE) {
 			continue;		// not connected
 		}
 

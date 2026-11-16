@@ -323,8 +323,8 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 };
 
 
-saberMoveName_t transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
-{
+EnumArray<EnumArray<saberMoveName_t, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove =
+{ {
 	{
 		LS_NONE,	//Can't transition to same pos!
 		LS_T1_BR__R,//40
@@ -405,7 +405,7 @@ saberMoveName_t transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
 		LS_T1_BR_BL,
 		LS_NONE		//No transitions to bottom, and no anims start there, so shouldn't need any
 	}
-};
+} };
 
 void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir )
 {
@@ -443,6 +443,9 @@ void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir )
 	case Q_B:
 		VectorScale( vUp, -2, startQ );
 		break;
+	
+	default:
+		break;
 	}
 	switch ( saberMoveData[ps->saberMove].endQuad )
 	{
@@ -473,6 +476,9 @@ void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir )
 		break;
 	case Q_B:
 		VectorScale( vUp, -2, endQ );
+		break;
+	
+	default:
 		break;
 	}
 	VectorMA( endQ, 2, vForward, endQ );
@@ -1722,6 +1728,9 @@ saberMoveName_t PM_BrokenParryForAttack( int move )
 	case Q_BL:
 		return LS_V1_BL;
 		break;
+	
+	default:
+		break;
 	}
 	return LS_NONE;
 }
@@ -1762,7 +1771,7 @@ saberMoveName_t PM_BrokenParryForParry( int move )
 	return LS_NONE;
 }
 
-saberMoveName_t PM_KnockawayForParry( int move )
+saberMoveName_t PM_KnockawayForParry( saberBlockedType_t move )
 {
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
@@ -1790,7 +1799,7 @@ saberMoveName_t PM_KnockawayForParry( int move )
 
 saberMoveName_t PM_SaberBounceForAttack( int move )
 {
-	switch ( saberMoveData[move].startQuad )
+	switch ( static_cast<saberQuadrant_t>( saberMoveData[move].startQuad ) )
 	{
 	case Q_B:
 	case Q_BR:
@@ -1814,11 +1823,14 @@ saberMoveName_t PM_SaberBounceForAttack( int move )
 	case Q_BL:
 		return LS_B1_BL;
 		break;
+	
+	default:
+		break;
 	}
 	return LS_NONE;
 }
 
-saberMoveName_t PM_AttackMoveForQuad( int quad )
+saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad )
 {
 	switch ( quad )
 	{
@@ -1844,11 +1856,14 @@ saberMoveName_t PM_AttackMoveForQuad( int quad )
 	case Q_BL:
 		return LS_A_BL2TR;
 		break;
+	
+	default:
+		break;
 	}
 	return LS_NONE;
 }
 
-int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] =
+int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_QUADS )] =
 {
 	{
 		0,//Q_BR,Q_BR,
@@ -1938,7 +1953,7 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 	{
 		return -1;
 	}
-	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
+	return saberMoveTransitionAngle[to_underlying( saberMoveData[move1].endQuad )][to_underlying( saberMoveData[move2].startQuad )];
 }
 
 bool PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
@@ -2236,7 +2251,7 @@ saberMoveName_t PM_CheckStabDown( void )
 		{//wtf???
 			return LS_NONE;
 		}
-		if ( Q_irand( 0, RANK_CAPTAIN ) > pm->gent->NPC->rank )
+		if ( Q_irand( 0, to_underlying( RANK_CAPTAIN ) ) > to_underlying( pm->gent->NPC->rank ) )
 		{//lower ranks do this less often
 			return LS_NONE;
 		}
@@ -2281,7 +2296,7 @@ saberMoveName_t PM_CheckStabDown( void )
 	return LS_NONE;
 }
 
-extern saberMoveName_t PM_NPCSaberAttackFromQuad( int quad );
+extern saberMoveName_t PM_NPCSaberAttackFromQuad( saberQuadrant_t quad );
 saberMoveName_t PM_SaberFlipOverAttackMove( void );
 saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 {
@@ -2350,7 +2365,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 					{//player should never do this automatically
 						if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
 						{//only when on ground
-							if ( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, pm->gent->NPC->rank ) > RANK_ENSIGN )
+							if ( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) )
 							{//only fencers and higher can do this, higher rank does it more
 								if ( PM_CheckEnemyInBack( 100 ) )
 								{
@@ -2605,7 +2620,7 @@ bool PM_CheckLungeAttackMove( void )
 					if ( pm->gent
 						&& pm->gent->NPC //NPC
 						&& pm->gent->NPC->rank >= RANK_LT_JG //high rank
-						&& ( pm->gent->NPC->rank == RANK_LT_JG || Q_irand( -3, pm->gent->NPC->rank ) >= RANK_LT_JG )//Q_irand( 0, pm->gent->NPC->rank ) >= RANK_LT_JG )
+						&& ( pm->gent->NPC->rank == RANK_LT_JG || Q_irand( -3, to_underlying( pm->gent->NPC->rank ) ) >= to_underlying( RANK_LT_JG ) )//Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) >= to_underlying( RANK_LT_JG ) )
 						&& !Q_irand( 0, 3-g_spskill->integer ) )
 					{//only fencer and higher can do this
 						if ( pm->ps->saberAnimLevel == SS_DESANN )
@@ -3413,6 +3428,9 @@ saberMoveName_t PM_CheckPlayerAttackFromParry( int curmove )
 				return LS_A_BL2TR;
 				break;
 			//shouldn't be a parry that ends at L, R or B
+			
+			default:
+				break;
 			}
 		}
 	}
@@ -3819,7 +3837,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 									pm->gent->enemy->health <= 0 )//128 squared
 								{//my enemy is pretty far in front of me and I'm using fast attacks
 									if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) ||
-										( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, pm->gent->NPC->rank ) > RANK_ENSIGN ) )
+										( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) ) )
 									{//only fencers and higher can do this, higher rank does it more
 										if ( PM_CheckEnemyInBack( 128 ) )
 										{
@@ -3830,7 +3848,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 								else if ( ((pm->ps->saberAnimLevel >= FORCE_LEVEL_2 || pm->gent->client->NPC_class == CLASS_DESANN) && enemyDistSq > 40000) || pm->gent->enemy->health <= 0 )//200 squared
 								{//enemy is very faw away and I'm using medium/strong attacks
 									if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) ||
-										( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, pm->gent->NPC->rank ) > RANK_ENSIGN ) )
+										( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) ) )
 									{//only fencers and higher can do this, higher rank does it more
 										if ( PM_CheckEnemyInBack( 164 ) )
 										{

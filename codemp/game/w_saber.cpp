@@ -188,8 +188,8 @@ static QINLINE int G_SaberAttackPower(gentity_t *ent, bool attacking)
 #endif
 	}
 
-	if ((ent->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM)) ||
-		(ent->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
+	if ((ent->client->ps.brokenLimbs & Bit( BROKENLIMB_RARM )) ||
+		(ent->client->ps.brokenLimbs & Bit( BROKENLIMB_LARM )))
 	{ //We're very weak when one of our arms is broken
 		baseLevel *= 0.3;
 	}
@@ -1055,7 +1055,7 @@ static QINLINE bool SaberAttacking( gentity_t *self )
 	return false;
 }
 
-typedef enum
+enum class sabersLockMode_t
 {
 	LOCK_FIRST = 0,
 	LOCK_TOP = LOCK_FIRST,
@@ -1066,7 +1066,8 @@ typedef enum
 	LOCK_R,
 	LOCK_L,
 	LOCK_RANDOM
-} sabersLockMode_t;
+};
+using enum sabersLockMode_t;
 
 #define LOCK_IDEAL_DIST_TOP 32.0f
 #define LOCK_IDEAL_DIST_CIRCLE 48.0f
@@ -1074,7 +1075,7 @@ typedef enum
 #define SABER_HITDAMAGE 35
 void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, bool missileBlock );
 
-int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSide, int lockOrBreakOrSuperBreak, int winOrLose )
+int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, saberLockType_t topOrSide, saberLockType_t lockOrBreakOrSuperBreak, saberLockType_t winOrLose )
 {
 	int baseAnim = -1;
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )
@@ -1193,7 +1194,7 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	return baseAnim;
 }
 
-extern bool BG_CheckIncrementLockAnim( int anim, int winOrLose ); //bg_saber.cpp
+extern bool BG_CheckIncrementLockAnim( int anim, saberLockType_t winOrLose ); //bg_saber.cpp
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 
 static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
@@ -1868,7 +1869,7 @@ bool WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 	return false;
 }
 
-static QINLINE int G_GetParryForBlock(int block)
+static QINLINE int G_GetParryForBlock( saberBlockedType_t block )
 {
 	switch (block)
 	{
@@ -1910,7 +1911,7 @@ static QINLINE int G_GetParryForBlock(int block)
 }
 
 int PM_SaberBounceForAttack( int move );
-int PM_SaberDeflectionForQuad( int quad );
+int PM_SaberDeflectionForQuad( saberQuadrant_t quad );
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, float saberHitFraction )
@@ -1942,9 +1943,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 	if ( animBasedDeflection )
 	{
 		//Hmm, let's try just basing it off the anim
-		int attQuadStart = saberMoveData[attacker->client->ps.saberMove].startQuad;
-		int attQuadEnd = saberMoveData[attacker->client->ps.saberMove].endQuad;
-		int defQuad = saberMoveData[defender->client->ps.saberMove].endQuad;
+		saberQuadrant_t attQuadStart = saberMoveData[attacker->client->ps.saberMove].startQuad;
+		saberQuadrant_t attQuadEnd = saberMoveData[attacker->client->ps.saberMove].endQuad;
+		saberQuadrant_t defQuad = saberMoveData[defender->client->ps.saberMove].endQuad;
 		int quadDiff = Q_fabs((float)(defQuad-attQuadStart));
 
 		if ( defender->client->ps.saberMove == LS_READY )
@@ -1960,7 +1961,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 		}
 
 		//reverse the left/right of the defQuad because of the mirrored nature of facing each other in combat
-		switch ( defQuad )
+		switch ( static_cast<saberQuadrant_t>( defQuad ) )
 		{
 		case Q_BR:
 			defQuad = Q_BL;
@@ -1979,6 +1980,9 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 			break;
 		case Q_BL:
 			defQuad = Q_BR;
+			break;
+		
+		default:
 			break;
 		}
 
@@ -2009,7 +2013,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 		}
 		else
 		{//attack hit at an angle, figure out what angle it should bounce off att
-			int newQuad;
+			saberQuadrant_t newQuad;
 			quadDiff = defQuad - attQuadEnd;
 			//add half the diff of between the defense and attack end to the attack end
 			if ( quadDiff > 4 )
@@ -2023,7 +2027,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 			newQuad = attQuadEnd + Q_ceil( ((float)quadDiff)/2.0f );
 			if ( newQuad < Q_BR )
 			{//less than zero wraps around
-				newQuad = Q_B + newQuad;
+				newQuad = Q_B + to_underlying( newQuad );
 			}
 			if ( newQuad == attQuadStart )
 			{//never come off at the same angle that we would have if the attack was not interrupted
@@ -2777,7 +2781,7 @@ float WP_SaberLength( gentity_t *ent )
 }
 int WPDEBUG_SaberColor( saber_colors_t saberColor )
 {
-	switch( (int)(saberColor) )
+	switch( saberColor )
 	{
 		case SABER_RED:
 			return 0x000000ff;
@@ -4322,7 +4326,7 @@ static QINLINE bool CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeN
 		bool inBackAttack = G_SaberInBackAttack(self->client->ps.saberMove);
 
 		unblockable = true;
-		self->client->ps.saberBlocked = 0;
+		self->client->ps.saberBlocked = BLOCKED_NONE;
 
 		if ( d_saberSPStyleDamage.integer )
 		{
@@ -4397,8 +4401,8 @@ static QINLINE bool CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeN
 			dmg = Q_ceil( (float)dmg*self->client->saber[rSaberNum].damageScale2 );
 		}
 
-		if ((self->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM)) ||
-			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
+		if ((self->client->ps.brokenLimbs & Bit( BROKENLIMB_RARM )) ||
+			(self->client->ps.brokenLimbs & Bit( BROKENLIMB_LARM )))
 		{ //weaken it if an arm is broken
 			dmg *= 0.3;
 			if (dmg <= SABER_NONATTACK_DAMAGE)
@@ -4414,7 +4418,7 @@ static QINLINE bool CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeN
 	}
 
 	if (dmg > SABER_NONATTACK_DAMAGE && level.gametype == GT_SIEGE &&
-		self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_MORESABERDMG)))
+		self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & Bit( CFL_MORESABERDMG )))
 	{ //this class is flagged to do extra saber damage. I guess 2x will do for now.
 		dmg *= 2;
 	}
@@ -4869,7 +4873,7 @@ blockStuff:
 		if (BG_SaberInSpecial(otherOwner->client->ps.saberMove))
 		{
 			otherUnblockable = true;
-			otherOwner->client->ps.saberBlocked = 0;
+			otherOwner->client->ps.saberBlocked = BLOCKED_NONE;
 		}
 
 		if ( sabersClashed &&
@@ -5875,7 +5879,7 @@ static QINLINE bool CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *sabe
 		ent->health > 0 && ent->takedamage &&
 		trap->InPVS(ent->client->ps.origin, saberent->r.currentOrigin) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
-		(ent->client->pers.connected || ent->s.eType == ET_NPC))
+		(ent->client->pers.connected != CON_DISCONNECTED || ent->s.eType == ET_NPC))
 	{ //hit a client
 		if (ent->inuse && ent->client &&
 			ent->client->ps.duelInProgress &&
@@ -8820,7 +8824,7 @@ nextStep:
 			}
 
 			/*
-			if (rSaberNum == 0 && (self->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM)))
+			if (rSaberNum == 0 && (self->client->ps.brokenLimbs & Bit( BROKENLIMB_RARM )))
 			{ //don't do saber 0 is the right arm is broken
 				rSaberNum++;
 				continue;
@@ -8829,7 +8833,7 @@ nextStep:
 			//for now I'm keeping a broken right arm swingable, it will just look and act damaged
 			//but still be useable
 
-			if (rSaberNum == 1 && (self->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
+			if (rSaberNum == 1 && (self->client->ps.brokenLimbs & Bit( BROKENLIMB_LARM )))
 			{ //don't to saber 1 if the left arm is broken
 				break;
 			}
@@ -9117,7 +9121,7 @@ finalUpdate:
 	G_UpdateClientAnims(self, animSpeedScale);
 }
 
-int WP_MissileBlockForBlock( int saberBlock )
+saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock )
 {
 	switch( saberBlock )
 	{
@@ -9135,6 +9139,9 @@ int WP_MissileBlockForBlock( int saberBlock )
 		break;
 	case BLOCKED_TOP:
 		return BLOCKED_TOP_PROJ;
+		break;
+	
+	default:
 		break;
 	}
 	return saberBlock;
@@ -9310,7 +9317,7 @@ int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, bool pr
 		return 0;
 	}
 
-	if (PM_InSaberAnim(self->client->ps.torsoAnim) && !self->client->ps.saberBlocked &&
+	if (PM_InSaberAnim(self->client->ps.torsoAnim) && self->client->ps.saberBlocked == BLOCKED_NONE &&
 		self->client->ps.saberMove != LS_READY && self->client->ps.saberMove != LS_NONE)
 	{
 		if ( self->client->ps.saberMove < LS_PARRY_UP || self->client->ps.saberMove > LS_REFLECT_LL )
@@ -9405,7 +9412,7 @@ int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, bool pr
 	}
 
 	if (self->client->ps.saberMove != LS_READY &&
-		!self->client->ps.saberBlocking)
+		self->client->ps.saberBlocking == BLK_NO)
 	{
 		return 0;
 	}

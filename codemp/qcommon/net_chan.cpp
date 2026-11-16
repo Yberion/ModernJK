@@ -57,7 +57,7 @@ cvar_t		*showpackets;
 cvar_t		*showdrop;
 cvar_t		*qport;
 
-static const char *netsrcString[2] = {
+static const EnumArray<const char *, netsrc_t, 2> netsrcString = {
 	"client",
 	"server"
 };
@@ -510,7 +510,7 @@ typedef struct loopback_s {
 	int			get, send;
 } loopback_t;
 
-loopback_t	loopbacks[2];
+EnumArray<loopback_t, netsrc_t, 2>	loopbacks;
 
 
 bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
@@ -543,7 +543,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data)
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[sock^1];
+	loop = &loopbacks[sock == NS_CLIENT ? NS_SERVER : NS_CLIENT];
 
 	i = loop->send & (MAX_LOOPBACK-1);
 	loop->send++;

@@ -205,7 +205,7 @@ void NPC_BSStandGuard (void)
 	{//Possible to pick one up by being shot
 		if( Q_flrand(0.0f, 1.0f) < 0.5 )
 		{
-			if(NPCS.NPC->client->enemyTeam)
+			if(NPCS.NPC->client->enemyTeam != NPCTEAM_FREE)
 			{
 				gentity_t *newenemy = NPC_PickEnemy(NPCS.NPC, NPCS.NPC->client->enemyTeam, (NPCS.NPC->cantHitEnemyCounter < 10), (NPCS.NPC->client->enemyTeam == NPCTEAM_PLAYER), true);
 				//only checks for vis if couldn't hit last enemy
@@ -322,7 +322,7 @@ void NPC_BSStandAndShoot (void)
 	//FIXME:
 	//When they're all dead, go to some script or wander off to sickbay?
 
-	if(NPCS.NPC->client->playerTeam && NPCS.NPC->client->enemyTeam)
+	if(NPCS.NPC->client->playerTeam != NPCTEAM_FREE && NPCS.NPC->client->enemyTeam != NPCTEAM_FREE)
 	{
 		//FIXME: don't realize this right away- or else enemies show up and we're standing around
 		/*

@@ -35,7 +35,7 @@ int	teamCounter[TEAM_NUM_TEAMS];
 
 #define	VALID_ATTACK_CONE	2.0f	//Degrees
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
-extern void Q3_DebugPrint( int level, const char *format, ... );
+extern void Q3_DebugPrint( WL_e level, const char *format, ... );
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )

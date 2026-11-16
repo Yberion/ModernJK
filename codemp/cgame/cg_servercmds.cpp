@@ -234,7 +234,7 @@ static void CG_ParseWarmup( void ) {
 
 // this is a reverse map of flag statuses as seen in g_team.cpp
 //static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-static char ctfFlagStatusRemap[] = {
+static const flagStatus_t ctfFlagStatusRemap[] = {
 	FLAG_ATBASE,
 	FLAG_TAKEN,			// CTF
 	// server doesn't use FLAG_TAKEN_RED or FLAG_TAKEN_BLUE

@@ -97,7 +97,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define BOT_SABER_THROW_RANGE		800
 
-typedef enum
+enum class bot_ctf_state_t
 {
 	CTFSTATE_NONE,
 	CTFSTATE_ATTACKER,
@@ -106,24 +106,27 @@ typedef enum
 	CTFSTATE_GUARDCARRIER,
 	CTFSTATE_GETFLAGHOME,
 	CTFSTATE_MAXCTFSTATES
-} bot_ctf_state_t;
+};
+using enum bot_ctf_state_t;
 
-typedef enum
+enum class bot_siege_state_t
 {
 	SIEGESTATE_NONE,
 	SIEGESTATE_ATTACKER,
 	SIEGESTATE_DEFENDER,
 	SIEGESTATE_MAXSIEGESTATES
-} bot_siege_state_t;
+};
+using enum bot_siege_state_t;
 
-typedef enum
+enum class bot_teamplay_state_t
 {
 	TEAMPLAYSTATE_NONE,
 	TEAMPLAYSTATE_FOLLOWING,
 	TEAMPLAYSTATE_ASSISTING,
 	TEAMPLAYSTATE_REGROUP,
 	TEAMPLAYSTATE_MAXTPSTATES
-} bot_teamplay_state_t;
+};
+using enum bot_teamplay_state_t;
 
 typedef struct botattachment_s
 {
@@ -312,11 +315,11 @@ typedef struct bot_state_s
 
 	float				botWeaponWeights[WP_NUM_WEAPONS];
 
-	int					ctfState;
+	bot_ctf_state_t		ctfState;
 
-	int					siegeState;
+	bot_siege_state_t	siegeState;
 
-	int					teamplayState;
+	bot_teamplay_state_t	teamplayState;
 
 	int					jmState;
 

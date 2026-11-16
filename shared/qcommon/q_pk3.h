@@ -49,4 +49,4 @@ pk3File_t		*PK3_OpenFile( pk3Archive_t *archive, int index );		// nullptr when t
 void			PK3_CloseFile( pk3File_t *file );
 int				PK3_Read( pk3File_t *file, void *buffer, int len );		// the bytes delivered, fewer than len at the file's end; -1 on an error
 int				PK3_Tell( const pk3File_t *file );
-int				PK3_Seek( pk3File_t *file, long offset, int origin );	// origin: a fsOrigin_t; returns offset, as FS_Seek does
+int				PK3_Seek( pk3File_t *file, long offset, fsOrigin_t origin );	// returns offset, as FS_Seek does

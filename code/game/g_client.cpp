@@ -965,9 +965,9 @@ const char *AxesNames[] =
 };
 
 Eorientations testAxes[3]={POSITIVE_X,POSITIVE_Z,POSITIVE_Y};
-int axes_0 = POSITIVE_X;
-int axes_1 = POSITIVE_Z;
-int axes_2 = POSITIVE_Y;
+int axes_0 = to_underlying( POSITIVE_X );
+int axes_1 = to_underlying( POSITIVE_Z );
+int axes_2 = to_underlying( POSITIVE_Y );
 void G_NextTestAxes( void )
 {
 	static int whichAxes = 0;
@@ -1004,7 +1004,7 @@ void G_NextTestAxes( void )
 		|| testAxes[2] == testAxes[0] || (testAxes[2]-testAxes[0]) == 3 || (testAxes[0]-testAxes[2]) == 3
 		|| testAxes[2] == testAxes[1] || (testAxes[2]-testAxes[1]) == 3 || (testAxes[1]-testAxes[2]) == 3 );
 
-	Com_Printf( "Up: %s\nRight: %s\nForward: %s\n", AxesNames[testAxes[0]], AxesNames[testAxes[1]], AxesNames[testAxes[2]] );
+	Com_Printf( "Up: %s\nRight: %s\nForward: %s\n", AxesNames[to_underlying( testAxes[0] )], AxesNames[to_underlying( testAxes[1] )], AxesNames[to_underlying( testAxes[2] )] );
 	if ( testAxes[0] == POSITIVE_X
 		&& testAxes[1] == POSITIVE_Z
 		&& testAxes[2] == POSITIVE_Y )
@@ -2125,7 +2125,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	clientInfo_t		savedCi;
-	int		persistant[MAX_PERSISTANT];
+	EnumArray<int, persEnum_t, MAX_PERSISTANT>		persistant{};
 	usercmd_t	ucmd;
 	gentity_t	*spawnPoint;
 	bool	beamInEffect = false;
@@ -2194,10 +2194,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		// clear everything but the persistant data
 		saved = client->pers;
 		savedSess = client->sess;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
-		{
-			persistant[i] = client->ps.persistant[i];
-		}
+		persistant = client->ps.persistant;
 		//Preserve clientInfo
 		memcpy (&savedCi, &client->clientInfo, sizeof(clientInfo_t));
 
@@ -2207,10 +2204,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		client->pers = saved;
 		client->sess = savedSess;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
-		{
-			client->ps.persistant[i] = persistant[i];
-		}
+		client->ps.persistant = persistant;
 
 		// increment the spawncount so the client will detect the respawn
 		client->ps.persistant[PERS_SPAWN_COUNT]++;

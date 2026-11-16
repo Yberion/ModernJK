@@ -997,12 +997,13 @@ void CM_AddFacetBevels( facet_t *facet ) {
 }
 
 
-typedef enum {
+enum class edgeName_t {
 	EN_TOP,
 	EN_RIGHT,
 	EN_BOTTOM,
 	EN_LEFT
-} edgeName_t;
+};
+using enum edgeName_t;
 
 
 /*
@@ -1015,8 +1016,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	float			*p1, *p2, *p3;
 	int				gridPlanes[CM_MAX_GRID_SIZE][CM_MAX_GRID_SIZE][2];
 	facet_t			*facet;
-	int				borders[4];
-	bool		noAdjust[4];
+	EnumArray<int, edgeName_t, to_underlying( EN_LEFT ) + 1>				borders;
+	EnumArray<bool, edgeName_t, to_underlying( EN_LEFT ) + 1>		noAdjust;
 
 	int numFacets;
 	facets = (facet_t*) Z_Malloc(MAX_FACETS*sizeof(facet_t), TAG_TEMP_WORKSPACE, false);

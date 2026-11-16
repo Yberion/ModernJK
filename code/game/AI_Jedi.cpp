@@ -48,7 +48,7 @@ extern void ForceRage( gentity_t *self );
 extern void ForceProtect( gentity_t *self );
 extern void ForceAbsorb( gentity_t *self );
 extern bool ForceDrain2( gentity_t *self );
-extern int WP_MissileBlockForBlock( int saberBlock );
+extern saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock );
 extern bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
@@ -238,7 +238,7 @@ bool Jedi_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDi
 	if ( self->NPC && (self->NPC->aiFlags&NPCAI_BOSS_CHARACTER) )
 	{//bosses always get out of a knockdown
 	}
-	else if ( Q_irand( 0, RANK_CAPTAIN+5 ) > self->NPC->rank )
+	else if ( Q_irand( 0, to_underlying( RANK_CAPTAIN ) + 5 ) > to_underlying( self->NPC->rank ) )
 	{//lower their rank, the more likely they are fall down
 		return false;
 	}
@@ -1268,7 +1268,7 @@ static bool Jedi_DecideKick( void )
 	//FIXME: check FP_SABER_OFFENSE?
 	//FIXME: check for saber staff style only?
 	//FIXME: g_spskill?
-	if ( Q_irand( 0, RANK_CAPTAIN+5 ) > NPCInfo->rank )
+	if ( Q_irand( 0, to_underlying( RANK_CAPTAIN ) + 5 ) > to_underlying( NPCInfo->rank ) )
 	{//low chance, based on rank
 		return false;
 	}
@@ -1298,7 +1298,7 @@ static bool Jedi_DecideKick( void )
 
 void Kyle_GrabEnemy( void )
 {
-	WP_SabersCheckLock2( NPC, NPC->enemy, (sabersLockMode_t)Q_irand(LOCK_KYLE_GRAB1,LOCK_KYLE_GRAB2) );//LOCK_KYLE_GRAB3
+	WP_SabersCheckLock2( NPC, NPC->enemy, static_cast<sabersLockMode_t>( Q_irand( to_underlying( LOCK_KYLE_GRAB1 ), to_underlying( LOCK_KYLE_GRAB2 ) ) ) );//LOCK_KYLE_GRAB3
 	TIMER_Set( NPC, "grabEnemyDebounce", NPC->client->ps.torsoAnimTimer + Q_irand( 4000, 20000 ) );
 }
 
@@ -1364,7 +1364,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		&& (NPC->enemy->client->ps.torsoAnim == BOTH_SPINATTACK6
 			|| NPC->enemy->client->ps.torsoAnim == BOTH_SPINATTACK7 ) )
 	{//whoa, back off!!!
-		if ( Q_irand( -3, NPCInfo->rank ) > RANK_CREWMAN )
+		if ( Q_irand( -3, to_underlying( NPCInfo->rank ) ) > to_underlying( RANK_CREWMAN ) )
 		{
 			Jedi_StartBackOff();
 			return;
@@ -1748,7 +1748,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			WP_ForcePowerAvailable( NPC, FP_GRIP, 0 ) && //I can use the power
 			!Q_irand( 0, 10 ) && //don't do it all the time, averages to 1 check a second
 			Q_irand( 0, 6 ) < g_spskill->integer && //more likely on harder diff
-			Q_irand( RANK_CIVILIAN, RANK_CAPTAIN ) < NPCInfo->rank //more likely against harder enemies
+			Q_irand( to_underlying( RANK_CIVILIAN ), to_underlying( RANK_CAPTAIN ) ) < to_underlying( NPCInfo->rank ) //more likely against harder enemies
 			&& InFOV( NPC->enemy->currentOrigin, NPC->currentOrigin, NPC->client->ps.viewangles, 20, 30 ) )
 		{//They're throwing their saber, grip them!
 			//taunt
@@ -3681,7 +3681,7 @@ static evasionType_t Jedi_CheckEvadeSpecialAttacks( void )
 		if ( (NPCInfo->aiFlags&NPCAI_BOSS_CHARACTER)
 			|| NPC->client->NPC_class == CLASS_SHADOWTROOPER
 			|| NPC->client->NPC_class == CLASS_ALORA
-			|| Q_irand( 0, NPCInfo->rank ) > RANK_LT_JG )
+			|| Q_irand( 0, to_underlying( NPCInfo->rank ) ) > to_underlying( RANK_LT_JG ) )
 		{//see if we should back off
 			if ( InFront( NPC->currentOrigin, NPC->enemy->currentOrigin, NPC->enemy->currentAngles ) )
 			{//facing me
@@ -3704,7 +3704,7 @@ static evasionType_t Jedi_CheckEvadeSpecialAttacks( void )
 			if ( (NPCInfo->aiFlags&NPCAI_BOSS_CHARACTER)
 				|| NPC->client->NPC_class == CLASS_SHADOWTROOPER
 				|| NPC->client->NPC_class == CLASS_ALORA
-				|| Q_irand( -3, NPCInfo->rank ) > RANK_LT_JG )
+				|| Q_irand( -3, to_underlying( NPCInfo->rank ) ) > to_underlying( RANK_LT_JG ) )
 			{//see if we should evade
 				vec3_t yawOnlyAngles = {0, NPC->enemy->currentAngles[YAW], 0 };
 				if ( InFront( NPC->currentOrigin, NPC->enemy->currentOrigin, yawOnlyAngles, 0.25f ) )
@@ -3786,7 +3786,7 @@ static evasionType_t Jedi_CheckEvadeSpecialAttacks( void )
 							|| (NPCInfo->aiFlags&NPCAI_BOSS_CHARACTER)
 							|| NPC->client->NPC_class == CLASS_SHADOWTROOPER
 							|| NPC->client->NPC_class == CLASS_ALORA
-							|| Q_irand( -3, NPCInfo->rank ) > RANK_CREWMAN )
+							|| Q_irand( -3, to_underlying( NPCInfo->rank ) ) > to_underlying( RANK_CREWMAN ) )
 						{//superjump
 							NPC->client->ps.forceJumpCharge = 320;//FIXME: calc this intelligently
 							if ( Q_irand( 0, 2 ) )
@@ -5306,7 +5306,7 @@ static bool Jedi_AttackDecide( int enemy_dist )
 		}
 		else
 		{
-			chance = NPCInfo->rank;
+			chance = to_underlying( NPCInfo->rank );
 		}
 		if ( Q_irand( 0, 30 ) < chance )
 		{//based on skill with some randomness
@@ -5461,7 +5461,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 				|| NPC->enemy->client->ps.legsAnim == BOTH_JUMPFLIPSTABDOWN
 				|| NPC->enemy->client->ps.legsAnim == BOTH_FLIP_ATTACK7 )
 			{//enemy is flipping over me
-				if ( Q_irand( 0, NPCInfo->rank ) < RANK_LT )
+				if ( Q_irand( 0, to_underlying( NPCInfo->rank ) ) < to_underlying( RANK_LT ) )
 				{//be nice and stand still for him...
 					ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
 					VectorClear( NPC->client->ps.moveDir );
@@ -5483,7 +5483,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 				{//still in air
 					if ( enemy_dist < 256 )
 					{//close
-						if ( Q_irand( 0, NPCInfo->rank ) < RANK_LT )
+						if ( Q_irand( 0, to_underlying( NPCInfo->rank ) ) < to_underlying( RANK_LT ) )
 						{//be nice and stand still for him...
 							/*
 							ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
@@ -5530,7 +5530,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 				{//close
 					if ( !InFront( NPC->currentOrigin, NPC->enemy->currentOrigin, NPC->enemy->currentAngles, 0.0f ) )
 					{//behind him
-						if ( !Q_irand( 0, NPCInfo->rank ) )
+						if ( !Q_irand( 0, to_underlying( NPCInfo->rank ) ) )
 						{//be nice and stand still for him...
 							//stop current movement
 							ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
@@ -6117,7 +6117,7 @@ void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, con
 				if ( other->s.number >= MAX_CLIENTS //enemy is an NPC
 					|| Q_irand( 0, g_spskill->integer+1 ) )//enemy is player
 				{
-					if ( Q_irand( 0, self->NPC->rank ) > RANK_ENSIGN )
+					if ( Q_irand( 0, to_underlying( self->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) )
 					{
 						if ( !Q_irand( 0, 5 ) )
 						{
@@ -6135,7 +6135,7 @@ void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, con
 				if ( other->s.number >= MAX_CLIENTS //enemy is an NPC
 					|| Q_irand( 0, g_spskill->integer+1 ) )//enemy is player
 				{
-					if ( Q_irand( 0, self->NPC->rank ) > RANK_ENSIGN )
+					if ( Q_irand( 0, to_underlying( self->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) )
 					{
 						if ( !Q_irand( 0, 1 ) )
 						{
@@ -6948,7 +6948,7 @@ static void Jedi_Attack( void )
 			if ( NPC->client->NPC_class == CLASS_TAVION
 				|| NPC->client->NPC_class == CLASS_SHADOWTROOPER
 				|| NPC->client->NPC_class == CLASS_ALORA
-				|| (g_spskill->integer && ( NPC->client->NPC_class == CLASS_DESANN || NPCInfo->rank >= Q_irand( RANK_CREWMAN, RANK_CAPTAIN ))))
+				|| (g_spskill->integer && ( NPC->client->NPC_class == CLASS_DESANN || to_underlying( NPCInfo->rank ) >= Q_irand( to_underlying( RANK_CREWMAN ), to_underlying( RANK_CAPTAIN ) ))))
 			{//Tavion will kick in force speed if the player does...
 				if ( NPC->enemy
 					&& !NPC->enemy->s.number

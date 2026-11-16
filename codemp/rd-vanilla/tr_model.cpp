@@ -956,7 +956,7 @@ bool ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 			}
 
 			// change to surface identifier
-			surf->ident = SF_MDX;
+			surf->ident = to_underlying( SF_MDX );
 
 			// register the shaders
 #ifdef Q3_BIG_ENDIAN
@@ -1580,7 +1580,7 @@ static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_name
 		}
 
 		// change to surface identifier
-		surf->ident = SF_MD3;
+		surf->ident = to_underlying( SF_MD3 );
 
 		// lowercase the surface name so skin compares are faster
 		Q_strlwr( surf->name );

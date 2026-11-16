@@ -238,7 +238,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all )
 	{
-		for ( i=0; i<HI_NUM_HOLDABLE; i++ )
+		for ( i=0; i< to_underlying( HI_NUM_HOLDABLE ); i++ )
 			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << i);
 	}
 
@@ -1039,7 +1039,7 @@ Cmd_DuelTeam_f
 */
 void Cmd_DuelTeam_f(gentity_t *ent)
 {
-	int			oldTeam;
+	duelTeam_t	oldTeam;
 	char		s[MAX_TOKEN_CHARS];
 
 	if (level.gametype != GT_POWERDUEL)
@@ -1109,7 +1109,7 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 	{ //ok..die
-		int curTeam = ent->client->sess.duelTeam;
+		duelTeam_t curTeam = ent->client->sess.duelTeam;
 		ent->client->sess.duelTeam = oldTeam;
 		G_Damage(ent, ent, ent, nullptr, ent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 		ent->client->sess.duelTeam = curTeam;
@@ -1857,7 +1857,7 @@ void Cmd_Where_f( gentity_t *ent ) {
 	//trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
-static const char *gameNames[GT_MAX_GAME_TYPE] = {
+static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gameNames = {
 	"Free For All",
 	"Holocron FFA",
 	"Jedi Master",
@@ -1913,21 +1913,25 @@ bool G_VoteFraglimit( gentity_t *ent, int numArgs, const char *arg1, const char 
 }
 
 bool G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	int gt = atoi( arg2 );
+	const int number = atoi( arg2 );
+	gametype_t gt;
 
 	// ffa, ctf, tdm, etc
 	if ( arg2[0] && isalpha( arg2[0] ) ) {
 		gt = BG_GetGametypeForString( arg2 );
-		if ( gt == -1 )
+		if ( gt == GT_UNKNOWN )
 		{
 			trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%s) unrecognised, defaulting to FFA/Deathmatch\n\"", arg2 ) );
 			gt = GT_FFA;
 		}
 	}
 	// numeric but out of range
-	else if ( gt < 0 || gt >= GT_MAX_GAME_TYPE ) {
-		trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to FFA/Deathmatch\n\"", gt ) );
+	else if ( number < 0 || number >= to_underlying( GT_MAX_GAME_TYPE ) ) {
+		trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to FFA/Deathmatch\n\"", number ) );
 		gt = GT_FFA;
+	}
+	else {
+		gt = static_cast<gametype_t>( number );
 	}
 
 	// logically invalid gametypes, or gametypes not fully implemented in MP
@@ -1939,7 +1943,7 @@ bool G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, const char *
 	level.votingGametype = true;
 	level.votingGametypeTo = gt;
 
-	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, gt );
+	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, to_underlying( gt ) );
 	Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s %s", arg1, gameNames[gt] );
 	Q_strncpyz( level.voteStringClean, level.voteString, sizeof( level.voteStringClean ) );
 	return true;
@@ -2229,7 +2233,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 
 validVote:
 	vote = &validVoteStrings[i];
-	if ( !(vote->validGT & (1<<level.gametype)) ) {
+	if ( !(vote->validGT & Bit( level.gametype )) ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s is not applicable in this gametype.\n\"", arg1 ) );
 		return;
 	}
@@ -2361,7 +2365,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	char	arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char	arg2[MAX_CVAR_VALUE_STRING] = {0};
 
-	if ( g_gametype.integer < GT_TEAM )
+	if ( g_gametype.integer < to_underlying( GT_TEAM ) )
 	{
 		trap->SendServerCommand( ent-g_entities, "print \"Cannot call a team vote in a non-team gametype!\n\"" );
 		return;
@@ -2546,7 +2550,7 @@ void G_LeaveVehicle( gentity_t* ent, bool ConCheck ) {
 	ent->client->ps.m_iVehicleNum = 0;
 }
 
-int G_ItemUsable(playerState_t *ps, int forcedUse)
+int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 {
 	vec3_t fwd, fwdorg, dest, pos;
 	vec3_t yawonly;
@@ -2569,9 +2573,9 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
-	if (!forcedUse)
+	if (forcedUse == HI_NONE)
 	{
-		forcedUse = bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag;
+		forcedUse = static_cast<holdable_t>( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 	}
 
 	if (!BG_IsItemSelectable(ps, forcedUse))
@@ -2597,7 +2601,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 	case HI_SEEKER:
 		if (ps->eFlags & EF_SEEKERDRONE)
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, SEEKER_ALREADYDEPLOYED);
+			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SEEKER_ALREADYDEPLOYED ));
 			return 0;
 		}
 
@@ -2605,7 +2609,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 	case HI_SENTRY_GUN:
 		if (ps->fd.sentryDeployed)
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, SENTRY_ALREADYPLACED);
+			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SENTRY_ALREADYPLACED ));
 			return 0;
 		}
 
@@ -2630,7 +2634,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 
 		if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid)
 		{
-			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, SENTRY_NOROOM);
+			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SENTRY_NOROOM ));
 			return 0;
 		}
 
@@ -2658,7 +2662,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 				return 1;
 			}
 		}
-		G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, SHIELD_NOROOM);
+		G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SHIELD_NOROOM ));
 		return 0;
 	case HI_JETPACK: //do something?
 		return 1;

@@ -428,7 +428,7 @@ void NPC_BSInvestigate (void)
 bool NPC_CheckInvestigate( int alertEventNum )
 {
 	gentity_t	*owner = level.alertEvents[alertEventNum].owner;
-	int		invAdd = level.alertEvents[alertEventNum].level;
+	int		invAdd = to_underlying( level.alertEvents[alertEventNum].level );
 	vec3_t	soundPos;
 	float	soundRad = level.alertEvents[alertEventNum].radius;
 	float	earshot = NPCInfo->stats.earshot;
@@ -1568,7 +1568,7 @@ void NPC_BSFlee( void )
 	NPC_CheckGetNewWeapon();
 }
 
-void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax )
+void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax )
 {
 	if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
 	{//running somewhere that a script requires us to go, don't interrupt that!
@@ -1639,7 +1639,7 @@ void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int f
 	TIMER_Set( NPC, "duck", 0 );
 }
 
-void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax )
+void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax )
 {
 	if ( !self->NPC )
 	{//player

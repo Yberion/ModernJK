@@ -1500,7 +1500,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 					ri.Printf( PRINT_ERROR, "ERROR: rgbGen vertex used on a model! in shader '%s'\n", shader.name );
 				}
 				stage->rgbGen = CGEN_VERTEX;
-				if ( stage->alphaGen == 0 ) {
+				if ( stage->alphaGen == AGEN_IDENTITY ) {
 					stage->alphaGen = AGEN_VERTEX;
 				}
 			}
@@ -1843,7 +1843,7 @@ static void ParseDeform( const char **text ) {
 		if ( n < 0 || n > 7 ) {
 			n = 0;
 		}
-		ds->deformation = (deform_t) (DEFORM_TEXT0 + n);
+		ds->deformation = DEFORM_TEXT0 + n;
 		return;
 	}
 
@@ -2014,33 +2014,33 @@ void ParseSort( const char **text )
 	}
 
 	if ( !Q_stricmp( token, "portal" ) ) {
-		shader.sort = SS_PORTAL;
+		shader.sort = to_underlying( SS_PORTAL );
 	} else if ( !Q_stricmp( token, "sky" ) ) {
-		shader.sort = SS_ENVIRONMENT;
+		shader.sort = to_underlying( SS_ENVIRONMENT );
 	} else if ( !Q_stricmp( token, "opaque" ) ) {
-		shader.sort = SS_OPAQUE;
+		shader.sort = to_underlying( SS_OPAQUE );
 	} else if ( !Q_stricmp( token, "decal" ) ) {
-		shader.sort = SS_DECAL;
+		shader.sort = to_underlying( SS_DECAL );
 	} else if ( !Q_stricmp( token, "seeThrough" ) ) {
-		shader.sort = SS_SEE_THROUGH;
+		shader.sort = to_underlying( SS_SEE_THROUGH );
 	} else if ( !Q_stricmp( token, "banner" ) ) {
-		shader.sort = SS_BANNER;
+		shader.sort = to_underlying( SS_BANNER );
 	} else if ( !Q_stricmp( token, "additive" ) ) {
-		shader.sort = SS_BLEND1;
+		shader.sort = to_underlying( SS_BLEND1 );
 	} else if ( !Q_stricmp( token, "nearest" ) ) {
-		shader.sort = SS_NEAREST;
+		shader.sort = to_underlying( SS_NEAREST );
 	} else if ( !Q_stricmp( token, "underwater" ) ) {
-		shader.sort = SS_UNDERWATER;
+		shader.sort = to_underlying( SS_UNDERWATER );
 	} else if ( !Q_stricmp( token, "inside" ) ) {
-		shader.sort = SS_INSIDE;
+		shader.sort = to_underlying( SS_INSIDE );
 	} else if ( !Q_stricmp( token, "mid_inside" ) ) {
-		shader.sort = SS_MID_INSIDE;
+		shader.sort = to_underlying( SS_MID_INSIDE );
 	} else if ( !Q_stricmp( token, "middle" ) ) {
-		shader.sort = SS_MIDDLE;
+		shader.sort = to_underlying( SS_MIDDLE );
 	} else if ( !Q_stricmp( token, "mid_outside" ) ) {
-		shader.sort = SS_MID_OUTSIDE;
+		shader.sort = to_underlying( SS_MID_OUTSIDE );
 	} else if ( !Q_stricmp( token, "outside" ) ) {
-		shader.sort = SS_OUTSIDE;
+		shader.sort = to_underlying( SS_OUTSIDE );
 	}
 	else
 	{
@@ -2359,7 +2359,7 @@ static bool ParseShader( const char  **text )
 		// portal
 		else if ( !Q_stricmp(token, "portal") )
 		{
-			shader.sort = SS_PORTAL;
+			shader.sort = to_underlying( SS_PORTAL );
 			continue;
 		}
 		// skyparms <cloudheight> <outerbox> <innerbox>
@@ -2985,14 +2985,14 @@ static shader_t *FinishShader( void ) {
 	// set sky stuff appropriate
 	//
 	if ( shader.sky ) {
-		shader.sort = SS_ENVIRONMENT;
+		shader.sort = to_underlying( SS_ENVIRONMENT );
 	}
 
 	//
 	// set polygon offset
 	//
 	if ( shader.polygonOffset && !shader.sort ) {
-		shader.sort = SS_DECAL;
+		shader.sort = to_underlying( SS_DECAL );
 	}
 
 	for(lmStage=0;lmStage<MAX_SHADER_STAGES;lmStage++)
@@ -3056,7 +3056,7 @@ static shader_t *FinishShader( void ) {
 				else
 				{
 					stages[lmStage+i+1].bundle[0].image = tr.lightmaps[shader.lightmapIndex[i+1]];
-					stages[lmStage+i+1].bundle[0].tcGen = (texCoordGen_t)(TCGEN_LIGHTMAP+i+1);
+					stages[lmStage+i+1].bundle[0].tcGen = TCGEN_LIGHTMAP+i+1;
 				}
 				stages[lmStage+i+1].rgbGen = CGEN_LIGHTMAPSTYLE;
 				stages[lmStage+i+1].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
@@ -3165,18 +3165,18 @@ static shader_t *FinishShader( void ) {
 				// see through item, like a grill or grate
 				if ( pStage->stateBits & GLS_DEPTHMASK_TRUE )
 				{
-					shader.sort = SS_SEE_THROUGH;
+					shader.sort = to_underlying( SS_SEE_THROUGH );
 				}
 				else
 				{
 					if (( blendSrcBits == GLS_SRCBLEND_ONE ) && ( blendDstBits == GLS_DSTBLEND_ONE ))
 					{
 						// GL_ONE GL_ONE needs to come a bit later
-						shader.sort = SS_BLEND1;
+						shader.sort = to_underlying( SS_BLEND1 );
 					}
 					else
 					{
-						shader.sort = SS_BLEND0;
+						shader.sort = to_underlying( SS_BLEND0 );
 					}
 				}
 			}
@@ -3234,7 +3234,7 @@ static shader_t *FinishShader( void ) {
 	// there are times when you will need to manually apply a sort to
 	// opaque alpha tested shaders that have later blend passes
 	if ( !shader.sort ) {
-		shader.sort = SS_OPAQUE;
+		shader.sort = to_underlying( SS_OPAQUE );
 	}
 
 	//
@@ -3266,7 +3266,7 @@ static shader_t *FinishShader( void ) {
 
 	// fogonly shaders don't have any normal passes
 	if ( stage == 0 ) {
-		shader.sort = SS_FOG;
+		shader.sort = to_underlying( SS_FOG );
 	}
 
 	return GeneratePermanentShader();
@@ -3849,12 +3849,12 @@ static void CreateInternalShaders( void ) {
 
 	// shadow shader is just a marker
 	Q_strncpyz( shader.name, "<stencil shadow>", sizeof( shader.name ) );
-	shader.sort = SS_BANNER; //SS_STENCIL_SHADOW;
+	shader.sort = to_underlying( SS_BANNER ); //SS_STENCIL_SHADOW;
 	tr.shadowShader = FinishShader();
 
 	// distortion shader is just a marker
 	Q_strncpyz( shader.name, "internal_distortion", sizeof( shader.name ) );
-	shader.sort = SS_BLEND0;
+	shader.sort = to_underlying( SS_BLEND0 );
 	shader.defaultShader = false;
 	tr.distortionShader = FinishShader();
 	shader.defaultShader = true;
@@ -3864,7 +3864,7 @@ static void CreateInternalShaders( void ) {
 
 static void CreateExternalShaders( void ) {
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", lightmapsNone, stylesDefault, true );
-	tr.projectionShadowShader->sort = SS_STENCIL_SHADOW;
+	tr.projectionShadowShader->sort = to_underlying( SS_STENCIL_SHADOW );
 	tr.sunShader = R_FindShader( "sun", lightmapsVertex, stylesDefault, true );
 }
 

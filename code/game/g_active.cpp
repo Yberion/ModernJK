@@ -2307,7 +2307,7 @@ bool G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
 
 	if ( bestEnt != nullptr )
 	{
-		int lockType = LOCK_KYLE_GRAB1;
+		sabersLockMode_t lockType = LOCK_KYLE_GRAB1;
 		if ( ucmd->forwardmove > 0 )
 		{
 			lockType = LOCK_KYLE_GRAB3;
@@ -2316,7 +2316,7 @@ bool G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
 		{
 			lockType = LOCK_KYLE_GRAB2;
 		}
-		WP_SabersCheckLock2( ent, bestEnt, (sabersLockMode_t)lockType );
+		WP_SabersCheckLock2( ent, bestEnt, lockType );
 		return true;
 	}
 	return false;
@@ -4700,7 +4700,7 @@ extern void ForceAbsorb(gentity_t *ent);
 extern void ForceHeal(gentity_t *ent);
 static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 {
-	switch(cmd) {
+	switch( static_cast<genCmds_t>( cmd ) ) {
 	default:
 		break;
 	case GENCMD_FORCE_HEAL:
@@ -5058,7 +5058,7 @@ extern cvar_t	*g_skippingcin;
 						//don't jump off, too many ledges, plus looks weird
 						if ( groundEnt->client->playerTeam != ent->client->playerTeam )
 						{//don't knock down own guys
-							forceKnockdown = (Q_irand( 0, RANK_CAPTAIN+4 )<ent->NPC->rank);
+							forceKnockdown = (Q_irand( 0, to_underlying( RANK_CAPTAIN ) + 4 ) < to_underlying( ent->NPC->rank ) );
 						}
 						//now what... push the groundEnt out of the way?
 						if ( !ent->client->ps.velocity[0]
@@ -5149,7 +5149,7 @@ extern cvar_t	*g_skippingcin;
 					}
 					else if ( forceKnockdown //forced
 						|| ent->client->NPC_class == CLASS_DESANN //desann always knocks people down
-						|| ( ( (groundEnt->s.number&&(groundEnt->s.weapon!=WP_SABER||!groundEnt->NPC||groundEnt->NPC->rank<Q_irand(RANK_CIVILIAN,RANK_CAPTAIN+1)))  //an NPC who is either not a saber user or passed the rank-based probability test
+						|| ( ( (groundEnt->s.number&&(groundEnt->s.weapon!=WP_SABER||!groundEnt->NPC||to_underlying( groundEnt->NPC->rank ) < Q_irand( to_underlying( RANK_CIVILIAN ), to_underlying( RANK_CAPTAIN ) + 1 )))  //an NPC who is either not a saber user or passed the rank-based probability test
 								|| ((!ent->s.number||G_ControlledByPlayer(groundEnt)) && !Q_irand( 0, 3 )&&cg.renderingThirdPerson&&!cg.zoomMode) )//or a player in third person, 25% of the time
 							&& groundEnt->client->playerTeam != ent->client->playerTeam//and not on the same team
 							&& ent->client->ps.legsAnim != BOTH_JUMPATTACK6 ) )//not in the sideways-spinning jump attack

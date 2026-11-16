@@ -90,7 +90,7 @@ template <class T> T	Max(const T& a, const T& b)	{return (b<a)?(a):(b);}
 ////////////////////////////////////////////////////////////////////////////////////////
 // Enums And Typedefs
 ////////////////////////////////////////////////////////////////////////////////////////
-enum	ESide
+enum class ESide
 {
 	Side_None	= 0,
 	Side_Left	= 1,
@@ -99,6 +99,7 @@ enum	ESide
 	Side_Out	= 4,
 	Side_AllIn	= 5
 };
+using enum ESide;
 
 
 

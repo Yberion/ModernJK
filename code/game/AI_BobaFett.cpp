@@ -192,7 +192,7 @@ int		AverageEnemyDirectionSamples;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Enums
 ////////////////////////////////////////////////////////////////////////////////////////
-enum	EBobaTacticsState
+enum class EBobaTacticsState
 {
 	BTS_NONE,
 
@@ -209,6 +209,7 @@ enum	EBobaTacticsState
 
 	BTS_MAX
 };
+using enum EBobaTacticsState;
 
 
 
@@ -782,7 +783,7 @@ void	Boba_TacticsSelect()
 	// Don't Change Tactics For A Little While
 	//------------------------------------------
 	TIMER_Set(NPC, "Boba_TacticsSelect", Q_irand(8000, 15000));
-	int		nextState = NPCInfo->localState;
+	EBobaTacticsState	nextState = static_cast<EBobaTacticsState>( NPCInfo->localState );
 
 
 	// Get Some Data That Will Help With The Selection Of The Next Tactic
@@ -868,10 +869,10 @@ void	Boba_TacticsSelect()
 
 	// The Next State Has Been Selected, Now Change Weapon If Necessary
 	//------------------------------------------------------------------
-	if (nextState!=NPCInfo->localState)
+	if (to_underlying( nextState )!=NPCInfo->localState)
 	{
-		NPCInfo->localState = nextState;
-		switch (NPCInfo->localState)
+		NPCInfo->localState = to_underlying( nextState );
+		switch ( nextState )
 		{
 		case BTS_FLAMETHROW:
 			Boba_Printf("NEW TACTIC: Flame Thrower");
@@ -897,6 +898,9 @@ void	Boba_TacticsSelect()
 		case BTS_AMBUSHWAIT:
 			Boba_Printf("NEW TACTIC: Ambush");
 			Boba_ChangeWeapon(WP_NONE);
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -926,30 +930,30 @@ bool	Boba_Tactics()
 
 	// These Tactics Require Seeker & Jedi Movement
 	//----------------------------------------------
-	if (!NPCInfo->localState ||
-		 NPCInfo->localState==BTS_RIFLE ||
-		 NPCInfo->localState==BTS_MISSILE)
+	if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_NONE ||
+		 static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_RIFLE ||
+		 static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_MISSILE)
 	{
 		return false;
 	}
 
 	// Flame Thrower - Locked In Place
 	//---------------------------------
-	if (NPCInfo->localState==BTS_FLAMETHROW)
+	if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_FLAMETHROW)
 	{
 		Boba_DoFlameThrower( NPC );
 	}
 
 	// Sniper - Move Around, And Take Shots
 	//--------------------------------------
-	else if (NPCInfo->localState==BTS_SNIPER)
+	else if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_SNIPER)
 	{
 		Boba_DoSniper( NPC );
 	}
 
 	// Ambush Wait
 	//------------
-	else if (NPCInfo->localState==BTS_AMBUSHWAIT)
+	else if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_AMBUSHWAIT)
 	{
 		Boba_DoAmbushWait( NPC );
 	}

@@ -1242,7 +1242,7 @@ static void G_CheckEndLevelTimers( gentity_t *ent )
 		{
 			G_PlayerGuiltDeath();
 			//cg.missionStatusShow = true;
-			statusTextIndex = MISSIONFAILED_TURNED;
+			statusTextIndex = to_underlying( MISSIONFAILED_TURNED );
 			//debounce respawn time
 			ent->client->respawnTime = level.time + 2000;
 			//stop all scripts
@@ -1432,7 +1432,7 @@ bool G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 		ent->client->noRagTime >= level.time ||
 		ent->client->noRagTime==-1 ||
 		(ent->s.powerups & (1 << PW_DISRUPTION)) ||
-		!ent->e_DieFunc ||
+		ent->e_DieFunc == dieF_NULL ||
  		ent->playerModel < 0 ||
 		!ent->ghoul2.size() ||
 		!G_RagWantsHumanoidsOnly(&ent->ghoul2[ent->playerModel])

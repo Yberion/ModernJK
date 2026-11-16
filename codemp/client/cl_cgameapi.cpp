@@ -88,7 +88,7 @@ void CGVM_MouseEvent( int x, int y ) {
 	cge->MouseEvent( x, y );
 }
 
-void CGVM_EventHandling( int type ) {
+void CGVM_EventHandling( cgameEvent_t type ) {
 	VMSwap v( cgvm );
 
 	cge->EventHandling( type );
@@ -265,8 +265,8 @@ static void _CL_SetUserCmdValue( int stateValue, float sensitivityScale, float m
 	CL_SetUserCmdValue( stateValue, sensitivityScale, mPitchOverride, mYawOverride, mSensitivityOverride, fpSel, invenSel );
 }
 
-static void CL_OpenUIMenu( int menuID ) {
-	UIVM_SetActiveMenu( (uiMenuCommand_t)menuID );
+static void CL_OpenUIMenu( uiMenuCommand_t menuID ) {
+	UIVM_SetActiveMenu( menuID );
 }
 
 static void CGFX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, vec3_t sRGB, vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, int flags ) {
@@ -435,7 +435,7 @@ static void CL_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static bool CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+static bool CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
@@ -674,7 +674,7 @@ static bool CL_G2API_RagForceSolve( void *ghoul2, bool force ) {
 	return re->G2API_RagForceSolve( *((CGhoul2Info_v *)ghoul2), force );
 }
 
-static bool CL_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
+static bool CL_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneIKState( *((CGhoul2Info_v *)ghoul2), time, boneName, ikState, params );
 }

@@ -214,8 +214,7 @@ void fx_runner_link( gentity_t *ent )
 			}
 		}
 
-		// Let's get to work right now!
-		ent->e_ThinkFunc = thinkF_fx_runner_think;
+		// Let's get to work right nowent->e_ThinkFunc == thinkF_NULL = thinkF_fx_runner_think;
 		ent->nextthink = level.time + 200; // wait a small bit, then start working
 	}
 

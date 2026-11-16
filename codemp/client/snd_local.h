@@ -47,14 +47,15 @@ typedef struct portable_samplepair_s {
 
 // keep this enum in sync with the table "sSoundCompressionMethodStrings"	-ste
 //
-typedef enum
+enum class SoundCompressionMethod_t
 {
 	ct_16 = 0,		// formerly ct_NONE in EF1, now indicates 16-bit samples (the default)
 	ct_MP3,
 	//
 	ct_NUMBEROF		// used only for array sizing
 
-} SoundCompressionMethod_t;
+};
+using enum SoundCompressionMethod_t;
 
 
 typedef struct sfx_s {

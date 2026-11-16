@@ -48,14 +48,15 @@ extern int cg_vehicleAmmoWarning;
 extern int cg_vehicleAmmoWarningTime;
 
 //I know, not siege, but...
-typedef enum
+enum class tauntTypes_t
 {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
 	TAUNT_FLOURISH,
 	TAUNT_GLOAT
-} tauntTypes_t ;
+};
+using enum tauntTypes_t;
 /*
 ===================
 CG_PlaceString
@@ -525,7 +526,7 @@ static void CG_UseItem( centity_t *cent ) {
 	es = &cent->currentState;
 
 	itemNum = (es->event & ~EV_EVENT_BITS) - EV_USE_ITEM0;
-	if ( itemNum < 0 || itemNum > HI_NUM_HOLDABLE ) {
+	if ( itemNum < 0 || itemNum > to_underlying( HI_NUM_HOLDABLE ) ) {
 		itemNum = 0;
 	}
 
@@ -536,7 +537,7 @@ static void CG_UseItem( centity_t *cent ) {
 		}
 	}
 
-	switch ( itemNum ) {
+	switch ( static_cast<holdable_t>( itemNum ) ) {
 	default:
 	case HI_NONE:
 		//trap->S_StartSound (nullptr, es->number, CHAN_BODY, cgs.media.useNothingSound );
@@ -579,8 +580,8 @@ static void CG_UseItem( centity_t *cent ) {
 		break; //Do something?
 	}
 
-	if (cg.snap && cg.snap->ps.clientNum == cent->currentState.number && itemNum != HI_BINOCULARS &&
-		itemNum != HI_JETPACK && itemNum != HI_HEALTHDISP && itemNum != HI_AMMODISP && itemNum != HI_CLOAK && itemNum != HI_EWEB)
+	if (cg.snap && cg.snap->ps.clientNum == cent->currentState.number && itemNum != to_underlying( HI_BINOCULARS ) &&
+		itemNum != to_underlying( HI_JETPACK ) && itemNum != to_underlying( HI_HEALTHDISP ) && itemNum != to_underlying( HI_AMMODISP ) && itemNum != to_underlying( HI_CLOAK ) && itemNum != to_underlying( HI_EWEB ))
 	{ //if not using binoculars/jetpack/dispensers/cloak, we just used that item up, so switch
 		BG_CycleInven(&cg.snap->ps, 1);
 		cg.itemSelect = -1; //update the client-side selection display
@@ -798,7 +799,7 @@ const char *CG_TeamName(int team)
 	return "FREE";
 }
 
-void CG_PrintCTFMessage(clientInfo_t *ci, const char *teamName, int ctfMessage)
+void CG_PrintCTFMessage(clientInfo_t *ci, const char *teamName, ctfMsg_t ctfMessage)
 {
 	char printMsg[1024];
 	const char *refName = nullptr;
@@ -908,7 +909,7 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 		return;
 	}
 
-	CG_PrintCTFMessage(ci, teamName, es->eventParm);
+	CG_PrintCTFMessage(ci, teamName, static_cast<ctfMsg_t>( es->eventParm ));
 }
 
 bool BG_InKnockDownOnly( int anim );
@@ -1589,13 +1590,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 			if ( cgs.gametype != GT_DUEL
 				&& cgs.gametype != GT_POWERDUEL
-				&& es->eventParm == TAUNT_TAUNT )
+				&& static_cast<tauntTypes_t>( es->eventParm ) == TAUNT_TAUNT )
 			{//normal taunt
 				soundIndex = CG_CustomSound( es->number, "*taunt.wav" );
 			}
 			else
 			{
-				switch ( es->eventParm )
+				switch ( static_cast<tauntTypes_t>( es->eventParm ) )
 				{
 				case TAUNT_TAUNT:
 				default:
@@ -2519,7 +2520,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			int sID = -1;
 
-			switch (es->eventParm)
+			switch (static_cast<pdSounds_t>( es->eventParm ))
 			{
 			case PDSOUND_PROTECTHIT:
 				sID = trap->S_RegisterSound("sound/weapons/force/protecthit.mp3");
@@ -2665,7 +2666,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			char *psStringEDRef = nullptr;
 
-			switch(es->eventParm)
+			switch(static_cast<itemUseFail_t>( es->eventParm ))
 			{
 			case SENTRY_NOROOM:
 				psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SENTRY_NOROOM");
@@ -2960,7 +2961,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_PLAY_EFFECT:
 		DEBUGNAME("EV_PLAY_EFFECT");
-		switch(es->eventParm)
+		switch( static_cast<effectTypes_t>( es->eventParm ) )
 		{ //it isn't a hack, it's ingenuity!
 		case EFFECT_SMOKE:
 			eID = cgs.effects.mEmplacedDeadSmoke;
@@ -3174,8 +3175,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_GENERAL_SOUND:
 		DEBUGNAME("EV_GENERAL_SOUND");
-		if (es->saberEntityNum == TRACK_CHANNEL_2 || es->saberEntityNum == TRACK_CHANNEL_3 ||
-			es->saberEntityNum == TRACK_CHANNEL_5)
+		if (es->saberEntityNum == to_underlying( TRACK_CHANNEL_2 ) || es->saberEntityNum == to_underlying( TRACK_CHANNEL_3 ) ||
+			es->saberEntityNum == to_underlying( TRACK_CHANNEL_5 ))
 		{ //channels 2 and 3 are for speed and rage, 5 for sight
 			if ( cgs.gameSounds[ es->eventParm ] )
 			{
@@ -3206,7 +3207,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_GLOBAL_TEAM_SOUND:	// play from the player's head so it never diminishes
 		{
 			DEBUGNAME("EV_GLOBAL_TEAM_SOUND");
-			switch( es->eventParm ) {
+			switch( static_cast<global_team_sound_t>( es->eventParm ) ) {
 				case GTS_RED_CAPTURE: // CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
 					//CG_AddBufferedSound( cgs.media.redScoredSound );
 					break;

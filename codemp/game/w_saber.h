@@ -56,14 +56,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FORCE_LIGHTNING_RADIUS 300
 #define MAX_DRAIN_DISTANCE 512
 
-typedef enum forceJump_e
+enum class forceJump_t
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,
 	FJ_RIGHT,
 	FJ_LEFT,
 	FJ_UP
-} forceJump_t;
+};
+using enum forceJump_t;
 
 enum class evasionType_t
 {

@@ -594,7 +594,7 @@ void AI_DeleteSelfFromGroup( gentity_t *self )
 
 extern void ST_AggressionAdjust( gentity_t *self, int change );
 extern void ST_MarkToCover( gentity_t *self );
-extern void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int minTime, int maxTime );
+extern void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int minTime, int maxTime );
 void AI_GroupMemberKilled( gentity_t *self )
 {
 /*	AIGroupInfo_t *group = self->NPC->group;
@@ -610,7 +610,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 		return;
 	}
 	//temporarily drop group morale for a few seconds
-	group->moraleAdjust -= self->NPC->rank;
+	group->moraleAdjust -= to_underlying( self->NPC->rank );
 	//go through and drop aggression on my teammates (more cover, worse aim)
 	for ( int i = 0; i < group->numGroup; i++ )
 	{
@@ -657,7 +657,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 				}
 				else
 				{//else, maybe just a random chance
-					if ( Q_irand( 0, self->NPC->rank ) > member->NPC->rank )
+					if ( Q_irand( 0, to_underlying( self->NPC->rank ) ) > to_underlying( member->NPC->rank ) )
 					{//lower rank they are, higher rank I am, more likely they are to flee
 						ST_StartFlee( member, group->enemy, member->currentOrigin, AEL_DANGER_GREAT, 3000, 5000 );
 					}
@@ -848,7 +848,7 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 		}
 		else
 		{
-			group->morale += member->NPC->rank;
+			group->morale += to_underlying( member->NPC->rank );
 		}
 		if ( group->commander && debugNPCAI->integer )
 		{

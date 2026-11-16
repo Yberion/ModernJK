@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define		MAX_EXDATA_ENTS_TO_SEND				MAX_CLIENTS //max number of extended data for ents to send
 
 // The basic siege player classes
-typedef enum
+enum class siegePlayerClassFlags_t
 {
 	SPC_INFANTRY = 0,
 	SPC_VANGUARD,
@@ -50,9 +50,11 @@ typedef enum
 	SPC_DEMOLITIONIST,
 	SPC_HEAVY_WEAPONS,
 	SPC_MAX
-} siegePlayerClassFlags_t;
+};
+using enum siegePlayerClassFlags_t;
+template <> inline constexpr bool enableEnumArithmetic<siegePlayerClassFlags_t> = true;
 
-typedef enum
+enum class siegeClassFlags_t
 {
 	CFL_MORESABERDMG = 0,
 	CFL_STRONGAGAINSTPHYSICAL,
@@ -62,7 +64,8 @@ typedef enum
 	CFL_SINGLE_ROCKET,//has only 1 rocket to use with rocketlauncher
 	CFL_CUSTOMSKEL, //class uses a custom skeleton, be sure to load on server etc
 	CFL_EXTRA_AMMO
-} siegeClassFlags_t;
+};
+using enum siegeClassFlags_t;
 
 
 #define SIEGE_CLASS_DESC_LEN  4096
@@ -93,7 +96,7 @@ typedef struct siegeClass_s {
 	int			uiPortraitShader;
 	char		uiPortrait[256];
 	int			classShader;
-	short		playerClass;		// SPC_INFANTRY . ..
+	siegePlayerClassFlags_t	playerClass;		// SPC_INFANTRY . ..
 } siegeClass_t;
 
 typedef struct siegeTeam_s {

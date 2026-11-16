@@ -507,7 +507,7 @@ int PK3_Tell( const pk3File_t *file ) {
 
 // A deflated file can only be inflated from its start: a seek backwards starts it again, a seek forwards inflates
 // and drops what it skips. A stored file is read where it is asked.
-int PK3_Seek( pk3File_t *file, long offset, int origin ) {
+int PK3_Seek( pk3File_t *file, long offset, fsOrigin_t origin ) {
 	const pk3Slot_t	*e = file->entry;
 	int64_t			target;
 	byte			skipped[PK3_INPUT_SIZE];

@@ -146,7 +146,7 @@ stringID_table_t flagTable [] =
 //
 // fields are needed for spawning from the entity string
 //
-typedef enum {
+enum class fieldtype_t {
 	F_INT,
 	F_BOOL,			// a bool member: any non-zero integer is true
 	F_FLOAT,
@@ -176,7 +176,9 @@ typedef enum {
 	F_PARM16,			// Special case for parms
 	F_FLAG,				// special case for flags
 	F_IGNORE
-} fieldtype_t;
+};
+using enum fieldtype_t;
+template <> inline constexpr bool enableEnumArithmetic<fieldtype_t> = true;
 
 typedef struct
 {

@@ -239,7 +239,7 @@ void CG_AddFragment( localEntity_t *le )
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );
 
-		if ( le->leFlags & LEF_TUMBLE ) {
+		if ( Any( le->leFlags & LEF_TUMBLE ) ) {
 			vec3_t angles;
 
 			EvaluateTrajectory( &le->angles, cg.time, angles );
@@ -343,7 +343,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 	re->shaderRGBA[1] = le->color[1] * c;
 	re->shaderRGBA[2] = le->color[2] * c;
 
-	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 

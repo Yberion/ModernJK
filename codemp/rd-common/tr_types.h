@@ -103,7 +103,7 @@ typedef struct poly_s {
 	polyVert_t			*verts;
 } poly_t;
 
-typedef enum {
+enum class refEntityType_t {
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -118,7 +118,8 @@ typedef enum {
 	RT_ENT_CHAIN,
 
 	RT_MAX_REF_ENTITY_TYPE
-} refEntityType_t;
+};
+using enum refEntityType_t;
 
 typedef struct miniRefEntity_s
 {
@@ -336,12 +337,13 @@ typedef int stereoFrame_t;
 ** being run right now.  These are constant once the OpenGL
 ** subsystem is initialized.
 */
-typedef enum { // r_ext_preferred_tc_method
+enum class textureCompression_t { // r_ext_preferred_tc_method
 	TC_NONE,
 	TC_S3TC,
 	TC_S3TC_DXT,
 	TC_S3TC_ARB
-} textureCompression_t;
+};
+using enum textureCompression_t;
 
 typedef struct glconfig_s {
 	const char				*renderer_string;

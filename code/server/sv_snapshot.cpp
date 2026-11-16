@@ -158,7 +158,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 		}
 	}
 
-	MSG_WriteByte (msg, svc_snapshot);
+	MSG_WriteByte( msg, to_underlying( svc_snapshot ) );
 
 	// let the client know which reliable clientCommands we have received
 	MSG_WriteLong( msg, client->lastClientCommand );
@@ -206,7 +206,7 @@ static void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 
 	// write any unacknowledged serverCommands
 	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		MSG_WriteByte( msg, svc_serverCommand );
+		MSG_WriteByte( msg, to_underlying( svc_serverCommand ) );
 		MSG_WriteLong( msg, i );
 		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -356,7 +356,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
 	// specfically check for it
-	if ( !sv.state ) {
+	if ( sv.state == SS_DEAD ) {
 		return;
 	}
 
@@ -707,7 +707,7 @@ void SV_SendClientMessages( void ) {
 
 	// send a message to each connected client
 	for (i=0, c = svs.clients ; i < 1 ; i++, c++) {
-		if (!c->state) {
+		if (c->state == CS_FREE) {
 			continue;		// not connected
 		}
 

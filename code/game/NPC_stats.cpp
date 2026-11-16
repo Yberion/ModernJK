@@ -295,7 +295,7 @@ saber_colors_t TranslateSaberColor( const char *name )
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
+		return static_cast<saber_colors_t>( Q_irand( to_underlying( SABER_ORANGE ), to_underlying( SABER_PURPLE ) ) );
 	}
 	return SABER_BLUE;
 }
@@ -334,7 +334,7 @@ static int ItemNameToNumber( const char *name, int itemType ) {
 }
 */
 
-static int MoveTypeNameToEnum( const char *name )
+static movetype_t MoveTypeNameToEnum( const char *name )
 {
 	if(!Q_stricmp("runjump", name))
 	{
@@ -619,15 +619,15 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 				animEvents[curAnimEvent].eventData[AED_SABER_SWING_PROBABILITY] = animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY];
 				if ( lowestVal < 4 )
 				{//fast swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = SWING_FAST;
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_FAST );
 				}
 				else if ( lowestVal < 7 )
 				{//medium swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = SWING_MEDIUM;
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_MEDIUM );
 				}
 				else
 				{//strong swing
-					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = SWING_STRONG;
+					animEvents[curAnimEvent].eventData[AED_SABER_SWING_TYPE] = (short)to_underlying( SWING_STRONG );
 				}
 			}
 			else if ( !Q_stricmpn( "sound/weapons/saber/saberspin", stringData, 29 ) )
@@ -3285,7 +3285,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						continue;
 					}
 
-					NPC->client->moveType = (movetype_t)MoveTypeNameToEnum(value);
+					NPC->client->moveType = MoveTypeNameToEnum(value);
 					continue;
 				}
 

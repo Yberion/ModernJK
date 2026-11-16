@@ -355,10 +355,10 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 NPC_CheckSoundEvents
 -------------------------
 */
-static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
+static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	int	bestEvent = -1;
-	int bestAlert = -1;
+	alertEventLevel_e bestAlert = AEL_NONE;
 	int	bestTime = -1;
 	float dist, radius;
 
@@ -426,10 +426,10 @@ float G_GetLightLevel( vec3_t pos, vec3_t fromDir )
 NPC_CheckSightEvents
 -------------------------
 */
-static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
+static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	int	bestEvent = -1;
-	int bestAlert = -1;
+	alertEventLevel_e bestAlert = AEL_NONE;
 	int	bestTime = -1;
 	float	dist, radius;
 
@@ -495,7 +495,7 @@ NPC_CheckAlertEvents
 -------------------------
 */
 
-int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
+int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	if ( g_entities[0].health <= 0 )
 	{
@@ -505,8 +505,8 @@ int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float
 
 	int bestSoundEvent = -1;
 	int bestSightEvent = -1;
-	int bestSoundAlert = -1;
-	int bestSightAlert = -1;
+	alertEventLevel_e bestSoundAlert = AEL_NONE;
+	alertEventLevel_e bestSightAlert = AEL_NONE;
 
 	//get sound event
 	bestSoundEvent = G_CheckSoundEvents( self, maxHearDist, ignoreAlert, mustHaveOwner, minAlertLevel );
@@ -549,7 +549,7 @@ int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float
 	return bestSoundEvent;
 }
 
-int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
+int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel )
 {
 	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel );
 }

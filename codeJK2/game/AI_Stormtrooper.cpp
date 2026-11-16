@@ -268,7 +268,7 @@ void ST_MarkToCover( gentity_t *self )
 	}
 }
 
-void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int minTime, int maxTime )
+void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int minTime, int maxTime )
 {
 	if ( !self || !self->NPC )
 	{

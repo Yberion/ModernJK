@@ -54,9 +54,9 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	s2 = "";
 	// Throw all status info into a string
-//	for (i=0;i< MAX_OBJECTIVES; i++)
+//	for (i=0;i<to_underlying( MAX_OBJECTIVES ); i++)
 //	{
-//		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[i].display,	client->sess.mission_objectives[i].status);
+//		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display,	client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status);
 //	}
 
 	// We're saving only one objective
@@ -130,18 +130,18 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = s;
 //	var++;
 
-//	for (i=0;i< MAX_OBJECTIVES; i++)
+//	for (i=0;i<to_underlying( MAX_OBJECTIVES ); i++)
 //	{
 //		sscanf( var, "%i %i",
-//			&client->sess.mission_objectives[i].display,
-//			&client->sess.mission_objectives[i].status);
+//			&client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display,
+//			&client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status);
 //			var+=4;
 //	}
 	// Clear the objectives out
-	for (i=0;i< MAX_OBJECTIVES; i++)
+	for (i=0;i<to_underlying( MAX_OBJECTIVES ); i++)
 	{
-		client->sess.mission_objectives[i].display = false;
-		client->sess.mission_objectives[i].status = OBJECTIVE_STAT_PENDING;
+		client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display = false;
+		client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status = OBJECTIVE_STAT_PENDING;
 	}
 
 	// Now load the LIGHTSIDE objective. That's the only cross level objective.

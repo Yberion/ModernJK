@@ -52,7 +52,7 @@ int obj_graphics[4];
 MissionPrint_Line
 ====================
 */
-static void MissionPrint_Line(const int color, const int objectIndex, int &missionYcnt)
+static void MissionPrint_Line(const ct_table_t color, const int objectIndex, int &missionYcnt)
 {
 	char *str,*strBegin;
 	int y,pixelLen,charLen;
@@ -153,21 +153,21 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 	}
 
 	// Special case hack
-	if (objectIndex == DOOM_COMM_OBJ4)
+	if (objectIndex == to_underlying( DOOM_COMM_OBJ4 ))
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
 		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
 		obj_graphics[0] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ3)
+	else if (objectIndex == to_underlying( KEJIM_POST_OBJ3 ))
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[1] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ4)
+	else if (objectIndex == to_underlying( KEJIM_POST_OBJ4 ))
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -178,7 +178,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[2] = true;
 	}
-	else if (objectIndex == KEJIM_POST_OBJ5)
+	else if (objectIndex == to_underlying( KEJIM_POST_OBJ5 ))
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -219,7 +219,7 @@ void MissionInformation_Draw( centity_t *cent )
 
 	// Print active objectives
 	cgi_R_SetColor(colorTable[CT_BLUE3]);
-	for (i=0;i<MAX_OBJECTIVES;++i)
+	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
 	{
 		if (cent->gent->client->sess.mission_objectives[i].display)
 		{

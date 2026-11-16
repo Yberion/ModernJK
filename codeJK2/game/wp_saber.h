@@ -273,7 +273,7 @@ typedef enum {
 	LS_MOVE_MAX//
 } saberMoveName_t;
 
-typedef enum {
+enum class saberQuadrant_t {
 	Q_BR,
 	Q_R,
 	Q_TR,
@@ -283,17 +283,19 @@ typedef enum {
 	Q_BL,
 	Q_B,
 	Q_NUM_QUADS
-} saberQuadrant_t;
+};
+using enum saberQuadrant_t;
+template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct
 {
 	const char *name;
 	int animToUse;
-	int	startQuad;
-	int	endQuad;
+	saberQuadrant_t	startQuad;
+	saberQuadrant_t	endQuad;
 	unsigned animSetFlags;
 	int blendTime;
-	int blocking;
+	saberBlockType_t blocking;
 	saberMoveName_t chain_idle;			// What move to call if the attack button is not pressed at the end of this anim
 	saberMoveName_t chain_attack;		// What move to call if the attack button (and nothing else) is pressed
 	int trailLength;

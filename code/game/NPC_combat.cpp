@@ -1579,7 +1579,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bo
 	float		bestDist = Q3_INFINITE;
 	bool	failed = false;
 	int			visChecks = (CHECK_360|CHECK_FOV|CHECK_VISRANGE);
-	int			minVis = VIS_FOV;
+	visibility_t	minVis = VIS_FOV;
 
 	if ( enemyTeam == TEAM_NEUTRAL )
 	{

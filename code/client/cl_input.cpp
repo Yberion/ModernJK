@@ -74,7 +74,7 @@ static void IN_UseGivenForce(void)
 {
 	const char *c = Cmd_Argv(1);
 	int forceNum=-1;
-	int genCmdNum = 0;
+	genCmds_t genCmdNum = GENCMD_NONE;
 
 	if(c) {
 		forceNum = atoi(c);
@@ -131,9 +131,9 @@ static void IN_UseGivenForce(void)
 		break;
 	}
 
-	if(genCmdNum) {
+	if(genCmdNum != GENCMD_NONE) {
 		cl.gcmdSendValue = true;
-		cl.gcmdValue = genCmdNum;
+		cl.gcmdValue = to_underlying( genCmdNum );
 	}
 }
 
@@ -463,10 +463,10 @@ Joystick values stay set until changed
 =================
 */
 void CL_JoystickEvent( int axis, int value, int time ) {
-	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
+	if ( axis < 0 || axis >= to_underlying( MAX_JOYSTICK_AXIS ) ) {
 		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
 	}
-	cl.joystickAxis[axis] = value;
+	cl.joystickAxis[static_cast<joystickAxis_t>( axis )] = value;
 }
 
 /*
@@ -831,7 +831,7 @@ void CL_WritePacket( void ) {
 
 	// write any unacknowledged clientCommands
 	for ( i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
-		MSG_WriteByte( &buf, clc_clientCommand );
+		MSG_WriteByte( &buf, to_underlying( clc_clientCommand ) );
 		MSG_WriteLong( &buf, i );
 		MSG_WriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
@@ -852,7 +852,7 @@ void CL_WritePacket( void ) {
 	}
 	if ( count >= 1 ) {
 		// begin a client move command
-		MSG_WriteByte (&buf, clc_move);
+		MSG_WriteByte (&buf, to_underlying( clc_move ));
 
 		// write the last reliable message we received
 		MSG_WriteLong( &buf, clc.serverCommandSequence );

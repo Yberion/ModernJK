@@ -1364,7 +1364,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	worldData.numsurfaces = count;
 
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		switch ( LittleLong( in->surfaceType ) ) {
+		switch ( static_cast<mapSurfaceType_t>( LittleLong( in->surfaceType ) ) ) {
 		case MST_PATCH:
 			ParseMesh ( in, dv, out, worldData, index );
 			numMeshes++;

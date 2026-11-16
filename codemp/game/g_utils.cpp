@@ -198,7 +198,7 @@ bool G_PlayerHasCustomSkeleton(gentity_t *ent)
 	}
 
 	scl = &bgSiegeClasses[ent->client->siegeClass];
-	if (!(scl->classflags & (1<<CFL_CUSTOMSKEL)))
+	if (!(scl->classflags & Bit( CFL_CUSTOMSKEL )))
 	{ //class is not flagged for this
 		return false;
 	}
@@ -1020,9 +1020,9 @@ void G_FreeEntity( gentity_t *ed ) {
 
 			if (ent && ent->inuse && ent->client)
 			{
-				int ch = TRACK_CHANNEL_NONE-50;
+				int ch = 0;
 
-				while (ch < NUM_TRACK_CHANNELS-50)
+				while (ch < TRACK_CHANNEL_MAX)
 				{
 					if (ent->client->ps.fd.killSoundEntIndex[ch] == ed->s.number)
 					{
@@ -1258,14 +1258,14 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 G_PlayEffect
 =============
 */
-gentity_t *G_PlayEffect(int fxID, vec3_t org, vec3_t ang)
+gentity_t *G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang)
 {
 	gentity_t	*te;
 
 	te = G_TempEntity( org, EV_PLAY_EFFECT );
 	VectorCopy(ang, te->s.angles);
 	VectorCopy(org, te->s.origin);
-	te->s.eventParm = fxID;
+	te->s.eventParm = to_underlying( fxID );
 
 	return te;
 }
@@ -1362,20 +1362,20 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 	te->s.eventParm = soundIndex;
 	te->s.saberEntityNum = channel;
 
-	if (ent && ent->client && channel > TRACK_CHANNEL_NONE)
+	if (ent && ent->client && channel > to_underlying( TRACK_CHANNEL_NONE ))
 	{ //let the client remember the index of the player entity so he can kill the most recent sound on request
-		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]].inuse &&
-			ent->client->ps.fd.killSoundEntIndex[channel-50] > MAX_CLIENTS)
+		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]].inuse &&
+			ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] > MAX_CLIENTS)
 		{
-			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel-50], CHAN_VOICE);
-			if (ent->client->ps.fd.killSoundEntIndex[channel-50] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]].inuse)
+			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )], CHAN_VOICE);
+			if (ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]].inuse)
 			{
-				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel-50]]);
+				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]]);
 			}
-			ent->client->ps.fd.killSoundEntIndex[channel-50] = 0;
+			ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] = 0;
 		}
 
-		ent->client->ps.fd.killSoundEntIndex[channel-50] = te->s.number;
+		ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] = te->s.number;
 		te->s.trickedentindex = ent->s.number;
 		te->s.eFlags = EF_SOUNDTRACKER;
 		// fix: let other players know about this
@@ -1454,7 +1454,7 @@ bool ValidUseTarget( gentity_t *ent )
 }
 
 //use an ammo/health dispenser on another client
-void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
+void G_UseDispenserOn(gentity_t *ent, holdable_t dispType, gentity_t *target)
 {
 	if (dispType == HI_HEALTHDISP)
 	{
@@ -1488,7 +1488,7 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 }
 
 //see if this guy needs servicing from a specific type of dispenser
-int G_CanUseDispOn(gentity_t *ent, int dispType)
+int G_CanUseDispOn(gentity_t *ent, holdable_t dispType)
 {
 	if (!ent->client || !ent->inuse || ent->health < 1 ||
 		ent->client->ps.stats[STAT_HEALTH] < 1)
@@ -1734,8 +1734,8 @@ void TryUse( gentity_t *ent )
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
 		bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE)
 	{
-		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_HEALTHDISP ||
-			bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_AMMODISP)
+		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == to_underlying( HI_HEALTHDISP ) ||
+			bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == to_underlying( HI_AMMODISP ))
 		{ //has a dispenser item selected
             if (target && target->client && target->health > 0 && OnSameTeam(ent, target) &&
 				G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag))
@@ -1757,7 +1757,7 @@ void TryUse( gentity_t *ent )
 		}
 	}
 #else
-    if ( ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) || (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP))) &&
+    if ( ((ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_HEALTHDISP )) || (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_AMMODISP ))) &&
 		target && target->inuse && target->client && target->health > 0 && OnSameTeam(ent, target) &&
 		(G_CanUseDispOn(target, HI_HEALTHDISP) || G_CanUseDispOn(target, HI_AMMODISP)) )
 	{ //a live target that's on my team, we can use him
@@ -1827,7 +1827,7 @@ void TryUse( gentity_t *ent )
 
 tryJetPack:
 	//if we got here, we didn't actually use anything else, so try to toggle jetpack if we are in the air, or if it is already on
-	if (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK))
+	if (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_JETPACK ))
 	{
 		if (ent->client->jetPackOn || ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
 		{
@@ -1836,7 +1836,7 @@ tryJetPack:
 		}
 	}
 
-	if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) /*&&
+	if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_AMMODISP )) /*&&
 		G_ItemUsable(&ent->client->ps, HI_AMMODISP)*/ )
 	{ //if you used nothing, then try spewing out some ammo
 		trace_t trToss;

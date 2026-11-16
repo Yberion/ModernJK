@@ -1155,7 +1155,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 
 static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 {
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	char		num[7] = { 0 };
 	int			weapX = 16;
 
@@ -1209,7 +1209,7 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 static void CG_DrawSimpleAmmo( const centity_t *cent )
 {
 	playerState_t	*ps;
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	int			currValue = 0;
 	char		num[16] = { 0 };
 
@@ -1273,7 +1273,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 
 static void CG_DrawSimpleForcePower( const centity_t *cent )
 {
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	char		num[16] = { 0 };
 	bool	flash = false;
 
@@ -1712,7 +1712,7 @@ void CG_DrawInvenSelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < HI_NUM_HOLDABLE ; i++ )
+	for ( i = 0 ; i < to_underlying( HI_NUM_HOLDABLE ) ; i++ )
 	{
 		if (/*CG_InventorySelectable(i) && inv_icons[i]*/
 			(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) )
@@ -1751,7 +1751,7 @@ void CG_DrawInvenSelect( void )
 	i = cg.itemSelect - 1;
 	if (i<0)
 	{
-		i = HI_NUM_HOLDABLE-1;
+		i = to_underlying( HI_NUM_HOLDABLE )-1;
 	}
 
 	smallIconSize = 40;
@@ -1770,7 +1770,7 @@ void CG_DrawInvenSelect( void )
 	{
 		if (i<0)
 		{
-			i = HI_NUM_HOLDABLE-1;
+			i = to_underlying( HI_NUM_HOLDABLE )-1;
 		}
 
 		if ( !(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) || i == cg.itemSelect )
@@ -1780,7 +1780,7 @@ void CG_DrawInvenSelect( void )
 
 		++iconCnt;					// Good icon
 
-		if (!BG_IsItemSelectable(&cg.predictedPlayerState, i))
+		if (!BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( i )))
 		{
 			continue;
 		}
@@ -1800,7 +1800,7 @@ void CG_DrawInvenSelect( void )
 	}
 
 	// Current Center Icon
-	if (cgs.media.invenIcons[cg.itemSelect] && BG_IsItemSelectable(&cg.predictedPlayerState, cg.itemSelect))
+	if (cgs.media.invenIcons[cg.itemSelect] && BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( cg.itemSelect )))
 	{
 		int itemNdex;
 		trap->R_SetColor(nullptr);
@@ -1831,7 +1831,7 @@ void CG_DrawInvenSelect( void )
 	}
 
 	i = cg.itemSelect + 1;
-	if (i> HI_NUM_HOLDABLE-1)
+	if (i> to_underlying( HI_NUM_HOLDABLE )-1)
 	{
 		i = 0;
 	}
@@ -1842,7 +1842,7 @@ void CG_DrawInvenSelect( void )
 //	addX = (float) smallIconSize * .75;
 	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
 	{
-		if (i> HI_NUM_HOLDABLE-1)
+		if (i> to_underlying( HI_NUM_HOLDABLE )-1)
 		{
 			i = 0;
 		}
@@ -1854,7 +1854,7 @@ void CG_DrawInvenSelect( void )
 
 		++iconCnt;					// Good icon
 
-		if (!BG_IsItemSelectable(&cg.predictedPlayerState, i))
+		if (!BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( i )))
 		{
 			continue;
 		}
@@ -2516,7 +2516,7 @@ veh_damage_t vehDamageData[4] =
 void CG_DrawVehicleDamage(const centity_t *veh,int brokenLimbs,const menuDef_t	*menuHUD,float alpha,int index)
 {
 	itemDef_t		*item;
-	int				colorI;
+	ct_table_t		colorI;
 	vec4_t			color;
 	int				graphicHandle=0;
 
@@ -4694,7 +4694,7 @@ void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float ch
 		return;
 	}
 
-    if (!(siegeClass->classflags & (1<<CFL_STATVIEWER)))
+    if (!(siegeClass->classflags & Bit( CFL_STATVIEWER )))
 	{ //doesn't really have the ability to see others' stats
 		return;
 	}
@@ -5077,10 +5077,10 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 
 				if (crossEnt->currentState.eType == ET_NPC)
 				{
-					int plTeam;
+					npcteam_t plTeam;
 					if (cgs.gametype == GT_SIEGE)
 					{
-						plTeam = cg.predictedPlayerState.persistant[PERS_TEAM];
+						plTeam = static_cast<npcteam_t>( cg.predictedPlayerState.persistant[PERS_TEAM] );
 					}
 					else
 					{
@@ -5129,7 +5129,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 							ecolor[2] = 0.0f;//B
 						}
 					}
-					else if ( crossEnt->currentState.teamowner != plTeam )
+					else if ( static_cast<npcteam_t>( crossEnt->currentState.teamowner ) != plTeam )
 					{// on enemy team
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 0.0f;//G
@@ -6354,7 +6354,7 @@ static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	vec4_t		tcolor;
 	char		*name;
-	int			baseColor;
+	ct_table_t	baseColor;
 	bool	isVeh = false;
 
 	if ( !cg_drawCrosshair.integer ) {
@@ -7243,7 +7243,7 @@ static void CG_DrawSiegeTimer(int timeRemaining, bool isMyTeam)
   //this function is pretty much totally placeholder.
 //	int x = 0;
 //	int y = SCREEN_HEIGHT-160;
-	int fColor = 0;
+	ct_table_t fColor = CT_NONE;
 	int minutes = 0;
 	int seconds = 0;
 	char timeStr[1024];

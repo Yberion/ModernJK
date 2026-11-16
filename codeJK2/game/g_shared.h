@@ -65,7 +65,7 @@ enum
 	HL_MAX
 };
 
-typedef enum //# taskID_e
+enum class taskID_t //# taskID_e
 {
 	TID_CHAN_VOICE = 0,	// Waiting for a voice sound to complete
 	TID_ANIM_UPPER,		// Waiting to finish a lower anim holdtime
@@ -79,10 +79,12 @@ typedef enum //# taskID_e
 	TID_RESIZE,			// Waiting for clear bbox to inflate size
 	TID_SHOOT,			// Waiting for fire event
 	NUM_TIDS,			// for def of taskID array
-} taskID_t;
+};
+using enum taskID_t;
+template <> inline constexpr bool enableEnumArithmetic<taskID_t> = true;
 
 
-typedef enum //# material_e
+enum class material_t //# material_e
 {
 	MAT_METAL = 0,	// scorched blue-grey metal
 	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
@@ -103,7 +105,8 @@ typedef enum //# material_e
 
 	NUM_MATERIALS
 
-} material_t;
+};
+using enum material_t;
 
 //===From cg_local.h================================================
 #define	DEFAULT_HEADMODEL	""
@@ -202,13 +205,14 @@ public:
 
 
 //==================================================================
-typedef enum
+enum class moverState_t
 {
 	MOVER_POS1,
 	MOVER_POS2,
 	MOVER_1TO2,
 	MOVER_2TO1
-} moverState_t;
+};
+using enum moverState_t;
 
 // Rendering information structure
 
@@ -455,16 +459,18 @@ typedef struct moveInfo_s	// !!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!
 } moveInfo_t;
 */
 
-typedef enum {
+enum class clientConnected_t {
 	CON_DISCONNECTED,
 	CON_CONNECTING,
 	CON_CONNECTED
-} clientConnected_t;
+};
+using enum clientConnected_t;
 
-typedef enum {
+enum class playerTeamStateState_t {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
 	TEAM_ACTIVE		// Now actively playing
-} playerTeamStateState_t;
+};
+using enum playerTeamStateState_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class playerTeamState_t
@@ -688,13 +694,7 @@ public:
 	}
 }; // clientPersistant_t
 
-typedef enum {
-	BLK_NO,
-	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
-	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
-} saberBlockType_t;
-
-typedef enum {
+enum class saberBlockedType_t {
 	BLOCKED_NONE,
 	BLOCKED_PARRY_BROKEN,
 	BLOCKED_ATK_BOUNCE,
@@ -708,7 +708,8 @@ typedef enum {
 	BLOCKED_LOWER_RIGHT_PROJ,
 	BLOCKED_LOWER_LEFT_PROJ,
 	BLOCKED_TOP_PROJ
-} saberBlockedType_t;
+};
+using enum saberBlockedType_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 // this structure is cleared on each ClientSpawn(),
@@ -953,15 +954,15 @@ public:
 
 #define GAME_INCLUDE
 #ifdef GAME_INCLUDE
-//these hold the place for the enums in functions.h so i don't have to recompile everytime it changes
-#define thinkFunc_t int
-#define clThinkFunc_t int
-#define reachedFunc_t int
-#define blockedFunc_t int
-#define touchFunc_t int
-#define useFunc_t int
-#define painFunc_t int
-#define dieFunc_t int
+// the enumerations of g_functions.h, declared here so that this header does not need it
+enum class thinkFunc_t;
+enum class clThinkFunc_t;
+enum class reachedFunc_t;
+enum class blockedFunc_t;
+enum class touchFunc_t;
+enum class useFunc_t;
+enum class painFunc_t;
+enum class dieFunc_t;
 
 #define MAX_FAILED_NODES 8
 
@@ -1138,7 +1139,7 @@ Ghoul2 Insert End
 //Script/ICARUS-related fields
 	CSequencer		*sequencer;
 	CTaskManager	*taskManager;
-	int				taskID[NUM_TIDS];
+	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
 	char		*behaviorSet[NUM_BSETS];
 	const char	*script_targetname;
@@ -1366,7 +1367,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(endFrame);
 		saved_game.write<int32_t>(sequencer);
 		saved_game.write<int32_t>(taskManager);
-		saved_game.write<int32_t>(taskID);
+		saved_game.write<int32_t>(taskID.elems);
 		saved_game.write<int32_t>(parms);
 		saved_game.write<int32_t>(behaviorSet);
 		saved_game.write<int32_t>(script_targetname);
@@ -1547,7 +1548,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(endFrame);
 		saved_game.read<int32_t>(sequencer);
 		saved_game.read<int32_t>(taskManager);
-		saved_game.read<int32_t>(taskID);
+		saved_game.read<int32_t>(taskID.elems);
 		saved_game.read<int32_t>(parms);
 		saved_game.read<int32_t>(behaviorSet);
 		saved_game.read<int32_t>(script_targetname);

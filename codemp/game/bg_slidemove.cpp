@@ -151,7 +151,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		&& pm->ps->velocity[2] > -100.0f )
 #endif
 		/*
-	if ( (pSelfVeh->m_ulFlags&VEH_GEARSOPEN)
+	if ( (Any( pSelfVeh->m_ulFlags & VEH_GEARSOPEN ))
 		&& trace->plane.normal[2] > 0.7f
 		&& fabs(pSelfVeh->m_vOrientation[PITCH]) < 0.2f
 		&& fabs(pSelfVeh->m_vOrientation[ROLL]) < 0.2f )*/

@@ -2287,7 +2287,7 @@ extern cvar_t	*g_skippingcin;
 					//FIXME: should he smack you away like Galak Mech?
 				}
 				else if (
-					( ( (groundEnt->s.number&&(groundEnt->s.weapon!=WP_SABER||!groundEnt->NPC||groundEnt->NPC->rank<Q_irand(RANK_CIVILIAN,RANK_CAPTAIN+1)))  //an NPC who is either not a saber user or passed the rank-based probability test
+					( ( (groundEnt->s.number&&(groundEnt->s.weapon!=WP_SABER||!groundEnt->NPC||to_underlying( groundEnt->NPC->rank ) < Q_irand( to_underlying( RANK_CIVILIAN ), to_underlying( RANK_CAPTAIN ) + 1 )))  //an NPC who is either not a saber user or passed the rank-based probability test
 							|| ((!ent->s.number||G_ControlledByPlayer(groundEnt)) && !Q_irand( 0, 3 )&&cg.renderingThirdPerson&&!cg.zoomMode) )//or a player in third person, 25% of the time
 						&& groundEnt->client->playerTeam != ent->client->playerTeam ) //and not on the same team
 					|| ent->client->NPC_class == CLASS_DESANN )//desann always knocks people down

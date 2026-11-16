@@ -56,7 +56,7 @@ typedef	std::map<sstring_t, unsigned char>	namePrecache_m;
 static namePrecache_m*	pMap = nullptr;
 
 // Used for enum / string matching
-static const char	*setNames[NUM_AS_SETS] =
+static const EnumArray<const char *, set_e, NUM_AS_SETS>	setNames =
 					{
 						"generalSet",
 						"localSet",
@@ -64,7 +64,7 @@ static const char	*setNames[NUM_AS_SETS] =
 					};
 
 // Used for enum / function matching
-static const parseFunc_t 	parseFuncs[NUM_AS_SETS] =
+static const EnumArray<parseFunc_t, set_e, NUM_AS_SETS>	parseFuncs =
 							{
 								AS_GetGeneralSet,
 								AS_GetLocalSet,
@@ -72,7 +72,7 @@ static const parseFunc_t 	parseFuncs[NUM_AS_SETS] =
 							};
 
 // Used for keyword / enum matching
-static const char	*keywordNames[NUM_AS_KEYWORDS]=
+static const EnumArray<const char *, setKeyword_e, NUM_AS_KEYWORDS>	keywordNames =
 					{
 						"timeBetweenWaves",
 						"subWaves",
@@ -214,10 +214,10 @@ static int AS_GetSetNameIDForString( const char *name )
 	if ( name == nullptr || name[0] == '\0' )
 		return -1;
 
-	for ( int i = 0; i < NUM_AS_SETS; i++ )
+	for ( set_e i = AS_SET_GENERAL; i < NUM_AS_SETS; i++ )
 	{
 		if ( Q_stricmp( name, setNames[i] ) == 0 )
-			return i;
+			return to_underlying( i );
 	}
 
 	return -1;
@@ -235,10 +235,10 @@ static int AS_GetKeywordIDForString( const char *name )
 	if ( name == nullptr || name[0] == '\0' )
 		return -1;
 
-	for ( int i = 0; i < NUM_AS_KEYWORDS; i++ )
+	for ( setKeyword_e i = SET_KEYWORD_TIMEBETWEENWAVES; i < NUM_AS_KEYWORDS; i++ )
 	{
 		if ( Q_stricmp( name, keywordNames[i] ) == 0 )
-			return i;
+			return to_underlying( i );
 	}
 
 	return -1;
@@ -453,7 +453,7 @@ static void AS_GetGeneralSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( keywordID )
+		switch ( static_cast<setKeyword_e>( keywordID ) )
 		{
 		case SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
@@ -512,7 +512,7 @@ static void AS_GetLocalSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( keywordID )
+		switch ( static_cast<setKeyword_e>( keywordID ) )
 		{
 		case SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
@@ -575,7 +575,7 @@ static void AS_GetBModelSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( keywordID )
+		switch ( static_cast<setKeyword_e>( keywordID ) )
 		{
 		case SET_KEYWORD_SUBWAVES:
 			AS_GetSubWaves( set );
@@ -610,7 +610,7 @@ Parses an individual set group out of a set file buffer
 -------------------------
 */
 
-static bool AS_ParseSet( int setID, CSetGroup *sg )
+static bool AS_ParseSet( set_e setID, CSetGroup *sg )
 {
 	ambientSet_t	*set;
 	const char		*name;
@@ -679,7 +679,7 @@ static void AS_ParseHeader( void )
 
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
-		switch ( keywordID )
+		switch ( static_cast<setKeyword_e>( keywordID ) )
 		{
 		case SET_KEYWORD_TYPE:
 			sscanf( parseBuffer+parsePos, "%s %s", tempBuffer, typeBuffer );
@@ -702,6 +702,9 @@ static void AS_ParseHeader( void )
 
 		case SET_KEYWORD_BASEDIR:
 			//TODO: Implement
+			break;
+
+		default:
 			break;
 		}
 
@@ -729,7 +732,7 @@ static bool AS_ParseFile( const char *filename, CSetGroup *sg )
 	AS_ParseHeader();
 
 	//Parse all the relevent sets out of it
-	for ( int i = 0; i < NUM_AS_SETS; i++ )
+	for ( set_e i = AS_SET_GENERAL; i < NUM_AS_SETS; i++ )
 		AS_ParseSet( i, sg );
 
 	//Free the memory and close the file

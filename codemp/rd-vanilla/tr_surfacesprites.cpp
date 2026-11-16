@@ -1437,7 +1437,7 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 	//
 	// Check fog
 	//
-	if ( tess.fogNum && tess.shader->fogPass && r_drawfog->value)
+	if ( tess.fogNum && tess.shader->fogPass != FP_NONE && r_drawfog->value)
 	{
 		SSUsingFog = true;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits, tess.fogNum);

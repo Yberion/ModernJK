@@ -3669,7 +3669,7 @@ static void PM_CrashLandEffect( void )
 	if ( delta >= 30 )
 	{
 		vec3_t bottom;
-		int	effectID = -1;
+		effectTypes_t	effectID = EFFECT_NONE;
 		int material = (pml.groundTrace.surfaceFlags&MATERIAL_MASK);
 		VectorSet( bottom, pm->ps->origin[0],pm->ps->origin[1],pm->ps->origin[2]+pm->mins[2]+1 );
 		switch ( material )
@@ -3691,7 +3691,7 @@ static void PM_CrashLandEffect( void )
 			break;
 		}
 
-		if ( effectID != -1 )
+		if ( effectID != EFFECT_NONE )
 		{
 			G_PlayEffect( effectID, bottom, pml.groundTrace.plane.normal );
 		}
@@ -5174,7 +5174,7 @@ static bool BG_AreRunWalkAnimsFixed(void) {
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
 	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
-	return !!(legacyFixes & (1 << LEGACYFIX_RUNWALKANIMS));
+	return !!(legacyFixes & Bit( LEGACYFIX_RUNWALKANIMS ));
 #endif
 }
 
@@ -6297,12 +6297,12 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		forcedUse = bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag;
 	}
 
-	if (!BG_IsItemSelectable(ps, forcedUse))
+	if (!BG_IsItemSelectable(ps, static_cast<holdable_t>( forcedUse )))
 	{
 		return 0;
 	}
 
-	switch (forcedUse)
+	switch ( static_cast<holdable_t>( forcedUse ) )
 	{
 	case HI_MEDPAC:
 	case HI_MEDPAC_BIG:
@@ -6320,7 +6320,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 	case HI_SEEKER:
 		if (ps->eFlags & EF_SEEKERDRONE)
 		{
-			PM_AddEventWithParm(EV_ITEMUSEFAIL, SEEKER_ALREADYDEPLOYED);
+			PM_AddEventWithParm(EV_ITEMUSEFAIL, to_underlying( SEEKER_ALREADYDEPLOYED ));
 			return 0;
 		}
 
@@ -6328,7 +6328,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 	case HI_SENTRY_GUN:
 		if (ps->fd.sentryDeployed)
 		{
-			PM_AddEventWithParm(EV_ITEMUSEFAIL, SENTRY_ALREADYPLACED);
+			PM_AddEventWithParm(EV_ITEMUSEFAIL, to_underlying( SENTRY_ALREADYPLACED ));
 			return 0;
 		}
 
@@ -6353,7 +6353,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 
 		if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid)
 		{
-			PM_AddEventWithParm(EV_ITEMUSEFAIL, SENTRY_NOROOM);
+			PM_AddEventWithParm(EV_ITEMUSEFAIL, to_underlying( SENTRY_NOROOM ));
 			return 0;
 		}
 
@@ -6381,7 +6381,7 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 				return 1;
 			}
 		}
-		PM_AddEventWithParm(EV_ITEMUSEFAIL, SHIELD_NOROOM);
+		PM_AddEventWithParm(EV_ITEMUSEFAIL, to_underlying( SHIELD_NOROOM ));
 		return 0;
 	case HI_JETPACK: //check for stuff here?
 		return 1;
@@ -6545,14 +6545,14 @@ backAgain:
 					Anim = BOTH_VS_IDLE;
 				}
 				// In the Air.
-				//else if ( pVeh->m_ulFlags & VEH_FLYING )
+				//else if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
 				else if (0)
 				{
 					Anim = BOTH_VS_AIR_G;
 					iFlags = SETANIM_FLAG_OVERRIDE;
 				}
 				// Crashing.
-				//else if ( pVeh->m_ulFlags & VEH_CRASHING )
+				//else if ( Any( pVeh->m_ulFlags & VEH_CRASHING ) )
 				else if (0)
 				{
 					pVeh->m_ulFlags &= ~VEH_CRASHING;	// Remove the flag, we are doing the animation.
@@ -6567,14 +6567,14 @@ backAgain:
 
 			case WP_BLASTER:
 				// In the Air.
-				//if ( pVeh->m_ulFlags & VEH_FLYING )
+				//if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
 				if (0)
 				{
 					Anim = BOTH_VS_AIR_G;
 					iFlags = SETANIM_FLAG_OVERRIDE;
 				}
 				// Crashing.
-				//else if ( pVeh->m_ulFlags & VEH_CRASHING )
+				//else if ( Any( pVeh->m_ulFlags & VEH_CRASHING ) )
 				else if (0)
 				{
 					pVeh->m_ulFlags &= ~VEH_CRASHING;	// Remove the flag, we are doing the animation.
@@ -7092,12 +7092,12 @@ static void PM_Weapon( void )
 			{
 				if (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
 				{
-					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_BINOCULARS &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_JETPACK &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_HEALTHDISP &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_AMMODISP &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_CLOAK &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_EWEB)
+					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_BINOCULARS ) &&
+						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_JETPACK ) &&
+						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_HEALTHDISP ) &&
+						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_AMMODISP ) &&
+						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_CLOAK ) &&
+						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_EWEB ))
 					{ //never use up the binoculars or jetpack or dispensers or cloak or ...
 						pm->ps->stats[STAT_HOLDABLE_ITEMS] -= (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag);
 					}
@@ -7110,12 +7110,12 @@ static void PM_Weapon( void )
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 
-				if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_BINOCULARS &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_JETPACK &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_HEALTHDISP &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_AMMODISP &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_CLOAK &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_EWEB)
+				if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_BINOCULARS ) &&
+					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_JETPACK ) &&
+					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_HEALTHDISP ) &&
+					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_AMMODISP ) &&
+					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_CLOAK ) &&
+					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_EWEB ))
 				{
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
 					BG_CycleInven(pm->ps, 1);
@@ -10351,7 +10351,7 @@ void PmoveSingle (pmove_t *pmove) {
 			}
 			if ( pm->ps->forceHandExtend == HANDEXTEND_TAUNT )
 			{
-				pm->ps->forceHandExtend = 0;
+				pm->ps->forceHandExtend = HANDEXTEND_NONE;
 			}
 		}
 		else
@@ -10954,7 +10954,7 @@ void PmoveSingle (pmove_t *pmove) {
 			assert(self && self->playerState && self->s.number < MAX_CLIENTS);
 
 			if (pm->ps->pm_type == PM_DEAD &&
-				(veh->m_pVehicle->m_ulFlags & VEH_CRASHING))
+				(Any( veh->m_pVehicle->m_ulFlags & VEH_CRASHING )))
 			{
 				veh->m_pVehicle->m_ulFlags &= ~VEH_CRASHING;
 			}

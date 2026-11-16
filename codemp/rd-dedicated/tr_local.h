@@ -127,7 +127,7 @@ typedef struct image_s {
 
 //===============================================================================
 
-typedef enum {
+enum class shaderSort_t {
 	SS_BAD,
 	SS_PORTAL,			// mirrors, portals, viewscreens
 	SS_ENVIRONMENT,		// sky box
@@ -158,7 +158,8 @@ typedef enum {
 	SS_ALMOST_NEAREST,	// gun smoke puffs
 
 	SS_NEAREST			// blood blobs
-} shaderSort_t;
+};
+using enum shaderSort_t;
 
 
 #define MAX_SHADER_STAGES 8
@@ -179,7 +180,7 @@ enum class genFunc_t {
 using enum genFunc_t;
 
 
-typedef enum {
+enum class deform_t {
 	DEFORM_NONE,
 	DEFORM_WAVE,
 	DEFORM_NORMALS,
@@ -196,9 +197,11 @@ typedef enum {
 	DEFORM_TEXT5,
 	DEFORM_TEXT6,
 	DEFORM_TEXT7
-} deform_t;
+};
+using enum deform_t;
+template <> inline constexpr bool enableEnumArithmetic<deform_t> = true;
 
-typedef enum {
+enum class alphaGen_t {
 	AGEN_IDENTITY,
 	AGEN_SKIP,
 	AGEN_ENTITY,
@@ -212,9 +215,10 @@ typedef enum {
 	AGEN_CONST,
 	AGEN_DOT,
 	AGEN_ONE_MINUS_DOT
-} alphaGen_t;
+};
+using enum alphaGen_t;
 
-typedef enum {
+enum class colorGen_t {
 	CGEN_BAD,
 	CGEN_IDENTITY_LIGHTING,	// tr.identityLight
 	CGEN_IDENTITY,			// always (1,1,1,1)
@@ -229,9 +233,10 @@ typedef enum {
 	CGEN_FOG,				// standard fog
 	CGEN_CONST,				// fixed color
 	CGEN_LIGHTMAPSTYLE,
-} colorGen_t;
+};
+using enum colorGen_t;
 
-typedef enum {
+enum class texCoordGen_t {
 	TCGEN_BAD,
 	TCGEN_IDENTITY,			// clear to 0,0
 	TCGEN_LIGHTMAP,
@@ -242,7 +247,9 @@ typedef enum {
 	TCGEN_ENVIRONMENT_MAPPED,
 	TCGEN_FOG,
 	TCGEN_VECTOR			// S and T from world coordinates
-} texCoordGen_t;
+};
+using enum texCoordGen_t;
+template <> inline constexpr bool enableEnumArithmetic<texCoordGen_t> = true;
 
 enum class acff_t {
 	ACFF_NONE,
@@ -252,13 +259,14 @@ enum class acff_t {
 };
 using enum acff_t;
 
-typedef enum {
+enum class EGLFogOverride {
 	GLFOGOVERRIDE_NONE = 0,
 	GLFOGOVERRIDE_BLACK,
 	GLFOGOVERRIDE_WHITE,
 
 	GLFOGOVERRIDE_MAX
-} EGLFogOverride;
+};
+using enum EGLFogOverride;
 
 typedef struct waveForm_s {
 	genFunc_t	func;
@@ -405,18 +413,20 @@ struct shaderCommands_s;
 #define LIGHTMAP_WHITEIMAGE	-2
 #define	LIGHTMAP_NONE		-1
 
-typedef enum {
+enum class cullType_t {
 	CT_FRONT_SIDED,
 	CT_BACK_SIDED,
 	CT_TWO_SIDED
-} cullType_t;
+};
+using enum cullType_t;
 
-typedef enum {
+enum class fogPass_t {
 	FP_NONE,		// surface is translucent and will just be adjusted properly
 	FP_EQUAL,		// surface is opaque but possibly alpha tested
 	FP_LE,			// surface is trnaslucent, but still needs a fog pass (fog surface)
 	FP_GLFOG
-} fogPass_t;
+};
+using enum fogPass_t;
 
 typedef struct skyParms_s {
 	float		cloudHeight;
@@ -586,7 +596,7 @@ SURFACES
 */
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
-typedef enum {
+enum class surfaceType_t {
 	SF_BAD,
 	SF_SKIP,				// ignore
 	SF_FACE,
@@ -606,8 +616,8 @@ Ghoul2 Insert End
 	SF_DISPLAY_LIST,
 
 	SF_NUM_SURFACE_TYPES,
-	SF_MAX = 0xffffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
-} surfaceType_t;
+};
+using enum surfaceType_t;
 
 typedef struct drawSurf_s {
 	unsigned			sort;			// bit combination for fast compares
@@ -710,7 +720,7 @@ typedef struct srfTriangles_s {
 } srfTriangles_t;
 
 
-extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
+extern	EnumArray<void (*)( void * ), surfaceType_t, SF_NUM_SURFACE_TYPES> rb_surfaceTable;
 
 /*
 ==============================================================================
@@ -1317,7 +1327,7 @@ void	GL_TextureMode( const char *string );
 void	GL_CheckErrors( void );
 void	GL_State( uint32_t stateVector );
 void	GL_TexEnv( int env );
-void	GL_Cull( int cullType );
+void	GL_Cull( cullType_t cullType );
 
 #define GLS_SRCBLEND_ZERO						0x00000001
 #define GLS_SRCBLEND_ONE						0x00000002
@@ -1640,9 +1650,9 @@ class CRenderableSurface
 {
 public:
 #ifdef _G2_GORE
-	int				ident;
+	surfaceType_t	ident;
 #else
-	const int		ident;			// ident of this surface - required so the materials renderer knows what sort of surface this refers to
+	const surfaceType_t	ident;			// ident of this surface - required so the materials renderer knows what sort of surface this refers to
 #endif
 	CBoneCache 		*boneCache;
 	mdxmSurface_t	*surfaceData;	// pointer to surface data loaded into file - only used by client renderer DO NOT USE IN GAME SIDE - if there is a vid restart this will be out of wack on the game
@@ -1755,18 +1765,19 @@ typedef struct renderCommandList_s {
 	int		used;
 } renderCommandList_t;
 
+enum class renderCommand_t;	// below
 typedef struct setColorCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	float	color[4];
 } setColorCommand_t;
 
 typedef struct drawBufferCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	int		buffer;
 } drawBufferCommand_t;
 
 typedef struct subImageCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	image_t	*image;
 	int		width;
 	int		height;
@@ -1774,16 +1785,16 @@ typedef struct subImageCommand_s {
 } subImageCommand_t;
 
 typedef struct swapBuffersCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 } swapBuffersCommand_t;
 
 typedef struct endFrameCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	int		buffer;
 } endFrameCommand_t;
 
 typedef struct stretchPicCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	shader_t	*shader;
 	float	x, y;
 	float	w, h;
@@ -1792,7 +1803,7 @@ typedef struct stretchPicCommand_s {
 } stretchPicCommand_t;
 
 typedef struct rotatePicCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	shader_t	*shader;
 	float	x, y;
 	float	w, h;
@@ -1802,7 +1813,7 @@ typedef struct rotatePicCommand_s {
 } rotatePicCommand_t;
 
 typedef struct drawSurfsCommand_s {
-	int		commandId;
+	renderCommand_t	commandId;
 	trRefdef_t	refdef;
 	viewParms_t	viewParms;
 	drawSurf_t *drawSurfs;
@@ -1810,7 +1821,7 @@ typedef struct drawSurfsCommand_s {
 } drawSurfsCommand_t;
 
 typedef struct videoFrameCommand_s {
-	int            commandId;
+	renderCommand_t	commandId;
 	int            width;
 	int            height;
 	byte          *captureBuffer;
@@ -1818,7 +1829,7 @@ typedef struct videoFrameCommand_s {
 	bool      motionJpeg;
 } videoFrameCommand_t;
 
-typedef enum {
+enum class renderCommand_t {
 	RC_END_OF_LIST=0,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
@@ -1830,7 +1841,8 @@ typedef enum {
 	RC_WORLD_EFFECTS,
 	RC_AUTO_MAP,
 	RC_VIDEOFRAME
-} renderCommand_t;
+};
+using enum renderCommand_t;
 
 
 // all of the information needed by the back end must be

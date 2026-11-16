@@ -102,7 +102,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 				   float duration,
 				   int startTime,
 				   int fadeInTime,
-				   int leFlags,
+				   leFlag_t leFlags,
 				   qhandle_t hShader ) {
 	static int	seed = 0x92;
 	localEntity_t	*le;
@@ -155,7 +155,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 
 int CGDEBUG_SaberColor( int saberColor )
 {
-	switch( (int)(saberColor) )
+	switch( static_cast<saber_colors_t>( saberColor ) )
 	{
 		case SABER_RED:
 			return 0x000000ff;
@@ -1014,7 +1014,7 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	}
 
 	le = CG_AllocLocalEntity();
-	le->leFlags = 0;
+	le->leFlags = leFlag_t{};
 	le->leType = LE_SCOREPLUM;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 4000;
@@ -1049,7 +1049,7 @@ CG_MakeExplosion
 */
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numFrames, qhandle_t shader,
-								int msec, bool isSprite, float scale, int flags )
+								int msec, bool isSprite, float scale, leFlag_t flags )
 {
 	float			ang = 0;
 	localEntity_t	*ex;
@@ -1081,7 +1081,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 		}
 		else
 		{
-			if ( !(flags & LEF_NO_RANDOM_ROTATE) )
+			if ( !Any( flags & LEF_NO_RANDOM_ROTATE ) )
 				ang = Q_irand( 0, 359 );
 			VectorCopy( dir, ex->refEntity.axis[0] );
 			RotateAroundDirection( ex->refEntity.axis, ang );
@@ -1195,7 +1195,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	VectorNormalize( direction );
 
 	//Tag the last one with a light
-	le = CG_MakeExplosion( origin, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 500, false, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f), 0);
+	le = CG_MakeExplosion( origin, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 500, false, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f), leFlag_t{});
 	le->light = 150;
 	VectorSet( le->lightColor, 0.9f, 0.8f, 0.5f );
 
@@ -1213,7 +1213,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 		}
 		msec = 300 + ( Q_irand( 0, 32767 ) & 99 );
 		scale = radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f);
-		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, msec, false, scale, 0);
+		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, msec, false, scale, leFlag_t{});
 	}
 
 	//Shake the camera

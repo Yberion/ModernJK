@@ -53,7 +53,7 @@ NON-PORTABLE SYSTEM SERVICES
 ==============================================================
 */
 
-typedef enum {
+enum class joystickAxis_t {
 	AXIS_SIDE,
 	AXIS_FORWARD,
 	AXIS_UP,
@@ -61,9 +61,11 @@ typedef enum {
 	AXIS_YAW,
 	AXIS_PITCH,
 	MAX_JOYSTICK_AXIS
-} joystickAxis_t;
+};
+using enum joystickAxis_t;
+template <> inline constexpr bool enableEnumArithmetic<joystickAxis_t> = true;
 
-typedef enum {
+enum class sysEventType_t {
   // bk001129 - make sure SE_NONE is zero
 	SE_NONE = 0,	// evTime is still valid
 	SE_KEY,		// evValue is a key code, evValue2 is the down flag
@@ -72,7 +74,8 @@ typedef enum {
 	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
 	SE_CONSOLE,	// evPtr is a char*
 	SE_MAX
-} sysEventType_t;
+};
+using enum sysEventType_t;
 
 typedef struct sysEvent_s {
 	int				evTime;
@@ -178,10 +181,12 @@ enum class glProfile_t
 };
 using enum glProfile_t;
 
-typedef enum glContextFlag_e
+enum class glContextFlag_t
 {
 	GLCONTEXT_DEBUG = (1 << 1),
-} glContextFlag_t;
+};
+using enum glContextFlag_t;
+template <> inline constexpr bool enableEnumFlags<glContextFlag_t> = true;
 
 typedef struct windowDesc_s
 {
@@ -193,7 +198,7 @@ typedef struct windowDesc_s
 		int majorVersion;
 		int minorVersion;
 		glProfile_t profile;
-		uint32_t contextFlags;
+		glContextFlag_t contextFlags;
 	} gl;
 } windowDesc_t;
 

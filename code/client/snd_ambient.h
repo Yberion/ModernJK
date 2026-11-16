@@ -36,7 +36,7 @@ const	int	MAX_SET_NAME_LENGTH	= 64;
 
 // Enums
 
-enum set_e
+enum class set_e
 {
 	AS_SET_GENERAL,		//General sets
 	AS_SET_LOCAL,		//Local sets (regional)
@@ -44,8 +44,10 @@ enum set_e
 
 	NUM_AS_SETS
 };
+using enum set_e;
+template <> inline constexpr bool enableEnumArithmetic<set_e> = true;
 
-enum setKeyword_e
+enum class setKeyword_e
 {
 	SET_KEYWORD_TIMEBETWEENWAVES,
 	SET_KEYWORD_SUBWAVES,
@@ -59,6 +61,8 @@ enum setKeyword_e
 
 	NUM_AS_KEYWORDS,
 };
+using enum setKeyword_e;
+template <> inline constexpr bool enableEnumArithmetic<setKeyword_e> = true;
 
 // Structures
 

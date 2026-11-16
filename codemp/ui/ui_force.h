@@ -38,7 +38,7 @@ extern bool gTouchedForce;
 extern bool uiForcePowersDisabled[NUM_FORCE_POWERS];
 extern int uiForcePowersRank[NUM_FORCE_POWERS];
 extern int uiForcePowerDarkLight[NUM_FORCE_POWERS];
-extern int uiSaberColorShaders[NUM_SABER_COLORS];
+extern EnumArray<int, saber_colors_t, NUM_SABER_COLORS> uiSaberColorShaders;
 // Dots above or equal to a given rank carry a certain color.
 
 void UI_InitForceShaders(void);

@@ -84,7 +84,7 @@ extern bool PM_SaberInBrokenParry( int move );
 extern bool PM_SpinningSaberAnim( int anim );
 extern int PM_SaberBounceForAttack( int move );
 extern int PM_BrokenParryForAttack( int move );
-extern int PM_KnockawayForParry( int move );
+extern int PM_KnockawayForParry( saberBlockedType_t move );
 extern bool PM_FlippingAnim( int anim );
 extern bool PM_RollingAnim( int anim );
 extern bool PM_CrouchAnim( int anim );
@@ -559,7 +559,7 @@ void WP_SaberUpdateOldBladeData( gentity_t *ent )
 //SABER DAMAGE==============================================================================
 int WPDEBUG_SaberColor( saber_colors_t saberColor )
 {
-	switch( (int)(saberColor) )
+	switch( saberColor )
 	{
 		case SABER_RED:
 			return 0x000000ff;
@@ -1530,7 +1530,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 					 && owner->health > 0
 					 && ( owner->client->NPC_class == CLASS_TAVION
 							/*|| (owner->client->NPC_class == CLASS_SHADOWTROOPER && !Q_irand( 0, g_spskill->integer*3 ))
-							|| (Q_irand( -5, owner->NPC->rank ) > RANK_CIVILIAN && !Q_irand( 0, g_spskill->integer*3 ))*/ )
+							|| (Q_irand( -5, to_underlying( owner->NPC->rank ) ) > to_underlying( RANK_CIVILIAN ) && !Q_irand( 0, g_spskill->integer*3 ))*/ )
 					 )
 				 {//Tavion can toss a blocked thrown saber aside
 					WP_SaberKnockaway( attacker, &tr );
@@ -1606,7 +1606,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 							if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
 							{//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
 								//FIXME: also take into account the owner's FP_DEFENSE?
-								if ( Q_irand( 0, owner->NPC->rank ) >= RANK_CIVILIAN )
+								if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( RANK_CIVILIAN ) )
 								{//lower-rank Jedi aren't as good blockers
 									vec3_t attDir;
 									VectorSubtract( end2, start, attDir );
@@ -1704,7 +1704,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 						if ( g_spskill->integer && (g_spskill->integer > 1 || Q_irand( 0, 1 )))
 						{//if on easy, they don't cheat like this, if on medium, they cheat 50% of the time, if on hard, they always cheat
 							//FIXME: also take into account the owner's FP_DEFENSE?
-							if ( Q_irand( 0, owner->NPC->rank ) >= RANK_CIVILIAN )
+							if ( Q_irand( 0, to_underlying( owner->NPC->rank ) ) >= to_underlying( RANK_CIVILIAN ) )
 							{//lower-rank Jedi aren't as good blockers
 								vec3_t attDir;
 								VectorSubtract( end2, start, attDir );
@@ -1842,7 +1842,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 	return false;
 }
 
-typedef enum
+enum class sabersLockMode_t
 {
 	LOCK_FIRST = 0,
 	LOCK_TOP = LOCK_FIRST,
@@ -1853,7 +1853,8 @@ typedef enum
 	LOCK_R,
 	LOCK_L,
 	LOCK_RANDOM
-} sabersLockMode_t;
+};
+using enum sabersLockMode_t;
 
 #define LOCK_IDEAL_DIST_TOP 32.0f
 #define LOCK_IDEAL_DIST_CIRCLE 48.0f
@@ -4576,7 +4577,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 //SABER BLOCKING============================================================================
 //SABER BLOCKING============================================================================
 //SABER BLOCKING============================================================================
-int WP_MissileBlockForBlock( int saberBlock )
+saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock )
 {
 	switch( saberBlock )
 	{
@@ -4594,6 +4595,9 @@ int WP_MissileBlockForBlock( int saberBlock )
 		break;
 	case BLOCKED_TOP:
 		return BLOCKED_TOP_PROJ;
+		break;
+	
+	default:
 		break;
 	}
 	return saberBlock;
@@ -5130,7 +5134,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 //GENERAL SABER============================================================================
 
 
-void WP_SetSaberMove(gentity_t *self, short blocked)
+void WP_SetSaberMove(gentity_t *self, saberBlockedType_t blocked)
 {
 	self->client->ps.saberBlocked = blocked;
 }

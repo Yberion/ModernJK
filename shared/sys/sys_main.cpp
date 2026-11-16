@@ -375,21 +375,23 @@ void *Sys_LoadMachOBundle( const char *name )
 }
 #endif
 
-enum SearchPathFlag
+enum class SearchPathFlag
 {
 	SEARCH_PATH_MOD		= 1 << 0,
 	SEARCH_PATH_BASE	= 1 << 1,
 	SEARCH_PATH_MODERNJK	= 1 << 2,
 	SEARCH_PATH_ROOT	= 1 << 3
 };
+using enum SearchPathFlag;
+template <> inline constexpr bool enableEnumFlags<SearchPathFlag> = true;
 
 static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char **searchPaths,
-									size_t numPaths, uint32_t searchFlags, const char *callerName )
+									size_t numPaths, SearchPathFlag searchFlags, const char *callerName )
 {
 	char *fn;
 	void *libHandle;
 
-	if ( searchFlags & SEARCH_PATH_MOD )
+	if ( Any( searchFlags & SEARCH_PATH_MOD ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -406,7 +408,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( searchFlags & SEARCH_PATH_BASE )
+	if ( Any( searchFlags & SEARCH_PATH_BASE ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -423,7 +425,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( searchFlags & SEARCH_PATH_MODERNJK )
+	if ( Any( searchFlags & SEARCH_PATH_MODERNJK ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -440,7 +442,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( searchFlags & SEARCH_PATH_ROOT )
+	if ( Any( searchFlags & SEARCH_PATH_ROOT ) )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{

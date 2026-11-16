@@ -731,7 +731,7 @@ static bool SV_G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int in
 	return re.G2API_SetBoneAnglesMatrixIndex( ghlInfo, index, matrix, flags, modelList, blandeTime, AcurrentTime );
 }
 
-static bool SV_G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState,
+static bool SV_G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState,
     sharedSetBoneIKStateParams_t *params)
 {
 	return re.G2API_SetBoneIKState( ghoul2, time, boneName, ikState, params );

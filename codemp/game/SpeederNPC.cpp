@@ -98,7 +98,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 	// If we're flying, make us accelerate at 40% (about half) acceleration rate, and restore the pitch
 	// to origin (straight) position (at 5% increments).
-	if ( pVeh->m_ulFlags & VEH_FLYING )
+	if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
 	{
 		speedInc = pVeh->m_pVehicleInfo->acceleration * pVeh->m_fTimeModifier * 0.4f;
 	}
@@ -165,7 +165,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	// Slide Breaking
-	if (pVeh->m_ulFlags&VEH_SLIDEBREAKING)
+	if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 	{
 		if (pVeh->m_ucmd.forwardmove>=0 )
 		{
@@ -175,7 +175,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 	else if (
 		(curTime > pVeh->m_iTurboTime) &&
-		!(pVeh->m_ulFlags&VEH_FLYING) &&
+		!(Any( pVeh->m_ulFlags & VEH_FLYING )) &&
 		pVeh->m_ucmd.forwardmove<0 &&
 		Q_fabs(pVeh->m_vOrientation[ROLL])>25.0f)
 	{
@@ -414,7 +414,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 #endif
 
 	// Going in reverse...
-	if ( pVeh->m_ucmd.forwardmove < 0 && !(pVeh->m_ulFlags & VEH_SLIDEBREAKING))
+	if ( pVeh->m_ucmd.forwardmove < 0 && !(Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING )))
 	{
 		Anim = BOTH_VS_REV;
 	}
@@ -453,19 +453,19 @@ void AnimateRiders( Vehicle_t *pVeh )
 		}
 		else if (pilotPS->weapon==WP_SABER)
 		{
-			if ( (pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VS_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATL_TO_R_S)
 			{
 				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
 			}
-			if (!(pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VS_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATR_TO_L_S)
 			{
 				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (pVeh->m_ulFlags&VEH_SABERINLEFTHAND)?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
 		}
 
 
- 		if (Attacking && WeaponPose)
+ 		if (Attacking && WeaponPose != WPOSE_NONE)
 		{// Attack!
  			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;
 

@@ -135,46 +135,46 @@ int G_GetMapTypeBits(const char *type)
 
 	if( *type ) {
 		if( strstr( type, "ffa" ) ) {
-			typeBits |= (1 << GT_FFA);
-			typeBits |= (1 << GT_TEAM);
-			typeBits |= (1 << GT_JEDIMASTER);
+			typeBits |= Bit( GT_FFA );
+			typeBits |= Bit( GT_TEAM );
+			typeBits |= Bit( GT_JEDIMASTER );
 		}
 		if( strstr( type, "team" ) ) {
-			typeBits |= (1 << GT_TEAM);
+			typeBits |= Bit( GT_TEAM );
 		}
 		if( strstr( type, "holocron" ) ) {
-			typeBits |= (1 << GT_HOLOCRON);
+			typeBits |= Bit( GT_HOLOCRON );
 		}
 		if( strstr( type, "jedimaster" ) ) {
-			typeBits |= (1 << GT_JEDIMASTER);
+			typeBits |= Bit( GT_JEDIMASTER );
 		}
 		if( strstr( type, "duel" ) ) {
-			typeBits |= (1 << GT_DUEL);
-			typeBits |= (1 << GT_POWERDUEL);
+			typeBits |= Bit( GT_DUEL );
+			typeBits |= Bit( GT_POWERDUEL );
 		}
 		if( strstr( type, "powerduel" ) ) {
-			typeBits |= (1 << GT_DUEL);
-			typeBits |= (1 << GT_POWERDUEL);
+			typeBits |= Bit( GT_DUEL );
+			typeBits |= Bit( GT_POWERDUEL );
 		}
 		if( strstr( type, "siege" ) ) {
-			typeBits |= (1 << GT_SIEGE);
+			typeBits |= Bit( GT_SIEGE );
 		}
 		if( strstr( type, "ctf" ) ) {
-			typeBits |= (1 << GT_CTF);
-			typeBits |= (1 << GT_CTY);
+			typeBits |= Bit( GT_CTF );
+			typeBits |= Bit( GT_CTY );
 		}
 		if( strstr( type, "cty" ) ) {
-			typeBits |= (1 << GT_CTY);
+			typeBits |= Bit( GT_CTY );
 		}
 	} else {
-		typeBits |= (1 << GT_FFA);
-		typeBits |= (1 << GT_JEDIMASTER);
+		typeBits |= Bit( GT_FFA );
+		typeBits |= Bit( GT_JEDIMASTER );
 	}
 
 	return typeBits;
 }
 
-bool G_DoesMapSupportGametype(const char *mapname, int gametype)
+bool G_DoesMapSupportGametype(const char *mapname, gametype_t gametype)
 {
 	int			typeBits = 0;
 	int			thisLevel = -1;
@@ -210,7 +210,7 @@ bool G_DoesMapSupportGametype(const char *mapname, int gametype)
 	type = Info_ValueForKey(level.arenas.infos[thisLevel], "type");
 
 	typeBits = G_GetMapTypeBits(type);
-	if (typeBits & (1 << gametype))
+	if (typeBits & Bit( gametype ))
 	{ //the map in question supports the gametype in question, so..
 		return true;
 	}
@@ -219,7 +219,7 @@ bool G_DoesMapSupportGametype(const char *mapname, int gametype)
 }
 
 //rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
-const char *G_RefreshNextMap(int gametype, bool forced)
+const char *G_RefreshNextMap(gametype_t gametype, bool forced)
 {
 	int			typeBits = 0;
 	int			thisLevel = 0;
@@ -270,7 +270,7 @@ const char *G_RefreshNextMap(int gametype, bool forced)
 		type = Info_ValueForKey(level.arenas.infos[n], "type");
 
 		typeBits = G_GetMapTypeBits(type);
-		if (typeBits & (1 << gametype))
+		if (typeBits & Bit( gametype ))
 		{
 			desiredMap = n;
 			break;
@@ -1010,7 +1010,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		int loners = 0;
 		int doubles = 0;
 
-		bot->client->sess.duelTeam = 0;
+		bot->client->sess.duelTeam = DUELTEAM_FREE;
 		G_PowerDuelCount(&loners, &doubles, true);
 
 		if (!doubles || loners > (doubles/2))

@@ -104,7 +104,7 @@ This must be the very first function compiled into the .q3vm file
 extern "C" Q_EXPORT intptr_t QDECL vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7  ) {
 	centity_t		*cent;
 
-	switch ( command ) {
+	switch ( static_cast<cgameExport_t>( command ) ) {
 	case CG_INIT:
 		CG_Init( arg0 );
 		return 0;
@@ -1228,8 +1228,8 @@ HUDMenuItem_t healthTics[] =
 };
 
 
-HUDMenuItem_t otherHUDBits[] =
-{
+EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits =
+{ {
 	{ "lefthud", "healthamount",			0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_HEALTHAMOUNT
 	{ "lefthud", "armoramount",			0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_ARMORAMOUNT
 	{ "righthud", "forceamount",			0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_FORCEAMOUNT
@@ -1241,7 +1241,7 @@ HUDMenuItem_t otherHUDBits[] =
 	{ "righthud",	"scanline",				0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_SCANLINE_RIGHT
 	{ "lefthud",	"frame",				0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_FRAME_LEFT
 	{ "righthud",	"frame",				0,  0,  0,  0, { 0.0f, 0.0f, 0.0f, 0.0f }, NULL_HANDLE },	// OHB_FRAME_RIGHT
-};
+} };
 
 /*const char *HolocronIcons[] = {
 	"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
@@ -1433,7 +1433,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.useableHint = cgi_R_RegisterShader("gfx/hud/useableHint");
 
 	// Load up other HUD bits
-	for (i=0;i<OHB_MAX;i++)
+	for (otherhudbits_t i = OHB_HEALTHAMOUNT; i < OHB_MAX; i++)
 	{
 		cgi_UI_GetMenuItemInfo(
 			otherHUDBits[i].menuName,

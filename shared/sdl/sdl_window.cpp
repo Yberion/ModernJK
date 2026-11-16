@@ -553,7 +553,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 				}
 			}
 
-			if ( windowDesc->gl.contextFlags & GLCONTEXT_DEBUG )
+			if ( Any( windowDesc->gl.contextFlags & GLCONTEXT_DEBUG ) )
 			{
 				SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG );
 			}

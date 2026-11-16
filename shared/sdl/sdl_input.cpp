@@ -533,7 +533,7 @@ struct stick_state_s
 {
 	bool buttons[16];  // !!! FIXME: these might be too many.
 	unsigned int oldaxes;
-	int oldaaxes[MAX_JOYSTICK_AXIS];
+	int oldaaxes[to_underlying( MAX_JOYSTICK_AXIS )];
 	unsigned int oldhats;
 } stick_state;
 
@@ -1103,7 +1103,7 @@ static void IN_JoyMove( void )
 	{
 		if (in_joystickUseAnalog->integer)
 		{
-			if (total > MAX_JOYSTICK_AXIS) total = MAX_JOYSTICK_AXIS;
+			if (total > to_underlying( MAX_JOYSTICK_AXIS )) total = to_underlying( MAX_JOYSTICK_AXIS );
 			for (i = 0; i < total; i++)
 			{
 				Sint16 axis = SDL_JoystickGetAxis(stick, i);

@@ -709,8 +709,8 @@ void Cmd_SetObjective_f( gentity_t *ent )
 	if ( gi.argc() == 2 ) {
 		objectiveI = atoi(gi.argv(1));
 		gi.Printf("objective #%d  display status=%d, status=%d\n",objectiveI,
-			ent->client->sess.mission_objectives[objectiveI].display,
-			ent->client->sess.mission_objectives[objectiveI].status
+			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display,
+			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status
 			);
 		return;
 	}
@@ -728,8 +728,8 @@ void Cmd_SetObjective_f( gentity_t *ent )
 	displayStatus = atoi(gi.argv(2));
 	status = atoi(gi.argv(3));
 
-	ent->client->sess.mission_objectives[objectiveI].display = (displayStatus != 0);
-	ent->client->sess.mission_objectives[objectiveI].status = status;
+	ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display = (displayStatus != 0);
+	ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status = status;
 	G_CheckPlayerDarkSide();
 }
 
@@ -749,7 +749,7 @@ void Cmd_ViewObjective_f( gentity_t *ent )
 
 	objectiveI = atoi(gi.argv(1));
 
-	gi.SendServerCommand( ent-g_entities, va("print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,ent->client->sess.mission_objectives[objectiveI].display,ent->client->sess.mission_objectives[objectiveI].status));
+	gi.SendServerCommand( ent-g_entities, va("print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display,ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status));
 }
 
 

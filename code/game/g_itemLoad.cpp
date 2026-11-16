@@ -497,7 +497,7 @@ static void IT_Tag(const char **holdBuf)
 
 static void IT_Type(const char **holdBuf)
 {
-	int type;
+	itemType_t type;
 	const char	*tokenStr;
 
 	if (COM_ParseString(holdBuf,&tokenStr))

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../qcommon/q_shared.h"
 #include "g_public.h"
 
-typedef enum
+enum class vehicleType_t
 {
 	VH_NONE = 0,
 	VH_WALKER,		//something you ride inside of, it walks like you, like an AT-ST
@@ -35,17 +35,19 @@ typedef enum
 	VH_ANIMAL,		//animal you ride on top of that walks, like a tauntaun
 	VH_FLIER,		//animal you ride on top of that flies, like a giant mynoc?
 	VH_NUM_VEHICLES
-} vehicleType_t;
+};
+using enum vehicleType_t;
 
-enum	EWeaponPose
+enum class EWeaponPose
 {
 	WPOSE_NONE	= 0,
 	WPOSE_BLASTER,
 	WPOSE_SABERLEFT,
 	WPOSE_SABERRIGHT,
 };
+using enum EWeaponPose;
 
-extern stringID_table_t VehicleTable[VH_NUM_VEHICLES+1];
+extern stringID_table_t VehicleTable[to_underlying( VH_NUM_VEHICLES ) + 1];
 
 #define NO_PILOT_DIE_TIME 10000
 

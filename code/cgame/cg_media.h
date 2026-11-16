@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	NUM_CROSSHAIRS		9
 
-typedef enum {
+enum class footstep_t {
 	FOOTSTEP_STONEWALK,
 	FOOTSTEP_STONERUN,
 	FOOTSTEP_METALWALK,
@@ -59,7 +59,8 @@ typedef enum {
 	FOOTSTEP_WOODRUN,
 
 	FOOTSTEP_TOTAL
-} footstep_t;
+};
+using enum footstep_t;
 
 #define ICON_WEAPONS	0
 #define ICON_FORCE		1
@@ -83,10 +84,9 @@ extern HUDMenuItem_t healthTics[];
 extern HUDMenuItem_t armorTics[];
 extern HUDMenuItem_t ammoTics[];
 extern HUDMenuItem_t forceTics[];
-extern HUDMenuItem_t otherHUDBits[];
 
 
-typedef enum
+enum class otherhudbits_t
 {
 	OHB_HEALTHAMOUNT = 0,
 	OHB_ARMORAMOUNT,
@@ -100,7 +100,10 @@ typedef enum
 	OHB_FRAME_LEFT,
 	OHB_FRAME_RIGHT,
 	OHB_MAX
-} otherhudbits_t;
+};
+using enum otherhudbits_t;
+template <> inline constexpr bool enableEnumArithmetic<otherhudbits_t> = true;
+extern EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits;
 
 #define NUM_CHUNK_MODELS	4
 
@@ -277,7 +280,7 @@ typedef struct {
 	sfxHandle_t	overchargeEndSound;
 
 //	sfxHandle_t	useNothingSound;
-	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
+	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
 
 //	sfxHandle_t talkSound;
 	sfxHandle_t	noAmmoSound;

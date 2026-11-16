@@ -540,7 +540,7 @@ static void WP_FireBlaster( gentity_t *ent, bool altFire )
 }
 
 
-int G_GetHitLocation(gentity_t *target, vec3_t ppoint);
+hitLocation_t G_GetHitLocation(gentity_t *target, vec3_t ppoint);
 
 /*
 ======================================================================
@@ -3462,14 +3462,14 @@ void WP_FireMelee( gentity_t *ent, bool alt_fire )
 
 	if (ent->client && ent->client->ps.torsoAnim == BOTH_MELEE2)
 	{ //right
-		if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM))
+		if (ent->client->ps.brokenLimbs & Bit( BROKENLIMB_RARM ))
 		{
 			return;
 		}
 	}
 	else
 	{ //left
-		if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM))
+		if (ent->client->ps.brokenLimbs & Bit( BROKENLIMB_LARM ))
 		{
 			return;
 		}
@@ -4171,7 +4171,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 
 	// If this is not the alternate fire, fire a normal blaster shot...
 	if ( pVeh->m_pVehicleInfo &&
-		(pVeh->m_pVehicleInfo->type != VH_FIGHTER || (pVeh->m_ulFlags&VEH_WINGSOPEN)) ) // NOTE: Wings open also denotes that it has already launched.
+		(pVeh->m_pVehicleInfo->type != VH_FIGHTER || (Any( pVeh->m_ulFlags & VEH_WINGSOPEN ))) ) // NOTE: Wings open also denotes that it has already launched.
 	{//fighters can only fire when wings are open
 		int	weaponNum = 0, vehWeaponIndex = VEH_WEAPON_NONE;
 		int	delay = 1000;
@@ -4961,7 +4961,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	RegisterItem( BG_FindItemForWeapon(WP_EMPLACED_GUN) );
 
 	ent->r.contents = CONTENTS_SOLID;
-	ent->s.solid = SOLID_BBOX;
+	ent->s.solid = to_underlying( SOLID_BBOX );
 
 	ent->genericValue5 = 0;
 

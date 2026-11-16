@@ -125,10 +125,11 @@ NET
 
 #define	MAX_RELIABLE_COMMANDS	64			// max string commands buffered for restransmit
 
-typedef enum {
+enum class netsrc_t {
 	NS_CLIENT,
 	NS_SERVER
-} netsrc_t;
+};
+using enum netsrc_t;
 
 // For compatibility with shared code
 static inline void NET_Init( void ) {}
@@ -204,7 +205,7 @@ PROTOCOL
 //
 // server to client
 //
-enum svc_ops_e {
+enum class svc_ops_e {
 	svc_bad,
 	svc_nop,
 	svc_gamestate,
@@ -214,17 +215,19 @@ enum svc_ops_e {
 	svc_download,				// [short] size [size bytes]
 	svc_snapshot
 };
+using enum svc_ops_e;
 
 
 //
 // client to server
 //
-enum clc_ops_e {
+enum class clc_ops_e {
 	clc_bad,
 	clc_nop,
 	clc_move,				// [[usercmd_t]
 	clc_clientCommand		// [string] message
 };
+using enum clc_ops_e;
 
 /*
 ==============================================================
@@ -234,12 +237,14 @@ VIRTUAL MACHINE
 ==============================================================
 */
 
-typedef enum vmSlots_e {
+enum class vmSlots_t {
 	VM_GAME=0,
 	VM_CGAME,
 	VM_UI,
 	MAX_VM
-} vmSlots_t;
+};
+using enum vmSlots_t;
+typedef vmSlots_t vmSlots_e;
 
 #define	VMA(x) ((void*)args[x])
 inline float _vmf(intptr_t x)
@@ -274,7 +279,7 @@ void Cbuf_Init (void);
 void Cbuf_AddText( const char *text );
 // Adds command text at the end of the buffer, does NOT add a final \n
 
-void Cbuf_ExecuteText( int exec_when, const char *text );
+void Cbuf_ExecuteText( cbufExec_t exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
 void Cbuf_Execute (void);

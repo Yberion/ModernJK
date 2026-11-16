@@ -65,7 +65,7 @@ extern gentity_t *droppedBlueFlag;
 #define MAX_SENTRY_DISTANCE			256
 
 // For more than four players, adjust the respawn times, up to 1/4.
-int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
+int adjustRespawnTime(float preRespawnTime, itemType_t itemType, int itemTag)
 {
 	float respawnTime = preRespawnTime;
 
@@ -452,7 +452,7 @@ bool PlaceShield(gentity_t *playerent)
 			shield->s.otherEntityNum2 = playerent->client->sess.sessionTeam;
 
 			shield->s.eType = ET_SPECIAL;
-			shield->s.modelindex =  HI_SHIELD;	// this'll be used in CG_Useable() for rendering.
+			shield->s.modelindex = to_underlying( HI_SHIELD );	// this'll be used in CG_Useable() for rendering.
 			shield->classname = shieldItem->classname;
 
 			shield->r.contents = CONTENTS_TRIGGER;
@@ -1091,7 +1091,7 @@ void ItemUse_Sentry( gentity_t *ent )
 	VectorCopy(maxs, sentry->r.maxs);
 	sentry->genericValue3 = ent->s.number;
 	sentry->genericValue2 = ent->client->sess.sessionTeam; //so we can remove ourself if our owner changes teams
-	sentry->genericValue15 = HI_SENTRY_GUN;
+	sentry->genericValue15 = to_underlying( HI_SENTRY_GUN );
 	sentry->r.absmin[0] = sentry->s.pos.trBase[0] + sentry->r.mins[0];
 	sentry->r.absmin[1] = sentry->s.pos.trBase[1] + sentry->r.mins[1];
 	sentry->r.absmin[2] = sentry->s.pos.trBase[2] + sentry->r.mins[2];
@@ -1387,7 +1387,7 @@ void G_PrecacheDispensers(void)
 	}
 }
 
-void ItemUse_UseDisp(gentity_t *ent, int type)
+void ItemUse_UseDisp(gentity_t *ent, holdable_t type)
 {
 	gitem_t *item = nullptr;
 	gentity_t *eItem;
@@ -1502,11 +1502,11 @@ void EWebDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int dam
 			owner->client->ewebHealth = -1;
 
 			//take it away from him, it is gone forever.
-			owner->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1<<HI_EWEB);
+			owner->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_EWEB );
 
 			if (owner->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
 				bg_itemlist[owner->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE &&
-				bg_itemlist[owner->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_EWEB)
+				bg_itemlist[owner->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == to_underlying( HI_EWEB ))
 			{ //he has it selected so deselect it and select the first thing available
 				owner->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 				BG_CycleInven(&owner->client->ps, 1);
@@ -1537,7 +1537,8 @@ void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
-	int flags, up, right, forward;
+	int flags;
+	orientations_t up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
 	vec3_t *freeBoneVec = nullptr;
 
@@ -1612,7 +1613,7 @@ void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	forward = NEGATIVE_X;
 
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
-	ent->s.boneOrient = ((forward)|(right<<3)|(up<<6));
+	ent->s.boneOrient = ((to_underlying( forward ))|(to_underlying( right )<<3)|(to_underlying( up )<<6));
 
 	trap->G2API_SetBoneAngles( ent->ghoul2,
 					0,
@@ -2840,9 +2841,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 			if (ent->item->giType == IT_HOLDABLE)
 			{
-				if (ent->item->giTag == HI_SEEKER ||
-					ent->item->giTag == HI_SHIELD ||
-					ent->item->giTag == HI_SENTRY_GUN)
+				if (ent->item->giTag == to_underlying( HI_SEEKER ) ||
+					ent->item->giTag == to_underlying( HI_SHIELD ) ||
+					ent->item->giTag == to_underlying( HI_SENTRY_GUN ))
 				{
 					G_FreeEntity( ent );
 					return;
@@ -2890,7 +2891,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		if ( ent->item->giType == IT_ARMOR ||
 			ent->item->giType == IT_HEALTH ||
-			(ent->item->giType == IT_HOLDABLE && (ent->item->giTag == HI_MEDPAC || ent->item->giTag == HI_MEDPAC_BIG)) )
+			(ent->item->giType == IT_HOLDABLE && (ent->item->giTag == to_underlying( HI_MEDPAC ) || ent->item->giTag == to_underlying( HI_MEDPAC_BIG ))) )
 		{
 			G_FreeEntity(ent);
 			return;
@@ -3267,7 +3268,7 @@ void G_RunItem( gentity_t *ent ) {
 	if ( contents & CONTENTS_NODROP ) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
 			Team_FreeEntity(ent);
-		} else if(ent->genericValue15 == HI_SENTRY_GUN) {
+		} else if(ent->genericValue15 == to_underlying( HI_SENTRY_GUN )) {
 			turret_free(ent);
 		} else {
 			G_FreeEntity( ent );

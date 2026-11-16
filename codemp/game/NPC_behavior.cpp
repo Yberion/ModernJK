@@ -113,7 +113,7 @@ void NPC_BSAdvanceFight (void)
 					trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_org, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
 					traceEnt = &g_entities[tr.entityNum];
 					if( traceEnt != NPCS.NPC->enemy &&
-						(!traceEnt || !traceEnt->client || !NPCS.NPC->client->enemyTeam || NPCS.NPC->client->enemyTeam != traceEnt->client->playerTeam) )
+						(!traceEnt || !traceEnt->client || NPCS.NPC->client->enemyTeam == NPCTEAM_FREE || NPCS.NPC->client->enemyTeam != traceEnt->client->playerTeam) )
 					{//no, so shoot for the head
 						attack_scale *= 0.75;
 						trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_head, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
@@ -122,16 +122,16 @@ void NPC_BSAdvanceFight (void)
 
 					VectorCopy( tr.endpos, hitspot );
 
-					if( traceEnt == NPCS.NPC->enemy || (traceEnt->client && NPCS.NPC->client->enemyTeam && NPCS.NPC->client->enemyTeam == traceEnt->client->playerTeam) )
+					if( traceEnt == NPCS.NPC->enemy || (traceEnt->client && NPCS.NPC->client->enemyTeam != NPCTEAM_FREE && NPCS.NPC->client->enemyTeam == traceEnt->client->playerTeam) )
 					{
 						dead_on = true;
 					}
 					else
 					{
 						attack_scale *= 0.5;
-						if(NPCS.NPC->client->playerTeam)
+						if(NPCS.NPC->client->playerTeam != NPCTEAM_FREE)
 						{
-							if(traceEnt && traceEnt->client && traceEnt->client->playerTeam)
+							if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != NPCTEAM_FREE)
 							{
 								if(NPCS.NPC->client->playerTeam == traceEnt->client->playerTeam)
 								{//Don't shoot our own team
@@ -224,7 +224,7 @@ void BeamOut (gentity_t *self)
 	self->nextthink = level.time + 1500;
 	self->think = Disappear;
 	self->client->squadname = nullptr;
-	self->s.teamowner = self->client->playerTeam = NPCTEAM_FREE;
+	self->s.teamowner = to_underlying( self->client->playerTeam = NPCTEAM_FREE );
 	//self->r.svFlags |= SVF_BEAMING; //this appears unused in SP as well
 }
 
@@ -427,7 +427,7 @@ void NPC_BSInvestigate (void)
 bool NPC_CheckInvestigate( int alertEventNum )
 {
 	gentity_t	*owner = level.alertEvents[alertEventNum].owner;
-	int		invAdd = level.alertEvents[alertEventNum].level;
+	int		invAdd = to_underlying( level.alertEvents[alertEventNum].level );
 	vec3_t	soundPos;
 	float	soundRad = level.alertEvents[alertEventNum].radius;
 	float	earshot = NPCS.NPCInfo->stats.earshot;
@@ -466,7 +466,7 @@ bool NPC_CheckInvestigate( int alertEventNum )
 		return false;
 	}
 
-	if ( owner->client && owner->client->playerTeam && NPCS.NPC->client->playerTeam && owner->client->playerTeam != NPCS.NPC->client->playerTeam )
+	if ( owner->client && owner->client->playerTeam != NPCTEAM_FREE && NPCS.NPC->client->playerTeam != NPCTEAM_FREE && owner->client->playerTeam != NPCS.NPC->client->playerTeam )
 	{
 		if( (float)NPCS.NPCInfo->investigateCount >= (NPCS.NPCInfo->stats.vigilance*200) && owner )
 		{//If investigateCount == 10, just take it as enemy and go
@@ -599,7 +599,7 @@ void NPC_BSFollowLeader (void)
 				&& NPCS.NPC->client->leader->enemy
 				&& NPCS.NPC->client->leader->enemy != NPCS.NPC
 				&& ( (NPCS.NPC->client->leader->enemy->client&&NPCS.NPC->client->leader->enemy->client->playerTeam==NPCS.NPC->client->enemyTeam)
-					||(/*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*/0&&NPCS.NPC->client->leader->enemy->alliedTeam==NPCS.NPC->client->enemyTeam) )
+					||(/*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*/0&&NPCS.NPC->client->leader->enemy->alliedTeam==to_underlying( NPCS.NPC->client->enemyTeam )) )
 				&& NPCS.NPC->client->leader->enemy->health > 0 )
 			{ //rwwFIXMEFIXME: use SVF_NONNPC_ENEMY?
 				G_SetEnemy( NPCS.NPC, NPCS.NPC->client->leader->enemy );
@@ -1578,7 +1578,7 @@ void NPC_BSFlee( void )
 	NPC_CheckGetNewWeapon();
 }
 
-void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax )
+void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax )
 {
 	int cp = -1;
 
@@ -1654,7 +1654,7 @@ void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int f
 	}
 }
 
-void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax )
+void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax )
 {
 	if ( !self->NPC )
 	{//player

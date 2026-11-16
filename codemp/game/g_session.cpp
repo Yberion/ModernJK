@@ -98,7 +98,7 @@ void G_ReadSessionData( gclient_t *client )
 {
 	char			s[MAX_CVAR_VALUE_STRING] = {0};
 	const char		*var;
-	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader;
+	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0;
 
 	var = va( "session%i", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -114,7 +114,7 @@ void G_ReadSessionData( gclient_t *client )
 		&client->sess.setForce,
 		&client->sess.saberLevel,
 		&client->sess.selectedFP,
-		&client->sess.duelTeam,
+		&tempDuelTeam, //&client->sess.duelTeam,
 		&client->sess.siegeDesiredTeam,
 		client->sess.siegeClass,
 		client->sess.IP
@@ -123,6 +123,7 @@ void G_ReadSessionData( gclient_t *client )
 	client->sess.sessionTeam	= (team_t)tempSessionTeam;
 	client->sess.spectatorState	= (spectatorState_t)tempSpectatorState;
 	client->sess.teamLeader		= tempTeamLeader;
+	client->sess.duelTeam		= static_cast<duelTeam_t>( tempDuelTeam );
 
 	// convert back to spaces from unused chars, as session data is written that way.
 	for ( i=0; client->sess.siegeClass[i]; i++ )
@@ -261,7 +262,7 @@ void G_InitWorldSession( void ) {
 
 	// if the gametype changed since the last session, don't use any
 	// client sessions
-	if ( level.gametype != gt ) {
+	if ( level.gametype != static_cast<gametype_t>( gt ) ) {
 		level.newSession = true;
 		trap->Print( "Gametype changed, clearing session data.\n" );
 	}

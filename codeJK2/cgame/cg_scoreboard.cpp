@@ -100,11 +100,12 @@ void CG_MissionFailed(void)
 	w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontMedium, 1.2f);
 		cgi_R_Font_DrawString(320 - w/2, y, text, colorTable[CT_HUD_RED], cgs.media.qhFontMedium, -1, 1.2f);
 
-	switch (statusTextIndex)
+	if ( statusTextIndex == -1 )	//Our HERO DIED!!!
 	{
-		case -1:	//Our HERO DIED!!!
-			cgi_SP_GetStringTextString( "INGAME_MISSIONFAILED_KYLE", text, sizeof(text) );
-			break;
+		cgi_SP_GetStringTextString( "INGAME_MISSIONFAILED_KYLE", text, sizeof(text) );
+	}
+	else switch ( static_cast<missionFailed_t>( statusTextIndex ) )
+	{
 		case MISSIONFAILED_JAN:
 			cgi_SP_GetStringTextString( "INGAME_MISSIONFAILED_JAN", text, sizeof(text) );
 			break;

@@ -26,12 +26,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "icarus/Q3_Interface.h"
 #include "ghoul2/G2.h"
 
-int	teamNumbers[TEAM_NUM_TEAMS];
-int	teamStrength[TEAM_NUM_TEAMS];
-int	teamCounter[TEAM_NUM_TEAMS];
+EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamNumbers;
+EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamStrength;
+EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamCounter;
 
 #define	VALID_ATTACK_CONE	2.0f	//Degrees
-extern void G_DebugPrint( int level, const char *format, ... );
+extern void G_DebugPrint( WL_e level, const char *format, ... );
 
 /*
 void CalcEntitySpot ( gentity_t *ent, spot_t spot, vec3_t point )
@@ -841,11 +841,8 @@ void SetTeamNumbers (void)
 	gentity_t	*found;
 	int			i;
 
-	for( i = 0; i < TEAM_NUM_TEAMS; i++ )
-	{
-		teamNumbers[i] = 0;
-		teamStrength[i] = 0;
-	}
+	teamNumbers = {};
+	teamStrength = {};
 
 	//OJKFIXME: clientnum 0
 	for( i = 0; i < 1 ; i++ )
@@ -862,9 +859,9 @@ void SetTeamNumbers (void)
 		}
 	}
 
-	for( i = 0; i < TEAM_NUM_TEAMS; i++ )
+	for( npcteam_t t = NPCTEAM_FREE; t < NPCTEAM_NUM_TEAMS; t++ )
 	{//Get the average health
-		teamStrength[i] = Q_floor( ((float)(teamStrength[i])) / ((float)(teamNumbers[i])) );
+		teamStrength[t] = Q_floor( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
 	}
 }
 
@@ -931,7 +928,8 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
-	int flags, up, right, forward;
+	int flags;
+	orientations_t up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
 	vec3_t *freeBoneVec = nullptr;
 
@@ -1006,7 +1004,7 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	forward = NEGATIVE_Z;
 
 	//first 3 bits is forward, second 3 bits is right, third 3 bits is up
-	ent->s.boneOrient = ((forward)|(right<<3)|(up<<6));
+	ent->s.boneOrient = ((to_underlying( forward ))|(to_underlying( right )<<3)|(to_underlying( up )<<6));
 
 	trap->G2API_SetBoneAngles(ent->ghoul2, 0, bone, angles, flags, up, right, forward, nullptr, 100, level.time);
 }
@@ -1112,7 +1110,7 @@ NPC_ValidEnemy
 
 bool NPC_ValidEnemy( gentity_t *ent )
 {
-	int entTeam = TEAM_FREE;
+	npcteam_t entTeam = NPCTEAM_FREE;
 
 	//Must be a valid pointer
 	if ( ent == nullptr )
@@ -1140,7 +1138,7 @@ bool NPC_ValidEnemy( gentity_t *ent )
 	//	if ( ent->svFlags&SVF_NONNPC_ENEMY )
 		if (ent->s.eType != ET_NPC)
 		{//still potentially valid
-			if ( ent->alliedTeam == NPCS.NPC->client->playerTeam )
+			if ( ent->alliedTeam == to_underlying( NPCS.NPC->client->playerTeam ) )
 			{
 				return false;
 			}

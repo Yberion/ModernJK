@@ -290,13 +290,13 @@ void Q3_TaskIDClear( int *taskID )
 	*taskID = -1;
 }
 
-void G_DebugPrint( int printLevel, const char *format, ... )
+void G_DebugPrint( WL_e printLevel, const char *format, ... )
 {
 	va_list		argptr;
 	char		text[1024] = {0};
 
 	//Don't print messages they don't want to see
-	//if ( g_ICARUSDebug->integer < level )
+	//if ( g_ICARUSDebug->integer < to_underlying( level ) )
 	if (developer.integer != 2)
 		return;
 
@@ -608,7 +608,7 @@ void anglerCallback( gentity_t *ent )
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
+void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
 void Blocked_Mover( gentity_t *ent, gentity_t *other );
 
 /*

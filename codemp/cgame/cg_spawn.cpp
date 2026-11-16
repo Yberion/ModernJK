@@ -299,7 +299,7 @@ void CG_ParseEntityFromSpawnVars( void ) {
 	char *classname;
 	char *p, *value;
 	const char *gametypeName;
-	static const char *gametypeNames[GT_MAX_GAME_TYPE] = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty" };
+	static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeNames = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty" };
 
 	// check for "notsingle" flag
 	if( cgs.gametype == GT_SINGLE_PLAYER ) {

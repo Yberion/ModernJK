@@ -45,7 +45,7 @@ void OBJ_SetPendingObjectives(gentity_t *ent)
 {
 	int i;
 
-	for (i=0;i<MAX_OBJECTIVES;++i)
+	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
 	{
 		if ((ent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_PENDING) &&
 			(ent->client->sess.mission_objectives[i].display))

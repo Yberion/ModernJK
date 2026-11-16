@@ -99,15 +99,15 @@ NPC_Mark2_Pain
 void NPC_Mark2_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	int newBolt,i;
-	int hitLoc = gPainHitLoc;
+	hitLocation_t hitLoc = static_cast<hitLocation_t>( gPainHitLoc );
 
 	NPC_Pain( self, attacker, damage );
 
 	for (i=0;i<3;i++)
 	{
-		if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[HL_GENERIC1+i] > AMMO_POD_HEALTH))	// Blow it up?
+		if ((hitLoc==HL_GENERIC1+i) && (self->locationDamage[to_underlying( HL_GENERIC1+i )] > AMMO_POD_HEALTH))	// Blow it up?
 		{
-			if (self->locationDamage[hitLoc] >= AMMO_POD_HEALTH)
+			if (self->locationDamage[to_underlying( hitLoc )] >= AMMO_POD_HEALTH)
 			{
 				newBolt = trap->G2API_AddBolt( self->ghoul2, 0, va("torso_canister%d",(i+1)) );
 				if ( newBolt != -1 )

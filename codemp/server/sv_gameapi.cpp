@@ -278,7 +278,7 @@ void GVM_NAV_FindCombatPointWaypoints( void ) {
 int GVM_BG_GetItemIndexByTag( int tag, int type ) {
 	VMSwap v( gvm );
 
-	return ge->BG_GetItemIndexByTag( tag, type );
+	return ge->BG_GetItemIndexByTag( tag, static_cast<itemType_t>( type ) );
 }
 
 //
@@ -552,15 +552,15 @@ static bool ICARUS_IsRunning( int entID ) {
 	return true;
 }
 
-static bool ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
+static bool ICARUS_TaskIDPending( sharedEntity_t *ent, taskID_t taskID ) {
 	return Q3_TaskIDPending( ent, (taskID_t)taskID );
 }
 
-static void SV_ICARUS_TaskIDSet( sharedEntity_t *ent, int taskType, int taskID ) {
+static void SV_ICARUS_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID ) {
 	Q3_TaskIDSet( ent, (taskID_t)taskType, taskID );
 }
 
-static void SV_ICARUS_TaskIDComplete( sharedEntity_t *ent, int taskType ) {
+static void SV_ICARUS_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType ) {
 	Q3_TaskIDComplete( ent, (taskID_t)taskType );
 }
 
@@ -1368,7 +1368,7 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
@@ -1555,7 +1555,7 @@ static bool SV_G2API_RagForceSolve( void *ghoul2, bool force ) {
 	return re->G2API_RagForceSolve( *((CGhoul2Info_v *)ghoul2), force );
 }
 
-static bool SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
+static bool SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params ) {
 	return re->G2API_SetBoneIKState( *((CGhoul2Info_v *)ghoul2), time, boneName, ikState, params );
 }
 

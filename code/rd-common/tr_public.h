@@ -350,7 +350,7 @@ typedef struct {
 					const int flags, qhandle_t *modelList, int blendTime, int AcurrentTime);
 	bool	(*G2API_SetBoneAnglesMatrixIndex)(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
 					const int flags, qhandle_t *modelList, int blandeTime, int AcurrentTime);
-	bool	(*G2API_SetBoneIKState)(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState,
+	bool	(*G2API_SetBoneIKState)(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState,
 					sharedSetBoneIKStateParams_t *params);
 	bool	(*G2API_SetGhoul2ModelFlags)(CGhoul2Info *ghlInfo, const int flags);
 	void		(*G2API_SetGhoul2ModelIndexes)(CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList);

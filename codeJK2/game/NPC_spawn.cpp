@@ -46,7 +46,7 @@ extern team_t TranslateTeamName( const char *name );
 extern const char	*TeamNames[TEAM_NUM_TEAMS];
 
 //extern void CG_ShimmeryThing_Spawner( vec3_t start, vec3_t end, float radius, bool taper, int duration );
-extern void Q3_DebugPrint( int level, const char *format, ... );
+extern void Q3_DebugPrint( WL_e level, const char *format, ... );
 
 //extern void NPC_StasisSpawnEffect( gentity_t *ent );
 
@@ -921,7 +921,7 @@ void NPC_Begin (gentity_t *ent)
 		ent->contents = 0;
 		ent->clipmask = MASK_NPCSOLID&~CONTENTS_BODY;
 	}
-	if(!ent->NPC->stats.moveType)//Static?
+	if(ent->NPC->stats.moveType == MT_STATIC)//Static?
 	{
 		ent->NPC->stats.moveType = MT_RUNJUMP;
 	}

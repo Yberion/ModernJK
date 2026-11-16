@@ -1374,7 +1374,7 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 	//
 	// rgbGen
 	//
-	if ( !forceRGBGen )
+	if ( forceRGBGen == CGEN_BAD )
 	{
 		forceRGBGen = pStage->rgbGen;
 	}
@@ -1409,7 +1409,7 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 		forceAlphaGen = AGEN_SKIP;
 	}
 
-	if ( !forceAlphaGen )	//set this up so we can override below
+	if ( forceAlphaGen == AGEN_IDENTITY )	//set this up so we can override below
 	{
 		forceAlphaGen = pStage->alphaGen;
 	}
@@ -1778,12 +1778,12 @@ void ForceAlpha(unsigned char *dstColors, int TR_ForceEntAlpha)
 ** RB_IterateStagesGeneric
 */
 #ifndef JK2_MODE
-static vec4_t	GLFogOverrideColors[GLFOGOVERRIDE_MAX] =
-{
+static EnumArray<vec4_t, EGLFogOverride, GLFOGOVERRIDE_MAX>	GLFogOverrideColors =
+{ {
 	{ 0.0, 0.0, 0.0, 1.0 },	// GLFOGOVERRIDE_NONE
 	{ 0.0, 0.0, 0.0, 1.0 },	// GLFOGOVERRIDE_BLACK
 	{ 1.0, 1.0, 1.0, 1.0 }	// GLFOGOVERRIDE_WHITE
-};
+} };
 
 static const float logtestExp2 = (sqrt( -log( 1.0 / 255.0 ) ));
 #endif
@@ -1796,7 +1796,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 	bool	FogColorChange = false;
 	fog_t	*fog = nullptr;
 
-	if (tess.fogNum && tess.shader->fogPass && (tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs)
+	if (tess.fogNum && tess.shader->fogPass != FP_NONE && (tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs)
 		&& r_drawfog->value == 2)
 	{	// only gl fog global fog and the "special fog"
 		fog = tr.world->fogs + tess.fogNum;
@@ -1919,7 +1919,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 #ifndef JK2_MODE
 		if (UseGLFog)
 		{
-			if (pStage->mGLFogColorOverride)
+			if (pStage->mGLFogColorOverride != GLFOGOVERRIDE_NONE)
 			{
 				qglFogfv(GL_FOG_COLOR, GLFogOverrideColors[pStage->mGLFogColorOverride]);
 				FogColorChange = true;
@@ -2135,9 +2135,9 @@ void RB_StageIteratorGeneric( void )
 	// now do fog
 	//
 #ifdef JK2_MODE
-	if (tess.fogNum && tess.shader->fogPass && r_drawfog->value)
+	if (tess.fogNum && tess.shader->fogPass != FP_NONE && r_drawfog->value)
 #else
-	if (tr.world && (tess.fogNum != tr.world->globalFog || r_drawfog->value != 2) && r_drawfog->value && tess.fogNum && tess.shader->fogPass)
+	if (tr.world && (tess.fogNum != tr.world->globalFog || r_drawfog->value != 2) && r_drawfog->value && tess.fogNum && tess.shader->fogPass != FP_NONE)
 #endif
 	{
 		RB_FogPass();
@@ -2175,7 +2175,7 @@ void RB_StageIteratorGeneric( void )
 #ifndef JK2_MODE
 	//don't disable the hardware fog til after we do surface sprites
 	if (r_drawfog->value == 2 &&
-		tess.fogNum && tess.shader->fogPass &&
+		tess.fogNum && tess.shader->fogPass != FP_NONE &&
 		(tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs))
 	{
 		qglDisable(GL_FOG);
@@ -2246,9 +2246,9 @@ void RB_EndSurface( void ) {
 		backEnd.pc.c_indexes += tess.numIndexes;
 		backEnd.pc.c_totalIndexes += tess.numIndexes * tess.numPasses;
 #ifdef JK2_MODE
-		if (tess.fogNum && tess.shader->fogPass && r_drawfog->value)
+		if (tess.fogNum && tess.shader->fogPass != FP_NONE && r_drawfog->value)
 #else
-		if (tess.fogNum && tess.shader->fogPass && r_drawfog->value == 1)
+		if (tess.fogNum && tess.shader->fogPass != FP_NONE && r_drawfog->value == 1)
 #endif
 		{	// Fogging adds an additional pass
 			backEnd.pc.c_totalIndexes += tess.numIndexes;

@@ -1304,7 +1304,6 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		|| (ent->client->ps.weaponstate != WEAPON_READY && ent->client->ps.weapon != WP_SABER)
 		|| ent->client->ps.forceHandExtend != HANDEXTEND_NONE
 		|| ent->client->ps.saberBlocked != BLOCKED_NONE
-		|| ent->client->ps.saberBlocking >= level.time
 		|| ent->client->ps.weapon == WP_MELEE
 		|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
 	{//FIXME: also check for turning?
@@ -1320,8 +1319,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			|| ent->client->ps.weaponstate == WEAPON_CHARGING_ALT
 			|| ent->client->ps.forceHandExtend != HANDEXTEND_NONE
 			|| ent->client->ps.saberBlocked != BLOCKED_NONE
-			|| ent->client->ps.saberBlocking >= level.time
-			|| ent->client->ps.weapon == WP_MELEE
+				|| ent->client->ps.weapon == WP_MELEE
 			|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
 		{
 			//if in an idle, break out
@@ -1596,16 +1594,17 @@ void G_HeldByMonster( gentity_t *ent, usercmd_t *ucmd )
 	ucmd->upmove = 0;
 }
 
-typedef enum tauntTypes_e
+enum class tauntTypes_t
 {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
 	TAUNT_FLOURISH,
 	TAUNT_GLOAT
-} tauntTypes_t;
+};
+using enum tauntTypes_t;
 
-void G_SetTauntAnim( gentity_t *ent, int taunt )
+void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 {
 	if (ent->client->pers.cmd.upmove ||
 		ent->client->pers.cmd.forwardmove ||
@@ -1631,7 +1630,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 		&& ent->client->ps.saberLockTime < level.time )
 	{
 		int anim = -1;
-		switch ( taunt )
+		switch ( static_cast<tauntTypes_t>( taunt ) )
 		{
 		case TAUNT_TAUNT:
 			if ( ent->client->ps.weapon != WP_SABER )
@@ -1857,7 +1856,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			if ( taunt != TAUNT_MEDITATE
 				&& taunt != TAUNT_BOW )
 			{//no sound for meditate or bow
-				G_AddEvent( ent, EV_TAUNT, taunt );
+				G_AddEvent( ent, EV_TAUNT, to_underlying( taunt ) );
 			}
 		}
 	}
@@ -2087,7 +2086,7 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~EF_BODYPUSH;
 	}
 
-	if (client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK))
+	if (client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_JETPACK ))
 	{
 		client->ps.eFlags |= EF_JETPACK;
 	}
@@ -2105,7 +2104,7 @@ void ClientThink_real( gentity_t *ent ) {
 	} else {
 		if (client->ps.forceGripChangeMovetype)
 		{
-			client->ps.pm_type = client->ps.forceGripChangeMovetype;
+			client->ps.pm_type = static_cast<pmtype_t>( client->ps.forceGripChangeMovetype );
 		}
 		else
 		{
@@ -2991,7 +2990,7 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		ent->client->ps.saberLockFrame = 0;
 		//check for taunt
-		if ( (pmove.cmd.generic_cmd == GENCMD_ENGAGE_DUEL) && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) )
+		if ( (pmove.cmd.generic_cmd == to_underlying( GENCMD_ENGAGE_DUEL )) && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) )
 		{//already in a duel, make it a taunt command
 			pmove.cmd.buttons |= BUTTON_GESTURE;
 		}
@@ -3108,15 +3107,15 @@ void ClientThink_real( gentity_t *ent ) {
 		(pmove.cmd.generic_cmd != ent->client->lastGenCmd || ent->client->lastGenCmdTime < level.time))
 	{
 		ent->client->lastGenCmd = pmove.cmd.generic_cmd;
-		if (pmove.cmd.generic_cmd != GENCMD_FORCE_THROW &&
-			pmove.cmd.generic_cmd != GENCMD_FORCE_PULL)
+		if (pmove.cmd.generic_cmd != to_underlying( GENCMD_FORCE_THROW ) &&
+			pmove.cmd.generic_cmd != to_underlying( GENCMD_FORCE_PULL ))
 		{ //these are the only two where you wouldn't care about a delay between
 			ent->client->lastGenCmdTime = level.time + 300; //default 100ms debounce between issuing the same command.
 		}
 
-		switch(pmove.cmd.generic_cmd)
+		switch( static_cast<genCmds_t>( pmove.cmd.generic_cmd ) )
 		{
-		case 0:
+		case GENCMD_NONE:
 			break;
 		case GENCMD_SABERSWITCH:
 			Cmd_ToggleSaber_f(ent);
@@ -3164,43 +3163,43 @@ void ClientThink_real( gentity_t *ent ) {
 			ForceSeeing(ent);
 			break;
 		case GENCMD_USE_SEEKER:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SEEKER)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SEEKER )) &&
 				G_ItemUsable(&ent->client->ps, HI_SEEKER) )
 			{
 				ItemUse_Seeker(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SEEKER, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SEEKER);
+				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SEEKER );
 			}
 			break;
 		case GENCMD_USE_FIELD:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SHIELD)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SHIELD )) &&
 				G_ItemUsable(&ent->client->ps, HI_SHIELD) )
 			{
 				ItemUse_Shield(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SHIELD, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SHIELD);
+				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SHIELD );
 			}
 			break;
 		case GENCMD_USE_BACTA:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC )) &&
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC) )
 			{
 				ItemUse_MedPack(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_MEDPAC, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC);
+				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_MEDPAC );
 			}
 			break;
 		case GENCMD_USE_BACTABIG:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_MEDPAC_BIG)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_MEDPAC_BIG )) &&
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG) )
 			{
 				ItemUse_MedPack_Big(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_MEDPAC_BIG, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_MEDPAC_BIG);
+				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_MEDPAC_BIG );
 			}
 			break;
 		case GENCMD_USE_ELECTROBINOCULARS:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_BINOCULARS )) &&
 				G_ItemUsable(&ent->client->ps, HI_BINOCULARS) )
 			{
 				ItemUse_Binoculars(ent);
@@ -3215,7 +3214,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_ZOOM:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_BINOCULARS)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_BINOCULARS )) &&
 				G_ItemUsable(&ent->client->ps, HI_BINOCULARS) )
 			{
 				ItemUse_Binoculars(ent);
@@ -3230,16 +3229,16 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_SENTRY:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_SENTRY_GUN)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_SENTRY_GUN )) &&
 				G_ItemUsable(&ent->client->ps, HI_SENTRY_GUN) )
 			{
 				ItemUse_Sentry(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SENTRY_GUN, 0);
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_SENTRY_GUN);
+				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SENTRY_GUN );
 			}
 			break;
 		case GENCMD_USE_JETPACK:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_JETPACK )) &&
 				G_ItemUsable(&ent->client->ps, HI_JETPACK) )
 			{
 				ItemUse_Jetpack(ent);
@@ -3257,7 +3256,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_HEALTHDISP:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_HEALTHDISP)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_HEALTHDISP )) &&
 				G_ItemUsable(&ent->client->ps, HI_HEALTHDISP) )
 			{
 				//ItemUse_UseDisp(ent, HI_HEALTHDISP);
@@ -3265,7 +3264,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_AMMODISP:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_AMMODISP)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_AMMODISP )) &&
 				G_ItemUsable(&ent->client->ps, HI_AMMODISP) )
 			{
 				//ItemUse_UseDisp(ent, HI_AMMODISP);
@@ -3273,7 +3272,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_EWEB:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_EWEB)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_EWEB )) &&
 				G_ItemUsable(&ent->client->ps, HI_EWEB) )
 			{
 				ItemUse_UseEWeb(ent);
@@ -3281,7 +3280,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			break;
 		case GENCMD_USE_CLOAK:
-			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_CLOAK)) &&
+			if ( (ent->client->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( HI_CLOAK )) &&
 				G_ItemUsable(&ent->client->ps, HI_CLOAK) )
 			{
 				if ( ent->client->ps.powerups[PW_CLOAKED] )

@@ -28,7 +28,8 @@ int				CGVM_CrosshairPlayer		( void );
 int				CGVM_LastAttacker			( void );
 void			CGVM_KeyEvent				( int key, bool down );
 void			CGVM_MouseEvent				( int x, int y );
-void			CGVM_EventHandling			( int type );
+enum class cgameEvent_t;		// cg_public.h
+void			CGVM_EventHandling			( cgameEvent_t type );
 int				CGVM_PointContents			( void );
 void			CGVM_GetLerpOrigin			( void );
 void			CGVM_GetLerpData			( void );

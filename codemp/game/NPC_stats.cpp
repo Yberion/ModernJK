@@ -733,7 +733,7 @@ void NPC_Precache ( gentity_t *spawner )
 			}
 			//playerTeam = TranslateTeamName(value);
 			Com_sprintf(tk, sizeof(tk), "NPC%s", token);
-			playerTeam = (npcteam_t)GetIDForString( TeamTable, tk );
+			playerTeam = static_cast<npcteam_t>( GetIDForString( TeamTable, tk ) );
 			continue;
 		}
 
@@ -2136,7 +2136,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				Com_sprintf(tk, sizeof(tk), "NPC%s", token);
-				NPC->s.teamowner = NPC->client->playerTeam = (npcteam_t)GetIDForString( TeamTable, tk );//TranslateTeamName(value);
+				NPC->s.teamowner = to_underlying( NPC->client->playerTeam = static_cast<npcteam_t>( GetIDForString( TeamTable, tk ) ) );//TranslateTeamName(value);
 				continue;
 			}
 
@@ -2150,7 +2150,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				Com_sprintf(tk, sizeof(tk), "NPC%s", token);
-				NPC->client->enemyTeam = (npcteam_t)GetIDForString( TeamTable, tk );//TranslateTeamName(value);
+				NPC->client->enemyTeam = static_cast<npcteam_t>( GetIDForString( TeamTable, tk ) );//TranslateTeamName(value);
 				continue;
 			}
 
@@ -2721,7 +2721,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						NPC->client->saber[0].blade[n].color = color;
 						NPC->s.boltToPlayer = NPC->s.boltToPlayer & 0x38;//(111000)
-						NPC->s.boltToPlayer += (color + 1);
+						NPC->s.boltToPlayer += (to_underlying( color ) + 1);
 					}
 				}
 				continue;
@@ -2831,7 +2831,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						NPC->client->saber[1].blade[n].color = color;
 						NPC->s.boltToPlayer = NPC->s.boltToPlayer & 0x7;//(000111)
-						NPC->s.boltToPlayer += ((color + 1) << 3);
+						NPC->s.boltToPlayer += ((to_underlying( color ) + 1) << 3);
 					}
 				}
 				continue;

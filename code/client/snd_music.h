@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SND_MUSIC_H
 
 // if you change this enum, you MUST update the #defines below
-typedef enum
+enum class MusicState_e
 {
 //( eBGRNDTRACK_DATABEGIN )			// begin-label for FOR loops
 	//
@@ -53,7 +53,9 @@ typedef enum
 	//
 	eBGRNDTRACK_NUMBEROF
 
-} MusicState_e;
+};
+using enum MusicState_e;
+template <> inline constexpr bool enableEnumArithmetic<MusicState_e> = true;
 
 #define iMAX_ACTION_TRANSITIONS		4	// these can be increased easily enough, I just need to know about them
 #define iMAX_EXPLORE_TRANSITIONS	4	//

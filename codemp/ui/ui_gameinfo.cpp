@@ -186,37 +186,37 @@ void UI_LoadArenas( void ) {
 		// if no type specified, it will be treated as "ffa"
 		if( *type ) {
 			if( strstr( type, "ffa" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_TEAM);
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_FFA );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_TEAM );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
 			}
 			if( strstr( type, "holocron" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_HOLOCRON);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_HOLOCRON );
 			}
 			if( strstr( type, "jedimaster" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
 			}
 			if( strstr( type, "duel" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DUEL);
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_POWERDUEL);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_DUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_POWERDUEL );
 			}
 			if( strstr( type, "powerduel" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DUEL);
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_POWERDUEL);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_DUEL );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_POWERDUEL );
 			}
 			if( strstr( type, "siege" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_SIEGE);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_SIEGE );
 			}
 			if( strstr( type, "ctf" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTF );
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTY );
 			}
 			if( strstr( type, "cty" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_CTY );
 			}
 		} else {
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_FFA );
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= Bit( GT_JEDIMASTER );
 		}
 
 		uiInfo.mapCount++;

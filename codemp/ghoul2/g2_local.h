@@ -227,9 +227,9 @@ void		G2_List_Model_Surfaces(const char *fileName);
 void		G2_List_Model_Bones(const char *fileName, int frame);
 bool	G2_GetAnimFileName(const char *fileName, char **filename);
 #ifdef _G2_GORE
-void		G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int traceFlags, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch);
+void		G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, EG2_Collision traceFlags, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch);
 #else
-void		G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int traceFlags, int useLod, float fRadius);
+void		G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, EG2_Collision traceFlags, int useLod, float fRadius);
 #endif
 void		TransformAndTranslatePoint (const vec3_t in, vec3_t out, mdxaBone_t *mat);
 #ifdef _G2_GORE
@@ -353,7 +353,7 @@ bool	G2API_GetRagBonePos(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos
 bool	G2API_RagEffectorKick(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
 bool	G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force);
 
-bool	G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+bool	G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params);
 bool	G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
 
 void		G2API_AttachInstanceToEntNum(CGhoul2Info_v &ghoul2, int entityNum, bool server);

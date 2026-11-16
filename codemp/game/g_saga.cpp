@@ -92,7 +92,7 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 					j++;
 				}
 				j = 0;
-				while (j < HI_NUM_HOLDABLE)
+				while (j < to_underlying( HI_NUM_HOLDABLE ))
 				{
 					if (scl->invenItems & (1 << j))
 					{ //we use this item so register it.

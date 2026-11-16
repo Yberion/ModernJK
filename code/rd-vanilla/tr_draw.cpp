@@ -354,7 +354,7 @@ void RE_TempRawImage_CleanUp(void)
 
 
 
-typedef enum
+enum class Dissolve_e
 {
 	eDISSOLVE_RT_TO_LT = 0,
 	eDISSOLVE_LT_TO_RT,
@@ -370,7 +370,8 @@ typedef enum
 	//
 	eDISSOLVE_NUMBEROF
 
-} Dissolve_e;
+};
+using enum Dissolve_e;
 
 typedef struct
 {
@@ -923,7 +924,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 #else
 			// final (& random) version...
 			//
-			Dissolve.eDissolveType = (Dissolve_e) Q_irand( 0, eDISSOLVE_RAND_LIMIT-1);
+			Dissolve.eDissolveType = static_cast<Dissolve_e>( Q_irand( 0, to_underlying( eDISSOLVE_RAND_LIMIT ) - 1 ) );
 #endif
 
 			if (bForceCircularExtroWipe)

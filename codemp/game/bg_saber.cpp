@@ -351,7 +351,7 @@ void BG_FixSaberMoveData(void) {
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
 	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
-	const bool doFix = !!(legacyFixes & (1 << LEGACYFIX_SABERMOVEDATA));
+	const bool doFix = !!(legacyFixes & Bit( LEGACYFIX_SABERMOVEDATA ));
 #endif
 	saberMoveData_t *move;
 
@@ -377,8 +377,8 @@ void BG_FixSaberMoveData(void) {
 	}
 }
 
-int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
-{
+EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove =
+{ {
 	{	LS_NONE,		LS_T1_BR__R,	LS_T1_BR_TR,	LS_T1_BR_T_,	LS_T1_BR_TL,	LS_T1_BR__L,	LS_T1_BR_BL,	LS_NONE		},
 	{	LS_T1__R_BR,	LS_NONE,		LS_T1__R_TR,	LS_T1__R_T_,	LS_T1__R_TL,	LS_T1__R__L,	LS_T1__R_BL,	LS_NONE		},
 	{	LS_T1_TR_BR,	LS_T1_TR__R,	LS_NONE,		LS_T1_TR_T_,	LS_T1_TR_TL,	LS_T1_TR__L,	LS_T1_TR_BL,	LS_NONE		},
@@ -387,9 +387,9 @@ int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
 	{	LS_T1__L_BR,	LS_T1__L__R,	LS_T1__L_TR,	LS_T1__L_T_,	LS_T1__L_TL,	LS_NONE,		LS_T1__L_BL,	LS_NONE		},
 	{	LS_T1_BL_BR,	LS_T1_BL__R,	LS_T1_BL_TR,	LS_T1_BL_T_,	LS_T1_BL_TL,	LS_T1_BL__L,	LS_NONE,		LS_NONE		},
 	{	LS_T1_BL_BR,	LS_T1_BR__R,	LS_T1_BR_TR,	LS_T1_BR_T_,	LS_T1_BR_TL,	LS_T1_BR__L,	LS_T1_BR_BL,	LS_NONE		},
-};
+} };
 
-saberMoveName_t PM_AttackMoveForQuad( int quad )
+saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad )
 {
 	switch ( quad )
 	{
@@ -414,6 +414,9 @@ saberMoveName_t PM_AttackMoveForQuad( int quad )
 		break;
 	case Q_BL:
 		return LS_A_BL2TR;
+		break;
+	
+	default:
 		break;
 	}
 	return LS_NONE;
@@ -647,7 +650,7 @@ saberMoveName_t PM_CheckStabDown( void )
 	return LS_NONE;
 }
 
-int PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
+saberQuadrant_t PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
 {
 	if ( ucmd->rightmove > 0 )
 	{//moving right
@@ -712,7 +715,7 @@ bool PM_SaberInBounce( int move )
 
 bool PM_SaberInTransition( int move );
 
-int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] =
+int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_QUADS )] =
 {
 //		Q_BR,Q_BR,	Q_BR,Q_R,	Q_BR,Q_TR,	Q_BR,Q_T,	Q_BR,Q_TL,	Q_BR,Q_L,	Q_BR,Q_BL,	Q_BR,Q_B,
 	{	0,			45,			90,			135,		180,		215,		270,		45			},
@@ -738,7 +741,7 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 	{
 		return -1;
 	}
-	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
+	return saberMoveTransitionAngle[to_underlying( saberMoveData[move1].endQuad )][to_underlying( saberMoveData[move2].startQuad )];
 }
 
 bool PM_SaberKataDone(int curmove, int newmove)
@@ -1278,7 +1281,7 @@ void PM_SaberLockBreak( playerState_t *genemy, bool victory, int strength )
 	}
 }
 
-bool BG_CheckIncrementLockAnim( int anim, int winOrLose )
+bool BG_CheckIncrementLockAnim( int anim, saberLockType_t winOrLose )
 {
 	bool increment = false;//???
 	//RULE: if you are the first style in the lock anim, you advance from LOSING position to WINNING position
@@ -1993,7 +1996,7 @@ static bool PM_CanDoDualDoubleAttacks(void)
 	return true;
 }
 
-static bool PM_CheckEnemyPresence( int dir, float radius )
+static bool PM_CheckEnemyPresence( direction_t dir, float radius )
 { //anyone in this dir?
 	vec3_t angles;
 	vec3_t checkDir = { 0.0f };
@@ -3108,7 +3111,7 @@ void PM_WeaponLightsaber(void)
 	}
 
 	// Now we react to a block action by the player's lightsaber.
-	if ( pm->ps->saberBlocked )
+	if ( pm->ps->saberBlocked != BLOCKED_NONE )
 	{
 		if ( pm->ps->saberBlocked >= BLOCKED_UPPER_RIGHT
 			&& pm->ps->saberBlocked < BLOCKED_UPPER_RIGHT_PROJ)
@@ -3122,7 +3125,7 @@ void PM_WeaponLightsaber(void)
 					pm->ps->torsoTimer = 0;
 					PM_SetSaberMove( pm->ps->saberMove );
 					pm->ps->weaponTime = pm->ps->torsoTimer;
-					pm->ps->saberBlocked = 0;
+					pm->ps->saberBlocked = BLOCKED_NONE;
 				}
 				break;
 			case BLOCKED_PARRY_BROKEN:
@@ -3163,12 +3166,12 @@ void PM_WeaponLightsaber(void)
 					{
 						if ( pm->cmd.buttons & BUTTON_ATTACK )
 						{//transition to a new attack
-							int newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
+							saberQuadrant_t newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
 							while ( newQuad == saberMoveData[pm->ps->saberMove].startQuad )
 							{//player is still in same attack quad, don't repeat that attack because it looks bad,
 								//FIXME: try to pick one that might look cool?
-								//newQuad = Q_irand( Q_BR, Q_BL );
-								newQuad = PM_irand_timesync( Q_BR, Q_BL );
+								//newQuad = static_cast<saberQuadrant_t>( Q_irand( to_underlying( Q_BR ), to_underlying( Q_BL ) ) );
+								newQuad = static_cast<saberQuadrant_t>( PM_irand_timesync( to_underlying( Q_BR ), to_underlying( Q_BL ) ) );
 								//FIXME: sanity check, just in case?
 							}//else player is switching up anyway, take the new attack dir
 							bounceMove = transitionMove[saberMoveData[pm->ps->saberMove].startQuad][newQuad];
@@ -3181,11 +3184,11 @@ void PM_WeaponLightsaber(void)
 							}
 							else if ( saberMoveData[pm->ps->saberMove].startQuad < Q_T )
 							{
-								bounceMove = LS_R_TL2BR+saberMoveData[pm->ps->saberMove].startQuad-Q_BR;
+								bounceMove = LS_R_TL2BR+(saberMoveData[pm->ps->saberMove].startQuad-Q_BR);
 							}
 							else// if ( saberMoveData[pm->ps->saberMove].startQuad > Q_T )
 							{
-								bounceMove = LS_R_BR2TL+saberMoveData[pm->ps->saberMove].startQuad-Q_TL;
+								bounceMove = LS_R_BR2TL+(saberMoveData[pm->ps->saberMove].startQuad-Q_TL);
 							}
 						}
 					}
@@ -3253,7 +3256,7 @@ void PM_WeaponLightsaber(void)
 		*/
 
 		//clear block
-		pm->ps->saberBlocked = 0;
+		pm->ps->saberBlocked = BLOCKED_NONE;
 
 		// Charging is like a lead-up before attacking again.  This is an appropriate use, or we can create a new weaponstate for blocking
 		pm->ps->weaponstate = WEAPON_READY;
@@ -3601,6 +3604,9 @@ weapChecks:
 					newmove = LS_A_BL2TR;
 					break;
 				//shouldn't be a parry that ends at L, R or B
+				
+				default:
+					break;
 				}
 			}
 
@@ -3995,11 +4001,11 @@ void PM_SetSaberMove(short newMove)
 				{ //randomly make pain sounds with a broken arm because we are suffering.
 					int iFactor = -1;
 
-					if (pm->ps->brokenLimbs & (1<<BROKENLIMB_RARM))
+					if (pm->ps->brokenLimbs & Bit( BROKENLIMB_RARM ))
 					{ //You're using it more. So it hurts more.
 						iFactor = 5;
 					}
-					else if (pm->ps->brokenLimbs & (1<<BROKENLIMB_LARM))
+					else if (pm->ps->brokenLimbs & Bit( BROKENLIMB_LARM ))
 					{
 						iFactor = 10;
 					}

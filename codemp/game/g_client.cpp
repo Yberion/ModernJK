@@ -800,7 +800,7 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	return list_spot[rnd];
 }
 
-gentity_t *SelectDuelSpawnPoint( int team, vec3_t avoidPoint, vec3_t origin, vec3_t angles, bool isbot )
+gentity_t *SelectDuelSpawnPoint( duelTeam_t team, vec3_t avoidPoint, vec3_t origin, vec3_t angles, bool isbot )
 {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -1984,7 +1984,7 @@ static userinfoValidate_t userinfoFields[] = {
 };
 static const int numUserinfoFields = ARRAY_LEN( userinfoFields );
 
-static const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
+static const char *userinfoValidateExtra[to_underlying( USERINFO_VALIDATION_MAX )] = {
 	"Size",					// USERINFO_VALIDATION_SIZE
 	"# of slashes",			// USERINFO_VALIDATION_SLASH
 	"Extended ascii",		// USERINFO_VALIDATION_EXTASCII
@@ -1998,7 +1998,7 @@ void Svcmd_ToggleUserinfoValidation_f( void ) {
 			if ( (g_userinfoValidate.integer & (1<<i)) )	trap->Print( "%2d [X] %s\n", i, userinfoFields[i].fieldClean );
 			else											trap->Print( "%2d [ ] %s\n", i, userinfoFields[i].fieldClean );
 		}
-		for ( ; i<numUserinfoFields+USERINFO_VALIDATION_MAX; i++ ) {
+		for ( ; i<numUserinfoFields+to_underlying( USERINFO_VALIDATION_MAX ); i++ ) {
 			if ( (g_userinfoValidate.integer & (1<<i)) )	trap->Print( "%2d [X] %s\n", i, userinfoValidateExtra[i-numUserinfoFields] );
 			else											trap->Print( "%2d [ ] %s\n", i, userinfoValidateExtra[i-numUserinfoFields] );
 		}
@@ -2011,12 +2011,12 @@ void Svcmd_ToggleUserinfoValidation_f( void ) {
 		trap->Argv( 1, arg, sizeof( arg ) );
 		index = atoi( arg );
 
-		if ( index < 0 || index > numUserinfoFields+USERINFO_VALIDATION_MAX-1 ) {
-			Com_Printf( "ToggleUserinfoValidation: Invalid range: %i [0, %i]\n", index, numUserinfoFields+USERINFO_VALIDATION_MAX-1 );
+		if ( index < 0 || index > numUserinfoFields+to_underlying( USERINFO_VALIDATION_MAX )-1 ) {
+			Com_Printf( "ToggleUserinfoValidation: Invalid range: %i [0, %i]\n", index, numUserinfoFields+to_underlying( USERINFO_VALIDATION_MAX )-1 );
 			return;
 		}
 
-		trap->Cvar_Set( "g_userinfoValidate", va( "%i", (1 << index) ^ (g_userinfoValidate.integer & ((1 << (numUserinfoFields + USERINFO_VALIDATION_MAX)) - 1)) ) );
+		trap->Cvar_Set( "g_userinfoValidate", va( "%i", (1 << index) ^ (g_userinfoValidate.integer & ((1 << (numUserinfoFields+to_underlying( USERINFO_VALIDATION_MAX ))) - 1)) ) );
 		trap->Cvar_Update( &g_userinfoValidate );
 
 		if ( index < numUserinfoFields )	Com_Printf( "%s %s\n", userinfoFields[index].fieldClean,				((g_userinfoValidate.integer & (1<<index)) ? "Validated" : "Ignored") );
@@ -2035,7 +2035,7 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 	memset( fieldCount, 0, sizeof( fieldCount ) );
 
 	// size checks
-	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_SIZE)) ) {
+	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+to_underlying( USERINFO_VALIDATION_SIZE ))) ) {
 		if ( length < 1 )
 			return "Userinfo too short";
 		else if ( length >= MAX_INFO_STRING )
@@ -2043,7 +2043,7 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 	}
 
 	// slash checks
-	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_SLASH)) ) {
+	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+to_underlying( USERINFO_VALIDATION_SLASH ))) ) {
 		// there must be a leading slash
 		if ( userinfo[0] != '\\' )
 			return "Missing leading slash";
@@ -2063,7 +2063,7 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 	}
 
 	// extended characters are impossible to type, may want to disable
-	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_EXTASCII)) ) {
+	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+to_underlying( USERINFO_VALIDATION_EXTASCII ))) ) {
 		for ( i=0, count=0; i<length; i++ ) {
 			if ( userinfo[i] < 0 )
 				count++;
@@ -2073,7 +2073,7 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 	}
 
 	// disallow \n \r ; and \"
-	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_CONTROLCHARS)) ) {
+	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+to_underlying( USERINFO_VALIDATION_CONTROLCHARS ))) ) {
 		if ( Q_strchrs( userinfo, "\n\r;\"" ) )
 			return "Invalid characters found";
 	}
@@ -2686,15 +2686,13 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 		i++;
 	}
 
-	i = TRACK_CHANNEL_1;
-
-	while (i < NUM_TRACK_CHANNELS)
+	for ( trackchan_t ch = TRACK_CHANNEL_1; ch < NUM_TRACK_CHANNELS; ch++ )
 	{
-		if (ent->client->ps.fd.killSoundEntIndex[i-50] && ent->client->ps.fd.killSoundEntIndex[i-50] < MAX_GENTITIES && ent->client->ps.fd.killSoundEntIndex[i-50] > 0)
+		const int sound = ent->client->ps.fd.killSoundEntIndex[ch - TRACK_CHANNEL_NONE];
+		if (sound && sound < MAX_GENTITIES && sound > 0)
 		{
-			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[i-50], CHAN_VOICE);
+			G_MuteSound(sound, CHAN_VOICE);
 		}
-		i++;
 	}
 	i = 0;
 
@@ -2763,7 +2761,7 @@ static bool AllForceDisabled(int force)
 }
 
 //Convenient interface to set all my limb breakage stuff up -rww
-void G_BreakArm(gentity_t *ent, int arm)
+void G_BreakArm(gentity_t *ent, brokenLimb_t arm)
 {
 	int anim = -1;
 
@@ -2774,7 +2772,7 @@ void G_BreakArm(gentity_t *ent, int arm)
 		return;
 	}
 
-	if (!arm)
+	if (arm == BROKENLIMB_NONE)
 	{ //repair him
 		ent->client->ps.brokenLimbs = 0;
 		return;
@@ -2797,7 +2795,7 @@ void G_BreakArm(gentity_t *ent, int arm)
 	}
 
 	ent->client->ps.brokenLimbs = 0; //make sure it's cleared out
-	ent->client->ps.brokenLimbs |= (1 << arm); //this arm is now marked as broken
+	ent->client->ps.brokenLimbs |= Bit( arm ); //this arm is now marked as broken
 
 	//Do a pain anim based on the side. Since getting your arm broken does tend to hurt.
 	if (arm == BROKENLIMB_LARM)
@@ -2954,7 +2952,7 @@ tryTorso:
 		setTorso)
 	{
 		if (self->localAnimIndex <= 1 && self->client->ps.brokenLimbs &&
-			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
+			(self->client->ps.brokenLimbs & Bit( BROKENLIMB_LARM )))
 		{ //broken left arm
 			const char *brokenBone = "lhumerus";
 			animation_t *armAnim;
@@ -2974,7 +2972,7 @@ tryTorso:
 			trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, level.time, -1, 150);
 		}
 		else if (self->localAnimIndex <= 1 && self->client->ps.brokenLimbs &&
-			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM)))
+			(self->client->ps.brokenLimbs & Bit( BROKENLIMB_RARM )))
 		{ //broken right arm
 			const char *brokenBone = "rhumerus";
 			const char *supportBone = "lhumerus";
@@ -3045,15 +3043,15 @@ tryTorso:
 
 			//Warning: Don't remove bones that you've added as bolts unless you want to invalidate your bolt index
 			//(well, in theory, I haven't actually run into the problem)
-			if (self->client->brokenLimbs & (1<<BROKENLIMB_LARM))
+			if (self->client->brokenLimbs & Bit( BROKENLIMB_LARM ))
 			{
 				brokenBone = "lhumerus";
-				broken |= (1<<BROKENLIMB_LARM);
+				broken |= Bit( BROKENLIMB_LARM );
 			}
-			else if (self->client->brokenLimbs & (1<<BROKENLIMB_RARM))
+			else if (self->client->brokenLimbs & Bit( BROKENLIMB_RARM ))
 			{ //can only have one arm broken at once.
 				brokenBone = "rhumerus";
-				broken |= (1<<BROKENLIMB_RARM);
+				broken |= Bit( BROKENLIMB_RARM );
 
 				//want to remove the support bone too then
 				trap->G2API_SetBoneAnim(self->ghoul2, 0, "lhumerus", 0, 1, 0, 0, level.time, -1, 0);
@@ -3092,7 +3090,7 @@ void ClientSpawn(gentity_t *ent) {
 	clientSession_t		savedSess;
 	forcedata_t			savedForce;
 	saberInfo_t			saberSaved[MAX_SABERS];
-	int					persistant[MAX_PERSISTANT] = {0};
+	EnumArray<int, persEnum_t, MAX_PERSISTANT>					persistant{};
 	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
 	void				*g2WeaponPtrs[MAX_SABERS];
 	char				userinfo[MAX_INFO_STRING] = {0}, *key = nullptr, *saber = nullptr;
@@ -3246,8 +3244,7 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
-	for ( i=0; i<MAX_PERSISTANT; i++ )
-		persistant[i] = client->ps.persistant[i];
+	persistant = client->ps.persistant;
 
 	eventSequence = client->ps.eventSequence;
 
@@ -3263,7 +3260,7 @@ void ClientSpawn(gentity_t *ent) {
 		g2WeaponPtrs[i] = client->weaponGhoul2[i];
 	}
 
-	for ( i=0; i<HL_MAX; i++ )
+	for ( i=0; i<to_underlying( HL_MAX ); i++ )
 		ent->locationDamage[i] = 0;
 
 	memset( client, 0, sizeof( *client ) ); // bk FIXME: Com_Memset?
@@ -3321,8 +3318,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
 
-	for ( i=0; i<MAX_PERSISTANT; i++ )
-		client->ps.persistant[i] = persistant[i];
+	client->ps.persistant = persistant;
 
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
@@ -3518,8 +3514,8 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	/*
-	client->ps.stats[STAT_HOLDABLE_ITEMS] |= ( 1 << HI_BINOCULARS );
-	client->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_BINOCULARS, IT_HOLDABLE);
+	client->ps.stats[STAT_HOLDABLE_ITEMS] |= Bit( HI_BINOCULARS );
+	client->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_BINOCULARS ), IT_HOLDABLE);
 	*/
 
 	if (level.gametype == GT_SIEGE && client->siegeClass != -1 &&
@@ -3562,7 +3558,7 @@ void ClientSpawn(gentity_t *ent) {
 					{//don't give full ammo!
 						//FIXME: extern this and check it when getting ammo from supplier, pickups or ammo stations!
 						if ( client->siegeClass != -1 &&
-							(bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_SINGLE_ROCKET)) )
+							(bgSiegeClasses[client->siegeClass].classflags & Bit( CFL_SINGLE_ROCKET )) )
 						{
 							client->ps.ammo[weaponData[m].ammoIndex] = 1;
 						}
@@ -3575,7 +3571,7 @@ void ClientSpawn(gentity_t *ent) {
 					{
 						if ( level.gametype == GT_SIEGE
 							&& client->siegeClass != -1
-							&& (bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_EXTRA_AMMO)) )
+							&& (bgSiegeClasses[client->siegeClass].classflags & Bit( CFL_EXTRA_AMMO )) )
 						{//double ammo
 							client->ps.ammo[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max*2;
 							client->ps.eFlags |= EF_DOUBLE_AMMO;
@@ -3793,18 +3789,18 @@ void ClientSpawn(gentity_t *ent) {
 	{ //Imperial (team1) team is allied with "enemy" NPCs in this mode
 		if (client->sess.sessionTeam == SIEGETEAM_TEAM1)
 		{
-			ent->s.teamowner = client->playerTeam = NPCTEAM_ENEMY;
+			ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_ENEMY );
 			client->enemyTeam = NPCTEAM_PLAYER;
 		}
 		else
 		{
-			ent->s.teamowner = client->playerTeam = NPCTEAM_PLAYER;
+			ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_PLAYER );
 			client->enemyTeam = NPCTEAM_ENEMY;
 		}
 	}
 	else
 	{
-		ent->s.teamowner = client->playerTeam = NPCTEAM_PLAYER;
+		ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_PLAYER );
 		client->enemyTeam = NPCTEAM_ENEMY;
 	}
 
@@ -3917,15 +3913,13 @@ void ClientDisconnect( int clientNum ) {
 		i++;
 	}
 
-	i = TRACK_CHANNEL_1;
-
-	while (i < NUM_TRACK_CHANNELS)
+	for ( trackchan_t ch = TRACK_CHANNEL_1; ch < NUM_TRACK_CHANNELS; ch++ )
 	{
-		if (ent->client->ps.fd.killSoundEntIndex[i-50] && ent->client->ps.fd.killSoundEntIndex[i-50] < MAX_GENTITIES && ent->client->ps.fd.killSoundEntIndex[i-50] > 0)
+		const int sound = ent->client->ps.fd.killSoundEntIndex[ch - TRACK_CHANNEL_NONE];
+		if (sound && sound < MAX_GENTITIES && sound > 0)
 		{
-			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[i-50], CHAN_VOICE);
+			G_MuteSound(sound, CHAN_VOICE);
 		}
-		i++;
 	}
 	i = 0;
 

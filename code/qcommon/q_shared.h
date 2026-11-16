@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
+#include "qcommon/q_enum.h"
 #include "qcommon/q_math.h"
 #include "qcommon/q_color.h"
 #include "qcommon/q_string.h"
@@ -194,12 +195,13 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 #define	MAX_NAME_LENGTH		32		// max length of a client name
 
 // paramters for command buffer stuffing
-typedef enum {
+enum class cbufExec_t {
 	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
 						// because some commands might cause the VM to be unloaded...
 	EXEC_INSERT,		// insert at current position, but don't run yet
 	EXEC_APPEND			// add to end of the command buffer (normal case)
-} cbufExec_t;
+};
+using enum cbufExec_t;
 
 
 //
@@ -296,7 +298,7 @@ typedef enum {
 
 
 // Player weapons effects
-typedef enum
+enum class saber_colors_t
 {
 	SABER_RED,
 	SABER_ORANGE,
@@ -305,11 +307,19 @@ typedef enum
 	SABER_BLUE,
 	SABER_PURPLE
 
-} saber_colors_t;
+};
+using enum saber_colors_t;
+
+enum class saberBlockType_t {
+	BLK_NO,
+	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
+	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
+};
+using enum saberBlockType_t;
 
 #define MAX_BATTERIES	2500
 
-#define ENUM2STRING(arg)   { #arg,arg }
+#define ENUM2STRING(arg)   { #arg, to_underlying( arg ) }
 
 //=============================================
 
@@ -363,18 +373,20 @@ char *Com_SkipCharset( char *s, const char *sep );
 
 
 // mode parm for FS_FOpenFile
-typedef enum {
+enum class fsMode_t {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
 	FS_APPEND_SYNC
-} fsMode_t;
+};
+using enum fsMode_t;
 
-typedef enum {
+enum class fsOrigin_t {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
-} fsOrigin_t;
+};
+using enum fsOrigin_t;
 
 //=============================================
 char	* QDECL va(const char *format, ...);
@@ -741,7 +753,7 @@ typedef enum
 	NUM_FORCE_POWERS
 } forcePowers_t;
 
-typedef enum
+enum class saberType_t
 {
 	SABER_NONE = 0,
 	SABER_SINGLE,
@@ -757,7 +769,8 @@ typedef enum
 	SABER_TRIDENT,
 	SABER_SITH_SWORD,
 	NUM_SABERS
-} saberType_t;
+};
+using enum saberType_t;
 
 //=========================================================
 
@@ -1552,12 +1565,16 @@ public:
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
+enum class persEnum_t;	// bg_public.h
+enum class saberBlockedType_t;	// g_shared.h
+enum class pmtype_t;	// bg_public.h
+
 template<typename TSaberInfo>
 class PlayerStateBase
 {
 public:
 	int			commandTime;		// cmd->serverTime of last executed command
-	int			pm_type;
+	pmtype_t	pm_type;
 	int			bobCycle;			// for view bobbing and footstep generation
 	int			pm_flags;			// ducked, jump_held, etc
 	int			pm_time;
@@ -1611,7 +1628,7 @@ public:
 	int			damageCount;
 
 	int			stats[MAX_STATS];
-	int			persistant[MAX_PERSISTANT];				// stats that aren't cleared on death
+	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;				// stats that aren't cleared on death
 	int			powerups[MAX_POWERUPS];					// level.time that the powerup runs out
 	int			ammo[MAX_AMMO];
 	int			inventory[MAX_INVENTORY];							// Count of each inventory item.
@@ -1788,8 +1805,8 @@ public:
 #endif // !JK2_MODE
 
 	short		saberBounceMove;
-	short		saberBlocking;
-	short		saberBlocked;
+	saberBlockType_t	saberBlocking;
+	saberBlockedType_t	saberBlocked;
 	short		leanStopDebounceTime;
 
 #ifdef JK2_MODE
@@ -1923,7 +1940,7 @@ public:
 		saved_game.write<int32_t>(damagePitch);
 		saved_game.write<int32_t>(damageCount);
 		saved_game.write<int32_t>(stats);
-		saved_game.write<int32_t>(persistant);
+		saved_game.write<int32_t>(persistant.elems);
 		saved_game.write<int32_t>(powerups);
 		saved_game.write<int32_t>(ammo);
 		saved_game.write<int32_t>(inventory);
@@ -2092,7 +2109,7 @@ public:
 		saved_game.read<int32_t>(damagePitch);
 		saved_game.read<int32_t>(damageCount);
 		saved_game.read<int32_t>(stats);
-		saved_game.read<int32_t>(persistant);
+		saved_game.read<int32_t>(persistant.elems);
 		saved_game.read<int32_t>(powerups);
 		saved_game.read<int32_t>(ammo);
 		saved_game.read<int32_t>(inventory);
@@ -2247,8 +2264,9 @@ using playerState_t = PlayerStateBase<saberInfo_t>;
 										// then BUTTON_WALKING should be set
 
 
-typedef enum
+enum class genCmds_t
 {
+	GENCMD_NONE = 0,	// no command
 	GENCMD_FORCE_HEAL = 1,
 	GENCMD_FORCE_SPEED,
 	GENCMD_FORCE_THROW,
@@ -2261,7 +2279,8 @@ typedef enum
 	GENCMD_FORCE_ABSORB,
 	GENCMD_FORCE_DRAIN,
 	GENCMD_FORCE_SEEING,
-} genCmds_t;
+};
+using enum genCmds_t;
 
 
 // usercmd_t is sent to the server each client frame
@@ -2309,7 +2328,7 @@ typedef struct usercmd_s {
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define	SOLID_BMODEL	0xffffff
 
-typedef enum {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
+enum class trType_t {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	TR_STATIONARY,
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
 	TR_LINEAR,
@@ -2317,7 +2336,8 @@ typedef enum {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	TR_NONLINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY
-} trType_t;
+};
+using enum trType_t;
 
 typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	trType_t	trType;
@@ -2633,11 +2653,12 @@ typedef struct
 	int endFrame; //base pose end
 } sharedSetBoneIKStateParams_t;
 
-enum sharedEIKMoveState
+enum class sharedEIKMoveState
 {
 	IKS_NONE = 0,
 	IKS_DYNAMIC
 };
+using enum sharedEIKMoveState;
 
 /*
 ========================================================================
@@ -2670,7 +2691,7 @@ Ghoul2 Insert Start
 
 // For ghoul2 axis use
 
-enum Eorientations
+enum class Eorientations
 {
 	ORIGIN = 0,
 	POSITIVE_X,
@@ -2680,6 +2701,8 @@ enum Eorientations
 	NEGATIVE_Z,
 	NEGATIVE_Y
 };
+using enum Eorientations;
+template <> inline constexpr bool enableEnumArithmetic<Eorientations> = true;
 /*
 Ghoul2 Insert End
 */
@@ -2701,7 +2724,7 @@ extern int parseDataCount;
 
 
 // cinematic states
-typedef enum {
+enum class e_status {
 	FMV_IDLE,
 	FMV_PLAY,		// play
 	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
@@ -2709,16 +2732,19 @@ typedef enum {
 	FMV_ID_IDLE,
 	FMV_LOOPED,
 	FMV_ID_WAIT
-} e_status;
+};
+using enum e_status;
 
 
 // define the new memory tags for the zone, used by all modules now
 //
 #define TAGDEF(blah) TAG_ ## blah
-enum {
+enum class memtag {
 	#include "../qcommon/tags.h"
 };
-typedef unsigned memtag_t;
+using enum memtag;
+template <> inline constexpr bool enableEnumArithmetic<memtag> = true;
+typedef memtag memtag_t;
 
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...
 //

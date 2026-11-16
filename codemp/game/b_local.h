@@ -109,8 +109,8 @@ extern void NPC_BSSearch (void);
 extern void NPC_BSSearchStart (int	homeWp, bState_t bState);
 extern void NPC_BSWander (void);
 extern void NPC_BSFlee( void );
-extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax );
-extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax );
+extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax );
+extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax );
 
 //NPC_combat
 extern int ChooseBestWeapon( void );
@@ -120,7 +120,7 @@ extern void WeaponThink( bool inCombat );
 extern bool HaveWeapon( int weapon );
 extern bool CanShoot ( gentity_t *ent, gentity_t *shooter );
 extern void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis );
-extern gentity_t *NPC_PickEnemy (gentity_t *closestTo, int enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest);
+extern gentity_t *NPC_PickEnemy( gentity_t *closestTo, npcteam_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest);
 extern gentity_t *NPC_CheckEnemy (bool findNew, bool tooFarOk, bool setEnemy ); //setEnemy = true
 extern bool NPC_CheckAttack (float scale);
 extern bool NPC_CheckDefend (float scale);
@@ -194,9 +194,9 @@ extern bool NPC_ParseParms( const char *NPCName, gentity_t *NPC );
 extern void NPC_LoadParms( void );
 
 //NPC_utils
-extern int	teamNumbers[TEAM_NUM_TEAMS];
-extern int	teamStrength[TEAM_NUM_TEAMS];
-extern int	teamCounter[TEAM_NUM_TEAMS];
+extern EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamNumbers;
+extern EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamStrength;
+extern EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	teamCounter;
 extern void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point );
 extern bool NPC_UpdateAngles ( bool doPitch, bool doYaw );
 extern void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw );
@@ -284,7 +284,7 @@ extern bool NPC_CheckEnemyExt( bool checkAlerts ); //checkAlerts = false
 extern bool NPC_FindPlayer( void );
 extern bool NPC_CheckCanAttackExt( void );
 
-extern int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = AEL_MINOR
+extern int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = AEL_MINOR
 extern bool NPC_CheckForDanger( int alertEvent );
 extern void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float soundDist );
 

@@ -823,7 +823,7 @@ void G_Roff( gentity_t *ent )
 		ent->alt_fire = true;
 
 		if ( ent->e_ThinkFunc == thinkF_TieFighterThink || ent->e_ThinkFunc == thinkF_TieBomberThink ||
-			( !ent->e_ThinkFunc
+			( ent->e_ThinkFunc == thinkF_NULL
 			&& ent->s.eType != ET_MISSILE
 			&& ent->s.eType != ET_ITEM
 			&& ent->s.eType != ET_MOVER ) )

@@ -57,14 +57,14 @@ bool G_HeavyMelee( gentity_t *attacker )
 		&& attacker
 		&& attacker->client
 		&& attacker->client->siegeClass != -1
-		&& (bgSiegeClasses[attacker->client->siegeClass].classflags & (1<<CFL_HEAVYMELEE)) )
+		&& (bgSiegeClasses[attacker->client->siegeClass].classflags & Bit( CFL_HEAVYMELEE )) )
 	{
 		return true;
 	}
 	return false;
 }
 
-int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
+hitLocation_t G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 {
 	vec3_t			point, point_dir;
 	vec3_t			forward, right, up;
@@ -895,7 +895,7 @@ bool G_InKnockDown( playerState_t *ps )
 	return false;
 }
 
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
+static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, hitLocation_t hitLoc )
 {
 	int deathAnim = -1;
 
@@ -1387,7 +1387,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 	return deathAnim;
 }
 
-int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
+int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, hitLocation_t hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
 	int deathAnim = -1;
 	int max_health;
@@ -2031,7 +2031,7 @@ void G_CheckVictoryScript(gentity_t *self)
 	}
 }
 
-void G_AddPowerDuelScore(int team, int score)
+void G_AddPowerDuelScore(duelTeam_t team, int score)
 {
 	int i = 0;
 	gentity_t *check;
@@ -2052,7 +2052,7 @@ void G_AddPowerDuelScore(int team, int score)
 	}
 }
 
-void G_AddPowerDuelLoserScore(int team, int score)
+void G_AddPowerDuelLoserScore(duelTeam_t team, int score)
 {
 	int i = 0;
 	gentity_t *check;
@@ -2098,7 +2098,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	const char	*killerName, *obit;
 	bool	wasJediMaster = false;
-	int			sPMType = 0;
+	pmtype_t			sPMType = PM_NORMAL;
 	char		buf[512] = {0};
 
 	if ( self->client->ps.pm_type == PM_DEAD ) {
@@ -2239,7 +2239,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->ps.emplacedIndex = 0;
 
-	G_BreakArm(self, 0); //unbreak anything we have broken
+	G_BreakArm(self, BROKENLIMB_NONE); //unbreak anything we have broken
 	self->client->ps.saberEntityNum = self->client->saberStoredIndex; //in case we died while our saber was knocked away.
 
 	self->client->bodyGrabIndex = ENTITYNUM_NONE;
@@ -3076,7 +3076,7 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 rww - beginning of the majority of the dismemberment and location based damage code.
 ===================================
 */
-const char *hitLocName[HL_MAX] =
+const char *hitLocName[to_underlying( HL_MAX )] =
 {
 	"none",	//HL_NONE = 0,
 	"right foot",	//HL_FOOT_RT,
@@ -3103,7 +3103,7 @@ const char *hitLocName[HL_MAX] =
 	"generic6"	//HL_GENERIC6
 };
 
-void G_GetDismemberLoc(gentity_t *self, vec3_t boltPoint, int limbType)
+void G_GetDismemberLoc(gentity_t *self, vec3_t boltPoint, g2ModelParts_t limbType)
 { //Just get the general area without using server-side ghoul2
 	vec3_t fwd, right, up;
 
@@ -3175,7 +3175,7 @@ void G_GetDismemberLoc(gentity_t *self, vec3_t boltPoint, int limbType)
 	return;
 }
 
-void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
+void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, g2ModelParts_t limbType)
 {
 	int useBolt = self->genericValue5;
 	vec3_t properOrigin, properAngles, addVel;
@@ -3308,7 +3308,7 @@ void LimbThink( gentity_t *ent )
 	float mass = 0.09f;
 	float bounce = 1.3f;
 
-	switch (ent->s.modelGhoul2)
+	switch ( static_cast<g2ModelParts_t>( ent->s.modelGhoul2 ) )
 	{
 	case G2_MODELPART_HEAD:
 		mass = 0.08f;
@@ -3345,7 +3345,7 @@ void LimbThink( gentity_t *ent )
 
 extern bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
 
-void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath )
+void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath )
 {
 	vec3_t	newPoint, dir, vel;
 	gentity_t *limb;
@@ -3434,7 +3434,7 @@ void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, 
 
 	limb->s.eType = ET_GENERAL;
 	limb->s.weapon = G2_MODEL_PART;
-	limb->s.modelGhoul2 = limbType;
+	limb->s.modelGhoul2 = to_underlying( limbType );
 	limb->s.modelindex = ent->s.number;
 	if (!ent->client)
 	{
@@ -3560,12 +3560,12 @@ void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, 
 
 void DismembermentTest(gentity_t *self)
 {
-	int sect = G2_MODELPART_HEAD;
+	g2ModelParts_t sect = G2_MODELPART_HEAD;
 	vec3_t boltPoint;
 
 	while (sect <= G2_MODELPART_RLEG)
 	{
-		G_GetDismemberBolt(self, boltPoint, sect);
+		G_GetDismemberBolt(self, boltPoint, static_cast<g2ModelParts_t>( sect ));
 		G_Dismember( self, self, boltPoint, sect, 90, 0, BOTH_DEATH1, false );
 		sect++;
 	}
@@ -3573,7 +3573,7 @@ void DismembermentTest(gentity_t *self)
 
 void DismembermentByNum(gentity_t *self, int num)
 {
-	int sect = G2_MODELPART_HEAD;
+	g2ModelParts_t sect = G2_MODELPART_HEAD;
 	vec3_t boltPoint;
 
 	switch (num)
@@ -3603,7 +3603,7 @@ void DismembermentByNum(gentity_t *self, int num)
 		break;
 	}
 
-	G_GetDismemberBolt(self, boltPoint, sect);
+	G_GetDismemberBolt(self, boltPoint, static_cast<g2ModelParts_t>( sect ));
 	G_Dismember( self, self, boltPoint, sect, 90, 0, BOTH_DEATH1, false );
 }
 
@@ -3648,41 +3648,41 @@ int G_GetHitQuad( gentity_t *self, vec3_t hitloc )
 	{
 		if ( rightdot > 0.3 )
 		{
-			hitLoc = G2_MODELPART_RARM;
+			hitLoc = to_underlying( G2_MODELPART_RARM );
 		}
 		else if ( rightdot < -0.3 )
 		{
-			hitLoc = G2_MODELPART_LARM;
+			hitLoc = to_underlying( G2_MODELPART_LARM );
 		}
 		else
 		{
-			hitLoc = G2_MODELPART_HEAD;
+			hitLoc = to_underlying( G2_MODELPART_HEAD );
 		}
 	}
 	else if ( zdiff > -20 )
 	{
 		if ( rightdot > 0.1 )
 		{
-			hitLoc = G2_MODELPART_RARM;
+			hitLoc = to_underlying( G2_MODELPART_RARM );
 		}
 		else if ( rightdot < -0.1 )
 		{
-			hitLoc = G2_MODELPART_LARM;
+			hitLoc = to_underlying( G2_MODELPART_LARM );
 		}
 		else
 		{
-			hitLoc = G2_MODELPART_HEAD;
+			hitLoc = to_underlying( G2_MODELPART_HEAD );
 		}
 	}
 	else
 	{
 		if ( rightdot >= 0 )
 		{
-			hitLoc = G2_MODELPART_RLEG;
+			hitLoc = to_underlying( G2_MODELPART_RLEG );
 		}
 		else
 		{
-			hitLoc = G2_MODELPART_LLEG;
+			hitLoc = to_underlying( G2_MODELPART_LLEG );
 		}
 	}
 
@@ -3704,7 +3704,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	int footRBolt = -1;
 	int footLBolt = -1;
 
-	*hitLoc = HL_NONE;
+	*hitLoc = to_underlying( HL_NONE );
 
 	if ( !surfName || !surfName[0] )
 	{
@@ -3750,11 +3750,11 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 		//		Or, if we ever get bbox G2 traces, that may fix it, too
 		if (!Q_stricmp("head_light_blaster_cann",surfName))
 		{
-			*hitLoc = HL_ARM_LT;
+			*hitLoc = to_underlying( HL_ARM_LT );
 		}
 		else if (!Q_stricmp("head_concussion_charger",surfName))
 		{
-			*hitLoc = HL_ARM_RT;
+			*hitLoc = to_underlying( HL_ARM_RT );
 		}
 		return(false);
 	}
@@ -3762,39 +3762,39 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	{
 		if (!Q_stricmp("l_arm",surfName))
 		{
-			*hitLoc = HL_ARM_LT;
+			*hitLoc = to_underlying( HL_ARM_LT );
 		}
 		else if (!Q_stricmp("r_arm",surfName))
 		{
-			*hitLoc = HL_ARM_RT;
+			*hitLoc = to_underlying( HL_ARM_RT );
 		}
 		else if (!Q_stricmp("torso_front",surfName))
 		{
-			*hitLoc = HL_CHEST;
+			*hitLoc = to_underlying( HL_CHEST );
 		}
 		else if (!Q_stricmp("torso_tube1",surfName))
 		{
-			*hitLoc = HL_GENERIC1;
+			*hitLoc = to_underlying( HL_GENERIC1 );
 		}
 		else if (!Q_stricmp("torso_tube2",surfName))
 		{
-			*hitLoc = HL_GENERIC2;
+			*hitLoc = to_underlying( HL_GENERIC2 );
 		}
 		else if (!Q_stricmp("torso_tube3",surfName))
 		{
-			*hitLoc = HL_GENERIC3;
+			*hitLoc = to_underlying( HL_GENERIC3 );
 		}
 		else if (!Q_stricmp("torso_tube4",surfName))
 		{
-			*hitLoc = HL_GENERIC4;
+			*hitLoc = to_underlying( HL_GENERIC4 );
 		}
 		else if (!Q_stricmp("torso_tube5",surfName))
 		{
-			*hitLoc = HL_GENERIC5;
+			*hitLoc = to_underlying( HL_GENERIC5 );
 		}
 		else if (!Q_stricmp("torso_tube6",surfName))
 		{
-			*hitLoc = HL_GENERIC6;
+			*hitLoc = to_underlying( HL_GENERIC6 );
 		}
 		return(false);
 	}
@@ -3802,15 +3802,15 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	{
 		if (!Q_stricmp("torso_canister1",surfName))
 		{
-			*hitLoc = HL_GENERIC1;
+			*hitLoc = to_underlying( HL_GENERIC1 );
 		}
 		else if (!Q_stricmp("torso_canister2",surfName))
 		{
-			*hitLoc = HL_GENERIC2;
+			*hitLoc = to_underlying( HL_GENERIC2 );
 		}
 		else if (!Q_stricmp("torso_canister3",surfName))
 		{
-			*hitLoc = HL_GENERIC3;
+			*hitLoc = to_underlying( HL_GENERIC3 );
 		}
 		return(false);
 	}
@@ -3818,15 +3818,15 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	{
 		if (!Q_stricmp("torso_antenna",surfName)||!Q_stricmp("torso_antenna_base",surfName))
 		{
-			*hitLoc = HL_GENERIC1;
+			*hitLoc = to_underlying( HL_GENERIC1 );
 		}
 		else if (!Q_stricmp("torso_shield",surfName))
 		{
-			*hitLoc = HL_GENERIC2;
+			*hitLoc = to_underlying( HL_GENERIC2 );
 		}
 		else
 		{
-			*hitLoc = HL_CHEST;
+			*hitLoc = to_underlying( HL_CHEST );
 		}
 		return(false);
 	}
@@ -3838,7 +3838,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	actualTime = level.time;
 	if ( !Q_strncmp( "hips", surfName, 4 ) )
 	{//FIXME: test properly for legs
-		*hitLoc = HL_WAIST;
+		*hitLoc = to_underlying( HL_WAIST );
 		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
@@ -3853,10 +3853,10 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the knee
-					*hitLoc = HL_LEG_LT;
+					*hitLoc = to_underlying( HL_LEG_LT );
 				}
 			}
-			if (*hitLoc == HL_WAIST)
+			if (*hitLoc == to_underlying( HL_WAIST ))
 			{
 				if (kneeRBolt>=0)
 				{
@@ -3866,7 +3866,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 					BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 					if ( DistanceSquared( point, tagOrg ) < 100 )
 					{//actually hit the knee
-						*hitLoc = HL_LEG_RT;
+						*hitLoc = to_underlying( HL_LEG_RT );
 					}
 				}
 			}
@@ -3876,7 +3876,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	{
 		if ( !ent->client )
 		{
-			*hitLoc = HL_CHEST;
+			*hitLoc = to_underlying( HL_CHEST );
 		}
 		else
 		{
@@ -3901,62 +3901,62 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 			upSide = DotProduct( t_up, dirToImpact );
 			if ( upSide < -10 )
 			{//hit at waist
-				*hitLoc = HL_WAIST;
+				*hitLoc = to_underlying( HL_WAIST );
 			}
 			else
 			{//hit on upper torso
 				if ( rightSide > 4 )
 				{
-					*hitLoc = HL_ARM_RT;
+					*hitLoc = to_underlying( HL_ARM_RT );
 				}
 				else if ( rightSide < -4 )
 				{
-					*hitLoc = HL_ARM_LT;
+					*hitLoc = to_underlying( HL_ARM_LT );
 				}
 				else if ( rightSide > 2 )
 				{
 					if ( frontSide > 0 )
 					{
-						*hitLoc = HL_CHEST_RT;
+						*hitLoc = to_underlying( HL_CHEST_RT );
 					}
 					else
 					{
-						*hitLoc = HL_BACK_RT;
+						*hitLoc = to_underlying( HL_BACK_RT );
 					}
 				}
 				else if ( rightSide < -2 )
 				{
 					if ( frontSide > 0 )
 					{
-						*hitLoc = HL_CHEST_LT;
+						*hitLoc = to_underlying( HL_CHEST_LT );
 					}
 					else
 					{
-						*hitLoc = HL_BACK_LT;
+						*hitLoc = to_underlying( HL_BACK_LT );
 					}
 				}
 				else if ( upSide > -3 && mod == MOD_SABER )
 				{
-					*hitLoc = HL_HEAD;
+					*hitLoc = to_underlying( HL_HEAD );
 				}
 				else if ( frontSide > 0 )
 				{
-					*hitLoc = HL_CHEST;
+					*hitLoc = to_underlying( HL_CHEST );
 				}
 				else
 				{
-					*hitLoc = HL_BACK;
+					*hitLoc = to_underlying( HL_BACK );
 				}
 			}
 		}
 	}
 	else if ( !Q_strncmp( "head", surfName, 4 ) )
 	{
-		*hitLoc = HL_HEAD;
+		*hitLoc = to_underlying( HL_HEAD );
 	}
 	else if ( !Q_strncmp( "r_arm", surfName, 5 ) )
 	{
-		*hitLoc = HL_ARM_RT;
+		*hitLoc = to_underlying( HL_ARM_RT );
 		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
@@ -3971,14 +3971,14 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 256 )
 				{//actually hit the hand
-					*hitLoc = HL_HAND_RT;
+					*hitLoc = to_underlying( HL_HAND_RT );
 				}
 			}
 		}
 	}
 	else if ( !Q_strncmp( "l_arm", surfName, 5 ) )
 	{
-		*hitLoc = HL_ARM_LT;
+		*hitLoc = to_underlying( HL_ARM_LT );
 		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
@@ -3993,14 +3993,14 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 256 )
 				{//actually hit the hand
-					*hitLoc = HL_HAND_LT;
+					*hitLoc = to_underlying( HL_HAND_LT );
 				}
 			}
 		}
 	}
 	else if ( !Q_strncmp( "r_leg", surfName, 5 ) )
 	{
-		*hitLoc = HL_LEG_RT;
+		*hitLoc = to_underlying( HL_LEG_RT );
 		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
@@ -4015,14 +4015,14 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the foot
-					*hitLoc = HL_FOOT_RT;
+					*hitLoc = to_underlying( HL_FOOT_RT );
 				}
 			}
 		}
 	}
 	else if ( !Q_strncmp( "l_leg", surfName, 5 ) )
 	{
-		*hitLoc = HL_LEG_LT;
+		*hitLoc = to_underlying( HL_LEG_LT );
 		if ( ent->client != nullptr && ent->ghoul2 )
 		{
 			mdxaBone_t	boltMatrix;
@@ -4037,18 +4037,18 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, tagOrg );
 				if ( DistanceSquared( point, tagOrg ) < 100 )
 				{//actually hit the foot
-					*hitLoc = HL_FOOT_LT;
+					*hitLoc = to_underlying( HL_FOOT_LT );
 				}
 			}
 		}
 	}
 	else if ( !Q_strncmp( "r_hand", surfName, 6 ) || !Q_strncmp( "w_", surfName, 2 ) )
 	{//right hand or weapon
-		*hitLoc = HL_HAND_RT;
+		*hitLoc = to_underlying( HL_HAND_RT );
 	}
 	else if ( !Q_strncmp( "l_hand", surfName, 6 ) )
 	{
-		*hitLoc = HL_HAND_LT;
+		*hitLoc = to_underlying( HL_HAND_LT );
 	}
 	/*
 #ifdef _DEBUG
@@ -4075,7 +4075,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 				const char *tagName = nullptr;
 				float	aoa = 0.5f;
 				//dir must be roughly perpendicular to the hitLoc's cap bolt
-				switch ( *hitLoc )
+				switch ( static_cast<hitLocation_t>( *hitLoc ) )
 				{
 					case HL_LEG_RT:
 						tagName = "*hips_cap_r_leg";
@@ -4197,7 +4197,7 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 
 	if (gGAvoidDismember == 2)
 	{
-		hitLoc = HL_HAND_RT;
+		hitLoc = to_underlying( HL_HAND_RT );
 	}
 	else
 	{
@@ -4215,23 +4215,23 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 
 		if (hitLoc == -1)
 		{
-			hitLoc = G_GetHitLocation( ent, point );
+			hitLoc = to_underlying( G_GetHitLocation( ent, point ) );
 		}
 	}
 
-	switch(hitLoc)
+	switch( static_cast<hitLocation_t>( hitLoc ) )
 	{
 	case HL_FOOT_RT:
 	case HL_LEG_RT:
-		hitLocUse = G2_MODELPART_RLEG;
+		hitLocUse = to_underlying( G2_MODELPART_RLEG );
 		break;
 	case HL_FOOT_LT:
 	case HL_LEG_LT:
-		hitLocUse = G2_MODELPART_LLEG;
+		hitLocUse = to_underlying( G2_MODELPART_LLEG );
 		break;
 
 	case HL_WAIST:
-		hitLocUse = G2_MODELPART_WAIST;
+		hitLocUse = to_underlying( G2_MODELPART_WAIST );
 		break;
 		/*
 	case HL_BACK_RT:
@@ -4243,17 +4243,17 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 		break;
 		*/
 	case HL_ARM_RT:
-		hitLocUse = G2_MODELPART_RARM;
+		hitLocUse = to_underlying( G2_MODELPART_RARM );
 		break;
 	case HL_HAND_RT:
-		hitLocUse = G2_MODELPART_RHAND;
+		hitLocUse = to_underlying( G2_MODELPART_RHAND );
 		break;
 	case HL_ARM_LT:
 	case HL_HAND_LT:
-		hitLocUse = G2_MODELPART_LARM;
+		hitLocUse = to_underlying( G2_MODELPART_LARM );
 		break;
 	case HL_HEAD:
-		hitLocUse = G2_MODELPART_HEAD;
+		hitLocUse = to_underlying( G2_MODELPART_HEAD );
 		break;
 	default:
 		hitLocUse = G_GetHitQuad(ent, point);
@@ -4267,7 +4267,7 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 
 	if (ent->client)
 	{
-		G_GetDismemberBolt(ent, boltPoint, hitLocUse);
+		G_GetDismemberBolt(ent, boltPoint, static_cast<g2ModelParts_t>( hitLocUse ));
 		if ( g_austrian.integer
 			&& (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) )
 		{
@@ -4276,9 +4276,9 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 	}
 	else
 	{
-		G_GetDismemberLoc(ent, boltPoint, hitLocUse);
+		G_GetDismemberLoc(ent, boltPoint, static_cast<g2ModelParts_t>( hitLocUse ));
 	}
-	G_Dismember(ent, enemy, boltPoint, hitLocUse, 90, 0, deathAnim, postDeath);
+	G_Dismember(ent, enemy, boltPoint, static_cast<g2ModelParts_t>( hitLocUse ), 90, 0, deathAnim, postDeath);
 }
 
 void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int dflags, int *damage)
@@ -4325,10 +4325,10 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 
 	if (hitLoc == -1)
 	{
-		hitLoc = G_GetHitLocation( ent, point );
+		hitLoc = to_underlying( G_GetHitLocation( ent, point ) );
 	}
 
-	switch (hitLoc)
+	switch ( static_cast<hitLocation_t>( hitLoc ) )
 	{
 	case HL_FOOT_RT:
 	case HL_FOOT_LT:
@@ -4791,7 +4791,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	}
 
 	if (attacker->client && targ->client && level.gametype == GT_SIEGE &&
-		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
+		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & Bit( CFL_STRONGAGAINSTPHYSICAL )))
 	{ //this class is flagged to take less damage from physical attacks.
 		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
 		damage *= 0.5;
@@ -5445,7 +5445,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				gPainHitLoc = -1;
 			}
 
-			if (gPainHitLoc < HL_MAX && gPainHitLoc >= 0 && targ->locationDamage[gPainHitLoc] < Q3_INFINITE &&
+			if (gPainHitLoc < to_underlying( HL_MAX ) && gPainHitLoc >= 0 && targ->locationDamage[gPainHitLoc] < Q3_INFINITE &&
 				(targ->s.eType == ET_PLAYER || targ->s.NPC_class != CLASS_VEHICLE))
 			{
 				targ->locationDamage[gPainHitLoc] += take;
@@ -5454,11 +5454,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 					targ->client->ps.stats[STAT_HEALTH] > 0 && targ->health > 0 &&
 					!(targ->s.eFlags & EF_DEAD))
 				{ //check for breakage
-					if (targ->locationDamage[HL_ARM_RT]+targ->locationDamage[HL_HAND_RT] >= 80)
+					if (targ->locationDamage[to_underlying( HL_ARM_RT )]+targ->locationDamage[to_underlying( HL_HAND_RT )] >= 80)
 					{
 						G_BreakArm(targ, BROKENLIMB_RARM);
 					}
-					else if (targ->locationDamage[HL_ARM_LT]+targ->locationDamage[HL_HAND_LT] >= 80)
+					else if (targ->locationDamage[to_underlying( HL_ARM_LT )]+targ->locationDamage[to_underlying( HL_HAND_LT )] >= 80)
 					{
 						G_BreakArm(targ, BROKENLIMB_LARM);
 					}

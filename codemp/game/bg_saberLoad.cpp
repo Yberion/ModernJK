@@ -179,7 +179,7 @@ saber_colors_t TranslateSaberColor( const char *name ) {
 	if ( !Q_stricmp( name, "purple" ) )
 		return SABER_PURPLE;
 	if ( !Q_stricmp( name, "random" ) )
-		return (saber_colors_t)Q_irand( SABER_ORANGE, SABER_PURPLE );
+		return static_cast<saber_colors_t>( Q_irand( to_underlying( SABER_ORANGE ), to_underlying( SABER_PURPLE ) ) );
 
 	return SABER_BLUE;
 }
@@ -532,7 +532,7 @@ static void Saber_ParseSaberType( saberInfo_t *saber, const char **p ) {
 	if ( COM_ParseString( p, &value ) )
 		return;
 	saberType = GetIDForString( saberTable, value );
-	if ( saberType >= SABER_SINGLE && saberType < NUM_SABERS )
+	if ( saberType >= to_underlying( SABER_SINGLE ) && saberType < to_underlying( NUM_SABERS ) )
 		saber->type = (saberType_t)saberType;
 }
 static void Saber_ParseSaberModel( saberInfo_t *saber, const char **p ) {

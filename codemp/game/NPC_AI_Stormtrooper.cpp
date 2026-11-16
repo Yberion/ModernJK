@@ -67,7 +67,7 @@ static bool shoot;
 static float	enemyDist;
 static vec3_t	impactPos;
 
-int groupSpeechDebounceTime[TEAM_NUM_TEAMS];//used to stop several group AI from speaking all at once
+EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS> groupSpeechDebounceTime;//used to stop several group AI from speaking all at once
 
 //Local state enums
 enum
@@ -259,7 +259,7 @@ void ST_MarkToCover( gentity_t *self )
 	}
 }
 
-void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int minTime, int maxTime )
+void ST_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int minTime, int maxTime )
 {
 	if ( !self || !self->NPC )
 	{

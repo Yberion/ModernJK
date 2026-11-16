@@ -38,9 +38,9 @@ static void UpdateLegacyFixesConfigstring( legacyFixes_t legacyFix, bool enabled
 
 	uint32_t legacyFixes = strtoul(sLegacyFixes, nullptr, 0);
 	if (enabled) {
-		legacyFixes |= (1 << legacyFix);
+		legacyFixes |= Bit( legacyFix );
 	} else {
-		legacyFixes &= ~(1 << legacyFix);
+		legacyFixes &= ~Bit( legacyFix );
 	}
 	trap->SetConfigstring(CS_LEGACY_FIXES, va("%" PRIu32, legacyFixes));
 }

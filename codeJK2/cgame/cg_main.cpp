@@ -106,7 +106,7 @@ This must be the very first function compiled into the .q3vm file
 extern "C" Q_EXPORT intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7 ) {
 	centity_t		*cent;
 
-	switch ( command ) {
+	switch ( static_cast<cgameExport_t>( command ) ) {
 	case CG_INIT:
 		CG_Init( arg0 );
 		return 0;
@@ -181,6 +181,8 @@ Ghoul2 Insert End
 			CG_DrawDataPadForceSelect();
 		}
 		return 0;
+	default:
+		break;
 	}
 	return -1;
 }

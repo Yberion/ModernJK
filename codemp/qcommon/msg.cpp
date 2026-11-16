@@ -1231,7 +1231,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	// just print the delta records`
 	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
 		print = 1;
-		if (sv.state)
+		if (sv.state != SS_DEAD)
 		{
 			Com_Printf( "%3i: #%-3i (%s) ", msg->readcount, number, SV_GentityNum(number)->classname );
 		}
@@ -2238,7 +2238,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	}
 	persistantbits = 0;
 	for (i=0 ; i<MAX_PERSISTANT ; i++) {
-		if (to->persistant[i] != from->persistant[i]) {
+		if (to->persistant.data()[i] != from->persistant.data()[i]) {
 			persistantbits |= 1<<i;
 		}
 	}
@@ -2294,7 +2294,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		MSG_WriteBits( msg, persistantbits, MAX_PERSISTANT );
 		for (i=0 ; i<MAX_PERSISTANT ; i++)
 			if (persistantbits & (1<<i) )
-				MSG_WriteShort (msg, to->persistant[i]);
+				MSG_WriteShort (msg, to->persistant.data()[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -2493,7 +2493,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			bits = MSG_ReadBits (msg, MAX_PERSISTANT);
 			for (i=0 ; i<MAX_PERSISTANT ; i++) {
 				if (bits & (1<<i) ) {
-					to->persistant[i] = MSG_ReadShort(msg);
+					to->persistant.data()[i] = MSG_ReadShort(msg);
 				}
 			}
 		}

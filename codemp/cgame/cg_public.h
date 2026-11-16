@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	CGAME_API_VERSION		2
 
+enum class uiMenuCommand_t;		// ui_public.h
+
 #define	CMD_BACKUP			256		// 2.56 s of commands at one per tick (plan step 14)
 #define	CMD_MASK			(CMD_BACKUP - 1)
 // allow a lot of command backups for very fast systems
@@ -59,12 +61,13 @@ typedef struct snapshot_s {
 	int				serverCommandSequence;	// snapshot becomes current
 } snapshot_t;
 
-typedef enum cgameEvent_e {
+enum class cgameEvent_t {
 	CGAME_EVENT_NONE=0,
 	CGAME_EVENT_TEAMMENU,
 	CGAME_EVENT_SCOREBOARD,
 	CGAME_EVENT_EDITHUD
-} cgameEvent_t;
+};
+using enum cgameEvent_t;
 
 typedef struct autoMapInput_s {
 	float		up;
@@ -319,7 +322,7 @@ typedef struct cgameImport_s {
 	bool		(*GetServerCommand)						( int serverCommandNumber );
 	bool		(*GetSnapshot)							( int snapshotNumber, snapshot_t *snapshot );
 	bool		(*GetUserCmd)							( int cmdNumber, usercmd_t *ucmd );
-	void			(*OpenUIMenu)							( int menu );
+	void			(*OpenUIMenu)							( uiMenuCommand_t menu );
 	void			(*SetClientForceAngle)					( int time, vec3_t angle );
 	void			(*SetUserCmdValue)						( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel, bool fighterControls );
 
@@ -387,7 +390,7 @@ typedef struct cgameImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
 	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
@@ -421,7 +424,7 @@ typedef struct cgameImport_s {
 	bool		(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
 	bool		(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
 	bool		(*G2API_RagForceSolve)					( void *ghoul2, bool force );
-	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params );
 	bool		(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
 	bool		(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
 	void			(*G2API_AttachInstanceToEntNum)			( void *ghoul2, int entityNum, bool server );
@@ -444,7 +447,7 @@ typedef struct cgameExport_s {
 	int				(*LastAttacker)				( void );
 	void			(*KeyEvent)					( int key, bool down );
 	void			(*MouseEvent)				( int x, int y );
-	void			(*EventHandling)			( int type );
+	void			(*EventHandling)			( cgameEvent_t type );
 	int				(*PointContents)			( void );
 	void			(*GetLerpOrigin)			( void );
 	void			(*GetLerpData)				( void );

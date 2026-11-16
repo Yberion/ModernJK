@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_functions.h"
 #include "g_icarus.h"
 //#include "Q3_Interface.h"
-extern void Q3_DebugPrint( int level, const char *format, ... );
+extern void Q3_DebugPrint( WL_e level, const char *format, ... );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 
 //==========================================================

@@ -1388,7 +1388,7 @@ bool ValidEnemy(gentity_t *ent)
 			}
 			else
 			{
-				int entTeam = TEAM_FREE;
+				npcteam_t entTeam = NPCTEAM_FREE;
 				if ( ent->NPC && ent->client )
 				{
 					entTeam = ent->client->playerTeam;
@@ -1466,7 +1466,7 @@ You can mix and match any of those options (example: find closest visible player
 
 FIXME: this should go through the snapshot and find the closest enemy
 */
-gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
+gentity_t *NPC_PickEnemy( gentity_t *closestTo, npcteam_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
 {
 	int			num_choices = 0;
 	int			choice[128];//FIXME: need a different way to determine how many choices?
@@ -1478,7 +1478,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bo
 	float		bestDist = Q3_INFINITE;
 	bool	failed = false;
 	int			visChecks = (CHECK_360|CHECK_FOV|CHECK_VISRANGE);
-	int			minVis = VIS_FOV;
+	visibility_t	minVis = VIS_FOV;
 
 	if ( enemyTeam == NPCTEAM_NEUTRAL )
 	{
@@ -1636,7 +1636,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bo
 			if ( newenemy->health > 0 )
 			{
 				if ( (newenemy->client && NPC_ValidEnemy( newenemy))
-					|| (!newenemy->client && newenemy->alliedTeam == enemyTeam) )
+					|| (!newenemy->client && newenemy->alliedTeam == to_underlying( enemyTeam )) )
 				{//FIXME:  check for range and FOV or vis?
 					if ( NPCS.NPC->client->playerTeam == NPCTEAM_PLAYER && enemyTeam == NPCTEAM_PLAYER )
 					{//player allies turning on ourselves?  How?
@@ -2055,7 +2055,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 
 	if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client )
 	{
-		if(NPCS.NPC->enemy->client->playerTeam)
+		if(NPCS.NPC->enemy->client->playerTeam != NPCTEAM_FREE)
 		{
 //			assert( NPC->client->playerTeam != NPC->enemy->client->playerTeam);
 			if( NPCS.NPC->client->playerTeam != NPCS.NPC->enemy->client->playerTeam )
@@ -2341,16 +2341,16 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 
 			VectorCopy( tr.endpos, hitspot );
 
-			if( traceEnt == NPCS.NPC->enemy || (traceEnt->client && NPCS.NPC->client->enemyTeam && NPCS.NPC->client->enemyTeam == traceEnt->client->playerTeam) )
+			if( traceEnt == NPCS.NPC->enemy || (traceEnt->client && NPCS.NPC->client->enemyTeam != NPCTEAM_FREE && NPCS.NPC->client->enemyTeam == traceEnt->client->playerTeam) )
 			{
 				dead_on = true;
 			}
 			else
 			{
 				attack_scale *= 0.5;
-				if(NPCS.NPC->client->playerTeam)
+				if(NPCS.NPC->client->playerTeam != NPCTEAM_FREE)
 				{
-					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam)
+					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != NPCTEAM_FREE)
 					{
 						if(NPCS.NPC->client->playerTeam == traceEnt->client->playerTeam)
 						{//Don't shoot our own team

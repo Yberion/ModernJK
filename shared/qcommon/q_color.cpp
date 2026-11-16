@@ -29,8 +29,8 @@ vec4_t g_color_table[Q_COLOR_BITS+1] = {
 	{ 0.5, 0.5, 0.5, 1.0 },	// md.grey
 };
 
-vec4_t colorTable[CT_MAX] =
-{
+EnumArray<vec4_t, ct_table_t, CT_MAX> colorTable =
+{ {
 	{0, 0, 0, 0},			// CT_NONE
 	{0, 0, 0, 1},			// CT_BLACK
 	{1, 0, 0, 1},			// CT_RED
@@ -112,7 +112,7 @@ vec4_t colorTable[CT_MAX] =
 
 	{   1.0f,   .658f,  .062f, 1},	// CT_HUD_ORANGE
 	{	0.549f, .854f,  1.0f,  1.0f},	//	CT_TITLE
-};
+} };
 
 unsigned ColorBytes3 (float r, float g, float b) {
 	unsigned i;

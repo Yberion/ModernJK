@@ -357,7 +357,7 @@ static void GLW_InitTextureCompression( void )
 	else
 	{
 		// some form of supported texture compression is avaiable, so see if the user has a preference
-		if ( r_ext_preferred_tc_method->integer == TC_NONE )
+		if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_NONE )
 		{
 			// No preference, so pick the best
 			if ( newer_tc )
@@ -379,7 +379,7 @@ static void GLW_InitTextureCompression( void )
 			if ( old_tc && newer_tc )
 			{
 				// both are avaiable, so we can use the desired tc method
-				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
+				if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_S3TC )
 				{
 					Com_Printf ("...using preferred tc method, GL_S3_s3tc\n" );
 					glConfig.textureCompression = TC_S3TC;
@@ -393,7 +393,7 @@ static void GLW_InitTextureCompression( void )
 			else
 			{
 				// Both methods are not available, so this gets trickier
-				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
+				if ( static_cast<textureCompression_t>( r_ext_preferred_tc_method->integer ) == TC_S3TC )
 				{
 					// Preferring to user older compression
 					if ( old_tc )
@@ -1410,11 +1410,12 @@ void GfxInfo_f( void )
 		"noborder "
 	};
 
-	const char *tc_table[] =
+	const EnumArray<const char *, textureCompression_t, to_underlying( TC_S3TC_ARB ) + 1> tc_table =
 	{
 		"None",
 		"GL_S3_s3tc",
 		"GL_EXT_texture_compression_s3tc",
+		"GL_ARB_texture_compression",
 	};
 
 	int fullscreen = ri.Cvar_VariableIntegerValue("r_fullscreen");

@@ -444,7 +444,7 @@ void SVC_Status( const netadr_t *from ) {
 		if ( cl->state >= CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
 			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n",
-				ps->persistant[PERS_SCORE], cl->ping, cl->name);
+				ps->persistant.data()[PERS_SCORE], cl->ping, cl->name);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= (int)sizeof(status) ) {
 				break;		// can't hold any more
@@ -518,7 +518,7 @@ void SVC_Info( const netadr_t *from ) {
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "needpass", va("%i", sv_needpass->integer ) );
 	Info_SetValueForKey( infostring, "truejedi", va("%i", Cvar_VariableIntegerValue( "g_jediVmerc" ) ) );
-	if ( sv_gametype->integer == GT_DUEL || sv_gametype->integer == GT_POWERDUEL )
+	if ( sv_gametype->integer == to_underlying( GT_DUEL ) || sv_gametype->integer == to_underlying( GT_POWERDUEL ) )
 	{
 		wDisable = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
 	}
@@ -774,12 +774,14 @@ void SV_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 // server frame is the work of SV_Frame from the pings to the snapshots sent; the game frames, the bots and the
 // snapshots are parts of it, and so are the players' commands (with their movement), which run in the ticks. Client
 // packets are decoded when they arrive, outside the frames.
-enum svCost_t { SV_COST_FRAME, SV_COST_GAME, SV_COST_BOTS, SV_COST_COMMANDS, SV_COST_SNAPSHOTS, SV_COST_PACKETS, SV_COST_COUNT };
+enum class svCost_t { SV_COST_FRAME, SV_COST_GAME, SV_COST_BOTS, SV_COST_COMMANDS, SV_COST_SNAPSHOTS, SV_COST_PACKETS, SV_COST_COUNT };
+using enum svCost_t;
+template <> inline constexpr bool enableEnumArithmetic<svCost_t> = true;
 
 static struct {
-	int			calls[SV_COST_COUNT];
-	long long	sum[SV_COST_COUNT];
-	long long	max[SV_COST_COUNT];
+	EnumArray<int, svCost_t, SV_COST_COUNT>			calls;
+	EnumArray<long long, svCost_t, SV_COST_COUNT>	sum;
+	EnumArray<long long, svCost_t, SV_COST_COUNT>	max;
 	int			framesOverInterval;	// server frames that took longer than the interval between frames
 	long long	since;				// when the statistics started (SV_Microseconds), 0 before the first measure
 } s_cost;
@@ -803,7 +805,7 @@ static long long SV_CostAdd( svCost_t part, long long start ) {
 }
 
 void SV_CostStats( void ) {
-	static const char *const names[SV_COST_COUNT] = { "server frames", "game frames", "bot frames", "player commands",
+	static const EnumArray<const char *, svCost_t, SV_COST_COUNT> names = { "server frames", "game frames", "bot frames", "player commands",
 		"snapshots sent", "client packets" };
 	const long long now = SV_Microseconds();
 	const double seconds = s_cost.since ? ( now - s_cost.since ) / 1e6 : 0.0;
@@ -821,7 +823,7 @@ void SV_CostStats( void ) {
 		}
 	}
 	Com_Printf( "server CPU over %.1f s, %d humans, %d bots:", seconds, humans, bots );
-	for ( int i = 0; i < SV_COST_COUNT; i++ ) {
+	for ( svCost_t i = SV_COST_FRAME; i < SV_COST_COUNT; i++ ) {
 		Com_Printf( " %s %d, %.1f us each, max %lld us;", names[i], s_cost.calls[i],
 			s_cost.calls[i] ? (double)s_cost.sum[i] / s_cost.calls[i] : 0.0, s_cost.max[i] );
 	}

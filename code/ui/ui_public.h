@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_API_VERSION	3
 
 
+enum class dpTypes_t;	// below
+
 typedef struct {
 	//============== general Quake services ==================
 
@@ -52,7 +54,7 @@ typedef struct {
 	// console command interaction
 	int			(*Argc)( void );
 	void		(*Argv)( int n, char *buffer, int bufferLength );
-	void		(*Cmd_ExecuteText)( int exec_when, const char *text );
+	void		(*Cmd_ExecuteText)( cbufExec_t exec_when, const char *text );
 	void		(*Cmd_TokenizeString)( const char *text );
 
 	// filesystem access
@@ -153,18 +155,19 @@ typedef struct {
 	void		(*GetConfigString)( int index, char* buff, int buffsize );
 
 	int			(*Milliseconds)( void );
-	void		(*Draw_DataPad)(int HUDType);
+	void		(*Draw_DataPad)(dpTypes_t HUDType);
 } uiimport_t;
 
-typedef enum {
+enum class dpTypes_t {
 	DP_HUD=0,
 	DP_OBJECTIVES,
 	DP_WEAPONS,
 	DP_INVENTORY,
 	DP_FORCEPOWERS
-}dpTypes_t;
+};
+using enum dpTypes_t;
 
-typedef enum {
+enum class uiImport_t {
 	UI_ERROR,
 	UI_PRINT,
 	UI_MILLISECONDS,
@@ -261,6 +264,7 @@ typedef enum {
 	UI_SQRT,
 	UI_FLOOR,
 	UI_CEIL
-} uiImport_t;
+};
+using enum uiImport_t;
 
 #endif

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 typedef struct Vehicle_s Vehicle_t;
 typedef struct bgEntity_s bgEntity_t;
 
-typedef enum
+enum class vehicleType_t
 {
 	VH_NONE = 0,	//0 just in case anyone confuses VH_NONE and VEHICLE_NONE below
 	VH_WALKER,		//something you ride inside of, it walks like you, like an AT-ST
@@ -36,17 +36,19 @@ typedef enum
 	VH_ANIMAL,		//animal you ride on top of that walks, like a tauntaun
 	VH_FLIER,		//animal you ride on top of that flies, like a giant mynoc?
 	VH_NUM_VEHICLES
-} vehicleType_t;
+};
+using enum vehicleType_t;
 
-typedef enum
+enum class EWeaponPose
 {
 	WPOSE_NONE	= 0,
 	WPOSE_BLASTER,
 	WPOSE_SABERLEFT,
 	WPOSE_SABERRIGHT,
-} EWeaponPose;
+};
+using enum EWeaponPose;
 
-extern stringID_table_t VehicleTable[VH_NUM_VEHICLES+1];
+extern stringID_table_t VehicleTable[to_underlying( VH_NUM_VEHICLES ) + 1];
 
 //===========================================================================================================
 //START VEHICLE WEAPONS
@@ -411,7 +413,7 @@ extern int	numVehicles;
 #define	VEH_MOUNT_THROW_RIGHT		-6
 
 
-typedef enum vehEject_e
+enum class vehEject_t
 {
 	VEH_EJECT_LEFT,
 	VEH_EJECT_RIGHT,
@@ -419,17 +421,21 @@ typedef enum vehEject_e
 	VEH_EJECT_REAR,
 	VEH_EJECT_TOP,
 	VEH_EJECT_BOTTOM
-} vehEject_t;
+};
+using enum vehEject_t;
+template <> inline constexpr bool enableEnumArithmetic<vehEject_t> = true;
 
 // Vehicle flags.
-typedef enum
+enum class vehFlags_t
 {
 	VEH_NONE = 0, VEH_FLYING = 0x00000001, VEH_CRASHING = 0x00000002,
 	VEH_LANDING = 0x00000004, VEH_BUCKING = 0x00000010, VEH_WINGSOPEN = 0x00000020,
 	VEH_GEARSOPEN = 0x00000040, VEH_SLIDEBREAKING = 0x00000080, VEH_SPINNING = 0x00000100,
 	VEH_OUTOFCONTROL = 0x00000200,
 	VEH_SABERINLEFTHAND = 0x00000400
-} vehFlags_t;
+};
+using enum vehFlags_t;
+template <> inline constexpr bool enableEnumFlags<vehFlags_t> = true;
 
 //defines for impact damage surface stuff
 #define	SHIPSURF_FRONT		0
@@ -547,10 +553,10 @@ typedef struct Vehicle_s
 	usercmd_t m_ucmd;
 
 	// The direction an entity will eject from the vehicle towards.
-	int m_EjectDir;
+	vehEject_t m_EjectDir;
 
 	// Flags that describe the vehicles behavior.
-	unsigned long m_ulFlags;
+	vehFlags_t m_ulFlags;
 
 	// NOTE: Vehicle Type ID, Orientation, and Armor MUST be transmitted over the net.
 

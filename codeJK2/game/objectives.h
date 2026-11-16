@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // DO NOT CHANGE MAX_MISSION_OBJ. IT AFFECTS THE SAVEGAME STRUCTURE
 
-typedef enum //# Objective_e
+enum class objectiveNumber_t //# Objective_e
 {
 	//=================================================
 	//
@@ -98,10 +98,12 @@ typedef enum //# Objective_e
 
 	//# #eol
 	MAX_OBJECTIVES,
-} objectiveNumber_t;
+};
+using enum objectiveNumber_t;
+template <> inline constexpr bool enableEnumArithmetic<objectiveNumber_t> = true;
 
 
-typedef enum //# MissionFailed_e
+enum class missionFailed_t //# MissionFailed_e
 {
 	MISSIONFAILED_JAN=0,		//#
 	MISSIONFAILED_LUKE,			//#
@@ -115,10 +117,11 @@ typedef enum //# MissionFailed_e
 	MISSIONFAILED_TOOMANYALLIESDIED,	//#
 	//# #eol
 	MAX_MISSIONFAILED,
-} missionFailed_t;
+};
+using enum missionFailed_t;
 
 
-typedef enum //# StatusText_e
+enum class statusText_t //# StatusText_e
 {
 	//=================================================
 	//
@@ -134,7 +137,8 @@ typedef enum //# StatusText_e
 
 	//# #eol
 	MAX_STATUSTEXT,
-} statusText_t;
+};
+using enum statusText_t;
 
 extern bool	missionInfo_Updated;
 

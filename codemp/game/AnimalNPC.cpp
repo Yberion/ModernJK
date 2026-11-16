@@ -387,7 +387,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			return;
 		}
 	}
-	else if ( pVeh->m_ulFlags & VEH_BUCKING )
+	else if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
 	{
 		iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 		Anim = BOTH_VT_BUCK;
@@ -543,19 +543,19 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		}
 		else if (pilotPS->weapon==WP_SABER)
 		{
-			if ( (pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VT_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATL_TO_R_S)
 			{
 				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
 			}
-			if (!(pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VT_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATR_TO_L_S)
 			{
 				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (pVeh->m_ulFlags&VEH_SABERINLEFTHAND)?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
 		}
 
 
- 		if (Attacking && WeaponPose)
+ 		if (Attacking && WeaponPose != WPOSE_NONE)
 		{// Attack!
 			iBlend	= 100;
  			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;

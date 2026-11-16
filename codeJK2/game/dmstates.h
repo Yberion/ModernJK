@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __DMSTATES_H__
 
 //dynamic music
-typedef enum //# dynamicMusic_e
+enum class dynamicMusic_t //# dynamicMusic_e
 {
 	DM_AUTO,	//# let the game determine the dynamic music as normal
 	DM_SILENCE,	//# stop the music
@@ -32,6 +32,7 @@ typedef enum //# dynamicMusic_e
 	DM_ACTION,	//# force the action music to play
 	DM_BOSS,	//# force the boss battle music to play (if there is any)
 	DM_DEATH	//# force the "player dead" music to play
-} dynamicMusic_t;
+};
+using enum dynamicMusic_t;
 
 #endif//#ifndef __DMSTATES_H__

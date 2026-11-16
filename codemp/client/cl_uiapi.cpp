@@ -364,9 +364,9 @@ static bool CL_G2API_SetBoneAngles(
 	const char *boneName,
 	const vec3_t angles,
 	const int flags,
-	const int up,
-	const int right,
-	const int forward,
+	const orientations_t up,
+	const orientations_t right,
+	const orientations_t forward,
 	qhandle_t *modelList,
 	int blendTime ,
 	int currentTime)
@@ -640,7 +640,7 @@ static void CL_G2API_AnimateG2Models( void *ghoul2, int time, sharedRagDollUpdat
 	re->G2API_AnimateG2ModelsRag( *((CGhoul2Info_v *)ghoul2), time, &rduParams );
 }
 
-static bool CL_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
+static bool CL_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params ) {
 	if ( !ghoul2 ) {
 		return false;
 	}

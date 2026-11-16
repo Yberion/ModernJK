@@ -975,7 +975,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 							assert(iExitPoint < iMAX_EXPLORE_TRANSITIONS);	// already been checked, but sanity
 							assert(!ExitPoint.sNextMark.c_str()[0]);		// simple error checking, but harmless if tripped. explore transitions go to silence, hence no entry time for [silence] state after transition
 
-							eFeedBackTransition = (MusicState_e) (eBGRNDTRACK_EXPLORETRANS0 + iExitPoint);
+							eFeedBackTransition = eBGRNDTRACK_EXPLORETRANS0 + static_cast<int>( iExitPoint );
 						}
 						break;
 
@@ -1001,7 +1001,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 									if (itEntryTime != MusicFile_Explore.MusicEntryTimes.end())
 									{
 										fFeedBackNewTrackEntryTime = (*itEntryTime).second;
-										eFeedBackTransition = (MusicState_e) (eBGRNDTRACK_ACTIONTRANS0 + iExitPoint);
+										eFeedBackTransition = eBGRNDTRACK_ACTIONTRANS0 + static_cast<int>( iExitPoint );
 									}
 									else
 									{

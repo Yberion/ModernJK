@@ -868,7 +868,7 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		}
 
 
- 		if (Attacking && WeaponPose)
+ 		if (Attacking && WeaponPose != WPOSE_NONE)
 		{// Attack!
 			iBlend	= 100;
  			iFlags	= SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART;

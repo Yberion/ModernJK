@@ -26,12 +26,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __ICARUS__
 
 //For system-wide prints
-enum WL_e {
+enum class WL_e {
 	WL_ERROR=1,
 	WL_WARNING,
 	WL_VERBOSE,
 	WL_DEBUG
 };
+using enum WL_e;
 
 #define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
 #define STL_INSERT( a, b )		a.insert( a.end(), b );

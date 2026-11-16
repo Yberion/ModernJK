@@ -92,7 +92,7 @@ typedef struct {
 
 	int			mouseDx[2], mouseDy[2];	// added to by mouse events
 	int			mouseIndex;
-	int			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
+	EnumArray<int, joystickAxis_t, MAX_JOYSTICK_AXIS>	joystickAxis;	// set by joystick events
 
 	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
 	float		cgameSensitivity;

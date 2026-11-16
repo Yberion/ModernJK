@@ -159,14 +159,16 @@ enum class alertEventType_e
 };
 using enum alertEventType_e;
 
-enum alertEventLevel_e
+enum class alertEventLevel_e
 {
+	AEL_NONE = -1,		// no alert yet
 	AEL_MINOR,			//Enemy responds to the sound, but only by looking
 	AEL_SUSPICIOUS,		//Enemy looks at the sound, and will also investigate it
 	AEL_DISCOVERED,		//Enemy knows the player is around, and will actively hunt
 	AEL_DANGER,			//Enemy should try to find cover
 	AEL_DANGER_GREAT,	//Enemy should run like hell!
 };
+using enum alertEventLevel_e;
 
 // !!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 class alertEvent_t
@@ -267,7 +269,7 @@ public:
 
 	int				worldFlags;
 
-	int				dmState;		//actually, we do want save/load the dynamic music state
+	dynamicMusic_t	dmState;		//actually, we do want save/load the dynamic music state
 // =====================================
 //
 // NOTE!!!!!!   The only things beyond this point in the structure should be the ones you do NOT wish to be
@@ -647,7 +649,7 @@ void G_WriteSessionData( void );
 extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight=0.0f );
 extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS = false, bool onGround = false );
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
-extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert = -1, bool mustHaveOwner = false, int minAlertLevel = AEL_MINOR, bool onGroundOnly = false );
+extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = AEL_MINOR, bool onGroundOnly = false );
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
 extern bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
 extern bool G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end );

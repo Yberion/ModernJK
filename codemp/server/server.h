@@ -48,11 +48,12 @@ typedef struct svEntity_s {
 	int			snapshotCounter;	// used to prevent double adding from portal views
 } svEntity_t;
 
-typedef enum {
+enum class serverState_t {
 	SS_DEAD,			// no map loaded
 	SS_LOADING,			// spawning level entities
 	SS_GAME				// actively running
-} serverState_t;
+};
+using enum serverState_t;
 
 typedef struct server_s {
 	serverState_t	state;
@@ -123,14 +124,15 @@ typedef struct clientSnapshot_s {
 								// (eng::kAckWindow), 2.56 s at the tick, valid up to that round trip (plan step 14; the
 								// 32 frames were 320 ms at 100 Hz, 1.6 s at 20 Hz)
 
-typedef enum {
+enum class clientState_t {
 	CS_FREE,		// can be reused for a new connection
 	CS_ZOMBIE,		// client has been disconnected, but don't reuse
 					// connection for a couple seconds
 	CS_CONNECTED,	// has been assigned to a client_t, but no gamestate yet
 	CS_PRIMED,		// gamestate has been sent, but client hasn't sent a usercmd
 	CS_ACTIVE		// client is fully in game
-} clientState_t;
+};
+using enum clientState_t;
 
 
 // struct to hold demo data for a single demo

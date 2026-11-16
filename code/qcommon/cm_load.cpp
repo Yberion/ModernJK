@@ -549,7 +549,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts, clipMap_t &cm ) {
 	// scan through all the surfaces, but only load patches,
 	// not planar faces
 	for ( i = 0 ; i < count ; i++, in++ ) {
-		if ( LittleLong( in->surfaceType ) != MST_PATCH ) {
+		if ( static_cast<mapSurfaceType_t>( LittleLong( in->surfaceType ) ) != MST_PATCH ) {
 			continue;		// ignore other surfaces
 		}
 		// FIXME: check for non-colliding patches

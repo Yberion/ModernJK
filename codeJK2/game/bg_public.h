@@ -83,14 +83,15 @@ movement on the server game.
 ===================================================================================
 */
 
-typedef enum {
+enum class pmtype_t {
 	PM_NORMAL,		// can accelerate and turn
 	PM_NOCLIP,		// noclip movement
 	PM_SPECTATOR,	// still run into walls
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control
 	PM_INTERMISSION	// no movement or status bar
-} pmtype_t;
+};
+using enum pmtype_t;
 
 typedef enum {
 	WEAPON_READY,
@@ -188,7 +189,7 @@ void PM_SetSaberMove(short newMove);
 //  NOTE!!! Even though this is an enum, the array that contains these uses #define MAX_PERSISTANT 16 in q_shared.h,
 //		so be careful how many you add since it'll just overflow without telling you -slc
 //
-typedef enum {
+enum class persEnum_t {
 	PERS_SCORE,						// !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 	PERS_HITS,						// total points damage inflicted so damage beeps can sound on change
 	PERS_TEAM,
@@ -201,7 +202,8 @@ typedef enum {
 	PERS_ACCURACY_HITS,				// scoreboard - number of player shots that hit an enemy
 	PERS_ENEMIES_KILLED,			// scoreboard - number of enemies player killed
 	PERS_TEAMMATES_KILLED			// scoreboard - number of teammates killed
-} persEnum_t;
+};
+using enum persEnum_t;
 
 
 // entityState_t->eFlags
@@ -558,7 +560,7 @@ typedef enum {
 //---------------------------------------------------------
 
 // gitem_t->type
-typedef enum
+enum class itemType_t
 {
 	IT_BAD,
 	IT_WEAPON,
@@ -569,7 +571,8 @@ typedef enum
 	IT_BATTERY,
 	IT_HOLOCRON,
 
-} itemType_t;
+};
+using enum itemType_t;
 
 
 

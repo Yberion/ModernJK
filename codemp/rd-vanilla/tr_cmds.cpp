@@ -93,7 +93,7 @@ void R_IssueRenderCommands( bool runPerformanceCounters ) {
 
 	// add an end-of-list command
 	byteAlias_t *ba = (byteAlias_t *)&cmdList->cmds[cmdList->used];
-	ba->ui = RC_END_OF_LIST;
+	ba->ui = to_underlying( RC_END_OF_LIST );
 
 	// clear it out, in case this is a sync and not a buffer flip
 	cmdList->used = 0;

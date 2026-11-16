@@ -92,7 +92,7 @@ bool	G_SpawnBoolean( const char *key, const char *defaultString, bool *out ) {
 //
 // fields are needed for spawning from the entity string
 //
-typedef enum {
+enum class fieldtype_t {
 	F_INT,
 	F_BOOL,			// a bool member: any non-zero integer is true
 	F_FLOAT,
@@ -115,7 +115,9 @@ typedef enum {
 	F_PARM14,			// Special case for parms
 	F_PARM15,			// Special case for parms
 	F_PARM16			// Special case for parms
-} fieldtype_t;
+};
+using enum fieldtype_t;
+template <> inline constexpr bool enableEnumArithmetic<fieldtype_t> = true;
 
 typedef struct field_s {
 	const char	*name;
@@ -895,7 +897,7 @@ void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	gentity_t	*ent;
 	char		*s, *value;
 	const char	*gametypeName;
-	static const char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
+	static const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeNames = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
 
 	// get the next free entity
 	ent = G_Spawn();

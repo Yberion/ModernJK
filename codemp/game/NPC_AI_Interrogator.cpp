@@ -53,12 +53,12 @@ void NPC_Interrogator_Precache(gentity_t *self)
 Interrogator_die
 -------------------------
 */
-void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,hitLocation_t hitLoc )
 {
 	self->client->ps.velocity[2] = -100;
 	/*
-	self->locationDamage[HL_NONE] += damage;
-	if (self->locationDamage[HL_NONE] > 40)
+	self->locationDamage[to_underlying( HL_NONE )] += damage;
+	if (self->locationDamage[to_underlying( HL_NONE )] > 40)
 	{
 		DeathFX(self);
 		self->client->ps.eFlags |= EF_NODRAW;

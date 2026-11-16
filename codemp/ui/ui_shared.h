@@ -460,7 +460,7 @@ typedef struct displayContextDef_s {
 	void			(*keynumToStringBuf)				( int keynum, char *buf, int buflen );
 	void			(*getBindingBuf)					( int keynum, char *buf, int buflen );
 	void			(*setBinding)						( int keynum, const char *binding );
-	void			(*executeText)						( int exec_when, const char *text );
+	void			(*executeText)						( cbufExec_t exec_when, const char *text );
 	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
 	void			(*Print)							( const char *msg, ... );
 	void			(*Pause)							( bool b );

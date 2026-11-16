@@ -176,7 +176,7 @@ typedef struct {
 	void		(*drawText) (float x, float y, float scale, vec4_t color, const char *text, int iMaxPixelWidth, int style, int iFontIndex );
 	void		(*drawTextWithCursor)(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int iMaxPixelWidth, int style, int iFontIndex);
 	void		(*drawTopBottom) (float x, float y, float w, float h, float size);
-	void		(*executeText)(int exec_when, const char *text );
+	void		(*executeText)(cbufExec_t exec_when, const char *text );
 	int			(*feederCount)(float feederID);
 	void		(*feederSelection)(float feederID, int index, struct itemDef_s *item);
 	void		(*fillRect) ( float x, float y, float w, float h, const vec4_t color);

@@ -1606,8 +1606,8 @@ bool G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force)
 	return true;
 }
 
-bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
-bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
+bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params);
+bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params)
 {
 	return G2_SetBoneIKState(ghoul2, time, boneName, ikState, params);
 }
@@ -2080,9 +2080,9 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 
 		// now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
 #ifdef _G2_GORE
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,nullptr,false);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, static_cast<EG2_Collision>( traceFlags ), useLod, fRadius,0,0,0,0,nullptr,false);
 #else
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, static_cast<EG2_Collision>( traceFlags ), useLod, fRadius);
 #endif
 		int i;
 		for ( i = 0; i < MAX_G2_COLLISIONS && collRecMap[i].mEntityNum != -1; i ++ );
@@ -2132,9 +2132,9 @@ void G2API_CollisionDetect(CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2,
 
 		// now walk each model and check the ray against each poly - sigh, this is SO expensive. I wish there was a better way to do this.
 #ifdef _G2_GORE
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius,0,0,0,0,nullptr,false);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, static_cast<EG2_Collision>( traceFlags ), useLod, fRadius,0,0,0,0,nullptr,false);
 #else
-		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, traceFlags, useLod, fRadius);
+		G2_TraceModels(ghoul2, transRayStart, transRayEnd, collRecMap, entNum, static_cast<EG2_Collision>( traceFlags ), useLod, fRadius);
 #endif
 		int i;
 		for ( i = 0; i < MAX_G2_COLLISIONS && collRecMap[i].mEntityNum != -1; i ++ );
@@ -2572,7 +2572,7 @@ void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 		G2_TransformModel(ghoul2, gore.currentTime, gore.scale,ri.GetG2VertSpaceServer(),lod,true);
 
 		// now walk each model and compute new texture coordinates
-		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, nullptr, gore.entNum, 0,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,true);
+		G2_TraceModels(ghoul2, transHitLocation, transRayDirection, nullptr, gore.entNum, G2_NOCOLLIDE,lod,0.0f,gore.SSize,gore.TSize,gore.theta,gore.shader,&gore,true);
 	}
 }
 #endif

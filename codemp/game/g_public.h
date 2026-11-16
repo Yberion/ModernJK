@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	GAME_API_VERSION	1
 
+enum class itemType_t;	// bg_public.h
+
 // entity->svFlags
 // the server does not know how to interpret most of the values
 // in entityStates (level eType), so the game must explicitly flag
@@ -157,7 +159,7 @@ enum
 	NODE_NAVGOAL,
 };
 
-typedef enum //# taskID_e
+enum class taskID_t //# taskID_e
 {
 	TID_CHAN_VOICE = 0,	// Waiting for a voice sound to complete
 	TID_ANIM_UPPER,		// Waiting to finish a lower anim holdtime
@@ -171,7 +173,9 @@ typedef enum //# taskID_e
 	TID_RESIZE,			// Waiting for clear bbox to inflate size
 	TID_SHOOT,			// Waiting for fire event
 	NUM_TIDS,			// for def of taskID array
-} taskID_t;
+};
+using enum taskID_t;
+template <> inline constexpr bool enableEnumArithmetic<taskID_t> = true;
 
 typedef enum //# bSet_e
 {//This should check to matching a behavior state name first, then look for a script
@@ -231,7 +235,7 @@ typedef struct sharedEntity_s {
 	entityShared_t	r;				// shared by both the server system and game
 
 	//Script/ICARUS-related fields
-	int				taskID[NUM_TIDS];
+	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
 	char			*behaviorSet[NUM_BSETS];
 	char			*script_targetname;
@@ -424,7 +428,7 @@ typedef struct gameImport_s {
 	void		(*LinkEntity)							( sharedEntity_t *ent );
 	void		(*LocateGameData)						( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient );
 	int			(*PointContents)						( const vec3_t point, int passEntityNum );
-	void		(*SendConsoleCommand)					( int exec_when, const char *text );
+	void		(*SendConsoleCommand)					( cbufExec_t exec_when, const char *text );
 	void		(*SendServerCommand)					( int clientNum, const char *text );
 	void		(*SetBrushModel)						( sharedEntity_t *ent, const char *name );
 	void		(*SetConfigstring)						( int num, const char *string );
@@ -450,13 +454,13 @@ typedef struct gameImport_s {
 	bool	(*ICARUS_IsInitialized)					( int entID );
 	bool	(*ICARUS_MaintainTaskManager)			( int entID );
 	bool	(*ICARUS_IsRunning)						( int entID );
-	bool	(*ICARUS_TaskIDPending)					( sharedEntity_t *ent, int taskID );
+	bool	(*ICARUS_TaskIDPending)					( sharedEntity_t *ent, taskID_t taskID );
 	void		(*ICARUS_InitEnt)						( sharedEntity_t *ent );
 	void		(*ICARUS_FreeEnt)						( sharedEntity_t *ent );
 	void		(*ICARUS_AssociateEnt)					( sharedEntity_t *ent );
 	void		(*ICARUS_Shutdown)						( void );
-	void		(*ICARUS_TaskIDSet)						( sharedEntity_t *ent, int taskType, int taskID );
-	void		(*ICARUS_TaskIDComplete)				( sharedEntity_t *ent, int taskType );
+	void		(*ICARUS_TaskIDSet)						( sharedEntity_t *ent, taskID_t taskType, int taskID );
+	void		(*ICARUS_TaskIDComplete)				( sharedEntity_t *ent, taskID_t taskType );
 	void		(*ICARUS_SetVar)						( int taskID, int entID, const char *type_name, const char *data );
 	int			(*ICARUS_VariableDeclared)				( const char *type_name );
 	int			(*ICARUS_GetFloatVariable)				( const char *name, float *value );
@@ -676,7 +680,7 @@ typedef struct gameImport_s {
 	int			(*G2API_Ghoul2Size)						( void *ghlInfo );
 	int			(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
 	void		(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
-	bool	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
 	bool	(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool	(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	void		(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
@@ -703,7 +707,7 @@ typedef struct gameImport_s {
 	bool	(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
 	bool	(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
 	bool	(*G2API_RagForceSolve)					( void *ghoul2, bool force );
-	bool	(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool	(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params );
 	bool	(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
 	bool	(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
 	void		(*G2API_AttachInstanceToEntNum)			( void *ghoul2, int entityNum, bool server );
@@ -753,7 +757,7 @@ typedef struct gameExport_s {
 	bool	(*NAV_EntIsBreakable)				( int entityNum );
 	bool	(*NAV_EntIsRemovableUsable)			( int entNum );
 	void		(*NAV_FindCombatPointWaypoints)		( void );
-	int			(*BG_GetItemIndexByTag)				( int tag, int type );
+	int		(*BG_GetItemIndexByTag)				( int tag, itemType_t type );
 } gameExport_t;
 
 

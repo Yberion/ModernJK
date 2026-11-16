@@ -68,7 +68,7 @@ cvar_t		*showpackets;
 cvar_t		*showdrop;
 cvar_t		*qport;
 
-static const char *netsrcString[2] = {
+static const EnumArray<const char *, netsrc_t, 2> netsrcString = {
 	"client",
 	"server"
 };
@@ -442,7 +442,7 @@ bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[sock];
+	loop = &loopbacks[to_underlying( sock )];
 
 	//If read and write positions are the same, nothing left to read.
 	if (loop->get == loop->send)
@@ -488,7 +488,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[sock^1];
+	loop = &loopbacks[to_underlying( sock == NS_CLIENT ? NS_SERVER : NS_CLIENT )];
 
 	//Make sure there is enough free space in the buffer.
 #ifdef _DEBUG

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	NUM_CROSSHAIRS		9
 
-typedef enum {
+enum class footstep_t {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_METAL,
 	FOOTSTEP_SPLASH,
@@ -34,7 +34,8 @@ typedef enum {
 	FOOTSTEP_SWIM,
 
 	FOOTSTEP_TOTAL
-} footstep_t;
+};
+using enum footstep_t;
 
 #define ICON_WEAPONS	0
 #define ICON_FORCE		1
@@ -249,7 +250,7 @@ typedef struct {
 	sfxHandle_t	overchargeEndSound;
 
 	sfxHandle_t	useNothingSound;
-	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
+	EnumArray<sfxHandle_t[4], footstep_t, FOOTSTEP_TOTAL>	footsteps;
 
 	sfxHandle_t talkSound;
 	sfxHandle_t	noAmmoSound;

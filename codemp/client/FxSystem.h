@@ -61,7 +61,7 @@ public:
 	void	Print( const char *msg, ... );
 
 	// File handling
-	inline	int		OpenFile( const char *path, fileHandle_t *fh, int mode )
+	inline	int		OpenFile( const char *path, fileHandle_t *fh, fsMode_t mode )
 	{
 		return FS_FOpenFileByMode( path, fh, FS_READ );
 	}

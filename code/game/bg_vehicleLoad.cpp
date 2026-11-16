@@ -702,7 +702,7 @@ vehField_t vehicleFields[] =
 
 static const size_t numVehicleFields = ARRAY_LEN( vehicleFields );
 
-stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
+stringID_table_t VehicleTable[to_underlying( VH_NUM_VEHICLES ) + 1] =
 {
 	ENUM2STRING(VH_NONE),
 	ENUM2STRING(VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST

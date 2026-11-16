@@ -295,7 +295,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 
 	// Bucking so we can't do anything (NOTE: Should probably be a better name since fighters don't buck...).
-	if ( pVeh->m_ulFlags & VEH_BUCKING )
+	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
 		return false;
 
 	// Validate the entity's ability to board this vehicle.
@@ -475,7 +475,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 bool VEH_TryEject( Vehicle_t *pVeh,
 				  gentity_t *parent,
 				  gentity_t *ent,
-				  int ejectDir,
+				  vehEject_t ejectDir,
 				  vec3_t vExitPos )
 {
 	float		fBias;
@@ -607,7 +607,7 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 	gentity_t	*parent;
 	vec3_t		vExitPos;
 	gentity_t	*ent = (gentity_t *)pEnt;
-	int			firstEjectDir;
+	vehEject_t	firstEjectDir;
 
 	bool	taintedRider = false;
 	bool	deadRider = false;
@@ -1137,7 +1137,7 @@ bool Initialize( Vehicle_t *pVeh )
 	*/
 	//why?! -rww
 	{
-		pVeh->m_ulFlags = 0;
+		pVeh->m_ulFlags = VEH_NONE;
 	}
 	pVeh->m_fTimeModifier = 1.0f;
 	pVeh->m_iBoarding = 0;
@@ -1659,7 +1659,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
-		else if ( !(pVeh->m_ulFlags & VEH_FLYING))
+		else if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )))
 		{
 			// If going too fast, roll off.
 			if ((parent->client->ps.speed<=600) && pUmcd->rightmove!=0)
@@ -1794,7 +1794,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 			{
-				if ( !(pVeh->m_ulFlags & VEH_FLYING) )
+				if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )) )
 				{
 					VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity );
 					Vehicle_SetAnim( rider, SETANIM_BOTH, Anim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, 300 );

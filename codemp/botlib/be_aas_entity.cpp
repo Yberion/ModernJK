@@ -116,7 +116,7 @@ int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
 	if (aasworld.numframes == 1) relink = true;
 	else relink = false;
 	//
-	if (ent->i.solid == SOLID_BSP)
+	if (ent->i.solid == to_underlying( SOLID_BSP ))
 	{
 		//if the angles of the model changed
 		if (!VectorCompare(state->angles, ent->i.angles))
@@ -128,7 +128,7 @@ int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
 		//FIXME: rotate mins and maxs
 		AAS_BSPModelMinsMaxsOrigin(ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, nullptr);
 	} //end if
-	else if (ent->i.solid == SOLID_BBOX)
+	else if (ent->i.solid == to_underlying( SOLID_BBOX ))
 	{
 		//if the bounding box size changed
 		if (!VectorCompare(state->mins, ent->i.mins) ||

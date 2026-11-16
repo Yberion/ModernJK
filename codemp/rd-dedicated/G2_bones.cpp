@@ -1247,13 +1247,14 @@ static vec3_t			handPos={0,0,0};
 static vec3_t			handPos2={0,0,0};
 #endif
 
-enum ERagState
+enum class ERagState
 {
 	ERS_DYNAMIC,
 	ERS_SETTLING,
 	ERS_SETTLED
 };
-static int				ragState;
+using enum ERagState;
+static ERagState			ragState;
 
 static std::vector<boneInfo_t *>		rag;  // once we get the dependents precomputed this can be local
 
@@ -4415,7 +4416,7 @@ void G2_InitIK(CGhoul2Info_v &ghoul2V, sharedRagDollUpdateParams_t *parms, int t
 	G2_Set_Bone_Angles_IK(ghoul2, mod_a,blist,"ceyebrow",pcjFlags,10.0f);
 }
 
-bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
+bool G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params)
 {
 	model_t		*mod_a;
 	int g2index = 0;

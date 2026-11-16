@@ -139,7 +139,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 					  2000,		// trailTime
 					  t,		// startTime
 					  0,		// fadeInTime
-					  0,		// flags
+					  leFlag_t{},	// flags
 					  /*cgs.media.bloodTrailShader*/0 );
 		// use the optimized version
 		blood->leType = LE_FALL_SCALE_FADE;
@@ -300,7 +300,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );
 
-		if ( le->leFlags & LEF_TUMBLE ) {
+		if ( Any( le->leFlags & LEF_TUMBLE ) ) {
 			vec3_t angles;
 
 			BG_EvaluateTrajectory( &le->angles, cg.time, angles );
@@ -428,7 +428,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 
 	re->shaderRGBA[3] = 0xff * c * le->color[3];
 
-	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
@@ -466,7 +466,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 	re->shaderRGBA[1] = le->color[1] * c;
 	re->shaderRGBA[2] = le->color[2] * c;
 
-	if ( !( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
+	if ( !Any( le->leFlags & LEF_PUFF_DONT_SCALE ) ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 

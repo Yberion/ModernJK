@@ -51,7 +51,7 @@ enum
 };
 
 //sigh... had to move in here for groupInfo
-typedef enum //# rank_e
+enum class rank_t //# rank_e
 {
 	RANK_CIVILIAN,
 	RANK_CREWMAN,
@@ -61,7 +61,9 @@ typedef enum //# rank_e
 	RANK_LT_COMM,
 	RANK_COMMANDER,
 	RANK_CAPTAIN
-} rank_t;
+};
+using enum rank_t;
+template <> inline constexpr bool enableEnumArithmetic<rank_t> = true;
 
 bool NPC_CheckPlayerTeamStealth( void );
 

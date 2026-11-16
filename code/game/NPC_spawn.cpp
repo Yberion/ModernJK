@@ -1159,7 +1159,7 @@ void NPC_Begin (gentity_t *ent)
 		ent->contents = 0;
 		ent->clipmask = MASK_NPCSOLID&~CONTENTS_BODY;
 	}
-	if(!ent->client->moveType)//Static?
+	if(ent->client->moveType == MT_STATIC)//Static?
 	{
 		ent->client->moveType = MT_RUNJUMP;
 	}

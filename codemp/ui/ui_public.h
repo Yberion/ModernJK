@@ -35,7 +35,7 @@ typedef struct uiClientState_s {
 	char			messageString[MAX_STRING_CHARS];
 } uiClientState_t;
 
-typedef enum uiMenuCommand_e {
+enum class uiMenuCommand_t {
 	UIMENU_NONE,
 	UIMENU_MAIN,
 	UIMENU_INGAME,
@@ -48,7 +48,8 @@ typedef enum uiMenuCommand_e {
 	UIMENU_VOICECHAT,
 	UIMENU_CLOSEALL,
 	UIMENU_CLASSSEL
-} uiMenuCommand_t;
+};
+using enum uiMenuCommand_t;
 
 #define SORT_HOST			0
 #define SORT_MAP			1
@@ -57,12 +58,13 @@ typedef enum uiMenuCommand_e {
 #define SORT_PING			4
 
 // state of a server in the browser lists, apart from its ping
-typedef enum lanServerState_e {
+enum class lanServerState_t {
 	LANSERVER_NOT_ASKED,	// no info request since the list was reset
 	LANSERVER_WAITING,		// info request sent, no answer yet
 	LANSERVER_ANSWERED,		// answered; its ping is the round trip
 	LANSERVER_NO_ANSWER		// no answer within cl_maxPing
-} lanServerState_t;
+};
+using enum lanServerState_t;
 
 typedef struct uiImport_s {
 	void			(*Print)								( const char *msg, ... );
@@ -83,7 +85,7 @@ typedef struct uiImport_s {
 
 	int				(*Cmd_Argc)								( void );
 	void			(*Cmd_Argv)								( int n, char *buffer, int bufferLength );
-	void			(*Cmd_ExecuteText)						( int exec_when, const char *text );
+	void			(*Cmd_ExecuteText)						( cbufExec_t exec_when, const char *text );
 
 	void			(*FS_Close)								( fileHandle_t f );
 	int				(*FS_GetFileList)						( const char *path, const char *extension, char *listbuf, int bufsize );
@@ -184,7 +186,7 @@ typedef struct uiImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
 	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
@@ -203,7 +205,7 @@ typedef struct uiImport_s {
 	void			(*G2API_SetTime)						( int time, int clock );
 	void			(*G2API_SetRagDoll)						( void *ghoul2, sharedRagDollParams_t *params );
 	void			(*G2API_AnimateG2Models)				( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
-	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params );
 	bool		(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
 	void			(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
 	bool		(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
@@ -213,7 +215,7 @@ typedef struct uiImport_s {
 		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 		void			(*AddCommand)							( const char *cmd_name );
 		void			(*RemoveCommand)						( const char *cmd_name );
-		int				(*LAN_GetServerState)					( int source, int n );
+		lanServerState_t	(*LAN_GetServerState)				( int source, int n );
 	} ext;
 } uiImport_t;
 

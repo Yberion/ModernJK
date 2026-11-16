@@ -60,7 +60,7 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void ForceThrow( gentity_t *self, bool pull );
 extern void ForceLightning( gentity_t *self );
-extern int WP_MissileBlockForBlock( int saberBlock );
+extern saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock );
 extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod );
 extern bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
@@ -943,7 +943,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			WP_ForcePowerAvailable( NPC, FP_GRIP, 0 ) && //I can use the power
 			!Q_irand( 0, 10 ) && //don't do it all the time, averages to 1 check a second
 			Q_irand( 0, 6 ) < g_spskill->integer && //more likely on harder diff
-			Q_irand( RANK_CIVILIAN, RANK_CAPTAIN ) < NPCInfo->rank )//more likely against harder enemies
+			Q_irand( to_underlying( RANK_CIVILIAN ), to_underlying( RANK_CAPTAIN ) ) < to_underlying( NPCInfo->rank ) )//more likely against harder enemies
 		{//They're throwing their saber, grip them!
 			//taunt
 			if ( TIMER_Done( NPC, "chatter" ) && jediSpeechDebounceTime[NPC->client->playerTeam] < level.time && NPCInfo->blockedSpeechDebounceTime < level.time )
@@ -3509,7 +3509,7 @@ static bool Jedi_AttackDecide( int enemy_dist )
 		}
 		else
 		{
-			chance = NPCInfo->rank;
+			chance = to_underlying( NPCInfo->rank );
 		}
 		if ( Q_irand( 0, 30 ) < chance )
 		{//based on skill with some randomness
@@ -4064,7 +4064,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 			if ( NPC->enemy->client->ps.legsAnim == BOTH_JUMPFLIPSLASHDOWN1 ||
 				NPC->enemy->client->ps.legsAnim == BOTH_JUMPFLIPSTABDOWN )
 			{//enemy is flipping over me
-				if ( Q_irand( 0, NPCInfo->rank ) < RANK_LT )
+				if ( Q_irand( 0, to_underlying( NPCInfo->rank ) ) < to_underlying( RANK_LT ) )
 				{//be nice and stand still for him...
 					ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
 					VectorClear( NPC->client->ps.moveDir );
@@ -4086,7 +4086,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 				{//still in air
 					if ( enemy_dist < 256 )
 					{//close
-						if ( Q_irand( 0, NPCInfo->rank ) < RANK_LT )
+						if ( Q_irand( 0, to_underlying( NPCInfo->rank ) ) < to_underlying( RANK_LT ) )
 						{//be nice and stand still for him...
 							/*
 							ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
@@ -4133,7 +4133,7 @@ static void Jedi_CheckEnemyMovement( float enemy_dist )
 				{//close
 					if ( !InFront( NPC->currentOrigin, NPC->enemy->currentOrigin, NPC->enemy->currentAngles, 0.0f ) )
 					{//behind him
-						if ( !Q_irand( 0, NPCInfo->rank ) )
+						if ( !Q_irand( 0, to_underlying( NPCInfo->rank ) ) )
 						{//be nice and stand still for him...
 							//stop current movement
 							ucmd.forwardmove = ucmd.rightmove = ucmd.upmove = 0;
@@ -5176,7 +5176,7 @@ static void Jedi_Attack( void )
 	}
 
 	if ( NPC->client->NPC_class == CLASS_TAVION
-		|| (g_spskill->integer && ( NPC->client->NPC_class == CLASS_DESANN || NPCInfo->rank >= Q_irand( RANK_CREWMAN, RANK_CAPTAIN ))))
+		|| (g_spskill->integer && ( NPC->client->NPC_class == CLASS_DESANN || to_underlying( NPCInfo->rank ) >= Q_irand( to_underlying( RANK_CREWMAN ), to_underlying( RANK_CAPTAIN ) ))))
 	{//Tavion will kick in force speed if the player does...
 		if ( NPC->enemy
 			&& !NPC->enemy->s.number

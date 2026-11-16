@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_icarus.h"
 #include "wp_saber.h"
 
-extern void Q3_DebugPrint( int level, const char *format, ... );
+extern void Q3_DebugPrint( WL_e level, const char *format, ... );
 extern void WP_SaberInitBladeData( gentity_t *ent );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel );
 extern bool	CheatsOk( gentity_t *ent );
@@ -1525,7 +1525,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	clientInfo_t		savedCi;
-	int		persistant[MAX_PERSISTANT];
+	EnumArray<int, persEnum_t, MAX_PERSISTANT>		persistant{};
 	usercmd_t	ucmd;
 	gentity_t	*spawnPoint;
 	bool	beamInEffect = false;
@@ -1584,10 +1584,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		// clear everything but the persistant data
 		saved = client->pers;
 		savedSess = client->sess;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
-		{
-			persistant[i] = client->ps.persistant[i];
-		}
+		persistant = client->ps.persistant;
 		//Preserve clientInfo
 		memcpy (&savedCi, &client->clientInfo, sizeof(clientInfo_t));
 
@@ -1597,10 +1594,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		client->pers = saved;
 		client->sess = savedSess;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
-		{
-			client->ps.persistant[i] = persistant[i];
-		}
+		client->ps.persistant = persistant;
 
 		// increment the spawncount so the client will detect the respawn
 		client->ps.persistant[PERS_SPAWN_COUNT]++;

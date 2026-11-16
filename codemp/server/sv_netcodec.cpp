@@ -190,7 +190,7 @@ static void SV_NetcodecCompare( client_t *client, const eng::ServerMessage &sm, 
 		MSG_WriteLong( &msg, client->lastClientCommand );
 		SV_UpdateServerCommandsToClient( client, &msg );
 		if ( sm.setGame ) {
-			MSG_WriteByte( &msg, svc_setgame );
+			MSG_WriteByte( &msg, to_underlying( svc_setgame ) );
 			for ( const char *c = sm.setGame; *c; c++ ) {
 				MSG_WriteByte( &msg, *c );
 			}
@@ -200,10 +200,10 @@ static void SV_NetcodecCompare( client_t *client, const eng::ServerMessage &sm, 
 			SV_WriteSnapshotToClient( client, &msg, oldframe, lastframe );
 		}
 		if ( sm.mapChange ) {
-			MSG_WriteByte( &msg, svc_mapchange );
+			MSG_WriteByte( &msg, to_underlying( svc_mapchange ) );
 		}
 	}
-	MSG_WriteByte( &msg, svc_EOF );
+	MSG_WriteByte( &msg, to_underlying( svc_EOF ) );
 	if ( msg.overflowed ) {
 		return;
 	}
@@ -617,20 +617,20 @@ static void SV_NetcodecComparePacket( client_t *client, const eng::ClientPacket 
 	MSG_WriteLong( &msg, p.ack );
 	MSG_WriteLong( &msg, p.reliableAck );
 	for ( uint32_t i = 0; i < p.numCommands; i++ ) {
-		MSG_WriteByte( &msg, clc_clientCommand );
+		MSG_WriteByte( &msg, to_underlying( clc_clientCommand ) );
 		MSG_WriteLong( &msg, p.commands[i].seq );
 		MSG_WriteString( &msg, p.commands[i].text );
 	}
 	if ( p.move != eng::Move::kNone ) {
 		const int key = sv.checksumFeed ^ p.ack ^ Com_HashKey( client->reliableCommands[p.reliableAck & ( MAX_RELIABLE_COMMANDS - 1 )], 32 );
 		Com_Memcpy( &cmds[1], p.userCmds, p.numUserCmds * sizeof( usercmd_t ) );
-		MSG_WriteByte( &msg, p.move == eng::Move::kDelta ? clc_move : clc_moveNoDelta );
+		MSG_WriteByte( &msg, to_underlying( p.move == eng::Move::kDelta ? clc_move : clc_moveNoDelta ) );
 		MSG_WriteByte( &msg, (int)p.numUserCmds );
 		for ( uint32_t i = 1; i <= p.numUserCmds; i++ ) {
 			MSG_WriteDeltaUsercmdKey( &msg, key, &cmds[i - 1], &cmds[i] );
 		}
 	}
-	MSG_WriteByte( &msg, clc_EOF );
+	MSG_WriteByte( &msg, to_underlying( clc_EOF ) );
 	if ( msg.overflowed ) {
 		return;
 	}

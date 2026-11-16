@@ -29,13 +29,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 vm_t *currentVM = nullptr;
 
-static const char *vmNames[MAX_VM] = {
+static const EnumArray<const char *, vmSlots_t, MAX_VM> vmNames = {
 	"jampgame",
 	"cgame",
 	"ui"
 };
 
-const char *vmStrs[MAX_VM] = {
+const EnumArray<const char *, vmSlots_t, MAX_VM> vmStrs = {
 	"GameVM",
 	"CGameVM",
 	"UIVM",
@@ -50,10 +50,10 @@ const char *vmStrs[MAX_VM] = {
 //	VM_Free( cgvm );				// vmTable[VM_CGAME] is deallocated and set to nullptr
 //	cgvm = nullptr;					// ...so we update the cgvm pointer
 
-static vm_t *vmTable[MAX_VM];
+static EnumArray<vm_t *, vmSlots_t, MAX_VM> vmTable;
 
 void VM_Init( void ) {
-	memset( vmTable, 0, sizeof(vmTable) );
+	vmTable = {};
 }
 
 // Reload the data, but leave everything else in place
@@ -117,8 +117,8 @@ void VM_Free( vm_t *vm ) {
 }
 
 void VM_Clear( void ) {
-	for ( int i = 0; i < MAX_VM; i++ )
-		VM_Free( vmTable[i] );
+	for ( vm_t *vm : vmTable )
+		VM_Free( vm );
 
 	currentVM = nullptr;
 }

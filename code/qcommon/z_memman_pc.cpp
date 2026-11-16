@@ -40,7 +40,7 @@ static void Z_Details_f(void);
 #undef TAGDEF
 #endif
 #define TAGDEF(blah) #blah
-static const char *psTagStrings[TAG_COUNT+1]=	// +1 because TAG_COUNT will itself become a string here. Oh well.
+static const EnumArray<const char *, memtag, to_underlying( TAG_COUNT ) + 1> psTagStrings=	// +1 because TAG_COUNT will itself become a string here. Oh well.
 {
 	#include "tags.h"
 };
@@ -94,8 +94,8 @@ typedef struct zoneStats_s
 	// I'm keeping these updated on the fly, since it's quicker for cache-pool
 	//	purposes rather than recalculating each time...
 	//
-	int		iSizesPerTag [TAG_COUNT];
-	int		iCountsPerTag[TAG_COUNT];
+	EnumArray<int, memtag, TAG_COUNT>	iSizesPerTag;
+	EnumArray<int, memtag, TAG_COUNT>	iCountsPerTag;
 
 } zoneStats_t;
 
@@ -703,7 +703,7 @@ static void Z_Details_f(void)
 	Com_Printf("---------------------------------------------------------------------------\n");
 	Com_Printf("%20s %9s\n","Zone Tag","Bytes");
 	Com_Printf("%20s %9s\n","--------","-----");
-	for (int i=0; i<TAG_COUNT; i++)
+	for (memtag i = TAG_ALL; i < TAG_COUNT; i++)
 	{
 		int iThisCount = TheZone.Stats.iCountsPerTag[i];
 		int iThisSize  = TheZone.Stats.iSizesPerTag	[i];
@@ -781,7 +781,7 @@ static void Z_TagDebug_f(void)
 
 			// see if the user specified a valid tag...
 			//
-			for (int i=0; i<TAG_COUNT; i++)
+			for (memtag i = TAG_ALL; i < TAG_COUNT; i++)
 			{
 				if (!Q_stricmp(psTAGName,psTagStrings[i]))
 				{

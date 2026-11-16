@@ -109,8 +109,8 @@ extern void NPC_BSSearch (void);
 extern void NPC_BSSearchStart (int	homeWp, bState_t bState);
 extern void NPC_BSWander (void);
 extern bool NPC_BSFlee( void );
-extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax );
-extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax );
+extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax );
+extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax );
 
 //NPC_combat
 extern int ChooseBestWeapon( void );
@@ -315,7 +315,7 @@ extern bool NPC_CheckEnemyExt( bool checkAlerts = false );
 extern bool NPC_FindPlayer( void );
 extern bool NPC_CheckCanAttackExt( void );
 
-extern int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert = -1, bool mustHaveOwner = false, int minAlertLevel = AEL_MINOR, bool onGroundOnly = false );
+extern int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert = -1, bool mustHaveOwner = false, alertEventLevel_e minAlertLevel = AEL_MINOR, bool onGroundOnly = false );
 extern bool NPC_CheckForDanger( int alertEvent );
 extern void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float soundDist );
 

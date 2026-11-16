@@ -148,6 +148,6 @@ int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int
 int trap_CIN_StopCinematic(int handle)
 {
 //  return syscall(UI_CIN_STOPCINEMATIC, handle);
-	return CIN_StopCinematic(handle);
+	return to_underlying( CIN_StopCinematic(handle) );
 }
 

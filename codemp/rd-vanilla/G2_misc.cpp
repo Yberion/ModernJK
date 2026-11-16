@@ -190,7 +190,7 @@ public:
 	skin_t				*skin;
     shader_t			*cust_shader;
 	size_t				*TransformedVertsArray;
-	int					traceFlags;
+	EG2_Collision		traceFlags;
 	bool				hitOne;
 	float				m_fRadius;
 
@@ -219,7 +219,7 @@ public:
 	skin_t				*initskin,
 	shader_t			*initcust_shader,
 	size_t				*initTransformedVertsArray,
-	int					inittraceFlags,
+	EG2_Collision		inittraceFlags,
 #ifdef _G2_GORE
 	float				fRadius,
 	float				initssize,
@@ -1488,9 +1488,9 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 }
 
 #ifdef _G2_GORE
-void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch)
+void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch)
 #else
-void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius)
+void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius)
 #endif
 {
 	int				i, lod;

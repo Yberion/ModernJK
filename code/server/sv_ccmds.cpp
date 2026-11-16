@@ -441,7 +441,7 @@ static void SV_DumpUser_f( void ) {
 	}
 
 	cl = &svs.clients[0];
-	if ( !cl->state ) {
+	if ( cl->state == CS_FREE ) {
 		Com_Printf("Client is not active\n");
 		return;
 	}

@@ -260,7 +260,7 @@ the saber style (fast, medium, strong)
 */
 static void CG_DrawSaberStyle(const centity_t	*cent,const int xPos,const int yPos)
 {
-	int index;
+	otherhudbits_t index;
 
 	if (!cent->currentState.weapon ) // We don't have a weapon right now
 	{
@@ -1651,7 +1651,7 @@ static void CG_DrawBatteryCharge( void )
 
 static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 {
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	char		num[7] = { 0 };
 	int			weapX = 16;
 
@@ -1710,7 +1710,7 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 static void CG_DrawSimpleAmmo( const centity_t *cent )
 {
 	playerState_t	*ps;
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	int			currValue = 0;
 	char		num[16] = { 0 };
 
@@ -1775,7 +1775,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 
 static void CG_DrawSimpleForcePower( const centity_t *cent )
 {
-	uint32_t	calcColor;
+	ct_table_t	calcColor;
 	char		num[16] = { 0 };
 	bool	flash = false;
 

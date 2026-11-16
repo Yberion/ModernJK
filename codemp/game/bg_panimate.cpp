@@ -741,6 +741,9 @@ int BG_BrokenParryForAttack( int move )
 	case Q_BL:
 		return LS_V1_BL;
 		break;
+	
+	default:
+		break;
 	}
 	return LS_NONE;
 }
@@ -781,7 +784,7 @@ int BG_BrokenParryForParry( int move )
 	return LS_NONE;
 }
 
-int BG_KnockawayForParry( int move )
+int BG_KnockawayForParry( saberBlockedType_t move )
 {
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
@@ -1106,7 +1109,7 @@ bool BG_StabDownAnim( int anim )
 
 int PM_SaberBounceForAttack( int move )
 {
-	switch ( saberMoveData[move].startQuad )
+	switch ( static_cast<saberQuadrant_t>( saberMoveData[move].startQuad ) )
 	{
 	case Q_B:
 	case Q_BR:
@@ -1130,13 +1133,16 @@ int PM_SaberBounceForAttack( int move )
 	case Q_BL:
 		return LS_B1_BL;
 		break;
+	
+	default:
+		break;
 	}
 	return LS_NONE;
 }
 
-int PM_SaberDeflectionForQuad( int quad )
+int PM_SaberDeflectionForQuad( saberQuadrant_t quad )
 {
-	switch ( quad )
+	switch ( static_cast<saberQuadrant_t>( quad ) )
 	{
 	case Q_B:
 		return LS_D1_B_;
@@ -1161,6 +1167,9 @@ int PM_SaberDeflectionForQuad( int quad )
 		break;
 	case Q_BL:
 		return LS_D1_BL;
+		break;
+	
+	default:
 		break;
 	}
 	return LS_NONE;
@@ -1751,7 +1760,7 @@ stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 	{ nullptr,-1 }
 };
 
-stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1] =
+stringID_table_t footstepTypeTable[to_underlying( NUM_FOOTSTEP_TYPES ) + 1] =
 {
 	ENUM2STRING(FOOTSTEP_R),
 	ENUM2STRING(FOOTSTEP_L),
@@ -2741,22 +2750,22 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 			*animSpeed *= 0.75f;
 		}
 
-		if (broken & (1<<BROKENLIMB_RARM))
+		if (broken & Bit( BROKENLIMB_RARM ))
 		{
 			*animSpeed *= 0.5f;
 		}
-		else if (broken & (1<<BROKENLIMB_LARM))
+		else if (broken & Bit( BROKENLIMB_LARM ))
 		{
 			*animSpeed *= 0.65f;
 		}
 	}
 	else if (broken && PM_InSaberAnim(anim))
 	{
-		if (broken & (1<<BROKENLIMB_RARM))
+		if (broken & Bit( BROKENLIMB_RARM ))
 		{
 			*animSpeed *= 0.5f;
 		}
-		else if (broken & (1<<BROKENLIMB_LARM))
+		else if (broken & Bit( BROKENLIMB_LARM ))
 		{
 			*animSpeed *= 0.65f;
 		}

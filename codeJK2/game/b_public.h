@@ -87,7 +87,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //extern bool showWaypoints;
 
-typedef enum {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT} visibility_t;
+enum class visibility_t {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT};
+using enum visibility_t;
 enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
 using enum spot_t;
 
@@ -108,14 +109,15 @@ enum class jumpState_t //# jumpState_e
 };
 using enum jumpState_t;
 
-typedef enum //# movetype_e
+enum class movetype_t //# movetype_e
 {
 	MT_STATIC = 0,
 	MT_WALK,
 	MT_RUNJUMP,
 	MT_FLYSWIM,
 	NUM_MOVETYPES
-} movetype_t;
+};
+using enum movetype_t;
 
 class gNPCstats_t
 {//Stats, loaded in, and can be set by scripts

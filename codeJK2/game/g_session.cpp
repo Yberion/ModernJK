@@ -55,7 +55,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	s2 = "";
 	// Throw all status info into a string
-	for (i=0;i< MAX_OBJECTIVES; i++)
+	for (i=0;i< to_underlying( MAX_OBJECTIVES ); i++)
 	{
 		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[i].display,	client->sess.mission_objectives[i].status);
 	}
@@ -126,7 +126,7 @@ void G_ReadSessionData( gclient_t *client ) {
 
 	var = s;
 	var++;
-	for (i=0;i< MAX_OBJECTIVES; i++)
+	for (i=0;i< to_underlying( MAX_OBJECTIVES ); i++)
 	{
 		sscanf( var, "%i %i",
 			&client->sess.mission_objectives[i].display,

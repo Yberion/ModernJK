@@ -135,16 +135,17 @@ typedef union sharedBuffer_u {
 extern sharedBuffer_t gSharedBuffer;
 
 // movers are things like doors, plats, buttons, etc
-typedef enum {
+enum class moverState_t {
 	MOVER_POS1,
 	MOVER_POS2,
 	MOVER_1TO2,
 	MOVER_2TO1
-} moverState_t;
+};
+using enum moverState_t;
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
-typedef enum
+enum class hitLocation_t
 {
 	HL_NONE = 0,
 	HL_FOOT_RT,
@@ -170,7 +171,9 @@ typedef enum
 	HL_GENERIC5,
 	HL_GENERIC6,
 	HL_MAX
-} hitLocation_t;
+};
+using enum hitLocation_t;
+template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
 
 //============================================================================
 extern void *precachedKyle;
@@ -193,7 +196,7 @@ struct gentity_s {
 	entityShared_t	r;				// shared by both the server system and game
 
 	//rww - these are shared icarus things. They must be in this order as well in relation to the entityshared structure.
-	int				taskID[NUM_TIDS];
+	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
 	char			*behaviorSet[NUM_BSETS];
 	char			*script_targetname;
@@ -355,7 +358,7 @@ struct gentity_s {
 	int			methodOfDeath;
 	int			splashMethodOfDeath;
 
-	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
+	int			locationDamage[to_underlying( HL_MAX )];		// Damage accumulated on different body locations
 
 	int			count;
 	int			bounceCount;
@@ -415,11 +418,12 @@ struct gentity_s {
 #define DAMAGEREDIRECT_RLEG		2
 #define DAMAGEREDIRECT_LLEG		3
 
-typedef enum {
+enum class clientConnected_t {
 	CON_DISCONNECTED,
 	CON_CONNECTING,
 	CON_CONNECTED
-} clientConnected_t;
+};
+using enum clientConnected_t;
 
 enum class spectatorState_t {
 	SPECTATOR_NOT,
@@ -429,10 +433,11 @@ enum class spectatorState_t {
 };
 using enum spectatorState_t;
 
-typedef enum {
+enum class playerTeamStateState_t {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
 	TEAM_ACTIVE		// Now actively playing
-} playerTeamStateState_t;
+};
+using enum playerTeamStateState_t;
 
 typedef struct playerTeamState_s {
 	playerTeamStateState_t	state;
@@ -473,7 +478,7 @@ typedef struct clientSession_s {
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
 	bool	teamLeader;			// true when this client is a team leader
 	char		siegeClass[64];
-	int			duelTeam;
+	duelTeam_t	duelTeam;
 	int			siegeDesiredTeam;
 
 	char		IP[NET_ADDRSTRMAXLEN];
@@ -839,14 +844,16 @@ enum class alertEventType_e
 };
 using enum alertEventType_e;
 
-typedef enum
+enum class alertEventLevel_e
 {
+	AEL_NONE = -1,		// no alert yet
 	AEL_MINOR,			//Enemy responds to the sound, but only by looking
 	AEL_SUSPICIOUS,		//Enemy looks at the sound, and will also investigate it
 	AEL_DISCOVERED,		//Enemy knows the player is around, and will actively hunt
 	AEL_DANGER,			//Enemy should try to find cover
 	AEL_DANGER_GREAT,	//Enemy should run like hell!
-} alertEventLevel_e;
+};
+using enum alertEventLevel_e;
 
 typedef struct alertEvent_s
 {
@@ -934,7 +941,7 @@ typedef struct level_locals_s {
 	int			numVotingClients;		// set by CalculateRanks
 
 	bool	votingGametype;
-	int			votingGametypeTo;
+	gametype_t	votingGametypeTo;
 
 	// team voting state
 	char		teamVoteString[2][MAX_STRING_CHARS];
@@ -1040,7 +1047,7 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam );
 void SetTeam( gentity_t *ent, const char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 void Cmd_SaberAttackCycle_f(gentity_t *ent);
-int G_ItemUsable(playerState_t *ps, int forcedUse);
+int G_ItemUsable(playerState_t *ps, holdable_t forcedUse);
 void Cmd_ToggleSaber_f(gentity_t *ent);
 void Cmd_EngageDuel_f(gentity_t *ent);
 
@@ -1055,7 +1062,7 @@ void Jetpack_Off(gentity_t *ent);
 void Jetpack_On(gentity_t *ent);
 void ItemUse_Jetpack(gentity_t *ent);
 void ItemUse_UseCloak( gentity_t *ent );
-void ItemUse_UseDisp(gentity_t *ent, int type);
+void ItemUse_UseDisp(gentity_t *ent, holdable_t type);
 void ItemUse_UseEWeb(gentity_t *ent);
 void G_PrecacheDispensers(void);
 
@@ -1113,7 +1120,7 @@ void	G_SetAngles( gentity_t *ent, vec3_t angles );
 void	G_InitGentity( gentity_t *e );
 gentity_t	*G_Spawn (void);
 gentity_t *G_TempEntity( vec3_t origin, int event );
-gentity_t	*G_PlayEffect(int fxID, vec3_t org, vec3_t ang);
+gentity_t	*G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang);
 gentity_t	*G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang);
 gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int duration, bool global);
 void	G_MuteSound( int entnum, int channel );
@@ -1350,7 +1357,7 @@ const char *ClientConnect( int clientNum, bool firstTime, bool isBot );
 bool ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum, bool allowTeamReset );
-void G_BreakArm(gentity_t *ent, int arm);
+void G_BreakArm(gentity_t *ent, brokenLimb_t arm);
 void G_UpdateClientAnims(gentity_t *self, float animSpeedScale);
 void ClientCommand( int clientNum );
 void G_ClearVote( gentity_t *ent );
@@ -1391,7 +1398,7 @@ void G_WriteSessionData( void );
 extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight ); //addLight = 0.0f
 extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS ); //needLOS = false
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
-extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = AEL_MINOR
+extern int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, alertEventLevel_e minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = false, minAlertLevel = AEL_MINOR
 extern bool G_CheckForDanger( gentity_t *self, int alertEvent );
 extern bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
 extern bool G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end );
@@ -1411,12 +1418,12 @@ bool G_BotConnect( int clientNum, bool restart );
 void Svcmd_AddBot_f( void );
 void Svcmd_BotList_f( void );
 void BotInterbreedEndMatch( void );
-bool G_DoesMapSupportGametype(const char *mapname, int gametype);
-const char *G_RefreshNextMap(int gametype, bool forced);
+bool G_DoesMapSupportGametype(const char *mapname, gametype_t gametype);
+const char *G_RefreshNextMap(gametype_t gametype, bool forced);
 void G_LoadArenas( void );
 
 // w_force.cpp / w_saber.cpp
-gentity_t *G_PreDefSound(vec3_t org, int pdSound);
+gentity_t *G_PreDefSound(vec3_t org, pdSounds_t pdSound);
 bool HasSetSaberOnly(void);
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd );
@@ -1437,7 +1444,7 @@ void ForceTeamForceReplenish( gentity_t *self );
 void ForceSeeing( gentity_t *self );
 void ForceThrow( gentity_t *self, bool pull );
 void ForceTelepathy(gentity_t *self);
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc );
 
 // g_log.cpp
 void QDECL G_LogWeaponPickup(int client, int weaponid);
@@ -1550,14 +1557,15 @@ void Svcmd_Scenario_f( void );
 // userinfo validation bitflags
 // default is all except extended ascii
 // numUserinfoFields + USERINFO_VALIDATION_MAX should not exceed 31
-typedef enum userinfoValidationBits_e {
+enum class userinfoValidationBits_t {
 	// validation & (1<<(numUserinfoFields+USERINFO_VALIDATION_BLAH))
 	USERINFO_VALIDATION_SIZE=0,
 	USERINFO_VALIDATION_SLASH,
 	USERINFO_VALIDATION_EXTASCII,
 	USERINFO_VALIDATION_CONTROLCHARS,
 	USERINFO_VALIDATION_MAX
-} userinfoValidationBits_t;
+};
+using enum userinfoValidationBits_t;
 
 void Svcmd_ToggleUserinfoValidation_f( void );
 void Svcmd_ToggleAllowVote_f( void );

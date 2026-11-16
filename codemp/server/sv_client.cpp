@@ -433,13 +433,13 @@ void SV_CreateClientGameStateMessage( client_t *client, msg_t *msg ) {
 	SV_UpdateServerCommandsToClient( client, msg );
 
 	// send the gamestate
-	MSG_WriteByte( msg, svc_gamestate );
+	MSG_WriteByte( msg, to_underlying( svc_gamestate ) );
 	MSG_WriteLong( msg, client->reliableSequence );
 
 	// write the configstrings
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
 		if (sv.configstrings[start][0]) {
-			MSG_WriteByte( msg, svc_configstring );
+			MSG_WriteByte( msg, to_underlying( svc_configstring ) );
 			MSG_WriteShort( msg, start );
 			MSG_WriteBigString( msg, sv.configstrings[start] );
 		}
@@ -452,11 +452,11 @@ void SV_CreateClientGameStateMessage( client_t *client, msg_t *msg ) {
 		if ( !base->number ) {
 			continue;
 		}
-		MSG_WriteByte( msg, svc_baseline );
+		MSG_WriteByte( msg, to_underlying( svc_baseline ) );
 		MSG_WriteDeltaEntity( msg, &nullstate, base, true );
 	}
 
-	MSG_WriteByte( msg, svc_EOF );
+	MSG_WriteByte( msg, to_underlying( svc_EOF ) );
 
 	MSG_WriteLong( msg, client - svs.clients);
 
@@ -481,7 +481,7 @@ the wrong gamestate.
 void SV_SendClientGameState( client_t *client ) {
 	// MW - my attempt to fix illegible server message errors caused by
 	// packet fragmentation of initial snapshot.
-	while(client->state&&client->netchan.unsentFragments)
+	while(client->state != CS_FREE &&client->netchan.unsentFragments)
 	{
 		// send additional message fragments if the last message
 		// was too large to send at once

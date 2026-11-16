@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_vehicles.h"
 #include "g_nav.h"
 
-extern void G_DebugPrint( int level, const char *format, ... );
+extern void G_DebugPrint( WL_e level, const char *format, ... );
 
 extern bool G_CheckInSolid (gentity_t *self, bool fix);
 extern bool ClientUserinfoChanged( int clientNum );
@@ -1126,7 +1126,7 @@ void NPC_Begin (gentity_t *ent)
 	//FIXME: Set the team correctly
 	if (ent->s.NPC_class != CLASS_VEHICLE || level.gametype != GT_SIEGE)
 	{
-		ent->client->ps.persistant[PERS_TEAM] = ent->client->playerTeam;
+		ent->client->ps.persistant[PERS_TEAM] = to_underlying( ent->client->playerTeam );
 	}
 
 	ent->use   = NPC_Use;
@@ -1597,7 +1597,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 				if ( g_entities[n].s.eType != ET_NPC && g_entities[n].client)
 				{
 					VectorCopy(g_entities[n].s.origin, newent->s.origin);
-					newent->s.teamowner = newent->client->playerTeam = g_entities[n].client->playerTeam;
+					newent->s.teamowner = to_underlying( newent->client->playerTeam = g_entities[n].client->playerTeam );
 					break;
 				}
 			}

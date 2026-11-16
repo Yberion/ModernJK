@@ -391,7 +391,7 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 LAN_GetServerState
 ====================
 */
-int LAN_GetServerState( int source, int n ) {
+lanServerState_t LAN_GetServerState( int source, int n ) {
 	const serverInfo_t *server = LAN_GetServerPtr( source, n );
 	return server ? server->state : LANSERVER_NOT_ASKED;
 }

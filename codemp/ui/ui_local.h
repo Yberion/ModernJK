@@ -167,7 +167,7 @@ typedef struct teamInfo_s {
 
 typedef struct gameTypeInfo_s {
 	const char *gameType;
-	int gtEnum;
+	gametype_t gtEnum;
 } gameTypeInfo_t;
 
 typedef struct mapInfo_s {

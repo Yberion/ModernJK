@@ -677,14 +677,17 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	int iFaceDataSizeRequired = 0;
 	for ( i = 0 ; i < count ; i++, in++)
 	{
-		switch ( LittleLong( in->surfaceType ) )
+		switch ( static_cast<mapSurfaceType_t>( LittleLong( in->surfaceType ) ) )
 		{
-			case MST_PLANAR:
+			case MST_PLANAR: {
 
 				int sfaceSize = sizeof( srfSurfaceFace_t ) - sizeof( float[1][VERTEXSIZE] ) + sizeof( float[VERTEXSIZE] ) * LittleLong(in->numVerts);
 					sfaceSize += sizeof( int ) * LittleLong(in->numIndexes);
 
 				iFaceDataSizeRequired += sfaceSize;
+				break;
+			}
+			default:
 				break;
 		}
 	}
@@ -698,7 +701,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	// now do regular loop...
 	//
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		switch ( LittleLong( in->surfaceType ) ) {
+		switch ( static_cast<mapSurfaceType_t>( LittleLong( in->surfaceType ) ) ) {
 		case MST_PATCH:
 			ParseMesh ( in, dv, out, worldData, index );
 			numMeshes++;

@@ -152,7 +152,7 @@ const char	*bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS] =
 //rww - not putting @ in front of these because
 //we don't need them in a cgame StringEd lookup.
 //Let me know if this causes problems, pat.
-const char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] =
+const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels =
 {
 	"MASTERY0",	//"Uninitiated",	// FORCE_MASTERY_UNINITIATED,
 	"MASTERY1",	//"Initiate",		// FORCE_MASTERY_INITIATE,
@@ -164,7 +164,7 @@ const char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] =
 	"MASTERY7",	//"Jedi Master"		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS] =
+const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints =
 {
 	0,		// FORCE_MASTERY_UNINITIATED,
 	5,		// FORCE_MASTERY_INITIATE,
@@ -328,7 +328,7 @@ void BG_FixWeaponAttackAnim(void) {
 #elif defined(_CGAME)
 	const char *cs = CG_ConfigString(CS_LEGACY_FIXES);
 	const uint32_t legacyFixes = strtoul(cs, nullptr, 0);
-	const bool doFix = !!(legacyFixes & (1 << LEGACYFIX_WEAPONATTACKANIM));
+	const bool doFix = !!(legacyFixes & Bit( LEGACYFIX_WEAPONATTACKANIM ));
 #elif defined(UI_BUILD)
 	const bool doFix = true; // no chance of prediction error from UI code
 #endif
@@ -361,7 +361,7 @@ bool BG_FileExists( const char *fileName ) {
 }
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
-void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, int flags, vec3_t vec)
+void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, orientations_t flags, vec3_t vec)
 {
 	switch (flags)
 	{
@@ -415,7 +415,7 @@ fpDisabled is actually only expected (needed) from the server, because the ui di
 force power selection anyway when force powers are disabled on the server.
 ================
 */
-bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, bool freeSaber, int teamForce, int gametype, int fpDisabled)
+bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, bool freeSaber, int teamForce, gametype_t gametype, int fpDisabled)
 {
 	char powerBuf[128];
 	char readBuf[128];
@@ -490,7 +490,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 
 	//final_Powers now contains all the stuff from the string
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
-	allowedPoints = forceMasteryPoints[maxRank];
+	allowedPoints = forceMasteryPoints[static_cast<forceMasteries_t>( maxRank )];
 
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
@@ -807,7 +807,7 @@ Instant medpack pickup, heals 25
 /* pickup *///	"Seeker Drone",
 		120,
 		IT_HOLDABLE,
-		HI_SEEKER,
+		to_underlying( HI_SEEKER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_AN_ATTACK_DRONE_SIMILAR"					// description
@@ -826,7 +826,7 @@ Portable shield
 /* pickup *///	"Forcefield",
 		120,
 		IT_HOLDABLE,
-		HI_SHIELD,
+		to_underlying( HI_SHIELD ),
 /* precache */ "",
 /* sounds */ "sound/weapons/detpack/stick.wav sound/movers/doors/forcefield_on.wav sound/movers/doors/forcefield_off.wav sound/movers/doors/forcefield_lp.wav sound/effects/bumpfield.wav",
 		"@MENUS_THIS_STATIONARY_ENERGY"					// description
@@ -845,7 +845,7 @@ Bacta canister pickup, heals 25 on use
 /* pickup *///	"Bacta Canister",
 		25,
 		IT_HOLDABLE,
-		HI_MEDPAC,
+		to_underlying( HI_MEDPAC ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BACTA_DESC"					// description
@@ -864,7 +864,7 @@ Big bacta canister pickup, heals 50 on use
 /* pickup *///	"Bacta Canister",
 		25,
 		IT_HOLDABLE,
-		HI_MEDPAC_BIG,
+		to_underlying( HI_MEDPAC_BIG ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BACTA_DESC"					// description
@@ -883,7 +883,7 @@ These will be standard equipment on the player - DO NOT PLACE
 /* pickup *///	"Binoculars",
 		60,
 		IT_HOLDABLE,
-		HI_BINOCULARS,
+		to_underlying( HI_BINOCULARS ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_LA_GOGGLES_DESC"					// description
@@ -902,7 +902,7 @@ Sentry gun inventory pickup.
 /* pickup *///	"Sentry Gun",
 		120,
 		IT_HOLDABLE,
-		HI_SENTRY_GUN,
+		to_underlying( HI_SENTRY_GUN ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_DEADLY_WEAPON_IS"					// description
@@ -921,7 +921,7 @@ Do not place.
 /* pickup *///	"Sentry Gun",
 		120,
 		IT_HOLDABLE,
-		HI_JETPACK,
+		to_underlying( HI_JETPACK ),
 /* precache */ "effects/boba/jet.efx",
 /* sounds */ "sound/chars/boba/JETON.wav sound/chars/boba/JETHOVER.wav sound/effects/fire_lp.wav",
 		"@MENUS_JETPACK_DESC"					// description
@@ -940,7 +940,7 @@ Do not place. For siege classes ONLY.
 /* pickup *///	"Sentry Gun",
 		120,
 		IT_HOLDABLE,
-		HI_HEALTHDISP,
+		to_underlying( HI_HEALTHDISP ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -959,7 +959,7 @@ Do not place. For siege classes ONLY.
 /* pickup *///	"Sentry Gun",
 		120,
 		IT_HOLDABLE,
-		HI_AMMODISP,
+		to_underlying( HI_AMMODISP ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -978,7 +978,7 @@ Do not place. For siege classes ONLY.
 /* pickup *///	"Sentry Gun",
 		120,
 		IT_HOLDABLE,
-		HI_EWEB,
+		to_underlying( HI_EWEB ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_EWEB_DESC"					// description
@@ -997,7 +997,7 @@ Do not place. For siege classes ONLY.
 /* pickup *///	"Seeker Drone",
 		120,
 		IT_HOLDABLE,
-		HI_CLOAK,
+		to_underlying( HI_CLOAK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_CLOAK_DESC"					// description
@@ -1708,7 +1708,7 @@ float vectoyaw( const vec3_t vec ) {
 	return yaw;
 }
 
-bool BG_HasYsalamiri(int gametype, playerState_t *ps)
+bool BG_HasYsalamiri(gametype_t gametype, playerState_t *ps)
 {
 	if (gametype == GT_CTY &&
 		(ps->powerups[PW_REDFLAG] || ps->powerups[PW_BLUEFLAG]))
@@ -1724,7 +1724,7 @@ bool BG_HasYsalamiri(int gametype, playerState_t *ps)
 	return false;
 }
 
-bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t power)
+bool BG_CanUseFPNow(gametype_t gametype, playerState_t *ps, int time, forcePowers_t power)
 {
 	if (BG_HasYsalamiri(gametype, ps))
 	{
@@ -1771,8 +1771,8 @@ bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t pow
 		return false;
 	}
 
-	if ((ps->brokenLimbs & (1 << BROKENLIMB_RARM)) ||
-		(ps->brokenLimbs & (1 << BROKENLIMB_LARM)))
+	if ((ps->brokenLimbs & Bit( BROKENLIMB_RARM )) ||
+		(ps->brokenLimbs & Bit( BROKENLIMB_LARM )))
 	{ //powers we can't use with a broken arm
         switch (power)
 		{
@@ -1801,7 +1801,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
 		if ( (bg_itemlist[i].giType == IT_POWERUP ||
 					bg_itemlist[i].giType == IT_TEAM) &&
-			bg_itemlist[i].giTag == pw ) {
+			bg_itemlist[i].giTag == to_underlying( pw ) ) {
 			return &bg_itemlist[i];
 		}
 	}
@@ -1819,7 +1819,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw ) {
+		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == to_underlying( pw ) ) {
 			return &bg_itemlist[i];
 		}
 	}
@@ -1967,7 +1967,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 		ps->fd.forcePowerSelected = foundnext;
 }
 
-int BG_GetItemIndexByTag(int tag, int type)
+int BG_GetItemIndexByTag(int tag, itemType_t type)
 { //Get the itemlist index from the tag and type
 	int i = 0;
 
@@ -1986,7 +1986,7 @@ int BG_GetItemIndexByTag(int tag, int type)
 }
 
 //yeah..
-bool BG_IsItemSelectable(playerState_t *ps, int item)
+bool BG_IsItemSelectable(playerState_t *ps, holdable_t item)
 {
 	if (item == HI_HEALTHDISP || item == HI_AMMODISP ||
 		item == HI_JETPACK)
@@ -2008,7 +2008,7 @@ void BG_CycleInven(playerState_t *ps, int direction)
 	if (direction == 1)
 	{ //next
 		i++;
-		if (i == HI_NUM_HOLDABLE)
+		if (i == to_underlying( HI_NUM_HOLDABLE ))
 		{
 			i = 1;
 		}
@@ -2018,7 +2018,7 @@ void BG_CycleInven(playerState_t *ps, int direction)
 		i--;
 		if (i == 0)
 		{
-			i = HI_NUM_HOLDABLE-1;
+			i = to_underlying( HI_NUM_HOLDABLE )-1;
 		}
 	}
 
@@ -2026,7 +2026,7 @@ void BG_CycleInven(playerState_t *ps, int direction)
 	{ //go in a full loop until hitting something, if hit nothing then select nothing
 		if (ps->stats[STAT_HOLDABLE_ITEMS] & (1 << i))
 		{ //we have it, select it.
-			if (BG_IsItemSelectable(ps, i))
+			if (BG_IsItemSelectable(ps, static_cast<holdable_t>( i )))
 			{
 				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(i, IT_HOLDABLE);
 				break;
@@ -2044,9 +2044,9 @@ void BG_CycleInven(playerState_t *ps, int direction)
 
 		if (i <= 0)
 		{ //wrap around to the last
-			i = HI_NUM_HOLDABLE-1;
+			i = to_underlying( HI_NUM_HOLDABLE )-1;
 		}
-		else if (i >= HI_NUM_HOLDABLE)
+		else if (i >= to_underlying( HI_NUM_HOLDABLE ))
 		{ //wrap around to the first
 			i = 1;
 		}
@@ -2067,7 +2067,7 @@ Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
 */
-bool BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
+bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const playerState_t *ps ) {
 	gitem_t	*item;
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
@@ -2083,7 +2083,7 @@ bool BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerSt
 			if ( item->giType != IT_TEAM //not a flag
 				&& item->giType != IT_ARMOR//not shields
 				&& (item->giType != IT_WEAPON || item->giTag != WP_SABER)//not a saber
-				&& (item->giType != IT_HOLDABLE || item->giTag != HI_SEEKER)//not a seeker
+				&& (item->giType != IT_HOLDABLE || item->giTag != to_underlying( HI_SEEKER ))//not a seeker
 				&& (item->giType != IT_POWERUP || item->giTag == PW_YSALAMIRI) )//not a force pick-up
 			{
 				return false;
@@ -2092,7 +2092,7 @@ bool BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerSt
 		else if ( ps->trueNonJedi )
 		{//can't pick up force powerups
 			if ( (item->giType == IT_POWERUP && item->giTag != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
-				|| (item->giType == IT_HOLDABLE && item->giTag == HI_SEEKER)//if holdable, cannot pick up seeker
+				|| (item->giType == IT_HOLDABLE && item->giTag == to_underlying( HI_SEEKER ))//if holdable, cannot pick up seeker
 				|| (item->giType == IT_WEAPON && item->giTag == WP_SABER ) )//or if it's a saber
 			{
 				return false;
@@ -3179,7 +3179,7 @@ bool BG_OutOfMemory ( void )
 	return bg_poolSize >= MAX_POOL_SIZE;
 }
 
-const char *gametypeStringShort[GT_MAX_GAME_TYPE] = {
+const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeStringShort = {
 	"FFA",
 	"HOLO",
 	"JM",
@@ -3192,7 +3192,7 @@ const char *gametypeStringShort[GT_MAX_GAME_TYPE] = {
 	"CTY"
 };
 
-const char *BG_GetGametypeString( int gametype )
+const char *BG_GetGametypeString( gametype_t gametype )
 {
 	switch ( gametype )
 	{
@@ -3223,7 +3223,7 @@ const char *BG_GetGametypeString( int gametype )
 	}
 }
 
-int BG_GetGametypeForString( const char *gametype )
+gametype_t BG_GetGametypeForString( const char *gametype )
 {
 		 if ( !Q_stricmp( gametype, "ffa" )
 			||!Q_stricmp( gametype, "dm" ) )			return GT_FFA;
@@ -3239,5 +3239,5 @@ int BG_GetGametypeForString( const char *gametype )
 	else if ( !Q_stricmp( gametype, "siege" ) )			return GT_SIEGE;
 	else if ( !Q_stricmp( gametype, "ctf" ) )			return GT_CTF;
 	else if ( !Q_stricmp( gametype, "cty" ) )			return GT_CTY;
-	else												return -1;
+	else												return GT_UNKNOWN;
 }

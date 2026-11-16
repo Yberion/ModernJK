@@ -671,7 +671,7 @@ void NPC_ApplyScriptFlags (void)
 	}
 }
 
-void Q3_DebugPrint( int level, const char *format, ... );
+void Q3_DebugPrint( WL_e level, const char *format, ... );
 void NPC_HandleAIFlags (void)
 {
 	//FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
@@ -1321,7 +1321,7 @@ extern bool NPC_CheckSurrender( void );
 extern void Boba_FlyStop( gentity_t *self );
 extern void NPC_BSWampa_Default( void );
 extern bool Jedi_CultistDestroyer( gentity_t *self );
-void NPC_RunBehavior( int team, int bState )
+void NPC_RunBehavior( npcteam_t team, int bState )
 {
 	if (NPCS.NPC->s.NPC_class == CLASS_VEHICLE &&
 		NPCS.NPC->m_pVehicle)
@@ -1383,7 +1383,7 @@ void NPC_RunBehavior( int team, int bState )
 	}
 	else
 	{
-		switch( team )
+		switch( static_cast<npcteam_t>( team ) )
 		{
 
 	//	case NPCTEAM_SCAVENGERS:

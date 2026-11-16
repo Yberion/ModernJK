@@ -1733,7 +1733,7 @@ void RB_SurfaceSkip( void *surf ) {
 }
 
 
-void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
+EnumArray<void (*)( void * ), surfaceType_t, SF_NUM_SURFACE_TYPES> rb_surfaceTable = {
 	(void(*)(void*))RB_SurfaceBad,			// SF_BAD,
 	(void(*)(void*))RB_SurfaceSkip,			// SF_SKIP,
 	(void(*)(void*))RB_SurfaceFace,			// SF_FACE,

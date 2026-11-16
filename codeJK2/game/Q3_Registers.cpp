@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Registers.h"
 #include "../code/qcommon/ojk_saved_game_helper.h"
 
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
+extern	void	Q3_DebugPrint( WL_e level, const char *format, ... );
 
 varString_m		varStrings;
 varFloat_m		varFloats;

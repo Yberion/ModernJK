@@ -34,7 +34,7 @@ int CG_GetSelectedPlayer() {
 	return cg_currentSelectedPlayer.integer;
 }
 
-qhandle_t CG_StatusHandle(int task) {
+qhandle_t CG_StatusHandle(teamtask_t task) {
 	qhandle_t h = cgs.media.assaultShader;
 	switch (task) {
 	case TEAMTASK_OFFENSE :
@@ -817,8 +817,8 @@ type 0 - no event handling
 2 - hud editor
 
 */
-void CG_EventHandling(int type) {
-	cgs.eventHandling = type;
+void CG_EventHandling(cgameEvent_t type) {
+	cgs.eventHandling = type != CGAME_EVENT_NONE;
 	if (type == CGAME_EVENT_NONE) {
 		CG_HideTeamMenu();
 	} else if (type == CGAME_EVENT_TEAMMENU) {

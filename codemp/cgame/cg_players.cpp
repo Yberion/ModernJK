@@ -1641,7 +1641,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 
 	// team task
 	v = Info_ValueForKey( configstring, "tt" );
-	newInfo.teamTask = atoi(v);
+	newInfo.teamTask = static_cast<teamtask_t>( atoi(v) );
 
 	// team leader
 	v = Info_ValueForKey( configstring, "tl" );
@@ -1828,11 +1828,11 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 
 	if (v)
 	{
-		newInfo.duelTeam = atoi(v);
+		newInfo.duelTeam = static_cast<duelTeam_t>( atoi(v) );
 	}
 	else
 	{
-		newInfo.duelTeam = 0;
+		newInfo.duelTeam = DUELTEAM_FREE;
 	}
 
 	// force powers
@@ -3021,7 +3021,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 #if 0 //disabled for now
 		if (cent->localAnimIndex <= 1 && cent->currentState.brokenLimbs &&
-			(cent->currentState.brokenLimbs & (1 << BROKENLIMB_LARM)))
+			(cent->currentState.brokenLimbs & Bit( BROKENLIMB_LARM )))
 		{ //broken left arm
 			const char *brokenBone = "lhumerus";
 			animation_t *armAnim;
@@ -3046,7 +3046,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, cg.time, -1, blendTime);
 		}
 		else if (cent->localAnimIndex <= 1 && cent->currentState.brokenLimbs &&
-			(cent->currentState.brokenLimbs & (1 << BROKENLIMB_RARM)))
+			(cent->currentState.brokenLimbs & Bit( BROKENLIMB_RARM )))
 		{ //broken right arm
 			const char *brokenBone = "rhumerus";
 			const char *supportBone = "lhumerus";
@@ -3135,15 +3135,15 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 			//Warning: Don't remove bones that you've added as bolts unless you want to invalidate your bolt index
 			//(well, in theory, I haven't actually run into the problem)
-			if (ci->brokenLimbs & (1<<BROKENLIMB_LARM))
+			if (ci->brokenLimbs & Bit( BROKENLIMB_LARM ))
 			{
 				brokenBone = "lhumerus";
-				broken |= (1<<BROKENLIMB_LARM);
+				broken |= Bit( BROKENLIMB_LARM );
 			}
-			else if (ci->brokenLimbs & (1<<BROKENLIMB_RARM))
+			else if (ci->brokenLimbs & Bit( BROKENLIMB_RARM ))
 			{ //can only have one arm broken at once.
 				brokenBone = "rhumerus";
-				broken |= (1<<BROKENLIMB_RARM);
+				broken |= Bit( BROKENLIMB_RARM );
 
 				//want to remove the support bone too then
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lhumerus", 0, 1, 0, 0, cg.time, -1, 0);
@@ -3399,9 +3399,9 @@ typedef struct boneAngleParms_s {
 	char *boneName;
 	vec3_t angles;
 	int flags;
-	int up;
-	int right;
-	int forward;
+	orientations_t up;
+	orientations_t right;
+	orientations_t forward;
 	qhandle_t *modelList;
 	int blendTime;
 	int currentTime;
@@ -3413,7 +3413,7 @@ boneAngleParms_t cgBoneAnglePostSet;
 #endif
 
 void CG_G2SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags,
-								const int up, const int right, const int forward, qhandle_t *modelList,
+								const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList,
 								int blendTime , int currentTime )
 { //we want to hold off on setting the bone angles until the end of the frame, because every time we set
   //them the entire skeleton has to be reconstructed.
@@ -3965,7 +3965,8 @@ void CG_G2ServerBoneAngles(centity_t *cent)
 {
 	int i = 0;
 	int bone = cent->currentState.boneIndex1;
-	int flags, up, right, forward;
+	int flags;
+	orientations_t up, right, forward;
 	vec3_t boneAngles;
 
 	VectorCopy(cent->currentState.boneAngles1, boneAngles);
@@ -3981,9 +3982,9 @@ void CG_G2ServerBoneAngles(centity_t *cent)
 				flags = BONE_ANGLES_POSTMULT;
 
 				//get the orientation out of our bit field
-				forward = (cent->currentState.boneOrient)&7; //3 bits from bit 0
-				right = (cent->currentState.boneOrient>>3)&7; //3 bits from bit 3
-				up = (cent->currentState.boneOrient>>6)&7; //3 bits from bit 6
+				forward = static_cast<orientations_t>( (cent->currentState.boneOrient)&7 ); //3 bits from bit 0
+				right = static_cast<orientations_t>( (cent->currentState.boneOrient>>3)&7 ); //3 bits from bit 3
+				up = static_cast<orientations_t>( (cent->currentState.boneOrient>>6)&7 ); //3 bits from bit 6
 
 				trap->G2API_SetBoneAngles(cent->ghoul2, 0, boneName, boneAngles, flags, up, right, forward, cgs.gameModels, 100, cg.time);
 			}
@@ -6051,7 +6052,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	mdxaBone_t	boltMatrix;
 	vec3_t futureAngles;
 	effectTrailArgStruct_t fx;
-	int scolor = 0;
+	saber_colors_t scolor = SABER_RED;
 	int	useModelIndex = 0;
 
 	if (cent->currentState.eType == ET_NPC)
@@ -6123,11 +6124,11 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 		{
 			if (saberNum == 0)
 			{
-				scolor = (cent->currentState.boltToPlayer & 0x07) - 1;
+				scolor = static_cast<saber_colors_t>( (cent->currentState.boltToPlayer & 0x07) - 1 );
 			}
 			else
 			{
-				scolor = ((cent->currentState.boltToPlayer & 0x38) >> 3) - 1;
+				scolor = static_cast<saber_colors_t>( ((cent->currentState.boltToPlayer & 0x38) >> 3) - 1 );
 			}
 		}
 		else
@@ -6139,11 +6140,11 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	{
 		if (saberNum == 0)
 		{
-			scolor = client->icolor1;
+			scolor = static_cast<saber_colors_t>( client->icolor1 );
 		}
 		else
 		{
-			scolor = client->icolor2;
+			scolor = static_cast<saber_colors_t>( client->icolor2 );
 		}
 	}
 
@@ -7957,9 +7958,9 @@ void CG_CleanJetpackGhoul2(void)
 	}
 }
 
-#define RARMBIT			(1 << (G2_MODELPART_RARM-10))
-#define RHANDBIT		(1 << (G2_MODELPART_RHAND-10))
-#define WAISTBIT		(1 << (G2_MODELPART_WAIST-10))
+#define RARMBIT			(1 << (to_underlying( G2_MODELPART_RARM )-10))
+#define RHANDBIT		(1 << (to_underlying( G2_MODELPART_RHAND )-10))
+#define WAISTBIT		(1 << (to_underlying( G2_MODELPART_WAIST )-10))
 
 #if 0
 static void CG_VehicleHeatEffect( vec3_t org, centity_t *cent )
@@ -10369,13 +10370,13 @@ stillDoSaber:
 
 		//If the arm the saber is in is broken, turn it off.
 		/*
-		if (cent->currentState.brokenLimbs & (1 << BROKENLIMB_RARM))
+		if (cent->currentState.brokenLimbs & Bit( BROKENLIMB_RARM ))
 		{
 			BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
 		}
 		*/
 		//Leaving right arm on, at least for now.
-		if (cent->currentState.brokenLimbs & (1 << BROKENLIMB_LARM))
+		if (cent->currentState.brokenLimbs & Bit( BROKENLIMB_LARM ))
 		{
 			BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
 		}

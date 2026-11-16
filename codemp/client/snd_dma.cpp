@@ -127,7 +127,7 @@ static void S_SetDynamicMusicState( MusicState_e musicState );
 
 #define fDYNAMIC_XFADE_SECONDS (1.0f)
 
-static MusicInfo_t	tMusic_Info[eBGRNDTRACK_NUMBEROF]	= {};
+static EnumArray<MusicInfo_t, MusicState_e, eBGRNDTRACK_NUMBEROF>	tMusic_Info = {};
 static bool		bMusic_IsDynamic					= false;
 static MusicState_e	eMusic_StateActual					= eBGRNDTRACK_EXPLORE;	// actual state, can be any enum
 static MusicState_e	eMusic_StateRequest					= eBGRNDTRACK_EXPLORE;	// requested state, can only be explore, action, boss, or silence
@@ -2285,7 +2285,7 @@ static void S_SetDynamicMusic_f(void)
 
 // this table needs to be in-sync with the typedef'd enum "SoundCompressionMethod_t"...	-ste
 //
-static const char *sSoundCompressionMethodStrings[ct_NUMBEROF] =
+static const EnumArray<const char *, SoundCompressionMethod_t, ct_NUMBEROF> sSoundCompressionMethodStrings =
 {
 	"16b",	// ct_16
 	"mp3"	// ct_MP3
@@ -2556,7 +2556,7 @@ static void FreeMusic( MusicInfo_t *pMusicInfo )
 //
 void S_UnCacheDynamicMusic( void )
 {
-	for (int i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
+	for (MusicState_e i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 	{
 		FreeMusic( &tMusic_Info[i]);
 	}
@@ -3050,7 +3050,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledBy
 		{
 			extern const char *Music_GetLevelSetName(void);
 			Q_strncpyz(sInfoOnly_CurrentDynamicMusicSet, Music_GetLevelSetName(), sizeof(sInfoOnly_CurrentDynamicMusicSet));
-			for (int i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
+			for (MusicState_e i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 			{
 				bool bOk = false;
 				const char *psMusicName = Music_GetFileNameForState( (MusicState_e) i);
@@ -3070,7 +3070,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledBy
 			//
 			// default all tracks to OFF first (and set any other vars)
 			//
-			for (int i=0; i<eBGRNDTRACK_NUMBEROF; i++)
+			for (MusicState_e i = eBGRNDTRACK_EXPLORE; i < eBGRNDTRACK_NUMBEROF; i++)
 			{
 				tMusic_Info[i].bActive				= false;
 				tMusic_Info[i].bTrackSwitchPending	= false;
@@ -3124,7 +3124,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledBy
 
 void S_StopBackgroundTrack( void )
 {
-	for (int i=0; i<eBGRNDTRACK_NUMBEROF; i++)
+	for (MusicState_e i = eBGRNDTRACK_EXPLORE; i < eBGRNDTRACK_NUMBEROF; i++)
 	{
 		S_StopBackgroundTrack_Actual( &tMusic_Info[i] );
 	}

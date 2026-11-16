@@ -35,7 +35,7 @@ FORCE INTERFACE
 
 int uiForceSide = FORCE_LIGHTSIDE;
 int uiJediNonJedi = -1;
-int uiForceRank = FORCE_MASTERY_JEDI_KNIGHT;
+int uiForceRank = to_underlying( FORCE_MASTERY_JEDI_KNIGHT );
 int uiMaxRank = MAX_FORCE_RANK;
 int uiMaxPoints = 20;
 int	uiForceUsed = 0;
@@ -113,7 +113,7 @@ int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 };
 
 int uiForceStarShaders[NUM_FORCE_STAR_IMAGES][2];
-int uiSaberColorShaders[NUM_SABER_COLORS];
+EnumArray<int, saber_colors_t, NUM_SABER_COLORS> uiSaberColorShaders;
 void UI_InitForceShaders(void)
 {
 	uiForceStarShaders[0][0] = trap->R_RegisterShaderNoMip("forcestar0");
@@ -314,7 +314,7 @@ void UpdateForceUsed()
 	uiForceRank = uiMaxRank;
 
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[uiForceRank];
+	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
 
 	// Make sure that we have one freebie in jump.
 	if (uiForcePowersRank[FP_LEVITATION]<1)
@@ -529,7 +529,7 @@ void UI_ReadLegalForce(void)
 		}
 	}
 	//Second, legalize them.
-	if (!BG_LegalizedForcePowers(fcfString, sizeof (fcfString), uiMaxRank, ui_freeSaber.integer, forceTeam, atoi( Info_ValueForKey( info, "g_gametype" )), 0))
+	if (!BG_LegalizedForcePowers(fcfString, sizeof (fcfString), uiMaxRank, ui_freeSaber.integer, forceTeam, static_cast<gametype_t>( atoi( Info_ValueForKey( info, "g_gametype" )) ), 0))
 	{ //if they were illegal, we should refresh them.
 		updateForceLater = true;
 	}
@@ -583,7 +583,7 @@ void UI_ReadLegalForce(void)
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[uiForceRank];
+	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
 	gTouchedForce = true;
 
 	for (c=0;fcfString[i]&&c<NUM_FORCE_POWERS;c++,i++)
@@ -1230,7 +1230,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		}
 	}
 
-	BG_LegalizedForcePowers(fcfBuffer, sizeof (fcfBuffer), uiMaxRank, ui_freeSaber.integer, forceTeam, atoi( Info_ValueForKey( info, "g_gametype" )), 0);
+	BG_LegalizedForcePowers(fcfBuffer, sizeof (fcfBuffer), uiMaxRank, ui_freeSaber.integer, forceTeam, static_cast<gametype_t>( atoi( Info_ValueForKey( info, "g_gametype" )) ), 0);
 	//legalize the config based on the max rank
 
 	//now that we're done with the handle, it's time to parse our force data out of the string
@@ -1300,7 +1300,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[uiForceRank];
+	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
 	gTouchedForce = true;
 
 	for (c=0;fcfBuffer[i]&&c<NUM_FORCE_POWERS;c++,i++)
