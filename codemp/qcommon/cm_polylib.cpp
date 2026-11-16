@@ -58,8 +58,8 @@ winding_t	*AllocWinding (int points)
 		c_peak_windings = c_active_windings;
 
 	s = sizeof(float)*3*points + sizeof(int);
-	w = (winding_t *)Z_Malloc (s, TAG_BSP, qtrue);
-//	Com_Memset (w, 0, s); // qtrue param in Z_Malloc does this
+	w = (winding_t *)Z_Malloc (s, TAG_BSP, true);
+//	Com_Memset (w, 0, s); // true param in Z_Malloc does this
 	return w;
 }
 

@@ -29,8 +29,8 @@ backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
 bool tr_stencilled = false;
-extern qboolean tr_distortionPrePost; //tr_shadows.cpp
-extern qboolean tr_distortionNegate; //tr_shadows.cpp
+extern bool tr_distortionPrePost; //tr_shadows.cpp
+extern bool tr_distortionNegate; //tr_shadows.cpp
 extern void RB_CaptureScreenImage(void); //tr_shadows.cpp
 extern void RB_DistortionFill(void); //tr_shadows.cpp
 static void RB_DrawGlowOverlay();
@@ -417,7 +417,7 @@ static void RB_Hyperspace( void ) {
 	qglClearColor( c, c, c, 1 );
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	backEnd.isHyperspace = qtrue;
+	backEnd.isHyperspace = true;
 }
 
 
@@ -447,15 +447,15 @@ void RB_BeginDrawingView (void) {
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
 		qglFinish ();
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	//
 	// set the modelview matrix for the viewer
@@ -528,13 +528,13 @@ void RB_BeginDrawingView (void) {
 	}
 	else
 	{
-		backEnd.isHyperspace = qfalse;
+		backEnd.isHyperspace = false;
 	}
 
 	glState.faceCulling = -1;		// force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
-	backEnd.skyRenderedThisView = qfalse;
+	backEnd.skyRenderedThisView = false;
 
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
@@ -628,7 +628,7 @@ typedef struct postRender_s {
 	int			depthRange;
 	drawSurf_t	*drawSurf;
 	shader_t	*shader;
-	qboolean	eValid;
+	bool	eValid;
 } postRender_t;
 
 static postRender_t g_postRenders[MAX_POST_RENDERS];
@@ -700,10 +700,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
 	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
+	oldDepthRange = false;
+	oldDlighted = false;
 	oldSort = (unsigned int) -1;
-	depthRange = qfalse;
+	depthRange = false;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -773,12 +773,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				/*
 				if (shader == tr.distortionShader)
 				{
-					pRender->eValid = qfalse;
+					pRender->eValid = false;
 				}
 				else
 				*/
 				{
-					pRender->eValid = qtrue;
+					pRender->eValid = true;
 				}
 
 				//assure the info is back to the last set state
@@ -817,7 +817,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			pRender->fogNum = fogNum;
 			pRender->shader = shader;
 
-			pRender->eValid = qfalse;
+			pRender->eValid = false;
 
 			//assure the info is back to the last set state
 			shader = oldShader;
@@ -1021,7 +1021,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					static byte *tmp = NULL;
 					if (!tmp)
 					{
-						tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, qtrue);
+						tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, true);
 					}
 					qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
 					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
@@ -1184,7 +1184,7 @@ RB_SetGL2D
 ================
 */
 void	RB_SetGL2D (void) {
-	backEnd.projection2D = qtrue;
+	backEnd.projection2D = true;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
@@ -1217,7 +1217,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty)
+void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty)
 {
 	int			start, end;
 
@@ -1284,7 +1284,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	qglEnd ();
 }
 
-void RE_UploadCinematic (int cols, int rows, const byte *data, int client, qboolean dirty) {
+void RE_UploadCinematic (int cols, int rows, const byte *data, int client, bool dirty) {
 
 	GL_Bind( tr.scratchImage[client] );
 
@@ -1921,7 +1921,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
     ri.WIN_Present(&window);
 
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	return (const void *)(cmd + 1);
 }

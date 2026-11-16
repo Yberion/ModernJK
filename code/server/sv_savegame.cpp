@@ -93,7 +93,7 @@ typedef map<unsigned int, CChid> CChidInfo_t;
 CChidInfo_t	save_info;
 #endif
 
-static const char *GetString_FailedToOpenSaveGame(const char *psFilename, qboolean bOpen)
+static const char *GetString_FailedToOpenSaveGame(const char *psFilename, bool bOpen)
 {
 	static char sTemp[256];
 
@@ -131,8 +131,8 @@ void SG_Shutdown()
 
 	// and this bit stops people messing up the laoder by repeatedly stabbing at the load key during loads...
 	//
-	extern qboolean gbAlreadyDoingLoad;
-	gbAlreadyDoingLoad = qfalse;
+	extern bool gbAlreadyDoingLoad;
+	gbAlreadyDoingLoad = false;
 }
 
 void SV_WipeGame_f(void)
@@ -161,7 +161,7 @@ void SG_StoreSaveGameComment(const char *sComment)
 	Q_strncpyz(saveGameComment,sComment,sizeof(saveGameComment));
 }
 
-qboolean SV_TryLoadTransition( const char *mapname )
+bool SV_TryLoadTransition( const char *mapname )
 {
 	char *psFilename = va( "hub/%s", mapname );
 
@@ -169,7 +169,7 @@ qboolean SV_TryLoadTransition( const char *mapname )
 
 	if ( !SG_ReadSavegame( psFilename ) )
 	{//couldn't load a savegame
-		return qfalse;
+		return false;
 	}
 #ifdef JK2_MODE
 	Com_Printf (S_COLOR_CYAN "Done.\n");
@@ -177,10 +177,10 @@ qboolean SV_TryLoadTransition( const char *mapname )
 	Com_Printf (S_COLOR_CYAN "%s.\n",SE_GetString("MENUS_DONE"));
 #endif
 
-	return qtrue;
+	return true;
 }
 
-qboolean gbAlreadyDoingLoad = qfalse;
+bool gbAlreadyDoingLoad = false;
 void SV_LoadGame_f(void)
 {
 	if (gbAlreadyDoingLoad)
@@ -269,9 +269,9 @@ void SV_LoadGame_f(void)
 	Com_Printf (S_COLOR_CYAN "%s\n",va(SE_GetString("MENUS_LOADING_MAPNAME"), psFilename));
 #endif
 
-	gbAlreadyDoingLoad = qtrue;
+	gbAlreadyDoingLoad = true;
 	if (!SG_ReadSavegame(psFilename)) {
-		gbAlreadyDoingLoad = qfalse; //	do NOT do this here now, need to wait until client spawn, unless the load failed.
+		gbAlreadyDoingLoad = false; //	do NOT do this here now, need to wait until client spawn, unless the load failed.
 	} else
 	{
 #ifdef JK2_MODE
@@ -282,7 +282,7 @@ void SV_LoadGame_f(void)
 	}
 }
 
-qboolean SG_GameAllowedToSaveHere(qboolean inCamera);
+bool SG_GameAllowedToSaveHere(bool inCamera);
 
 
 //JLF notes
@@ -352,7 +352,7 @@ void SV_SaveGame_f(void)
 		return;
 	}
 
-	if (!SG_GameAllowedToSaveHere(qfalse))	//full check
+	if (!SG_GameAllowedToSaveHere(false))	//full check
 		return;	// this prevents people saving via quick-save now during cinematics.
 
 #ifdef JK2_MODE
@@ -376,7 +376,7 @@ void SV_SaveGame_f(void)
 	Com_Printf (S_COLOR_CYAN "%s \"%s\"...\n", SE_GetString("CON_TEXT_SAVING_GAME"), filename);
 #endif
 
-	if (SG_WriteSavegame(filename, qfalse))
+	if (SG_WriteSavegame(filename, false))
 	{
 #ifdef JK2_MODE
 		Com_Printf (S_COLOR_CYAN "Done.\n");
@@ -397,7 +397,7 @@ void SV_SaveGame_f(void)
 
 
 //---------------
-static void WriteGame(qboolean autosave)
+static void WriteGame(bool autosave)
 {
 	ojk::SavedGameHelper saved_game(
 		&ojk::SavedGame::get_instance());
@@ -453,9 +453,9 @@ static void WriteGame(qboolean autosave)
 	}
 }
 
-static qboolean ReadGame (void)
+static bool ReadGame (void)
 {
-	qboolean qbAutoSave = qfalse;
+	bool qbAutoSave = false;
 
 	ojk::SavedGameHelper saved_game(
 		&ojk::SavedGame::get_instance());
@@ -708,7 +708,7 @@ static unsigned int SG_UnixTimestamp ( const time_t& t )
 	return static_cast<unsigned int>(t);
 }
 
-static void SG_WriteComment(qboolean qbAutosave, const char *psMapName)
+static void SG_WriteComment(bool qbAutosave, const char *psMapName)
 {
 	ojk::SavedGameHelper saved_game(
 		&ojk::SavedGame::get_instance());
@@ -879,7 +879,7 @@ static char *SG_GetSaveGameMapName(const char *psPathlessBaseName)
 }
 
 
-// pass in qtrue to set as loading screen, else pass in pvDest to read it into there...
+// pass in true to set as loading screen, else pass in pvDest to read it into there...
 //
 #ifdef JK2_MODE
 static bool SG_ReadScreenshot(
@@ -909,7 +909,7 @@ static bool SG_ReadScreenshot(
 		jpeg_data = static_cast<byte*>(::Z_Malloc(
 			static_cast<int>(screenshot_length + 4096),
 			TAG_TEMP_WORKSPACE,
-			qfalse));
+			false));
 	}
 
 	//
@@ -980,20 +980,20 @@ static bool SG_ReadScreenshot(
 }
 // Gets the savegame screenshot
 //
-qboolean SG_GetSaveImage(
+bool SG_GetSaveImage(
 	const char* base_name,
 	void* image_ptr)
 {
 	if (!base_name)
 	{
-		return qfalse;
+		return false;
 	}
 
 	ojk::SavedGame& saved_game = ojk::SavedGame::get_instance();
 
 	if (!saved_game.open(base_name))
 	{
-		return qfalse;
+		return false;
 	}
 
 	bool is_succeed = true;
@@ -1019,11 +1019,11 @@ qboolean SG_GetSaveImage(
 
 	saved_game.close();
 
-	return is_succeed ? qtrue : qfalse;
+	return is_succeed ? true : false;
 }
 
 
-static void SG_WriteScreenshot(qboolean qbAutosave, const char *psMapName)
+static void SG_WriteScreenshot(bool qbAutosave, const char *psMapName)
 {
 	ojk::SavedGameHelper saved_game(
 		&ojk::SavedGame::get_instance());
@@ -1041,7 +1041,7 @@ static void SG_WriteScreenshot(qboolean qbAutosave, const char *psMapName)
 		const size_t bySize = SG_SCR_WIDTH * SG_SCR_HEIGHT * 4;
 		
 		byBlank = new byte[bySize];
-		pbRawScreenShot = SCR_TempRawImage_ReadFromFile(va("levelshots/%s.tga",psMapName), &iWidth, &iHeight, byBlank, qfalse);	// qfalse = vert flip
+		pbRawScreenShot = SCR_TempRawImage_ReadFromFile(va("levelshots/%s.tga",psMapName), &iWidth, &iHeight, byBlank, false);	// false = vert flip
 
 		// SaveJPGToBuffer expects a 3 component RGB image, so resample
 		if (pbRawScreenShot)
@@ -1093,7 +1093,7 @@ static void SG_WriteScreenshot(qboolean qbAutosave, const char *psMapName)
 
 	size_t iJPGDataSize = 0;
 	size_t bufSize = SG_SCR_WIDTH * SG_SCR_HEIGHT * 3;
-	byte *pJPGData = (byte *)Z_Malloc( static_cast<int>(bufSize), TAG_TEMP_WORKSPACE, qfalse, 4 );
+	byte *pJPGData = (byte *)Z_Malloc( static_cast<int>(bufSize), TAG_TEMP_WORKSPACE, false, 4 );
 
 	iJPGDataSize = re.SaveJPGToBuffer(pJPGData, bufSize, JPEG_IMAGE_QUALITY, SG_SCR_WIDTH, SG_SCR_HEIGHT, pbRawScreenShot, 0, false );
 	delete[] byBlank;
@@ -1113,33 +1113,33 @@ static void SG_WriteScreenshot(qboolean qbAutosave, const char *psMapName)
 #endif
 
 
-qboolean SG_GameAllowedToSaveHere(qboolean inCamera)
+bool SG_GameAllowedToSaveHere(bool inCamera)
 {
 	if (!inCamera) {
 		if ( !com_sv_running || !com_sv_running->integer )
 		{
-			return qfalse;	//		Com_Printf( S_COLOR_RED "Server is not running\n" );
+			return false;	//		Com_Printf( S_COLOR_RED "Server is not running\n" );
 		}
 
 		if (CL_IsRunningInGameCinematic())
 		{
-			return qfalse;	//nope, not during a video
+			return false;	//nope, not during a video
 		}
 
 		if (sv.state != SS_GAME)
 		{
-			return qfalse;	//		Com_Printf (S_COLOR_RED "You must be in a game to save.\n");
+			return false;	//		Com_Printf (S_COLOR_RED "You must be in a game to save.\n");
 		}
 
 		//No savegames from "_" maps
 		if ( !sv_mapname || (sv_mapname->string != NULL && sv_mapname->string[0] == '_') )
 		{
-			return qfalse;	//		Com_Printf (S_COLOR_RED "Cannot save on holodeck or brig.\n");
+			return false;	//		Com_Printf (S_COLOR_RED "Cannot save on holodeck or brig.\n");
 		}
 
 		if (svs.clients[0].frames[svs.clients[0].netchan.outgoingSequence & PACKET_MASK].ps.stats[STAT_HEALTH] <= 0)
 		{
-			return qfalse;	//		Com_Printf (S_COLOR_RED "\nCan't savegame while dead!\n");
+			return false;	//		Com_Printf (S_COLOR_RED "\nCan't savegame while dead!\n");
 		}
 	}
 	if (!ge)
@@ -1148,10 +1148,10 @@ qboolean SG_GameAllowedToSaveHere(qboolean inCamera)
 	return ge->GameAllowedToSaveHere();
 }
 
-qboolean SG_WriteSavegame(const char *psPathlessBaseName, qboolean qbAutosave)
+bool SG_WriteSavegame(const char *psPathlessBaseName, bool qbAutosave)
 {
-	if (!qbAutosave && !SG_GameAllowedToSaveHere(qfalse))	//full check
-		return qfalse;	// this prevents people saving via quick-save now during cinematics
+	if (!qbAutosave && !SG_GameAllowedToSaveHere(false))	//full check
+		return false;	// this prevents people saving via quick-save now during cinematics
 
 	int iPrevTestSave = sv_testsave->integer;
 	sv_testsave->integer = 0;
@@ -1174,10 +1174,10 @@ qboolean SG_WriteSavegame(const char *psPathlessBaseName, qboolean qbAutosave)
 
 	if(!saved_game.create( "current" ))
 	{
-		Com_Printf (GetString_FailedToOpenSaveGame("current",qfalse));//S_COLOR_RED "Failed to create savegame\n");
+		Com_Printf (GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to create savegame\n");
 		SG_WipeSavegame( "current" );
 		sv_testsave->integer = iPrevTestSave;
-		return qfalse;
+		return false;
 	}
 //END JLF
 
@@ -1223,10 +1223,10 @@ qboolean SG_WriteSavegame(const char *psPathlessBaseName, qboolean qbAutosave)
 
 	if (is_write_failed)
 	{
-		Com_Printf (GetString_FailedToOpenSaveGame("current",qfalse));//S_COLOR_RED "Failed to write savegame!\n");
+		Com_Printf (GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to write savegame!\n");
 		SG_WipeSavegame( "current" );
 		sv_testsave->integer = iPrevTestSave;
-		return qfalse;
+		return false;
 	}
 
 	ojk::SavedGame::rename(
@@ -1234,10 +1234,10 @@ qboolean SG_WriteSavegame(const char *psPathlessBaseName, qboolean qbAutosave)
 		psPathlessBaseName);
 
 	sv_testsave->integer = iPrevTestSave;
-	return qtrue;
+	return true;
 }
 
-qboolean SG_ReadSavegame(
+bool SG_ReadSavegame(
 	const char* psPathlessBaseName)
 {
 	char sComment[iSG_COMMENT_SIZE];
@@ -1277,9 +1277,9 @@ qboolean SG_ReadSavegame(
 		::Com_Printf(
 			::GetString_FailedToOpenSaveGame(
 				psPathlessBaseName,
-				qtrue));
+				true));
 
-		return qfalse;
+		return false;
 	}
 
 	// this check isn't really necessary, but it reminds me that these two strings may actually be the same physical one.
@@ -1318,7 +1318,7 @@ qboolean SG_ReadSavegame(
 	::SG_ReadCvars();
 
 	// read game state
-	const qboolean qbAutosave = ::ReadGame();
+	const bool qbAutosave = ::ReadGame();
 
 	::eSavedGameJustLoaded = (qbAutosave ? eAUTO : eFULL);
 
@@ -1326,7 +1326,7 @@ qboolean SG_ReadSavegame(
 	::SV_SpawnServer(
 		sMapCmd,
 		eForceReload_NOTHING,
-		(::eSavedGameJustLoaded != eFULL ? qtrue : qfalse));
+		(::eSavedGameJustLoaded != eFULL ? true : false));
 
 	// read in all the level data...
 	//
@@ -1349,14 +1349,14 @@ qboolean SG_ReadSavegame(
 		qbAutosave,
 		qbLoadTransition);
 
-	return qtrue;
+	return true;
 }
 
 void SG_TestSave(void)
 {
 	if (sv_testsave->integer && sv.state == SS_GAME)
 	{
-		WriteGame(qfalse);
-		ge->WriteLevel(qfalse);
+		WriteGame(false);
+		ge->WriteLevel(false);
 	}
 }

@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern console_t con;
 
-qboolean	scr_initialized;		// ready to draw
+bool	scr_initialized;		// ready to draw
 
 cvar_t		*cl_timegraph;
 cvar_t		*cl_debuggraph;
@@ -195,7 +195,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawBigStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape ) {
+void SCR_DrawBigStringExt( int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -241,16 +241,16 @@ void SCR_DrawBigStringExt( int x, int y, const char *string, float *setColor, qb
 }
 
 
-void SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape ) {
+void SCR_DrawBigString( int x, int y, const char *s, float alpha, bool noColorEscape ) {
 	float	color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawBigStringExt( x, y, s, color, qfalse, noColorEscape );
+	SCR_DrawBigStringExt( x, y, s, color, false, noColorEscape );
 }
 
-void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape ) {
-	SCR_DrawBigStringExt( x, y, s, color, qtrue, noColorEscape );
+void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, bool noColorEscape ) {
+	SCR_DrawBigStringExt( x, y, s, color, true, noColorEscape );
 }
 
 /*
@@ -261,8 +261,8 @@ Draws a multi-colored string with a drop shadow, optionally forcing
 to a fixed color.
 ==================
 */
-void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor,
-		qboolean noColorEscape ) {
+void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, bool forceColor,
+		bool noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -394,7 +394,7 @@ void SCR_Init( void ) {
 	cl_graphscale = Cvar_Get ("graphscale", "1", CVAR_CHEAT);
 	cl_graphshift = Cvar_Get ("graphshift", "0", CVAR_CHEAT);
 
-	scr_initialized = qtrue;
+	scr_initialized = true;
 }
 
 
@@ -415,7 +415,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	re.BeginFrame( stereoFrame );
 
-	qboolean uiFullscreen = _UI_IsFullscreen();
+	bool uiFullscreen = _UI_IsFullscreen();
 
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
@@ -492,7 +492,7 @@ void SCR_UpdateScreen( void ) {
 	if ( ++recursive > 2 ) {
 		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
 	}
-	recursive = qtrue;
+	recursive = true;
 
 	// If there is no VM, there are also no rendering commands issued. Stop the renderer in
 	// that case.
@@ -521,10 +521,10 @@ void SCR_UpdateScreen( void ) {
 
 
 static byte	bScreenData[SG_SCR_WIDTH * SG_SCR_HEIGHT * 4];
-static qboolean screenDataValid = qfalse;
+static bool screenDataValid = false;
 void SCR_UnprecacheScreenshot()
 {
-	screenDataValid = qfalse;
+	screenDataValid = false;
 }
 
 
@@ -549,14 +549,14 @@ void SCR_PrecacheScreenshot()
 //		pbScreenData = (byte *)Z_Malloc(SG_SCR_WIDTH * SG_SCR_HEIGHT * 4);
 		S_ClearSoundBuffer();	// clear DMA etc because the following glReadPixels() call can take ages
 		re.GetScreenShot( (byte *) &bScreenData, SG_SCR_WIDTH, SG_SCR_HEIGHT);
-		screenDataValid = qtrue;
+		screenDataValid = true;
 	}
 
 }
 
 // Returns a SG_SCR_WIDTH x SG_SCR_HEIGHT screenshot buffer
 // Must match color components with DrawStretchRaw: 4
-byte *SCR_GetScreenshot(qboolean *qValid)
+byte *SCR_GetScreenshot(bool *qValid)
 {
 	if (!screenDataValid) {
 		SCR_PrecacheScreenshot();
@@ -573,12 +573,12 @@ void SCR_SetScreenshot(const byte *pbData, int w, int h)
 {
 	if (w == SG_SCR_WIDTH && h == SG_SCR_HEIGHT)
 	{
-		screenDataValid = qtrue;
+		screenDataValid = true;
 		memcpy(&bScreenData, pbData, SG_SCR_WIDTH*SG_SCR_HEIGHT*4);
 	}
 	else
 	{
-		screenDataValid = qfalse;
+		screenDataValid = false;
 		memset(&bScreenData, 0,      SG_SCR_WIDTH*SG_SCR_HEIGHT*4);
 	}
 }
@@ -588,7 +588,7 @@ void SCR_SetScreenshot(const byte *pbData, int w, int h)
 // This is just a client-side wrapper for the function RE_TempRawImage_ReadFromFile() in the renderer code...
 //
 
-byte* SCR_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, qboolean qbVertFlip)
+byte* SCR_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, bool qbVertFlip)
 {
 	return re.TempRawImage_ReadFromFile(psLocalFilename, piWidth, piHeight, pbReSampleBuffer, qbVertFlip);
 }

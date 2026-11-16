@@ -38,8 +38,8 @@ static_assert( PACKET_BACKUP == eng::kPacketBackup, "message slots" );
 static_assert( MAX_RELIABLE_COMMANDS >= eng::kMinCommands, "the codec needs 256 server commands on both sides" );
 static_assert( MAX_SNAPSHOT_ENTITIES == eng::kMaxSnapshotEntities, "entities per snapshot" );
 static_assert( MAX_GENTITIES == eng::kMaxEntities, "entity numbers" );
-static_assert( sizeof( entityState_t ) == 532 && offsetof( entityState_t, number ) == 0, "entity images of the codec" );
-static_assert( sizeof( playerState_t ) == 1552, "player-state images of the codec" );
+static_assert( sizeof( entityState_t ) == 524 && offsetof( entityState_t, number ) == 0, "entity images of the codec" );
+static_assert( sizeof( playerState_t ) == 1536, "player-state images of the codec" );
 static_assert( MAX_STRING_CHARS - 1 == eng::kMaxCommandLength, "client commands: the server decodes at most MAX_STRING_CHARS - 1 characters" );
 
 static eng::ClientCodec &Codec( void ) {
@@ -99,7 +99,7 @@ static void CL_NetcodecDemoGameState( eng::ServerMessage &sm ) {
 
 // record: the gamestate at the start of the demo. It holds the last kCommandWindow server commands, which the commands
 // of the later messages may be coded against.
-qboolean CL_NetcodecRecordGameState( void ) {
+bool CL_NetcodecRecordGameState( void ) {
 	eng::ServerMessage sm = {};
 	const int first = clc.serverCommandSequence + 1 - (int)eng::kCommandWindow;
 
@@ -306,7 +306,7 @@ void CL_NetcodecParseServerMessage( msg_t *msg ) {
 		newSnap.messageNum = seq;
 		newSnap.deltaNum = cm.delta ? seq - (int)cm.delta : -1;
 		newSnap.snapFlags = (int)cm.flags;
-		newSnap.inputMarginValid = cm.inputMargin != INPUT_MARGIN_NONE ? qtrue : qfalse;
+		newSnap.inputMarginValid = cm.inputMargin != INPUT_MARGIN_NONE ? true : false;
 		newSnap.inputMargin = newSnap.inputMarginValid ? Net_MarginFromWire( cm.inputMargin ) : 0;
 		Com_Memcpy( newSnap.areamask, cm.areas, cm.numAreas );
 		newSnap.parseEntitiesNum = cl.parseEntitiesNum;
@@ -368,8 +368,8 @@ static struct {
 
 // The round-trip time seen with the message of frame f: from the sending of the newest packet whose last user command
 // the server had executed in it (at or before its snapshot's commandTime) to its arrival, as the legacy client's ping
-// (CL_ParseSnapshot) but over the last kAckWindow packets. qfalse if none of them is found.
-static qboolean CL_NetcodecRoundTrip( const eng::Frame &f, int &rtt ) {
+// (CL_ParseSnapshot) but over the last kAckWindow packets. false if none of them is found.
+static bool CL_NetcodecRoundTrip( const eng::Frame &f, int &rtt ) {
 	const int commandTime = static_cast<const playerState_t *>( f.ps )->commandTime;
 	const int last = clc.netchan.outgoingSequence - 1;
 
@@ -380,10 +380,10 @@ static qboolean CL_NetcodecRoundTrip( const eng::Frame &f, int &rtt ) {
 		}
 		if ( s.moved && s.serverTime <= commandTime ) {
 			rtt = s_arrival[f.seq & PACKET_MASK] - s.sent;
-			return rtt >= 0 ? qtrue : qfalse;
+			return rtt >= 0 ? true : false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // the frame of the message the next packet acknowledges, when the packet may be coded against it (see above)
@@ -408,8 +408,8 @@ static const eng::Frame *CL_NetcodecPacketBase( void ) {
 
 // Codes the client packet into buf: the serverId, the last server message and server command received, the client
 // commands not yet acknowledged, and the last count user commands (none if count < 1), as a delta or asking for a full
-// snapshot. qfalse if it could not be coded (too large): nothing is sent.
-qboolean CL_NetcodecWritePacket( msg_t *buf, int count, qboolean delta ) {
+// snapshot. false if it could not be coded (too large): nothing is sent.
+bool CL_NetcodecWritePacket( msg_t *buf, int count, bool delta ) {
 	static eng::Command commands[MAX_RELIABLE_COMMANDS];
 	static usercmd_t cmds[MAX_PACKET_USERCMDS];
 	eng::ClientPacket p = {};
@@ -441,7 +441,7 @@ qboolean CL_NetcodecWritePacket( msg_t *buf, int count, qboolean delta ) {
 	const size_t size = Codec().EncodePacket( p, frame ? &base : NULL, buf->data, (size_t)buf->maxsize );
 	if ( !size ) {
 		Com_Printf( "WARNING: client packet not coded (too large)\n" );
-		return qfalse;
+		return false;
 	}
 	buf->cursize = (int)size;
 
@@ -455,5 +455,5 @@ qboolean CL_NetcodecWritePacket( msg_t *buf, int count, qboolean delta ) {
 	s_stats.packets++;
 	s_stats.packetBytes += (double)size;
 	s_stats.packetsNoBase += frame ? 0 : 1;
-	return qtrue;
+	return true;
 }

@@ -65,7 +65,7 @@ botlib_import_t botimport;
 //
 int botDeveloper;
 //true if the library is setup
-int botlibsetup = qfalse;
+int botlibsetup = false;
 
 //===========================================================================
 //
@@ -89,16 +89,16 @@ int Sys_MilliSeconds(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean ValidClientNumber(int num, char *str)
+bool ValidClientNumber(int num, char *str)
 {
 	if (num < 0 || num > botlibglobals.maxclients)
 	{
 		//weird: the disabled stuff results in a crash
 		botimport.Print(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n",
 										str, num, botlibglobals.maxclients);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotValidateClientNumber
 //===========================================================================
 //
@@ -106,15 +106,15 @@ qboolean ValidClientNumber(int num, char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean ValidEntityNumber(int num, const char *str)
+bool ValidEntityNumber(int num, const char *str)
 {
 	if (num < 0 || num > botlibglobals.maxentities)
 	{
 		botimport.Print(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n",
 										str, num, botlibglobals.maxentities);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotValidateClientNumber
 //===========================================================================
 //
@@ -122,14 +122,14 @@ qboolean ValidEntityNumber(int num, const char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean BotLibSetup(const char *str)
+bool BotLibSetup(const char *str)
 {
 	if (!botlibglobals.botlibsetup)
 	{
 		botimport.Print(PRT_ERROR, "%s: bot library used before being setup\n", str);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotLibSetup
 
 //===========================================================================
@@ -190,8 +190,8 @@ int Export_BotLibSetup(void)
 	errnum = BotSetupMoveAI();		//be_ai_move.c
 	if (errnum != BLERR_NOERROR) return errnum;
 	*/
-	botlibsetup = qtrue;
-	botlibglobals.botlibsetup = qtrue;
+	botlibsetup = true;
+	botlibglobals.botlibsetup = true;
 
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibSetup
@@ -231,8 +231,8 @@ int Export_BotLibShutdown(void)
 	//shut down library log file
 	Log_Shutdown();
 	//
-	botlibsetup = qfalse;
-	botlibglobals.botlibsetup = qfalse;
+	botlibsetup = false;
+	botlibglobals.botlibsetup = false;
 	// print any files still open
 	PC_CheckOpenSourceHandles();
 	//
@@ -405,7 +405,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 
 	botimport.Print(PRT_MESSAGE, "\rtravel time to goal (%d) = %d  ", botlibglobals.goalareanum,
 		AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, TFL_DEFAULT));
-	//newarea = BotReachabilityArea(origin, qtrue);
+	//newarea = BotReachabilityArea(origin, true);
 	if (newarea != area)
 	{
 		botimport.Print(PRT_MESSAGE, "origin = %f, %f, %f\n", origin[0], origin[1], origin[2]);
@@ -505,8 +505,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		{
 			AAS_ReachabilityFromNum(reachnum, &reach);
 			AAS_ClearShownDebugLines();
-			AAS_ShowArea(area, qtrue);
-			AAS_ShowArea(reach.areanum, qtrue);
+			AAS_ShowArea(area, true);
+			AAS_ShowArea(reach.areanum, true);
 			AAS_DrawCross(reach.start, 6, LINECOLOR_BLUE);
 			AAS_DrawCross(reach.end, 6, LINECOLOR_RED);
 			//

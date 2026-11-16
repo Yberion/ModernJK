@@ -58,11 +58,11 @@ inline void SyntheticPacket(synth::Rng &r, ClientPacket &p, HeaderRecord &h, Pla
 		                          : static_cast<float>(r.Range(-100000, 100000)) / 7.0F;
 		uint32_t pattern = 0;
 		std::memcpy(&pattern, &f, 4);
-		put(184 + (4 * a), kind == 3 ? static_cast<int64_t>(r.Next() & 0xFFFFFFFFU) : static_cast<int64_t>(pattern));
+		put(180 + (4 * a), kind == 3 ? static_cast<int64_t>(r.Next() & 0xFFFFFFFFU) : static_cast<int64_t>(pattern));
 	}
-	put(176, r.Range(0, 300));
-	put(248, r.Range(-10, 300));
-	put(884, r.Range(-10, 300));
+	put(172, r.Range(0, 300));
+	put(244, r.Range(-10, 300));
+	put(868, r.Range(-10, 300));
 
 	p = ClientPacket{};
 	p.ack = r.Range(0, (int64_t{ 1 } << 31) - 1);

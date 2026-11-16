@@ -131,7 +131,7 @@ typedef struct {
 	int			numClusters;
 	int			clusterBytes;
 	byte		*visibility;
-	qboolean	vised;			// if false, visibility is just a single cluster of ffs
+	bool	vised;			// if false, visibility is just a single cluster of ffs
 
 	int			numEntityChars;
 	char		*entityString;
@@ -166,7 +166,7 @@ extern int			NumSubBSP;
 // Used for oriented capsule collision detection
 typedef struct
 {
-	qboolean	use;
+	bool	use;
 	float		radius;
 	float		halfheight;
 	vec3_t		offset;
@@ -185,7 +185,7 @@ typedef struct traceWork_s {
 
 	vec3_t		modelOrigin;// origin of the model tracing through
 	int			contents;	// ored contents of the model tracing through
-	qboolean	isPoint;	// optimized case
+	bool	isPoint;	// optimized case
 	sphere_t	sphere;		// sphere for oriendted capsule collision
 
 	float			baseEnterFrac;	// global enter fraction (before processing subsections of the brush)
@@ -204,7 +204,7 @@ typedef struct traceWork_s {
 typedef struct leafList_s {
 	int		count;
 	int		maxcount;
-	qboolean	overflowed;
+	bool	overflowed;
 	int		*list;
 	vec3_t	bounds[2];
 	int		lastLeaf;		// for overflows where each leaf can't be stored individually
@@ -227,7 +227,7 @@ void CM_ModelBounds( clipMap_t &cm, clipHandle_t model, vec3_t mins, vec3_t maxs
 
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points );
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 void CM_ClearLevelPatches( void );
 
 //cm_trace.cpp

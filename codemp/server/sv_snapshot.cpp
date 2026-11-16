@@ -87,9 +87,9 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 
 		if ( newnum == oldnum ) {
 			// delta update from old position
-			// because the force parm is qfalse, this will not result
+			// because the force parm is false, this will not result
 			// in any bytes being emited if the entity has not changed at all
-			MSG_WriteDeltaEntity (msg, oldent, newent, qfalse );
+			MSG_WriteDeltaEntity (msg, oldent, newent, false );
 			oldindex++;
 			newindex++;
 			continue;
@@ -97,14 +97,14 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 
 		if ( newnum < oldnum ) {
 			// this is a new entity, send it from the baseline
-			MSG_WriteDeltaEntity (msg, &sv.svEntities[newnum].baseline, newent, qtrue );
+			MSG_WriteDeltaEntity (msg, &sv.svEntities[newnum].baseline, newent, true );
 			newindex++;
 			continue;
 		}
 
 		if ( newnum > oldnum ) {
 			// the old entity isn't present in the new message
-			MSG_WriteDeltaEntity (msg, oldent, NULL, qtrue );
+			MSG_WriteDeltaEntity (msg, oldent, NULL, true );
 			oldindex++;
 			continue;
 		}
@@ -235,17 +235,17 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 			{ //if last frame didn't have vehicle, then the old vps isn't gonna delta
 				//properly (because our vps on the client could be anything)
 #ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
+				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, true );
 #else
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
+				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, true );
 #endif
 			}
 			else
 			{
 #ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, frame->pDeltaOneBitVeh, frame->pDeltaNumBitVeh, qtrue );
+				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, frame->pDeltaOneBitVeh, frame->pDeltaNumBitVeh, true );
 #else
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, qtrue );
+				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, true );
 #endif
 			}
 		}
@@ -258,9 +258,9 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 		if (frame->ps.m_iVehicleNum)
 		{ //then write the vehicle's playerstate too
 #ifdef _ONEBIT_COMBO
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
+			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, true );
 #else
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
+			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, true );
 #endif
 		}
 	}
@@ -360,7 +360,7 @@ SV_AddEntitiesVisibleFromPoint
 */
 float g_svCullDist = -1.0f;
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+									snapshotEntityNumbers_t *eNums, bool portal ) {
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -520,13 +520,13 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, true );
 		}
 	}
 }
 
 // SV_SendClientMessages is building the snapshots of every client: the entities' states are those of one tick
-static qboolean s_sendingAll;
+static bool s_sendingAll;
 
 // the entities' states may have changed: each is compared with its last copy again
 static void SV_NewSnapshotTick( void ) {
@@ -619,7 +619,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, false );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -700,7 +700,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
 	auto &ping = client->pingTimes[client->netchan.outgoingSequence & ( SV_PING_WINDOW - 1 )];
 	ping.sent = Sys_Milliseconds();	// real time: svs.time moves once per server frame
-	ping.isAcked = qfalse;
+	ping.isAcked = false;
 
 	// bots need to have their snapshots built, but
 	// they query them directly without needing to be sent
@@ -725,9 +725,9 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 	if ( rateMsec < TICK_MSEC ) {
 		rateMsec = TICK_MSEC;
-		client->rateDelayed = qfalse;
+		client->rateDelayed = false;
 	} else {
-		client->rateDelayed = qtrue;
+		client->rateDelayed = true;
 	}
 
 	client->nextSnapshotTime = svs.time + ((int) (rateMsec * com_timescale->value));
@@ -759,7 +759,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	if (!client->sentGamedir)
 	{ //rww - the game dir goes with the next message (svc_setgame, a message of its own before the message codec)
 		setGame = FS_GetCurrentGameDir(true);
-		client->sentGamedir = qtrue;
+		client->sentGamedir = true;
 	}
 
 	// A bot's snapshot is built only to be recorded in a demo. Nothing else reads it: the base game's bot code never
@@ -801,7 +801,7 @@ void SV_SendClientMessages( void ) {
 	client_t	*c;
 
 	SV_NewSnapshotTick();
-	s_sendingAll = qtrue;
+	s_sendingAll = true;
 
 	// send a message to each connected client
 	for (i=0, c = svs.clients ; i < sv_maxclients->integer ; i++, c++) {
@@ -826,7 +826,7 @@ void SV_SendClientMessages( void ) {
 		SV_SendClientSnapshot( c );
 	}
 
-	s_sendingAll = qfalse;
+	s_sendingAll = false;
 
 	// the demos, once every message of the tick has left
 	SV_NetcodecDemoTick();

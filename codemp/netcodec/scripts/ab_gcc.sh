@@ -7,6 +7,8 @@
 # instead of bench_codec; the times are then per client packet.
 # CUR_DIR: a directory holding codemp/netcodec (a variant prepared on the host) timed instead of the working tree;
 # REF_DIR: the same for the reference (instead of a commit).
+# The reference is built with its own ModernJK sources (the legacy coder, msg.cpp, and the states' layout, q_shared.h):
+# those of its commit, or REF_DIR's when it holds codemp/qcommon/msg.cpp, else the working tree's.
 # Functions, loops and jumps are aligned to 64 bytes in both builds: without it, where the code falls in memory moves
 # the timings by 10 to 20 % under GCC (the unchanged legacy coder included). NOALIGN=1: no alignment forced by this
 # script, each build keeps the flags of its own CMakeLists.txt (to time the shipped settings of two commits).
@@ -23,8 +25,11 @@ BENCH=${BENCH:-codec}   # codec (server messages) or client (client packets)
 W=/tmp/netcodec-ab
 G() { git -c safe.directory='*' -C "$R" "$@"; }
 rm -rf "$W" && mkdir -p "$W/ref" "$W/cur/codemp"
+REF_OJ="$W/ref"
 if [ -n "${REF_DIR:-}" ]; then mkdir -p "$W/ref/codemp" && cp -r "$REF_DIR/codemp/netcodec" "$W/ref/codemp/" &&
-	rm -rf "$W/ref/codemp/netcodec/build-netcodec"; else G archive "$REF" codemp/netcodec | tar -x -C "$W/ref"; fi
+	rm -rf "$W/ref/codemp/netcodec/build-netcodec"
+	if [ -f "$REF_DIR/codemp/qcommon/msg.cpp" ]; then REF_OJ="$REF_DIR"; else REF_OJ="$R"; fi
+else G archive "$REF" codemp shared lib/gsl-lite | tar -x -C "$W/ref"; fi
 cp -r "${CUR_DIR:-$R}/codemp/netcodec" "$W/cur/codemp/"
 rm -rf "$W/cur/codemp/netcodec/build-netcodec"
 if [ -n "${REF_DIR:-}" ]; then RDESC="the copy in $REF_DIR"; else RDESC="$REF ($(G log -1 --format='%h %s' "$REF" | cut -c1-100))"; fi
@@ -37,16 +42,16 @@ if [ "${NOINL:-0}" = 1 ]; then
 fi
 ALIGN="-falign-functions=64 -falign-loops=64 -falign-jumps=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN="" && echo "no alignment forced: each build has its own CMakeLists.txt flags"
-build() {   # $1 = name (ref, cur)
+build() {   # $1 = name (ref, cur), $2 = its ModernJK sources
 	cmake -S "$W/$1/codemp/netcodec" -B "$W/build-$1" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-15 \
 		-DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" \
-		-Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$W/build-$1.log" 2>&1 &&
+		-Dnetcodec_MODERNJK_DIR="$2" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$W/build-$1.log" 2>&1 &&
 	cmake --build "$W/build-$1" --target "netcodec_bench_$BENCH" -j 4 >> "$W/build-$1.log" 2>&1 ||
 	{ echo "build of $1 failed:"; tail -30 "$W/build-$1.log"; exit 1; }
 }
 echo "building the reference and the working tree ..."
-build ref
-build cur
+build ref "$REF_OJ"
+build cur "$R"
 echo "functions of the library not inlined (code symbols), only in ref (<) or only in cur (>):"
 for v in ref cur; do
 	nm -C --defined-only "$W/build-$v/libnetcodec.a" | awk '$2 ~ /^[TtWw]$/ {$1=""; $2=""; print}' | sed 's/^  //' | sort -u > "$W/syms-$v.txt"

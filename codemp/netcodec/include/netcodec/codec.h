@@ -23,8 +23,8 @@
 
 namespace netcodec {
 
-inline constexpr size_t kEntityBytes = 532;    // sizeof(entityState_t), checked against the schema
-inline constexpr size_t kPlayerBytes = 1552;   // sizeof(playerState_t)
+inline constexpr size_t kEntityBytes = 524;    // sizeof(entityState_t), checked against the schema
+inline constexpr size_t kPlayerBytes = 1536;   // sizeof(playerState_t)
 inline constexpr uint32_t kMaxEntities = 1024; // entity numbers are below this (GENTITYNUM_BITS = 10)
 
 using EntityState = std::array<uint8_t, kEntityBytes>;
@@ -204,9 +204,12 @@ struct SnapshotOut {
 };
 
 // Schema, for tests and tools: offsets of the entity fields in codec order, and of every player-state field
-// (the union of the player, pilot and vehicle tables, sorted by name).
+// (the union of the player, pilot and vehicle tables, sorted by name); the sizes in bytes go with them (1 for a
+// bool, else 4).
 [[nodiscard]] std::span<const uint16_t> EntityFieldOffsets() noexcept;
+[[nodiscard]] std::span<const uint8_t> EntityFieldSizes() noexcept;
 [[nodiscard]] std::span<const uint16_t> PlayerFieldOffsets() noexcept;
+[[nodiscard]] std::span<const uint8_t> PlayerFieldSizes() noexcept;
 
 // Decodes one message. baselines: the current baselines; gamestate: where a gamestate's baselines go (cleared, then
 // written; the ops after it use them; the engine passes the same array as baselines); snapshot: where the snapshot

@@ -38,7 +38,7 @@ void S_StartLocalLoopingSound( sfxHandle_t sfx);
 
 void S_UnCacheDynamicMusic( void );
 void S_RestartMusic( void );
-void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCalledByCGameStart );
+void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledByCGameStart );
 void S_StopBackgroundTrack( void );
 float S_GetSampleLengthInMilliSeconds( sfxHandle_t sfxHandle);
 
@@ -76,6 +76,6 @@ void S_BeginRegistration( void );
 // checks for missing files
 sfxHandle_t	S_RegisterSound( const char *sample );
 
-extern qboolean s_shutUp;
+extern bool s_shutUp;
 
 void S_FreeAllSFXMem(void);

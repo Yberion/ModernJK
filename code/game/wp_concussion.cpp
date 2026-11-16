@@ -30,13 +30,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 static void WP_FireConcussionAlt( gentity_t *ent )
 {//a rail-gun-like beam
 	int			damage = weaponData[WP_CONCUSSION].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
-	qboolean	render_impact = qtrue;
+	bool	render_impact = true;
 	vec3_t		start, end;
 	vec3_t		muzzle2, spot, dir;
 	trace_t		tr;
 	gentity_t	*traceEnt, *tent;
 	float		dist, shotDist, shotRange = 8192;
-	qboolean	hitDodged = qfalse;
+	bool	hitDodged = false;
 
 	if (ent->s.number >= MAX_CLIENTS)
 	{
@@ -108,7 +108,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 
 		if ( tr.surfaceFlags & SURF_NOIMPACT )
 		{
-			render_impact = qfalse;
+			render_impact = false;
 		}
 
 		if ( tr.entityNum == ent->s.number )
@@ -162,7 +162,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 					}
 
 					int hitLoc = G_GetHitLocFromTrace( &tr, MOD_CONC_ALT );
-					qboolean noKnockBack = (qboolean)((traceEnt->flags&FL_NO_KNOCKBACK) != 0);//will be set if they die, I want to know if it was on *before* they died
+					bool noKnockBack = ((traceEnt->flags&FL_NO_KNOCKBACK) != 0);//will be set if they die, I want to know if it was on *before* they died
 					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 					{//hehe
 						G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_CONC_ALT, hitLoc );
@@ -193,7 +193,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 							{//alive
 								if ( G_HasKnockdownAnims( traceEnt ) )
 								{//knock-downable
-									G_Knockdown( traceEnt, ent, pushDir, 400, qtrue );
+									G_Knockdown( traceEnt, ent, pushDir, 400, true );
 								}
 							}
 						}
@@ -222,7 +222,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 		VectorCopy( tr.endpos, muzzle2 );
 		VectorCopy( tr.endpos, start );
 		skip = tr.entityNum;
-		hitDodged = qfalse;
+		hitDodged = false;
 	}
 	//just draw one beam all the way to the end
 	tent = G_TempEntity( tr.endpos, EV_CONC_ALT_SHOT );
@@ -279,7 +279,7 @@ static void WP_FireConcussion( gentity_t *ent )
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
 
-	gentity_t *missile = CreateMissile( start, forwardVec, vel, 10000, ent, qfalse );
+	gentity_t *missile = CreateMissile( start, forwardVec, vel, 10000, ent, false );
 
 	missile->classname = "conc_proj";
 	missile->s.weapon = WP_CONCUSSION;
@@ -320,7 +320,7 @@ static void WP_FireConcussion( gentity_t *ent )
 	missile->bounceCount = 0;
 }
 
-void WP_Concussion( gentity_t *ent, qboolean alt_fire )
+void WP_Concussion( gentity_t *ent, bool alt_fire )
 {
 	if(alt_fire)
 	{

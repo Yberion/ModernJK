@@ -62,7 +62,7 @@ void FX_FlechetteWeaponHitWall( vec3_t origin, vec3_t normal )
 FX_BlasterWeaponHitPlayer
 -------------------------
 */
-void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 //	if ( humanoid )
 //	{

@@ -373,16 +373,16 @@ TIMER_Done
 -------------------------
 */
 
-qboolean TIMER_Done( gentity_t *ent, const char *identifier )
+bool TIMER_Done( gentity_t *ent, const char *identifier )
 {
 	gtimer_t *timer = TIMER_GetExisting(ent->s.number, identifier);
 
 	if (!timer)
 	{
-		return qtrue;
+		return true;
 	}
 
-	return (qboolean)(timer->time < level.time);
+	return (timer->time < level.time);
 }
 
 /*
@@ -395,17 +395,17 @@ timer was never started
 -------------------------
 */
 
-qboolean TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove )
+bool TIMER_Done2( gentity_t *ent, const char *identifier, bool remove )
 {
 	gtimer_t *timer = TIMER_GetExisting(ent->s.number, identifier);
-	qboolean res;
+	bool res;
 
 	if (!timer)
 	{
-		return qfalse;
+		return false;
 	}
 
-	res = (qboolean)(timer->time < level.time);
+	res = (timer->time < level.time);
 
 	if (res && remove)
 	{
@@ -421,9 +421,9 @@ qboolean TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove )
 TIMER_Exists
 -------------------------
 */
-qboolean TIMER_Exists( gentity_t *ent, const char *identifier )
+bool TIMER_Exists( gentity_t *ent, const char *identifier )
 {
-	return (qboolean)(TIMER_GetExisting(ent->s.number, identifier) != NULL);
+	return (TIMER_GetExisting(ent->s.number, identifier) != NULL);
 }
 
 
@@ -453,12 +453,12 @@ TIMER_Start
 -------------------------
 */
 
-qboolean TIMER_Start( gentity_t *self, const char *identifier, int duration )
+bool TIMER_Start( gentity_t *self, const char *identifier, int duration )
 {
 	if ( TIMER_Done( self, identifier ) )
 	{
 		TIMER_Set( self, identifier, duration );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }

@@ -77,9 +77,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define maxs r.maxs
 #define legsAnimTimer legsTimer
 #define torsoAnimTimer torsoTimer
-#define bool qboolean
-#define false qfalse
-#define true qtrue
+#define bool bool
+#define false false
+#define true true
 
 #define sqrtf sqrt
 #define Q_flrand flrand
@@ -248,7 +248,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 			pVeh->m_ulFlags |= VEH_ACCELERATORON;
 			for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++)
 			{
-				G_PlayEffect(pVeh->m_pVehicleInfo->iExhaustFX, parent->playerModel, pVeh->m_iExhaustTag[i], parent->s.number, parent->currentOrigin, 1,	qtrue);
+				G_PlayEffect(pVeh->m_pVehicleInfo->iExhaustFX, parent->playerModel, pVeh->m_iExhaustTag[i], parent->s.number, parent->currentOrigin, 1,	true);
 			}
 		}
 
@@ -277,7 +277,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		if (!(pVeh->m_ulFlags&VEH_ARMORGONE) && (pVeh->m_iArmor <= 0))
 		{
 			pVeh->m_ulFlags |= VEH_ARMORGONE;
-			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, qtrue);
+			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, true);
 			parent->s.loopSound = G_SoundIndex( "sound/vehicles/common/fire_lp.wav" );
 		}
 	}
@@ -384,7 +384,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 							//--------------------------
 							if (pVeh->m_pVehicleInfo->iTurboFX)
 							{
-								G_PlayEffect(pVeh->m_pVehicleInfo->iTurboFX,	  pVeh->m_pParentEntity->playerModel, pVeh->m_iExhaustTag[i], pVeh->m_pParentEntity->s.number, pVeh->m_pParentEntity->currentOrigin, pVeh->m_pVehicleInfo->turboDuration, qtrue);
+								G_PlayEffect(pVeh->m_pVehicleInfo->iTurboFX,	  pVeh->m_pParentEntity->playerModel, pVeh->m_iExhaustTag[i], pVeh->m_pParentEntity->s.number, pVeh->m_pParentEntity->currentOrigin, pVeh->m_pVehicleInfo->turboDuration, true);
 							}
 
 						#else
@@ -763,7 +763,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 
  			gentity_t*	oldPilot = pVeh->m_pOldPilot;
-			pVeh->m_pVehicleInfo->Eject(pVeh, pVeh->m_pOldPilot, qtrue);		// will set pointer to zero
+			pVeh->m_pVehicleInfo->Eject(pVeh, pVeh->m_pOldPilot, true);		// will set pointer to zero
 
 			// Kill Him
 			//----------
@@ -1172,7 +1172,7 @@ void G_CreateSpeederNPC( Vehicle_t **pVeh, const char *strType )
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 #else
 	// Allocate the Vehicle.
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, qtrue );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 #endif
 }

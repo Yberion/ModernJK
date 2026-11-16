@@ -103,7 +103,7 @@ void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal )
 FX_BlasterWeaponHitPlayer
 -------------------------
 */
-void FX_BlasterWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_BlasterWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, bool humanoid )
 {
 	//temporary? just testing out the damage skin stuff -rww
 	if ( hit && hit->client && hit->ghoul2.size() )

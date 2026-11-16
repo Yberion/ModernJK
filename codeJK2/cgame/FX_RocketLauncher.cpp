@@ -61,7 +61,7 @@ FX_RocketHitPlayer
 ---------------------------
 */
 
-void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( "rocket/explosion", origin, normal );
 }

@@ -95,7 +95,7 @@ public:
 	void AddEdge( int ID, int cost, int flags = EFLAG_NONE );
 	void AddRank( int ID, int rank );
 
-	void Draw( qboolean radius );
+	void Draw( bool radius );
 
 	int	GetID( void )					const	{	return m_ID;	}
 	void GetPosition( vec3_t position )	const	{	if ( position )	VectorCopy( m_position, position );	}
@@ -206,15 +206,15 @@ public:
 //MCG Added BEGIN
 	void CheckFailedNodes( gentity_t *ent );
 	void AddFailedNode( gentity_t *ent, int nodeID );
-	qboolean NodeFailed( gentity_t *ent, int nodeID );
-	qboolean NodesAreNeighbors( int startID, int endID );
+	bool NodeFailed( gentity_t *ent, int nodeID );
+	bool NodesAreNeighbors( int startID, int endID );
 	void ClearFailedEdge( failedEdge_t	*failedEdge );
 	void ClearAllFailedEdges( void );
 	int EdgeFailed( int startID, int endID );
 	void AddFailedEdge( int entID, int startID, int endID );
-	qboolean CheckFailedEdge( failedEdge_t *failedEdge );
+	bool CheckFailedEdge( failedEdge_t *failedEdge );
 	void CheckAllFailedEdges( void );
-	qboolean RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank );
+	bool RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank );
 	int GetBestNodeAltRoute( int startID, int endID, int *pathCost, int rejectID = NODE_NONE );
 	int GetBestNodeAltRoute( int startID, int endID, int rejectID = NODE_NONE );
 	int GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int flags );
@@ -226,14 +226,14 @@ public:
 
 	void FlagAllNodes( int newFlag );
 
-	qboolean pathsCalculated;
+	bool pathsCalculated;
 	failedEdge_t	failedEdges[MAX_FAILED_EDGES];
 
 //MCG Added END
 
 protected:
 
-	int		TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, qboolean includeEnts );
+	int		TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, bool includeEnts );
 	int		TestNodeLOS( gentity_t *ent, vec3_t position );
 	int		TestBestFirst( gentity_t *ent, int lastID, int flags );
 

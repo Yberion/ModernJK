@@ -145,7 +145,7 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum ) {
 	}
 
 	if ( ll->count >= ll->maxcount) {
-		ll->overflowed = qtrue;
+		ll->overflowed = true;
 		return;
 	}
 	ll->list[ ll->count++ ] = leafNum;
@@ -178,7 +178,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 			continue;
 		}
 		if ( ll->count >= ll->maxcount) {
-			ll->overflowed = qtrue;
+			ll->overflowed = true;
 			return;
 		}
 		((cbrush_t **)ll->list)[ ll->count++ ] = b;
@@ -246,7 +246,7 @@ int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *boxList, int list
 	ll.list = boxList;
 	ll.storeLeafs = CM_StoreLeafs;
 	ll.lastLeaf = 0;
-	ll.overflowed = qfalse;
+	ll.overflowed = false;
 
 	CM_BoxLeafnums_r( &ll, 0 );
 
@@ -568,7 +568,7 @@ CM_AdjustAreaPortalState
 
 ====================
 */
-void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
+void	CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 	if ( area1 < 0 || area2 < 0 ) {
 		return;
 	}
@@ -597,15 +597,15 @@ CM_AreasConnected
 
 ====================
 */
-qboolean	CM_AreasConnected( int area1, int area2 ) {
+bool	CM_AreasConnected( int area1, int area2 ) {
 #ifndef BSPC
 	if ( cm_noAreas->integer ) {
-		return qtrue;
+		return true;
 	}
 #endif
 
 	if ( area1 < 0 || area2 < 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	if (area1 >= cmg.numAreas || area2 >= cmg.numAreas) {
@@ -613,9 +613,9 @@ qboolean	CM_AreasConnected( int area1, int area2 ) {
 	}
 
 	if (cmg.areas[area1].floodnum == cmg.areas[area2].floodnum) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 

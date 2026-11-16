@@ -93,7 +93,7 @@ IGhoul2InfoArray &_TheGhoul2InfoArray( void ) {
 	return re.TheGhoul2InfoArray();
 }
 
-static void CL_ShutdownRef( qboolean restarting );
+static void CL_ShutdownRef( bool restarting );
 void CL_InitRef( void );
 void CL_CheckForResend( void );
 
@@ -151,7 +151,7 @@ void CL_FlushMemory( void ) {
 	CL_ShutdownUI();
 
 	if ( re.Shutdown ) {
-		re.Shutdown( qfalse, qfalse );		// don't destroy window or context
+		re.Shutdown( false, false );		// don't destroy window or context
 	}
 
 	//rwwFIXMEFIXME: The game server appears to continue running, so clearing common bsp data causes crashing and other bad things
@@ -159,8 +159,8 @@ void CL_FlushMemory( void ) {
 	CM_ClearMap();
 	*/
 
-	cls.soundRegistered = qfalse;
-	cls.rendererStarted = qfalse;
+	cls.soundRegistered = false;
+	cls.rendererStarted = false;
 }
 
 /*
@@ -376,17 +376,17 @@ Restart the video subsystem
 void CL_Vid_Restart_f( void ) {
 	S_StopAllSounds();		// don't let them loop during the restart
 	S_BeginRegistration();	// all sound handles are now invalid
-	CL_ShutdownRef(qtrue);
+	CL_ShutdownRef(true);
 	CL_ShutdownUI();
 	CL_ShutdownCGame();
 
 	//rww - sof2mp does this here, but it seems to cause problems in this codebase.
 //	CM_ClearMap();
 
-	cls.rendererStarted = qfalse;
-	cls.uiStarted = qfalse;
-	cls.cgameStarted = qfalse;
-	cls.soundRegistered = qfalse;
+	cls.rendererStarted = false;
+	cls.uiStarted = false;
+	cls.cgameStarted = false;
+	cls.soundRegistered = false;
 
 	CL_InitRef();
 
@@ -412,8 +412,8 @@ void CL_Snd_Restart_f( void ) {
 
 //	CL_Vid_Restart_f();
 
-	extern qboolean	s_soundMuted;
-	s_soundMuted = qfalse;		// we can play again
+	extern bool	s_soundMuted;
+	s_soundMuted = false;		// we can play again
 
 	S_RestartMusic();
 
@@ -716,15 +716,15 @@ CL_CheckPaused
 Check whether client has been paused.
 ==================
 */
-qboolean CL_CheckPaused(void)
+bool CL_CheckPaused(void)
 {
 	// if cl_paused->modified is set, the cvar has only been changed in
 	// this frame. Keep paused in this frame to ensure the server doesn't
 	// lag behind.
 	if(cl_paused->integer || cl_paused->modified)
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 //============================================================================
@@ -865,7 +865,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	if (cl_skippingcin->integer && !cl_endcredits->integer && !com_developer->integer ) {
 		if (cl_skippingcin->modified){
 			S_StopSounds();		//kill em all but music
-			cl_skippingcin->modified=qfalse;
+			cl_skippingcin->modified=false;
 			Com_Printf (S_COLOR_YELLOW "%s", SE_GetString("CON_TEXT_SKIPPING"));
 			SCR_UpdateScreen();
 		}
@@ -891,9 +891,9 @@ void CL_Frame ( int msec,float fractionMsec ) {
 CL_ShutdownRef
 ============
 */
-static void CL_ShutdownRef( qboolean restarting ) {
+static void CL_ShutdownRef( bool restarting ) {
 	if ( re.Shutdown ) {
-		re.Shutdown( qtrue, restarting );
+		re.Shutdown( true, restarting );
 	}
 
 	memset( &re, 0, sizeof( re ) );
@@ -914,12 +914,12 @@ REALLY early on Xbox, helps with memory fragmentation.
 */
 void CL_StartSound( void ) {
 	if ( !cls.soundStarted ) {
-		cls.soundStarted = qtrue;
+		cls.soundStarted = true;
 		S_Init();
 	}
 
 	if ( !cls.soundRegistered ) {
-		cls.soundRegistered = qtrue;
+		cls.soundRegistered = true;
 		S_BeginRegistration();
 	}
 }
@@ -956,30 +956,30 @@ void CL_StartHunkUsers( void ) {
 	}
 
 	if ( !cls.rendererStarted ) {
-		cls.rendererStarted = qtrue;
+		cls.rendererStarted = true;
 		CL_InitRenderer();
 	}
 
 	if ( !cls.soundStarted ) {
-		cls.soundStarted = qtrue;
+		cls.soundStarted = true;
 		S_Init();
 	}
 
 	if ( !cls.soundRegistered ) {
-		cls.soundRegistered = qtrue;
+		cls.soundRegistered = true;
 		S_BeginRegistration();
 	}
 
 	//we require the ui to be loaded here or else it crashes trying to access the ui on command line map loads
 	if ( !cls.uiStarted ) {
-		cls.uiStarted = qtrue;
+		cls.uiStarted = true;
 		CL_InitUI();
 	}
 
 //	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
 	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic()) )
 	{
-		cls.cgameStarted = qtrue;
+		cls.cgameStarted = true;
 		CL_InitCGame();
 	}
 }
@@ -1025,10 +1025,10 @@ const char *String_GetStringValue( const char *reference )
 #endif
 }
 
-extern qboolean gbAlreadyDoingLoad;
+extern bool gbAlreadyDoingLoad;
 extern void *gpvCachedMapDiskImage;
 extern char  gsCachedMapDiskImage[MAX_QPATH];
-extern qboolean gbUsingCachedMapDataRightNow;
+extern bool gbUsingCachedMapDataRightNow;
 
 char *get_gsCachedMapDiskImage( void )
 {
@@ -1040,12 +1040,12 @@ void *get_gpvCachedMapDiskImage( void )
 	return gpvCachedMapDiskImage;
 }
 
-qboolean *get_gbUsingCachedMapDataRightNow( void )
+bool *get_gbUsingCachedMapDataRightNow( void )
 {
 	return &gbUsingCachedMapDataRightNow;
 }
 
-qboolean *get_gbAlreadyDoingLoad( void )
+bool *get_gbAlreadyDoingLoad( void )
 {
 	return &gbAlreadyDoingLoad;
 }
@@ -1055,7 +1055,7 @@ int get_com_frameTime( void )
 	return com_frameTime;
 }
 
-void *CL_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
+void *CL_Malloc(int iSize, memtag_t eTag, bool bZeroit, int iAlign)
 {
     return Z_Malloc(iSize, eTag, bZeroit);
 }
@@ -1065,10 +1065,10 @@ void *CL_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 CL_InitRef
 ============
 */
-extern qboolean S_FileExists( const char *psFilename );
+extern bool S_FileExists( const char *psFilename );
 extern bool CM_CullWorldBox (const cplane_t *frustum, const vec3pair_t bounds);
-extern qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel /* 99% qfalse */);
-extern cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force);
+extern bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99% false */);
+extern cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force);
 extern CMiniHeap *G2VertSpaceServer;
 static CMiniHeap *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;
@@ -1097,13 +1097,13 @@ void CL_InitRef( void ) {
 
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
-	if( !(rendererLib = Sys_LoadDll( dllName, qfalse )) && strcmp( cl_renderer->string, cl_renderer->resetString ) )
+	if( !(rendererLib = Sys_LoadDll( dllName, false )) && strcmp( cl_renderer->string, cl_renderer->resetString ) )
 	{
 		Com_Printf( "failed: trying to load fallback renderer\n" );
 		Cvar_ForceReset( "cl_renderer" );
 
 		Com_sprintf( dllName, sizeof( dllName ), DEFAULT_RENDER_LIBRARY "_" ARCH_STRING DLL_EXT );
-		rendererLib = Sys_LoadDll( dllName, qfalse );
+		rendererLib = Sys_LoadDll( dllName, false );
 	}
 
 	if ( !rendererLib ) {
@@ -1343,7 +1343,7 @@ CL_Shutdown
 ===============
 */
 void CL_Shutdown( void ) {
-	static qboolean recursive = qfalse;
+	static bool recursive = false;
 
 	if ( !com_cl_running || !com_cl_running->integer ) {
 		return;
@@ -1355,13 +1355,13 @@ void CL_Shutdown( void ) {
 		Com_Printf( "WARNING: Recursive CL_Shutdown called!\n" );
 		return;
 	}
-	recursive = qtrue;
+	recursive = true;
 
 	CL_ShutdownUI();
 	CL_Disconnect();
 
 	S_Shutdown();
-	CL_ShutdownRef(qfalse);
+	CL_ShutdownRef(false);
 
 	Cmd_RemoveCommand ("cmd");
 	Cmd_RemoveCommand ("configstrings");
@@ -1377,7 +1377,7 @@ void CL_Shutdown( void ) {
 
 	Cvar_Set( "cl_running", "0" );
 
-	recursive = qfalse;
+	recursive = false;
 
 	memset( &cls, 0, sizeof( cls ) );
 

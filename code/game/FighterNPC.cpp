@@ -75,9 +75,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define maxs r.maxs
 #define legsAnimTimer legsTimer
 #define torsoAnimTimer torsoTimer
-#define bool qboolean
-#define false qfalse
-#define true qtrue
+#define bool bool
+#define false false
+#define true true
 
 #define sqrtf sqrt
 #define Q_flrand flrand
@@ -99,7 +99,7 @@ extern int PM_AnimLength( int index, animNumber_t anim );
 extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 #endif
 
-extern qboolean BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
+extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
 #ifdef _JK2MP
 
@@ -118,7 +118,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 {
 	vec3_t		bottom;
 	playerState_t *parentPS;
-	//qboolean	isDead = qfalse;
+	//bool	isDead = false;
 #ifdef QAGAME //don't do this on client
 	// Make sure the riders are not visible or collidable.
 	pVeh->m_pVehicleInfo->Ghost( pVeh, pVeh->m_pPilot );
@@ -162,7 +162,7 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 	}
 
 #ifdef _JK2MP
-	//isDead = (qboolean)((parentPS->eFlags&EF_DEAD)!=0);
+	//isDead = ((parentPS->eFlags&EF_DEAD)!=0);
 #else
 	//isDead = (parentPS->stats[STAT_HEALTH] <= 0 );
 #endif
@@ -175,8 +175,8 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 		pVeh->m_LandTrace.fraction = 1.0f;
 		pVeh->m_LandTrace.contents = pVeh->m_LandTrace.surfaceFlags = 0;
 		VectorClear( pVeh->m_LandTrace.plane.normal );
-		pVeh->m_LandTrace.allsolid = qfalse;
-		pVeh->m_LandTrace.startsolid = qfalse;
+		pVeh->m_LandTrace.allsolid = false;
+		pVeh->m_LandTrace.startsolid = false;
 	}
 	else
 	{
@@ -232,7 +232,7 @@ static bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 }
 
 // Eject an entity from the vehicle.
-static bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
+static bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 {
 	if ( g_vehicleInfo[VEHICLE_BASE].Eject( pVeh, pEnt, forceEject ) )
 	{
@@ -284,41 +284,41 @@ static float PredictedAngularDecrement(float scale, float timeMod, float origina
 }
 
 #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
-qboolean FighterIsInSpace( gentity_t *gParent )
+bool FighterIsInSpace( gentity_t *gParent )
 {
 	if ( gParent
 		&& gParent->client
 		&& gParent->client->inSpaceIndex
 		&& gParent->client->inSpaceIndex < ENTITYNUM_WORLD )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 #endif
 
-qboolean FighterOverValidLandingSurface( Vehicle_t *pVeh )
+bool FighterOverValidLandingSurface( Vehicle_t *pVeh )
 {
 	if ( pVeh->m_LandTrace.fraction < 1.0f //ground present
 		&& pVeh->m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE )//flat enough
 		//FIXME: also check for a certain surface flag ... "landing zones"?
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS )
+bool FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS )
 {
 	if ( FighterOverValidLandingSurface( pVeh )
 		&& !parentPS->speed )//stopped
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean FighterIsLanding( Vehicle_t *pVeh, playerState_t *parentPS )
+bool FighterIsLanding( Vehicle_t *pVeh, playerState_t *parentPS )
 {
 
 	if ( FighterOverValidLandingSurface( pVeh )
@@ -328,12 +328,12 @@ qboolean FighterIsLanding( Vehicle_t *pVeh, playerState_t *parentPS )
 		&& (pVeh->m_ucmd.forwardmove < 0||pVeh->m_ucmd.upmove<0) //decelerating or holding crouch button
 		&& parentPS->speed <= MIN_LANDING_SPEED )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean FighterIsLaunching( Vehicle_t *pVeh, playerState_t *parentPS )
+bool FighterIsLaunching( Vehicle_t *pVeh, playerState_t *parentPS )
 {
 
 	if ( FighterOverValidLandingSurface( pVeh )
@@ -343,12 +343,12 @@ qboolean FighterIsLaunching( Vehicle_t *pVeh, playerState_t *parentPS )
 		&& pVeh->m_ucmd.upmove > 0 //trying to take off
 		&& parentPS->speed <= 200.0f )//going slow enough to start landing - was using pVeh->m_pVehicleInfo->speedIdle, but that's still too fast
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean FighterSuspended( Vehicle_t *pVeh, playerState_t *parentPS )
+bool FighterSuspended( Vehicle_t *pVeh, playerState_t *parentPS )
 {
 #ifdef QAGAME//only do this check on GAME side, because if it's CGAME, it's being predicted, and it's only predicted if the local client is the driver
 	if (!pVeh->m_pPilot//empty
@@ -357,17 +357,17 @@ qboolean FighterSuspended( Vehicle_t *pVeh, playerState_t *parentPS )
 		&& pVeh->m_pParentEntity != NULL
 		&& (((gentity_t *)pVeh->m_pParentEntity)->spawnflags&2) )//SUSPENDED spawnflag is on
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 #elif defined CGAME
-	return qfalse;
+	return false;
 #endif
 }
 
 #ifdef CGAME
-extern void trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ); //cg_syscalls.c
-extern sfxHandle_t trap_S_RegisterSound( const char *sample); //cg_syscalls.c
+extern void trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ); //cg_syscalls.cpp
+extern sfxHandle_t trap_S_RegisterSound( const char *sample); //cg_syscalls.cpp
 #endif
 
 //MP RULE - ALL PROCESSMOVECOMMANDS FUNCTIONS MUST BE BG-COMPATIBLE!!!
@@ -387,7 +387,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	//Client sets ucmds and such for speed alterations
 	float speedInc, speedIdleDec, speedIdle, speedIdleAccel, speedMin, speedMax;
 	bgEntity_t *parent = pVeh->m_pParentEntity;
-	qboolean isLandingOrLaunching = qfalse;
+	bool isLandingOrLaunching = false;
 #ifndef _JK2MP//SP
 	int curTime = level.time;
 #elif defined QAGAME//MP GAME
@@ -451,7 +451,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		return;
 	}
 
-	isLandingOrLaunching = (qboolean)(FighterIsLanding( pVeh, parentPS )||FighterIsLaunching( pVeh, parentPS ));
+	isLandingOrLaunching = (FighterIsLanding( pVeh, parentPS )||FighterIsLaunching( pVeh, parentPS ));
 
 	// If we are hitting the ground, just allow the fighter to go up and down.
 	if ( isLandingOrLaunching//going slow enough to start landing
@@ -953,7 +953,7 @@ static void FighterNoseMalfunctionCheck( Vehicle_t *pVeh, playerState_t *parentP
 	}
 }
 
-static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerState_t *parentPS, playerState_t *riderPS, qboolean isDead )
+static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerState_t *parentPS, playerState_t *riderPS, bool isDead )
 {
  	if ( !pVeh->m_iRemovedSurfaces )
 	{//still in one piece
@@ -1191,8 +1191,8 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	const float groundFraction = 0.1f;
 #endif
 	float	curRoll = 0.0f;
-	qboolean isDead = qfalse;
-	qboolean isLandingOrLanded = qfalse;
+	bool isDead = false;
+	bool isLandingOrLanded = false;
 #ifndef _JK2MP//SP
 	int curTime = level.time;
 #elif defined QAGAME//MP GAME
@@ -1224,11 +1224,11 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 #ifdef _JK2MP
 	parentPS = parent->playerState;
 	riderPS = rider->playerState;
-	isDead = (qboolean)((parentPS->eFlags&EF_DEAD)!=0);
+	isDead = ((parentPS->eFlags&EF_DEAD)!=0);
 #else
 	parentPS = &parent->client->ps;
 	riderPS = &rider->client->ps;
-	isDead = (qboolean)(parentPS->stats[STAT_HEALTH] <= 0 );
+	isDead = (parentPS->stats[STAT_HEALTH] <= 0 );
 #endif
 
 #ifdef _JK2MP
@@ -1267,7 +1267,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		pVeh->m_vOrientation[ROLL] = PredictedAngularDecrement(0.95f, angleTimeMod*2.0f, pVeh->m_vOrientation[ROLL]);
 	}
 
-	isLandingOrLanded = (qboolean)(FighterIsLanding( pVeh, parentPS )||FighterIsLanded( pVeh, parentPS ));
+	isLandingOrLanded = (FighterIsLanding( pVeh, parentPS )||FighterIsLanded( pVeh, parentPS ));
 
 	if (!isLandingOrLanded)
 	{ //don't do this stuff while landed.. I guess. I don't want ships spinning in place, looks silly.
@@ -1571,7 +1571,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	int Anim = -1;
 	int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
-	qboolean isLanding = qfalse, isLanded = qfalse;
+	bool isLanding = false, isLanded = false;
 #ifdef _JK2MP
 	playerState_t *parentPS = pVeh->m_pParentEntity->playerState;
 #else
@@ -1744,7 +1744,7 @@ void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType )
 #endif
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 #else
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, qtrue );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
 #endif
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strType )];
 }

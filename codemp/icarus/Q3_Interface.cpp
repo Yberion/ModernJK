@@ -45,7 +45,7 @@ stringID_table_t tagsTable [] =
 */
 
 extern float Q_flrand(float min, float max);
-extern qboolean COM_ParseString( char **data, char **s );
+extern bool COM_ParseString( char **data, char **s );
 
 //=======================================================================
 
@@ -121,27 +121,27 @@ void Q3_TaskIDClear( int *taskID )
 
 /*
 -------------------------
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
+bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 -------------------------
 */
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
+bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 {
 	if ( !gSequencers[ent->s.number] || !gTaskManagers[ent->s.number] )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->taskID[taskType] >= 0 )//-1 is none
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -280,11 +280,11 @@ G_AddSexToMunroString
 
 Take any string, look for "kyle/" replace with "kyla/" based on "sex"
 And: Take any string, look for "/mr_" replace with "/ms_" based on "sex"
-returns qtrue if changed to ms
+returns true if changed to ms
 =============
 */
 /*
-static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
+static bool G_AddSexToMunroString ( char *string, bool qDoBoth )
 {
 	char *start;
 
@@ -293,16 +293,16 @@ static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
 			start = strstr( string, "kyle/" );
 			if ( start != NULL ) {
 				strncpy( start, "kyla", 5 );
-				return qtrue;
+				return true;
 			} else {
 				start = strrchr( string, '/' );		//get the last slash before the wav
 				if (start != NULL) {
 					if (!Q_strncmp( start, "/mr_", 4) ) {
 						if (qDoBoth) {	//we want to change mr to ms
 							start[2] = 's';	//change mr to ms
-							return qtrue;
+							return true;
 						} else {	//IF qDoBoth
-							return qfalse;	//don't want this one
+							return false;	//don't want this one
 						}
 					}
 				}	//IF found slash
@@ -312,12 +312,12 @@ static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
 			start = strrchr( string, '/' );		//get the last slash before the wav
 			if (start != NULL) {
 				if (!Q_strncmp( start, "/ms_", 4) ) {
-					return qfalse;	//don't want this one
+					return false;	//don't want this one
 				}
 			}	//IF found slash
 		}
 	}	//if VALIDSTRING
-	return qtrue;
+	return true;
 }
 */
 
@@ -789,11 +789,11 @@ static void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, fl
 	if (angles)
 	{
 		VectorCopy(angles, sharedMem->angles);
-		sharedMem->nullAngles = qfalse;
+		sharedMem->nullAngles = false;
 	}
 	else
 	{
-		sharedMem->nullAngles = qtrue;
+		sharedMem->nullAngles = true;
 	}
 	sharedMem->duration = duration;
 

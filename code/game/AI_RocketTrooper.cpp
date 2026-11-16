@@ -21,11 +21,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "b_local.h"
-extern qboolean PM_FlippingAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
 extern void NPC_BSST_Patrol( void );
 
 extern void RT_FlyStart( gentity_t *self );
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 
 #define VELOCITY_DECAY		0.7f
 
@@ -66,12 +66,12 @@ void RT_RunStormtrooperAI( void )
 
 void RT_FireDecide( void )
 {
-	qboolean enemyLOS = qfalse;
-	qboolean enemyCS = qfalse;
-	qboolean enemyInFOV = qfalse;
-	//qboolean move = qtrue;
-	qboolean shoot = qfalse;
-	qboolean hitAlly = qfalse;
+	bool enemyLOS = false;
+	bool enemyCS = false;
+	bool enemyInFOV = false;
+	//bool move = true;
+	bool shoot = false;
+	bool hitAlly = false;
 	vec3_t	impactPos;
 	float	enemyDist;
 
@@ -98,7 +98,7 @@ void RT_FireDecide( void )
 	float dot = DotProduct( enemyDir, shootDir );
 	if ( dot > 0.5f ||( enemyDist * (1.0f-dot)) < 10000 )
 	{//enemy is in front of me or they're very close and not behind me
-		enemyInFOV = qtrue;
+		enemyInFOV = true;
 	}
 
 	if ( enemyDist < MIN_ROCKET_DIST_SQUARED )//128
@@ -117,11 +117,11 @@ void RT_FireDecide( void )
 		if ( NPC_ClearLOS( NPC->enemy ) )
 		{
 			NPCInfo->enemyLastSeenTime = level.time;
-			enemyLOS = qtrue;
+			enemyLOS = true;
 
 			if ( NPC->client->ps.weapon == WP_NONE )
 			{
-				enemyCS = qfalse;//not true, but should stop us from firing
+				enemyCS = false;//not true, but should stop us from firing
 			}
 			else
 			{//can we shoot our target?
@@ -129,8 +129,8 @@ void RT_FireDecide( void )
 					|| (NPC->client->ps.weapon == WP_CONCUSSION && !(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 					|| (NPC->client->ps.weapon == WP_FLECHETTE && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
 				{
-					enemyCS = qfalse;//not true, but should stop us from firing
-					hitAlly = qtrue;//us!
+					enemyCS = false;//not true, but should stop us from firing
+					hitAlly = true;//us!
 					//FIXME: if too close, run away!
 				}
 				else if ( enemyInFOV )
@@ -142,7 +142,7 @@ void RT_FireDecide( void )
 						|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
 						|| ( hitEnt && hitEnt->takedamage && ((hitEnt->svFlags&SVF_GLASS_BRUSH)||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
 					{//can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
-						enemyCS = qtrue;
+						enemyCS = true;
 						//NPC_AimAdjust( 2 );//adjust aim better longer we have clear shot at enemy
 						VectorCopy( NPC->enemy->currentOrigin, NPCInfo->enemyLastSeenLocation );
 					}
@@ -151,7 +151,7 @@ void RT_FireDecide( void )
 						//NPC_AimAdjust( 1 );//adjust aim better longer we can see enemy
 						if ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->playerTeam )
 						{//would hit an ally, don't fire!!!
-							hitAlly = qtrue;
+							hitAlly = true;
 						}
 						else
 						{//Check and see where our shot *would* hit... if it's not close to the enemy (within 256?), then don't fire
@@ -160,7 +160,7 @@ void RT_FireDecide( void )
 				}
 				else
 				{
-					enemyCS = qfalse;//not true, but should stop us from firing
+					enemyCS = false;//not true, but should stop us from firing
 				}
 			}
 		}
@@ -172,13 +172,13 @@ void RT_FireDecide( void )
 
 		if ( NPC->client->ps.weapon == WP_NONE )
 		{
-			shoot = qfalse;
+			shoot = false;
 		}
 		else
 		{
 			if ( enemyCS )
 			{
-				shoot = qtrue;
+				shoot = true;
 			}
 		}
 
@@ -196,8 +196,8 @@ void RT_FireDecide( void )
 					{
 						//Fire on the last known position
 						vec3_t	muzzle, dir, angles;
-						qboolean tooClose = qfalse;
-						qboolean tooFar = qfalse;
+						bool tooClose = false;
+						bool tooFar = false;
 
 						CalcEntitySpot( NPC, SPOT_HEAD, muzzle );
 						if ( VectorCompare( impactPos, vec3_origin ) )
@@ -242,7 +242,7 @@ void RT_FireDecide( void )
 
 						if ( dist < distThreshold )
 						{//impact would be too close to me
-							tooClose = qtrue;
+							tooClose = true;
 						}
 						else if ( level.time - NPCInfo->enemyLastSeenTime > 5000 ||
 							(NPCInfo->group && level.time - NPCInfo->group->lastSeenEnemyTime > 5000 ))
@@ -276,7 +276,7 @@ void RT_FireDecide( void )
 							dist = DistanceSquared( impactPos, NPCInfo->enemyLastSeenLocation );
 							if ( dist > distThreshold )
 							{//impact would be too far from enemy
-								tooFar = qtrue;
+								tooFar = true;
 							}
 						}
 
@@ -289,7 +289,7 @@ void RT_FireDecide( void )
 							NPCInfo->desiredYaw		= angles[YAW];
 							NPCInfo->desiredPitch	= angles[PITCH];
 
-							shoot = qtrue;
+							shoot = true;
 						}
 					}
 				}
@@ -318,7 +318,7 @@ void RT_FireDecide( void )
 			{
 				if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 				{
-					WeaponThink( qtrue );
+					WeaponThink( true );
 				}
 				//NASTY
 				int altChance = 6;//FIXME: base on g_spskill
@@ -354,9 +354,9 @@ void RT_FireDecide( void )
 //=====================================================================================
 //FLYING behavior
 //=====================================================================================
-qboolean RT_Flying( gentity_t *self )
+bool RT_Flying( gentity_t *self )
 {
-	return ((qboolean)(self->client->moveType==MT_FLYSWIM));
+	return ((self->client->moveType==MT_FLYSWIM));
 }
 
 void RT_FlyStart( gentity_t *self )
@@ -378,11 +378,11 @@ void RT_FlyStart( gentity_t *self )
 		self->client->jetPackTime = Q3_INFINITE;
 		if ( self->genericBolt1 != -1 )
 		{
-			G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), self->playerModel, self->genericBolt1, self->s.number, self->currentOrigin, qtrue, qtrue );
+			G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), self->playerModel, self->genericBolt1, self->s.number, self->currentOrigin, true, true );
 		}
 		if ( self->genericBolt2 != -1 )
 		{
-			G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), self->playerModel, self->genericBolt2, self->s.number, self->currentOrigin, qtrue, qtrue );
+			G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), self->playerModel, self->genericBolt2, self->s.number, self->currentOrigin, true, true );
 		}
 
 		//take-off sound
@@ -427,11 +427,11 @@ void RT_JetPackEffect( int duration )
 {
 	if ( NPC->genericBolt1 != -1 )
 	{
-		G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), NPC->playerModel, NPC->genericBolt1, NPC->s.number, NPC->currentOrigin, duration, qtrue );
+		G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), NPC->playerModel, NPC->genericBolt1, NPC->s.number, NPC->currentOrigin, duration, true );
 	}
 	if ( NPC->genericBolt2 != -1 )
 	{
-		G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), NPC->playerModel, NPC->genericBolt2, NPC->s.number, NPC->currentOrigin, duration, qtrue );
+		G_PlayEffect( G_EffectIndex( "rockettrooper/flameNEW" ), NPC->playerModel, NPC->genericBolt2, NPC->s.number, NPC->currentOrigin, duration, true );
 	}
 
 	//take-off sound
@@ -466,7 +466,7 @@ void RT_Flying_MaintainHeight( void )
 	float	dif = 0;
 
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	if ( NPC->forcePushTime > level.time )
 	{//if being pushed, we don't have control over our movement
@@ -721,7 +721,7 @@ void RT_Flying_Strafe( void )
 	}
 }
 
-void RT_Flying_Hunt( qboolean visible, qboolean advance )
+void RT_Flying_Hunt( bool visible, bool advance )
 {
 	float	distance, speed;
 	vec3_t	forward;
@@ -732,7 +732,7 @@ void RT_Flying_Hunt( qboolean visible, qboolean advance )
 		NPC->delay = 0;
 		return;
 	}
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	// If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
@@ -750,14 +750,14 @@ void RT_Flying_Hunt( qboolean visible, qboolean advance )
 	if ( advance  )
 	{
 		// Only try and navigate if the player is visible
-		if ( visible == qfalse )
+		if ( visible == false )
 		{
 			// Move towards our goal
 			NPCInfo->goalEntity = NPC->enemy;
 			NPCInfo->goalRadius = 24;
 
 			NPC->delay = 0;
-			NPC_MoveToGoal(qtrue);
+			NPC_MoveToGoal(true);
 			return;
 
 		}
@@ -803,7 +803,7 @@ void RT_Flying_Hunt( qboolean visible, qboolean advance )
 	}
 }
 
-void RT_Flying_Ranged( qboolean visible, qboolean advance )
+void RT_Flying_Ranged( bool visible, bool advance )
 {
 	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 	{
@@ -818,11 +818,11 @@ void RT_Flying_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance>(256.0f*256.0f));
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance>(256.0f*256.0f));
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -839,11 +839,11 @@ void RT_Flying_Think( void )
 	if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV )
 		&& UpdateGoal() )
 	{//being scripted to go to a certain spot, don't maintain height
-		if ( NPC_MoveToGoal( qtrue ) )
+		if ( NPC_MoveToGoal( true ) )
 		{//we could macro-nav to our goal
 			if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )
 			{
-				NPC_FaceEnemy( qtrue );
+				NPC_FaceEnemy( true );
 				RT_FireDecide();
 			}
 		}

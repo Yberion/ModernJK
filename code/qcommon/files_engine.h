@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FS_DEFAULT_CFG			"default.cfg"		// the configuration a game folder must hold
 #define FS_AUTOEXEC_CFG			"autoexec_sp.cfg"	// read from outside the pk3 files only, as Q3CONFIG_CFG is
 #define Q3CONFIG_CFG			Q3CONFIG_NAME		// the name the file system knows this engine's configuration file by
-#define FS_MODULES_FROM_PAKS	qfalse				// the modules are loaded from folders only
+#define FS_MODULES_FROM_PAKS	false				// the modules are loaded from folders only
 
 // before a file is read whole, and before a saved game is renamed: stops the sound from repeating meanwhile
 static inline void FS_QuietSound( void ) {
@@ -46,7 +46,7 @@ static cvar_t *const com_journal = NULL;
 
 // no temporary memory on the hunk
 static inline void *Hunk_AllocateTempMemory( int size ) {
-	return Z_Malloc( size, TAG_TEMP_WORKSPACE, qfalse );
+	return Z_Malloc( size, TAG_TEMP_WORKSPACE, false );
 }
 static inline void Hunk_FreeTempMemory( void *buffer ) {
 	Z_Free( buffer );

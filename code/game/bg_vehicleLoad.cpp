@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//bg_vehicleLoad.c
+//bg_vehicleLoad.cpp
 
 #ifdef _JK2 //SP does not have this preprocessor for game like MP does
 #ifndef _JK2MP
@@ -199,7 +199,7 @@ static vehField_t *FindVehWeaponParm( const char *parmName )
 	return NULL;
 }
 
-static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmName, char *pValue )
+static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmName, char *pValue )
 {
 	vehField_t *vehWeaponField;
 	vec3_t	vec;
@@ -214,7 +214,7 @@ static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *p
 	vehWeaponField = FindVehWeaponParm( parmName );
 
 	if ( !vehWeaponField )
-		return qfalse;
+		return false;
 
 	// found it
 	switch( vehWeaponField->type )
@@ -250,7 +250,7 @@ static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *p
 		((float *)(b+vehWeaponField->ofs))[2] = vec[2];
 		break;
 	case VF_BOOL:
-		*(qboolean *)(b+vehWeaponField->ofs) = (qboolean)(atof(value)!=0);
+		*(bool *)(b+vehWeaponField->ofs) = (atof(value)!=0);
 		break;
 	case VF_VEHTYPE:
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
@@ -327,10 +327,10 @@ static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *p
 		break;
 	default:
 		//Unknown type?
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 int VEH_LoadVehWeapon( const char *vehWeaponName )
@@ -356,11 +356,11 @@ int VEH_LoadVehWeapon( const char *vehWeaponName )
 	// look for the right vehicle weapon
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, vehWeaponName ) )
@@ -373,10 +373,10 @@ int VEH_LoadVehWeapon( const char *vehWeaponName )
 	if ( !p )
 	{
 		COM_EndParseSession(  );
-		return qfalse;
+		return false;
 	}
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if ( token[0] == 0 )
 	{//barf
 		COM_EndParseSession(  );
@@ -393,7 +393,7 @@ int VEH_LoadVehWeapon( const char *vehWeaponName )
 	while ( 1 )
 	{
 		SkipRestOfLine( &p );
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing Vehicle Weapon '%s'\n", vehWeaponName );
@@ -406,7 +406,7 @@ int VEH_LoadVehWeapon( const char *vehWeaponName )
 			break;
 		}
 		Q_strncpyz( parmName, token, sizeof(parmName) );
-		value = COM_ParseExt( &p, qtrue );
+		value = COM_ParseExt( &p, true );
 		if ( !value || !value[0] )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: Vehicle Weapon token '%s' has no value!\n", parmName );
@@ -782,7 +782,7 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->pitchLimit = VEH_DEFAULT_PITCH_LIMIT;		//how far it can pitch forward or backward
 	vehicle->braking = VEH_DEFAULT_BRAKING;				//when pressing on decelerator (backwards)
 	vehicle->turningSpeed = VEH_DEFAULT_TURNING_SPEED;	//how quickly you can turn
-	vehicle->turnWhenStopped = qfalse;					//whether or not you can turn when not moving
+	vehicle->turnWhenStopped = false;					//whether or not you can turn when not moving
 	vehicle->traction = VEH_DEFAULT_TRACTION;			//how much your command input affects velocity
 	vehicle->friction = VEH_DEFAULT_FRICTION;			//how much velocity is cut on its own
 	vehicle->maxSlope = VEH_DEFAULT_MAX_SLOPE;			//the max slope that it can go up with control
@@ -818,7 +818,7 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->gravity = VEH_DEFAULT_GRAVITY;				//normal is 800
 	vehicle->hoverHeight = 0;//VEH_DEFAULT_HOVER_HEIGHT;	//if 0, it's a ground vehicle
 	vehicle->hoverStrength = 0;//VEH_DEFAULT_HOVER_STRENGTH;//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
-	vehicle->waterProof = qtrue;						//can drive underwater if it has to
+	vehicle->waterProof = true;						//can drive underwater if it has to
 	vehicle->bouyancy = 1.0f;							//when in water, how high it floats (1 is neutral bouyancy)
 	vehicle->fuelMax = 1000;							//how much fuel it can hold (capacity)
 	vehicle->fuelRate = 1;								//how quickly is uses up fuel
@@ -829,18 +829,18 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->maxPassengers = 0;
 
 	//new stuff
-	vehicle->hideRider = qfalse;						// rider (and passengers?) should not be drawn
-	vehicle->killRiderOnDeath = qfalse;					//if rider is on vehicle when it dies, they should die
-	vehicle->flammable = qfalse;						//whether or not the vehicle should catch on fire before it explodes
+	vehicle->hideRider = false;						// rider (and passengers?) should not be drawn
+	vehicle->killRiderOnDeath = false;					//if rider is on vehicle when it dies, they should die
+	vehicle->flammable = false;						//whether or not the vehicle should catch on fire before it explodes
 	vehicle->explosionDelay = 0;						//how long the vehicle should be on fire/dying before it explodes
 	//camera stuff
-	vehicle->cameraOverride = qfalse;					//whether or not to use all of the following 3rd person camera override values
+	vehicle->cameraOverride = false;					//whether or not to use all of the following 3rd person camera override values
 	vehicle->cameraRange = 0.0f;						//how far back the camera should be - normal is 80
 	vehicle->cameraVertOffset = 0.0f;					//how high over the vehicle origin the camera should be - normal is 16
 	vehicle->cameraHorzOffset = 0.0f;					//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
 	vehicle->cameraPitchOffset = 0.0f;					//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
 	vehicle->cameraFOV = 0.0f;							//third person camera FOV, default is 80
-	vehicle->cameraAlpha = qfalse;						//fade out the vehicle if it's in the way of the crosshair
+	vehicle->cameraAlpha = false;						//fade out the vehicle if it's in the way of the crosshair
 */
 }
 
@@ -882,7 +882,7 @@ static vehField_t *FindVehicleParm( const char *parmName )
 	return NULL;
 }
 
-static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, char *pValue )
+static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, char *pValue )
 {
 	vehField_t *vehField;
 	vec3_t	vec;
@@ -897,7 +897,7 @@ static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmNam
 	vehField = FindVehicleParm( parmName );
 
 	if ( !vehField )
-		return qfalse;
+		return false;
 
 	// found it
 	switch( vehField->type )
@@ -935,7 +935,7 @@ static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmNam
 		((float *)(b+vehField->ofs))[2] = vec[2];
 		break;
 	case VF_BOOL:
-		*(qboolean *)(b+vehField->ofs) = (qboolean)(atof(value)!=0);
+		*(bool *)(b+vehField->ofs) = (atof(value)!=0);
 		break;
 	case VF_VEHTYPE:
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
@@ -1012,10 +1012,10 @@ static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmNam
 		break;
 	default:
 		//Unknown type?
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 int VEH_LoadVehicle( const char *vehicleName )
@@ -1057,7 +1057,7 @@ int VEH_LoadVehicle( const char *vehicleName )
 	// look for the right vehicle
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
@@ -1078,7 +1078,7 @@ int VEH_LoadVehicle( const char *vehicleName )
 		return VEHICLE_NONE;
 	}
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if ( token[0] == 0 )
 	{//barf
 		COM_EndParseSession(  );
@@ -1096,7 +1096,7 @@ int VEH_LoadVehicle( const char *vehicleName )
 	while ( 1 )
 	{
 		SkipRestOfLine( &p );
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing Vehicle '%s'\n", vehicleName );
@@ -1109,7 +1109,7 @@ int VEH_LoadVehicle( const char *vehicleName )
 			break;
 		}
 		Q_strncpyz( parmName, token, sizeof(parmName) );
-		value = COM_ParseExt( &p, qtrue );
+		value = COM_ParseExt( &p, true );
 		if ( !value || !value[0] )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: Vehicle token '%s' has no value!\n", parmName );
@@ -1465,7 +1465,7 @@ void BG_VehWeaponLoadParms( void )
 #ifdef _JK2MP
 	tempReadBuffer = (char *)BG_TempAlloc(MAX_VEH_WEAPON_DATA_SIZE);
 #else
-	tempReadBuffer = (char *)gi.Malloc( MAX_VEH_WEAPON_DATA_SIZE, TAG_G_ALLOC, qtrue );
+	tempReadBuffer = (char *)gi.Malloc( MAX_VEH_WEAPON_DATA_SIZE, TAG_G_ALLOC, true );
 #endif
 
 	// NOTE: Not use TempAlloc anymore...
@@ -1557,7 +1557,7 @@ void BG_VehicleLoadParms( void )
 #ifdef _JK2MP
 	tempReadBuffer = (char *)BG_TempAlloc(MAX_VEHICLE_DATA_SIZE);
 #else
-	tempReadBuffer = (char *)gi.Malloc( MAX_VEHICLE_DATA_SIZE, TAG_G_ALLOC, qtrue );
+	tempReadBuffer = (char *)gi.Malloc( MAX_VEHICLE_DATA_SIZE, TAG_G_ALLOC, true );
 #endif
 
 	// NOTE: Not use TempAlloc anymore...
@@ -1683,7 +1683,7 @@ void BG_GetVehicleSkinName(char *skinname)
 //bother with all the other funcs that don't really exist cgame-side.
 extern int BG_GetTime(void);
 extern int trap_G2API_AddBolt(void *ghoul2, int modelIndex, const char *boneName);
-extern qboolean trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+extern bool trap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 void AttachRidersGeneric( Vehicle_t *pVeh )
 {

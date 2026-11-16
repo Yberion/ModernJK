@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_snapshot.c -- things that happen on snapshot transition,
+// cg_snapshot.cpp -- things that happen on snapshot transition,
 // not necessarily every single frame
 
 #include "cg_headers.h"
@@ -57,7 +57,7 @@ void CG_TransitionEntity( centity_t *cent ) {
 	if (cent->nextState) {
 		cent->currentState = *cent->nextState;
 	}
-	cent->currentValid = qtrue;
+	cent->currentValid = true;
 
 	// reset if the entity wasn't in the last frame or was teleported
 	if ( !cent->interpolate ) {
@@ -65,7 +65,7 @@ void CG_TransitionEntity( centity_t *cent ) {
 	}
 
 	// clear the next state.  if will be set by the next CG_SetNextSnap
-	cent->interpolate = qfalse;
+	cent->interpolate = false;
 
 	if ( cent->currentState.number != 0 )
 	{
@@ -105,8 +105,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		cent = &cg_entities[ state->number ];
 
 		cent->currentState = *state;
-		cent->interpolate = qfalse;
-		cent->currentValid = qtrue;
+		cent->interpolate = false;
+		cent->currentValid = true;
 
 		CG_ResetEntity( cent );
 
@@ -141,7 +141,7 @@ void CG_TransitionSnapshot( void ) {
 	// clear the currentValid flag for all entities in the existing snapshot
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
-		cent->currentValid = qfalse;
+		cent->currentValid = false;
 	}
 
 	// move nextSnap to snap and do the transitions
@@ -195,9 +195,9 @@ void CG_SetEntityNextState( centity_t *cent, entityState_t *state ) {
 	// if this frame is a teleport, or the entity wasn't in the
 	// previous frame, don't interpolate
 	if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ state->eFlags ) & EF_TELEPORT_BIT )  ) {
-		cent->interpolate = qfalse;
+		cent->interpolate = false;
 	} else {
-		cent->interpolate = qtrue;
+		cent->interpolate = true;
 	}
 }
 
@@ -225,9 +225,9 @@ void CG_SetNextSnap( snapshot_t *snap ) {
 
 	// if the next frame is a teleport for the playerstate,
 	if ( cg.snap && ( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
-		cg.nextFrameTeleport = qtrue;
+		cg.nextFrameTeleport = true;
 	} else {
-		cg.nextFrameTeleport = qfalse;
+		cg.nextFrameTeleport = false;
 	}
 }
 
@@ -243,7 +243,7 @@ valid snapshot.
 ========================
 */
 snapshot_t *CG_ReadNextSnapshot( void ) {
-	qboolean	r;
+	bool	r;
 	snapshot_t	*dest;
 
 	while ( cg.processedSnapshotNum < cg.latestSnapshotNum ) {

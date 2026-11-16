@@ -67,16 +67,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define	NODE_HEADER_ID	'NODE'
 
 	//this stuff is local and can be modified, don't even show it to the engine.
-	extern	qboolean navCalculatePaths;
+	extern	bool navCalculatePaths;
 
-	extern	qboolean NAVDEBUG_showNodes;
-	extern	qboolean NAVDEBUG_showRadius;
-	extern	qboolean NAVDEBUG_showEdges;
-	extern	qboolean NAVDEBUG_showTestPath;
-	extern	qboolean NAVDEBUG_showEnemyPath;
-	extern	qboolean NAVDEBUG_showCombatPoints;
-	extern	qboolean NAVDEBUG_showNavGoals;
-	extern	qboolean NAVDEBUG_showCollision;
+	extern	bool NAVDEBUG_showNodes;
+	extern	bool NAVDEBUG_showRadius;
+	extern	bool NAVDEBUG_showEdges;
+	extern	bool NAVDEBUG_showTestPath;
+	extern	bool NAVDEBUG_showEnemyPath;
+	extern	bool NAVDEBUG_showCombatPoints;
+	extern	bool NAVDEBUG_showNavGoals;
+	extern	bool NAVDEBUG_showCollision;
 
 	extern	int	 NAVDEBUG_curGoal;
 
@@ -87,10 +87,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	void NAV_ShowDebugInfo( void );
 
 	int NAV_GetNearestNode( gentity_t *self, int lastNode );
-	extern int NAV_TestBestNode( gentity_t *self, int startID, int endID, qboolean failEdge );
+	extern int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge );
 
-	qboolean NPC_GetMoveDirection( vec3_t out, float *distance );
+	bool NPC_GetMoveDirection( vec3_t out, float *distance );
 	void NPC_MoveToGoalExt( vec3_t point );
 	void NAV_FindPlayerWaypoint( int clNum );
-	qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
+	bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
 #endif

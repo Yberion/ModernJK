@@ -215,7 +215,7 @@ const static StaticMem_t gNumberString[] = {
 	{ DEF_STATIC('9') },
 };
 
-qboolean gbMemFreeupOccured = qfalse;
+bool gbMemFreeupOccured = false;
 
 #ifdef DEBUG_ZONE_ALLOCS
 // returns actual filename only, no path
@@ -247,12 +247,12 @@ char *_D_Z_Filename_WithoutPath(const char *psFilename)
 extern refexport_t re;
 
 #ifdef DEBUG_ZONE_ALLOCS
-void *_D_Z_Malloc ( int iSize, memtag_t eTag, qboolean bZeroit, const char *psFile, int iLine)
+void *_D_Z_Malloc ( int iSize, memtag_t eTag, bool bZeroit, const char *psFile, int iLine)
 #else
-void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int /*unusedAlign*/)
+void *Z_Malloc(int iSize, memtag_t eTag, bool bZeroit, int /*unusedAlign*/)
 #endif
 {
-	gbMemFreeupOccured = qfalse;
+	gbMemFreeupOccured = false;
 
 	if (iSize == 0)
 	{
@@ -287,19 +287,19 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int /*unusedAlign*/)
 
 			// ditch the BSP cache...
 			//
-			if (CM_DeleteCachedMap(qfalse))
+			if (CM_DeleteCachedMap(false))
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've just ditched a whole load of memory, so try again with the malloc
 			}
 
 
 			// ditch any sounds not used on this level...
 			//
-			extern qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel);
-			if (SND_RegisterAudio_LevelLoadEnd(qtrue))
+			extern bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel);
+			if (SND_RegisterAudio_LevelLoadEnd(true))
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've dropped at least one sound, so try again with the malloc
 			}
 
@@ -308,16 +308,16 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int /*unusedAlign*/)
 			//
 			if (re.RegisterImages_LevelLoadEnd())
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've dropped at least one image, so try again with the malloc
 			}
 
 
 			// ditch the model-binaries cache...  (must be getting desperate here!)
 			//
-			if (re.RegisterModels_LevelLoadEnd(qtrue))
+			if (re.RegisterModels_LevelLoadEnd(true))
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;
 			}
 
@@ -331,7 +331,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int /*unusedAlign*/)
 			//	again (though this will have freed twice the requested amount in that case), so it'll either work
 			//	eventually or not free up enough and drop through to the final ERR_DROP. No worries...
 			//
-			extern qboolean gbInsideLoadSound;
+			extern bool gbInsideLoadSound;
 			extern int SND_FreeOldestSound(void);	// I had to add a void-arg version of this because of link issues, sigh
 			if (!gbInsideLoadSound)
 			{
@@ -345,7 +345,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int /*unusedAlign*/)
 						if (iBytesFreed >= iRealSize)
 							break;	// early opt-out since we've managed to recover enough (mem-contiguity issues aside)
 					}
-					gbMemFreeupOccured = qtrue;
+					gbMemFreeupOccured = true;
 					continue;
 				}
 			}
@@ -486,29 +486,29 @@ static int Zone_FreeBlock(zoneHeader_t *pMemory)
 
 // stats-query function to to see if it's our malloc
 // returns block size if so
-qboolean Z_IsFromZone(const void *pvAddress, memtag_t eTag)
+bool Z_IsFromZone(const void *pvAddress, memtag_t eTag)
 {
 	const zoneHeader_t *pMemory = ((const zoneHeader_t *)pvAddress) - 1;
 #if 1	//debugging double free
 	if (pMemory->iMagic == INT_ID('F','R','E','E'))
 	{
 		Com_Printf("Z_IsFromZone(%x): Ptr has been freed already!(%9s)\n",pvAddress,pvAddress);
-		return qfalse;
+		return false;
 	}
 #endif
 	if (pMemory->iMagic != ZONE_MAGIC)
 	{
-		return qfalse;
+		return false;
 	}
 
 	//looks like it is from our zone, let's double check the tag
 
 	if (pMemory->eTag != eTag)
 	{
-		return qfalse;
+		return false;
 	}
 
-	return (qboolean)(pMemory->iSize != 0);
+	return (pMemory->iSize != 0);
 }
 
 // stats-query function to ask how big a malloc is...
@@ -643,12 +643,12 @@ void Z_TagFree(memtag_t eTag)
 #ifdef DEBUG_ZONE_ALLOCS
 void *_D_S_Malloc ( int iSize, const char *psFile, int iLine)
 {
-	return _D_Z_Malloc( iSize, TAG_SMALL, qfalse, psFile, iLine );
+	return _D_Z_Malloc( iSize, TAG_SMALL, false, psFile, iLine );
 }
 #else
 void *S_Malloc( int iSize )
 {
-	return Z_Malloc( iSize, TAG_SMALL, qfalse);
+	return Z_Malloc( iSize, TAG_SMALL, false);
 }
 #endif
 
@@ -668,7 +668,7 @@ static void Z_MemRecoverTest_f(void)
 	while (1)
 	{
 		const int iThisMalloc = 5* (1024 * 1024);
-		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, qfalse);	// and lose, just to consume memory
+		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, false);	// and lose, just to consume memory
 		iTotalMalloc += iThisMalloc;
 
 		if (gbMemFreeupOccured || (iTotalMalloc >= iMaxAlloc) )
@@ -752,7 +752,7 @@ static void Z_Snapshot_f(void)
 static void Z_TagDebug_f(void)
 {
 	TagBlockLabels_t AllTagBlockLabels_Local;
-	qboolean bSnapShotTestActive = qfalse;
+	bool bSnapShotTestActive = false;
 
 	memtag_t eTag = TAG_ALL;
 
@@ -763,7 +763,7 @@ static void Z_TagDebug_f(void)
 		//
 		if (!Q_stricmp(psTAGName,"#snap"))
 		{
-			bSnapShotTestActive = qtrue;
+			bSnapShotTestActive = true;
 
 			AllTagBlockLabels_Local = AllTagBlockLabels;	// horrible great STL copy
 

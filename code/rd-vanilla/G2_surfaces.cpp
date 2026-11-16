@@ -207,7 +207,7 @@ const mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, 
 }
 
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
-qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, const int offFlags)
+bool G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, const int offFlags)
 {
 	int					surfIndex = -1;
 	surfaceInfo_t		temp_slist_entry;
@@ -224,7 +224,7 @@ qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, cons
 		// the only bit we really care about in the incoming flags is the off bit
 		ghlInfo->mSlist[surfIndex].offFlags &= ~(G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
 		ghlInfo->mSlist[surfIndex].offFlags |= offFlags & (G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
-		return qtrue;
+		return true;
 	}
 	else
 	{
@@ -245,10 +245,10 @@ qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, const char *surfaceName, cons
 
 				ghlInfo->mSlist.push_back(temp_slist_entry);
 			}
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void G2_FindRecursiveSurface(const model_t *currentModel, int surfaceNum, surfaceInfo_v &rootList, int *activeSurfaces)
@@ -293,7 +293,7 @@ void G2_FindRecursiveSurface(const model_t *currentModel, int surfaceNum, surfac
 
 }
 
-qboolean G2_SetRootSurface( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
+bool G2_SetRootSurface( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
 {
 	int					surf;
 	uint32_t			flags;
@@ -305,10 +305,10 @@ qboolean G2_SetRootSurface( CGhoul2Info_v &ghoul2, const int modelIndex, const c
 	if (surf != -1)
 	{
 		ghoul2[modelIndex].mSurfaceRoot = surf;
-		return qtrue;
+		return true;
 	}
 	assert(0);
-	return qfalse;
+	return false;
 }
 
 
@@ -340,15 +340,15 @@ int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float 
 	return i;
 }
 
-qboolean G2_RemoveSurface(surfaceInfo_v &slist, const int index)
+bool G2_RemoveSurface(surfaceInfo_v &slist, const int index)
 {
 	if (index != -1)
 	{
 		slist[index].surface = -1;
-		return qtrue;
+		return true;
 	}
 	assert(0);
-	return qfalse;
+	return false;
 }
 
 

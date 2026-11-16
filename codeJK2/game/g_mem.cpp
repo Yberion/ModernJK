@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 //
-// g_mem.c
+// g_mem.cpp
 //
 // leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
@@ -44,7 +44,7 @@ void *G_Alloc( int size ) {
 
 	allocPoint += size;
 
-	return gi.Malloc(size, TAG_G_ALLOC, qfalse);
+	return gi.Malloc(size, TAG_G_ALLOC, false);
 }
 
 void G_InitMemory( void ) {

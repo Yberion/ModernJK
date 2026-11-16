@@ -6,6 +6,8 @@ rem The reference: ABM_REF_DIR=<a copy holding codemp\netcodec> if set; else ext
 rem (ABM_REF=<commit>, default HEAD); otherwise the copy that ab_msvc_ref.sh [commit] writes on the host into
 rem build-netcodec\ab-msvc, used only if its commit is HEAD (read from .git, no git needed): a stale copy stops the run
 rem (ABM_ANY_REF=1 compares it anyway).
+rem The reference is built with its own ModernJK sources (the legacy coder, msg.cpp, and the states' layout, q_shared.h):
+rem those of its commit, or ABM_REF_DIR's when it holds codemp\qcommon\msg.cpp, else the working tree's.
 rem ABM_BENCH=client: netcodec_bench_client on the recorded client packets (docs_rewrite\modernization\data\clientpackets\*.jkcp)
 rem instead of bench_codec; the times are then per client packet.
 rem Usage (cmd or PowerShell, from anywhere): codemp\netcodec\scripts\ab_msvc.bat [rounds]
@@ -46,6 +48,8 @@ if not defined HEADC (
 
 if defined ABM_REF_DIR (
 	set "REFDIR=%ABM_REF_DIR%\codemp\netcodec"
+	set "REFOJ=%R%"
+	if exist "%ABM_REF_DIR%\codemp\qcommon\msg.cpp" set "REFOJ=%ABM_REF_DIR%"
 	echo ref = the copy in %ABM_REF_DIR%; cur = the working tree
 	goto refready
 )
@@ -53,12 +57,13 @@ where git >nul 2>&1
 if not errorlevel 1 (
 	mkdir "%W%\ref"
 	if not defined ABM_REF set "ABM_REF=HEAD"
-	git -c safe.directory=* -C "%R%" archive !ABM_REF! codemp/netcodec | "%SystemRoot%\System32\tar.exe" -x -f - -C "%W%\ref"
+	git -c safe.directory=* -C "%R%" archive !ABM_REF! codemp shared lib/gsl-lite | "%SystemRoot%\System32\tar.exe" -x -f - -C "%W%\ref"
 	if not exist "%W%\ref\codemp\netcodec\CMakeLists.txt" (
 		echo git archive of !ABM_REF! failed
 		exit /b 1
 	)
 	set "REFDIR=%W%\ref\codemp\netcodec"
+	set "REFOJ=%W%\ref"
 	echo ref = !ABM_REF! ^(HEAD is !HEADC:~0,9!, extracted with git^); cur = the working tree
 ) else (
 	set "REFTXT=%R%\build-netcodec\ab-msvc\ref.txt"
@@ -80,13 +85,15 @@ if not errorlevel 1 (
 		exit /b 1
 	)
 	set "REFDIR=%R%\build-netcodec\ab-msvc\ref\codemp\netcodec"
+	set "REFOJ=%R%\build-netcodec\ab-msvc\ref"
+	if not exist "%R%\build-netcodec\ab-msvc\ref\codemp\qcommon\msg.cpp" set "REFOJ=%R%"
 	echo ref = !REFDESC! ^(the host's copy^); cur = the working tree
 )
 
 :refready
 echo building the reference and the working tree (bench_%ABM_BENCH%) ...
-call :build "!REFDIR!" "%W%\build-ref" || exit /b 1
-call :build "%R%\codemp\netcodec" "%W%\build-cur" || exit /b 1
+call :build "!REFDIR!" "%W%\build-ref" "!REFOJ!" || exit /b 1
+call :build "%R%\codemp\netcodec" "%W%\build-cur" "%R%" || exit /b 1
 for /l %%i in (1,1,%ROUNDS%) do (
 	for %%v in (ref cur) do (
 		echo %%v %%i
@@ -98,7 +105,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ab_summary.ps1" "%W%"
 exit /b 0
 
 :build
-cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A x64 -Dnetcodec_MODERNJK_DIR="%R%" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
+cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A x64 -Dnetcodec_MODERNJK_DIR="%~3" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
 if errorlevel 1 (type "%W%\cfg.txt" & exit /b 1)
 cmake --build "%~2" --config Release --target netcodec_bench_%ABM_BENCH% --parallel > "%W%\bld.txt" 2>&1
 if errorlevel 1 (type "%W%\bld.txt" & exit /b 1)

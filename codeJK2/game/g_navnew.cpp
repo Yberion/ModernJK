@@ -33,20 +33,20 @@ extern	cvar_t		*d_patched;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
-qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
-qboolean NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags );
 
-qboolean NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
+bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
 {
 	//FIXME: must be a better way to do this
 	for ( int j = 0; j < MAX_FAILED_NODES; j++ )
 	{
 		if ( ent->failedWaypoints[j] == nodeNum+1 )//+1 because 0 is a valid nodeNum, but also the default
 		{//we failed against this node
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 /*
 -------------------------
@@ -103,7 +103,7 @@ int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t 
 NAVNEW_PushBlocker
 -------------------------
 */
-void NAVNEW_PushBlocker( gentity_t *self, gentity_t *blocker, vec3_t right, qboolean setBlockedInfo )
+void NAVNEW_PushBlocker( gentity_t *self, gentity_t *blocker, vec3_t right, bool setBlockedInfo )
 {//try pushing blocker to one side
 	if ( self->NPC->shoveCount > 30 )
 	{//don't push for more than 3 seconds;
@@ -197,7 +197,7 @@ void NAVNEW_PushBlocker( gentity_t *self, gentity_t *blocker, vec3_t right, qboo
 NAVNEW_DanceWithBlocker
 -------------------------
 */
-qboolean NAVNEW_DanceWithBlocker( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t right )
+bool NAVNEW_DanceWithBlocker( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t right )
 {//sees if blocker has any lateral movement
 	if ( blocker->client && !VectorCompare( blocker->client->ps.velocity, vec3_origin ) )
 	{
@@ -211,14 +211,14 @@ qboolean NAVNEW_DanceWithBlocker( gentity_t *self, gentity_t *blocker, vec3_t mo
 			//go to my left
 			VectorMA( movedir, -1, right, movedir );
 			VectorNormalize( movedir );
-			return qtrue;
+			return true;
 		}
 		else if ( dot > -50.0f )
 		{//he's moving to the left of me at a relatively good speed
 			//go to my right
 			VectorAdd( right, movedir, movedir );
 			VectorNormalize( movedir );
-			return qtrue;
+			return true;
 		}
 		/*
 		vec3_t	block_pos;
@@ -228,11 +228,11 @@ qboolean NAVNEW_DanceWithBlocker( gentity_t *self, gentity_t *blocker, vec3_t mo
 		if ( NAVNEW_CheckAhead( self, block_pos, tr, ( self->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
 		{
 			VectorCopy( blocker_movedir, movedir );
-			return qtrue;
+			return true;
 		}
 		*/
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -240,7 +240,7 @@ qboolean NAVNEW_DanceWithBlocker( gentity_t *self, gentity_t *blocker, vec3_t mo
 NAVNEW_SidestepBlocker
 -------------------------
 */
-qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir, vec3_t right )
+bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir, vec3_t right )
 {//trace to sides of blocker and see if either is clear
 	trace_t	tr;
 	vec3_t	avoidAngles;
@@ -281,7 +281,7 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 		AngleVectors( avoidAngles, movedir, NULL, NULL );
 		VectorMA( self->currentOrigin, blocked_dist, movedir, block_pos );
 		gi.trace( &tr, self->currentOrigin, mins, self->maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
-		return (qboolean)(tr.fraction == 1.0f && !tr.allsolid && !tr.startsolid);
+		return (tr.fraction == 1.0f && !tr.allsolid && !tr.startsolid);
 	}
 
 	//test right
@@ -299,7 +299,7 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 			VectorCopy( avoidRight_dir, movedir );
 			self->NPC->lastSideStepSide = 1;
 			self->NPC->sideStepHoldTime = level.time + 2000;
-			return qtrue;
+			return true;
 		}
 		rightSucc = tr.fraction;
 	}
@@ -325,7 +325,7 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 			VectorCopy( avoidLeft_dir, movedir );
 			self->NPC->lastSideStepSide = -1;
 			self->NPC->sideStepHoldTime = level.time + 2000;
-			return qtrue;
+			return true;
 		}
 		leftSucc = tr.fraction;
 	}
@@ -336,7 +336,7 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 
 	if ( leftSucc == 0.0f && rightSucc == 0.0f )
 	{//both sides failed
-		return qfalse;
+		return false;
 	}
 
 	if ( rightSucc*blocked_dist >= avoidRadius || leftSucc*blocked_dist >= avoidRadius )
@@ -353,11 +353,11 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 			self->NPC->lastSideStepSide = -1;
 			self->NPC->sideStepHoldTime = level.time + 2000;
 		}
-		return qtrue;
+		return true;
 	}
 
 	//if neither are enough, we probably can't get around him
-	return qfalse;
+	return false;
 }
 
 /*
@@ -365,7 +365,7 @@ qboolean NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blo
 NAVNEW_Bypass
 -------------------------
 */
-qboolean NAVNEW_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir, qboolean setBlockedInfo )
+bool NAVNEW_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir, bool setBlockedInfo )
 {
 	//Draw debug info if requested
 	if ( NAVDEBUG_showCollision )
@@ -382,19 +382,19 @@ qboolean NAVNEW_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir,
 	//Check to see what dir the other guy is moving in (if any) and pick the opposite dir
 	if ( NAVNEW_DanceWithBlocker( self, blocker, movedir, right ) )
 	{
-		return qtrue;
+		return true;
 	}
 
 	//Okay, so he's not moving to my side, see which side of him is most clear
 	if ( NAVNEW_SidestepBlocker( self, blocker, blocked_dir, blocked_dist, movedir, right ) )
 	{
-		return qtrue;
+		return true;
 	}
 
 	//Neither side is clear, tell him to step aside
 	NAVNEW_PushBlocker( self, blocker, right, setBlockedInfo );
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -402,13 +402,13 @@ qboolean NAVNEW_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir,
 NAVNEW_CheckDoubleBlock
 -------------------------
 */
-qboolean NAVNEW_CheckDoubleBlock( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir )
+bool NAVNEW_CheckDoubleBlock( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir )
 {
 	//Stop double waiting
 	if ( ( blocker->NPC ) && ( blocker->NPC->blockingEntNum == self->s.number ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -417,7 +417,7 @@ NAVNEW_ResolveEntityCollision
 -------------------------
 */
 extern void CalcTeamDoorCenter ( gentity_t *ent, vec3_t center );
-qboolean NAVNEW_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t pathDir, qboolean setBlockedInfo )
+bool NAVNEW_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t pathDir, bool setBlockedInfo )
 {
 	vec3_t	blocked_dir;
 
@@ -427,23 +427,23 @@ qboolean NAVNEW_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec
 		vec3_t center;
 		CalcTeamDoorCenter ( blocker, center );
 		if ( DistanceSquared( self->currentOrigin, center ) > MIN_DOOR_BLOCK_DIST_SQR )
-			return qtrue;
+			return true;
 	}
 
 	VectorSubtract( blocker->currentOrigin, self->currentOrigin, blocked_dir );
 	float blocked_dist = VectorNormalize( blocked_dir );
 
 	//Make sure an actual collision is going to happen
-//	if ( NAVNEW_PredictCollision( self, blocker, movedir, blocked_dir ) == qfalse )
-//		return qtrue;
+//	if ( NAVNEW_PredictCollision( self, blocker, movedir, blocked_dir ) == false )
+//		return true;
 
 	//First, attempt to walk around the blocker or shove him out of the way
 	if ( NAVNEW_Bypass( self, blocker, blocked_dir, blocked_dist, movedir, setBlockedInfo ) )
-		return qtrue;
+		return true;
 
 	//Can't get around him... see if I'm blocking him too... if so, I need to just keep moving?
 	if ( NAVNEW_CheckDoubleBlock( self, blocker, blocked_dir ) )
-		return qtrue;
+		return true;
 
 	if ( setBlockedInfo )
 	{
@@ -451,7 +451,7 @@ qboolean NAVNEW_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec
 		NPC_SetBlocked( self, blocker );
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -459,7 +459,7 @@ qboolean NAVNEW_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec
 NAVNEW_AvoidCollision
 -------------------------
 */
-qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info, qboolean setBlockedInfo, int blockedMovesLimit )
+bool NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info, bool setBlockedInfo, int blockedMovesLimit )
 {
 	vec3_t	movedir;
 	vec3_t	movepos;
@@ -475,7 +475,7 @@ qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &inf
 	VectorCopy( info.direction, movedir );
 
 	//Now test against entities
-	if ( NAV_CheckAhead( self, movepos, info.trace, CONTENTS_BODY ) == qfalse )
+	if ( NAV_CheckAhead( self, movepos, info.trace, CONTENTS_BODY ) == false )
 	{
 		//Get the blocker
 		info.blocker = &g_entities[ info.trace.entityNum ];
@@ -483,7 +483,7 @@ qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &inf
 
 		//Ok to hit our goal entity
 		if ( goal == info.blocker )
-			return qtrue;
+			return true;
 
 		if ( setBlockedInfo )
 		{
@@ -494,31 +494,31 @@ qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &inf
 					self->NPC->consecutiveBlockedMoves++;
 				}
 				NPC_SetBlocked( self, info.blocker );
-				return qfalse;
+				return false;
 			}
 			self->NPC->consecutiveBlockedMoves++;
 		}
 		//See if we're moving along with them
-		//if ( NAVNEW_TrueCollision( self, info.blocker, movedir, info.direction ) == qfalse )
-		//	return qtrue;
+		//if ( NAVNEW_TrueCollision( self, info.blocker, movedir, info.direction ) == false )
+		//	return true;
 
 		//Test for blocking by standing on goal
-		if ( NAV_TestForBlocked( self, goal, info.blocker, info.distance, info.flags ) == qtrue )
-			return qfalse;
+		if ( NAV_TestForBlocked( self, goal, info.blocker, info.distance, info.flags ) == true )
+			return false;
 
 		//If the above function said we're blocked, don't do the extra checks
 		/*
 		if ( info.flags & NIF_BLOCKED )
-			return qtrue;
+			return true;
 		*/
 
 		//See if we can get that entity to move out of our way
-		if ( NAVNEW_ResolveEntityCollision( self, info.blocker, movedir, info.pathDirection, setBlockedInfo ) == qfalse )
-			return qfalse;
+		if ( NAVNEW_ResolveEntityCollision( self, info.blocker, movedir, info.pathDirection, setBlockedInfo ) == false )
+			return false;
 
 		VectorCopy( movedir, info.direction );
 
-		return qtrue;
+		return true;
 	}
 	else
 	{
@@ -534,10 +534,10 @@ qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &inf
 		CG_DrawEdge( self->currentOrigin, movepos, EDGE_MOVEDIR );
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEnt, int goalEntNum, qboolean checkWorld, qboolean checkEnts )
+bool NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEnt, int goalEntNum, bool checkWorld, bool checkEnts )
 {//see if the direct path between 2 nodes is blocked by architecture or an ent
 	vec3_t	pos1, pos2, mins, maxs;
 	trace_t	trace;
@@ -546,7 +546,7 @@ qboolean NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEn
 
 	if ( !checkWorld && !checkEnts )
 	{//duh, nothing to trace against
-		return qfalse;
+		return false;
 	}
 	navigator.GetNodePosition( wp1, pos1 );
 	navigator.GetNodePosition( wp2, pos2 );
@@ -581,10 +581,10 @@ qboolean NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEn
 	gi.trace( &trace, pos1, mins, maxs, pos2, ignoreEntNum, clipmask, G2_NOCOLLIDE, 0 );
 	if ( trace.fraction >= 1.0f || trace.entityNum == goalEntNum )
 	{//clear or hit goal
-		return qfalse;
+		return false;
 	}
 	//hit something we weren't supposed to
-	return qtrue;
+	return true;
 }
 /*
 -------------------------
@@ -594,11 +594,11 @@ NAVNEW_MoveToGoal
 int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 {
 	int			bestNode = WAYPOINT_NONE;
-	qboolean	foundClearPath = qfalse;
+	bool	foundClearPath = false;
 	vec3_t		origin;
 	navInfo_t	tempInfo;
-	qboolean	setBlockedInfo = qtrue;
-	qboolean	inGoalWP;
+	bool	setBlockedInfo = true;
+	bool	inGoalWP;
 	int			numTries = 0;
 
 	memcpy( &tempInfo, &info, sizeof( tempInfo ) );
@@ -621,7 +621,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 		bestNode = navigator.GetBestNodeAltRoute( self->waypoint, self->NPC->goalEntity->waypoint, bestNode );
 	}
 	//FIXME!!!!: this is making them wiggle back and forth between waypoints
-	else if ( (bestNode = navigator.GetBestPathBetweenEnts( self, self->NPC->goalEntity, NF_CLEAR_PATH )) == NODE_NONE )//!NAVNEW_GetWaypoints( self, qtrue ) )
+	else if ( (bestNode = navigator.GetBestPathBetweenEnts( self, self->NPC->goalEntity, NF_CLEAR_PATH )) == NODE_NONE )//!NAVNEW_GetWaypoints( self, true ) )
 	{//one of us didn't have a valid waypoint!
 		if ( self->waypoint == NODE_NONE )
 		{//don't even try to find one again for a bit
@@ -643,7 +643,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 
 	while( !foundClearPath )
 	{
-		/*inBestWP = */inGoalWP = qfalse;
+		/*inBestWP = */inGoalWP = false;
 		/*
 		bestNode = navigator.GetBestNodeAltRoute( self->waypoint, self->NPC->goalEntity->waypoint, bestNode );
 		*/
@@ -657,7 +657,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 		//NOTE: shouldn't be necc. now
 		/*
 		int oldBestNode = bestNode;
-		bestNode = NAV_TestBestNode( self, self->waypoint, bestNode, qtrue );//, self->NPC->goalEntity->waypoint );//
+		bestNode = NAV_TestBestNode( self, self->waypoint, bestNode, true );//, self->NPC->goalEntity->waypoint );//
 		//NOTE: Guaranteed to return something
 		if ( bestNode != oldBestNode )
 		{//we were blocked somehow
@@ -676,7 +676,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 			{//our bestNode is the goal's wp
 				if ( NAV_HitNavGoal( self->currentOrigin, self->mins, self->maxs, origin, navigator.GetNodeRadius( bestNode ), FlyingCreature( self ) ) )
 				{//we're in the goal's wp
-					inGoalWP = qtrue;
+					inGoalWP = true;
 					//we're in the goalEntity's waypoint already
 					//so head for the goalEntity since we know it's clear of architecture
 					//FIXME: this is pretty stupid because the NPCs try to go straight
@@ -694,7 +694,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 				/*
 				if ( NAV_HitNavGoal( self->currentOrigin, self->mins, self->maxs, origin, navigator.GetNodeRadius( bestNode ), FlyingCreature( self ) ) )
 				{//we're in the wp we're heading for already
-					inBestWP = qtrue;
+					inBestWP = true;
 				}
 				*/
 			}
@@ -702,7 +702,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 			{//heading to an edge off our confirmed clear waypoint... make sure it's clear
 				//it it's not, bestNode will fall back to our waypoint
 				int oldBestNode = bestNode;
-				bestNode = NAV_TestBestNode( self, self->waypoint, bestNode, qtrue );
+				bestNode = NAV_TestBestNode( self, self->waypoint, bestNode, true );
 				if ( bestNode == self->waypoint )
 				{//we fell back to our waypoint, reset the origin
 					self->NPC->aiFlags |= NPCAI_BLOCKED;
@@ -755,7 +755,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 				navigator.GetNodePosition( bestNode, NPCInfo->blockedDest );
 			}
 			//Only set blocked info first time
-			setBlockedInfo = qfalse;
+			setBlockedInfo = false;
 
 			if ( inGoalWP )
 			{//we headed for our goal and failed and our goal's WP and failed
@@ -767,8 +767,8 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 				}
 				else
 				{//try going for our waypoint this time
-					//goalWPFailed = qtrue;
-					inGoalWP = qfalse;
+					//goalWPFailed = true;
+					inGoalWP = false;
 				}
 			}
 			else if ( bestNode != self->waypoint )
@@ -780,7 +780,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 					//			that path because of collision avoidance...
 					if ( d_patched->integer &&//use patch-style navigation
  						( !navigator.NodesAreNeighbors( self->waypoint, bestNode )
-						|| NAVNEW_TestNodeConnectionBlocked( self->waypoint, bestNode, self, self->NPC->goalEntity->s.number, qfalse, qtrue ) ) )
+						|| NAVNEW_TestNodeConnectionBlocked( self->waypoint, bestNode, self, self->NPC->goalEntity->s.number, false, true ) ) )
 					{//the direct path between these 2 nodes is blocked by an ent
 						navigator.AddFailedEdge( self->s.number, self->waypoint, bestNode );
 					}
@@ -800,7 +800,7 @@ int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info )
 					navigator.AddFailedNode( self, self->waypoint );
 					//Now we should get our waypoints again
 					//FIXME: cache the trace-data for subsequent calls as only the route info would have changed
-					//if ( (bestNode = navigator.GetBestPathBetweenEnts( self, self->NPC->goalEntity, NF_CLEAR_PATH )) == NODE_NONE )//!NAVNEW_GetWaypoints( self, qfalse ) )
+					//if ( (bestNode = navigator.GetBestPathBetweenEnts( self, self->NPC->goalEntity, NF_CLEAR_PATH )) == NODE_NONE )//!NAVNEW_GetWaypoints( self, false ) )
 					{//one of our waypoints is WAYPOINT_NONE now
 						goto failed;
 					}

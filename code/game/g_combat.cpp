@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_combat.c
+// g_combat.cpp
 
 #include "g_local.h"
 #include "b_local.h"
@@ -36,12 +36,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define TURN_OFF			0x00000100
 
-extern qboolean Rosh_TwinPresent( gentity_t *self );
+extern bool Rosh_TwinPresent( gentity_t *self );
 extern void G_CheckCharmed( gentity_t *self );
-extern qboolean Wampa_CheckDropVictim( gentity_t *self, qboolean excludeMe );
+extern bool Wampa_CheckDropVictim( gentity_t *self, bool excludeMe );
 
 extern	cvar_t	*g_debugDamage;
-extern qboolean	stop_icarus;
+extern bool	stop_icarus;
 extern cvar_t	*g_dismemberment;
 extern cvar_t	*g_saberRealisticCombat;
 extern cvar_t	*g_saberPickuppableDroppedSabers;
@@ -58,8 +58,8 @@ extern int killPlayerTimer;
 extern void G_VehicleStartExplosionDelay( gentity_t *self );
 extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
-extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
-extern qboolean G_TeamEnemy( gentity_t *self );
+extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool G_TeamEnemy( gentity_t *self );
 extern void CG_ChangeWeapon( int num );
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 
@@ -67,40 +67,40 @@ extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
-extern qboolean PM_InOnGroundAnim ( playerState_t *ps );
+extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc );
-extern qboolean Jedi_WaitingAmbush( gentity_t *self );
-extern qboolean G_ClearViewEntity( gentity_t *ent );
-extern qboolean PM_CrouchAnim( int anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InRoll( playerState_t *ps );
-extern qboolean PM_SpinningAnim( int anim );
-extern qboolean PM_RunningAnim( int anim );
+extern bool Jedi_WaitingAmbush( gentity_t *self );
+extern bool G_ClearViewEntity( gentity_t *ent );
+extern bool PM_CrouchAnim( int anim );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InRoll( playerState_t *ps );
+extern bool PM_SpinningAnim( int anim );
+extern bool PM_RunningAnim( int anim );
 extern int PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum = 0 );
-extern qboolean PM_SaberInSpecialAttack( int anim );
-extern qboolean PM_SpinningSaberAnim( int anim );
-extern qboolean PM_FlippingAnim( int anim );
-extern qboolean PM_InSpecialJump( int anim );
-extern qboolean PM_RollingAnim( int anim );
-extern qboolean PM_InAnimForSaberMove( int anim, int saberMove );
-extern qboolean PM_SaberInStart( int move );
-extern qboolean PM_SaberInReturn( int move );
+extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
+extern bool PM_InSpecialJump( int anim );
+extern bool PM_RollingAnim( int anim );
+extern bool PM_InAnimForSaberMove( int anim, int saberMove );
+extern bool PM_SaberInStart( int move );
+extern bool PM_SaberInReturn( int move );
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern qboolean PM_LockedAnim( int anim );
-extern qboolean PM_KnockDownAnim( int anim );
+extern bool PM_LockedAnim( int anim );
+extern bool PM_KnockDownAnim( int anim );
 extern void G_SpeechEvent( gentity_t *self, int event );
-extern qboolean Rosh_BeingHealed( gentity_t *self );
+extern bool Rosh_BeingHealed( gentity_t *self );
 
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist );
 static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc );
 static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc );
 static void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod );
-static qboolean G_Dismemberable( gentity_t *self, int hitLoc );
+static bool G_Dismemberable( gentity_t *self, int hitLoc );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 
 
-qboolean G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize );
+bool G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize );
 /*
 ============
 AddScore
@@ -124,7 +124,7 @@ Toss the weapon and powerups for the killed player
 =================
 */
 extern gentity_t *WP_DropThermal( gentity_t *ent );
-extern qboolean WP_SaberLose( gentity_t *self, vec3_t throwDir );
+extern bool WP_SaberLose( gentity_t *self, vec3_t throwDir );
 gentity_t *TossClientItems( gentity_t *self )
 {
 	//FIXME: drop left-hand weapon, too?
@@ -202,7 +202,7 @@ gentity_t *TossClientItems( gentity_t *self )
 		if ( item && !dropped )
 		{
 			// spawn the item
-			dropped = Drop_Item( self, item, 0, qtrue );
+			dropped = Drop_Item( self, item, 0, true );
 			//TEST: dropped items never go away
 			dropped->e_ThinkFunc = thinkF_NULL;
 			dropped->nextthink = -1;
@@ -275,7 +275,7 @@ gentity_t *TossClientItems( gentity_t *self )
 //	else if (( self->client->NPC_class == CLASS_SENTRY ) || ( self->client->NPC_class == CLASS_PROBE )) // Looks dumb, Steve told us to take it out.
 //	{
 //		item = FindItemForAmmo( AMMO_BLASTER );
-//		Drop_Item( self, item, 0, qtrue );
+//		Drop_Item( self, item, 0, true );
 //	}
 	else if ( self->client->NPC_class == CLASS_MARK1 )
 	{
@@ -288,7 +288,7 @@ gentity_t *TossClientItems( gentity_t *self )
 		{
 			item = FindItemForAmmo( AMMO_BLASTER );
 		}
-		Drop_Item( self, item, 0, qtrue );
+		Drop_Item( self, item, 0, true );
 	}
 	else if ( self->client->NPC_class == CLASS_MARK2 )
 	{
@@ -301,7 +301,7 @@ gentity_t *TossClientItems( gentity_t *self )
 		{
 			item = FindItemForAmmo( AMMO_POWERCELL );
 		}
-		Drop_Item( self, item, 0, qtrue );
+		Drop_Item( self, item, 0, true );
 	}
 
 	return dropped;//NOTE: presumes only drop one thing
@@ -318,7 +318,7 @@ void G_DropKey( gentity_t *self )
 	{
 		item = FindItemForInventory( INV_SECURITY_KEY );
 	}
-	gentity_t	*dropped = Drop_Item( self, item, 0, qtrue );
+	gentity_t	*dropped = Drop_Item( self, item, 0, true );
 	//Don't throw the key
 	VectorClear( dropped->s.pos.trDelta );
 	dropped->message = self->message;
@@ -346,7 +346,7 @@ void ExplodeDeath( gentity_t *self )
 //	gentity_t	*tent;
 	vec3_t		forward;
 
-	self->takedamage = qfalse;//stop chain reaction runaway loops
+	self->takedamage = false;//stop chain reaction runaway loops
 
 	self->s.loopSound = 0;
 
@@ -361,7 +361,7 @@ void ExplodeDeath( gentity_t *self )
 	}
 //	else
 //	{
-//		CG_SurfaceExplosion( self->currentOrigin, forward, 20.0f, 12.0f, ((self->spawnflags&4)==qfalse) );	//FIXME: This needs to be consistent to all exploders!
+//		CG_SurfaceExplosion( self->currentOrigin, forward, 20.0f, 12.0f, ((self->spawnflags&4)==false) );	//FIXME: This needs to be consistent to all exploders!
 //		G_Sound(self, self->sounds );
 //	}
 
@@ -401,7 +401,7 @@ void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator)
 	ExplodeDeath( self );
 }
 
-qboolean G_ActivateBehavior (gentity_t *self, int bset );
+bool G_ActivateBehavior (gentity_t *self, int bset );
 void G_CheckVictoryScript(gentity_t *self)
 {
 	if ( !G_ActivateBehavior( self, BSET_VICTORY ) )
@@ -432,19 +432,19 @@ void G_CheckVictoryScript(gentity_t *self)
 	}
 }
 
-qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
+bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
 {
 	if ( ent1->s.number < MAX_CLIENTS
 		&& ent1->client
 		&& ent1->client->playerTeam == TEAM_FREE )
 	{//evil player *has* no allies
-		return qfalse;
+		return false;
 	}
 	if ( ent2->s.number < MAX_CLIENTS
 		&& ent2->client
 		&& ent2->client->playerTeam == TEAM_FREE )
 	{//evil player *has* no allies
-		return qfalse;
+		return false;
 	}
 	if ( !ent1->client || !ent2->client )
 	{
@@ -452,31 +452,31 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
 		{
 			if ( ent2->client && ent2->client->playerTeam == ent1->noDamageTeam )
 			{
-				return qtrue;
+				return true;
 			}
 			else if ( ent2->noDamageTeam == ent1->noDamageTeam )
 			{
 				if ( ent1->splashDamage && ent2->splashDamage && Q_stricmp("ambient_etherian_fliers", ent1->classname) != 0 )
 				{//Barrels, exploding breakables and mines will blow each other up
-					return qfalse;
+					return false;
 				}
 				else
 				{
-					return qtrue;
+					return true;
 				}
 			}
 		}
-		return qfalse;
+		return false;
 	}
 
 	// shouldn't need this anymore, there were problems with certain droids, but now they have been labeled TEAM_ENEMY so this isn't needed
 //	if ((( ent1->client->playerTeam == TEAM_IMPERIAL ) && ( ent1->client->playerTeam == TEAM_BOTS )) ||
 //		(( ent1->client->playerTeam == TEAM_BOTS ) && ( ent1->client->playerTeam == TEAM_IMPERIAL )))
 //	{
-//		return qtrue;
+//		return true;
 //	}
 
-	return (qboolean)( ent1->client->playerTeam == ent2->client->playerTeam );
+	return ( ent1->client->playerTeam == ent2->client->playerTeam );
 }
 
 
@@ -831,7 +831,7 @@ void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, fl
 	}
 }
 
-qboolean G_JediInRoom( vec3_t from )
+bool G_JediInRoom( vec3_t from )
 {
 	gentity_t *ent;
 	int i;
@@ -869,25 +869,25 @@ qboolean G_JediInRoom( vec3_t from )
 		{
 			continue;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod, saberType_t saberType )
+bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod, saberType_t saberType )
 {
-	qboolean dismember = qfalse;
+	bool dismember = false;
 
 	*hitLoc = HL_NONE;
 
 	if ( !surfName || !surfName[0] )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if( !ent->client )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->client
@@ -899,7 +899,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 			|| ent->client->NPC_class == CLASS_INTERROGATOR
 			|| ent->client->NPC_class == CLASS_PROBE ) )
 	{//we don't care about per-surface hit-locations or dismemberment for these guys
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->client && (ent->client->NPC_class == CLASS_ATST) )
@@ -915,7 +915,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 		{
 			*hitLoc = HL_ARM_RT;
 		}
-		return(qfalse);
+		return(false);
 	}
 	else if ( ent->client && (ent->client->NPC_class == CLASS_MARK1) )
 	{
@@ -955,7 +955,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 		{
 			*hitLoc = HL_GENERIC6;
 		}
-		return(qfalse);
+		return(false);
 	}
 	else if ( ent->client && (ent->client->NPC_class == CLASS_MARK2) )
 	{
@@ -971,7 +971,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 		{
 			*hitLoc = HL_GENERIC3;
 		}
-		return(qfalse);
+		return(false);
 	}
 	else if ( ent->client && (ent->client->NPC_class == CLASS_GALAKMECH) )
 	{
@@ -987,7 +987,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 		{
 			*hitLoc = HL_CHEST;
 		}
-		return(qfalse);
+		return(false);
 	}
 
 
@@ -1219,19 +1219,19 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 	if ( g_saberRealisticCombat->integer > 1
 		|| debug_subdivision->integer )
 	{
-		dismember = qtrue;
+		dismember = true;
 	}
 	else if ( ent->client && ent->client->NPC_class == CLASS_PROTOCOL )
 	{
-		dismember = qtrue;
+		dismember = true;
 	}
 	else if ( ent->client && ent->client->NPC_class == CLASS_ASSASSIN_DROID )
 	{
-		dismember = qtrue;
+		dismember = true;
 	}
 	else if ( ent->client && ent->client->NPC_class == CLASS_SABER_DROID )
 	{
-		dismember = qtrue;
+		dismember = true;
 	}
 	else if ( debug_subdivision->integer || !ent->client->dismembered )
 	{
@@ -1304,7 +1304,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 								dot = DotProduct( bladeDir, tagDir );
 								if ( dot < aoa && dot > -aoa )
 								{//blade was roughly perpendicular
-									dismember = qtrue;
+									dismember = true;
 								}
 							}
 						}
@@ -1792,44 +1792,44 @@ const char *hitLocName[HL_MAX] =
 	"generic6"	//HL_GENERIC6
 };
 
-qboolean G_LimbLost( gentity_t *ent, int hitLoc )
+bool G_LimbLost( gentity_t *ent, int hitLoc )
 {
 	switch ( hitLoc )
 	{
 	case HL_FOOT_RT:
 		if ( ent->locationDamage[HL_FOOT_RT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
 		//NOTE: falls through
 	case HL_LEG_RT:
 		//NOTE: feet fall through
 		if ( ent->locationDamage[HL_LEG_RT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 		break;
 
 	case HL_FOOT_LT:
 		if ( ent->locationDamage[HL_FOOT_LT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
 		//NOTE: falls through
 	case HL_LEG_LT:
 		//NOTE: feet fall through
 		if ( ent->locationDamage[HL_LEG_LT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 		break;
 
 	case HL_HAND_LT:
 		if ( ent->locationDamage[HL_HAND_LT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
 		//NOTE: falls through
 	case HL_ARM_LT:
@@ -1841,15 +1841,15 @@ qboolean G_LimbLost( gentity_t *ent, int hitLoc )
 			|| ent->locationDamage[HL_BACK_RT] >= Q3_INFINITE
 			|| ent->locationDamage[HL_WAIST] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 		break;
 
 	case HL_HAND_RT:
 		if ( ent->locationDamage[HL_HAND_RT] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
 		//NOTE: falls through
 	case HL_ARM_RT:
@@ -1861,30 +1861,30 @@ qboolean G_LimbLost( gentity_t *ent, int hitLoc )
 			|| ent->locationDamage[HL_BACK_LT] >= Q3_INFINITE
 			|| ent->locationDamage[HL_WAIST] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 		break;
 
 	case HL_HEAD:
 		if ( ent->locationDamage[HL_HEAD] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
 		//NOTE: falls through
 	case HL_WAIST:
 		//NOTE: head falls through
 		if ( ent->locationDamage[HL_WAIST] >= Q3_INFINITE )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 	default:
-		return (qboolean)(ent->locationDamage[hitLoc]>=Q3_INFINITE);
+		return (ent->locationDamage[hitLoc]>=Q3_INFINITE);
 	}
 }
 
-extern qboolean G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize );
+extern bool G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize );
 void G_RemoveWeaponsWithLimbs( gentity_t *ent, gentity_t *limb, int limbAnim )
 {
 	int		weaponModelNum = 0, checkAnim;
@@ -1963,7 +1963,7 @@ void G_RemoveWeaponsWithLimbs( gentity_t *ent, gentity_t *limb, int limbAnim )
 	}
 }
 
-static qboolean G_Dismember( gentity_t *ent, vec3_t point,
+static bool G_Dismember( gentity_t *ent, vec3_t point,
 				 const char *limbBone, const char *rotateBone, const char *limbName,
 				 const char *limbCapName, const char *stubCapName, const char *limbTagName, const char *stubTagName,
 				 int limbAnim, float limbRollBase, float limbPitchBase,
@@ -1981,13 +1981,13 @@ static qboolean G_Dismember( gentity_t *ent, vec3_t point,
 		//because the torso surface can be off with
 		//the torso variations on when this is one of
 		//our "choose your own jedi" models
-		return qfalse;
+		return false;
 	}
 
 	//NOTE: only reason I have this next part is because G2API_GetSurfaceRenderStatus is *not* working
 	if ( G_LimbLost( ent, hitLoc ) )
 	{//already lost this limb
-		return qfalse;
+		return false;
 	}
 
 	//FIXME: when timescale is high, can sometimes cut off a surf that includes a surf that was already cut off
@@ -2158,7 +2158,7 @@ static qboolean G_Dismember( gentity_t *ent, vec3_t point,
 			if ( trace.startsolid )
 			{//stuck?  don't remove
 				G_FreeEntity( limb );
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -2228,14 +2228,14 @@ static qboolean G_Dismember( gentity_t *ent, vec3_t point,
 	limb->startRGBA[1] = ent->client->renderInfo.customRGBA[1];
 	limb->startRGBA[2] = ent->client->renderInfo.customRGBA[2];
 
-	return qtrue;
+	return true;
 }
 
-static qboolean G_Dismemberable( gentity_t *self, int hitLoc )
+static bool G_Dismemberable( gentity_t *self, int hitLoc )
 {
 	if ( self->client->dismembered )
 	{//cannot dismember me right now
-		return qfalse;
+		return false;
 	}
 	if ( !debug_subdivision->integer && g_saberRealisticCombat->integer < 2 )
 	{
@@ -2269,25 +2269,25 @@ static qboolean G_Dismemberable( gentity_t *self, int hitLoc )
 				dismemberProb = self->client->dismemberProbHead;
 				break;
 			default:
-				return qfalse;
+				return false;
 				break;
 			}
 
 			//check probability of this happening on this npc
 			if ( floor((Q_flrand( 1, 100 )*g_dismemberProbabilities->value)) > dismemberProb*2.0f )//probabilities seemed really really low, had to crank them up
 			{
-				return qfalse;
+				return false;
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-static qboolean G_Dismemberable2( gentity_t *self, int hitLoc )
+static bool G_Dismemberable2( gentity_t *self, int hitLoc )
 {
 	if ( self->client->dismembered )
 	{//cannot dismember me right now
-		return qfalse;
+		return false;
 	}
 	if ( !debug_subdivision->integer && g_saberRealisticCombat->integer < 2 )
 	{
@@ -2295,20 +2295,20 @@ static qboolean G_Dismemberable2( gentity_t *self, int hitLoc )
 		{//add the passed-in damage to the locationDamage array, check to see if it's taken enough damage to actually dismember
 			if ( self->locationDamage[hitLoc] < (self->client->ps.stats[STAT_MAX_HEALTH]*hitLocHealthPercentage[hitLoc]) )
 			{//this location has not taken enough damage to dismember
-				return qfalse;
+				return false;
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 #define	MAX_VARIANTS 8
-qboolean G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize )
+bool G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
 	if ( !gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], rootSurfName ) )
 	{//see if the basic name without variants is on
 		Q_strncpyz( returnSurfName, rootSurfName, returnSize );
-		return qtrue;
+		return true;
 	}
 	else
 	{//check variants
@@ -2318,16 +2318,16 @@ qboolean G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName,
 			Com_sprintf( returnSurfName, returnSize, "%s%c", rootSurfName, 'a'+i );
 			if ( !gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], returnSurfName ) )
 			{
-				return qtrue;
+				return true;
 			}
 		}
 	}
 	Q_strncpyz( returnSurfName, rootSurfName, returnSize );
-	return qfalse;
+	return false;
 }
 
-extern qboolean G_StandardHumanoid( gentity_t *self );
-qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, qboolean force = qfalse )
+extern bool G_StandardHumanoid( gentity_t *self );
+bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false )
 {
 //extern cvar_t	*g_iscensored;
 	// dismemberment -- FIXME: should have a check for how long npc has been dead so people can't
@@ -2345,7 +2345,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			const char	*limbBone = NULL, *rotateBone = NULL, *limbTagName = NULL, *stubTagName = NULL;
 			int		anim = -1;
 			float	limbRollBase = 0, limbPitchBase = 0;
-			qboolean doDismemberment = qfalse;
+			bool doDismemberment = false;
 			char	limbName[MAX_QPATH];
 			char	stubName[MAX_QPATH];
 			char	limbCapName[MAX_QPATH];
@@ -2356,7 +2356,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_LEG_RT:
 				if ( g_dismemberment->integer > 1 )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "rtibia";
 					rotateBone = "rtalus";
 					G_GetRootSurfNameWithVariant( self, "r_leg", limbName, sizeof(limbName) );
@@ -2373,7 +2373,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_LEG_LT:
 				if ( g_dismemberment->integer > 1 )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "ltibia";
 					rotateBone = "ltalus";
 					G_GetRootSurfNameWithVariant( self, "l_leg", limbName, sizeof(limbName) );
@@ -2391,7 +2391,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 				if ( g_dismemberment->integer > 2 &&
 					(!self->s.number||!self->message))
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "pelvis";
 					rotateBone = "thoracic";
 					Q_strncpyz( limbName, "torso", sizeof( limbName ) );
@@ -2409,7 +2409,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_BACK_RT:
 				if ( g_dismemberment->integer )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "rhumerus";
 					rotateBone = "rradius";
 					G_GetRootSurfNameWithVariant( self, "r_arm", limbName, sizeof(limbName) );
@@ -2429,7 +2429,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 				if ( g_dismemberment->integer &&
 					(!self->s.number||!self->message))
 				{//either the player or not carrying a key on my arm
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "lhumerus";
 					rotateBone = "lradius";
 					G_GetRootSurfNameWithVariant( self, "l_arm", limbName, sizeof(limbName) );
@@ -2446,7 +2446,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_HAND_RT:
 				if ( g_dismemberment->integer )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "rradiusX";
 					rotateBone = "rhand";
 					G_GetRootSurfNameWithVariant( self, "r_hand", limbName, sizeof(limbName) );
@@ -2463,7 +2463,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_HAND_LT:
 				if ( g_dismemberment->integer )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "lradiusX";
 					rotateBone = "lhand";
 					G_GetRootSurfNameWithVariant( self, "l_hand", limbName, sizeof(limbName) );
@@ -2480,7 +2480,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			case HL_HEAD:
 				if ( g_dismemberment->integer > 2 )
 				{
-					doDismemberment = qtrue;
+					doDismemberment = true;
 					limbBone = "cervical";
 					rotateBone = "cranium";
 					Q_strncpyz( limbName, "head", sizeof( limbName ) );
@@ -2508,7 +2508,7 @@ qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, 
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
@@ -3068,7 +3068,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 
 	return deathAnim;
 }
-extern qboolean PM_FinishedCurrentLegsAnim( gentity_t *self );
+extern bool PM_FinishedCurrentLegsAnim( gentity_t *self );
 static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
 	int deathAnim = -1;
@@ -3511,7 +3511,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, 
 	return deathAnim;
 }
 
-int G_CheckLedgeDive( gentity_t *self, float checkDist, const vec3_t checkVel, qboolean tryOpposite, qboolean tryPerp )
+int G_CheckLedgeDive( gentity_t *self, float checkDist, const vec3_t checkVel, bool tryOpposite, bool tryPerp )
 {
 	//		Intelligent Ledge-Diving Deaths:
 	//		If I'm an NPC, check for nearby ledges and fall off it if possible
@@ -3599,7 +3599,7 @@ player_die
 void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 extern void G_DrivableATSTDie( gentity_t *self );
 extern void JET_FlyStop( gentity_t *self );
 extern void VehicleExplosionDelay( gentity_t *self );
@@ -3611,10 +3611,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 {
 	int			anim;
 	int			contents;
-	qboolean	deathScript = qfalse;
-	qboolean	lastInGroup = qfalse;
-	qboolean	specialAnim = qfalse;
-	qboolean	holdingSaber = qfalse;
+	bool	deathScript = false;
+	bool	lastInGroup = false;
+	bool	specialAnim = false;
+	bool	holdingSaber = false;
 	int			cliff_fall = 0;
 
 	//FIXME: somehow people are sometimes not completely dying???
@@ -3623,7 +3623,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( self->client->NPC_class == CLASS_MARK1 )
 		{
 			DeathFX(self);
-			self->takedamage = qfalse;
+			self->takedamage = false;
 			self->client->ps.eFlags |= EF_NODRAW;
 			self->contents = 0;
 			// G_FreeEntity( self ); // Is this safe?  I can't see why we'd mark it nodraw and then just leave it around??
@@ -3658,7 +3658,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 			else
 			{	// Get thrown out.
-				pVeh->m_pVehicleInfo->Eject( pVeh, self, qtrue );
+				pVeh->m_pVehicleInfo->Eject( pVeh, self, true );
 
 				// Now Send The Vehicle Flying To It's Death
 				if (pVeh->m_pVehicleInfo->type==VH_SPEEDER && pVeh->m_pParentEntity && pVeh->m_pParentEntity->client)
@@ -3776,7 +3776,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		NPC_FreeCombatPoint( self->NPC->combatPoint );
 		if ( self->NPC->group )
 		{
-			lastInGroup = (qboolean)(self->NPC->group->numGroup < 2);
+			lastInGroup = (self->NPC->group->numGroup < 2);
 			AI_GroupMemberKilled( self );
 			AI_DeleteSelfFromGroup( self );
 		}
@@ -3840,7 +3840,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				{
 					self->client->dismembered = false;
 					//FIXME: the limb should just disappear, cuz I ate it
-					G_DoDismemberment( self, self->currentOrigin, MOD_SABER, 1000, HL_ARM_RT, qtrue );
+					G_DoDismemberment( self, self->currentOrigin, MOD_SABER, 1000, HL_ARM_RT, true );
 				}
 				Wampa_DropVictim( self );
 			}
@@ -3870,7 +3870,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	}
 	if ( self->s.weapon == WP_SABER )
 	{
-		holdingSaber = qtrue;
+		holdingSaber = true;
 	}
 	if ( self->client->ps.saberEntityNum != ENTITYNUM_NONE && self->client->ps.saberEntityNum > 0 )
 	{
@@ -3931,7 +3931,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		{
 			gitem_t		*item;
 			item = FindItemForAmmo( AMMO_FORCE );
-			Drop_Item( self, item, 0, qtrue );
+			Drop_Item( self, item, 0, true );
 		}
 	}
 	//Use any target we had
@@ -3980,11 +3980,11 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				{//must be the last jedi in the room
 					if ( !G_JediInRoom( attacker->currentOrigin ) )
 					{
-						lastInGroup = qtrue;
+						lastInGroup = true;
 					}
 					else
 					{
-						lastInGroup = qfalse;
+						lastInGroup = false;
 					}
 				}
 				if ( !attacker->s.number
@@ -4110,7 +4110,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	//Maybe set on last frame?  Would be cool for big blocking corpses if the never got set?
 	//self->contents = CONTENTS_CORPSE;//now done a second after death
 	/*
-	self->takedamage = qfalse;	// no gibbing
+	self->takedamage = false;	// no gibbing
 	if ( self->client->playerTeam == TEAM_PARASITE )
 	{
 		self->contents = CONTENTS_NONE; // FIXME: temp fix
@@ -4319,7 +4319,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			else if ( meansOfDeath != MOD_SNIPER //disintegrates
 				&& meansOfDeath != MOD_CONC_ALT )//does its own death throw
 			{
-				cliff_fall = G_CheckLedgeDive( self, 128, self->client->ps.velocity, qtrue, qfalse );
+				cliff_fall = G_CheckLedgeDive( self, 128, self->client->ps.velocity, true, false );
 				if ( cliff_fall == 2 )
 				{
 					if ( !FlyingCreature( self ) && g_gravity->value > 0 )
@@ -4456,7 +4456,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		}
 		else
 		{
-			specialAnim = qtrue;
+			specialAnim = true;
 		}
 
 		if ( anim == -1 )
@@ -4656,14 +4656,14 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 	if ( G_ActivateBehavior( self, BSET_DEATH ) )
 	{
-		deathScript = qtrue;
+		deathScript = true;
 	}
 
 	if ( self->NPC && (self->NPC->scriptFlags&SCF_FFDEATH) )
 	{
 		if ( G_ActivateBehavior( self, BSET_FFDEATH ) )
 		{//FIXME: should running this preclude running the normal deathscript?
-			deathScript = qtrue;
+			deathScript = true;
 		}
 		G_UseTargets2( self, self, self->target4 );
 	}
@@ -4694,7 +4694,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	DeathFX( self );
 }
 
-qboolean G_CheckForStrongAttackMomentum( gentity_t *self )
+bool G_CheckForStrongAttackMomentum( gentity_t *self )
 {//see if our saber attack has too much momentum to be interrupted
 	if ( PM_PowerLevelForSaberAnim( &self->client->ps ) > FORCE_LEVEL_2 )
 	{//strong attacks can't be interrupted
@@ -4705,23 +4705,23 @@ qboolean G_CheckForStrongAttackMomentum( gentity_t *self )
 				float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.torsoAnim );
 				if ( animLength - self->client->ps.torsoAnimTimer > 750 )
 				{//start anim is already 3/4 of a second into it, can't interrupt it now
-					return qtrue;
+					return true;
 				}
 			}
 			else if ( PM_SaberInReturn( self->client->ps.saberMove ) )
 			{
 				if ( self->client->ps.torsoAnimTimer > 750 )
 				{//still have a good amount of time left in the return anim, can't interrupt it
-					return qtrue;
+					return true;
 				}
 			}
 			else
 			{//cannot interrupt actual transitions and attacks
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod, int hitLoc )
@@ -4974,9 +4974,9 @@ int CheckArmor (gentity_t *ent, int damage, int dflags, int mod)
 }
 
 extern void NPC_SetPainEvent( gentity_t *self );
-extern qboolean Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir, qboolean forceKnockdown = qfalse );
-extern qboolean Jedi_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir );
-void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock )
+extern bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir, bool forceKnockdown = false );
+extern bool Jedi_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir );
+void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock )
 {
 	if ( !self || !self->client || !attacker || !attacker->client )
 	{
@@ -5030,7 +5030,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 			GEntity_PainFunc( self, attacker, attacker, self->currentOrigin, 0, MOD_MELEE );
 		}
 
-		G_CheckLedgeDive( self, 72, pushDir, qfalse, qfalse );
+		G_CheckLedgeDive( self, 72, pushDir, false, false );
 
 		if ( !PM_SpinningSaberAnim( self->client->ps.legsAnim )
 			&& !PM_FlippingAnim( self->client->ps.legsAnim )
@@ -5147,7 +5147,7 @@ void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, int 
 	float strength = VectorLength( targ->client->ps.velocity );
 	if ( targ->client->ps.velocity[2] > 100 && strength > Q_irand( 150, 350 ) )//600 ) )
 	{//explosive concussion possibly do a knockdown?
-		G_Knockdown( targ, attacker, newDir, strength, qtrue );
+		G_Knockdown( targ, attacker, newDir, strength, true );
 	}
 }
 
@@ -5395,7 +5395,7 @@ void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod
 	}
 }
 
-qboolean G_NonLocationSpecificDamage( int meansOfDeath )
+bool G_NonLocationSpecificDamage( int meansOfDeath )
 {
 	if ( meansOfDeath == MOD_EXPLOSIVE
 		|| meansOfDeath == MOD_REPEATER_ALT
@@ -5414,16 +5414,16 @@ qboolean G_NonLocationSpecificDamage( int meansOfDeath )
 		|| meansOfDeath == MOD_CRUSH
 		|| meansOfDeath == MOD_EXPLOSIVE_SPLASH )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_ImmuneToGas( gentity_t *ent )
+bool G_ImmuneToGas( gentity_t *ent )
 {
 	if ( !ent || !ent->client )
 	{//only effects living clients
-		return qtrue;
+		return true;
 	}
 	if ( ent->s.weapon == WP_NOGHRI_STICK//assumes user is immune
 		|| ent->client->NPC_class == CLASS_HAZARD_TROOPER
@@ -5451,9 +5451,9 @@ qboolean G_ImmuneToGas( gentity_t *ent )
 		|| ent->client->NPC_class == CLASS_HAZARD_TROOPER
 		|| ent->client->NPC_class == CLASS_VEHICLE )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
@@ -5491,7 +5491,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 	int			asave = 0;
 	int			knockback;
 	vec3_t		newDir;
-	qboolean	alreadyDead = qfalse;
+	bool	alreadyDead = false;
 
 	if (!targ->takedamage) {
 		if ( targ->client //client
@@ -5787,7 +5787,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 		if ( (targ->client->ps.forcePowersActive & (1 << FP_PROTECT)) )
 		{
 			/*
-			qboolean doSound = qfalse;
+			bool doSound = false;
 			switch ( targ->client->ps.forcePowerLevel[FP_PROTECT] )
 			{
 			case FORCE_LEVEL_3:
@@ -5859,7 +5859,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 			}
 			else
 			{
-				qboolean doSound = qfalse;
+				bool doSound = false;
 				switch ( mod )
 				{
 				case MOD_CRUSH:
@@ -5902,7 +5902,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				case MOD_LAVA:
 				case MOD_FALLING:
 				case MOD_MELEE:
-					doSound = (qboolean)(Q_irand(0,4)==0);
+					doSound = (Q_irand(0,4)==0);
 					switch ( targ->client->ps.forcePowerLevel[FP_PROTECT] )
 					{
 					case FORCE_LEVEL_4:
@@ -6440,12 +6440,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 	// do the damage
 	if ( targ->health <= 0 )
 	{
-		alreadyDead = qtrue;
+		alreadyDead = true;
 	}
 
 	// Undying If:
 	//--------------------------------------------------------------------------
-	qboolean targUndying = (qboolean)(
+	bool targUndying = (
 		!alreadyDead &&
 		!(dflags & DAMAGE_NO_PROTECTION) &&
 		((targ->flags&FL_UNDYING) ||
@@ -6460,25 +6460,25 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 		&& targ->count
 		&& take >= targ->health )
 	{//wampa holding someone, don't die unless you can release them!
-		qboolean removeArm = qfalse;
+		bool removeArm = false;
 		if ( targ->activator
 			&& attacker == targ->activator
 			&& mod == MOD_SABER )
 		{
-			removeArm = qtrue;
+			removeArm = true;
 		}
-		if ( Wampa_CheckDropVictim( targ, qtrue ) )
+		if ( Wampa_CheckDropVictim( targ, true ) )
 		{//released our victim
 			if ( removeArm )
 			{
 				targ->client->dismembered = false;
 				//FIXME: the limb should just disappear, cuz I ate it
-				G_DoDismemberment( targ, targ->currentOrigin, MOD_SABER, 1000, HL_ARM_RT, qtrue );
+				G_DoDismemberment( targ, targ->currentOrigin, MOD_SABER, 1000, HL_ARM_RT, true );
 			}
 		}
 		else
 		{//couldn't release him
-			targUndying = qtrue;
+			targUndying = true;
 		}
 	}
 
@@ -6588,15 +6588,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 			}
 			else if ( targTeam == TEAM_PLAYER )
 			{//on the same team, and target is an ally
-				qboolean takeDamage = qtrue;
-				qboolean yellAtAttacker = qtrue;
+				bool takeDamage = true;
+				bool yellAtAttacker = true;
 
 				//1) player doesn't take damage from teammates unless they're angry at him
 				if ( targ->s.number == 0 )
 				{//the player
 					if ( attacker->enemy != targ && attacker != targ )
 					{//an NPC shot the player by accident
-						takeDamage = qfalse;
+						takeDamage = false;
 					}
 				}
 				//2) NPCs don't take any damage from player during combat
@@ -6607,12 +6607,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 						//NOTE: though it's not realistic to have teammates not take splash damage,
 						//		even when not in combat, it feels really bad to have them able to
 						//		actually be killed by the player's splash damage
-						takeDamage = qfalse;
+						takeDamage = false;
 					}
 
 					if ( (dflags & DAMAGE_RADIUS) )
 					{//you're fighting and it's just radius damage, so don't even mention it
-						yellAtAttacker = qfalse;
+						yellAtAttacker = false;
 					}
 				}
 
@@ -6773,21 +6773,21 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 ============
 CanDamage
 
-Returns qtrue if the inflictor can directly damage the target.  Used for
+Returns true if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-qboolean CanDamage (gentity_t *targ, const vec3_t origin) {
+bool CanDamage (gentity_t *targ, const vec3_t origin) {
 	vec3_t	dest;
 	trace_t	tr;
 	vec3_t	midpoint;
-	qboolean cantHitEnt = qtrue;
+	bool cantHitEnt = true;
 
 	if ( (targ->contents&MASK_SOLID) )
 	{//can hit it
 		if ( targ->s.solid == SOLID_BMODEL )
 		{//but only if it's a brushmodel
-			cantHitEnt = qfalse;
+			cantHitEnt = false;
 		}
 	}
 
@@ -6800,11 +6800,11 @@ qboolean CanDamage (gentity_t *targ, const vec3_t origin) {
 	/*
 	vec3_t blah;
 	VectorCopy( origin, blah);
-	G_DebugLine(blah, dest, 5000, 0x0000ff, qtrue );
+	G_DebugLine(blah, dest, 5000, 0x0000ff, true );
 	*/
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number ) // if we also test the entitynum's we can bust up bbrushes better!
-		return qtrue;
+		return true;
 
 	// this should probably check in the plane of projection,
 	// rather than in world coordinate, and also include Z
@@ -6813,31 +6813,31 @@ qboolean CanDamage (gentity_t *targ, const vec3_t origin) {
 	dest[1] += 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
-		return qtrue;
+		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
-		return qtrue;
+		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
-		return qtrue;
+		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
-		return qtrue;
+		return true;
 
 
-	return qfalse;
+	return false;
 }
 
 extern	void	Boba_DustFallNear(const vec3_t origin, int dustcount);

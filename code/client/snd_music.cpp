@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../game/genericparser2.h"
 
-extern qboolean S_FileExists( const char *psFilename );
+extern bool S_FileExists( const char *psFilename );
 
 #define sKEY_MUSICFILES	CSTRING_VIEW( "musicfiles" )
 #define sKEY_ENTRY		CSTRING_VIEW( "entry" )
@@ -177,7 +177,7 @@ static const char *Music_BuildFileName(const char *psFileNameBase, MusicState_e 
 }
 
 // this MUST return NULL for non-base states unless doing debug-query
-const char *Music_BaseStateToString( MusicState_e eMusicState, qboolean bDebugPrintQuery /* = qfalse */ )
+const char *Music_BaseStateToString( MusicState_e eMusicState, bool bDebugPrintQuery /* = false */ )
 {
 	switch (eMusicState)
 	{
@@ -204,7 +204,7 @@ const char *Music_BaseStateToString( MusicState_e eMusicState, qboolean bDebugPr
 	return NULL;
 }
 
-static qboolean Music_ParseMusic( gsl::czstring filename, const CGenericParser2& Parser, MusicData_t* MusicData, const CGPGroup& pgMusicFiles, const gsl::cstring_span& psMusicName, const gsl::cstring_span& psMusicNameKey, MusicState_e eMusicState )
+static bool Music_ParseMusic( gsl::czstring filename, const CGenericParser2& Parser, MusicData_t* MusicData, const CGPGroup& pgMusicFiles, const gsl::cstring_span& psMusicName, const gsl::cstring_span& psMusicNameKey, MusicState_e eMusicState )
 {
 	bool bReturn = false;
 	MusicFile_t MusicFile;
@@ -301,7 +301,7 @@ static qboolean Music_ParseMusic( gsl::czstring filename, const CGenericParser2&
 					if( iNumExitPoints > iMAX_EXPLORE_TRANSITIONS )
 					{
 						Music_Parse_Error( filename, build_string( "\"", psMusicName, "\" has > ", iMAX_EXPLORE_TRANSITIONS, " ", psMusicNameKey, " transitions defined!\n" ) );
-						return qfalse;
+						return false;
 					}
 					break;
 
@@ -309,7 +309,7 @@ static qboolean Music_ParseMusic( gsl::czstring filename, const CGenericParser2&
 					if( iNumExitPoints > iMAX_ACTION_TRANSITIONS )
 					{
 						Music_Parse_Error( filename, build_string( "\"", psMusicName, "\" has > ", iMAX_ACTION_TRANSITIONS, " ", psMusicNameKey, " transitions defined!\n" ) );
-						return qfalse;
+						return false;
 					}
 					break;
 
@@ -317,7 +317,7 @@ static qboolean Music_ParseMusic( gsl::czstring filename, const CGenericParser2&
 				case eBGRNDTRACK_DEATH:
 
 					Music_Parse_Error( filename, build_string( "\"", psMusicName, "\" has ", psMusicNameKey, " transitions defined, this is not allowed!\n" ) );
-					return qfalse;
+					return false;
 				default:
 					break;
 				}
@@ -354,7 +354,7 @@ static qboolean Music_ParseMusic( gsl::czstring filename, const CGenericParser2&
 		( *MusicData )[ psMusicNameKey ] = MusicFile;
 	}
 
-	return (qboolean)bReturn;
+	return bReturn;
 }
 
 // called from SV_SpawnServer, but before map load and music start etc.
@@ -367,9 +367,9 @@ void Music_SetLevelName(const char *psLevelName)
 	gsLevelNameFromServer = psLevelName;
 }
 
-static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
+static bool Music_ParseLeveldata( gsl::czstring psLevelName )
 {
-	qboolean bReturn = qfalse;
+	bool bReturn = false;
 
 	if (MusicData == NULL)
 	{
@@ -382,7 +382,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 	//
 	if (MusicData->size() && !Q_stricmp(psLevelName,gsLevelNameForCompare.c_str()))
 	{
-		return qtrue;
+		return true;
 	}
 
 	MusicData->clear();
@@ -503,7 +503,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 						}
 					}
 
-					bReturn = qtrue;	// defualt to ON now, so I can turn it off if "useboss" fails
+					bReturn = true;	// defualt to ON now, so I can turn it off if "useboss" fails
 
 					if( !psName_UseBoss.empty() )
 					{
@@ -511,7 +511,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 						if( !pgLevelMusicOfBoss )
 						{
 							Music_Parse_Error( filename, build_string( "Unable to find 'useboss' entry \"", psName_UseBoss, "\"\n", psName_UseBoss ) );
-							bReturn = qfalse;
+							bReturn = false;
 						}
 						else
 						{
@@ -519,7 +519,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 							if( !pValueBoss )
 							{
 								Music_Parse_Error( filename, build_string( "'useboss' \"", psName_UseBoss, "\" has no \"boss\" entry!\n" ) );
-								bReturn = qfalse;
+								bReturn = false;
 							}
 							else
 							{
@@ -581,7 +581,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 			if (!S_FileExists( psMusicFileName ))
 			{
 				Music_Parse_Error( filename, build_string( "Music file \"", psMusicFileName, "\" not found!\n" ) );
-				return qfalse;		// have to return, because music data destroyed now
+				return false;		// have to return, because music data destroyed now
 			}
 
 			// check all transition music pieces exist, and that entry points into new pieces after transitions also exist...
@@ -594,7 +594,7 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 				if (!S_FileExists( psTransitionFileName ))
 				{
 					Music_Parse_Error( filename, build_string( "Transition file \"", psTransitionFileName, "\" (entry \"", MusicExitPoint.sNextFile.c_str(), "\" ) not found!\n" ) );
-					return qfalse;		// have to return, because music data destroyed now
+					return false;		// have to return, because music data destroyed now
 				}
 
 				const char *psNextMark = MusicExitPoint.sNextMark.c_str();
@@ -614,13 +614,13 @@ static qboolean Music_ParseLeveldata( gsl::czstring psLevelName )
 						if (!MusicFile_Explore.MusicEntryTimes.count(psNextMark))
 						{
 							Music_Parse_Error( filename, build_string( "Unable to find entry point \"", psNextMark, "\" in description for \"", MusicFile_Explore.sFileNameBase.c_str(), "\"\n" ) );
-							return qfalse;		// have to return, because music data destroyed now
+							return false;		// have to return, because music data destroyed now
 						}
 					}
 					else
 					{
 						Music_Parse_Error( filename, build_string( "Unable to find ", Music_BaseStateToString( eBGRNDTRACK_EXPLORE ), " piece to match \"", MusicFile.sFileNameBase.c_str(), "\"\n" ) );
-						return qfalse;		// have to return, because music data destroyed now
+						return false;		// have to return, because music data destroyed now
 					}
 				}
 			}
@@ -659,7 +659,7 @@ static MusicFile_t *Music_GetBaseMusicFile( MusicState_e eMusicState )
 
 // where label is (eg) "kejim_base"...
 //
-qboolean Music_DynamicDataAvailable(const char *psDynamicMusicLabel)
+bool Music_DynamicDataAvailable(const char *psDynamicMusicLabel)
 {
 	char sLevelName[MAX_QPATH];
 	Q_strncpyz(sLevelName,COM_SkipPath( const_cast<char*>( (psDynamicMusicLabel&&psDynamicMusicLabel[0])?psDynamicMusicLabel:gsLevelNameFromServer.c_str() ) ),sizeof(sLevelName));
@@ -669,12 +669,12 @@ qboolean Music_DynamicDataAvailable(const char *psDynamicMusicLabel)
 	{
 		if (Music_ParseLeveldata(sLevelName))
 		{
-			return (qboolean)(Music_GetBaseMusicFile(eBGRNDTRACK_EXPLORE) &&
+			return (Music_GetBaseMusicFile(eBGRNDTRACK_EXPLORE) &&
 								Music_GetBaseMusicFile(eBGRNDTRACK_ACTION));
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 const char *Music_GetFileNameForState( MusicState_e eMusicState)
@@ -739,31 +739,31 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 
 
 
-qboolean Music_StateIsTransition( MusicState_e eMusicState )
+bool Music_StateIsTransition( MusicState_e eMusicState )
 {
-	return (qboolean)(eMusicState >= eBGRNDTRACK_FIRSTTRANSITION &&
+	return (eMusicState >= eBGRNDTRACK_FIRSTTRANSITION &&
 						eMusicState <= eBGRNDTRACK_LASTTRANSITION);
 }
 
 
-qboolean Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e eProposedMusicState )
+bool Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e eProposedMusicState )
 {
 	// death music can interrupt anything...
 	//
 	if (eProposedMusicState == eBGRNDTRACK_DEATH)
-		return qtrue;
+		return true;
 	//
 	// ... and can't be interrupted once started...(though it will internally-switch to silence at the end, rather than loop)
 	//
 	if (eMusicState == eBGRNDTRACK_DEATH)
 	{
-		return qfalse;
+		return false;
 	}
 
 	// boss music can interrupt anything (other than death, but that's already handled above)...
 	//
 	if (eProposedMusicState == eBGRNDTRACK_BOSS)
-		return qtrue;
+		return true;
 	//
 	// ... and can't be interrupted once started...
 	//
@@ -772,29 +772,29 @@ qboolean Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e ePr
 		// ...except by silence (or death, but again, that's already handled above)
 		//
 		if (eProposedMusicState == eBGRNDTRACK_SILENCE)
-			return qtrue;
+			return true;
 
-		return qfalse;
+		return false;
 	}
 
 	// action music can interrupt anything (after boss & death filters above)...
 	//
 	if (eProposedMusicState == eBGRNDTRACK_ACTION)
-		return qtrue;
+		return true;
 
 	// nothing can interrupt a transition (after above filters)...
 	//
 	if (Music_StateIsTransition( eMusicState ))
-		return qfalse;
+		return false;
 
 	// current state is therefore interruptable...
 	//
-	return qtrue;
+	return true;
 }
 
 
 
-// returns qtrue if music is allowed to transition out of current state, based on current play position...
+// returns true if music is allowed to transition out of current state, based on current play position...
 // (doesn't bother returning final state after transition (eg action->transition->explore) becuase it's fairly obvious)
 //
 // supply:
@@ -807,7 +807,7 @@ qboolean Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e ePr
 // enum of transition track to switch to
 // float time of entry point of new track *after* transition
 //
-qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
+bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 									MusicState_e	eMusicState,
 									//
 									MusicState_e	*peTransition /* = NULL */,
@@ -894,7 +894,7 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 										assert(0);	// sanity, should have been caught elsewhere, but harmless to do this
 										Com_Printf( S_COLOR_RED "Music_AllowedToTransition() unable to find entry marker \"%s\" in \"%s\"",ExitPoint.sNextMark.c_str(), MusicFile_Explore.sFileNameBase.c_str());
 										#endif
-										return qfalse;
+										return false;
 									}
 								}
 								else
@@ -903,7 +903,7 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 									assert(0);	// sanity, should have been caught elsewhere, but harmless to do this
 									Com_Printf( S_COLOR_RED "Music_AllowedToTransition() unable to find %s version of \"%s\"\n",Music_BaseStateToString(eBGRNDTRACK_EXPLORE), pMusicFile->sFileNameBase.c_str());
 									#endif
-									return qfalse;
+									return false;
 								}
 							}
 							else
@@ -920,7 +920,7 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 							assert(0);
 							Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type %d\n",eMusicState);
 							#endif
-							return qfalse;
+							return false;
 						}
 						break;
 					}
@@ -931,7 +931,7 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 					assert(0);
 					Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point %d, max = %d (music: \"%s\")\n",iExitPoint, pMusicFile->MusicExitPoints.size()-1, pMusicFile->sFileNameBase.c_str() );
 					#endif
-					return qfalse;
+					return false;
 				}
 
 
@@ -947,12 +947,12 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 					*pfNewTrackEntryTime = fFeedBackNewTrackEntryTime;
 				}
 
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 

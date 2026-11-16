@@ -57,7 +57,7 @@ void func_wait_return_solid( gentity_t *self )
 		//NOTE: be sure to reset the brushmodel before doing this or else CONTENTS_OPAQUE may not be on when you call this
 		if ( !(self->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( self, qfalse );
+			gi.AdjustAreaPortalState( self, false );
 		}
 	}
 	else
@@ -78,17 +78,17 @@ void func_usable_think( gentity_t *self )
 	}
 }
 
-qboolean G_EntIsRemovableUsable( int entNum )
+bool G_EntIsRemovableUsable( int entNum )
 {
 	gentity_t *ent = &g_entities[entNum];
 	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
 	{
 		if ( !(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
 		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -148,7 +148,7 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		//NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
 		if ( !(self->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( self, qtrue );
+			gi.AdjustAreaPortalState( self, true );
 		}
 		self->s.solid = 0;
 		self->contents = 0;
@@ -180,7 +180,7 @@ void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 
 void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc)
 {
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	GEntity_UseFunc( self, inflictor, attacker );
 }
 
@@ -243,7 +243,7 @@ void SP_func_usable( gentity_t *self )
 
 	if ( self->health )
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 		self->e_DieFunc = dieF_func_usable_die;
 		self->e_PainFunc = painF_func_usable_pain;
 	}

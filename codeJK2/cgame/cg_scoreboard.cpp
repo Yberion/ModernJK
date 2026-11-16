@@ -343,12 +343,12 @@ Draw the normal in-game scoreboard
 return value is bool to NOT draw centerstring
 =================
 */
-qboolean CG_DrawScoreboard( void )
+bool CG_DrawScoreboard( void )
 {
 	// don't draw anything if the menu is up
 	if ( cg_paused.integer )
 	{
-		return qfalse;
+		return false;
 	}
 
 	// Character is either dead, or a script has brought up the screen
@@ -356,10 +356,10 @@ qboolean CG_DrawScoreboard( void )
 		|| (cg.missionStatusShow))
 	{
 		CG_MissionFailed();
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 void ScoreBoardReset(void)

@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// q_shared.c -- stateless support routines that are included in each code dll
+// q_shared.cpp -- stateless support routines that are included in each code dll
 
 #include "../game/common_headers.h"
 
@@ -80,10 +80,10 @@ void COM_StripExtension( const char *in, char *out, int destsize )
 ============
 COM_CompareExtension
 
-string compare the end of the strings and return qtrue if strings match
+string compare the end of the strings and return true if strings match
 ============
 */
-qboolean COM_CompareExtension(const char *in, const char *ext)
+bool COM_CompareExtension(const char *in, const char *ext)
 {
 	int inlen, extlen;
 
@@ -95,10 +95,10 @@ qboolean COM_CompareExtension(const char *in, const char *ext)
 		in += inlen - extlen;
 
 		if(!Q_stricmp(in, ext))
-			return qtrue;
+			return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -170,7 +170,7 @@ int COM_GetCurrentParseLine( int index )
 
 char *COM_Parse( const char **data_p )
 {
-	return COM_ParseExt( data_p, qtrue );
+	return COM_ParseExt( data_p, true );
 }
 
 /*
@@ -180,12 +180,12 @@ COM_Parse
 Parse a token out of a string
 Will never return NULL, just empty strings
 
-If "allowLineBreaks" is qtrue then an empty
+If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
 a newline.
 ==============
 */
-const char *SkipWhitespace( const char *data, qboolean *hasNewLines )
+const char *SkipWhitespace( const char *data, bool *hasNewLines )
 {
 	int c;
 
@@ -201,7 +201,7 @@ const char *SkipWhitespace( const char *data, qboolean *hasNewLines )
 		if( c == '\n' )
 		{
 			parseData[parseDataCount].com_lines++;
-			*hasNewLines = qtrue;
+			*hasNewLines = true;
 		}
 		data++;
 	}
@@ -212,7 +212,7 @@ const char *SkipWhitespace( const char *data, qboolean *hasNewLines )
 int COM_Compress( char *data_p ) {
 	char *in, *out;
 	int c;
-	qboolean newline = qfalse, whitespace = qfalse;
+	bool newline = false, whitespace = false;
 
 	in = out = data_p;
 	if (in) {
@@ -230,22 +230,22 @@ int COM_Compress( char *data_p ) {
 					in += 2;
 				// record when we hit a newline
 			} else if ( c == '\n' || c == '\r' ) {
-				newline = qtrue;
+				newline = true;
 				in++;
 				// record when we hit whitespace
 			} else if ( c == ' ' || c == '\t') {
-				whitespace = qtrue;
+				whitespace = true;
 				in++;
 				// an actual token
 			} else {
 				// if we have a pending newline, emit it (and it counts as whitespace)
 				if (newline) {
 					*out++ = '\n';
-					newline = qfalse;
-					whitespace = qfalse;
+					newline = false;
+					whitespace = false;
 				} if (whitespace) {
 					*out++ = ' ';
-					whitespace = qfalse;
+					whitespace = false;
 				}
 
 				// copy quoted strings unmolested
@@ -278,10 +278,10 @@ int COM_Compress( char *data_p ) {
 	return out - data_p;
 }
 
-char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
+char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 {
 	int c = 0, len;
-	qboolean hasNewLines = qfalse;
+	bool hasNewLines = false;
 	const char *data;
 
 	data = *data_p;
@@ -399,15 +399,15 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 COM_ParseString
 ===============
 */
-qboolean COM_ParseString( const char **data, const char **s )
+bool COM_ParseString( const char **data, const char **s )
 {
-	*s = COM_ParseExt( data, qfalse );
+	*s = COM_ParseExt( data, false );
 	if ( s[0] == 0 )
 	{
 		Com_Printf("unexpected EOF in COM_ParseString\n");
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -415,19 +415,19 @@ qboolean COM_ParseString( const char **data, const char **s )
 COM_ParseInt
 ===============
 */
-qboolean COM_ParseInt( const char **data, int *i )
+bool COM_ParseInt( const char **data, int *i )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qfalse );
+	token = COM_ParseExt( data, false );
 	if ( token[0] == 0 )
 	{
 		Com_Printf( "unexpected EOF in COM_ParseInt\n" );
-		return qtrue;
+		return true;
 	}
 
 	*i = atoi( token );
-	return qfalse;
+	return false;
 }
 
 /*
@@ -435,19 +435,19 @@ qboolean COM_ParseInt( const char **data, int *i )
 COM_ParseFloat
 ===============
 */
-qboolean COM_ParseFloat( const char **data, float *f )
+bool COM_ParseFloat( const char **data, float *f )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qfalse );
+	token = COM_ParseExt( data, false );
 	if ( token[0] == 0 )
 	{
 		Com_Printf( "unexpected EOF in COM_ParseFloat\n" );
-		return qtrue;
+		return true;
 	}
 
 	*f = atof( token );
-	return qfalse;
+	return false;
 }
 
 /*
@@ -455,7 +455,7 @@ qboolean COM_ParseFloat( const char **data, float *f )
 COM_ParseVec4
 ===============
 */
-qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
+bool COM_ParseVec4( const char **buffer, vec4_t *c)
 {
 	int i;
 	float f;
@@ -464,11 +464,11 @@ qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
 	{
 		if (COM_ParseFloat(buffer, &f))
 		{
-			return qtrue;
+			return true;
 		}
 		(*c)[i] = f;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -504,7 +504,7 @@ void SkipBracedSection ( const char **program) {
 		depth = 1;
 	}
 	do {
-		token = COM_ParseExt( program, qtrue );
+		token = COM_ParseExt( program, true );
 		if( token[1] == 0 ) {
 			if( token[0] == '{' ) {
 				depth++;
@@ -863,14 +863,14 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
+bool Info_Validate( const char *s ) {
 	if ( strchr( s, '\"' ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( strchr( s, ';' ) ) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -918,15 +918,15 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 Com_CharIsOneOfCharset
 ==================
 */
-static qboolean Com_CharIsOneOfCharset( char c, const char *set ) {
+static bool Com_CharIsOneOfCharset( char c, const char *set ) {
 	size_t i;
 
 	for ( i=0; i<strlen( set ); i++ ) {
 		if ( set[i] == c )
-			return qtrue;
+			return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1024,8 +1024,8 @@ const char *GetStringForID( const stringID_table_t *table, int id )
 	return NULL;
 }
 
-qboolean Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte ) {
-	return ( bits[index / bitsPerByte] & (1 << (index % bitsPerByte)) ) ? qtrue : qfalse;
+bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte ) {
+	return ( bits[index / bitsPerByte] & (1 << (index % bitsPerByte)) ) ? true : false;
 }
 
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte ) {

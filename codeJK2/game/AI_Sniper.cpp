@@ -30,8 +30,8 @@ extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
+extern bool FlyingCreature( gentity_t *ent );
 
 extern	CNavigator	navigator;
 
@@ -51,13 +51,13 @@ extern	CNavigator	navigator;
 #define	REALIZE_THRESHOLD	0.6f
 #define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
-static qboolean enemyLOS;
-static qboolean enemyCS;
-static qboolean faceEnemy;
-static qboolean AImove;
-static qboolean shoot;
+static bool enemyLOS;
+static bool enemyCS;
+static bool faceEnemy;
+static bool AImove;
+static bool shoot;
 static float	enemyDist;
 
 //Local state enums
@@ -132,7 +132,7 @@ ST_HoldPosition
 
 static void Sniper_HoldPosition( void )
 {
-	NPC_FreeCombatPoint( NPCInfo->combatPoint, qtrue );
+	NPC_FreeCombatPoint( NPCInfo->combatPoint, true );
 	NPCInfo->goalEntity = NULL;
 
 	/*if ( TIMER_Done( NPC, "stand" ) )
@@ -148,11 +148,11 @@ ST_Move
 -------------------------
 */
 
-static qboolean Sniper_Move( void )
+static bool Sniper_Move( void )
 {
-	NPCInfo->combatMove = qtrue;//always move straight toward our goal
+	NPCInfo->combatMove = true;//always move straight toward our goal
 
-	qboolean	moved = NPC_MoveToGoal( qtrue );
+	bool	moved = NPC_MoveToGoal( true );
 	navInfo_t	info;
 
 	//Get the move info
@@ -169,7 +169,7 @@ static qboolean Sniper_Move( void )
 	}
 
 	//If our move failed, then reset
-	if ( moved == qfalse )
+	if ( moved == false )
 	{//couldn't get to enemy
 		if ( (NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) && NPCInfo->goalEntity && NPCInfo->goalEntity == NPC->enemy )
 		{//we were running after enemy
@@ -189,7 +189,7 @@ static qboolean Sniper_Move( void )
 			if ( cp != -1 )
 			{//found a combat point that has a clear shot to enemy
 				NPC_SetCombatPoint( cp );
-				NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, qtrue, cp );
+				NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, true, cp );
 				return moved;
 			}
 		}
@@ -219,7 +219,7 @@ void NPC_BSSniper_Patrol( void )
 			{
 				//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//Should be auto now
 				//NPC_AngerSound();
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
@@ -227,10 +227,10 @@ void NPC_BSSniper_Patrol( void )
 		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
-			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 			else
@@ -279,7 +279,7 @@ void NPC_BSSniper_Patrol( void )
 				NPCInfo->desiredYaw = angles[YAW];
 				NPCInfo->desiredPitch = angles[PITCH];
 
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 
 				NPCInfo->desiredYaw = o_yaw;
 				NPCInfo->desiredPitch = o_pitch;
@@ -292,10 +292,10 @@ void NPC_BSSniper_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -312,15 +312,15 @@ void NPC_BSSniper_Idle( void )
 	//FIXME: check for other alert events?
 
 	//Is there danger nearby?
-	if ( NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue ) ) )
+	if ( NPC_CheckForDanger( NPC_CheckAlertEvents( true, true ) ) )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
 	TIMER_Set( NPC, "roamTime", 2000 + Q_irand( 1000, 2000 ) );
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 */
 /*
@@ -336,7 +336,7 @@ static void Sniper_CheckMoveState( void )
 	{
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{
-			AImove = qfalse;
+			AImove = false;
 			return;
 		}
 	}
@@ -349,14 +349,14 @@ static void Sniper_CheckMoveState( void )
 		}
 		else
 		{
-			faceEnemy = qfalse;
+			faceEnemy = false;
 		}
 	}
 	else if ( NPCInfo->squadState == SQUAD_IDLE )
 	{
 		if ( !NPCInfo->goalEntity )
 		{
-			AImove = qfalse;
+			AImove = false;
 			return;
 		}
 	}
@@ -429,7 +429,7 @@ static void Sniper_ResolveBlockedShot( void )
 				if ( cp != -1 )
 				{//found a combat point that has a clear shot to enemy
 					NPC_SetCombatPoint( cp );
-					NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, qtrue, cp );
+					NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, true, cp );
 					TIMER_Set( NPC, "duck", -1 );
 					TIMER_Set( NPC, "attackDelay", Q_irand( 1000, 3000 ) );
 					return;
@@ -496,8 +496,8 @@ static void Sniper_CheckFireState( void )
 			NPCInfo->desiredYaw		= angles[YAW];
 			NPCInfo->desiredPitch	= angles[PITCH];
 
-			shoot = qtrue;
-			//faceEnemy = qfalse;
+			shoot = true;
+			//faceEnemy = false;
 		}
 		return;
 	}
@@ -507,11 +507,11 @@ static void Sniper_CheckFireState( void )
 	}
 }
 
-qboolean Sniper_EvaluateShot( int hit )
+bool Sniper_EvaluateShot( int hit )
 {
 	if ( !NPC->enemy )
 	{
-		return qfalse;
+		return false;
 	}
 
 	gentity_t *hitEnt = &g_entities[hit];
@@ -520,9 +520,9 @@ qboolean Sniper_EvaluateShot( int hit )
 		|| ( hitEnt && hitEnt->takedamage && ((hitEnt->svFlags&SVF_GLASS_BRUSH)||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) )
 		|| ( hitEnt && (hitEnt->svFlags&SVF_GLASS_BRUSH)) )
 	{//can hit enemy or will hit glass, so shoot anyway
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 void Sniper_FaceEnemy( void )
@@ -545,8 +545,8 @@ void Sniper_FaceEnemy( void )
 			{//miss a few times first
 				if ( shoot && TIMER_Done( NPC, "attackDelay" ) && level.time >= NPCInfo->shotTime )
 				{//ready to fire again
-					qboolean	aimError = qfalse;
-					qboolean	hit = qtrue;
+					bool	aimError = false;
+					bool	hit = true;
 					int			tryMissCount = 0;
 					trace_t		trace;
 
@@ -558,7 +558,7 @@ void Sniper_FaceEnemy( void )
 						tryMissCount++;
 						if ( !Q_irand( 0, 1 ) )
 						{
-							aimError = qtrue;
+							aimError = true;
 							if ( !Q_irand( 0, 1 ) )
 							{
 								VectorMA( target, NPC->enemy->maxs[2]*Q_flrand(1.5, 4), right, target );
@@ -588,7 +588,7 @@ void Sniper_FaceEnemy( void )
 				{
 					if ( !enemyLOS )
 					{
-						NPC_UpdateAngles( qtrue, qtrue );
+						NPC_UpdateAngles( true, true );
 						return;
 					}
 				}
@@ -619,7 +619,7 @@ void Sniper_FaceEnemy( void )
 		NPCInfo->desiredYaw		= AngleNormalize360( angles[YAW] );
 		NPCInfo->desiredPitch	= AngleNormalize360( angles[PITCH] );
 	}
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 void Sniper_UpdateEnemyPos( void )
@@ -660,22 +660,22 @@ void NPC_BSSniper_Attack( void )
 	//Don't do anything if we're hurt
 	if ( NPC->painDebounceTime > level.time )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
-	//NPC_CheckEnemy( qtrue, qfalse );
+	//NPC_CheckEnemy( true, false );
 	//If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )//!NPC->enemy )//
+	if ( NPC_CheckEnemyExt() == false )//!NPC->enemy )//
 	{
 		NPC->enemy = NULL;
 		NPC_BSSniper_Patrol();//FIXME: or patrol?
 		return;
 	}
 
-	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER ) ) )
+	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, AEL_DANGER ) ) )
 	{//going to run
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -685,10 +685,10 @@ void NPC_BSSniper_Attack( void )
 		return;
 	}
 
-	enemyLOS = enemyCS = qfalse;
-	AImove = qtrue;
-	faceEnemy = qfalse;
-	shoot = qfalse;
+	enemyLOS = enemyCS = false;
+	AImove = true;
+	faceEnemy = false;
+	shoot = false;
 	enemyDist = DistanceSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 	if ( enemyDist < 16384 )//128 squared
 	{//too close, so switch to primary fire
@@ -703,7 +703,7 @@ void NPC_BSSniper_Attack( void )
 					NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
 					//reset fire-timing variables
 					NPC_ChangeWeapon( WP_DISRUPTOR );
-					NPC_UpdateAngles( qtrue, qtrue );
+					NPC_UpdateAngles( true, true );
 					return;
 				}
 			}
@@ -719,7 +719,7 @@ void NPC_BSSniper_Attack( void )
 				NPCInfo->scriptFlags |= SCF_ALT_FIRE;
 				//reset fire-timing variables
 				NPC_ChangeWeapon( WP_DISRUPTOR );
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
@@ -731,7 +731,7 @@ void NPC_BSSniper_Attack( void )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;
 		VectorCopy( NPC->enemy->currentOrigin, NPCInfo->enemyLastSeenLocation );
-		enemyLOS = qtrue;
+		enemyLOS = true;
 		float maxShootDist = NPC_MaxDistSquaredForWeapon();
 		if ( enemyDist < maxShootDist )
 		{
@@ -746,7 +746,7 @@ void NPC_BSSniper_Attack( void )
 			//can we shoot our target?
 			if ( Sniper_EvaluateShot( hit ) )
 			{
-				enemyCS = qtrue;
+				enemyCS = true;
 			}
 		}
 	}
@@ -754,17 +754,17 @@ void NPC_BSSniper_Attack( void )
 	else if ( gi.inPVS( NPC->enemy->currentOrigin, NPC->currentOrigin ) )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;
-		faceEnemy = qtrue;
+		faceEnemy = true;
 	}
 	*/
 
 	if ( enemyLOS )
 	{//FIXME: no need to face enemy if we're moving to some other goal and he's too far away to shoot?
-		faceEnemy = qtrue;
+		faceEnemy = true;
 	}
 	if ( enemyCS )
 	{
-		shoot = qtrue;
+		shoot = true;
 	}
 	else if ( level.time - NPCInfo->enemyLastSeenTime > 3000 )
 	{//Hmm, have to get around this bastard... FIXME: this NPCInfo->enemyLastSeenTime builds up when ducked seems to make them want to run when they uncrouch
@@ -785,7 +785,7 @@ void NPC_BSSniper_Attack( void )
 		}
 		else
 		{
-			AImove = qfalse;
+			AImove = false;
 		}
 	}
 
@@ -826,9 +826,9 @@ void NPC_BSSniper_Attack( void )
 		{//don't run away and shoot
 			NPCInfo->desiredYaw = NPCInfo->lastPathAngles[YAW];
 			NPCInfo->desiredPitch = 0;
-			shoot = qfalse;
+			shoot = false;
 		}
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 	}
 	else// if ( faceEnemy )
 	{//face the enemy
@@ -837,7 +837,7 @@ void NPC_BSSniper_Attack( void )
 
 	if ( NPCInfo->scriptFlags&SCF_DONT_FIRE )
 	{
-		shoot = qfalse;
+		shoot = false;
 	}
 
 	//FIXME: don't shoot right away!
@@ -845,7 +845,7 @@ void NPC_BSSniper_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			WeaponThink( qtrue );
+			WeaponThink( true );
 			if ( ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK) )
 			{
 				G_SoundOnEnt( NPC, CHAN_WEAPON, "sound/null.wav" );

@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snapshots are a view of the server at a given time
 typedef struct {
-	qboolean		valid;			// cleared if delta parsing was invalid
+	bool		valid;			// cleared if delta parsing was invalid
 	int				snapFlags;		// rate delayed and dropped commands
 
 	int				serverTime;		// server time the message is valid for (in msec)
@@ -81,9 +81,9 @@ typedef struct {
 	int			oldFrameServerTime;	// to check tournament restarts
 	int			serverTimeDelta;	// cl.serverTime = cls.realtime + cl.serverTimeDelta
 									// this value changes as net lag varies
-	qboolean	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
+	bool	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
 									// cleared when CL_AdjustTimeDelta looks at it
-	qboolean	newSnapshots;		// set on parse, cleared when CL_AdjustTimeDelta looks at it
+	bool	newSnapshots;		// set on parse, cleared when CL_AdjustTimeDelta looks at it
 
 	gameState_t	gameState;			// configstrings
 	char		mapname[MAX_QPATH];	// extracted from CS_SERVERINFO
@@ -126,7 +126,7 @@ typedef struct {
 
 	//DJC added - making force powers in single player work like those in
 	//multiplayer.  This makes hot swapping code more portable.
-	qboolean		gcmdSendValue;
+	bool		gcmdSendValue;
 	byte			gcmdValue;
 } clientActive_t;
 
@@ -184,11 +184,11 @@ typedef struct {
 	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
 	// when the server clears the hunk, all of these must be restarted
-	qboolean	rendererStarted;
-	qboolean	soundStarted;
-	qboolean	soundRegistered;
-	qboolean	uiStarted;
-	qboolean	cgameStarted;
+	bool	rendererStarted;
+	bool	soundStarted;
+	bool	soundRegistered;
+	bool	uiStarted;
+	bool	cgameStarted;
 
 	int			framecount;
 	int			frametime;			// msec since last frame
@@ -209,7 +209,7 @@ typedef struct {
 	int			consoleFont;
 
 	// Cursor
-	qboolean	cursorActive;
+	bool	cursorActive;
 	qhandle_t	cursorShader;
 	int			cursorX;
 	int			cursorY;
@@ -230,7 +230,7 @@ typedef union {
 } conChar_t;
 
 typedef struct {
-	qboolean	initialized;
+	bool	initialized;
 
 	conChar_t	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
@@ -317,7 +317,7 @@ void CL_Disconnect_f (void);
 void CL_Vid_Restart_f( void );
 void CL_Snd_Restart_f (void);
 
-qboolean CL_CheckPaused(void);
+bool CL_CheckPaused(void);
 
 //
 // cl_input
@@ -326,8 +326,8 @@ typedef struct {
 	int			down[2];		// key nums holding it down
 	unsigned	downtime;		// msec timestamp
 	unsigned	msec;			// msec down this frame if both a down and up happened
-	qboolean	active;			// current state
-	qboolean	wasPressed;		// set when down, not cleared when up
+	bool	active;			// current state
+	bool	wasPressed;		// set when down, not cleared when up
 } kbutton_t;
 
 extern	kbutton_t	in_mlook, in_klook;
@@ -342,7 +342,7 @@ void CL_WritePacket( void );
 void IN_CenterView (void);
 
 float CL_KeyState (kbutton_t *key);
-const char *Key_KeynumToString( int keynum/*, qboolean bTranslate*/ ); //note: translate is only called for menu display not configs
+const char *Key_KeynumToString( int keynum/*, bool bTranslate*/ ); //note: translate is only called for menu display not configs
 
 //
 // cl_parse.c
@@ -389,9 +389,9 @@ void	SCR_FillRect( float x, float y, float width, float height,
 void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 
-void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape );	// ignores embedded color control characters
-void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawBigString( int x, int y, const char *s, float alpha, bool noColorEscape );			// draws a string with embedded color control characters with fade
+void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, bool noColorEscape );	// ignores embedded color control characters
+void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape );
 void	SCR_DrawBigChar( int x, int y, int ch );
 void	SCR_DrawSmallChar( int x, int y, int ch );
 
@@ -404,29 +404,29 @@ void	SCR_PrecacheScreenshot();
 //
 void CL_PlayCinematic_f( void );
 void CL_PlayInGameCinematic_f(void);
-qboolean CL_CheckPendingCinematic(void);
-qboolean CL_IsRunningInGameCinematic(void);
-qboolean CL_InGameCinematicOnStandBy(void);
+bool CL_CheckPendingCinematic(void);
+bool CL_IsRunningInGameCinematic(void);
+bool CL_InGameCinematicOnStandBy(void);
 void SCR_DrawCinematic (void);
 void SCR_RunCinematic (void);
-void SCR_StopCinematic( qboolean bAllowRefusal = qfalse );
+void SCR_StopCinematic( bool bAllowRefusal = false );
 
 int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = NULL */);
 e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);
 void CIN_SetExtents (int handle, int x, int y, int w, int h);
-void CIN_SetLooping (int handle, qboolean loop);
+void CIN_SetLooping (int handle, bool loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
 //
 // cl_cgame.c
 //
-qboolean CL_InitCGameVM( void *gameLibrary );
+bool CL_InitCGameVM( void *gameLibrary );
 void CL_InitCGame( void );
 void CL_ShutdownCGame( void );
-qboolean CL_GameCommand( void );
+bool CL_GameCommand( void );
 void CL_CGameRendering( stereoFrame_t stereo );
 void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );

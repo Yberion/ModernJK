@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_public.h"
 #include "anims.h"
 
-extern qboolean NPCsPrecached;
+extern bool NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
@@ -110,24 +110,24 @@ int NPC_ReactionTime ( void )
 // parse support routines
 //
 
-qboolean G_ParseLiteral( const char **data, const char *string )
+bool G_ParseLiteral( const char **data, const char *string )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qtrue );
+	token = COM_ParseExt( data, true );
 	if ( token[0] == 0 )
 	{
 		gi.Printf( "unexpected EOF\n" );
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( token, string ) )
 	{
 		gi.Printf( "required string '%s' missing\n", string );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //
@@ -345,7 +345,7 @@ models/players/visor/animation.cfg, etc
 
 ======================
 */
-qboolean G_ParseAnimationFile( const char *af_filename )
+bool G_ParseAnimationFile( const char *af_filename )
 {
 	const char		*text_p;
 	int			len;
@@ -360,16 +360,16 @@ qboolean G_ParseAnimationFile( const char *af_filename )
 	len = gi.RE_GetAnimationCFG(af_filename, NULL, 0);
 	if (len <= 0)
 	{
-		return qfalse;
+		return false;
 	}
 	if ( len <= 0 )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( len >= (int)sizeof(text) - 1 )
 	{
 		G_Error( "G_ParseAnimationFile: File %s too long\n (%d > %d)", af_filename, len, sizeof( text ) - 1);
-		return qfalse;
+		return false;
 	}
 	len = gi.RE_GetAnimationCFG(af_filename, text, sizeof(text));
 
@@ -461,10 +461,10 @@ qboolean G_ParseAnimationFile( const char *af_filename )
 	}
 #endif
 
-	return qtrue;
+	return true;
 }
 
-qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *animFileIndex )
+bool G_ParseAnimFileSet( const char *filename, const char *animCFG, int *animFileIndex )
 {
 	char		afilename[MAX_QPATH];
 	char		strippedName[MAX_QPATH];
@@ -486,7 +486,7 @@ qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *ani
 		{
 			*animFileIndex = i;
 			CG_ParseAnimationSndFile( strippedName, *animFileIndex );
-			return qtrue;
+			return true;
 		}
 	}
 
@@ -503,7 +503,7 @@ qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *ani
 	if ( !G_ParseAnimationFile( afilename ) )
 	{
 		*animFileIndex = -1;
-		return qfalse;
+		return false;
 	}
 
 	//set index and increment
@@ -511,7 +511,7 @@ qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *ani
 
 	CG_ParseAnimationSndFile( strippedName, *animFileIndex );
 
-	return qtrue;
+	return true;
 }
 
 void G_LoadAnimFileSet( gentity_t *ent, const char *modelName )
@@ -572,7 +572,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 	// look for the right NPC
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
@@ -602,7 +602,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 	// parse the NPC info block
 	while ( 1 )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", NPC_type );
@@ -657,7 +657,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 
 					//must copy data out of this pointer into a different part of memory because the funcs we're about to call will call COM_ParseExt
 					Q_strncpyz(filename, value, sizeof( filename ));
-					G_ParseAnimFileSet( value, strippedName, &junk );//qfalse );
+					G_ParseAnimFileSet( value, strippedName, &junk );//false );
 					COM_EndParseSession(  );
 					//FIXME: still not precaching the animsounds.cfg?
 					return;
@@ -713,7 +713,7 @@ void NPC_Precache ( gentity_t *spawner )
 	const char	*p;
 	char	*patch;
 	char	sound[MAX_QPATH];
-	qboolean	md3Model = qfalse;
+	bool	md3Model = false;
 	char	playerModel[MAX_QPATH];
 	char	customSkin[MAX_QPATH];
 
@@ -729,7 +729,7 @@ void NPC_Precache ( gentity_t *spawner )
 	// look for the right NPC
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
@@ -761,7 +761,7 @@ void NPC_Precache ( gentity_t *spawner )
 	{
 		COM_EndParseSession();	// if still in session (or using continue;)
 		COM_BeginParseSession();
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", spawner->NPC_type );
@@ -789,7 +789,7 @@ void NPC_Precache ( gentity_t *spawner )
 			{
 				Q_strncpyz(ri.headModelName, value, sizeof(ri.headModelName));
 			}
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -808,7 +808,7 @@ void NPC_Precache ( gentity_t *spawner )
 			{
 				Q_strncpyz(ri.torsoModelName, value, sizeof(ri.torsoModelName));
 			}
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -820,7 +820,7 @@ void NPC_Precache ( gentity_t *spawner )
 				continue;
 			}
 			Q_strncpyz(ri.legsModelName, value, sizeof(ri.legsModelName));
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -832,7 +832,7 @@ void NPC_Precache ( gentity_t *spawner )
 				continue;
 			}
 			Q_strncpyz(playerModel, value, sizeof(playerModel));
-			md3Model = qfalse;
+			md3Model = false;
 			continue;
 		}
 
@@ -1058,7 +1058,7 @@ void NPC_BuildRandom( gentity_t *NPC )
 }
 
 extern void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
-qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
+bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 {
 	const char	*token;
 	const char	*value;
@@ -1072,7 +1072,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	clientInfo_t	*ci = &NPC->client->clientInfo;
 	renderInfo_t	*ri = &NPC->client->renderInfo;
 	gNPCstats_t		*stats = NULL;
-	qboolean	md3Model = qtrue;
+	bool	md3Model = true;
 	char	surfOff[1024];
 	char	surfOn[1024];
 
@@ -1182,11 +1182,11 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		// look for the right NPC
 		while ( p )
 		{
-			token = COM_ParseExt( &p, qtrue );
+			token = COM_ParseExt( &p, true );
 			if ( token[0] == 0 )
 			{
 				COM_EndParseSession(  );
-				return qfalse;
+				return false;
 			}
 
 			if ( !Q_stricmp( token, NPCName ) )
@@ -1199,24 +1199,24 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		if ( !p )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		if ( G_ParseLiteral( &p, "{" ) )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		// parse the NPC info block
 		while ( 1 )
 		{
-			token = COM_ParseExt( &p, qtrue );
+			token = COM_ParseExt( &p, true );
 			if ( !token[0] )
 			{
 				gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", NPCName );
 				COM_EndParseSession(  );
-				return qfalse;
+				return false;
 			}
 
 			if ( !Q_stricmp( token, "}" ) )
@@ -1293,7 +1293,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				Q_strncpyz( playerModel, value, sizeof(playerModel));
-				md3Model = qfalse;
+				md3Model = false;
 				continue;
 			}
 
@@ -2197,7 +2197,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		COM_EndParseSession(  );
 	}
 
-	ci->infoValid = qfalse;
+	ci->infoValid = false;
 
 /*
 Ghoul2 Insert Start
@@ -2217,7 +2217,7 @@ Ghoul2 Insert End
 		CG_RegisterNPCEffects( NPC->client->playerTeam );
 	}
 
-	return qtrue;
+	return true;
 }
 
 void NPC_LoadParms( void )

@@ -84,9 +84,9 @@ typedef struct siegeClass_s {
 	int			maxarmor;
 	int			startarmor;
 	float		speed;
-	qboolean	hasForcedSaberColor;
+	bool	hasForcedSaberColor;
 	int			forcedSaberColor;
-	qboolean	hasForcedSaber2Color;
+	bool	hasForcedSaber2Color;
 	int			forcedSaber2Color;
 	int			invenItems;
 	int			powerups;
@@ -110,8 +110,8 @@ extern int bgNumSiegeClasses;
 extern siegeTeam_t bgSiegeTeams[MAX_SIEGE_TEAMS];
 extern int bgNumSiegeTeams;
 
-int BG_SiegeGetValueGroup(char *buf, char *group, char *outbuf);
-int BG_SiegeGetPairedValue(char *buf, char *key, char *outbuf);
+int BG_SiegeGetValueGroup(char *buf, const char *group, char *outbuf);
+int BG_SiegeGetPairedValue(char *buf, const char *key, char *outbuf);
 void BG_SiegeStripTabs(char *buf);
 
 void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer);
@@ -120,7 +120,7 @@ void BG_SiegeLoadTeams(void);
 siegeTeam_t *BG_SiegeFindThemeForTeam(int team);
 void BG_PrecacheSabersForSiegeTeam(int team);
 siegeClass_t *BG_SiegeFindClassByName(const char *classname);
-qboolean BG_SiegeCheckClassLegality(int team, char *classname);
+bool BG_SiegeCheckClassLegality(int team, char *classname);
 void BG_SiegeSetTeamTheme(int team, char *themeName);
 int BG_SiegeFindClassIndexByName(const char *classname);
 

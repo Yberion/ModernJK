@@ -30,7 +30,7 @@ extern cvar_t *g_spskill;
 // these vars I moved here out of the level_locals_t struct simply because it's pointless to try saving them,
 //	and the level_locals_t struct is included in the save process... -slc
 //
-qboolean	spawning = qfalse;				// the G_Spawn*() functions are valid  (only turned on during one function)
+bool	spawning = false;				// the G_Spawn*() functions are valid  (only turned on during one function)
 int			numSpawnVars;
 char		*spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
 int			numSpawnVarChars;
@@ -42,7 +42,7 @@ char		spawnVarChars[MAX_SPAWN_VARS_CHARS];
 typedef std::map< sstring_t, unsigned char, std::less<sstring_t> >	namePrecache_m;
 namePrecache_m	*as_preCacheMap;
 
-qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
+bool	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
 
 	if ( !spawning ) {
@@ -53,51 +53,51 @@ qboolean	G_SpawnString( const char *key, const char *defaultString, char **out )
 	for ( i = 0 ; i < numSpawnVars ; i++ ) {
 		if ( !strcmp( key, spawnVars[i][0] ) ) {
 			*out = spawnVars[i][1];
-			return qtrue;
+			return true;
 		}
 	}
 
 	*out = (char *)defaultString;
-	return qfalse;
+	return false;
 }
 
-qboolean	G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
+bool	G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
 	char		*s;
-	qboolean	present;
+	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
 	*out = atof( s );
 	return present;
 }
 
-qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out ) {
+bool	G_SpawnInt( const char *key, const char *defaultString, int *out ) {
 	char		*s;
-	qboolean	present;
+	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
 	*out = atoi( s );
 	return present;
 }
 
-qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out ) {
+bool	G_SpawnVector( const char *key, const char *defaultString, float *out ) {
 	char		*s;
-	qboolean	present;
+	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
 	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
 	return present;
 }
 
-qboolean	G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
+bool	G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
 	char		*s;
-	qboolean	present;
+	bool	present;
 
 	present = G_SpawnString( key, defaultString, &s );
 	sscanf( s, "%f %f %f %f", &out[0], &out[1], &out[2], &out[3] );
 	return present;
 }
 
-qboolean	G_SpawnFlag( const char *key, int flag, int *out )
+bool	G_SpawnFlag( const char *key, int flag, int *out )
 {
 	//find that key
 	for ( int i = 0 ; i < numSpawnVars ; i++ )
@@ -113,17 +113,17 @@ qboolean	G_SpawnFlag( const char *key, int flag, int *out )
 			{//if it's zero, or out the flag
 				*out &= ~flag;
 			}
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean G_SpawnAngleHack( const char *key, const char *defaultString, float *out )
+bool G_SpawnAngleHack( const char *key, const char *defaultString, float *out )
 {
 	char		*s;
-	qboolean	present;
+	bool	present;
 	float		temp = 0;
 
 	present = G_SpawnString( key, defaultString, &s );
@@ -148,6 +148,7 @@ stringID_table_t flagTable [] =
 //
 typedef enum {
 	F_INT,
+	F_BOOL,			// a bool member: any non-zero integer is true
 	F_FLOAT,
 	F_LSTRING,			// string on disk, pointer in memory, TAG_LEVEL
 	F_GSTRING,			// string on disk, pointer in memory, TAG_GAME
@@ -236,7 +237,7 @@ field_t fields[] = {
 	{"fxfile", FOFS(fxFile), F_LSTRING},
 	{"fxfile2", FOFS(fullName), F_LSTRING},
 	{"endFrame", FOFS(endFrame), F_INT},//for func_usable shader animation
-	{"linear", FOFS(alt_fire), F_INT},//for movers to use linear movement
+	{"linear", FOFS(alt_fire), F_BOOL},//for movers to use linear movement
 
 //Script parms - will this handle clamping to 16 or whatever length of parm[0] is?
 	{"parm1", 0, F_PARM1},
@@ -698,16 +699,16 @@ spawn_t	spawns[] = {
 G_CallSpawn
 
 Finds the spawn function for the entity and calls it,
-returning qfalse if not found
+returning false if not found
 ===============
 */
-qboolean G_CallSpawn( gentity_t *ent ) {
+bool G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
 	gitem_t	*item;
 
 	if ( !ent->classname ) {
 		gi.Printf (S_COLOR_RED"G_CallSpawn: NULL classname\n");
-		return qfalse;
+		return false;
 	}
 
 	// check item spawn functions
@@ -715,7 +716,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			// found it
 			G_SpawnItem( ent, item );
-			return qtrue;
+			return true;
 		}
 	}
 
@@ -724,11 +725,11 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		if ( !strcmp(s->name, ent->classname) ) {
 			// found it
 			s->spawn(ent);
-			return qtrue;
+			return true;
 		}
 	}
 	gi.Printf (S_COLOR_RED"%s doesn't have a spawn function\n", ent->classname);
-	return qfalse;
+	return false;
 }
 
 /*
@@ -834,6 +835,9 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 			case F_INT:
 				*(int *)(b+f->ofs) = atoi(value);
 				break;
+			case F_BOOL:
+				*(bool *)(b+f->ofs) = atoi(value) != 0;
+				break;
 			case F_FLOAT:
 				*(float *)(b+f->ofs) = atof(value);
 				break;
@@ -890,16 +894,16 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 #endif
 }
 
-static qboolean SpawnForCurrentDifficultySetting( gentity_t *ent )
+static bool SpawnForCurrentDifficultySetting( gentity_t *ent )
 {
 extern cvar_t	*com_buildScript;
 	if (com_buildScript->integer) {	//always spawn when building a pak file
-		return qtrue;
+		return true;
 	}
 	if ( ent->spawnflags & ( 1 << (8 + g_spskill->integer )) )	{// easy -256	medium -512		hard -1024
-		return qfalse;
+		return false;
 	} else {
-		return qtrue;
+		return true;
 	}
 }
 
@@ -988,7 +992,7 @@ level's entity strings into level.spawnVars[]
 This does not actually spawn an entity.
 ====================
 */
-qboolean G_ParseSpawnVars( const char **data ) {
+bool G_ParseSpawnVars( const char **data ) {
 	char		keyname[MAX_STRING_CHARS];
 	const char	*com_token;
 
@@ -1001,7 +1005,7 @@ qboolean G_ParseSpawnVars( const char **data ) {
 	if ( !*data ) {
 		// end of spawn string
 		COM_EndParseSession();
-		return qfalse;
+		return false;
 	}
 	if ( com_token[0] != '{' ) {
 		COM_EndParseSession();
@@ -1042,7 +1046,7 @@ qboolean G_ParseSpawnVars( const char **data ) {
 	}
 
 	COM_EndParseSession();
-	return qtrue;
+	return true;
 }
 
 static	const char *defaultStyles[LS_NUM_STYLES][3] =
@@ -1348,7 +1352,7 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 */
 extern int num_waypoints;
 extern void	RG_RouteGen(void);
-extern qboolean NPCsPrecached;
+extern bool NPCsPrecached;
 #ifndef FINAL_BUILD
 int delayedShutDown = 0;
 #endif
@@ -1358,8 +1362,8 @@ void G_SpawnEntitiesFromString( const char *entityString ) {
 	entities = entityString;
 
 	// allow calls to G_Spawn*()
-	spawning = qtrue;
-	NPCsPrecached = qfalse;
+	spawning = true;
+	NPCsPrecached = false;
 	numSpawnVars = 0;
 
 	// the worldspawn is not an actual entity, but it still
@@ -1403,7 +1407,7 @@ void G_SpawnEntitiesFromString( const char *entityString ) {
 	//Automatically run routegen
 	//RG_RouteGen();
 
-	spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+	spawning = false;			// any future calls to G_Spawn*() will be errors
 
 #ifndef FINAL_BUILD
 	if ( delayedShutDown )

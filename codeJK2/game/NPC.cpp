@@ -45,7 +45,7 @@ extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTim
 extern void NPC_CheckPlayerAim ( void );
 extern void NPC_CheckAllClear ( void );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
-extern qboolean NPC_CheckLookTarget( gentity_t *self );
+extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern void Mark1_dying( gentity_t *self );
 extern void NPC_BSCinematic( void );
@@ -72,7 +72,7 @@ cvar_t		*d_altRoutes;
 cvar_t		*d_patched;
 cvar_t		*d_slowmodeath;
 
-extern qboolean	stop_icarus;
+extern bool	stop_icarus;
 
 gentity_t		*NPC;
 gNPC_t			*NPCInfo;
@@ -118,7 +118,7 @@ void CorpsePhysics( gentity_t *self )
 		{//can't be dismembered once dead
 			if ( self->client->NPC_class != CLASS_PROTOCOL )
 			{
-				self->client->dismembered = qtrue;
+				self->client->dismembered = true;
 			}
 		}
 	}
@@ -435,8 +435,8 @@ void NPC_PostDeathThink( void )
 	vec3_t	org, endpos, startpos, forward, right;
 	int		whichtrace = 0;
 	float	cornerdist[4];
-	qboolean	frontbackbothclear = false;
-	qboolean	rightleftbothclear = false;
+	bool	frontbackbothclear = false;
+	bool	rightleftbothclear = false;
 
 	if( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE || !VectorCompare( vec3_origin, NPC->client->ps.velocity ) )
 	{
@@ -842,7 +842,7 @@ void ClearNPCGlobals( void )
 }
 //===============
 
-extern	qboolean	showBBoxes;
+extern	bool	showBBoxes;
 vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0};
 vec3_t NPCDEBUG_GREEN = {0.0, 1.0, 0.0};
 vec3_t NPCDEBUG_BLUE = {0.0, 0.0, 1.0};
@@ -955,26 +955,26 @@ void NPC_HandleAIFlags (void)
 		{//Has been at least 2 seconds since we greeted last
 			if ( !NPCInfo->greetEnt )
 			{//Find a teammate whom I'm facing and who is facing me and within 128
-				NPCInfo->greetEnt = NPC_PickAlly( qtrue, 128, qtrue, qtrue );
+				NPCInfo->greetEnt = NPC_PickAlly( true, 128, true, true );
 			}
 
 			if ( NPCInfo->greetEnt && !Q_irand(0, 5) )
 			{//Start greeting someone
-				qboolean	greeted = qfalse;
+				bool	greeted = false;
 
 				//TODO:  If have a greetscript, run that instead?
 
 				//FIXME: make them greet back?
 				if( !Q_irand( 0, 2 ) )
 				{//Play gesture anim (press gesture button?)
-					greeted = qtrue;
+					greeted = true;
 					NPC_SetAnim( NPC, SETANIM_TORSO, Q_irand( BOTH_GESTURE1, BOTH_GESTURE3 ), SETANIM_FLAG_NORMAL|SETANIM_FLAG_HOLD );
 					//NOTE: play full-body gesture if not moving?
 				}
 
 				if( !Q_irand( 0, 2 ) )
 				{//Play random voice greeting sound
-					greeted = qtrue;
+					greeted = true;
 					//FIXME: need NPC sound sets
 
 					//G_AddVoiceEvent( NPC, Q_irand(EV_GREET1, EV_GREET3), 2000 );
@@ -982,7 +982,7 @@ void NPC_HandleAIFlags (void)
 
 				if( !Q_irand( 0, 1 ) )
 				{//set looktarget to them for a second or two
-					greeted = qtrue;
+					greeted = true;
 					NPC_TempLookTarget( NPC, NPCInfo->greetEnt->s.number, 1000, 3000 );
 				}
 
@@ -1618,10 +1618,10 @@ NPC_RunBehavior
 -------------------------
 */
 extern void NPC_BSEmplaced( void );
-extern qboolean NPC_CheckSurrender( void );
+extern bool NPC_CheckSurrender( void );
 void NPC_RunBehavior( int team, int bState )
 {
-	//qboolean dontSetAim = qfalse;
+	//bool dontSetAim = false;
 
 	if ( bState == BS_CINEMATIC )
 	{
@@ -1636,7 +1636,7 @@ void NPC_RunBehavior( int team, int bState )
 	else if ( NPC->client->ps.weapon == WP_SABER )
 	{//jedi
 		NPC_BehaviorSet_Jedi( bState );
-		//dontSetAim = qtrue;
+		//dontSetAim = true;
 	}
 	else if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
 	{//being forced to march
@@ -1755,7 +1755,7 @@ void NPC_RunBehavior( int team, int bState )
 					NPC_BehaviorSet_Default( bState );
 				}
 				NPC_CheckCharmed();
-				//dontSetAim = qtrue;
+				//dontSetAim = true;
 			}
 			break;
 		}
@@ -1787,7 +1787,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}
 
 	//Clear this and let bState set it itself, so it automatically handles changing bStates... but we need a set bState wrapper func
-	NPCInfo->combatMove = qfalse;
+	NPCInfo->combatMove = false;
 
 	//Execute our bState
 	if(NPCInfo->tempBehavior)
@@ -1808,7 +1808,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 //	if(bState != BS_POINT_COMBAT && NPCInfo->combatPoint != -1)
 //	{
-		//level.combatPoints[NPCInfo->combatPoint].occupied = qfalse;
+		//level.combatPoints[NPCInfo->combatPoint].occupied = false;
 		//NPCInfo->combatPoint = -1;
 //	}
 
@@ -2005,7 +2005,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	// see if NPC ai is frozen
 	if ( debugNPCFreeze->value || (NPC->svFlags&SVF_ICARUS_FREEZE) )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		ClientThink(self->s.number, &ucmd);
 		VectorCopy(self->s.origin, self->s.origin2 );
 		return;
@@ -2063,7 +2063,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 			}
 		}
 		//FIXME: might want to at least make sounds or something?
-		//NPC_UpdateAngles(qtrue, qtrue);
+		//NPC_UpdateAngles(true, true);
 		//Which ucmd should we send?  Does it matter, since it gets overridden anyway?
 		NPCInfo->last_ucmd.serverTime = level.time - 50;
 		ClientThink( NPC->s.number, &ucmd );
@@ -2110,7 +2110,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		if ( !NPC->next_roff_time || NPC->next_roff_time < level.time )
 		{//If we were following a roff, we don't do normal pmoves.
 			//FIXME: firing angles (no aim offset) or regular angles?
-			NPC_UpdateAngles(qtrue, qtrue);
+			NPC_UpdateAngles(true, true);
 			memcpy( &ucmd, &NPCInfo->last_ucmd, sizeof( usercmd_t ) );
 			ClientThink(NPC->s.number, &ucmd);
 		}

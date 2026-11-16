@@ -129,7 +129,7 @@ void cgi_RE_InitRendererTerrain( const char *terrainInfo )
 }
 //RMG END
 
-void	cgi_CM_LoadMap( const char *mapname, qboolean subBSP ) {
+void	cgi_CM_LoadMap( const char *mapname, bool subBSP ) {
 	Q_syscall( CG_CM_LOADMAP, mapname, subBSP );
 }
 
@@ -223,7 +223,7 @@ void	cgi_S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
 	Q_syscall( CG_S_UPDATEENTITYPOSITION, entityNum, origin );
 }
 
-void	cgi_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], qboolean inwater ) {
+void	cgi_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], bool inwater ) {
 	Q_syscall( CG_S_RESPATIALIZE, entityNum, origin, axis, inwater );
 }
 
@@ -231,7 +231,7 @@ sfxHandle_t	cgi_S_RegisterSound( const char *sample ) {
 	return Q_syscall( CG_S_REGISTERSOUND, sample );
 }
 
-void	cgi_S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bForceStart ) {
+void	cgi_S_StartBackgroundTrack( const char *intro, const char *loop, bool bForceStart ) {
 	Q_syscall( CG_S_STARTBACKGROUNDTRACK, intro, loop, bForceStart );
 }
 
@@ -275,17 +275,17 @@ int cgi_R_Font_HeightPixels(const int iFontIndex, const float scale /*= 1.0f*/) 
 	return Q_syscall( CG_R_FONTHEIGHTPIXELS, iFontIndex, PASSFLOAT(scale) );
 }
 
-qboolean cgi_Language_IsAsian( void )
+bool cgi_Language_IsAsian( void )
 {
-	return (qboolean)(Q_syscall( CG_LANGUAGE_ISASIAN ) != 0);
+	return (Q_syscall( CG_LANGUAGE_ISASIAN ) != 0);
 }
 
-qboolean cgi_Language_UsesSpaces(void)
+bool cgi_Language_UsesSpaces(void)
 {
-	return (qboolean)(Q_syscall( CG_LANGUAGE_USESSPACES ) != 0);
+	return (Q_syscall( CG_LANGUAGE_USESSPACES ) != 0);
 }
 
-unsigned int cgi_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation /* = NULL */ )
+unsigned int cgi_AnyLanguage_ReadCharFromString( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation /* = NULL */ )
 {
 	return Q_syscall( CG_ANYLANGUAGE_READFROMSTRING, psText, piAdvanceCount, pbIsTrailingPunctuation );
 }
@@ -295,7 +295,7 @@ void cgi_R_Font_DrawString(int ox, int oy, const char *text, const float *rgba, 
 }
 
 //set some properties for the draw layer for my refractive effect (here primarily for mod authors) -rww
-void cgi_R_SetRefractProp(float alpha, float stretch, qboolean prepost, qboolean negate)
+void cgi_R_SetRefractProp(float alpha, float stretch, bool prepost, bool negate)
 {
 	Q_syscall(CG_R_SETREFRACTIONPROP, PASSFLOAT(alpha), PASSFLOAT(stretch), prepost, negate);
 }
@@ -308,9 +308,9 @@ void	cgi_R_AddRefEntityToScene( const refEntity_t *re ) {
 	Q_syscall( CG_R_ADDREFENTITYTOSCENE, re );
 }
 
-qboolean	cgi_R_inPVS( vec3_t p1, vec3_t p2 )
+bool	cgi_R_inPVS( vec3_t p1, vec3_t p2 )
 {
-	return (qboolean)(Q_syscall( CG_R_INPVS, p1, p2 ) != 0);
+	return (Q_syscall( CG_R_INPVS, p1, p2 ) != 0);
 }
 
 
@@ -388,25 +388,25 @@ void		cgi_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 	Q_syscall( CG_GETCURRENTSNAPSHOTNUMBER, snapshotNumber, serverTime );
 }
 
-qboolean	cgi_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
-	return (qboolean)(Q_syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot ) != 0);
+bool	cgi_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+	return (Q_syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot ) != 0);
 }
 
-qboolean	cgi_GetDefaultState(int entityIndex, entityState_t *state )
+bool	cgi_GetDefaultState(int entityIndex, entityState_t *state )
 {
-	return (qboolean)(Q_syscall( CG_GETDEFAULTSTATE, entityIndex, state ) != 0);
+	return (Q_syscall( CG_GETDEFAULTSTATE, entityIndex, state ) != 0);
 }
 
-qboolean	cgi_GetServerCommand( int serverCommandNumber ) {
-	return (qboolean)(Q_syscall( CG_GETSERVERCOMMAND, serverCommandNumber ) != 0);
+bool	cgi_GetServerCommand( int serverCommandNumber ) {
+	return (Q_syscall( CG_GETSERVERCOMMAND, serverCommandNumber ) != 0);
 }
 
 int			cgi_GetCurrentCmdNumber( void ) {
 	return Q_syscall( CG_GETCURRENTCMDNUMBER );
 }
 
-qboolean	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
-	return (qboolean)(Q_syscall( CG_GETUSERCMD, cmdNumber, ucmd ) != 0);
+bool	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+	return (Q_syscall( CG_GETUSERCMD, cmdNumber, ucmd ) != 0);
 }
 
 void		cgi_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride ) {
@@ -453,7 +453,7 @@ void	cgi_R_WorldEffectCommand( const char *command )
 	Q_syscall( CG_R_WORLD_EFFECT_COMMAND, command );
 }
 
-// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
+// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = NULL */) {
   return Q_syscall(CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits, psAudioFile);
 }
@@ -587,7 +587,7 @@ void *cgi_UI_GetMenuByName( const char *menu )
 	return (void *)Q_syscall( CG_MODERNJK_GETMENU_BYNAME, menu );
 }
 
-void cgi_UI_Menu_Paint( void *menu, qboolean force )
+void cgi_UI_Menu_Paint( void *menu, bool force )
 {
 	Q_syscall( CG_MODERNJK_MENU_PAINT, menu, force );
 }

@@ -201,15 +201,15 @@ extern int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_
 extern int WP_SaberInitBladeData( gentity_t *ent );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
 extern void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum = -1 );
-extern qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean setColors = qtrue );
-extern qboolean WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = SABER_NONE );
-extern void ForceThrow( gentity_t *self, qboolean pull, qboolean fake = qfalse );
-extern qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod, saberType_t saberType = SABER_NONE );
-extern qboolean G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tolerance = 0.75f );
+extern bool WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, bool setColors = true );
+extern bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = SABER_NONE );
+extern void ForceThrow( gentity_t *self, bool pull, bool fake = false );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod, saberType_t saberType = SABER_NONE );
+extern bool G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tolerance = 0.75f );
 extern void WP_SaberFreeStrings( saberInfo_t &saber );
-extern qboolean G_EnoughPowerForSpecialMove( int forcePower, int cost, qboolean kataMove = qfalse );
-extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int cost, qboolean kataMove = qfalse );
-extern int G_CostForSpecialMove( int cost, qboolean kataMove = qfalse );
+extern bool G_EnoughPowerForSpecialMove( int forcePower, int cost, bool kataMove = false );
+extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int cost, bool kataMove = false );
+extern int G_CostForSpecialMove( int cost, bool kataMove = false );
 extern gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, vec3_t saberPos, vec3_t saberVel, vec3_t saberAngles, gentity_t *copySaber = NULL );
 
 typedef enum

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_ents.c -- present snapshot entities, happens every single frame
+// cg_ents.cpp -- present snapshot entities, happens every single frame
 
 #include "cg_headers.h"
 
@@ -34,9 +34,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, vec3_t origin, vec3_t angles);
 extern void CG_CheckSaberInWater( centity_t *cent, centity_t *scent, int saberNum, int modelIndex, vec3_t origin, vec3_t angles );
-extern void CG_ForcePushBlur( const vec3_t org, qboolean darkSide = qfalse );
+extern void CG_ForcePushBlur( const vec3_t org, bool darkSide = false );
 extern void CG_AddForceSightShell( refEntity_t *ent, centity_t *cent );
-extern qboolean CG_PlayerCanSeeCent( centity_t *cent );
+extern bool CG_PlayerCanSeeCent( centity_t *cent );
 extern cvar_t	*debug_subdivision;
 
 /*
@@ -208,7 +208,7 @@ void CG_AddRefEntWithTransportEffect ( centity_t *cent, refEntity_t *ent )
 	if ( ent->renderfx & RF_PULSATE && cent->gent->owner && cent->gent->owner->health &&
 		!cent->gent->owner->s.number && cent->gent->owner->client && //only for player
 			cent->gent->owner->client->ps.saberEntityState == SES_RETURNING &&
-			cent->currentState.saberActive == qfalse )
+			cent->currentState.saberActive == false )
 	{
 		// if we are the saber and we have been dropped, do a glow so it can be spotted easier
 		float	wv;
@@ -290,17 +290,17 @@ void ScaleModelAxis(refEntity_t	*ent)
 		if (ent->modelScale[0] && ent->modelScale[0] != 1.0f)
 		{
 			VectorScale( ent->axis[0], ent->modelScale[0] , ent->axis[0] );
-			ent->nonNormalizedAxes = qtrue;
+			ent->nonNormalizedAxes = true;
 		}
 		if (ent->modelScale[1] && ent->modelScale[1] != 1.0f)
 		{
 			VectorScale( ent->axis[1], ent->modelScale[1] , ent->axis[1] );
-			ent->nonNormalizedAxes = qtrue;
+			ent->nonNormalizedAxes = true;
 		}
 		if (ent->modelScale[2] && ent->modelScale[2] != 1.0f)
 		{
 			VectorScale( ent->axis[2], ent->modelScale[2] , ent->axis[2] );
-			ent->nonNormalizedAxes = qtrue;
+			ent->nonNormalizedAxes = true;
 		}
 }
 /*
@@ -429,9 +429,9 @@ Ghoul2 Insert Start
 
 				// add a big scorch mark under the gun
 				CG_ImpactMark( cgs.media.scavMarkShader, cent->lerpOrigin, temp,
-					0, 1,1,1, 1.0f, qfalse, 92, qtrue );
+					0, 1,1,1, 1.0f, false, 92, true );
 				CG_ImpactMark( cgs.media.scavMarkShader, cent->lerpOrigin, temp,
-					90, 1,1,1, 1.0f, qfalse, 48, qtrue );
+					90, 1,1,1, 1.0f, false, 48, true );
 			}
 			else
 			{
@@ -447,7 +447,7 @@ Ghoul2 Insert Start
 
 				// shadow under the gun
 				CG_ImpactMark( cgs.media.shadowMarkShader, cent->lerpOrigin, temp,
-					0, 1,1,1, 1.0f, qfalse, 32, qtrue );
+					0, 1,1,1, 1.0f, false, 32, true );
 			}
 		}
 
@@ -1015,7 +1015,7 @@ Ghoul2 Insert End
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
-	ent.nonNormalizedAxes = qfalse;
+	ent.nonNormalizedAxes = false;
 
 	// lovely...this is for weapons that should be oriented vertically.  For weapons lockers and such.
 	if ( cent->gent->spawnflags & 16 )
@@ -1055,7 +1055,7 @@ Ghoul2 Insert End
 //		VectorScale( ent.axis[0], 1.5f, ent.axis[0] );
 //		VectorScale( ent.axis[1], 1.5f, ent.axis[1] );
 //		VectorScale( ent.axis[2], 1.5f, ent.axis[2] );
-//		ent.nonNormalizedAxes = qtrue;
+//		ent.nonNormalizedAxes = true;
 //	}
 
 	// add to refresh list
@@ -1968,7 +1968,7 @@ void CG_DLightThink ( centity_t *cent )
 				break;
 			case 3://Fading from current intensity to 0 intensity
 				//Time to turn off
-				cent->gent->misc_dlight_active = qfalse;
+				cent->gent->misc_dlight_active = false;
 				cent->gent->e_clThinkFunc = clThinkF_NULL;
 				cent->gent->s.eType = ET_GENERAL;
 				cent->gent->svFlags &= ~SVF_BROADCAST;
@@ -2103,7 +2103,7 @@ extern cvar_t	*g_saberRealisticCombat;
 }
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
-qboolean	MatrixMode = qfalse;
+bool	MatrixMode = false;
 extern cvar_t	*g_skippingcin;
 void CG_MatrixEffect ( centity_t *cent )
 {
@@ -2172,7 +2172,7 @@ void CG_MatrixEffect ( centity_t *cent )
 		{//set it back to 1
 			cgi_Cvar_Set( "timescale", "1.0" );
 		}
-		MatrixMode = qfalse;
+		MatrixMode = false;
 		cent->gent->e_clThinkFunc = clThinkF_NULL;
 		cent->gent->e_ThinkFunc = thinkF_G_FreeEntity;
 		cent->gent->nextthink = cg.time + 500;
@@ -2186,7 +2186,7 @@ void CG_MatrixEffect ( centity_t *cent )
 		}
 	}
 
-	MatrixMode = qtrue;
+	MatrixMode = true;
 
 	//FIXME: move the position towards them and back?
 	//cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_ENT;
@@ -2437,7 +2437,7 @@ CG_AddPacketEntities
 
 ===============
 */
-void CG_AddPacketEntities( qboolean isPortal ) {
+void CG_AddPacketEntities( bool isPortal ) {
 	int					num;
 	centity_t			*cent;
 	playerState_t		*ps;

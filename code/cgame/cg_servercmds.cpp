@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_servercmds.c -- text commands sent by the server
+// cg_servercmds.cpp -- text commands sent by the server
 
 #include "cg_headers.h"
 
@@ -137,7 +137,7 @@ static void CG_ConfigStringModified( void ) {
 		}
 	}
 	else if ( num == CS_MUSIC ) {
-		CG_StartMusic( qtrue );
+		CG_StartMusic( true );
 	} else if ( num == CS_SERVERINFO ) {
 		CG_ParseServerinfo();
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -195,7 +195,7 @@ static void CG_LCARSText_f( void ) {
 static void CG_ClientLevelShot_f( void ) {
 	// clientLevelShot is sent before taking a special screenshot for
 	// the menu system during development
-	cg.levelShot = qtrue;
+	cg.levelShot = true;
 }
 
 typedef struct serverCommand_s {

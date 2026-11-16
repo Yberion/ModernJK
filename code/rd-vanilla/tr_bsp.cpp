@@ -246,8 +246,8 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 		}
 		tr.lightmaps[worldData.startLightMapIndex+i] = R_CreateImage(
 			va("$%s/lightmap%d", sMapName, worldData.startLightMapIndex+i),
-			image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, qfalse, qfalse,
-			(qboolean)(r_ext_compressed_lightmaps->integer != 0),
+			image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, false, false,
+			(r_ext_compressed_lightmaps->integer != 0),
 			GL_CLAMP);
 	}
 
@@ -281,7 +281,7 @@ static	void R_LoadVisibility( lump_t *l, world_t &worldData ) {
 	byte	*buf;
 
 	len = ( worldData.numClusters + 63 ) & ~63;
-	worldData.novis = ( unsigned char *) R_Hunk_Alloc( len, qfalse );
+	worldData.novis = ( unsigned char *) R_Hunk_Alloc( len, false );
 	memset( worldData.novis, 0xff, len );
 
     len = l->filelen;
@@ -300,7 +300,7 @@ static	void R_LoadVisibility( lump_t *l, world_t &worldData ) {
 	} else {
 		byte	*dest;
 
-		dest = (byte *) R_Hunk_Alloc( len - 8, qfalse );
+		dest = (byte *) R_Hunk_Alloc( len - 8, false );
 		memcpy( dest, buf + 8, len - 8 );
 		worldData.vis = dest;
 	}
@@ -343,7 +343,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, const int *lightmapNum, cons
 		styles = vertexStyles;
 	}
 */
-	shader = R_FindShader( dsh->shader, lightmapNum, styles, qtrue );
+	shader = R_FindShader( dsh->shader, lightmapNum, styles, true );
 
 	// if the shader had errors, just use default shader
 	if ( shader->defaultShader ) {
@@ -556,7 +556,7 @@ static void ParseTriSurf( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, in
 		Com_Error(ERR_DROP, "ParseTriSurf: indices > MAX (%d > %d) on misc_model %s", numIndexes, SHADER_MAX_INDEXES, surf->shader->name );
 	}
 
-	tri = (srfTriangles_t *) R_Malloc( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] ) + numIndexes * sizeof( tri->indexes[0] ), TAG_HUNKMISCMODELS, qfalse );
+	tri = (srfTriangles_t *) R_Malloc( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] ) + numIndexes * sizeof( tri->indexes[0] ), TAG_HUNKMISCMODELS, false );
 	tri->dlightBits = 0; //JIC
 	tri->surfaceType = SF_TRIANGLES;
 	tri->numVerts = numVerts;
@@ -621,7 +621,7 @@ static void ParseFlare( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, int 
 		surf->shader = tr.defaultShader;
 	}
 
-	flare = (srfFlare_t *) R_Hunk_Alloc( sizeof( *flare ), qtrue );
+	flare = (srfFlare_t *) R_Hunk_Alloc( sizeof( *flare ), true );
 	flare->surfaceType = SF_FLARE;
 
 	surf->data = (surfaceType_t *)flare;
@@ -665,7 +665,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	if ( indexLump->filelen % sizeof(*indexes))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 
-	out = (struct msurface_s *) R_Hunk_Alloc ( count * sizeof(*out), qtrue );
+	out = (struct msurface_s *) R_Hunk_Alloc ( count * sizeof(*out), true );
 
 	worldData.surfaces = out;
 	worldData.numsurfaces = count;
@@ -693,7 +693,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	// since this ptr is to hunk data, I can pass it in and have it advanced without worrying about losing
 	//	the original alloc ptr...
 	//
-	byte *pFaceDataBuffer	= (byte *)R_Hunk_Alloc( iFaceDataSizeRequired, qtrue );
+	byte *pFaceDataBuffer	= (byte *)R_Hunk_Alloc( iFaceDataSizeRequired, true );
 
 	// now do regular loop...
 	//
@@ -741,7 +741,7 @@ static	void R_LoadSubmodels( lump_t *l, world_t &worldData, int index  ) {
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
 
-	worldData.bmodels = out = (bmodel_t *) R_Hunk_Alloc( count * sizeof(*out), qtrue );
+	worldData.bmodels = out = (bmodel_t *) R_Hunk_Alloc( count * sizeof(*out), true );
 
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
 		model_t *model;
@@ -821,7 +821,7 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump, world_t &wo
 	numNodes = nodeLump->filelen / sizeof(dnode_t);
 	numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
-	out = (struct mnode_s *) R_Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), qtrue );
+	out = (struct mnode_s *) R_Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), true );
 
 	worldData.nodes = out;
 	worldData.numnodes = numNodes + numLeafs;
@@ -892,7 +892,7 @@ static	void R_LoadShaders( lump_t *l, world_t &worldData ) {
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (dshader_t *) R_Hunk_Alloc ( count*sizeof(*out), qfalse );
+	out = (dshader_t *) R_Hunk_Alloc ( count*sizeof(*out), false );
 
 	worldData.shaders = out;
 	worldData.numShaders = count;
@@ -921,7 +921,7 @@ static	void R_LoadMarksurfaces (lump_t *l, world_t &worldData)
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct msurface_s **) R_Hunk_Alloc ( count*sizeof(*out), qtrue );
+	out = (struct msurface_s **) R_Hunk_Alloc ( count*sizeof(*out), true );
 
 	worldData.marksurfaces = out;
 	worldData.nummarksurfaces = count;
@@ -950,7 +950,7 @@ static	void R_LoadPlanes( lump_t *l, world_t &worldData ) {
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct cplane_s *) R_Hunk_Alloc ( count*2*sizeof(*out), qtrue );
+	out = (struct cplane_s *) R_Hunk_Alloc ( count*2*sizeof(*out), true );
 
 	worldData.planes = out;
 	worldData.numplanes = count;
@@ -998,7 +998,7 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 
 	// create fog strucutres for them
 	worldData.numfogs = count + 1;
-	worldData.fogs = (fog_t *)R_Hunk_Alloc ( (worldData.numfogs+1)*sizeof(*out), qtrue);
+	worldData.fogs = (fog_t *)R_Hunk_Alloc ( (worldData.numfogs+1)*sizeof(*out), true);
 	worldData.globalFog = -1;
 	out = worldData.fogs + 1;
 
@@ -1082,7 +1082,7 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 		}
 
 		// get information from the shader for fog parameters
-		shader = R_FindShader( fogs->shader, lightmaps, stylesDefault, qtrue );
+		shader = R_FindShader( fogs->shader, lightmaps, stylesDefault, true );
 
 		assert(shader->fogParms);
 		if (!shader->fogParms)
@@ -1107,9 +1107,9 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 		sideNum = LittleLong( fogs->visibleSide );
 
 		if ( sideNum == -1 ) {
-			out->hasSurface = qfalse;
+			out->hasSurface = false;
 		} else {
-			out->hasSurface = qtrue;
+			out->hasSurface = true;
 			planeNum = LittleLong( sides[ firstSide + sideNum ].planeNum );
 			VectorSubtract( vec3_origin, worldData.planes[ planeNum ].normal, out->surface );
 			out->surface[3] = -worldData.planes[ planeNum ].dist;
@@ -1132,7 +1132,7 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 		out->parms.depthForOpaque = 0.0f;
 		out->colorInt = 0x00000000;
 		out->tcScale = 0.0f;
-		out->hasSurface = qfalse;
+		out->hasSurface = false;
 	}
 }
 
@@ -1166,7 +1166,7 @@ void R_LoadLightGrid( lump_t *l, world_t &worldData ) {
 
 	int numGridDataElements = l->filelen / sizeof(*w->lightGridData);
 
-	w->lightGridData = (mgrid_t *)R_Hunk_Alloc( l->filelen, qfalse );
+	w->lightGridData = (mgrid_t *)R_Hunk_Alloc( l->filelen, false );
 	memcpy( w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen );
 
 	// deal with overbright bits
@@ -1202,7 +1202,7 @@ void R_LoadLightGridArray( lump_t *l, world_t &worldData ) {
 		return;
 	}
 
-	w->lightGridArray = (unsigned short *)R_Hunk_Alloc( l->filelen, qfalse );
+	w->lightGridArray = (unsigned short *)R_Hunk_Alloc( l->filelen, false );
 	memcpy( w->lightGridArray, (void *)(fileBase + l->fileofs), l->filelen );
 #ifdef Q3_BIG_ENDIAN
 	for ( i = 0 ; i < w->numGridArrayElements ; i++ ) {
@@ -1236,7 +1236,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 
 	p = (char *)(fileBase + l->fileofs);
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if (!*token || *token != '{') {
 		COM_EndParseSession();
 		return;
@@ -1245,7 +1245,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 	// only parse the world spawn
 	while ( 1 ) {
 		// parse key
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1253,7 +1253,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1328,7 +1328,7 @@ Called directly from cgame
 void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 	dheader_t	*header;
 	byte		*buffer = NULL;
-	qboolean	loadedSubBSP = qfalse;
+	bool	loadedSubBSP = false;
 
 	if ( tr.worldMapLoaded && !index ) {
 		Com_Error( ERR_DROP, "ERROR: attempted to redundantly load world map\n" );
@@ -1346,7 +1346,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 
 		VectorNormalize( tr.sunDirection );
 
-		tr.worldMapLoaded = qtrue;
+		tr.worldMapLoaded = true;
 
 		// clear tr.world so if the level fails to load, the next
 		// try will not look at the partially loaded version
@@ -1372,7 +1372,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 	//			   gpvCachedMapDiskImage = NULL;
 			//rww - this is a valid possibility now because of sub-bsp loading.\
 			//it's alright, just keep the current cache
-			loadedSubBSP = qtrue;
+			loadedSubBSP = true;
 		}
 	}
 
@@ -1457,9 +1457,9 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ) {
 //
 void RE_LoadWorldMap( const char *name )
 {
-	*(ri.gbUsingCachedMapDataRightNow()) = qtrue;	// !!!!!!!!!!!!
+	*(ri.gbUsingCachedMapDataRightNow()) = true;	// !!!!!!!!!!!!
 
 		RE_LoadWorldMap_Actual( name, s_worldData, 0 );
 
-	*(ri.gbUsingCachedMapDataRightNow()) = qfalse;	// !!!!!!!!!!!!
+	*(ri.gbUsingCachedMapDataRightNow()) = false;	// !!!!!!!!!!!!
 }

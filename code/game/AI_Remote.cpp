@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_local.h"
 #include "g_functions.h"
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 void Remote_Strafe( void );
 
 #define VELOCITY_DECAY	0.85f
@@ -71,7 +71,7 @@ void Remote_MaintainHeight( void )
 	float	dif;
 
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	if ( NPC->client->ps.velocity[2] )
 	{
@@ -200,7 +200,7 @@ void Remote_Strafe( void )
 Remote_Hunt
 -------------------------
 */
-void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
+void Remote_Hunt( bool visible, bool advance, bool retreat )
 {
 	float	speed;
 	vec3_t	forward;
@@ -217,17 +217,17 @@ void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
 	}
 
 	//If we don't want to advance, stop here
-	if ( advance == qfalse && visible == qtrue )
+	if ( advance == false && visible == true )
 		return;
 
 	//Only try and navigate if the player is visible
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
-		NPC_MoveToGoal(qtrue);
+		NPC_MoveToGoal(true);
 		return;
 
 	}
@@ -238,7 +238,7 @@ void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
 	}
 
 	speed = REMOTE_FORWARD_BASE_SPEED + REMOTE_FORWARD_MULTIPLIER * g_spskill->integer;
-	if ( retreat == qtrue )
+	if ( retreat == true )
 	{
 		speed *= -1;
 	}
@@ -285,7 +285,7 @@ void Remote_Fire (void)
 Remote_Ranged
 -------------------------
 */
-void Remote_Ranged( qboolean visible, qboolean advance, qboolean retreat )
+void Remote_Ranged( bool visible, bool advance, bool retreat )
 {
 
 	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
@@ -322,7 +322,7 @@ void Remote_Attack( void )
 	Remote_MaintainHeight();
 
 	// If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )
+	if ( NPC_CheckEnemyExt() == false )
 	{
 		Remote_Idle();
 		return;
@@ -331,13 +331,13 @@ void Remote_Attack( void )
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 //	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
 	float		idealDist	= MIN_DISTANCE_SQR+(MIN_DISTANCE_SQR*Q_flrand( 0, 1 ));
-	qboolean	advance		= (qboolean)(distance > idealDist*1.25);
-	qboolean	retreat		= (qboolean)(distance < idealDist*0.75);
+	bool	advance		= (distance > idealDist*1.25);
+	bool	retreat		= (distance < idealDist*0.75);
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -378,11 +378,11 @@ void Remote_Patrol( void )
 		{
 			//start loop sound once we move
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
+			NPC_MoveToGoal( true );
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 

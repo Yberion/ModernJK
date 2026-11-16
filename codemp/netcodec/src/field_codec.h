@@ -166,7 +166,9 @@ template <class O> void PutFloat(O &io, ctx::Row row, int64_t nv, int64_t ov, bo
 
 template <class O> void PutField(O &io, const PredCtx &c, const FieldDesc &f, ctx::Row row, int64_t nv, int64_t ov,
                      int trTypeBits) noexcept {
-	if (f.ctype == CType::kBool) {
+	if (f.ctype == CType::kBool) {   // its byte (Value gives its whole word)
+		nv = static_cast<uint8_t>(nv);
+		ov = static_cast<uint8_t>(ov);
 		const bool flip = (nv == 0 || nv == 1) && (ov == 0 || ov == 1);
 		io.Symbol(row[fctx::kB], flip ? 0 : 1);
 		if (flip) return;
@@ -198,7 +200,10 @@ template <class O> void PutField(O &io, const PredCtx &c, const FieldDesc &f, ct
 
 [[nodiscard]] inline int64_t GetField(In &io, const PredCtx &c, const FieldDesc &f, ctx::Row row, int64_t ov,
                                       int trTypeBits) noexcept {
-	if (f.ctype == CType::kBool && io.Symbol(row[fctx::kB]) == 0) return ov == 0 ? 1 : 0;   // a flip
+	if (f.ctype == CType::kBool) {   // its byte (Value gives its whole word)
+		ov = static_cast<uint8_t>(ov);
+		if (io.Symbol(row[fctx::kB]) == 0) return ov == 0 ? 1 : 0;   // a flip
+	}
 	if (f.pmode == PredMode::kTime && f.bits == 32 && c.time)
 		return ModPow2(TimeReference(c, f, *c.time) + Unzz(io.Class(row[fctx::kT])), kTwo32);
 	if ((f.pmode == PredMode::kPos || f.pmode == PredMode::kAngle) && f.bits == 0) {

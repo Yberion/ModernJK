@@ -56,7 +56,7 @@ typedef enum {
 
 typedef struct server_s {
 	serverState_t	state;
-	qboolean		restarting;			// if true, send configstring changes during SS_LOADING
+	bool		restarting;			// if true, send configstring changes during SS_LOADING
 	int				serverId;			// changes each server start
 	int				restartedServerId;	// serverId before a map_restart
 	int				checksumFeed;		//
@@ -87,7 +87,7 @@ typedef struct server_s {
 	char			*mSharedMemory;
 
 	time_t			realMapTimeStarted;	// time the current map was started
-	qboolean		demosPruned; // whether or not existing demos were cleaned up already
+	bool		demosPruned; // whether or not existing demos were cleaned up already
 } server_t;
 
 typedef struct clientSnapshot_s {
@@ -136,9 +136,9 @@ typedef enum {
 // struct to hold demo data for a single demo
 typedef struct {
 	char		demoName[MAX_OSPATH];
-	qboolean	demorecording;	// every message sent is recorded (the message codec codes them only against messages of the demo)
+	bool	demorecording;	// every message sent is recorded (the message codec codes them only against messages of the demo)
 	fileHandle_t	demofile;
-	qboolean	isBot;
+	bool	isBot;
 	int			botReliableAcknowledge; // for bots, need to maintain a separate reliableAcknowledge to record server messages into the demo file
 } demoInfo_t;
 
@@ -180,7 +180,7 @@ typedef struct client_s {
 	clientState_t	state;
 	char			userinfo[MAX_INFO_STRING];		// name, etc
 
-	qboolean		sentGamedir; //see if he has been sent an svc_setgame
+	bool		sentGamedir; //see if he has been sent an svc_setgame
 
 	char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 	int				reliableSequence;		// last added reliable message, not necesarily sent or acknowledged yet
@@ -197,12 +197,12 @@ typedef struct client_s {
 	int				inputLast;					// time comes (SV_RunClientCommands)
 	int				inputArrival[SV_INPUT_BUFFER];	// Sys_Milliseconds() when each of them arrived
 	int				inputNewest;		// time of the newest command received (those of the repeated packets are at or below it)
-	qboolean		inputStarted;		// a command of the player ran since it entered the world: the ticks without one run
+	bool		inputStarted;		// a command of the player ran since it entered the world: the ticks without one run
 										// the last command again
 	int				inputRepeats;		// ticks in a row run without a command of their own
 	int				inputMargin;		// how early the last command measured came before its tick ran, in ms (negative:
 										// after it)
-	qboolean		inputMarginNew;		// measured since the last snapshot: sent in the next one, once
+	bool		inputMarginNew;		// measured since the last snapshot: sent in the next one, once
 	int				lateButtons;		// what the commands that came after their tick newly pressed, for the next
 	int				lateUpmove;			// command run
 	int				lateGeneric;
@@ -222,7 +222,7 @@ typedef struct client_s {
 	int				downloadXmitBlock;	// last block we xmited
 	unsigned char	*downloadBlocks[MAX_DOWNLOAD_WINDOW];	// the buffers for the download blocks
 	int				downloadBlockSize[MAX_DOWNLOAD_WINDOW];
-	qboolean		downloadEOF;		// We have sent the EOF block
+	bool		downloadEOF;		// We have sent the EOF block
 	int				downloadSendTime;	// time we last got an ack from the client
 
 	int				deltaMessage;		// frame last client usercmd message
@@ -230,24 +230,24 @@ typedef struct client_s {
 	int				lastPacketTime;		// svs.time when packet was last received
 	int				lastConnectTime;	// svs.time when connection started
 	int				nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
-	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on SV_CLIENT_RATE instead of the server frame
+	bool		rateDelayed;		// true if nextSnapshotTime was set based on SV_CLIENT_RATE instead of the server frame
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
 	struct {
 		int			sent;				// real time the message was transmitted (Sys_Milliseconds)
 		int			acked;				// real time of the first packet that acknowledged it, when isAcked
-		qboolean	isAcked;
+		bool	isAcked;
 	}				pingTimes[SV_PING_WINDOW];	// the last SV_PING_WINDOW messages, slot seq & (SV_PING_WINDOW - 1)
 	int				ping;
 	int				pureAuthentic;
-	qboolean		gotCP; // TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
+	bool		gotCP; // TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
 	netchan_t		netchan;
 
 	int				lastUserInfoChange; //if > svs.time && count > x, deny change -rww
 	int				lastUserInfoCount; //allow a certain number of changes within a certain time period -rww
 
 	int				oldServerTime;
-	qboolean		csUpdated[MAX_CONFIGSTRINGS];
+	bool		csUpdated[MAX_CONFIGSTRINGS];
 
 	demoInfo_t		demo;
 	netcodecStats_t	netcodecStats;
@@ -258,7 +258,7 @@ typedef struct client_s {
 
 // this structure will be cleared only when the game dll changes
 typedef struct serverStatic_s {
-	qboolean	initialized;				// sv_init has completed
+	bool	initialized;				// sv_init has completed
 
 	int			time;						// will be strictly increasing across level changes
 	time_t		startTime;					// time since epoch the executable was started
@@ -287,7 +287,7 @@ typedef struct serverStatic_s {
 
 	netadr_t	authorizeAddress;			// for rcon return messages
 
-	qboolean	gameStarted;				// gvm is loaded
+	bool	gameStarted;				// gvm is loaded
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
@@ -297,7 +297,7 @@ typedef struct serverBan_s {
 	// For a CIDR-Notation type suffix
 	int subnet;
 
-	qboolean isexception;
+	bool isexception;
 } serverBan_t;
 
 //=============================================================================
@@ -368,8 +368,8 @@ struct leakyBucket_s {
 
 extern leakyBucket_t outboundLeakyBucket;
 
-qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period, int now );
-qboolean SVC_RateLimitAddress( const netadr_t *from, int burst, int period, int now );
+bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period, int now );
+bool SVC_RateLimitAddress( const netadr_t *from, int burst, int period, int now );
 void SVC_LoadWhitelist( void );
 void SVC_WhitelistAdr( const netadr_t *adr );
 void SV_FinalMessage (const char *message);
@@ -397,7 +397,7 @@ void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
 void SV_ChangeMaxClients( void );
-void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload );
+void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload );
 
 
 
@@ -407,7 +407,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 void SV_ChallengeInit();
 void SV_ChallengeShutdown();
 int SV_CreateChallenge(const netadr_t *from);
-qboolean SV_VerifyChallenge(int receivedChallenge, const netadr_t *from);
+bool SV_VerifyChallenge(int receivedChallenge, const netadr_t *from);
 
 //
 // sv_client.c
@@ -423,14 +423,14 @@ void SV_UserinfoChanged( client_t *cl );
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
 void SV_DropClient( client_t *drop, const char *reason );
 
-void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
+void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 void SV_RunClientCommands( int time, int frameMsec );
 
 // the download block of the next message, if any (one per message): block 0 holds the file size, or -1 with the
 // error text as data (valid until the next call)
 typedef struct svDownloadBlock_s {
-	qboolean		present;
+	bool		present;
 	int				block;
 	int				fileSize;
 	const byte		*data;
@@ -473,7 +473,7 @@ void SV_NetcodecResetClient( const client_t *client );
 void SV_NetcodecSendGameState( client_t *client );
 void SV_NetcodecSendMapChange( client_t *client );
 void SV_NetcodecSendSnapshot( client_t *client, const char *setGame );
-qboolean SV_NetcodecDemoStart( client_t *client );
+bool SV_NetcodecDemoStart( client_t *client );
 void SV_NetcodecDemoStop( const client_t *client );
 void SV_NetcodecDemoTick( void );
 void SV_NetcodecStats_f( void );
@@ -495,7 +495,7 @@ svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
-qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
+bool	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
 //
 // sv_bot.c
@@ -573,4 +573,4 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 //
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);	//int length, const byte *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
-qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+bool SV_Netchan_Process( client_t *client, msg_t *msg );

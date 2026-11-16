@@ -48,7 +48,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "l_memory.h"
 #include "l_script.h"
 
-typedef enum {qfalse, qtrue}	qboolean;
 
 #endif //SCREWUP
 
@@ -70,8 +69,6 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "l_memory.h"
 #include "l_log.h"
 
-#define qtrue	true
-#define qfalse	false
 #endif //MEQCC
 
 #ifdef BSPC
@@ -80,8 +77,6 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "../bspc/l_log.h"
 #include "../bspc/l_mem.h"
 
-#define qtrue	true
-#define qfalse	false
 #endif //BSPC
 
 
@@ -438,7 +433,7 @@ int PS_ReadEscapeCharacter(script_t *script, char *ch)
 //
 // Parameter:				script		: script to read from
 //								token			: buffer to store the string
-// Returns:					qtrue when a string was read succesfully
+// Returns:					true when a string was read succesfully
 // Changes Globals:		-
 //============================================================================
 int PS_ReadString(script_t *script, token_t *token, int quote)
@@ -689,14 +684,14 @@ int PS_ReadNumber(script_t *script, token_t *token)
 #endif //BINARYNUMBERS
 	else //decimal or octal integer or floating point number
 	{
-		octal = qfalse;
-		dot = qfalse;
-		if (*script->script_p == '0') octal = qtrue;
+		octal = false;
+		dot = false;
+		if (*script->script_p == '0') octal = true;
 		while(1)
 		{
 			c = *script->script_p;
-			if (c == '.') dot = qtrue;
-			else if (c == '8' || c == '9') octal = qfalse;
+			if (c == '.') dot = true;
+			else if (c == '8' || c == '9') octal = false;
 			else if (c < '0' || c > '9') break;
 			token->string[len++] = *script->script_p++;
 			if (len >= MAX_TOKEN - 1)

@@ -78,7 +78,7 @@ void Com_DPrintf(const char *format, ...)
 
 // ZONE
 
-void *R_Malloc( int iSize, memtag_t eTag, qboolean bZeroit ) {
+void *R_Malloc( int iSize, memtag_t eTag, bool bZeroit ) {
 	return ri.Malloc( iSize, eTag, bZeroit, 4 );
 }
 
@@ -94,6 +94,6 @@ void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag ) {
 	ri.Z_MorphMallocTag( pvBuffer, eDesiredTag );
 }
 
-void *R_Hunk_Alloc( int iSize, qboolean bZeroit ) {
+void *R_Hunk_Alloc( int iSize, bool bZeroit ) {
 	return ri.Malloc( iSize, TAG_HUNKALLOC, bZeroit, 4 );
 }

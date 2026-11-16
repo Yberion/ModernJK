@@ -219,7 +219,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// if we were just unpaused, we can only *now* really let the
 	// change come into effect or the client hangs.
-	cl_paused->modified = qfalse;
+	cl_paused->modified = false;
 
 	newSnap.messageNum = MSG_ReadLong( msg );
 	deltaNum = MSG_ReadByte( msg );
@@ -236,7 +236,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	// the frame, but not use it, then ask for a non-compressed
 	// message
 	if ( newSnap.deltaNum <= 0 ) {
-		newSnap.valid = qtrue;		// uncompressed frame
+		newSnap.valid = true;		// uncompressed frame
 		old = NULL;
 	} else {
 		old = &cl.frames[newSnap.deltaNum & PACKET_MASK];
@@ -250,7 +250,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES ) {
 			Com_Printf ("Delta parseEntitiesNum too old.\n");
 		} else {
-			newSnap.valid = qtrue;	// valid delta parse
+			newSnap.valid = true;	// valid delta parse
 		}
 	}
 
@@ -284,7 +284,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		oldMessageNum = cl.frame.messageNum - ( PACKET_BACKUP - 1 );
 	}
 	for ( ; oldMessageNum < newSnap.messageNum ; oldMessageNum++ ) {
-		cl.frames[oldMessageNum & PACKET_MASK].valid = qfalse;
+		cl.frames[oldMessageNum & PACKET_MASK].valid = false;
 	}
 
 	// copy to the current good spot
@@ -307,7 +307,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	}
 
 	// actions for valid frames
-	cl.newSnapshots = qtrue;
+	cl.newSnapshots = true;
 }
 
 

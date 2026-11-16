@@ -76,9 +76,9 @@ typedef struct {
 	int			(*R_Font_HeightPixels)(const int setIndex, const float scale );
 	void		(*R_Font_DrawString)(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iMaxPixelWidth, const float scale );
 	int			(*R_Font_StrLenChars)(const char *text);
-	qboolean	(*Language_IsAsian) (void);
-	qboolean	(*Language_UsesSpaces) (void);
-	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation /* = NULL */);
+	bool	(*Language_IsAsian) (void);
+	bool	(*Language_UsesSpaces) (void);
+	unsigned int (*AnyLanguage_ReadCharFromString)( char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation /* = NULL */);
 
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
@@ -117,14 +117,14 @@ typedef struct {
 
 
 	// =========== getting save game picture ===============
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
 #ifdef JK2_MODE
-	qboolean(*SG_GetSaveImage)( const char *psPathlessBaseName, void *pvAddress );
+	bool(*SG_GetSaveImage)( const char *psPathlessBaseName, void *pvAddress );
 #endif
 	int		(*SG_GetSaveGameComment)(const char *psPathlessBaseName, char *sComment, char *sMapName);
-	qboolean (*SG_GameAllowedToSaveHere)(qboolean inCamera);
+	bool (*SG_GameAllowedToSaveHere)(bool inCamera);
 	void (*SG_StoreSaveGameComment)(const char *sComment);
-	//byte *(*SCR_GetScreenshot)(qboolean *);
+	//byte *(*SCR_GetScreenshot)(bool *);
 
 	// =========== data shared with the client system =============
 
@@ -132,15 +132,15 @@ typedef struct {
 	void		(*Key_KeynumToStringBuf)( int keynum, char *buf, int buflen );
 	void		(*Key_GetBindingBuf)( int keynum, char *buf, int buflen );
 	void		(*Key_SetBinding)( int keynum, const char *binding );
-	qboolean	(*Key_IsDown)( int keynum );
-	qboolean	(*Key_GetOverstrikeMode)( void );
-	void		(*Key_SetOverstrikeMode)( qboolean state );
+	bool	(*Key_IsDown)( int keynum );
+	bool	(*Key_GetOverstrikeMode)( void );
+	void		(*Key_SetOverstrikeMode)( bool state );
 	void		(*Key_ClearStates)( void );
 	int			(*Key_GetCatcher)( void );
 	void		(*Key_SetCatcher)( int catcher );
 
 #ifdef JK2_MODE
-	qboolean	(*SP_Register)( const char *Package, unsigned char Registration );
+	bool	(*SP_Register)( const char *Package, unsigned char Registration );
 	const char *(*SP_GetStringText)(unsigned short ID);
 	const char *(*SP_GetStringTextString)(const char *Reference);
 #endif

@@ -137,7 +137,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 	VectorCopy( wpMuzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
 
-	gentity_t *missile = CreateMissile( start, wpFwd, BOWCASTER_VELOCITY, 10000, ent, qtrue );
+	gentity_t *missile = CreateMissile( start, wpFwd, BOWCASTER_VELOCITY, 10000, ent, true );
 
 	missile->classname = "bowcaster_alt_proj";
 	missile->s.weapon = WP_BOWCASTER;
@@ -181,7 +181,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-void WP_FireBowcaster( gentity_t *ent, qboolean alt_fire )
+void WP_FireBowcaster( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	if ( alt_fire )

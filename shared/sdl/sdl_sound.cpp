@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern dma_t		dma;
 SDL_AudioDeviceID	dev;
-qboolean snd_inited = qfalse;
+bool snd_inited = false;
 
 cvar_t *s_sdlBits;
 cvar_t *s_sdlSpeed;
@@ -148,14 +148,14 @@ static int SNDDMA_ExpandSampleFrequencyKHzToHz(int khz)
 SNDDMA_Init
 ===============
 */
-qboolean SNDDMA_Init(int sampleFrequencyInKHz)
+bool SNDDMA_Init(int sampleFrequencyInKHz)
 {
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
 	int tmp;
 
 	if (snd_inited)
-		return qtrue;
+		return true;
 
 	if (!s_sdlBits) {
 		s_sdlBits = Cvar_Get("s_sdlBits", "16", CVAR_ARCHIVE_ND);
@@ -171,7 +171,7 @@ qboolean SNDDMA_Init(int sampleFrequencyInKHz)
 		if (SDL_Init(SDL_INIT_AUDIO) == -1)
 		{
 			Com_Printf( "FAILED (%s)\n", SDL_GetError( ) );
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -214,7 +214,7 @@ qboolean SNDDMA_Init(int sampleFrequencyInKHz)
 	{
 		Com_Printf("SDL_OpenAudioDevice() failed: %s\n", SDL_GetError());
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		return qfalse;
+		return false;
 	}
 
 	SNDDMA_PrintAudiospec("SDL_AudioSpec", &obtained);
@@ -252,8 +252,8 @@ qboolean SNDDMA_Init(int sampleFrequencyInKHz)
 	SDL_PauseAudioDevice(dev, 0);  // start callback.
 
 	Com_Printf("SDL audio initialized.\n");
-	snd_inited = qtrue;
-	return qtrue;
+	snd_inited = true;
+	return true;
 }
 
 /*
@@ -280,7 +280,7 @@ void SNDDMA_Shutdown(void)
 	free(dma.buffer);
 	dma.buffer = NULL;
 	dmapos = dmasize = 0;
-	snd_inited = qfalse;
+	snd_inited = false;
 	Com_Printf("SDL audio device shut down.\n");
 }
 
@@ -308,7 +308,7 @@ void SNDDMA_BeginPainting (void)
 
 
 // (De)activates sound playback
-void SNDDMA_Activate( qboolean activate )
+void SNDDMA_Activate( bool activate )
 {
 
 	if ( activate )

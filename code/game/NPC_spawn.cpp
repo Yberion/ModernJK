@@ -31,9 +31,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "g_vehicles.h"
 
-extern qboolean G_CheckInSolid (gentity_t *self, qboolean fix);
+extern bool G_CheckInSolid (gentity_t *self, bool fix);
 extern void ClientUserinfoChanged( int clientNum );
-extern qboolean SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
+extern bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
 extern void Jedi_Cloak( gentity_t *self );
 extern void Saboteur_Cloak( gentity_t *self );
 
@@ -265,7 +265,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	{//???
 		ent->clipmask = CONTENTS_SOLID|CONTENTS_MONSTERCLIP;//it can go through others
 		ent->contents = 0;//can't be hit?
-		ent->takedamage = qfalse;//can't be killed
+		ent->takedamage = false;//can't be killed
 		ent->flags |= FL_NO_KNOCKBACK;
 		SandCreature_ClearTimers( ent );
 	}
@@ -288,7 +288,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 			//ent->NPC->scriptFlags |= SCF_NO_GROUPS;
 			ent->NPC->scriptFlags &= ~SCF_FLY_WITH_JET;
 			RT_FlyStart( ent );
-			NPC_SetMoveGoal( ent, ent->currentOrigin, 16, qfalse, -1, NULL );
+			NPC_SetMoveGoal( ent, ent->currentOrigin, 16, false, -1, NULL );
 			VectorCopy( ent->currentOrigin, ent->pos1 );
 		}
 		if ( (ent->spawnflags&2) )
@@ -363,7 +363,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		//FIXME: precache these!
 		ent->fxID = G_EffectIndex( "force/destruction_exp" );
 		ent->NPC->scriptFlags |= (SCF_DONT_FLEE|SCF_IGNORE_ALERTS);
-		ent->NPC->ignorePain = qtrue;
+		ent->NPC->ignorePain = true;
 	}
 	if ( Q_stricmp( "chewie", ent->NPC_type ) )
 	{
@@ -671,7 +671,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	if ( ent->client->ps.saber[0].type == SABER_SITH_SWORD )
 	{
 		ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[0]], "*flash");
-		G_PlayEffect( G_EffectIndex( "scepter/sword.efx" ), ent->weaponModel[0], ent->genericBolt1, ent->s.number, ent->currentOrigin, qtrue, qtrue );
+		G_PlayEffect( G_EffectIndex( "scepter/sword.efx" ), ent->weaponModel[0], ent->genericBolt1, ent->s.number, ent->currentOrigin, true, true );
 		//how many times can she recharge?
 		ent->count = g_spskill->integer*2;
 		//To make sure she can do it at least once
@@ -981,7 +981,7 @@ void NPC_SetFX_SpawnStates( gentity_t *ent )
 }
 
 //--------------------------------------------------------------
-extern qboolean	stop_icarus;
+extern bool	stop_icarus;
 void NPC_Begin (gentity_t *ent)
 {
 	vec3_t	spawn_origin, spawn_angles;
@@ -1131,9 +1131,9 @@ void NPC_Begin (gentity_t *ent)
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	ent->mass = 10;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
-	/*ent->inuse = qtrue;
+	/*ent->inuse = true;
 	SetInUse(ent);
 	ent->m_iIcarusID = -1; // ICARUS_INVALID
 	*/
@@ -1282,7 +1282,7 @@ void NPC_Begin (gentity_t *ent)
 
 	if ( !(ent->spawnflags & SFB_STARTINSOLID) )
 	{//Not okay to start in solid
-		G_CheckInSolid( ent, qtrue );
+		G_CheckInSolid( ent, true );
 	}
 	VectorClear( ent->NPC->lastClearOrigin );
 
@@ -1331,7 +1331,7 @@ NPC_StasisSpawn_Go
 -------------------------
 */
 /*
-qboolean NPC_StasisSpawn_Go( gentity_t *ent )
+bool NPC_StasisSpawn_Go( gentity_t *ent )
 {
 	//Setup an owner pointer if we need it
 	if VALIDSTRING( ent->ownername )
@@ -1355,7 +1355,7 @@ qboolean NPC_StasisSpawn_Go( gentity_t *ent )
 				ent->e_ThinkFunc = thinkF_NPC_Spawn_Go;
 				ent->nextthink = level.time + 1000;
 			}
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -1367,10 +1367,10 @@ qboolean NPC_StasisSpawn_Go( gentity_t *ent )
 	if ( tr.allsolid || tr.startsolid )
 	{
 		ent->nextthink = level.time + 1000;
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 */
 void NPC_DefaultScriptFlags( gentity_t *ent )
@@ -1439,7 +1439,7 @@ NPC_Spawn_Go
 -------------------------
 */
 
-gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
+gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 {
 	gentity_t	*newent;
 	int			index;
@@ -1448,7 +1448,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 /*	//Do extra code for stasis spawners
 	if ( Q_stricmp( ent->classname, "NPC_Stasis" ) == 0 )
 	{
-		if ( NPC_StasisSpawn_Go( ent ) == qfalse )
+		if ( NPC_StasisSpawn_Go( ent ) == false )
 			return;
 	}
 */
@@ -1503,7 +1503,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 		return NULL;
 	}
 
-	newent->client = (gclient_t *)gi.Malloc(sizeof(gclient_t), TAG_G_ALLOC, qtrue);
+	newent->client = (gclient_t *)gi.Malloc(sizeof(gclient_t), TAG_G_ALLOC, true);
 
 	newent->svFlags |= SVF_NPC;
 
@@ -1517,7 +1517,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 		newent->NPC_type = Q_strlwr( G_NewString( ent->NPC_type ) );	//get my own copy so i can free it when i die
 	}
 
-	newent->NPC = (gNPC_t*) gi.Malloc(sizeof(gNPC_t), TAG_G_ALLOC, qtrue);
+	newent->NPC = (gNPC_t*) gi.Malloc(sizeof(gNPC_t), TAG_G_ALLOC, true);
 
 	newent->NPC->tempGoal = G_Spawn();
 
@@ -1791,7 +1791,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 
 void NPC_Spawn_Go( gentity_t *ent )
 {
-	NPC_Spawn_Do( ent, qfalse );
+	NPC_Spawn_Do( ent, false );
 }
 
 /*
@@ -1803,7 +1803,7 @@ NPC_StasisSpawnEffect
 void NPC_StasisSpawnEffect( gentity_t *ent )
 {
 	vec3_t		start, end, forward;
-	qboolean	taper;
+	bool	taper;
 
 	//Floor or wall?
 	if ( ent->spawnflags & 1 )
@@ -1814,18 +1814,18 @@ void NPC_StasisSpawnEffect( gentity_t *ent )
 
 		start[2] += 64;
 
-		taper = qtrue;
+		taper = true;
 	}
 	else
 	{
 		VectorCopy( ent->currentOrigin, start );
 		VectorCopy( start, end );
 		end[2] += 48;
-		taper = qfalse;
+		taper = false;
 	}
 
 	//Add the effect
-//	CG_ShimmeryThing_Spawner( start, end, 32, qtrue, 1000 );
+//	CG_ShimmeryThing_Spawner( start, end, 32, true, 1000 );
 }
 */
 /*
@@ -1883,7 +1883,7 @@ void NPC_Spawn ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 /*		//Stasis does an extra step
 		if ( Q_stricmp( ent->classname, "NPC_Stasis" ) == 0 )
 		{
-			if ( NPC_StasisSpawn_Go( ent ) == qfalse )
+			if ( NPC_StasisSpawn_Go( ent ) == false )
 				return;
 		}
 */
@@ -1970,7 +1970,7 @@ first and so no scripts should be names with these names:
 
 delay - after spawned or triggered, how many seconds to wait to spawn the NPC
 */
-extern qboolean	spawning;				// the G_Spawn*() functions are valid  (only turned on during one function)
+extern bool	spawning;				// the G_Spawn*() functions are valid  (only turned on during one function)
 extern void	NPC_PrecacheByClassName(const char*);
 
 void SP_NPC_spawner( gentity_t *self)
@@ -4086,7 +4086,7 @@ static void NPC_Spawn_f(void)
 	gentity_t		*NPCspawner = G_Spawn();
 	vec3_t			forward, end;
 	trace_t			trace;
-	qboolean		isVehicle = qfalse;
+	bool		isVehicle = false;
 
 	if(!NPCspawner)
 	{
@@ -4106,7 +4106,7 @@ static void NPC_Spawn_f(void)
 
 	if ( !Q_stricmp( "vehicle", npc_type ) )
 	{//spawning a vehicle
-		isVehicle = qtrue;
+		isVehicle = true;
 		npc_type = gi.argv( 3 );
 		if (!npc_type || !npc_type[0] )
 		{
@@ -4189,7 +4189,7 @@ void NPC_Kill_f( void )
 	gentity_t	*player;
 	const char		*name;
 	team_t		killTeam = TEAM_FREE;
-	qboolean	killNonSF = qfalse;
+	bool	killNonSF = false;
 
 	name = gi.argv( 2 );
 
@@ -4222,7 +4222,7 @@ void NPC_Kill_f( void )
 
 		if ( Q_stricmp( "nonally", name ) == 0 )
 		{
-			killNonSF = qtrue;
+			killNonSF = true;
 		}
 		else
 		{
@@ -4338,7 +4338,7 @@ Svcmd_NPC_f
 
 parse and dispatch bot commands
 */
-qboolean	showBBoxes = qfalse;
+bool	showBBoxes = false;
 void Svcmd_NPC_f( void )
 {
 	const char	*cmd;
@@ -4364,7 +4364,7 @@ void Svcmd_NPC_f( void )
 	}
 	else if ( Q_stricmp( cmd, "showbounds" ) == 0 )
 	{//Toggle on and off
-		showBBoxes = showBBoxes ? qfalse : qtrue;
+		showBBoxes = showBBoxes ? false : true;
 	}
 	else if ( Q_stricmp ( cmd, "score" ) == 0 )
 	{

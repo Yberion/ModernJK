@@ -5,7 +5,7 @@
 #include "anims.h"
 #include "g_vehicles.h"
 
-extern qboolean G_ParseLiteral( const char **data, const char *string );
+extern bool G_ParseLiteral( const char **data, const char *string );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
 
 vehicleInfo_t g_vehicleInfo[MAX_VEHICLES];
@@ -159,7 +159,7 @@ void G_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->pitchLimit = VEH_DEFAULT_PITCH_LIMIT;		//how far it can pitch forward or backward
 	vehicle->braking = VEH_DEFAULT_BRAKING;				//when pressing on decelerator (backwards)
 	vehicle->turningSpeed = VEH_DEFAULT_TURNING_SPEED;	//how quickly you can turn
-	vehicle->turnWhenStopped = qfalse;					//whether or not you can turn when not moving
+	vehicle->turnWhenStopped = false;					//whether or not you can turn when not moving
 	vehicle->traction = VEH_DEFAULT_TRACTION;			//how much your command input affects velocity
 	vehicle->friction = VEH_DEFAULT_FRICTION;			//how much velocity is cut on its own
 	vehicle->maxSlope = VEH_DEFAULT_MAX_SLOPE;			//the max slope that it can go up with control
@@ -194,7 +194,7 @@ void G_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	vehicle->gravity = VEH_DEFAULT_GRAVITY;				//normal is 800
 	vehicle->hoverHeight = 0;	//if 0, it's a ground vehicle
 	vehicle->hoverStrength = 0;//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
-	vehicle->waterProof = qtrue;						//can drive underwater if it has to
+	vehicle->waterProof = true;						//can drive underwater if it has to
 	vehicle->bouyancy = 1.0f;							//when in water, how high it floats (1 is neutral bouyancy)
 	vehicle->fuelMax = 1000;							//how much fuel it can hold (capacity)
 	vehicle->fuelRate = 1;								//how quickly is uses up fuel
@@ -205,18 +205,18 @@ void G_VehicleSetDefaults( vehicleInfo_t *vehicle )
 
 	//new stuff
 	vehicle->maxPassengers = 0;
-	vehicle->hideRider = qfalse;						// rider (and passengers?) should not be drawn
-	vehicle->killRiderOnDeath = qfalse;					//if rider is on vehicle when it dies, they should die
-	vehicle->flammable = qfalse;						//whether or not the vehicle should catch on fire before it explodes
+	vehicle->hideRider = false;						// rider (and passengers?) should not be drawn
+	vehicle->killRiderOnDeath = false;					//if rider is on vehicle when it dies, they should die
+	vehicle->flammable = false;						//whether or not the vehicle should catch on fire before it explodes
 	vehicle->explosionDelay = 0;						//how long the vehicle should be on fire/dying before it explodes
 	//camera stuff
-	vehicle->cameraOverride = qfalse;					//whether or not to use all of the following 3rd person camera override values
+	vehicle->cameraOverride = false;					//whether or not to use all of the following 3rd person camera override values
 	vehicle->cameraRange = 0.0f;						//how far back the camera should be - normal is 80
 	vehicle->cameraVertOffset = 0.0f;					//how high over the vehicle origin the camera should be - normal is 16
 	vehicle->cameraHorzOffset = 0.0f;					//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
 	vehicle->cameraPitchOffset = 0.0f;					//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
 	vehicle->cameraFOV = 0.0f;							//third person camera FOV, default is 80
-	vehicle->cameraAlpha = qfalse;						//fade out the vehicle if it's in the way of the crosshair
+	vehicle->cameraAlpha = false;						//fade out the vehicle if it's in the way of the crosshair
 */
 }
 
@@ -260,7 +260,7 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 
 	while ( holdBuf )
 	{
-		token = COM_ParseExt( holdBuf, qtrue );
+		token = COM_ParseExt( holdBuf, true );
 		if ( !token[0] )
 		{
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing vehicles!\n" );
@@ -305,7 +305,7 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 					((float *)(b+vehFields[i].ofs))[2] = vec[2];
 					break;
 				case VF_BOOL:
-					*(qboolean *)(b+vehFields[i].ofs) = (atof(value)!=0);
+					*(bool *)(b+vehFields[i].ofs) = (atof(value)!=0);
 					break;
 				case VF_VEHTYPE:
 					vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
@@ -338,7 +338,7 @@ static void G_VehicleStoreParms( const char *p )
 	//look for an open brace
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{//barf
 			return;

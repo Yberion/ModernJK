@@ -33,7 +33,7 @@ void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
 	int velocity	= ent->mass; //FIXME: externalize
 	gentity_t *missile;
 
-	missile = CreateMissile( start, dir, velocity, 10000, ent, qfalse );
+	missile = CreateMissile( start, dir, velocity, 10000, ent, false );
 
 	//use a custom shot effect
 	//missile->s.otherEntityNum2 = G_EffectIndex( "turret/turb_shot" );
@@ -94,7 +94,7 @@ void WP_EmplacedFire( gentity_t *ent )
 
 	if ( missile->owner->e_UseFunc == useF_eweb_use )
 	{
-		missile->alt_fire = qtrue;
+		missile->alt_fire = true;
 	}
 
 	VectorSet( missile->maxs, EMPLACED_SIZE, EMPLACED_SIZE, EMPLACED_SIZE );

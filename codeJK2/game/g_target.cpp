@@ -536,7 +536,7 @@ void target_location_linkup(gentity_t *ent)
 	if (level.locationLinked)
 		return;
 
-	level.locationLinked = qtrue;
+	level.locationLinked = true;
 
 	level.locationHead = NULL;
 
@@ -919,7 +919,7 @@ void SP_target_friction_change( gentity_t *self )
 }
 
 
-extern void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub);	//g_utils
+extern void G_ChangeMap (const char *mapname, const char *spawntarget, bool hub);	//g_utils
 void target_level_change_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	G_ActivateBehavior(self,BSET_USE);
@@ -929,7 +929,7 @@ void target_level_change_use(gentity_t *self, gentity_t *other, gentity_t *activ
 	}
 	else
 	{
-		G_ChangeMap( self->message, self->target, (qboolean)(self->spawnflags & 1) );
+		G_ChangeMap( self->message, self->target, (self->spawnflags & 1) );
 	}
 	if (self->spawnflags&2)	//HIDEINFO
 	{

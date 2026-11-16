@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_weapon.c
+// g_weapon.cpp
 // perform the server side effects of a weapon firing
 
 #include "g_headers.h"
@@ -79,7 +79,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 }
 
 //-----------------------------------------------------------------------------
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire )
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire )
 //-----------------------------------------------------------------------------
 {
 	gentity_t	*missile;
@@ -136,7 +136,7 @@ void WP_Explode( gentity_t *self )
 	vec3_t		wpFwd;
 
 	// stop chain reaction runaway loops
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	self->s.loopSound = 0;
 
@@ -253,7 +253,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
+bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -270,24 +270,24 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case MOD_BOWCASTER_ALT:
 		case MOD_ROCKET:
 		case MOD_ROCKET_ALT:
-			return qtrue;
+			return true;
 			break;
 		//non-alt standard
 		case MOD_REPEATER:
 		case MOD_DEMP2:
 		case MOD_FLECHETTE:
-			return qtrue;
+			return true;
 			break;
 		//emplaced gun
 		case MOD_EMPLACED:
-			return qtrue;
+			return true;
 			break;
 		//atst
 		case MOD_ENERGY:
 		case MOD_EXPLOSIVE:
 			if ( weapon == WP_ATST_MAIN || weapon == WP_ATST_SIDE )
 			{
-				return qtrue;
+				return true;
 			}
 			break;
 		}
@@ -301,7 +301,7 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case WP_DISRUPTOR:
 		case WP_BOWCASTER:
 		case WP_ROCKET_LAUNCHER:
-			return qtrue;
+			return true;
 			break;
 		//non-alt standard
 		case WP_REPEATER:
@@ -309,21 +309,21 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case WP_FLECHETTE:
 			if ( !alt_fire )
 			{
-				return qtrue;
+				return true;
 			}
 			break;
 		//emplaced gun
 		case WP_EMPLACED_GUN:
-			return qtrue;
+			return true;
 			break;
 		//atst
 		case WP_ATST_MAIN:
 		case WP_ATST_SIDE:
-			return qtrue;
+			return true;
 			break;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -331,32 +331,32 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 LogAccuracyHit
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+bool LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	if( !target->takedamage ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( target == attacker ) {
-		return qfalse;
+		return false;
 	}
 
 	if( !target->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if( !attacker->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( OnSameTeam( target, attacker ) ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 //---------------------------------------------------------
@@ -458,7 +458,7 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 }
 
 //---------------------------------------------------------
-void FireWeapon( gentity_t *ent, qboolean alt_fire )
+void FireWeapon( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	float alert = 256;
@@ -648,7 +648,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		// TEMP
 		if ( alt_fire )
 		{
-//			WP_FireRocket( ent, qfalse );
+//			WP_FireRocket( ent, false );
 			WP_ATSTSideAltFire(ent);
 		}
 		else
@@ -686,7 +686,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		break;
 
 	case WP_BLASTER_PISTOL: // enemy version
-		WP_FireBryarPistol( ent, qfalse ); // never an alt-fire?
+		WP_FireBryarPistol( ent, false ); // never an alt-fire?
 		break;
 
 	default:
@@ -920,7 +920,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	self->health = 0;
 //	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->lastEnemy = attacker;
 
 	// we defer explosion so the player has time to get out
@@ -1018,7 +1018,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	VectorSet( ent->mins, -30, -30, -5 );
 	VectorSet( ent->maxs, 30, 30, 60 );
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	if ( !( ent->spawnflags & EMPLACED_VULNERABLE ))
 	{
@@ -1057,8 +1057,8 @@ void SP_emplaced_gun( gentity_t *ent )
 	ent->headBolt = gi.G2API_AddBolt( &ent->ghoul2[0], "*seat" );
 	ent->handLBolt = gi.G2API_AddBolt( &ent->ghoul2[0], "*flash01" );
 	ent->handRBolt = gi.G2API_AddBolt( &ent->ghoul2[0], "*flash02" );
-	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", qtrue );
-	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[0], "swivel_bone", qtrue );
+	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", true );
+	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[0], "swivel_bone", true );
 	gi.G2API_SetBoneAngles( &ent->ghoul2[0], "swivel_bone", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0);
 
 	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));

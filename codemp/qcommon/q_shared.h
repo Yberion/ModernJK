@@ -60,7 +60,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	VALIDATE( a )	( assert( a ) )
 
 #define	VALIDATEV( a )	if ( a == NULL ) {	assert(0);	return;			}
-#define	VALIDATEB( a )	if ( a == NULL ) {	assert(0);	return qfalse;	}
+#define	VALIDATEB( a )	if ( a == NULL ) {	assert(0);	return false;	}
 #define VALIDATEP( a )	if ( a == NULL ) {	assert(0);	return NULL;	}
 
 #define VALIDSTRING( a )	( ( a != NULL ) && ( a[0] != '\0' ) )
@@ -435,7 +435,7 @@ typedef struct sharedRagDollParams_s {
 
 	int collisionType; // 1 = from a fall, 0 from effectors, this will be going away soon, hence no enum
 
-	qboolean CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
+	bool CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
 
 	int RagPhase;
 
@@ -475,7 +475,7 @@ typedef struct sharedSetBoneIKStateParams_s {
 	int pcjOverrides; //override ik bone flags
 	int startFrame; //base pose start
 	int endFrame; //base pose end
-	qboolean forceAnimOnBone; //normally if the bone has specified start/end frames already it will leave it alone.. if this is true, then the animation will be restarted on the bone with the specified frames anyway.
+	bool forceAnimOnBone; //normally if the bone has specified start/end frames already it will leave it alone.. if this is true, then the animation will be restarted on the bone with the specified frames anyway.
 } sharedSetBoneIKStateParams_t;
 
 enum sharedEIKMoveState
@@ -561,21 +561,21 @@ typedef struct wpobject_s
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension( const char *in, char *out, int destsize );
-qboolean COM_CompareExtension(const char *in, const char *ext);
+bool COM_CompareExtension(const char *in, const char *ext);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
-const char	*SkipWhitespace( const char *data, qboolean *hasNewLines );
+const char	*SkipWhitespace( const char *data, bool *hasNewLines );
 char	*COM_Parse( const char **data_p );
-char	*COM_ParseExt( const char **data_p, qboolean allowLineBreak );
+char	*COM_ParseExt( const char **data_p, bool allowLineBreak );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... );
 void	COM_ParseWarning( const char *format, ... );
-qboolean COM_ParseString( const char **data, const char **s );
-qboolean COM_ParseInt( const char **data, int *i );
-qboolean COM_ParseFloat( const char **data, float *f );
-qboolean COM_ParseVec4( const char **buffer, vec4_t *c);
+bool COM_ParseString( const char **data, const char **s );
+bool COM_ParseInt( const char **data, int *i );
+bool COM_ParseFloat( const char **data, float *f );
+bool COM_ParseVec4( const char **buffer, vec4_t *c);
 //int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 
 #define MAX_TOKENLENGTH		1024
@@ -602,7 +602,7 @@ typedef struct pc_token_s
 
 void	COM_MatchToken( const char**buf_p, const char *match );
 
-qboolean SkipBracedSection (const char **program, int depth);
+bool SkipBracedSection (const char **program, int depth);
 void SkipRestOfLine ( const char **data );
 
 void Parse1DMatrix (const char **buf_p, int x, float *m);
@@ -663,10 +663,10 @@ void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_Big( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );
 void Info_SetValueForKey_Big( char *s, const char *key, const char *value );
-qboolean Info_Validate( const char *s );
-qboolean Info_NextPair( const char **s, char *key, char *value );
+bool Info_Validate( const char *s );
+bool Info_NextPair( const char **s, char *key, char *value );
 
-// this is only here so the functions in q_shared.c and bg_*.c can link
+// this is only here so the functions in q_shared.cpp and bg_*.c can link
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
 	extern NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
 	extern void (*Com_Printf)( const char *msg, ... );
@@ -722,12 +722,12 @@ typedef struct cvar_s {
 	char			*resetString;		// cvar_restart will reset to this value
 	char			*latchedString;		// for CVAR_LATCH vars
 	uint32_t		flags;
-	qboolean		modified;			// set each time the cvar is changed
+	bool		modified;			// set each time the cvar is changed
 	int				modificationCount;	// incremented each time the cvar is changed
 	float			value;				// atof( string )
 	int				integer;			// atoi( string )
-	qboolean		validate;
-	qboolean		integral;
+	bool		validate;
+	bool		integral;
 	float			min, max;
 
 	struct cvar_s	*next, *prev;
@@ -1001,7 +1001,7 @@ typedef struct forcedata_s {
 
 	int			killSoundEntIndex[TRACK_CHANNEL_MAX]; //this goes here so it doesn't get wiped over respawn
 
-	qboolean	sentryDeployed;
+	bool	sentryDeployed;
 
 	int			saberAnimLevelBase;//sigh...
 	int			saberAnimLevel;
@@ -1091,8 +1091,8 @@ typedef struct playerState_s {
 	int			torsoTimer;		// don't change low priority animations until this runs out
 	int			torsoAnim;
 
-	qboolean	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
-	qboolean	torsoFlip;
+	bool	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
+	bool	torsoFlip;
 
 	int			movementDir;	// a number 0 to 7 that represents the reletive angle
 								// of movement to the view angle (axial and diagonals)
@@ -1127,9 +1127,9 @@ typedef struct playerState_s {
 	int			painTime;		// used for both game and client side to process the pain twitch - NOT sent across the network
 	int			painDirection;	// NOT sent across the network
 	float		yawAngle;		// NOT sent across the network
-	qboolean	yawing;			// NOT sent across the network
+	bool	yawing;			// NOT sent across the network
 	float		pitchAngle;		// NOT sent across the network
-	qboolean	pitching;		// NOT sent across the network
+	bool	pitching;		// NOT sent across the network
 
 	int			stats[MAX_STATS];
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
@@ -1148,7 +1148,7 @@ typedef struct playerState_s {
 
 	int			lastOnGround;	//last time you were on the ground
 
-	qboolean	saberInFlight;
+	bool	saberInFlight;
 
 	int			saberMove;
 	int			saberBlocking;
@@ -1160,13 +1160,13 @@ typedef struct playerState_s {
 	int			saberLockHits; //every x number of buttons hits, allow one push forward in a saber lock (server only)
 	int			saberLockHitCheckTime; //so we don't allow more than 1 push per server frame
 	int			saberLockHitIncrementTime; //so we don't add a hit per attack button press more than once per server frame
-	qboolean	saberLockAdvance; //do an advance (sent across net as 1 bit)
+	bool	saberLockAdvance; //do an advance (sent across net as 1 bit)
 
 	int			saberEntityNum;
 	float		saberEntityDist;
 	int			saberEntityState;
 	int			saberThrowDelay;
-	qboolean	saberCanThrow;
+	bool	saberCanThrow;
 	int			saberDidThrowTime;
 	int			saberDamageDebounceTime;
 	int			saberHitWallSoundDebounceTime;
@@ -1180,10 +1180,10 @@ typedef struct playerState_s {
 	int			emplacedIndex;
 	float		emplacedTime;
 
-	qboolean	isJediMaster;
-	qboolean	forceRestricted;
-	qboolean	trueJedi;
-	qboolean	trueNonJedi;
+	bool	isJediMaster;
+	bool	forceRestricted;
+	bool	trueJedi;
+	bool	trueNonJedi;
 	int			saberIndex;
 
 	int			genericEnemyIndex;
@@ -1192,7 +1192,7 @@ typedef struct playerState_s {
 
 	int			activeForcePass;
 
-	qboolean	hasDetPackPlanted; //better than taking up an eFlag isn't it?
+	bool	hasDetPackPlanted; //better than taking up an eFlag isn't it?
 
 	float		holocronsCarried[NUM_FORCE_POWERS];
 	int			holocronCantTouch;
@@ -1211,14 +1211,14 @@ typedef struct playerState_s {
 	int			otherKillerDebounceTime;
 
 	forcedata_t	fd;
-	qboolean	forceJumpFlip;
+	bool	forceJumpFlip;
 	int			forceHandExtend;
 	int			forceHandExtendTime;
 
 	int			forceRageDrainTime;
 
 	int			forceDodgeAnim;
-	qboolean	quickerGetup;
+	bool	quickerGetup;
 
 	int			groundTime;		// time when first left ground
 
@@ -1234,7 +1234,7 @@ typedef struct playerState_s {
 
 	int			duelIndex;
 	int			duelTime;
-	qboolean	duelInProgress;
+	bool	duelInProgress;
 
 	int			saberAttackChainCount;
 
@@ -1245,7 +1245,7 @@ typedef struct playerState_s {
 	// zoom key
 	int			zoomMode;		// 0 - not zoomed, 1 - disruptor weapon
 	int			zoomTime;
-	qboolean	zoomLocked;
+	bool	zoomLocked;
 	float		zoomFov;
 	int			zoomLockTime;
 
@@ -1253,7 +1253,7 @@ typedef struct playerState_s {
 
 	int			useDelay;
 
-	qboolean	inAirAnim;
+	bool	inAirAnim;
 
 	vec3_t		lastHitLoc;
 
@@ -1266,7 +1266,7 @@ typedef struct playerState_s {
 	int			brokenLimbs;
 
 	//for looking at an entity's origin (NPCs and players)
-	qboolean	hasLookTarget;
+	bool	hasLookTarget;
 	int			lookTarget;
 
 	int			customRGBA[4];
@@ -1279,7 +1279,7 @@ typedef struct playerState_s {
 
 	//lovely hack for keeping vehicle orientation in sync with prediction
 	vec3_t		vehOrientation;
-	qboolean	vehBoarding;
+	bool	vehBoarding;
 	int			vehSurfaces;
 
 	//vehicle turnaround stuff (need this in ps so it doesn't jerk too much in prediction)
@@ -1287,7 +1287,7 @@ typedef struct playerState_s {
 	int			vehTurnaroundTime;
 
 	//vehicle has weapons linked
-	qboolean	vehWeaponsLinked;
+	bool	vehWeaponsLinked;
 
 	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
 	int			hyperSpaceTime;
@@ -1326,7 +1326,7 @@ typedef struct playerState_s {
 
 typedef struct siegePers_s
 {
-	qboolean	beatingTime;
+	bool	beatingTime;
 	int			lastTeam;
 	int			lastTime;
 } siegePers_t;
@@ -1599,7 +1599,7 @@ typedef struct entityState_s {
 
 	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
 	int		loopSound;		// constantly loop this sound
-	qboolean	loopIsSoundset; //qtrue if the loopSound index is actually a soundset index
+	bool	loopIsSoundset; //true if the loopSound index is actually a soundset index
 
 	int		soundSetIndex;
 
@@ -1610,15 +1610,15 @@ typedef struct entityState_s {
 	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
 	int		frame;
 
-	qboolean	saberInFlight;
+	bool	saberInFlight;
 	int			saberEntityNum;
 	int			saberMove;
 	int			forcePowersActive;
 	int			saberHolstered;//sent in only only 2 bits - should be 0, 1 or 2
 
-	qboolean	isJediMaster;
+	bool	isJediMaster;
 
-	qboolean	isPortalEnt; //this needs to be seperate for all entities I guess, which is why I couldn't reuse another value.
+	bool	isPortalEnt; //this needs to be seperate for all entities I guess, which is why I couldn't reuse another value.
 
 	int		solid;			// for client side prediction, trap_linkentity sets this properly
 
@@ -1628,7 +1628,7 @@ typedef struct entityState_s {
 	// so crosshair knows what it's looking at
 	int			owner;
 	int			teamowner;
-	qboolean	shouldtarget;
+	bool	shouldtarget;
 
 	// for players
 	int		powerups;		// bit flags
@@ -1636,8 +1636,8 @@ typedef struct entityState_s {
 	int		legsAnim;
 	int		torsoAnim;
 
-	qboolean	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
-	qboolean	torsoFlip;
+	bool	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
+	bool	torsoFlip;
 
 	int		forceFrame;		//if non-zero, force the anim frame
 
@@ -1654,7 +1654,7 @@ typedef struct entityState_s {
 	int		boltToPlayer; //set to index of a real client+1 to bolt the ent to that client. Must be a real client, NOT an NPC.
 
 	//for looking at an entity's origin (NPCs and players)
-	qboolean	hasLookTarget;
+	bool	hasLookTarget;
 	int			lookTarget;
 
 	int			customRGBA[4];
@@ -1829,9 +1829,9 @@ typedef struct SSkinGoreData_s
 	int				growDuration;			// time over which we want this to scale up, set to -1 for no scaling
 	float			goreScaleStartFraction; // fraction of the final size at which we want the gore to initially appear
 
-	qboolean		frontFaces;
-	qboolean		backFaces;
-	qboolean		baseModelOnly;
+	bool		frontFaces;
+	bool		backFaces;
+	bool		baseModelOnly;
 	int				lifeTime;				// effect expires after this amount of time
 	int				fadeOutTime;			//specify the duration of fading, from the lifeTime (e.g. 3000 will start fading 3 seconds before removal and be faded entirely by removal)
 	int				shrinkOutTime;			// unimplemented
@@ -1843,7 +1843,7 @@ typedef struct SSkinGoreData_s
 
 	int				myIndex; // used internally
 
-	qboolean		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
+	bool		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
 } SSkinGoreData;
 
 /*
@@ -1886,7 +1886,7 @@ enum {
 
 void NET_AddrToString( char *out, size_t size, void *addr );
 
-qboolean Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
+bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_RemoveFromBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
 

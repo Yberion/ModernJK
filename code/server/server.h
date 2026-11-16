@@ -128,7 +128,7 @@ typedef struct client_s {
 	int				deltaMessage;		// frame last client usercmd message
 	int				lastPacketTime;		// sv.time when packet was last received
 	int				lastConnectTime;	// sv.time when connection started
-	qboolean		droppedCommands;	// true if enough pakets to pass the cl_packetdup were dropped
+	bool		droppedCommands;	// true if enough pakets to pass the cl_packetdup were dropped
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
 	netchan_t		netchan;
@@ -145,7 +145,7 @@ typedef struct {
 
 // this structure will be cleared only when the game dll changes
 typedef struct {
-	qboolean	initialized;				// sv_init has completed
+	bool	initialized;				// sv_init has completed
 	client_t	*clients;					// [sv_maxclients->integer];
 	int			numSnapshotEntities;		// sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
 	int			nextSnapshotEntities;		// next snapshotEntities to use
@@ -194,7 +194,7 @@ void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
-void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bAllowScreenDissolve );
+void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllowScreenDissolve );
 
 
 //
@@ -229,8 +229,8 @@ gentity_t	*SV_GentityNum( int num );
 svEntity_t	*SV_SvEntityForGentity( gentity_t *gEnt );
 gentity_t	*SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs (void);
-void		SV_ShutdownGameProgs (qboolean shutdownCin);
-qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
+void		SV_ShutdownGameProgs (bool shutdownCin);
+bool	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
 
 //============================================================
@@ -299,11 +299,11 @@ void SV_LoadGame_f(void);
 void SV_LoadTransition_f(void);
 void SV_SaveGame_f(void);
 void SV_WipeGame_f(void);
-qboolean SV_TryLoadTransition( const char *mapname );
-qboolean SG_WriteSavegame(const char *psPathlessBaseName, qboolean qbAutosave);
-qboolean SG_ReadSavegame(const char *psPathlessBaseName);
+bool SV_TryLoadTransition( const char *mapname );
+bool SG_WriteSavegame(const char *psPathlessBaseName, bool qbAutosave);
+bool SG_ReadSavegame(const char *psPathlessBaseName);
 void SG_WipeSavegame(const char *psPathlessBaseName);
-qboolean SG_Append(unsigned int chid, const void *data, int length);
+bool SG_Append(unsigned int chid, const void *data, int length);
 int SG_Read			(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
 int SG_ReadOptional	(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
 void SG_Shutdown();
@@ -318,7 +318,7 @@ void SG_TestSave(void);
 int SG_Version(void);	// call this to know what version number a successfully-opened savegame file was
 //
 extern SavedGameJustLoaded_e eSavedGameJustLoaded;
-extern qboolean qbLoadTransition;
+extern bool qbLoadTransition;
 //
 ///////////////////////////////////////////////
 

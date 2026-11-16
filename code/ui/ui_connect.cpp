@@ -44,7 +44,7 @@ char		connectionMessageString[1024];
  */
 void UI_DrawThumbNail( float x, float y, float w, float h, byte *pic )
 {
-	ui.DrawStretchRaw( x, y, w, h, SG_SCR_WIDTH, SG_SCR_HEIGHT, pic, 0, qtrue );
+	ui.DrawStretchRaw( x, y, w, h, SG_SCR_WIDTH, SG_SCR_HEIGHT, pic, 0, true );
 }
 #endif
 
@@ -67,7 +67,7 @@ void UI_DrawConnect( const char *servername, const char *updateInfoString ) {
 	}
 #endif
 #ifdef JK2_MODE
-	qboolean qValid;
+	bool qValid;
 	byte *levelPic = SCR_GetScreenshot(&qValid);
 	// draw the dialog background
 	if (!qValid)

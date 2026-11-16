@@ -89,8 +89,8 @@ struct pk3File_s {
 	uint32_t		inLeft;		// bytes of a deflated file not read from the archive yet
 	uint32_t		out;		// the position: the bytes delivered
 	uint32_t		crc;		// of the bytes delivered
-	qboolean		whole;		// every byte up to the position was delivered, in order: the CRC-32 can be checked
-	qboolean		failed;
+	bool		whole;		// every byte up to the position was delivered, in order: the CRC-32 can be checked
+	bool		failed;
 	zng_stream		z;
 	byte			in[PK3_INPUT_SIZE];
 };
@@ -107,24 +107,24 @@ static uint64_t PK3_Get64( const byte *p ) {
 	return (uint64_t)PK3_Get32( p ) | ( (uint64_t)PK3_Get32( p + 4 ) << 32 );
 }
 
-static qboolean PK3_FileLength( FILE *f, uint64_t *length ) {
+static bool PK3_FileLength( FILE *f, uint64_t *length ) {
 #ifdef _WIN32
 	const long long n = _fseeki64( f, 0, SEEK_END ) ? -1 : _ftelli64( f );
 #else
 	const off_t n = fseeko( f, 0, SEEK_END ) ? -1 : ftello( f );
 #endif
 	if ( n < 0 ) {
-		return qfalse;
+		return false;
 	}
 	*length = (uint64_t)n;
-	return qtrue;
+	return true;
 }
 
 // reads len bytes of the archive from the offset at; every file open on the archive reads through here, so the
 // position is set whenever the last read did not end there
-static qboolean PK3_ReadAt( pk3Archive_t *archive, uint64_t at, void *buffer, size_t len ) {
+static bool PK3_ReadAt( pk3Archive_t *archive, uint64_t at, void *buffer, size_t len ) {
 	if ( at > archive->length || len > archive->length - at ) {
-		return qfalse;
+		return false;
 	}
 	if ( archive->at != at ) {
 		archive->at = PK3_NOWHERE;
@@ -133,15 +133,15 @@ static qboolean PK3_ReadAt( pk3Archive_t *archive, uint64_t at, void *buffer, si
 #else
 		if ( fseeko( archive->file, (off_t)at, SEEK_SET ) ) {
 #endif
-			return qfalse;
+			return false;
 		}
 	}
 	if ( fread( buffer, 1, len, archive->file ) != len ) {
 		archive->at = PK3_NOWHERE;
-		return qfalse;
+		return false;
 	}
 	archive->at = at + len;
-	return qtrue;
+	return true;
 }
 
 /*
@@ -152,18 +152,18 @@ static qboolean PK3_ReadAt( pk3Archive_t *archive, uint64_t at, void *buffer, si
 
 // The ZIP64 form of the end record, which an archive of 4 GB or more, or of 65,535 files or more, has: a locator
 // just before the end record (at endAt) tells where it is.
-static qboolean PK3_FindDirectory64( pk3Archive_t *archive, uint64_t endAt, uint64_t *at, uint64_t *size, uint64_t *count ) {
+static bool PK3_FindDirectory64( pk3Archive_t *archive, uint64_t endAt, uint64_t *at, uint64_t *size, uint64_t *count ) {
 	byte	locator[ZIP64_LOCATOR_SIZE], end[ZIP64_END_SIZE];
 
 	if ( endAt < ZIP64_LOCATOR_SIZE || !PK3_ReadAt( archive, endAt - ZIP64_LOCATOR_SIZE, locator, sizeof( locator ) ) ||
 		PK3_Get32( locator ) != ZIP64_LOCATOR_SIGNATURE || !PK3_ReadAt( archive, PK3_Get64( locator + 8 ), end, sizeof( end ) ) ||
 		PK3_Get32( end ) != ZIP64_END_SIGNATURE ) {
-		return qfalse;
+		return false;
 	}
 	*count = PK3_Get64( end + 32 );
 	*size = PK3_Get64( end + 40 );
 	*at = PK3_Get64( end + 48 );
-	return qtrue;
+	return true;
 }
 
 // where the directory is: the end record, found from the archive's last bytes. NULL, or why it was not found.
@@ -175,7 +175,7 @@ static const char *PK3_FindDirectory( pk3Archive_t *archive, uint64_t *at, uint6
 	if ( tailLen < ZIP_END_SIZE ) {
 		return why;
 	}
-	tail = (byte *)Z_Malloc( (int)tailLen, TAG_FILESYS, qfalse );
+	tail = (byte *)Z_Malloc( (int)tailLen, TAG_FILESYS, false );
 	if ( !PK3_ReadAt( archive, archive->length - tailLen, tail, tailLen ) ) {
 		why = "it cannot be read";
 	} else {
@@ -204,14 +204,14 @@ static const char *PK3_FindDirectory( pk3Archive_t *archive, uint64_t *at, uint6
 }
 
 // One 64-bit value of an entry's ZIP64 field, when there is one left to take.
-static qboolean PK3_Take64( const byte **p, uint32_t *left, uint64_t *value ) {
+static bool PK3_Take64( const byte **p, uint32_t *left, uint64_t *value ) {
 	if ( *left < 8 ) {
-		return qfalse;
+		return false;
 	}
 	*value = PK3_Get64( *p );
 	*p += 8;
 	*left -= 8;
-	return qtrue;
+	return true;
 }
 
 // The sizes and the place of a file that do not fit 32 bits are in a field of the entry's extra data, in this order,
@@ -303,7 +303,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 		return NULL;
 	}
 	if ( size ) {
-		cd = (byte *)Z_Malloc( (int)size, TAG_FILESYS, qfalse );
+		cd = (byte *)Z_Malloc( (int)size, TAG_FILESYS, false );
 		if ( !PK3_ReadAt( opened, at, cd, (size_t)size ) ) {
 			namesLen = -1;
 		}
@@ -322,7 +322,7 @@ static pk3Archive_t *PK3_Load( pk3Archive_t *opened, const char **why ) {
 		return NULL;
 	}
 
-	archive = (pk3Archive_t *)Z_Malloc( (int)bytes, TAG_FILESYS, qtrue );
+	archive = (pk3Archive_t *)Z_Malloc( (int)bytes, TAG_FILESYS, true );
 	*archive = *opened;
 	archive->count = (int)count;
 	archive->users = 1;
@@ -413,13 +413,13 @@ pk3File_t *PK3_OpenFile( pk3Archive_t *archive, int index ) {
 		return NULL;
 	}
 
-	file = (pk3File_t *)Z_Malloc( sizeof( *file ), TAG_FILESYS, qfalse );
+	file = (pk3File_t *)Z_Malloc( sizeof( *file ), TAG_FILESYS, false );
 	memset( file, 0, offsetof( pk3File_t, in ) );
 	file->archive = archive;
 	file->entry = e;
 	file->data = data;
 	file->inLeft = e->csize;
-	file->whole = qtrue;
+	file->whole = true;
 	if ( e->method == ZIP_DEFLATED && zng_inflateInit2( &file->z, -15 ) != Z_OK ) {	// -15: deflate with no header
 		Z_Free( file );
 		return NULL;
@@ -437,7 +437,7 @@ void PK3_CloseFile( pk3File_t *file ) {
 }
 
 // inflates into buffer until it holds want bytes, reading the archive as the decoder runs out of input
-static qboolean PK3_Inflate( pk3File_t *file, void *buffer, uint32_t want ) {
+static bool PK3_Inflate( pk3File_t *file, void *buffer, uint32_t want ) {
 	const pk3Slot_t	*e = file->entry;
 	zng_stream		*z = &file->z;
 
@@ -450,7 +450,7 @@ static qboolean PK3_Inflate( pk3File_t *file, void *buffer, uint32_t want ) {
 			const uint32_t n = file->inLeft < PK3_INPUT_SIZE ? file->inLeft : PK3_INPUT_SIZE;
 
 			if ( !PK3_ReadAt( file->archive, file->data + ( e->csize - file->inLeft ), file->in, n ) ) {
-				return qfalse;
+				return false;
 			}
 			file->inLeft -= n;
 			z->next_in = file->in;
@@ -463,10 +463,10 @@ static qboolean PK3_Inflate( pk3File_t *file, void *buffer, uint32_t want ) {
 			break;
 		}
 		if ( result != Z_OK ) {		// damaged data, or input that ends before the file does
-			return qfalse;
+			return false;
 		}
 	}
-	return (qboolean)( z->avail_out == 0 );		// the data ended before the size the directory gives
+	return ( z->avail_out == 0 );		// the data ended before the size the directory gives
 }
 
 int PK3_Read( pk3File_t *file, void *buffer, int len ) {
@@ -486,7 +486,7 @@ int PK3_Read( pk3File_t *file, void *buffer, int len ) {
 	}
 
 	if ( e->method == ZIP_STORED ? !PK3_ReadAt( file->archive, file->data + file->out, buffer, want ) : !PK3_Inflate( file, buffer, want ) ) {
-		file->failed = qtrue;
+		file->failed = true;
 		return -1;
 	}
 	file->out += want;
@@ -494,7 +494,7 @@ int PK3_Read( pk3File_t *file, void *buffer, int len ) {
 		file->crc = zng_crc32( file->crc, (const uint8_t *)buffer, want );
 		if ( file->out == e->usize && file->crc != e->crc ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: %s in %s is damaged: its CRC-32 is wrong\n", e->name, file->archive->path );
-			file->failed = qtrue;
+			file->failed = true;
 			return -1;
 		}
 	}
@@ -538,7 +538,7 @@ int PK3_Seek( pk3File_t *file, long offset, int origin ) {
 	if ( e->method == ZIP_STORED ) {
 		file->out = (uint32_t)target;
 		file->crc = 0;
-		file->whole = (qboolean)( target == 0 );
+		file->whole = ( target == 0 );
 		return offset;
 	}
 	if ( target < file->out ) {
@@ -547,7 +547,7 @@ int PK3_Seek( pk3File_t *file, long offset, int origin ) {
 		file->inLeft = e->csize;
 		file->out = 0;
 		file->crc = 0;
-		file->failed = qfalse;
+		file->failed = false;
 	}
 	while ( file->out < target ) {
 		const int n = target - file->out < (int64_t)sizeof( skipped ) ? (int)( target - file->out ) : (int)sizeof( skipped );

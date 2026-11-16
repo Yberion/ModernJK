@@ -49,8 +49,8 @@ bool	HFILEclose(int& handle)									{gi.FS_FCloseFile(handle); return true;}
 // Externs
 ////////////////////////////////////////////////////////////////////////////////////////
 extern gentity_t*	G_FindDoorTrigger( gentity_t *ent );
-extern qboolean		G_EntIsBreakable( int entityNum, gentity_t *breaker );
-extern qboolean		G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self);
+extern bool		G_EntIsBreakable( int entityNum, gentity_t *breaker );
+extern bool		G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self);
 
 extern cvar_t*		g_nav1;
 extern cvar_t*		g_nav2;
@@ -643,7 +643,7 @@ public:
 		}
 		else if ( Edge.BlockingBreakable())
 		{//we had a breakable in our way, now it's gone, see if there is anything else in the way
-			if ( NAV::TestEdge( Edge.mNodeA, Edge.mNodeB, qfalse ) )
+			if ( NAV::TestEdge( Edge.mNodeA, Edge.mNodeB, false ) )
 			{//clear it
 				Edge.mFlags.clear_bit(CWayEdge::WE_BLOCKING_BREAK);
 			}
@@ -833,7 +833,7 @@ bool		ViewTrace(const CVec3& a, const CVec3& b)
 	mViewTraceCount++;
 	gi.trace(&mViewTrace, a.v, 0, 0, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
 
-	if ((mViewTrace.allsolid==qfalse) && (mViewTrace.startsolid==qfalse ) && (mViewTrace.fraction==1.0f))
+	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
 		return true;
 	}
@@ -850,7 +850,7 @@ bool		ViewNavTrace(const CVec3& a, const CVec3& b)
 	mViewTraceCount++;
 	gi.trace(&mViewTrace, a.v, 0, 0, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
 
-	if ((mViewTrace.allsolid==qfalse) && (mViewTrace.startsolid==qfalse ) && (mViewTrace.fraction==1.0f))
+	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
 		return true;
 	}
@@ -890,14 +890,14 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 
 	// Did It Make It?
 	//-----------------
-	if ((mMoveTrace.allsolid==qfalse) && (mMoveTrace.startsolid==qfalse ) && (mMoveTrace.fraction==1.0f))
+	if ((mMoveTrace.allsolid==false) && (mMoveTrace.startsolid==false ) && (mMoveTrace.fraction==1.0f))
 	{
 		return true;
 	}
 
 	// If We Started In Solid, Try Removing The "Do Not Enter" Contents Type, And Trace Again
 	//----------------------------------------------------------------------------------------
-	if (CheckForDoNotEnter && RetryIfStartInDoNotEnter && ((mMoveTrace.allsolid==qtrue) || (mMoveTrace.startsolid==qtrue)))
+	if (CheckForDoNotEnter && RetryIfStartInDoNotEnter && ((mMoveTrace.allsolid==true) || (mMoveTrace.startsolid==true)))
 	{
 		contents &= ~CONTENTS_BOTCLIP;
 
@@ -908,7 +908,7 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 
 		// Did It Make It?
 		//-----------------
-		if ((mMoveTrace.allsolid==qfalse) && (mMoveTrace.startsolid==qfalse ) && (mMoveTrace.fraction==1.0f))
+		if ((mMoveTrace.allsolid==false) && (mMoveTrace.startsolid==false ) && (mMoveTrace.fraction==1.0f))
 		{
 			return true;
 		}
@@ -1211,7 +1211,7 @@ bool			NAV::LoadFromFile(const char *filename, int checksum)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, qboolean IsDebugEdge )
+bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 {
 	int			atHandle = mGraph.get_edge_across( NodeA, NodeB );
 	CWayEdge&	at = mGraph.get_edge(atHandle);
@@ -1913,7 +1913,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 
 		// Try Medium
 		//------------
-		CanGo = TestEdge( at.mNodeA, at.mNodeB, (qboolean)IsDebugEdge );
+		CanGo = TestEdge( at.mNodeA, at.mNodeB, IsDebugEdge );
 		if (!CanGo)
 		{
 			at.mFlags.clear_bit(CWayEdge::WE_SIZE_LARGE);
@@ -1922,7 +1922,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			{
 				gi.Printf("Nav(%s)<->(%s): Attempting Size Medium...\n", aName, bName);
 			}
-			CanGo = TestEdge( at.mNodeA, at.mNodeB, (qboolean)IsDebugEdge );
+			CanGo = TestEdge( at.mNodeA, at.mNodeB, IsDebugEdge );
 		}
 
 		// If This Edge Can't Go At Any Size, Dump It

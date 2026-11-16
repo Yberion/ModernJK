@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //---------------
 
 //---------------------------------------------------------
-static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean altFire )
+static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire )
 //---------------------------------------------------------
 {
 	int velocity	= BLASTER_VELOCITY;
@@ -103,7 +103,7 @@ static void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qbo
 }
 
 //---------------------------------------------------------
-void WP_FireBlaster( gentity_t *ent, qboolean alt_fire )
+void WP_FireBlaster( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	vec3_t	dir, angs;

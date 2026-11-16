@@ -158,14 +158,14 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
 		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
-		obj_graphics[0] = qtrue;
+		obj_graphics[0] = true;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ3)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
-		obj_graphics[1] = qtrue;
+		obj_graphics[1] = true;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ4)
 	{
@@ -176,7 +176,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_green");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
-		obj_graphics[2] = qtrue;
+		obj_graphics[2] = true;
 	}
 	else if (objectIndex == KEJIM_POST_OBJ5)
 	{
@@ -191,7 +191,7 @@ static void MissionPrint_Line(const int color, const int objectIndex, int &missi
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_blue");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
-		obj_graphics[3] = qtrue;
+		obj_graphics[3] = true;
 	}
 }
 
@@ -205,7 +205,7 @@ void MissionInformation_Draw( centity_t *cent )
 	int		i,totalY;
 	int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f) * (cgi_Language_IsAsian() ? 1.2f : 1.0f );
 
-	missionInfo_Updated = qfalse;		// This will stop the text from flashing
+	missionInfo_Updated = false;		// This will stop the text from flashing
 	cg.missionInfoFlashTime = 0;
 
 	// Frame
@@ -215,7 +215,7 @@ void MissionInformation_Draw( centity_t *cent )
 
 	int missionYcnt = 0;
 
-	obj_graphics[0] = obj_graphics[1] = obj_graphics[2] = obj_graphics[3] = qfalse;
+	obj_graphics[0] = obj_graphics[1] = obj_graphics[2] = obj_graphics[3] = false;
 
 	// Print active objectives
 	cgi_R_SetColor(colorTable[CT_BLUE3]);
@@ -262,7 +262,7 @@ void MissionInformation_Draw( centity_t *cent )
 /*
 
 //-------------------------------------------------------
-static void CG_DrawForceCount( const int force, int x, float *y, const int pad,qboolean *hasForcePowers )
+static void CG_DrawForceCount( const int force, int x, float *y, const int pad,bool *hasForcePowers )
 {
 	char	s[MAX_STRING_CHARS];
 	int		val, textColor;
@@ -299,7 +299,7 @@ static void CG_DrawForceCount( const int force, int x, float *y, const int pad,q
 
 	*y += pad;
 
-	*hasForcePowers = qtrue;
+	*hasForcePowers = true;
 }
 
 
@@ -314,13 +314,13 @@ static void CG_LoadScreen_PersonalInfo(void)
 	float	x, y;
 	int		pad = 25;
 	char	text[1024]={0};
-	qboolean	hasForcePowers;
+	bool	hasForcePowers;
 
 	y = 65 + 30;
 
 	pad = 28;
 	x = 300;
-	hasForcePowers=qfalse;
+	hasForcePowers=false;
 
 	CG_DrawForceCount( FP_HEAL, x, &y, pad,&hasForcePowers);
 	CG_DrawForceCount( FP_LEVITATION, x, &y, pad,&hasForcePowers );

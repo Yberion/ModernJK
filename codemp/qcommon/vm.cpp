@@ -118,11 +118,11 @@ vm_t *VM_CreateLegacy( vmSlots_t vmSlot, intptr_t( *systemCalls )(intptr_t *) ) 
 		return vmTable[vmSlot];
 
 	// find a free vm
-	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, qtrue );
+	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, true );
 	vm = vmTable[vmSlot];
 
 	// initialise it
-	vm->isLegacy = qtrue;
+	vm->isLegacy = true;
 	vm->slot = vmSlot;
 	Q_strncpyz( vm->name, vmNames[vmSlot], sizeof(vm->name) );
 	vm->legacy.syscall = systemCalls;
@@ -158,11 +158,11 @@ vm_t *VM_Create( vmSlots_t vmSlot ) {
 		return vmTable[vmSlot];
 
 	// find a free vm
-	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, qtrue );
+	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, true );
 	vm = vmTable[vmSlot];
 
 	// initialise it
-	vm->isLegacy = qfalse;
+	vm->isLegacy = false;
 	vm->slot = vmSlot;
 	Q_strncpyz( vm->name, vmNames[vmSlot], sizeof(vm->name) );
 
@@ -217,7 +217,7 @@ void VM_Shifted_Alloc( void **ptr, int size ) {
 		return;
 	}
 
-	mem = Z_Malloc( size + 1, TAG_VM_ALLOCATED, qfalse );
+	mem = Z_Malloc( size + 1, TAG_VM_ALLOCATED, false );
 	if ( !mem ) {
 		assert( 0 );
 		*ptr = NULL;

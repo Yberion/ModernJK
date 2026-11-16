@@ -50,14 +50,14 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 #include "../qcommon/q_shared.h"
 #include "../qcommon/game_version.h"
 
-extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
-extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
-extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
-extern qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel );
-extern qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin );
+extern bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
+extern bool ItemParse_asset_model_go( itemDef_t *item, const char *name );
+extern bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
+extern bool UI_SaberModelForSaber( const char *saberName, char *saberModel );
+extern bool UI_SaberSkinForSaber( const char *saberName, char *saberSkin );
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
-extern qboolean PC_Script_Parse(const char **out);
+extern bool PC_Script_Parse(const char **out);
 
 #define LISTBUFSIZE 10240
 
@@ -95,9 +95,9 @@ static savedata_t s_savedata[MAX_SAVELOADFILES];
 void UI_SetActiveMenu( const char* menuname,const char *menuID );
 void ReadSaveDirectory (void);
 void Item_RunScript(itemDef_t *item, const char *s);
-qboolean Item_SetFocus(itemDef_t *item, float x, float y);
+bool Item_SetFocus(itemDef_t *item, float x, float y);
 
-qboolean		Asset_Parse(char **buffer);
+bool		Asset_Parse(char **buffer);
 menuDef_t		*Menus_FindByName(const char *p);
 void			Menus_HideItems(const char *menuName);
 int				Text_Height(const char *text, float scale, int iFontIndex );
@@ -130,12 +130,12 @@ static void		UI_NormalThrowSelection ( void );
 static void		UI_HighLightThrowSelection( void );
 static void		UI_ClearInventory ( void );
 static void		UI_GiveInventory ( const int itemIndex, const int amount );
-static void		UI_ForcePowerWeaponsButton(qboolean activeFlag);
+static void		UI_ForcePowerWeaponsButton(bool activeFlag);
 static void		UI_UpdateCharacterSkin( void );
-static void		UI_UpdateCharacter( qboolean changedModel );
+static void		UI_UpdateCharacter( bool changedModel );
 static void		UI_UpdateSaberType( void );
-static void		UI_UpdateSaberHilt( qboolean secondSaber );
-//static void		UI_UpdateSaberColor( qboolean secondSaber );
+static void		UI_UpdateSaberHilt( bool secondSaber );
+//static void		UI_UpdateSaberColor( bool secondSaber );
 static void		UI_InitWeaponSelect( void );
 static void		UI_WeaponHelpActive( void );
 
@@ -159,9 +159,9 @@ static void		UI_RecordWeapons( void );
 static void		UI_ResetCharacterListBoxes( void );
 
 
-void		UI_LoadMenus(const char *menuFile, qboolean reset);
+void		UI_LoadMenus(const char *menuFile, bool reset);
 static void		UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, int iFontIndex);
-static qboolean UI_OwnerDrawVisible(int flags);
+static bool UI_OwnerDrawVisible(int flags);
 int				UI_OwnerDrawWidth(int ownerDraw, float scale);
 static void		UI_Update(const char *name);
 void			UI_UpdateCvars( void );
@@ -408,7 +408,7 @@ vmCvar_t	ui_screenshotType;
 
 static void UI_UpdateScreenshot( void )
 {
-	qboolean changed = qfalse;
+	bool changed = false;
 	// check some things
 	if ( ui_screenshotType.string[0] && isalpha( ui_screenshotType.string[0] ) )
 	{
@@ -417,7 +417,7 @@ static void UI_UpdateScreenshot( void )
 		{
 			ui.Printf( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
 			uiInfo.uiDC.screenshotFormat = SSF_JPEG;
-			changed = qtrue;
+			changed = true;
 		}
 		else
 			uiInfo.uiDC.screenshotFormat = ssf;
@@ -426,11 +426,11 @@ static void UI_UpdateScreenshot( void )
 	{
 		ui.Printf( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
 		uiInfo.uiDC.screenshotFormat = SSF_JPEG;
-		changed = qtrue;
+		changed = true;
 	}
 	else {
 		uiInfo.uiDC.screenshotFormat = atoi( ui_screenshotType.string );
-		changed = qtrue;
+		changed = true;
 	}
 
 	if ( changed ) {
@@ -530,16 +530,16 @@ void _UI_Refresh( int realtime )
 		// refresh server browser list
 //		UI_DoServerRefresh();
 		// refresh server status
-//		UI_BuildServerStatus(qfalse);
+//		UI_BuildServerStatus(false);
 		// refresh find player list
-//		UI_BuildFindPlayerList(qfalse);
+//		UI_BuildFindPlayerList(false);
 	}
 
 	// draw cursor
 	UI_SetColor( NULL );
 	if (Menu_Count() > 0)
 	{
-		if (uiInfo.uiDC.cursorShow == qtrue)
+		if (uiInfo.uiDC.cursorShow == true)
 		{
 			UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
 		}
@@ -836,11 +836,11 @@ static int CreateNextSaveName(char *fileName)
 
 		if (!ui.SG_GetSaveGameComment(fileName, NULL, NULL))
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -850,30 +850,30 @@ UI_DeferMenuScript
 Return true if the menu script should be deferred for later
 ===============
 */
-static qboolean UI_DeferMenuScript ( const char **args )
+static bool UI_DeferMenuScript ( const char **args )
 {
 	const char* name;
 
 	// Whats the reason for being deferred?
 	if (!String_Parse(args, &name))
 	{
-		return qfalse;
+		return false;
 	}
 
 	// Handle the custom cases
 	if ( !Q_stricmp ( name, "VideoSetup" ) )
 	{
 		const char* warningMenuName;
-		qboolean	deferred;
+		bool	deferred;
 
 		// No warning menu specified
 		if ( !String_Parse(args, &warningMenuName) )
 		{
-			return qfalse;
+			return false;
 		}
 
 		// Defer if the video options were modified
-		deferred = Cvar_VariableIntegerValue( "ui_r_modified" ) ? qtrue : qfalse;
+		deferred = Cvar_VariableIntegerValue( "ui_r_modified" ) ? true : false;
 
 		if ( deferred )
 		{
@@ -884,7 +884,7 @@ static qboolean UI_DeferMenuScript ( const char **args )
 		return deferred;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -892,7 +892,7 @@ static qboolean UI_DeferMenuScript ( const char **args )
 UI_RunMenuScript
 ===============
 */
-static qboolean UI_RunMenuScript ( const char **args )
+static bool UI_RunMenuScript ( const char **args )
 {
 	const char *name, *name2,*mapName,*menuName,*warningMenuName;
 
@@ -973,7 +973,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 //				s_savegame.no.generic.flags		= QMF_HIGHLIGHT_IF_FOCUS;
 
 //				strcpy(fileName,s_savedata[s_savegame.currentLine].currentSaveFileName);
-//				s_savegame.awaitingSave = qtrue;
+//				s_savegame.awaitingSave = true;
 //				s_savegame.deletegame.generic.flags	= QMF_GRAYED;	// Turn off delete button
 //				break;
 			}
@@ -994,7 +994,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 			if (uiInfo.modList[uiInfo.modIndex].modName)
 			{
 				Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName);
-				extern	void FS_Restart( int checksumFeed, qboolean inPlace = qfalse );
+				extern	void FS_Restart( int checksumFeed, bool inPlace = false );
 				FS_Restart( 0 );
 				Cbuf_ExecuteText( EXEC_APPEND, "vid_restart;" );
 			}
@@ -1201,7 +1201,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 						ItemParse_model_g2anim_go( item, uiInfo.movesBaseAnim );
 
 						uiInfo.moveAnimTime = 0 ;
-						DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qtrue);
+						DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 						Com_sprintf( skin, sizeof( skin ), "models/players/%s/|%s|%s|%s",
 															Cvar_VariableString ( "g_char_model"),
 															Cvar_VariableString ( "g_char_skin_head"),
@@ -1221,11 +1221,11 @@ static qboolean UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "character") == 0)
 		{
-			UI_UpdateCharacter( qfalse );
+			UI_UpdateCharacter( false );
 		}
 		else if (Q_stricmp(name, "characterchanged") == 0)
 		{
-			UI_UpdateCharacter( qtrue );
+			UI_UpdateCharacter( true );
 		}
 		else if (Q_stricmp(name, "char_skin") == 0)
 		{
@@ -1237,19 +1237,19 @@ static qboolean UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "saber_hilt") == 0)
 		{
-			UI_UpdateSaberHilt( qfalse );
+			UI_UpdateSaberHilt( false );
 		}
 		else if (Q_stricmp(name, "saber_color") == 0)
 		{
-//			UI_UpdateSaberColor( qfalse );
+//			UI_UpdateSaberColor( false );
 		}
 		else if (Q_stricmp(name, "saber2_hilt") == 0)
 		{
-			UI_UpdateSaberHilt( qtrue );
+			UI_UpdateSaberHilt( true );
 		}
 		else if (Q_stricmp(name, "saber2_color") == 0)
 		{
-//			UI_UpdateSaberColor( qtrue );
+//			UI_UpdateSaberColor( true );
 		}
 		else if (Q_stricmp(name, "updatecharcvars") == 0)
 		{
@@ -1383,42 +1383,42 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &weaponIndex);
 			if (!weaponIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *ammoIndex;
 			String_Parse(args, &ammoIndex);
 			if (!ammoIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *ammoAmount;
 			String_Parse(args, &ammoAmount);
 			if (!ammoAmount)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *itemName;
 			String_Parse(args, &itemName);
 			if (!itemName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *litItemName;
 			String_Parse(args, &litItemName);
 			if (!litItemName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *backgroundName;
 			String_Parse(args, &backgroundName);
 			if (!backgroundName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *soundfile = NULL;
@@ -1432,42 +1432,42 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &weaponIndex);
 			if (!weaponIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *ammoIndex;
 			String_Parse(args, &ammoIndex);
 			if (!ammoIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *ammoAmount;
 			String_Parse(args, &ammoAmount);
 			if (!ammoAmount)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *itemName;
 			String_Parse(args, &itemName);
 			if (!itemName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *litItemName;
 			String_Parse(args, &litItemName);
 			if (!litItemName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *backgroundName;
 			String_Parse(args, &backgroundName);
 			if (!backgroundName)
 			{
-				return qfalse;
+				return false;
 			}
 
 			const char *soundfile;
@@ -1502,7 +1502,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &slotIndex);
 			if (!slotIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			UI_NormalWeaponSelection(atoi(slotIndex));
@@ -1513,7 +1513,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &slotIndex);
 			if (!slotIndex)
 			{
-				return qfalse;
+				return false;
 			}
 
 			UI_HighLightWeaponSelection(atoi(slotIndex));
@@ -1580,7 +1580,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1627,7 +1627,7 @@ static void UI_CalcForceStatus(void)
 {
 	float		lightSide,darkSide,total;
 	short		who, index=FW_VERY_LIGHT;
-	qboolean	lukeFlag=qtrue;
+	bool	lukeFlag=true;
 	float		percent;
 	client_t*	cl = &svs.clients[0];	// 0 because only ever us as a player
 	char		value[256];
@@ -1666,7 +1666,7 @@ static void UI_CalcForceStatus(void)
 		if (who <50)
 		{
 			strcpy(value,"vlk");	// Very light Kyle
-			lukeFlag = qfalse;
+			lukeFlag = false;
 		}
 		else
 		{
@@ -1680,7 +1680,7 @@ static void UI_CalcForceStatus(void)
 		if ( who<50 )
 		{
 			strcpy(value,"slk");	// Semi-light Kyle
-			lukeFlag = qfalse;
+			lukeFlag = false;
 		}
 		else
 		{
@@ -1693,7 +1693,7 @@ static void UI_CalcForceStatus(void)
 		if ( who<50 )
 		{
 			strcpy(value,"ntk");	// Neutral Kyle
-			lukeFlag = qfalse;
+			lukeFlag = false;
 		}
 		else
 		{
@@ -1706,7 +1706,7 @@ static void UI_CalcForceStatus(void)
 		if ( who<50 )
 		{
 			strcpy(value,"sdk");	// Semi-dark Kyle
-			lukeFlag = qfalse;
+			lukeFlag = false;
 		}
 		else
 		{
@@ -1719,7 +1719,7 @@ static void UI_CalcForceStatus(void)
 		if ( who<50 )
 		{
 			strcpy(value,"vdk");	// Very dark Kyle
-			lukeFlag = qfalse;
+			lukeFlag = false;
 		}
 		else
 		{
@@ -1731,11 +1731,11 @@ static void UI_CalcForceStatus(void)
 
 	if (lukeFlag)
 	{
-		DC->startLocalSound(DC->registerSound(lukeForceStatusSounds[index], qfalse), CHAN_VOICE );
+		DC->startLocalSound(DC->registerSound(lukeForceStatusSounds[index], false), CHAN_VOICE );
 	}
 	else
 	{
-		DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], qfalse), CHAN_VOICE );
+		DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], false), CHAN_VOICE );
 	}
 }
 #endif // !JK2_MODE
@@ -1904,7 +1904,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 					if (datapadMoveData[uiInfo.movesTitleIndex][index].anim)
 					{
 						ItemParse_model_g2anim_go( item, datapadMoveData[uiInfo.movesTitleIndex][index].anim );
-						uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qtrue);
+						uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 
 						uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 
@@ -1985,7 +1985,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 				if (modelPtr)
 				{
 					ItemParse_model_g2anim_go( item, uiInfo.movesBaseAnim );
-					uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qtrue);
+					uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, true);
 				}
 			}
 		}
@@ -2053,7 +2053,7 @@ extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void Key_GetBindingBuf( int keynum, char *buf, int buflen );
 
-static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key)
+static bool UI_Crosshair_HandleKey(int flags, float *special, int key)
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
@@ -2070,13 +2070,13 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key)
 			uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
 		}
 		Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair));
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
-static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key)
+static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key)
 {
 
 	switch (ownerDraw)
@@ -2088,7 +2088,7 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 			break;
 	}
 
-  return qfalse;
+  return false;
 }
 
 //unfortunately we cannot rely on any game/cgame module code to do our animation stuff,
@@ -2105,7 +2105,7 @@ static ui_animFileSet_t	ui_knownAnimFileSets[MAX_ANIM_FILES];
 
 int				ui_numKnownAnimFileSets;
 
-qboolean UI_ParseAnimationFile( const char *af_filename )
+bool UI_ParseAnimationFile( const char *af_filename )
 {
 	const char		*text_p;
 	int			len;
@@ -2119,12 +2119,12 @@ qboolean UI_ParseAnimationFile( const char *af_filename )
 	len = re.GetAnimationCFG(af_filename, text, sizeof(text));
 	if ( len <= 0 )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( len >= (int)(sizeof( text ) - 1) )
 	{
 		Com_Error( ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %d)", af_filename, len, sizeof( text ) - 1);
-		return qfalse;
+		return false;
 	}
 
 	// parse the text
@@ -2165,7 +2165,7 @@ qboolean UI_ParseAnimationFile( const char *af_filename )
 #endif
 			while (token[0])
 			{
-				token = COM_ParseExt( &text_p, qfalse );	//returns empty string when next token is EOL
+				token = COM_ParseExt( &text_p, false );	//returns empty string when next token is EOL
 			}
 			continue;
 		}
@@ -2214,10 +2214,10 @@ qboolean UI_ParseAnimationFile( const char *af_filename )
 	}
 	COM_EndParseSession();
 
-	return qtrue;
+	return true;
 }
 
-qboolean UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
+bool UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 { //Not going to bother parsing the sound config here.
 	char		afilename[MAX_QPATH];
 	char		strippedName[MAX_QPATH];
@@ -2238,7 +2238,7 @@ qboolean UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 		if ( Q_stricmp(ui_knownAnimFileSets[i].filename, strippedName ) == 0 )
 		{
 			*animFileIndex = i;
-			return qtrue;
+			return true;
 		}
 	}
 
@@ -2259,16 +2259,16 @@ qboolean UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 	if ( !UI_ParseAnimationFile( afilename ) )
 	{
 		*animFileIndex = -1;
-		return qfalse;
+		return false;
 	}
 
 	//set index and increment
 	*animFileIndex = ui_numKnownAnimFileSets++;
 
-	return qtrue;
+	return true;
 }
 
-int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const qboolean freeze)
+int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const bool freeze)
 {
 	int animIndex,blendTime;
 	char *GLAName;
@@ -2325,7 +2325,7 @@ int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const 
 	return 0;
 }
 
-static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
+static bool UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 {
 	const char	*token;
 	const char	*p;
@@ -2338,11 +2338,11 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );	//looking for the shader
+		token = COM_ParseExt( &p, true );	//looking for the shader
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
-			return (qboolean)(species.ColorCount != 0);
+			return (species.ColorCount != 0);
 		}
 
 		if (species.ColorCount >= species.ColorMax)
@@ -2355,29 +2355,29 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 
 		Q_strncpyz( species.Color[species.ColorCount].shader, token, MAX_QPATH );
 
-		token = COM_ParseExt( &p, qtrue );	//looking for action block {
+		token = COM_ParseExt( &p, true );	//looking for action block {
 		if ( token[0] != '{' )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
-		token = COM_ParseExt( &p, qtrue );	//looking for action commands
+		token = COM_ParseExt( &p, true );	//looking for action commands
 		while (token[0] != '}')
 		{
 			if ( token[0] == 0)
 			{	//EOF
 				COM_EndParseSession(  );
-				return qfalse;
+				return false;
 			}
 			Q_strcat(species.Color[species.ColorCount].actionText, ACTION_BUFFER_SIZE, token);
 			Q_strcat(species.Color[species.ColorCount].actionText, ACTION_BUFFER_SIZE, " ");
-			token = COM_ParseExt( &p, qtrue );	//looking for action commands or final }
+			token = COM_ParseExt( &p, true );	//looking for action commands or final }
 		}
 		species.ColorCount++;	//next color please
 	}
 	COM_EndParseSession(  );
-	return qtrue;//never get here
+	return true;//never get here
 }
 
 /*
@@ -2386,7 +2386,7 @@ bIsImageFile
 builds path and scans for valid image extentions
 =================
 */
-static qboolean IsImageFile(const char* dirptr, const char* skinname, qboolean building)
+static bool IsImageFile(const char* dirptr, const char* skinname, bool building)
 {
 	char fpath[MAX_QPATH];
 	int f;
@@ -2408,10 +2408,10 @@ static qboolean IsImageFile(const char* dirptr, const char* skinname, qboolean b
 	{
 		ui.FS_FCloseFile(f);
 		if ( building ) ui.R_RegisterShaderNoMip(fpath);
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 static void UI_FreeSpecies( playerSpeciesInfo_t *species )
@@ -2442,7 +2442,7 @@ void UI_FreeAllSpecies( void )
 PlayerModel_BuildList
 =================
 */
-static void UI_BuildPlayerModel_List( qboolean inGameLoad )
+static void UI_BuildPlayerModel_List( bool inGameLoad )
 {
 	static const size_t DIR_LIST_SIZE = 16384;
 
@@ -2555,7 +2555,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 				filelen = strlen(fileptr);
 				COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
-				if (IsImageFile(dirptr, skinname, (qboolean)(building != 0)))
+				if (IsImageFile(dirptr, skinname, (building != 0)))
 				{ //if it exists
 					if (Q_stricmpn(skinname,"head_",5) == 0)
 					{
@@ -2630,7 +2630,7 @@ void UI_Shutdown( void )
 UI_Init
 =================
 */
-void _UI_Init( qboolean inGameLoad )
+void _UI_Init( bool inGameLoad )
 {
 	// Get the list of possible languages
 #ifndef JK2_MODE
@@ -2737,12 +2737,12 @@ void _UI_Init( qboolean inGameLoad )
 #ifndef JK2_MODE
 	if (inGameLoad)
 	{
-		UI_LoadMenus("ui/ingame.txt", qtrue);
+		UI_LoadMenus("ui/ingame.txt", true);
 	}
 	else
 #endif
 	{
-		UI_LoadMenus(menuSet, qtrue);
+		UI_LoadMenus(menuSet, true);
 	}
 
 	Menus_CloseAll();
@@ -2751,7 +2751,7 @@ void _UI_Init( qboolean inGameLoad )
 
 	AssetCache();
 
-	uis.debugMode = qfalse;
+	uis.debugMode = false;
 
 	// sets defaults for ui temp cvars
 	uiInfo.effectsColor = (int)trap_Cvar_VariableValue("color")-1;
@@ -2771,11 +2771,11 @@ void _UI_Init( qboolean inGameLoad )
 	uiInfo.selectedWeapon2 = NOWEAPON;
 	uiInfo.selectedThrowWeapon = NOWEAPON;
 
-	uiInfo.uiDC.Assets.nullSound = trap_S_RegisterSound("sound/null", qfalse);
+	uiInfo.uiDC.Assets.nullSound = trap_S_RegisterSound("sound/null", false);
 
 #ifndef JK2_MODE
 	//FIXME hack to prevent error in jk2 by disabling
-	trap_S_RegisterSound("sound/interface/weapon_deselect", qfalse);
+	trap_S_RegisterSound("sound/interface/weapon_deselect", false);
 #endif
 
 }
@@ -2874,34 +2874,34 @@ Load_Menu
 	Load current menu file
 =================
 */
-qboolean Load_Menu(const char **holdBuffer)
+bool Load_Menu(const char **holdBuffer)
 {
 	const char	*token2;
 
-	token2 = COM_ParseExt( holdBuffer, qtrue );
+	token2 = COM_ParseExt( holdBuffer, true );
 
 	if (!token2[0])
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (*token2 != '{')
 	{
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 )
 	{
-		token2 = COM_ParseExt( holdBuffer, qtrue );
+		token2 = COM_ParseExt( holdBuffer, true );
 
 		if ((!token2) || (token2 == 0))
 		{
-			return qfalse;
+			return false;
 		}
 
 		if ( *token2 == '}' )
 		{
-			return qtrue;
+			return true;
 		}
 
 //#ifdef _DEBUG
@@ -2911,7 +2911,7 @@ qboolean Load_Menu(const char **holdBuffer)
 		UI_ParseMenu(token2);
 
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -2920,7 +2920,7 @@ UI_LoadMenus
 	Load all menus based on the files listed in the data file in menuFile (default "ui/menus.txt")
 =================
 */
-void UI_LoadMenus(const char *menuFile, qboolean reset)
+void UI_LoadMenus(const char *menuFile, bool reset)
 {
 //	pc_token_t token;
 //	int handle;
@@ -2956,7 +2956,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset)
 	COM_BeginParseSession();
 	while ( 1 )
 	{
-		token2 = COM_ParseExt( &holdBuffer, qtrue );
+		token2 = COM_ParseExt( &holdBuffer, true );
 		if (!*token2)
 		{
 			break;
@@ -3031,7 +3031,7 @@ void UI_Load(void)
 
 	String_Init();
 
-	UI_LoadMenus(menuSet, qtrue);
+	UI_LoadMenus(menuSet, true);
 	Menus_CloseAll();
 	Menus_ActivateByName(lastName);
 }
@@ -3041,7 +3041,7 @@ void UI_Load(void)
 Asset_Parse
 =================
 */
-qboolean Asset_Parse(char **buffer)
+bool Asset_Parse(char **buffer)
 {
 	char		*token;
 	const char	*tempStr;
@@ -3051,12 +3051,12 @@ qboolean Asset_Parse(char **buffer)
 
 	if (!token)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (*token != '{')
 	{
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 )
@@ -3065,12 +3065,12 @@ qboolean Asset_Parse(char **buffer)
 
 		if (!token)
 		{
-			return qfalse;
+			return false;
 		}
 
 		if (*token == '}')
 		{
-			return qtrue;
+			return true;
 		}
 
 		// fonts
@@ -3079,7 +3079,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'smallFont'");
-				return qfalse;
+				return false;
 			}
 
 			UI_RegisterFont(tempStr);
@@ -3098,11 +3098,11 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'font'");
-				return qfalse;
+				return false;
 			}
 
 			uiInfo.uiDC.Assets.qhMediumFont = UI_RegisterFont(tempStr);
-			uiInfo.uiDC.Assets.fontRegistered = qtrue;
+			uiInfo.uiDC.Assets.fontRegistered = true;
 
 			//not used
 			if (PC_ParseInt(&pointSize))
@@ -3117,7 +3117,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'bigFont'");
-				return qfalse;
+				return false;
 			}
 
 			UI_RegisterFont(tempStr);
@@ -3136,7 +3136,7 @@ qboolean Asset_Parse(char **buffer)
 			if (!PC_ParseStringMem((const char **) &tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'stripedFile'");
-				return qfalse;
+				return false;
 			}
 
 			char sTemp[1024];
@@ -3144,7 +3144,7 @@ qboolean Asset_Parse(char **buffer)
 			if (!ui.SP_Register(sTemp, /*SP_REGISTER_REQUIRED|*/SP_REGISTER_MENU))
 			{
 				PC_ParseWarning(va("(.SP file \"%s\" not found)",sTemp));
-				//return qfalse;	// hmmm... dunno about this, don't want to break scripts for just missing subtitles
+				//return false;	// hmmm... dunno about this, don't want to break scripts for just missing subtitles
 			}
 			else
 			{
@@ -3162,7 +3162,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'gradientbar'");
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.gradientBar = ui.R_RegisterShaderNoMip(tempStr);
 			continue;
@@ -3174,10 +3174,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'menuEnterSound'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3187,9 +3187,9 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'menuExitSound'");
-				return qfalse;
+				return false;
 			}
-			uiInfo.uiDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3199,9 +3199,9 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'itemFocusSound'");
-				return qfalse;
+				return false;
 			}
-			uiInfo.uiDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3211,9 +3211,9 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'menuBuzzSound'");
-				return qfalse;
+				return false;
 			}
-			uiInfo.uiDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3223,10 +3223,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'forceChosenSound'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.forceChosenSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.forceChosenSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3237,10 +3237,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'forceUnchosenSound'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.forceUnchosenSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.forceUnchosenSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3249,10 +3249,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveRollSound'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveRollSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveRollSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3261,10 +3261,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveRoll'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveJumpSound = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveJumpSound = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3273,10 +3273,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound1'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound1 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3285,10 +3285,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound2'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound2 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3297,10 +3297,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound3'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound3 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3309,10 +3309,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound4'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound4 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3321,10 +3321,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound5'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound5 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3333,10 +3333,10 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'datapadmoveSaberSound6'");
-				return qfalse;
+				return false;
 			}
 
-			uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap_S_RegisterSound( tempStr, qfalse );
+			uiInfo.uiDC.Assets.datapadmoveSaberSound6 = trap_S_RegisterSound( tempStr, false );
 			continue;
 		}
 
@@ -3345,7 +3345,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseString(&tempStr))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'cursor'");
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.cursor = ui.R_RegisterShaderNoMip( tempStr);
 			continue;
@@ -3356,7 +3356,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseFloat(&uiInfo.uiDC.Assets.fadeClamp))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'fadeClamp'");
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
@@ -3366,7 +3366,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseInt(&uiInfo.uiDC.Assets.fadeCycle))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'fadeCycle'");
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
@@ -3376,7 +3376,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseFloat(&uiInfo.uiDC.Assets.fadeAmount))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'fadeAmount'");
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
@@ -3386,7 +3386,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseFloat(&uiInfo.uiDC.Assets.shadowX))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'shadowX'");
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
@@ -3396,7 +3396,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseFloat(&uiInfo.uiDC.Assets.shadowY))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'shadowY'");
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
@@ -3406,7 +3406,7 @@ qboolean Asset_Parse(char **buffer)
 			if (PC_ParseColor(&uiInfo.uiDC.Assets.shadowColor))
 			{
 				PC_ParseWarning("Bad 1st parameter for keyword 'shadowColor'");
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.shadowFadeClamp = uiInfo.uiDC.Assets.shadowColor[3];
 			continue;
@@ -3420,9 +3420,9 @@ qboolean Asset_Parse(char **buffer)
 				char *soundFile;
 				do
 				{
-					soundFile = COM_ParseExt(&tempStr, qfalse);
+					soundFile = COM_ParseExt(&tempStr, false);
 					if (soundFile[0] != 0 && soundFile[0] != ';') {
-						if (!trap_S_RegisterSound( soundFile, qfalse ))
+						if (!trap_S_RegisterSound( soundFile, false ))
 						{
 							PC_ParseWarning("Can't locate precache sound");
 						}
@@ -3434,7 +3434,7 @@ qboolean Asset_Parse(char **buffer)
 	}
 
 	PC_ParseWarning(va("Invalid keyword '%s'",token));
-	return qfalse;
+	return false;
 }
 
 /*
@@ -3854,7 +3854,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 #ifdef JK2_MODE
 			if (screenShotBuf[0])
 			{
-				ui.DrawStretchRaw( x, y, w, h, SG_SCR_WIDTH, SG_SCR_HEIGHT, screenShotBuf, 0, qtrue );
+				ui.DrawStretchRaw( x, y, w, h, SG_SCR_WIDTH, SG_SCR_HEIGHT, screenShotBuf, 0, true );
 			}
 			else
 #endif
@@ -3900,9 +3900,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 UI_OwnerDrawVisible
 =================
 */
-static qboolean UI_OwnerDrawVisible(int flags)
+static bool UI_OwnerDrawVisible(int flags)
 {
-	qboolean vis = qtrue;
+	bool vis = true;
 
 	while (flags)
 	{
@@ -3910,7 +3910,7 @@ static qboolean UI_OwnerDrawVisible(int flags)
 		{
 			if (!uiInfo.demoAvailable)
 			{
-				vis = qfalse;
+				vis = false;
 			}
 			flags &= ~UI_SHOW_DEMOAVAILABLE;
 		}
@@ -4042,9 +4042,9 @@ void _UI_MouseEvent( int dx, int dy )
 UI_KeyEvent
 =================
 */
-void _UI_KeyEvent( int key, qboolean down )
+void _UI_KeyEvent( int key, bool down )
 {
-/*	extern qboolean SwallowBadNumLockedKPKey( int iKey );
+/*	extern bool SwallowBadNumLockedKPKey( int iKey );
 	if (SwallowBadNumLockedKPKey(key)){
 		return;
 	}
@@ -4139,7 +4139,7 @@ void UI_InGameMenu(const char*menuID)
 	ui.Key_SetCatcher( KEYCATCH_UI );
 }
 
-qboolean _UI_IsFullscreen( void )
+bool _UI_IsFullscreen( void )
 {
 	return Menus_AnyFullScreenVisible();
 }
@@ -4172,7 +4172,7 @@ void UI_MainMenu(void)
 	menuDef_t *m = Menus_ActivateByName("mainMenu");
 	if (!m)
 	{	//wha? try again
-		UI_LoadMenus("ui/menus.txt",qfalse);
+		UI_LoadMenus("ui/menus.txt",false);
 	}
 	ui.Cvar_VariableStringBuffer("com_errorMessage", buf, sizeof(buf));
 	if (strlen(buf)) {
@@ -4278,7 +4278,7 @@ static void UI_SetSexandSoundForModel(const char* char_model)
 {
 	int			f,i;
 	char		soundpath[MAX_QPATH];
-	qboolean	isFemale = qfalse;
+	bool	isFemale = false;
 
 	i = ui.FS_FOpenFile(va("models/players/%s/sounds.cfg", char_model), &f, FS_READ);
 	if ( !f )
@@ -4296,7 +4296,7 @@ static void UI_SetSexandSoundForModel(const char* char_model)
 	{
 		if (soundpath[i] == 'f')
 		{
-			isFemale = qtrue;
+			isFemale = true;
 			soundpath[i] = 0;
 		}
 
@@ -4516,7 +4516,7 @@ static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
 
 
 // Find the index to the Force Power in powerEnum array
-static qboolean UI_GetForcePowerIndex ( const char *forceName, short *forcePowerI )
+static bool UI_GetForcePowerIndex ( const char *forceName, short *forcePowerI )
 {
 	int i;
 
@@ -4526,13 +4526,13 @@ static qboolean UI_GetForcePowerIndex ( const char *forceName, short *forcePower
 		if ( !Q_stricmp(forceName, powerEnums[i].title ) )
 		{
 			*forcePowerI = i;
-			return(qtrue);
+			return(true);
 		}
 	}
 
 	*forcePowerI = FP_UPDATED_NONE;	// Didn't find it
 
-	return(qfalse);
+	return(false);
 }
 
 // Set the fields for the allocation of force powers (Used by Force Power Allocation screen)
@@ -4593,11 +4593,11 @@ static void UI_InitAllocForcePowers ( const char *forceName )
 	}
 
 	// Set weapons button to inactive
-	UI_ForcePowerWeaponsButton(qfalse);
+	UI_ForcePowerWeaponsButton(false);
 }
 
 // Flip flop between being able to see the text showing the Force Point has or hasn't been allocated (Used by Force Power Allocation screen)
-static void UI_SetPowerTitleText ( qboolean showAllocated )
+static void UI_SetPowerTitleText ( bool showAllocated )
 {
 	menuDef_t	*menu;
 	itemDef_t	*item;
@@ -4672,7 +4672,7 @@ static int UI_CountForcePowers( void ) {
 #endif
 
 //. Find weapons button and make active/inactive  (Used by Force Power Allocation screen)
-static void UI_ForcePowerWeaponsButton(qboolean activeFlag)
+static void UI_ForcePowerWeaponsButton(bool activeFlag)
 {
 	menuDef_t	*menu;
 	menu = Menu_GetFocused();	// Get current menu
@@ -4686,7 +4686,7 @@ static void UI_ForcePowerWeaponsButton(qboolean activeFlag)
 	if (!activeFlag) {
 		// total light and dark powers are at maximum level 3    ( 3 levels * ( 4ls + 4ds ) = 24 )
 		if ( UI_CountForcePowers() >= 24 )
-			activeFlag = qtrue;
+			activeFlag = true;
 	}
 #endif
 
@@ -4709,7 +4709,7 @@ static void UI_ForcePowerWeaponsButton(qboolean activeFlag)
 
 void UI_SetItemColor(itemDef_t *item,const char *itemname,const char *name,vec4_t color);
 
-static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const int powerLevel, const qboolean	goldFlag )
+static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const int powerLevel, const bool	goldFlag )
 {
 	char itemName[128];
 	itemDef_t	*item;
@@ -4751,7 +4751,7 @@ static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const
 	}
 }
 
-void UI_SetItemVisible(menuDef_t *menu,const char *itemname,qboolean visible);
+void UI_SetItemVisible(menuDef_t *menu,const char *itemname,bool visible);
 
 // if this is the first time into the force power allocation screen, show the INSTRUCTION screen
 static void	UI_ForceHelpActive( void )
@@ -4929,12 +4929,12 @@ static void UI_ShutdownForceHelp( void )
 		{
 			Com_sprintf (itemName, sizeof(itemName), "%s_fbutton", powerEnums[i].title);
 
-			UI_SetItemVisible(menu,itemName,qtrue);
+			UI_SetItemVisible(menu,itemName,true);
 		}
 
-		UI_SetItemVisible(menu,"force_icon",qtrue);
-		UI_SetItemVisible(menu,"force_desc",qtrue);
-		UI_SetItemVisible(menu,"leveltext",qtrue);
+		UI_SetItemVisible(menu,"force_icon",true);
+		UI_SetItemVisible(menu,"force_desc",true);
+		UI_SetItemVisible(menu,"leveltext",true);
 
 		// Set focus on the top left button
 		item = (itemDef_s *) Menu_FindItemByName(menu, "absorb_fbutton");
@@ -4949,9 +4949,9 @@ static void UI_ShutdownForceHelp( void )
 	// In upgrade mode so just turn the deallocate button on
 	else
 	{
-		UI_SetItemVisible(menu,"force_icon",qtrue);
-		UI_SetItemVisible(menu,"force_desc",qtrue);
-		UI_SetItemVisible(menu,"deallocate_fbutton",qtrue);
+		UI_SetItemVisible(menu,"force_icon",true);
+		UI_SetItemVisible(menu,"force_desc",true);
+		UI_SetItemVisible(menu,"deallocate_fbutton",true);
 
 		item = (itemDef_s *) Menu_FindItemByName(menu, va("%s_fbutton",powerEnums[uiInfo.forcePowerUpdated].title));
 		if (item)
@@ -5069,7 +5069,7 @@ static void UI_DecrementCurrentForcePower ( void )
 		}
 	}
 
-	UI_SetHexPicLevel( menu,uiInfo.forcePowerUpdated,forcelevel,qfalse );
+	UI_SetHexPicLevel( menu,uiInfo.forcePowerUpdated,forcelevel,false );
 
 	UI_ShowForceLevelDesc ( powerEnums[uiInfo.forcePowerUpdated].title );
 
@@ -5086,10 +5086,10 @@ static void UI_DecrementCurrentForcePower ( void )
 	}
 
 	// Show point has not been allocated
-	UI_SetPowerTitleText( qfalse);
+	UI_SetPowerTitleText( false);
 
 	// Make weapons button inactive
-	UI_ForcePowerWeaponsButton(qfalse);
+	UI_ForcePowerWeaponsButton(false);
 
 	// Hide the deallocate button
 	item = (itemDef_s *) Menu_FindItemByName(menu, "deallocate_fbutton");
@@ -5170,7 +5170,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 		forcelevel = uiInfo.forcePowerLevel[powerEnums[forcePowerI].powerEnum];
 	}
 
-	UI_SetHexPicLevel( menu,uiInfo.forcePowerUpdated,forcelevel,qtrue );
+	UI_SetHexPicLevel( menu,uiInfo.forcePowerUpdated,forcelevel,true );
 
 	UI_ShowForceLevelDesc ( forceName );
 
@@ -5197,10 +5197,10 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 		}
 
 		// Show point has been allocated
-		UI_SetPowerTitleText ( qtrue );
+		UI_SetPowerTitleText ( true );
 
 		// Make weapons button active
-		UI_ForcePowerWeaponsButton(qtrue);
+		UI_ForcePowerWeaponsButton(true);
 
 		// Make user_info
 		Cvar_Set ( "ui_forcepower_inc", va("%d",uiInfo.forcePowerUpdated) );
@@ -5326,7 +5326,7 @@ static void UI_ResetForceLevels ( void )
 			}
 		}
 
-		UI_SetPowerTitleText( qfalse );
+		UI_SetPowerTitleText( false );
 
 		Com_sprintf (itemName, sizeof(itemName), "%s_fbutton", powerEnums[uiInfo.forcePowerUpdated].title);
 		item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
@@ -5339,7 +5339,7 @@ static void UI_ResetForceLevels ( void )
 		uiInfo.forcePowerUpdated = FP_UPDATED_NONE;
 	}
 
-	UI_ForcePowerWeaponsButton(qfalse);
+	UI_ForcePowerWeaponsButton(false);
 }
 
 
@@ -5494,7 +5494,7 @@ static void UI_GiveInventory ( const int itemIndex, const int amount )
 }
 
 //. Find weapons allocation screen BEGIN button and make active/inactive
-static void UI_WeaponAllocBeginButton(qboolean activeFlag)
+static void UI_WeaponAllocBeginButton(bool activeFlag)
 {
 	menuDef_t	*menu;
 	menu = Menu_GetFocused();	// Get current menu
@@ -5533,11 +5533,11 @@ static void UI_WeaponsSelectionsComplete( void )
 		( uiInfo.selectedWeapon2 != NOWEAPON ) &&
 		( uiInfo.selectedThrowWeapon != NOWEAPON ))
 	{
-		UI_WeaponAllocBeginButton(qtrue);	// Turn it on
+		UI_WeaponAllocBeginButton(true);	// Turn it on
 	}
 	else
 	{
-		UI_WeaponAllocBeginButton(qfalse);	// Turn it off
+		UI_WeaponAllocBeginButton(false);	// Turn it off
 	}
 }
 
@@ -5557,23 +5557,23 @@ static void	UI_WeaponHelpActive( void )
 	// First time, show instructions
 	if (tier_storyinfo==1)
 	{
-		UI_SetItemVisible(menu,"weapon_button",qfalse);
+		UI_SetItemVisible(menu,"weapon_button",false);
 
-		UI_SetItemVisible(menu,"inst_stuff",qtrue);
+		UI_SetItemVisible(menu,"inst_stuff",true);
 
 	}
 	// just act like normal
 	else
 	{
-		UI_SetItemVisible(menu,"weapon_button",qtrue);
+		UI_SetItemVisible(menu,"weapon_button",true);
 
-		UI_SetItemVisible(menu,"inst_stuff",qfalse);
+		UI_SetItemVisible(menu,"inst_stuff",false);
 	}
 }
 
 static void UI_InitWeaponSelect( void )
 {
-	UI_WeaponAllocBeginButton(qfalse);
+	UI_WeaponAllocBeginButton(false);
 	uiInfo.selectedWeapon1 = NOWEAPON;
 	uiInfo.selectedWeapon2 = NOWEAPON;
 	uiInfo.selectedThrowWeapon = NOWEAPON;
@@ -5653,19 +5653,19 @@ static void	UI_LoadMissionSelectMenu( const char *cvarName )
 	// Figure out which tier menu to load
 	if ((holdLevel > 0) && (holdLevel < 5))
 	{
-		UI_LoadMenus("ui/tier1.txt",qfalse);
+		UI_LoadMenus("ui/tier1.txt",false);
 
 		Menus_CloseByName("ingameMissionSelect1");
 	}
 	else if ((holdLevel > 6) && (holdLevel < 10))
 	{
-		UI_LoadMenus("ui/tier2.txt",qfalse);
+		UI_LoadMenus("ui/tier2.txt",false);
 
 		Menus_CloseByName("ingameMissionSelect2");
 	}
 	else if ((holdLevel > 11) && (holdLevel < 15))
 	{
-		UI_LoadMenus("ui/tier3.txt",qfalse);
+		UI_LoadMenus("ui/tier3.txt",false);
 
 		Menus_CloseByName("ingameMissionSelect3");
 	}
@@ -5793,7 +5793,7 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, 
 
 	if( soundfile )
 	{
-		DC->startLocalSound(DC->registerSound(soundfile, qfalse), CHAN_LOCAL );
+		DC->startLocalSound(DC->registerSound(soundfile, false), CHAN_LOCAL );
 	}
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -5916,7 +5916,7 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 
 #ifndef JK2_MODE
 	//FIXME hack to prevent error in jk2 by disabling
-	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", qfalse), CHAN_LOCAL );
+	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), CHAN_LOCAL );
 #endif
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6084,7 +6084,7 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIn
 
 	if( soundfile )
 	{
-		DC->startLocalSound(DC->registerSound(soundfile, qfalse), CHAN_LOCAL );
+		DC->startLocalSound(DC->registerSound(soundfile, false), CHAN_LOCAL );
 	}
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6175,7 +6175,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 
 #ifndef JK2_MODE
 	//FIXME hack to prevent error in jk2 by disabling
-	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", qfalse), CHAN_LOCAL );
+	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", false), CHAN_LOCAL );
 #endif
 
 	UI_WeaponsSelectionsComplete();	// Test to see if the mission begin button should turn on or off
@@ -6235,8 +6235,8 @@ static void UI_ResetSaberCvars ( void )
 	Cvar_Set ( "ui_saber2", "" );
 }
 
-extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
-extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
+extern bool ItemParse_asset_model_go( itemDef_t *item, const char *name );
+extern bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
 static void UI_UpdateCharacterSkin( void )
 {
 	menuDef_t *menu;
@@ -6267,7 +6267,7 @@ static void UI_UpdateCharacterSkin( void )
 	ItemParse_model_g2skin_go( item, skin );
 }
 
-static void UI_UpdateCharacter( qboolean changedModel )
+static void UI_UpdateCharacter( bool changedModel )
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -6314,7 +6314,7 @@ void UI_UpdateSaberType( void )
 	}
 }
 
-static void UI_UpdateSaberHilt( qboolean secondSaber )
+static void UI_UpdateSaberHilt( bool secondSaber )
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -6367,7 +6367,7 @@ static void UI_UpdateSaberHilt( qboolean secondSaber )
 }
 
 /*
-static void UI_UpdateSaberColor( qboolean secondSaber )
+static void UI_UpdateSaberColor( bool secondSaber )
 {
 	int sabernumber;
 	if (secondSaber)

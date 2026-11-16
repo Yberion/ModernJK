@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //#include "anims.h"
 //extern int PM_AnimLength( int index, animNumber_t anim );
-//extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
+//extern bool PM_HasAnimation( gentity_t *ent, int animation );
 //extern int PM_AnimLength( int index, animNumber_t anim );
 //#define	MAX_IDLE_ANIMS	8
 extern int g_crosshairEntNum;
@@ -106,11 +106,11 @@ void NPC_StandIdle( void )
 */
 }
 
-qboolean NPC_StandTrackAndShoot (gentity_t *NPC, qboolean canDuck)
+bool NPC_StandTrackAndShoot (gentity_t *NPC, bool canDuck)
 {
-	qboolean	attack_ok = qfalse;
-	qboolean	duck_ok = qfalse;
-	qboolean	faced = qfalse;
+	bool	attack_ok = false;
+	bool	duck_ok = false;
+	bool	faced = false;
 	float		attack_scale = 1.0;
 
 	//First see if we're hurt bad- if so, duck
@@ -123,24 +123,24 @@ qboolean NPC_StandTrackAndShoot (gentity_t *NPC, qboolean canDuck)
 		//	if( NPC->svFlags&SVF_HEALING || Q_flrand(0.0f, 1.0f) )
 			if( Q_flrand(0.0f, 1.0f) )
 			{
-				duck_ok = qtrue;
+				duck_ok = true;
 			}
 		}
 		else if ( NPC->health < 40 )
 		{
 //			if ( NPC->svFlags&SVF_HEALING )
 //			{//Medic is on the way, get down!
-//				duck_ok = qtrue;
+//				duck_ok = true;
 //			}
 		}
 	}
 
-	//NPC_CheckEnemy( qtrue, qfalse );
+	//NPC_CheckEnemy( true, false );
 
 	if ( !duck_ok )
 	{//made this whole part a function call
-		attack_ok = NPC_CheckCanAttack( attack_scale, qtrue );
-		faced = qtrue;
+		attack_ok = NPC_CheckCanAttack( attack_scale, true );
+		faced = true;
 	}
 
 	if ( canDuck && (duck_ok || (!attack_ok && client->fireDelay == 0)) && ucmd.upmove != -127 )
@@ -155,7 +155,7 @@ qboolean NPC_StandTrackAndShoot (gentity_t *NPC, qboolean canDuck)
 					{//FIXME: determine if enemy fire angles would hit me or get close
 						if ( NPC_CheckDefend( 1.0 ) )//FIXME: Check self-preservation?  Health?
 						{
-							duck_ok = qtrue;
+							duck_ok = true;
 						}
 					}
 				}
@@ -164,7 +164,7 @@ qboolean NPC_StandTrackAndShoot (gentity_t *NPC, qboolean canDuck)
 
 		if ( duck_ok )
 		{//duck and don't shoot
-			attack_ok = qfalse;
+			attack_ok = false;
 			ucmd.upmove = -127;
 			NPCInfo->duckDebounceTime = level.time + 1000;//duck for a full second
 		}
@@ -180,7 +180,7 @@ void NPC_BSIdle( void )
 	// if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
 	if ( ( ucmd.forwardmove == 0 ) && ( ucmd.rightmove == 0 ) && ( ucmd.upmove == 0 ) )
@@ -188,7 +188,7 @@ void NPC_BSIdle( void )
 //		NPC_StandIdle();
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 	ucmd.buttons |= BUTTON_WALKING;
 }
 
@@ -198,10 +198,10 @@ void NPC_BSRun (void)
 	// if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 void NPC_BSStandGuard (void)
@@ -215,9 +215,9 @@ void NPC_BSStandGuard (void)
 			{
 				gentity_t *newenemy = NPC_PickEnemy(
 					NPC, NPC->client->enemyTeam,
-					(qboolean)(NPC->cantHitEnemyCounter < 10),
-					(qboolean)(NPC->client->enemyTeam == TEAM_PLAYER),
-					qtrue);
+					(NPC->cantHitEnemyCounter < 10),
+					(NPC->client->enemyTeam == TEAM_PLAYER),
+					true);
 				//only checks for vis if couldn't hit last enemy
 				if(newenemy)
 				{
@@ -240,7 +240,7 @@ void NPC_BSStandGuard (void)
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -251,23 +251,23 @@ NPC_BSHuntAndKill
 
 void NPC_BSHuntAndKill( void )
 {
-	qboolean	turned = qfalse;
+	bool	turned = false;
 	vec3_t		vec;
 	float		enemyDist;
 	visibility_t	oEVis;
 	int			curAnim;
 
-	NPC_CheckEnemy( (qboolean)(NPCInfo->tempBehavior != BS_HUNT_AND_KILL), qfalse );//don't find new enemy if this is tempbehav
+	NPC_CheckEnemy( (NPCInfo->tempBehavior != BS_HUNT_AND_KILL), false );//don't find new enemy if this is tempbehav
 
 	if ( NPC->enemy )
 	{
 		oEVis = enemyVisibility = NPC_CheckVisibility ( NPC->enemy, CHECK_FOV|CHECK_SHOOT );//CHECK_360|//CHECK_PVS|
 		if(enemyVisibility > VIS_PVS)
 		{
-			if ( !NPC_EnemyTooFar( NPC->enemy, 0, qtrue ) )
+			if ( !NPC_EnemyTooFar( NPC->enemy, 0, true ) )
 			{//Enemy is close enough to shoot - FIXME: this next func does this also, but need to know here for info on whether ot not to turn later
-				NPC_CheckCanAttack( 1.0, qfalse );
-				turned = qtrue;
+				NPC_CheckCanAttack( 1.0, false );
+				turned = true;
 			}
 		}
 
@@ -284,7 +284,7 @@ void NPC_BSHuntAndKill( void )
 			{//We should close in?
 				NPCInfo->goalEntity = NPC->enemy;
 
-				NPC_MoveToGoal( qtrue );
+				NPC_MoveToGoal( true );
 			}
 			else if(enemyDist < IdealDistance(NPC))
 			{//We should back off?
@@ -292,7 +292,7 @@ void NPC_BSHuntAndKill( void )
 				{
 					NPCInfo->goalEntity = NPC->enemy;
 					NPCInfo->goalRadius = 12;
-					NPC_MoveToGoal( qtrue );
+					NPC_MoveToGoal( true );
 
 					ucmd.forwardmove *= -1;
 					ucmd.rightmove *= -1;
@@ -319,7 +319,7 @@ void NPC_BSHuntAndKill( void )
 
 	if(!turned)
 	{
-		NPC_UpdateAngles(qtrue, qtrue);
+		NPC_UpdateAngles(true, true);
 	}
 }
 
@@ -381,32 +381,32 @@ void NPC_BSStandAndShoot (void)
 		*/
 	}
 
-	NPC_CheckEnemy(qtrue, qfalse);
+	NPC_CheckEnemy(true, false);
 
 	if(NPCInfo->duckDebounceTime > level.time && NPC->client->ps.weapon != WP_SABER )
 	{
 		ucmd.upmove = -127;
 		if(NPC->enemy)
 		{
-			NPC_CheckCanAttack(1.0, qtrue);
+			NPC_CheckCanAttack(1.0, true);
 		}
 		return;
 	}
 
 	if(NPC->enemy)
 	{
-		if(!NPC_StandTrackAndShoot( NPC, qtrue ))
+		if(!NPC_StandTrackAndShoot( NPC, true ))
 		{//That func didn't update our angles
 			NPCInfo->desiredYaw = NPC->client->ps.viewangles[YAW];
 			NPCInfo->desiredPitch = NPC->client->ps.viewangles[PITCH];
-			NPC_UpdateAngles(qtrue, qtrue);
+			NPC_UpdateAngles(true, true);
 		}
 	}
 	else
 	{
 		NPCInfo->desiredYaw = NPC->client->ps.viewangles[YAW];
 		NPCInfo->desiredPitch = NPC->client->ps.viewangles[PITCH];
-		NPC_UpdateAngles(qtrue, qtrue);
+		NPC_UpdateAngles(true, true);
 //		NPC_BSIdle();//only moves if we have a goal
 	}
 }
@@ -429,16 +429,16 @@ void NPC_BSRunAndShoot (void)
 	//NOTE: are we sure we want ALL run and shoot people to move this way?
 	//Shouldn't it check to see if we have an enemy and our enemy is our goal?!
 	//Moved that check into NPC_MoveToGoal
-	//NPCInfo->combatMove = qtrue;
+	//NPCInfo->combatMove = true;
 
-	NPC_CheckEnemy( qtrue, qfalse );
+	NPC_CheckEnemy( true, false );
 
 	if ( NPCInfo->duckDebounceTime > level.time ) // && NPCInfo->hidingGoal )
 	{
 		ucmd.upmove = -127;
 		if ( NPC->enemy )
 		{
-			NPC_CheckCanAttack( 1.0, qfalse );
+			NPC_CheckCanAttack( 1.0, false );
 		}
 		return;
 	}
@@ -446,7 +446,7 @@ void NPC_BSRunAndShoot (void)
 	if ( NPC->enemy )
 	{
 		int monitor = NPC->cantHitEnemyCounter;
-		NPC_StandTrackAndShoot( NPC, qfalse );//(NPCInfo->hidingGoal != NULL) );
+		NPC_StandTrackAndShoot( NPC, false );//(NPCInfo->hidingGoal != NULL) );
 
 		if ( !(ucmd.buttons & BUTTON_ATTACK) && ucmd.upmove >= 0 && NPC->cantHitEnemyCounter > monitor )
 		{//not crouching and not firing
@@ -475,8 +475,8 @@ void NPC_BSRunAndShoot (void)
 				NPCInfo->goalEntity = NPC->enemy;
 				NPCInfo->goalRadius = 12;
 				//NAV_ClearLastRoute(NPC);
-				NPC_MoveToGoal( qtrue );
-				NPC_UpdateAngles(qtrue, qtrue);
+				NPC_MoveToGoal( true );
+				NPC_UpdateAngles(true, true);
 			}
 			else
 			{
@@ -511,7 +511,7 @@ void NPC_BSFace (void)
 {
 	//FIXME: once you stop sending turning info, they reset to whatever their delta_angles was last????
 	//Once this is over, it snaps back to what it was facing before- WHY???
-	if( NPC_UpdateAngles ( qtrue, qtrue ) )
+	if( NPC_UpdateAngles ( true, true ) )
 	{
 		Q3_TaskIDComplete( NPC, TID_BSTATE );
 
@@ -522,7 +522,7 @@ void NPC_BSFace (void)
 	}
 }
 
-void NPC_BSPointShoot (qboolean shoot)
+void NPC_BSPointShoot (bool shoot)
 {//FIXME: doesn't check for clear shot...
 	vec3_t	muzzle, dir, angles, org;
 
@@ -558,7 +558,7 @@ void NPC_BSPointShoot (qboolean shoot)
 
 	NPCInfo->desiredYaw = NPCInfo->lockedDesiredYaw = AngleNormalize360(angles[YAW]);
 
-	if ( NPC_UpdateAngles ( qtrue, qtrue ) )
+	if ( NPC_UpdateAngles ( true, true ) )
 	{//FIXME: if angles clamped, this may never work!
 		//NPCInfo->shotTime = NPC->attackDebounceTime = 0;
 
@@ -576,18 +576,18 @@ void NPC_BSPointShoot (qboolean shoot)
 	else if ( shoot && (NPC->svFlags & SVF_LOCKEDENEMY) )
 	{//shooting them till their dead, not aiming right at them yet...
 		/*
-		qboolean movingTarget = qfalse;
+		bool movingTarget = false;
 
 		if ( NPC->enemy->client )
 		{
 			if ( VectorLengthSquared( NPC->enemy->client->ps.velocity ) )
 			{
-				movingTarget = qtrue;
+				movingTarget = true;
 			}
 		}
 		else if ( VectorLengthSquared( NPC->enemy->s.pos.trDelta ) )
 		{
-			movingTarget = qtrue;
+			movingTarget = true;
 		}
 
 		if (movingTarget )
@@ -634,14 +634,14 @@ void NPC_BSMove(void)
 {
 	gentity_t	*goal = NULL;
 
-	NPC_CheckEnemy(qtrue, qfalse);
+	NPC_CheckEnemy(true, false);
 	if(NPC->enemy)
 	{
-		NPC_CheckCanAttack(1.0, qfalse);
+		NPC_CheckCanAttack(1.0, false);
 	}
 	else
 	{
-		NPC_UpdateAngles(qtrue, qtrue);
+		NPC_UpdateAngles(true, true);
 	}
 
 	goal = UpdateGoal();
@@ -669,7 +669,7 @@ void NPC_BSShoot(void)
 		client->ps.weaponstate = WEAPON_READY;
 	}
 
-	WeaponThink(qtrue);
+	WeaponThink(true);
 }
 
 /*
@@ -685,7 +685,7 @@ void NPC_BSPatrol( void )
 	if(level.time > NPCInfo->enemyCheckDebounceTime)
 	{
 		NPCInfo->enemyCheckDebounceTime = level.time + (NPCInfo->stats.vigilance * 1000);
-		NPC_CheckEnemy(qtrue, qfalse);
+		NPC_CheckEnemy(true, false);
 		if(NPC->enemy)
 		{//FIXME: do anger script
 			NPCInfo->behaviorState = BS_HUNT_AND_KILL;
@@ -696,7 +696,7 @@ void NPC_BSPatrol( void )
 
 	//FIXME: Implement generic sound alerts
 	/*
-	alertEventNum = NPC_CheckAlertEvents( qtrue, qtrue );
+	alertEventNum = NPC_CheckAlertEvents( true, true );
 	if( alertEventNum != -1 )
 	{//If we heard something, see if we should check it out
 		if ( NPC_CheckInvestigate( alertEventNum ) )
@@ -711,10 +711,10 @@ void NPC_BSPatrol( void )
 	// if we're stuck, try to move around it
 	if ( UpdateGoal() )
 	{
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	ucmd.buttons |= BUTTON_WALKING;
 }
@@ -731,20 +731,20 @@ void NPC_BSDefault( void )
 //	vec3_t		enemyDir;
 //	float		enemyDist;
 //	float		shootDist;
-//	qboolean	enemyFOV = qfalse;
-//	qboolean	enemyShotFOV = qfalse;
-//	qboolean	enemyPVS = qfalse;
+//	bool	enemyFOV = false;
+//	bool	enemyShotFOV = false;
+//	bool	enemyPVS = false;
 //	vec3_t		enemyHead;
 //	vec3_t		muzzle;
-//	qboolean	enemyLOS = qfalse;
-//	qboolean	enemyCS = qfalse;
-	qboolean	move = qtrue;
-//	qboolean	shoot = qfalse;
+//	bool	enemyLOS = false;
+//	bool	enemyCS = false;
+	bool	move = true;
+//	bool	shoot = false;
 
 
 	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
 	{
-		WeaponThink( qtrue );
+		WeaponThink( true );
 	}
 
 	if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
@@ -755,13 +755,13 @@ void NPC_BSDefault( void )
 		}
 	}
 	//look for a new enemy if don't have one and are allowed to look, validate current enemy if have one
-	NPC_CheckEnemy( (qboolean)(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES), qfalse );
+	NPC_CheckEnemy( (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES), false );
 	if ( !NPC->enemy )
 	{//still don't have an enemy
 		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{//check for alert events
 			//FIXME: Check Alert events, see if we should investigate or just look at it
-			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, AEL_DISCOVERED );
 
 			//There is an event to look at
 			if ( alertEvent >= 0 && level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
@@ -815,12 +815,12 @@ void NPC_BSDefault( void )
 			enemyLOS = NPC_ClearLOS( muzzle, enemyHead );
 
 			gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, enemyHead, NPC->s.number, MASK_SHOT );
-			enemyCS = NPC_EvaluateShot( tr.entityNum, qtrue );
+			enemyCS = NPC_EvaluateShot( tr.entityNum, true );
 		}
 		else
 		{//skip thr 2 traces since they would have to fail
-			enemyLOS = qfalse;
-			enemyCS = qfalse;
+			enemyLOS = false;
+			enemyCS = false;
 		}
 
 		if ( enemyCS && enemyShotFOV )
@@ -834,16 +834,16 @@ void NPC_BSDefault( void )
 
 		if ( enemyCS && enemyShotFOV && enemyDist < shootDist )
 		{//can shoot
-			shoot = qtrue;
+			shoot = true;
 			if ( NPCInfo->goalEntity == NPC->enemy )
 			{//my goal is my enemy and I have a clear shot, no need to chase right now
-				move = qfalse;
+				move = false;
 			}
 		}
 		else
 		{//don't shoot yet, keep chasing
-			shoot = qfalse;
-			move = qtrue;
+			shoot = false;
+			move = true;
 		}
 
 		//shoot decision
@@ -855,7 +855,7 @@ void NPC_BSDefault( void )
 				{
 					if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 					{
-						WeaponThink( qtrue );
+						WeaponThink( true );
 					}
 				}
 			}
@@ -881,7 +881,7 @@ void NPC_BSDefault( void )
 		}
 		else if ( NPC->cantHitEnemyCounter > 60 )
 		{//pick a new one
-			NPC_CheckEnemy( qtrue, qfalse );
+			NPC_CheckEnemy( true, false );
 		}
 
 		if ( enemyPVS && enemyLOS )//&& !enemyShotFOV )
@@ -911,13 +911,13 @@ void NPC_BSDefault( void )
 			//set angles
 			if ( (NPCInfo->scriptFlags & SCF_FACE_MOVE_DIR) || NPCInfo->goalEntity != NPC->enemy )
 			{//face direction of movement, NOTE: default behavior when not chasing enemy
-				NPCInfo->combatMove = qfalse;
+				NPCInfo->combatMove = false;
 			}
 			else
 			{//face goal.. FIXME: what if have a navgoal but want to face enemy while moving?  Will this do that?
 				vec3_t	dir, angles;
 
-				NPCInfo->combatMove = qfalse;
+				NPCInfo->combatMove = false;
 
 				VectorSubtract( NPCInfo->goalEntity->currentOrigin, NPC->currentOrigin, dir );
 				vectoangles( dir, angles );
@@ -952,14 +952,14 @@ void NPC_BSDefault( void )
 			{//being forced to walk
 				if ( g_crosshairEntNum != NPC->s.number )
 				{//don't walk if player isn't aiming at me
-					move = qfalse;
+					move = false;
 				}
 			}
 
 			if ( move )
 			{
 				//move toward goal
-				NPC_MoveToGoal( qtrue );
+				NPC_MoveToGoal( true );
 			}
 		}
 	}
@@ -969,5 +969,5 @@ void NPC_BSDefault( void )
 	}
 
 	//update angles
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }

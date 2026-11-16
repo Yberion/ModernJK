@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_misc.c
+// g_misc.cpp
 
 #include "g_local.h"
 #include "g_functions.h"
@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern gentity_t *G_FindDoorTrigger( gentity_t *door );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, int solid_mask,int animFlag,
-									qboolean take_damage, qboolean damage_model);
+									bool take_damage, bool damage_model);
 
 #define MAX_AMMO_GIVE 4
 
@@ -178,12 +178,12 @@ void SP_light( gentity_t *self ) {
 	self->e_clThinkFunc = clThinkF_NULL;
 
 	self->s.eType = ET_GENERAL;
-	self->misc_dlight_active = qfalse;
+	self->misc_dlight_active = false;
 	self->svFlags |= SVF_NOCLIENT;
 
 	if ( !(self->spawnflags & 4) )
 	{	//turn myself on now
-		self->misc_dlight_active = qtrue;
+		self->misc_dlight_active = true;
 	}
 	misc_lightstyle_set (self);
 }
@@ -192,7 +192,7 @@ void misc_dlight_use ( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
 	G_ActivateBehavior(ent,BSET_USE);
 
-	ent->misc_dlight_active = (qboolean)!ent->misc_dlight_active;	//toggle
+	ent->misc_dlight_active = !ent->misc_dlight_active;	//toggle
 	misc_lightstyle_set (ent);
 }
 
@@ -242,7 +242,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
 	gi.linkentity (player);
 }
 
-void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, qboolean snapAngle )
+void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, bool snapAngle )
 {//FIXME: need an effect
 	vec3_t		oldAngle, newAngle;
 	float		speed;
@@ -621,7 +621,7 @@ void SP_misc_bsp(gentity_t *ent)
 	VectorCopy(ent->s.origin, level.mOriginAdjust);
 	level.mRotationAdjust = ent->s.angles[1];
 	level.mTargetAdjust = temp;
-	level.hasBspInstances = qtrue;
+	level.hasBspInstances = true;
 	level.mBSPInstanceDepth++;
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
@@ -692,7 +692,7 @@ void G_PortalifyEntities(gentity_t *ent)
 
 			if (tr.fraction == 1.0 || (tr.entityNum == scan->s.number && tr.entityNum != ENTITYNUM_NONE && tr.entityNum != ENTITYNUM_WORLD))
 			{
-				scan->s.isPortalEnt = qtrue; //he's flagged now
+				scan->s.isPortalEnt = true; //he's flagged now
 			}
 		}
 
@@ -728,7 +728,7 @@ void SP_misc_skyportal (gentity_t *ent)
 	ent->nextthink = level.time + 1050; //give it some time first so that all other entities are spawned.
 }
 
-extern qboolean G_ClearViewEntity( gentity_t *ent );
+extern bool G_ClearViewEntity( gentity_t *ent );
 extern void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity );
 extern void SP_fx_runner( gentity_t *ent );
 void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
@@ -754,7 +754,7 @@ void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	//bye!
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->contents = 0;
 	self->s.eFlags |= EF_NODRAW;
 	self->s.modelindex = 0;
@@ -908,7 +908,7 @@ void SP_misc_camera( gentity_t *self )
 	G_SetOrigin( self, self->s.origin );
 	G_SetAngles( self, self->s.angles );
 	self->s.apos.trType = TR_LINEAR_STOP;//TR_INTERPOLATE;//
-	self->alt_fire = qtrue;
+	self->alt_fire = true;
 	VectorSet( self->mins, -8, -8, -12 );
 	VectorSet( self->maxs, 8, 8, 0 );
 	self->contents = CONTENTS_SOLID;
@@ -918,7 +918,7 @@ void SP_misc_camera( gentity_t *self )
 
 	if ( self->spawnflags & 1 ) // VULNERABLE
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 
 	self->health = 10;
@@ -1045,7 +1045,7 @@ void SP_object_cargo_barrel1(gentity_t *ent)
 	if(!ent->splashRadius)
 		ent->splashRadius = 200;
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->e_DieFunc = dieF_ExplodeDeath_Wait;
 
@@ -1088,7 +1088,7 @@ void SP_misc_dlight(gentity_t *ent)
 	//FIXME: attach self to a train or something?
 	ent->e_UseFunc = useF_misc_dlight_use;
 
-	ent->misc_dlight_active = qfalse;
+	ent->misc_dlight_active = false;
 	ent->e_clThinkFunc = clThinkF_NULL;
 
 	ent->s.eType = ET_GENERAL;
@@ -1117,7 +1117,7 @@ void misc_dlight_use_old ( gentity_t *ent, gentity_t *other, gentity_t *activato
 		}
 		else
 		{
-			ent->misc_dlight_active = qfalse;
+			ent->misc_dlight_active = false;
 			ent->e_clThinkFunc = clThinkF_NULL;
 
 			ent->s.eType = ET_GENERAL;
@@ -1137,7 +1137,7 @@ void misc_dlight_use_old ( gentity_t *ent, gentity_t *other, gentity_t *activato
 		}
 		ent->painDebounceTime = level.time;
 
-		ent->misc_dlight_active = qtrue;
+		ent->misc_dlight_active = true;
 
 		ent->e_ThinkFunc = thinkF_misc_dlight_think;
 		ent->nextthink = level.time + FRAMETIME;
@@ -1812,7 +1812,7 @@ void misc_trip_mine_activate( gentity_t *self, gentity_t *other, gentity_t *acti
 
 		self->s.eFlags &= ~EF_NODRAW;
 		self->contents = CONTENTS_SHOTCLIP;//CAN'T USE CONTENTS_SOLID because only ARCHITECTURE is contents_solid!!!
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 }
 
@@ -1871,7 +1871,7 @@ void SP_misc_trip_mine( gentity_t *self )
 	{
 		self->s.eFlags = EF_NODRAW;
 		self->contents = 0;
-		self->takedamage = qfalse;
+		self->takedamage = false;
 	}
 
 	gi.linkentity( self );
@@ -1978,7 +1978,7 @@ void maglock_link( gentity_t *self )
 
 	//make it destroyable
 	self->flags |= FL_SHIELDED;//only damagable by lightsabers
-	self->takedamage = qtrue;
+	self->takedamage = true;
 	self->health = 10;
 	self->e_DieFunc = dieF_maglock_die;
 	//self->fxID = G_EffectIndex( "maglock/explosion" );
@@ -2116,9 +2116,9 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_shield_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	EnergyShieldStationSettings(ent);
 
@@ -2172,9 +2172,9 @@ void SP_misc_model_bomb_planted( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 70 );
 
-	SetMiscModelDefaults( ent, useF_bomb_planted_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_bomb_planted_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_SoundIndex("sound/weapons/overchargeend");
 
@@ -2212,7 +2212,7 @@ void beacon_deploy( gentity_t *ent )
 	ent->s.frame = 0;
 	ent->startFrame = 0;
 	ent->endFrame = 30;
-	ent->loopAnim = qfalse;
+	ent->loopAnim = false;
 }
 
 void beacon_think( gentity_t *ent )
@@ -2227,7 +2227,7 @@ void beacon_think( gentity_t *ent )
 
 		ent->startFrame = 31;
 		ent->endFrame = 60;
-		ent->loopAnim = qtrue;
+		ent->loopAnim = true;
 
 		ent->s.loopSound = ent->noise_index;
 	}
@@ -2266,9 +2266,9 @@ void SP_misc_model_beacon( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 24 );
 
-	SetMiscModelDefaults( ent, useF_beacon_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_beacon_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	//G_SoundIndex("sound/weapons/overchargeend");
 
@@ -2317,9 +2317,9 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	EnergyShieldStationSettings(ent);
 
@@ -2494,9 +2494,9 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_ammo_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	EnergyAmmoStationSettings(ent);
 
@@ -2526,9 +2526,9 @@ void SP_misc_ammo_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	EnergyAmmoStationSettings(ent);
 
@@ -2616,9 +2616,9 @@ void SP_misc_model_welder( gentity_t *ent )
 	VectorSet( ent->mins, 336, -16, 0 );
 	VectorSet( ent->maxs, 368, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_welder_use, "4", CONTENTS_SOLID, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_welder_use, "4", CONTENTS_SOLID, 0, false, false );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	ent->contents = 0;
 	G_EffectIndex( "sparks/blueWeldSparks" );
 	ent->noise_index = G_SoundIndex( "sound/movers/objects/welding.wav" );
@@ -2676,7 +2676,7 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 	VectorSet( ent->mins, -60.0f, -8.0f, 0.0f );
 	VectorSet( ent->maxs, 60.0f, 8.0f, 16.0f );
 
-	SetMiscModelDefaults( ent, useF_jabba_cam_use, "4", 0, 0, qfalse, qfalse );
+	SetMiscModelDefaults( ent, useF_jabba_cam_use, "4", 0, 0, false, false );
 	G_SetAngles( ent, ent->s.angles );
 
 	ent->s.modelindex = G_ModelIndex( "models/map_objects/nar_shaddar/jabacam/jabacam.glm" );
@@ -2684,11 +2684,11 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 	ent->s.radius = 150.0f;  //......
 	VectorSet( ent->s.modelScale, 1.0f, 1.0f, 1.0f );
 
-	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", qtrue );
+	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
 
 	ent->e_UseFunc = useF_jabba_cam_use;
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	// start extended..
 	if ( ent->spawnflags & 1 )
@@ -2733,7 +2733,7 @@ void SP_misc_exploding_crate( gentity_t *ent )
 	VectorSet( ent->maxs, 24, 24, 64 );
 
 	ent->contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//CONTENTS_SOLID;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	G_SetOrigin( ent, ent->s.origin );
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
@@ -2809,7 +2809,7 @@ void SP_misc_gas_tank( gentity_t *ent )
 	VectorSet( ent->maxs, 4, 4, 40 );
 
 	ent->contents = CONTENTS_SOLID;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	G_SetOrigin( ent, ent->s.origin );
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
@@ -2887,7 +2887,7 @@ void SP_misc_crystal_crate( gentity_t *ent )
 	}
 
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	G_SetOrigin( ent, ent->s.origin );
 	VectorCopy( ent->s.angles, ent->s.apos.trBase );
@@ -2952,7 +2952,7 @@ void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	self->e_UseFunc = useF_NULL;
 	//sigh... remove contents so we don't block the player's path...
 	self->contents = CONTENTS_CORPSE;
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->maxs[2] = 48;
 
 	//FIXME: match to slope
@@ -2968,7 +2968,7 @@ void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 extern void G_DriveATST( gentity_t *ent, gentity_t *atst );
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-extern qboolean PM_InSlopeAnim( int anim );
+extern bool PM_InSlopeAnim( int anim );
 void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if ( !activator || activator->s.number )
@@ -3001,7 +3001,7 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		self->s.eFlags |= EF_NODRAW;
 		self->svFlags |= SVF_NOCLIENT;
 		self->contents = 0;
-		self->takedamage = qfalse;
+		self->takedamage = false;
 		//transfer armor
 		tempHealth = self->health;
 		self->health = activator->client->ps.stats[STAT_ARMOR];
@@ -3048,7 +3048,7 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		self->s.eFlags &= ~EF_NODRAW;
 		self->svFlags &= ~SVF_NOCLIENT;
 		self->contents = CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;
-		self->takedamage = qtrue;
+		self->takedamage = true;
 		//transfer armor
 		tempHealth = self->health;
 		self->health = activator->client->ps.stats[STAT_ARMOR];
@@ -3079,8 +3079,8 @@ void SP_misc_atst_drivable( gentity_t *ent )
 
 	ent->s.modelindex = G_ModelIndex( "models/players/atst/model.glm" );
 	ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, "models/players/atst/model.glm", ent->s.modelindex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
-	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", qtrue );
-	ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", qtrue );	//FIXME: need to somehow set the anim/frame to the equivalent of BOTH_STAND1...  use to be that BOTH_STAND1 was the first frame of the glm, but not anymore
+	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
+	ent->craniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cranium", true );	//FIXME: need to somehow set the anim/frame to the equivalent of BOTH_STAND1...  use to be that BOTH_STAND1 was the first frame of the glm, but not anymore
 	ent->s.radius = 320;
 	VectorSet( ent->s.modelScale, 1.0f, 1.0f, 1.0f );
 
@@ -3108,7 +3108,7 @@ void SP_misc_atst_drivable( gentity_t *ent )
 
 	ent->contents = CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;
 	ent->flags |= FL_SHIELDED;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	if ( !ent->health )
 	{
 		ent->health = 800;
@@ -3133,7 +3133,7 @@ void SP_misc_atst_drivable( gentity_t *ent )
 	ent->e_DieFunc = dieF_misc_atst_die;
 }
 
-extern int	G_FindConfigstringIndex( const char *name, int start, int max, qboolean create );
+extern int	G_FindConfigstringIndex( const char *name, int start, int max, bool create );
 
 /*QUAKED misc_weather_zone (0 .5 .8) ?
 Determines a region to check for weather contents - (optional, used to reduce load times)
@@ -3148,7 +3148,7 @@ void SP_misc_weather_zone( gentity_t *ent )
 		ent->mins[0], ent->mins[1], ent->mins[2],
 		ent->maxs[0], ent->maxs[1], ent->maxs[2] );
 
-	G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, qtrue);
+	G_FindConfigstringIndex(temp, CS_WORLD_FX, MAX_WORLD_FX, true);
 
 //	gi.WE_AddWeatherZone(ent->mins, ent->maxs);
 	G_FreeEntity(ent);

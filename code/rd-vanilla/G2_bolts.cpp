@@ -239,7 +239,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
-qboolean G2_Remove_Bolt (boltInfo_v &bltlist, int index)
+bool G2_Remove_Bolt (boltInfo_v &bltlist, int index)
 {
 	assert(index>=0&&index<(int)bltlist.size());
 	// did we find it?
@@ -252,9 +252,9 @@ qboolean G2_Remove_Bolt (boltInfo_v &bltlist, int index)
 			bltlist[index].boneNumber = -1;
 			bltlist[index].surfaceNumber = -1;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 // set the bolt list to all unused so the bone transformation routine ignores it.

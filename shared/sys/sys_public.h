@@ -98,7 +98,7 @@ typedef intptr_t QDECL SystemCallProc( intptr_t, ... );
 typedef void * QDECL GetModuleAPIProc( int, ... );
 
 void	*Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI );
-void	* QDECL Sys_LoadDll(const char *name, qboolean useSystemLib);
+void	* QDECL Sys_LoadDll(const char *name, bool useSystemLib);
 void	* QDECL Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallProc *systemcalls );
 void	* QDECL Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI );
 void	Sys_UnloadDll( void *dllHandle );
@@ -125,13 +125,13 @@ void	Sys_SetErrorText( const char *text );
 
 void	Sys_SendPacket( int length, const void *data, const netadr_t *to );
 
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
+bool	Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
 
-qboolean	Sys_IsLANAddress (const netadr_t *adr);
+bool	Sys_IsLANAddress (const netadr_t *adr);
 void		Sys_ShowIP(void);
 
-qboolean	Sys_Mkdir( const char *path );
+bool	Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
 char	*Sys_DefaultInstallPath(void);
@@ -146,13 +146,13 @@ const char *Sys_Basename( const char *path );
 
 bool Sys_PathCmp( const char *path1, const char *path2 );
 
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, bool wantsubs );
 void	Sys_FreeFileList( char **fileList );
 //rwwRMG - changed to fileList to not conflict with list type
 
 time_t Sys_FileTime( const char *path );
 
-qboolean Sys_LowPhysicalMemory();
+bool Sys_LowPhysicalMemory();
 
 void Sys_SetProcessorAffinity( void );
 
@@ -203,6 +203,6 @@ void		WIN_Present( window_t *window );
 void		WIN_SetGamma( glconfig_t *glConfig, byte red[256], byte green[256], byte blue[256] );
 void		WIN_Shutdown( void );
 void *		WIN_GL_GetProcAddress( const char *proc );
-qboolean	WIN_GL_ExtensionSupported( const char *extension );
+bool	WIN_GL_ExtensionSupported( const char *extension );
 
 uint8_t ConvertUTF32ToExpectedCharset( uint32_t utf32 );

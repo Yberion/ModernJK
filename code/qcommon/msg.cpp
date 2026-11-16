@@ -43,7 +43,7 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 
 void MSG_Clear( msg_t *buf ) {
 	buf->cursize = 0;
-	buf->overflowed = qfalse;
+	buf->overflowed = false;
 	buf->bit = 0;
 }
 
@@ -80,7 +80,7 @@ void *MSG_GetSpace( msg_t *buf, int length ) {
 		}
 		Com_Printf ("MSG_GetSpace: overflow\n");
 		MSG_Clear (buf);
-		buf->overflowed = qtrue;
+		buf->overflowed = true;
 	}
 
 	data = buf->data + buf->cursize;
@@ -111,7 +111,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 
 	// this isn't an exact overflow check, but close enough
 	if ( msg->maxsize - msg->cursize < 4 ) {
-		msg->overflowed = qtrue;
+		msg->overflowed = true;
 #ifndef FINAL_BUILD
 		Com_Printf (S_COLOR_RED"MSG_WriteBits: buffer Full writing %d in %d bits\n", value, bits);
 #endif
@@ -174,16 +174,16 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 	int		valueBits;
 	int		get;
 	int		fraction;
-	qboolean	sgn;
+	bool	sgn;
 
 	value = 0;
 	valueBits = 0;
 
 	if ( bits < 0 ) {
 		bits = -bits;
-		sgn = qtrue;
+		sgn = true;
 	} else {
-		sgn = qfalse;
+		sgn = false;
 	}
 
 	while ( valueBits < bits ) {
@@ -719,7 +719,7 @@ identical, under the assumption that the in-order delta code will catch it.
 */
 #if 0 // Removed by BTO (VV)
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to,
-						   qboolean force ) {
+						   bool force ) {
 	int			c;
 	int			i;
 	const netField_t	*field;

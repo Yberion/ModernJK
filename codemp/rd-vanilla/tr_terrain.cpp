@@ -987,7 +987,7 @@ void R_AddTerrainSurfaces(void)
 	landscape = tr.landScape.landscape;
 	if(landscape)
 	{
-		R_AddDrawSurf( (surfaceType_t *)(&tr.landScape), landscape->GetShader(), 0, qfalse );
+		R_AddDrawSurf( (surfaceType_t *)(&tr.landScape), landscape->GetShader(), 0, false );
 		R_CalcTerrainVisBounds(landscape);
 	}
 }

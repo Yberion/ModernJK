@@ -321,7 +321,7 @@ typedef enum
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension( const char *in, char *out, int destsize );
-qboolean COM_CompareExtension(const char *in, const char *ext);
+bool COM_CompareExtension(const char *in, const char *ext);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 //JLFCALLOUT include MPNOTUSED
@@ -342,12 +342,12 @@ public:
 
 int		 COM_GetCurrentParseLine( void );
 char	*COM_Parse( const char **data_p );
-char	*COM_ParseExt( const char **data_p, qboolean allowLineBreak );
+char	*COM_ParseExt( const char **data_p, bool allowLineBreak );
 int		 COM_Compress( char *data_p );
-qboolean COM_ParseString( const char **data, const char **s );
-qboolean COM_ParseInt( const char **data, int *i );
-qboolean COM_ParseFloat( const char **data, float *f );
-qboolean COM_ParseVec4( const char **buffer, vec4_t *c);
+bool COM_ParseString( const char **data, const char **s );
+bool COM_ParseInt( const char **data, int *i );
+bool COM_ParseFloat( const char **data, float *f );
+bool COM_ParseVec4( const char **buffer, vec4_t *c);
 
 // data is an in/out parm, returns a parsed out token
 
@@ -395,10 +395,10 @@ void Com_TruncateLongString( char *buffer, const char *s );
 const char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );
-qboolean Info_Validate( const char *s );
+bool Info_Validate( const char *s );
 void Info_NextPair( const char **s, char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
-// this is only here so the functions in q_shared.c and bg_*.c can link
+// this is only here so the functions in q_shared.cpp and bg_*.c can link
 void	NORETURN QDECL Com_Error( int level, const char *error, ... );
 void	QDECL Com_Printf( const char *msg, ... );
 
@@ -451,12 +451,12 @@ typedef struct cvar_s {
 	char		*resetString;		// cvar_restart will reset to this value
 	char		*latchedString;		// for CVAR_LATCH vars
 	int			flags;
-	qboolean	modified;			// set each time the cvar is changed
+	bool	modified;			// set each time the cvar is changed
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
 	int			integer;			// atoi( string )
-	qboolean	validate;
-	qboolean	integral;
+	bool	validate;
+	bool	integral;
 	float		min;
 	float		max;
 	struct cvar_s *next;
@@ -505,8 +505,8 @@ Ghoul2 Insert End
 #define MAX_G2_COLLISIONS 16
 // a trace is returned when a box is swept through the world
 typedef struct trace_s {
-	qboolean	allsolid;	// if true, plane is not valid
-	qboolean	startsolid;	// if true, the initial point was in a solid area
+	bool	allsolid;	// if true, plane is not valid
+	bool	startsolid;	// if true, the initial point was in a solid area
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
@@ -811,7 +811,7 @@ typedef struct saberTrail_s
 	vec3_t	tip;
 
 	// Marks stuff
-	qboolean	haveOldPos[2];
+	bool	haveOldPos[2];
 	vec3_t		oldPos[2];
 	vec3_t		oldNormal[2];	// store this in case we don't have a connect-the-dots situation
 							//	..then we'll need the normal to project a mark blob onto the impact point
@@ -849,7 +849,7 @@ typedef struct saberTrail_s
 // !!!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!
 typedef struct bladeInfo_s
 {
-	qboolean	active;
+	bool	active;
 	saber_colors_t	color;
 	float		radius;
 	float		length;
@@ -862,12 +862,12 @@ typedef struct bladeInfo_s
 	saberTrail_t	trail;
 	void		ActivateTrail ( float duration )
 				{
-					trail.inAction = qtrue;
+					trail.inAction = true;
 					trail.duration = duration;
 				};
 	void		DeactivateTrail ( float duration )
 				{
-					trail.inAction = qfalse;
+					trail.inAction = false;
 					trail.duration = duration;
 				};
 
@@ -1080,7 +1080,7 @@ typedef struct saberInfo_s
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
-						blade[i].active = qtrue;
+						blade[i].active = true;
 					}
 				};
 
@@ -1088,7 +1088,7 @@ typedef struct saberInfo_s
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
-						blade[i].active = qfalse;
+						blade[i].active = false;
 					}
 				};
 
@@ -1097,7 +1097,7 @@ typedef struct saberInfo_s
 	//	[in]		int iBlade		Which Blade to activate.
 	//	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
 	//	[return]	void
-	void		BladeActivate( int iBlade, qboolean bActive = qtrue )
+	void		BladeActivate( int iBlade, bool bActive = true )
 				{
 					// Validate blade ID/Index.
 					if ( iBlade < 0 || iBlade >= numBlades )
@@ -1106,18 +1106,18 @@ typedef struct saberInfo_s
 					blade[iBlade].active = bActive;
 				}
 
-	qboolean	Active()
+	bool	Active()
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
 						if ( blade[i].active )
 						{
-							return qtrue;
+							return true;
 						}
 					}
-					return qfalse;
+					return false;
 				}
-	qboolean	ActiveManualOnly()
+	bool	ActiveManualOnly()
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
@@ -1141,10 +1141,10 @@ typedef struct saberInfo_s
 						}
 						else if ( blade[i].active )
 						{
-							return qtrue;
+							return true;
 						}
 					}
-					return qfalse;
+					return false;
 				}
 	void		SetLength( float length )
 				{
@@ -1372,26 +1372,26 @@ public:
 	bladeInfo_t	blade[MAX_BLADES];			//blade info - like length, trail, origin, dir, etc.
 	saber_styles_t	style;					//locked style to use, if any
 	int			maxChain;					//how many moves can be chained in a row with this weapon (-1 is infinite, 0 is use default behavior)
-	qboolean	lockable;					//can get into a saberlock
-	qboolean	throwable;					//whether or not this saber can be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-	qboolean	disarmable;					//whether or not this saber can be dropped
-	qboolean	activeBlocking;				//whether or not to try to block incoming shots with this saber
-	qboolean	twoHanded;					//uses both hands
+	bool	lockable;					//can get into a saberlock
+	bool	throwable;					//whether or not this saber can be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
+	bool	disarmable;					//whether or not this saber can be dropped
+	bool	activeBlocking;				//whether or not to try to block incoming shots with this saber
+	bool	twoHanded;					//uses both hands
 	int			forceRestrictions;			//force powers that cannot be used while this saber is on (bitfield) - FIXME: maybe make this a limit on the max level, per force power, that can be used with this type?
 	int			lockBonus;					//in saberlocks, this type of saber pushes harder or weaker
 	int			parryBonus;					//added to strength of parry with this saber
 	int			breakParryBonus;			//added to strength when hit a parry
 	int			disarmBonus;				//added to disarm chance when win saberlock or have a good parry (knockaway)
 	saber_styles_t	singleBladeStyle;		//makes it so that you use a different style if you only have the first blade active
-	qboolean	singleBladeThrowable;		//makes it so that you can throw this saber if only the first blade is on
+	bool	singleBladeThrowable;		//makes it so that you can throw this saber if only the first blade is on
 	char		*brokenSaber1;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your right hand
 	char		*brokenSaber2;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
-	qboolean	returnDamage;				//when returning from a saber throw, it keeps spinning and doing damage
+	bool	returnDamage;				//when returning from a saber throw, it keeps spinning and doing damage
 	void		Activate( void )
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
-						blade[i].active = qtrue;
+						blade[i].active = true;
 					}
 				};
 
@@ -1399,7 +1399,7 @@ public:
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
-						blade[i].active = qfalse;
+						blade[i].active = false;
 					}
 				};
 
@@ -1408,7 +1408,7 @@ public:
 	//	[in]		int iBlade		Which Blade to activate.
 	//	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
 	//	[return]	void
-	void		BladeActivate( int iBlade, qboolean bActive = qtrue )
+	void		BladeActivate( int iBlade, bool bActive = true )
 				{
 					// Validate blade ID/Index.
 					if ( iBlade < 0 || iBlade >= numBlades )
@@ -1417,16 +1417,16 @@ public:
 					blade[iBlade].active = bActive;
 				}
 
-	qboolean	Active()
+	bool	Active()
 				{
 					for ( int i = 0; i < numBlades; i++ )
 					{
 						if ( blade[i].active )
 						{
-							return qtrue;
+							return true;
 						}
 					}
-					return qfalse;
+					return false;
 				}
 	void		SetLength( float length )
 				{
@@ -1623,9 +1623,9 @@ public:
 
 	vec3_t		serverViewOrg;
 
-	qboolean	saberInFlight;
+	bool	saberInFlight;
 #ifdef JK2_MODE
-	qboolean	saberActive;	// -- JK2 --
+	bool	saberActive;	// -- JK2 --
 
 	int			vehicleModel;	// -- JK2 --
 	int			viewEntity;		// For overriding player movement controls and vieworg
@@ -1663,9 +1663,9 @@ public:
 	//FIXME: maybe allocate all these structures (saber, force powers, vehicles)
 	//			or descend them as classes - so not every client has all this info
 	TSaberInfo	saber[MAX_SABERS];
-	qboolean	dualSabers;
-	qboolean	SaberStaff( void ) { return (qboolean)( saber[0].type == SABER_STAFF || (dualSabers && saber[1].type == SABER_STAFF) ); };
-	qboolean	SaberActive() { return (qboolean)( saber[0].Active() || (dualSabers&&saber[1].Active()) ); };
+	bool	dualSabers;
+	bool	SaberStaff( void ) { return ( saber[0].type == SABER_STAFF || (dualSabers && saber[1].type == SABER_STAFF) ); };
+	bool	SaberActive() { return ( saber[0].Active() || (dualSabers&&saber[1].Active()) ); };
 	void		SetSaberLength( float length )
 				{
 					saber[0].SetLength( length );
@@ -1702,7 +1702,7 @@ public:
 	//	[in]	int iBlade		Which blade to modify (0 - (NUM_BLADES - 1)).
 	//	[in]	bool bActive	Whether to make it active (default true) or inactive (false).
 	//	[return]	void
-	void		SaberBladeActivate( int iSaber, int iBlade, qboolean bActive = qtrue )
+	void		SaberBladeActivate( int iSaber, int iBlade, bool bActive = true )
 	{
 		// Validate saber (if it's greater than or equal to zero, OR it above the first saber but we
 		// are not doing duel Sabers, leave, something is not right.
@@ -1868,7 +1868,7 @@ public:
 
 #ifndef JK2_MODE
 	//testing IK grabbing
-	qboolean	ikStatus;		//for IK
+	bool	ikStatus;		//for IK
 	int			heldClient;		//for IK, who I'm grabbing, if anyone
 	int			heldByClient;	//for IK, someone is grabbing me
 	int			heldByBolt;		//for IK, what bolt I'm attached to on the holdersomeone is grabbing me by
@@ -2407,8 +2407,8 @@ typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!
 	int		scale;			//Scale players
 
 	//FIXME: why did IMMERSION dupe these 2 fields here?  There's no reason for this!!!
-	qboolean	saberInFlight;
-	qboolean	saberActive;
+	bool	saberInFlight;
+	bool	saberActive;
 
 #ifdef JK2_MODE
 	int		vehicleModel;	// For overriding your playermodel with a drivable vehicle
@@ -2433,7 +2433,7 @@ Ghoul2 Insert End
 */
 
 #ifndef JK2_MODE
-	qboolean	isPortalEnt;
+	bool	isPortalEnt;
 #endif // !JK2_MODE
 
 
@@ -2588,7 +2588,7 @@ typedef struct SSkinGoreData_s
 	int				growDuration;			// time over which we want this to scale up, set to -1 for no scaling
 	float			goreScaleStartFraction; // fraction of the final size at which we want the gore to initially appear
 
-	//qboolean		baseModelOnly;
+	//bool		baseModelOnly;
 	int				lifeTime;				// effect expires after this amount of time
 	int				firstModel;				// which model to start the gore on (can skip the first)
 	int				fadeOutTime;			//specify the duration of fading, from the lifeTime (e.g. 3000 will start fading 3 seconds before removal and be faded entirely by removal)
@@ -2735,7 +2735,7 @@ typedef enum
 
 } ForceReload_e;
 
-qboolean Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
+bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_RemoveFromBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );
 

@@ -47,7 +47,7 @@ PUSHMOVE
 */
 
 void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-extern qboolean G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
+extern bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
 
 typedef struct {
 	gentity_t	*ent;
@@ -100,7 +100,7 @@ void G_PlayDoorSound( gentity_t *ent, int type )
 	CalcTeamDoorCenter( ent, doorcenter );
 	if ( ent->activator && ent->activator->client && ent->activator->client->playerTeam == TEAM_PLAYER )
 	{
-		AddSoundEvent( ent->activator, doorcenter, 128, AEL_MINOR, qfalse, qtrue );
+		AddSoundEvent( ent->activator, doorcenter, 128, AEL_MINOR, false, true );
 	}
 
 	G_AddEvent( ent, EV_BMODEL_SOUND, sfx );
@@ -151,12 +151,12 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 ==================
 G_TryPushingEntity
 
-Returns qfalse if the move is blocked
+Returns false if the move is blocked
 ==================
 */
-extern qboolean G_OkayToRemoveCorpse( gentity_t *self );
+extern bool G_OkayToRemoveCorpse( gentity_t *self );
 
-qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
+bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
 	vec3_t		forward, right, up;
 	vec3_t		org, org2, move2;
 	gentity_t	*block;
@@ -166,7 +166,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	// instead of pushing it, but entities can still ride on top of it
 	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) &&
 		check->s.groundEntityNum != pusher->s.number ) {
-		return qfalse;
+		return false;
 	}
 	*/
 
@@ -214,7 +214,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	/*
 	if ( check->client && check->health <= 0 && check->contents == CONTENTS_CORPSE )
 	{//sigh... allow pushing corpses into walls... problem is, they'll be stuck in there... maybe just remove them?
-		return qtrue;
+		return true;
 	}
 	*/
 	block = G_TestEntityPosition( check );
@@ -226,7 +226,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 			VectorCopy( check->s.pos.trBase, check->currentOrigin );
 		}
 		gi.linkentity (check);
-		return qtrue;
+		return true;
 	}
 
 	// if it is ok to leave in the old position, do it
@@ -241,7 +241,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	if ( !block ) {
 		check->s.groundEntityNum = ENTITYNUM_NONE;
 		pushed_p--;
-		return qtrue;
+		return true;
 	}
 
 	// blocked
@@ -261,7 +261,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -271,11 +271,11 @@ G_MoverPush
 
 Objects need to be moved back on a failed push,
 otherwise riders would continue to slide.
-If qfalse is returned, *obstacle will be the blocking entity
+If false is returned, *obstacle will be the blocking entity
 ============
 */
-qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) {
-	qboolean	notMoving;
+bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) {
+	bool	notMoving;
 	int			i, e;
 	int			listedEntities;
 	vec3_t		mins, maxs;
@@ -342,7 +342,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	VectorAdd( pusher->currentAngles, amove, pusher->currentAngles );
 	gi.linkentity( pusher );
 
-	notMoving = (qboolean)(VectorCompare( vec3_origin, move )&&VectorCompare( vec3_origin, amove ));
+	notMoving = (VectorCompare( vec3_origin, move )&&VectorCompare( vec3_origin, amove ));
 
 	// see if any solid entities are inside the final position
 	for ( e = 0 ; e < listedEntities ; e++ ) {
@@ -482,10 +482,10 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			}
 			gi.linkentity (p->ent);
 		}
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -786,7 +786,7 @@ void Reached_BinaryMover( gentity_t *ent )
 		// close areaportals
 		if ( ent->teammaster == ent || !ent->teammaster )
 		{
-			gi.AdjustAreaPortalState( ent, qfalse );
+			gi.AdjustAreaPortalState( ent, false );
 		}
 		G_UseTargets2( ent, ent->activator, ent->closetarget );
 	}
@@ -831,7 +831,7 @@ void Use_BinaryMover_Go( gentity_t *ent )
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			gi.AdjustAreaPortalState( ent, qtrue );
+			gi.AdjustAreaPortalState( ent, true );
 		}
 		G_UseTargets( ent, ent->activator );
 		return;
@@ -1062,7 +1062,7 @@ void InitMover( gentity_t *ent )
 {
 	float		light;
 	vec3_t		color;
-	qboolean	lightSet, colorSet;
+	bool	lightSet, colorSet;
 
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
@@ -1074,7 +1074,7 @@ void InitMover( gentity_t *ent )
 			ent->playerModel = gi.G2API_InitGhoul2Model( ent->ghoul2, ent->model2, ent->s.modelindex2, NULL_HANDLE, NULL_HANDLE, 0, 0 );
 			if ( ent->playerModel >= 0 )
 			{
-				ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", qtrue );
+				ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
 			}
 
 			ent->s.radius = 120;
@@ -1245,7 +1245,7 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent )
 	{
 		for ( other = ent ; other ; other = other->teamchain )
 		{
-			other->takedamage = qtrue;
+			other->takedamage = true;
 		}
 	}
 
@@ -1286,19 +1286,19 @@ void Think_MatchTeam( gentity_t *ent )
 	MatchTeam( ent, ent->moverState, level.time );
 }
 
-qboolean G_EntIsDoor( int entityNum )
+bool G_EntIsDoor( int entityNum )
 {
 	if ( entityNum < 0 || entityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	gentity_t *ent = &g_entities[entityNum];
 	if ( ent && !Q_stricmp( "func_door", ent->classname ) )
 	{//blocked by a door
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 gentity_t *G_FindDoorTrigger( gentity_t *ent )
@@ -1344,12 +1344,12 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 	return NULL;
 }
 
-qboolean G_TriggerActive( gentity_t *self );
-qboolean G_EntIsUnlockedDoor( int entityNum )
+bool G_TriggerActive( gentity_t *self );
+bool G_EntIsUnlockedDoor( int entityNum )
 {
 	if ( entityNum < 0 || entityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( G_EntIsDoor( entityNum ) )
@@ -1374,7 +1374,7 @@ qboolean G_EntIsUnlockedDoor( int entityNum )
 				{
 					if ( G_TriggerActive( owner ) )
 					{
-						return qtrue;
+						return true;
 					}
 				}
 			}
@@ -1385,18 +1385,18 @@ qboolean G_EntIsUnlockedDoor( int entityNum )
 				{
 					if ( G_TriggerActive( owner ) )
 					{
-						return qtrue;
+						return true;
 					}
 				}
 			}
-			return qfalse;
+			return false;
 		}
 		else
 		{//check the door's auto-created trigger instead
 			owner = G_FindDoorTrigger( ent );
 			if ( owner && (owner->svFlags&SVF_INACTIVE) )
 			{//owning auto-created trigger is inactive
-				return qfalse;
+				return false;
 			}
 		}
 		if ( !(ent->svFlags & SVF_INACTIVE) && //assumes that the reactivate trigger isn't right next to the door!
@@ -1406,10 +1406,10 @@ qboolean G_EntIsUnlockedDoor( int entityNum )
 			!(ent->spawnflags & MOVER_LOCKED))
 			//FIXME: what about MOVER_GOODIE?
 		{
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 
@@ -1519,7 +1519,7 @@ void SP_func_door (gentity_t *ent)
 
 		if ( health )
 		{
-			ent->takedamage = qtrue;
+			ent->takedamage = true;
 		}
 
 		if ( !(ent->spawnflags&MOVER_LOCKED) && (ent->targetname || health || ent->spawnflags & MOVER_PLAYER_USE || ent->spawnflags & MOVER_FORCE_ACTIVATE) )
@@ -1758,7 +1758,7 @@ void SP_func_button( gentity_t *ent ) {
 
 	if (ent->health) {
 		// shootable button
-		ent->takedamage = qtrue;
+		ent->takedamage = true;
 	} else {
 		// touchable button
 		ent->e_TouchFunc = touchF_Touch_Button;
@@ -2124,7 +2124,7 @@ void SP_func_train (gentity_t *self) {
 		G_EffectIndex( "explosions/fighter_explosion2" );
 
 		self->contents = CONTENTS_SHOTCLIP;
-		self->takedamage = qtrue;
+		self->takedamage = true;
 		VectorSet( self->maxs, 112, 112, 112 );
 		VectorSet( self->mins, -112, -112, -112 );
 		self->e_DieFunc  = dieF_func_train_die;
@@ -2535,7 +2535,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		gi.SetBrushModel( ent, ent->model );
 		if ( !(ent->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( ent, qfalse );
+			gi.AdjustAreaPortalState( ent, false );
 		}
 	}
 	// Make it go away
@@ -2544,7 +2544,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		//NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
 		if ( !(ent->spawnflags&1) )
 		{//START_OFF doesn't effect area portals
-			gi.AdjustAreaPortalState( ent, qtrue );
+			gi.AdjustAreaPortalState( ent, true );
 		}
 		ent->contents = 0;
 		ent->svFlags |= SVF_NOCLIENT;

@@ -82,8 +82,8 @@ Con_ToggleMenu_f
 ===================
 */
 void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( A_ESCAPE, qtrue, Sys_Milliseconds() );
-	CL_KeyEvent( A_ESCAPE, qfalse, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, true, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, false, Sys_Milliseconds() );
 }
 
 /*
@@ -111,7 +111,7 @@ Save the console contents out to a file
 void Con_Dump_f (void)
 {
 	char			filename[MAX_QPATH];
-	qboolean		empty;
+	bool		empty;
 	int				l, i, j;
 	int				line;
 	int				lineLen;
@@ -147,13 +147,13 @@ void Con_Dump_f (void)
 	Com_Printf ("Dumped console text to %s.\n", filename );
 
 	// skip empty lines
-	for (l = 1, empty = qtrue ; l < con.totallines && empty ; l++)
+	for (l = 1, empty = true ; l < con.totallines && empty ; l++)
 	{
 		line = ((con.current + l) % con.totallines) * con.rowwidth;
 
 		for (j = CON_TIMESTAMP_LEN ; j < con.rowwidth - 1 ; j++)
 			if (con.text[line + j].f.character != CON_BLANK_CHAR)
-				empty = qfalse;
+				empty = false;
 	}
 
 	for ( ; l < con.totallines ; l++)
@@ -243,7 +243,7 @@ void Con_Initialize(void)
 		con.text[i] = CON_BLANK;
 	}
 
-	con.initialized = qtrue;
+	con.initialized = true;
 }
 
 
@@ -401,7 +401,7 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "", "txt", qfalse, qtrue );
+		Field_CompleteFilename( "", "txt", false, true );
 }
 
 /*
@@ -414,7 +414,7 @@ void Con_Init (void) {
 
 	con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
 	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
-	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, qfalse);
+	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, false);
 
 	con_opacity = Cvar_Get ("con_opacity", "0.8", CVAR_ARCHIVE_ND);
 	con_autoclear = Cvar_Get ("con_autoclear", "1", CVAR_ARCHIVE_ND);
@@ -437,7 +437,7 @@ void Con_Init (void) {
 	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
 
 	//Initialize values on first print
-	con.initialized = qfalse;
+	con.initialized = false;
 }
 
 
@@ -574,7 +574,7 @@ void Con_DrawInput (void) {
 
 	re.SetColor( con.color );
 
-	Field_Draw( &g_consoleField, 2 * con.charWidth, y, qtrue, qtrue );
+	Field_Draw( &g_consoleField, 2 * con.charWidth, y, true, true );
 
 	SCR_DrawSmallChar( con.charWidth, y, CONSOLE_PROMPT_CHAR );
 

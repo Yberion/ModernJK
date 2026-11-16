@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_localents.c -- every frame, generate renderer commands for locally
+// cg_localents.cpp -- every frame, generate renderer commands for locally
 // processed entities, like smoke puffs, gibs, shells, etc.
 #include "cg_local.h"
 #include "cg_media.h"
@@ -421,7 +421,7 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 
 	frac *= frac * frac; // yes, this is completely ridiculous...but it causes the shell to grow slowly then "explode" at the end
 
-	ent->nonNormalizedAxes = qtrue;
+	ent->nonNormalizedAxes = true;
 
 	AxisCopy( axisDefault, ent->axis );
 

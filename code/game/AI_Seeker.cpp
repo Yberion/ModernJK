@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void NPC_BSST_Patrol( void );
 extern void Boba_FireDecide( void );
-extern gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+extern gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 
 void Seeker_Strafe( void );
 
@@ -77,7 +77,7 @@ void Seeker_MaintainHeight( void )
 	float	dif;
 
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	// If we have an enemy, we should try to hover at or a little below enemy eye level
 	if ( NPC->enemy )
@@ -259,12 +259,12 @@ void Seeker_Strafe( void )
 }
 
 //------------------------------------
-void Seeker_Hunt( qboolean visible, qboolean advance )
+void Seeker_Hunt( bool visible, bool advance )
 {
 	float	speed;
 	vec3_t	forward;
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	// If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
@@ -278,19 +278,19 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 	}
 
 	// If we don't want to advance, stop here
-	if ( advance == qfalse )
+	if ( advance == false )
 	{
 		return;
 	}
 
 	// Only try and navigate if the player is visible
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 24;
 
-		NPC_MoveToGoal(qtrue);
+		NPC_MoveToGoal(true);
 		return;
 
 	}
@@ -331,7 +331,7 @@ void Seeker_Fire( void )
 }
 
 //------------------------------------
-void Seeker_Ranged( qboolean visible, qboolean advance )
+void Seeker_Ranged( bool visible, bool advance )
 {
 	if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 	{
@@ -368,16 +368,16 @@ void Seeker_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 	{
-		advance = (qboolean)(distance>(200.0f*200.0f));
+		advance = (distance>(200.0f*200.0f));
 	}
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -498,7 +498,7 @@ void Seeker_FollowPlayer( void )
 		// Hey come back!
 		NPCInfo->goalEntity = &g_entities[0];
 		NPCInfo->goalRadius = 32;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 		NPC->owner = &g_entities[0];
 	}
 
@@ -509,7 +509,7 @@ void Seeker_FollowPlayer( void )
 		NPCInfo->enemyCheckDebounceTime = level.time + 500;
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 //------------------------------------

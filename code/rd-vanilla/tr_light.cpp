@@ -63,7 +63,7 @@ R_DlightBmodel
 Determine which dynamic lights may effect this bmodel
 =============
 */
-void R_DlightBmodel( bmodel_t *bmodel, qboolean NoLight ) {
+void R_DlightBmodel( bmodel_t *bmodel, bool NoLight ) {
 	int			i, j;
 	dlight_t	*dl;
 	int			mask;
@@ -96,7 +96,7 @@ void R_DlightBmodel( bmodel_t *bmodel, qboolean NoLight ) {
 		}
 	}
 
-	tr.currentEntity->needDlights = (qboolean)(mask != 0);
+	tr.currentEntity->needDlights = (mask != 0);
 	tr.currentEntity->dlightBits = mask;
 
 
@@ -387,7 +387,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	if ( ent->lightingCalculated ) {
 		return;
 	}
-	ent->lightingCalculated = qtrue;
+	ent->lightingCalculated = true;
 
 	//
 	// trace a sample point down to find ambient light
@@ -472,14 +472,14 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 }
 
 //pass in origin
-qboolean RE_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir) {
+bool RE_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir) {
 	trRefEntity_t tr_ent;
 
 	if ( !tr.world || !tr.world->lightGridData) {
 		ambientLight[0] = ambientLight[1] = ambientLight[2] = 255.0;
 		directedLight[0] = directedLight[1] = directedLight[2] = 255.0;
 		VectorCopy( tr.sunDirection, lightDir );
-		return qfalse;
+		return false;
 	}
 	memset (&tr_ent, 0, sizeof(tr_ent) );
 
@@ -493,7 +493,7 @@ qboolean RE_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t direct
 	VectorCopy ( tr_ent.ambientLight,	ambientLight);
 	VectorCopy ( tr_ent.directedLight,	directedLight);
 	VectorCopy ( tr_ent.lightDir,		lightDir);
-	return qtrue;
+	return true;
 }
 
 /*
@@ -507,7 +507,7 @@ int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, ve
 
 	// bk010103 - this segfaults with -nolight maps
 	if ( tr.world->lightGridData == NULL )
-	  return qfalse;
+	  return false;
 
 	memset(&ent, 0, sizeof(ent));
 	VectorCopy( point, ent.e.origin );
@@ -516,5 +516,5 @@ int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, ve
 	VectorCopy(ent.directedLight, directedLight);
 	VectorCopy(ent.lightDir, lightDir);
 
-	return qtrue;
+	return true;
 }

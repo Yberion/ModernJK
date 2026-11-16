@@ -58,9 +58,9 @@ enum
 	LSTATE_FIRED4,
 };
 
-qboolean NPC_CheckPlayerTeamStealth( void );
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
-void Mark1_BlasterAttack(qboolean advance);
+bool NPC_CheckPlayerTeamStealth( void );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
+void Mark1_BlasterAttack(bool advance);
 void DeathFX( gentity_t *ent );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 
@@ -425,10 +425,10 @@ void Mark1_Hunt(void)
 		NPCInfo->goalEntity = NPC->enemy;
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
-	NPCInfo->combatMove = qtrue;
-	NPC_MoveToGoal( qtrue );
+	NPCInfo->combatMove = true;
+	NPC_MoveToGoal( true );
 }
 
 /*
@@ -507,7 +507,7 @@ void Mark1_FireBlaster(void)
 Mark1_BlasterAttack
 -------------------------
 */
-void Mark1_BlasterAttack(qboolean advance )
+void Mark1_BlasterAttack(bool advance )
 {
 	int chance;
 
@@ -616,7 +616,7 @@ void Mark1_FireRocket(void)
 Mark1_RocketAttack
 -------------------------
 */
-void Mark1_RocketAttack( qboolean advance )
+void Mark1_RocketAttack( bool advance )
 {
 	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
@@ -650,7 +650,7 @@ void Mark1_AttackDecision( void )
 	}
 
 	// Enemy is dead or he has no enemy.
-	if ((NPC->enemy->health<1) || ( NPC_CheckEnemyExt() == qfalse ))
+	if ((NPC->enemy->health<1) || ( NPC_CheckEnemyExt() == false ))
 	{
 		NPC->enemy = NULL;
 		return;
@@ -659,11 +659,11 @@ void Mark1_AttackDecision( void )
 	// Rate our distance to the target and visibility
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
-	if ((!visible) || (!NPC_FaceEnemy(qtrue)))
+	if ((!visible) || (!NPC_FaceEnemy(true)))
 	{
 		Mark1_Hunt();
 		return;
@@ -694,7 +694,7 @@ void Mark1_AttackDecision( void )
 	}
 
 	// We can see enemy so shoot him if timers let you.
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	if (distRate == DIST_MELEE)
 	{
@@ -716,7 +716,7 @@ void Mark1_Patrol( void )
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
 		G_Sound( NPC, G_SoundIndex("sound/chars/mark1/misc/mark1_wakeup"));
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -726,8 +726,8 @@ void Mark1_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
-			NPC_UpdateAngles( qtrue, qtrue );
+			NPC_MoveToGoal( true );
+			NPC_UpdateAngles( true, true );
 		}
 
 		//randomly talk

@@ -80,9 +80,9 @@ typedef struct listBoxDef_s {
 	int			numColumns;
 	columnInfo_t columnInfo[MAX_LB_COLUMNS];
 	const char	*doubleClick;
-	qboolean	notselectable;
+	bool	notselectable;
 //JLF MPMOVED
-	qboolean	scrollhidden;
+	bool	scrollhidden;
 } listBoxDef_t;
 
 
@@ -103,7 +103,7 @@ typedef struct multiDef_s {
 	const char *cvarStr[MAX_MULTI_CVARS];
 	float		cvarValue[MAX_MULTI_CVARS];
 	int			count;
-	qboolean	strDef;
+	bool	strDef;
 } multiDef_t;
 
 #define CVAR_ENABLE		0x00000001
@@ -155,7 +155,7 @@ typedef struct {
 	float		shadowY;
 	vec4_t		shadowColor;
 	float		shadowFadeClamp;
-	qboolean	fontRegistered;
+	bool	fontRegistered;
 
   // player settings
 //	qhandle_t	fxBasePic;
@@ -183,27 +183,27 @@ typedef struct {
 	void		(*getBindingBuf)( int keynum, char *buf, int buflen );
 	void		(*getCVarString)(const char *cvar, char *buffer, int bufsize);
 	float		(*getCVarValue)(const char *cvar);
-	qboolean	(*getOverstrikeMode)();
+	bool	(*getOverstrikeMode)();
 	float		(*getValue) (int ownerDraw);
 	void		(*keynumToStringBuf)( int keynum, char *buf, int buflen );
 	void		(*modelBounds) (qhandle_t model, vec3_t min, vec3_t max);
-	qboolean	(*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
+	bool	(*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
 	void		(*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, int iFontIndex);
-	qboolean	(*ownerDrawVisible) (int flags);
+	bool	(*ownerDrawVisible) (int flags);
 	int			(*ownerDrawWidth)(int ownerDraw, float scale);
-	void		(*Pause)(qboolean b);
+	void		(*Pause)(bool b);
 	void		(*Print)(const char *msg, ...);
 	int			(*registerFont) (const char *pFontname);
 	qhandle_t	(*registerModel) (const char *p);
 	qhandle_t	(*registerShaderNoMip) (const char *p);
-	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
+	sfxHandle_t (*registerSound)(const char *name, bool compressed);
 	void		(*renderScene) ( const refdef_t *fd );
-	qboolean	(*runScript)(const char **p);
-	qboolean	(*deferScript)(const char **p);
+	bool	(*runScript)(const char **p);
+	bool	(*deferScript)(const char **p);
 	void		(*setBinding)( int keynum, const char *binding );
 	void		(*setColor) (const vec4_t v);
 	void		(*setCVar)(const char *cvar, const char *value);
-	void		(*setOverstrikeMode)(qboolean b);
+	void		(*setOverstrikeMode)(bool b);
 	void		(*startLocalSound)( sfxHandle_t sfx, int channelNum );
 	void		(*stopCinematic)(int handle);
 	int			(*textHeight) (const char *text, float scale, int iFontIndex);
@@ -214,29 +214,29 @@ typedef struct {
 	qhandle_t	(*registerSkin)( const char *name );
 
 	//rww - ghoul2 stuff. Add whatever you need here, remember to set it in _UI_Init or it will crash when you try to use it.
-	qboolean	(*g2_SetSkin)(CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
-	qboolean	(*g2_SetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
+	bool	(*g2_SetSkin)(CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
+	bool	(*g2_SetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
 					  const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	qboolean	(*g2_RemoveGhoul2Model)(CGhoul2Info_v &ghlInfo, const int modelIndex);
+	bool	(*g2_RemoveGhoul2Model)(CGhoul2Info_v &ghlInfo, const int modelIndex);
 	int			(*g2_InitGhoul2Model)(CGhoul2Info_v &ghoul2, const char *fileName, int, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias);
 	void		(*g2_CleanGhoul2Models)(CGhoul2Info_v &ghoul2);
 	int			(*g2_AddBolt)(CGhoul2Info *ghlInfo, const char *boneName);
-	qboolean	(*g2_GetBoltMatrix)(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+	bool	(*g2_GetBoltMatrix)(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 									const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, const vec3_t scale);
 	void		(*g2_GiveMeVectorFromMatrix)(mdxaBone_t &boltMatrix, Eorientations flags, vec3_t &vec);
 
 	//Utility functions that don't immediately redirect to ghoul2 functions
-	int			(*g2hilev_SetAnim)(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const qboolean freeze);
+	int			(*g2hilev_SetAnim)(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const bool freeze);
 
 	float		yscale;
 	float		xscale;
 	float		bias;
 	int			realTime;
 	int			frameTime;
-	qboolean	cursorShow;
+	bool	cursorShow;
 	int			cursorx;
 	int			cursory;
-	qboolean	debug;
+	bool	debug;
 
 	cachedAssets_t Assets;
 
@@ -403,14 +403,14 @@ typedef struct itemDef_s {
 	int			font;						// FONT_SMALL,FONT_MEDIUM,FONT_LARGE
 	int			invertYesNo;
 	int			xoffset;
-	qboolean	disabled;					// Does this item ignore mouse and keyboard focus
-	qboolean	disabledHidden;				// hide the item when 'disabled' is true (for generic image items)
+	bool	disabled;					// Does this item ignore mouse and keyboard focus
+	bool	disabledHidden;				// hide the item when 'disabled' is true (for generic image items)
 } itemDef_t;
 
 typedef struct {
 	Window window;
 	const char  *font;						// font
-	qboolean	fullScreen;					// covers entire screen
+	bool	fullScreen;					// covers entire screen
 	int			itemCount;					// number of items;
 	int			fontIndex;					//
 	int			cursorItem;					// which item as the cursor
@@ -460,7 +460,7 @@ typedef struct textScrollDef_s
 typedef struct
 {
 	const char *name;
-	qboolean (*handler) (itemDef_t *item, const char** args);
+	bool (*handler) (itemDef_t *item, const char** args);
 
 } commandDef_t;
 
@@ -469,43 +469,43 @@ menuDef_t	*Menu_GetFocused(void);
 void		Controls_GetConfig( void );
 void		Controls_SetConfig( void );
 void		Controls_SetDefaults( void );
-qboolean	Display_KeyBindPending(void);
-qboolean	Display_MouseMove(void *p, int x, int y);
+bool	Display_KeyBindPending(void);
+bool	Display_MouseMove(void *p, int x, int y);
 int			Display_VisibleMenuCount(void);
-qboolean	Int_Parse(const char **p, int *i);
+bool	Int_Parse(const char **p, int *i);
 void		Init_Display(displayContextDef_t *dc);
 void		Menus_Activate(menuDef_t *menu);
 menuDef_t	*Menus_ActivateByName(const char *p);
-qboolean	Menus_AnyFullScreenVisible(void);
+bool	Menus_AnyFullScreenVisible(void);
 void		Menus_CloseAll(void);
 int			Menu_Count(void);
 itemDef_t	*Menu_FindItemByName(menuDef_t *menu, const char *p);
-void Menu_ShowGroup (menuDef_t *menu, const char *itemName, qboolean showFlag);
-void Menu_ItemDisable(menuDef_t *menu, const char *name, qboolean disableFlag);
+void Menu_ShowGroup (menuDef_t *menu, const char *itemName, bool showFlag);
+void Menu_ItemDisable(menuDef_t *menu, const char *name, bool disableFlag);
 int Menu_ItemsMatchingGroup(menuDef_t *menu, const char *name);
 itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *name);
 
-void		Menu_HandleKey(menuDef_t *menu, int key, qboolean down);
+void		Menu_HandleKey(menuDef_t *menu, int key, bool down);
 void		Menu_New(char *buffer);
 void		Menus_OpenByName(const char *p);
 void		Menu_PaintAll(void);
 void		Menu_Reset(void);
 void		PC_EndParseSession(char *buffer);
-qboolean	PC_Float_Parse(int handle, float *f);
-qboolean	PC_ParseString(const char **tempStr);
-qboolean	PC_ParseStringMem(const char **out);
+bool	PC_Float_Parse(int handle, float *f);
+bool	PC_ParseString(const char **tempStr);
+bool	PC_ParseStringMem(const char **out);
 void		PC_ParseWarning(const char *message);
-qboolean	PC_String_Parse(int handle, const char **out);
+bool	PC_String_Parse(int handle, const char **out);
 int			PC_StartParseSession(const char *fileName,char **buffer);
 char		*PC_ParseExt(void);
-qboolean	PC_ParseInt(int *number);
-qboolean	PC_ParseFloat(float *number);
-qboolean	PC_ParseColor(vec4_t *c);
+bool	PC_ParseInt(int *number);
+bool	PC_ParseFloat(float *number);
+bool	PC_ParseColor(vec4_t *c);
 const char	*String_Alloc(const char *p);
 void		String_Init(void);
-qboolean	String_Parse(const char **p, const char **out);
+bool	String_Parse(const char **p, const char **out);
 void		String_Report(void);
-void		UI_Cursor_Show(qboolean flag);
+void		UI_Cursor_Show(bool flag);
 itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *name);
 
 extern displayContextDef_t *DC;

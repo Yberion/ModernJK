@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	WANDER_RANGE		1000
 #define	FRIGHTEN_DISTANCE	300
 
-extern qboolean G_PlayerSpawned( void );
+extern bool G_PlayerSpawned( void );
 
 ratl::vector_vs<gentity_t*, MAX_PACKS>	mPacks;
 
@@ -175,12 +175,12 @@ void NPC_BSAnimal_Default( void )
 	// Select Closest Threat Location
 	//--------------------------------
 	CVec3	ThreatLocation(0,0,0);
-	qboolean PlayerSpawned = G_PlayerSpawned();
+	bool PlayerSpawned = G_PlayerSpawned();
 	if ( PlayerSpawned )
 	{//player is actually in the level now
 		ThreatLocation = player->currentOrigin;
 	}
-	int	alertEvent = NPC_CheckAlertEvents(qtrue, qtrue, -1, qfalse, AEL_MINOR, qfalse);
+	int	alertEvent = NPC_CheckAlertEvents(true, true, -1, false, AEL_MINOR, false);
 	if ( alertEvent >= 0 )
 	{
 		alertEvent_t *event = &level.alertEvents[alertEvent];
@@ -407,6 +407,6 @@ void NPC_BSAnimal_Default( void )
 	}
 	STEER::DeActivate(NPC, &ucmd);
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 

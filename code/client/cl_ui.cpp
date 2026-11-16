@@ -33,12 +33,12 @@ intptr_t CL_UISystemCalls( intptr_t *args );
 
 //prototypes
 #ifdef JK2_MODE
-extern qboolean SG_GetSaveImage( const char *psPathlessBaseName, void *pvAddress );
+extern bool SG_GetSaveImage( const char *psPathlessBaseName, void *pvAddress );
 #endif
 extern int SG_GetSaveGameComment(const char *psPathlessBaseName, char *sComment, char *sMapName);
-extern qboolean SG_GameAllowedToSaveHere(qboolean inCamera);
+extern bool SG_GameAllowedToSaveHere(bool inCamera);
 extern void SG_StoreSaveGameComment(const char *sComment);
-extern byte *SCR_GetScreenshot(qboolean *qValid);						// uncommented --eez
+extern byte *SCR_GetScreenshot(bool *qValid);						// uncommented --eez
 
 
 /*
@@ -98,7 +98,7 @@ Key_KeynumToStringBuf
 //
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen )
 {
-	const char *psKeyName = Key_KeynumToString( keynum/*, qtrue */);
+	const char *psKeyName = Key_KeynumToString( keynum/*, true */);
 
 	// see if there's a more friendly (or localised) name...
 	//
@@ -145,15 +145,15 @@ static int GetConfigString(int index, char *buf, int size)
 	int		offset;
 
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
-		return qfalse;
+		return false;
 
 	offset = cl.gameState.stringOffsets[index];
 	if (!offset)
-		return qfalse;
+		return false;
 
 	Q_strncpyz( buf, cl.gameState.stringData+offset, size);
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -165,7 +165,7 @@ void UI_Shutdown( void );
 void CL_ShutdownUI( void ) {
 	UI_Shutdown();
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
-	cls.uiStarted = qfalse;
+	cls.uiStarted = false;
 }
 
 void CL_DrawDatapad(int HUDType)
@@ -194,7 +194,7 @@ void CL_DrawDatapad(int HUDType)
 
 }
 
-void UI_Init( int apiVersion, uiimport_t *uiimport, qboolean inGameLoad );
+void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad );
 
 /*
 ====================
@@ -309,17 +309,17 @@ void CL_InitUI( void ) {
 
 	uii.Milliseconds			= Sys_Milliseconds2;
 
-	UI_Init(UI_API_VERSION, &uii, (qboolean)(cls.state > CA_DISCONNECTED && cls.state <= CA_ACTIVE));
+	UI_Init(UI_API_VERSION, &uii, (cls.state > CA_DISCONNECTED && cls.state <= CA_ACTIVE));
 
 //	uie->UI_Init( UI_API_VERSION, &uii );
 
 }
 
 
-qboolean UI_GameCommand( void ) {
+bool UI_GameCommand( void ) {
 	if (!cls.uiStarted)
 	{
-		return qfalse;
+		return false;
 	}
 	return UI_ConsoleCommand();
 }
@@ -337,7 +337,7 @@ void CL_GenericMenu_f(void)
 
 void CL_EndScreenDissolve_f(void)
 {
-	re.InitDissolve(qtrue);	// dissolve from cinematic to underlying ingame
+	re.InitDissolve(true);	// dissolve from cinematic to underlying ingame
 }
 
 void CL_DataPad_f(void)

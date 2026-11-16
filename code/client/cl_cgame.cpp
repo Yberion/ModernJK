@@ -54,11 +54,11 @@ extern sfxHandle_t AS_GetBModelSound( const char *name, int stage );
 extern void	AS_AddPrecacheEntry( const char *name );
 extern menuDef_t *Menus_FindByName(const char *p);
 
-extern qboolean R_inPVS( vec3_t p1, vec3_t p2 );
+extern bool R_inPVS( vec3_t p1, vec3_t p2 );
 
 void UI_SetActiveMenu( const char* menuname,const char *menuID );
 
-qboolean CL_InitCGameVM( void *gameLibrary )
+bool CL_InitCGameVM( void *gameLibrary )
 {
 	typedef intptr_t SyscallProc( intptr_t, ... );
 	typedef void DllEntryProc( SyscallProc * );
@@ -79,12 +79,12 @@ qboolean CL_InitCGameVM( void *gameLibrary )
 
 		Com_Printf( "CL_InitCGameVM: client game entry point not found in %s" ARCH_STRING DLL_EXT ": %s\n",
 					gamename, Sys_LibraryError() );
-		return qfalse;
+		return false;
 	}
 
 	dllEntry( VM_DllSyscall );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -111,7 +111,7 @@ void CL_GetGlconfig( glconfig_t *glconfig ) {
 CL_GetUserCmd
 ====================
 */
-qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 
 	// can't return anything that we haven't created yet
@@ -122,12 +122,12 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// the usercmd has been overwritten in the wrapping
 	// buffer because it is too far out of date
 	if ( cmdNumber <= cl.cmdNumber - CMD_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	*ucmd = cl.cmds[ cmdNumber & CMD_MASK ];
 
-	return qtrue;
+	return true;
 }
 
 int CL_GetCurrentCmdNumber( void ) {
@@ -141,7 +141,7 @@ CL_GetParseEntityState
 ====================
 */
 /*
-qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
+bool	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
 		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
@@ -150,11 +150,11 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 
 	// can't return anything that has been overwritten in the circular buffer
 	if ( parseEntityNumber <= cl.parseEntitiesNum - MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
-	return qtrue;
+	return true;
 }
 */
 
@@ -173,7 +173,7 @@ void	CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 CL_GetSnapshot
 ====================
 */
-qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+bool	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
 
@@ -183,19 +183,19 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// if the frame has fallen out of the circular buffer, we can't return it
 	if ( cl.frame.messageNum - snapshotNumber >= PACKET_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the frame is not valid, we can't return it
 	clSnap = &cl.frames[snapshotNumber & PACKET_MASK];
 	if ( !clSnap->valid ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the entities in the frame have fallen out of their
 	// circular buffer, we can't return it
 	if ( cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	// write the snapshot
@@ -227,30 +227,30 @@ Ghoul2 Insert End
 
 	// FIXME: configstring changes and server commands!!!
 
-	return qtrue;
+	return true;
 }
 
 //bg_public.h won't cooperate in here
 #define EF_PERMANENT   0x00080000
 
-qboolean CL_GetDefaultState(int index, entityState_t *state)
+bool CL_GetDefaultState(int index, entityState_t *state)
 {
 	if (index < 0 || index >= MAX_GENTITIES)
 	{
-		return qfalse;
+		return false;
 	}
 
 	// Is this safe? I think so. But it's still ugly as sin.
 	if (!(sv.svEntities[index].baseline.eFlags & EF_PERMANENT))
 //	if (!(cl.entityBaselines[index].eFlags & EF_PERMANENT))
 	{
-		return qfalse;
+		return false;
 	}
 
 	*state = sv.svEntities[index].baseline;
 //	*state = cl.entityBaselines[index];
 
-	return qtrue;
+	return true;
 }
 
 extern float cl_mPitchOverride;
@@ -263,12 +263,12 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchO
 }
 
 extern vec3_t cl_overriddenAngles;
-extern qboolean cl_overrideAngles;
+extern bool cl_overrideAngles;
 void CL_SetUserCmdAngles( float pitchOverride, float yawOverride, float rollOverride ) {
 	cl_overriddenAngles[PITCH] = pitchOverride;
 	cl_overriddenAngles[YAW] = yawOverride;
 	cl_overriddenAngles[ROLL] = rollOverride;
-	cl_overrideAngles = qtrue;
+	cl_overrideAngles = true;
 }
 
 void CL_AddCgameCommand( const char *cmdName ) {
@@ -344,19 +344,19 @@ CL_GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-qboolean CL_GetServerCommand( int serverCommandNumber ) {
+bool CL_GetServerCommand( int serverCommandNumber ) {
 	char	*s;
 	const char	*cmd;
 
 	// if we have irretrievably lost a reliable command, drop the connection
 	if ( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS ) {
 		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
-		return qfalse;
+		return false;
 	}
 
 	if ( serverCommandNumber > clc.serverCommandSequence ) {
 		Com_Error( ERR_DROP, "CL_GetServerCommand: requested a command not received" );
-		return qfalse;
+		return false;
 	}
 
 	s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
@@ -374,7 +374,7 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 		CL_ConfigstringModified();
 		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		return qtrue;
+		return true;
 	}
 
 	// the clientLevelShot command is used during development
@@ -387,19 +387,19 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 		// otherwise malicious remote servers could overwrite
 		// the existing thumbnails
 		if ( !com_sv_running->integer ) {
-			return qfalse;
+			return false;
 		}
 		// close the console
 		Con_Close();
 		// take a special screenshot next frame
 		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
-		return qtrue;
+		return true;
 	}
 
 	// we may want to put a "connect to other server" command here
 
 	// cgame can now act on the command
-	return qtrue;
+	return true;
 }
 
 
@@ -410,10 +410,10 @@ CL_CM_LoadMap
 Just adds default parameters that cgame doesn't need to know about
 ====================
 */
-void CL_CM_LoadMap( const char *mapname, qboolean subBSP ) {
+void CL_CM_LoadMap( const char *mapname, bool subBSP ) {
 	int		checksum;
 
-	CM_LoadMap( mapname, qtrue, &checksum, subBSP );
+	CM_LoadMap( mapname, true, &checksum, subBSP );
 }
 
 /*
@@ -423,7 +423,7 @@ CL_ShutdonwCGame
 ====================
 */
 void CL_ShutdownCGame( void ) {
-	cls.cgameStarted = qfalse;
+	cls.cgameStarted = false;
 
 	if ( !cgvm.entryPoint) {
 		return;
@@ -806,7 +806,7 @@ The cgame module is making a system call
 ====================
 */
 void CM_SnapPVS(vec3_t origin,byte *buffer);
-extern void		Menu_Paint(menuDef_t *menu, qboolean forcePaint);
+extern void		Menu_Paint(menuDef_t *menu, bool forcePaint);
 extern menuDef_t *Menus_FindByName(const char *p);
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 #ifdef JK2_MODE
@@ -872,7 +872,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case CG_CM_LOADMAP:
-		CL_CM_LoadMap( (const char *) VMA(1), (qboolean)(args[2] != 0) );
+		CL_CM_LoadMap( (const char *) VMA(1), (args[2] != 0) );
 		return 0;
 	case CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
@@ -948,12 +948,12 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		S_UpdateEntityPosition( args[1], (const float *) VMA(2) );
 		return 0;
 	case CG_S_RESPATIALIZE:
-		S_Respatialize( args[1], (const float *) VMA(2), (float(*)[3]) VMA(3), (qboolean)(args[4] != 0) );
+		S_Respatialize( args[1], (const float *) VMA(2), (float(*)[3]) VMA(3), (args[4] != 0) );
 		return 0;
 	case CG_S_REGISTERSOUND:
 		return S_RegisterSound( (const char *) VMA(1) );
 	case CG_S_STARTBACKGROUNDTRACK:
-		S_StartBackgroundTrack( (const char *) VMA(1), (const char *) VMA(2), (qboolean)(args[3] != 0) );
+		S_StartBackgroundTrack( (const char *) VMA(1), (const char *) VMA(2), (args[3] != 0) );
 		return 0;
 	case CG_S_GETSAMPLELENGTH:
 		return S_GetSampleLengthInMilliSeconds(  args[1]);
@@ -984,14 +984,14 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_LANGUAGE_USESSPACES:
 		return re.Language_UsesSpaces();
 	case CG_ANYLANGUAGE_READFROMSTRING:
-		return re.AnyLanguage_ReadCharFromString( (char *) VMA(1), (int *) VMA(2), (qboolean *) VMA(3) );
+		return re.AnyLanguage_ReadCharFromString( (char *) VMA(1), (int *) VMA(2), (bool *) VMA(3) );
 	case CG_ANYLANGUAGE_READFROMSTRING2:
-		return re.AnyLanguage_ReadCharFromString2( (char **) VMA(1), (qboolean *) VMA(3) );
+		return re.AnyLanguage_ReadCharFromString2( (char **) VMA(1), (bool *) VMA(3) );
 	case CG_R_SETREFRACTIONPROP:
 		*(re.tr_distortionAlpha()) = VMF(1);
 		*(re.tr_distortionStretch()) = VMF(2);
-		*(re.tr_distortionPrePost()) = (qboolean)args[3];
-		*(re.tr_distortionNegate()) = (qboolean)args[4];
+		*(re.tr_distortionPrePost()) = args[3];
+		*(re.tr_distortionNegate()) = args[4];
 		return 0;
 	case CG_R_CLEARSCENE:
 		re.ClearScene();
@@ -1022,7 +1022,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 		// The below was commented out for whatever reason... /me shrugs --eez
 	case CG_R_DRAWSCREENSHOT:
-		re.DrawStretchRaw( VMF(1), VMF(2), VMF(3), VMF(4), SG_SCR_WIDTH, SG_SCR_HEIGHT, SCR_GetScreenshot(0), 0, qtrue);
+		re.DrawStretchRaw( VMF(1), VMF(2), VMF(3), VMF(4), SG_SCR_WIDTH, SG_SCR_HEIGHT, SCR_GetScreenshot(0), 0, true);
 		return 0;
 	case CG_R_MODELBOUNDS:
 		re.ModelBounds( args[1], (float *) VMA(2), (float *) VMA(3) );
@@ -1131,7 +1131,7 @@ Ghoul2 Insert End
 	  return 0;
 
 	case CG_Z_MALLOC:
-		return (intptr_t)Z_Malloc(args[1], (memtag_t) args[2], qfalse);
+		return (intptr_t)Z_Malloc(args[1], (memtag_t) args[2], false);
 
 	case CG_Z_FREE:
 		Z_Free((void *) VMA(1));
@@ -1194,7 +1194,7 @@ Ghoul2 Insert End
 		return 0;
 
 	case CG_MODERNJK_MENU_PAINT:
-		Menu_Paint( (menuDef_t *)VMA(1), (qboolean)(args[2] != 0) );
+		Menu_Paint( (menuDef_t *)VMA(1), (args[2] != 0) );
 		return 0;
 
 	case CG_MODERNJK_GETMENU_BYNAME:
@@ -1219,11 +1219,11 @@ Ghoul2 Insert End
 			*w = (int) menu->window.rect.w;
 			h = (int *) VMA(5);
 			*h = (int) menu->window.rect.h;
-			result = qtrue;
+			result = true;
 		}
 		else
 		{
-			result = qfalse;
+			result = false;
 		}
 
 		return result;
@@ -1235,11 +1235,11 @@ Ghoul2 Insert End
 			*xPos = (int) menu->window.rect.x;
 			yPos = (int *) VMA(3);
 			*yPos = (int) menu->window.rect.y;
-			result = qtrue;
+			result = true;
 		}
 		else
 		{
-			result = qfalse;
+			result = false;
 		}
 
 		return result;
@@ -1256,16 +1256,16 @@ Ghoul2 Insert End
 			if (item)
 			{
 				Q_strncpyz( (char *) VMA(3), item->text, 256 );
-				result = qtrue;
+				result = true;
 			}
 			else
 			{
-				result = qfalse;
+				result = false;
 			}
 		}
 		else
 		{
-			result = qfalse;
+			result = false;
 		}
 
 		return result;
@@ -1294,7 +1294,7 @@ Ghoul2 Insert End
 				color = (vec4_t *) VMA(7);
 				if (!color)
 				{
-					return qfalse;
+					return false;
 				}
 
 				(*color)[0] = (float) item->window.foreColor[0];
@@ -1304,20 +1304,20 @@ Ghoul2 Insert End
 				background = (qhandle_t *) VMA(8);
 				if (!background)
 				{
-					return qfalse;
+					return false;
 				}
 				*background = item->window.background;
 
-				result = qtrue;
+				result = true;
 			}
 			else
 			{
-				result = qfalse;
+				result = false;
 			}
 		}
 		else
 		{
-			result = qfalse;
+			result = false;
 		}
 
 		return result;
@@ -1389,7 +1389,7 @@ CL_InitCGame
 Should only be called by CL_StartHunkUsers
 ====================
 */
-extern qboolean Sys_LowPhysicalMemory();
+extern bool Sys_LowPhysicalMemory();
 void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
@@ -1443,12 +1443,12 @@ CL_GameCommand
 See if the current console command is claimed by the cgame
 ====================
 */
-qboolean CL_GameCommand( void ) {
+bool CL_GameCommand( void ) {
 	if ( cls.state != CA_ACTIVE ) {
-		return qfalse;
+		return false;
 	}
 
-	return (qboolean)(VM_Call( CG_CONSOLE_COMMAND ) != 0);
+	return (VM_Call( CG_CONSOLE_COMMAND ) != 0);
 }
 
 
@@ -1474,7 +1474,7 @@ void CL_CGameRendering( stereoFrame_t stereo ) {
 		timei-=0;
 	}
 	re.G2API_SetTime(cl.serverTime,G2T_CG_TIME);
-	VM_Call( CG_DRAW_ACTIVE_FRAME,timei, stereo, qfalse );
+	VM_Call( CG_DRAW_ACTIVE_FRAME,timei, stereo, false );
 //	VM_Debug( 0 );
 }
 
@@ -1502,7 +1502,7 @@ during times of significant packet loss.
 
 void CL_AdjustTimeDelta( void ) {
 /*
-	cl.newSnapshots = qfalse;
+	cl.newSnapshots = false;
 	// if the current time is WAY off, just correct to the current value
 	if ( cls.realtime + cl.serverTimeDelta < cl.frame.serverTime - RESET_TIME
 		|| cls.realtime + cl.serverTimeDelta > cl.frame.serverTime + RESET_TIME  ) {
@@ -1516,7 +1516,7 @@ void CL_AdjustTimeDelta( void ) {
 	// if any of the frames between this and the previous snapshot
 	// had to be extrapolated, nudge our sense of time back a little
 	if ( cl.extrapolatedSnapshot ) {
-		cl.extrapolatedSnapshot = qfalse;
+		cl.extrapolatedSnapshot = false;
 		cl.serverTimeDelta -= 2;
 	} else {
 		// otherwise, move our sense of time forward to minimize total latency
@@ -1530,7 +1530,7 @@ void CL_AdjustTimeDelta( void ) {
 	int		newDelta;
 	int		deltaDelta;
 
-	cl.newSnapshots = qfalse;
+	cl.newSnapshots = false;
 
 	newDelta = cl.frame.serverTime - cls.realtime;
 	deltaDelta = abs( newDelta - cl.serverTimeDelta );
@@ -1556,7 +1556,7 @@ void CL_AdjustTimeDelta( void ) {
 		// the granularity of +1 / -2 is too high for timescale modified frametimes
 		if ( com_timescale->value == 0 || com_timescale->value == 1 ) {
 			if ( cl.extrapolatedSnapshot ) {
-				cl.extrapolatedSnapshot = qfalse;
+				cl.extrapolatedSnapshot = false;
 				cl.serverTimeDelta -= 2;
 			} else {
 				// otherwise, move our sense of time forward to minimize total latency
@@ -1609,7 +1609,7 @@ void CL_SetCGameTime( void ) {
 			return;
 		}
 		if ( cl.newSnapshots ) {
-			cl.newSnapshots = qfalse;
+			cl.newSnapshots = false;
 			CL_FirstSnapshot();
 		}
 
@@ -1652,7 +1652,7 @@ void CL_SetCGameTime( void ) {
 	// note if we are almost past the latest frame (without timeNudge),
 	// so we will try and adjust back a bit when the next snapshot arrives
 	if ( cls.realtime + cl.serverTimeDelta >= cl.frame.serverTime - 5 ) {
-		cl.extrapolatedSnapshot = qtrue;
+		cl.extrapolatedSnapshot = true;
 	}
 
 	// if we have gotten new snapshots, drift serverTimeDelta

@@ -112,9 +112,9 @@ struct CreditData_t
 	CreditCards_t CreditCards;
 	CreditLines_t CreditLines;
 
-	qboolean Running(void)
+	bool Running(void)
 	{
-		return (qboolean)(CreditCards.size() || CreditLines.size());
+		return (CreditCards.size() || CreditLines.size());
 	}
 };
 
@@ -272,7 +272,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 	} Mode_e;
 	Mode_e eMode = eNothing;
 
-	qboolean bCardsFinished = qfalse;
+	bool bCardsFinished = false;
 	int iLineNumber = 0;
 	const char *psTextParse = psMallocText;
 	while (*psTextParse != '\0')
@@ -281,10 +281,10 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 		//
 		char sLine[MAX_LINE_BYTES];
 			 sLine[0]='\0';
-		qboolean bWasCommand = qtrue;
+		bool bWasCommand = true;
 		while (1)
 		{
-			qboolean bIsTrailingPunctuation;
+			bool bIsTrailingPunctuation;
 			unsigned int uiLetter = cgi_AnyLanguage_ReadCharFromString(&psTextParse, &bIsTrailingPunctuation);
 
 			// concat onto string so far...
@@ -321,21 +321,21 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 					if (!Q_stricmp(sLine, "(#TITLE)"))
 					{
 						eMode = eTitle;
-						bCardsFinished = qtrue;
+						bCardsFinished = true;
 						break;
 					}
 					else
 					if (!Q_stricmp(sLine, "(#LINE)"))
 					{
 						eMode = eLine;
-						bCardsFinished = qtrue;
+						bCardsFinished = true;
 						break;
 					}
 					else
 					if (!Q_stricmp(sLine, "(#DOTENTRY)"))
 					{
 						eMode = eDotEntry;
-						bCardsFinished = qtrue;
+						bCardsFinished = true;
 						break;
 					}
 					else
@@ -350,7 +350,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 				{
 					// I guess not...
 					//
-					bWasCommand = qfalse;
+					bWasCommand = false;
 					break;
 				}
 			}
@@ -476,14 +476,14 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color )
 	CreditData.iStartTime = cg.time;
 }
 
-qboolean CG_Credits_Running( void )
+bool CG_Credits_Running( void )
 {
 	return CreditData.Running();
 }
 
-// returns qtrue if still drawing...
+// returns true if still drawing...
 //
-qboolean CG_Credits_Draw( void )
+bool CG_Credits_Draw( void )
 {
 	if ( CG_Credits_Running() )
 	{
@@ -574,7 +574,7 @@ qboolean CG_Credits_Draw( void )
 				}
 			}
 			//
-			return qtrue;
+			return true;
 		}
 		else
 		{
@@ -633,12 +633,12 @@ qboolean CG_Credits_Draw( void )
 					}
 				}
 
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 

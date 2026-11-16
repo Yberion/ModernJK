@@ -33,7 +33,7 @@ extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 
 extern gentity_t *G_CreateObject ( gentity_t *owner, vec3_t origin, vec3_t angles, int modelIndex, int frame, trType_t trType, int effectID );
 
-extern	qboolean	player_locked;
+extern	bool	player_locked;
 
 //---------------------------------------------------
 static void CacheChunkEffects( material_t material )
@@ -97,7 +97,7 @@ void funcBBrushDieGo (gentity_t *self)
 	}
 
 	//NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
-	gi.AdjustAreaPortalState( self, qtrue );
+	gi.AdjustAreaPortalState( self, true );
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
@@ -162,7 +162,7 @@ void funcBBrushDieGo (gentity_t *self)
 	{
 		//explode
 		AddSightEvent( attacker, org, 256, AEL_DISCOVERED, 100 );
-		AddSoundEvent( attacker, org, 128, AEL_DISCOVERED, qfalse, qtrue );//FIXME: am I on ground or not?
+		AddSoundEvent( attacker, org, 128, AEL_DISCOVERED, false, true );//FIXME: am I on ground or not?
 		G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
 
 		gentity_t *te = G_TempEntity( org, EV_GENERAL_SOUND );
@@ -171,7 +171,7 @@ void funcBBrushDieGo (gentity_t *self)
 	else
 	{//just break
 		AddSightEvent( attacker, org, 128, AEL_DISCOVERED );
-		AddSoundEvent( attacker, org, 64, AEL_SUSPICIOUS, qfalse, qtrue );//FIXME: am I on ground or not?
+		AddSoundEvent( attacker, org, 64, AEL_SUSPICIOUS, false, true );//FIXME: am I on ground or not?
 	}
 
 	//FIXME: base numChunks off size?
@@ -184,7 +184,7 @@ void funcBBrushDieGo (gentity_t *self)
 
 void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc)
 {
-	self->takedamage = qfalse;//stop chain reaction runaway loops
+	self->takedamage = false;//stop chain reaction runaway loops
 
 	G_SetEnemy(self, attacker);
 
@@ -266,7 +266,7 @@ static void InitBBrush ( gentity_t *ent )
 {
 	float		light;
 	vec3_t		color;
-	qboolean	lightSet, colorSet;
+	bool	lightSet, colorSet;
 
 	VectorCopy( ent->s.origin, ent->pos1 );
 
@@ -404,7 +404,7 @@ void SP_func_breakable( gentity_t *self )
 
 	if (self->health)
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 
 	G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");//precaching
@@ -537,7 +537,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 	self->e_DieFunc  = dieF_NULL;
 //	self->e_UseFunc  = useF_NULL;
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	if ( !(self->spawnflags & 4) )
 	{//We don't want to stay solid
@@ -575,7 +575,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 		{//explode
 			vec3_t org;
 			AddSightEvent( attacker, self->currentOrigin, 256, AEL_DISCOVERED, 100 );
-			AddSoundEvent( attacker, self->currentOrigin, 128, AEL_DISCOVERED, qfalse, qtrue );//FIXME: am I on ground or not?
+			AddSoundEvent( attacker, self->currentOrigin, 128, AEL_DISCOVERED, false, true );//FIXME: am I on ground or not?
 			//FIXME: specify type of explosion?  (barrel, electrical, etc.)  Also, maybe just use the explosion effect below since it's
 			//				a bit better?
 			// up the origin a little for the damage check, because several models have their origin on the ground, so they don't alwasy do damage, not the optimal solution...
@@ -604,7 +604,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 		else
 		{//just break
 			AddSightEvent( attacker, self->currentOrigin, 128, AEL_DISCOVERED );
-			AddSoundEvent( attacker, self->currentOrigin, 64, AEL_SUSPICIOUS, qfalse, qtrue );//FIXME: am I on ground or not?
+			AddSoundEvent( attacker, self->currentOrigin, 64, AEL_SUSPICIOUS, false, true );//FIXME: am I on ground or not?
 			// This is the default explosion
 			CG_MiscModelExplosion( self->absmin, self->absmax, size, self->material );
 			G_Sound(self, G_SoundIndex("sound/weapons/explosions/cargoexplode.wav"));
@@ -794,7 +794,7 @@ void misc_model_breakable_init( gentity_t *ent )
 	{
 		G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");
 		ent->max_health = ent->health;
-		ent->takedamage = qtrue;
+		ent->takedamage = true;
 		ent->e_PainFunc = painF_misc_model_breakable_pain;
 		ent->e_DieFunc  = dieF_misc_model_breakable_die;
 	}
@@ -1023,7 +1023,7 @@ void TieBomberThink( gentity_t *self )
 		SnapVector( bomb->s.pos.trDelta );		// save net bandwidth
 
 		// Start the effect.
-		G_PlayEffect( G_EffectIndex( "ships/tiebomber_bomb_falling" ), bomb->playerModel, gi.G2API_AddBolt( &bomb->ghoul2[0], "model_root" ), bomb->s.number, bomb->currentOrigin, 1000, qtrue );
+		G_PlayEffect( G_EffectIndex( "ships/tiebomber_bomb_falling" ), bomb->playerModel, gi.G2API_AddBolt( &bomb->ghoul2[0], "model_root" ), bomb->s.number, bomb->currentOrigin, 1000, true );
 
 		// Set the tie bomb to have a touch function, so when it hits the ground (or whatever), there's a nice 'boom'.
 		bomb->e_TouchFunc = touchF_TouchTieBomb;
@@ -1032,7 +1032,7 @@ void TieBomberThink( gentity_t *self )
 	}
 }
 
-void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
+void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 {
 	//G_SoundIndex( "sound/movers/objects/objectHurt.wav" );
 	G_EffectIndex( "melee/kick_impact" );
@@ -1169,7 +1169,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 	// Chris F. requested default for misc_model_breakable to be NONE...so don't arbitrarily change this.
 	G_SpawnInt( "material", "8", (int*)&ent->material );
 	G_SpawnFloat( "radius", "1", &ent->radius ); // used to scale chunk code if desired by a designer
-	qboolean bHasScale = G_SpawnVector("modelscale_vec", "0 0 0", ent->s.modelScale);
+	bool bHasScale = G_SpawnVector("modelscale_vec", "0 0 0", ent->s.modelScale);
 	if (!bHasScale)
 	{
 		float temp;
@@ -1177,7 +1177,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 		if (temp != 0.0f)
 		{
 			ent->s.modelScale[ 0 ] = ent->s.modelScale[ 1 ] = ent->s.modelScale[ 2 ] = temp;
-			bHasScale = qtrue;
+			bHasScale = true;
 		}
 	}
 
@@ -1220,7 +1220,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 		VectorSet (ent->maxs, 80, 80, 80);
 
 		//ent->s.modelScale[ 0 ] = ent->s.modelScale[ 1 ] = ent->s.modelScale[ 2 ] *= 2.0f;
-		//bHasScale = qtrue;
+		//bHasScale = true;
 	}
 
 	if (bHasScale)
@@ -1302,13 +1302,13 @@ void SP_misc_model_breakable( gentity_t *ent )
 			// need it immediately!
 			float		light;
 			vec3_t		color;
-			qboolean	lightSet, colorSet;
+			bool	lightSet, colorSet;
 
 			// if the "color" or "light" keys are set, setup constantLight
-			lightSet = qtrue;//G_SpawnFloat( "light", "100", &light );
+			lightSet = true;//G_SpawnFloat( "light", "100", &light );
 			light = 255;
 			//colorSet = "1 1 1"//G_SpawnVector( "color", "1 1 1", color );
-			colorSet = qtrue;
+			colorSet = true;
 			color[0] = 1;	color[1] = 1;	color[2] = 1;
 			if ( lightSet || colorSet )
 			{
@@ -1356,7 +1356,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 		G_SetAngles( ent, ent->s.angles );
 		G_SetOrigin( ent, ent->currentOrigin );
 		G_SpawnString( "throwtarget", NULL, &ent->target4 ); // used to throw itself at something
-		misc_model_breakable_gravity_init( ent, qtrue );
+		misc_model_breakable_gravity_init( ent, true );
 	}
 
 	// Start off.
@@ -1417,12 +1417,12 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 	cgi_R_GetBModelVerts( cgs.inlineDrawModel[self->s.modelindex], verts, normal );
 	CG_DoGlass( verts, normal, self->pos1, self->pos2, self->splashRadius );
 
-	self->takedamage = qfalse;//stop chain reaction runaway loops
+	self->takedamage = false;//stop chain reaction runaway loops
 
 	G_SetEnemy( self, self->enemy );
 
 	//NOTE: MUST do this BEFORE clearing contents, or you may not open the area portal!!!
-	gi.AdjustAreaPortalState( self, qtrue );
+	gi.AdjustAreaPortalState( self, true );
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
@@ -1487,7 +1487,7 @@ void SP_func_glass( gentity_t *self )
 
 	if ( self->health )
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 
 	self->e_UseFunc = useF_funcGlassUse;
@@ -1510,17 +1510,17 @@ void SP_func_glass( gentity_t *self )
 	gi.linkentity( self );
 }
 
-qboolean G_EntIsBreakable( int entityNum, gentity_t *breaker )
+bool G_EntIsBreakable( int entityNum, gentity_t *breaker )
 {//breakable brush/model that can actually be broken
 	if ( entityNum < 0 || entityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	gentity_t *ent = &g_entities[entityNum];
 	if ( !ent->takedamage )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->NPC_targetname )
@@ -1529,26 +1529,26 @@ qboolean G_EntIsBreakable( int entityNum, gentity_t *breaker )
 			|| !breaker->targetname
 			|| Q_stricmp( ent->NPC_targetname, breaker->targetname ) != 0 )
 		{//I'm not the one who can break it
-			return qfalse;
+			return false;
 		}
 	}
 
 	if ( (ent->svFlags&SVF_GLASS_BRUSH) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( (ent->svFlags&SVF_BBRUSH) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( !Q_stricmp( "misc_model_breakable", ent->classname ) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( !Q_stricmp( "misc_maglock", ent->classname ) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }

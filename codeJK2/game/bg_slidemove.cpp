@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_public.h"
 #include "bg_local.h"
 
-extern qboolean PM_ClientImpact( int otherEntityNum, qboolean damageSelf );
+extern bool PM_ClientImpact( int otherEntityNum, bool damageSelf );
 /*
 
 input: origin, velocity, bounds, groundPlane, trace function
@@ -39,12 +39,12 @@ output: origin, velocity, impacts, stairup boolean
 ==================
 PM_SlideMove
 
-Returns qtrue if the velocity was clipped in some way
+Returns true if the velocity was clipped in some way
 ==================
 */
 #define	MAX_CLIP_PLANES	5
-extern qboolean PM_GroundSlideOkay( float zNormal );
-qboolean	PM_SlideMove( float gravMod ) {
+extern bool PM_GroundSlideOkay( float zNormal );
+bool	PM_SlideMove( float gravMod ) {
 	int			bumpcount, numbumps;
 	vec3_t		dir;
 	float		d;
@@ -59,7 +59,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	qboolean	damageSelf = qtrue;
+	bool	damageSelf = true;
 
 	numbumps = 4;
 
@@ -117,7 +117,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		if ( trace.allsolid )
 		{// entity is completely trapped in another solid
 			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return qtrue;
+			return true;
 		}
 
 		if ( trace.fraction > 0 )
@@ -138,15 +138,15 @@ qboolean	PM_SlideMove( float gravMod ) {
 		//Hit it
 		if ( trace.surfaceFlags&SURF_NODAMAGE )
 		{
-			damageSelf = qfalse;
+			damageSelf = false;
 		}
 		else if ( trace.entityNum == ENTITYNUM_WORLD && trace.plane.normal[2] > 0.5f )
 		{//if we land on the ground, let falling damage do it's thing itself, otherwise do impact damage
-			damageSelf = qfalse;
+			damageSelf = false;
 		}
 		else
 		{
-			damageSelf = qtrue;
+			damageSelf = true;
 		}
 
 		if ( PM_ClientImpact( trace.entityNum, damageSelf ) )
@@ -159,7 +159,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		if ( numplanes >= MAX_CLIP_PLANES )
 		{// this shouldn't really happen
 			VectorClear( pm->ps->velocity );
-			return qtrue;
+			return true;
 		}
 
 		VectorCopy( trace.plane.normal, normal );
@@ -248,7 +248,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 
 					// stop dead at a triple plane interaction
 					VectorClear( pm->ps->velocity );
-					return qtrue;
+					return true;
 				}
 			}
 
@@ -268,7 +268,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		VectorCopy( primal_velocity, pm->ps->velocity );
 	}
 
-	return (qboolean)( bumpcount != 0 );
+	return ( bumpcount != 0 );
 }
 
 /*
@@ -284,7 +284,7 @@ void PM_StepSlideMove( float gravMod )
 	vec3_t		slideMove, stepUpMove;
 	trace_t		trace;
 	vec3_t		up, down;
-	qboolean	/*cantStepUpFwd, */isATST = qfalse;;
+	bool	/*cantStepUpFwd, */isATST = false;;
 	int			stepSize = STEPSIZE;
 
 	VectorCopy (pm->ps->origin, start_o);
@@ -296,7 +296,7 @@ void PM_StepSlideMove( float gravMod )
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_ATST)
 	{
-		isATST = qtrue;
+		isATST = true;
 		stepSize = 66;//hack for AT-ST stepping, slightly taller than a standing stormtrooper
 	}
 	else if ( pm->maxs[2] <= 0 )

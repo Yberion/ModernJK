@@ -111,7 +111,7 @@ void	cgi_UpdateScreen( void ) {
 	Q_syscall( CG_UPDATESCREEN );
 }
 
-void	cgi_CM_LoadMap( const char *mapname, qboolean subBSP ) {
+void	cgi_CM_LoadMap( const char *mapname, bool subBSP ) {
 	Q_syscall( CG_CM_LOADMAP, mapname, subBSP );
 }
 
@@ -200,7 +200,7 @@ void	cgi_S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
 	Q_syscall( CG_S_UPDATEENTITYPOSITION, entityNum, origin );
 }
 
-void	cgi_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], qboolean inwater ) {
+void	cgi_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], bool inwater ) {
 	Q_syscall( CG_S_RESPATIALIZE, entityNum, origin, axis, inwater );
 }
 
@@ -208,7 +208,7 @@ sfxHandle_t	cgi_S_RegisterSound( const char *sample ) {
 	return Q_syscall( CG_S_REGISTERSOUND, sample );
 }
 
-void	cgi_S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bForceStart ) {
+void	cgi_S_StartBackgroundTrack( const char *intro, const char *loop, bool bForceStart ) {
 	Q_syscall( CG_S_STARTBACKGROUNDTRACK, intro, loop, bForceStart );
 }
 
@@ -252,23 +252,23 @@ int cgi_R_Font_HeightPixels(const int iFontIndex, const float scale /*= 1.0f*/) 
 	return Q_syscall( CG_R_FONTHEIGHTPIXELS, iFontIndex, PASSFLOAT(scale) );
 }
 
-qboolean cgi_Language_IsAsian( void )
+bool cgi_Language_IsAsian( void )
 {
-	return (qboolean)Q_syscall( CG_LANGUAGE_ISASIAN );
+	return Q_syscall( CG_LANGUAGE_ISASIAN );
 }
 
-qboolean cgi_Language_UsesSpaces(void)
+bool cgi_Language_UsesSpaces(void)
 {
-	return (qboolean)Q_syscall( CG_LANGUAGE_USESSPACES );
+	return Q_syscall( CG_LANGUAGE_USESSPACES );
 }
 
-unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, qboolean *pbIsTrailingPunctuation /* = NULL */ )
+unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, bool *pbIsTrailingPunctuation /* = NULL */ )
 {
 	int dummy;
 	return Q_syscall( CG_ANYLANGUAGE_READFROMSTRING2, ppText, &dummy, pbIsTrailingPunctuation );
 }
 
-unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, int *ppos, qboolean *pbIsTrailingPunctuation /* = NULL */ )
+unsigned int cgi_AnyLanguage_ReadCharFromString( const char **ppText, int *ppos, bool *pbIsTrailingPunctuation /* = NULL */ )
 {
 	return Q_syscall( CG_ANYLANGUAGE_READFROMSTRING, ppText, ppos, pbIsTrailingPunctuation );
 }
@@ -357,20 +357,20 @@ void		cgi_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 	Q_syscall( CG_GETCURRENTSNAPSHOTNUMBER, snapshotNumber, serverTime );
 }
 
-qboolean	cgi_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
-	return (qboolean)Q_syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot );
+bool	cgi_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+	return Q_syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot );
 }
 
-qboolean	cgi_GetServerCommand( int serverCommandNumber ) {
-	return (qboolean)Q_syscall( CG_GETSERVERCOMMAND, serverCommandNumber );
+bool	cgi_GetServerCommand( int serverCommandNumber ) {
+	return Q_syscall( CG_GETSERVERCOMMAND, serverCommandNumber );
 }
 
 int			cgi_GetCurrentCmdNumber( void ) {
 	return Q_syscall( CG_GETCURRENTCMDNUMBER );
 }
 
-qboolean	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
-	return (qboolean)Q_syscall( CG_GETUSERCMD, cmdNumber, ucmd );
+bool	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+	return Q_syscall( CG_GETUSERCMD, cmdNumber, ucmd );
 }
 
 void		cgi_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride ) {
@@ -417,7 +417,7 @@ void	cgi_R_WorldEffectCommand( const char *command )
 	Q_syscall( CG_R_WORLD_EFFECT_COMMAND, command );
 }
 
-// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
+// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = NULL */) {
   return Q_syscall(CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits, psAudioFile);
 }
@@ -516,7 +516,7 @@ int cgi_UI_GetItemText(char *menuFile,char *itemName, char* text)
 	return(int) Q_syscall(CG_UI_GETITEMTEXT,menuFile,itemName,text);
 }
 
-int cgi_SP_Register(const char *text, qboolean persist )
+int cgi_SP_Register(const char *text, bool persist )
 {
 	return Q_syscall( CG_SP_REGISTER, text, persist );
 }
@@ -541,7 +541,7 @@ void *cgi_UI_GetMenuByName( const char *menu )
 	return (void *)Q_syscall( CG_MODERNJK_GETMENU_BYNAME, menu );
 }
 
-void cgi_UI_Menu_Paint( void *menu, qboolean force )
+void cgi_UI_Menu_Paint( void *menu, bool force )
 {
 	Q_syscall( CG_MODERNJK_MENU_PAINT, menu, force );
 }

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "Q3_Interface.h"
 
-extern qboolean NPC_CheckSurrender( void );
+extern bool NPC_CheckSurrender( void );
 extern void NPC_BehaviorSet_Default( int bState );
 
 void NPC_BSCivilian_Default( int bState )

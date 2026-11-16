@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
@@ -231,7 +231,7 @@ void Sentry_MaintainHeight( void )
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/sentry/misc/sentry_hover_1_lp" );
 
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
@@ -317,7 +317,7 @@ void Sentry_MaintainHeight( void )
 		}
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 }
 
 /*
@@ -386,7 +386,7 @@ void Sentry_Strafe( void )
 Sentry_Hunt
 -------------------------
 */
-void Sentry_Hunt( qboolean visible, qboolean advance )
+void Sentry_Hunt( bool visible, bool advance )
 {
 	float	distance, speed;
 	vec3_t	forward;
@@ -407,14 +407,14 @@ void Sentry_Hunt( qboolean visible, qboolean advance )
 		return;
 
 	//Only try and navigate if the player is visible
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
 		//Get our direction from the navigator if we can't see our target
-		if ( NPC_GetMoveDirection( forward, &distance ) == qfalse )
+		if ( NPC_GetMoveDirection( forward, &distance ) == false )
 			return;
 	}
 	else
@@ -432,7 +432,7 @@ void Sentry_Hunt( qboolean visible, qboolean advance )
 Sentry_RangedAttack
 -------------------------
 */
-void Sentry_RangedAttack( qboolean visible, qboolean advance )
+void Sentry_RangedAttack( bool visible, bool advance )
 {
 	if ( TIMER_Done( NPC, "attackDelay" ) && NPC->attackDebounceTime < level.time && visible )	// Attack?
 	{
@@ -496,7 +496,7 @@ void Sentry_AttackDecision( void )
 	}
 
 	// If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )
+	if ( NPC_CheckEnemyExt() == false )
 	{
 		Sentry_Idle();
 		return;
@@ -504,11 +504,11 @@ void Sentry_AttackDecision( void )
 
 	// Rate our distance to the target and visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -517,12 +517,12 @@ void Sentry_AttackDecision( void )
 		}
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	Sentry_RangedAttack( visible, advance );
 }
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
 /*
 -------------------------
@@ -539,7 +539,7 @@ void NPC_Sentry_Patrol( void )
 		if ( NPC_CheckPlayerTeamStealth() )
 		{
 			//NPC_AngerSound();
-			NPC_UpdateAngles( qtrue, qtrue );
+			NPC_UpdateAngles( true, true );
 			return;
 		}
 
@@ -547,7 +547,7 @@ void NPC_Sentry_Patrol( void )
 		{
 			//start loop sound once we move
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
+			NPC_MoveToGoal( true );
 		}
 
 		//randomly talk
@@ -559,7 +559,7 @@ void NPC_Sentry_Patrol( void )
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*

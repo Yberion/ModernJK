@@ -240,20 +240,20 @@ const vidmode_t r_vidModes[] = {
 };
 static const int	s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) );
 
-qboolean R_GetModeInfo( int *width, int *height, int mode ) {
+bool R_GetModeInfo( int *width, int *height, int mode ) {
 	const vidmode_t	*vm;
 
     if ( mode < -1 ) {
-        return qfalse;
+        return false;
 	}
 	if ( mode >= s_numVidModes ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( mode == -1 ) {
 		*width = r_customwidth->integer;
 		*height = r_customheight->integer;
-		return qtrue;
+		return true;
 	}
 
 	vm = &r_vidModes[mode];
@@ -261,7 +261,7 @@ qboolean R_GetModeInfo( int *width, int *height, int mode ) {
     *width  = vm->width;
     *height = vm->height;
 
-    return qtrue;
+    return true;
 }
 
 /*
@@ -332,7 +332,7 @@ void R_Register( void )
 	r_DynamicGlowWidth					= ri.Cvar_Get( "r_DynamicGlowWidth",				"320",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_DynamicGlowHeight					= ri.Cvar_Get( "r_DynamicGlowHeight",				"240",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_picmip							= ri.Cvar_Get( "r_picmip",							"1",						CVAR_ARCHIVE|CVAR_LATCH, "" );
-	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
+	ri.Cvar_CheckRange( r_picmip, 0, 16, true );
 	r_colorMipLevels					= ri.Cvar_Get( "r_colorMipLevels",					"0",						CVAR_LATCH, "" );
 	r_detailTextures					= ri.Cvar_Get( "r_detailtextures",					"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_texturebits						= ri.Cvar_Get( "r_texturebits",					"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
@@ -354,7 +354,7 @@ void R_Register( void )
 	r_uiFullScreen						= ri.Cvar_Get( "r_uifullscreen",					"0",						CVAR_NONE, "" );
 	r_subdivisions						= ri.Cvar_Get( "r_subdivisions",					"4",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_displayRefresh					= ri.Cvar_Get( "r_displayRefresh",					"0",						CVAR_LATCH, "" );
-	ri.Cvar_CheckRange( r_displayRefresh, 0, 200, qtrue );
+	ri.Cvar_CheckRange( r_displayRefresh, 0, 200, true );
 	r_fullbright						= ri.Cvar_Get( "r_fullbright",						"0",						CVAR_CHEAT, "" );
 	r_intensity							= ri.Cvar_Get( "r_intensity",						"1",						CVAR_LATCH, "" );
 	r_singleShader						= ri.Cvar_Get( "r_singleShader",					"0",						CVAR_CHEAT|CVAR_LATCH, "" );
@@ -363,7 +363,7 @@ void R_Register( void )
 	r_autolodscalevalue					= ri.Cvar_Get( "r_autolodscalevalue",				"0",						CVAR_ROM, "" );
 	r_flares							= ri.Cvar_Get( "r_flares",							"1",						CVAR_ARCHIVE_ND, "" );
 	r_znear								= ri.Cvar_Get( "r_znear",							"4",						CVAR_ARCHIVE_ND, "" );
-	ri.Cvar_CheckRange( r_znear, 0.001f, 10, qfalse );
+	ri.Cvar_CheckRange( r_znear, 0.001f, 10, false );
 	r_ignoreGLErrors					= ri.Cvar_Get( "r_ignoreGLErrors",					"1",						CVAR_ARCHIVE_ND, "" );
 	r_fastsky							= ri.Cvar_Get( "r_fastsky",						"0",						CVAR_ARCHIVE_ND, "" );
 	r_inGameVideo						= ri.Cvar_Get( "r_inGameVideo",					"1",						CVAR_ARCHIVE_ND, "" );
@@ -381,7 +381,7 @@ void R_Register( void )
 	r_roofCullCeilDist					= ri.Cvar_Get( "r_roofCullCeilDist",				"256",						CVAR_CHEAT, "" ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_roofCullFloorDist					= ri.Cvar_Get( "r_roofCeilFloorDist",				"128",						CVAR_CHEAT, "" ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_primitives						= ri.Cvar_Get( "r_primitives",						"0",						CVAR_ARCHIVE_ND, "" );
-	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
+	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, true );
 	r_ambientScale						= ri.Cvar_Get( "r_ambientScale",					"0.6",						CVAR_CHEAT, "" );
 	r_directedScale						= ri.Cvar_Get( "r_directedScale",					"1",						CVAR_CHEAT, "" );
 	r_autoMap							= ri.Cvar_Get( "r_autoMap",						"0",						CVAR_ARCHIVE_ND, "" ); //automap renderside toggle for debugging -rww
@@ -530,22 +530,22 @@ void R_Init( void ) {
 RE_Shutdown
 ===============
 */
-void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
+void RE_Shutdown( bool destroyWindow, bool restarting ) {
 
 //	Com_Printf ("RE_Shutdown( %i )\n", destroyWindow );
 
 	for ( size_t i = 0; i < numCommands; i++ )
 		ri.Cmd_RemoveCommand( commands[i].cmd );
 
-	tr.registered = qfalse;
+	tr.registered = false;
 }
 
-static void G2API_BoltMatrixReconstruction( qboolean reconstruct ) { gG2_GBMNoReconstruct = (qboolean)!reconstruct; }
-static void G2API_BoltMatrixSPMethod( qboolean spMethod ) { gG2_GBMUseSPMethod = spMethod; }
+static void G2API_BoltMatrixReconstruction( bool reconstruct ) { gG2_GBMNoReconstruct = !reconstruct; }
+static void G2API_BoltMatrixSPMethod( bool spMethod ) { gG2_GBMUseSPMethod = spMethod; }
 
 extern void R_SVModelInit( void ); //tr_model.cpp
-extern qboolean gG2_GBMNoReconstruct;
-extern qboolean gG2_GBMUseSPMethod;
+extern bool gG2_GBMNoReconstruct;
+extern bool gG2_GBMUseSPMethod;
 extern qhandle_t RE_RegisterServerSkin( const char *name );
 
 /*

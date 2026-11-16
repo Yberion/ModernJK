@@ -76,7 +76,7 @@ sysEvent_t Sys_GetEvent( void ) {
 		int		len;
 
 		len = strlen( s ) + 1;
-		b = (char *)Z_Malloc( len,TAG_EVENT,qfalse );
+		b = (char *)Z_Malloc( len,TAG_EVENT,false );
 		strcpy( b, s );
 		Sys_QueEvent( 0, SE_CONSOLE, 0, 0, len, b );
 	}

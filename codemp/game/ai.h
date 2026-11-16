@@ -61,7 +61,7 @@ typedef enum //# rank_e
 	RANK_CAPTAIN
 } rank_t;
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
 //AI_GRENADIER
 void NPC_BSGrenadier_Default( void );
@@ -118,7 +118,7 @@ typedef struct AIGroupMember_s
 typedef struct AIGroupInfo_s
 {
 	int			numGroup;
-	qboolean	processed;
+	bool	processed;
 	team_t		team;
 	gentity_t	*enemy;
 	int			enemyWP;
@@ -141,5 +141,5 @@ int AI_GetGroupSize2( gentity_t *ent, int radius );
 
 void AI_GetGroup( gentity_t *self );
 
-qboolean AI_CheckEnemyCollision( gentity_t *ent, qboolean takeEnemy );
+bool AI_CheckEnemyCollision( gentity_t *ent, bool takeEnemy );
 gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t team, int threshold );

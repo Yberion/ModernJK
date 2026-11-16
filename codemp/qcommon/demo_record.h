@@ -45,8 +45,8 @@ struct demoSources_t {
 class DemoRecorder {
 public:
 	// The demo's first message, a gamestate (config strings, the baselines of src, the server commands from its
-	// firstCommand to lastCommand); qfalse if it could not be coded.
-	qboolean Start( fileHandle_t file, const netcodec::engine::ServerMessage &gameState, int lastCommand, const demoSources_t &src );
+	// firstCommand to lastCommand); false if it could not be coded.
+	bool Start( fileHandle_t file, const netcodec::engine::ServerMessage &gameState, int lastCommand, const demoSources_t &src );
 
 	// A message of the stream, whose server commands end at lastCommand: written, held back until the next one shows
 	// whether it must be, or left out.
@@ -60,7 +60,7 @@ public:
 	void Reset( void );
 
 private:
-	qboolean Write( const netcodec::engine::ServerMessage &msg, int lastCommand, const demoSources_t &src );
+	bool Write( const netcodec::engine::ServerMessage &msg, int lastCommand, const demoSources_t &src );
 	void ResetFrames( void );
 
 	fileHandle_t						file;
@@ -68,7 +68,7 @@ private:
 	int									keptSeq;		// the demo's last snapshot, the base of the next one; -1: none
 	int									keptTime;
 	int									nextCommand;	// the first server command the demo does not hold yet
-	qboolean							held;
+	bool							held;
 	netcodec::engine::ServerMessage		heldMsg;		// a snapshot message held back
 	int									heldLastCommand;
 	uint8_t								heldAreas[MAX_MAP_AREA_BYTES];

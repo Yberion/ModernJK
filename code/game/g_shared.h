@@ -94,7 +94,7 @@ typedef enum //# material_e
 class clientInfo_t
 {
 public:
-	qboolean		infoValid;
+	bool		infoValid;
 
 	char			name[MAX_QPATH];
 	team_t			team;
@@ -485,7 +485,7 @@ public:
 class objectives_t
 {
 public:
-	qboolean	display;	// A displayable objective?
+	bool	display;	// A displayable objective?
 	int			status;	// Succeed or fail or pending
 
 
@@ -770,7 +770,7 @@ public:
 	int			pushVecTime;
 
 	int			noRagTime; //don't do ragdoll stuff if > level.time
-	qboolean	isRagging;
+	bool	isRagging;
 	int			overridingBones; //dragging body or doing something else to override one or more ragdoll effector's/pcj's
 
 	vec3_t		ragLastOrigin; //keeping track of positions between rags while dragging corpses
@@ -971,12 +971,12 @@ typedef struct centity_s centity_t;
 struct gentity_s {
 	entityState_t	s;				// communicated by server to clients
 	gclient_t	*client;	// NULL if not a player (unless it's NPC ( if (this->NPC != NULL)  )  <sigh>... -slc)
-	qboolean	inuse;
-	qboolean	linked;				// qfalse if not in any good cluster
+	bool	inuse;
+	bool	linked;				// false if not in any good cluster
 
 	int			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
 
-	qboolean	bmodel;				// if false, assume an explicit mins / maxs bounding box
+	bool	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by gi.SetBrushModel
 	vec3_t		mins, maxs;
 	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
@@ -1027,8 +1027,8 @@ Ghoul2 Insert End
 	int			freetime;			// sv.time when the object was freed
 
 	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
-	qboolean	freeAfterEvent;
-//	qboolean	unlinkAfterEvent;
+	bool	freeAfterEvent;
+//	bool	unlinkAfterEvent;
 
 //Physics and movement fields
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
@@ -1086,7 +1086,7 @@ Ghoul2 Insert End
 //Health and damage fields
 	int			health;
 	int			max_health;
-	qboolean	takedamage;
+	bool	takedamage;
 	material_t	material;
 	int			damage;
 	int			dflags;
@@ -1110,7 +1110,7 @@ Ghoul2 Insert End
 	float		wait;
 	float		random;
 	int			delay;
-	qboolean	alt_fire;
+	bool	alt_fire;
 	int			count;
 	int			bounceCount;
 	int			fly_sound_debounce_time;	// wind tunnel
@@ -1124,9 +1124,9 @@ Ghoul2 Insert End
 //Unions for miscellaneous fields used under very specific circumstances
 	union
 	{
-		qboolean	trigger_formation;
-		qboolean	misc_dlight_active;
-		qboolean	has_bounced;	// for thermal Det.  we force at least one bounce to happen before it can do proximity checks
+		bool	trigger_formation;
+		bool	misc_dlight_active;
+		bool	has_bounced;	// for thermal Det.  we force at least one bounce to happen before it can do proximity checks
 	};
 
 //Navigation
@@ -1142,7 +1142,7 @@ Ghoul2 Insert End
 	int			followPosWaypoint;
 
 //Animation
-	qboolean	loopAnim;
+	bool	loopAnim;
 	int		startFrame;
 	int		endFrame;
 
@@ -1668,7 +1668,7 @@ extern	game_import_t	gi;
 // that contains media references necessary to present the
 // weapon and its effects
 typedef struct weaponInfo_s {
-	qboolean		registered;
+	bool		registered;
 	gitem_t			*item;
 
 	qhandle_t		handsModel;			// the hands don't actually draw, they just position the weapon

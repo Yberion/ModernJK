@@ -71,7 +71,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define NUM_VISIBLE_TEAMMATES		203
 
 // NOTENOTE Update this so that it is in sync.
-//item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
+//item numbers (make sure they are in sync with bg_itemlist in bg_misc.cpp)
 //pickups
 #define MODELINDEX_ARMOR			1
 #define MODELINDEX_HEALTH			2

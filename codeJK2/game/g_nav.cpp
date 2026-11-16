@@ -29,19 +29,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //Global navigator
 CNavigator		navigator;
 
-extern qboolean G_EntIsUnlockedDoor( int entityNum );
-extern qboolean G_EntIsDoor( int entityNum );
-extern qboolean G_EntIsBreakable( int entityNum );
-extern qboolean G_EntIsRemovableUsable( int entNum );
-extern qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
+extern bool G_EntIsUnlockedDoor( int entityNum );
+extern bool G_EntIsDoor( int entityNum );
+extern bool G_EntIsBreakable( int entityNum );
+extern bool G_EntIsRemovableUsable( int entNum );
+extern bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 //For debug graphics
 extern void CG_Line( vec3_t start, vec3_t end, vec3_t color, float alpha );
 extern void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
 extern void CG_CubeOutline( vec3_t mins, vec3_t maxs, int time, unsigned int color, float alpha );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 
-qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
 void NAV_StoreWaypoint( gentity_t *ent );
 
 extern vec3_t NPCDEBUG_RED;
@@ -98,7 +98,7 @@ NPC_SetMoveGoal
 -------------------------
 */
 
-void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, qboolean isNavGoal, int combatPoint, gentity_t *targetEnt )
+void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, int combatPoint, gentity_t *targetEnt )
 {
 	//Must be an NPC
 	if ( ent->NPC == NULL )
@@ -153,7 +153,7 @@ NAV_HitNavGoal
 -------------------------
 */
 
-qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int radius, qboolean flying )
+bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int radius, bool flying )
 {
 	vec3_t	dmins, dmaxs, pmins, pmaxs;
 
@@ -172,11 +172,11 @@ qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, in
 			{
 				diff[2] = 0;
 			}
-			return (qboolean)( VectorLengthSquared( diff ) <= (radius*radius) );
+			return ( VectorLengthSquared( diff ) <= (radius*radius) );
 		}
 		else
 		{//must hit exactly
-			return (qboolean)( DistanceSquared(dest, point) <= (radius*radius) );
+			return ( DistanceSquared(dest, point) <= (radius*radius) );
 		}
 		//There is probably a better way to do this, either by preserving the original
 		//		mins and maxs of the navgoal and doing this check ONLY if the radius
@@ -208,7 +208,7 @@ NAV_ClearPathToPoint
 -------------------------
 */
 
-qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
+bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
 {
 //	trace_t	trace;
 //	return NAV_CheckAhead( self, point, trace, clipmask|CONTENTS_BOTCLIP );
@@ -218,7 +218,7 @@ qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3
 
 	//Test if they're even conceivably close to one another
 	if ( !gi.inPVS( self->currentOrigin, point ) )
-		return qfalse;
+		return false;
 
 	if ( self->svFlags & SVF_NAVGOAL )
 	{
@@ -226,7 +226,7 @@ qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3
 		{
 			//SHOULD NEVER HAPPEN!!!
 			assert(self->owner);
-			return qfalse;
+			return false;
 		}
 		VectorCopy( self->owner->mins, mins );
 		VectorCopy( self->owner->maxs, maxs );
@@ -261,24 +261,24 @@ qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3
 
 		if ( trace.startsolid || trace.allsolid )
 		{
-			return qfalse;
+			return false;
 		}
 
 		//Made it
 		if ( trace.fraction == 1.0 )
 		{
-			return qtrue;
+			return true;
 		}
 
 		if ( okToHitEntNum != ENTITYNUM_NONE && trace.entityNum == okToHitEntNum )
 		{
-			return qtrue;
+			return true;
 		}
 
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( self->currentOrigin, self->owner->mins, self->owner->maxs, trace.endpos, NPCInfo->goalRadius, FlyingCreature( self->owner ) ) )
 		{
-			return qtrue;
+			return true;
 		}
 		else
 		{
@@ -305,14 +305,14 @@ qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3
 			gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP, G2_NOCOLLIDE, 0);
 		}
 
-		if( ( ( trace.startsolid == qfalse ) && ( trace.allsolid == qfalse ) ) && ( trace.fraction == 1.0f ) )
+		if( ( ( trace.startsolid == false ) && ( trace.allsolid == false ) ) && ( trace.fraction == 1.0f ) )
 		{//FIXME: check for drops
-			return qtrue;
+			return true;
 		}
 
 		if ( okToHitEntNum != ENTITYNUM_NONE && trace.entityNum == okToHitEntNum )
 		{
-			return qtrue;
+			return true;
 		}
 
 		if ( NAVDEBUG_showCollision )
@@ -329,7 +329,7 @@ qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -479,7 +479,7 @@ NAV_CheckAhead
 -------------------------
 */
 
-qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
 {
 	vec3_t	mins;
 
@@ -494,12 +494,12 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
-	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
-		return qtrue;
+	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
+		return true;
 
 	//See if we're too far above
 	if ( fabs( self->currentOrigin[2] - end[2] ) > 48 )
-		return qfalse;
+		return false;
 
 	//This is a work around
 	float	radius = ( self->maxs[0] > self->maxs[1] ) ? self->maxs[0] : self->maxs[1];
@@ -507,7 +507,7 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 	float	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
-		return qtrue;
+		return true;
 
 	//Do a special check for doors
 	if ( trace.entityNum < ENTITYNUM_WORLD )
@@ -521,14 +521,14 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 			{
 				//We're too close, try and avoid the door (most likely stuck on a lip)
 				if ( DistanceSquared( self->currentOrigin, trace.endpos ) < MIN_DOOR_BLOCK_DIST_SQR )
-					return qfalse;
+					return false;
 
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -537,7 +537,7 @@ NAV_TestBypass
 -------------------------
 */
 
-static qboolean NAV_TestBypass( gentity_t *self, float yaw, float blocked_dist, vec3_t movedir )
+static bool NAV_TestBypass( gentity_t *self, float yaw, float blocked_dist, vec3_t movedir )
 {
 	trace_t	tr;
 	vec3_t	avoidAngles;
@@ -559,10 +559,10 @@ static qboolean NAV_TestBypass( gentity_t *self, float yaw, float blocked_dist, 
 	{
 		VectorCopy( block_test, movedir );
 
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -571,7 +571,7 @@ NAV_Bypass
 -------------------------
 */
 
-qboolean NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir )
+bool NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, float blocked_dist, vec3_t movedir )
 {
 	float dot;
 	vec3_t	right;
@@ -612,7 +612,7 @@ qboolean NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, fl
 			if ( NAV_CheckAhead( self, block_pos, tr, ( self->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
 			{
 				VectorCopy( blocker_movedir, movedir );
-				return qtrue;
+				return true;
 			}
 		}
 	}
@@ -627,22 +627,22 @@ qboolean NAV_Bypass( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir, fl
 
 	//Test full, best position first
 	if ( NAV_TestBypass( self, AngleNormalize360( yaw + arcAngle ), blocked_dist, movedir ) )
-		return qtrue;
+		return true;
 
 	//Try a smaller arc
 	if ( NAV_TestBypass( self, AngleNormalize360( yaw + ( arcAngle * 0.5f ) ), blocked_dist, movedir ) )
-		return qtrue;
+		return true;
 
 	//Try the other direction
 	if ( NAV_TestBypass( self, AngleNormalize360( yaw + ( arcAngle * -1 ) ), blocked_dist, movedir ) )
-		return qtrue;
+		return true;
 
 	//Try the other direction more precisely
 	if ( NAV_TestBypass( self, AngleNormalize360( yaw + ( ( arcAngle * -1 ) * 0.5f ) ), blocked_dist, movedir ) )
-		return qtrue;
+		return true;
 
 	//Unable to go around
-	return qfalse;
+	return false;
 }
 
 /*
@@ -651,7 +651,7 @@ NAV_MoveBlocker
 -------------------------
 */
 
-qboolean NAV_MoveBlocker( gentity_t *self, vec3_t shove_dir )
+bool NAV_MoveBlocker( gentity_t *self, vec3_t shove_dir )
 {
 	//FIXME: This is a temporary method for making blockers move
 
@@ -669,7 +669,7 @@ qboolean NAV_MoveBlocker( gentity_t *self, vec3_t shove_dir )
 
 	//self->NPC->shoveDebounce = level.time + 100;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -678,17 +678,17 @@ NAV_ResolveBlock
 -------------------------
 */
 
-qboolean NAV_ResolveBlock( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir )
+bool NAV_ResolveBlock( gentity_t *self, gentity_t *blocker, vec3_t blocked_dir )
 {
 	//Stop double waiting
 	if ( ( blocker->NPC ) && ( blocker->NPC->blockingEntNum == self->s.number ) )
-		return qtrue;
+		return true;
 
 	//For now, just complain about it
 	NPC_Blocked( self, blocker );
 	NPC_FaceEntity( blocker );
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -697,11 +697,11 @@ NAV_TrueCollision
 -------------------------
 */
 
-qboolean NAV_TrueCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t blocked_dir )
+bool NAV_TrueCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t blocked_dir )
 {
 	//TODO: Handle all ents
 	if ( blocker->client == NULL )
-		return qfalse;
+		return false;
 
 	vec3_t	velocityDir;
 
@@ -712,7 +712,7 @@ qboolean NAV_TrueCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir,
 	float dot = DotProduct( movedir, velocityDir );
 
 	if ( dot < 0.85 )
-		return qfalse;
+		return false;
 
 	vec3_t	testPos;
 	vec3_t	ptmins, ptmaxs, tmins, tmaxs;
@@ -728,10 +728,10 @@ qboolean NAV_TrueCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir,
 	if ( G_BoundsOverlap( ptmins, ptmaxs, tmins, tmaxs ) )
 	{
 		VectorCopy( velocityDir, blocked_dir );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -740,7 +740,7 @@ NAV_StackedCanyon
 -------------------------
 */
 
-qboolean NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
+bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 {
 	vec3_t	perp, cross, test;
 	float	avoidRadius;
@@ -772,8 +772,8 @@ qboolean NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir 
 		CG_Cube( mins, maxs, RED, 0.25 );
 	}
 
-	if ( tr.startsolid == qfalse && tr.allsolid == qfalse )
-		return qfalse;
+	if ( tr.startsolid == false && tr.allsolid == false )
+		return false;
 
 	VectorMA( blocker->currentOrigin, -avoidRadius, cross, test );
 
@@ -784,8 +784,8 @@ qboolean NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir 
 		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
 	}
 
-	if ( tr.startsolid == qfalse && tr.allsolid == qfalse )
-		return qfalse;
+	if ( tr.startsolid == false && tr.allsolid == false )
+		return false;
 
 	if ( NAVDEBUG_showCollision )
 	{
@@ -797,7 +797,7 @@ qboolean NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir 
 		CG_Cube( mins, maxs, RED, 0.25 );
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -806,7 +806,7 @@ NAV_ResolveEntityCollision
 -------------------------
 */
 
-qboolean NAV_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t pathDir )
+bool NAV_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t movedir, vec3_t pathDir )
 {
 	vec3_t	blocked_dir;
 
@@ -815,15 +815,15 @@ qboolean NAV_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t
 	//if ( Q_stricmp( blocker->classname, "func_door" ) == 0 )
 	{
 		if ( DistanceSquared( self->currentOrigin, blocker->currentOrigin ) > MIN_DOOR_BLOCK_DIST_SQR )
-			return qtrue;
+			return true;
 	}
 
 	VectorSubtract( blocker->currentOrigin, self->currentOrigin, blocked_dir );
 	float blocked_dist = VectorNormalize( blocked_dir );
 
 	//Make sure an actual collision is going to happen
-//	if ( NAV_PredictCollision( self, blocker, movedir, blocked_dir ) == qfalse )
-//		return qtrue;
+//	if ( NAV_PredictCollision( self, blocker, movedir, blocked_dir ) == false )
+//		return true;
 
 	//See if we can get around the blocker at all (only for player!)
 	if ( blocker->s.number == 0 )
@@ -831,21 +831,21 @@ qboolean NAV_ResolveEntityCollision( gentity_t *self, gentity_t *blocker, vec3_t
 		if ( NAV_StackedCanyon( self, blocker, pathDir ) )
 		{
 			NPC_Blocked( self, blocker );
-			NPC_FaceEntity( blocker, qtrue );
+			NPC_FaceEntity( blocker, true );
 
-			return qfalse;
+			return false;
 		}
 	}
 
 	//First, attempt to walk around the blocker
 	if ( NAV_Bypass( self, blocker, blocked_dir, blocked_dist, movedir ) )
-		return qtrue;
+		return true;
 
 	//Second, attempt to calculate a good move position for the blocker
 	if ( NAV_ResolveBlock( self, blocker, blocked_dir ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -854,15 +854,15 @@ NAV_TestForBlocked
 -------------------------
 */
 
-qboolean NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags )
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags )
 {
 	if ( goal == NULL )
-		return qfalse;
+		return false;
 
 	if ( blocker->s.eType == ET_ITEM )
-		return qfalse;
+		return false;
 
-	if ( NAV_HitNavGoal( blocker->currentOrigin, blocker->mins, blocker->maxs, goal->currentOrigin, 12, qfalse ) )
+	if ( NAV_HitNavGoal( blocker->currentOrigin, blocker->mins, blocker->maxs, goal->currentOrigin, 12, false ) )
 	{
 		flags |= NIF_BLOCKED;
 
@@ -870,11 +870,11 @@ qboolean NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocke
 		{
 			NPC_Blocked( self, blocker );
 			NPC_FaceEntity( blocker );
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -883,7 +883,7 @@ NAV_AvoidCollsion
 -------------------------
 */
 
-qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
+bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 {
 	vec3_t	movedir;
 	vec3_t	movepos;
@@ -902,7 +902,7 @@ qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 	VectorCopy( info.direction, movedir );
 
 	//Now test against entities
-	if ( NAV_CheckAhead( self, movepos, info.trace, CONTENTS_BODY ) == qfalse )
+	if ( NAV_CheckAhead( self, movepos, info.trace, CONTENTS_BODY ) == false )
 	{
 		//Get the blocker
 		info.blocker = &g_entities[ info.trace.entityNum ];
@@ -910,27 +910,27 @@ qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 
 		//Ok to hit our goal entity
 		if ( goal == info.blocker )
-			return qtrue;
+			return true;
 
 		//See if we're moving along with them
-		//if ( NAV_TrueCollision( self, info.blocker, movedir, info.direction ) == qfalse )
-		//	return qtrue;
+		//if ( NAV_TrueCollision( self, info.blocker, movedir, info.direction ) == false )
+		//	return true;
 
 		//Test for blocking by standing on goal
-		if ( NAV_TestForBlocked( self, goal, info.blocker, info.distance, info.flags ) == qtrue )
-			return qfalse;
+		if ( NAV_TestForBlocked( self, goal, info.blocker, info.distance, info.flags ) == true )
+			return false;
 
 		//If the above function said we're blocked, don't do the extra checks
 		if ( info.flags & NIF_BLOCKED )
-			return qtrue;
+			return true;
 
 		//See if we can get that entity to move out of our way
-		if ( NAV_ResolveEntityCollision( self, info.blocker, movedir, info.pathDirection ) == qfalse )
-			return qfalse;
+		if ( NAV_ResolveEntityCollision( self, info.blocker, movedir, info.pathDirection ) == false )
+			return false;
 
 		VectorCopy( movedir, info.direction );
 
-		return qtrue;
+		return true;
 	}
 
 	//Our path is clear, just move there
@@ -939,7 +939,7 @@ qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 		CG_DrawEdge( self->currentOrigin, movepos, EDGE_PATH );
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -948,7 +948,7 @@ NAV_TestBestNode
 -------------------------
 */
 
-int NAV_TestBestNode( gentity_t *self, int startID, int endID, qboolean failEdge )
+int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 {//check only against architectrure
 	vec3_t	end;
 	trace_t	trace;
@@ -969,7 +969,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, qboolean failEdge
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
-	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
+	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
 	{//it's clear
 		return endID;
 	}
@@ -1071,17 +1071,17 @@ NAV_MicroError
 -------------------------
 */
 
-qboolean NAV_MicroError( vec3_t start, vec3_t end )
+bool NAV_MicroError( vec3_t start, vec3_t end )
 {
 	if ( VectorCompare( start, end ) )
 	{
 		if ( DistanceSquared( NPC->currentOrigin, start ) < (8*8) )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1136,7 +1136,7 @@ int	NAV_MoveToGoal( gentity_t *self, navInfo_t &info )
 	}
 
 	//Check this node
-	bestNode = NAV_TestBestNode( self, bestNode, self->NPC->goalEntity->waypoint, qfalse );
+	bestNode = NAV_TestBestNode( self, bestNode, self->NPC->goalEntity->waypoint, false );
 
 	vec3_t	origin, end;
 	//trace_t	trace;
@@ -1150,13 +1150,13 @@ int	NAV_MoveToGoal( gentity_t *self, navInfo_t &info )
 	//	return WAYPOINT_NONE;
 
 	//Test the path connection from our current position to the best node
-	if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == qfalse )
+	if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == false )
 	{
 		//First attempt to move to the closest point on the line between the waypoints
 		G_FindClosestPointOnLineSegment( origin, end, self->currentOrigin, origin );
 
 		//See if we can go there
-		if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == qfalse )
+		if ( NAV_CheckAhead( self, origin, info.trace, (self->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP ) == false )
 		{
 			//Just move towards our current waypoint
 			bestNode = self->waypoint;
@@ -1263,10 +1263,10 @@ void SP_waypoint ( gentity_t *ent )
 		ent->count = -1;
 		ent->classname = "waypoint";
 
-		if( !(ent->spawnflags&1) && G_CheckInSolid (ent, qtrue))
+		if( !(ent->spawnflags&1) && G_CheckInSolid (ent, true))
 		{//if not SOLID_OK, and in solid
 			ent->maxs[2] = CROUCH_MAXS_2;
-			if(G_CheckInSolid (ent, qtrue))
+			if(G_CheckInSolid (ent, true))
 			{
 				gi.Printf(S_COLOR_RED"ERROR: Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 				assert(0 && "Waypoint in solid!");
@@ -1309,10 +1309,10 @@ void SP_waypoint_small (gentity_t *ent)
 		ent->count = -1;
 		ent->classname = "waypoint";
 
-		if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qtrue ) )
+		if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, true ) )
 		{
 			ent->maxs[2] = CROUCH_MAXS_2;
-			if ( G_CheckInSolid( ent, qtrue ) )
+			if ( G_CheckInSolid( ent, true ) )
 			{
 				gi.Printf(S_COLOR_RED"ERROR: Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 				assert(0);
@@ -1358,7 +1358,7 @@ void SP_waypoint_navgoal( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, -24 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 		assert(0);
@@ -1393,7 +1393,7 @@ void SP_waypoint_navgoal_8( gentity_t *ent )
 	VectorSet( ent->mins, -8, -8, -24 );
 	VectorSet( ent->maxs, 8, 8, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal_8 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
@@ -1429,7 +1429,7 @@ void SP_waypoint_navgoal_4( gentity_t *ent )
 	VectorSet( ent->mins, -4, -4, -24 );
 	VectorSet( ent->maxs, 4, 4, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal_4 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
@@ -1465,7 +1465,7 @@ void SP_waypoint_navgoal_2( gentity_t *ent )
 	VectorSet( ent->mins, -2, -2, -24 );
 	VectorSet( ent->maxs, 2, 2, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal_2 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
@@ -1501,7 +1501,7 @@ void SP_waypoint_navgoal_1( gentity_t *ent )
 	VectorSet( ent->mins, -1, -1, -24 );
 	VectorSet( ent->maxs, 1, 1, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal_1 %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 #ifndef FINAL_BUILD
@@ -1623,7 +1623,7 @@ NAV_CalculatePaths
 int fatalErrors = 0;
 char *fatalErrorPointer = NULL;
 char	fatalErrorString[4096];
-qboolean NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
+bool NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
 {
 	if ( Distance( wp1->currentOrigin, wp2->currentOrigin ) > 1024 )
 	{
@@ -1650,15 +1650,15 @@ qboolean NAV_WaypointsTooFar( gentity_t *wp1, gentity_t *wp2 )
 		if ( (fatalErrorPointer-fatalErrorString)+len >= (int)sizeof( fatalErrorString ) )
 		{
 			Com_Error( ERR_DROP, "%s%s%dTOO MANY FATAL NAV ERRORS!!!\n", fatalErrorString, temp, fatalErrors );
-			return qtrue;
+			return true;
 		}
 		strcat( fatalErrorPointer, temp );
 		fatalErrorPointer += len;
-		return qtrue;
+		return true;
 	}
 	else
 	{
-		return qfalse;
+		return false;
 	}
 }
 #endif
@@ -1670,7 +1670,7 @@ void NAV_StoreWaypoint( gentity_t *ent )
 {
 	if ( !tempWaypointList )
 	{
-		tempWaypointList = (waypointData_t *) gi.Malloc(sizeof(waypointData_t)*MAX_STORED_WAYPOINTS, TAG_TEMP_WORKSPACE, qtrue);
+		tempWaypointList = (waypointData_t *) gi.Malloc(sizeof(waypointData_t)*MAX_STORED_WAYPOINTS, TAG_TEMP_WORKSPACE, true);
 	}
 
 	if ( numStoredWaypoints >= MAX_STORED_WAYPOINTS )
@@ -1801,14 +1801,14 @@ void NAV_CalculatePaths( const char *filename, int checksum )
 	//Now check all blocked edges, mark failed ones
 	navigator.CheckBlockedEdges();
 
-	navigator.pathsCalculated = qfalse;
+	navigator.pathsCalculated = false;
 
 	//Calculate the paths based on the supplied waypoints
 	//navigator.CalculatePaths();
 
 	//Save the resulting information
 	/*
-	if ( navigator.Save( filename, checksum ) == qfalse )
+	if ( navigator.Save( filename, checksum ) == false )
 	{
 		Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", filename, checksum );
 	}
@@ -1857,7 +1857,7 @@ void NAV_ShowDebugInfo( void )
 		int	nearestNode = navigator.GetNearestNode( &g_entities[0], g_entities[0].waypoint, NF_ANY, WAYPOINT_NONE );
 		int	testNode = navigator.GetBestNode( nearestNode, NAVDEBUG_curGoal );
 
-		nearestNode = NAV_TestBestNode( &g_entities[0], nearestNode, testNode, qfalse );
+		nearestNode = NAV_TestBestNode( &g_entities[0], nearestNode, testNode, false );
 
 		//Show the connection
 		vec3_t	dest, start;

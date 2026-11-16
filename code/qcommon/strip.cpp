@@ -987,7 +987,7 @@ std::map<byte, cStringPackageSingle *>		JK2SP_ListByID;
  *	success/fail
  *
  ************************************************************************************************/
-qboolean JK2SP_Register(const char *inPackage, unsigned char Registration)
+bool JK2SP_Register(const char *inPackage, unsigned char Registration)
 {
 	char											*buffer;
 	char											Package[MAX_QPATH];
@@ -1016,7 +1016,7 @@ qboolean JK2SP_Register(const char *inPackage, unsigned char Registration)
 			{
 				Com_Error(ERR_FATAL, "Could not open string package '%s'", Package);
 			}
-			return qfalse;
+			return false;
 		}
 
 		// Create the new string package
@@ -1042,7 +1042,7 @@ qboolean JK2SP_Register(const char *inPackage, unsigned char Registration)
 	new_sp->Register(Registration);
 
 //	return new_sp;
-	return qtrue;
+	return true;
 }
 
 
@@ -1236,7 +1236,7 @@ void JK2SP_Init(void)
 //	Cvar_Set("sp_language", va("%d", SP_LANGUAGE_JAPANESE));	// stetest, do NOT leave in
 
 	JK2SP_UpdateLanguage();
-	sp_language->modified = qfalse;
+	sp_language->modified = false;
 
 	JK2SP_Register("con_text", SP_REGISTER_REQUIRED);	//reference is CON_TEXT
 }
@@ -1248,7 +1248,7 @@ void JK2SP_CheckForLanguageUpdates(void)
 	if (sp_language && sp_language->modified)
 	{
 		JK2SP_UpdateLanguage();	// force language package to reload
-		sp_language->modified = qfalse;
+		sp_language->modified = false;
 	}
 }
 

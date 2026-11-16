@@ -26,17 +26,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "wp_saber.h"
 
-extern qboolean G_StandardHumanoid( const char *modelName );
+extern bool G_StandardHumanoid( const char *modelName );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void NPC_AimAdjust( int change );
-extern qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
-				vec3_t velocity, qboolean tracePath, int ignoreEntNum, int enemyNum,
-				float minSpeed, float maxSpeed, float idealSpeed, qboolean mustHit );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
+				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
+				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void G_SoundAtSpot( vec3_t org, int soundIndex );
 extern void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *soundPath);
-extern qboolean PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( int anim );
 //extern void NPC_Mark1_Part_Explode(gentity_t *self,int bolt);
 
 #define MELEE_DIST_SQUARED 6400//80*80
@@ -51,14 +51,14 @@ extern qboolean PM_CrouchAnim( int anim );
 static vec3_t shieldMins = {-60, -60, -24 };
 static vec3_t shieldMaxs = {60, 60, 80};
 
-extern qboolean NPC_CheckPlayerTeamStealth( void );
+extern bool NPC_CheckPlayerTeamStealth( void );
 
-static qboolean enemyLOS;
-static qboolean enemyCS;
-static qboolean hitAlly;
-static qboolean faceEnemy;
-static qboolean AImove;
-static qboolean shoot;
+static bool enemyLOS;
+static bool enemyCS;
+static bool hitAlly;
+static bool faceEnemy;
+static bool AImove;
+static bool shoot;
 static float	enemyDist;
 static vec3_t	impactPos;
 
@@ -119,7 +119,7 @@ void NPC_GalakMech_Init( gentity_t *ent )
 }
 
 //-----------------------------------------------------------------
-static void GM_CreateExplosion( gentity_t *self, const int boltID, qboolean doSmall = qfalse )
+static void GM_CreateExplosion( gentity_t *self, const int boltID, bool doSmall = false )
 {
 	if ( boltID >=0 )
 	{
@@ -166,7 +166,7 @@ void GM_Dying( gentity_t *self )
 			case 1:
 				if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_hand" ))
 				{//r_hand still there
-					GM_CreateExplosion( self, self->handRBolt, qtrue );
+					GM_CreateExplosion( self, self->handRBolt, true );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "r_hand", TURN_OFF );
 				}
 				else if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm_middle" ))
@@ -219,19 +219,19 @@ void GM_Dying( gentity_t *self )
 				break;
 			case 11:
 				newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*l_leg_knee" );
-				GM_CreateExplosion( self, newBolt, qtrue );
+				GM_CreateExplosion( self, newBolt, true );
 				break;
 			case 12:
 				newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*r_leg_knee" );
-				GM_CreateExplosion( self, newBolt, qtrue );
+				GM_CreateExplosion( self, newBolt, true );
 				break;
 			case 13:
 				newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*l_leg_foot" );
-				GM_CreateExplosion( self, newBolt, qtrue );
+				GM_CreateExplosion( self, newBolt, true );
 				break;
 			case 14:
 				newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*r_leg_foot" );
-				GM_CreateExplosion( self, newBolt, qtrue );
+				GM_CreateExplosion( self, newBolt, true );
 				break;
 			}
 
@@ -337,7 +337,7 @@ void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, ve
 			if ( TIMER_Done( self, "noRapid" ) )
 			{
 				self->NPC->scriptFlags &= ~SCF_ALT_FIRE;
-				self->alt_fire = qfalse;
+				self->alt_fire = false;
 				TIMER_Set( self, "noLob", Q_irand( 2000, 6000 ) );
 			}
 			else
@@ -350,7 +350,7 @@ void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, ve
 			if ( TIMER_Done( self, "noLob" ) )
 			{
 				self->NPC->scriptFlags |= SCF_ALT_FIRE;
-				self->alt_fire = qtrue;
+				self->alt_fire = true;
 				TIMER_Set( self, "noRapid", Q_irand( 2000, 6000 ) );
 			}
 			else
@@ -369,7 +369,7 @@ GM_HoldPosition
 
 static void GM_HoldPosition( void )
 {
-	NPC_FreeCombatPoint( NPCInfo->combatPoint, qtrue );
+	NPC_FreeCombatPoint( NPCInfo->combatPoint, true );
 	if ( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
 	{//don't have a script waiting for me to get to my point, okay to stop trying and stand
 		NPCInfo->goalEntity = NULL;
@@ -381,11 +381,11 @@ static void GM_HoldPosition( void )
 GM_Move
 -------------------------
 */
-static qboolean GM_Move( void )
+static bool GM_Move( void )
 {
-	NPCInfo->combatMove = qtrue;//always move straight toward our goal
+	NPCInfo->combatMove = true;//always move straight toward our goal
 
-	qboolean	moved = NPC_MoveToGoal( qtrue );
+	bool	moved = NPC_MoveToGoal( true );
 	navInfo_t	info;
 
 	//Get the move info
@@ -402,7 +402,7 @@ static qboolean GM_Move( void )
 	}
 
 	//If our move failed, then reset
-	if ( moved == qfalse )
+	if ( moved == false )
 	{//FIXME: if we're going to a combat point, need to pick a different one
 		if ( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
 		{//can't transfer movegoal or stop when a script we're running is waiting to complete
@@ -423,7 +423,7 @@ void NPC_BSGM_Patrol( void )
 {
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -431,10 +431,10 @@ void NPC_BSGM_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -447,14 +447,14 @@ static void GM_CheckMoveState( void )
 {
 	if ( Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
 	{//moving toward a goal that a script is waiting on, so don't stop for anything!
-		AImove = qtrue;
+		AImove = true;
 	}
 
 	//See if we're moving towards a goal, not the enemy
 	if ( ( NPCInfo->goalEntity != NPC->enemy ) && ( NPCInfo->goalEntity != NULL ) )
 	{
 		//Did we make it?
-		if ( NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, NPCInfo->goalEntity->currentOrigin, 16, qfalse ) ||
+		if ( NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, NPCInfo->goalEntity->currentOrigin, 16, false ) ||
 			( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) && enemyLOS && enemyDist <= 10000 ) )
 		{//either hit our navgoal or our navgoal was not a crucial (scripted) one (maybe a combat point) and we're scouting and found our enemy
 			NPC_ReachedGoal();
@@ -492,8 +492,8 @@ static void GM_CheckFireState( void )
 			{
 				//Fire on the last known position
 				vec3_t	muzzle, dir, angles;
-				qboolean tooClose = qfalse;
-				qboolean tooFar = qfalse;
+				bool tooClose = false;
+				bool tooFar = false;
 
 				CalcEntitySpot( NPC, SPOT_HEAD, muzzle );
 				if ( VectorCompare( impactPos, vec3_origin ) )
@@ -521,7 +521,7 @@ static void GM_CheckFireState( void )
 
 				if ( dist < distThreshold )
 				{//impact would be too close to me
-					tooClose = qtrue;
+					tooClose = true;
 				}
 				else if ( level.time - NPCInfo->enemyLastSeenTime > 5000 )
 				{//we've haven't seen them in the last 5 seconds
@@ -537,7 +537,7 @@ static void GM_CheckFireState( void )
 					dist = DistanceSquared( impactPos, NPCInfo->enemyLastSeenLocation );
 					if ( dist > distThreshold )
 					{//impact would be too far from enemy
-						tooFar = qtrue;
+						tooFar = true;
 					}
 				}
 
@@ -550,8 +550,8 @@ static void GM_CheckFireState( void )
 					NPCInfo->desiredYaw		= angles[YAW];
 					NPCInfo->desiredPitch	= angles[PITCH];
 
-					shoot = qtrue;
-					faceEnemy = qfalse;
+					shoot = true;
+					faceEnemy = false;
 					return;
 				}
 			}
@@ -597,7 +597,7 @@ void NPC_BSGM_Attack( void )
 	//Don't do anything if we're hurt
 	if ( NPC->painDebounceTime > level.time )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -658,30 +658,30 @@ void NPC_BSGM_Attack( void )
 				GM_StartGloat();
 			}
 		}
-		NPC_FaceEnemy( qtrue );
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_FaceEnemy( true );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 	//If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse || !NPC->enemy )
+	if ( NPC_CheckEnemyExt() == false || !NPC->enemy )
 	{
 		NPC->enemy = NULL;
 		NPC_BSGM_Patrol();
 		return;
 	}
 
-	enemyLOS = enemyCS = qfalse;
-	AImove = qtrue;
-	faceEnemy = qfalse;
-	shoot = qfalse;
-	hitAlly = qfalse;
+	enemyLOS = enemyCS = false;
+	AImove = true;
+	faceEnemy = false;
+	shoot = false;
+	hitAlly = false;
 	VectorClear( impactPos );
 	enemyDist = DistanceSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 
 	if ( NPC->client->ps.torsoAnim == BOTH_ATTACK4 ||
 		NPC->client->ps.torsoAnim == BOTH_ATTACK5 )
 	{
-		shoot = qfalse;
+		shoot = false;
 		if ( TIMER_Done( NPC, "smackTime" ) && !NPCInfo->blockedDebounceTime )
 		{//time to smack
 			//recheck enemyDist and InFront
@@ -721,7 +721,7 @@ void NPC_BSGM_Attack( void )
 	}
 	else if ( NPC->lockCount ) //already shooting laser
 	{//sometimes use the laser beam attack, but only after he's taken down our generator
-		shoot = qfalse;
+		shoot = false;
 		if ( NPC->lockCount == 1 )
 		{//charging up
 			if ( TIMER_Done( NPC, "beamDelay" ) )
@@ -811,7 +811,7 @@ void NPC_BSGM_Attack( void )
 		{//he's deflecting my shots, switch to the laser or the lob fire for a while
 			TIMER_Set( NPC, "noRapid", Q_irand( 2000, 6000 ) );
 			NPCInfo->scriptFlags |= SCF_ALT_FIRE;
-			NPC->alt_fire = qtrue;
+			NPC->alt_fire = true;
 			if ( NPC->locationDamage[HL_GENERIC1] > GENERATOR_HEALTH && (Q_irand( 0, 1 )||enemyDist < MAX_LOB_DIST_SQUARED) )
 			{//shield down, use laser
 				NPC_GM_StartLaser();
@@ -851,7 +851,7 @@ void NPC_BSGM_Attack( void )
 				||(!TIMER_Done( NPC, "noLob" )&&!TIMER_Done( NPC, "noRapid" )))
 			&& NPC->enemy->s.weapon != WP_TURRET )
 		{//sometimes use the laser beam attack, but only after he's taken down our generator
-			shoot = qfalse;
+			shoot = false;
 			NPC_GM_StartLaser();
 		}
 		else if ( enemyDist < MIN_LOB_DIST_SQUARED
@@ -861,7 +861,7 @@ void NPC_BSGM_Attack( void )
 			if ( (NPC->client->ps.weapon == WP_REPEATER) && (NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 			{//shooting an explosive, but enemy too close, switch to primary fire
 				NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
-				NPC->alt_fire = qfalse;
+				NPC->alt_fire = false;
 				//FIXME: use weap raise & lower anims
 				NPC_ChangeWeapon( WP_REPEATER );
 			}
@@ -872,7 +872,7 @@ void NPC_BSGM_Attack( void )
 			if ( (NPC->client->ps.weapon == WP_REPEATER) && !(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 			{//enemy far enough away to use lobby explosives
 				NPCInfo->scriptFlags |= SCF_ALT_FIRE;
-				NPC->alt_fire = qtrue;
+				NPC->alt_fire = true;
 				//FIXME: use weap raise & lower anims
 				NPC_ChangeWeapon( WP_REPEATER );
 			}
@@ -883,19 +883,19 @@ void NPC_BSGM_Attack( void )
 	if ( NPC_ClearLOS( NPC->enemy ) )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;//used here for aim debouncing, not always a clear LOS
-		enemyLOS = qtrue;
+		enemyLOS = true;
 
 		if ( NPC->client->ps.weapon == WP_NONE )
 		{
-			enemyCS = qfalse;//not true, but should stop us from firing
+			enemyCS = false;//not true, but should stop us from firing
 			NPC_AimAdjust( -1 );//adjust aim worse longer we have no weapon
 		}
 		else
 		{//can we shoot our target?
 			if ( ((NPC->client->ps.weapon == WP_REPEATER && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_LOB_DIST_SQUARED )//256
 			{
-				enemyCS = qfalse;//not true, but should stop us from firing
-				hitAlly = qtrue;//us!
+				enemyCS = false;//not true, but should stop us from firing
+				hitAlly = true;//us!
 				//FIXME: if too close, run away!
 			}
 			else
@@ -906,7 +906,7 @@ void NPC_BSGM_Attack( void )
 					|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
 					|| ( hitEnt && hitEnt->takedamage ) )
 				{//can hit enemy or will hit glass or other breakable, so shoot anyway
-					enemyCS = qtrue;
+					enemyCS = true;
 					NPC_AimAdjust( 2 );//adjust aim better longer we have clear shot at enemy
 					VectorCopy( NPC->enemy->currentOrigin, NPCInfo->enemyLastSeenLocation );
 				}
@@ -915,7 +915,7 @@ void NPC_BSGM_Attack( void )
 					NPC_AimAdjust( 1 );//adjust aim better longer we can see enemy
 					if ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->playerTeam )
 					{//would hit an ally, don't fire!!!
-						hitAlly = qtrue;
+						hitAlly = true;
 					}
 					else
 					{//Check and see where our shot *would* hit... if it's not close to the enemy (within 256?), then don't fire
@@ -965,18 +965,18 @@ void NPC_BSGM_Attack( void )
 			|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
 			|| ( hitEnt && hitEnt->takedamage ) )
 		{//can hit enemy or will hit glass or other breakable, so shoot anyway
-			enemyCS = qtrue;
+			enemyCS = true;
 		}
 		else
 		{
-			faceEnemy = qtrue;
+			faceEnemy = true;
 			NPC_AimAdjust( -1 );//adjust aim worse longer we cannot see enemy
 		}
 	}
 
 	if ( enemyLOS )
 	{
-		faceEnemy = qtrue;
+		faceEnemy = true;
 	}
 	else
 	{
@@ -986,12 +986,12 @@ void NPC_BSGM_Attack( void )
 		}
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//for now, always chase the enemy
-			AImove = qtrue;
+			AImove = true;
 		}
 	}
 	if ( enemyCS )
 	{
-		shoot = qtrue;
+		shoot = true;
 		//NPCInfo->enemyCheckDebounceTime = level.time;//actually used here as a last actual LOS
 	}
 	else
@@ -1002,7 +1002,7 @@ void NPC_BSGM_Attack( void )
 		}
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//for now, always chase the enemy
-			AImove = qtrue;
+			AImove = true;
 		}
 	}
 
@@ -1029,22 +1029,22 @@ void NPC_BSGM_Attack( void )
 		target[2] += Q_flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-NPCInfo->currentAim)*2);
 
 		//Find the desired angles
-		qboolean clearshot = WP_LobFire( NPC, muzzle, target, mins, maxs, MASK_SHOT|CONTENTS_LIGHTSABER,
-			velocity, qtrue, NPC->s.number, NPC->enemy->s.number,
-			300, 1100, 1500, qtrue );
+		bool clearshot = WP_LobFire( NPC, muzzle, target, mins, maxs, MASK_SHOT|CONTENTS_LIGHTSABER,
+			velocity, true, NPC->s.number, NPC->enemy->s.number,
+			300, 1100, 1500, true );
 		if ( VectorCompare( vec3_origin, velocity ) || (!clearshot&&enemyLOS&&enemyCS)  )
 		{//no clear lob shot and no lob shot that will hit something breakable
 			if ( enemyLOS && enemyCS && TIMER_Done( NPC, "noRapid" ) )
 			{//have a clear straight shot, so switch to primary
 				NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
-				NPC->alt_fire = qfalse;
+				NPC->alt_fire = false;
 				NPC_ChangeWeapon( WP_REPEATER );
 				//keep this weap for a bit
 				TIMER_Set( NPC, "noLob", Q_irand( 500, 1000 ) );
 			}
 			else
 			{
-				shoot = qfalse;
+				shoot = false;
 			}
 		}
 		else
@@ -1060,18 +1060,18 @@ void NPC_BSGM_Attack( void )
 	}
 	else if ( faceEnemy )
 	{//face the enemy
-		NPC_FaceEnemy( qtrue );
+		NPC_FaceEnemy( true );
 	}
 
 	if ( !TIMER_Done( NPC, "standTime" ) )
 	{
-		AImove = qfalse;
+		AImove = false;
 	}
 	if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 	{//not supposed to chase my enemies
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//goal is my entity, so don't move
-			AImove = qfalse;
+			AImove = false;
 		}
 	}
 
@@ -1088,13 +1088,13 @@ void NPC_BSGM_Attack( void )
 		}
 		else
 		{
-			AImove = qfalse;
+			AImove = false;
 		}
 	}
 
 	if ( !TIMER_Done( NPC, "flee" ) )
 	{//running away
-		faceEnemy = qfalse;
+		faceEnemy = false;
 	}
 
 	//FIXME: check scf_face_move_dir here?
@@ -1109,21 +1109,21 @@ void NPC_BSGM_Attack( void )
 		{//don't run away and shoot
 			NPCInfo->desiredYaw = NPCInfo->lastPathAngles[YAW];
 			NPCInfo->desiredPitch = 0;
-			shoot = qfalse;
+			shoot = false;
 		}
 	}
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	if ( NPCInfo->scriptFlags & SCF_DONT_FIRE )
 	{
-		shoot = qfalse;
+		shoot = false;
 	}
 
 	if ( NPC->enemy && NPC->enemy->enemy )
 	{
 		if ( NPC->enemy->s.weapon == WP_SABER && NPC->enemy->enemy->s.weapon == WP_SABER )
 		{//don't shoot at an enemy jedi who is fighting another jedi, for fear of injuring one or causing rogue blaster deflections (a la Obi Wan/Vader duel at end of ANH)
-			shoot = qfalse;
+			shoot = false;
 		}
 	}
 	//FIXME: don't shoot right away!
@@ -1133,7 +1133,7 @@ void NPC_BSGM_Attack( void )
 		{
 			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
-				WeaponThink( qtrue );
+				WeaponThink( true );
 			}
 		}
 	}
@@ -1210,7 +1210,7 @@ void NPC_BSGM_Default( void )
 {
 	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
 	{
-		WeaponThink( qtrue );
+		WeaponThink( true );
 	}
 
 	if ( NPC->client->ps.stats[STAT_ARMOR] <= 0 )

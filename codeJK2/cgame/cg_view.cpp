@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_view.c -- setup all the parameters (position, angle, etc)
+// cg_view.cpp -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 
 #include "cg_local.h"
@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 float cg_zoomFov;
 
 //#define CG_CAM_ABOVE	2
-extern qboolean CG_OnMovingPlat( playerState_t *ps );
+extern bool CG_OnMovingPlat( playerState_t *ps );
 
 /*
 =============================================================================
@@ -120,7 +120,7 @@ void CG_TestG2Model_f (void) {
 	angles[ROLL] = 0;
 
 	AnglesToAxis( angles, cg.testModelEntity.axis );
-	cg.testGun = qfalse;
+	cg.testGun = false;
 }
 
 void CG_ListModelSurfaces_f (void)
@@ -238,7 +238,7 @@ void CG_TestModel_f (void) {
 	angles[ROLL] = 0;
 
 	AnglesToAxis( angles, cg.testModelEntity.axis );
-	cg.testGun = qfalse;
+	cg.testGun = false;
 }
 
 /*
@@ -250,7 +250,7 @@ Replaces the current view weapon with the given model
 */
 void CG_TestGun_f (void) {
 	CG_TestModel_f();
-	cg.testGun = qtrue;
+	cg.testGun = true;
 	cg.testModelEntity.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON;
 }
 
@@ -376,7 +376,7 @@ CG_CalcIdealThirdPersonViewTarget
 static void CG_CalcIdealThirdPersonViewTarget(void)
 {
 	// Initialize IdealTarget
-	qboolean usesViewEntity = (qboolean)(cg.snap->ps.viewEntity && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
+	bool usesViewEntity = (cg.snap->ps.viewEntity && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
 	VectorCopy(cg.refdef.vieworg, cameraFocusLoc);
 
 	if ( usesViewEntity )
@@ -701,7 +701,7 @@ CG_OffsetThirdPersonView
 
 ===============
 */
-extern qboolean	MatrixMode;
+extern bool	MatrixMode;
 static void CG_OffsetThirdPersonView( void )
 {
 	vec3_t diff;
@@ -1001,11 +1001,11 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-extern qboolean PM_InForceGetUp( playerState_t *ps );
-extern qboolean PM_InGetUp( playerState_t *ps );
-extern qboolean PM_InKnockDown( playerState_t *ps );
+extern bool PM_InForceGetUp( playerState_t *ps );
+extern bool PM_InGetUp( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
 extern int PM_AnimLength( int index, animNumber_t anim );
-static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
+static void CG_OffsetFirstPersonView( bool firstPersonSaber ) {
 	float			*origin;
 	float			*angles;
 	float			bob;
@@ -1194,7 +1194,7 @@ void CG_ZoomDown_f( void )
 	// The zoom hasn't been started yet, so do it now
 	if ( cg.zoomMode == 0 )
 	{
-		cg.zoomLocked = qfalse;
+		cg.zoomLocked = false;
 		cg.zoomMode = 1;
 		if ( cg.overrides.active & CG_OVERRIDE_FOV )
 		{
@@ -1229,7 +1229,7 @@ void CG_ZoomUp_f( void )
 
 	if ( cg.zoomMode ) {
 		// Freeze the zoom mode
-		cg.zoomLocked = qtrue;
+		cg.zoomLocked = true;
 	}
 }
 */
@@ -1244,11 +1244,11 @@ Calcs Y FOV from given X FOV
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 
-qboolean CG_CalcFOVFromX( float fov_x )
+bool CG_CalcFOVFromX( float fov_x )
 {
 	float	x;
 	float	fov_y;
-	qboolean	inwater;
+	bool	inwater;
 
 	if ( cg_fovAspectAdjust.integer ) {
 		// Based on LordHavoc's code for Darkplaces
@@ -1280,14 +1280,14 @@ qboolean CG_CalcFOVFromX( float fov_x )
 		v = WAVE_AMPLITUDE * sin( phase );
 		fov_x += v;
 		fov_y -= v;
-		inwater = qtrue;
+		inwater = true;
 	}
 	else {
 
-		inwater = qfalse;
+		inwater = false;
 	}
 #else
-	//inwater = qfalse;
+	//inwater = false;
 #endif
 
 	// see if we are drugged by an interrogator.  We muck with the FOV here, a bit later, after viewangles are calc'ed, I muck with those too.
@@ -1335,7 +1335,7 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 ====================
 */
 //extern float	g_fov;
-static qboolean	CG_CalcFov( void ) {
+static bool	CG_CalcFov( void ) {
 	float	fov_x;
 	float	f;
 		gentity_t	*player = &g_entities[0];
@@ -1507,7 +1507,7 @@ CG_SaberClashFlare
 */
 extern int g_saberFlashTime;
 extern vec3_t g_saberFlashPos;
-extern qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
+extern bool CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
 void CG_SaberClashFlare( void )
 {
 	int				t, maxTime = 150;
@@ -1567,9 +1567,9 @@ CG_CalcViewValues
 Sets cg.refdef view values
 ===============
 */
-static qboolean CG_CalcViewValues( void ) {
+static bool CG_CalcViewValues( void ) {
 	playerState_t	*ps;
-	qboolean		viewEntIsCam = qfalse;
+	bool		viewEntIsCam = false;
 	//extern vec3_t	cgRefdefVieworg;
 
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -1586,7 +1586,7 @@ static qboolean CG_CalcViewValues( void ) {
 		else
 		{
 			ps = &cg.predicted_player_state;
-			viewEntIsCam = qtrue;
+			viewEntIsCam = true;
 		}
 	}
 	else
@@ -1625,7 +1625,7 @@ static qboolean CG_CalcViewValues( void ) {
 		VectorCopy( cg_entities[cg.snap->ps.viewEntity].lerpAngles, cg.refdefViewAngles );
 		if ( !Q_stricmp( "misc_camera", g_entities[cg.snap->ps.viewEntity].classname ) || g_entities[cg.snap->ps.viewEntity].s.weapon == WP_TURRET )
 		{
-			viewEntIsCam = qtrue;
+			viewEntIsCam = true;
 		}
 	}
 	else if ( cg.renderingThirdPerson && !cg.zoomMode && (cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ENT) )
@@ -1670,7 +1670,7 @@ static qboolean CG_CalcViewValues( void ) {
 			if ( cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE )
 			{
 				vec3_t dir;
-				CG_OffsetFirstPersonView( qtrue );
+				CG_OffsetFirstPersonView( true );
 				cg.refdef.vieworg[2] += 32;
 				AngleVectors( cg.refdefViewAngles, dir, NULL, NULL );
 				VectorMA( cg.refdef.vieworg, -2, dir, cg.refdef.vieworg );
@@ -1682,7 +1682,7 @@ static qboolean CG_CalcViewValues( void ) {
 	else
 	{
 		// offset for local bobbing and kicks
-		CG_OffsetFirstPersonView( qfalse );
+		CG_OffsetFirstPersonView( false );
 		centity_t	*playerCent = &cg_entities[0];
 		if ( playerCent && playerCent->gent && playerCent->gent->client )
 		{
@@ -1781,7 +1781,7 @@ void CG_RunEmplacedWeapon()
 //		float dist = -1; // default distance behind gun
 
 		// don't let the player try and change this
-		cg.renderingThirdPerson = qtrue;
+		cg.renderingThirdPerson = true;
 
 //		cg.refdefViewAngles[PITCH] += cg.overrides.thirdPersonPitchOffset? cg.overrides.thirdPersonPitchOffset: cg_thirdPersonPitchOffset.value;
 //		cg.refdefViewAngles[YAW] += cg.overrides.thirdPersonAngle ? cg.overrides.thirdPersonAngle : cg_thirdPersonAngle.value;;
@@ -1817,7 +1817,7 @@ extern void CG_BuildSolidList( void );
 void cgi_CM_SnapPVS(vec3_t origin,byte *buffer);
 extern vec3_t	serverViewOrg;
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
-	qboolean	inwater = qfalse;
+	bool	inwater = false;
 
 	cg.time = serverTime;
 
@@ -1898,7 +1898,7 @@ wasForceSpeed=isForceSpeed;
 	CG_PredictPlayerState();
 
 	// decide on third person view
-	cg.renderingThirdPerson = (qboolean)(
+	cg.renderingThirdPerson = (
 		cg_thirdPerson.integer ||
 		(cg.snap->ps.stats[STAT_HEALTH] <= 0) ||
 		(g_entities[0].client &&
@@ -1907,7 +1907,7 @@ wasForceSpeed=isForceSpeed;
 	if ( cg.zoomMode )
 	{
 		// zoomed characters should never do third person stuff??
-		cg.renderingThirdPerson = qfalse;
+		cg.renderingThirdPerson = false;
 	}
 
 	if ( in_camera )
@@ -2017,12 +2017,12 @@ wasForceSpeed=isForceSpeed;
 	CG_PowerupTimerSounds();
 
 	if ( cg_pano.integer ) {	// let's grab a panorama!
-		cg.levelShot = qtrue;  //hide the 2d
+		cg.levelShot = true;  //hide the 2d
 		VectorClear(cg.refdefViewAngles);
 		cg.refdefViewAngles[YAW] = -360 * cg_pano.integer/cg_panoNumShots.integer;	//choose angle
 		AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 		CG_DrawActive( stereoView );
-		cg.levelShot = qfalse;
+		cg.levelShot = false;
 	} 	else {
 		// actually issue the rendering calls
 		CG_DrawActive( stereoView );

@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "keycodes.h"
 
 typedef struct qkey_s {
-	qboolean	down;
+	bool	down;
 	int			repeats;		// if > 1, it is autorepeating
 	char		*binding;
 } qkey_t;
 
 typedef struct keyGlobals_s {
-	qboolean	anykeydown;
-	qboolean	key_overstrikeMode;
+	bool	anykeydown;
+	bool	key_overstrikeMode;
 	int			keyDownCount;
 
 	qkey_t		keys[MAX_KEYS];
@@ -55,14 +55,14 @@ extern field_t		historyEditLines[COMMAND_HISTORY];
 
 void	Field_KeyDownEvent	( field_t *edit, int key );
 void	Field_CharEvent		( field_t *edit, int ch );
-void	Field_Draw			( field_t *edit, int x, int y, qboolean showCursor, qboolean noColorEscape );
-void	Field_BigDraw		( field_t *edit, int x, int y, qboolean showCursor, qboolean noColorEscape );
+void	Field_Draw			( field_t *edit, int x, int y, bool showCursor, bool noColorEscape );
+void	Field_BigDraw		( field_t *edit, int x, int y, bool showCursor, bool noColorEscape );
 
 void		Key_SetBinding			( int keynum, const char *binding );
 const char *Key_GetBinding			( int keynum );
-qboolean	Key_IsDown				( int keynum );
+bool	Key_IsDown				( int keynum );
 int			Key_StringToKeynum		( const char *str );
-qboolean	Key_GetOverstrikeMode	( void );
-void		Key_SetOverstrikeMode	( qboolean state );
+bool	Key_GetOverstrikeMode	( void );
+void		Key_SetOverstrikeMode	( bool state );
 void		Key_ClearStates			( void );
 int			Key_GetKey				( const char *binding );

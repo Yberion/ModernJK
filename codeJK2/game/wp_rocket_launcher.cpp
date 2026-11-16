@@ -139,7 +139,7 @@ void rocketThink( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-void WP_FireRocket( gentity_t *ent, qboolean alt_fire )
+void WP_FireRocket( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	vec3_t	start;

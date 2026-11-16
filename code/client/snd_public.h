@@ -36,13 +36,13 @@ void S_StartLocalLoopingSound( sfxHandle_t sfx);
 
 void S_UnCacheDynamicMusic( void );
 void S_RestartMusic( void );
-void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCalledByCGameStart );
+void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledByCGameStart );
 void S_StopBackgroundTrack( void );
 float S_GetSampleLengthInMilliSeconds( sfxHandle_t sfxHandle);
 
 // cinematics and voice-over-network will send raw samples
 // 1.0 volume will be direct output of source samples
-void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, qboolean bFirstOrOnlyUpdateThisFrame );
+void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, bool bFirstOrOnlyUpdateThisFrame );
 // stop all sounds
 void S_StopSounds(void);	// from snd_dma.cpp
 // stop all sounds and the background track
@@ -57,7 +57,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 
 // recompute the reletive volumes for all running sounds
 // relative to the given entityNum / orientation
-void S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], qboolean inwater );
+void S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], bool inwater );
 
 // let the sound system know where an entity currently is
 void S_UpdateEntityPosition( int entityNum, const vec3_t origin );

@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_local.h"
 #include "b_local.h"
 
-extern qboolean G_EntIsUnlockedDoor( int entityNum );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool G_EntIsUnlockedDoor( int entityNum );
+extern bool FlyingCreature( gentity_t *ent );
 
 #define	MIN_DOOR_BLOCK_DIST			16
 #define	MIN_DOOR_BLOCK_DIST_SQR		( MIN_DOOR_BLOCK_DIST * MIN_DOOR_BLOCK_DIST )
@@ -35,7 +35,7 @@ NAV_HitNavGoal
 -------------------------
 */
 
-qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int radius, qboolean flying )
+bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, int radius, bool flying )
 {
 	vec3_t	dmins, dmaxs, pmins, pmaxs;
 
@@ -53,11 +53,11 @@ qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest, in
 			{
 				diff[2] = 0;
 			}
-			return (qboolean)( VectorLengthSquared( diff ) <= (radius*radius) );
+			return ( VectorLengthSquared( diff ) <= (radius*radius) );
 		}
 		else
 		{//must hit exactly
-			return (qboolean)( DistanceSquared(dest, point) <= (radius*radius) );
+			return ( DistanceSquared(dest, point) <= (radius*radius) );
 		}
 		//There is probably a better way to do this, either by preserving the original
 		//		mins and maxs of the navgoal and doing this check ONLY if the radius
@@ -89,7 +89,7 @@ NAV_CheckAhead
 -------------------------
 */
 
-qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
 {
 	vec3_t	mins;
 
@@ -104,12 +104,12 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, (EG2_Collision)0, 0 );
 	}
 	//Do a simple check
-	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
-		return qtrue;
+	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
+		return true;
 
 	//See if we're too far above
 	if ( fabs( self->currentOrigin[2] - end[2] ) > 48 )
-		return qfalse;
+		return false;
 
 	//This is a work around
 	float	radius = ( self->maxs[0] > self->maxs[1] ) ? self->maxs[0] : self->maxs[1];
@@ -117,7 +117,7 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 	float	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
-		return qtrue;
+		return true;
 
 	//Do a special check for doors
 	if ( trace.entityNum < ENTITYNUM_WORLD )
@@ -131,14 +131,14 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 			{
 				//We're too close, try and avoid the door (most likely stuck on a lip)
 				if ( DistanceSquared( self->currentOrigin, trace.endpos ) < MIN_DOOR_BLOCK_DIST_SQR )
-					return qfalse;
+					return false;
 
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -147,26 +147,26 @@ NPC_ClearPathToGoal
 -------------------------
 */
 
-qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
+bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 {
 	trace_t	trace;
 
 	//FIXME: What does do about area portals?  THIS IS BROKEN
-	//if ( gi.inPVS( NPC->currentOrigin, goal->currentOrigin ) == qfalse )
-	//	return qfalse;
+	//if ( gi.inPVS( NPC->currentOrigin, goal->currentOrigin ) == false )
+	//	return false;
 
 	//Look ahead and see if we're clear to move to our goal position
 	if ( NAV_CheckAhead( NPC, goal->currentOrigin, trace, ( NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
 	{
 		//VectorSubtract( goal->currentOrigin, NPC->currentOrigin, dir );
-		return qtrue;
+		return true;
 	}
 
 	if (!FlyingCreature(NPC))
 	{
 		//See if we're too far above
 		if ( fabs( NPC->currentOrigin[2] - goal->currentOrigin[2] ) > 48 )
-			return qfalse;
+			return false;
 	}
 
 	//This is a work around
@@ -175,7 +175,7 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	float	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
-		return qtrue;
+		return true;
 
 	//See if we're looking for a navgoal
 	if ( goal->svFlags & SVF_NAVGOAL )
@@ -184,14 +184,14 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		if ( NAV_HitNavGoal( trace.endpos, NPC->mins, NPC->maxs, goal->currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )
 		{
 			//VectorSubtract(goal->currentOrigin, NPC->currentOrigin, dir);
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
+bool NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 {
 	vec3_t	mins, end;
 	trace_t	trace;
@@ -204,35 +204,35 @@ qboolean NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP, (EG2_Collision)0, 0 );
 
 	//Do a simple check
-	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
+	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean NAV_MoveDirSafe( gentity_t *self, usercmd_t *cmd, float distScale = 1.0f )
+bool NAV_MoveDirSafe( gentity_t *self, usercmd_t *cmd, float distScale = 1.0f )
 {
 	vec3_t	moveDir;
 
 	if ( !self || !self->client )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( !self->client->ps.speed )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( FlyingCreature( self ) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( VectorCompare( self->client->ps.moveDir, vec3_origin ) )
 	{//no movedir, build from cmd
 		if ( !cmd->forwardmove && !cmd->rightmove )
 		{//not moving at all
-			return qtrue;
+			return true;
 		}
 		vec3_t fwd, right, fwdAngs = {0, self->currentAngles[YAW], 0};
 		AngleVectors( fwdAngs, fwd, right, NULL );

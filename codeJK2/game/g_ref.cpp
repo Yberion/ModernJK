@@ -283,12 +283,12 @@ int	TAG_GetOrigin2( const char *owner, const char *name, vec3_t origin )
 
 	if( tag == NULL )
 	{
-		return qfalse;
+		return false;
 	}
 
 	VectorCopy( tag->origin, origin );
 
-	return qtrue;
+	return true;
 }
 /*
 -------------------------

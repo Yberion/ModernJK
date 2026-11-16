@@ -26,16 +26,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_navigator.h"
 #include "wp_saber.h"
 
-extern void WP_DeactivateSaber( gentity_t *self, qboolean clearLength = qfalse );
+extern void WP_DeactivateSaber( gentity_t *self, bool clearLength = false );
 extern int PM_AnimLength( int index, animNumber_t anim );
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
-static qboolean enemyLOS;
-static qboolean enemyCS;
-static qboolean faceEnemy;
-static qboolean doMove;
-static qboolean shoot;
+static bool enemyLOS;
+static bool enemyCS;
+static bool faceEnemy;
+static bool doMove;
+static bool shoot;
 static float	enemyDist;
 
 /*
@@ -64,9 +64,9 @@ ST_Move
 -------------------------
 */
 
-static qboolean SaberDroid_Move( void )
+static bool SaberDroid_Move( void )
 {
-	NPCInfo->combatMove = qtrue;//always doMove straight toward our goal
+	NPCInfo->combatMove = true;//always doMove straight toward our goal
 	UpdateGoal();
 	if ( !NPCInfo->goalEntity )
 	{
@@ -74,7 +74,7 @@ static qboolean SaberDroid_Move( void )
 	}
 	NPCInfo->goalRadius = 30.0f;
 
-	qboolean	moved = NPC_MoveToGoal( qtrue );
+	bool	moved = NPC_MoveToGoal( true );
 //	navInfo_t	info;
 
 	//Get the doMove info
@@ -92,7 +92,7 @@ static qboolean SaberDroid_Move( void )
 
 	//If our doMove failed, then reset
 	/*
-	if ( moved == qfalse )
+	if ( moved == false )
 	{//couldn't get to enemy
 		//just hang here
 		SaberDroid_HoldPosition();
@@ -119,7 +119,7 @@ void NPC_BSSaberDroid_Patrol( void )
 			{
 				//NPCInfo->behaviorState = BS_HUNT_AND_KILL;//should be automatic now
 				//NPC_AngerSound();
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
@@ -127,7 +127,7 @@ void NPC_BSSaberDroid_Patrol( void )
 		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
-			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
 			//There is an event to look at
 			if ( alertEvent >= 0 )//&& level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
 			{
@@ -170,7 +170,7 @@ void NPC_BSSaberDroid_Patrol( void )
 				NPCInfo->desiredYaw = angles[YAW];
 				NPCInfo->desiredPitch = angles[PITCH];
 
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 
 				NPCInfo->desiredYaw = o_yaw;
 				NPCInfo->desiredPitch = o_pitch;
@@ -183,7 +183,7 @@ void NPC_BSSaberDroid_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 	else if ( !NPC->client->ps.weaponTime
 		&& TIMER_Done( NPC, "attackDelay" )
@@ -191,12 +191,12 @@ void NPC_BSSaberDroid_Patrol( void )
 	{
 		if ( NPC->client->ps.SaberActive() )
 		{
-			WP_DeactivateSaber( NPC, qfalse );
+			WP_DeactivateSaber( NPC, false );
 			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_TURNOFF, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
@@ -305,13 +305,13 @@ void NPC_BSSaberDroid_Attack( void )
 	//Don't do anything if we're hurt
 	if ( NPC->painDebounceTime > level.time )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
-	//NPC_CheckEnemy( qtrue, qfalse );
+	//NPC_CheckEnemy( true, false );
 	//If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )//!NPC->enemy )//
+	if ( NPC_CheckEnemyExt() == false )//!NPC->enemy )//
 	{
 		NPC->enemy = NULL;
 		NPC_BSSaberDroid_Patrol();//FIXME: or patrol?
@@ -324,54 +324,54 @@ void NPC_BSSaberDroid_Attack( void )
 		return;
 	}
 
-	enemyLOS = enemyCS = qfalse;
-	doMove = qtrue;
-	faceEnemy = qfalse;
-	shoot = qfalse;
+	enemyLOS = enemyCS = false;
+	doMove = true;
+	faceEnemy = false;
+	shoot = false;
 	enemyDist = DistanceSquared( NPC->enemy->currentOrigin, NPC->currentOrigin );
 
 	//can we see our target?
 	if ( NPC_ClearLOS( NPC->enemy ) )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;
-		enemyLOS = qtrue;
+		enemyLOS = true;
 
 		if ( enemyDist <= 4096 && InFOV( NPC->enemy->currentOrigin, NPC->currentOrigin, NPC->client->ps.viewangles, 90, 45 ) )//within 64 & infront
 		{
 			VectorCopy( NPC->enemy->currentOrigin, NPCInfo->enemyLastSeenLocation );
-			enemyCS = qtrue;
+			enemyCS = true;
 		}
 	}
 	/*
 	else if ( gi.inPVS( NPC->enemy->currentOrigin, NPC->currentOrigin ) )
 	{
 		NPCInfo->enemyLastSeenTime = level.time;
-		faceEnemy = qtrue;
+		faceEnemy = true;
 	}
 	*/
 
 	if ( enemyLOS )
 	{//FIXME: no need to face enemy if we're moving to some other goal and he's too far away to shoot?
-		faceEnemy = qtrue;
+		faceEnemy = true;
 	}
 
 	if ( !TIMER_Done( NPC, "taunting" ) )
 	{
-		doMove = qfalse;
+		doMove = false;
 	}
 	else if ( enemyCS )
 	{
-		shoot = qtrue;
+		shoot = true;
 		if ( enemyDist < (NPC->maxs[0]+NPC->enemy->maxs[0]+32)*(NPC->maxs[0]+NPC->enemy->maxs[0]+32) )
 		{//close enough
-			doMove = qfalse;
+			doMove = false;
 		}
 	}//this should make him chase enemy when out of range...?
 
 	if ( NPC->client->ps.legsAnimTimer
 		&& NPC->client->ps.legsAnim != BOTH_A3__L__R )//this one is a running attack
 	{//in the middle of a held, stationary anim, can't doMove
-		doMove = qfalse;
+		doMove = false;
 	}
 
 	if ( doMove )
@@ -389,9 +389,9 @@ void NPC_BSSaberDroid_Attack( void )
 		{//don't run away and shoot
 			NPCInfo->desiredYaw = NPCInfo->lastPathAngles[YAW];
 			NPCInfo->desiredPitch = 0;
-			shoot = qfalse;
+			shoot = false;
 		}
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 	}
 	else// if ( faceEnemy )
 	{//face the enemy
@@ -400,7 +400,7 @@ void NPC_BSSaberDroid_Attack( void )
 
 	if ( NPCInfo->scriptFlags&SCF_DONT_FIRE )
 	{
-		shoot = qfalse;
+		shoot = false;
 	}
 
 	//FIXME: need predicted blocking?

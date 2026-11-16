@@ -1075,7 +1075,7 @@ void CFxScheduler::AddScheduledEffects( void )
 	vec3_t						origin;
 	vec3_t						axis[3];
 	int							oldEntNum = -1, oldBoltIndex = -1, oldModelNum = -1;
-	qboolean					doesBoltExist  = qfalse;
+	bool					doesBoltExist  = false;
 
 	for ( itr = mFxSchedule.begin(); itr != mFxSchedule.end(); /* do nothing */ )
 	{
@@ -1109,7 +1109,7 @@ void CFxScheduler::AddScheduledEffects( void )
 
 				mdxaBone_t 		boltMatrix;
 
-				doesBoltExist=qfalse;
+				doesBoltExist=false;
 				// do we need to go and re-get the bolt matrix again? Since it takes time lets try and do it only once
 				if ((effect->mModelNum != oldModelNum) || (effect->mEntNum != oldEntNum) || (effect->mBoltNum != oldBoltIndex))
 				{
@@ -1508,7 +1508,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		// The downside is that it's much less flexible....
 		CG_ImpactMark( fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(),
 			sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(),
-			qtrue, fx->mSizeStart.GetVal(), qfalse );
+			true, fx->mSizeStart.GetVal(), false );
 		break;
 
 	//-------------------

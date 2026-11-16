@@ -465,7 +465,7 @@ static void CMod_LoadEntityString( const lump_t *l, clipMap_t &cm, const char* n
 	entName[entNameLen - 3] = 'e';
 	entName[entNameLen - 2] = 'n';
 	entName[entNameLen - 1] = 't';
-	const int iEntityFileLen = FS_FOpenFileRead(entName, &h, qfalse);
+	const int iEntityFileLen = FS_FOpenFileRead(entName, &h, false);
 	if (h)
 	{
 		cm.entityString = (char *)Hunk_Alloc(iEntityFileLen + 1, h_high);
@@ -501,7 +501,7 @@ static void CMod_LoadVisibility( const lump_t *l, clipMap_t &cm ) {
 	}
 	buf = cmod_base + l->fileofs;
 
-	cm.vised = qtrue;
+	cm.vised = true;
 	cm.visibility = (unsigned char *)Hunk_Alloc( len, h_high );
 	cm.numClusters = LittleLong( ((int *)buf)[0] );
 	cm.clusterBytes = LittleLong( ((int *)buf)[1] );
@@ -583,15 +583,15 @@ Loads in the map and all submodels
 */
 void *gpvCachedMapDiskImage = NULL;
 char  gsCachedMapDiskImage[MAX_QPATH];
-qboolean gbUsingCachedMapDataRightNow = qfalse;	// if true, signifies that you can't delete this at the moment!! (used during z_malloc()-fail recovery attempt)
+bool gbUsingCachedMapDataRightNow = false;	// if true, signifies that you can't delete this at the moment!! (used during z_malloc()-fail recovery attempt)
 
-// called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in qtrue
+// called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in true
 //
 // new bool return used to see if anything was freed, used during z_malloc failure re-try
 //
-qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
+bool CM_DeleteCachedMap(bool bGuaranteedOkToDelete)
 {
-	qboolean bActuallyFreedSomething = qfalse;
+	bool bActuallyFreedSomething = false;
 
 	if (bGuaranteedOkToDelete || !gbUsingCachedMapDataRightNow)
 	{
@@ -602,7 +602,7 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 			Z_Free(	gpvCachedMapDiskImage );
 					gpvCachedMapDiskImage = NULL;
 
-			bActuallyFreedSomething = qtrue;
+			bActuallyFreedSomething = true;
 		}
 		gsCachedMapDiskImage[0] = '\0';
 
@@ -618,7 +618,7 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 
 
 
-static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *checksum, clipMap_t &cm )
+static void CM_LoadMap_Actual( const char *name, bool clientload, int *checksum, clipMap_t &cm )
 { //rwwRMG - function needs heavy modification
 	int				*buf;
 	dheader_t		header;
@@ -685,7 +685,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 	//
 	buf = NULL;
 	fileHandle_t h;
-	const int iBSPLen = FS_FOpenFileRead( name, &h, qfalse );
+	const int iBSPLen = FS_FOpenFileRead( name, &h, false );
 	if (h)
 	{
 		newBuff = Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE );
@@ -790,13 +790,13 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 
 // need a wrapper function around this because of multiple returns, need to ensure bool is correct...
 //
-void CM_LoadMap( const char *name, qboolean clientload, int *checksum )
+void CM_LoadMap( const char *name, bool clientload, int *checksum )
 {
-	gbUsingCachedMapDataRightNow = qtrue;	// !!!!!!!!!!!!!!!!!!
+	gbUsingCachedMapDataRightNow = true;	// !!!!!!!!!!!!!!!!!!
 
 		CM_LoadMap_Actual( name, clientload, checksum, cmg );
 
-	gbUsingCachedMapDataRightNow = qfalse;	// !!!!!!!!!!!!!!!!!!
+	gbUsingCachedMapDataRightNow = false;	// !!!!!!!!!!!!!!!!!!
 }
 
 
@@ -1021,7 +1021,7 @@ void CM_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	VectorCopy( cmod->maxs, maxs );
 }
 
-int CM_LoadSubBSP(const char *name, qboolean clientload)
+int CM_LoadSubBSP(const char *name, bool clientload)
 {
 	int		i;
 	int		checksum;

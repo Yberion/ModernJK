@@ -249,7 +249,7 @@ void SV_MasterHeartbeat( void ) {
 		// resolving usually causes hitches on win95, so only
 		// do it when needed
 		if ( sv_master[i]->modified || SV_MasterNeedsResolving(i, time) ) {
-			sv_master[i]->modified = qfalse;
+			sv_master[i]->modified = false;
 
 			g_lastResolveTime[i] = time;
 
@@ -259,7 +259,7 @@ void SV_MasterHeartbeat( void ) {
 				// so we don't take repeated dns hits
 				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
 				Cvar_Set( sv_master[i]->name, "" );
-				sv_master[i]->modified = qfalse;
+				sv_master[i]->modified = false;
 				continue;
 			}
 			if ( !strstr( ":", sv_master[i]->string ) ) {
@@ -361,8 +361,8 @@ static leakyBucket_t *SVC_BucketForAddress( const netadr_t *address, int burst, 
 SVC_RateLimit
 ================
 */
-qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period, int now ) {
-	qboolean	block = qfalse;
+bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period, int now ) {
+	bool	block = false;
 
 	if ( bucket != NULL ) {
 		int interval = now - bucket->lastTime;
@@ -380,7 +380,7 @@ qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period, int now ) 
 		if ( bucket->burst < burst ) {
 			bucket->burst++;
 		} else {
-			block = qtrue;
+			block = true;
 		}
 	}
 
@@ -394,7 +394,7 @@ SVC_RateLimitAddress
 Rate limit for a particular address
 ================
 */
-qboolean SVC_RateLimitAddress( const netadr_t *from, int burst, int period, int now ) {
+bool SVC_RateLimitAddress( const netadr_t *from, int burst, int period, int now ) {
 	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period, now );
 
 	return SVC_RateLimit( bucket, burst, period, now );
@@ -565,7 +565,7 @@ Redirect all printfs
 ===============
 */
 void SVC_RemoteCommand( const netadr_t *from, msg_t *msg ) {
-	qboolean	valid;
+	bool	valid;
 	char		remaining[1024];
 	// TTimo - scaled down to accumulate, but not overflow anything network wise, print wise etc.
 	// (OOB messages are the bottleneck here)
@@ -575,10 +575,10 @@ void SVC_RemoteCommand( const netadr_t *from, msg_t *msg ) {
 
 	if ( !strlen( sv_rconPassword->string ) ||
 		strcmp (Cmd_Argv(1), sv_rconPassword->string) ) {
-		valid = qfalse;
+		valid = false;
 		Com_Printf ("Bad rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	} else {
-		valid = qtrue;
+		valid = true;
 		Com_Printf ("Rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	}
 
@@ -669,11 +669,11 @@ void SVC_WhitelistAdr( const netadr_t *adr ) {
 	FS_FCloseFile(f);
 }
 
-static qboolean SVC_IsWhitelisted( const netadr_t *adr ) {
+static bool SVC_IsWhitelisted( const netadr_t *adr ) {
 	if (adr->type == NA_IP) {
-		return (qboolean)(svc_whitelist.find(adr->ipi) != svc_whitelist.end());
+		return (svc_whitelist.find(adr->ipi) != svc_whitelist.end());
 	} else {
-		return qtrue;
+		return true;
 	}
 }
 
@@ -1005,13 +1005,13 @@ void SV_CheckTimeouts( void ) {
 SV_CheckPaused
 ==================
 */
-qboolean SV_CheckPaused( void ) {
+bool SV_CheckPaused( void ) {
 	int		count;
 	client_t	*cl;
 	int		i;
 
 	if ( !cl_paused->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	// only pause if there is just a single client connected
@@ -1026,12 +1026,12 @@ qboolean SV_CheckPaused( void ) {
 		// don't pause
 		if (sv_paused->integer)
 			Cvar_Set("sv_paused", "0");
-		return qfalse;
+		return false;
 	}
 
 	if (!sv_paused->integer)
 		Cvar_Set("sv_paused", "1");
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1041,7 +1041,7 @@ SV_CheckCvars
 */
 void SV_CheckCvars( void ) {
 	static int lastModHostname = -1;
-	qboolean changed = qfalse;
+	bool changed = false;
 
 	if ( sv_hostname->modificationCount != lastModHostname ) {
 		char hostname[MAX_INFO_STRING];
@@ -1054,7 +1054,7 @@ void SV_CheckCvars( void ) {
 			if ( (*c == '\\') || (*c == ';') || (*c == '"'))
 			{
 				*c = '.';
-				changed = qtrue;
+				changed = true;
 			}
 			c++;
 		}

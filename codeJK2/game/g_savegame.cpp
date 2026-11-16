@@ -431,7 +431,7 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 		break;
 
 	case F_BOOLPTR:
-		*(qboolean *)pv = (*(int *)pv) ? qtrue : qfalse;
+		*(bool *)pv = (*(int *)pv) ? true : false;
 		break;
 
 	// These are pointers that are always recreated
@@ -634,7 +634,7 @@ All pointer variables (except function pointers) must be handled specially.
 */
 static void WriteLevelLocals ()
 {
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, qfalse);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
 	*temp = level;	// copy out all data into a temp space
 
 	EnumerateFields(savefields_LevelLocals, temp, INT_ID('L','V','L','C'));
@@ -654,7 +654,7 @@ static void ReadLevelLocals ()
 	//
 	gclient_t *pClients = level.clients;	// save clients
 
-	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, qfalse);
+	level_locals_t *temp = (level_locals_t *)gi.Malloc(sizeof(level_locals_t), TAG_TEMP_WORKSPACE, false);
 	*temp = level;
 	EvaluateFields(savefields_LevelLocals, temp, &level, INT_ID('L','V','L','C'));
 	level = *temp;					// struct copy
@@ -663,7 +663,7 @@ static void ReadLevelLocals ()
 	gi.Free(temp);
 }
 
-static void WriteGEntities(qboolean qbAutosave)
+static void WriteGEntities(bool qbAutosave)
 {
 	int iCount = 0;
 	int i;
@@ -695,7 +695,7 @@ static void WriteGEntities(qboolean qbAutosave)
 				INT_ID('E', 'D', 'N', 'M'),
 				i);
 
-			qboolean qbLinked = ent->linked;
+			bool qbLinked = ent->linked;
 			gi.unlinkentity( ent );
 			gentity_t tempEnt = *ent;	// make local copy
 			tempEnt.linked = qbLinked;
@@ -760,7 +760,7 @@ static void WriteGEntities(qboolean qbAutosave)
 	}
 }
 
-static void ReadGEntities(qboolean qbAutosave)
+static void ReadGEntities(bool qbAutosave)
 {
 	int		iCount = 0;
 	int		i;
@@ -819,7 +819,7 @@ static void ReadGEntities(qboolean qbAutosave)
 
 		// now for any fiddly bits...
 		//
-		if (pEnt->NPC)	// will be qtrue/qfalse
+		if (pEnt->NPC)	// will be true/false
 		{
 			gNPC_t tempNPC;
 
@@ -875,7 +875,7 @@ static void ReadGEntities(qboolean qbAutosave)
 
 		// Some Icarus thing... (probably)
 		//
-		if (pEnt->parms)	// will be qtrue/qfalse
+		if (pEnt->parms)	// will be true/false
 		{
 			parms_t tempParms;
 
@@ -923,8 +923,8 @@ static void ReadGEntities(qboolean qbAutosave)
 //		gi.unlinkentity (pEntOriginal);
 //		ICARUS_FreeEnt( pEntOriginal );
 //		*pEntOriginal = *pEnt;	// struct copy
-//		qboolean qbLinked = pEntOriginal->linked;
-//		pEntOriginal->linked = qfalse;
+//		bool qbLinked = pEntOriginal->linked;
+//		pEntOriginal->linked = false;
 //		if (qbLinked)
 //		{
 //			gi.linkentity (pEntOriginal);
@@ -945,8 +945,8 @@ static void ReadGEntities(qboolean qbAutosave)
 			}
 		}
 
-		qboolean qbLinked = pEnt->linked;
-		pEnt->linked = qfalse;
+		bool qbLinked = pEnt->linked;
+		pEnt->linked = false;
 		if (qbLinked)
 		{
 			gi.linkentity (pEnt);
@@ -988,7 +988,7 @@ static void ReadGEntities(qboolean qbAutosave)
 }
 
 
-void WriteLevel(qboolean qbAutosave)
+void WriteLevel(bool qbAutosave)
 {
 	if (!qbAutosave) //-always save the client
 	{
@@ -1024,7 +1024,7 @@ void WriteLevel(qboolean qbAutosave)
 		iDONE);
 }
 
-void ReadLevel(qboolean qbAutosave, qboolean qbLoadTransition)
+void ReadLevel(bool qbAutosave, bool qbLoadTransition)
 {
 	if ( qbLoadTransition )
 	{
@@ -1091,9 +1091,9 @@ void ReadLevel(qboolean qbAutosave, qboolean qbLoadTransition)
 }
 
 extern int killPlayerTimer;
-qboolean GameAllowedToSaveHere(void)
+bool GameAllowedToSaveHere(void)
 {
-	return (qboolean)(!in_camera && !killPlayerTimer);
+	return (!in_camera && !killPlayerTimer);
 }
 
 //////////////////// eof /////////////////////

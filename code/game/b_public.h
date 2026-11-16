@@ -257,7 +257,7 @@ public:
 	bState_t	defaultBehavior;//State bot will default to if none other set
 	bState_t	tempBehavior;//While valid, overrides other behavior
 
-	qboolean	ignorePain;		//only play pain scripts when take pain
+	bool	ignorePain;		//only play pain scripts when take pain
 
 	int			duckDebounceTime;//Keeps them ducked for a certain time
 	int			walkDebounceTime;
@@ -283,7 +283,7 @@ public:
 	gentity_t	*defendEnt;			//Who we're trying to protect
 	gentity_t	*greetEnt;			//Who we're greeting
 	int			goalTime;	//FIXME: This is never actually used
-	qboolean	straightToGoal;	//move straight at navgoals
+	bool	straightToGoal;	//move straight at navgoals
 	float		distToGoal;
 	int			navTime;
 	int			blockingEntNum;
@@ -349,7 +349,7 @@ public:
 	//
 	//JWEIER ADDITIONS START
 
-	qboolean	combatMove;
+	bool	combatMove;
 	int			goalRadius;
 
 	//FIXME: These may be redundant

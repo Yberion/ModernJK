@@ -44,16 +44,16 @@ Ghoul2 Insert End
 
 extern	botlib_export_t	*botlib_export;
 
-extern qboolean loadCamera(const char *name);
+extern bool loadCamera(const char *name);
 extern void startCamera(int time);
-extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+extern bool getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
 
 /*
 ====================
 CL_GetUserCmd
 ====================
 */
-qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 
 	// the view angles of now, for cgame's drawing of the local player (plan step 14: commands are made per tick)
@@ -69,12 +69,12 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// the usercmd has been overwritten in the wrapping
 	// buffer because it is too far out of date
 	if ( cmdNumber <= cl.cmdNumber - CMD_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	*ucmd = cl.cmds[ cmdNumber & CMD_MASK ];
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -82,7 +82,7 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 CL_GetParseEntityState
 ====================
 */
-qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
+bool	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
 		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
@@ -91,11 +91,11 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 
 	// can't return anything that has been overwritten in the circular buffer
 	if ( parseEntityNumber <= cl.parseEntitiesNum - MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
-	return qtrue;
+	return true;
 }
 
 /*
@@ -103,7 +103,7 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 CL_GetSnapshot
 ====================
 */
-qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
 
@@ -113,19 +113,19 @@ qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// if the frame has fallen out of the circular buffer, we can't return it
 	if ( cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the frame is not valid, we can't return it
 	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
 	if ( !clSnap->valid ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the entities in the frame have fallen out of their
 	// circular buffer, we can't return it
 	if ( cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	// write the snapshot
@@ -155,24 +155,24 @@ qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// FIXME: configstring changes and server commands!!!
 
-	return qtrue;
+	return true;
 }
 
-qboolean CL_GetDefaultState(int index, entityState_t *state)
+bool CL_GetDefaultState(int index, entityState_t *state)
 {
 	if (index < 0 || index >= MAX_GENTITIES)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (!(cl.entityBaselines[index].eFlags & EF_PERMANENT))
 	{
-		return qfalse;
+		return false;
 	}
 
 	*state = cl.entityBaselines[index];
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -310,7 +310,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 	int i = 0;
 	int b = 0;
 	int strLen = 0;
-	qboolean gotStrip = qfalse;
+	bool gotStrip = false;
 
 	if (!str || !str[0])
 	{
@@ -332,7 +332,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 
 	while (i < strLen && str[i])
 	{
-		gotStrip = qfalse;
+		gotStrip = false;
 
 		if (str[i] == '@' && (i+1) < strLen)
 		{
@@ -380,7 +380,7 @@ CL_GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-qboolean CL_GetServerCommand( int serverCommandNumber ) {
+bool CL_GetServerCommand( int serverCommandNumber ) {
 	const char	*s;
 	const char	*cmd;
 	static char bigConfigString[BIG_INFO_STRING];
@@ -393,7 +393,7 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 		// when a demo record was started after the client got a whole bunch of
 		// reliable commands then the client never got those first reliable commands
 		if ( clc.demoplaying )
-			return qfalse;
+			return false;
 
 		while (i < MAX_RELIABLE_COMMANDS)
 		{ //spew out the reliable command buffer
@@ -404,12 +404,12 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 			i++;
 		}
 		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
-		return qfalse;
+		return false;
 	}
 
 	if ( serverCommandNumber > clc.serverCommandSequence ) {
 		Com_Error( ERR_DROP, "CL_GetServerCommand: requested a command not received" );
-		return qfalse;
+		return false;
 	}
 
 	s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
@@ -429,7 +429,7 @@ rescan:
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
 		Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
-		return qfalse;
+		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs1" ) ) {
@@ -438,7 +438,7 @@ rescan:
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
-		return qfalse;
+		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs2" ) ) {
@@ -456,7 +456,7 @@ rescan:
 		CL_ConfigstringModified();
 		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		return qtrue;
+		return true;
 	}
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
@@ -466,7 +466,7 @@ rescan:
 		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
 		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
-		return qtrue;
+		return true;
 	}
 
 	// the clientLevelShot command is used during development
@@ -479,19 +479,19 @@ rescan:
 		// otherwise malicious remote servers could overwrite
 		// the existing thumbnails
 		if ( !com_sv_running->integer ) {
-			return qfalse;
+			return false;
 		}
 		// close the console
 		Con_Close();
 		// take a special screenshot next frame
 		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
-		return qtrue;
+		return true;
 	}
 
 	// we may want to put a "connect to other server" command here
 
 	// cgame can now act on the command
-	return qtrue;
+	return true;
 }
 
 /*
@@ -506,7 +506,7 @@ void CL_ShutdownCGame( void ) {
 	if ( !cls.cgameStarted )
 		return;
 
-	cls.cgameStarted = qfalse;
+	cls.cgameStarted = false;
 
 	CL_UnbindCGame();
 }
@@ -578,9 +578,9 @@ CL_GameCommand
 See if the current console command is claimed by the cgame
 ====================
 */
-qboolean CL_GameCommand( void ) {
+bool CL_GameCommand( void ) {
 	if ( !cls.cgameStarted )
-		return qfalse;
+		return false;
 
 	return CGVM_ConsoleCommand();
 }
@@ -653,7 +653,7 @@ static void CL_ClockClear( clockWindow_t *w ) {
 		w->low[i] = INT_MAX;
 	}
 	w->slot = cls.realtime / CLOCK_SLOT_MSEC;
-	w->started = qtrue;
+	w->started = true;
 }
 
 // a sample enters the slot of the present real time; the slots without a sample stay empty
@@ -756,7 +756,7 @@ static void CL_CmdClockJump( int jump ) {
 // the client's time was reset: the command clock starts again from the drawn time, as at the first snapshot
 static void CL_CmdClockReset( void ) {
 	cl.cmdTimeDelta = cl.serverTimeDelta;
-	cl.cmdWindow.started = qfalse;
+	cl.cmdWindow.started = false;
 	cl.cmdCredit = 0;
 	cl.oldCmdTime = 0;
 	cl.cmdSettleTime = 0;
@@ -819,11 +819,11 @@ static void CL_AdjustCmdDelta( int msec ) {
 
 // called every frame of the game
 void CL_AdjustTimeDelta( void ) {
-	const qboolean newSnapshots = cl.newSnapshots;
+	const bool newSnapshots = cl.newSnapshots;
 	int		sorted[CLOCK_SLOTS];
 	int		count;
 
-	cl.newSnapshots = qfalse;
+	cl.newSnapshots = false;
 
 	// the delta never drifts when replaying a demo
 	if ( clc.demoplaying ) {
@@ -851,8 +851,8 @@ void CL_AdjustTimeDelta( void ) {
 		count = CL_ClockSorted( &cl.interpWindow, sorted );
 		if ( deltaDelta <= RESET_TIME && count && newDelta > sorted[count - 1] + 100 ) {
 			if ( !cl.interpJumpPending ) {
-				cl.interpJumpPending = qtrue;	// this frame is left out
-				cl.interpPendingValid = qfalse;
+				cl.interpJumpPending = true;	// this frame is left out
+				cl.interpPendingValid = false;
 				return;
 			}
 			// a sample is taken up to an interval after its snapshot arrived, this one at the arrival
@@ -865,11 +865,11 @@ void CL_AdjustTimeDelta( void ) {
 				Com_Printf( "<JUMP %i> ", jump );
 			}
 		}
-		cl.interpJumpPending = qfalse;
+		cl.interpJumpPending = false;
 
 		if ( deltaDelta > RESET_TIME ) {
 			// a reset of the time: the window restarts, one interval behind the newest snapshot until it has samples
-			cl.interpWindow.started = qfalse;
+			cl.interpWindow.started = false;
 			cl.serverTimeDelta = newDelta - TICK_MSEC;
 			cl.oldServerTime = cl.snap.serverTime;	// FIXME: is this a problem for cgame?
 			cl.serverTime = cl.snap.serverTime;
@@ -887,9 +887,9 @@ void CL_AdjustTimeDelta( void ) {
 				CL_ClockPush( &cl.interpWindow, cl.interpPending );
 			}
 		}
-		cl.extrapolatedSnapshot = qfalse;
+		cl.extrapolatedSnapshot = false;
 		cl.interpPending = newDelta;
-		cl.interpPendingValid = qtrue;
+		cl.interpPendingValid = true;
 		cl.interpArrival = cls.realtime;
 	} else if ( cl.interpPendingValid ) {
 		cl.interpPending = Q_min( cl.interpPending, newDelta );
@@ -945,7 +945,7 @@ void CL_FirstSnapshot( void ) {
 	cl.serverTimeDelta = cl.snap.serverTime - cls.realtime - ( clc.demoplaying ? 0 : TICK_MSEC );
 	// the command clock starts on the drawn time: the first input margins the server reports set it
 	cl.cmdTimeDelta = cl.serverTimeDelta;
-	cl.cmdWindow.started = qfalse;
+	cl.cmdWindow.started = false;
 	cl.oldCmdTime = 0;
 	cl.cmdSettleTime = 0;
 	cl.oldServerTime = cl.snap.serverTime;
@@ -977,13 +977,13 @@ void CL_SetCGameTime( void ) {
 			// we shouldn't get the first snapshot on the same frame
 			// as the gamestate, because it causes a bad time skip
 			if ( !clc.firstDemoFrameSkipped ) {
-				clc.firstDemoFrameSkipped = qtrue;
+				clc.firstDemoFrameSkipped = true;
 				return;
 			}
 			CL_ReadDemoMessage();
 		}
 		if ( cl.newSnapshots ) {
-			cl.newSnapshots = qfalse;
+			cl.newSnapshots = false;
 			CL_FirstSnapshot();
 		}
 		if ( cls.state != CA_ACTIVE ) {
@@ -1026,7 +1026,7 @@ void CL_SetCGameTime( void ) {
 
 		// note if we passed the newest snapshot before the next one arrived (netstats)
 		if ( cl.serverTime > cl.snap.serverTime ) {
-			cl.extrapolatedSnapshot = qtrue;
+			cl.extrapolatedSnapshot = true;
 		}
 	}
 

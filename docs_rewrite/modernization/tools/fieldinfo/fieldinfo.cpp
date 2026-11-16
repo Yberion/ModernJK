@@ -6,9 +6,9 @@
 #include <cstdio>
 #include <type_traits>
 
-// C type of a field: "bool" (qboolean), "int", "float", "enum" (other enums, such as trType_t), "?" (anything else)
+// C type of a field: "bool", "int", "float", "enum" (other enums, such as trType_t), "?" (anything else)
 template <class T> static const char *TypeName() {
-	return std::is_same<T, qboolean>::value ? "bool"
+	return std::is_same<T, bool>::value ? "bool"
 		: std::is_same<T, int>::value ? "int"
 		: std::is_same<T, float>::value ? "float"
 		: std::is_enum<T>::value ? "enum" : "?";

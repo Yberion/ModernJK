@@ -57,17 +57,17 @@ static int FrameEvent( const eng::Frame &f, const eng::EntityRing &ring, uint32_
 // Whether snapshot s, left out between the demo's last snapshot k and the next one n, holds an event the demo would
 // lose: an entity's event field, or the player's external event, that s shows new and n no longer shows; or more of
 // the player's predictable events from k to n than its player state holds (MAX_PS_EVENTS).
-static qboolean EventsLost( const eng::Frame &k, const eng::Frame &s, const eng::Frame &n, const eng::EntityRing &ring ) {
+static bool EventsLost( const eng::Frame &k, const eng::Frame &s, const eng::Frame &n, const eng::EntityRing &ring ) {
 	const playerState_t *kps = (const playerState_t *)k.ps;
 	const playerState_t *sps = (const playerState_t *)s.ps;
 	const playerState_t *nps = (const playerState_t *)n.ps;
 	uint32_t atK = 0, atN = 0;
 
 	if ( nps->eventSequence - kps->eventSequence > MAX_PS_EVENTS ) {
-		return qtrue;
+		return true;
 	}
 	if ( sps->externalEvent && sps->externalEvent != kps->externalEvent && nps->externalEvent != sps->externalEvent ) {
-		return qtrue;
+		return true;
 	}
 	for ( uint32_t i = 0; i < s.numEntities; i++ ) {
 		const entityState_t *es = FrameEntity( s, ring, i );
@@ -75,10 +75,10 @@ static qboolean EventsLost( const eng::Frame &k, const eng::Frame &s, const eng:
 			continue;
 		}
 		if ( FrameEvent( n, ring, &atN, es->number ) != es->event ) {
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void DemoRecorder::ResetFrames( void ) {
@@ -89,7 +89,7 @@ void DemoRecorder::ResetFrames( void ) {
 }
 
 // codes msg against the demo's last snapshot, with the server commands not written yet, and writes it
-qboolean DemoRecorder::Write( const eng::ServerMessage &msg, int lastCommand, const demoSources_t &src ) {
+bool DemoRecorder::Write( const eng::ServerMessage &msg, int lastCommand, const demoSources_t &src ) {
 	static uint8_t buf[MAX_MSGLEN];
 	eng::ServerMessage m = msg;
 	eng::CommandRing commands = src.commands;
@@ -114,7 +114,7 @@ qboolean DemoRecorder::Write( const eng::ServerMessage &msg, int lastCommand, co
 	slot.seq = -1;
 	if ( !size ) {
 		Com_Printf( "WARNING: message %d not recorded in the demo (too large or malformed)\n", m.seq );
-		return qfalse;
+		return false;
 	}
 	if ( m.snapshot ) {
 		slot = m.frame;
@@ -130,12 +130,12 @@ qboolean DemoRecorder::Write( const eng::ServerMessage &msg, int lastCommand, co
 	len = LittleLong( (int)size );
 	FS_Write( &len, 4, file );
 	FS_Write( buf, (int)size, file );
-	return qtrue;
+	return true;
 }
 
-qboolean DemoRecorder::Start( fileHandle_t demoFile, const eng::ServerMessage &gameState, int lastCommand, const demoSources_t &src ) {
+bool DemoRecorder::Start( fileHandle_t demoFile, const eng::ServerMessage &gameState, int lastCommand, const demoSources_t &src ) {
 	file = demoFile;
-	held = qfalse;
+	held = false;
 	ResetFrames();
 	nextCommand = gameState.firstCommand;
 	return Write( gameState, lastCommand, src );
@@ -143,10 +143,10 @@ qboolean DemoRecorder::Start( fileHandle_t demoFile, const eng::ServerMessage &g
 
 void DemoRecorder::Message( const eng::ServerMessage &msg, int lastCommand, const demoSources_t &src ) {
 	// only a message that holds a snapshot and nothing a player must not miss may be left out
-	const qboolean plain = msg.snapshot && !msg.gameState && !msg.setGame && !msg.mapChange ? qtrue : qfalse;
+	const bool plain = msg.snapshot && !msg.gameState && !msg.setGame && !msg.mapChange ? true : false;
 
 	if ( held ) {
-		held = qfalse;
+		held = false;
 		if ( !plain || keptSeq < 0
 			|| EventsLost( frames[(uint32_t)keptSeq % eng::kPacketBackup], heldMsg.frame, msg.frame, src.ring ) ) {
 			Write( heldMsg, heldLastCommand, src );
@@ -154,7 +154,7 @@ void DemoRecorder::Message( const eng::ServerMessage &msg, int lastCommand, cons
 	}
 
 	if ( plain && keptSeq >= 0 && msg.time - keptTime < DEMO_SNAPSHOT_MSEC ) {
-		held = qtrue;
+		held = true;
 		heldMsg = msg;
 		heldMsg.download = false;
 		heldMsg.data = NULL;
@@ -172,12 +172,12 @@ void DemoRecorder::Message( const eng::ServerMessage &msg, int lastCommand, cons
 
 void DemoRecorder::Stop( const demoSources_t &src ) {
 	if ( held ) {
-		held = qfalse;
+		held = false;
 		Write( heldMsg, heldLastCommand, src );
 	}
 }
 
 void DemoRecorder::Reset( void ) {
-	held = qfalse;
+	held = false;
 	ResetFrames();
 }

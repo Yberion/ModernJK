@@ -63,20 +63,20 @@ extern const char sKEY_UNCOMP[];
 // (filenames are used purely for error reporting, all files should already be loaded before you get here)
 //
 void		MP3_InitCvars			( void );
-qboolean	MP3_IsValid				( const char *psLocalFilename, void *pvData, int iDataLen, qboolean bStereoDesired = qfalse );
-int			MP3_GetUnpackedSize		( const char *psLocalFilename, void *pvData, int iDataLen, qboolean qbIgnoreID3Tag = qfalse, qboolean bStereoDesired = qfalse );
-int			MP3_UnpackRawPCM		( const char *psLocalFilename, void *pvData, int iDataLen, byte *pbUnpackBuffer, qboolean bStereoDesired = qfalse );
-qboolean	MP3Stream_InitPlayingTimeFields( LP_MP3STREAM lpMP3Stream, const char *psLocalFilename, void *pvData, int iDataLen, qboolean bStereoDesired = qfalse);
+bool	MP3_IsValid				( const char *psLocalFilename, void *pvData, int iDataLen, bool bStereoDesired = false );
+int			MP3_GetUnpackedSize		( const char *psLocalFilename, void *pvData, int iDataLen, bool qbIgnoreID3Tag = false, bool bStereoDesired = false );
+int			MP3_UnpackRawPCM		( const char *psLocalFilename, void *pvData, int iDataLen, byte *pbUnpackBuffer, bool bStereoDesired = false );
+bool	MP3Stream_InitPlayingTimeFields( LP_MP3STREAM lpMP3Stream, const char *psLocalFilename, void *pvData, int iDataLen, bool bStereoDesired = false);
 float		MP3Stream_GetPlayingTimeInSeconds( LP_MP3STREAM lpMP3Stream );
 float		MP3Stream_GetRemainingTimeInSeconds( LP_MP3STREAM lpMP3Stream );
-qboolean	MP3_FakeUpWAVInfo		( const char *psLocalFilename, void *pvData, int iDataLen, int iUnpackedDataLength, int &format, int &rate, int &width, int &channels, int &samples, int &dataofs, qboolean bStereoDesired = qfalse );
-qboolean	MP3_ReadSpecialTagInfo	( byte *pbLoadedFile, int iLoadedFileLen,
+bool	MP3_FakeUpWAVInfo		( const char *psLocalFilename, void *pvData, int iDataLen, int iUnpackedDataLength, int &format, int &rate, int &width, int &channels, int &samples, int &dataofs, bool bStereoDesired = false );
+bool	MP3_ReadSpecialTagInfo	( byte *pbLoadedFile, int iLoadedFileLen,
 										id3v1_1** ppTAG = NULL, int *piUncompressedSize = NULL, float *pfMaxVol = NULL);
-qboolean	MP3Stream_InitFromFile	( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, const char *psSrcDataFilename, int iMP3UnPackedSize, qboolean bStereoDesired = qfalse );
-int			MP3Stream_Decode		( LP_MP3STREAM lpMP3Stream,  qboolean bDoingMusic );
-qboolean	MP3Stream_SeekTo		( channel_t *ch, float fTimeToSeekTo );
-qboolean	MP3Stream_Rewind		( channel_t *ch );
-qboolean	MP3Stream_GetSamples	( channel_t *ch, int startingSampleNum, int count, short *buf, qboolean bStereo );
+bool	MP3Stream_InitFromFile	( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, const char *psSrcDataFilename, int iMP3UnPackedSize, bool bStereoDesired = false );
+int			MP3Stream_Decode		( LP_MP3STREAM lpMP3Stream,  bool bDoingMusic );
+bool	MP3Stream_SeekTo		( channel_t *ch, float fTimeToSeekTo );
+bool	MP3Stream_Rewind		( channel_t *ch );
+bool	MP3Stream_GetSamples	( channel_t *ch, int startingSampleNum, int count, short *buf, bool bStereo );
 
 
 

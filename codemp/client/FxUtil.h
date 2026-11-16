@@ -77,7 +77,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							int killTime, qhandle_t shader, int flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = NULL, int entNum=-1, int modelNum=-1, int boltNum=-1,
-							qboolean traceEnd = qfalse);
+							bool traceEnd = false);
 
 CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,

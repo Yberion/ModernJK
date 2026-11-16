@@ -176,14 +176,14 @@ void SV_Startup( void ) {
 		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
 	}
 
-	svs.clients = (struct client_s *) Z_Malloc ( sizeof(client_t) * 1, TAG_CLIENTS, qtrue );
+	svs.clients = (struct client_s *) Z_Malloc ( sizeof(client_t) * 1, TAG_CLIENTS, true );
 	svs.numSnapshotEntities = 2 * 4 * 64;
-	svs.initialized = qtrue;
+	svs.initialized = true;
 
 	Cvar_Set( "sv_running", "1" );
 }
 
-qboolean CM_SameMap(const char *server);
+bool CM_SameMap(const char *server);
 void Cvar_Defrag(void);
 
 /*
@@ -194,7 +194,7 @@ Change the server to a new map, taking all connected
 clients along with it.
 ================
 */
-void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bAllowScreenDissolve )
+void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllowScreenDissolve )
 {
 	int			i;
 	int			checksum;
@@ -206,7 +206,7 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bA
 	Cvar_Set( "timescale", "1" );//jic we were skipping
 
 	// shut down the existing game if it is running
-	SV_ShutdownGameProgs(qtrue);
+	SV_ShutdownGameProgs(true);
 
 	Com_Printf ("------ Server Initialization ------\n%s\n", com_version->string);
 	Com_Printf ("Server: %s\n",server);
@@ -265,7 +265,7 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bA
 	re.SVModelInit();
 
 	// allocate the snapshot entities
-	svs.snapshotEntities = (entityState_t *) Z_Malloc (sizeof(entityState_t)*svs.numSnapshotEntities, TAG_CLIENTS, qtrue );
+	svs.snapshotEntities = (entityState_t *) Z_Malloc (sizeof(entityState_t)*svs.numSnapshotEntities, TAG_CLIENTS, true );
 
 	Music_SetLevelName(server);
 
@@ -288,7 +288,7 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bA
 	sv.time = 1000;
 	re.G2API_SetTime(sv.time,G2T_SV_TIME);
 
-	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum, qfalse );
+	CM_LoadMap( va("maps/%s.bsp", server), false, &checksum, false );
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", server );
@@ -333,7 +333,7 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, qboolean bA
 			char	*denied;
 
 			// connect the client again
-			denied = ge->ClientConnect( i, qfalse, eNO/*qfalse*/ );	// firstTime = qfalse, qbFromSavedGame
+			denied = ge->ClientConnect( i, false, eNO/*false*/ );	// firstTime = false, qbFromSavedGame
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -462,7 +462,7 @@ void SV_Shutdown( const char *finalmsg ) {
 	}
 
 	SV_RemoveOperatorCommands();
-	SV_ShutdownGameProgs(qfalse);
+	SV_ShutdownGameProgs(false);
 
 	if (svs.snapshotEntities)
 	{

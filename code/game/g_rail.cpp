@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Externs & Fwd Decl.
 ////////////////////////////////////////////////////////////////////////////////////////
-extern void		G_SoundAtSpot( vec3_t org, int soundIndex, qboolean broadcast );
+extern void		G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast );
 extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
 
 class	CRailTrack;
@@ -722,7 +722,7 @@ void	Rail_Update()
 						//--------------------------------------------
 						if (wooshSound)
 						{
-							G_SoundAtSpot(wooshSoundPos, wooshSound, qfalse);
+							G_SoundAtSpot(wooshSoundPos, wooshSound, false);
 							if (WOOSH_DEBUG)
 							{
 								CG_DrawEdge(player->currentOrigin, wooshSoundPos, EDGE_WHITE_TWOSECOND);

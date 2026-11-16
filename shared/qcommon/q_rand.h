@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_rand.h -- the only entry point to random numbers: every module and the engine draw through these, never through
 // the C library's rand(), whose sequence differs between glibc and the UCRT. One generator, xoshiro128++ (Blackman
 // and Vigna, public domain), seeded through SplitMix64; integers in a range by Lemire's unbiased method, floats from
-// the top 24 bits: the same numbers on every platform and compiler. Changing the generator only changes q_rand.c.
+// the top 24 bits: the same numbers on every platform and compiler. Changing the generator only changes q_rand.cpp.
 // Survey and measurements: docs_rewrite/modernization/surveys/random-numbers.md.
 #pragma once
 

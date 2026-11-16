@@ -37,7 +37,7 @@ Used for cinematics.
 */
 
 // param 'bDirty' should be true 99% of the time
-void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int iClient, qboolean bDirty )
+void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int iClient, bool bDirty )
 {
 	if ( !tr.registered ) {
 		return;
@@ -140,7 +140,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 
 
-void RE_UploadCinematic (int cols, int rows, const byte *data, int client, qboolean dirty) {
+void RE_UploadCinematic (int cols, int rows, const byte *data, int client, bool dirty) {
 
 	GL_Bind( tr.scratchImage[client] );
 
@@ -303,7 +303,7 @@ static byte *RE_ReSample(byte *pbLoadedPic,			int iLoadedWidth,	int iLoadedHeigh
 //
 byte* pbLoadedPic = NULL;
 
-byte* RE_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, qboolean qbVertFlip)
+byte* RE_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, bool qbVertFlip)
 {
 	RE_TempRawImage_CleanUp();	// jic
 
@@ -384,7 +384,7 @@ typedef struct
 	image_t		*pBlack;	// small black image for clearing
 	int			iStartTime;	// 0 = not processing
 	Dissolve_e	eDissolveType;
-	qboolean	bTouchNeeded;
+	bool	bTouchNeeded;
 
 } Dissolve_t;
 
@@ -469,10 +469,10 @@ static void RE_KillDissolve(void)
 }
 // Draw the dissolve pic to the screen, over the top of what's already been rendered.
 //
-// return = qtrue while still processing, for those interested...
+// return = true while still processing, for those interested...
 //
 #define iSAFETY_SPRITE_OVERLAP 2	// #pixels to overlap blit region by, in case some drivers leave onscreen seams
-qboolean RE_ProcessDissolve(void)
+bool RE_ProcessDissolve(void)
 {
 	if (Dissolve.iStartTime)
 	{
@@ -488,7 +488,7 @@ qboolean RE_ProcessDissolve(void)
 			// This way, I restart the millisecond counter the first time we actually get as far as rendering, which
 			//	should let things work properly...
 			//
-			Dissolve.bTouchNeeded = qfalse;
+			Dissolve.bTouchNeeded = false;
 			Dissolve.iStartTime = ri.Milliseconds();
 		}
 
@@ -752,21 +752,21 @@ qboolean RE_ProcessDissolve(void)
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-// return = qtrue(success) else fail, for those interested...
+// return = true(success) else fail, for those interested...
 //
-qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
+bool RE_InitDissolve(bool bForceCircularExtroWipe)
 {
 	R_IssuePendingRenderCommands();
 
 //	ri.Printf( PRINT_ALL, "RE_InitDissolve()\n");
-	qboolean bReturn = qfalse;
+	bool bReturn = false;
 
 	if (//Dissolve.iStartTime == 0	// no point in interruping an existing one
 		//&&
-		tr.registered == qtrue		// ... stops it crashing during first cinematic before the menus... :-)
+		tr.registered == true		// ... stops it crashing during first cinematic before the menus... :-)
 		)
 	{
 		RE_KillDissolve();	// kill any that are already running
@@ -775,7 +775,7 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 		int iPow2VidHeight	= PowerOf2( glConfig.vidHeight);
 
 		int iBufferBytes	= iPow2VidWidth * iPow2VidHeight * 4;
-		byte *pBuffer = (byte *) R_Malloc( iBufferBytes, TAG_TEMP_WORKSPACE, qfalse);
+		byte *pBuffer = (byte *) R_Malloc( iBufferBytes, TAG_TEMP_WORKSPACE, false);
 		if (pBuffer)
 		{
 			// read current screen image...  (GL_RGBA should work even on 3DFX in that the RGB parts will be valid at least)
@@ -813,7 +813,7 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 			//	but of course the damn thing's upside down (thanks, GL), so invert it, but only within
 			//	the picture pixels, NOT the upload texture as a whole...
 			//
-			byte *pbSwapLineBuffer = (byte *)R_Malloc( iCopyBytes, TAG_TEMP_WORKSPACE, qfalse);
+			byte *pbSwapLineBuffer = (byte *)R_Malloc( iCopyBytes, TAG_TEMP_WORKSPACE, false);
 			pbSrc = &pBuffer[0];
 			pbDst = &pBuffer[(glConfig.vidHeight-1) * iPow2VidWidth * 4];
 			for (int y = 0; y < glConfig.vidHeight/2; y++)
@@ -862,7 +862,7 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 											iPow2VidHeight == Dissolve.iUploadHeight
 										)?
 										NULL :
-										(byte*) R_Malloc( iPow2VidWidth * iPow2VidHeight * 4, TAG_TEMP_WORKSPACE, qfalse);
+										(byte*) R_Malloc( iPow2VidWidth * iPow2VidHeight * 4, TAG_TEMP_WORKSPACE, false);
 
 			// re-sample screen...
 			//
@@ -880,9 +880,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 											Dissolve.iUploadWidth,	// int width
 											Dissolve.iUploadHeight,	// int height
 											GL_RGBA,
-											qfalse,					// qboolean mipmap
-											qfalse,					// qboolean allowPicmip
-											qfalse,					// qboolean allowTC
+											false,					// bool mipmap
+											false,					// bool allowPicmip
+											false,					// bool allowTC
 											GL_CLAMP				// int glWrapClampMode
 											);
 
@@ -896,9 +896,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 											8,					// int width
 											8,					// int height
 											GL_RGBA,
-											qfalse,				// qboolean mipmap
-											qfalse,				// qboolean allowPicmip
-											qfalse,				// qboolean allowTC
+											false,				// bool mipmap
+											false,				// bool allowPicmip
+											false,				// bool allowTC
 											GL_CLAMP			// int glWrapClampMode
 											);
 
@@ -943,9 +943,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 	 		// Trying to decipher these comments - looks like no problem taking this out. I want the RAM.
 			{
 					Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono_rev",		// const char *name
-															qfalse,						// qboolean mipmap
-															qfalse,						// qboolean allowPicmip
-															qfalse,						// qboolean allowTC
+															false,						// bool mipmap
+															false,						// bool allowPicmip
+															false,						// bool allowTC
 															GL_CLAMP					// int glWrapClampMode
 														);
 			}
@@ -956,15 +956,15 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 				// register any/all of the possible CASE statements below...
 				//
 				Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono",			// const char *name
-														qfalse,						// qboolean mipmap
-														qfalse,						// qboolean allowPicmip
-														qfalse,						// qboolean allowTC
+														false,						// bool mipmap
+														false,						// bool allowPicmip
+														false,						// bool allowTC
 														GL_CLAMP					// int glWrapClampMode
 													);
 				Dissolve.pDissolve = R_FindImageFile(	"textures/common/dissolve",	// const char *name
-														qfalse,						// qboolean mipmap
-														qfalse,						// qboolean allowPicmip
-														qfalse,						// qboolean allowTC
+														false,						// bool mipmap
+														false,						// bool allowPicmip
+														false,						// bool allowTC
 														GL_REPEAT					// int glWrapClampMode
 													);
 			}
@@ -974,9 +974,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 				case eDISSOLVE_CIRCULAR_IN:
 				{
 					Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono_rev",		// const char *name
-															qfalse,						// qboolean mipmap
-															qfalse,						// qboolean allowPicmip
-															qfalse,						// qboolean allowTC
+															false,						// bool mipmap
+															false,						// bool allowPicmip
+															false,						// bool allowTC
 															GL_CLAMP					// int glWrapClampMode
 														);
 				}
@@ -985,9 +985,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 				case eDISSOLVE_CIRCULAR_OUT:
 				{
 					Dissolve.pDissolve = R_FindImageFile(	"gfx/2d/iris_mono",			// const char *name
-															qfalse,						// qboolean mipmap
-															qfalse,						// qboolean allowPicmip
-															qfalse,						// qboolean allowTC
+															false,						// bool mipmap
+															false,						// bool allowPicmip
+															false,						// bool allowTC
 															GL_CLAMP					// int glWrapClampMode
 														);
 				}
@@ -996,9 +996,9 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 				default:
 				{
 					Dissolve.pDissolve = R_FindImageFile(	"textures/common/dissolve",	// const char *name
-															qfalse,						// qboolean mipmap
-															qfalse,						// qboolean allowPicmip
-															qfalse,						// qboolean allowTC
+															false,						// bool mipmap
+															false,						// bool allowPicmip
+															false,						// bool allowTC
 															GL_REPEAT					// int glWrapClampMode
 														);
 				}
@@ -1010,8 +1010,8 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 			if (Dissolve.pDissolve)	// test if image was found, if not, don't do dissolves
 			{
 				Dissolve.iStartTime = ri.Milliseconds();	// gets overwritten first time, but MUST be set to NZ
-				Dissolve.bTouchNeeded = qtrue;
-				bReturn = qtrue;
+				Dissolve.bTouchNeeded = true;
+				bReturn = true;
 			}
 			else
 			{

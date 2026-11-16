@@ -62,7 +62,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Externs
 ////////////////////////////////////////////////////////////////////////////////////////
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
-extern void G_SoundAtSpot( vec3_t org, int soundIndex, qboolean broadcast );
+extern void G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast );
 extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
 
 
@@ -157,8 +157,8 @@ void	Pilot_Update(void)
 				player->s.number,
  				MASK_SHOT, (EG2_Collision)0, 0);
 
-			if ((mPilotViewTrace.allsolid==qfalse) &&
-				(mPilotViewTrace.startsolid==qfalse) &&
+			if ((mPilotViewTrace.allsolid==false) &&
+				(mPilotViewTrace.startsolid==false) &&
 				(mPilotViewTrace.fraction<0.99f) &&
 				(mPilotViewTrace.plane.normal[2]<0.5f) &&
 				(DotProduct(projectedDirection, mPilotViewTrace.plane.normal)<-0.5f)
@@ -172,7 +172,7 @@ void	Pilot_Update(void)
 				{
 					soundFlyBy = pVeh->m_pVehicleInfo->soundFlyBy2;
 				}
-				G_SoundAtSpot(mPilotViewTrace.endpos, soundFlyBy, qtrue);
+				G_SoundAtSpot(mPilotViewTrace.endpos, soundFlyBy, true);
 			}
 			else
 			{
@@ -388,8 +388,8 @@ void	Pilot_Update_Enemy()
 				MASK_SHOT,
 				(EG2_Collision)0, 0);
 
-			if ((mPilotViewTrace.allsolid==qfalse) &&
-				(mPilotViewTrace.startsolid==qfalse ) &&
+			if ((mPilotViewTrace.allsolid==false) &&
+				(mPilotViewTrace.startsolid==false ) &&
 				((mPilotViewTrace.entityNum==NPC->enemy->s.number)||(mPilotViewTrace.entityNum==NPC->enemy->s.m_iVehicleNum)))
 			{
 				TIMER_Set(NPC, "PilotRemoveTime", MIN_STAY_VIEWABLE_TIME);
@@ -439,7 +439,7 @@ void	Pilot_Goto_Vehicle()
 	}
 	STEER::AvoidCollisions(NPC);
 	STEER::DeActivate(NPC, &ucmd);
-	NPC_UpdateAngles(qtrue, qtrue);
+	NPC_UpdateAngles(true, true);
 }
 
 extern bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right);
@@ -597,7 +597,7 @@ void	Pilot_Steer_Vehicle()
 	{
   		ActorAccelerate	= true;
 		ActorDoTurbo	= (MoveDistance>2500 || EnemyInTurbo);
-		ucmd.buttons	|= BUTTON_VEH_SPEED;			// Tells PMove to use the ps.speed we calculate here, not the one from g_vehicles.c
+		ucmd.buttons	|= BUTTON_VEH_SPEED;			// Tells PMove to use the ps.speed we calculate here, not the one from g_vehicles.cpp
 
 
 		// For Flanking, We Calculate The Speed By Hand, Rather Than Using Pure Accelerate / No Accelerate Functionality
@@ -732,7 +732,7 @@ void	Pilot_Steer_Vehicle()
 						}
 					}*/
 				//}
-				WeaponThink(qtrue);
+				WeaponThink(true);
 			}
 			ucmd.rightmove = (EnemySide==Side_Left)?( 127):(-127);
 		}
@@ -761,6 +761,6 @@ void	Pilot_Steer_Vehicle()
 		NPCInfo->desiredPitch	= AngleNormalize360(MoveDirection[PITCH]);
 		NPCInfo->desiredYaw		= AngleNormalize360(MoveDirection[YAW] + ActorYawOffset);
 	}
-	NPC_UpdateAngles(qtrue, qtrue);
+	NPC_UpdateAngles(true, true);
 }
 

@@ -49,7 +49,7 @@ void ResetHeap()
 // initialise the heap
 CMiniHeap(int size)
 {
-	mHeap = (char *)Z_Malloc(size, TAG_GHOUL2, qtrue);
+	mHeap = (char *)Z_Malloc(size, TAG_GHOUL2, true);
 	mSize = size;
 #if _DEBUG
 	mMaxAlloc=0;

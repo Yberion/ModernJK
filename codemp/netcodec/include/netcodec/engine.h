@@ -2,7 +2,7 @@
 // server, at the end).
 //
 // Compiled by the engine's own translation units: plain structures, pointers and sizes. The library converts them to the views of codec.h and reads and writes the engine's arrays in place:
-// - entity states are entityState_t images (532 bytes) holding their number at offset 0, in the engine's rings
+// - entity states are entityState_t images (524 bytes) holding their number at offset 0, in the engine's rings
 //   (svs.snapshotEntities on the server, cl.parseEntities on the client);
 // - player states are playerState_t images (1,552 bytes);
 // - entity baselines are found by number at number * stride (sv.svEntities[n].baseline, cl.entityBaselines[n]); a

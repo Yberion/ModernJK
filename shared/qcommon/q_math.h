@@ -124,14 +124,14 @@ float AngleDelta( float angle1, float angle2 );
 #define	YAW		1		// left / right
 #define	ROLL	2		// fall over
 
-qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
+bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees );
 void RotateAroundDirection( matrix3_t axis, float yaw );
 void vectoangles( const vec3_t value1, vec3_t angles );
 vec_t GetYawForDirection( const vec3_t p1, const vec3_t p2 );
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal );
-qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
+bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 float G_PointDistFromLineSegment( const vec3_t start, const vec3_t end, const vec3_t from );
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 
@@ -168,7 +168,7 @@ typedef struct cplane_s {
 } cplane_t;
 
 void SetPlaneSignbits( cplane_t *out );
-int	PlaneTypeForNormal( vec3_t normal );
+int	PlaneTypeForNormal( const vec3_t normal );
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p);
 
 
@@ -216,7 +216,7 @@ void VectorCopy2( const vec2_t vecIn, vec2_t vecOut );
 ///////////////////////////////////////////////////////////////////////////
 extern vec3_t vec3_origin;
 
-// The small helpers are inline (they were functions of q_math.c, called through the linker from every loop of the
+// The small helpers are inline (they were functions of q_math.cpp, called through the linker from every loop of the
 // collision and model code: DotProduct alone was 11.5 % of a server tick's samples; plan step 14, part 7). The
 // bodies and their semantics are unchanged, an output that aliases an input included.
 
@@ -290,10 +290,10 @@ static QINLINE void CrossProduct( const vec3_t vec1, const vec3_t vec2, vec3_t v
 static QINLINE float DotProduct( const vec3_t vec1, const vec3_t vec2 ) {
 	return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
 }
-static QINLINE qboolean VectorCompare( const vec3_t vec1, const vec3_t vec2 ) {
-	return (qboolean)(vec1[0] == vec2[0] && vec1[1] == vec2[1] && vec1[2] == vec2[2]);
+static QINLINE bool VectorCompare( const vec3_t vec1, const vec3_t vec2 ) {
+	return (vec1[0] == vec2[0] && vec1[1] == vec2[1] && vec1[2] == vec2[2]);
 }
-qboolean VectorCompare2( const vec3_t v1, const vec3_t v2 );
+bool VectorCompare2( const vec3_t v1, const vec3_t v2 );
 
 void SnapVector( float *v );
 static QINLINE float Distance( const vec3_t p1, const vec3_t p2 ) {

@@ -62,8 +62,10 @@ const Op *SnapshotOp(const Message &m) {
 	return nullptr;
 }
 
-bool SameFields(const uint8_t *a, const uint8_t *b, std::span<const uint16_t> offsets) {
-	return std::all_of(offsets.begin(), offsets.end(), [&](uint16_t off) { return std::memcmp(a + off, b + off, 4) == 0; });
+bool SameFields(const uint8_t *a, const uint8_t *b, std::span<const uint16_t> offsets, std::span<const uint8_t> sizes) {
+	for (size_t i = 0; i < offsets.size(); i++)
+		if (std::memcmp(a + offsets[i], b + offsets[i], sizes[i]) != 0) return false;
+	return true;
 }
 
 struct Stored {
@@ -146,14 +148,14 @@ void FillLegacyInput(const Message &m, int delta, LegacyInput &in) {
 }
 
 bool LegacyMatches(const legacy::SnapshotOut &o, const Snapshot &sn) {
-	if (!SameFields(o.ps, sn.ps.data(), PlayerFieldOffsets()) || o.numEntities != static_cast<int>(sn.entities.count) ||
-	    (!sn.vps.empty() && !SameFields(o.vps, sn.vps.data(), PlayerFieldOffsets())))
+	if (!SameFields(o.ps, sn.ps.data(), PlayerFieldOffsets(), PlayerFieldSizes()) || o.numEntities != static_cast<int>(sn.entities.count) ||
+	    (!sn.vps.empty() && !SameFields(o.vps, sn.vps.data(), PlayerFieldOffsets(), PlayerFieldSizes())))
 		return false;
 	for (uint32_t e = 0; e < sn.entities.count; e++) {
 		const uint8_t *img = o.entities + (e * legacy::kEntityBytes);
 		int32_t num = 0;
 		std::memcpy(&num, img, 4);
-		if (std::cmp_not_equal(num, EntityNumber(sn.entities[e])) || !SameFields(img, sn.entities[e].data(), EntityFieldOffsets()))
+		if (std::cmp_not_equal(num, EntityNumber(sn.entities[e])) || !SameFields(img, sn.entities[e].data(), EntityFieldOffsets(), EntityFieldSizes()))
 			return false;
 	}
 	return true;

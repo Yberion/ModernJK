@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 static huffman_t		msgHuff;
 
-static qboolean			msgInit = qfalse;
+static bool			msgInit = false;
 #ifdef _NEWHUFFTABLE_
 static FILE				*fp=0;
 #endif
@@ -52,7 +52,7 @@ Handles byte ordering and avoids alignment errors
 int oldsize = 0;
 
 bool g_nOverrideChecked = false;
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
+void MSG_CheckNETFPSFOverrides(bool psfOverrides);
 
 void MSG_initHuffman();
 
@@ -60,10 +60,10 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 	if (!g_nOverrideChecked)
 	{
 		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
+		MSG_CheckNETFPSFOverrides(false);
 
 		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
+		MSG_CheckNETFPSFOverrides(true);
 
 		g_nOverrideChecked = true;
 	}
@@ -82,10 +82,10 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 	if (!g_nOverrideChecked)
 	{
 		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
+		MSG_CheckNETFPSFOverrides(false);
 
 		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
+		MSG_CheckNETFPSFOverrides(true);
 
 		g_nOverrideChecked = true;
 	}
@@ -97,30 +97,30 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 	Com_Memset (buf, 0, sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
-	buf->oob = qtrue;
+	buf->oob = true;
 }
 
 void MSG_Clear( msg_t *buf ) {
 	buf->cursize = 0;
-	buf->overflowed = qfalse;
+	buf->overflowed = false;
 	buf->bit = 0;					//<- in bits
 }
 
 
 void MSG_Bitstream( msg_t *buf ) {
-	buf->oob = qfalse;
+	buf->oob = false;
 }
 
 void MSG_BeginReading( msg_t *msg ) {
 	msg->readcount = 0;
 	msg->bit = 0;
-	msg->oob = qfalse;
+	msg->oob = false;
 }
 
 void MSG_BeginReadingOOB( msg_t *msg ) {
 	msg->readcount = 0;
 	msg->bit = 0;
-	msg->oob = qtrue;
+	msg->oob = true;
 }
 
 /*
@@ -174,7 +174,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	}
 	if (msg->oob) {
 		if ( msg->cursize + ( bits >> 3 ) > msg->maxsize ) {
-			msg->overflowed = qtrue;
+			msg->overflowed = true;
 			return;
 		}
 
@@ -201,7 +201,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 			int nbits;
 			nbits = bits&7;
 			if ( msg->bit + nbits > msg->maxsize << 3 ) {
-				msg->overflowed = qtrue;
+				msg->overflowed = true;
 				return;
 			}
 			for(i=0;i<nbits;i++) {
@@ -219,7 +219,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 				value = (value>>8);
 
 				if ( msg->bit > msg->maxsize << 3 ) {
-					msg->overflowed = qtrue;
+					msg->overflowed = true;
 					return;
 				}
 			}
@@ -231,7 +231,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 int MSG_ReadBits( msg_t *msg, int bits ) {
 	int			value;
 	int			get;
-	qboolean	sgn;
+	bool	sgn;
 	int			i, nbits;
 
 	if ( msg->readcount > msg->cursize ) {
@@ -242,9 +242,9 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 
 	if ( bits < 0 ) {
 		bits = -bits;
-		sgn = qtrue;
+		sgn = true;
 	} else {
-		sgn = qfalse;
+		sgn = false;
 	}
 
 	if (msg->oob) {
@@ -817,6 +817,7 @@ entityState_t communication
 typedef struct netField_s {
 	const char	*name;
 	size_t	offset;
+	size_t	size;		// bytes: 1 for a bool, else 4
 	int		bits;		// 0 = float
 #ifndef FINAL_BUILD
 	unsigned	mCount;
@@ -824,7 +825,35 @@ typedef struct netField_s {
 } netField_t;
 
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,offsetof(entityState_t, x)
+#define	NETF(x) #x,offsetof(entityState_t, x),sizeof(((entityState_t *)0)->x)
+
+// an integer field of a state: a bool is one byte, every other field a 32-bit word
+static int MSG_GetField( const void *state, const netField_t *field ) {
+	const byte *p = (const byte *)state + field->offset;
+	return field->size == 1 ? *p : *(const int *)p;
+}
+// copies an unchanged field: a bool's byte (already 0 or 1), else the 32-bit word; one test of the size per field
+static void MSG_CopyField( void *to, const void *from, const netField_t *field ) {
+	byte *pt = (byte *)to + field->offset;
+	const byte *pf = (const byte *)from + field->offset;
+	if ( field->size == 1 ) *pt = *pf;
+	else memcpy( pt, pf, 4 );
+}
+// the field differs between two states: the raw words first, as before bools were one byte (a bool's word holds its
+// neighbours too), so that the loops over the unchanged fields do no more than compare
+static bool MSG_FieldDiffers( const void *a, const void *b, const netField_t *field ) {
+	const byte *pa = (const byte *)a + field->offset, *pb = (const byte *)b + field->offset;
+	int wa, wb;
+	memcpy( &wa, pa, sizeof( wa ) );
+	memcpy( &wb, pb, sizeof( wb ) );
+	if ( wa == wb ) return false;
+	return field->size != 1 || *pa != *pb;
+}
+static void MSG_SetField( void *state, const netField_t *field, int value ) {
+	byte *p = (byte *)state + field->offset;
+	if ( field->size == 1 ) *p = value != 0;
+	else *(int *)p = value;
+}
 
 //rww - Remember to update ext_data/MP/netf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
@@ -1038,13 +1067,13 @@ identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to,
-						   qboolean force ) {
+						   bool force ) {
 	int			i, lc;
 	int			numFields;
 	netField_t	*field;
 	int			trunc;
 	float		fullFloat;
-	int			*fromF, *toF;
+	int			*toF;
 
 	numFields = (int)ARRAY_LEN( entityStateFields );
 
@@ -1071,9 +1100,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	lc = 0;
 	// build the change vector as bytes so it is endian independent
 	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
-		if ( *fromF != *toF ) {
+		if ( MSG_FieldDiffers( from, to, field ) ) {
 			lc = i+1;
 #ifndef FINAL_BUILD
 			field->mCount++;
@@ -1102,10 +1129,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	oldsize += numFields;
 
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
-		if ( *fromF == *toF ) {
+		if ( !MSG_FieldDiffers( from, to, field ) ) {
 			MSG_WriteBits( msg, 0, 1 );	// no change
 			continue;
 		}
@@ -1134,12 +1160,12 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 				}
 			}
 		} else {
-			if (*toF == 0) {
+			if (MSG_GetField( to, field ) == 0) {
 				MSG_WriteBits( msg, 0, 1 );
 			} else {
 				MSG_WriteBits( msg, 1, 1 );
 				// integer
-				MSG_WriteBits( msg, *toF, field->bits );
+				MSG_WriteBits( msg, MSG_GetField( to, field ), field->bits );
 			}
 		}
 	}
@@ -1163,7 +1189,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	int			i, lc;
 	int			numFields;
 	netField_t	*field;
-	int			*fromF, *toF;
+	int			*toF;
 	int			print;
 	int			trunc;
 	int			startBit, endBit;
@@ -1220,12 +1246,11 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	to->number = number;
 
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
-			*toF = *fromF;
+			MSG_CopyField( to, from, field );
 		} else {
 			if ( field->bits == 0 ) {
 				// float
@@ -1251,22 +1276,20 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 				}
 			} else {
 				if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-					*toF = 0;
+					MSG_SetField( to, field, 0 );
 				} else {
 					// integer
-					*toF = MSG_ReadBits( msg, field->bits );
+					MSG_SetField( to, field, MSG_ReadBits( msg, field->bits ) );
 					if ( print ) {
-						Com_Printf( "%s:%i ", field->name, *toF );
+						Com_Printf( "%s:%i ", field->name, MSG_GetField( to, field ) );
 					}
 				}
 			}
 		}
 	}
 	for ( i = lc, field = &entityStateFields[lc] ; i < numFields ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
 		// no change
-		*toF = *fromF;
+		MSG_CopyField( to, from, field );
 	}
 
 	if ( print ) {
@@ -1288,7 +1311,7 @@ playerState_t communication
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,offsetof(playerState_t, x)
+#define	PSF(x) #x,offsetof(playerState_t, x),sizeof(((playerState_t *)0)->x)
 
 //rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
@@ -1887,7 +1910,7 @@ static bitStorage_t		*g_netfBitStorage = NULL;
 static bitStorage_t		*g_psfBitStorage = NULL;
 
 //rww - Check the overrides files to see if the mod wants anything changed
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides)
+void MSG_CheckNETFPSFOverrides(bool psfOverrides)
 {
 	char overrideFile[4096];
 	char entryName[4096];
@@ -1936,7 +1959,7 @@ void MSG_CheckNETFPSFOverrides(qboolean psfOverrides)
 		}
 	}
 
-	len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, qfalse);
+	len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, false);
 
 	if (!f || len < 0)
 	{ //silently exit since this file is not needed to proceed.
@@ -1966,7 +1989,7 @@ void MSG_CheckNETFPSFOverrides(qboolean psfOverrides)
 		while (i < numFields)
 		{
 			//Alloc memory for this new ptr
-			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), TAG_GENERAL, qtrue);
+			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), TAG_GENERAL, true);
 
 			if (psfOverrides)
 			{
@@ -2091,9 +2114,9 @@ MSG_WriteDeltaPlayerstate
 =============
 */
 #ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, qboolean isVehiclePS ) {
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, bool isVehiclePS ) {
 #else
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS ) {
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, bool isVehiclePS ) {
 #endif
 	int				i;
 	playerState_t	dummy;
@@ -2104,7 +2127,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	int				numFields;
 	netField_t		*field;
 	netField_t		*PSFields = playerStateFields;
-	int				*fromF, *toF;
+	int				*toF;
 	float			fullFloat;
 	int				trunc, lc;
 #ifdef _ONEBIT_COMBO
@@ -2146,9 +2169,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	lc = 0;
 	for ( i = 0, field = PSFields ; i < numFields ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
-		if ( *fromF != *toF ) {
+		if ( MSG_FieldDiffers( from, to, field ) ) {
 			lc = i+1;
 #ifndef FINAL_BUILD
 			field->mCount++;
@@ -2165,20 +2186,19 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	oldsize += numFields - lc;
 
 	for ( i = 0, field = PSFields ; i < lc ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
 #ifdef _ONEBIT_COMBO
 		if (numBitsInMask < 32 &&
 			field->bits == 1)
 		{
-			bitComboMask |= (*toF)<<numBitsInMask;
+			bitComboMask |= MSG_GetField( to, field )<<numBitsInMask;
 			numBitsInMask++;
 			continue;
 		}
 #endif
 
-		if ( *fromF == *toF ) {
+		if ( !MSG_FieldDiffers( from, to, field ) ) {
 			MSG_WriteBits( msg, 0, 1 );	// no change
 			continue;
 		}
@@ -2202,7 +2222,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			}
 		} else {
 			// integer
-			MSG_WriteBits( msg, *toF, field->bits );
+			MSG_WriteBits( msg, MSG_GetField( to, field ), field->bits );
 		}
 	}
 
@@ -2331,7 +2351,7 @@ sendBitMask:
 MSG_ReadDeltaPlayerstate
 ===================
 */
-void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *to, qboolean isVehiclePS ) {
+void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *to, bool isVehiclePS ) {
 	int			i, lc;
 	int			bits;
 	netField_t	*field;
@@ -2339,7 +2359,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 	int			numFields;
 	int			startBit, endBit;
 	int			print;
-	int			*fromF, *toF;
+	int			*toF;
 	int			trunc;
 #ifdef _ONEBIT_COMBO
 	int			numBitsInMask = 0;
@@ -2398,14 +2418,13 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		Com_Error( ERR_DROP, "invalid playerState field count (got: %i, expecting: %i)", lc, numFields );
 
 	for ( i = 0, field = PSFields ; i < lc ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
 #ifdef _ONEBIT_COMBO
 		if (numBitsInMask < 32 &&
 			field->bits == 1)
 		{
-			*toF = *fromF;
+			MSG_CopyField( to, from, field );
 			numBitsInMask++;
 			continue;
 		}
@@ -2413,7 +2432,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
-			*toF = *fromF;
+			MSG_CopyField( to, from, field );
 		} else {
 			if ( field->bits == 0 ) {
 				// float
@@ -2435,18 +2454,16 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 				}
 			} else {
 				// integer
-				*toF = MSG_ReadBits( msg, field->bits );
+				MSG_SetField( to, field, MSG_ReadBits( msg, field->bits ) );
 				if ( print ) {
-					Com_Printf( "%s:%i ", field->name, *toF );
+					Com_Printf( "%s:%i ", field->name, MSG_GetField( to, field ) );
 				}
 			}
 		}
 	}
 	for ( i=lc,field = &PSFields[lc];i<numFields; i++, field++) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
 		// no change
-		*toF = *fromF;
+		MSG_CopyField( to, from, field );
 	}
 
 	// read the arrays
@@ -2525,8 +2542,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		{
 			if (field->bits == 1)
 			{ //a 1 bit value, get the sent value from the mask
-				toF = (int *)( (byte *)to + field->offset );
-                *toF = (newBitMask>>nOneBit)&1;
+				MSG_SetField( to, field, (newBitMask>>nOneBit)&1 );
 				nOneBit++;
 			}
 		}
@@ -3066,7 +3082,7 @@ void MSG_initHuffman() {
 	fp=fopen("c:\\netchan.bin", "a");
 #endif // _NEWHUFFTABLE_
 
-	msgInit = qtrue;
+	msgInit = true;
 	Huff_Init(&msgHuff);
 	for(i=0;i<256;i++) {
 		for (j=0;j<msg_hData[i];j++) {
@@ -3084,7 +3100,7 @@ void MSG_initHuffman() {
 	int		size, i, ch;
 	int		array[256];
 
-	msgInit = qtrue;
+	msgInit = true;
 
 	Huff_Init(&msgHuff);
 	// load it in

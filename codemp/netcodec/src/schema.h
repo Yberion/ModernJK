@@ -7,6 +7,7 @@
 
 #include "netcodec/codec.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -41,6 +42,12 @@ constexpr size_t kA = 0, kD = 1, kK = 2, kIA = 3, kID = 4, kAD = 5, kFD = 6, kT 
 #include "generated/jka_schema.inc"
 
 static_assert(kEntitySize == kEntityBytes && kPlayerSize == kPlayerBytes, "schema and codec.h disagree");
+// every field's 32-bit word inside its image, a bool's included (LoadField and FieldDiffers read a bool's word)
+static_assert(std::ranges::all_of(kEntityFields, [](const FieldDesc &f) { return f.offset + 4U <= kEntitySize; }) &&
+		std::ranges::all_of(kPlayerFields, [](const FieldDesc &f) { return f.offset + 4U <= kPlayerSize; }) &&
+		std::ranges::all_of(kPilotFields, [](const FieldDesc &f) { return f.offset + 4U <= kPlayerSize; }) &&
+		std::ranges::all_of(kVehicleFields, [](const FieldDesc &f) { return f.offset + 4U <= kPlayerSize; }),
+	"a field's word reaches past its image");
 inline constexpr uint32_t kNumEntityFields = ToU32(kEntityFields.size());
 
 using ImageView = std::span<const uint8_t>;
@@ -56,6 +63,14 @@ inline void StoreWord(ImageRef img, uint32_t offset, uint32_t v) noexcept {
 	std::memcpy(img.subspan(offset, 4).data(), &v, 4);
 }
 
+// a field of `size` bytes: a bool is one byte, every other field a 32-bit word
+[[nodiscard]] inline uint32_t LoadSized(ImageView img, uint32_t offset, uint32_t size) noexcept {
+	return size == 1 ? img[offset] : Load(img, offset);
+}
+// the bytes of a field in its 32-bit word: a bool's byte, else the whole word
+[[nodiscard]] constexpr uint32_t FieldMask(const FieldDesc &f) noexcept { return f.ctype == CType::kBool ? 0xFFU : 0xFFFFFFFFU; }
+[[nodiscard]] inline uint32_t LoadField(ImageView img, const FieldDesc &f) noexcept { return Load(img, f.offset) & FieldMask(f); }
+
 // value of a word for a codec width (see the file comment)
 [[nodiscard]] constexpr int64_t ValueBits(uint32_t w, int bits) noexcept {
 	if (bits == 0 || bits == 32) return w;
@@ -66,13 +81,22 @@ inline void StoreWord(ImageRef img, uint32_t offset, uint32_t v) noexcept {
 	return (x >> (ab - 1)) != 0 ? static_cast<int64_t>(x) - static_cast<int64_t>(uint64_t{ 1 } << ab) : static_cast<int64_t>(x);
 }
 
+// the value of the field's whole word, as before bools were one byte: a bool's holds its neighbours' bytes too, and the
+// code of a bool takes its byte (PutField, GetField), so that the other fields pay nothing for the bools (with a branch
+// here the encoder was 14 % slower under GCC, with a mask 4 %)
 [[nodiscard]] inline int64_t Value(ImageView img, const FieldDesc &f) noexcept { return ValueBits(Load(img, f.offset), f.bits); }
-inline void Store(ImageRef img, const FieldDesc &f, int64_t v) noexcept { StoreWord(img, f.offset, static_cast<uint32_t>(v)); }
+// a bool gets 0 or 1 whatever the value decoded, so that it always holds a valid bool
+inline void Store(ImageRef img, const FieldDesc &f, int64_t v) noexcept {
+	if (f.ctype == CType::kBool) img[f.offset] = v != 0 ? 1 : 0;
+	else StoreWord(img, f.offset, static_cast<uint32_t>(v));
+}
 
-// the field differs between two images: raw words first, the codec value only when they differ
+// the field differs between two images: raw words first, the codec value only when they differ, as before bools were
+// one byte; a bool's own byte last (its word holds its neighbours too), so that the other fields pay nothing for it
 [[nodiscard]] inline bool FieldDiffers(ImageView a, ImageView b, const FieldDesc &f) noexcept {
 	const uint32_t wa = Load(a, f.offset), wb = Load(b, f.offset);
-	return wa != wb && ValueBits(wa, f.bits) != ValueBits(wb, f.bits);
+	return wa != wb && ValueBits(wa, f.bits) != ValueBits(wb, f.bits) &&
+	       (f.ctype != CType::kBool || static_cast<uint8_t>(wa) != static_cast<uint8_t>(wb));
 }
 
 [[nodiscard]] inline const PlayerState &ZeroPlayer() noexcept {

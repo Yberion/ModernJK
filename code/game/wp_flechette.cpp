@@ -105,18 +105,18 @@ void prox_mine_think( gentity_t *ent )
 //---------------------------------------------------------
 {
 	int			count;
-	qboolean	blow = qfalse;
+	bool	blow = false;
 
 	// if it isn't time to auto-explode, do a small proximity check
 	if ( ent->delay > level.time )
 	{
-		count = G_RadiusList( ent->currentOrigin, FLECHETTE_MINE_RADIUS_CHECK, ent, qtrue, ent_list );
+		count = G_RadiusList( ent->currentOrigin, FLECHETTE_MINE_RADIUS_CHECK, ent, true, ent_list );
 
 		for ( int i = 0; i < count; i++ )
 		{
 			if ( ent_list[i]->client && ent_list[i]->health > 0 && ent->activator && ent_list[i]->s.number != ent->activator->s.number )
 			{
-				blow = qtrue;
+				blow = true;
 				break;
 			}
 		}
@@ -124,7 +124,7 @@ void prox_mine_think( gentity_t *ent )
 	else
 	{
 		// well, we must die now
-		blow = qtrue;
+		blow = true;
 	}
 
 	if ( blow )
@@ -151,7 +151,7 @@ void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 	self->e_TouchFunc = touchF_NULL;
 
 	self->contents = CONTENTS_SOLID;
-	self->takedamage = qtrue;
+	self->takedamage = true;
 	self->health = 5;
 	self->e_DieFunc = dieF_WP_ExplosiveDie;
 
@@ -176,7 +176,7 @@ void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 static void WP_FlechetteProxMine( gentity_t *ent )
 //---------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( muzzle, forwardVec, FLECHETTE_MINE_VEL, 10000, ent, qtrue );
+	gentity_t	*missile = CreateMissile( muzzle, forwardVec, FLECHETTE_MINE_VEL, 10000, ent, true );
 
 	missile->fxID = G_EffectIndex( "flechette/explosion" );
 
@@ -217,7 +217,7 @@ void WP_flechette_alt_blow( gentity_t *ent )
 static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *self )
 //------------------------------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( start, fwd, 950 + Q_flrand(0.0f, 1.0f) * 700, 1500 + Q_flrand(0.0f, 1.0f) * 2000, self, qtrue );
+	gentity_t	*missile = CreateMissile( start, fwd, 950 + Q_flrand(0.0f, 1.0f) * 700, 1500 + Q_flrand(0.0f, 1.0f) * 2000, self, true );
 
 	missile->e_ThinkFunc = thinkF_WP_flechette_alt_blow;
 
@@ -274,7 +274,7 @@ static void WP_FlechetteAltFire( gentity_t *self )
 }
 
 //---------------------------------------------------------
-void WP_FireFlechette( gentity_t *ent, qboolean alt_fire )
+void WP_FireFlechette( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	if ( alt_fire )

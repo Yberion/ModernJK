@@ -93,7 +93,7 @@ void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal )
 FX_BlasterWeaponHitPlayer
 -------------------------
 */
-void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( cgs.effects.blasterFleshImpactEffect, origin, normal );
 }

@@ -34,11 +34,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "wp_saber.h"
 
-extern qboolean PM_InAnimForSaberMove( int anim, int saberMove );
-extern qboolean PM_InForceGetUp( playerState_t *ps );
-extern qboolean PM_InKnockDown( playerState_t *ps );
+extern bool PM_InAnimForSaberMove( int anim, int saberMove );
+extern bool PM_InForceGetUp( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
 
-extern qboolean		player_locked;
+extern bool		player_locked;
 extern pmove_t		*pm;
 extern pml_t		pml;
 
@@ -87,7 +87,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 }
 
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-qboolean PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
 	if ( (ent->client->ps.eFlags&EF_FORCE_GRIPPED) && ent->enemy )
 	{
@@ -103,12 +103,12 @@ qboolean PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 		}
 		ucmd->angles[PITCH] = ANGLE2SHORT(angles[PITCH]) - ent->client->ps.delta_angles[PITCH];
 		ucmd->angles[YAW] = ANGLE2SHORT(angles[YAW]) - ent->client->ps.delta_angles[YAW];
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doMove )
+bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 {
 	if (( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT || ent->client->ps.legsAnim == BOTH_WALL_RUN_LEFT ) && ent->client->ps.legsAnimTimer > 500 )
 	{//wall-running and not at end of anim
@@ -194,7 +194,7 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 				}
 			}
 			ucmd->forwardmove = 0;
-			return qtrue;
+			return true;
 		}
 		else if ( doMove )
 		{//stop it
@@ -208,11 +208,11 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 extern int PM_AnimLength( int index, animNumber_t anim );
-qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboolean anglesOnly )
+bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool anglesOnly )
 {
 	vec3_t	newAngles;
 	float	animLength, spinStart, spinEnd, spinAmt, spinLength;
@@ -242,7 +242,7 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 				cg.overrides.thirdPersonVertOffset = 0;
 			}
 		}
-		return qfalse;
+		return false;
 	}
 	animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, spinAnim );
 	float elapsedTime = (float)(animLength-ent->client->ps.legsAnimTimer);
@@ -260,12 +260,12 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 		ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
 		if ( anglesOnly )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 	else if ( anglesOnly )
 	{
-		return qfalse;
+		return false;
 	}
 	//push me
 	if ( ent->client->ps.legsAnimTimer > 300 )//&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
@@ -296,14 +296,14 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 		cg.overrides.thirdPersonVertOffset = cg_thirdPersonVertOffset.value+viewDip;
 		//pm->ps->viewheight = standheight + viewDip;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->s.number )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( ( ent->client->ps.saberMove == LS_A_BACK || ent->client->ps.saberMove == LS_A_BACK_CR || ent->client->ps.saberMove == LS_A_BACKSTAB )
 		&& PM_InAnimForSaberMove( ent->client->ps.torsoAnim, ent->client->ps.saberMove ) )
@@ -334,12 +334,12 @@ qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
 			ucmd->angles[YAW] = ANGLE2SHORT( AngleNormalize180( ent->client->ps.viewangles[YAW] + yawError ) ) - ent->client->ps.delta_angles[YAW];
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.saberLockTime > level.time )
 	{
@@ -349,12 +349,12 @@ qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
 		}
 		ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 		ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean angleClampOnly )
+bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleClampOnly )
 {
 	if ( PM_InKnockDown( &ent->client->ps ) )
 	{//being knocked down or getting up, can't do anything!
@@ -382,10 +382,10 @@ qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean 
 			}
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 			ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 /*
 ================
@@ -404,7 +404,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	int			i;
 	vec3_t		start, end, tmins, tmaxs, right;
 	trace_t		trace;
-	qboolean	lockedYaw = qfalse;
+	bool	lockedYaw = false;
 
 	if ( ps->pm_type == PM_INTERMISSION )
 	{
@@ -430,7 +430,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			yawMin = 0 - gent->client->renderInfo.headYawRangeLeft - gent->client->renderInfo.torsoYawRangeLeft;
 			yawMax = gent->client->renderInfo.headYawRangeRight + gent->client->renderInfo.torsoYawRangeRight;
 
-			lockedYaw = qtrue;
+			lockedYaw = true;
 		}
 		else
 		{

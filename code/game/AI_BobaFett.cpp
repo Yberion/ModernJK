@@ -42,11 +42,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void		Boba_Precache( void );
 void		Boba_DustFallNear(const vec3_t origin, int dustcount);
 void		Boba_ChangeWeapon(int wp);
-qboolean	Boba_StopKnockdown(gentity_t *self, gentity_t *pusher, const vec3_t pushDir, qboolean forceKnockdown = qfalse);
+bool	Boba_StopKnockdown(gentity_t *self, gentity_t *pusher, const vec3_t pushDir, bool forceKnockdown = false);
 
 // Flight Related Functions (also used by Rocket Trooper)
 //--------------------------------------------------------
-qboolean	Boba_Flying( gentity_t *self );
+bool	Boba_Flying( gentity_t *self );
 void		Boba_FlyStart( gentity_t *self );
 void		Boba_FlyStop( gentity_t *self );
 
@@ -93,12 +93,12 @@ bool		Boba_Flee();		// If returns true, Jedi and Seeker AI not used
 ////////////////////////////////////////////////////////////////////////////////////////
 // External Functions
 ////////////////////////////////////////////////////////////////////////////////////////
-extern void		G_SoundAtSpot( vec3_t org, int soundIndex, qboolean broadcast );
+extern void		G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast );
 extern void		G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
 extern void		ChangeWeapon( gentity_t *ent, int newWeapon );
-extern void		WP_ResistForcePush( gentity_t *self, gentity_t *pusher, qboolean noPenalty );
+extern void		WP_ResistForcePush( gentity_t *self, gentity_t *pusher, bool noPenalty );
 extern void		ForceJump( gentity_t *self, usercmd_t *ucmd );
-extern void		G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void		G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 
 extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
 
@@ -294,16 +294,16 @@ void Boba_ChangeWeapon( int wp )
 ////////////////////////////////////////////////////////////////////////////////////////
 // Choose an "anti-knockdown" response
 ////////////////////////////////////////////////////////////////////////////////////////
-qboolean Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir, qboolean forceKnockdown )
+bool Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pushDir, bool forceKnockdown )
 {
 	if ( self->client->NPC_class != CLASS_BOBAFETT )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( self->client->moveType == MT_FLYSWIM )
 	{//can't knock me down when I'm flying
-		return qtrue;
+		return true;
 	}
 
 	vec3_t	pDir, fwd, right, ang = {0, self->currentAngles[YAW], 0};
@@ -354,23 +354,23 @@ qboolean Boba_StopKnockdown( gentity_t *self, gentity_t *pusher, const vec3_t pu
 	}
 	else if ( !Q_irand( 0, 1 ) && forceKnockdown )
 	{//resist
-		WP_ResistForcePush( self, pusher, qtrue );
+		WP_ResistForcePush( self, pusher, true );
 	}
 	else
 	{//fall down
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Is this entity flying
 ////////////////////////////////////////////////////////////////////////////////////////
-qboolean Boba_Flying( gentity_t *self )
+bool Boba_Flying( gentity_t *self )
 {
 	assert(self && self->client && self->client->NPC_class==CLASS_BOBAFETT);//self->NPC &&
-	return ((qboolean)(self->client->moveType==MT_FLYSWIM));
+	return ((self->client->moveType==MT_FLYSWIM));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -413,11 +413,11 @@ void Boba_FlyStart( gentity_t *self )
 		self->client->jetPackTime = level.time + Q_irand( 3000, 10000 );
 		if ( self->genericBolt1 != -1 )
 		{
-			G_PlayEffect( G_EffectIndex( "boba/jetSP" ), self->playerModel, self->genericBolt1, self->s.number, self->currentOrigin, qtrue, qtrue );
+			G_PlayEffect( G_EffectIndex( "boba/jetSP" ), self->playerModel, self->genericBolt1, self->s.number, self->currentOrigin, true, true );
 		}
 		if ( self->genericBolt2 != -1 )
 		{
-			G_PlayEffect( G_EffectIndex( "boba/jetSP" ), self->playerModel, self->genericBolt2, self->s.number, self->currentOrigin, qtrue, qtrue );
+			G_PlayEffect( G_EffectIndex( "boba/jetSP" ), self->playerModel, self->genericBolt2, self->s.number, self->currentOrigin, true, true );
 		}
 
 		//take-off sound
@@ -495,7 +495,7 @@ void Boba_FireFlameThrower( gentity_t *self )
 		G_Damage( traceEnt, self, self, dir, tr.endpos, damage, DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC|DAMAGE_IGNORE_TEAM, MOD_LAVA, HL_NONE );
 		if (traceEnt->health>0)
 		{
-//			G_Knockdown( traceEnt, self, dir, Q_irand(200, 330), qfalse);
+//			G_Knockdown( traceEnt, self, dir, Q_irand(200, 330), false);
 			G_Throw(traceEnt, dir, 30);
 		}
 	}
@@ -603,7 +603,7 @@ void		Boba_DoSniper( gentity_t *self)
 		if (SniperPoint!=-1)
 		{
 			NPC_SetCombatPoint(SniperPoint);
-			NPC_SetMoveGoal( NPC, level.combatPoints[SniperPoint].origin, 20, qtrue, SniperPoint );
+			NPC_SetMoveGoal( NPC, level.combatPoints[SniperPoint].origin, 20, true, SniperPoint );
 		}
 	}
 
@@ -613,7 +613,7 @@ void		Boba_DoSniper( gentity_t *self)
 	}
 
 
-	bool	IsOnAPath = !!NPC_MoveToGoal(qtrue);
+	bool	IsOnAPath = !!NPC_MoveToGoal(true);
 
 	// Resolve Blocked Problems
 	//--------------------------
@@ -632,8 +632,8 @@ void		Boba_DoSniper( gentity_t *self)
 		}
 	}
 
-	NPC_FaceEnemy(qtrue);
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_FaceEnemy(true);
+	NPC_UpdateAngles( true, true );
 }
 
 
@@ -642,7 +642,7 @@ void		Boba_DoSniper( gentity_t *self)
 ////////////////////////////////////////////////////////////////////////////////////////
 void	Boba_Fire()
 {
-	WeaponThink(qtrue);
+	WeaponThink(true);
 
 	// If Actually Fired, Decide To Apply Alt Fire And Calc Next Attack Delay
 	//------------------------------------------------------------------------
@@ -840,7 +840,7 @@ void	Boba_TacticsSelect()
 			if (SniperPoint!=-1)
 			{
 				NPC_SetCombatPoint(SniperPoint);
-				NPC_SetMoveGoal( NPC, level.combatPoints[SniperPoint].origin, 20, qtrue, SniperPoint );
+				NPC_SetMoveGoal( NPC, level.combatPoints[SniperPoint].origin, 20, true, SniperPoint );
 				TIMER_Set(NPC, "PickNewSniperPoint", Q_irand(15000, 25000));
 				SnipePointsNear = true;
 			}
@@ -955,8 +955,8 @@ bool	Boba_Tactics()
 	}
 
 
-	NPC_FacePosition( NPC->enemy->currentOrigin, qtrue);
-	NPC_UpdateAngles(qtrue, qtrue);
+	NPC_FacePosition( NPC->enemy->currentOrigin, true);
+	NPC_UpdateAngles(true, true);
 
 	return true;			// Do Not Use Normal Jedi Or Seeker Movement
 }
@@ -1130,7 +1130,7 @@ void	Boba_Update()
 		if (cp!=-1)
 		{
 			NPC_SetCombatPoint( cp );
-			NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, qtrue, cp );
+			NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, true, cp );
 			if (NPC->count<6)
 			{
  	 		 	NPCInfo->surrenderTime = level.time + Q_irand(5000, 10000) + 1000*(6-NPC->count);
@@ -1207,7 +1207,7 @@ bool	Boba_Flee()
 			{
 				TIMER_Set(NPC, "BobaFootStepFakeTimer", Q_irand(300, 800));
 				BobaFootStepCount --;
-				G_SoundAtSpot(BobaFootStepLoc, G_SoundIndex(va("sound/player/footsteps/boot%d", Q_irand(1,4))), qtrue);
+				G_SoundAtSpot(BobaFootStepLoc, G_SoundIndex(va("sound/player/footsteps/boot%d", Q_irand(1,4))), true);
 			}
 
 		 	if (TIMER_Done(NPC, "ResampleEnemyDirection") && NPC->enemy->resultspeed>10.0f)
@@ -1240,12 +1240,12 @@ bool	Boba_Flee()
 	if (NPCInfo->aiFlags&NPCAI_FLAMETHROW)
 	{
 		Boba_DoFlameThrower( NPC );
-		NPC_FacePosition( NPC->enemy->currentOrigin, qtrue);
-		NPC_UpdateAngles(qtrue, qtrue);
+		NPC_FacePosition( NPC->enemy->currentOrigin, true);
+		NPC_UpdateAngles(true, true);
 		return true;
 	}
 
-	bool	IsOnAPath = !!NPC_MoveToGoal(qtrue);
+	bool	IsOnAPath = !!NPC_MoveToGoal(true);
 	if (!ReachedEscapePoint &&
 		NPCInfo->aiFlags&NPCAI_BLOCKED &&
 		NPC->client->moveType!=MT_FLYSWIM &&
@@ -1285,6 +1285,6 @@ bool	Boba_Flee()
 	}
 
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 	return true;
 }

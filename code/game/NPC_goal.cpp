@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Interface.h"
 #include "g_navigator.h"
 
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 /*
 SetGoal
 */
@@ -112,27 +112,27 @@ G_BoundsOverlap
 -------------------------
 */
 
-qboolean G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2)
+bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2)
 {//NOTE: flush up against counts as overlapping
 	if(mins1[0]>maxs2[0])
-		return qfalse;
+		return false;
 
 	if(mins1[1]>maxs2[1])
-		return qfalse;
+		return false;
 
 	if(mins1[2]>maxs2[2])
-		return qfalse;
+		return false;
 
 	if(maxs1[0]<mins2[0])
-		return qfalse;
+		return false;
 
 	if(maxs1[1]<mins2[1])
-		return qfalse;
+		return false;
 
 	if(maxs1[2]<mins2[2])
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 void NPC_ReachedGoal( void )
@@ -153,15 +153,15 @@ ReachedGoal
 
 id removed checks against waypoints and is now checking surfaces
 */
-qboolean ReachedGoal( gentity_t *goal )
+bool ReachedGoal( gentity_t *goal )
 {
 
 	if ( NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL )
 	{
 		NPCInfo->aiFlags &= ~NPCAI_TOUCHED_GOAL;
-		return qtrue;
+		return true;
 	}
-	return (qboolean)STEER::Reached(NPC, goal, NPCInfo->goalRadius, FlyingCreature(NPC) != qfalse);
+	return STEER::Reached(NPC, goal, NPCInfo->goalRadius, FlyingCreature(NPC) != false);
 }
 
 /*

@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qfiles.h"
 
-qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete);
-void		CM_LoadMap( const char *name, qboolean clientload, int *checksum, qboolean subBSP);
+bool CM_DeleteCachedMap(bool bGuaranteedOkToDelete);
+void		CM_LoadMap( const char *name, bool clientload, int *checksum, bool subBSP);
 void		CM_ClearMap( void );
 int			CM_TotalMapContents();
 
@@ -40,7 +40,7 @@ int		CM_ModelContents( clipHandle_t model, int subBSPIndex );
 int			CM_NumInlineModels( void );
 char		*CM_EntityString (void);
 char		*CM_SubBSPEntityString (int index);
-int			CM_LoadSubBSP(const char *name, qboolean clientload);
+int			CM_LoadSubBSP(const char *name, bool clientload);
 int			CM_FindSubBSP(int modelIndex);
 
 // returns an ORed contents mask
@@ -67,8 +67,8 @@ int			CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *boxList,
 int			CM_LeafCluster (int leafnum);
 int			CM_LeafArea (int leafnum);
 
-void		CM_AdjustAreaPortalState( int area1, int area2, qboolean open );
-qboolean	CM_AreasConnected( int area1, int area2 );
+void		CM_AdjustAreaPortalState( int area1, int area2, bool open );
+bool	CM_AreasConnected( int area1, int area2 );
 
 int			CM_WriteAreaBits( byte *buffer, int area );
 

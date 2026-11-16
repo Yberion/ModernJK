@@ -59,7 +59,7 @@ void MineMonster_Idle( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons &= ~BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 }
 
@@ -77,7 +77,7 @@ void MineMonster_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons &= ~BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
 	vec3_t dif;
@@ -88,7 +88,7 @@ void MineMonster_Patrol( void )
 		G_SetEnemy( NPC, &g_entities[0] );
 	}
 
-	if ( NPC_CheckEnemyExt( qtrue ) == qfalse )
+	if ( NPC_CheckEnemyExt( true ) == false )
 	{
 		MineMonster_Idle();
 		return;
@@ -100,12 +100,12 @@ void MineMonster_Patrol( void )
 MineMonster_Move
 -------------------------
 */
-void MineMonster_Move( qboolean visible )
+void MineMonster_Move( bool visible )
 {
 	if ( NPCInfo->localState != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 	}
 }
@@ -184,18 +184,18 @@ void MineMonster_Attack( void )
 	else
 	{
 		// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
-		if ( TIMER_Done2( NPC, "attack1_dmg", qtrue ))
+		if ( TIMER_Done2( NPC, "attack1_dmg", true ))
 		{
 			MineMonster_TryDamage( NPC->enemy, 5 );
 		}
-		else if ( TIMER_Done2( NPC, "attack2_dmg", qtrue ))
+		else if ( TIMER_Done2( NPC, "attack2_dmg", true ))
 		{
 			MineMonster_TryDamage( NPC->enemy, 10 );
 		}
 	}
 
 	// Just using this to remove the attacking flag at the right time
-	TIMER_Done2( NPC, "attacking", qtrue );
+	TIMER_Done2( NPC, "attacking", true );
 }
 
 //----------------------------------
@@ -204,30 +204,30 @@ void MineMonster_Combat( void )
 	// If we cannot see our target or we have somewhere to go, then do that
 	if ( !NPC_ClearLOS( NPC->enemy ) || UpdateGoal( ))
 	{
-		NPCInfo->combatMove = qtrue;
+		NPCInfo->combatMove = true;
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 		return;
 	}
 
 	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	float	distance	= DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 
-	qboolean	advance = (qboolean)( distance > MIN_DISTANCE_SQR ? qtrue : qfalse  );
+	bool	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
 
 	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
-		if ( TIMER_Done2( NPC, "takingPain", qtrue ))
+		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
 			NPCInfo->localState = LSTATE_CLEAR;
 		}
 		else
 		{
-			MineMonster_Move( qtrue );
+			MineMonster_Move( true );
 		}
 	}
 	else
@@ -284,5 +284,5 @@ void NPC_BSMineMonster_Default( void )
 		MineMonster_Idle();
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }

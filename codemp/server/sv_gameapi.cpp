@@ -61,9 +61,9 @@ void GVM_ShutdownGame( int restart ) {
 	ge->ShutdownGame( restart );
 }
 
-char *GVM_ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
+const char *GVM_ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 	if ( gvm->isLegacy )
-		return (char *)VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, firstTime, isBot );
+		return (const char *)VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, firstTime, isBot );
 	VMSwap v( gvm );
 
 	return ge->ClientConnect( clientNum, firstTime, isBot );
@@ -76,12 +76,12 @@ void GVM_ClientBegin( int clientNum ) {
 	}
 	VMSwap v( gvm );
 
-	ge->ClientBegin( clientNum, qtrue );
+	ge->ClientBegin( clientNum, true );
 }
 
-qboolean GVM_ClientUserinfoChanged( int clientNum ) {
+bool GVM_ClientUserinfoChanged( int clientNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, clientNum );
+		return VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, clientNum );
 	VMSwap v( gvm );
 
 	return ge->ClientUserinfoChanged( clientNum );
@@ -127,9 +127,9 @@ void GVM_RunFrame( int levelTime ) {
 	ge->RunFrame( levelTime );
 }
 
-qboolean GVM_ConsoleCommand( void ) {
+bool GVM_ConsoleCommand( void ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_CONSOLE_COMMAND );
+		return VM_Call( gvm, GAME_CONSOLE_COMMAND );
 	VMSwap v( gvm );
 
 	return ge->ConsoleCommand();
@@ -171,9 +171,9 @@ int GVM_ICARUS_PlaySound( void ) {
 	return ge->ICARUS_PlaySound();
 }
 
-qboolean GVM_ICARUS_Set( void ) {
+bool GVM_ICARUS_Set( void ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_ICARUS_SET );
+		return VM_Call( gvm, GAME_ICARUS_SET );
 	VMSwap v( gvm );
 
 	return ge->ICARUS_Set();
@@ -319,17 +319,17 @@ int GVM_ICARUS_GetSetIDForString( void ) {
 	return ge->ICARUS_GetSetIDForString();
 }
 
-qboolean GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
+bool GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARPATHTOPOINT, entID, reinterpret_cast< intptr_t >( pmins ), reinterpret_cast< intptr_t >( pmaxs ), reinterpret_cast< intptr_t >( point ), clipmask, okToHitEnt );
+		return VM_Call( gvm, GAME_NAV_CLEARPATHTOPOINT, entID, reinterpret_cast< intptr_t >( pmins ), reinterpret_cast< intptr_t >( pmaxs ), reinterpret_cast< intptr_t >( point ), clipmask, okToHitEnt );
 	VMSwap v( gvm );
 
 	return ge->NAV_ClearPathToPoint( entID, pmins, pmaxs, point, clipmask, okToHitEnt );
 }
 
-qboolean GVM_NPC_ClearLOS2( int entID, const vec3_t end ) {
+bool GVM_NPC_ClearLOS2( int entID, const vec3_t end ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_CLEARLOS, entID, reinterpret_cast< intptr_t >( end ) );
+		return VM_Call( gvm, GAME_NAV_CLEARLOS, entID, reinterpret_cast< intptr_t >( end ) );
 	VMSwap v( gvm );
 
 	return ge->NPC_ClearLOS2( entID, end );
@@ -343,41 +343,41 @@ int GVM_NAVNEW_ClearPathBetweenPoints( vec3_t start, vec3_t end, vec3_t mins, ve
 	return ge->NAVNEW_ClearPathBetweenPoints( start, end, mins, maxs, ignore, clipmask );
 }
 
-qboolean GVM_NAV_CheckNodeFailedForEnt( int entID, int nodeNum ) {
+bool GVM_NAV_CheckNodeFailedForEnt( int entID, int nodeNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_CHECKNODEFAILEDFORENT, entID, nodeNum );
+		return VM_Call( gvm, GAME_NAV_CHECKNODEFAILEDFORENT, entID, nodeNum );
 	VMSwap v( gvm );
 
 	return ge->NAV_CheckNodeFailedForEnt( entID, nodeNum );
 }
 
-qboolean GVM_NAV_EntIsUnlockedDoor( int entityNum ) {
+bool GVM_NAV_EntIsUnlockedDoor( int entityNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_ENTISUNLOCKEDDOOR, entityNum );
+		return VM_Call( gvm, GAME_NAV_ENTISUNLOCKEDDOOR, entityNum );
 	VMSwap v( gvm );
 
 	return ge->NAV_EntIsUnlockedDoor( entityNum );
 }
 
-qboolean GVM_NAV_EntIsDoor( int entityNum ) {
+bool GVM_NAV_EntIsDoor( int entityNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_ENTISDOOR, entityNum );
+		return VM_Call( gvm, GAME_NAV_ENTISDOOR, entityNum );
 	VMSwap v( gvm );
 
 	return ge->NAV_EntIsDoor( entityNum );
 }
 
-qboolean GVM_NAV_EntIsBreakable( int entityNum ) {
+bool GVM_NAV_EntIsBreakable( int entityNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_ENTISBREAKABLE, entityNum );
+		return VM_Call( gvm, GAME_NAV_ENTISBREAKABLE, entityNum );
 	VMSwap v( gvm );
 
 	return ge->NAV_EntIsBreakable( entityNum );
 }
 
-qboolean GVM_NAV_EntIsRemovableUsable( int entNum ) {
+bool GVM_NAV_EntIsRemovableUsable( int entNum ) {
 	if ( gvm->isLegacy )
-		return (qboolean)VM_Call( gvm, GAME_NAV_ENTISREMOVABLEUSABLE, entNum );
+		return VM_Call( gvm, GAME_NAV_ENTISREMOVABLEUSABLE, entNum );
 	VMSwap v( gvm );
 
 	return ge->NAV_EntIsRemovableUsable( entNum );
@@ -408,14 +408,14 @@ int GVM_BG_GetItemIndexByTag( int tag, int type ) {
 
 // legacy syscall
 
-siegePers_t sv_siegePersData = {qfalse, 0, 0};
+siegePers_t sv_siegePersData = {false, 0, 0};
 
 extern float g_svCullDist;
 int CM_ModelContents( clipHandle_t model, int subBSPIndex );
-int CM_LoadSubBSP( const char *name, qboolean clientload );
+int CM_LoadSubBSP( const char *name, bool clientload );
 int CM_FindSubBSP( int modelIndex );
 char *CM_SubBSPEntityString( int index );
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType );
+bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType );
 void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID );
 void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType );
 void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data );
@@ -453,7 +453,7 @@ static void SV_GameSendServerCommand( int clientNum, const char *text ) {
 	}
 }
 
-static qboolean SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
+static bool SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
 	const float	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;
@@ -466,7 +466,7 @@ static qboolean SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sh
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles, capsule );
 
-	return (qboolean)trace.startsolid;
+	return trace.startsolid;
 }
 
 static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
@@ -493,17 +493,17 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 		VectorCopy (mins, ent->r.mins);
 		VectorCopy (maxs, ent->r.maxs);
-		ent->r.bmodel = qtrue;
+		ent->r.bmodel = true;
 		ent->r.contents = CM_ModelContents( h, -1 );
 	}
 	else if (name[0] == '#')
 	{
-		ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), qfalse);
+		ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), false);
 		CM_ModelBounds( ent->s.modelindex, mins, maxs );
 
 		VectorCopy (mins, ent->r.mins);
 		VectorCopy (maxs, ent->r.maxs);
-		ent->r.bmodel = qtrue;
+		ent->r.bmodel = true;
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
@@ -517,7 +517,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	}
 }
 
-static qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
+static bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 	int		leafnum, cluster;
 //	int		area1, area2;
 	byte	*mask;
@@ -532,9 +532,9 @@ static qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 //	area2 = CM_LeafArea( leafnum );
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 static void SV_GetServerinfo( char *buffer, int bufferSize ) {
@@ -545,7 +545,7 @@ static void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
-static void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
+static void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 	svEntity_t	*svEnt;
 
 	svEnt = SV_SvEntityForGentity( ent );
@@ -607,24 +607,24 @@ static const char *SV_SetActiveSubBSP( int index ) {
 	return NULL;
 }
 
-static qboolean SV_GetEntityToken( char *buffer, int bufferSize ) {
+static bool SV_GetEntityToken( char *buffer, int bufferSize ) {
 	char *s;
 
 	if ( sv.mLocalSubBSPIndex == -1 ) {
 		s = COM_Parse( (const char **)&sv.entityParsePoint );
 		Q_strncpyz( buffer, s, bufferSize );
 		if ( !sv.entityParsePoint && !s[0] )
-			return qfalse;
+			return false;
 		else
-			return qtrue;
+			return true;
 	}
 	else {
 		s = COM_Parse( (const char **)&sv.mLocalSubBSPEntityParsePoint);
 		Q_strncpyz( buffer, s, bufferSize );
 		if ( !sv.mLocalSubBSPEntityParsePoint && !s[0] )
-			return qfalse;
+			return false;
 		else
-			return qtrue;
+			return true;
 	}
 }
 
@@ -658,56 +658,56 @@ static void SV_SiegePersGet( siegePers_t *siegePers ) {
 	*siegePers = sv_siegePersData;
 }
 
-qboolean SV_ROFF_Clean( void ) {
-	return theROFFSystem.Clean( qfalse );
+bool SV_ROFF_Clean( void ) {
+	return theROFFSystem.Clean( false );
 }
 
 void SV_ROFF_UpdateEntities( void ) {
-	theROFFSystem.UpdateEntities( qfalse );
+	theROFFSystem.UpdateEntities( false );
 }
 
 int SV_ROFF_Cache( char *file ) {
-	return theROFFSystem.Cache( file, qfalse );
+	return theROFFSystem.Cache( file, false );
 }
 
-qboolean SV_ROFF_Play( int entID, int roffID, qboolean doTranslation ) {
-	return theROFFSystem.Play( entID, roffID, doTranslation, qfalse );
+bool SV_ROFF_Play( int entID, int roffID, bool doTranslation ) {
+	return theROFFSystem.Play( entID, roffID, doTranslation, false );
 }
 
-qboolean SV_ROFF_Purge_Ent( int entID ) {
-	return theROFFSystem.PurgeEnt( entID, qfalse );
+bool SV_ROFF_Purge_Ent( int entID ) {
+	return theROFFSystem.PurgeEnt( entID, false );
 }
 
-static qboolean SV_ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate ) {
-	return (qboolean)ICARUS_RegisterScript( name, bCalledDuringInterrogate );
+static bool SV_ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate ) {
+	return ICARUS_RegisterScript( name, bCalledDuringInterrogate );
 }
 
-static qboolean SV_ICARUS_ValidEnt( sharedEntity_t *ent ) {
-	return (qboolean)ICARUS_ValidEnt( ent );
+static bool SV_ICARUS_ValidEnt( sharedEntity_t *ent ) {
+	return ICARUS_ValidEnt( ent );
 }
 
-static qboolean ICARUS_IsInitialized( int entID ) {
+static bool ICARUS_IsInitialized( int entID ) {
 	if ( !gSequencers[entID] || !gTaskManagers[entID] )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
-static qboolean ICARUS_MaintainTaskManager( int entID ) {
+static bool ICARUS_MaintainTaskManager( int entID ) {
 	if ( gTaskManagers[entID] ) {
 		gTaskManagers[entID]->Update();
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-static qboolean ICARUS_IsRunning( int entID ) {
+static bool ICARUS_IsRunning( int entID ) {
 	if ( !gTaskManagers[entID] || !gTaskManagers[entID]->IsRunning() )
-		return qfalse;
-	return qtrue;
+		return false;
+	return true;
 }
 
-static qboolean ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
+static bool ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
 	return Q3_TaskIDPending( ent, (taskID_t)taskID );
 }
 
@@ -735,19 +735,19 @@ static void SV_Nav_Free( void ) {
 	navigator.Free();
 }
 
-static qboolean SV_Nav_Load( const char *filename, int checksum ) {
-	return (qboolean)navigator.Load( filename, checksum );
+static bool SV_Nav_Load( const char *filename, int checksum ) {
+	return navigator.Load( filename, checksum );
 }
 
-static qboolean SV_Nav_Save( const char *filename, int checksum ) {
-	return (qboolean)navigator.Save( filename, checksum );
+static bool SV_Nav_Save( const char *filename, int checksum ) {
+	return navigator.Save( filename, checksum );
 }
 
 static int SV_Nav_AddRawPoint( vec3_t point, int flags, int radius ) {
 	return navigator.AddRawPoint( point, flags, radius );
 }
 
-static void SV_Nav_CalculatePaths( qboolean recalc ) {
+static void SV_Nav_CalculatePaths( bool recalc ) {
 	navigator.CalculatePaths( recalc );
 }
 
@@ -791,8 +791,8 @@ static int SV_Nav_GetNumNodes( void ) {
 	return navigator.GetNumNodes();
 }
 
-static qboolean SV_Nav_Connected( int startID, int endID ) {
-	return (qboolean)navigator.Connected( startID, endID );
+static bool SV_Nav_Connected( int startID, int endID ) {
+	return navigator.Connected( startID, endID );
 }
 
 static int SV_Nav_GetPathCost( int startID, int endID ) {
@@ -815,11 +815,11 @@ static void SV_Nav_AddFailedNode( sharedEntity_t *ent, int nodeID ) {
 	navigator.AddFailedNode( ent, nodeID );
 }
 
-static qboolean SV_Nav_NodeFailed( sharedEntity_t *ent, int nodeID ) {
+static bool SV_Nav_NodeFailed( sharedEntity_t *ent, int nodeID ) {
 	return navigator.NodeFailed( ent, nodeID );
 }
 
-static qboolean SV_Nav_NodesAreNeighbors( int startID, int endID ) {
+static bool SV_Nav_NodesAreNeighbors( int startID, int endID ) {
 	return navigator.NodesAreNeighbors( startID, endID );
 }
 
@@ -839,7 +839,7 @@ static void SV_Nav_AddFailedEdge( int entID, int startID, int endID ) {
 	navigator.AddFailedEdge( entID, startID, endID );
 }
 
-static qboolean SV_Nav_CheckFailedEdge( failedEdge_t *failedEdge ) {
+static bool SV_Nav_CheckFailedEdge( failedEdge_t *failedEdge ) {
 	return navigator.CheckFailedEdge( failedEdge );
 }
 
@@ -847,7 +847,7 @@ static void SV_Nav_CheckAllFailedEdges( void ) {
 	navigator.CheckAllFailedEdges();
 }
 
-static qboolean SV_Nav_RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank ) {
+static bool SV_Nav_RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank ) {
 	return navigator.RouteBlocked( startID, testEdgeID, endID, rejectRank );
 }
 
@@ -887,11 +887,11 @@ static void SV_Nav_FlagAllNodes( int newFlag ) {
 	navigator.FlagAllNodes( newFlag );
 }
 
-static qboolean SV_Nav_GetPathsCalculated( void ) {
+static bool SV_Nav_GetPathsCalculated( void ) {
 	return navigator.pathsCalculated;
 }
 
-static void SV_Nav_SetPathsCalculated( qboolean newVal ) {
+static void SV_Nav_SetPathsCalculated( bool newVal ) {
 	navigator.pathsCalculated = newVal;
 }
 
@@ -1331,7 +1331,7 @@ static void SV_EA_Say( int client, char *str ) {
 	botlib_export->ea.EA_Say( client, str );
 }
 
-static void SV_EA_SayTeam( int client, char *str ) {
+static void SV_EA_SayTeam( int client, const char *str ) {
 	botlib_export->ea.EA_SayTeam( client, str );
 }
 
@@ -1470,26 +1470,26 @@ static void SV_G2API_SetGhoul2ModelIndexes( void *ghoul2, qhandle_t *modelList, 
 	re->G2API_SetGhoul2ModelIndexes( *((CGhoul2Info_v *)ghoul2), modelList, skinList );
 }
 
-static qboolean SV_G2API_HaveWeGhoul2Models( void *ghoul2) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_HaveWeGhoul2Models( void *ghoul2) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_HaveWeGhoul2Models( *((CGhoul2Info_v *)ghoul2) );
 }
 
-static qboolean SV_G2API_GetBoltMatrix( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_GetBoltMatrix( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
-static qboolean SV_G2API_GetBoltMatrix_NoReconstruct( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
-	re->G2API_BoltMatrixReconstruction( qfalse );
+static bool SV_G2API_GetBoltMatrix_NoReconstruct( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
+	re->G2API_BoltMatrixReconstruction( false );
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
-static qboolean SV_G2API_GetBoltMatrix_NoRecNoRot( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
-	re->G2API_BoltMatrixReconstruction( qfalse );
-	re->G2API_BoltMatrixSPMethod( qtrue );
+static bool SV_G2API_GetBoltMatrix_NoRecNoRot( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
+	re->G2API_BoltMatrixReconstruction( false );
+	re->G2API_BoltMatrixSPMethod( true );
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
@@ -1500,8 +1500,8 @@ static int SV_G2API_InitGhoul2Model( void **ghoul2Ptr, const char *fileName, int
 	return re->G2API_InitGhoul2Model( (CGhoul2Info_v **)ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias );
 }
 
-static qboolean SV_G2API_SetSkin( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetSkin( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_SetSkin( g2, modelIndex, customSkin, renderSkin );
 }
@@ -1523,18 +1523,18 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static qboolean SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
 
-static qboolean SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAnim( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime );
 }
 
-static qboolean SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetBoneAnim( g2, modelIndex, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList );
 }
@@ -1571,18 +1571,18 @@ static void SV_G2API_DuplicateGhoul2Instance( void *g2From, void **g2To ) {
 	re->G2API_DuplicateGhoul2Instance( *((CGhoul2Info_v *)g2From), (CGhoul2Info_v **)g2To );
 }
 
-static qboolean SV_G2API_HasGhoul2ModelOnIndex( void *ghlInfo, int modelIndex ) {
+static bool SV_G2API_HasGhoul2ModelOnIndex( void *ghlInfo, int modelIndex ) {
 	return re->G2API_HasGhoul2ModelOnIndex( (CGhoul2Info_v **)ghlInfo, modelIndex );
 }
 
-static qboolean SV_G2API_RemoveGhoul2Model( void *ghlInfo, int modelIndex ) {
+static bool SV_G2API_RemoveGhoul2Model( void *ghlInfo, int modelIndex ) {
 #ifdef _FULL_G2_LEAK_CHECKING
 		g_G2AllocServer = 1;
 #endif
 	return re->G2API_RemoveGhoul2Model( (CGhoul2Info_v **)ghlInfo, modelIndex );
 }
 
-static qboolean SV_G2API_RemoveGhoul2Models( void *ghlInfo ) {
+static bool SV_G2API_RemoveGhoul2Models( void *ghlInfo ) {
 #ifdef _FULL_G2_LEAK_CHECKING
 	g_G2AllocServer = 1;
 #endif
@@ -1604,23 +1604,23 @@ static void SV_G2API_SetBoltInfo( void *ghoul2, int modelIndex, int boltInfo ) {
 	re->G2API_SetBoltInfo( *((CGhoul2Info_v *)ghoul2), modelIndex, boltInfo );
 }
 
-static qboolean SV_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const char *surfaceName ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const char *surfaceName ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetRootSurface( *((CGhoul2Info_v *)ghoul2), modelIndex, surfaceName );
 }
 
-static qboolean SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetSurfaceOnOff( *((CGhoul2Info_v *)ghoul2), surfaceName, flags );
 }
 
-static qboolean SV_G2API_SetNewOrigin( void *ghoul2, const int boltIndex ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetNewOrigin( void *ghoul2, const int boltIndex ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetNewOrigin( *((CGhoul2Info_v *)ghoul2), boltIndex );
 }
 
-static qboolean SV_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *boneName ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *boneName ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_DoesBoneExist( g2, modelIndex, boneName );
 }
@@ -1631,7 +1631,7 @@ static int SV_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, 
 	return re->G2API_GetSurfaceRenderStatus( g2, modelIndex, surfaceName );
 }
 
-static void SV_G2API_AbsurdSmoothing( void *ghoul2, qboolean status ) {
+static void SV_G2API_AbsurdSmoothing( void *ghoul2, bool status ) {
 	if ( !ghoul2 ) return;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	re->G2API_AbsurdSmoothing( g2, status );
@@ -1686,44 +1686,44 @@ static void SV_G2API_AnimateG2Models( void *ghoul2, int time, sharedRagDollUpdat
 	re->G2API_AnimateG2ModelsRag( *((CGhoul2Info_v *)ghoul2), time, &rduParams );
 }
 
-static qboolean SV_G2API_RagPCJConstraint( void *ghoul2, const char *boneName, vec3_t min, vec3_t max ) {
+static bool SV_G2API_RagPCJConstraint( void *ghoul2, const char *boneName, vec3_t min, vec3_t max ) {
 	return re->G2API_RagPCJConstraint( *((CGhoul2Info_v *)ghoul2), boneName, min, max );
 }
 
-static qboolean SV_G2API_RagPCJGradientSpeed( void *ghoul2, const char *boneName, const float speed ) {
+static bool SV_G2API_RagPCJGradientSpeed( void *ghoul2, const char *boneName, const float speed ) {
 	return re->G2API_RagPCJGradientSpeed( *((CGhoul2Info_v *)ghoul2), boneName, speed );
 }
 
-static qboolean SV_G2API_RagEffectorGoal( void *ghoul2, const char *boneName, vec3_t pos ) {
+static bool SV_G2API_RagEffectorGoal( void *ghoul2, const char *boneName, vec3_t pos ) {
 	return re->G2API_RagEffectorGoal( *((CGhoul2Info_v *)ghoul2), boneName, pos );
 }
 
-static qboolean SV_G2API_GetRagBonePos( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale ) {
+static bool SV_G2API_GetRagBonePos( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale ) {
 	return re->G2API_GetRagBonePos( *((CGhoul2Info_v *)ghoul2), boneName, pos, entAngles, entPos, entScale );
 }
 
-static qboolean SV_G2API_RagEffectorKick( void *ghoul2, const char *boneName, vec3_t velocity ) {
+static bool SV_G2API_RagEffectorKick( void *ghoul2, const char *boneName, vec3_t velocity ) {
 	return re->G2API_RagEffectorKick( *((CGhoul2Info_v *)ghoul2), boneName, velocity );
 }
 
-static qboolean SV_G2API_RagForceSolve( void *ghoul2, qboolean force ) {
+static bool SV_G2API_RagForceSolve( void *ghoul2, bool force ) {
 	return re->G2API_RagForceSolve( *((CGhoul2Info_v *)ghoul2), force );
 }
 
-static qboolean SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
+static bool SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
 	return re->G2API_SetBoneIKState( *((CGhoul2Info_v *)ghoul2), time, boneName, ikState, params );
 }
 
-static qboolean SV_G2API_IKMove( void *ghoul2, int time, sharedIKMoveParams_t *params ) {
+static bool SV_G2API_IKMove( void *ghoul2, int time, sharedIKMoveParams_t *params ) {
 	return re->G2API_IKMove( *((CGhoul2Info_v *)ghoul2), time, params );
 }
 
-static qboolean SV_G2API_RemoveBone( void *ghoul2, const char *boneName, int modelIndex ) {
+static bool SV_G2API_RemoveBone( void *ghoul2, const char *boneName, int modelIndex ) {
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_RemoveBone( g2, modelIndex, boneName );
 }
 
-static void SV_G2API_AttachInstanceToEntNum( void *ghoul2, int entityNum, qboolean server ) {
+static void SV_G2API_AttachInstanceToEntNum( void *ghoul2, int entityNum, bool server ) {
 	re->G2API_AttachInstanceToEntNum( *((CGhoul2Info_v *)ghoul2), entityNum, server );
 }
 
@@ -1735,7 +1735,7 @@ static void SV_G2API_CleanEntAttachments( void ) {
 	re->G2API_CleanEntAttachments();
 }
 
-static qboolean SV_G2API_OverrideServer( void *serverInstance ) {
+static bool SV_G2API_OverrideServer( void *serverInstance ) {
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)serverInstance);
 	return re->G2API_OverrideServerWithClientData( g2, 0 );
 }
@@ -1902,19 +1902,19 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_AreaEntities( (const float *)VMA(1), (const float *)VMA(2), (int *)VMA(3), args[4] );
 
 	case G_ENTITY_CONTACT:
-		return SV_EntityContact( (const float *)VMA(1), (const float *)VMA(2), (const sharedEntity_t *)VMA(3), /*int capsule*/ qfalse );
+		return SV_EntityContact( (const float *)VMA(1), (const float *)VMA(2), (const sharedEntity_t *)VMA(3), /*int capsule*/ false );
 
 	case G_ENTITY_CONTACTCAPSULE:
-		return SV_EntityContact( (const float *)VMA(1), (const float *)VMA(2), (const sharedEntity_t *)VMA(3), /*int capsule*/ qtrue );
+		return SV_EntityContact( (const float *)VMA(1), (const float *)VMA(2), (const sharedEntity_t *)VMA(3), /*int capsule*/ true );
 
 	case G_TRACE:
-		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qfalse, /*args[8]*/0, args[9] );
+		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ false, /*args[8]*/0, args[9] );
 		return 0;
 	case G_G2TRACE:
-		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qfalse, args[8], args[9] );
+		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ false, args[8], args[9] );
 		return 0;
 	case G_TRACECAPSULE:
-		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ qtrue, args[8], args[9]  );
+		SV_Trace( (trace_t *)VMA(1), (const float *)VMA(2), (const float *)VMA(3), (const float *)VMA(4), (const float *)VMA(5), args[6], args[7], /*int capsule*/ true, args[8], args[9]  );
 		return 0;
 	case G_POINT_CONTENTS:
 		return SV_PointContents( (const float *)VMA(1), args[2] );
@@ -1945,7 +1945,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		SV_GetServerinfo( (char *)VMA(1), args[2] );
 		return 0;
 	case G_ADJUST_AREA_PORTAL_STATE:
-		SV_AdjustAreaPortalState( (sharedEntity_t *)VMA(1), (qboolean)args[2] );
+		SV_AdjustAreaPortalState( (sharedEntity_t *)VMA(1), args[2] );
 		return 0;
 	case G_AREAS_CONNECTED:
 		return CM_AreasConnected( args[1], args[2] );
@@ -1977,9 +1977,9 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 			s = COM_Parse( (const char **) &sv.entityParsePoint );
 			Q_strncpyz( (char *)VMA(1), s, args[2] );
 			if ( !sv.entityParsePoint && !s[0] ) {
-				return qfalse;
+				return false;
 			} else {
-				return qtrue;
+				return true;
 			}
 		}
 		*/
@@ -2005,7 +2005,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case SP_GETSTRINGTEXTSTRING:
-		return qfalse;
+		return false;
 		break;
 
 	case G_ROFF_CLEAN:
@@ -2019,7 +2019,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_ROFF_Cache( (char *)VMA(1) );
 
 	case G_ROFF_PLAY:
-		return SV_ROFF_Play( args[1], args[2], (qboolean)args[3] );
+		return SV_ROFF_Play( args[1], args[2], args[3] );
 
 	case G_ROFF_PURGE_ENT:
 		return SV_ROFF_Purge_Ent( args[1] );
@@ -2037,7 +2037,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return ICARUS_RunScript(ConvertedEntity((sharedEntity_t *)VMA(1)), (const char *)VMA(2));
 
 	case G_ICARUS_REGISTERSCRIPT:
-		return ICARUS_RegisterScript((const char *)VMA(1), (qboolean)args[2]);
+		return ICARUS_RegisterScript((const char *)VMA(1), args[2]);
 
 	case G_ICARUS_INIT:
 		ICARUS_Init();
@@ -2120,7 +2120,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_NAV_ADDRAWPOINT:
 		return navigator.AddRawPoint((float *)VMA(1), args[2], args[3]);
 	case G_NAV_CALCULATEPATHS:
-		navigator.CalculatePaths((qboolean)args[1]);
+		navigator.CalculatePaths(args[1]);
 		return 0;
 	case G_NAV_HARDCONNECT:
 		navigator.HardConnect(args[1], args[2]);
@@ -2207,7 +2207,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_NAV_GETPATHSCALCULATED:
 		return navigator.pathsCalculated;
 	case G_NAV_SETPATHSCALCULATED:
-		navigator.pathsCalculated = (qboolean)args[1];
+		navigator.pathsCalculated = args[1];
 		return 0;
 	//rww - END NPC NAV TRAPS
 
@@ -2712,7 +2712,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_G2API_GetSurfaceRenderStatus(VMA(1), args[2], (const char *)VMA(3));
 
 	case G_G2_ABSURDSMOOTHING:
-		SV_G2API_AbsurdSmoothing(VMA(1), (qboolean)args[2]);
+		SV_G2API_AbsurdSmoothing(VMA(1), args[2]);
 		return 0;
 
 	case G_G2_SETRAGDOLL:
@@ -2735,7 +2735,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_G2_RAGEFFECTORKICK:
 		return SV_G2API_RagEffectorKick(VMA(1), (const char *)VMA(2), (float *)VMA(3));
 	case G_G2_RAGFORCESOLVE:
-		return SV_G2API_RagForceSolve(VMA(1), (qboolean)args[2]);
+		return SV_G2API_RagForceSolve(VMA(1), args[2]);
 
 	case G_G2_SETBONEIKSTATE:
 		return SV_G2API_SetBoneIKState(VMA(1), args[2], (const char *)VMA(3), args[4], (sharedSetBoneIKStateParams_t *)VMA(5));
@@ -2746,7 +2746,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_G2API_RemoveBone(VMA(1), (const char *)VMA(2), args[3]);
 
 	case G_G2_ATTACHINSTANCETOENTNUM:
-		SV_G2API_AttachInstanceToEntNum(VMA(1), args[2], (qboolean)args[3]);
+		SV_G2API_AttachInstanceToEntNum(VMA(1), args[2], args[3]);
 		return 0;
 	case G_G2_CLEARATTACHEDINSTANCE:
 		SV_G2API_ClearAttachedInstance(args[1]);
@@ -2787,7 +2787,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	return -1;
 }
 
-void SV_InitGame( qboolean restart ) {
+void SV_InitGame( bool restart ) {
 	int i=0;
 	client_t *cl = NULL;
 
@@ -3123,7 +3123,7 @@ void SV_BindGame( void ) {
 		ret = GetGameAPI( GAME_API_VERSION, &gi );
 		if ( !ret ) {
 			//free VM?
-			svs.gameStarted = qfalse;
+			svs.gameStarted = false;
 			Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		}
 		ge = ret;
@@ -3134,27 +3134,27 @@ void SV_BindGame( void ) {
 	// fall back to legacy syscall/vm_call api
 	gvm = VM_CreateLegacy( VM_GAME, SV_GameSystemCalls );
 	if ( !gvm ) {
-		svs.gameStarted = qfalse;
+		svs.gameStarted = false;
 		Com_Error( ERR_DROP, "VM_CreateLegacy on game failed" );
 	}
 }
 
 void SV_UnbindGame( void ) {
-	GVM_ShutdownGame( qfalse );
+	GVM_ShutdownGame( false );
 	VM_Free( gvm );
 	gvm = NULL;
 }
 
 void SV_RestartGame( void ) {
-	GVM_ShutdownGame( qtrue );
+	GVM_ShutdownGame( true );
 
 	gvm = VM_Restart( gvm );
 	SV_BindGame();
 	if ( !gvm ) {
-		svs.gameStarted = qfalse;
+		svs.gameStarted = false;
 		Com_Error( ERR_DROP, "VM_Restart on game failed" );
 		return;
 	}
 
-	SV_InitGame( qtrue );
+	SV_InitGame( true );
 }

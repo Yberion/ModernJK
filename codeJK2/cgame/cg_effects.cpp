@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_effects.c -- these functions generate localentities
+// cg_effects.cpp -- these functions generate localentities
 
 #include "cg_local.h"
 #include "cg_media.h"
@@ -40,7 +40,7 @@ CG_MakeExplosion
 /*
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numFrames, qhandle_t shader,
-								int msec, qboolean isSprite, float scale, int flags )
+								int msec, bool isSprite, float scale, int flags )
 {
 	float			ang = 0;
 	localEntity_t	*ex;
@@ -92,7 +92,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	//Scale the explosion
 	if (scale != 1) {
-		ex->refEntity.nonNormalizedAxes = qtrue;
+		ex->refEntity.nonNormalizedAxes = true;
 
 		VectorScale( ex->refEntity.axis[0], scale, ex->refEntity.axis[0] );
 		VectorScale( ex->refEntity.axis[1], scale, ex->refEntity.axis[1] );
@@ -110,7 +110,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 // When calling this version, just pass in a zero for the flags
 //localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 //								qhandle_t hModel, int numFrames, qhandle_t shader,
-//								int msec, qboolean isSprite, float scale ) {
+//								int msec, bool isSprite, float scale ) {
 //	return CG_MakeExplosion( origin, dir, hModel, numFrames, shader, msec, isSprite, scale, 0 );
 //}
 
@@ -189,7 +189,7 @@ Adds an explosion to a surface
 #define NUM_PUFFS		1
 #define NUM_EXPLOSIONS	4
 
-void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, qboolean smoke )
+void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke )
 {
 	localEntity_t	*le;
 	//FXTrail			*particle;
@@ -256,14 +256,14 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	VectorNormalize( direction );
 
 	//Tag the last one with a light
-	le = CG_MakeExplosion( origin, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 500, qfalse, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f) );
+	le = CG_MakeExplosion( origin, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 500, false, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f) );
 	le->light = 150;
 	VectorSet( le->lightColor, 0.9f, 0.8f, 0.5f );
 
 	for ( i = 0; i < NUM_EXPLOSIONS-1; i ++)
 	{
 		VectorSet( new_org, (origin[0] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[1] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[2] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)) );
-		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 300 + (rand() & 99), qfalse, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f) );
+		le = CG_MakeExplosion( new_org, direction, cgs.media.explosionModel, 6, cgs.media.surfaceExplosionShader, 300 + (rand() & 99), false, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f) );
 	}
 
 	//Shake the camera
@@ -279,7 +279,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 
 		//Impact mark
 		//FIXME: Replace mark
-		//CG_ImpactMark( cgs.media.burnMarkShader, origin, normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qfalse, 8, qfalse );
+		//CG_ImpactMark( cgs.media.burnMarkShader, origin, normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, false, 8, false );
 	}
 }
 */
@@ -409,7 +409,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	int				chunkModel = 0;
 	leBounceSound_t	bounce = LEBS_NONE;
 	float			r, speedMod = 1.0f;
-	qboolean		chunk = qfalse;
+	bool		chunk = false;
 
 	if ( chunkType == MAT_NONE )
 	{
@@ -476,7 +476,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 			// Try to use a custom chunk.
 			if ( cgs.model_draw[customChunk] )
 			{
-				chunk = qtrue;
+				chunk = true;
 				chunkModel = cgs.model_draw[customChunk];
 			}
 		}
@@ -569,7 +569,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 
 			// Make sure that we have the desired start size set
 			le->radius = Q_flrand( baseScale * 0.75f, baseScale * 1.25f );
-			re->nonNormalizedAxes = qtrue;
+			re->nonNormalizedAxes = true;
 			AxisCopy( axisDefault, re->axis ); // could do an angles to axis, but this is cheaper and works ok
 			for( k = 0; k < 3; k++ )
 			{
@@ -961,7 +961,7 @@ CG_Seeker
 	VectorScale( re.axis[0], 0.5f, re.axis[0] );
 	VectorScale( re.axis[1], 0.5f, re.axis[1] );
 	VectorScale( re.axis[2], 0.5f, re.axis[2] );
-	re.nonNormalizedAxes = qtrue;
+	re.nonNormalizedAxes = true;
 
 	cgi_R_AddRefEntityToScene( &re );
 }

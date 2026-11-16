@@ -500,7 +500,7 @@ void CStringEdPackage::AddFlagReference( const char *psLocalReference, const cha
 static char *CopeWithDumbStringData( const char *psSentence, const char *psThisLanguage )
 {
 	const int iBufferSize = strlen(psSentence)*3;	// *3 to allow for expansion of anything even stupid string consisting entirely of elipsis chars
-	char *psNewString = (char *) Z_Malloc(iBufferSize, TAG_TEMP_WORKSPACE, qfalse);
+	char *psNewString = (char *) Z_Malloc(iBufferSize, TAG_TEMP_WORKSPACE, false);
 	Q_strncpyz(psNewString, psSentence, iBufferSize);
 
 	// this is annoying, I have to just guess at which languages to do it for (ie NOT ASIAN/MBCS!!!) since the

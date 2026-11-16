@@ -87,7 +87,7 @@ G_RunObject
   TODO:  When free-floating in air, apply some friction to your trDelta (based on mass?)
 ================
 */
-extern void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *trace );
+extern void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trace );
 void G_RunObject( gentity_t *ent )
 {
 	vec3_t		origin, oldOrg;
@@ -210,7 +210,7 @@ void G_RunObject( gentity_t *ent )
 				G_Sound( ent, G_SoundIndex( "sound/movers/objects/objectHit.wav" ) );
 			}
 		}
-		DoImpact( ent, traceEnt, (qboolean)!(tr.surfaceFlags&SURF_NODAMAGE), &tr );
+		DoImpact( ent, traceEnt, !(tr.surfaceFlags&SURF_NODAMAGE), &tr );
 	}
 
 	if ( !ent || (ent->takedamage&&ent->health <= 0) )

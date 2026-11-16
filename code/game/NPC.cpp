@@ -42,20 +42,20 @@ extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTim
 extern void NPC_CheckPlayerAim ( void );
 extern void NPC_CheckAllClear ( void );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
-extern qboolean NPC_CheckLookTarget( gentity_t *self );
+extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern void Mark1_dying( gentity_t *self );
 extern void NPC_BSCinematic( void );
 extern int GetTime ( int lastTime );
 extern void G_CheckCharmed( gentity_t *self );
-extern qboolean Boba_Flying( gentity_t *self );
-extern qboolean RT_Flying( gentity_t *self );
-extern qboolean Jedi_CultistDestroyer( gentity_t *self );
+extern bool Boba_Flying( gentity_t *self );
+extern bool RT_Flying( gentity_t *self );
+extern bool Jedi_CultistDestroyer( gentity_t *self );
 extern void Boba_Update();
 extern bool Boba_Flee();
 extern bool Boba_Tactics();
 extern void BubbleShield_Update();
-extern qboolean PM_LockedAnim( int anim );
+extern bool PM_LockedAnim( int anim );
 
 extern cvar_t	*g_dismemberment;
 extern cvar_t	*g_saberRealisticCombat;
@@ -73,7 +73,7 @@ cvar_t		*d_noGroupAI;
 cvar_t		*d_asynchronousGroupAI;
 cvar_t		*d_slowmodeath;
 
-extern qboolean	stop_icarus;
+extern bool	stop_icarus;
 
 gentity_t		*NPC;
 gNPC_t			*NPCInfo;
@@ -143,8 +143,8 @@ Determines when it's ok to ditch the corpse
 */
 #define REMOVE_DISTANCE		128
 #define REMOVE_DISTANCE_SQR (REMOVE_DISTANCE * REMOVE_DISTANCE)
-extern qboolean InFOVFromPlayerView ( gentity_t *ent, int hFOV, int vFOV );
-qboolean G_OkayToRemoveCorpse( gentity_t *self )
+extern bool InFOVFromPlayerView ( gentity_t *ent, int hFOV, int vFOV );
+bool G_OkayToRemoveCorpse( gentity_t *self )
 {
 	//if we're still on a vehicle, we won't remove ourselves until we get ejected
 	if ( self->client && self->client->NPC_class != CLASS_VEHICLE && self->s.m_iVehicleNum != 0 )
@@ -152,9 +152,9 @@ qboolean G_OkayToRemoveCorpse( gentity_t *self )
 		Vehicle_t *pVeh = g_entities[self->s.m_iVehicleNum].m_pVehicle;
 		if ( pVeh )
 		{
-			if ( !pVeh->m_pVehicleInfo->Eject( pVeh, self, qtrue ) )
+			if ( !pVeh->m_pVehicleInfo->Eject( pVeh, self, true ) )
 			{//dammit, still can't get off the vehicle...
-				return qfalse;
+				return false;
 			}
 		}
 		else
@@ -168,12 +168,12 @@ qboolean G_OkayToRemoveCorpse( gentity_t *self )
 
 	if ( self->message )
 	{//I still have a key
-		return qfalse;
+		return false;
 	}
 
 	if ( IIcarusInterface::GetIcarus()->IsRunning( self->m_iIcarusID ) )
 	{//still running a script
-		return qfalse;
+		return false;
 	}
 
 	if ( self->activator
@@ -182,7 +182,7 @@ qboolean G_OkayToRemoveCorpse( gentity_t *self )
 			|| (self->activator->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 			|| (self->activator->client->ps.eFlags&EF_HELD_BY_WAMPA)) )
 	{//still holding a victim?
-		return qfalse;
+		return false;
 	}
 
 	if ( self->client
@@ -190,16 +190,16 @@ qboolean G_OkayToRemoveCorpse( gentity_t *self )
 			|| (self->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 			|| (self->client->ps.eFlags&EF_HELD_BY_WAMPA) ) )
 	{//being held by a creature
-		return qfalse;
+		return false;
 	}
 
 	if ( self->client->ps.heldByClient < ENTITYNUM_WORLD )
 	{//being dragged
-		return qfalse;
+		return false;
 	}
 
 	//okay, well okay to remove us...?
-	return qtrue;
+	return true;
 }
 
 void NPC_RemoveBody( gentity_t *self )
@@ -416,7 +416,7 @@ and returns.
 ====================================================================
 */
 
-void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAngles, qboolean keepPitch )
+void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAngles, bool keepPitch )
 {
 	vec3_t	slope;
 	vec3_t	nvf, ovf, ovr, startspot, endspot, new_angles = { 0, 0, 0 };
@@ -518,8 +518,8 @@ void NPC_PostDeathThink( void )
 	vec3_t	org, endpos, startpos, forward, right;
 	int		whichtrace = 0;
 	float	cornerdist[4];
-	qboolean	frontbackbothclear = false;
-	qboolean	rightleftbothclear = false;
+	bool	frontbackbothclear = false;
+	bool	rightleftbothclear = false;
 
 	if( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE || !VectorCompare( vec3_origin, NPC->client->ps.velocity ) )
 	{
@@ -940,7 +940,7 @@ void ClearNPCGlobals( void )
 }
 //===============
 
-extern	qboolean	showBBoxes;
+extern	bool	showBBoxes;
 vec3_t NPCDEBUG_RED = {1.0, 0.0, 0.0};
 vec3_t NPCDEBUG_GREEN = {0.0, 1.0, 0.0};
 vec3_t NPCDEBUG_BLUE = {0.0, 0.0, 1.0};
@@ -1048,7 +1048,7 @@ void NPC_ApplyScriptFlags (void)
 }
 
 
-extern qboolean JET_Flying( gentity_t *self );
+extern bool JET_Flying( gentity_t *self );
 extern void JET_FlyStart( gentity_t *self );
 extern void JET_FlyStop( gentity_t *self );
 
@@ -1603,7 +1603,7 @@ void NPC_BehaviorSet_Jedi( int bState )
 	}
 }
 
-qboolean G_JediInNormalAI( gentity_t *ent )
+bool G_JediInNormalAI( gentity_t *ent )
 {//NOTE: should match above func's switch!
 	//check our bState
 	bState_t bState = G_CurrentBState( ent->NPC );
@@ -1616,12 +1616,12 @@ qboolean G_JediInNormalAI( gentity_t *ent )
 	case BS_INVESTIGATE:
 	case BS_DEFAULT:
 	case BS_FOLLOW_LEADER:
-		return qtrue;
+		return true;
 		break;
 	default:
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1845,7 +1845,7 @@ NPC_RunBehavior
 -------------------------
 */
 extern void NPC_BSEmplaced( void );
-extern qboolean NPC_CheckSurrender( void );
+extern bool NPC_CheckSurrender( void );
 extern void NPC_BSRT_Default( void );
 extern void NPC_BSCivilian_Default( int bState );
 extern void NPC_BSSD_Default( void );
@@ -1870,7 +1870,7 @@ void NPC_RunBehavior( int team, int bState )
 	}
 	else if ( !TIMER_Done(NPC, "DEMP2_StunTime"))
 	{
-		NPC_UpdateAngles(qtrue, qtrue);
+		NPC_UpdateAngles(true, true);
 		return;
 	}
 	else if ( NPC->client->ps.weapon == WP_EMPLACED_GUN )
@@ -2173,7 +2173,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}
 
 	//Clear this and let bState set it itself, so it automatically handles changing bStates... but we need a set bState wrapper func
-	NPCInfo->combatMove = qfalse;
+	NPCInfo->combatMove = false;
 
 	//Execute our bState
 	bState = G_CurrentBState( NPCInfo );
@@ -2184,7 +2184,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 //	if(bState != BS_POINT_COMBAT && NPCInfo->combatPoint != -1)
 //	{
-		//level.combatPoints[NPCInfo->combatPoint].occupied = qfalse;
+		//level.combatPoints[NPCInfo->combatPoint].occupied = false;
 		//NPCInfo->combatPoint = -1;
 //	}
 
@@ -2377,7 +2377,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	// see if NPC ai is frozen
 	if ( debugNPCFreeze->integer || (NPC->svFlags&SVF_ICARUS_FREEZE) )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		ClientThink(self->s.number, &ucmd);
 		VectorCopy(self->s.origin, self->s.origin2 );
 		return;
@@ -2460,7 +2460,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 			}
 		}
 		//FIXME: might want to at least make sounds or something?
-		//NPC_UpdateAngles(qtrue, qtrue);
+		//NPC_UpdateAngles(true, true);
 		//Which ucmd should we send?  Does it matter, since it gets overridden anyway?
 		NPCInfo->last_ucmd.serverTime = level.time - 50;
 		ClientThink( NPC->s.number, &ucmd );
@@ -2515,7 +2515,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		if ( !NPC->next_roff_time || NPC->next_roff_time < level.time )
 		{//If we were following a roff, we don't do normal pmoves.
 			//FIXME: firing angles (no aim offset) or regular angles?
-			NPC_UpdateAngles(qtrue, qtrue);
+			NPC_UpdateAngles(true, true);
 			memcpy( &ucmd, &NPCInfo->last_ucmd, sizeof( usercmd_t ) );
 			ClientThink(NPC->s.number, &ucmd);
 		}

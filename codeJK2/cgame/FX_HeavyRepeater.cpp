@@ -60,7 +60,7 @@ FX_RepeaterHitPlayer
 ------------------------
 */
 
-void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( "repeater/wall_impact", origin, normal );
 //	theFxScheduler.PlayEffect( "repeater/flesh_impact", origin, normal );
@@ -103,7 +103,7 @@ FX_RepeaterAltHitPlayer
 ------------------------
 */
 
-void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( "repeater/concussion", origin );
 //	theFxScheduler.PlayEffect( "repeater/alt_wall_impact2", origin, normal );

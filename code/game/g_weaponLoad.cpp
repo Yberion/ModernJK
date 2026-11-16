@@ -106,9 +106,9 @@ func_t	funcs[] = {
 	{NULL,					NULL}
 };
 
-//qboolean COM_ParseInt( char **data, int *i );
-//qboolean COM_ParseString( char **data, char **s );
-//qboolean COM_ParseFloat( char **data, float *f );
+//bool COM_ParseInt( char **data, int *i );
+//bool COM_ParseString( char **data, char **s );
+//bool COM_ParseFloat( char **data, float *f );
 
 struct wpnParms_s
 {
@@ -998,7 +998,7 @@ static void WP_ParseWeaponParms(const char **holdBuf)
 
 	while (holdBuf)
 	{
-		token = COM_ParseExt( holdBuf, qtrue );
+		token = COM_ParseExt( holdBuf, true );
 
 		if (!Q_stricmp( token, "}" ))	// End of data for this weapon
 			break;
@@ -1445,7 +1445,7 @@ static void WP_ParseParms(const char *buffer)
 
 	while ( holdBuf )
 	{
-		token = COM_ParseExt( &holdBuf, qtrue );
+		token = COM_ParseExt( &holdBuf, true );
 
 		if ( !Q_stricmp( token, "{" ) )
 		{

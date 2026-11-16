@@ -51,7 +51,7 @@ void WP_FireNoghriStick( gentity_t *ent )
 
 	WP_MissileTargetHint(ent, muzzle, dir);
 
-	gentity_t *missile = CreateMissile( muzzle, dir, velocity, 10000, ent, qfalse );
+	gentity_t *missile = CreateMissile( muzzle, dir, velocity, 10000, ent, false );
 
 	missile->classname = "noghri_proj";
 	missile->s.weapon = WP_NOGHRI_STICK;

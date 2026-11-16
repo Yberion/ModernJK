@@ -58,7 +58,7 @@ typedef void (*ImageLoaderFn)( const char *filename, byte **pic, int *width, int
 
 // Adds a new image loader to handle a new image type. The extension should not
 // begin with a period (a full stop).
-qboolean R_ImageLoader_Add( const char *extension, ImageLoaderFn imageLoader );
+bool R_ImageLoader_Add( const char *extension, ImageLoaderFn imageLoader );
 
 // Load an image from file.
 void R_LoadImage( const char *shortname, byte **pic, int *width, int *height );
@@ -86,12 +86,12 @@ void RE_SaveJPG( const char * filename, int quality, int image_width, int image_
 // Save raw image data as PNG image file.
 int RE_SavePNG( const char *filename, byte *buf, size_t width, size_t height, int byteDepth );
 
-void *R_Malloc( int iSize, memtag_t eTag, qboolean bZeroit=qfalse );
+void *R_Malloc( int iSize, memtag_t eTag, bool bZeroit=false );
 void R_Free( void *ptr );
 
 // The memory of the images the shared image files allocate (shared/rd-common), in this renderer's allocator.
-inline byte *R_ImageMalloc( int size, qboolean zero ) { return (byte *)R_Malloc( size, TAG_TEMP_WORKSPACE, zero ); }
+inline byte *R_ImageMalloc( int size, bool zero ) { return (byte *)R_Malloc( size, TAG_TEMP_WORKSPACE, zero ); }
 inline void R_ImageFree( void *ptr ) { R_Free( ptr ); }
 int R_MemSize( memtag_t eTag );
 void R_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag );
-void *R_Hunk_Alloc( int iSize, qboolean bZeroit=qtrue );
+void *R_Hunk_Alloc( int iSize, bool bZeroit=true );

@@ -37,7 +37,7 @@ USER INTERFACE SABER LOADING & DISPLAY CODE
 
 #define MAX_SABER_DATA_SIZE 0x80000
 char	SaberParms[MAX_SABER_DATA_SIZE];
-qboolean	ui_saber_parms_parsed = qfalse;
+bool	ui_saber_parms_parsed = false;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
@@ -67,27 +67,27 @@ void UI_CacheSaberGlowGraphics( void )
 	purpleSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/purple_line" );
 }
 
-qboolean UI_ParseLiteral( const char **data, const char *string )
+bool UI_ParseLiteral( const char **data, const char *string )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qtrue );
+	token = COM_ParseExt( data, true );
 	if ( token[0] == 0 )
 	{
 		ui.Printf( "unexpected EOF\n" );
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( token, string ) )
 	{
 		ui.Printf( "required string '%s' missing\n", string );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
+bool UI_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
 {
 	const char	*token;
 	const char	*value;
@@ -95,7 +95,7 @@ qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *s
 
 	if ( !saberName || !saberName[0] )
 	{
-		return qfalse;
+		return false;
 	}
 
 	//try to parse it out
@@ -105,11 +105,11 @@ qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *s
 	// look for the right saber
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, saberName ) )
@@ -122,24 +122,24 @@ qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *s
 	if ( !p )
 	{
 		COM_EndParseSession(  );
-		return qfalse;
+		return false;
 	}
 
 	if ( UI_ParseLiteral( &p, "{" ) )
 	{
 		COM_EndParseSession(  );
-		return qfalse;
+		return false;
 	}
 
 	// parse the saber info block
 	while ( 1 )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			ui.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", saberName );
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, "}" ) )
@@ -155,7 +155,7 @@ qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *s
 			}
 			strcpy( saberData, value );
 			COM_EndParseSession(  );
-			return qtrue;
+			return true;
 		}
 
 		SkipRestOfLine( &p );
@@ -163,25 +163,25 @@ qboolean UI_SaberParseParm( const char *saberName, const char *parmname, char *s
 	}
 
 	COM_EndParseSession(  );
-	return qfalse;
+	return false;
 }
 
-qboolean UI_SaberProperNameForSaber( const char *saberName, char *saberProperName )
+bool UI_SaberProperNameForSaber( const char *saberName, char *saberProperName )
 {
 	return UI_SaberParseParm( saberName, "name", saberProperName );
 }
 
-qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
+bool UI_SaberModelForSaber( const char *saberName, char *saberModel )
 {
 	return UI_SaberParseParm( saberName, "saberModel", saberModel );
 }
 
-qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
+bool UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 {
 	return UI_SaberParseParm( saberName, "customSkin", saberSkin );
 }
 
-qboolean UI_SaberTypeForSaber( const char *saberName, char *saberType )
+bool UI_SaberTypeForSaber( const char *saberName, char *saberType )
 {
 	return UI_SaberParseParm( saberName, "saberType", saberType );
 }
@@ -202,7 +202,7 @@ int UI_SaberNumBladesForSaber( const char *saberName )
 	return numBlades;
 }
 
-qboolean UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
+bool UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
 {
 	int bladeStyle2Start = 0, noBlade = 0;
 	char	bladeStyle2StartString[8]={0};
@@ -229,7 +229,7 @@ qboolean UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
 			noBlade = atoi( noBladeString );
 		}
 	}
-	return ((qboolean)(noBlade==0));
+	return ((noBlade==0));
 }
 
 float UI_SaberBladeLengthForSaber( const char *saberName, int bladeNum )
@@ -294,7 +294,7 @@ void UI_SaberLoadParms( void )
 
 	//ui.Printf( "UI Parsing *.sab saber definitions\n" );
 
-	ui_saber_parms_parsed = qtrue;
+	ui_saber_parms_parsed = true;
 	UI_CacheSaberGlowGraphics();
 
 	//set where to store the first one
@@ -562,14 +562,14 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	vec3_t	bladeOrigin={0};
 	vec3_t	axis[3]={};
 	mdxaBone_t	boltMatrix;
-	qboolean tagHack = qfalse;
+	bool tagHack = false;
 
 	char *tagName = va( "*blade%d", bladeNum+1 );
 	int bolt = DC->g2_AddBolt( &item->ghoul2[saberModel], tagName );
 
 	if ( bolt == -1 )
 	{
-		tagHack = qtrue;
+		tagHack = true;
 		//hmm, just fall back to the most basic tag (this will also make it work with pre-JKA saber models
 		bolt = DC->g2_AddBolt( &item->ghoul2[saberModel], "*flash" );
 		if ( bolt == -1 )
@@ -753,8 +753,8 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	UI_DoSaber( bladeOrigin, axis[0], bladeLength, bladeLength, bladeRadius, bladeColor );
 }
 
-extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
-extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
+extern bool ItemParse_asset_model_go( itemDef_t *item, const char *name );
+extern bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
 void UI_GetSaberForMenu( char *saber, int saberNum )
 {
 	char saberTypeString[MAX_QPATH]={0};

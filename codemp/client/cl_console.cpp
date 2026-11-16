@@ -83,8 +83,8 @@ Con_ToggleMenu_f
 ===================
 */
 void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( A_ESCAPE, qtrue, Sys_Milliseconds() );
-	CL_KeyEvent( A_ESCAPE, qfalse, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, true, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, false, Sys_Milliseconds() );
 }
 
 /*
@@ -94,7 +94,7 @@ Con_MessageMode_f
 */
 void Con_MessageMode_f (void) {	//yell
 	chat_playerNum = -1;
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
@@ -108,7 +108,7 @@ Con_MessageMode2_f
 */
 void Con_MessageMode2_f (void) {	//team chat
 	chat_playerNum = -1;
-	chat_team = qtrue;
+	chat_team = true;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -132,7 +132,7 @@ void Con_MessageMode3_f (void)
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -156,7 +156,7 @@ void Con_MessageMode4_f (void)
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -188,7 +188,7 @@ Save the console contents out to a file
 void Con_Dump_f (void)
 {
 	char			filename[MAX_QPATH];
-	qboolean		empty;
+	bool		empty;
 	int				l, i, j;
 	int				line;
 	int				lineLen;
@@ -224,13 +224,13 @@ void Con_Dump_f (void)
 	Com_Printf ("Dumped console text to %s.\n", filename );
 
 	// skip empty lines
-	for (l = 1, empty = qtrue ; l < con.totallines && empty ; l++)
+	for (l = 1, empty = true ; l < con.totallines && empty ; l++)
 	{
 		line = ((con.current + l) % con.totallines) * con.rowwidth;
 
 		for (j = CON_TIMESTAMP_LEN ; j < con.rowwidth - 1 ; j++)
 			if (con.text[line + j].f.character != CON_BLANK_CHAR)
-				empty = qfalse;
+				empty = false;
 	}
 
 	for ( ; l < con.totallines ; l++)
@@ -320,7 +320,7 @@ void Con_Initialize(void)
 		con.text[i] = CON_BLANK;
 	}
 
-	con.initialized = qtrue;
+	con.initialized = true;
 }
 
 
@@ -478,7 +478,7 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "", "txt", qfalse, qtrue );
+		Field_CompleteFilename( "", "txt", false, true );
 }
 
 /*
@@ -491,7 +491,7 @@ void Con_Init (void) {
 
 	con_notifytime = Cvar_Get ("con_notifytime", "3", 0, "How many seconds notify messages should be shown before they fade away");
 	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0, "Console open/close speed");
-	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, qfalse);
+	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, false);
 
 	con_opacity = Cvar_Get ("con_opacity", "1.0", CVAR_ARCHIVE_ND, "Opacity of console background");
 	con_autoclear = Cvar_Get ("con_autoclear", "1", CVAR_ARCHIVE_ND, "Automatically clear console input on close");
@@ -518,7 +518,7 @@ void Con_Init (void) {
 	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
 
 	//Initialize values on first print
-	con.initialized = qfalse;
+	con.initialized = false;
 }
 
 /*
@@ -543,7 +543,7 @@ void Con_Shutdown(void)
 Con_Linefeed
 ===============
 */
-static void Con_Linefeed (qboolean skipnotify)
+static void Con_Linefeed (bool skipnotify)
 {
 	int		i;
 	int		line = (con.current % con.totallines) * con.rowwidth;
@@ -592,17 +592,17 @@ void CL_ConsolePrint( const char *txt) {
 	int		y;
 	char			c;
 	unsigned char	color;
-	qboolean skipnotify = qfalse;		// NERVE - SMF
+	bool skipnotify = false;		// NERVE - SMF
 	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
 	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 12;
 	}
 	if ( txt[0] == '*' ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 1;
 	}
 
@@ -695,7 +695,7 @@ void Con_DrawInput (void) {
 
 	re->SetColor( con.color );
 
-	Field_Draw( &g_consoleField, 2 * con.charWidth, y, qtrue, qtrue );
+	Field_Draw( &g_consoleField, 2 * con.charWidth, y, true, true );
 
 	SCR_DrawSmallChar( con.charWidth, y, CONSOLE_PROMPT_CHAR );
 
@@ -832,17 +832,17 @@ void Con_DrawNotify (void)
 		if (chat_team)
 		{
 			chattext = SE_GetString("MP_SVGAME", "SAY_TEAM");
-			SCR_DrawBigString (8, v, chattext, 1.0f, qfalse );
+			SCR_DrawBigString (8, v, chattext, 1.0f, false );
 			skip = strlen(chattext)+1;
 		}
 		else
 		{
 			chattext = SE_GetString("MP_SVGAME", "SAY");
-			SCR_DrawBigString (8, v, chattext, 1.0f, qfalse );
+			SCR_DrawBigString (8, v, chattext, 1.0f, false );
 			skip = strlen(chattext)+1;
 		}
 
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, qtrue, qtrue );
+		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v, true, true );
 
 		v += BIGCHAR_HEIGHT;
 	}

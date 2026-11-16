@@ -360,9 +360,9 @@ IsRunning
 -------------------------
 */
 
-qboolean CTaskManager::IsRunning( void )
+bool CTaskManager::IsRunning( void )
 {
-	return (qboolean)!m_tasks.empty();
+	return !m_tasks.empty();
 }
 /*
 -------------------------

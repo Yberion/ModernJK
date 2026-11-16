@@ -74,19 +74,19 @@ void ClearInUse(gentity_t *ent)
 	g_entityInUseBits[entNum/32]&=~(((unsigned int)1)<<(entNum&0x1f));
 }
 
-qboolean PInUse(unsigned int entNum)
+bool PInUse(unsigned int entNum)
 {
 	assert(entNum>=0);
 	assert(entNum<MAX_GENTITIES);
-	return (qboolean)((g_entityInUseBits[entNum / 32] & (1u << (entNum & 0x1f))) != 0);
+	return ((g_entityInUseBits[entNum / 32] & (1u << (entNum & 0x1f))) != 0);
 }
 
-qboolean PInUse2(gentity_t *ent)
+bool PInUse2(gentity_t *ent)
 {
 	assert(((uintptr_t)ent)>=(uintptr_t)g_entities);
 	assert(((uintptr_t)ent)<=(uintptr_t)(g_entities+MAX_GENTITIES-1));
 	unsigned int entNum=ent-g_entities;
-	return (qboolean)((g_entityInUseBits[entNum / 32] & (1u << (entNum & 0x1f))) != 0);
+	return ((g_entityInUseBits[entNum / 32] & (1u << (entNum & 0x1f))) != 0);
 }
 
 void WriteInUseBits()
@@ -170,12 +170,12 @@ cvar_t	*g_saberMoveSpeed;
 cvar_t	*g_saberAnimSpeed;
 cvar_t	*g_saberAutoAim;
 
-qboolean	stop_icarus = qfalse;
+bool	stop_icarus = false;
 
 extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
 extern void CP_FindCombatPointWaypoints( void );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 
 void G_RunFrame (int levelTime);
 void PrintEntClassname( int gentNum );
@@ -204,7 +204,7 @@ static void G_DynamicMusicUpdate( void )
 	vec3_t		center;
 	int			battle = 0;
 	int			entTeam;
-	qboolean	clearLOS = qfalse;
+	bool	clearLOS = false;
 
 	//FIXME: intro and/or other cues? (one-shot music sounds)
 
@@ -310,7 +310,7 @@ static void G_DynamicMusicUpdate( void )
 			continue;
 		}
 
-		clearLOS = qfalse;
+		clearLOS = false;
 		if ( (ent->enemy==player&&(!ent->NPC||ent->NPC->confusionTime<level.time)) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
 		{//mad
 			if ( ent->health > 0 )
@@ -341,7 +341,7 @@ static void G_DynamicMusicUpdate( void )
 					else if ( distSq > 1048576/*1024*1024*/ )
 					{//> 1024 away
 						clearLOS = G_ClearLOS( player, player->client->renderInfo.eyePoint, ent );
-						if ( clearLOS == qfalse )
+						if ( clearLOS == false )
 						{//No LOS
 							continue;
 						}
@@ -354,7 +354,7 @@ static void G_DynamicMusicUpdate( void )
 
 	if ( !battle )
 	{//no active enemies, but look for missiles, shot impacts, etc...
-		int alert = G_CheckAlertEvents( player, qtrue, qtrue, 1024, 1024, -1, qfalse, AEL_SUSPICIOUS );
+		int alert = G_CheckAlertEvents( player, true, true, 1024, 1024, -1, false, AEL_SUSPICIOUS );
 		if ( alert != -1 )
 		{//FIXME: maybe tripwires and other FIXED things need their own sound, some kind of danger/caution theme
 			if ( G_CheckForDanger( player, alert ) )
@@ -366,13 +366,13 @@ static void G_DynamicMusicUpdate( void )
 				switch ( level.alertEvents[alert].level )
 				{
 				case AEL_DISCOVERED:
-					//dangerNear = qtrue;
+					//dangerNear = true;
 					break;
 				case AEL_SUSPICIOUS:
-					//suspicious = qtrue;
+					//suspicious = true;
 					break;
 				case AEL_MINOR:
-					//distraction = qtrue;
+					//distraction = true;
 					break;
 				default:
 					break;
@@ -573,11 +573,11 @@ InitGame
 //	may get changed anyway if a new nav system is ever used. This way saves messing with g_local.h each time -slc
 int giMapChecksum;
 SavedGameJustLoaded_e g_eSavedGameJustLoaded;
-qboolean g_qbLoadTransition = qfalse;
+bool g_qbLoadTransition = false;
 #ifndef FINAL_BUILD
 extern int fatalErrors;
 #endif
-void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition )
+void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, bool qbLoadTransition )
 {
 	giMapChecksum = checkSum;
 	g_eSavedGameJustLoaded = eSavedGameJustLoaded;
@@ -652,7 +652,7 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 	ClearRegisteredItems();
 
 	//FIXME: if this is from a loadgame, it needs to be sure to write this out whenever you do a savegame since the edges and routes are dynamic...
-	navCalculatePaths	= ( navigator.Load( mapname, checkSum ) == qfalse );
+	navCalculatePaths	= ( navigator.Load( mapname, checkSum ) == false );
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString( entities );
@@ -673,7 +673,7 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 		//FIXME: if this is from a loadgame, it needs to be sure to write this
 		//out whenever you do a savegame since the edges and routes are dynamic...
 		//OR: always do a navigator.CheckBlockedEdges() on map startup after nav-load/calc-paths
-		navigator.pathsCalculated = qtrue;//just to be safe?  Does this get saved out?  No... assumed
+		navigator.pathsCalculated = true;//just to be safe?  Does this get saved out?  No... assumed
 		//need to do this, because combatpoint waypoints aren't saved out...?
 		CP_FindCombatPointWaypoints();
 		navCalcPathTime = 0;
@@ -1143,7 +1143,7 @@ void G_PlayerGuiltDeath( void )
 		if ( player->client->ps.weapon == WP_SABER && player->client->ps.saberActive )
 		{
 			G_SoundOnEnt( player, CHAN_WEAPON, "sound/weapons/saber/saberoff.wav" );
-			player->client->ps.saberActive = qfalse;
+			player->client->ps.saberActive = false;
 		}
 		//play the "what have I done?!" anim
 		NPC_SetAnim( player, SETANIM_BOTH, BOTH_FORCEHEAL_START, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -1164,12 +1164,12 @@ void G_CheckEndLevelTimers( gentity_t *ent )
 		if ( ent->client && ent->client->ps.stats[STAT_HEALTH] > 0 )
 		{
 			G_PlayerGuiltDeath();
-			//cg.missionStatusShow = qtrue;
+			//cg.missionStatusShow = true;
 			statusTextIndex = MAX_MISSIONFAILED;
 			//debounce respawn time
 			ent->client->respawnTime = level.time + 2000;
 			//stop all scripts
-			stop_icarus = qtrue;
+			stop_icarus = true;
 			//make the team killable
 			G_MakeTeamVulnerable();
 		}
@@ -1195,7 +1195,7 @@ void NAV_CheckCalcPaths( void )
 		}
 		else
 #endif
-		if ( navigator.Save( level.mapname, giMapChecksum ) == qfalse )
+		if ( navigator.Save( level.mapname, giMapChecksum ) == false )
 		{
 			gi.Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", level.mapname, giMapChecksum );
 		}
@@ -1295,7 +1295,7 @@ void G_RunFrame( int levelTime ) {
 				continue;
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
-				ent->unlinkAfterEvent = qfalse;
+				ent->unlinkAfterEvent = false;
 				gi.unlinkentity( ent );
 			}
 		}
@@ -1451,7 +1451,7 @@ void G_RunFrame( int levelTime ) {
 
 
 
-extern qboolean player_locked;
+extern bool player_locked;
 
 void G_LoadSave_WriteMiscData(void)
 {

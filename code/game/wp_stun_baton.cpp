@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "w_local.h"
 
 //---------------------------------------------------------
-void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire )
+void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 {
 	gentity_t	*tr_ent;
 	trace_t		tr;

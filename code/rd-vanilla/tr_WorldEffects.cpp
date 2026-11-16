@@ -609,7 +609,7 @@ public:
 			Wz.mDepth		= ((int)(Wz.mSize.mMaxs[2] - Wz.mSize.mMins[2]) + 31) >> 5;
 
 			Wz.miPointCacheByteSize = (Wz.mWidth * Wz.mHeight * Wz.mDepth) * sizeof(uint32_t);
-			Wz.mPointCache  = (uint32_t *)R_Malloc( Wz.miPointCacheByteSize, TAG_POINTCACHE, qtrue );
+			Wz.mPointCache  = (uint32_t *)R_Malloc( Wz.miPointCacheByteSize, TAG_POINTCACHE, true );
 		}
 		else
 		{
@@ -638,7 +638,7 @@ public:
 
 	fileHandle_t WriteCachedWeatherFile( void )
 	{
-		fileHandle_t f = ri.FS_FOpenFileWrite( GenCachedWeatherFilename(), qtrue );
+		fileHandle_t f = ri.FS_FOpenFileWrite( GenCachedWeatherFilename(), true );
 		if (f)
 		{
 			WeatherFileHeader_t WeatherFileHeader;
@@ -659,7 +659,7 @@ public:
 	fileHandle_t ReadCachedWeatherFile( void )
 	{
 		fileHandle_t f = 0;
-		ri.FS_FOpenFileRead( GenCachedWeatherFilename(), &f, qfalse );
+		ri.FS_FOpenFileRead( GenCachedWeatherFilename(), &f, false );
 		if ( f )
 		{
 			// ok, it exists, but is it valid for this map?...
@@ -1032,7 +1032,7 @@ public:
 
 		// Create The Image
 		//------------------
-		mImage = R_FindImageFile(texturePath, qfalse, qfalse, qfalse, GL_CLAMP);
+		mImage = R_FindImageFile(texturePath, false, false, false, GL_CLAMP);
 		if (!mImage)
 		{
 			Com_Error(ERR_DROP, "CParticleCloud: Could not texture %s", texturePath);
@@ -1678,35 +1678,35 @@ Imported from MP/Ensiform's fixes --eez
 ==================
 */
 
-qboolean WE_ParseVector( const char **text, int count, float *v ) {
+bool WE_ParseVector( const char **text, int count, float *v ) {
 	char	*token;
 	int		i;
 	// FIXME: spaces are currently required after parens, should change parseext...
 	COM_BeginParseSession();
-	token = COM_ParseExt( text, qfalse );
+	token = COM_ParseExt( text, false );
 	if ( strcmp( token, "(" ) ) {
 		Com_Printf ("^3WARNING: missing parenthesis in weather effect\n" );
 		COM_EndParseSession();
-		return qfalse;
+		return false;
 	}
 
 	for ( i = 0 ; i < count ; i++ ) {
-		token = COM_ParseExt( text, qfalse );
+		token = COM_ParseExt( text, false );
 		if ( !token[0] ) {
 			Com_Printf ("^3WARNING: missing vector element in weather effect\n" );
 			COM_EndParseSession();
-			return qfalse;
+			return false;
 		}
 		v[i] = atof( token );
 	}
 
-	token = COM_ParseExt( text, qfalse );
+	token = COM_ParseExt( text, false );
 	COM_EndParseSession();
 	if ( strcmp( token, ")" ) ) {
 		Com_Printf ("^3WARNING: missing parenthesis in weather effect\n" );
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -1721,7 +1721,7 @@ void R_WorldEffectCommand(const char *command)
 
 	COM_BeginParseSession();
 
-	token = COM_ParseExt(&command, qfalse);
+	token = COM_ParseExt(&command, false);
 
 	if ( !token )
 	{
@@ -1986,7 +1986,7 @@ void R_WorldEffectCommand(const char *command)
 			COM_EndParseSession();
 			return;
 		}
-		token = COM_ParseExt(&command, qfalse);
+		token = COM_ParseExt(&command, false);
 		count = atoi(token);
 
 		CParticleCloud& nCloud = mParticleClouds.push_back();

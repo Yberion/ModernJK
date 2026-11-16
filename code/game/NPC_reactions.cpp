@@ -28,30 +28,30 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "g_vehicles.h"
 
-extern qboolean G_CheckForStrongAttackMomentum( gentity_t *self );
+extern bool G_CheckForStrongAttackMomentum( gentity_t *self );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
-extern qboolean NPC_CheckLookTarget( gentity_t *self );
+extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
-extern qboolean Jedi_WaitingAmbush( gentity_t *self );
+extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern void Jedi_Ambush( gentity_t *self );
-extern qboolean G_EntIsBreakable( int entityNum, gentity_t *breaker );
+extern bool G_EntIsBreakable( int entityNum, gentity_t *breaker );
 
-extern qboolean PM_SaberInSpecialAttack( int anim );
-extern qboolean PM_SpinningSaberAnim( int anim );
-extern qboolean PM_SpinningAnim( int anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_CrouchAnim( int anim );
-extern qboolean PM_FlippingAnim( int anim );
-extern qboolean PM_RollingAnim( int anim );
-extern qboolean PM_InCartwheel( int anim );
+extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_SpinningAnim( int anim );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_CrouchAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
+extern bool PM_RollingAnim( int anim );
+extern bool PM_InCartwheel( int anim );
 
 extern	cvar_t	*g_spskill;
 extern int	teamLastEnemyTime[];
-extern qboolean	stop_icarus;
+extern bool	stop_icarus;
 extern int killPlayerTimer;
 
 float g_crosshairEntDist = Q3_INFINITE;
@@ -379,9 +379,9 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 		self->client->fireDelay = 0;
 	}
 }
-extern qboolean G_ValidEnemy( gentity_t *self, gentity_t *enemy );
+extern bool G_ValidEnemy( gentity_t *self, gentity_t *enemy );
 
-gentity_t *G_CheckControlledTurretEnemy(gentity_t *self, gentity_t *enemy, qboolean validate )
+gentity_t *G_CheckControlledTurretEnemy(gentity_t *self, gentity_t *enemy, bool validate )
 {
 	if ( enemy->e_UseFunc == useF_emplaced_gun_use
 		|| enemy->e_UseFunc == useF_eweb_use )
@@ -389,7 +389,7 @@ gentity_t *G_CheckControlledTurretEnemy(gentity_t *self, gentity_t *enemy, qbool
 		if ( enemy->activator
 			&& enemy->activator->client )
 		{//return the controller of the eweb/emplaced gun
-			if (validate==qfalse || !self->client || G_ValidEnemy(self, enemy))
+			if (validate==false || !self->client || G_ValidEnemy(self, enemy))
 			{
 				return enemy->activator;
 			}
@@ -423,7 +423,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 	if ( other == self )
 		return;
 
-	other = G_CheckControlledTurretEnemy(self, other, qfalse);
+	other = G_CheckControlledTurretEnemy(self, other, false);
 	if (!other)
 	{
 		return;
@@ -516,7 +516,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 					self->NPC->scriptFlags &= ~(SCF_DONT_FIRE|SCF_CROUCHED|SCF_WALKING|SCF_NO_COMBAT_TALK|SCF_FORCED_MARCH);
 					self->NPC->scriptFlags |= (SCF_CHASE_ENEMIES|SCF_NO_MIND_TRICK);
 					//NOTE: we also stop ICARUS altogether
-					stop_icarus = qtrue;
+					stop_icarus = true;
 					if ( !killPlayerTimer )
 					{
 						killPlayerTimer = level.time + 10000;
@@ -530,7 +530,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 	SetNPCGlobals( self );
 
 	//Do extra bits
-	if ( NPCInfo->ignorePain == qfalse )
+	if ( NPCInfo->ignorePain == false )
 	{
 		NPCInfo->confusionTime = 0;//clear any charm or confusion, regardless
 		if ( NPC->ghoul2.size() && NPC->headBolt != -1 )
@@ -583,7 +583,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 NPC_Touch
 -------------------------
 */
-extern qboolean INV_SecurityKeyGive( gentity_t *target, const char *keyname );
+extern bool INV_SecurityKeyGive( gentity_t *target, const char *keyname );
 void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
 	if(!self->NPC)
@@ -597,11 +597,11 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 		if ( other && player && player->health > 0 && other == player )
 		{//player touched me
 			const char *text;
-			qboolean	keyTaken;
+			bool	keyTaken;
 			//give him my key
 			if ( Q_stricmp( "goodie", self->message ) == 0 )
 			{//a goodie key
-				if ( (keyTaken = INV_GoodieKeyGive( other )) == qtrue )
+				if ( (keyTaken = INV_GoodieKeyGive( other )) == true )
 				{
 					text = "cp @SP_INGAME_TOOK_IMPERIAL_GOODIE_KEY";
 					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_GOODIE_KEY )-bg_itemlist) );
@@ -613,7 +613,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			}
 			else
 			{//a named security key
-				if ( (keyTaken = INV_SecurityKeyGive( player, self->message )) == qtrue )
+				if ( (keyTaken = INV_SecurityKeyGive( player, self->message )) == true )
 				{
 					text = "cp @SP_INGAME_TOOK_IMPERIAL_SECURITY_KEY";
 					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_SECURITY_KEY )-bg_itemlist) );
@@ -985,7 +985,7 @@ void NPC_Respond( gentity_t *self, int userNum )
 	if ( event != -1 )
 	{
 		//hack here because we reuse some "combat" and "extra" sounds
-		qboolean addFlag = (qboolean)((self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) != 0);
+		bool addFlag = ((self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) != 0);
 		self->NPC->scriptFlags &= ~SCF_NO_COMBAT_TALK;
 
 		G_AddVoiceEvent( self, event, 3000 );
@@ -1003,7 +1003,7 @@ NPC_UseResponse
 -------------------------
 */
 
-void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone )
+void NPC_UseResponse( gentity_t *self, gentity_t *user, bool useWhenDone )
 {
 	if ( !self->NPC || !self->client )
 	{
@@ -1085,7 +1085,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 				// If other is already riding this vehicle (self), eject him.
 				else if ( other->owner == self )
 				{
-					pVeh->m_pVehicleInfo->Eject( pVeh, other, qfalse );
+					pVeh->m_pVehicleInfo->Eject( pVeh, other, false );
 				}
 				// Otherwise board this vehicle.
 				else
@@ -1119,7 +1119,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 			}
 			else if ( !self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] && !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			{//I don't have an enemy and I'm not talking and I was used by the player
-				NPC_UseResponse( self, other, qfalse );
+				NPC_UseResponse( self, other, false );
 			}
 		}
 */
@@ -1127,7 +1127,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 		if ( self->behaviorSet[BSET_USE] )
 		{
-			NPC_UseResponse( self, other, qtrue );
+			NPC_UseResponse( self, other, true );
 		}
 //		else if ( isMedic( self ) )
 //		{//Heal me NOW, dammit!
@@ -1139,7 +1139,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 			&& !gi.VoiceVolume[self->s.number]
 			&& !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 		{//I don't have an enemy and I'm not talking and I was used by the player
-			NPC_UseResponse( self, other, qfalse );
+			NPC_UseResponse( self, other, false );
 		}
 	}
 

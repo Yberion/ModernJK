@@ -64,7 +64,7 @@ FX_DEMP2_HitPlayer
 ---------------------------
 */
 
-void FX_DEMP2_HitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_DEMP2_HitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( "demp2/flesh_impact", origin, normal );
 }

@@ -47,7 +47,7 @@ enum
 	LSTATE_RISINGUP,
 };
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 
 void NPC_Mark2_Precache( void )
 {
@@ -145,10 +145,10 @@ void Mark2_Hunt(void)
 	}
 
 	// Turn toward him before moving towards him.
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
-	NPCInfo->combatMove = qtrue;
-	NPC_MoveToGoal( qtrue );
+	NPCInfo->combatMove = true;
+	NPC_MoveToGoal( true );
 }
 
 /*
@@ -156,7 +156,7 @@ void Mark2_Hunt(void)
 Mark2_FireBlaster
 -------------------------
 */
-void Mark2_FireBlaster(qboolean advance)
+void Mark2_FireBlaster(bool advance)
 {
 	vec3_t	muzzle1,enemy_org1,delta1,angleToEnemy1;
 	static	vec3_t	forward, vright, up;
@@ -203,7 +203,7 @@ void Mark2_FireBlaster(qboolean advance)
 Mark2_BlasterAttack
 -------------------------
 */
-void Mark2_BlasterAttack(qboolean advance)
+void Mark2_BlasterAttack(bool advance)
 {
 	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
@@ -231,11 +231,11 @@ Mark2_AttackDecision
 */
 void Mark2_AttackDecision( void )
 {
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// He's been ordered to get up
 	if (NPCInfo->localState == LSTATE_RISINGUP)
@@ -251,7 +251,7 @@ void Mark2_AttackDecision( void )
 	}
 
 	// If we cannot see our target, move to see it
-	if ((!visible) || (!NPC_FaceEnemy(qtrue)))
+	if ((!visible) || (!NPC_FaceEnemy(true)))
 	{
 		// If he's going down or is down, make him get up
 		if ((NPCInfo->localState == LSTATE_DOWN) || (NPCInfo->localState == LSTATE_DROPPINGDOWN))
@@ -278,7 +278,7 @@ void Mark2_AttackDecision( void )
 		TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	// Dropping down to shoot
 	if (NPCInfo->localState == LSTATE_DROPPINGDOWN)
@@ -297,7 +297,7 @@ void Mark2_AttackDecision( void )
 	{
 //		NPC->flags |= FL_SHIELDED;//only damagable by lightsabers and missiles
 
-		Mark2_BlasterAttack(qfalse);
+		Mark2_BlasterAttack(false);
 	}
 	else if (TIMER_Done( NPC, "runTime" ))	// Lowering down to attack. But only if he's done running at you.
 	{
@@ -321,7 +321,7 @@ void Mark2_Patrol( void )
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
 //		G_Sound( NPC, G_SoundIndex("sound/chars/mark1/misc/anger.wav"));
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -331,8 +331,8 @@ void Mark2_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
-			NPC_UpdateAngles( qtrue, qtrue );
+			NPC_MoveToGoal( true );
+			NPC_UpdateAngles( true, true );
 		}
 
 		//randomly talk

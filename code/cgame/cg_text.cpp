@@ -87,7 +87,7 @@ const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 
 			// read letter...
 			//
-			qboolean bIsTrailingPunctuation;
+			bool bIsTrailingPunctuation;
 			int iAdvanceCount;
 			unsigned int uiLetter = cgi_AnyLanguage_ReadCharFromString(psCurrentTextReadPos, &iAdvanceCount, &bIsTrailingPunctuation);
 			psCurrentTextReadPos += iAdvanceCount;
@@ -297,7 +297,7 @@ void CG_CaptionText( const char *str, int sound)
 
 		// read letter...
 		//
-		qboolean bIsTrailingPunctuation;
+		bool bIsTrailingPunctuation;
 		int iAdvanceCount;
 		unsigned int uiLetter = cgi_AnyLanguage_ReadCharFromString(s, &iAdvanceCount, &bIsTrailingPunctuation);
 		s += iAdvanceCount;
@@ -528,7 +528,7 @@ void CG_ScrollText( const char *str, int iPixelWidth )
 
 		// read letter...
 		//
-		qboolean bIsTrailingPunctuation;
+		bool bIsTrailingPunctuation;
 		int iAdvanceCount;
 		unsigned int uiLetter = cgi_AnyLanguage_ReadCharFromString(s, &iAdvanceCount, &bIsTrailingPunctuation);
 		s += iAdvanceCount;

@@ -62,8 +62,8 @@ typedef struct {
 
 	float		axisLength;		// compensate for non-normalized axis
 
-	qboolean	needDlights;	// true for bmodels that touch a dlight
-	qboolean	lightingCalculated;
+	bool	needDlights;	// true for bmodels that touch a dlight
+	bool	lightingCalculated;
 	vec3_t		lightDir;		// normalized direction towards light
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed
@@ -86,7 +86,7 @@ typedef struct {
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
-	qboolean	areamaskModified;	// qtrue if areamask changed since last scene
+	bool	areamaskModified;	// true if areamask changed since last scene
 
 	float		floatTime;			// tr.refdef.time / 1000.0
 
@@ -105,7 +105,7 @@ typedef struct {
 	int			numDrawSurfs;
 	struct drawSurf_s	*drawSurfs;
 
-	qboolean	doLAGoggles;
+	bool	doLAGoggles;
 
 	int			fogIndex;	//what fog brush the vieworg is in
 
@@ -529,7 +529,7 @@ typedef struct {
 	fogParms_t	parms;
 
 	// for clipping distance in fog when outside
-	qboolean	hasSurface;
+	bool	hasSurface;
 	float		surface[4];
 } fog_t;
 
@@ -537,8 +537,8 @@ typedef struct {
 	orientationr_t	ori;
 	orientationr_t	world;
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
-	qboolean	isPortal;			// true if this view is through a portal
-	qboolean	isMirror;			// the portal is a mirror, invert the face culling
+	bool	isPortal;			// true if this view is through a portal
+	bool	isMirror;			// the portal is a mirror, invert the face culling
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring
@@ -908,7 +908,7 @@ typedef struct {
 typedef struct {
 	int			currenttextures[2];
 	int			currenttmu;
-	qboolean	finishCalled;
+	bool	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
 	uint32_t	glStateBits;
@@ -936,13 +936,13 @@ typedef struct {
 	viewParms_t	viewParms;
 	orientationr_t	ori;
 	backEndCounters_t	pc;
-	qboolean	isHyperspace;
+	bool	isHyperspace;
 	trRefEntity_t	*currentEntity;
-	qboolean	skyRenderedThisView;	// flag for drawing sun
+	bool	skyRenderedThisView;	// flag for drawing sun
 
-	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+	bool	projection2D;	// if true, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
-	qboolean	vertexes2D;		// shader needs to be finished
+	bool	vertexes2D;		// shader needs to be finished
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
@@ -957,7 +957,7 @@ typedef struct {
 #define NUM_SCRATCH_IMAGES 16
 
 typedef struct {
-	qboolean				registered;		// cleared at shutdown, set at beginRegistration
+	bool				registered;		// cleared at shutdown, set at beginRegistration
 
 	int						visCount;		// incremented every time a new vis cluster is entered
 	int						frameCount;		// incremented every frame
@@ -967,7 +967,7 @@ typedef struct {
 
 	int						frameSceneNum;	// zeroed at RE_BeginFrame
 
-	qboolean				worldMapLoaded;
+	bool				worldMapLoaded;
 	world_t					*world;
 	char					worldDir[MAX_QPATH];		// ie: maps/tim_dm2 (copy of world_t::name sans extension but still includes the path)
 
@@ -1233,7 +1233,7 @@ void R_RenderView( viewParms_t *parms );
 void R_AddMD3Surfaces( trRefEntity_t *e );
 void R_AddNullModelSurfaces( trRefEntity_t *e );
 void R_AddBeamSurfaces( trRefEntity_t *e );
-void R_AddRailSurfaces( trRefEntity_t *e, qboolean isUnderwater );
+void R_AddRailSurfaces( trRefEntity_t *e, bool isUnderwater );
 void R_AddLightningBoltSurfaces( trRefEntity_t *e );
 
 void R_AddPolygonSurfaces( void );
@@ -1305,10 +1305,10 @@ void	GL_Cull( int cullType );
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
 #define GLS_ALPHA			(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 
-void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int iClient, qboolean bDirty );
-void	RE_UploadCinematic (int cols, int rows, const byte *data, int client, qboolean dirty);
+void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int iClient, bool bDirty );
+void	RE_UploadCinematic (int cols, int rows, const byte *data, int client, bool dirty);
 void	RE_GetScreenShot(byte *data, int w, int h);
-byte*	RE_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, qboolean qbVertFlip);
+byte*	RE_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, bool qbVertFlip);
 void	RE_TempRawImage_CleanUp();
 
 void		RE_BeginRegistration( glconfig_t *glconfig );
@@ -1317,27 +1317,27 @@ void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
 int			RE_GetAnimationCFG(const char *psCFGFilename, char *psDest, int iDestSize);
-void		RE_Shutdown( qboolean destroyWindow );
+void		RE_Shutdown( bool destroyWindow );
 
-void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload, qboolean bAllowScreenDissolve);
+void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload, bool bAllowScreenDissolve);
 void		RE_RegisterMedia_LevelLoadEnd(void);
 int			RE_RegisterMedia_GetLevel(void);
-qboolean	RE_RegisterModels_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel = qfalse );
-void*		RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag);
+bool	RE_RegisterModels_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel = false );
+void*		RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, bool *pqbAlreadyFound, memtag_t eTag);
 void		RE_RegisterModels_StoreShaderRequest(const char *psModelFileName, const char *psShaderName, const int *piShaderIndexPoke);
 void		RE_RegisterModels_Info_f(void);
-qboolean	RE_RegisterImages_LevelLoadEnd(void);
+bool	RE_RegisterImages_LevelLoadEnd(void);
 void		RE_RegisterImages_Info_f(void);
 
 
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int glWrapClampMode );
+image_t		*R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, bool allowTC, int glWrapClampMode );
 
-image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, GLenum format, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int wrapClampMode);
+image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, GLenum format, bool mipmap, bool allowPicmip, bool allowTC, int wrapClampMode);
 
-qboolean	R_GetModeInfo( int *width, int *height, int mode );
+bool	R_GetModeInfo( int *width, int *height, int mode );
 
 void		R_SetColorMappings( void );
 void		R_GammaCorrect( byte *buffer, int bufSize );
@@ -1352,7 +1352,7 @@ void	R_InitFogTable( void );
 float	R_FogFactor( float s, float t );
 void	R_InitImages( void );
 void	R_DeleteTextures( void );
-float	R_SumOfUsedImages( qboolean bUseFormat );
+float	R_SumOfUsedImages( bool bUseFormat );
 void	R_InitSkins( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 
@@ -1369,7 +1369,7 @@ extern	const byte	stylesDefault[MAXLIGHTMAPS];
 qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
 
-shader_t	*R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
+shader_t	*R_FindShader( const char *name, const int *lightmapIndex, const byte *styles, bool mipRawImage );
 shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
@@ -1434,7 +1434,7 @@ struct shaderCommands_s
 
 	int			registration;
 
-	qboolean	SSInitializedWind;
+	bool	SSInitializedWind;
 
 	//rww - doing a fade, don't compute shader color/alpha overrides
 	bool		fading;
@@ -1484,7 +1484,7 @@ LIGHTS
 ============================================================
 */
 
-void R_DlightBmodel( bmodel_t *bmodel, qboolean NoLight );
+void R_DlightBmodel( bmodel_t *bmodel, bool NoLight );
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori );
 
@@ -1561,7 +1561,7 @@ void RE_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *vert
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );
 
-qboolean RE_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+bool RE_GetLighting( const vec3_t origin, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 
 // Only returns a four sided face and normal of the best face to break ( this is for glass right now )
 void RE_GetBModelVerts( int bmodelIndex, vec3_t *verts, vec3_t normal );
@@ -1820,14 +1820,14 @@ void RE_LAGoggles( void );
 void RE_Scissor ( float x, float y, float w, float h);
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
-qboolean	RE_ProcessDissolve(void);
-qboolean	RE_InitDissolve(qboolean bForceCircularExtroWipe);
+bool	RE_ProcessDissolve(void);
+bool	RE_InitDissolve(bool bForceCircularExtroWipe);
 
 
 long generateHashValue( const char *fname );
 void R_LoadImage( const char *name, byte **pic, int *width, int *height );
 void		RE_InsertModelIntoHash(const char *name, model_t *mod);
-qboolean R_FogParmsMatch( int fog1, int fog2 );
+bool R_FogParmsMatch( int fog1, int fog2 );
 
 /*
 Ghoul2 Insert Start
@@ -1836,8 +1836,8 @@ Ghoul2 Insert Start
 // tr_ghoul2.cpp
 void		Create_Matrix(const float *angle, mdxaBone_t *matrix);
 void		Multiply_3x4Matrix(mdxaBone_t *out,const mdxaBone_t *in2,const mdxaBone_t *in);
-extern qboolean R_LoadMDXM (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
-extern qboolean R_LoadMDXA (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
+extern bool R_LoadMDXM (model_t *mod, void *buffer, const char *name, bool &bAlreadyCached );
+extern bool R_LoadMDXA (model_t *mod, void *buffer, const char *name, bool &bAlreadyCached );
 /*
 Ghoul2 Insert End
 */

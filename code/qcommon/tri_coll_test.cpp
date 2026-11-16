@@ -116,11 +116,11 @@
     e=Ax*Cy-Ay*Cx;                                    \
     if(f>0)                                           \
     {                                                 \
-      if(e>=0 && e<=f) return qtrue;                      \
+      if(e>=0 && e<=f) return true;                      \
     }                                                 \
     else                                              \
     {                                                 \
-      if(e<=0 && e>=f) return qtrue;                      \
+      if(e<=0 && e>=f) return true;                      \
     }                                                 \
   }
 
@@ -158,11 +158,11 @@
   d2=a*V0[i0]+b*V0[i1]+c;                   \
   if(d0*d1>0.0)                             \
   {                                         \
-    if(d0*d2>0.0) return qtrue;                 \
+    if(d0*d2>0.0) return true;                 \
   }                                         \
 }
 
-qboolean coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
+bool coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
                      vec3_t U0,vec3_t U1,vec3_t U2)
 {
    vec3_t A;
@@ -208,10 +208,10 @@ qboolean coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
     POINT_IN_TRI(V0,U0,U1,U2);
     POINT_IN_TRI(U0,V0,V1,V2);
 
-    return qfalse;
+    return false;
 }
 
-qboolean tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,
+bool tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,
                       vec3_t U0,vec3_t U1,vec3_t U2)
 {
   vec3_t E1,E2;
@@ -248,7 +248,7 @@ qboolean tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,
   du0du2=du0*du2;
 
   if(du0du1>0.0f && du0du2>0.0f) /* same sign on all of them + not equal 0 ? */
-    return qfalse;                    /* no intersection occurs */
+    return false;                    /* no intersection occurs */
 
   /* compute plane of triangle (U0,U1,U2) */
   SUB(E1,U1,U0);
@@ -272,7 +272,7 @@ qboolean tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,
   dv0dv2=dv0*dv2;
 
   if(dv0dv1>0.0f && dv0dv2>0.0f) /* same sign on all of them + not equal 0 ? */
-    return qfalse;                    /* no intersection occurs */
+    return false;                    /* no intersection occurs */
 
   /* compute direction of intersection line */
   CROSS(D,N1,N2);
@@ -303,8 +303,8 @@ qboolean tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,
   SORT(isect1[0],isect1[1]);
   SORT(isect2[0],isect2[1]);
 
-  if(isect1[1]<isect2[0] || isect2[1]<isect1[0]) return qtrue;
-  return qfalse;
+  if(isect1[1]<isect2[0] || isect2[1]<isect1[0]) return true;
+  return false;
 }
 
 
@@ -339,7 +339,7 @@ float LineSegmentDistance( vec3_t a, vec3_t b, vec3_t c, vec3_t d )
 	return dist;
 }
 
-extern qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
+extern bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 )
 {
 	float	current_dist, new_dist;
@@ -373,29 +373,29 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 	{
 		float s = -( (v2v2*DotProduct( v1, start_dif )) - (v1v2*DotProduct( v2, start_dif )) ) / denom;
 		float t = ( (v1v1*DotProduct( v2, start_dif )) - (v1v2*DotProduct( v1, start_dif )) ) / denom;
-		qboolean done = qtrue;
+		bool done = true;
 
 		if ( s < 0 )
 		{
-			done = qfalse;
+			done = false;
 			s = 0;// and see note below
 		}
 
 		if ( s > 1 )
 		{
-			done = qfalse;
+			done = false;
 			s = 1;// and see note below
 		}
 
 		if ( t < 0 )
 		{
-			done = qfalse;
+			done = false;
 			t = 0;// and see note below
 		}
 
 		if ( t > 1 )
 		{
-			done = qfalse;
+			done = false;
 			t = 1;// and see note below
 		}
 

@@ -28,40 +28,40 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 Goodie Keys
 ================
 */
-qboolean INV_GoodieKeyGive( gentity_t *target )
+bool INV_GoodieKeyGive( gentity_t *target )
 {
 	if ( !target || !target->client )
 	{
-		return (qfalse);
+		return (false);
 	}
 
 	target->client->ps.inventory[INV_GOODIE_KEY]++;
-	return (qtrue);
+	return (true);
 
 }
 
-qboolean INV_GoodieKeyTake( gentity_t *target )
+bool INV_GoodieKeyTake( gentity_t *target )
 {
 	if ( !target || !target->client )
 	{
-		return (qfalse);
+		return (false);
 	}
 
 	if (target->client->ps.inventory[INV_GOODIE_KEY])
 	{
 		target->client->ps.inventory[INV_GOODIE_KEY]--;
-		return (qtrue);
+		return (true);
 	}
 
 	//had no keys
-	return (qfalse);
+	return (false);
 }
 
 int INV_GoodieKeyCheck( gentity_t *target )
 {
 	if ( !target || !target->client )
 	{
-		return (qfalse);
+		return (false);
 	}
 
 	if ( target->client->ps.inventory[INV_GOODIE_KEY] )
@@ -70,7 +70,7 @@ int INV_GoodieKeyCheck( gentity_t *target )
 	}
 
 	//no keys
-	return (qfalse);
+	return (false);
 }
 
 /*
@@ -78,11 +78,11 @@ int INV_GoodieKeyCheck( gentity_t *target )
 Security Keys
 ================
 */
-qboolean INV_SecurityKeyGive( gentity_t *target, const char *keyname )
+bool INV_SecurityKeyGive( gentity_t *target, const char *keyname )
 {
 	if ( target == NULL || keyname == NULL || target->client == NULL )
 	{
-		return qfalse;
+		return false;
 	}
 
 	for ( int i = 0; i < MAX_SECURITY_KEYS; i++ )
@@ -91,11 +91,11 @@ qboolean INV_SecurityKeyGive( gentity_t *target, const char *keyname )
 		{//fill in the first empty slot we find with this key
 			target->client->ps.inventory[INV_SECURITY_KEY]++;	// He got the key
 			Q_strncpyz( target->client->ps.security_key_message[i], keyname, MAX_SECURITY_KEY_MESSSAGE );
-			return qtrue;
+			return true;
 		}
 	}
 	//couldn't find an empty slot
-	return qfalse;
+	return false;
 }
 
 void INV_SecurityKeyTake( gentity_t *target, const char *keyname )
@@ -126,11 +126,11 @@ void INV_SecurityKeyTake( gentity_t *target, const char *keyname )
 	}
 }
 
-qboolean INV_SecurityKeyCheck( gentity_t *target, const char *keyname )
+bool INV_SecurityKeyCheck( gentity_t *target, const char *keyname )
 {
 	if ( !target || !keyname || !target->client )
 	{
-		return (qfalse);
+		return (false);
 	}
 
 	for ( int i = 0; i < MAX_SECURITY_KEYS; i++ )
@@ -139,7 +139,7 @@ qboolean INV_SecurityKeyCheck( gentity_t *target, const char *keyname )
 		{
 			if ( !Q_stricmp( keyname, target->client->ps.security_key_message[i] ) )
 			{
-				return (qtrue);
+				return (true);
 			}
 		}
 		/*
@@ -151,5 +151,5 @@ qboolean INV_SecurityKeyCheck( gentity_t *target, const char *keyname )
 		*/
 	}
 
-	return (qfalse);
+	return (false);
 }

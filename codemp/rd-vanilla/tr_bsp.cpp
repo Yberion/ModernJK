@@ -241,7 +241,7 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 			}
 		}
 		tr.lightmaps[i] = R_CreateImage( va("*%s/lightmap%d",sMapName,i), image,
-			LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, qfalse, qfalse, (qboolean)r_ext_compressed_lightmaps->integer, GL_CLAMP );
+			LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, false, false, r_ext_compressed_lightmaps->integer, GL_CLAMP );
 	}
 
 	if ( r_lightmap->integer == 2 )	{
@@ -330,7 +330,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, const int *lightmapNum, cons
 		styles = vertexStyles;
 	}
 
-	shader = R_FindShader( dsh->shader, lightmapNum, styles, qtrue );
+	shader = R_FindShader( dsh->shader, lightmapNum, styles, true );
 
 	// if the shader had errors, just use default shader
 	if ( shader->defaultShader ) {
@@ -632,10 +632,10 @@ int R_MergedWidthPoints(srfGridMesh_t *grid, int offset) {
 			if ( Q_fabs(grid->verts[i + offset].xyz[0] - grid->verts[j + offset].xyz[0]) > .1) continue;
 			if ( Q_fabs(grid->verts[i + offset].xyz[1] - grid->verts[j + offset].xyz[1]) > .1) continue;
 			if ( Q_fabs(grid->verts[i + offset].xyz[2] - grid->verts[j + offset].xyz[2]) > .1) continue;
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -653,10 +653,10 @@ int R_MergedHeightPoints(srfGridMesh_t *grid, int offset) {
 			if ( Q_fabs(grid->verts[grid->width * i + offset].xyz[0] - grid->verts[grid->width * j + offset].xyz[0]) > .1) continue;
 			if ( Q_fabs(grid->verts[grid->width * i + offset].xyz[1] - grid->verts[grid->width * j + offset].xyz[1]) > .1) continue;
 			if ( Q_fabs(grid->verts[grid->width * i + offset].xyz[2] - grid->verts[grid->width * j + offset].xyz[2]) > .1) continue;
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -686,7 +686,7 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1, world_t &worl
 		if ( grid1->lodOrigin[1] != grid2->lodOrigin[1] ) continue;
 		if ( grid1->lodOrigin[2] != grid2->lodOrigin[2] ) continue;
 		//
-		touch = qfalse;
+		touch = false;
 		for (n = 0; n < 2; n++) {
 			//
 			if (n) offset1 = (grid1->height-1) * grid1->width;
@@ -705,7 +705,7 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1, world_t &worl
 						if ( Q_fabs(grid1->verts[k + offset1].xyz[2] - grid2->verts[l + offset2].xyz[2]) > .1) continue;
 						// ok the points are equal and should have the same lod error
 						grid2->widthLodError[l] = grid1->widthLodError[k];
-						touch = qtrue;
+						touch = true;
 					}
 				}
 				for (m = 0; m < 2; m++) {
@@ -720,7 +720,7 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1, world_t &worl
 						if ( Q_fabs(grid1->verts[k + offset1].xyz[2] - grid2->verts[grid2->width * l + offset2].xyz[2]) > .1) continue;
 						// ok the points are equal and should have the same lod error
 						grid2->heightLodError[l] = grid1->widthLodError[k];
-						touch = qtrue;
+						touch = true;
 					}
 				}
 			}
@@ -743,7 +743,7 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1, world_t &worl
 						if ( Q_fabs(grid1->verts[grid1->width * k + offset1].xyz[2] - grid2->verts[l + offset2].xyz[2]) > .1) continue;
 						// ok the points are equal and should have the same lod error
 						grid2->widthLodError[l] = grid1->heightLodError[k];
-						touch = qtrue;
+						touch = true;
 					}
 				}
 				for (m = 0; m < 2; m++) {
@@ -758,7 +758,7 @@ void R_FixSharedVertexLodError_r( int start, srfGridMesh_t *grid1, world_t &worl
 						if ( Q_fabs(grid1->verts[grid1->width * k + offset1].xyz[2] - grid2->verts[grid2->width * l + offset2].xyz[2]) > .1) continue;
 						// ok the points are equal and should have the same lod error
 						grid2->heightLodError[l] = grid1->heightLodError[k];
-						touch = qtrue;
+						touch = true;
 					}
 				}
 			}
@@ -862,9 +862,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else row = 0;
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 			for (m = 0; m < 2; m++) {
@@ -908,9 +908,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else column = 0;
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 		}
@@ -963,9 +963,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else row = 0;
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 			for (m = 0; m < 2; m++) {
@@ -1009,9 +1009,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else column = 0;
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 		}
@@ -1065,9 +1065,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else row = 0;
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 			for (m = 0; m < 2; m++) {
@@ -1113,9 +1113,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 										grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					if (!grid2)
 						break;
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 		}
@@ -1168,9 +1168,9 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else row = 0;
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 			for (m = 0; m < 2; m++) {
@@ -1214,14 +1214,14 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					else column = 0;
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
-					grid2->lodStitched = qfalse;
+					grid2->lodStitched = false;
 					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1274,7 +1274,7 @@ void R_StitchAllPatches( world_t &worldData ) {
 
 	do
 	{
-		stitched = qfalse;
+		stitched = false;
 		for ( i = 0; i < worldData.numsurfaces; i++ ) {
 			//
 			grid1 = (srfGridMesh_t *) worldData.surfaces[i].data;
@@ -1285,8 +1285,8 @@ void R_StitchAllPatches( world_t &worldData ) {
 			if ( grid1->lodStitched )
 				continue;
 			//
-			grid1->lodStitched = qtrue;
-			stitched = qtrue;
+			grid1->lodStitched = true;
+			stitched = true;
 			//
 			R_TryStitchingPatch( i, worldData );
 		}
@@ -1433,7 +1433,7 @@ static	void R_LoadSubmodels( lump_t *l, world_t &worldData, int index ) {
 		if (index)
 		{
 			Com_sprintf( model->name, sizeof( model->name ), "*%d-%d", index, i );
-			model->bspInstance = qtrue;
+			model->bspInstance = true;
 		}
 		else
 		{
@@ -1754,7 +1754,7 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 		}
 
 		// get information from the shader for fog parameters
-		shader = R_FindShader( fogs->shader, lightmaps, stylesDefault, qtrue );
+		shader = R_FindShader( fogs->shader, lightmaps, stylesDefault, true );
 
 		if (!shader->fogParms)
 		{//bad shader!!
@@ -1779,10 +1779,10 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 		sideNum = LittleLong( fogs->visibleSide );
 
 		if ( sideNum == -1 ) {
-			//rww - we need to set this to qtrue for global fog as well
-			out->hasSurface = qtrue;
+			//rww - we need to set this to true for global fog as well
+			out->hasSurface = true;
 		} else {
-			out->hasSurface = qtrue;
+			out->hasSurface = true;
 			planeNum = LittleLong( sides[ firstSide + sideNum ].planeNum );
 			VectorSubtract( vec3_origin, worldData.planes[ planeNum ].normal, out->surface );
 			out->surface[3] = -worldData.planes[ planeNum ].dist;
@@ -1898,7 +1898,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 
 	COM_BeginParseSession ("R_LoadEntities");
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if (!*token || *token != '{') {
 		return;
 	}
@@ -1906,7 +1906,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 	// only parse the world spawn
 	while ( 1 ) {
 		// parse key
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1914,7 +1914,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1973,21 +1973,21 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 R_GetEntityToken
 =================
 */
-qboolean R_GetEntityToken( char *buffer, int size ) {
+bool R_GetEntityToken( char *buffer, int size ) {
 	const char	*s;
 
 	if (size == -1)
 	{ //force reset
 		s_worldData.entityParsePoint = s_worldData.entityString;
-		return qtrue;
+		return true;
 	}
 
 	s = COM_Parse( (const char **) &s_worldData.entityParsePoint );
 	Q_strncpyz( buffer, s, size );
 	if ( !s_worldData.entityParsePoint || !s[0] ) {
-		return qfalse;
+		return false;
 	} else {
-		return qtrue;
+		return true;
 	}
 }
 
@@ -2020,7 +2020,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index )
 
 		VectorNormalize( tr.sunDirection );
 
-		tr.worldMapLoaded = qtrue;
+		tr.worldMapLoaded = true;
 
 		// clear tr.world so if the level fails to load, the next
 		// try will not look at the partially loaded version
@@ -2107,7 +2107,7 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index )
 //
 void RE_LoadWorldMap( const char *name )
 {
-	ri.CM_SetUsingCache( qtrue );
+	ri.CM_SetUsingCache( true );
 	RE_LoadWorldMap_Actual( name, s_worldData, 0 );
-	ri.CM_SetUsingCache( qfalse );
+	ri.CM_SetUsingCache( false );
 }

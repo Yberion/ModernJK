@@ -47,7 +47,7 @@ int				mParticles;
 int				mOParticles;
 int				mLines;
 int				mTails;
-qboolean		fxInitialized = qfalse;
+bool		fxInitialized = false;
 
 //-------------------------
 // FX_Free
@@ -101,9 +101,9 @@ void FX_Stop( void )
 //-------------------------
 int	FX_Init( void )
 {
-	if ( fxInitialized == qfalse )
+	if ( fxInitialized == false )
 	{
-		fxInitialized = qtrue;
+		fxInitialized = true;
 
 		for ( int i = 0; i < MAX_EFFECTS; i++ )
 		{

@@ -35,23 +35,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_vehicles.h"
 #include "../ghoul2/ghoul2_gore.h"
 
-extern void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt );
-extern qboolean PM_InAnimForSaberMove( int anim, int saberMove );
-extern qboolean PM_InForceGetUp( playerState_t *ps );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InReboundJump( int anim );
-extern qboolean PM_StabDownAnim( int anim );
-extern qboolean PM_DodgeAnim( int anim );
-extern qboolean PM_DodgeHoldAnim( int anim );
-extern qboolean PM_InReboundHold( int anim );
-extern qboolean PM_InKnockDownNoGetup( playerState_t *ps );
-extern qboolean PM_InGetUpNoRoll( playerState_t *ps );
+extern void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt );
+extern bool PM_InAnimForSaberMove( int anim, int saberMove );
+extern bool PM_InForceGetUp( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InReboundJump( int anim );
+extern bool PM_StabDownAnim( int anim );
+extern bool PM_DodgeAnim( int anim );
+extern bool PM_DodgeHoldAnim( int anim );
+extern bool PM_InReboundHold( int anim );
+extern bool PM_InKnockDownNoGetup( playerState_t *ps );
+extern bool PM_InGetUpNoRoll( playerState_t *ps );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
-extern qboolean G_ControlledByPlayer( gentity_t *self );
+extern bool G_ControlledByPlayer( gentity_t *self );
 
-extern qboolean cg_usingInFrontOf;
-extern qboolean		player_locked;
+extern bool cg_usingInFrontOf;
+extern bool		player_locked;
 extern pmove_t		*pm;
 extern pml_t		pml;
 
@@ -60,8 +60,8 @@ extern cvar_t	*g_debugMelee;
 
 void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone, const char *firstBone, const char *secondBone,
 				   int time, entityState_t *ent, int animFileIndex, int basePose,
-				   vec3_t desiredPos, qboolean *ikInProgress, vec3_t origin,
-				   vec3_t angles, vec3_t scale, int blendTime, qboolean forceHalt )
+				   vec3_t desiredPos, bool *ikInProgress, vec3_t origin,
+				   vec3_t angles, vec3_t scale, int blendTime, bool forceHalt )
 {
 	mdxaBone_t holdPointMatrix;
 	vec3_t holdPoint;
@@ -100,7 +100,7 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 		ikP.startFrame = anim->firstFrame + anim->numFrames;
 		ikP.endFrame = anim->firstFrame + anim->numFrames;
 
-		//ikP.forceAnimOnBone = qfalse; //let it use existing anim if it's the same as this one.
+		//ikP.forceAnimOnBone = false; //let it use existing anim if it's the same as this one.
 
 		//we want to call with a null bone name first. This will init all of the
 		//ik system stuff on the g2 instance, because we need ragdoll effectors
@@ -134,7 +134,7 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 
 						if ( gi.G2API_SetBoneIKState( ghoul2, time, firstBone, IKS_DYNAMIC, &ikP ) )
 						{ //everything went alright.
-							*ikInProgress = qtrue;
+							*ikInProgress = true;
 						}
 					}
 				}
@@ -204,7 +204,7 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 		}
 		else
 		{
-			*ikInProgress = qfalse;
+			*ikInProgress = false;
 		}
 	}
 	else if ( *ikInProgress )
@@ -236,7 +236,7 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 		//And finally, get rid of all the ik state effector data by calling with null bone name (similar to how we init it).
 		gi.G2API_SetBoneIKState( ghoul2, time, NULL, IKS_NONE, NULL );
 
-		*ikInProgress = qfalse;
+		*ikInProgress = false;
 	}
 }
 
@@ -289,7 +289,7 @@ void PM_IKUpdate( gentity_t *ent )
 					level.time, &ent->s, ent->client->clientInfo.animFileIndex,
 					ent->client->ps.torsoAnim/*BOTH_DEAD1*/, boltOrg, &ent->client->ps.ikStatus,
 					ent->client->ps.origin, ent->client->ps.viewangles, ent->s.modelScale,
-					500, qfalse );
+					500, false );
 
 				//now see if we need to be turned and/or pulled
 				vec3_t grabDiff, grabbedByOrg;
@@ -352,7 +352,7 @@ void PM_IKUpdate( gentity_t *ent )
 		else
 		{ //This shouldn't happen, but just in case it does, we'll have a failsafe.
 			ent->client->ps.heldByBolt = 0;
-			ent->client->ps.ikStatus = qfalse;
+			ent->client->ps.ikStatus = false;
 		}
 
 		if ( ent->client->ps.heldByBolt )
@@ -361,7 +361,7 @@ void PM_IKUpdate( gentity_t *ent )
 				level.time, &ent->s, ent->client->clientInfo.animFileIndex,
 				ent->client->ps.torsoAnim/*BOTH_DEAD1*/, (float *)vec3_origin,
 				&ent->client->ps.ikStatus, ent->client->ps.origin,
-				ent->client->ps.viewangles, ent->s.modelScale, 500, qtrue );
+				ent->client->ps.viewangles, ent->s.modelScale, 500, true );
 		}
 	}
 }
@@ -412,7 +412,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 }
 
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-qboolean PM_LockAngles( gentity_t *ent, usercmd_t *ucmd )
+bool PM_LockAngles( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 	{//don't clamp angles when looking through a viewEntity
@@ -420,10 +420,10 @@ qboolean PM_LockAngles( gentity_t *ent, usercmd_t *ucmd )
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
 	if ( ((ent->client->ps.eFlags&EF_FORCE_GRIPPED)||(ent->client->ps.eFlags&EF_FORCE_DRAINED)) && ent->enemy )
 	{
@@ -439,12 +439,12 @@ qboolean PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 		}
 		ucmd->angles[PITCH] = ANGLE2SHORT(angles[PITCH]) - ent->client->ps.delta_angles[PITCH];
 		ucmd->angles[YAW] = ANGLE2SHORT(angles[YAW]) - ent->client->ps.delta_angles[YAW];
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesToPuller( gentity_t *ent, gentity_t *puller, usercmd_t *ucmd, qboolean faceAway )
+bool PM_AdjustAnglesToPuller( gentity_t *ent, gentity_t *puller, usercmd_t *ucmd, bool faceAway )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
 	vec3_t dir, angles;
 
@@ -462,10 +462,10 @@ qboolean PM_AdjustAnglesToPuller( gentity_t *ent, gentity_t *puller, usercmd_t *
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT(angles[PITCH]) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT(angles[YAW]) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doMove )
+bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 {
 	if (( ent->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT || ent->client->ps.legsAnim == BOTH_WALL_RUN_LEFT ) && ent->client->ps.legsAnimTimer > 500 )
 	{//wall-running and not at end of anim
@@ -569,7 +569,7 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 				}
 			}
 			ucmd->forwardmove = 0;
-			return qtrue;
+			return true;
 		}
 		else if ( doMove )
 		{//stop it
@@ -583,11 +583,11 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 extern int PM_AnimLength( int index, animNumber_t anim );
-qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboolean anglesOnly )
+bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool anglesOnly )
 {
 	vec3_t	newAngles;
 	float	animLength, spinStart, spinEnd, spinAmt, spinLength;
@@ -617,7 +617,7 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 				cg.overrides.thirdPersonVertOffset = 0;
 			}
 		}
-		return qfalse;
+		return false;
 	}
 	animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, spinAnim );
 	float elapsedTime = (float)(animLength-ent->client->ps.legsAnimTimer);
@@ -635,12 +635,12 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 		ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
 		if ( anglesOnly )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 	else if ( anglesOnly )
 	{
-		return qfalse;
+		return false;
 	}
 	//push me
 	if ( ent->client->ps.legsAnimTimer > 300 )//&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
@@ -671,14 +671,14 @@ qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboole
 		cg.overrides.thirdPersonVertOffset = cg_thirdPersonVertOffset.value+viewDip;
 		//pm->ps->viewheight = standheight + viewDip;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( (ent->s.number>=MAX_CLIENTS&&!G_ControlledByPlayer(ent)) )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( ( ent->client->ps.saberMove == LS_A_BACK || ent->client->ps.saberMove == LS_A_BACK_CR || ent->client->ps.saberMove == LS_A_BACKSTAB )
 		&& PM_InAnimForSaberMove( ent->client->ps.torsoAnim, ent->client->ps.saberMove ) )
@@ -709,12 +709,12 @@ qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd )
 			ucmd->angles[YAW] = ANGLE2SHORT( AngleNormalize180( ent->client->ps.viewangles[YAW] + yawError ) ) - ent->client->ps.delta_angles[YAW];
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.saberLockTime > level.time )
 	{
@@ -724,9 +724,9 @@ qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
 		}
 		ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 		ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 int G_MinGetUpTime( gentity_t *ent )
@@ -766,7 +766,7 @@ int G_MinGetUpTime( gentity_t *ent )
 	return 200;
 }
 
-qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean angleClampOnly )
+bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleClampOnly )
 {
 	if ( PM_InKnockDown( &ent->client->ps ) )
 	{//being knocked down or getting up, can't do anything!
@@ -798,13 +798,13 @@ qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean 
 			}
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 			ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForDualJumpAttack( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForDualJumpAttack( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 	{//don't clamp angles when looking through a viewEntity
@@ -812,10 +812,10 @@ qboolean PM_AdjustAnglesForDualJumpAttack( gentity_t *ent, usercmd_t *ucmd )
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForLongJump( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForLongJump( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 	{//don't clamp angles when looking through a viewEntity
@@ -823,10 +823,10 @@ qboolean PM_AdjustAnglesForLongJump( gentity_t *ent, usercmd_t *ucmd )
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForGrapple( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForGrapple( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 	{//don't clamp angles when looking through a viewEntity
@@ -834,10 +834,10 @@ qboolean PM_AdjustAnglesForGrapple( gentity_t *ent, usercmd_t *ucmd )
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean doMove )
+bool PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 {
 	if ( ent->client->ps.legsAnim == BOTH_FORCEWALLRUNFLIP_START )
 	{//wall-running up
@@ -871,7 +871,7 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 				ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
 				G_AddEvent( ent, EV_JUMP, 0 );
 				ucmd->upmove = 0;
-				return qfalse;
+				return false;
 			}
 		}
 		if ( //ucmd->upmove <= 0 &&
@@ -939,7 +939,7 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 					}
 				}
 				ucmd->forwardmove = 0;
-				return qtrue;
+				return true;
 			}
 		}
 		//failed!
@@ -953,10 +953,10 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 			ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
 			G_AddEvent( ent, EV_JUMP, 0 );
 			ucmd->upmove = 0;
-			//return qtrue;
+			//return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 float G_ForceWallJumpStrength( void )
@@ -964,7 +964,7 @@ float G_ForceWallJumpStrength( void )
 	return (forceJumpStrength[FORCE_LEVEL_3]/2.5f);
 }
 
-qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean doMove )
+bool PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 {
 	if ( PM_InReboundJump( ent->client->ps.legsAnim )
 		|| PM_InReboundHold( ent->client->ps.legsAnim ) )
@@ -999,7 +999,7 @@ qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean do
 			break;
 		default:
 			//WTF???
-			return qfalse;
+			return false;
 			break;
 		}
 		if ( g_debugMelee->integer )
@@ -1062,7 +1062,7 @@ qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean do
 			}
 			ucmd->upmove = 0;
 			ent->client->ps.pm_flags |= PMF_STUCK_TO_WALL;
-			return qtrue;
+			return true;
 		}
 		else if ( doMove
 			&& (ent->client->ps.pm_flags&PMF_STUCK_TO_WALL))
@@ -1086,14 +1086,14 @@ qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean do
 			ucmd->forwardmove = 0;
 			ucmd->rightmove = 0;
 			ucmd->upmove = 0;
-			//return qtrue;
+			//return true;
 		}
 	}
 	ent->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForBFKick( gentity_t *self, usercmd_t *ucmd, vec3_t fwdAngs, qboolean aimFront )
+bool PM_AdjustAnglesForBFKick( gentity_t *self, usercmd_t *ucmd, vec3_t fwdAngs, bool aimFront )
 {
 	//Auto-aim the player at the ent in front/back of them
 	//FIXME: camera angle should always be in front/behind me for the 2 kicks
@@ -1193,7 +1193,7 @@ qboolean PM_AdjustAnglesForBFKick( gentity_t *self, usercmd_t *ucmd, vec3_t fwdA
 			SetClientViewAngle( self, self->client->ps.viewangles );
 		}
 		ucmd->angles[YAW] = ANGLE2SHORT( self->client->ps.viewangles[YAW] ) - self->client->ps.delta_angles[YAW];
-		return qtrue;
+		return true;
 	}
 	else
 	{//lock these angles
@@ -1203,10 +1203,10 @@ qboolean PM_AdjustAnglesForBFKick( gentity_t *self, usercmd_t *ucmd, vec3_t fwdA
 		}
 		ucmd->angles[YAW] = ANGLE2SHORT( self->client->ps.viewangles[YAW] ) - self->client->ps.delta_angles[YAW];
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( PM_StabDownAnim( ent->client->ps.torsoAnim )
 		&& ent->client->ps.torsoAnimTimer )
@@ -1285,12 +1285,12 @@ qboolean PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd )
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 			ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForSpinProtect( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForSpinProtect( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.torsoAnim == BOTH_A6_SABERPROTECT )
 	{//in the dual spin thing
@@ -1304,13 +1304,13 @@ qboolean PM_AdjustAnglesForSpinProtect( gentity_t *ent, usercmd_t *ucmd )
 			}
 			ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 			ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_AdjustAnglesForWallRunUpFlipAlt( gentity_t *ent, usercmd_t *ucmd )
+bool PM_AdjustAnglesForWallRunUpFlipAlt( gentity_t *ent, usercmd_t *ucmd )
 {
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
 	{//don't clamp angles when looking through a viewEntity
@@ -1318,15 +1318,15 @@ qboolean PM_AdjustAnglesForWallRunUpFlipAlt( gentity_t *ent, usercmd_t *ucmd )
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( ent->client->ps.viewangles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( ent->client->ps.viewangles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster, usercmd_t *ucmd )
+bool PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster, usercmd_t *ucmd )
 {
 	vec3_t	newViewAngles;
 	if ( !monster || !monster->client )
 	{
-		return qfalse;
+		return false;
 	}
 	VectorScale( monster->client->ps.viewangles, -1, newViewAngles );
 	if ( ent->client->ps.viewEntity <= 0 || ent->client->ps.viewEntity >= ENTITYNUM_WORLD )
@@ -1335,10 +1335,10 @@ qboolean PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster, us
 	}
 	ucmd->angles[PITCH] = ANGLE2SHORT( newViewAngles[PITCH] ) - ent->client->ps.delta_angles[PITCH];
 	ucmd->angles[YAW] = ANGLE2SHORT( newViewAngles[YAW] ) - ent->client->ps.delta_angles[YAW];
-	return qtrue;
+	return true;
 }
 
-qboolean G_OkayToLean( playerState_t *ps, usercmd_t *cmd, qboolean interruptOkay )
+bool G_OkayToLean( playerState_t *ps, usercmd_t *cmd, bool interruptOkay )
 {
 	if ( (ps->clientNum < MAX_CLIENTS||G_ControlledByPlayer(&g_entities[ps->clientNum]))//player
 		&& ps->groundEntityNum != ENTITYNUM_NONE//on ground
@@ -1354,9 +1354,9 @@ qboolean G_OkayToLean( playerState_t *ps, usercmd_t *cmd, qboolean interruptOkay
 		&& VectorCompare( ps->velocity, vec3_origin )//not moving
 		&& !cg_usingInFrontOf )//use button wouldn't be used for anything else
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 /*
 ================
@@ -1375,7 +1375,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	int			i;
 	vec3_t		start, end, tmins, tmaxs, right;
 	trace_t		trace;
-	qboolean	lockedYaw = qfalse/*, clamped = qfalse*/;
+	bool	lockedYaw = false/*, clamped = false*/;
 
 	if ( ps->pm_type == PM_INTERMISSION )
 	{
@@ -1409,7 +1409,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			yawMin = 0 - gent->client->renderInfo.headYawRangeLeft - gent->client->renderInfo.torsoYawRangeLeft;
 			yawMax = gent->client->renderInfo.headYawRangeRight + gent->client->renderInfo.torsoYawRangeRight;
 
-			lockedYaw = qtrue;
+			lockedYaw = true;
 			lockedYawValue = gent->client->renderInfo.lockYaw;
 		}
 		else
@@ -1430,7 +1430,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			lockedYawValue = gent->owner->s.angles[YAW];
 			yawMax = gent->owner->s.origin2[0];
 			yawMin = yawMax *-1;
-			lockedYaw = qtrue;
+			lockedYaw = true;
 			*/
 		}
 		else
@@ -1454,7 +1454,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			rootPitch = pVeh->m_vOrientation[PITCH];//???  what if goes over 90 when add the min/max?
 			pitchMax = 0.0f;//pVeh->m_pVehicleInfo->pitchLimit;
 			pitchMin = 0.0f;//-pitchMax;
-			lockedYaw = qtrue;
+			lockedYaw = true;
 		}
 		// If we're riding a vehicle...
 		else if ( (pVeh = G_IsRidingVehicle( gent ) ) != NULL )
@@ -1462,7 +1462,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			if ( pVeh->m_pVehicleInfo->type != VH_ANIMAL )
 			{//animals just turn normally, no clamping
 				lockedYawValue = 0;//gent->owner->client->ps.vehicleAngles[YAW];
-				lockedYaw = qtrue;
+				lockedYaw = true;
 				yawMax = pVeh->m_pVehicleInfo->lookYaw;
 				yawMin = -yawMax;
 				if ( pVeh->m_pVehicleInfo->type == VH_FIGHTER )
@@ -1483,7 +1483,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		/*if ( vehIndex != -1 )
 		{
 			//FIXME: read from NPCs.cfg or vehicles.cfg?
-			lockedYaw = qtrue;
+			lockedYaw = true;
 		}*/
 	}
 
@@ -1504,13 +1504,13 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			{
 				ps->delta_angles[i] = (pitchClampMax - cmd->angles[i]) & 0xffff;	//& clamp to short
 				temp = pitchClampMax;
-				//clamped = qtrue;
+				//clamped = true;
 			}
 			else if ( temp < pitchClampMin )
 			{
 				ps->delta_angles[i] = (pitchClampMin - cmd->angles[i]) & 0xffff;	//& clamp to short
 				temp = pitchClampMin;
-				//clamped = qtrue;
+				//clamped = true;
 			}
 		}
 		/*
@@ -1549,12 +1549,12 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			// don't let the player look left or right more than the clamp, if any
 			if ( yawDiff > yawMax )
 			{
-				//clamped = qtrue;
+				//clamped = true;
 				ps->viewangles[i] = AngleNormalize180( lockedYawValue+((yawMax-2)*multiplier) );
 			}
 			else if ( yawDiff < yawMin )
 			{
-				//clamped = qtrue;
+				//clamped = true;
 				ps->viewangles[i] = AngleNormalize180( lockedYawValue+((yawMin+2)*multiplier) );
 			}
 			else
@@ -1571,13 +1571,13 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 			{
 				ps->delta_angles[i] = (yawClampMax - cmd->angles[i]) & 0xffff;	//& clamp to short
 				temp = yawClampMax;
-				//clamped = qtrue;
+				//clamped = true;
 			}
 			else if ( temp < yawClampMin )
 			{
 				ps->delta_angles[i] = (yawClampMin - cmd->angles[i]) & 0xffff;	//& clamp to short
 				temp = yawClampMin;
-				//clamped = qtrue;
+				//clamped = true;
 			}
 			ps->viewangles[i] = SHORT2ANGLE(temp);
 		}
@@ -1593,7 +1593,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		{//check leaning
 			if ( cg.renderingThirdPerson )
 			{//third person lean
-				if ( G_OkayToLean( ps, cmd, qtrue )
+				if ( G_OkayToLean( ps, cmd, true )
 					&& (cmd->rightmove || (cmd->forwardmove && g_debugMelee->integer ) ) )//pushing a direction
 				{
 					int anim = -1;

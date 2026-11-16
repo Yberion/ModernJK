@@ -314,7 +314,7 @@ bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* =
 	//	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
 	//	the ifndef, this just cuts down on internal error reports while testing release mode...
 	//
-	qboolean qbIgnoreFileRead = qfalse;
+	bool qbIgnoreFileRead = false;
 	//
 	// NOTENOTE: For the moment I've taken this back out, to avoid doubling the number of fopen()'s per file.
 #if 0//#ifndef FINAL_BUILD
@@ -326,7 +326,7 @@ bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* =
 
 		if ( file == NULL )
 		{
-			qbIgnoreFileRead = qtrue;	// warn disk code further down not to try FS_ReadFile()
+			qbIgnoreFileRead = true;	// warn disk code further down not to try FS_ReadFile()
 		}
 		else
 		{
@@ -350,7 +350,7 @@ bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* =
 
 	pscript = new pscript_t;
 
-	pscript->buffer = (char *) gi.Malloc(length, TAG_ICARUS, qfalse);
+	pscript->buffer = (char *) gi.Malloc(length, TAG_ICARUS, false);
 	memcpy (pscript->buffer, buffer, length);
 	pscript->length = length;
 
@@ -408,7 +408,7 @@ void ICARUS_InterrogateScript( const char *filename )
 		return;
 
 	//Open the stream
-	if ( stream.Open( buf, len ) == qfalse )
+	if ( stream.Open( buf, len ) == false )
 		return;
 
 	const char	*sVal1, *sVal2;
@@ -419,7 +419,7 @@ void ICARUS_InterrogateScript( const char *filename )
 	while ( stream.BlockAvailable() )
 	{
 		//Get a block
-		if ( stream.ReadBlock( &block ) == qfalse )
+		if ( stream.ReadBlock( &block ) == false )
 			return;
 
 		//Determine what type of block this is

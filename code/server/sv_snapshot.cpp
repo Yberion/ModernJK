@@ -91,7 +91,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 
 		if ( newnum == oldnum ) {
 			// delta update from old position
-			// because the force parm is qfalse, this will not result
+			// because the force parm is false, this will not result
 			// in any bytes being emited if the entity has not changed at all
 			MSG_WriteEntity(msg, newent, 0);
 			oldindex++;
@@ -174,7 +174,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	MSG_WriteLong (msg, client->cmdNum);		// we have executed up to here
 
 	snapFlags = client->droppedCommands << 1;
-	client->droppedCommands = qfalse;
+	client->droppedCommands = false;
 
 	MSG_WriteByte (msg, snapFlags);
 
@@ -288,13 +288,13 @@ float sv_sightRangeForLevel[6] =
 	4096.0f//FORCE_LEVEL_5
 };
 
-qboolean SV_PlayerCanSeeEnt( gentity_t *ent, int sightLevel )
+bool SV_PlayerCanSeeEnt( gentity_t *ent, int sightLevel )
 {//return true if this ent is in view
 	//NOTE: this is similar to the func CG_PlayerCanSeeCent in cg_players
 	vec3_t viewOrg, viewAngles, viewFwd, dir2Ent;
 	if ( !ent )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( VM_Call( CG_CAMERA_POS, viewOrg))
 	{
@@ -313,12 +313,12 @@ qboolean SV_PlayerCanSeeEnt( gentity_t *ent, int sightLevel )
 			{
 				if ( entDist < 128.0f )
 				{//can always see them if they're really close
-					return qtrue;
+					return true;
 				}
 
 				if ( entDist > range )
 				{//too far away to see them
-					return qfalse;
+					return false;
 				}
 			}
 
@@ -327,12 +327,12 @@ qboolean SV_PlayerCanSeeEnt( gentity_t *ent, int sightLevel )
 			AngleVectors( viewAngles, viewFwd, NULL, NULL );
 			if ( DotProduct( viewFwd, dir2Ent ) < dot )
 			{
-				return qfalse;
+				return false;
 			}
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 /*
 ===============
@@ -340,7 +340,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+									snapshotEntityNumbers_t *eNums, bool portal ) {
 	int		e, i;
 	gentity_t	*ent;
 	svEntity_t	*svEnt;
@@ -350,7 +350,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	const byte *clientpvs;
 	const byte *bitvector;
 #ifndef JK2_MODE
-	qboolean sightOn = qfalse;
+	bool sightOn = false;
 #endif
 
 	// during an error shutdown message we may need to transmit
@@ -374,7 +374,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	{//not if this if through a portal...???  James said to do this...
 		if ( (frame->ps.forcePowersActive&(1<<FP_SEE)) )
 		{
-			sightOn = qtrue;
+			sightOn = true;
 		}
 	}
 #endif // !JK2_MODE
@@ -485,7 +485,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// if its a portal entity, add everything visible from its camera position
 		if ( ent->svFlags & SVF_PORTAL ) {
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, true );
 		}
 	}
 }
@@ -576,7 +576,7 @@ static clientSnapshot_t *SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, false );
 	/*
 	//was in here for debugging- print list of all entities in snapshot when you go over the limit
 	if ( entityNumbers.numSnapshotEntities >= 256 )
@@ -677,7 +677,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	}
 
 	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
-	msg.allowoverflow = qtrue;
+	msg.allowoverflow = true;
 
 	// (re)send any reliable server commands
 	SV_UpdateServerCommandsToClient( client, &msg );

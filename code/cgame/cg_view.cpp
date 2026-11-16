@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_view.c -- setup all the parameters (position, angle, etc)
+// cg_view.cpp -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 
 // this line must stay at top so the whole PCH thing works...
@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 float cg_zoomFov;
 
 //#define CG_CAM_ABOVE	2
-extern qboolean CG_OnMovingPlat( playerState_t *ps );
+extern bool CG_OnMovingPlat( playerState_t *ps );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 
 extern int g_crosshairSameEntTime;
@@ -349,7 +349,7 @@ CG_CalcIdealThirdPersonViewTarget
 static void CG_CalcIdealThirdPersonViewTarget(void)
 {
 	// Initialize IdealTarget
-	qboolean usesViewEntity = (qboolean)(cg.snap->ps.viewEntity && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
+	bool usesViewEntity = (cg.snap->ps.viewEntity && cg.snap->ps.viewEntity < ENTITYNUM_WORLD);
 	VectorCopy(cg.refdef.vieworg, cameraFocusLoc);
 
 	if ( usesViewEntity )
@@ -725,7 +725,7 @@ CG_OffsetThirdPersonView
 
 ===============
 */
-extern qboolean	MatrixMode;
+extern bool	MatrixMode;
 static void CG_OffsetThirdPersonView( void )
 {
 	vec3_t diff;
@@ -1049,11 +1049,11 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-extern qboolean PM_InForceGetUp( playerState_t *ps );
-extern qboolean PM_InGetUp( playerState_t *ps );
-extern qboolean PM_InKnockDown( playerState_t *ps );
+extern bool PM_InForceGetUp( playerState_t *ps );
+extern bool PM_InGetUp( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
 extern int PM_AnimLength( int index, animNumber_t anim );
-static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
+static void CG_OffsetFirstPersonView( bool firstPersonSaber ) {
 	float			*origin;
 	float			*angles;
 	float			bob;
@@ -1251,11 +1251,11 @@ CG_CalcFovFromX
 Calcs Y FOV from given X FOV
 ====================
 */
-qboolean CG_CalcFOVFromX( float fov_x )
+bool CG_CalcFOVFromX( float fov_x )
 {
 	float	x;
 	float	fov_y;
-	qboolean	inwater;
+	bool	inwater;
 
 	if ( cg_fovAspectAdjust.integer ) {
 		// Based on LordHavoc's code for Darkplaces
@@ -1289,11 +1289,11 @@ qboolean CG_CalcFOVFromX( float fov_x )
 		v = WAVE_AMPLITUDE * sin( phase );
 		fov_x += v;
 		fov_y -= v;
-		inwater = qtrue;
+		inwater = true;
 	}
 	else
 	{
-		inwater = qfalse;
+		inwater = false;
 	}
 
 	// see if we are drugged by an interrogator.  We muck with the FOV here, a bit later, after viewangles are calc'ed, I muck with those too.
@@ -1339,7 +1339,7 @@ CG_CalcFov
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
 ====================
 */
-static qboolean	CG_CalcFov( void ) {
+static bool	CG_CalcFov( void ) {
 	float	fov_x;
 	float	f;
 
@@ -1510,7 +1510,7 @@ CG_SaberClashFlare
 */
 extern int g_saberFlashTime;
 extern vec3_t g_saberFlashPos;
-extern qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
+extern bool CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
 void CG_SaberClashFlare( void )
 {
 	int				t, maxTime = 150;
@@ -1570,10 +1570,10 @@ CG_CalcViewValues
 Sets cg.refdef view values
 ===============
 */
-static qboolean CG_CalcViewValues( void ) {
+static bool CG_CalcViewValues( void ) {
 	playerState_t	*ps;
-	//qboolean		viewEntIsHumanoid = qfalse;
-	qboolean		viewEntIsCam = qfalse;
+	//bool		viewEntIsHumanoid = false;
+	bool		viewEntIsCam = false;
 
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
 
@@ -1584,7 +1584,7 @@ static qboolean CG_CalcViewValues( void ) {
 		g_entities[cg.snap->ps.viewEntity].client)
 	{
 		ps = &g_entities[cg.snap->ps.viewEntity].client->ps;
-		//viewEntIsHumanoid = qtrue;
+		//viewEntIsHumanoid = true;
 	}
 	else
 	{
@@ -1631,7 +1631,7 @@ static qboolean CG_CalcViewValues( void ) {
 		VectorCopy( cg_entities[cg.snap->ps.viewEntity].lerpAngles, cg.refdefViewAngles );
 		if ( !Q_stricmp( "misc_camera", g_entities[cg.snap->ps.viewEntity].classname ) || g_entities[cg.snap->ps.viewEntity].s.weapon == WP_TURRET )
 		{
-			viewEntIsCam = qtrue;
+			viewEntIsCam = true;
 		}
 	}
 	else if ( cg.renderingThirdPerson && !cg.zoomMode && (cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ENT) )
@@ -1676,7 +1676,7 @@ static qboolean CG_CalcViewValues( void ) {
 			if ( cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE )
 			{
 				vec3_t dir;
-				CG_OffsetFirstPersonView( qtrue );
+				CG_OffsetFirstPersonView( true );
 				cg.refdef.vieworg[2] += 32;
 				AngleVectors( cg.refdefViewAngles, dir, NULL, NULL );
 				VectorMA( cg.refdef.vieworg, -2, dir, cg.refdef.vieworg );
@@ -1688,7 +1688,7 @@ static qboolean CG_CalcViewValues( void ) {
 	else
 	{
 		// offset for local bobbing and kicks
-		CG_OffsetFirstPersonView( qfalse );
+		CG_OffsetFirstPersonView( false );
 		centity_t	*playerCent = &cg_entities[0];
 		if ( playerCent && playerCent->gent && playerCent->gent->client )
 		{
@@ -1800,21 +1800,21 @@ static void CG_DrawSkyBoxPortal(void)
 
 	// asdf --eez
 	COM_BeginParseSession();
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[0] = atof(token);
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[1] = atof(token);
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
@@ -1822,7 +1822,7 @@ static void CG_DrawSkyBoxPortal(void)
 	cg.refdef.vieworg[2] = atof(token);
 
 	// setup fog the first time, ignore this part of the configstring after that
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
@@ -1831,23 +1831,23 @@ static void CG_DrawSkyBoxPortal(void)
 	{
 		if ( atoi( token ) ) {
 			// this camera has fog
-			token = COM_ParseExt( &cstr, qfalse );
+			token = COM_ParseExt( &cstr, false );
 			if ( !VALIDSTRING( token ) ) {
 				CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n");
 			}
 
-			token = COM_ParseExt(&cstr, qfalse);
+			token = COM_ParseExt(&cstr, false);
 			if ( !VALIDSTRING( token ) ) {
 				CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n");
 			}
 
-			token = COM_ParseExt(&cstr, qfalse);
+			token = COM_ParseExt(&cstr, false);
 			if ( !VALIDSTRING( token ) ) {
 				CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n");
 			}
 
-			COM_ParseExt( &cstr, qfalse );
-			COM_ParseExt( &cstr, qfalse );
+			COM_ParseExt( &cstr, false );
+			COM_ParseExt( &cstr, false );
 		}
 	}
 
@@ -1915,7 +1915,7 @@ static void CG_DrawSkyBoxPortal(void)
 	//inherit fov and axis from whatever the player is doing (regular, camera overrides or zoomed, whatever)
 	if ( !cg.hyperspace )
 	{
-		CG_AddPacketEntities(qtrue); //rww - There was no proper way to put real entities inside the portal view before.
+		CG_AddPacketEntities(true); //rww - There was no proper way to put real entities inside the portal view before.
 									 //This will put specially flagged entities in the render.
 		//Add effects flagged to play only in portals
 		theFxScheduler.AddScheduledEffects( true );
@@ -1946,7 +1946,7 @@ void CG_RunEmplacedWeapon()
 //		float dist = -1; // default distance behind gun
 
 		// don't let the player try and change this
-		cg.renderingThirdPerson = qtrue;
+		cg.renderingThirdPerson = true;
 
 //		cg.refdefViewAngles[PITCH] += cg.overrides.thirdPersonPitchOffset? cg.overrides.thirdPersonPitchOffset: cg_thirdPersonPitchOffset.value;
 //		cg.refdefViewAngles[YAW] += cg.overrides.thirdPersonAngle ? cg.overrides.thirdPersonAngle : cg_thirdPersonAngle.value;;
@@ -1981,9 +1981,9 @@ Generates and draws a game scene and status information at the given time.
 extern void CG_BuildSolidList( void );
 extern void CG_ClearHealthBarEnts( void );
 extern vec3_t	serverViewOrg;
-static qboolean cg_rangedFogging = qfalse; //so we know if we should go back to normal fog
+static bool cg_rangedFogging = false; //so we know if we should go back to normal fog
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
-	qboolean	inwater = qfalse;
+	bool	inwater = false;
 
 	cg.time = serverTime;
 
@@ -2081,7 +2081,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 		cg.zoomMode = 0;
 	}
 	// decide on third person view
-	cg.renderingThirdPerson = (qboolean)(
+	cg.renderingThirdPerson = (
 		cg_thirdPerson.integer
 		|| (cg.snap->ps.stats[STAT_HEALTH] <= 0)
 		|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
@@ -2091,7 +2091,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	if ( cg.zoomMode )
 	{
 		// zoomed characters should never do third person stuff??
-		cg.renderingThirdPerson = qfalse;
+		cg.renderingThirdPerson = false;
 	}
 
 	if ( in_camera )
@@ -2109,13 +2109,13 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 
 	if (cg.zoomMode)
 	{ //zooming with binoculars or sniper, set the fog range based on the zoom level -rww
-		cg_rangedFogging = qtrue;
+		cg_rangedFogging = true;
 		//smaller the fov the less fog we have between the view and cull dist
 		cgi_R_SetRangeFog(cg.refdef.fov_x*64.0f);
 	}
 	else if (cg_rangedFogging)
 	{ //disable it
-		cg_rangedFogging = qfalse;
+		cg_rangedFogging = false;
 		cgi_R_SetRangeFog(0.0f);
 	}
 
@@ -2133,7 +2133,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 
 	// build the render lists
 	if ( !cg.hyperspace ) {
-		CG_AddPacketEntities(qfalse);			// adter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities(false);			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 		CG_DrawMiscEnts();
 	}
@@ -2228,7 +2228,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 			{//a living client, let's listen in...?
 				//FIXME: lerp our listener_origin to their position over a second or two?
 				VectorCopy( cg_entities[g_crosshairEntNum].lerpOrigin, listener_origin );
-				inwater = qtrue;//do cool reverby effect...?
+				inwater = true;//do cool reverby effect...?
 			}
 		}
 	}
@@ -2240,12 +2240,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	CG_PowerupTimerSounds();
 
 	if ( cg_pano.integer ) {	// let's grab a panorama!
-		cg.levelShot = qtrue;  //hide the 2d
+		cg.levelShot = true;  //hide the 2d
 		VectorClear(cg.refdefViewAngles);
 		cg.refdefViewAngles[YAW] = -360 * cg_pano.integer/cg_panoNumShots.integer;	//choose angle
 		AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 		CG_DrawActive( stereoView );
-		cg.levelShot = qfalse;
+		cg.levelShot = false;
 	} 	else {
 		// actually issue the rendering calls
 		CG_DrawActive( stereoView );

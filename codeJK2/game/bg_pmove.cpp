@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// bg_pmove.c -- both games player movement code
+// bg_pmove.cpp -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
 
 // define GAME_INCLUDE so that g_public.h does not define the
@@ -39,58 +39,58 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include <float.h>
 
-extern qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, qboolean force = qfalse );
-extern qboolean G_EntIsUnlockedDoor( int entityNum );
-extern qboolean G_EntIsDoor( int entityNum );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false );
+extern bool G_EntIsUnlockedDoor( int entityNum );
+extern bool G_EntIsDoor( int entityNum );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
-extern	qboolean	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern	bool	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void WP_SaberInitBladeData( gentity_t *ent );
-extern qboolean WP_SaberLose( gentity_t *self, vec3_t throwDir );
+extern bool WP_SaberLose( gentity_t *self, vec3_t throwDir );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
-extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_HasAnimation( gentity_t *ent, int animation );
 extern int PM_SaberAnimTransitionAnim( int curmove, int newmove );
 extern saberMoveName_t PM_AttackMoveForQuad( int quad );
-extern qboolean PM_SaberInTransition( int move );
-extern qboolean PM_SaberInTransitionAny( int move );
-extern qboolean PM_SaberInBounce( int move );
-extern qboolean PM_SaberInSpecialAttack( int anim );
-extern qboolean PM_SaberInAttack( int move );
-extern qboolean PM_InAnimForSaberMove( int anim, int saberMove );
+extern bool PM_SaberInTransition( int move );
+extern bool PM_SaberInTransitionAny( int move );
+extern bool PM_SaberInBounce( int move );
+extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInAttack( int move );
+extern bool PM_InAnimForSaberMove( int anim, int saberMove );
 extern int PM_SaberBounceForAttack( int move );
 extern int PM_SaberAttackForMovement( int forwardmove, int rightmove, int move );
 extern int PM_BrokenParryForParry( int move );
 extern int PM_KnockawayForParry( int move );
-extern qboolean PM_SaberInParry( int move );
-extern qboolean PM_SaberInKnockaway( int move );
-extern qboolean PM_SaberInBrokenParry( int move );
-extern qboolean PM_SaberInReflect( int move );
-extern qboolean PM_SaberInIdle( int move );
-extern qboolean PM_SaberInStart( int move );
-extern qboolean PM_SaberKataDone( int curmove, int newmove );
-extern qboolean PM_SaberInSpecial( int move );
-extern qboolean PM_InDeathAnim ( void );
-extern qboolean PM_StandingAnim( int anim );
+extern bool PM_SaberInParry( int move );
+extern bool PM_SaberInKnockaway( int move );
+extern bool PM_SaberInBrokenParry( int move );
+extern bool PM_SaberInReflect( int move );
+extern bool PM_SaberInIdle( int move );
+extern bool PM_SaberInStart( int move );
+extern bool PM_SaberKataDone( int curmove, int newmove );
+extern bool PM_SaberInSpecial( int move );
+extern bool PM_InDeathAnim ( void );
+extern bool PM_StandingAnim( int anim );
 extern int PM_SaberFlipOverAttackMove( void );
 extern int PM_SaberJumpAttackMove( void );
 
-qboolean PM_InKnockDown( playerState_t *ps );
-qboolean PM_InKnockDownOnGround( playerState_t *ps );
-qboolean PM_InGetUp( playerState_t *ps );
-qboolean PM_InRoll( playerState_t *ps );
-qboolean PM_SpinningSaberAnim( int anim );
-qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight );
-qboolean PM_SpinningAnim( int anim );
-qboolean PM_FlippingAnim( int anim );
-qboolean PM_PainAnim( int anim );
-qboolean PM_RollingAnim( int anim );
-qboolean PM_SwimmingAnim( int anim );
+bool PM_InKnockDown( playerState_t *ps );
+bool PM_InKnockDownOnGround( playerState_t *ps );
+bool PM_InGetUp( playerState_t *ps );
+bool PM_InRoll( playerState_t *ps );
+bool PM_SpinningSaberAnim( int anim );
+bool PM_GettingUpFromKnockDown( float standheight, float crouchheight );
+bool PM_SpinningAnim( int anim );
+bool PM_FlippingAnim( int anim );
+bool PM_PainAnim( int anim );
+bool PM_RollingAnim( int anim );
+bool PM_SwimmingAnim( int anim );
 
 extern int parryDebounce[];
-extern qboolean		player_locked;
-extern qboolean		MatrixMode;
-qboolean		waterForceJump;
+extern bool		player_locked;
+extern bool		MatrixMode;
+bool		waterForceJump;
 extern cvar_t		*g_timescale;
 
 static void PM_SetWaterLevelAtPoint( vec3_t org, int *waterlevel, int *watertype );
@@ -130,18 +130,18 @@ extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 extern void PM_TorsoAnimation( void );
 extern int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern qboolean PM_InDeathAnim ( void );
-extern qboolean PM_InOnGroundAnim ( playerState_t *ps );
+extern bool PM_InDeathAnim ( void );
+extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
 extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
 
-extern void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf );
+extern void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf );
 
 #define	PHASER_RECHARGE_TIME	100
 extern saberMoveName_t transitionMove[Q_NUM_QUADS][Q_NUM_QUADS];
 
-extern qboolean G_ControlledByPlayer( gentity_t *self );
-qboolean PM_ControlledByPlayer( void )
+extern bool G_ControlledByPlayer( gentity_t *self );
+bool PM_ControlledByPlayer( void )
 {
 	return G_ControlledByPlayer( pm->gent );
 }
@@ -158,17 +158,17 @@ void PM_AddEvent( int newEvent )
 
 /*
 ===============
-qboolean PM_ClientImpact( int otherEntityNum, qboolean damageSelf )
+bool PM_ClientImpact( int otherEntityNum, bool damageSelf )
 
 ===============
 */
-qboolean PM_ClientImpact( int otherEntityNum, qboolean damageSelf )
+bool PM_ClientImpact( int otherEntityNum, bool damageSelf )
 {
 	gentity_t	*traceEnt;
 
 	if ( !pm->gent )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if( (VectorLength( pm->ps->velocity )*(pm->gent->mass/10)) >= 100 && pm->ps->lastOnGround+100<level.time )//was 300 ||(other->material>=MAT_GLASS&&pm->gent->lastImpact+100<=level.time))
@@ -178,16 +178,16 @@ qboolean PM_ClientImpact( int otherEntityNum, qboolean damageSelf )
 
 	if ( otherEntityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	traceEnt = &g_entities[otherEntityNum];
 	if ( !traceEnt || !(traceEnt->contents&pm->tracemask) )
 	{//it's dead or not in my way anymore
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 /*
 ===============
@@ -452,7 +452,7 @@ PM_CheckJump
 =============
 */
 #define METROID_JUMP 1
-qboolean PM_InSpecialJump( int anim )
+bool PM_InSpecialJump( int anim )
 {
 	switch ( anim )
 	{
@@ -480,17 +480,17 @@ qboolean PM_InSpecialJump( int anim )
 	case BOTH_ARIAL_F1:
 	case BOTH_CARTWHEEL_LEFT:
 	case BOTH_CARTWHEEL_RIGHT:
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 extern void CG_PlayerLockedWeaponSpeech( int jumping );
-qboolean PM_ForceJumpingUp( gentity_t *gent )
+bool PM_ForceJumpingUp( gentity_t *gent )
 {
 	if ( !gent || !gent->client )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( gent->NPC )
@@ -502,28 +502,28 @@ qboolean PM_ForceJumpingUp( gentity_t *gent )
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
 	if ( !(gent->client->ps.forcePowersActive&(1<<FP_LEVITATION)) && gent->client->ps.forceJumpCharge )
 	{//already jumped and let go
-		return qfalse;
+		return false;
 	}
 
 	if ( PM_InSpecialJump( gent->client->ps.legsAnim ) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( PM_InKnockDown( &gent->client->ps ) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( !gent->s.number && in_camera )
 	{//player can't use force powers in cinematic
-		return qfalse;
+		return false;
 	}
 	if ( gent->client->ps.groundEntityNum == ENTITYNUM_NONE //in air
 		&& ( /*(gent->client->ps.waterHeightLevel==WHL_SHOULDERS&&gent->client->usercmd.upmove>0) ||*/ ((gent->client->ps.pm_flags&PMF_JUMPING)&&gent->client->ps.velocity[2] > 0) )//jumped & going up or at water surface
@@ -532,12 +532,12 @@ qboolean PM_ForceJumpingUp( gentity_t *gent )
 	{
 		if( gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 		{
-			CG_PlayerLockedWeaponSpeech( qtrue );
-			return qfalse;
+			CG_PlayerLockedWeaponSpeech( true );
+			return false;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 static void PM_JumpForDir( void )
@@ -573,10 +573,10 @@ static void PM_JumpForDir( void )
 		PM_SetAnim(pm,SETANIM_LEGS,anim,SETANIM_FLAG_OVERRIDE, 100);		// Only blend over 100ms
 	}
 }
-extern qboolean WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
+extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 
-qboolean PM_GentCantJump( gentity_t *gent )
+bool PM_GentCantJump( gentity_t *gent )
 {//FIXME: ugh, hacky, set a flag on NPC or something, please...
 	if ( gent && gent->client &&
 		( gent->client->NPC_class == CLASS_ATST ||
@@ -592,26 +592,26 @@ qboolean PM_GentCantJump( gentity_t *gent )
 		gent->client->NPC_class == CLASS_REMOTE ||
 		gent->client->NPC_class == CLASS_SENTRY ) )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-static qboolean PM_CheckJump( void )
+static bool PM_CheckJump( void )
 {
 	//Don't allow jump until all buttons are up
 	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( PM_InKnockDown( pm->ps ) || PM_InRoll( pm->ps ) )
 	{//in knockdown
-		return qfalse;
+		return false;
 	}
 
 	if ( PM_GentCantJump( pm->gent ) )
 	{
-		return qfalse;
+		return false;
 	}
 	/*
 	if ( pm->cmd.buttons & BUTTON_FORCEJUMP )
@@ -793,7 +793,7 @@ static qboolean PM_CheckJump( void )
 					pm->ps->velocity[2] = 0;
 				}
 				pm->cmd.upmove = 0;
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -802,7 +802,7 @@ static qboolean PM_CheckJump( void )
 
 	//Not jumping
 	if ( pm->cmd.upmove < 10 ) {
-		return qfalse;
+		return false;
 	}
 
 	// must wait for jump to be released
@@ -810,7 +810,7 @@ static qboolean PM_CheckJump( void )
 	{
 		// clear upmove so cmdscale doesn't lower running speed
 		pm->cmd.upmove = 0;
-		return qfalse;
+		return false;
 	}
 
 	if ( pm->ps->gravity <= 0 )
@@ -832,15 +832,15 @@ static qboolean PM_CheckJump( void )
 		}
 		else
 		{//else no surf close enough to push off of
-			return qfalse;
+			return false;
 		}
 
 		if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 		{//need to set some things and return
 			//Jumping
 			pm->ps->forceJumpZStart = 0;
-			pml.groundPlane = qfalse;
-			pml.walking = qfalse;
+			pml.groundPlane = false;
+			pml.walking = false;
 			pm->ps->pm_flags |= (PMF_JUMPING|PMF_JUMP_HELD);
 			pm->ps->groundEntityNum = ENTITYNUM_NONE;
 			pm->ps->jumpZStart = pm->ps->origin[2];
@@ -857,7 +857,7 @@ static qboolean PM_CheckJump( void )
 				PM_AddEvent( EV_JUMP );
 			}
 
-			return qtrue;
+			return true;
 		}//else no surf close enough to push off of
 	}
 	else if ( pm->cmd.upmove > 0 && pm->waterlevel < 2
@@ -948,7 +948,7 @@ static qboolean PM_CheckJump( void )
 			{
 				vec3_t fwd, right, traceto, mins = {pm->mins[0],pm->mins[1],0}, maxs = {pm->maxs[0],pm->maxs[1],24}, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 				trace_t	trace;
-				qboolean doTrace = qfalse;
+				bool doTrace = false;
 				int contents = CONTENTS_SOLID;
 
 				AngleVectors( fwdAngles, fwd, right, NULL );
@@ -960,7 +960,7 @@ static qboolean PM_CheckJump( void )
 					//contents |= CONTENTS_BODY;
 					//NOTE: purposely falls through to next case!
 				case BOTH_WALL_RUN_LEFT:
-					doTrace = qtrue;
+					doTrace = true;
 					VectorMA( pm->ps->origin, -16, right, traceto );
 					break;
 
@@ -968,13 +968,13 @@ static qboolean PM_CheckJump( void )
 					//contents |= CONTENTS_BODY;
 					//NOTE: purposely falls through to next case!
 				case BOTH_WALL_RUN_RIGHT:
-					doTrace = qtrue;
+					doTrace = true;
 					VectorMA( pm->ps->origin, 16, right, traceto );
 					break;
 
 				case BOTH_WALL_FLIP_BACK1:
 					//contents |= CONTENTS_BODY;
-					doTrace = qtrue;
+					doTrace = true;
 					VectorMA( pm->ps->origin, 16, fwd, traceto );
 					break;
 				}
@@ -1099,7 +1099,7 @@ static qboolean PM_CheckJump( void )
 							parts = SETANIM_BOTH;
 							pm->cmd.buttons&=~BUTTON_ATTACK;
 							pm->ps->saberMove = LS_NONE;
-							pm->gent->client->saberTrail.inAction = qtrue;//FIXME: reset this when done!
+							pm->gent->client->saberTrail.inAction = true;//FIXME: reset this when done!
 							pm->gent->client->saberTrail.duration = 300;//FIXME: reset this when done!
 						}
 						else if ( !pm->ps->weaponTime )
@@ -1194,7 +1194,7 @@ static qboolean PM_CheckJump( void )
 				}
 				if ( pm->cmd.upmove != 0 )
 				{//jump failed, so don't try to do normal jump code, just return
-					return qfalse;
+					return false;
 				}
 			}
 			/*
@@ -1335,7 +1335,7 @@ static qboolean PM_CheckJump( void )
 	}
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( pm->cmd.upmove > 0 )
 	{//no special jumps
@@ -1343,7 +1343,7 @@ static qboolean PM_CheckJump( void )
 		gentity_t *groundEnt = &g_entities[pm->ps->groundEntityNum];
 		if ( groundEnt && groundEnt->NPC )
 		{//Can't jump off of someone's head
-			return qfalse;
+			return false;
 		}
 		*/
 
@@ -1360,8 +1360,8 @@ static qboolean PM_CheckJump( void )
 		}
 	}
 	//Jumping
-	pml.groundPlane = qfalse;
-	pml.walking = qfalse;
+	pml.groundPlane = false;
+	pml.walking = false;
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	pm->ps->jumpZStart = pm->ps->origin[2];
@@ -1384,7 +1384,7 @@ static qboolean PM_CheckJump( void )
 		PM_JumpForDir();
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1392,27 +1392,27 @@ static qboolean PM_CheckJump( void )
 PM_CheckWaterJump
 =============
 */
-static qboolean	PM_CheckWaterJump( void ) {
+static bool	PM_CheckWaterJump( void ) {
 	vec3_t	spot;
 	int		cont;
 	vec3_t	flatforward;
 
 	if (pm->ps->pm_time) {
-		return qfalse;
+		return false;
 	}
 
 	if ( pm->cmd.forwardmove <= 0 && pm->cmd.upmove <= 0 )
 	{//they must not want to get out?
-		return qfalse;
+		return false;
 	}
 	// check for water jump
 	if ( pm->waterlevel != 2 ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( pm->watertype & CONTENTS_LADDER ) {
 		if (pm->ps->velocity[2] <= 0)
-			return qfalse;
+			return false;
 	}
 
 	flatforward[0] = pml.forward[0];
@@ -1424,13 +1424,13 @@ static qboolean	PM_CheckWaterJump( void ) {
 	spot[2] += 24;
 	cont = pm->pointcontents (spot, pm->ps->clientNum );
 	if ( !(cont & CONTENTS_SOLID) ) {
-		return qfalse;
+		return false;
 	}
 
 	spot[2] += 16;
 	cont = pm->pointcontents( spot, pm->ps->clientNum );
 	if ( cont&(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_BODY) ) {
-		return qfalse;
+		return false;
 	}
 
 	// jump out of water
@@ -1440,7 +1440,7 @@ static qboolean	PM_CheckWaterJump( void ) {
 	pm->ps->pm_flags |= PMF_TIME_WATERJUMP;
 	pm->ps->pm_time = 2000;
 
-	return qtrue;
+	return true;
 }
 
 //============================================================================
@@ -1582,7 +1582,7 @@ static void PM_WaterMove( void ) {
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
 
-	PM_SlideMove( qfalse );
+	PM_SlideMove( false );
 }
 
 
@@ -1660,7 +1660,7 @@ static void PM_FlyMove( void )
 	vec3_t	wishdir;
 	float	scale;
 	float	accel;
-	qboolean	lowGravMove = qfalse;
+	bool	lowGravMove = false;
 
 	// normal slowdown
 	PM_Friction ();
@@ -1671,7 +1671,7 @@ static void PM_FlyMove( void )
 		accel = 1.0f;
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 		pm->ps->jumpZStart = pm->ps->origin[2];//so we don't take a lot of damage when the gravity comes back on
-		lowGravMove = qtrue;
+		lowGravMove = true;
 	}
 	else
 	{
@@ -1709,7 +1709,7 @@ static void PM_FlyMove( void )
 	PM_StepSlideMove( 1 );
 }
 
-qboolean PM_GroundSlideOkay( float zNormal )
+bool PM_GroundSlideOkay( float zNormal )
 {
 	if ( zNormal > 0 )
 	{
@@ -1720,11 +1720,11 @@ qboolean PM_GroundSlideOkay( float zNormal )
 				|| pm->ps->legsAnim == BOTH_WALL_RUN_RIGHT_STOP
 				|| pm->ps->legsAnim == BOTH_WALL_RUN_LEFT_STOP )
 			{
-				return qfalse;
+				return false;
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 /*
 ===================
@@ -1866,8 +1866,8 @@ static void PM_WalkMove( void ) {
 	{//float away
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.groundPlane = qfalse;
-		pml.walking = qfalse;
+		pml.groundPlane = false;
+		pml.walking = false;
 		if ( pm->waterlevel > 1 ) {
 			PM_WaterMove();
 		} else {
@@ -1900,7 +1900,7 @@ static void PM_WalkMove( void ) {
 		pm->ps->pm_flags &= ~PMF_TIME_KNOCKBACK;
 	}
 
-	qboolean slide = qfalse;
+	bool slide = false;
 	if ( pm->ps->pm_type == PM_DEAD )
 	{//corpse
 		if ( g_entities[pm->ps->groundEntityNum].client )
@@ -1908,7 +1908,7 @@ static void PM_WalkMove( void ) {
 			if ( g_entities[pm->ps->groundEntityNum].health > 0 )
 			{//a living client
 				//no friction
-				slide = qtrue;
+				slide = true;
 			}
 		}
 	}
@@ -2367,36 +2367,36 @@ int PM_GetLandingAnim( void )
 	return anim;
 }
 
-static qboolean PM_TryRoll( void )
+static bool PM_TryRoll( void )
 {
 	float rollDist = 192;//was 64;
 	if ( PM_SaberInAttack( pm->ps->saberMove ) || PM_SaberInSpecialAttack( pm->ps->torsoAnim )
 		|| PM_SpinningSaberAnim( pm->ps->legsAnim )
 		|| (!pm->ps->clientNum&&PM_SaberInStart( pm->ps->saberMove )) )
 	{//attacking or spinning (or, if player, starting an attack)
-		return qfalse;
+		return false;
 	}
 	if ( !pm->ps->clientNum && (!cg.renderingThirdPerson || cg.zoomMode) )
 	{//player can't do this in 1st person
-		return qfalse;
+		return false;
 	}
 	if ( !pm->gent )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( pm->ps->clientNum && pm->ps->weapon != WP_SABER && pm->ps->weapon != WP_NONE )
 	{//only jedi
-		return qfalse;
+		return false;
 	}
 	if ( pm->gent && pm->gent->NPC )
 	{
 		if ( pm->gent->NPC->rank != RANK_CREWMAN && pm->gent->NPC->rank < RANK_LT_JG )
 		{//reborn who are not acrobats or fencers can't do any of these acrobatics
-			return qfalse;
+			return false;
 		}
 		if ( pm->gent->NPC->scriptFlags&SCF_NO_ACROBATICS )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	vec3_t fwd, right, traceto,
@@ -2435,7 +2435,7 @@ static qboolean PM_TryRoll( void )
 	}
 	if ( anim != -1 )
 	{
-		qboolean roll = qfalse;
+		bool roll = false;
 		int		clipmask = CONTENTS_SOLID;
 		if ( pm->ps->clientNum )
 		{
@@ -2445,7 +2445,7 @@ static qboolean PM_TryRoll( void )
 		{
 			if ( pm->gent && pm->gent->enemy && pm->gent->enemy->health > 0 )
 			{//player can always roll in combat
-				roll = qtrue;
+				roll = true;
 			}
 			else
 			{
@@ -2463,7 +2463,7 @@ static qboolean PM_TryRoll( void )
 				pm->trace( &trace, top, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 				if ( trace.fraction < 1.0f )
 				{//not a bottomless drop
-					roll = qtrue;
+					roll = true;
 				}
 			}
 			else
@@ -2472,14 +2472,14 @@ static qboolean PM_TryRoll( void )
 				{//NPCs don't care about rolling into walls, just off ledges
 					if ( !(trace.contents&CONTENTS_BOTCLIP) )
 					{
-						roll = qtrue;
+						roll = true;
 					}
 				}
 				else if ( G_EntIsDoor( trace.entityNum ) )
 				{//okay to roll into a door
 					if ( G_EntIsUnlockedDoor( trace.entityNum ) )
 					{//if it's an auto-door
-						roll = qtrue;
+						roll = true;
 					}
 				}
 				else
@@ -2487,7 +2487,7 @@ static qboolean PM_TryRoll( void )
 					gentity_t *traceEnt = &g_entities[trace.entityNum];
 					if ( traceEnt && (traceEnt->svFlags&SVF_GLASS_BRUSH) )
 					{//okay to roll through glass
-						roll = qtrue;
+						roll = true;
 					}
 				}
 			}
@@ -2498,10 +2498,10 @@ static qboolean PM_TryRoll( void )
 			pm->ps->weaponTime = pm->ps->torsoAnimTimer - 200;//just to make sure it's cleared when roll is done
 			PM_AddEvent( EV_ROLL );
 			pm->ps->saberMove = LS_NONE;
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -2514,12 +2514,12 @@ Check for hard landings that generate sound events
 static void PM_CrashLand( void )
 {
 	float		delta = 0;
-	qboolean	forceLanding = qfalse;
+	bool	forceLanding = false;
 
 	if ( pm->ps->pm_flags&PMF_TRIGGER_PUSHED )
 	{
 		delta = 21;//?
-		forceLanding = qtrue;
+		forceLanding = true;
 	}
 	else
 	{
@@ -2534,7 +2534,7 @@ static void PM_CrashLand( void )
 			{//we landed at same height or higher than we landed
 				if ( pm->ps->forceJumpZStart )
 				{//we were force-jumping
-					forceLanding = qtrue;
+					forceLanding = true;
 				}
 				delta = 0;
 			}
@@ -2548,7 +2548,7 @@ static void PM_CrashLand( void )
 				}
 				if ( delta > forceJumpHeight[FORCE_LEVEL_1] )
 				{//will have to use force jump ability to absorb some of it
-					forceLanding = qtrue;//absorbed some - just to force the correct animation to play below
+					forceLanding = true;//absorbed some - just to force the correct animation to play below
 				}
 				delta = (delta - dropAllow)/2;
 			}
@@ -2583,7 +2583,7 @@ static void PM_CrashLand( void )
 		return;
 	}
 
-	qboolean deadFallSound = qfalse;
+	bool deadFallSound = false;
 	if( !PM_InDeathAnim() )
 	{
 		if ( pm->cmd.upmove >= 0 && !PM_InKnockDown( pm->ps ) && !PM_InRoll( pm->ps ))
@@ -2618,7 +2618,7 @@ static void PM_CrashLand( void )
 			{
 				if ( pm->waterlevel < 2 )
 				{//don't play fallsplat when impact in the water
-					deadFallSound = qtrue;
+					deadFallSound = true;
 					G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/player/fallsplat.wav" );
 				}
 				if ( gi.VoiceVolume[pm->ps->clientNum]
@@ -2771,17 +2771,17 @@ static void PM_CorrectAllSolid( void ) {
 	// FIXME: jitter around
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	pml.groundPlane = qfalse;
-	pml.walking = qfalse;
+	pml.groundPlane = false;
+	pml.walking = false;
 }
 
-qboolean FlyingCreature( gentity_t *ent )
+bool FlyingCreature( gentity_t *ent )
 {
 	if ( ent->client->ps.gravity <= 0 && (ent->svFlags&SVF_CUSTOM_GRAVITY) )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 static void PM_FallToDeath( void )
@@ -2860,7 +2860,7 @@ The ground trace didn't hit a surface, so we are in freefall
 static void PM_GroundTraceMissed( void ) {
 	trace_t		trace;
 	vec3_t		point;
-	qboolean	cliff_fall = qfalse;
+	bool	cliff_fall = false;
 
 
 	//FIXME: if in a contents_falldeath brush, play the falling death anim and sound?
@@ -2920,7 +2920,7 @@ static void PM_GroundTraceMissed( void ) {
 											if ( pm->ps->velocity[2] < 0 && pm->ps->origin[2] - point[2] > 256 )
 											{//going down, into a bottomless pit, apparently
 												PM_FallToDeath();
-												cliff_fall = qtrue;
+												cliff_fall = true;
 											}
 										}
 										else if ( trace.entityNum < ENTITYNUM_NONE && pm->ps->weapon != WP_SABER )
@@ -2972,7 +2972,7 @@ static void PM_GroundTraceMissed( void ) {
 												if ( dmg >= pm->ps->stats[STAT_HEALTH] )//armor?
 												{
 													PM_FallToDeath();
-													cliff_fall = qtrue;
+													cliff_fall = true;
 												}
 											}
 										}
@@ -2994,7 +2994,7 @@ static void PM_GroundTraceMissed( void ) {
 									if ( !trace.allsolid && !trace.startsolid && trace.fraction == 1.0 )
 									{
 										PM_FallToDeath();
-										cliff_fall = qtrue;
+										cliff_fall = true;
 									}
 									*/
 								}
@@ -3118,8 +3118,8 @@ static void PM_GroundTraceMissed( void ) {
 		pm->ps->jumpZStart = pm->ps->origin[2];
 	}
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	pml.groundPlane = qfalse;
-	pml.walking = qfalse;
+	pml.groundPlane = false;
+	pml.walking = false;
 }
 
 
@@ -3134,12 +3134,12 @@ static void PM_GroundTrace( void ) {
 
 	if ( pm->ps->eFlags & EF_LOCKED_TO_WEAPON )
 	{
-		pml.groundPlane = qtrue;
-		pml.walking = qtrue;
+		pml.groundPlane = true;
+		pml.walking = true;
 		pm->ps->groundEntityNum = ENTITYNUM_WORLD;
 		pm->ps->lastOnGround = level.time;
 		/*
-		pml.groundTrace.allsolid = qfalse;
+		pml.groundTrace.allsolid = false;
 		pml.groundTrace.contents = CONTENTS_SOLID;
 		VectorCopy( pm->ps->origin, pml.groundTrace.endpos );
 		pml.groundTrace.entityNum = ENTITYNUM_WORLD;
@@ -3150,15 +3150,15 @@ static void PM_GroundTrace( void ) {
 		pml.groundTrace.plane.pad = 0;
 		pml.groundTrace.plane.signbits = 0;
 		pml.groundTrace.plane.type = 0;;
-		pml.groundTrace.startsolid = qfalse;
+		pml.groundTrace.startsolid = false;
 		pml.groundTrace.surfaceFlags = 0;
 		*/
 		return;
 	}
 	else if ( pm->ps->legsAnimTimer > 300 && (pm->ps->legsAnim == BOTH_WALL_RUN_RIGHT || pm->ps->legsAnim == BOTH_WALL_RUN_LEFT) )
 	{//wall-running forces you to be in the air
-		pml.groundPlane = qfalse;
-		pml.walking = qfalse;
+		pml.groundPlane = false;
+		pml.walking = false;
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		return;
 	}
@@ -3181,8 +3181,8 @@ static void PM_GroundTrace( void ) {
 	if ( trace.fraction == 1.0 || g_gravity->value <= 0 )
 	{
 		PM_GroundTraceMissed();
-		pml.groundPlane = qfalse;
-		pml.walking = qfalse;
+		pml.groundPlane = false;
+		pml.walking = false;
 		return;
 	}
 
@@ -3211,8 +3211,8 @@ static void PM_GroundTrace( void ) {
 		}
 
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.groundPlane = qfalse;
-		pml.walking = qfalse;
+		pml.groundPlane = false;
+		pml.walking = false;
 		return;
 	}
 
@@ -3224,14 +3224,14 @@ static void PM_GroundTrace( void ) {
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.groundPlane = qtrue;
-		pml.walking = qfalse;
+		pml.groundPlane = true;
+		pml.walking = false;
 		return;
 	}
 
 	//FIXME: if the ground surface is a "cover surface (like tall grass), add a "cover" flag to me
-	pml.groundPlane = qtrue;
-	pml.walking = qtrue;
+	pml.groundPlane = true;
+	pml.walking = true;
 
 	// hitting solid ground will end a waterjump
 	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP)
@@ -3246,7 +3246,7 @@ static void PM_GroundTrace( void ) {
 			Com_Printf("%i:Land\n", c_pmove);
 		}
 
-		//if ( !PM_ClientImpact( trace.entityNum, qtrue ) )
+		//if ( !PM_ClientImpact( trace.entityNum, true ) )
 		{
 			PM_CrashLand();
 
@@ -3601,7 +3601,7 @@ static void PM_CheckDuck (void)
 
 
 //===================================================================
-qboolean PM_SaberLockAnim( int anim )
+bool PM_SaberLockAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -3609,12 +3609,12 @@ qboolean PM_SaberLockAnim( int anim )
 	case BOTH_BF1LOCK:	//#
 	case BOTH_CWCIRCLELOCK:	//#
 	case BOTH_CCWCIRCLELOCK:	//#
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_ForceAnim( int anim )
+bool PM_ForceAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -3636,22 +3636,22 @@ qboolean PM_ForceAnim( int anim )
 	case BOTH_FORCEGRIP_HOLD:		//# temp force-grip anim (actually re-using push)
 	case BOTH_FORCEGRIP_RELEASE:		//# temp force-grip anim (actually re-using push)
 	//case BOTH_FORCEGRIP3:		//# force-gripping
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_InSaberAnim( int anim )
+bool PM_InSaberAnim( int anim )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_H1_S1_BR )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_InForceGetUp( playerState_t *ps )
+bool PM_InForceGetUp( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
@@ -3665,14 +3665,14 @@ qboolean PM_InForceGetUp( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B6:
 		if ( ps->legsAnimTimer )
 		{
-			return qtrue;
+			return true;
 		}
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_InGetUp( playerState_t *ps )
+bool PM_InGetUp( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
@@ -3685,7 +3685,7 @@ qboolean PM_InGetUp( playerState_t *ps )
 	case BOTH_GETUP_CROUCH_B1:
 		if ( ps->legsAnimTimer )
 		{
-			return qtrue;
+			return true;
 		}
 		break;
 	default:
@@ -3693,10 +3693,10 @@ qboolean PM_InGetUp( playerState_t *ps )
 		break;
 	}
 	//what the hell, redundant, but...
-	return qfalse;
+	return false;
 }
 
-qboolean PM_InKnockDown( playerState_t *ps )
+bool PM_InKnockDown( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
@@ -3705,7 +3705,7 @@ qboolean PM_InKnockDown( playerState_t *ps )
 	case BOTH_KNOCKDOWN3:
 	case BOTH_KNOCKDOWN4:
 	case BOTH_KNOCKDOWN5:
-		return qtrue;
+		return true;
 		break;
 	default:
 		return PM_InGetUp( ps );
@@ -3713,7 +3713,7 @@ qboolean PM_InKnockDown( playerState_t *ps )
 	}
 }
 
-qboolean PM_InKnockDownOnGround( playerState_t *ps )
+bool PM_InKnockDownOnGround( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
@@ -3724,7 +3724,7 @@ qboolean PM_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_KNOCKDOWN5:
 		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer > 300 )
 		{//at end of fall down anim
-			return qtrue;
+			return true;
 		}
 		break;
 	case BOTH_GETUP1:
@@ -3744,14 +3744,14 @@ qboolean PM_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B6:
 		if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer < 500 )
 		{//at beginning of getup anim
-			return qtrue;
+			return true;
 		}
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_CrouchGetup( float crouchheight )
+bool PM_CrouchGetup( float crouchheight )
 {
 	pm->maxs[2] = crouchheight;
 	pm->ps->viewheight = crouchheight + STANDARD_VIEWHEIGHT_OFFSET;
@@ -3771,18 +3771,18 @@ qboolean PM_CrouchGetup( float crouchheight )
 	if ( anim == -1 )
 	{//WTF? stay down?
 		pm->ps->legsAnimTimer = 100;//hold this anim for another 10th of a second
-		return qfalse;
+		return false;
 	}
 	else
 	{//get up into crouch anim
 		PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS );
 		pm->ps->saberMove = pm->ps->saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
 		pm->ps->saberBlocked = BLOCKED_NONE;
-		return qtrue;
+		return true;
 	}
 }
 
-qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
+bool PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 {
 	int legsAnim = pm->ps->legsAnim;
 	if ( legsAnim == BOTH_KNOCKDOWN1
@@ -3806,7 +3806,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid )
 				{//stand up
-					qboolean forceGetUp = qfalse;
+					bool forceGetUp = false;
 					int	anim = BOTH_GETUP1;
 					pm->maxs[2] = standheight;
 					pm->ps->viewheight = standheight + STANDARD_VIEWHEIGHT_OFFSET;
@@ -3817,7 +3817,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 						if ( (pm->ps->clientNum&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0) || (!pm->ps->clientNum&&pm->cmd.upmove>0&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1) )
 						{
 							anim = Q_irand( BOTH_FORCE_GETUP_B1, BOTH_FORCE_GETUP_B6 );//NOTE: BOTH_FORCE_GETUP_B5 takes soe steps forward at end
-							forceGetUp = qtrue;
+							forceGetUp = true;
 						}
 						else
 						{
@@ -3828,7 +3828,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 						if ( (pm->ps->clientNum&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0) || (!pm->ps->clientNum&&pm->cmd.upmove>0&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1) )
 						{
 							anim = Q_irand( BOTH_FORCE_GETUP_B1, BOTH_FORCE_GETUP_B6 );//NOTE: BOTH_FORCE_GETUP_B5 takes soe steps forward at end
-							forceGetUp = qtrue;
+							forceGetUp = true;
 						}
 						else
 						{
@@ -3839,7 +3839,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 						if ( (pm->ps->clientNum&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0) || (!pm->ps->clientNum&&pm->cmd.upmove>0&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1) )
 						{
 							anim = Q_irand( BOTH_FORCE_GETUP_F1, BOTH_FORCE_GETUP_F2 );
-							forceGetUp = qtrue;
+							forceGetUp = true;
 						}
 						else
 						{
@@ -3850,7 +3850,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 						if ( (pm->ps->clientNum&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0) || (!pm->ps->clientNum&&pm->cmd.upmove>0&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1) )
 						{
 							anim = Q_irand( BOTH_FORCE_GETUP_B1, BOTH_FORCE_GETUP_B6 );//NOTE: BOTH_FORCE_GETUP_B5 takes soe steps forward at end
-							forceGetUp = qtrue;
+							forceGetUp = true;
 						}
 						else
 						{
@@ -3861,7 +3861,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 						if ( (pm->ps->clientNum&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0) || (!pm->ps->clientNum&&pm->cmd.upmove>0&&pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1) )
 						{
 							anim = Q_irand( BOTH_FORCE_GETUP_F1, BOTH_FORCE_GETUP_F2 );
-							forceGetUp = qtrue;
+							forceGetUp = true;
 						}
 						else
 						{
@@ -3886,7 +3886,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 					PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS );
 					pm->ps->saberMove = pm->ps->saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
 					pm->ps->saberBlocked = BLOCKED_NONE;
-					return qtrue;
+					return true;
 				}
 				else
 				{
@@ -3895,7 +3895,7 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void PM_CmdForRoll( int anim, usercmd_t *pCmd )
@@ -3922,7 +3922,7 @@ void PM_CmdForRoll( int anim, usercmd_t *pCmd )
 	pCmd->upmove = 0;
 }
 
-qboolean PM_InRoll( playerState_t *ps )
+bool PM_InRoll( playerState_t *ps )
 {
 	switch ( ps->legsAnim )
 	{
@@ -3932,14 +3932,14 @@ qboolean PM_InRoll( playerState_t *ps )
 	case BOTH_ROLL_L:
 		if ( ps->legsAnimTimer )
 		{
-			return qtrue;
+			return true;
 		}
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_CrouchAnim( int anim )
+bool PM_CrouchAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -3967,13 +3967,13 @@ qboolean PM_CrouchAnim( int anim )
 	case LEGS_CRLEAN_LEFT1:		//# Crouch Lean left
 	case LEGS_CRLEAN_RIGHT1:		//# Crouch Lean Right
 	case BOTH_CROUCHATTACKBACK1://FIXME: not if in middle of anim?
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_PainAnim( int anim )
+bool PM_PainAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -3996,13 +3996,13 @@ qboolean PM_PainAnim( int anim )
 		case BOTH_PAIN17:			//#
 		case BOTH_PAIN18:			//#
 		case BOTH_PAIN19:			//#
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_DodgeAnim( int anim )
+bool PM_DodgeAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4012,13 +4012,13 @@ qboolean PM_DodgeAnim( int anim )
 	case BOTH_DODGE_BR:			//# lean-dodge backwards right
 	case BOTH_DODGE_L:			//# lean-dodge left
 	case BOTH_DODGE_R:			//# lean-dodge right
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_JumpingAnim( int anim )
+bool PM_JumpingAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4047,13 +4047,13 @@ qboolean PM_JumpingAnim( int anim )
 		case BOTH_FORCEJUMPRIGHT1:		//# Jump right - wind-up and leave ground
 		case BOTH_FORCEINAIRRIGHT1:		//# In air loop (from jump right)
 		case BOTH_FORCELANDRIGHT1:		//# Landing right(from in air loop)
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_LandingAnim( int anim )
+bool PM_LandingAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4066,13 +4066,13 @@ qboolean PM_LandingAnim( int anim )
 		case BOTH_FORCELANDBACK1:	//# Landing backwards(from in air loop)
 		case BOTH_FORCELANDLEFT1:	//# Landing left(from in air loop)
 		case BOTH_FORCELANDRIGHT1:	//# Landing right(from in air loop)
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_FlippingAnim( int anim )
+bool PM_FlippingAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4103,13 +4103,13 @@ qboolean PM_FlippingAnim( int anim )
 	case BOTH_CARTWHEEL_RIGHT:
 	case BOTH_JUMPFLIPSLASHDOWN1:
 	case BOTH_JUMPFLIPSTABDOWN:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_WalkingAnim( int anim )
+bool PM_WalkingAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4123,13 +4123,13 @@ qboolean PM_WalkingAnim( int anim )
 	case BOTH_WALKTORUN1:		//# transition from walk to run
 	case BOTH_WALKBACK1:			//# Walk1 backwards
 	case BOTH_WALKBACK2:			//# Walk2 backwards
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_RunningAnim( int anim )
+bool PM_RunningAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4144,13 +4144,13 @@ qboolean PM_RunningAnim( int anim )
 	case BOTH_RUNSTRAFE_LEFT1:	//# Sidestep left: should loop
 	case BOTH_RUNSTRAFE_RIGHT1:	//# Sidestep right: should loop
 	case BOTH_RUNAWAY1:			//# Running scared
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_RollingAnim( int anim )
+bool PM_RollingAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4162,26 +4162,26 @@ qboolean PM_RollingAnim( int anim )
 	case BOTH_ROLL_FL:			//# Roll forward left
 	case BOTH_ROLL_BR:			//# Roll back right
 	case BOTH_ROLL_BL:			//# Roll back left
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_SwimmingAnim( int anim )
+bool PM_SwimmingAnim( int anim )
 {
 	switch ( anim )
 	{
 	case BOTH_SWIM1:				//# Swimming
 	case BOTH_SWIM_IDLE1:		//# Swimming Idle 1
 	case BOTH_SWIMFORWARD:		//# Swim forward loop
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_SpinningSaberAnim( int anim )
+bool PM_SpinningSaberAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4242,13 +4242,13 @@ qboolean PM_SpinningSaberAnim( int anim )
 	case BOTH_FJSS_TL_BR:
 	case BOTH_JUMPFLIPSLASHDOWN1:
 	case BOTH_JUMPFLIPSTABDOWN:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_SpinningAnim( int anim )
+bool PM_SpinningAnim( int anim )
 {
 	/*
 	switch ( anim )
@@ -4447,7 +4447,7 @@ void PM_FootSlopeTrace( float *pDiff, float *pInterval )
 	}
 }
 
-qboolean PM_InSlopeAnim( int anim )
+bool PM_InSlopeAnim( int anim )
 {
 	switch ( anim )
 	{
@@ -4501,32 +4501,32 @@ qboolean PM_InSlopeAnim( int anim )
 	case LEGS_S5_RUP3:
 	case LEGS_S5_RUP4:
 	case LEGS_S5_RUP5:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
 #define	SLOPE_RECALC_INT 100
-extern qboolean G_StandardHumanoid( const char *modelName );
-qboolean PM_AdjustStandAnimForSlope( void )
+extern bool G_StandardHumanoid( const char *modelName );
+bool PM_AdjustStandAnimForSlope( void )
 {
 	if ( !pm->gent || !pm->gent->client )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( pm->gent->client->NPC_class != CLASS_ATST
 		&& (!pm->gent||!G_StandardHumanoid( pm->gent->NPC_type )) )
 	{//only ATST and player does this
-		return qfalse;
+		return false;
 	}
 	if ( !pm->ps->clientNum && (!cg.renderingThirdPerson || cg.zoomMode) )
 	{//first person doesn't do this
-		return qfalse;
+		return false;
 	}
 	if ( pm->gent->footLBolt == -1 || pm->gent->footRBolt == -1 )
 	{//need these bolts!
-		return qfalse;
+		return false;
 	}
 	//step 1: find the 2 foot tags
 	float	diff;
@@ -4577,7 +4577,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 	}
 	else
 	{
-		return qfalse;
+		return false;
 	}
 
 	int legsAnim = pm->ps->legsAnim;
@@ -4657,7 +4657,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 			break;
 		case BOTH_STAND6:
 		default:
-			return qfalse;
+			return false;
 			break;
 		}
 	}
@@ -4723,7 +4723,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 			}
 		}
@@ -4744,7 +4744,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 				break;
 			case BOTH_STAND2:
@@ -4763,7 +4763,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 				break;
 			case BOTH_STAND3:
@@ -4779,7 +4779,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 				break;
 			case BOTH_STAND4:
@@ -4795,7 +4795,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 				break;
 			case BOTH_STAND5:
@@ -4811,12 +4811,12 @@ qboolean PM_AdjustStandAnimForSlope( void )
 				}
 				else
 				{//will never get here
-					return qfalse;
+					return false;
 				}
 				break;
 			case BOTH_STAND6:
 			default:
-				return qfalse;
+				return false;
 				break;
 			}
 		}
@@ -4824,7 +4824,7 @@ qboolean PM_AdjustStandAnimForSlope( void )
 	//step 7: set the anim
 	PM_SetAnim( pm, SETANIM_LEGS, destAnim, SETANIM_FLAG_NORMAL );
 
-	return qtrue;
+	return true;
 }
 
 void PM_SwimFloatAnim( void )
@@ -4863,9 +4863,9 @@ static void PM_Footsteps( void )
 {
 	float		bobmove;
 	int			old, oldAnim;
-	qboolean	footstep = qfalse;
-	qboolean	validNPC = qfalse;
-	qboolean	flipping = qfalse;
+	bool	footstep = false;
+	bool	validNPC = false;
+	bool	flipping = false;
 	int			setAnimFlags = SETANIM_FLAG_NORMAL;
 
 	if( pm->gent == NULL || pm->gent->client == NULL )
@@ -4882,7 +4882,7 @@ static void PM_Footsteps( void )
 
 	if( pm->gent->NPC != NULL )
 	{
-		validNPC = qtrue;
+		validNPC = true;
 	}
 
 	pm->gent->client->renderInfo.legsFpsMod = 1.0f;
@@ -4900,7 +4900,7 @@ static void PM_Footsteps( void )
 		pm->ps->legsAnim == BOTH_FLIP_L ||
 		pm->ps->legsAnim == BOTH_FLIP_R )
 	{
-		flipping = qtrue;
+		flipping = true;
 	}
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE
@@ -5060,18 +5060,18 @@ static void PM_Footsteps( void )
 			{//still in a landing anim, let it play
 				return;
 			}
-			qboolean saberInAir = qtrue;
+			bool saberInAir = true;
 			if ( pm->ps->saberInFlight )
 			{//guiding saber
 				if ( PM_SaberInBrokenParry( pm->ps->saberMove ) || pm->ps->saberBlocked == BLOCKED_PARRY_BROKEN || PM_DodgeAnim( pm->ps->torsoAnim ) )
 				{//we're stuck in a broken parry
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 				if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 				{//
 					if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 					{//fell to the ground and we're not trying to pull it back
-						saberInAir = qfalse;
+						saberInAir = false;
 					}
 				}
 			}
@@ -5183,7 +5183,7 @@ static void PM_Footsteps( void )
 		bobmove = 0.5;	// ducked characters bob much faster
 		if( !PM_InOnGroundAnim( pm->ps ) )
 		{
-			qboolean rolled = qfalse;
+			bool rolled = false;
 			if ( PM_RunningAnim( pm->ps->legsAnim ) || pm->ps->legsAnim == BOTH_FORCEHEAL_START )
 			{//roll!
 				rolled = PM_TryRoll();
@@ -5208,7 +5208,7 @@ static void PM_Footsteps( void )
 		{//running backwards
 			bobmove = 0.4F;	// faster speeds bob faster
 			PM_SetAnim(pm,SETANIM_LEGS,BOTH_RUNBACK1,setAnimFlags);
-			footstep = qtrue;
+			footstep = true;
 		}
 		else
 		{//walking backwards
@@ -5262,7 +5262,7 @@ static void PM_Footsteps( void )
 					PM_SetAnim( pm, SETANIM_LEGS, BOTH_RUN1, setAnimFlags );
 				}
 			}
-			footstep = qtrue;
+			footstep = true;
 		}
 		else
 		{
@@ -5279,7 +5279,7 @@ static void PM_Footsteps( void )
 			//Enemy NPCs always make footsteps for the benefit of the player
 			if ( pm->gent && pm->gent->NPC && pm->gent->client && pm->gent->client->playerTeam != TEAM_PLAYER )
 			{
-				footstep = qtrue;
+				footstep = true;
 			}
 		}
 	}
@@ -5318,7 +5318,7 @@ DoFootSteps:
 				{
 //					if ( pm->gent->client && pm->gent->client->playerTeam != TEAM_DISGUISE )
 					{
-						AddSoundEvent( pm->gent, pm->ps->origin, 128, AEL_MINOR, qtrue );
+						AddSoundEvent( pm->gent, pm->ps->origin, 128, AEL_MINOR, true );
 					}
 				}
 			}
@@ -5337,7 +5337,7 @@ DoFootSteps:
 					bottom[2] += pm->mins[2];
 //					if ( pm->gent->client && pm->gent->client->playerTeam != TEAM_DISGUISE )
 					{
-						AddSoundEvent( pm->gent, bottom, 256, AEL_MINOR, qtrue );
+						AddSoundEvent( pm->gent, bottom, 256, AEL_MINOR, true );
 					}
 				}
 			}
@@ -5404,7 +5404,7 @@ Generate sound events for entering and leaving water
 */
 static void PM_WaterEvents( void ) {		// FIXME?
 
-	qboolean impact_splash = qfalse;
+	bool impact_splash = false;
 
 	if ( pm->watertype & CONTENTS_LADDER )	//fake water for ladder
 	{
@@ -5417,7 +5417,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 		PM_AddEvent( EV_WATER_TOUCH );
 		if ( pm->gent && VectorLengthSquared( pm->ps->velocity ) > 40000 )
 		{
-			impact_splash = qtrue;
+			impact_splash = true;
 		}
 		if ( pm->gent && !pm->ps->clientNum )
 		{
@@ -5433,7 +5433,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 		PM_AddEvent( EV_WATER_LEAVE );
 		if ( pm->gent && VectorLengthSquared( pm->ps->velocity ) > 40000 )
 		{
-			impact_splash = qtrue;
+			impact_splash = true;
 		}
 		if ( pm->gent && !pm->ps->clientNum )
 		{
@@ -5582,7 +5582,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 			PM_SetSaberMove(LS_PUTAWAY);
 		}
 		//put this back in because saberActive isn't being set somewhere else anymore
-		pm->ps->saberActive = qfalse;
+		pm->ps->saberActive = false;
 		pm->ps->saberLength = 0;
 	}
 }
@@ -5595,7 +5595,7 @@ PM_FinishWeaponChange
 */
 static void PM_FinishWeaponChange( void ) {
 	int		weapon;
-	qboolean	trueSwitch = qtrue;
+	bool	trueSwitch = true;
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->pers.enterTime >= level.time - 500 )
 	{//just entered map
@@ -5615,7 +5615,7 @@ static void PM_FinishWeaponChange( void ) {
 
 	if ( pm->ps->weapon == weapon )
 	{
-		trueSwitch = qfalse;
+		trueSwitch = false;
 	}
 	int oldWeap = pm->ps->weapon;
 	pm->ps->weapon = weapon;
@@ -5647,7 +5647,7 @@ static void PM_FinishWeaponChange( void ) {
 			//FIXME: don't do this if just loaded a game
 			if ( trueSwitch )
 			{//actually did switch weapons, turn it on
-				pm->ps->saberActive = qtrue;
+				pm->ps->saberActive = true;
 				pm->ps->saberLength = 0;
 			}
 
@@ -5879,12 +5879,12 @@ void PM_SetSaberMove(short newMove)
 		{
 			if ( saberMoveData[newMove].trailLength > 0 )
 			{
-				pm->gent->client->saberTrail.inAction = qtrue;
+				pm->gent->client->saberTrail.inAction = true;
 				pm->gent->client->saberTrail.duration = saberMoveData[newMove].trailLength; // saber trail lasts for 75ms...feel free to change this if you want it longer or shorter
 			}
 			else
 			{
-				pm->gent->client->saberTrail.inAction = qfalse;
+				pm->gent->client->saberTrail.inAction = false;
 			}
 		}
 	}
@@ -5926,7 +5926,7 @@ void PM_Use( void )
 	pm->ps->useTime = USE_DELAY;
 }
 
-extern int PM_AttackForEnemyPos( qboolean allowFB );
+extern int PM_AttackForEnemyPos( bool allowFB );
 int PM_NPCSaberAttackFromQuad( int quad )
 {
 	//FIXME: this should be an AI decision
@@ -5935,7 +5935,7 @@ int PM_NPCSaberAttackFromQuad( int quad )
 	int autoMove = LS_NONE;
 	if ( pm->gent && ((pm->gent->NPC && pm->gent->NPC->rank != RANK_ENSIGN && pm->gent->NPC->rank != RANK_CIVILIAN ) || (pm->gent->client && pm->gent->client->NPC_class == CLASS_TAVION)) )
 	{
-		autoMove = PM_AttackForEnemyPos( qtrue );
+		autoMove = PM_AttackForEnemyPos( true );
 	}
 	if ( autoMove != LS_NONE && PM_SaberInSpecial( autoMove ) )
 	{//if have opportunity to do a special attack, do one
@@ -6106,7 +6106,7 @@ int PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
 	//return Q_R;//????
 }
 
-void PM_SetAnimFrame( gentity_t *gent, int frame, qboolean torso, qboolean legs )
+void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs )
 {
 	if ( !gi.G2API_HaveWeGhoul2Models( gent->ghoul2 ) )
 	{
@@ -6381,8 +6381,8 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 						&& ((!genemy->s.number&&genemy->health<=10)||genemy->s.number) )
 					{
 						NPC_SetAnim( genemy, SETANIM_BOTH, BOTH_RIGHTHANDCHOPPEDOFF, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );//force this
-						genemy->client->dismembered = qfalse;
-						G_DoDismemberment( genemy, genemy->client->renderInfo.handRPoint, MOD_SABER, 1000, HL_HAND_RT, qtrue );
+						genemy->client->dismembered = false;
+						G_DoDismemberment( genemy, genemy->client->renderInfo.handRPoint, MOD_SABER, 1000, HL_HAND_RT, true );
 						G_Damage( genemy, gent, gent, throwDir, genemy->client->renderInfo.handRPoint, genemy->health+10, DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_SABER, HL_NONE );
 
 						PM_SetAnim( pm, SETANIM_BOTH, winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -6422,8 +6422,8 @@ int G_SaberLockStrength( gentity_t *gent )
 	}
 }
 
-extern qboolean ValidAnimFileIndex ( int index );
-qboolean PM_SaberLocked( void )
+extern bool ValidAnimFileIndex ( int index );
+bool PM_SaberLocked( void )
 {
 	if ( pm->ps->saberLockEnemy == ENTITYNUM_NONE )
 	{
@@ -6434,17 +6434,17 @@ qboolean PM_SaberLocked( void )
 		{//wtf?  Maybe enemy died?
 			PM_SaberLockWinAnim( LOCK_STALEMATE );
 		}
-		return qfalse;
+		return false;
 	}
 	gentity_t *gent = pm->gent;
 	if ( !gent )
 	{
-		return qfalse;
+		return false;
 	}
 	gentity_t *genemy = &g_entities[pm->ps->saberLockEnemy];
 	if ( !genemy )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( ( pm->ps->torsoAnim == BOTH_BF2LOCK ||
 			pm->ps->torsoAnim == BOTH_BF1LOCK ||
@@ -6469,7 +6469,7 @@ qboolean PM_SaberLocked( void )
 			{//both "win"
 				PM_SaberLockBreak( gent, genemy, LOCK_STALEMATE, 0 );
 			}
-			return qtrue;
+			return true;
 		}
 		else if ( pm->ps->saberLockTime < level.time )
 		{//done... tie breaker above should have handled this, but...?
@@ -6481,7 +6481,7 @@ qboolean PM_SaberLocked( void )
 			{
 				pm->ps->legsAnimTimer = 0;
 			}
-			return qfalse;
+			return false;
 		}
 		else if ( pm->cmd.buttons & BUTTON_ATTACK )
 		{//holding attack
@@ -6496,7 +6496,7 @@ qboolean PM_SaberLocked( void )
 					int			strength = 1;
 					anim = &level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations[pm->ps->torsoAnim];
 #ifdef _DEBUG
-					qboolean ret =
+					bool ret =
 #endif // _DEBUG
 						gi.G2API_GetBoneAnimIndex( &gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junk, &junk2, NULL );
 #ifdef _DEBUG
@@ -6511,11 +6511,11 @@ qboolean PM_SaberLocked( void )
 						if ( curFrame <= anim->firstFrame )
 						{//I won!  Break out
 							PM_SaberLockBreak( gent, genemy, LOCK_VICTORY, strength );
-							return qtrue;
+							return true;
 						}
 						else
 						{
-							PM_SetAnimFrame( gent, curFrame, qtrue, qtrue );
+							PM_SetAnimFrame( gent, curFrame, true, true );
 							remaining = curFrame-anim->firstFrame;
 							if ( d_saberCombat->integer )
 							{
@@ -6530,11 +6530,11 @@ qboolean PM_SaberLocked( void )
 						if ( curFrame >= anim->firstFrame+anim->numFrames )
 						{//I won!  Break out
 							PM_SaberLockBreak( gent, genemy, LOCK_VICTORY, strength );
-							return qtrue;
+							return true;
 						}
 						else
 						{
-							PM_SetAnimFrame( gent, curFrame, qtrue, qtrue );
+							PM_SetAnimFrame( gent, curFrame, true, true );
 							remaining = anim->firstFrame+anim->numFrames-curFrame;
 							if ( d_saberCombat->integer )
 							{
@@ -6583,7 +6583,7 @@ qboolean PM_SaberLocked( void )
 				}
 				else
 				{
-					return qfalse;
+					return false;
 				}
 				if( ValidAnimFileIndex( genemy->client->clientInfo.animFileIndex ) )
 				{
@@ -6617,7 +6617,7 @@ qboolean PM_SaberLocked( void )
 								break;
 							}
 						}
-						PM_SetAnimFrame( genemy, anim->firstFrame+remaining, qtrue, qtrue );
+						PM_SetAnimFrame( genemy, anim->firstFrame+remaining, true, true );
 						/*
 						curFrame = floor( currentFrame );
 
@@ -6633,13 +6633,13 @@ qboolean PM_SaberLocked( void )
 							{
 								Com_Printf( "%s losing in saber lock, %d frames to go!\n", genemy->NPC_type, (curFrame-1)-anim->firstFrame );
 							}
-							PM_SetAnimFrame( genemy, curFrame-1, qtrue, qtrue );
+							PM_SetAnimFrame( genemy, curFrame-1, true, true );
 						}
 						*/
 					}
 					else
 					{
-						PM_SetAnimFrame( genemy, anim->firstFrame+anim->numFrames-remaining, qtrue, qtrue );
+						PM_SetAnimFrame( genemy, anim->firstFrame+anim->numFrames-remaining, true, true );
 						/*
 						curFrame = ceil( currentFrame );
 						//advance his frame one
@@ -6654,7 +6654,7 @@ qboolean PM_SaberLocked( void )
 							{
 								Com_Printf( "%s losing in saber lock, %d frames to go!\n", genemy->NPC_type, anim->firstFrame+anim->numFrames-(curFrame+1) );
 							}
-							PM_SetAnimFrame( genemy, curFrame+1, qtrue, qtrue );
+							PM_SetAnimFrame( genemy, curFrame+1, true, true );
 						}
 						*/
 					}
@@ -6688,7 +6688,7 @@ qboolean PM_SaberLocked( void )
 			PM_SaberLockBreak( gent, genemy, LOCK_STALEMATE, 0 );
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -6704,7 +6704,7 @@ While this is a little different than the Quake 3 code, there is no clean way of
 void PM_WeaponLightsaber(void)
 {
 	int			addTime;
-	qboolean	delayed_fire = qfalse;
+	bool	delayed_fire = false;
 	int			anim=-1, curmove, newmove=LS_NONE;
 
 	if ( !pm->ps->clientNum
@@ -6767,7 +6767,7 @@ void PM_WeaponLightsaber(void)
 		pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 	}
 
-	qboolean saberInAir = qtrue;
+	bool saberInAir = true;
 	if ( !PM_SaberInBrokenParry( pm->ps->saberMove ) && pm->ps->saberBlocked != BLOCKED_PARRY_BROKEN && !PM_DodgeAnim( pm->ps->torsoAnim ) )
 	{//we're not stuck in a broken parry
 		if ( pm->ps->saberInFlight )
@@ -6776,7 +6776,7 @@ void PM_WeaponLightsaber(void)
 			{//
 				if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 				{//fell to the ground and we're not trying to pull it back
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 			}
 			if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
@@ -6806,7 +6806,7 @@ void PM_WeaponLightsaber(void)
 		if ( pm->gent->client->fireDelay <= 0 )
 		{//just finished delay timer
 			pm->gent->client->fireDelay = 0;
-			delayed_fire = qtrue;
+			delayed_fire = true;
 		}
 	}
 
@@ -7194,18 +7194,18 @@ void PM_WeaponLightsaber(void)
 		}
 		else
 		{
-			qboolean saberInAir = qtrue;
+			bool saberInAir = true;
 			if ( pm->ps->saberInFlight )
 			{//guiding saber
 				if ( PM_SaberInBrokenParry( pm->ps->saberMove ) || pm->ps->saberBlocked == BLOCKED_PARRY_BROKEN || PM_DodgeAnim( pm->ps->torsoAnim ) )
 				{//we're stuck in a broken parry
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 				if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 				{//
 					if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 					{//fell to the ground and we're not trying to pull it back
-						saberInAir = qfalse;
+						saberInAir = false;
 					}
 				}
 			}
@@ -7301,18 +7301,18 @@ void PM_WeaponLightsaber(void)
 
 		// ***************************************************
 		// Pressing attack, so we must look up the proper attack move.
-		qboolean saberInAir = qtrue;
+		bool saberInAir = true;
 		if ( pm->ps->saberInFlight )
 		{//guiding saber
 			if ( PM_SaberInBrokenParry( pm->ps->saberMove ) || pm->ps->saberBlocked == BLOCKED_PARRY_BROKEN || PM_DodgeAnim( pm->ps->torsoAnim ) )
 			{//we're stuck in a broken parry
-				saberInAir = qfalse;
+				saberInAir = false;
 			}
 			if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 			{//
 				if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 				{//fell to the ground and we're not trying to pull it back
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 			}
 		}
@@ -7331,7 +7331,7 @@ void PM_WeaponLightsaber(void)
 		}
 		else
 		{
-			int	both = qfalse;
+			int	both = false;
 
 			if ( curmove >= LS_PARRY_UP && curmove <= LS_REFLECT_LL )
 			{//from a parry or reflection, can go directly into an attack
@@ -7444,7 +7444,7 @@ void PM_WeaponLightsaber(void)
 
 				if ( !pm->cmd.forwardmove && !pm->cmd.rightmove && pm->cmd.upmove >= 0 && pm->ps->groundEntityNum != ENTITYNUM_NONE )
 				{//not moving at all, so set the anim on entire body
-					both = qtrue;
+					both = true;
 				}
 
 			}
@@ -7473,7 +7473,7 @@ void PM_WeaponLightsaber(void)
 
 			if ( !pm->ps->saberActive )
 			{//turn on the saber if it's not on
-				pm->ps->saberActive = qtrue;
+				pm->ps->saberActive = true;
 			}
 
 			PM_SetSaberMove( newmove );
@@ -7484,7 +7484,7 @@ void PM_WeaponLightsaber(void)
 			}
 			if ( pm->gent && pm->gent->client )
 			{
-//				pm->gent->client->saberTrail.inAction = qtrue;
+//				pm->gent->client->saberTrail.inAction = true;
 //				pm->gent->client->saberTrail.duration = 75; // saber trail lasts for 75ms...feel free to change this if you want it longer or shorter
 			}
 			//don't fire again until anim is done
@@ -7577,8 +7577,8 @@ void PM_WeaponLightsaber(void)
 static bool PM_DoChargedWeapons( void )
 //---------------------------------------
 {
-	qboolean	charging = qfalse,
-				altFire = qfalse;
+	bool	charging = false,
+				altFire = false;
 
 	//FIXME: make jedi aware they're being aimed at with a charged-up weapon (strafe and be evasive?)
 	// If you want your weapon to be a charging weapon, just set this bit up
@@ -7590,8 +7590,8 @@ static bool PM_DoChargedWeapons( void )
 		// alt-fire charges the weapon
 		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 		{
-			charging = qtrue;
-			altFire = qtrue;
+			charging = true;
+			altFire = true;
 		}
 		break;
 
@@ -7606,8 +7606,8 @@ static bool PM_DoChargedWeapons( void )
 			{
 				if ( pm->cmd.buttons & BUTTON_ATTACK )
 				{
-					charging = qtrue;
-					altFire = qtrue; // believe it or not, it really is an alt-fire in this case!
+					charging = true;
+					altFire = true; // believe it or not, it really is an alt-fire in this case!
 				}
 			}
 		}
@@ -7617,8 +7617,8 @@ static bool PM_DoChargedWeapons( void )
 			{
 				if ( pm->gent->fly_sound_debounce_time > level.time )
 				{
-					charging = qtrue;
-					altFire = qtrue;
+					charging = true;
+					altFire = true;
 				}
 			}
 		}
@@ -7630,7 +7630,7 @@ static bool PM_DoChargedWeapons( void )
 		// main-fire charges the weapon
 		if ( pm->cmd.buttons & BUTTON_ATTACK )
 		{
-			charging = qtrue;
+			charging = true;
 		}
 		break;
 
@@ -7640,8 +7640,8 @@ static bool PM_DoChargedWeapons( void )
 		// alt-fire charges the weapon
 		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 		{
-			charging = qtrue;
-			altFire = qtrue;
+			charging = true;
+			altFire = true;
 		}
 		break;
 
@@ -7652,8 +7652,8 @@ static bool PM_DoChargedWeapons( void )
 		//	implement our alt-fire locking stuff
 		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 		{
-			charging = qtrue;
-			altFire = qtrue;
+			charging = true;
+			altFire = true;
 		}
 		break;
 
@@ -7664,12 +7664,12 @@ static bool PM_DoChargedWeapons( void )
 		//			the actual throw when he lets go...
 		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 		{
-			altFire = qtrue; // override default of not being an alt-fire
-			charging = qtrue;
+			altFire = true; // override default of not being an alt-fire
+			charging = true;
 		}
 		else if ( pm->cmd.buttons & BUTTON_ATTACK )
 		{
-			charging = qtrue;
+			charging = true;
 		}
 		break;
 
@@ -7933,7 +7933,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 	return count;
 }
 
-qboolean PM_DroidMelee( int npc_class )
+bool PM_DroidMelee( int npc_class )
 {
 	if ( npc_class == CLASS_PROBE
 		|| npc_class == CLASS_SEEKER
@@ -7941,9 +7941,9 @@ qboolean PM_DroidMelee( int npc_class )
 		|| npc_class == CLASS_SENTRY
 		|| npc_class == CLASS_REMOTE )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -7956,7 +7956,7 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void )
 {
 	int			addTime, amount, trueCount = 1;
-	qboolean	delayed_fire = qfalse;
+	bool	delayed_fire = false;
 
 	if (pm->ps->weapon == WP_SABER && (cg.zoomMode==3||!cg.zoomMode||pm->ps->clientNum) )		// WP_LIGHTSABER
 	{	// Separate logic for lightsaber, but not for player when zoomed
@@ -7965,12 +7965,12 @@ static void PM_Weapon( void )
 		{//FIXME: put saberTrail in playerState
 			if ( pm->gent->client->ps.saberEntityState == SES_RETURNING )
 			{//turn off the saber trail
-				pm->gent->client->saberTrail.inAction = qfalse;
+				pm->gent->client->saberTrail.inAction = false;
 				pm->gent->client->saberTrail.duration = 75;
 			}
 			else
 			{//turn on the saber trail
-				pm->gent->client->saberTrail.inAction = qtrue;
+				pm->gent->client->saberTrail.inAction = true;
 				pm->gent->client->saberTrail.duration = 150;
 			}
 		}
@@ -8000,7 +8000,7 @@ static void PM_Weapon( void )
 				pm->cmd.buttons |= BUTTON_ALT_ATTACK;
 			}
 			pm->gent->client->fireDelay = 0;
-			delayed_fire = qtrue;
+			delayed_fire = true;
 		}
 		else
 		{
@@ -8387,7 +8387,7 @@ static void PM_Inventory(void)
 */
 }
 
-extern void ForceThrow( gentity_t *self, qboolean pull );
+extern void ForceThrow( gentity_t *self, bool pull );
 extern void ForceHeal( gentity_t *self );
 extern void ForceTelepathy( gentity_t *self );
 void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
@@ -8410,10 +8410,10 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			ForceSpeed( ent );
 			break;
 		case FP_PUSH:
-			ForceThrow( ent, qfalse );
+			ForceThrow( ent, false );
 			break;
 		case FP_PULL:
-			ForceThrow( ent, qtrue );
+			ForceThrow( ent, true );
 			break;
 		case FP_TELEPATHY:
 			ForceTelepathy( ent );
@@ -8579,7 +8579,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 				G_SoundOnEnt( pm->gent, CHAN_AUTO, "sound/weapons/disruptor/zoomstart.wav" );
 				// not already zooming, so do it now
 				cg.zoomMode = 2;
-				cg.zoomLocked = qfalse;
+				cg.zoomLocked = false;
 				cg_zoomFov = 80.0f;//(cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
 			}
 			else if ( cg.zoomMode == 2 )
@@ -8588,7 +8588,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 				// already zooming, so must be wanting to turn it off
 				cg.zoomMode = 0;
 				cg.zoomTime = cg.time;
-				cg.zoomLocked = qfalse;
+				cg.zoomLocked = false;
 			}
 		}
 		else if ( !(pm->cmd.buttons & BUTTON_ALT_ATTACK ))
@@ -8597,7 +8597,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			if ( cg.zoomMode == 2 )
 			{
 				// were zooming in, so now lock the zoom
-				cg.zoomLocked = qtrue;
+				cg.zoomLocked = true;
 			}
 		}
 
@@ -8625,19 +8625,19 @@ void PM_AdjustAttackStates( pmove_t *pm )
 		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->ps->batteryCharge )
 		{
 			// zooming out
-			cg.zoomLocked = qfalse;
+			cg.zoomLocked = false;
 			cg.zoomDir = 1;
 		}
 		else if ( pm->cmd.buttons & BUTTON_ATTACK && pm->ps->batteryCharge )
 		{
 			// zooming in
-			cg.zoomLocked = qfalse;
+			cg.zoomLocked = false;
 			cg.zoomDir = -1;
 		}
 		else
 		{
 			// if no buttons are down, we should be in a locked state
-			cg.zoomLocked = qtrue;
+			cg.zoomLocked = true;
 		}
 
 		// kill buttons and associated firing flags so we can't fire
@@ -8654,7 +8654,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			pm->ps->eFlags |= EF_ALT_FIRING;
 			if ( !pm->ps->clientNum && pm->gent && (pm->ps->eFlags&EF_IN_ATST) )
 			{//switch ATST barrels
-				pm->gent->alt_fire = qtrue;
+				pm->gent->alt_fire = true;
 			}
 		}
 		else
@@ -8662,7 +8662,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			pm->ps->eFlags &= ~EF_ALT_FIRING;
 			if ( !pm->ps->clientNum && pm->gent && (pm->ps->eFlags&EF_IN_ATST) )
 			{//switch ATST barrels
-				pm->gent->alt_fire = qfalse;
+				pm->gent->alt_fire = false;
 			}
 		}
 
@@ -8824,13 +8824,13 @@ void Pmove( pmove_t *pmove )
 	{//Don't want to remember this for ladders, is only for waterlevel change events (sounds)
 		pml.previous_waterlevel = pmove->waterlevel;
 	}
-	waterForceJump = qfalse;
+	waterForceJump = false;
 	if ( pmove->waterlevel && pm->ps->clientNum )
 	{
 		if ( pm->ps->forceJumpZStart//force jumping
 			||(pm->gent&&!TIMER_Done(pm->gent, "forceJumpChasing" )) )//force-jumping
 		{
-			waterForceJump = qtrue;
+			waterForceJump = true;
 		}
 	}
 

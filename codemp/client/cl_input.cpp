@@ -43,8 +43,8 @@ static float	s_mouseSide, s_mouseForward;
 float cl_mPitchOverride = 0.0f;
 float cl_mYawOverride = 0.0f;
 float cl_mSensitivityOverride = 0.0f;
-qboolean cl_bUseFighterPitch = qfalse;
-qboolean cl_crazyShipControls = qfalse;
+bool cl_bUseFighterPitch = false;
+bool cl_crazyShipControls = false;
 
 #ifdef VEH_CONTROL_SCHEME_4
 #define	OVERRIDE_MOUSE_SENSITIVITY 5.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
@@ -82,7 +82,7 @@ kbutton_t	in_up, in_down;
 kbutton_t	in_buttons[MAX_KBUTTONS];
 
 
-qboolean	in_mlooking;
+bool	in_mlooking;
 
 void IN_Button11Down(void);
 void IN_Button11Up(void);
@@ -154,18 +154,18 @@ void IN_UseGivenForce(void)
 	}
 
 	if(genCmdNum != 0) {
-		cl.gcmdSendValue = qtrue;
+		cl.gcmdSendValue = true;
 		cl.gcmdValue = genCmdNum;
 	}
 }
 
 void IN_MLookDown( void ) {
-	in_mlooking = qtrue;
+	in_mlooking = true;
 }
 
 void IN_CenterView( void );
 void IN_MLookUp( void ) {
-	in_mlooking = qfalse;
+	in_mlooking = false;
 	if ( !cl_freelook->integer ) {
 		IN_CenterView ();
 	}
@@ -173,109 +173,109 @@ void IN_MLookUp( void ) {
 
 void IN_GenCMD1( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_SABERSWITCH;
 }
 
 void IN_GenCMD2( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_ENGAGE_DUEL;
 }
 
 void IN_GenCMD3( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_HEAL;
 }
 
 void IN_GenCMD4( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_SPEED;
 }
 
 void IN_GenCMD5( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_PULL;
 }
 
 void IN_GenCMD6( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_DISTRACT;
 }
 
 void IN_GenCMD7( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_RAGE;
 }
 
 void IN_GenCMD8( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_PROTECT;
 }
 
 void IN_GenCMD9( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_ABSORB;
 }
 
 void IN_GenCMD10( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_HEALOTHER;
 }
 
 void IN_GenCMD11( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_FORCEPOWEROTHER;
 }
 
 void IN_GenCMD12( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_SEEING;
 }
 
 void IN_GenCMD13( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_SEEKER;
 }
 
 void IN_GenCMD14( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_FIELD;
 }
 
 void IN_GenCMD15( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_BACTA;
 }
 
 void IN_GenCMD16( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_ELECTROBINOCULARS;
 }
 
 void IN_GenCMD17( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_ZOOM;
 }
 
 void IN_GenCMD18( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_SENTRY;
 }
 
@@ -285,79 +285,79 @@ void IN_GenCMD19( void )
 	{
 		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
 	}
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
 }
 
 void IN_GenCMD20( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_THROW;
 }
 
 void IN_GenCMD21( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_JETPACK;
 }
 
 void IN_GenCMD22( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_BACTABIG;
 }
 
 void IN_GenCMD23( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_HEALTHDISP;
 }
 
 void IN_GenCMD24( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_AMMODISP;
 }
 
 void IN_GenCMD25( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_EWEB;
 }
 
 void IN_GenCMD26( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_CLOAK;
 }
 
 void IN_GenCMD27( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_TAUNT;
 }
 
 void IN_GenCMD28( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_BOW;
 }
 
 void IN_GenCMD29( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_MEDITATE;
 }
 
 void IN_GenCMD30( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FLOURISH;
 }
 
 void IN_GenCMD31( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_GLOAT;
 }
 
@@ -432,8 +432,8 @@ void IN_KeyDown( kbutton_t *b ) {
 	c = Cmd_Argv(2);
 	b->downtime = atoi(c);
 
-	b->active = qtrue;
-	b->wasPressed = qtrue;
+	b->active = true;
+	b->wasPressed = true;
 }
 
 void IN_KeyUp( kbutton_t *b ) {
@@ -447,7 +447,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	} else {
 		// typed manually at the console, assume for unsticking, so clear all
 		b->down[0] = b->down[1] = 0;
-		b->active = qfalse;
+		b->active = false;
 		return;
 	}
 
@@ -462,7 +462,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		return;		// some other key is still holding it down
 	}
 
-	b->active = qfalse;
+	b->active = false;
 
 	// save timestamp for partial frame summing
 	c = Cmd_Argv(2);
@@ -473,7 +473,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		b->msec += frame_msec / 2;
 	}
 
-	b->active = qfalse;
+	b->active = false;
 }
 
 
@@ -529,7 +529,7 @@ float CL_KeyState( kbutton_t *key, unsigned span ) {
 #define		AUTOMAP_KEY_DEFAULTVIEW		7
 static autoMapInput_t			g_clAutoMapInput;
 //intercept certain keys during automap mode
-static void CL_AutoMapKey(int autoMapKey, qboolean up)
+static void CL_AutoMapKey(int autoMapKey, bool up)
 {
 	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
 
@@ -597,7 +597,7 @@ static void CL_AutoMapKey(int autoMapKey, qboolean up)
 		break;
 	case AUTOMAP_KEY_DEFAULTVIEW:
 		memset(&g_clAutoMapInput, 0, sizeof(autoMapInput_t));
-		g_clAutoMapInput.goToDefaults = qtrue;
+		g_clAutoMapInput.goToDefaults = true;
 		break;
 	default:
 		break;
@@ -610,7 +610,7 @@ static void CL_AutoMapKey(int autoMapKey, qboolean up)
 		CGVM_AutomapInput();
 	}
 
-	g_clAutoMapInput.goToDefaults = qfalse;
+	g_clAutoMapInput.goToDefaults = false;
 }
 
 
@@ -618,7 +618,7 @@ void IN_UpDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, false);
 	}
 	else
 	{
@@ -629,7 +629,7 @@ void IN_UpUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, true);
 	}
 	else
 	{
@@ -640,7 +640,7 @@ void IN_DownDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, false);
 	}
 	else
 	{
@@ -651,7 +651,7 @@ void IN_DownUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, true);
 	}
 	else
 	{
@@ -666,7 +666,7 @@ void IN_ForwardDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, false);
 	}
 	else
 	{
@@ -677,7 +677,7 @@ void IN_ForwardUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, true);
 	}
 	else
 	{
@@ -688,7 +688,7 @@ void IN_BackDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_BACK, false);
 	}
 	else
 	{
@@ -699,7 +699,7 @@ void IN_BackUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_BACK, true);
 	}
 	else
 	{
@@ -714,7 +714,7 @@ void IN_MoveleftDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, false);
 	}
 	else
 	{
@@ -725,7 +725,7 @@ void IN_MoveleftUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, true);
 	}
 	else
 	{
@@ -736,7 +736,7 @@ void IN_MoverightDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, false);
 	}
 	else
 	{
@@ -747,7 +747,7 @@ void IN_MoverightUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, true);
 	}
 	else
 	{
@@ -774,7 +774,7 @@ void IN_Button5Down(void) //use key
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, false);
 	}
 	else
 	{
@@ -894,7 +894,7 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	// the walking flag is to keep animations consistant
 	// even during acceleration and develeration
 	//
-	if ( in_speed.active ^ cl_run->integer ) {
+	if ( in_speed.active != (cl_run->integer != 0) ) {
 		movespeed = 127;
 		cmd->buttons &= ~BUTTON_WALKING;
 	} else {
@@ -1041,7 +1041,7 @@ static void CL_JoystickMove( usercmd_t *cmd ) {
 		return;
 	}
 
-	if ( !(in_speed.active ^ cl_run->integer) ) {
+	if ( in_speed.active == (cl_run->integer != 0) ) {
 		cmd->buttons |= BUTTON_WALKING;
 	}
 
@@ -1210,11 +1210,11 @@ static void CL_MouseMove( void ) {
 		s_mouseForward -= m_forward->value * my;
 }
 
-qboolean CL_NoUseableForce(void)
+bool CL_NoUseableForce(void)
 {
 	if (!cls.cgameStarted)
 	{ //ahh, no cgame loaded
-		return qfalse;
+		return false;
 	}
 
 	return CGVM_NoUseableForce();
@@ -1237,7 +1237,7 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
 			cmd->buttons |= 1 << i;
 		}
-		in_buttons[i].wasPressed = qfalse;
+		in_buttons[i].wasPressed = false;
 	}
 
 	if (cmd->buttons & BUTTON_FORCEPOWER)
@@ -1279,8 +1279,8 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	if (cl.gcmdSendValue)
 	{
 		cmd->generic_cmd = cl.gcmdValue;
-		//cl.gcmdSendValue = qfalse;
-		cl.gcmdSentValue = qtrue;
+		//cl.gcmdSendValue = false;
+		cl.gcmdSentValue = true;
 	}
 	else
 	{
@@ -1495,42 +1495,42 @@ CL_PendingCmd
 The view angles and the command clock of now, for cgame's drawing of the local player
 (plan step 14: the commands are made per tick, the view turns every frame): the last
 command with the view angles of the frame and the command clock as its time, never
-sent. qfalse before the first command.
+sent. false before the first command.
 =================
 */
-qboolean CL_PendingCmd( usercmd_t *cmd ) {
+bool CL_PendingCmd( usercmd_t *cmd ) {
 	if ( cl.cmdNumber == 0 ) {
-		return qfalse;
+		return false;
 	}
 	*cmd = cl.cmds[cl.cmdNumber & CMD_MASK];
 	cmd->serverTime = cl.cmdTime;
 	for ( int i = 0; i < 3; i++ ) {
 		cmd->angles[i] = ANGLE2SHORT( cl.viewangles[i] );
 	}
-	return qtrue;
+	return true;
 }
 
 /*
 =================
 CL_ReadyToSendPacket
 
-Returns qtrue when this frame made a new command (a packet per tick, plan step 14), or,
+Returns true when this frame made a new command (a packet per tick, plan step 14), or,
 before the client is in the game (awaiting the gamestate or its first snapshot), once
 per interval of MAX_PACKET_RATE
 =================
 */
-static qboolean CL_ReadyToSendPacket( qboolean newCommand ) {
+static bool CL_ReadyToSendPacket( bool newCommand ) {
 	const int interval = 1000 / MAX_PACKET_RATE;
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
-		return qfalse;
+		return false;
 	}
 
 	// If we are downloading, we send no less than 50ms between packets
 	if ( *clc.downloadTempName &&
 		cls.realtime - clc.lastPacketSentTime < 50 ) {
-		return qfalse;
+		return false;
 	}
 
 	// While awaiting the gamestate the client sends at the normal rate (plan step 10; it sent one packet a second): the
@@ -1544,7 +1544,7 @@ static qboolean CL_ReadyToSendPacket( qboolean newCommand ) {
 
 	// send every frame for loopbacks
 	if ( clc.netchan.remoteAddress.type == NA_LOOPBACK ) {
-		return qtrue;
+		return true;
 	}
 
 	// a packet every frame, up to MAX_PACKET_RATE per second (plan step 11; the server decodes no more). The unused part
@@ -1554,11 +1554,11 @@ static qboolean CL_ReadyToSendPacket( qboolean newCommand ) {
 	// 100, 72 at 144 fps with a cap of 125).
 	if ( cls.realtime < clc.nextPacketTime ) {
 		// the accumulated commands will go out in the next packet
-		return qfalse;
+		return false;
 	}
 	clc.nextPacketTime = Q_max( clc.nextPacketTime, cls.realtime - interval ) + interval;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1602,15 +1602,15 @@ void CL_WritePacket( void ) {
 
 	// the usercmds are a delta (clc_move) unless the last message's snapshot is missing (clc_moveNoDelta: the server
 	// sends a full snapshot)
-	const qboolean delta = ( !cl_nodelta->integer && cl.snap.valid && clc.serverMessageSequence == cl.snap.messageNum ) ? qtrue : qfalse;
+	const bool delta = ( !cl_nodelta->integer && cl.snap.valid && clc.serverMessageSequence == cl.snap.messageNum ) ? true : false;
 	if ( !CL_NetcodecWritePacket( &buf, count, delta ) ) {
 		return;
 	}
 
 	if ( count >= 1 && cl.gcmdSentValue )
 	{ //hmm, just clear here, I guess.. hoping it will resolve issues with gencmd values sometimes not going through.
-		cl.gcmdSendValue = qfalse;
-		cl.gcmdSentValue = qfalse;
+		cl.gcmdSendValue = false;
+		cl.gcmdSentValue = false;
 		cl.gcmdValue = 0;
 	}
 
@@ -1651,7 +1651,7 @@ static void CL_MakeAndSend( void ) {
 	CL_CreateNewCommands();
 
 	// don't send a packet if the last packet was sent too recently
-	if ( !CL_ReadyToSendPacket( cl.cmdNumber != cmdNumber ? qtrue : qfalse ) ) {
+	if ( !CL_ReadyToSendPacket( cl.cmdNumber != cmdNumber ? true : false ) ) {
 		if ( cl_showSend->integer ) {
 			Com_Printf( ". " );
 		}
@@ -1709,10 +1709,10 @@ CL_InputTick
 Between two frames, when the command clock enters a tick (Com_Frame): reads the input (the system's events, the key
 binds), turns the view, makes the tick's command and sends its packet, as a frame does, without drawing. The client's
 clock is set to the present for it (the packet's send time, the command clock) and put back: the frame that follows
-moves it by its whole length. Returns qfalse when no command was made (the events changed the client's state).
+moves it by its whole length. Returns false when no command was made (the events changed the client's state).
 =================
 */
-qboolean CL_InputTick( void ) {
+bool CL_InputTick( void ) {
 	const int cmdNumber = cl.cmdNumber;
 	const int realtime = cls.realtime;
 
@@ -1722,7 +1722,7 @@ qboolean CL_InputTick( void ) {
 		Cbuf_Execute();
 	}
 	if ( cls.state < CA_CONNECTED || CL_NextCommandMsec() != 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	cls.realtime += s_inputTime - com_frameTime;
@@ -1731,7 +1731,7 @@ qboolean CL_InputTick( void ) {
 	CL_MakeAndSend();
 	cls.realtime = realtime;
 
-	return cl.cmdNumber != cmdNumber ? qtrue : qfalse;
+	return cl.cmdNumber != cmdNumber ? true : false;
 }
 
 static const cmdList_t inputCmds[] =

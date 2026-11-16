@@ -51,8 +51,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // msg.c
 //
 typedef struct {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
+	bool	allowoverflow;	// if false, do a Com_Error
+	bool	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
 	byte	*data;
 	int		maxsize;
 	int		cursize;
@@ -97,7 +97,7 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s
 void MSG_ReadDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
 
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , qboolean force );
+						   , bool force );
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						 int number );
 void MSG_ReadEntity( msg_t *msg, entityState_t *to);
@@ -137,18 +137,18 @@ static inline void NET_Shutdown( void ) {}
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
 void		NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...);
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
-qboolean	NET_IsLocalAddress (netadr_t adr);
-qboolean	NET_IsLANAddress (netadr_t adr);
+bool	NET_CompareAdr (netadr_t a, netadr_t b);
+bool	NET_CompareBaseAdr (netadr_t a, netadr_t b);
+bool	NET_IsLocalAddress (netadr_t adr);
+bool	NET_IsLANAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
-qboolean	NET_StringToAdr ( const char *s, netadr_t *a);
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
+bool	NET_StringToAdr ( const char *s, netadr_t *a);
+bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
 
 void		Sys_SendPacket( int length, const void *data, netadr_t to );
 //Does NOT parse port numbers, only base addresses.
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
-qboolean	Sys_IsLANAddress (netadr_t adr);
+bool	Sys_StringToAdr( const char *s, netadr_t *a );
+bool	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
 
@@ -185,7 +185,7 @@ void Netchan_Init( int qport );
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
 
 void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
+bool Netchan_Process( netchan_t *chan, msg_t *msg );
 
 
 /*
@@ -375,7 +375,7 @@ void	Cvar_Update( vmCvar_t *vmCvar );
 void 	Cvar_Set( const char *var_name, const char *value );
 // will create the variable with no flags if it doesn't exist
 
-cvar_t	*Cvar_Set2(const char *var_name, const char *value, qboolean force);
+cvar_t	*Cvar_Set2(const char *var_name, const char *value, bool force);
 // same as Cvar_Set, but allows more control over setting of cvar
 
 void	Cvar_SetValue( const char *var_name, float value );
@@ -401,7 +401,7 @@ void 	Cvar_ForceReset( const char *var_name );
 void	Cvar_SetCheatState( void );
 // reset all testing vars to a safe value
 
-qboolean Cvar_Command( void );
+bool Cvar_Command( void );
 // called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
@@ -416,9 +416,9 @@ char	*Cvar_InfoString( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
-void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 
-void	Cvar_Restart(qboolean unsetVM);
+void	Cvar_Restart(bool unsetVM);
 void	Cvar_Restart_f( void );
 
 void Cvar_CompleteCvarName( char *args, int argNum );
@@ -455,8 +455,8 @@ typedef struct {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
+void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
 
 /*
 ==============================================================
@@ -483,7 +483,7 @@ int			Com_Milliseconds( void );	// will be journaled properly
 uint32_t	Com_BlockChecksum( const void *buffer, int length );
 int			Com_Filter(const char *filter, const char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, const char *name, int casesensitive);
-qboolean	Com_SafeMode( void );
+bool	Com_SafeMode( void );
 void		Com_RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
 
 void		Com_StartupVariable( const char *match );
@@ -521,7 +521,7 @@ extern	int		numTraces;
 
 extern	int		com_frameTime;
 
-extern	qboolean	com_errorEntered;
+extern	bool	com_errorEntered;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -550,11 +550,11 @@ void  Z_TagFree	( memtag_t eTag );
 int   Z_Free	( void *ptr );	//returns bytes freed
 int	  Z_Size	( void *pvAddress);
 void  Z_MorphMallocTag( void *pvAddress, memtag_t eDesiredTag );
-qboolean Z_IsFromZone(const void *pvAddress, memtag_t eTag);	//returns size if true
+bool Z_IsFromZone(const void *pvAddress, memtag_t eTag);	//returns size if true
 
 #ifdef DEBUG_ZONE_ALLOCS
 
-void *_D_Z_Malloc( int iSize, memtag_t eTag, qboolean bZeroit, const char *psFile, int iLine );
+void *_D_Z_Malloc( int iSize, memtag_t eTag, bool bZeroit, const char *psFile, int iLine );
 void *_D_S_Malloc( int iSize, const char *psFile, int iLine );
 void  Z_Label( const void *pvAddress, const char *pslabel );
 
@@ -563,7 +563,7 @@ void  Z_Label( const void *pvAddress, const char *pslabel );
 
 #else
 
-void *Z_Malloc( int iSize, memtag_t eTag, qboolean bZeroit = qfalse, int iAlign = 4);	// return memory NOT zero-filled by default
+void *Z_Malloc( int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4);	// return memory NOT zero-filled by default
 void *S_Malloc( int iSize );									// NOT 0 filled memory only for small allocations
 #define Z_Label(_ptr, _label)
 
@@ -577,7 +577,7 @@ void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
 // note the opposite default for 'bZeroIt' in Hunk_Alloc to Z_Malloc, since Hunk_Alloc always used to memset(0)...
 //
-inline void *Hunk_Alloc( int size, qboolean bZeroIt = qtrue);
+inline void *Hunk_Alloc( int size, bool bZeroIt = true);
 
 
 void Com_TouchMemory( void );
@@ -609,8 +609,8 @@ void CL_Init( void );
 void CL_Disconnect( void );
 void CL_Shutdown( void );
 void CL_Frame( int msec,float fractionMsec );
-qboolean CL_GameCommand( void );
-void CL_KeyEvent (int key, qboolean down, unsigned time);
+bool CL_GameCommand( void );
+void CL_KeyEvent (int key, bool down, unsigned time);
 
 void CL_CharEvent( int key );
 // char events are for field typing, not game control
@@ -658,19 +658,19 @@ void SV_Init( void );
 void SV_Shutdown( const char *finalmsg);
 void SV_Frame( int msec,float fractionMsec);
 void SV_PacketEvent( netadr_t from, msg_t *msg );
-qboolean SV_GameCommand( void );
+bool SV_GameCommand( void );
 
 
 //
 // UI interface
 //
-qboolean UI_GameCommand( void );
+bool UI_GameCommand( void );
 
 
-byte*	SCR_GetScreenshot(qboolean *qValid);
+byte*	SCR_GetScreenshot(bool *qValid);
 #ifdef JK2_MODE
 void	SCR_SetScreenshot(const byte *pbData, int w, int h);
-byte*	SCR_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, qboolean qbVertFlip);
+byte*	SCR_TempRawImage_ReadFromFile(const char *psLocalFilename, int *piWidth, int *piHeight, byte *pbReSampleBuffer, bool qbVertFlip);
 void	SCR_TempRawImage_CleanUp();
 #endif
 

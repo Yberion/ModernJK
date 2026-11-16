@@ -25,27 +25,31 @@ PRESET=${PRESET:-mingw-clang-release}
 BENCH=${BENCH:-codec}                    # codec (server messages) or client (client packets)
 ALIGN="-falign-functions=64 -falign-loops=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN=""
-build() {   # $1 = name (ref, cur)
+# The reference is built with its own ModernJK sources (the legacy coder, msg.cpp, and the states' layout, q_shared.h):
+# those of its commit, or REF_DIR's when it holds codemp/qcommon/msg.cpp, else the working tree's.
+build() {   # $1 = name (ref, cur), $2 = its ModernJK sources
 	(cd "$S/$1/codemp/netcodec" &&
-	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
+	 cmake --preset "$PRESET" -DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" -Dnetcodec_MODERNJK_DIR="$2" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$S/build-$1.log" 2>&1 &&
 	 cmake --build --preset "$PRESET" --target "netcodec_bench_$BENCH" >> "$S/build-$1.log" 2>&1) ||
 	{ echo "build of $1 failed:"; tail -30 "$S/build-$1.log"; exit 1; }
 }
 if [[ " $* " != *" --no-build "* ]]; then
 	rm -rf "$S/ref" "$S/cur"
 	mkdir -p "$S/ref/codemp" "$S/cur/codemp"
+	REF_OJ="$S/ref"
 	if [ -n "$REF_DIR" ]; then
 		cp -r "$REF_DIR/codemp/netcodec" "$S/ref/codemp/"
+		if [ -f "$REF_DIR/codemp/qcommon/msg.cpp" ]; then REF_OJ="$(cd "$REF_DIR" && pwd -W)"; else REF_OJ="$R"; fi
 		echo "ref = the copy in $REF_DIR" > "$S/ref.txt"
 	else
-		(cd "$R" && git archive "$REF" codemp/netcodec | tar -x -C "$S/ref") || exit 1
+		(cd "$R" && git archive "$REF" codemp shared lib/gsl-lite | tar -x -C "$S/ref") || exit 1
 		echo "ref = $REF ($(cd "$R" && git log -1 --format='%h %s' "$REF" | cut -c1-100))" > "$S/ref.txt"
 	fi
 	cp -r "${CUR_DIR:-$R}/codemp/netcodec" "$S/cur/codemp/"
 	echo "cur = ${CUR_DIR:-the working tree}; both built with: ${ALIGN:-no forced alignment} ${CXXFLAGS:-}; bench_$BENCH" > "$S/cur.txt"
 	rm -rf "$S/cur/build-netcodec"
-	build ref
-	build cur
+	build ref "$REF_OJ"
+	build cur "$R"
 fi
 echo "$(cat "$S/ref.txt"); $(cat "$S/cur.txt")$([[ " $* " == *" --no-build "* ]] && echo ' (as last built)')"
 TR=$(cygpath -w "$R/docs_rewrite/modernization/data/traces/codec_trace.bin")

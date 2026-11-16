@@ -124,7 +124,7 @@ typedef enum //# material_e
 class clientInfo_t
 {
 public:
-	qboolean		infoValid;
+	bool		infoValid;
 
 	char			name[MAX_QPATH];
 	team_t			team;
@@ -141,7 +141,7 @@ public:
 
 	qhandle_t		headModel;
 	qhandle_t		headSkin;
-	qboolean		extensions;		// do we have extra face skins ?
+	bool		extensions;		// do we have extra face skins ?
 
 	int				animFileIndex;
 
@@ -647,7 +647,7 @@ class clientPersistant_t
 public:
 	clientConnected_t	connected;
 	usercmd_t	lastCommand;
-	qboolean	localClient;		// true if "ip" info key is "localhost"
+	bool	localClient;		// true if "ip" info key is "localhost"
 	char		netname[34];
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
@@ -722,7 +722,7 @@ public:
 	clientPersistant_t	pers;
 	clientSession_t		sess;
 
-	qboolean	noclip;
+	bool	noclip;
 
 	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
 
@@ -738,14 +738,14 @@ public:
 	int			damage_blood;		// damage taken out of health
 	int			damage_knockback;	// impact damage
 	vec3_t		damage_from;		// origin for vector calculation
-	qboolean	damage_fromWorld;	// if true, don't use the damage_from vector
+	bool	damage_fromWorld;	// if true, don't use the damage_from vector
 
 	int			accurateCount;		// for "impressive" reward sound
 
 	// timers
 	int			respawnTime;		// can respawn when time > this, force after g_forcerespwan
 	int			inactivityTime;		// kick players when time > this
-	qboolean	inactivityWarning;	// qtrue if the five seoond warning has been given
+	bool	inactivityWarning;	// true if the five seoond warning has been given
 	int			idleTime;			// for playing idleAnims
 
 	int			airOutTime;
@@ -786,7 +786,7 @@ public:
 	saberTrail_t	saberTrail;
 
 	//dismember tracker
-	qboolean	dismembered;
+	bool	dismembered;
 	char		dismemberProbLegs;	// probability of the legs being dismembered (located in NPC.cfg, 0 = never, 100 = always)
 	char		dismemberProbHead;  // probability of the head being dismembered (located in NPC.cfg, 0 = never, 100 = always)
 	char		dismemberProbArms;  // probability of the arms being dismembered (located in NPC.cfg, 0 = never, 100 = always)
@@ -969,12 +969,12 @@ typedef struct centity_s centity_t;
 struct gentity_s {
 	entityState_t	s;				// communicated by server to clients
 	gclient_t	*client;	// NULL if not a player (unless it's NPC ( if (this->NPC != NULL)  )  <sigh>... -slc)
-	qboolean	inuse;
-	qboolean	linked;				// qfalse if not in any good cluster
+	bool	inuse;
+	bool	linked;				// false if not in any good cluster
 
 	int			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
 
-	qboolean	bmodel;				// if false, assume an explicit mins / maxs bounding box
+	bool	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by gi.SetBrushModel
 	vec3_t		mins, maxs;
 	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
@@ -1023,8 +1023,8 @@ Ghoul2 Insert End
 	int			freetime;			// sv.time when the object was freed
 
 	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
-	qboolean	freeAfterEvent;
-	qboolean	unlinkAfterEvent;
+	bool	freeAfterEvent;
+	bool	unlinkAfterEvent;
 
 //Physics and movement fields
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
@@ -1077,7 +1077,7 @@ Ghoul2 Insert End
 //Health and damage fields
 	int			health;
 	int			max_health;
-	qboolean	takedamage;
+	bool	takedamage;
 	material_t	material;
 	int			damage;
 	int			dflags;
@@ -1101,7 +1101,7 @@ Ghoul2 Insert End
 	float		wait;
 	float		random;
 	int			delay;
-	qboolean	alt_fire;
+	bool	alt_fire;
 	int			count;
 	int			bounceCount;
 	int			fly_sound_debounce_time;	// wind tunnel
@@ -1115,9 +1115,9 @@ Ghoul2 Insert End
 //Unions for miscellaneous fields used under very specific circumstances
 	union
 	{
-		qboolean	trigger_formation;
-		qboolean	misc_dlight_active;
-		qboolean	has_bounced;	// for thermal Det.  we force at least one bounce to happen before it can do proximity checks
+		bool	trigger_formation;
+		bool	misc_dlight_active;
+		bool	has_bounced;	// for thermal Det.  we force at least one bounce to happen before it can do proximity checks
 	};
 
 //Navigation
@@ -1130,7 +1130,7 @@ Ghoul2 Insert End
 	int			failedWaypointCheckTime;
 
 //Animation
-	qboolean	loopAnim;
+	bool	loopAnim;
 	int		startFrame;
 	int		endFrame;
 
@@ -1636,7 +1636,7 @@ extern	game_import_t	gi;
 // that contains media references necessary to present the
 // weapon and its effects
 typedef struct weaponInfo_s {
-	qboolean		registered;
+	bool		registered;
 	gitem_t			*item;
 
 	qhandle_t		handsModel;			// the hands don't actually draw, they just position the weapon

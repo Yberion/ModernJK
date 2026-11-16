@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 
 extern void Q3_SetViewEntity(int entID, const char *name);
-extern qboolean G_ClearViewEntity( gentity_t *ent );
+extern bool G_ClearViewEntity( gentity_t *ent );
 
 extern team_t TranslateTeamName( const char *name );
 extern const char	*TeamNames[TEAM_NUM_TEAMS];
@@ -291,9 +291,9 @@ static void Svcmd_ForceSetLevel_f( int forcePower )
 	}
 }
 
-extern qboolean PM_SaberInStart( int move );
-extern qboolean PM_SaberInTransition( int move );
-extern qboolean PM_SaberInAttack( int move );
+extern bool PM_SaberInStart( int move );
+extern bool PM_SaberInTransition( int move );
+extern bool PM_SaberInAttack( int move );
 void Svcmd_SaberAttackCycle_f( void )
 {
 	if ( !g_entities[0].client )
@@ -591,9 +591,9 @@ static svcmd_t svcmds[] = {
 	{ "secrets",					Svcmd_Secrets_f,							CMD_NONE },
 	{ "difficulty",					Svcmd_Difficulty_f,							CMD_NONE },
 
-	//{ "say",						Svcmd_Say_f,						qtrue },
-	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			qfalse },
-	//{ "toggleuserinfovalidation",	Svcmd_ToggleUserinfoValidation_f,	qfalse },
+	//{ "say",						Svcmd_Say_f,						true },
+	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			false },
+	//{ "toggleuserinfovalidation",	Svcmd_ToggleUserinfoValidation_f,	false },
 };
 static const size_t numsvcmds = ARRAY_LEN( svcmds );
 
@@ -602,27 +602,27 @@ static const size_t numsvcmds = ARRAY_LEN( svcmds );
 ConsoleCommand
 =================
 */
-qboolean	ConsoleCommand( void ) {
+bool	ConsoleCommand( void ) {
 	const char *cmd = gi.argv(0);
 	const svcmd_t *command = (const svcmd_t *)Q_LinearSearch( cmd, svcmds, numsvcmds, sizeof( svcmds[0] ), svcmdcmp );
 
 	if ( !command )
-		return qfalse;
+		return false;
 
 	if ( (command->flags & CMD_CHEAT)
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
-		return qtrue;
+		return true;
 	}
 	else if ( (command->flags & CMD_ALIVE)
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );
-		return qtrue;
+		return true;
 	}
 	else
 		command->func();
-	return qtrue;
+	return true;
 }
 

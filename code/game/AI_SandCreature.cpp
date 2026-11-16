@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_local.h"
 #include "g_functions.h"
 
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 
 #define MIN_ATTACK_DIST_SQ	128
 #define MIN_MISS_DIST		100
@@ -113,7 +113,7 @@ void SandCreature_MoveEffect( void )
 		{
 			NPC->clipmask = MASK_NPCSOLID;//turn solid for a little bit
 			NPC->contents = CONTENTS_BODY;
-			//NPC->takedamage = qtrue;//can be shot?
+			//NPC->takedamage = true;//can be shot?
 
 			//FIXME: Breach sound?
 			//FIXME: Breach effect?
@@ -134,7 +134,7 @@ void SandCreature_MoveEffect( void )
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/sand_creature/slither.wav" );
 }
 
-qboolean SandCreature_CheckAhead( vec3_t end )
+bool SandCreature_CheckAhead( vec3_t end )
 {
 	trace_t	trace;
 	int clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
@@ -155,12 +155,12 @@ qboolean SandCreature_CheckAhead( vec3_t end )
 		gi.trace( &trace, NPC->currentOrigin, NPC->mins, NPC->maxs, end, NPC->s.number, clipmask, (EG2_Collision)0, 0 );
 	}
 	//Do a simple check
-	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
-		return qtrue;
+	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
+		return true;
 
 	if ( trace.plane.normal[2] >= MIN_WALK_NORMAL )
 	{
-		return qtrue;
+		return true;
 	}
 
 	//This is a work around
@@ -169,14 +169,14 @@ qboolean SandCreature_CheckAhead( vec3_t end )
 	float	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
-qboolean SandCreature_Move( void )
+bool SandCreature_Move( void )
 {
-	qboolean moved = qfalse;
+	bool moved = false;
 	//FIXME should ignore doors..?
 	vec3_t dest;
 	VectorCopy( NPCInfo->goalEntity->currentOrigin, dest );
@@ -204,11 +204,11 @@ qboolean SandCreature_Move( void )
 				NPC->client->ps.speed = NPCInfo->stats.runSpeed;
 			}
 		}
-		moved = qtrue;
+		moved = true;
 	}
 	else
 	{
-		moved = NPC_MoveToGoal( qtrue );
+		moved = NPC_MoveToGoal( true );
 	}
 	if ( moved && NPC->radius )
 	{
@@ -223,14 +223,14 @@ qboolean SandCreature_Move( void )
 			NPC->client->ps.speed = 0.0f;
 			VectorClear( NPC->client->ps.moveDir );
 			ucmd.forwardmove = ucmd.rightmove = 0;
-			moved = qfalse;
+			moved = false;
 		}
 	}
 	return (moved);
 	//often erroneously returns false ???  something wrong with NAV...?
 }
 
-void SandCreature_Attack( qboolean miss )
+void SandCreature_Attack( bool miss )
 {
 	//FIXME: make it able to grab a thermal detonator, take it down,
 	//		then have it explode inside them, killing them
@@ -284,7 +284,7 @@ void SandCreature_Attack( qboolean miss )
 						if ( NPC->enemy->health > 0
 							&& Q_flrand( 50, 150 ) > enemyDist )
 						{//knock them down
-							G_Knockdown( NPC->enemy, NPC, dir2Enemy, 300, qtrue );
+							G_Knockdown( NPC->enemy, NPC, dir2Enemy, 300, true );
 							if ( NPC->enemy->s.number < MAX_CLIENTS )
 							{//make the player look up at me
 								vec3_t vAng;
@@ -357,7 +357,7 @@ void SandCreature_SeekEnt( gentity_t *bestEnt, float score )
 {
 	NPCInfo->enemyLastSeenTime = level.time;
 	VectorCopy( bestEnt->currentOrigin, NPCInfo->enemyLastSeenLocation );
-	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, qfalse );
+	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, false );
 	if ( score > MIN_SCORE )
 	{
 		NPC->enemy = bestEnt;
@@ -467,14 +467,14 @@ void SandCreature_SeekAlert( int alertEvent )
 	//FIXME: check for higher alert status or closer than last location?
 	NPCInfo->enemyLastSeenTime = level.time;
 	VectorCopy( alert->position, NPCInfo->enemyLastSeenLocation );
-	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, qfalse );
+	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, false );
 }
 
 void SandCreature_CheckAlerts( void )
 {
 	if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
-		int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue );
+		int alertEvent = NPC_CheckAlertEvents( false, true, NPCInfo->lastAlertID, false, AEL_MINOR, true );
 
 		//There is an event to look at
 		if ( alertEvent >= 0 )
@@ -487,7 +487,7 @@ void SandCreature_CheckAlerts( void )
 	}
 }
 
-float SandCreature_DistSqToGoal( qboolean goalIsEnemy )
+float SandCreature_DistSqToGoal( bool goalIsEnemy )
 {
 	float goalDistSq;
 	if ( !NPCInfo->goalEntity || goalIsEnemy )
@@ -586,7 +586,7 @@ void SandCreature_Chase( void )
 		SandCreature_CheckMovingEnts();
 	}
 
-	float enemyDistSq = SandCreature_DistSqToGoal( qtrue );
+	float enemyDistSq = SandCreature_DistSqToGoal( true );
 
 	//FIXME: keeps chasing goalEntity even when it's already reached it...?
 	if ( enemyDistSq >= MIN_ATTACK_DIST_SQ//NPCInfo->goalEntity &&
@@ -602,7 +602,7 @@ void SandCreature_Chase( void )
 		&& !(NPC->svFlags&SVF_LOCKEDENEMY) )
 	{//NOTE: this leaves a 2-second dead zone in which they'll just sit there unless their enemy moves
 		//If there is an event we might be interested in if we weren't still interested in our enemy
-		if ( NPC_CheckAlertEvents( qfalse, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue ) >= 0 )
+		if ( NPC_CheckAlertEvents( false, true, NPCInfo->lastAlertID, false, AEL_MINOR, true ) >= 0 )
 		{//just stir
 			SandCreature_MoveEffect();
 		}
@@ -617,7 +617,7 @@ void SandCreature_Chase( void )
 		if ( TIMER_Done( NPC, "breaching" ) )
 		{
 			//okay to attack
-			SandCreature_Attack( qfalse );
+			SandCreature_Attack( false );
 		}
 	}
 	else if ( enemyDistSq < MAX_MISS_DIST_SQ
@@ -631,7 +631,7 @@ void SandCreature_Chase( void )
 		if ( !(NPC->svFlags&SVF_LOCKEDENEMY) )
 		{
 			//miss them
-			SandCreature_Attack( qtrue );
+			SandCreature_Attack( true );
 			VectorCopy( NPC->currentOrigin, NPC->pos1 );
 			TIMER_Set( NPC, "missDebounce", Q_irand( 3000, 10000 ) );
 		}
@@ -645,7 +645,7 @@ void SandCreature_Hunt( void )
 	//If we have somewhere to go, then do that
 	//FIXME: keeps chasing goalEntity even when it's already reached it...?
 	if ( NPCInfo->goalEntity
-		&& SandCreature_DistSqToGoal( qfalse ) >= MIN_ATTACK_DIST_SQ )
+		&& SandCreature_DistSqToGoal( false ) >= MIN_ATTACK_DIST_SQ )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
 		if ( SandCreature_Move() )
@@ -665,7 +665,7 @@ void SandCreature_Sleep( void )
 	SandCreature_CheckMovingEnts();
 	//FIXME: keeps chasing goalEntity even when it's already reached it!
 	if ( NPCInfo->goalEntity
-		&& SandCreature_DistSqToGoal( qfalse ) >= MIN_ATTACK_DIST_SQ )
+		&& SandCreature_DistSqToGoal( false ) >= MIN_ATTACK_DIST_SQ )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
 		if ( SandCreature_Move() )
@@ -728,7 +728,7 @@ void	SandCreature_PushEnts()
 
 void NPC_BSSandCreature_Default( void )
 {
-	qboolean visible = qfalse;
+	bool visible = false;
 
 	//clear it every frame, will be set if we actually move this frame...
 	NPC->s.loopSound = 0;
@@ -751,7 +751,7 @@ void NPC_BSSandCreature_Default( void )
 	}
 	else
 	{//still in breaching anim
-		visible = qtrue;
+		visible = true;
 		//FIXME: maybe push things up/away and maybe knock people down when doing this?
 		//FIXME: don't turn while breaching?
 		//FIXME: move faster while breaching?
@@ -783,11 +783,11 @@ void NPC_BSSandCreature_Default( void )
 
 	if ( !TIMER_Done( NPC, "pain" ) )
 	{
-		visible = qtrue;
+		visible = true;
 	}
 	else if ( !TIMER_Done( NPC, "attacking" ) )
 	{
-		visible = qtrue;
+		visible = true;
 	}
 	else
 	{
@@ -821,7 +821,7 @@ void NPC_BSSandCreature_Default( void )
 			SandCreature_Sleep();
 		}
 	}
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 	if ( !visible )
 	{
 		NPC->client->ps.eFlags |= EF_NODRAW;

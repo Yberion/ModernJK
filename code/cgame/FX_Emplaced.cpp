@@ -100,7 +100,7 @@ FX_EmplacedHitWall
 ---------------------------
 */
 
-void FX_EmplacedHitWall( vec3_t origin, vec3_t normal, qboolean eweb )
+void FX_EmplacedHitWall( vec3_t origin, vec3_t normal, bool eweb )
 {
 	if ( eweb )
 	{
@@ -118,7 +118,7 @@ FX_EmplacedHitPlayer
 ---------------------------
 */
 
-void FX_EmplacedHitPlayer( vec3_t origin, vec3_t normal, qboolean eweb )
+void FX_EmplacedHitPlayer( vec3_t origin, vec3_t normal, bool eweb )
 {
 	if ( eweb )
 	{

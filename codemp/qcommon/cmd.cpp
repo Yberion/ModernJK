@@ -174,8 +174,8 @@ Cbuf_Execute
 ============
 */
 // a wait command is counting frames: Cbuf_Execute called between two frames would count one
-qboolean Cbuf_Waiting( void ) {
-	return cmd_wait > 0 ? qtrue : qfalse;
+bool Cbuf_Waiting( void ) {
+	return cmd_wait > 0 ? true : false;
 }
 
 void Cbuf_Execute (void)
@@ -188,8 +188,8 @@ void Cbuf_Execute (void)
 	// This will keep // style comments all on one line by not breaking on
 	// a semicolon.  It will keep /* ... */ style comments all on one line by not
 	// breaking it for semicolon or newline.
-	qboolean in_star_comment = qfalse;
-	qboolean in_slash_comment = qfalse;
+	bool in_star_comment = false;
+	bool in_slash_comment = false;
 
 	while (cmd_text.cursize)
 	{
@@ -212,11 +212,11 @@ void Cbuf_Execute (void)
 			if ( !(quotes&1)) {
 				if (i < cmd_text.cursize - 1) {
 					if (! in_star_comment && text[i] == '/' && text[i+1] == '/')
-						in_slash_comment = qtrue;
+						in_slash_comment = true;
 					else if (! in_slash_comment && text[i] == '/' && text[i+1] == '*')
-						in_star_comment = qtrue;
+						in_star_comment = true;
 					else if (in_star_comment && text[i] == '*' && text[i+1] == '/') {
-						in_star_comment = qfalse;
+						in_star_comment = false;
 						// If we are in a star comment, then the part after it is valid
 						// Note: This will cause it to NUL out the terminating '/'
 						// but ExecuteString doesn't require it anyway.
@@ -228,7 +228,7 @@ void Cbuf_Execute (void)
 					break;
 			}
 			if (! in_star_comment && (text[i] == '\n' || text[i] == '\r')) {
-				in_slash_comment = qfalse;
+				in_slash_comment = false;
 				break;
 			}
 		}
@@ -517,7 +517,7 @@ will point into this temporary buffer.
 */
 // NOTE TTimo define that to track tokenization issues
 //#define TKN_DBG
-static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
+static void Cmd_TokenizeString2( const char *text_in, bool ignoreQuotes ) {
 	const char	*text;
 	char	*textOut;
 
@@ -625,7 +625,7 @@ Cmd_TokenizeString
 ============
 */
 void Cmd_TokenizeString( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qfalse );
+	Cmd_TokenizeString2( text_in, false );
 }
 
 /*
@@ -634,7 +634,7 @@ Cmd_TokenizeStringIgnoreQuotes
 ============
 */
 void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qtrue );
+	Cmd_TokenizeString2( text_in, true );
 }
 
 /*
@@ -907,7 +907,7 @@ static void Cmd_List_f (void)
 		cmd;
 		cmd=cmd->next, i++ )
 	{
-		if ( !cmd->name || (match && !Com_Filter( match, cmd->name, qfalse )) )
+		if ( !cmd->name || (match && !Com_Filter( match, cmd->name, false )) )
 			continue;
 
 		cmds.push_back( cmd );
@@ -964,7 +964,7 @@ void Cmd_CompleteCmdName( char *args, int argNum )
 		char *p = Com_SkipTokens( args, 1, " " );
 
 		if ( p > args )
-			Field_CompleteCommand( p, qtrue, qfalse );
+			Field_CompleteCommand( p, true, false );
 	}
 }
 
@@ -975,7 +975,7 @@ Cmd_CompleteCfgName
 */
 void Cmd_CompleteCfgName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
+		Field_CompleteFilename( "", "cfg", false, true );
 	}
 }
 

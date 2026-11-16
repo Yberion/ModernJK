@@ -1127,7 +1127,7 @@ void CTail::CalcNewEndpoint(void)
 CCylinder::CCylinder(void)
 {
 	mRefEnt.reType = RT_CYLINDER;
-	mTraceEnd = qfalse;
+	mTraceEnd = false;
 }
 
 bool CCylinder::Cull(void)
@@ -1322,7 +1322,7 @@ void CEmitter::Draw(void)
 	// Emitters don't draw themselves, but they may need to add an attached model
 	if ( mFlags & FX_ATTACHED_MODEL )
 	{
-		mRefEnt.nonNormalizedAxes = qtrue;
+		mRefEnt.nonNormalizedAxes = true;
 
 		VectorCopy( mOrigin1, mRefEnt.origin );
 

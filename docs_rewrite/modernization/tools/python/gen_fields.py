@@ -72,7 +72,7 @@ def build_json(tables, exe):
         if [f["name"] for f in fields[key]] != [n for n, b in tables[key]]:
             raise SystemExit("%s: table %s differs from fields.inc; rebuild the program" % (exe, key))
         for f in fields[key]:
-            assert f["size"] == 4, f        # the engine reads every field as one 32-bit word
+            assert f["size"] == (1 if f["type"] == "bool" else 4), f   # a bool is one byte, every other field a 32-bit word
             assert f["type"] != "?", f      # a type TypeName() in fieldinfo.cpp does not know
     arr = []
     for name, _, bits in ARRAYS:

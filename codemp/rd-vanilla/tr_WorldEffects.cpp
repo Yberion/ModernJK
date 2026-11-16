@@ -529,7 +529,7 @@ public:
 			Wz.mDepth		= ((int)(Wz.mSize.mMaxs[2] - Wz.mSize.mMins[2]) + 31) >> 5;
 
 			int arraySize	= (Wz.mWidth * Wz.mHeight * Wz.mDepth);
-			Wz.mPointCache  = (uint32_t *)Z_Malloc(arraySize*sizeof(uint32_t), TAG_POINTCACHE, qtrue);
+			Wz.mPointCache  = (uint32_t *)Z_Malloc(arraySize*sizeof(uint32_t), TAG_POINTCACHE, true);
 		}
 	}
 
@@ -813,7 +813,7 @@ public:
 
 		// Create The Image
 		//------------------
-		mImage = R_FindImageFile(texturePath, qfalse, qfalse, qfalse, GL_CLAMP);
+		mImage = R_FindImageFile(texturePath, false, false, false, GL_CLAMP);
 		if (!mImage)
 		{
 			Com_Error(ERR_DROP, "CWeatherParticleCloud: Could not texture %s", texturePath);
@@ -1434,33 +1434,33 @@ void R_WorldEffect_f(void)
 WE_ParseVector
 ===============
 */
-qboolean WE_ParseVector( const char **text, int count, float *v ) {
+bool WE_ParseVector( const char **text, int count, float *v ) {
 	char	*token;
 	int		i;
 
 	// FIXME: spaces are currently required after parens, should change parseext...
-	token = COM_ParseExt( text, qfalse );
+	token = COM_ParseExt( text, false );
 	if ( strcmp( token, "(" ) ) {
 		ri.Printf (PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
-		return qfalse;
+		return false;
 	}
 
 	for ( i = 0 ; i < count ; i++ ) {
-		token = COM_ParseExt( text, qfalse );
+		token = COM_ParseExt( text, false );
 		if ( !token[0] ) {
 			ri.Printf (PRINT_WARNING, "WARNING: missing vector element in weather effect\n" );
-			return qfalse;
+			return false;
 		}
 		v[i] = Q_atof( token );
 	}
 
-	token = COM_ParseExt( text, qfalse );
+	token = COM_ParseExt( text, false );
 	if ( strcmp( token, ")" ) ) {
 		ri.Printf (PRINT_WARNING, "WARNING: missing parenthesis in weather effect\n" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 void RE_WorldEffectCommand(const char *command)
@@ -1474,7 +1474,7 @@ void RE_WorldEffectCommand(const char *command)
 
 	const char	*token;//, *origCommand;
 
-	token = COM_ParseExt(&command, qfalse);
+	token = COM_ParseExt(&command, false);
 
 	if ( !token )
 	{
@@ -1693,7 +1693,7 @@ void RE_WorldEffectCommand(const char *command)
 		{
 			return;
 		}
-		token = COM_ParseExt(&command, qfalse);
+		token = COM_ParseExt(&command, false);
 		count = atoi(token);
 
 		CWeatherParticleCloud& nCloud = mParticleClouds.push_back();

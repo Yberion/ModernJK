@@ -534,7 +534,7 @@ void target_location_linkup(gentity_t *ent)
 	if (level.locationLinked)
 		return;
 
-	level.locationLinked = qtrue;
+	level.locationLinked = true;
 
 	level.locationHead = NULL;
 
@@ -1003,7 +1003,7 @@ void set_mission_stats_cvars( void )
 }
 
 #include "../cgame/cg_media.h"	//access to cgs
-extern void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub);	//g_utils
+extern void G_ChangeMap (const char *mapname, const char *spawntarget, bool hub);	//g_utils
 void target_level_change_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	G_ActivateBehavior(self,BSET_USE);
@@ -1014,7 +1014,7 @@ void target_level_change_use(gentity_t *self, gentity_t *other, gentity_t *activ
 	}
 	else
 	{
-		G_ChangeMap( self->message, self->target, (qboolean)((self->spawnflags&1) != 0) );
+		G_ChangeMap( self->message, self->target, ((self->spawnflags&1) != 0) );
 	}
 	if (self->count>=0)
 	{

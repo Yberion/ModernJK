@@ -53,7 +53,7 @@ const char *showLoadPowersName[] =
 #define OBJ_GRAPHIC_SIZE 240
 int obj_graphics[MAX_OBJ_GRAPHICS];
 
-qboolean CG_ForcePower_Valid(int forceKnownBits, int index);
+bool CG_ForcePower_Valid(int forceKnownBits, int index);
 
 /*
 ====================
@@ -236,7 +236,7 @@ static void ObjectivePrint_Line(const int color, const int objectIndex, int &mis
 		}
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/viewscreen1");
 		CG_DrawPic( 355, 50, OBJ_GRAPHIC_SIZE, OBJ_GRAPHIC_SIZE, graphic );
-		obj_graphics[3] = qtrue;
+		obj_graphics[3] = true;
 	}
 
 }
@@ -259,13 +259,13 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 	const short graphicXpos = objectiveStartingXpos - graphic_size - 8;	// Amount of X to backup from text starting position
 	const short graphicYOffset = (iYPixelsPerLine - graphic_size)/2;	// Amount of Y to raise graphic so it's in the center of the text line
 
-	missionInfo_Updated = qfalse;		// This will stop the text from flashing
+	missionInfo_Updated = false;		// This will stop the text from flashing
 	cg.missionInfoFlashTime = 0;
 
 	// zero out objective graphics
 	for (i=0;i<MAX_OBJ_GRAPHICS;i++)
 	{
-		obj_graphics[i] = qfalse;
+		obj_graphics[i] = false;
 	}
 
 	// Title Text at the top
@@ -320,7 +320,7 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 /*
 
 //-------------------------------------------------------
-static void CG_DrawForceCount( const int force, int x, float *y, const int pad,qboolean *hasForcePowers )
+static void CG_DrawForceCount( const int force, int x, float *y, const int pad,bool *hasForcePowers )
 {
 	char	s[MAX_STRING_CHARS];
 	int		val, textColor;
@@ -357,7 +357,7 @@ static void CG_DrawForceCount( const int force, int x, float *y, const int pad,q
 
 	*y += pad;
 
-	*hasForcePowers = qtrue;
+	*hasForcePowers = true;
 }
 
 
@@ -372,13 +372,13 @@ static void CG_LoadScreen_PersonalInfo(void)
 	float	x, y;
 	int		pad = 25;
 	char	text[1024]={0};
-	qboolean	hasForcePowers;
+	bool	hasForcePowers;
 
 	y = 65 + 30;
 
 	pad = 28;
 	x = 300;
-	hasForcePowers=qfalse;
+	hasForcePowers=false;
 
 	CG_DrawForceCount( FP_HEAL, x, &y, pad,&hasForcePowers);
 	CG_DrawForceCount( FP_LEVITATION, x, &y, pad,&hasForcePowers );
@@ -610,15 +610,15 @@ int			loadForcePowerLevel[NUM_FORCE_POWERS];
 ForcePowerDataPad_Valid
 ===============
 */
-qboolean CG_ForcePower_Valid(int forceKnownBits, int index)
+bool CG_ForcePower_Valid(int forceKnownBits, int index)
 {
 	if ((forceKnownBits & (1 << showPowers[index])) &&
 		loadForcePowerLevel[showPowers[index]])	// Does he have the force power?
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 // Print force powers the player is using
@@ -836,7 +836,7 @@ void CG_DrawInformation( void ) {
 	else
 	{
 		CG_DrawLoadingScreen(levelshot, s);
-		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "loadscreen" ), qtrue );
+		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "loadscreen" ), true );
 		//cgi_UI_MenuPaintAll();
 	}
 

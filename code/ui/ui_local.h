@@ -59,7 +59,7 @@ extern void		Menu_Cache( void );
 //
 extern void	Field_Clear( uifield_t *edit );
 extern void	Field_CharEvent( uifield_t *edit, int ch );
-extern void Field_Draw( uifield_t *edit, int x, int y, int width, int size,int color,int color2, qboolean showCursor );
+extern void Field_Draw( uifield_t *edit, int x, int y, int width, int size,int color,int color2, bool showCursor );
 
 
 //
@@ -79,7 +79,7 @@ extern void UI_UpdateConnectionMessageString( char *string );
 
 
 //
-// ui_atoms.c
+// ui_atoms.cpp
 //
 
 #define UI_FADEOUT	0
@@ -92,14 +92,14 @@ typedef struct {
 	int					cursory;
 
 	glconfig_t			glconfig;
-	qboolean			debugMode;
+	bool			debugMode;
 	qhandle_t			whiteShader;
 	qhandle_t			menuBackShader;
 	qhandle_t			cursor;
 	float				scalex;
 	float				scaley;
 	//float				bias;
-	qboolean			firstdraw;
+	bool			firstdraw;
 } uiStatic_t;
 
 extern void			UI_FillRect( float x, float y, float width, float height, const float *color );
@@ -171,7 +171,7 @@ typedef struct {
 
 	itemDef_t*	runScriptItem;
 
-	qboolean inGameLoad;
+	bool inGameLoad;
 	// Used by Force Power allocation screen
 	short	forcePowerUpdated;					// Enum of which power had the point allocated
 	// Used by Weapon allocation screen
@@ -207,19 +207,19 @@ typedef struct {
 extern uiInfo_t uiInfo;
 
 //
-// ui_main.c
+// ui_main.cpp
 //
-void _UI_Init( qboolean inGameLoad );
+void _UI_Init( bool inGameLoad );
 void _UI_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void _UI_MouseEvent( int dx, int dy );
-void _UI_KeyEvent( int key, qboolean down );
+void _UI_KeyEvent( int key, bool down );
 void UI_Report(void);
 
 extern char GoToMenu[];
 
 
 //
-// ui_syscalls.c
+// ui_syscalls.cpp
 //
 int				trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = NULL */);
 int				trap_CIN_StopCinematic(int handle);
@@ -228,10 +228,10 @@ float			trap_Cvar_VariableValue( const char *var_name );
 void			trap_GetGlconfig( glconfig_t *glconfig );
 void			trap_Key_ClearStates( void );
 int				trap_Key_GetCatcher( void );
-qboolean		trap_Key_GetOverstrikeMode( void );
+bool		trap_Key_GetOverstrikeMode( void );
 void			trap_Key_SetBinding( int keynum, const char *binding );
 void			trap_Key_SetCatcher( int catcher );
-void			trap_Key_SetOverstrikeMode( qboolean state );
+void			trap_Key_SetOverstrikeMode( bool state );
 void			trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void			trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 void			trap_R_SetColor( const float *rgba );
@@ -239,7 +239,7 @@ void			trap_R_ClearScene( void );
 void			trap_R_AddRefEntityToScene( const refEntity_t *re );
 void			trap_R_RenderScene( const refdef_t *fd );
 void			trap_S_StopSounds( void );
-sfxHandle_t		trap_S_RegisterSound( const char *sample, qboolean compressed );
+sfxHandle_t		trap_S_RegisterSound( const char *sample, bool compressed );
 void			trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 
 

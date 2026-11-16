@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "objectives.h"
 #include "qcommon/ojk_saved_game_helper.h"
 
-qboolean	missionInfo_Updated;
+bool	missionInfo_Updated;
 
 
 /*

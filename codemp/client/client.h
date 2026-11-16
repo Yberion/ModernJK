@@ -46,7 +46,7 @@ extern vec3_t cl_windVec;
 
 // snapshots are a view of the server at a given time
 typedef struct clSnapshot_s {
-	qboolean		valid;			// cleared if delta parsing was invalid
+	bool		valid;			// cleared if delta parsing was invalid
 	int				snapFlags;		// rate delayed and dropped commands
 
 	int				serverTime;		// server time the message is valid for (in msec)
@@ -63,7 +63,7 @@ typedef struct clSnapshot_s {
 	int				numEntities;			// all of the entities that need to be presented
 	int				parseEntitiesNum;		// at the time of this snapshot
 
-	qboolean		inputMarginValid;		// the server measured an input margin since its last snapshot
+	bool		inputMarginValid;		// the server measured an input margin since its last snapshot
 	int				inputMargin;			// how early it got the command of this snapshot's tick, in ms (negative: after
 											// the tick), which steers the command clock (CL_AdjustCmdDelta)
 	int				serverCommandNum;		// execute all commands up to this before
@@ -110,7 +110,7 @@ typedef struct outPacket_s {
 typedef struct clockWindow_s {
 	int			low[CLOCK_SLOTS];	// INT_MAX: no sample in the slot
 	int			slot;				// cls.realtime / CLOCK_SLOT_MSEC of the newest slot
-	qboolean	started;			// qfalse: empty, cleared at the next sample
+	bool	started;			// false: empty, cleared at the next sample
 } clockWindow_t;
 
 extern int g_console_field_width;
@@ -126,19 +126,19 @@ typedef struct clientActive_s {
 	int			oldFrameServerTime;	// to check tournament restarts
 	int			serverTimeDelta;	// cl.serverTime = cls.realtime + cl.serverTimeDelta
 									// this value changes as net lag varies
-	qboolean	extrapolatedSnapshot;	// set if a cgame frame passed the newest snapshot before the next one arrived
+	bool	extrapolatedSnapshot;	// set if a cgame frame passed the newest snapshot before the next one arrived
 									// (counted for netstats), cleared when CL_AdjustTimeDelta looks at it
-	qboolean	newSnapshots;		// set on parse of any valid packet
+	bool	newSnapshots;		// set on parse of any valid packet
 
 	// The interpolation delay (CL_AdjustTimeDelta)
 	clockWindow_t	interpWindow;	// per interval between two snapshot arrivals, the largest serverTimeDelta its last
 									// frame allowed
 	int			interpPending;		// the sample of the interval in progress
-	qboolean	interpPendingValid;
+	bool	interpPendingValid;
 	int			interpArrival;		// cls.realtime of the frame that brought the newest snapshot
 	int			interpRealtime;		// cls.realtime of the last frame adjusted
 	int			interpCredit;		// real time not yet turned into a step of serverTimeDelta
-	qboolean	interpJumpPending;	// the newest snapshot showed a jump of the server's clock: measured on the next one
+	bool	interpJumpPending;	// the newest snapshot showed a jump of the server's clock: measured on the next one
 
 	// The command clock (plan step 14, part 4c): cl.cmdTime = cls.realtime + cl.cmdTimeDelta, ahead of the server's
 	// clock by the trip of a packet and the input margin, so that the command of a tick reaches the server just before
@@ -172,8 +172,8 @@ typedef struct clientActive_s {
 	int			cgameForceSelection;
 	int			cgameInvenSelection;
 
-	qboolean	gcmdSendValue;
-	qboolean	gcmdSentValue;
+	bool	gcmdSendValue;
+	bool	gcmdSentValue;
 	byte		gcmdValue;
 
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
@@ -272,18 +272,18 @@ typedef struct clientConnection_s {
 	int			downloadCount;	// how many bytes we got
 	int			downloadSize;	// how many bytes we got
 	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
-	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
-	qboolean	downloadMenuActive;
-	qboolean	downloadWaitingOnUser;
-	qboolean	downloadFinished;
+	bool	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
+	bool	downloadMenuActive;
+	bool	downloadWaitingOnUser;
+	bool	downloadFinished;
 	int			downloadTime;
 
 	// demo information
 	char		demoName[MAX_QPATH];
-	qboolean	spDemoRecording;
-	qboolean	demorecording;
-	qboolean	demoplaying;
-	qboolean	firstDemoFrameSkipped;
+	bool	spDemoRecording;
+	bool	demorecording;
+	bool	demoplaying;
+	bool	firstDemoFrameSkipped;
 	fileHandle_t	demofile;
 
 	int			timeDemoFrames;		// counter of rendered frames
@@ -312,7 +312,7 @@ typedef struct ping_s {
 	netadr_t	adr;
 	int			start;
 	int			time;		// round trip in ms, valid once answered (0 is a valid value)
-	qboolean	answered;
+	bool	answered;
 	char		info[MAX_INFO_STRING];
 } ping_t;
 
@@ -329,8 +329,8 @@ typedef struct serverInfo_s {
 	int			maxPing;
 	int			ping;		// valid only when state is LANSERVER_ANSWERED
 	lanServerState_t	state;
-	qboolean	visible;
-	qboolean	needPassword;
+	bool	visible;
+	bool	needPassword;
 	int			trueJedi;
 	int			weaponDisable;
 	int			forceDisable;
@@ -343,11 +343,11 @@ typedef struct clientStatic_s {
 	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
 	// when the server clears the hunk, all of these must be restarted
-	qboolean	rendererStarted;
-	qboolean	soundStarted;
-	qboolean	soundRegistered;
-	qboolean	uiStarted;
-	qboolean	cgameStarted;
+	bool	rendererStarted;
+	bool	soundStarted;
+	bool	soundRegistered;
+	bool	uiStarted;
+	bool	cgameStarted;
 
 	int			framecount;
 	int			frametime;			// msec since last frame
@@ -384,7 +384,7 @@ typedef struct clientStatic_s {
 	int			consoleFont;
 
 	// Cursor
-	qboolean	cursorActive;
+	bool	cursorActive;
 	qhandle_t	cursorShader;
 	int			cursorX;
 	int			cursorY;
@@ -405,7 +405,7 @@ typedef union {
 } conChar_t;
 
 typedef struct {
-	qboolean	initialized;
+	bool	initialized;
 
 	conChar_t	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
@@ -500,15 +500,15 @@ extern	cvar_t	*cl_reconnectArgs;
 
 void CL_Init (void);
 void CL_FlushMemory(void);
-void CL_ShutdownAll( qboolean shutdownRef );
-void CL_AddReliableCommand( const char *cmd, qboolean isDisconnectCmd );
+void CL_ShutdownAll( bool shutdownRef );
+void CL_AddReliableCommand( const char *cmd, bool isDisconnectCmd );
 
 void CL_StartHunkUsers( void );
 
-qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
-qboolean CL_GetDefaultState( int index, entityState_t *state );
-qboolean CL_GetServerCommand( int serverCommandNumber );
-qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
+bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
+bool CL_GetDefaultState( int index, entityState_t *state );
+bool CL_GetServerCommand( int serverCommandNumber );
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel );
 
 void CL_Disconnect_f (void);
@@ -531,7 +531,7 @@ void CL_InitRef( void );
 
 int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int maxLen );
 
-qboolean CL_CheckPaused(void);
+bool CL_CheckPaused(void);
 
 void CL_DrawEngineMenus( void );
 void CL_UpdateCursorPosition( int dx, int dy );
@@ -544,8 +544,8 @@ typedef struct kbutton_s {
 	int			down[2];		// key nums holding it down
 	unsigned	downtime;		// msec timestamp
 	unsigned	msec;			// msec down this frame if both a down and up happened
-	qboolean	active;			// current state
-	qboolean	wasPressed;		// set when down, not cleared when up
+	bool	active;			// current state
+	bool	wasPressed;		// set when down, not cleared when up
 } kbutton_t;
 
 void CL_InitInput (void);
@@ -556,8 +556,8 @@ void CL_ClearState (void);
 void CL_WritePacket( void );
 
 float CL_KeyState (kbutton_t *key, unsigned span);
-qboolean CL_PendingCmd( usercmd_t *cmd );
-const char *Key_KeynumToString( int keynum/*, qboolean bTranslate */ ); //note: translate is only called for menu display not configs
+bool CL_PendingCmd( usercmd_t *cmd );
+const char *Key_KeynumToString( int keynum/*, bool bTranslate */ ); //note: translate is only called for menu display not configs
 
 //
 // cl_parse.c
@@ -580,12 +580,12 @@ void CL_ParseDownload( int block, int fileSize, const byte *data, int size );
 //
 void CL_NetcodecReset( void );
 void CL_NetcodecParseServerMessage( msg_t *msg );
-qboolean CL_NetcodecRecordGameState( void );
+bool CL_NetcodecRecordGameState( void );
 void CL_NetcodecDemoStop( void );
 void CL_NetcodecStats_f( void );
 void CL_InterpStats( void );	// cl_cgame.cpp: the interpolation delay's line of netstats
 void CL_CmdClockStats( void );	// cl_cgame.cpp: the command clock's line of netstats
-qboolean CL_NetcodecWritePacket( msg_t *buf, int count, qboolean delta );
+bool CL_NetcodecWritePacket( msg_t *buf, int count, bool delta );
 
 //====================================================================
 
@@ -594,7 +594,7 @@ void	CL_LocalServers_f( void );
 void	CL_GlobalServers_f( void );
 void	CL_FavoriteServers_f( void );
 void	CL_Ping_f( void );
-qboolean CL_UpdateVisiblePings_f( int source );
+bool CL_UpdateVisiblePings_f( int source );
 
 
 //
@@ -632,9 +632,9 @@ void	SCR_FillRect( float x, float y, float width, float height,
 void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 
-void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape );	// ignores embedded color control characters
-void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawBigString( int x, int y, const char *s, float alpha, bool noColorEscape );			// draws a string with embedded color control characters with fade
+void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, bool noColorEscape );	// ignores embedded color control characters
+void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape );
 void	SCR_DrawSmallChar( int x, int y, int ch );
 
 
@@ -651,7 +651,7 @@ e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);
 void CIN_SetExtents (int handle, int x, int y, int w, int h);
-void CIN_SetLooping (int handle, qboolean loop);
+void CIN_SetLooping (int handle, bool loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
@@ -660,7 +660,7 @@ void CIN_CloseAllVideos(void);
 //
 void CL_InitCGame( void );
 void CL_ShutdownCGame( void );
-qboolean CL_GameCommand( void );
+bool CL_GameCommand( void );
 void CL_CGameRendering( stereoFrame_t stereo );
 void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
@@ -682,14 +682,14 @@ void LAN_SaveServersToCache();
 //
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg);	//int length, const byte *data );
 void CL_Netchan_TransmitNextFragment( netchan_t *chan );
-qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
+bool CL_Netchan_Process( netchan_t *chan, msg_t *msg );
 
 //
 // cl_avi.c
 //
-qboolean CL_OpenAVIForWriting( const char *filename );
+bool CL_OpenAVIForWriting( const char *filename );
 void CL_TakeVideoFrame( void );
 void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size );
 void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size );
-qboolean CL_CloseAVI( void );
-qboolean CL_VideoRecording( void );
+bool CL_CloseAVI( void );
+bool CL_VideoRecording( void );

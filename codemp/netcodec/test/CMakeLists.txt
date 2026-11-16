@@ -22,7 +22,7 @@ add_test(NAME netcodec.determinism COMMAND netcodec_test_determinism)
 # messages; needs no trace. The hash of the coded bytes changes with the format, the tables or the generator.
 netcodec_add_program(netcodec_test_synthetic test_synthetic.cpp synthetic.h demo_trace.h message_compare.h fnv.h)
 target_include_directories(netcodec_test_synthetic PRIVATE "${PROJECT_SOURCE_DIR}/src")
-set(netcodec_SYNTHETIC_HASH "0x372D6A1FABE11D4C")
+set(netcodec_SYNTHETIC_HASH "0x71CFD4AED775CF37")
 add_test(NAME netcodec.synthetic COMMAND netcodec_test_synthetic "--hash=${netcodec_SYNTHETIC_HASH}" 100 1000)
 
 # Malformed input: mutated copies of synthetic messages decoded with the client's state (20 streams of 500 messages,
@@ -76,5 +76,5 @@ netcodec_add_program(netcodec_test_client_robustness test_client_robustness.cpp 
 target_include_directories(netcodec_test_client_robustness PRIVATE "${PROJECT_SOURCE_DIR}/src")
 add_test(NAME netcodec.client_robustness COMMAND netcodec_test_client_robustness 20000 20)
 
-# Determinism of the game's player movement (bg_pmove.c) as the game module and as cgame, with ModernJK's own settings.
+# Determinism of the game's player movement (bg_pmove.cpp) as the game module and as cgame, with ModernJK's own settings.
 add_subdirectory(pmove)

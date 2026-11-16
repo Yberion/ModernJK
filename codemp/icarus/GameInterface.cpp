@@ -343,7 +343,7 @@ Loads and caches a script
 ==============
 */
 
-bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate /* = false */ )
+bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* = false */ )
 {
 	bufferlist_t::iterator	ei;
 	pscript_t	*pscript;
@@ -368,7 +368,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 	//	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
 	//	the ifndef, this just cuts down on internal error reports while testing release mode...
 	//
-	qboolean qbIgnoreFileRead = qfalse;
+	bool qbIgnoreFileRead = false;
 	//
 	// NOTENOTE: For the moment I've taken this back out, to avoid doubling the number of fopen()'s per file.
 #if 0//#ifndef FINAL_BUILD
@@ -380,7 +380,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 
 		if ( file == NULL )
 		{
-			qbIgnoreFileRead = qtrue;	// warn disk code further down not to try FS_ReadFile()
+			qbIgnoreFileRead = true;	// warn disk code further down not to try FS_ReadFile()
 		}
 		else
 		{
@@ -404,7 +404,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 
 	pscript = new pscript_t;
 
-	pscript->buffer = (char *) ICARUS_Malloc(length);//gi.Malloc(length, TAG_ICARUS, qfalse);
+	pscript->buffer = (char *) ICARUS_Malloc(length);//gi.Malloc(length, TAG_ICARUS, false);
 	memcpy (pscript->buffer, buffer, length);
 	pscript->length = length;
 
@@ -469,7 +469,7 @@ void ICARUS_InterrogateScript( const char *filename )
 
 
 	//Attempt to register this script
-	if ( ICARUS_RegisterScript( sFilename, qtrue ) == false )	// true = bCalledDuringInterrogate
+	if ( ICARUS_RegisterScript( sFilename, true ) == false )	// true = bCalledDuringInterrogate
 		return;
 
 	char	*buf;
@@ -480,7 +480,7 @@ void ICARUS_InterrogateScript( const char *filename )
 		return;
 
 	//Open the stream
-	if ( stream.Open( buf, len ) == qfalse )
+	if ( stream.Open( buf, len ) == false )
 		return;
 
 	const char	*sVal1, *sVal2;
@@ -491,7 +491,7 @@ void ICARUS_InterrogateScript( const char *filename )
 	while ( stream.BlockAvailable() )
 	{
 		//Get a block
-		if ( stream.ReadBlock( &block ) == qfalse )
+		if ( stream.ReadBlock( &block ) == false )
 			return;
 
 		//Determine what type of block this is
@@ -506,7 +506,7 @@ void ICARUS_InterrogateScript( const char *filename )
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
 					//we can do this I guess since the roff is loaded on the server.
-					theROFFSystem.Cache((char *)sVal1, qfalse);
+					theROFFSystem.Cache((char *)sVal1, false);
 				}
 			}
 			break;
@@ -520,7 +520,7 @@ void ICARUS_InterrogateScript( const char *filename )
 				sVal1 = (const char *) block.GetMemberData( 1 );
 
 				//we can do this I guess since the roff is loaded on the server.
-				theROFFSystem.Cache((char *)sVal1, qfalse);
+				theROFFSystem.Cache((char *)sVal1, false);
 			}
 			break;
 

@@ -37,8 +37,8 @@ struct ClientTracePacket {
 	int32_t legacyBytes = 0, legacyBits = 0;
 
 	// the base as the codec takes it: a record and a player state holding the fields above (playerState_t offsets
-	// of src/client_codec.cpp: commandTime 0, delta_angles 80, weapon 176, viewangles 184, stats[1] 248,
-	// fd.forcePowerSelected 884)
+	// of src/client_codec.cpp: commandTime 0, delta_angles 80, weapon 172, viewangles 180, stats[1] 244,
+	// fd.forcePowerSelected 868)
 	void FillBase(HeaderRecord &h, PlayerState &ps) const noexcept {
 		h = HeaderRecord{};
 		h.cmdSeq = baseCmdSeq;
@@ -49,11 +49,11 @@ struct ClientTracePacket {
 		put(0, &commandTime);
 		for (size_t a = 0; a < 3; a++) {
 			put(80 + (4 * a), &deltaAngles[a]);
-			put(184 + (4 * a), &viewangles[a]);
+			put(180 + (4 * a), &viewangles[a]);
 		}
-		put(176, &weapon);
-		put(248, &holdableItem);
-		put(884, &forcePowerSelected);
+		put(172, &weapon);
+		put(244, &holdableItem);
+		put(868, &forcePowerSelected);
 	}
 };
 

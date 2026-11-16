@@ -66,7 +66,7 @@ void UI_SetActiveMenu( const char* menuname,const char *menuID )
 {
 	// this should be the ONLY way the menu system is brought up (besides the UI_ConsoleCommand below)
 
-	if (cls.state != CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(qtrue))	//don't check full sytem, only if incamera
+	if (cls.state != CA_DISCONNECTED && !ui.SG_GameAllowedToSaveHere(true))	//don't check full sytem, only if incamera
 	{
 		return;
 	}
@@ -79,7 +79,7 @@ void UI_SetActiveMenu( const char* menuname,const char *menuID )
 	//make sure force-speed and slowmodeath doesn't slow down menus - NOTE: they should reset the timescale when the game un-pauses
 	Cvar_SetValue( "timescale", 1.0f );
 
-	UI_Cursor_Show(qtrue);
+	UI_Cursor_Show(true);
 
 	// enusure minumum menu data is cached
 	Menu_Cache();
@@ -157,29 +157,29 @@ extern const char *lukeForceStatusSounds[];
 extern const char *kyleForceStatusSounds[];
 	for (int index = 0; index < 5; index++)
 	{
-		DC->registerSound(lukeForceStatusSounds[index], qfalse);
-		DC->registerSound(kyleForceStatusSounds[index], qfalse);
+		DC->registerSound(lukeForceStatusSounds[index], false);
+		DC->registerSound(kyleForceStatusSounds[index], false);
 	}
 	for (int index = 1; index <= 18; index++)
 	{
-		DC->registerSound(va("sound/chars/storyinfo/%d",index), qfalse);
+		DC->registerSound(va("sound/chars/storyinfo/%d",index), false);
 	}
-	trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/07kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/14kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/21kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/24kyk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/kyle/25kyk001.mp3", qfalse);
+	trap_S_RegisterSound("sound/chars/kyle/04kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/05kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/07kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/14kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/21kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/24kyk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/kyle/25kyk001.mp3", false);
 
-	trap_S_RegisterSound("sound/chars/luke/06luk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/luke/08luk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/luke/22luk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/luke/23luk001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/protocol/12pro001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/protocol/15pro001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/protocol/16pro001.mp3", qfalse);
-	trap_S_RegisterSound("sound/chars/wedge/13wea001.mp3", qfalse);
+	trap_S_RegisterSound("sound/chars/luke/06luk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/luke/08luk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/luke/22luk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/luke/23luk001.mp3", false);
+	trap_S_RegisterSound("sound/chars/protocol/12pro001.mp3", false);
+	trap_S_RegisterSound("sound/chars/protocol/15pro001.mp3", false);
+	trap_S_RegisterSound("sound/chars/protocol/16pro001.mp3", false);
+	trap_S_RegisterSound("sound/chars/wedge/13wea001.mp3", false);
 
 
 	Menus_ActivateByName("ingameMissionSelect1");
@@ -198,13 +198,13 @@ UI_ConsoleCommand
 void UI_Load(void);	//in UI_main.cpp
 #endif
 
-qboolean UI_ConsoleCommand( void )
+bool UI_ConsoleCommand( void )
 {
 	char	*cmd;
 
-	if (!ui.SG_GameAllowedToSaveHere(qtrue))	//only check if incamera
+	if (!ui.SG_GameAllowedToSaveHere(true))	//only check if incamera
 	{
-		return qfalse;
+		return false;
 	}
 
 	cmd = UI_Argv( 0 );
@@ -215,36 +215,36 @@ qboolean UI_ConsoleCommand( void )
 	if ( Q_stricmp (cmd, "ui_cache") == 0 )
 	{
 		UI_Cache_f();
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp (cmd, "levelselect") == 0 )
 	{
 		UI_LoadMenu_f();
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp (cmd, "ui_teamOrders") == 0 )
 	{
 		UI_SaveMenu_f();
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp (cmd, "ui_report") == 0 )
 	{
 		UI_Report();
-		return qtrue;
+		return true;
 	}
 
 #ifndef JK2_MODE
 	if ( Q_stricmp (cmd, "ui_load") == 0 )
 	{
 		UI_Load();
-		return qtrue;
+		return true;
 	}
 #endif
 
-	return qfalse;
+	return false;
 }
 
 
@@ -253,7 +253,7 @@ qboolean UI_ConsoleCommand( void )
 UI_Init
 =================
 */
-void UI_Init( int apiVersion, uiimport_t *uiimport, qboolean inGameLoad )
+void UI_Init( int apiVersion, uiimport_t *uiimport, bool inGameLoad )
 {
 	ui = *uiimport;
 

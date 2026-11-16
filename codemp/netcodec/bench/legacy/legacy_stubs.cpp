@@ -41,11 +41,11 @@ void Q_strncpyz(char *dest, const char *src, int destsize) {
 	dest[destsize - 1] = 0;
 }
 
-long FS_FOpenFileRead(const char *, fileHandle_t *file, qboolean) {
+long FS_FOpenFileRead(const char *, fileHandle_t *file, bool) {
 	*file = 0;
 	return -1;
 }
 int FS_Read(void *, int, fileHandle_t) { return 0; }
 void FS_FCloseFile(fileHandle_t) {}
-void *Z_Malloc(int iSize, memtag_t, qboolean, int) { return calloc(1, iSize); }
+void *Z_Malloc(int iSize, memtag_t, bool, int) { return calloc(1, iSize); }
 sharedEntity_t *SV_GentityNum(int) { return NULL; }

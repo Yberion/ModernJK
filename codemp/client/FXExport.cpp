@@ -54,7 +54,7 @@ void FX_PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol, int rad )
 	theFxScheduler.PlayEffect(file, org, fwd, vol, rad);
 }
 
-void FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int rad, qboolean isPortal )
+void FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int rad, bool isPortal )
 {
 #ifdef __FXCHECKER
 	if (_isnan(org[0]) || _isnan(org[1]) || _isnan(org[2]))
@@ -75,9 +75,9 @@ void FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int rad, qboolean
 }
 
 void FX_PlayBoltedEffectID( int id, vec3_t org,
-						   const int boltInfo, CGhoul2Info_v *ghoul2, int iLooptime, qboolean isRelative )
+						   const int boltInfo, CGhoul2Info_v *ghoul2, int iLooptime, bool isRelative )
 {
-	theFxScheduler.PlayEffect(id, org, 0, boltInfo, ghoul2, -1, -1, -1, qfalse, iLooptime, !!isRelative  );
+	theFxScheduler.PlayEffect(id, org, 0, boltInfo, ghoul2, -1, -1, -1, false, iLooptime, !!isRelative  );
 }
 
 void FX_PlayEntityEffectID( int id, vec3_t org,
@@ -93,7 +93,7 @@ void FX_PlayEntityEffectID( int id, vec3_t org,
 	theFxScheduler.PlayEffect(id, org, axis, boltInfo, 0, -1, vol, rad );
 }
 
-void FX_AddScheduledEffects( qboolean portal )
+void FX_AddScheduledEffects( bool portal )
 {
 	theFxScheduler.AddScheduledEffects(!!portal);
 }
@@ -113,9 +113,9 @@ void FX_SetRefDefFromCGame( refdef_t* refdef )
 	FX_SetRefDef( refdef );
 }
 
-qboolean FX_FreeSystem( void )
+bool FX_FreeSystem( void )
 {
-	return (qboolean)FX_Free( true );
+	return FX_Free( true );
 }
 
 void FX_AdjustTime( int time )

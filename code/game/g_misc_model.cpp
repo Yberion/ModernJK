@@ -30,7 +30,7 @@ extern cvar_t *g_spskill;
 // Helper functions
 //
 //------------------------------------------------------------
-void SetMiscModelModels( char *modelNameString, gentity_t *ent, qboolean damage_model )
+void SetMiscModelModels( char *modelNameString, gentity_t *ent, bool damage_model )
 {
 	char	damageModel[MAX_QPATH];
 	char	chunkModel[MAX_QPATH];
@@ -57,7 +57,7 @@ void SetMiscModelModels( char *modelNameString, gentity_t *ent, qboolean damage_
 
 //------------------------------------------------------------
 void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, int solid_mask,int animFlag,
-									qboolean take_damage, qboolean damage_model = qfalse )
+									bool take_damage, bool damage_model = false )
 {
 	// Apply damage and chunk models if they exist
 	SetMiscModelModels( ent->model, ent, damage_model );
@@ -186,13 +186,13 @@ void SP_misc_model_ghoul( gentity_t *ent )
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
 
-	qboolean bHasScale = G_SpawnVector( "modelscale_vec", "1 1 1", ent->s.modelScale );
+	bool bHasScale = G_SpawnVector( "modelscale_vec", "1 1 1", ent->s.modelScale );
 	if ( !bHasScale ) {
 		float temp;
 		G_SpawnFloat( "modelscale", "0", &temp );
 		if ( temp != 0.0f ) {
 			ent->s.modelScale[0] = ent->s.modelScale[1] = ent->s.modelScale[2] = temp;
-			bHasScale = qtrue;
+			bHasScale = true;
 		}
 	}
 	if ( bHasScale ) {
@@ -295,7 +295,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 {
 	vec3_t		fwd, right;
 	gentity_t	*it_ent = G_Spawn();
-	qboolean	rotate = qtrue;
+	bool	rotate = true;
 
 	AngleVectors( angs, fwd, right, NULL );
 
@@ -322,7 +322,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 		}
 		else
 		{
-			rotate = qfalse;
+			rotate = false;
 
 			// must deliberately make it small, or else the objects will spawn inside of each other.
 			VectorSet( it_ent->maxs, 6.75f, 6.75f, 6.75f );
@@ -824,7 +824,7 @@ void SP_misc_model_cargo_small( gentity_t *ent )
 
 	G_SpawnInt( "health", "25", &ent->health );
 
-	SetMiscModelDefaults( ent, useF_NULL, "11", CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, 0, qtrue, qfalse );
+	SetMiscModelDefaults( ent, useF_NULL, "11", CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, 0, true, false );
 	ent->s.modelindex2 = G_ModelIndex("/models/map_objects/kejim/cargo_small.md3");	// Precache model
 
 	// we only take damage from a heavy weapon class missile

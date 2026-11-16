@@ -205,7 +205,7 @@ libvar_t *LibVar(const char *var_name, const char *value)
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 	//
 	return v;
 } //end of the function LibVar
@@ -260,7 +260,7 @@ void LibVarSet(const char *var_name, const char *value)
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 } //end of the function LibVarSet
 //===========================================================================
 //
@@ -268,7 +268,7 @@ void LibVarSet(const char *var_name, const char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean LibVarChanged(char *var_name)
+bool LibVarChanged(char *var_name)
 {
 	libvar_t *v;
 
@@ -279,7 +279,7 @@ qboolean LibVarChanged(char *var_name)
 	} //end if
 	else
 	{
-		return qfalse;
+		return false;
 	} //end else
 } //end of the function LibVarChanged
 //===========================================================================
@@ -295,6 +295,6 @@ void LibVarSetNotModified(char *var_name)
 	v = LibVarGet(var_name);
 	if (v)
 	{
-		v->modified = qfalse;
+		v->modified = false;
 	} //end if
 } //end of the function LibVarSetNotModified

@@ -71,7 +71,7 @@ void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 		self->client->ps.velocity[1] = Q_irand( -20, -10 );
 		self->client->ps.velocity[2] = -100;
 	}
-	//self->takedamage = qfalse;
+	//self->takedamage = false;
 	//self->client->ps.eFlags |= EF_NODRAW;
 	//self->contents = 0;
 	return;
@@ -157,7 +157,7 @@ void Interrogator_MaintainHeight( void )
 
 	NPC->s.loopSound = G_SoundIndex( "sound/chars/interrogator/misc/torture_droid_lp" );
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
@@ -302,14 +302,14 @@ Interrogator_Hunt
 #define HUNTER_FORWARD_BASE_SPEED	10
 #define HUNTER_FORWARD_MULTIPLIER	2
 
-void Interrogator_Hunt( qboolean visible, qboolean advance )
+void Interrogator_Hunt( bool visible, bool advance )
 {
 	float speed;
 	vec3_t forward;
 
 	Interrogator_PartsMove();
 
-	NPC_FaceEnemy(qfalse);
+	NPC_FaceEnemy(false);
 
 	//If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
@@ -326,17 +326,17 @@ void Interrogator_Hunt( qboolean visible, qboolean advance )
 	}
 
 	//If we don't want to advance, stop here
-	if ( advance == qfalse )
+	if ( advance == false )
 		return;
 
 	//Only try and navigate if the player is visible
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
-		NPC_MoveToGoal(qtrue);
+		NPC_MoveToGoal(true);
 		return;
 
 	}
@@ -357,7 +357,7 @@ void Interrogator_Hunt( qboolean visible, qboolean advance )
 Interrogator_Melee
 -------------------------
 */
-void Interrogator_Melee( qboolean visible, qboolean advance )
+void Interrogator_Melee( bool visible, bool advance )
 {
 	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
@@ -406,7 +406,7 @@ void Interrogator_Attack( void )
 	}
 
 	// If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )
+	if ( NPC_CheckEnemyExt() == false )
 	{
 		Interrogator_Idle();
 		return;
@@ -414,19 +414,19 @@ void Interrogator_Attack( void )
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE*MIN_DISTANCE );
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE*MIN_DISTANCE );
 
 	if ( !visible )
 	{
-		advance = qtrue;
+		advance = true;
 	}
 	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 	{
 		Interrogator_Hunt( visible, advance );
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	if (!advance)
 	{
@@ -444,7 +444,7 @@ void Interrogator_Idle( void )
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
 		G_SoundOnEnt( NPC, CHAN_AUTO, "sound/chars/mark1/misc/anger.wav" );
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 

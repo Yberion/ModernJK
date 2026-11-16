@@ -46,13 +46,13 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-qboolean FS_Initialized();
+bool FS_Initialized();
 
 void	FS_InitFilesystem (void);
-void	FS_Shutdown( qboolean closemfp, qboolean keepModuleFiles = qfalse );
+void	FS_Shutdown( bool closemfp, bool keepModuleFiles = false );
 
-qboolean	FS_ConditionalRestart( int checksumFeed );
-void	FS_Restart( int checksumFeed, qboolean inPlace = qfalse );
+bool	FS_ConditionalRestart( int checksumFeed );
+void	FS_Restart( int checksumFeed, bool inPlace = false );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
 char	**FS_ListFiles( const char *directory, const char *extension, int *numfiles );
@@ -66,18 +66,18 @@ void	FS_FreeFileList( char **fileList );
 void FS_Remove( const char *osPath );
 void FS_HomeRemove( const char *homePath );
 
-void FS_Rmdir( const char *osPath, qboolean recursive );
-void FS_HomeRmdir( const char *homePath, qboolean recursive );
+void FS_Rmdir( const char *osPath, bool recursive );
+void FS_HomeRmdir( const char *homePath, bool recursive );
 
-qboolean FS_FileExists( const char *file );
+bool FS_FileExists( const char *file );
 
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
-qboolean FS_CompareZipChecksum(const char *zipfile);
+bool FS_CompareZipChecksum(const char *zipfile);
 
 int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 int		FS_GetModList(  char *listbuf, int bufsize );
 
-fileHandle_t	FS_FOpenFileWrite( const char *qpath, qboolean safe=qtrue );
+fileHandle_t	FS_FOpenFileWrite( const char *qpath, bool safe=true );
 // will properly create any needed paths and deal with seperater character issues
 
 fileHandle_t	FS_FOpenFileAppend( const char *filename );
@@ -86,8 +86,8 @@ int		FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
 fileHandle_t FS_SV_FOpenFileAppend( const char *filename );
 int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
-void	FS_SV_Rename( const char *from, const char *to, qboolean safe );
-long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
+void	FS_SV_Rename( const char *from, const char *to, bool safe );
+long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, bool uniqueFILE );
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
 // FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
@@ -97,7 +97,7 @@ long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFI
 int		FS_FileIsInPAK(const char *filename, int *pChecksum );
 // returns 1 if a file is in the PAK file, otherwise -1
 
-qboolean FS_FindPureDLL(const char *name);
+bool FS_FindPureDLL(const char *name);
 
 int		FS_Write( const void *buffer, int len, fileHandle_t f );
 
@@ -132,7 +132,7 @@ int		FS_FTell( fileHandle_t f );
 
 void	FS_Flush( fileHandle_t f );
 
-void	FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt, callbackFunc_t callback, qboolean allowNonPureFilesOnDisk );
+void	FS_FilenameCompletion( const char *dir, const char *ext, bool stripExt, callbackFunc_t callback, bool allowNonPureFilesOnDisk );
 
 const char *FS_GetCurrentGameDir(bool emptybase=false);
 
@@ -149,11 +149,11 @@ int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );
 int		FS_Seek( fileHandle_t f, long offset, int origin );
 // seek on a file
 
-qboolean FS_FilenameCompare( const char *s1, const char *s2 );
+bool FS_FilenameCompare( const char *s1, const char *s2 );
 
 // These 2 are generally only used by the save games, filenames are local (eg "saves/blah.sav")
 void	FS_DeleteUserGenFile( const char *filename );
-qboolean FS_MoveUserGenFile( const char *filename_src, const char *filename_dst );
+bool FS_MoveUserGenFile( const char *filename_src, const char *filename_dst );
 
 const char *FS_LoadedPakNames( void );
 const char *FS_LoadedPakChecksums( void );
@@ -178,10 +178,10 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
-qboolean FS_CheckDirTraversal(const char *checkdir);
-qboolean FS_idPak( const char *pak, const char *base );
-qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
+bool FS_CheckDirTraversal(const char *checkdir);
+bool FS_idPak( const char *pak, const char *base );
+bool FS_ComparePaks( char *neededpaks, int len, bool dlstring );
 void FS_Rename( const char *from, const char *to );
 
-qboolean FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFileName );
+bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFileName );
 const char *FS_MV_VerifyDownloadPath(const char *pk3file);

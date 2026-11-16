@@ -49,16 +49,16 @@ extern gentity_t *G_GetSelfForPlayerCmd( void );
 CheatsOk
 ==================
 */
-qboolean	CheatsOk( gentity_t *ent ) {
+bool	CheatsOk( gentity_t *ent ) {
 	if ( !g_cheats->integer ) {
 		gi.SendServerCommand( ent-g_entities, "print \"Cheats are not enabled on this server.\n\"");
-		return qfalse;
+		return false;
 	}
 	if ( ent->health <= 0 ) {
 		gi.SendServerCommand( ent-g_entities, "print \"You must be alive to use this command.\n\"");
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -167,10 +167,10 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 {
 	gitem_t		*it;
 	int			i;
-	qboolean	give_all = qfalse;
+	bool	give_all = false;
 
 	if ( !Q_stricmp( name, "all" ) )
-		give_all = qtrue;
+		give_all = true;
 
 	if ( give_all || !Q_stricmp( name, "health") )
 	{
@@ -611,7 +611,7 @@ UserSpawn
 -------------------------
 */
 
-extern qboolean G_CallSpawn( gentity_t *ent );
+extern bool G_CallSpawn( gentity_t *ent );
 
 void UserSpawn( gentity_t *ent, const char *name )
 {
@@ -639,7 +639,7 @@ void UserSpawn( gentity_t *ent, const char *name )
 	gi.linkentity( ent2 );
 
 	//Find a valid spawning spot
-	if ( G_CallSpawn( ent2 ) == qfalse )
+	if ( G_CallSpawn( ent2 ) == false )
 	{
 		gi.SendServerCommand( ent-g_entities, "print \"Failed to spawn '%s'\n\"", name );
 		G_FreeEntity( ent2 );
@@ -700,7 +700,7 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 Cmd_SetObjective_f
 =================
 */
-qboolean G_CheckPlayerDarkSide( void );
+bool G_CheckPlayerDarkSide( void );
 
 void Cmd_SetObjective_f( gentity_t *ent )
 {
@@ -728,7 +728,7 @@ void Cmd_SetObjective_f( gentity_t *ent )
 	displayStatus = atoi(gi.argv(2));
 	status = atoi(gi.argv(3));
 
-	ent->client->sess.mission_objectives[objectiveI].display = (qboolean)(displayStatus != 0);
+	ent->client->sess.mission_objectives[objectiveI].display = (displayStatus != 0);
 	ent->client->sess.mission_objectives[objectiveI].status = status;
 	G_CheckPlayerDarkSide();
 }
@@ -790,7 +790,7 @@ void Cmd_UseBacta_f(gentity_t *ent)
 }
 
 //----------------------------------------------------------------------------------
-qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_t spot )
+bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_t spot )
 {
 	vec3_t	mins, maxs, forward, end;
 	trace_t tr;
@@ -811,7 +811,7 @@ qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, v
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
 		VectorCopy( tr.endpos, spot );
-		return qtrue;
+		return true;
 	}
 
 	// side
@@ -822,7 +822,7 @@ qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, v
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
 		VectorCopy( tr.endpos, spot );
-		return qtrue;
+		return true;
 	}
 
 	// other side
@@ -833,7 +833,7 @@ qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, v
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
 		VectorCopy( tr.endpos, spot );
-		return qtrue;
+		return true;
 	}
 
 	// behind
@@ -844,10 +844,10 @@ qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, v
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
 		VectorCopy( tr.endpos, spot );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -918,7 +918,7 @@ void Cmd_UseGoggles_f(gentity_t *ent)
 Cmd_UseSentry_f
 ================
 */
-qboolean place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t dir );
+bool place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t dir );
 void Cmd_UseSentry_f(gentity_t *ent)
 {
 	if ( ent->health < 1 || in_camera )
@@ -1416,12 +1416,12 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "force_throw") == 0)
 	{
 		ent = G_GetSelfForPlayerCmd();
-		ForceThrow( ent, qfalse );
+		ForceThrow( ent, false );
 	}
 	else if (Q_stricmp (cmd, "force_pull") == 0)
 	{
 		ent = G_GetSelfForPlayerCmd();
-		ForceThrow( ent, qtrue );
+		ForceThrow( ent, true );
 	}
 	else if (Q_stricmp (cmd, "force_speed") == 0)
 	{

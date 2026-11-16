@@ -48,7 +48,7 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )
 
 	ent->clipmask = MASK_SHOT;
 	ent->contents = CONTENTS_SHOTCLIP;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	ent->health = 15;
 
 	ent->e_DieFunc = dieF_WP_ExplosiveDie;
@@ -84,7 +84,7 @@ void WP_prox_mine_think( gentity_t *ent )
 //---------------------------------------------------------
 {
 	int			count;
-	qboolean	blow = qfalse;
+	bool	blow = false;
 
 	// first time through?
 	if ( ent->count )
@@ -98,13 +98,13 @@ void WP_prox_mine_think( gentity_t *ent )
 	// if it isn't time to auto-explode, do a small proximity check
 	if ( ent->delay > level.time )
 	{
-		count = G_RadiusList( ent->currentOrigin, PROX_MINE_RADIUS_CHECK, ent, qtrue, ent_list );
+		count = G_RadiusList( ent->currentOrigin, PROX_MINE_RADIUS_CHECK, ent, true, ent_list );
 
 		for ( int i = 0; i < count; i++ )
 		{
 			if ( ent_list[i]->client && ent_list[i]->health > 0 && ent->activator && ent_list[i]->s.number != ent->activator->s.number )
 			{
-				blow = qtrue;
+				blow = true;
 				break;
 			}
 		}
@@ -112,7 +112,7 @@ void WP_prox_mine_think( gentity_t *ent )
 	else
 	{
 		// well, we must die now
-		blow = qtrue;
+		blow = true;
 	}
 
 	if ( blow )
@@ -271,7 +271,7 @@ static void WP_RemoveOldTraps( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
+void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	vec3_t		start;

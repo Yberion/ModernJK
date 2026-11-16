@@ -202,7 +202,7 @@ Coordinates are at 640 by 480 virtual resolution
 ==================
 */
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
-		qboolean forceColor, qboolean shadow, int charWidth, int charHeight ) {
+		bool forceColor, bool shadow, int charWidth, int charHeight ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -248,7 +248,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 
 
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
-	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT );
+	CG_DrawStringExt( x, y, s, color, true, false, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT );
 }
 
 /*
@@ -371,7 +371,7 @@ Take x,y positions as if 640 x 480 and scales them to the proper resolution
 
 ==============
 */
-void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,qboolean zeroFill)
+void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,bool zeroFill)
 {
 	char	num[16], *ptr;
 	int		l;

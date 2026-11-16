@@ -353,7 +353,7 @@ extern char	cinematicSkipScript[64];
 
 //General
 extern	void		Q3_TaskIDClear( int *taskID );
-extern	qboolean	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern	bool	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern	void		Q3_TaskIDComplete( gentity_t *ent, taskID_t taskType );
 extern	void		Q3_DPrintf( const char *, ... );
 

@@ -1406,7 +1406,7 @@ public:
 	animation_t		animations[MAX_ANIMATIONS];
 	animsounds_t	torsoAnimSnds[MAX_ANIM_SOUNDS];
 	animsounds_t	legsAnimSnds[MAX_ANIM_SOUNDS];
-	qboolean		soundsCached;
+	bool		soundsCached;
 
 
 	void sg_export(

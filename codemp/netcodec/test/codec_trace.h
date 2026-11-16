@@ -58,14 +58,15 @@ public:
 		out.resize(n);
 		return n == 0 || fread(out.data(), 1, n, f_) == n;
 	}
-	template <size_t N> bool Image(std::array<uint8_t, N> &img, std::span<const uint16_t> offsets) {
+	template <size_t N> bool Image(std::array<uint8_t, N> &img, std::span<const uint16_t> offsets, std::span<const uint8_t> sizes) {
 		uint16_t n = 0;
 		if (!U16(n)) return false;
 		for (uint16_t k = 0; k < n; k++) {
 			uint16_t idx = 0;
 			uint32_t v = 0;
 			if (!U16(idx) || !U32(v) || idx >= offsets.size()) return false;
-			std::memcpy(img.data() + offsets[idx], &v, 4);
+			if (sizes[idx] == 1) img[offsets[idx]] = v != 0 ? 1 : 0;   // a bool
+			else std::memcpy(img.data() + offsets[idx], &v, 4);
 		}
 		return true;
 	}
@@ -76,7 +77,7 @@ public:
 		out.assign(n, EntityState{});
 		for (EntityState &e : out) {
 			uint16_t num = 0;
-			if (!U16(num) || num >= kMaxEntities || !Image(e, EntityFieldOffsets())) return false;
+			if (!U16(num) || num >= kMaxEntities || !Image(e, EntityFieldOffsets(), EntityFieldSizes())) return false;
 			SetEntityNumber(e, num);
 		}
 		return true;
@@ -113,9 +114,9 @@ public:
 			if (d.snap) return false;
 			d.snap = std::make_unique<SnapshotData>();
 			SnapshotData &sn = *d.snap;
-			if (!Image(sn.ps, PlayerFieldOffsets()) || !U8(hv)) return false;
+			if (!Image(sn.ps, PlayerFieldOffsets(), PlayerFieldSizes()) || !U8(hv)) return false;
 			sn.hasVehicle = hv != 0;
-			if (sn.hasVehicle && !Image(sn.vps, PlayerFieldOffsets())) return false;
+			if (sn.hasVehicle && !Image(sn.vps, PlayerFieldOffsets(), PlayerFieldSizes())) return false;
 			if (!Entities(sn.entities)) return false;
 			op.snap = sn.View();
 			return true;

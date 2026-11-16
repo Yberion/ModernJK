@@ -65,7 +65,7 @@ void EA_Say(int client, char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EA_SayTeam(int client, char *str)
+void EA_SayTeam(int client, const char *str)
 {
 	botimport.BotClientCommand(client, va("say_team %s", str));
 } //end of the function EA_SayTeam
@@ -473,7 +473,7 @@ void EA_GetInput(int client, float thinktime, bot_input_t *input)
 void EA_ResetInput(int client)
 {
 	bot_input_t *bi;
-	int jumped = qfalse;
+	int jumped = false;
 
 	bi = &botinputs[client];
 	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;

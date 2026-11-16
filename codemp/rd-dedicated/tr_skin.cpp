@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 bool gServerSkinHack = false;
 
-shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
+shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, bool mipRawImage );
 static const char *CommaParse( char **data_p );
 /*
 ===============
@@ -150,8 +150,8 @@ qhandle_t RE_RegisterIndividualSkin( const char *name , qhandle_t hSkin)
 
 		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
 
-		if (gServerSkinHack)	surf->shader = R_FindServerShader( token, lightmapsNone, stylesDefault, qtrue );
-		else					surf->shader = R_FindShader( token, lightmapsNone, stylesDefault, qtrue );
+		if (gServerSkinHack)	surf->shader = R_FindServerShader( token, lightmapsNone, stylesDefault, true );
+		else					surf->shader = R_FindShader( token, lightmapsNone, stylesDefault, true );
 		skin->numSurfaces++;
 	}
 
@@ -209,7 +209,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 /*		skin->numSurfaces = 1;
 		skin->surfaces[0] = (skinSurface_t *)Hunk_Alloc( sizeof(skin->surfaces[0]), h_low );
-		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, qtrue );
+		skin->surfaces[0]->shader = R_FindShader( name, lightmapsNone, stylesDefault, true );
 		return hSkin;
 */
 	}

@@ -1,0 +1,86 @@
+# Step 18: the C code in C++
+
+Status: **in progress** (16 November 2026). Parts 1 and 3 done together (the C code in C++, and `bool` in place of `qboolean`), checked with clang 23 on this machine and on the VMs (GCC 15, Clang 23, MSVC: no warning); part 2 (`nullptr`), part 4 (the enumerations), netcodec's timing and the game test are to come (section 5). Plan: [PLAN.md](../PLAN.md), step 18.
+
+## 1. Decisions (16 November 2026)
+
+The decisions D1 to D8 are in [PLAN.md](../PLAN.md), step 18: the MP3 decoders stay in C; the files renamed `.cpp`; an integer given for an enumeration cast only at a boundary, the enumerations reviewed in part 4 (`enum class` for those that never serve as numbers); the headers' `extern "C"` blocks for the C modules removed, the modules' entry points kept in C; `nullptr` everywhere; `bool` everywhere, the networked states and the codec included; the GCC warnings fixed as in step 17.
+
+One more, the same day: parts 1 and 3 done together. After the files were renamed, 398 of the 572 errors were integers or comparisons stored into a `qboolean`, which C++ refuses for an enumeration and accepts for a `bool`: fixing them with `(qboolean)` casts, then removing those casts in part 3, would have touched the same places twice.
+
+## 2. What changed
+
+**The C files.** The 135 files of D1 renamed `.c` to `.cpp`, every reference updated (the CMake lists, netcodec's movement test, the comments that name them). `codemp/qcommon/q_shared.cpp`, a one-line file that included `q_shared.c` to build it as C++ for the engine, is replaced by the file itself.
+
+**What C++ refuses and C accepted**, fixed in the modules' code:
+- the 2,340 string literals given as `char *`: `const char *` for the tables, the fields, the parameters and the variables that only read them (the cvar tables, the items, the spawn and keyword tables, `gentity_t::classname`, `model`, `model2`, `NPC_type` and `fullName`, the bots' team chat through the engine's interface, ICARUS's `Q3_GetString`), as step 17 did for the C++ trees; every `extern` declaration follows its definition (`TeamNames`, `modNames`, `forceHolocronModels`, `showPowersName`, `cg_customSoundNames`, `forceMasteryLevels`), since GCC and clang do not put a variable's type in its symbol and would link two disagreeing declarations;
+- the C++ parts of the ICARUS headers (`interpreter.h`, `Q3_Registers.h`), the engine's interpreter, kept out of the game module, which uses only their C part (`!defined( _GAME )`);
+- a macro written after a string literal (`"..."S_COLOR_WHITE`), read as a literal suffix by C++11; `register`; the `void *` of `malloc`;
+- an integer given for an enumeration: the value cast at the boundary where it comes from outside (an info string, a cvar, a name table, an `int` field of a state: `team_t`, `gametype_t`, `weapon_t`, `npcteam_t`, `uiMenuCommand_t`, the force powers in their loops), the declared type fixed where it held the enumeration (`preTeam`, `preSess`, `newPlayerTeam`, `PM_SaberBackflipAttackMove`); the NPCs' team is `npcteam_t` where the code used `team_t` (`NPC_WeaponsForTeam`, `NPC_PrecacheWeapons`, the `TeamTable` reads, `TEAM_FREE` for `NPCTEAM_FREE`, both 0); the flag status before its first update, `-1`, is an explicit `FLAG_UNSET`;
+- the modules' entry points (`GetModuleAPI`, `vmMain`, `dllEntry`) keep their C names (`extern "C"`), as in the single-player tree;
+- `forcePowerMinRank` (`w_force.cpp`), a table no code reads: a `const` of C++ is internal to its file, so clang reported it unused; removed.
+
+**`bool`.** `qboolean`, `qtrue` and `qfalse` replaced by `bool`, `true` and `false` in every C++ file of the project (31,130 places in 757 files; `lib/` and the MP3 decoders apart), the definition removed from `shared/qcommon/q_platform.h` (and the botlib's copies in its dead `#ifdef` branches). The MP3 decoder, in C, includes `q_shared.h`: `<stdbool.h>` there for C files only (C17's `_Bool` is one byte, as C++'s `bool` on the three compilers). Then:
+- the 480 `(bool)x` casts left by the replacement of `(qboolean)x` removed, since every scalar converts to `bool` implicitly with the same value; the one kept stores into a `byte` (`sv_world.cpp`, `trace_t::startsolid`). Found by the compiler: each cast became a type that converts to `bool` only, and only the place that failed to compile needed it;
+- `byteAlias_t::qb`, a 4-byte alias read as a boolean (`MenuParse_fullscreen`): the parsed `int` tested instead.
+
+**The networked states and the codec (D6a).** `entityState_t` goes from 532 to 524 bytes and `playerState_t` from 1,552 to 1,536 (their 22 booleans are one byte). netcodec read and wrote every field as a 32-bit word at its offset, in the engine's own structures; a bool is now read and written as one byte (`LoadField`, `Store`, `FieldDiffers` by the field's C type; `kPlayerAllSizes` with `kPlayerAllOffsets`; `EntityFieldSizes`, `PlayerFieldSizes` for the tests and tools), and a decoded bool is stored as 0 or 1 whatever the value. `data/fields.json` and `src/generated/jka_schema.inc` generated again (`tools/fieldinfo`, `gen_fields.py`, `gen_netcodec.py`): only the offsets change, the widths, types, modes and contexts are the same, and so is the schema hash. The client packet codec's offsets follow (`weapon` 172, `viewangles` 180, the holdable item 244, `fd.forcePowerSelected` 868, checked by `sv_netcodec.cpp`). The original coder (`codemp/qcommon/msg.cpp`, kept for `sv_netcodecCompare` and netcodec's legacy benchmark) reads and writes each integer field by its size too (`netField_t::size`, `MSG_GetField`, `MSG_SetField`).
+
+**netcodec's speed.** Reading a field by its C type in `FieldDiffers` made the encoder 17.9 % slower warm with MSVC and 9.8 % with GCC (cold 10.5 % and 4.9 %; the decoder unchanged): the encoder runs it on every field of every changed entity (`Changes`, 132 fields), and the test of the type, a branch or a mask without one alike, doubled the work of that loop. `FieldDiffers` compares the raw 32-bit words first, as before, and reads a bool's own byte only when the words differ (a bool's word holds its neighbours too); a `static_assert` checks that every field's word lies inside its image. Then GCC was still 14.4 % slower: `Value`, made larger by the test of the type, was no longer inlined in the encoder; with a mask in place of the branch it was inlined again, and GCC still 3.7 % slower warm (4.5 % cold). So `Value` reads the whole word as before, and the code of a bool takes its byte where a bool already had its own branch (`PutField`, `GetField`; the escaped path through `LoadField`): the other fields run the code of the commit before. GCC was then 3.4 % slower warm; `FieldDiffers` in the order of the commit before (the raw words, then the codec values) with the test of a bool's byte last made it 4.2 % faster warm and 5.3 % cold (`ab_gcc_multi.sh`, 6 rounds), while the branch of `LoadSized` in `AnyNonZero`, removed in the same run, changed nothing (+0.6 %) and was kept. `Store` writes a bool's byte (the decoder, unchanged in time). The original coder had the same cost (`MSG_GetField` tests the field's size; its encoder 26.7 % slower warm with GCC, 11.6 to 14.1 % with clang, unchanged with MSVC): `MSG_FieldDiffers` compares the raw words first in its loops over the fields, the same way (clang: +3.0 % after, within the reference's spread between rounds), and its decoder copies an unchanged field with one test of the size (`MSG_CopyField`; +5.1 % before, +3.7 % after with clang). It serves only `sv_netcodecCompare` and the benchmark.
+
+**The A/B scripts.** They built the reference's netcodec against the working tree's ModernJK sources, which no longer configure (the `.c` files) nor match (the states' layout) a reference before this step: `ab_gcc.sh`, `ab_clang.sh` and `ab_msvc.bat` now build it with its own (`codemp`, `shared`, `lib/gsl-lite` of its commit, or of `REF_DIR`/`ABM_REF_DIR` when it holds them; `ab_msvc_ref.sh` writes them); `ab_gcc_multi.sh` and `ab_gcc_podman.sh` keep the working tree's, enough for copies after this step. The original coder differs between the two builds of these A/B runs (`MSG_GetField`, `MSG_SetField` by size), so its timing was no check of the machine's noise.
+
+**GCC's and MSVC's warnings (D8).** The first VM builds of the converted code gave 29 `-Wsign-compare` from GCC 15 (its `-Wall` includes them in C++, so they were never reported while the modules were C) and 11 C4805 from MSVC (a `bool` mixed with an integer in `^` or `==`); Clang 23 on Linux gave none. Fixed, types checked:
+- a table's count declared `size_t` and used as an `int` (`numUserinfoFields`, `numSkillLevels`, `numRadarEnts`, `numBracketEnts`) is an `int`. It was also printed with `%i` or `%d`. And the UI's bot skill did not wrap from the first level to the last (`UI_BotSkill_HandleKey`: -1 compared with an unsigned count is above it, so the index went back to 0), as in OpenJK;
+- an `int` compared with the size of an array (`ARRAY_LEN`, `sizeof`) is compared with `std::ssize` (C++20, signed). Each place was checked for a negative value that the unsigned comparison caught: none (a file's length is tested `<= 0`, or its handle, before; an index `>= 0`);
+- `time2 == 0xFFFFFFFF` (cgame, an `int`) is `time2 == -1`, the same test;
+- the speed key against `cl_run` (multiplayer and single player): `!=` between two booleans in place of `^` between a `bool` and the cvar's integer. A value of `cl_run` other than 0 or 1 now acts as 1 (the speed key walks); before, the speed key did nothing with it;
+- the patches' border test (`cm_patch.cpp`, multiplayer and single player): `borderInward`, an `int` that holds 0 or 1, compared with `!= 0`;
+- the navigator's `trace.startsolid == true` and `trace.allsolid == true` on a `byte` (`navigator.cpp`): the byte tested, the same test since only 0 or 1 is stored there.
+
+## 3. What the compiler could not see, checked by hand
+
+C stored any integer in a `qboolean` (an `int`-sized enumeration); a `bool` keeps only true or false, and a cast to `int *` writes 4 bytes into its one. Every place where that could change the program was looked for:
+- **the stores of a value other than 0 or 1**: in the module code, the 398 errors of the build before the switch (an integer stored into a `qboolean`), each expression sorted (a comparison, a logical operation or a negation gives 0 or 1); in the C++ trees, the 432 `(qboolean)` casts of the original code; then the uses of what received such a value. Found: `saberMoveData_t::trailLength` (150 to 2,000 milliseconds in its table) and the UI's `restrictedForce` (the server's `fdisable` mask, given to `UI_AllForceDisabled`) were integers declared `qboolean`; the RoQ player's `inMemory` (MP and single player) counts the packets of a frame left in memory (`roq_flags`, then decremented in a loop): all three are `int` now;
+- **the comparisons with `qtrue`** (200 with `true` now; `false` is the same test either way): all on values set to true or false, or returned by functions that return only those; the single-player `UI_Cursor_Show` turned a value other than 0 or 1 into true, which a `bool` parameter already does (removed);
+- **the casts to `int *`** (28): the single-player UI parsed a menu's `fullScreen` through `(int *)`, writing 4 bytes into a bool; parsed into an `int` now;
+- **the parsers that write through an offset table**, crossed with the declared types of the members: the spawn key `linear` (`alt_fire`, MP, single player, Jedi Outcast), `saberLeftHand` (`alt_fire`) and `saberSolo` (`loopAnim`, single player) were read as `F_INT` into a bool: a new `F_BOOL`; the vehicles' `throttleSticks` was a `float` filled as a bool (`VF_BOOL`) and only tested: a `bool`;
+- `sscanf` into a boolean: clang's format check reports none.
+
+C linked functions by name, C++ by signature, which showed two declarations that did not match their definition:
+- `BG_SetAnim` takes 5 parameters; `g_utils.cpp` and `g_vehicles.cpp` declared and called it with a sixth, the blend time, which C passed and the function ignored: the argument removed, the same behaviour;
+- `G_SoundOnEnt` was defined with an `int` channel and declared everywhere with `soundChannel_t`: the definition takes `soundChannel_t`.
+
+## 4. Checks (16 November 2026)
+
+| check | result |
+|---|---|
+| clean clang 23 build of every target (multiplayer, single player, Jedi Outcast; the engine, the modules, netcodec) | no error, no warning |
+| the VM validations (`validate.sh`: GCC 15 and Clang 23 on Ubuntu 22.04; `validate.bat`: MSVC), every build folder configured again | all pass: netcodec's presets and tests, the benchmarks, the trainers write the committed tables, the game builds (`gcc-ded`, `gcc-mp`, `clang-mp`, `msvc-x64`); the warnings of section 2, fixed after |
+| after the fixes: the multiplayer modules with clang and `-Wsign-compare` | no warning |
+| after the fixes: a clean clang build of the multiplayer targets, the 40 scenarios | no warning; `golden: SAME` |
+| after the fixes: the game builds on the VMs (`gcc-ded`, `gcc-mp`, `clang-mp`, `msvc-x64`) | no error, no warning |
+| netcodec A/B against the commit before (6 rounds; `ab_msvc.bat`, `ab_gcc.sh`), before the fix of `FieldDiffers` | warm encoding +17.9 % (MSVC), +9.8 % (GCC); cold +10.5 %, +4.9 %; decoding +0.6 %, -0.0 % |
+| after the fix: `ab_clang.sh`, 3 rounds, the VMs running | warm encoding +0.9 %, cold +1.7 %, decoding -0.4 % and +1.0 % (noise) |
+| after the fix of the original coder too: `ab_clang.sh`, 3 rounds | warm encoding +0.8 %, cold +0.0 %; the original coder +3.0 %; `mismatches 0`, `legacy round-trip failures 0` |
+| the same, `ab_gcc.sh`, 6 rounds | warm encoding +14.4 %, cold +5.4 % (`Value` not inlined) |
+| a mask in place of the branch in `LoadField`: `ab_gcc.sh`, 6 rounds | warm encoding +3.7 %, cold +4.5 %, decoding +0.6 %; the original coder +2.3 % |
+| `Value` on the whole word, a bool's byte taken in `PutField` and `GetField`: `ab_clang.sh`, 3 rounds | warm encoding +0.1 %, cold +1.1 %, decoding -0.5 % and +0.9 %; the original coder -0.4 %; the 11 tests (the same hashes) and clang-tidy pass |
+| the same, `ab_gcc.sh`, 6 rounds | warm encoding +3.4 %, cold +1.3 %, decoding +1.5 % |
+| against it (`ab_gcc_multi.sh`, 6 rounds): `FieldDiffers` with a bool's byte last; `LoadSized` without a branch; both | encoding -4.2 % warm, -5.3 % cold; +0.6 % warm, -0.4 % cold; -2.6 % warm, -3.2 % cold: the first kept alone |
+| the final code against the commit before: `ab_gcc.sh`, 6 rounds | warm encoding -1.0 %, cold -0.5 %, decoding -1.3 % and -0.2 %; the original coder +3.1 % (the reference's spread 2.7 %); code +430 bytes |
+| the same, `ab_msvc.bat`, 6 rounds | warm encoding -4.1 %, cold -2.0 %, decoding +0.4 % and +1.4 %; the original coder's encoder -0.1 % |
+| the original coder's decoder (best warm times of the same runs) | +11.7 % MSVC, +4.3 % GCC, about +4.6 % clang: its loops copy the unchanged fields one by one (`MSG_SetField( to, field, MSG_GetField( from, field ) )`), two tests of the size per field |
+| the final code, `ab_clang.sh`, 6 rounds, the VMs off | warm encoding +0.2 %, cold +0.1 %, decoding -0.4 % and -1.2 %; the original coder's encoder +5.0 %, its decoder +5.1 % |
+| `MSG_CopyField` (one test of the size per copied field, no `!= 0`): `ab_clang.sh`, 6 rounds | the original coder's decoder +3.7 %, its encoder +2.1 % (a busy round); netcodec unchanged (-0.3 %, -0.3 %) |
+| the VM validations of the final code (`validate.sh`, `validate.bat`) | all pass, no warning |
+| the netcodec pmove test (`test/pmove`), which builds the game's movement code | compiled with the compiler's default standard (gnu++17, MSVC C++14), so `std::ssize` failed: C++20 without extensions, as ModernJK |
+| netcodec `mingw-clang-release`: the 11 tests | all pass. The round trip on the corpus (`netcodec.roundtrip`, `netcodec.engine`), the determinism, the client packets (synthetic and recorded): the same hashes as before. `netcodec.synthetic` changes hash (0x71CFD4AED775CF37): its generator draws any 32-bit value for a boolean field, which the format sends whole when it is neither 0 nor 1 (a `qboolean` was an `int`); a `bool` holds 1 there, so the generated messages differ (4 % fewer bytes); the decoder still reads such a value, the encoder no longer produces it (the format and tables change with the retraining of plan step 13) |
+| netcodec `mingw-clang-tidy` | clean |
+| the modules' exports | `GetModuleAPI`, `dllEntry`, `vmMain` under their C names |
+| the 40 scenarios (clang build, Windows) | `golden: SAME` |
+
+## 5. To come
+
+- Part 2: `nullptr` (D5). Part 4: the enumerations (D3).
+- The game played on Windows and on Linux.

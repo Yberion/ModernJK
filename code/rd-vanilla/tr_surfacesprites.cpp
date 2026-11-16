@@ -85,13 +85,13 @@ vec3_t	curWindBlowVect={0,0,0}, targetWindBlowVect={0,0,0};
 vec3_t	curWindGrassDir={0,0,0}, targetWindGrassDir={0,0,0};
 int		totalsurfsprites=0, sssurfaces=0;
 
-qboolean curWindPointActive=qfalse;
+bool curWindPointActive=false;
 float curWindPointForce = 0;
 vec3_t curWindPoint;
 int nextGustTime=0;
 float gustLeft=0;
 
-qboolean standardfovinitialized=qfalse;
+bool standardfovinitialized=false;
 float	standardfovx = 90, standardscalex = 1.0;
 float	rangescalefactor=1.0;
 
@@ -135,7 +135,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		{
 			standardfovx = backEnd.refdef.fov_x;
 			standardscalex = tan(standardfovx * 0.5 * (M_PI/180.0f));
-			standardfovinitialized = qtrue;
+			standardfovinitialized = true;
 		}
 		else
 		{
@@ -300,11 +300,11 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	assert(!Q_isnan(curWindPointForce));
 	if (curWindPointForce < 0.01)
 	{
-		curWindPointActive = qfalse;
+		curWindPointActive = false;
 	}
 	else
 	{
-		curWindPointActive = qtrue;
+		curWindPointActive = true;
 		curWindPoint[0] = r_windPointX->value;
 		curWindPoint[1] = r_windPointY->value;
 		curWindPoint[2] = 0;
@@ -332,8 +332,8 @@ float SSVertAlpha[SHADER_MAX_VERTEXES];
 float SSVertWindForce[SHADER_MAX_VERTEXES];
 vec2_t SSVertWindDir[SHADER_MAX_VERTEXES];
 
-qboolean SSAdditiveTransparency=qfalse;
-qboolean SSUsingFog=qfalse;
+bool SSAdditiveTransparency=false;
+bool SSUsingFog=false;
 
 
 /////////////////////////////////////////////
@@ -569,7 +569,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 	vec2_t fogv;
 	vec2_t winddiffv;
 	float windforce=0;
-	qboolean usewindpoint = (qboolean) !! (curWindPointActive && stage->ss->wind > 0);
+	bool usewindpoint =  !! (curWindPointActive && stage->ss->wind > 0);
 
 	float cutdist=stage->ss->fadeMax*rangescalefactor, cutdist2=cutdist*cutdist;
 	float fadedist=stage->ss->fadeDist*rangescalefactor, fadedist2=fadedist*fadedist;
@@ -625,7 +625,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 				}
 			}
 		}
-		tess.SSInitializedWind = qtrue;
+		tess.SSInitializedWind = true;
 	}
 
 	for (curindex=0; curindex<input->numIndexes-2; curindex+=3)
@@ -1226,7 +1226,7 @@ static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t 
 	float fadedist=stage->ss->fadeDist*rangescalefactor, fadedist2=fadedist*fadedist;
 
 	float fxalpha = stage->ss->fxAlphaEnd - stage->ss->fxAlphaStart;
-	qboolean fadeinout=qfalse;
+	bool fadeinout=false;
 
 	assert(cutdist2 != fadedist2);
 	float inv_fadediff = 1.0/(cutdist2-fadedist2);
@@ -1250,7 +1250,7 @@ static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t 
 	// Make the object fade in.
 	if (stage->ss->fxAlphaEnd < 0.05 && stage->ss->height >= 0.1 && stage->ss->width >= 0.1)
 	{	// The sprite fades out, and it doesn't start at a pinpoint.  Let's fade it in.
-		fadeinout=qtrue;
+		fadeinout=true;
 	}
 
 	if (stage->ss->surfaceSpriteType == SURFSPRITE_WEATHERFX)
@@ -1448,23 +1448,23 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 	//
 	if ( tess.fogNum && tess.shader->fogPass && r_drawfog->value)
 	{
-		SSUsingFog = qtrue;
+		SSUsingFog = true;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits, tess.fogNum);
 	}
 	else
 	{
-		SSUsingFog = qfalse;
+		SSUsingFog = false;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits);
 	}
 
 	// Special provision in case the transparency is additive.
 	if ((glbits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE|GLS_DSTBLEND_ONE))
 	{	// Additive transparency, scale light value
-		SSAdditiveTransparency=qtrue;
+		SSAdditiveTransparency=true;
 	}
 	else
 	{
-		SSAdditiveTransparency=qfalse;
+		SSAdditiveTransparency=false;
 	}
 
 

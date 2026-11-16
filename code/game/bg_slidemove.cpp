@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_local.h"
 #include "g_vehicles.h"
 
-extern qboolean PM_ClientImpact( trace_t *trace, qboolean damageSelf );
-extern qboolean PM_ControlledByPlayer( void );
-extern qboolean PM_InReboundHold( int anim );
+extern bool PM_ClientImpact( trace_t *trace, bool damageSelf );
+extern bool PM_ControlledByPlayer( void );
+extern bool PM_InReboundHold( int anim );
 extern cvar_t *g_stepSlideFix;
 
 /*
@@ -45,13 +45,13 @@ output: origin, velocity, impacts, stairup boolean
 ==================
 PM_SlideMove
 
-Returns qtrue if the velocity was clipped in some way
+Returns true if the velocity was clipped in some way
 ==================
 */
 #define	MAX_CLIP_PLANES	5
-extern qboolean PM_GroundSlideOkay( float zNormal );
-extern qboolean PM_InSpecialJump( int anim );
-qboolean	PM_SlideMove( float gravMod ) {
+extern bool PM_GroundSlideOkay( float zNormal );
+extern bool PM_InSpecialJump( int anim );
+bool	PM_SlideMove( float gravMod ) {
 	int			bumpcount, numbumps;
 	vec3_t		dir;
 	float		d;
@@ -66,7 +66,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	qboolean	damageSelf = qtrue;
+	bool	damageSelf = true;
 	int			slideMoveContents = pm->tracemask;
 
 	if ( pm->ps->clientNum >= MAX_CLIENTS
@@ -162,7 +162,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		if ( trace.allsolid )
 		{// entity is completely trapped in another solid
 			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return qtrue;
+			return true;
 		}
 
 		if ( trace.fraction > 0 )
@@ -183,15 +183,15 @@ qboolean	PM_SlideMove( float gravMod ) {
 		//Hit it
 		if ( trace.surfaceFlags&SURF_NODAMAGE )
 		{
-			damageSelf = qfalse;
+			damageSelf = false;
 		}
 		else if ( trace.entityNum == ENTITYNUM_WORLD && trace.plane.normal[2] > 0.5f )
 		{//if we land on the ground, let falling damage do it's thing itself, otherwise do impact damage
-			damageSelf = qfalse;
+			damageSelf = false;
 		}
 		else
 		{
-			damageSelf = qtrue;
+			damageSelf = true;
 		}
 
 		if ( PM_ClientImpact( &trace, damageSelf ) )
@@ -212,7 +212,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		if ( numplanes >= MAX_CLIP_PLANES )
 		{// this shouldn't really happen
 			VectorClear( pm->ps->velocity );
-			return qtrue;
+			return true;
 		}
 
 		VectorCopy( trace.plane.normal, normal );
@@ -306,7 +306,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 
 					// stop dead at a triple plane interaction
 					VectorClear( pm->ps->velocity );
-					return qtrue;
+					return true;
 				}
 			}
 
@@ -326,7 +326,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 		VectorCopy( primal_velocity, pm->ps->velocity );
 	}
 
-	return (qboolean)( bumpcount != 0 );
+	return ( bumpcount != 0 );
 }
 
 /*
@@ -342,7 +342,7 @@ void PM_StepSlideMove( float gravMod )
 	vec3_t		slideMove, stepUpMove;
 	trace_t		trace;
 	vec3_t		up, down;
-	qboolean	/*cantStepUpFwd, */isGiant = qfalse;;
+	bool	/*cantStepUpFwd, */isGiant = false;;
 	int			stepSize = STEPSIZE;
 
 	VectorCopy (pm->ps->origin, start_o);
@@ -367,7 +367,7 @@ void PM_StepSlideMove( float gravMod )
 		&& pm->gent->client
 		&& (pm->gent->client->NPC_class == CLASS_ATST||pm->gent->client->NPC_class == CLASS_RANCOR) )
 	{
-		isGiant = qtrue;
+		isGiant = true;
 		if ( pm->gent->client->NPC_class == CLASS_RANCOR )
 		{
 			if ( (pm->gent->spawnflags&1) )
@@ -423,7 +423,7 @@ void PM_StepSlideMove( float gravMod )
 
 	if ( pm->debugLevel )
 	{
-		G_DebugLine(start_o,trace.endpos,2000,0xffffff,qtrue);
+		G_DebugLine(start_o,trace.endpos,2000,0xffffff,true);
 	}
 
 //===Another slidemove forward================================================================================
@@ -435,7 +435,7 @@ void PM_StepSlideMove( float gravMod )
 
 	if ( pm->debugLevel )
 	{
-		G_DebugLine(trace.endpos,pm->ps->origin,2000,0xffffff,qtrue);
+		G_DebugLine(trace.endpos,pm->ps->origin,2000,0xffffff,true);
 	}
 	//compare the initial slidemove and this slidemove from a step up position
 	VectorSubtract( down_o, start_o, slideMove );
@@ -449,14 +449,14 @@ void PM_StepSlideMove( float gravMod )
 	}
 	else
 	{
-		qboolean skipStep = qfalse;
+		bool skipStep = false;
 		// push down the final amount
 		VectorCopy (pm->ps->origin, down);
 		down[2] -= stepSize;
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0);
 		if ( pm->debugLevel )
 		{
-			G_DebugLine(pm->ps->origin,trace.endpos,2000,0xffffff,qtrue);
+			G_DebugLine(pm->ps->origin,trace.endpos,2000,0xffffff,true);
 		}
 		if ( g_stepSlideFix->integer )
 		{
@@ -477,9 +477,9 @@ void PM_StepSlideMove( float gravMod )
 				{
 					if ( pm->debugLevel )
 					{
-						G_DebugLine(down_o,trace.endpos,2000,0x0000ff,qtrue);
+						G_DebugLine(down_o,trace.endpos,2000,0x0000ff,true);
 					}
-					skipStep = qtrue;
+					skipStep = true;
 				}
 			}
 		}

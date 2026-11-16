@@ -144,7 +144,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 
 	WP_MissileTargetHint(ent, start, forwardVec);
 
-	gentity_t *missile = CreateMissile( start, forwardVec, BOWCASTER_VELOCITY, 10000, ent, qtrue );
+	gentity_t *missile = CreateMissile( start, forwardVec, BOWCASTER_VELOCITY, 10000, ent, true );
 
 	missile->classname = "bowcaster_alt_proj";
 	missile->s.weapon = WP_BOWCASTER;
@@ -188,7 +188,7 @@ static void WP_BowcasterAltFire( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-void WP_FireBowcaster( gentity_t *ent, qboolean alt_fire )
+void WP_FireBowcaster( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	if ( alt_fire )

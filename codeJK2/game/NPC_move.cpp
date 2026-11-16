@@ -32,13 +32,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern	cvar_t		*d_altRoutes;
 
-qboolean G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
+bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);
 int NAV_Steer( gentity_t *self, vec3_t dir, float distance );
 extern int GetTime ( int lastTime );
 
 navInfo_t	frameNavInfo;
-extern qboolean FlyingCreature( gentity_t *ent );
-extern qboolean PM_InKnockDown( playerState_t *ps );
+extern bool FlyingCreature( gentity_t *ent );
+extern bool PM_InKnockDown( playerState_t *ps );
 
 /*
 -------------------------
@@ -46,26 +46,26 @@ NPC_ClearPathToGoal
 -------------------------
 */
 
-qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
+bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 {
 	trace_t	trace;
 
 	//FIXME: What does do about area portals?  THIS IS BROKEN
-	//if ( gi.inPVS( NPC->currentOrigin, goal->currentOrigin ) == qfalse )
-	//	return qfalse;
+	//if ( gi.inPVS( NPC->currentOrigin, goal->currentOrigin ) == false )
+	//	return false;
 
 	//Look ahead and see if we're clear to move to our goal position
 	if ( NAV_CheckAhead( NPC, goal->currentOrigin, trace, ( NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
 	{
 		//VectorSubtract( goal->currentOrigin, NPC->currentOrigin, dir );
-		return qtrue;
+		return true;
 	}
 
 	if (!FlyingCreature(NPC))
 	{
 		//See if we're too far above
 		if ( fabs( NPC->currentOrigin[2] - goal->currentOrigin[2] ) > 48 )
-			return qfalse;
+			return false;
 	}
 
 	//This is a work around
@@ -74,7 +74,7 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	float	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
-		return qtrue;
+		return true;
 
 	//See if we're looking for a navgoal
 	if ( goal->svFlags & SVF_NAVGOAL )
@@ -83,11 +83,11 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		if ( NAV_HitNavGoal( trace.endpos, NPC->mins, NPC->maxs, goal->currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )
 		{
 			//VectorSubtract(goal->currentOrigin, NPC->currentOrigin, dir);
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -96,23 +96,23 @@ NPC_CheckCombatMove
 -------------------------
 */
 
-inline qboolean NPC_CheckCombatMove( void )
+inline bool NPC_CheckCombatMove( void )
 {
 	//return NPCInfo->combatMove;
 	if ( ( NPCInfo->goalEntity && NPC->enemy && NPCInfo->goalEntity == NPC->enemy ) || ( NPCInfo->combatMove ) )
 	{
-		return qtrue;
+		return true;
 	}
 
 	if ( NPCInfo->goalEntity && NPCInfo->watchTarget )
 	{
 		if ( NPCInfo->goalEntity != NPCInfo->watchTarget )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -144,13 +144,13 @@ NPC_GetMoveInformation
 -------------------------
 */
 
-inline qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
+inline bool NPC_GetMoveInformation( vec3_t dir, float *distance )
 {
 	//NOTENOTE: Use path stacks!
 
 	//Make sure we have somewhere to go
 	if ( NPCInfo->goalEntity == NULL )
-		return qfalse;
+		return false;
 
 	//Get our move info
 	VectorSubtract( NPCInfo->goalEntity->currentOrigin, NPC->currentOrigin, dir );
@@ -158,7 +158,7 @@ inline qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
 
 	VectorCopy( NPCInfo->goalEntity->currentOrigin, NPCInfo->blockedDest );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -178,7 +178,7 @@ NPC_GetMoveDirection
 -------------------------
 */
 
-qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
+bool NPC_GetMoveDirection( vec3_t out, float *distance )
 {
 	vec3_t		angles;
 
@@ -187,8 +187,8 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	memset( (void *)&frameNavInfo, 0, sizeof( frameNavInfo ) );
 
 	//Get our movement, if any
-	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == qfalse )
-		return qfalse;
+	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == false )
+		return false;
 
 	//Setup the return value
 	*distance = frameNavInfo.distance;
@@ -200,11 +200,11 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	if ( NPC->watertype & CONTENTS_LADDER )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
-		return qtrue;
+		return true;
 	}
 
 	//Attempt a straight move to goal
-	if ( NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == qfalse )
+	if ( NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == false )
 	{
 		//See if we're just stuck
 		if ( NAV_MoveToGoal( NPC, frameNavInfo ) == WAYPOINT_NONE )
@@ -214,14 +214,14 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 			NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 			VectorCopy( frameNavInfo.direction, out );
 			*distance = frameNavInfo.distance;
-			return qfalse;
+			return false;
 		}
 
 		frameNavInfo.flags |= NIF_MACRO_NAV;
 	}
 
 	//Avoid any collisions on the way
-	if ( NAV_AvoidCollision( NPC, NPCInfo->goalEntity, frameNavInfo ) == qfalse )
+	if ( NAV_AvoidCollision( NPC, NPCInfo->goalEntity, frameNavInfo ) == false )
 	{
 		//FIXME: Emit a warning, this is a worst case scenario
 		//FIXME: if we have a clear path to our goal (exluding bodies), but then this
@@ -237,7 +237,7 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 				NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 				VectorCopy( frameNavInfo.direction, out );
 				*distance = frameNavInfo.distance;
-				return qfalse;
+				return false;
 			}
 
 			frameNavInfo.flags |= NIF_MACRO_NAV;
@@ -248,7 +248,7 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	VectorCopy( frameNavInfo.direction, out );
 	*distance = frameNavInfo.distance;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -257,8 +257,8 @@ NPC_GetMoveDirectionAltRoute
 -------------------------
 */
 extern int	NAVNEW_MoveToGoal( gentity_t *self, navInfo_t &info );
-extern qboolean NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info, qboolean setBlockedInfo, int blockedMovesLimit );
-qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean tryStraight )
+extern bool NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info, bool setBlockedInfo, int blockedMovesLimit );
+bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight )
 {
 	vec3_t		angles;
 
@@ -269,8 +269,8 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 	memset( (void *)&frameNavInfo, 0, sizeof( frameNavInfo ) );
 
 	//Get our movement, if any
-	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == qfalse )
-		return qfalse;
+	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == false )
+		return false;
 
 	//Setup the return value
 	*distance = frameNavInfo.distance;
@@ -282,11 +282,11 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 	if ( NPC->watertype & CONTENTS_LADDER )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
-		return qtrue;
+		return true;
 	}
 
 	//Attempt a straight move to goal
-	if ( !tryStraight || NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == qfalse )
+	if ( !tryStraight || NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == false )
 	{//blocked
 		//Can't get straight to goal, use macro nav
 		if ( NAVNEW_MoveToGoal( NPC, frameNavInfo ) == WAYPOINT_NONE )
@@ -296,7 +296,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 			NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 			VectorCopy( frameNavInfo.direction, out );
 			*distance = frameNavInfo.distance;
-			return qfalse;
+			return false;
 		}
 		//else we are on our way
 		frameNavInfo.flags |= NIF_MACRO_NAV;
@@ -308,7 +308,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 		{//try macro nav
 			navInfo_t	tempInfo;
 			memcpy( &tempInfo, &frameNavInfo, sizeof( tempInfo ) );
-			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, tempInfo, qtrue, 5 ) == qfalse )
+			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, tempInfo, true, 5 ) == false )
 			{//revert to macro nav
 				//Can't get straight to goal, dump tempInfo and use macro nav
 				if ( NAVNEW_MoveToGoal( NPC, frameNavInfo ) == WAYPOINT_NONE )
@@ -318,7 +318,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 					NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 					VectorCopy( frameNavInfo.direction, out );
 					*distance = frameNavInfo.distance;
-					return qfalse;
+					return false;
 				}
 				//else we are on our way
 				frameNavInfo.flags |= NIF_MACRO_NAV;
@@ -330,9 +330,9 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 		}
 		else
 		{//OR: just give up
-			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, frameNavInfo, qtrue, 30 ) == qfalse )
+			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, frameNavInfo, true, 30 ) == false )
 			{//give up
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -341,7 +341,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 	VectorCopy( frameNavInfo.direction, out );
 	*distance = frameNavInfo.distance;
 
-	return qtrue;
+	return true;
 }
 
 void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
@@ -401,7 +401,7 @@ NPC_MoveToGoal
 #if	AI_TIMERS
 extern int navTime;
 #endif//	AI_TIMERS
-qboolean NPC_MoveToGoal( qboolean tryStraight )
+bool NPC_MoveToGoal( bool tryStraight )
 {
 #if	AI_TIMERS
 	int	startTime = GetTime(0);
@@ -409,12 +409,12 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 	//If taking full body pain, don't move
 	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN19 ) ) )
 	{
-		return qtrue;
+		return true;
 	}
 
 	if( NPC->s.eFlags & EF_LOCKED_TO_WEAPON )
 	{//If in an emplaced gun, never try to navigate!
-		return qtrue;
+		return true;
 	}
 
 	float	distance;
@@ -423,11 +423,11 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 	//FIXME: if can't get to goal & goal is a target (enemy), try to find a waypoint that has line of sight to target, at least?
 	//Get our movement direction
 #if 1
-	if ( NPC_GetMoveDirectionAltRoute( dir, &distance, tryStraight ) == qfalse )
+	if ( NPC_GetMoveDirectionAltRoute( dir, &distance, tryStraight ) == false )
 #else
-	if ( NPC_GetMoveDirection( dir, &distance ) == qfalse )
+	if ( NPC_GetMoveDirection( dir, &distance ) == false )
 #endif
-		return qfalse;
+		return false;
 
 	NPCInfo->distToGoal		= distance;
 
@@ -474,7 +474,7 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 #if	AI_TIMERS
 	navTime += GetTime( startTime );
 #endif//	AI_TIMERS
-	return qtrue;
+	return true;
 }
 
 /*
@@ -484,13 +484,13 @@ void NPC_SlideMoveToGoal( void )
   Now assumes goal is goalEntity, if want to use tempGoal, you set that before calling the func
 -------------------------
 */
-qboolean NPC_SlideMoveToGoal( void )
+bool NPC_SlideMoveToGoal( void )
 {
 	float	saveYaw = NPC->client->ps.viewangles[YAW];
 
-	NPCInfo->combatMove = qtrue;
+	NPCInfo->combatMove = true;
 
-	qboolean ret = NPC_MoveToGoal( qtrue );
+	bool ret = NPC_MoveToGoal( true );
 
 	NPCInfo->desiredYaw	= saveYaw;
 

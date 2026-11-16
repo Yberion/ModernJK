@@ -256,7 +256,7 @@ typedef struct bot_state_s
 	float				isCamping;
 	wpobject_t			*wpCamping;
 	wpobject_t			*wpCampingTo;
-	qboolean			campStanding;
+	bool			campStanding;
 
 	int					randomNavTime;
 	int					randomNav;
@@ -329,7 +329,7 @@ typedef struct bot_state_s
 	int					saberSTime;
 	int					saberThrowTime;
 
-	qboolean			saberPower;
+	bool			saberPower;
 	int					saberPowerTime;
 
 	int					botChallengingTime;
@@ -343,7 +343,7 @@ typedef struct bot_state_s
 	int					doForcePush;
 
 	int					noUseTime;
-	qboolean			doingFallback;
+	bool			doingFallback;
 
 	int					iHaveNoIdeaWhereIAmGoing;
 	vec3_t				lastSignificantAreaChange;
@@ -367,7 +367,7 @@ void BotResetState(bot_state_t *bs);
 int NumBots(void);
 
 void BotUtilizePersonality(bot_state_t *bs);
-int BotDoChat(bot_state_t *bs, char *section, int always);
+int BotDoChat(bot_state_t *bs, const char *section, int always);
 void StandardBotAI(bot_state_t *bs, float thinktime);
 void BotWaypointRender(void);
 int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore);

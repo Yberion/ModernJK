@@ -100,7 +100,7 @@ typedef struct {
 	char				fileName[MAX_OSPATH];
 	int					CIN_WIDTH, CIN_HEIGHT;
 	int					xpos, ypos, width, height;
-	qboolean			looping, holdAtEnd, dirty, alterGameState, silent, shader;
+	bool			looping, holdAtEnd, dirty, alterGameState, silent, shader;
 	fileHandle_t		iFile;	// 0 = none
 	e_status			status;
 	unsigned int		startTime;
@@ -124,7 +124,8 @@ typedef struct {
 	byte*				gray;
 	unsigned int		xsize, ysize, maxsize, minsize;
 
-	qboolean		half, smootheddouble, inMemory;
+	bool		half, smootheddouble;
+	int			inMemory;		// packets of the current frame left in memory (roq_flags)
 	long				normalBuffer0;
 	long				roq_flags;
 	long				roqF0;
@@ -1018,8 +1019,8 @@ static void readQuadInfo( byte *qData )
 	cinTable[currentHandle].samplesPerLine = cinTable[currentHandle].CIN_WIDTH*cinTable[currentHandle].samplesPerPixel;
 	cinTable[currentHandle].screenDelta = cinTable[currentHandle].CIN_HEIGHT*cinTable[currentHandle].samplesPerLine;
 
-	cinTable[currentHandle].half = qfalse;
-	cinTable[currentHandle].smootheddouble = qfalse;
+	cinTable[currentHandle].half = false;
+	cinTable[currentHandle].smootheddouble = false;
 
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
@@ -1114,7 +1115,7 @@ static void RoQReset( void ) {
 	if (currentHandle < 0) return;
 
 	FS_FCloseFile( cinTable[currentHandle].iFile );
-	FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue);
+	FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
 	// let the background thread start reading ahead
 	FS_Read (cin.file, 16, cinTable[currentHandle].iFile);
 	RoQ_init();
@@ -1139,7 +1140,7 @@ static void RoQInterrupt(void)
 
 	FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile );
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if (cinTable[currentHandle].holdAtEnd==qfalse) {
+		if (cinTable[currentHandle].holdAtEnd==false) {
 			if (cinTable[currentHandle].looping) {
 				RoQReset();
 			} else {
@@ -1174,7 +1175,7 @@ redump:
 				Com_Memcpy(cin.linbuf+cinTable[currentHandle].screenDelta, cin.linbuf, cinTable[currentHandle].samplesPerLine*cinTable[currentHandle].ysize);
 			}
 			cinTable[currentHandle].numQuads++;
-			cinTable[currentHandle].dirty = qtrue;
+			cinTable[currentHandle].dirty = true;
 			break;
 		case	ROQ_CODEBOOK:
 			decodeCodeBook( framedata, (unsigned short)cinTable[currentHandle].roq_flags );
@@ -1182,7 +1183,7 @@ redump:
 		case	ZA_SOUND_MONO:
 			if (!cinTable[currentHandle].silent) {
 				ssize = RllDecodeMonoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                S_RawSamples( ssize, 22050, 2, 1, (byte *)sbuf, s_volume->value, qtrue );
+                S_RawSamples( ssize, 22050, 2, 1, (byte *)sbuf, s_volume->value, true );
 			}
 			break;
 		case	ZA_SOUND_STEREO:
@@ -1192,7 +1193,7 @@ redump:
 					s_rawend = s_soundtime;
 				}
 				ssize = RllDecodeStereoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                S_RawSamples( ssize, 22050, 2, 2, (byte *)sbuf, s_volume->value, qtrue );
+                S_RawSamples( ssize, 22050, 2, 2, (byte *)sbuf, s_volume->value, true );
 			}
 			break;
 		case	ROQ_QUAD_INFO:
@@ -1204,7 +1205,7 @@ redump:
 			if (cinTable[currentHandle].numQuads != 1) cinTable[currentHandle].numQuads = 0;
 			break;
 		case	ROQ_PACKET:
-			cinTable[currentHandle].inMemory = (qboolean)cinTable[currentHandle].roq_flags;
+			cinTable[currentHandle].inMemory = cinTable[currentHandle].roq_flags;
 			cinTable[currentHandle].RoQFrameSize = 0;           // for header
 			break;
 		case	ROQ_QUAD_HANG:
@@ -1220,7 +1221,7 @@ redump:
 // read in next frame data
 //
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if (cinTable[currentHandle].holdAtEnd==qfalse) {
+		if (cinTable[currentHandle].holdAtEnd==false) {
 			if (cinTable[currentHandle].looping) {
 				RoQReset();
 			} else {
@@ -1249,7 +1250,7 @@ redump:
 	}
 	if (cinTable[currentHandle].inMemory && (cinTable[currentHandle].status != FMV_EOF))
 	{
-		cinTable[currentHandle].inMemory = (qboolean)(((int)cinTable[currentHandle].inMemory)-1);
+		cinTable[currentHandle].inMemory--;
 		framedata += 8;
 		goto redump;
 	}
@@ -1466,7 +1467,7 @@ e_status CIN_RunCinematic (int handle)
 }
 
 void		Menus_CloseAll(void);
-void		UI_Cursor_Show(qboolean flag);
+void		UI_Cursor_Show(bool flag);
 
 /*
 ==================
@@ -1505,7 +1506,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	Q_strncpyz(cinTable[currentHandle].fileName, name, MAX_OSPATH);
 
 	cinTable[currentHandle].ROQSize = 0;
-	cinTable[currentHandle].ROQSize = FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue);
+	cinTable[currentHandle].ROQSize = FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
 
 	if (cinTable[currentHandle].ROQSize<=0) {
 		Com_Printf(S_COLOR_RED"ERROR: playCinematic: %s not found!\n", arg);
@@ -1514,15 +1515,15 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 
 	CIN_SetExtents(currentHandle, x, y, w, h);
-	CIN_SetLooping(currentHandle, (qboolean)((systemBits & CIN_loop) != 0));
+	CIN_SetLooping(currentHandle, ((systemBits & CIN_loop) != 0));
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	cinTable[currentHandle].holdAtEnd = (qboolean)((systemBits & CIN_hold) != 0);
-	cinTable[currentHandle].alterGameState = (qboolean)((systemBits & CIN_system) != 0);
+	cinTable[currentHandle].holdAtEnd = ((systemBits & CIN_hold) != 0);
+	cinTable[currentHandle].alterGameState = ((systemBits & CIN_system) != 0);
 	cinTable[currentHandle].playonwalls = 1;
-	cinTable[currentHandle].silent = (qboolean)((systemBits & CIN_silent) != 0);
-	cinTable[currentHandle].shader = (qboolean)((systemBits & CIN_shader) != 0);
+	cinTable[currentHandle].silent = ((systemBits & CIN_silent) != 0);
+	cinTable[currentHandle].shader = ((systemBits & CIN_shader) != 0);
 	if (psAudioFile)
 	{
 		cinTable[currentHandle].hSFX = S_RegisterSound(psAudioFile);
@@ -1539,7 +1540,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		Con_Close();
 		if (cls.uiStarted)
 		{
-			UI_Cursor_Show(qfalse);
+			UI_Cursor_Show(false);
 			Menus_CloseAll();
 		}
 	}
@@ -1584,10 +1585,10 @@ void CIN_SetExtents (int handle, int x, int y, int w, int h) {
 	cinTable[handle].ypos = y;
 	cinTable[handle].width = w;
 	cinTable[handle].height = h;
-	cinTable[handle].dirty = qtrue;
+	cinTable[handle].dirty = true;
 }
 
-void CIN_SetLooping(int handle, qboolean loop) {
+void CIN_SetLooping(int handle, bool loop) {
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
 	cinTable[handle].looping = loop;
 }
@@ -1673,7 +1674,7 @@ static void CIN_AddTextCrawl()
 	//time's up
 	if (cls.realtime-CL_iPlaybackStartTime >= TC_STOPTIME)
 	{
-//		cinTable[currentHandle].holdAtEnd = qfalse;
+//		cinTable[currentHandle].holdAtEnd = false;
 		cinTable[CL_handle].status = FMV_EOF;
 		RoQShutdown();
 		SCR_StopCinematic();	// change ROQ from FMV_IDLE to FMV_EOF, and clear some other vars
@@ -1766,70 +1767,70 @@ void CIN_DrawCinematic (int handle) {
 		int *buf2;
 
 		//buf2 = (int *)Hunk_AllocateTempMemory( 256*256*4 );
-		buf2 = (int*)Z_Malloc( 256*256*4, TAG_TEMP_WORKSPACE, qfalse );
+		buf2 = (int*)Z_Malloc( 256*256*4, TAG_TEMP_WORKSPACE, false );
 
 		CIN_ResampleCinematic(handle, buf2);
 
-		re.DrawStretchRaw( x, y, w, h, 256, 256, (byte *)buf2, handle, qtrue);
-		cinTable[handle].dirty = qfalse;
+		re.DrawStretchRaw( x, y, w, h, 256, 256, (byte *)buf2, handle, true);
+		cinTable[handle].dirty = false;
 		Z_Free(buf2); //Hunk_FreeTempMemory(buf2);
 		return;
 	}
 
 	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty);
-	cinTable[handle].dirty = qfalse;
+	cinTable[handle].dirty = false;
 }
 
 // external vars so I can check if the game is setup enough that I can play the intro video...
 //
-extern qboolean	com_fullyInitialized;
-extern qboolean s_soundStarted, s_soundMuted;
+extern bool	com_fullyInitialized;
+extern bool s_soundStarted, s_soundMuted;
 //
 // ... and if the app isn't ready yet (which should only apply for the intro video), then I use these...
 //
 static char	 sPendingCinematic_Arg	[256]={0};
 static char	 sPendingCinematic_s	[256]={0};
-static qboolean gbPendingCinematic = qfalse;
+static bool gbPendingCinematic = false;
 //
 // This stuff is for EF1-type ingame cinematics...
 //
-static qboolean qbPlayingInGameCinematic = qfalse;
-static qboolean qbInGameCinematicOnStandBy = qfalse;
+static bool qbPlayingInGameCinematic = false;
+static bool qbInGameCinematicOnStandBy = false;
 static char	 sInGameCinematicStandingBy[MAX_QPATH];
 static char	 sTextCrawlFixedCinematic[MAX_QPATH];
-static qboolean qbTextCrawlFixed = qfalse;
+static bool qbTextCrawlFixed = false;
 static int	 stopCinematicCallCount = 0;
 
 
 
-static qboolean CIN_HardwareReadyToPlayVideos(void)
+static bool CIN_HardwareReadyToPlayVideos(void)
 {
 	if (com_fullyInitialized && cls.rendererStarted &&
 								cls.soundStarted	&&
 								cls.soundRegistered
 		)
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
-static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
+static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 {
-	qboolean bFailed = qfalse;
+	bool bFailed = false;
 
 	Cvar_Set( "timescale", "1" );			// jic we were skipping a scripted cinematic, return to normal after playing video
 	Cvar_Set( "skippingCinematic", "0" );	// ""
 
-	if(qbInGameCinematicOnStandBy == qfalse)
+	if(qbInGameCinematicOnStandBy == false)
 	{
-		qbTextCrawlFixed = qfalse;
+		qbTextCrawlFixed = false;
 	}
 	else
 	{
-		qbInGameCinematicOnStandBy = qfalse;
+		qbInGameCinematicOnStandBy = false;
 	}
 
 	int bits = qbInGame?0:CIN_system;
@@ -1845,7 +1846,7 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 	COM_DefaultExtension(sTemp,sizeof(sTemp),".roq");
 	arg = &sTemp[0];
 
-	extern qboolean S_FileExists( const char *psFilename );
+	extern bool S_FileExists( const char *psFilename );
 	if (S_FileExists( arg ))
 	{
 		SCR_StopCinematic();
@@ -1855,7 +1856,7 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		{
 			Q_strncpyz(sPendingCinematic_Arg,arg, 256);
 			Q_strncpyz(sPendingCinematic_s , (s&&s[0])?s:"", 256);
-			gbPendingCinematic = qtrue;
+			gbPendingCinematic = true;
 			return;
 		}
 
@@ -1876,7 +1877,7 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		// work out associated audio-overlay file, if any...
 		//
 		extern cvar_t *s_language;
-		qboolean	bIsForeign	= (qboolean)(s_language && Q_stricmp(s_language->string,"english") && Q_stricmp(s_language->string,""));
+		bool	bIsForeign	= (s_language && Q_stricmp(s_language->string,"english") && Q_stricmp(s_language->string,""));
 		const char *psAudioFile	= NULL;
 		qhandle_t	hCrawl = 0;
 		if (!Q_stricmp(arg,"video/jk0101_sw.roq"))
@@ -1937,14 +1938,14 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		{
 			// failed to open video...
 			//
-			bFailed = qtrue;
+			bFailed = true;
 		}
 	}
 	else
 	{
 		// failed to open video...
 		//
-		bFailed = qtrue;
+		bFailed = true;
 	}
 
 	if (bFailed)
@@ -1958,21 +1959,21 @@ static void PlayCinematic(const char *arg, const char *s, qboolean qbInGame)
 		// this doesn't work for now...
 		//
 //		if (cls.state == CA_ACTIVE){
-//			re.InitDissolve(qfalse);	// so we get a dissolve between previous screen image and cinematic
+//			re.InitDissolve(false);	// so we get a dissolve between previous screen image and cinematic
 //		}
 	}
 }
 
 
-qboolean CL_CheckPendingCinematic(void)
+bool CL_CheckPendingCinematic(void)
 {
 	if ( gbPendingCinematic && CIN_HardwareReadyToPlayVideos() )
 	{
-		gbPendingCinematic = qfalse;	// BEFORE next line, or we get recursion
-		PlayCinematic(sPendingCinematic_Arg,sPendingCinematic_s[0]?sPendingCinematic_s:NULL,qfalse);
-		return qtrue;
+		gbPendingCinematic = false;	// BEFORE next line, or we get recursion
+		PlayCinematic(sPendingCinematic_Arg,sPendingCinematic_s[0]?sPendingCinematic_s:NULL,false);
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1982,7 +1983,7 @@ CL_CompleteCinematic
 */
 void CL_CompleteCinematic( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "video", "roq", qtrue, qfalse );
+		Field_CompleteFilename( "video", "roq", true, false );
 }
 
 void CL_PlayCinematic_f(void)
@@ -1991,7 +1992,7 @@ void CL_PlayCinematic_f(void)
 
 	arg = Cmd_Argv( 1 );
 	s = Cmd_Argv(2);
-	PlayCinematic(arg,s,qfalse);
+	PlayCinematic(arg,s,false);
 }
 
 void CL_PlayInGameCinematic_f(void)
@@ -1999,18 +2000,18 @@ void CL_PlayInGameCinematic_f(void)
 	const char *arg = Cmd_Argv( 1 );
 	if (cls.state == CA_ACTIVE)
 	{
-		PlayCinematic(arg,NULL,qtrue);
+		PlayCinematic(arg,NULL,true);
 	}
 	else if( !qbInGameCinematicOnStandBy )
 	{
 		Q_strncpyz(sInGameCinematicStandingBy, arg, MAX_QPATH);
-		qbInGameCinematicOnStandBy = qtrue;
+		qbInGameCinematicOnStandBy = true;
 	}
 	else
 	{
 		// hack in order to fix text crawl --eez
 		Q_strncpyz(sTextCrawlFixedCinematic, arg, MAX_QPATH);
-		qbTextCrawlFixed = qtrue;
+		qbTextCrawlFixed = true;
 	}
 }
 
@@ -2021,11 +2022,11 @@ void SCR_DrawCinematic (void)
 {
 	if (CL_InGameCinematicOnStandBy())
 	{
-		PlayCinematic(sInGameCinematicStandingBy,NULL,qtrue);
+		PlayCinematic(sInGameCinematicStandingBy,NULL,true);
 	}
 	else if( qbTextCrawlFixed && stopCinematicCallCount > 1)
 	{
-		PlayCinematic(sTextCrawlFixedCinematic, NULL, qtrue);
+		PlayCinematic(sTextCrawlFixedCinematic, NULL, true);
 	}
 
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
@@ -2051,7 +2052,7 @@ void SCR_RunCinematic (void)
 	}
 }
 
-void SCR_StopCinematic( qboolean bAllowRefusal /* = qfalse */ )
+void SCR_StopCinematic( bool bAllowRefusal /* = false */ )
 {
 	if (bAllowRefusal)
 	{
@@ -2075,7 +2076,7 @@ void SCR_StopCinematic( qboolean bAllowRefusal /* = qfalse */ )
 		S_StopAllSounds ();
 		CL_handle = -1;
 		if (CL_IsRunningInGameCinematic()){
-			re.InitDissolve(qfalse);	// dissolve from cinematic to underlying ingame
+			re.InitDissolve(false);	// dissolve from cinematic to underlying ingame
 		}
 	}
 
@@ -2099,15 +2100,15 @@ void SCR_StopCinematic( qboolean bAllowRefusal /* = qfalse */ )
 	else
 	{
 		// Skipping the last one in the list, go ahead and kill it.
-		qbTextCrawlFixed = qfalse;
+		qbTextCrawlFixed = false;
 		sTextCrawlFixedCinematic[0] = 0;
 		stopCinematicCallCount = 0;
 	}
 
 	if(stopCinematicCallCount != 2)
 	{
-		qbPlayingInGameCinematic = qfalse;
-		qbInGameCinematicOnStandBy = qfalse;
+		qbPlayingInGameCinematic = false;
+		qbInGameCinematicOnStandBy = false;
 		sInGameCinematicStandingBy[0]=0;
 		Cvar_SetValue( "cl_paused", 0 );
 	}
@@ -2130,7 +2131,7 @@ void CIN_UploadCinematic(int handle) {
 				if (cinTable[handle].playonwalls == -1) {
 					cinTable[handle].playonwalls = -2;
 				} else {
-					cinTable[handle].dirty = qfalse;
+					cinTable[handle].dirty = false;
 				}
 			}
 		}
@@ -2139,18 +2140,18 @@ void CIN_UploadCinematic(int handle) {
 		if (cinTable[handle].dirty && (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))  {
 			int *buf2;
 
-			buf2 = (int *)Z_Malloc(256*256*4, TAG_TEMP_WORKSPACE, qfalse);
+			buf2 = (int *)Z_Malloc(256*256*4, TAG_TEMP_WORKSPACE, false);
 
 			CIN_ResampleCinematic(handle, buf2);
 
-			re.UploadCinematic( 256, 256, (byte *)buf2, handle, qtrue);
-			cinTable[handle].dirty = qfalse;
+			re.UploadCinematic( 256, 256, (byte *)buf2, handle, true);
+			cinTable[handle].dirty = false;
 			Z_Free(buf2);
 		} else {
 			// Upload video at normal resolution
 			re.UploadCinematic( cinTable[handle].drawX, cinTable[handle].drawY,
 					cinTable[handle].buf, handle, cinTable[handle].dirty);
-			cinTable[handle].dirty = qfalse;
+			cinTable[handle].dirty = false;
 		}
 
 		if (cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1) {
@@ -2163,12 +2164,12 @@ void CIN_UploadCinematic(int handle) {
 }
 
 
-qboolean CL_IsRunningInGameCinematic(void)
+bool CL_IsRunningInGameCinematic(void)
 {
 	return qbPlayingInGameCinematic;
 }
 
-qboolean CL_InGameCinematicOnStandBy(void)
+bool CL_InGameCinematicOnStandBy(void)
 {
 	return qbInGameCinematicOnStandBy;
 }

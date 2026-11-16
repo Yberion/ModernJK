@@ -52,7 +52,7 @@ static void S_UpdateBackgroundTrack( void );
 sfx_t *S_FindName( const char *name );
 static int SND_FreeSFXMem(sfx_t *sfx);
 
-extern qboolean Sys_LowPhysicalMemory();
+extern bool Sys_LowPhysicalMemory();
 
 //////////////////////////
 //
@@ -63,7 +63,7 @@ const int iMP3MusicStream_DiskBufferSize = iMP3MusicStream_DiskBytesToRead*2; //
 
 typedef struct MusicInfo_s
 {
-	qboolean	bIsMP3;
+	bool	bIsMP3;
 	//
 	// MP3 specific...
 	//
@@ -92,12 +92,12 @@ typedef struct MusicInfo_s
 									//	to actually be a bool later.
 	int			iXFadeVolume;		// 0 = silent, 255 = max mixer vol, though still modulated via overall music_volume
 	float		fSmoothedOutVolume;
-	qboolean	bActive;			// whether playing or not
-	qboolean	bExists;			// whether was even loaded for this level (ie don't try and start playing it)
+	bool	bActive;			// whether playing or not
+	bool	bExists;			// whether was even loaded for this level (ie don't try and start playing it)
 	//
 	// new dynamic fields...
 	//
-	qboolean	bTrackSwitchPending;
+	bool	bTrackSwitchPending;
 	MusicState_e eTS_NewState;
 	float		 fTS_NewTime;
 	//
@@ -128,7 +128,7 @@ static void S_SetDynamicMusicState( MusicState_e musicState );
 #define fDYNAMIC_XFADE_SECONDS (1.0f)
 
 static MusicInfo_t	tMusic_Info[eBGRNDTRACK_NUMBEROF]	= {};
-static qboolean		bMusic_IsDynamic					= qfalse;
+static bool		bMusic_IsDynamic					= false;
 static MusicState_e	eMusic_StateActual					= eBGRNDTRACK_EXPLORE;	// actual state, can be any enum
 static MusicState_e	eMusic_StateRequest					= eBGRNDTRACK_EXPLORE;	// requested state, can only be explore, action, boss, or silence
 static char			sMusic_BackgroundLoop[MAX_QPATH]	= {0};	// only valid for non-dynamic music
@@ -153,7 +153,7 @@ const int	SOUND_MAXVOL=255;
 channel_t   s_channels[MAX_CHANNELS];
 
 int			s_soundStarted;
-qboolean	s_soundMuted;
+bool	s_soundMuted;
 
 dma_t		dma;
 
@@ -203,8 +203,8 @@ typedef struct
 	soundChannel_t	entchan;
 
 	// For Open AL
-	qboolean	bProcessed;
-	qboolean	bRelative;
+	bool	bProcessed;
+	bool	bRelative;
 } loopSound_t;
 
 #define	MAX_LOOP_SOUNDS		64
@@ -246,7 +246,7 @@ static void DynamicMusicInfoPrint(void)
 		// horribly lazy... ;-)
 		//
 		const char *psRequestMusicState	= Music_BaseStateToString( eMusic_StateRequest );
-		const char *psActualMusicState	= Music_BaseStateToString( eMusic_StateActual, qtrue );
+		const char *psActualMusicState	= Music_BaseStateToString( eMusic_StateActual, true );
 		if (psRequestMusicState == NULL)
 		{
 			psRequestMusicState = "<unknown>";
@@ -310,7 +310,7 @@ S_Init
 ================
 */
 void S_Init( void ) {
-	qboolean	r;
+	bool	r;
 
 	Com_Printf("\n------- sound initialization -------\n");
 
@@ -354,7 +354,7 @@ void S_Init( void ) {
 
 		if ( r ) {
 			s_soundStarted = 1;
-			s_soundMuted = qtrue;
+			s_soundMuted = true;
 	//		s_numSfx = 0;	// do NOT do this here now!!!
 
 			s_soundtime = 0;
@@ -565,7 +565,7 @@ are no longer valid.
 */
 void S_DisableSounds( void ) {
 	S_StopAllSounds();
-	s_soundMuted = qtrue;
+	s_soundMuted = true;
 }
 
 /*
@@ -576,7 +576,7 @@ S_BeginRegistration
 */
 void S_BeginRegistration( void )
 {
-	s_soundMuted = qfalse;		// we can play again
+	s_soundMuted = false;		// we can play again
 
 
 	if (s_numSfx == 0) {
@@ -657,21 +657,21 @@ void S_memoryLoad(sfx_t	*sfx)
 }
 
 //=============================================================================
-static qboolean S_CheckChannelStomp( int chan1, int chan2 )
+static bool S_CheckChannelStomp( int chan1, int chan2 )
 {
 	{
 		if ( chan1 == chan2 )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
 	if ( ( chan1 == CHAN_VOICE || chan1 == CHAN_VOICE_ATTEN || chan1 == CHAN_VOICE_GLOBAL  ) && ( chan2 == CHAN_VOICE || chan2 == CHAN_VOICE_ATTEN || chan2 == CHAN_VOICE_GLOBAL ) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -683,7 +683,7 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 {
     int			ch_idx;
 	channel_t	*ch, *firstToDie;
-	qboolean	foundChan = qfalse;
+	bool	foundChan = false;
 
 
 	if ( entchannel<0 ) {
@@ -715,7 +715,7 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 					ch->thesfx = 0;	//just to clear the next error msg
 				}
 				firstToDie = ch;
-				foundChan = qtrue;
+				foundChan = true;
 				break;
 			}
 
@@ -865,7 +865,7 @@ void S_StartAmbientSound( const vec3_t origin, int entityNum, unsigned char volu
 		Com_Error( ERR_DROP, "S_StartAmbientSound: handle %i out of range", sfxHandle );
 
 	sfx = &s_knownSfx[ sfxHandle ];
-	if (sfx->bInMemory == qfalse){
+	if (sfx->bInMemory == false){
 		S_memoryLoad(sfx);
 	}
 	SND_TouchSFX(sfx);
@@ -884,11 +884,11 @@ void S_StartAmbientSound( const vec3_t origin, int entityNum, unsigned char volu
 	if (origin)
 	{
 		VectorCopy (origin, ch->origin);
-		ch->fixed_origin = qtrue;
+		ch->fixed_origin = true;
 	}
 	else
 	{
-		ch->fixed_origin = qfalse;
+		ch->fixed_origin = false;
 	}
 
 	ch->master_vol = volume;
@@ -939,7 +939,7 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
 	}
 
 	sfx = &s_knownSfx[ sfxHandle ];
-	if (sfx->bInMemory == qfalse){
+	if (sfx->bInMemory == false){
 		S_memoryLoad(sfx);
 	}
 	SND_TouchSFX(sfx);
@@ -957,9 +957,9 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
 
 	if (origin) {
 		VectorCopy (origin, ch->origin);
-		ch->fixed_origin = qtrue;
+		ch->fixed_origin = true;
 	} else {
-		ch->fixed_origin = qfalse;
+		ch->fixed_origin = false;
 	}
 
 	ch->master_vol = SOUND_MAXVOL;	//FIXME: Um.. control?
@@ -1240,7 +1240,7 @@ void S_AddAmbientLoopingSound( const vec3_t origin, unsigned char volume, sfxHan
 	}
 
 	sfx = &s_knownSfx[ sfxHandle ];
-	if (sfx->bInMemory == qfalse){
+	if (sfx->bInMemory == false){
 		S_memoryLoad(sfx);
 	}
 	SND_TouchSFX(sfx);
@@ -1311,7 +1311,7 @@ void S_AddLoopSounds (void)
 			right_total = SOUND_MAXVOL;
 		ch->leftvol = left_total;
 		ch->rightvol = right_total;
-		ch->loopSound = qtrue;	// remove next frame
+		ch->loopSound = true;	// remove next frame
 		ch->thesfx = loop->sfx;
 
 		// you cannot use MP3 files here because they offer only streaming access, not random
@@ -1366,7 +1366,7 @@ S_RawSamples
 Music streaming
 ============
 */
-void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, qboolean bFirstOrOnlyUpdateThisFrame )
+void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, bool bFirstOrOnlyUpdateThisFrame )
 {
 	int		i;
 	int		src, dst;
@@ -1719,7 +1719,7 @@ S_Respatialize
 Change the volumes of all the playing sounds for changes in their positions
 ============
 */
-void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], qboolean inwater )
+void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], bool inwater )
 {
 	int			i;
 	channel_t	*ch;
@@ -1778,15 +1778,15 @@ void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], qboolean 
 ========================
 S_ScanChannelStarts
 
-Returns qtrue if any new sounds were started since the last mix
+Returns true if any new sounds were started since the last mix
 ========================
 */
-qboolean S_ScanChannelStarts( void ) {
+bool S_ScanChannelStarts( void ) {
 	channel_t		*ch;
 	int				i;
-	qboolean		newSamples;
+	bool		newSamples;
 
-	newSamples = qfalse;
+	newSamples = false;
 	ch = s_channels;
 	for (i=0; i<MAX_CHANNELS ; i++, ch++) {
 		if ( !ch->thesfx ) {
@@ -1801,7 +1801,7 @@ qboolean S_ScanChannelStarts( void ) {
 		// into the very first sample
 		if ( ch->startSample == START_SAMPLE_IMMEDIATE ) {
 			ch->startSample = s_paintedtime;
-			newSamples = qtrue;
+			newSamples = true;
 			continue;
 		}
 
@@ -2140,9 +2140,9 @@ static void S_Music_f( void ) {
 	c = Cmd_Argc();
 
 	if ( c == 2 ) {
-		S_StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(1), qfalse );
+		S_StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(1), false );
 	} else if ( c == 3 ) {
-		S_StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(2), qfalse );
+		S_StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(2), false );
 	} else {
 		Com_Printf ("music <musicfile> [loopfile]\n");
 		return;
@@ -2238,19 +2238,19 @@ void S_SoundList_f( void ) {
 	int		iVariantCap = -1;	// for %d-inquiry stuff
 	int		iTotalBytes = 0;
 
-	qboolean bWavOnly = qfalse;
-	qboolean bShouldBeMP3 = qfalse;
+	bool bWavOnly = false;
+	bool bShouldBeMP3 = false;
 
 	if ( Cmd_Argc() == 2 )
 	{
 		if (!Q_stricmp(Cmd_Argv(1), "shouldbeMP3"))
 		{
-			bShouldBeMP3 = qtrue;
+			bShouldBeMP3 = true;
 		}
 		else
 		if (!Q_stricmp(Cmd_Argv(1), "wavonly"))
 		{
-			bWavOnly = qtrue;
+			bWavOnly = true;
 		}
 		else
 		{
@@ -2291,7 +2291,7 @@ void S_SoundList_f( void ) {
 	for (sfx=s_knownSfx, i=0 ; i<s_numSfx ; i++, sfx++)
 	{
 		extern cvar_t *cv_MP3overhead;
-		qboolean bMP3DumpOverride = (qboolean)(
+		bool bMP3DumpOverride = (
 			bShouldBeMP3 &&
 			cv_MP3overhead &&
 			!sfx->bDefaultSound &&
@@ -2301,7 +2301,7 @@ void S_SoundList_f( void ) {
 
 		if (bMP3DumpOverride || (!bShouldBeMP3 && (!bWavOnly || sfx->eSoundCompressionMethod == ct_16)))
 		{
-			qboolean bDumpThisOne = qtrue;
+			bool bDumpThisOne = true;
 			if (iVariantCap >= 1 && iVariantCap <= 3)
 			{
 				int iStrLen = strlen(sfx->sSoundName);
@@ -2323,7 +2323,7 @@ void S_SoundList_f( void ) {
 						{
 							if (!Q_stricmp(sFindName,sfx2->sSoundName))
 							{
-								bDumpThisOne = qfalse;	// found a %1-variant of this, so use variant capping and ignore this sfx_t
+								bDumpThisOne = false;	// found a %1-variant of this, so use variant capping and ignore this sfx_t
 								break;
 							}
 						}
@@ -2420,16 +2420,16 @@ int S_FindWavChunk( fileHandle_t f, const char *chunk ) {
 //
 // DO NOT replace this with a call to FS_FileExists, that's for checking about writing out, and doesn't work for this.
 //
-qboolean S_FileExists( const char *psFilename )
+bool S_FileExists( const char *psFilename )
 {
 	fileHandle_t fhTemp;
 
-	FS_FOpenFileRead (psFilename, &fhTemp, qtrue);	// qtrue so I can fclose the handle without closing a PAK
+	FS_FOpenFileRead (psFilename, &fhTemp, true);	// true so I can fclose the handle without closing a PAK
 	if (!fhTemp)
-		return qfalse;
+		return false;
 
 	FS_FCloseFile(fhTemp);
-	return qtrue;
+	return true;
 }
 
 // some stuff for streaming MP3 files from disk (not pleasant, but nothing about MP3 is, other than compression ratios...)
@@ -2513,7 +2513,7 @@ void S_UnCacheDynamicMusic( void )
 	}
 }
 
-static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean qbDynamic, const char *intro, const char *loop )
+static bool S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, bool qbDynamic, const char *intro, const char *loop )
 {
 	int		len;
 	char	dump[16];
@@ -2531,10 +2531,10 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 	//
 	S_StopBackgroundTrack_Actual( pMusicInfo );
 
-	pMusicInfo->bIsMP3 = qfalse;
+	pMusicInfo->bIsMP3 = false;
 
 	if ( !intro[0] ) {
-		return qfalse;
+		return false;
 	}
 
 	// new bit, if file requested is not same any loaded one (if prev was in-mem), ditch it...
@@ -2552,13 +2552,13 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 		}
 		else
 		{
-			pMusicInfo->iLoadedDataLen = FS_FOpenFileRead( name, &pMusicInfo->s_backgroundFile, qtrue );
+			pMusicInfo->iLoadedDataLen = FS_FOpenFileRead( name, &pMusicInfo->s_backgroundFile, true );
 		}
 
 		if (!pMusicInfo->s_backgroundFile)
 		{
 			Com_Printf( S_COLOR_RED"Couldn't open music file %s\n", name );
-			return qfalse;
+			return false;
 		}
 
 		MP3MusicStream_Reset( pMusicInfo );
@@ -2567,12 +2567,12 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 		int iInitialMP3ReadSize = 8192;		// fairly arbitrary, whatever size this is then the decoder is allowed to
 											// scan up to halfway of it to find floating headers, so don't make it
 											// too small. 8k works fine.
-		qboolean bMusicSucceeded = qfalse;
+		bool bMusicSucceeded = false;
 		if (qbDynamic)
 		{
 			if (!pMusicInfo->pLoadedData)
 			{
-				pMusicInfo->pLoadedData = (byte *) Z_Malloc(pMusicInfo->iLoadedDataLen, TAG_SND_DYNAMICMUSIC, qfalse);
+				pMusicInfo->pLoadedData = (byte *) Z_Malloc(pMusicInfo->iLoadedDataLen, TAG_SND_DYNAMICMUSIC, false);
 
 				S_ClearSoundBuffer();
 				FS_Read(pMusicInfo->pLoadedData, pMusicInfo->iLoadedDataLen, pMusicInfo->s_backgroundFile);
@@ -2589,7 +2589,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 			pbMP3DataSegment = MP3MusicStream_ReadFromDisk(pMusicInfo, 0, iInitialMP3ReadSize);
 		}
 
-		if (MP3_IsValid(name, pbMP3DataSegment, iInitialMP3ReadSize, qtrue /*bStereoDesired*/))
+		if (MP3_IsValid(name, pbMP3DataSegment, iInitialMP3ReadSize, true /*bStereoDesired*/))
 		{
 			// init stream struct...
 			//
@@ -2597,7 +2597,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 			char *psError = C_MP3Stream_DecodeInit( &pMusicInfo->streamMP3_Bgrnd, pbMP3DataSegment, pMusicInfo->iLoadedDataLen,
 													dma.speed,
 													16,		// sfx->width * 8,
-													qtrue	// bStereoDesired
+													true	// bStereoDesired
 													);
 
 
@@ -2613,7 +2613,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 
 				if (qbDynamic)
 				{
-					MP3Stream_InitPlayingTimeFields ( &pMusicInfo->streamMP3_Bgrnd, name, pbMP3DataSegment, pMusicInfo->iLoadedDataLen, qtrue);
+					MP3Stream_InitPlayingTimeFields ( &pMusicInfo->streamMP3_Bgrnd, name, pbMP3DataSegment, pMusicInfo->iLoadedDataLen, true);
 				}
 
 				pMusicInfo->s_backgroundInfo.format		= WAV_FORMAT_MP3;	// not actually used this way, but just ensures we don't match one of the legit formats
@@ -2636,8 +2636,8 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 					}
 				}
 
-				pMusicInfo->bIsMP3 = qtrue;
-				bMusicSucceeded = qtrue;
+				pMusicInfo->bIsMP3 = true;
+				bMusicSucceeded = true;
 			}
 			else
 			{
@@ -2667,10 +2667,10 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 		//
 		// open up a wav file and get all the info
 		//
-		FS_FOpenFileRead( name, &pMusicInfo->s_backgroundFile, qtrue );
+		FS_FOpenFileRead( name, &pMusicInfo->s_backgroundFile, true );
 		if ( !pMusicInfo->s_backgroundFile ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", name );
-			return qfalse;
+			return false;
 		}
 
 		// skip the riff wav header
@@ -2681,7 +2681,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 			Com_Printf( S_COLOR_YELLOW "WARNING: No fmt chunk in %s\n", name );
 			FS_FCloseFile( pMusicInfo->s_backgroundFile );
 			pMusicInfo->s_backgroundFile = 0;
-			return qfalse;
+			return false;
 		}
 
 		// save name for soundinfo
@@ -2696,7 +2696,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 			FS_FCloseFile( pMusicInfo->s_backgroundFile );
 			pMusicInfo->s_backgroundFile = 0;
 			Com_Printf(S_COLOR_YELLOW "WARNING: Not a microsoft PCM format wav: %s\n", name);
-			return qfalse;
+			return false;
 		}
 
 		if ( pMusicInfo->s_backgroundInfo.channels != 2 || pMusicInfo->s_backgroundInfo.rate != 22050 ) {
@@ -2707,7 +2707,7 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 			FS_FCloseFile( pMusicInfo->s_backgroundFile );
 			pMusicInfo->s_backgroundFile = 0;
 			Com_Printf(S_COLOR_YELLOW "WARNING: No data chunk in %s\n", name);
-			return qfalse;
+			return false;
 		}
 
 		pMusicInfo->s_backgroundInfo.samples = len / (pMusicInfo->s_backgroundInfo.width * pMusicInfo->s_backgroundInfo.channels);
@@ -2715,27 +2715,27 @@ static qboolean S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean
 		pMusicInfo->s_backgroundSamples = pMusicInfo->s_backgroundInfo.samples;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
-static void S_SwitchDynamicTracks( MusicState_e eOldState, MusicState_e eNewState, qboolean bNewTrackStartsFullVolume )
+static void S_SwitchDynamicTracks( MusicState_e eOldState, MusicState_e eNewState, bool bNewTrackStartsFullVolume )
 {
 	// copy old track into fader...
 	//
 	tMusic_Info[ eBGRNDTRACK_FADE ] = tMusic_Info[ eOldState ];
-//	tMusic_Info[ eBGRNDTRACK_FADE ].bActive = qtrue;	// inherent
-//	tMusic_Info[ eBGRNDTRACK_FADE ].bExists = qtrue;	// inherent
+//	tMusic_Info[ eBGRNDTRACK_FADE ].bActive = true;	// inherent
+//	tMusic_Info[ eBGRNDTRACK_FADE ].bExists = true;	// inherent
 	tMusic_Info[ eBGRNDTRACK_FADE ].iXFadeVolumeSeekTime= Sys_Milliseconds();
 	tMusic_Info[ eBGRNDTRACK_FADE ].iXFadeVolumeSeekTo	= 0;
 	//
 	// ... and deactivate...
 	//
-	tMusic_Info[ eOldState ].bActive = qfalse;
+	tMusic_Info[ eOldState ].bActive = false;
 	//
 	// set new track to either full volume or fade up...
 	//
-	tMusic_Info[eNewState].bActive				= qtrue;
+	tMusic_Info[eNewState].bActive				= true;
 	tMusic_Info[eNewState].iXFadeVolumeSeekTime	= Sys_Milliseconds();
 	tMusic_Info[eNewState].iXFadeVolumeSeekTo	= 255;
 	tMusic_Info[eNewState].iXFadeVolume			= bNewTrackStartsFullVolume ? 255 : 0;
@@ -2745,7 +2745,7 @@ static void S_SwitchDynamicTracks( MusicState_e eOldState, MusicState_e eNewStat
 
 	if (s_debugdynamic->integer)
 	{
-		const char *psNewStateString = Music_BaseStateToString( eNewState, qtrue );
+		const char *psNewStateString = Music_BaseStateToString( eNewState, true );
 				psNewStateString = psNewStateString?psNewStateString:"<unknown>";
 
 		Com_Printf( S_COLOR_MAGENTA "S_SwitchDynamicTracks( \"%s\" )\n", psNewStateString );
@@ -2765,7 +2765,7 @@ static void S_SetDynamicMusicState( MusicState_e eNewState )
 
 		if (s_debugdynamic->integer)
 		{
-			const char *psNewStateString = Music_BaseStateToString( eNewState, qtrue );
+			const char *psNewStateString = Music_BaseStateToString( eNewState, true );
 					psNewStateString = psNewStateString?psNewStateString:"<unknown>";
 
 			Com_Printf( S_COLOR_MAGENTA "S_SetDynamicMusicState( Request: \"%s\" )\n", psNewStateString );
@@ -2811,10 +2811,10 @@ static void S_HandleDynamicMusicStateChange( void )
 							float			fNewTrackEntryTime = 0.0f;
 							if (Music_AllowedToTransition( fPlayingTimeElapsed, eBGRNDTRACK_ACTION, &eTransition, &fNewTrackEntryTime))
 							{
-								S_SwitchDynamicTracks( eMusic_StateActual, eTransition, qfalse );	// qboolean bNewTrackStartsFullVolume
+								S_SwitchDynamicTracks( eMusic_StateActual, eTransition, false );	// bool bNewTrackStartsFullVolume
 
 								tMusic_Info[eTransition].Rewind();
-								tMusic_Info[eTransition].bTrackSwitchPending	= qtrue;
+								tMusic_Info[eTransition].bTrackSwitchPending	= true;
 								tMusic_Info[eTransition].eTS_NewState			= eMusic_StateRequest;
 								tMusic_Info[eTransition].fTS_NewTime			= fNewTrackEntryTime;
 							}
@@ -2823,7 +2823,7 @@ static void S_HandleDynamicMusicStateChange( void )
 
 						case eBGRNDTRACK_SILENCE:	// silence->explore
 						{
-							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, qfalse );	// qboolean bNewTrackStartsFullVolume
+							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, false );	// bool bNewTrackStartsFullVolume
 
 //							float fEntryTime = Music_GetRandomEntryTime( eMusic_StateRequest );
 //							tMusic_Info[ eMusic_StateRequest ].SeekTo(fEntryTime);
@@ -2834,7 +2834,7 @@ static void S_HandleDynamicMusicStateChange( void )
 						default:	// trying to transition from some state I wasn't aware you could transition from (shouldn't happen), so ignore
 						{
 							assert(0);
-							S_SwitchDynamicTracks( eMusic_StateActual, eBGRNDTRACK_SILENCE, qfalse );	// qboolean bNewTrackStartsFullVolume
+							S_SwitchDynamicTracks( eMusic_StateActual, eBGRNDTRACK_SILENCE, false );	// bool bNewTrackStartsFullVolume
 						}
 						break;
 					}
@@ -2857,10 +2857,10 @@ static void S_HandleDynamicMusicStateChange( void )
 							float			fNewTrackEntryTime = 0.0f;
 							if (Music_AllowedToTransition( fPlayingTimeElapsed, eMusic_StateActual, &eTransition, &fNewTrackEntryTime))
 							{
-								S_SwitchDynamicTracks( eMusic_StateActual, eTransition, qfalse );	// qboolean bNewTrackStartsFullVolume
+								S_SwitchDynamicTracks( eMusic_StateActual, eTransition, false );	// bool bNewTrackStartsFullVolume
 
 								tMusic_Info[eTransition].Rewind();
-								tMusic_Info[eTransition].bTrackSwitchPending	= qtrue;
+								tMusic_Info[eTransition].bTrackSwitchPending	= true;
 								tMusic_Info[eTransition].eTS_NewState			= eMusic_StateRequest;
 								tMusic_Info[eTransition].fTS_NewTime			= 0.0f;	//fNewTrackEntryTime;  irrelevant when switching to silence
 							}
@@ -2872,7 +2872,7 @@ static void S_HandleDynamicMusicStateChange( void )
 
 						case eBGRNDTRACK_BOSS:	// boss->silence
 						{
-							S_SwitchDynamicTracks( eMusic_StateActual, eBGRNDTRACK_SILENCE, qfalse );	// qboolean bNewTrackStartsFullVolume
+							S_SwitchDynamicTracks( eMusic_StateActual, eBGRNDTRACK_SILENCE, false );	// bool bNewTrackStartsFullVolume
 						}
 						break;
 					}
@@ -2885,14 +2885,14 @@ static void S_HandleDynamicMusicStateChange( void )
 					{
 						case eBGRNDTRACK_SILENCE:	// silence->action
 						{
-							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, qfalse );	// qboolean bNewTrackStartsFullVolume
+							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, false );	// bool bNewTrackStartsFullVolume
 							tMusic_Info[ eMusic_StateRequest ].Rewind();
 						}
 						break;
 
 						default:	// !silence->action
 						{
-							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, qtrue );	// qboolean bNewTrackStartsFullVolume
+							S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, true );	// bool bNewTrackStartsFullVolume
 							float fEntryTime = Music_GetRandomEntryTime( eMusic_StateRequest );
 							tMusic_Info[ eMusic_StateRequest ].SeekTo(fEntryTime);
 						}
@@ -2903,7 +2903,7 @@ static void S_HandleDynamicMusicStateChange( void )
 
 				case eBGRNDTRACK_BOSS:
 				{
-					S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, qfalse );	// qboolean bNewTrackStartsFullVolume
+					S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, false );	// bool bNewTrackStartsFullVolume
 					//
 					// ( no need to fast forward or rewind, boss track is only entered into once, at start, and can't exit )
 					//
@@ -2912,7 +2912,7 @@ static void S_HandleDynamicMusicStateChange( void )
 
 				case eBGRNDTRACK_DEATH:
 				{
-					S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, qtrue );	// qboolean bNewTrackStartsFullVolume
+					S_SwitchDynamicTracks( eMusic_StateActual, eMusic_StateRequest, true );	// bool bNewTrackStartsFullVolume
 					//
 					// ( no need to fast forward or rewind, death track is only entered into once, at start, and can't exit or loop)
 					//
@@ -2937,7 +2937,7 @@ void S_RestartMusic( void )
 		//if (gsIntroMusic[0] || gsLoopMusic[0])	// dont test this anymore (but still *use* them), they're blank for JK2 dynamic-music levels anyway
 		{
 			MusicState_e ePrevState	= eMusic_StateRequest;
-			S_StartBackgroundTrack( gsIntroMusic, gsLoopMusic, qfalse );	// ( default music start will set the state to EXPLORE )
+			S_StartBackgroundTrack( gsIntroMusic, gsLoopMusic, false );	// ( default music start will set the state to EXPLORE )
 			S_SetDynamicMusicState( ePrevState );					// restore to prev state
 		}
 	}
@@ -2950,9 +2950,9 @@ void S_RestartMusic( void )
 // to be honest, although the code still plays WAVs some of the file-check logic only works for MP3s, so if you ever want
 //	to use WAV music you'll have to do some tweaking below (but I've got other things to do so it'll have to wait - Ste)
 //
-void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCalledByCGameStart )
+void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledByCGameStart )
 {
-	bMusic_IsDynamic = qfalse;
+	bMusic_IsDynamic = false;
 
 	if (!s_soundStarted)
 	{	//we have no sound, so don't even bother trying
@@ -3009,11 +3009,11 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCall
 			Q_strncpyz(sInfoOnly_CurrentDynamicMusicSet, Music_GetLevelSetName(), sizeof(sInfoOnly_CurrentDynamicMusicSet));
 			for (int i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 			{
-				qboolean bOk = qfalse;
+				bool bOk = false;
 				const char *psMusicName = Music_GetFileNameForState( (MusicState_e) i);
 				if (psMusicName && (!Q_stricmp(tMusic_Info[i].sLoadedDataName, psMusicName) || S_FileExists( psMusicName )) )
 				{
-					bOk = S_StartBackgroundTrack_Actual( &tMusic_Info[i], qtrue, psMusicName, loop );
+					bOk = S_StartBackgroundTrack_Actual( &tMusic_Info[i], true, psMusicName, loop );
 				}
 
 				tMusic_Info[i].bExists = bOk;
@@ -3029,8 +3029,8 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCall
 			//
 			for (int i = 0; i<eBGRNDTRACK_NUMBEROF; i++)
 			{
-				tMusic_Info[i].bActive				= qfalse;
-				tMusic_Info[i].bTrackSwitchPending	= qfalse;
+				tMusic_Info[i].bActive				= false;
+				tMusic_Info[i].bTrackSwitchPending	= false;
 				tMusic_Info[i].fSmoothedOutVolume	= 0.25f;
 			}
 
@@ -3039,7 +3039,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCall
 				)
 			{
 				Com_DPrintf("S_StartBackgroundTrack: Found dynamic music tracks\n");
-				bMusic_IsDynamic = qtrue;
+				bMusic_IsDynamic = true;
 
 				//
 				// ... then start the default music state...
@@ -3048,7 +3048,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCall
 
 				MusicInfo_t *pMusicInfo = &tMusic_Info[ eMusic_StateActual ];
 
-				pMusicInfo->bActive				= qtrue;
+				pMusicInfo->bActive				= true;
 				pMusicInfo->iXFadeVolumeSeekTime= Sys_Milliseconds();
 				pMusicInfo->iXFadeVolumeSeekTo	= 255;
 				pMusicInfo->iXFadeVolume		= 0;
@@ -3091,9 +3091,9 @@ void S_StopBackgroundTrack( void )
 
 
 
-// qboolean return is true only if we're changing from a streamed intro to a dynamic loop...
+// bool return is true only if we're changing from a streamed intro to a dynamic loop...
 //
-static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolean bFirstOrOnlyMusicTrack, float fDefaultVolume)
+static bool S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, bool bFirstOrOnlyMusicTrack, float fDefaultVolume)
 {
 	int		bufferSamples;
 	int		fileSamples;
@@ -3134,7 +3134,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 #define RAWSIZE (pMusicInfo->bIsMP3?SIZEOF_RAW_BUFFER_FOR_MP3:sizeof(raw))
 
 	if ( !pMusicInfo->s_backgroundFile ) {
-		return qfalse;
+		return false;
 	}
 
 	pMusicInfo->fSmoothedOutVolume = (pMusicInfo->fSmoothedOutVolume + fMasterVol)/2.0f;
@@ -3142,7 +3142,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 
 	// don't bother playing anything if musicvolume is 0
 	if ( pMusicInfo->fSmoothedOutVolume <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	// see how many samples should be copied into the raw buffer
@@ -3159,7 +3159,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 
 		// don't try to play if there are no more samples in the file
 		if (!fileSamples) {
-			return qfalse;
+			return false;
 		}
 
 		// don't try and read past the end of the file
@@ -3174,7 +3174,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 			fileSamples = fileBytes / (pMusicInfo->s_backgroundInfo.width * pMusicInfo->s_backgroundInfo.channels);
 		}
 
-		qboolean qbForceFinish = qfalse;
+		bool qbForceFinish = false;
 		if (pMusicInfo->bIsMP3)
 		{
 			int iStartingSampleNum = pMusicInfo->chMP3_Bgrnd.thesfx->iSoundLengthInSamples - pMusicInfo->s_backgroundSamples;	// but this IS relevant
@@ -3185,7 +3185,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 			{
 				// in-mem...
 				//
-				qbForceFinish = (MP3Stream_GetSamples( &pMusicInfo->chMP3_Bgrnd, iStartingSampleNum, fileBytes/2, (short*) raw, qtrue ))?qfalse:qtrue;
+				qbForceFinish = (MP3Stream_GetSamples( &pMusicInfo->chMP3_Bgrnd, iStartingSampleNum, fileBytes/2, (short*) raw, true ))?false:true;
 
 				//Com_Printf(S_COLOR_YELLOW "Music time remaining: %f seconds\n", MP3Stream_GetRemainingTimeInSeconds( &pMusicInfo->chMP3_Bgrnd.MP3StreamHeader ));
 			}
@@ -3198,7 +3198,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 
 				pMusicInfo->chMP3_Bgrnd.MP3StreamHeader.pbSourceData = pbScrolledStreamData - pMusicInfo->chMP3_Bgrnd.MP3StreamHeader.iSourceReadIndex;
 
-				qbForceFinish = (MP3Stream_GetSamples( &pMusicInfo->chMP3_Bgrnd, iStartingSampleNum, fileBytes/2, (short*) raw, qtrue ))?qfalse:qtrue;
+				qbForceFinish = (MP3Stream_GetSamples( &pMusicInfo->chMP3_Bgrnd, iStartingSampleNum, fileBytes/2, (short*) raw, true ))?false:true;
 			}
 		}
 		else
@@ -3209,7 +3209,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 			if ( r != fileBytes ) {
 				Com_Printf(S_COLOR_RED"StreamedRead failure on music track\n");
 				S_StopBackgroundTrack();
-				return qfalse;
+				return false;
 			}
 
 			// byte swap if needed (do NOT do for MP3 decoder, that has an internal big/little endian handler)
@@ -3246,19 +3246,19 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 
 				if (S_FileExists( sTestName ))
 				{
-					S_StartBackgroundTrack_Actual( pMusicInfo, qfalse, sMusic_BackgroundLoop, sMusic_BackgroundLoop );
+					S_StartBackgroundTrack_Actual( pMusicInfo, false, sMusic_BackgroundLoop, sMusic_BackgroundLoop );
 				}
 				else
 				{
 					// proposed file doesn't exist, but this may be a dynamic track we're wanting to loop,
 					//	so exit with a special flag...
 					//
-					return qtrue;
+					return true;
 				}
 			}
 			if ( !pMusicInfo->s_backgroundFile )
 			{
-				return qfalse;		// loop failed to restart
+				return false;		// loop failed to restart
 			}
 		}
 	}
@@ -3266,7 +3266,7 @@ static qboolean S_UpdateBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, qboolea
 #undef SIZEOF_RAW_BUFFER_FOR_MP3
 #undef RAWSIZE
 
-	return qfalse;
+	return false;
 }
 
 
@@ -3369,7 +3369,7 @@ static void S_UpdateBackgroundTrack( void )
 			if ( pMusicInfoCurrent->s_backgroundFile == -1)
 			{
 				int iRawEnd = s_rawend;
-				S_UpdateBackgroundTrack_Actual( pMusicInfoCurrent, qtrue, s_musicVolume->value );
+				S_UpdateBackgroundTrack_Actual( pMusicInfoCurrent, true, s_musicVolume->value );
 
 	/*			static int iPrevFrontVol = 0;
 				if (iPrevFrontVol != pMusicInfoCurrent->iXFadeVolume)
@@ -3381,7 +3381,7 @@ static void S_UpdateBackgroundTrack( void )
 				if (pMusicInfoFadeOut->bActive)
 				{
 					s_rawend = iRawEnd;
-					S_UpdateBackgroundTrack_Actual( pMusicInfoFadeOut, qfalse, s_musicVolume->value );	// inactive-checked internally
+					S_UpdateBackgroundTrack_Actual( pMusicInfoFadeOut, false, s_musicVolume->value );	// inactive-checked internally
 	/*
 					static int iPrevFadeVol = 0;
 					if (iPrevFadeVol != pMusicInfoFadeOut->iXFadeVolume)
@@ -3395,7 +3395,7 @@ static void S_UpdateBackgroundTrack( void )
 					//
 					if (pMusicInfoFadeOut->iXFadeVolume == 0)
 					{
-						pMusicInfoFadeOut->bActive = qfalse;
+						pMusicInfoFadeOut->bActive = false;
 					}
 				}
 
@@ -3408,8 +3408,8 @@ static void S_UpdateBackgroundTrack( void )
 					//
 					if (pMusicInfoCurrent->bTrackSwitchPending)
 					{
-						pMusicInfoCurrent->bTrackSwitchPending = qfalse;	// ack
-						S_SwitchDynamicTracks( eMusic_StateActual, pMusicInfoCurrent->eTS_NewState, qfalse);	// qboolean bNewTrackStartsFullVolume
+						pMusicInfoCurrent->bTrackSwitchPending = false;	// ack
+						S_SwitchDynamicTracks( eMusic_StateActual, pMusicInfoCurrent->eTS_NewState, false);	// bool bNewTrackStartsFullVolume
 						if (tMusic_Info[ pMusicInfoCurrent->eTS_NewState ].bExists)	// don't do this if switching to silence
 						{
 							tMusic_Info[ pMusicInfoCurrent->eTS_NewState ].SeekTo(pMusicInfoCurrent->fTS_NewTime);
@@ -3441,10 +3441,10 @@ static void S_UpdateBackgroundTrack( void )
 			MusicInfo_t *pMusicInfoFadeOut = &tMusic_Info[ eBGRNDTRACK_FADE ];
 			if (pMusicInfoFadeOut->bActive)
 			{
-				S_UpdateBackgroundTrack_Actual( pMusicInfoFadeOut, qtrue, s_musicVolume->value );
+				S_UpdateBackgroundTrack_Actual( pMusicInfoFadeOut, true, s_musicVolume->value );
 				if (pMusicInfoFadeOut->iXFadeVolume == 0)
 				{
-					pMusicInfoFadeOut->bActive = qfalse;
+					pMusicInfoFadeOut->bActive = false;
 				}
 			}
 		}
@@ -3454,16 +3454,16 @@ static void S_UpdateBackgroundTrack( void )
 		// standard / non-dynamic one-track music...
 		//
 		const char *psCommand = S_Music_GetRequestedState();	// special check just for "silence" case...
-		qboolean bShouldBeSilent = (qboolean)(psCommand && !Q_stricmp(psCommand,"silence"));
+		bool bShouldBeSilent = (psCommand && !Q_stricmp(psCommand,"silence"));
 		float fDesiredVolume = bShouldBeSilent ? 0.0f : s_musicVolume->value;
 		//
 		// internal to this code is a volume-smoother...
 		//
-		qboolean bNewTrackDesired = S_UpdateBackgroundTrack_Actual(&tMusic_Info[eBGRNDTRACK_NONDYNAMIC], qtrue, fDesiredVolume);
+		bool bNewTrackDesired = S_UpdateBackgroundTrack_Actual(&tMusic_Info[eBGRNDTRACK_NONDYNAMIC], true, fDesiredVolume);
 
 		if (bNewTrackDesired)
 		{
-			S_StartBackgroundTrack( sMusic_BackgroundLoop, sMusic_BackgroundLoop, qfalse );
+			S_StartBackgroundTrack( sMusic_BackgroundLoop, sMusic_BackgroundLoop, false );
 		}
 	}
 }
@@ -3476,7 +3476,7 @@ cvar_t *s_soundpoolmegs = NULL;
 //
 byte *SND_malloc(int iSize, sfx_t *sfx)
 {
-	byte *pData = (byte *) Z_Malloc(iSize, TAG_SND_RAWDATA, qfalse);	// don't bother asking for zeroed mem
+	byte *pData = (byte *) Z_Malloc(iSize, TAG_SND_RAWDATA, false);	// don't bother asking for zeroed mem
 
 	// if "s_soundpoolmegs" is < 0, then the -ve of the value is the maximum amount of sounds we're allowed to have loaded...
 	//
@@ -3657,12 +3657,12 @@ int SND_FreeOldestSound(void)
 // just before we drop into a level, ensure the audio pool is under whatever the maximum
 //	pool size is (but not by dropping out sounds used by the current level)...
 //
-// returns qtrue if at least one sound was dropped out, so z_malloc-fail recovery code knows if anything changed
+// returns true if at least one sound was dropped out, so z_malloc-fail recovery code knows if anything changed
 //
-extern qboolean gbInsideLoadSound;
-qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel /* 99% qfalse */)
+extern bool gbInsideLoadSound;
+bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99% false */)
 {
-	qboolean bAtLeastOneSoundDropped = qfalse;
+	bool bAtLeastOneSoundDropped = false;
 
 	Com_DPrintf( "SND_RegisterAudio_LevelLoadEnd():\n");
 
@@ -3681,15 +3681,15 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 
 			if (sfx->bInMemory)
 			{
-				qboolean bDeleteThis = qfalse;
+				bool bDeleteThis = false;
 
 				if (bDeleteEverythingNotUsedThisLevel)
 				{
-					bDeleteThis = (qboolean)(sfx->iLastLevelUsedOn != re.RegisterMedia_GetLevel());
+					bDeleteThis = (sfx->iLastLevelUsedOn != re.RegisterMedia_GetLevel());
 				}
 				else
 				{
-					bDeleteThis = (qboolean)(sfx->iLastLevelUsedOn < re.RegisterMedia_GetLevel());
+					bDeleteThis = (sfx->iLastLevelUsedOn < re.RegisterMedia_GetLevel());
 				}
 
 				if (bDeleteThis)
@@ -3698,7 +3698,7 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 
 					if (SND_FreeSFXMem(sfx))
 					{
-						bAtLeastOneSoundDropped = qtrue;
+						bAtLeastOneSoundDropped = true;
 					}
 
 					iLoadedAudioBytes = Z_MemSize ( TAG_SND_RAWDATA ) + Z_MemSize( TAG_SND_MP3STREAMHDR );

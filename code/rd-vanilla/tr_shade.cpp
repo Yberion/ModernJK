@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 shaderCommands_t	tess;
-static qboolean	setArraysOnce;
+static bool	setArraysOnce;
 
 color4ub_t	styleColors[MAX_LIGHT_STYLES];
 bool		styleUpdated[MAX_LIGHT_STYLES];
@@ -70,7 +70,7 @@ R_DrawStripElements
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
 	int i;
 	glIndex_t last[3];
-	qboolean even;
+	bool even;
 
 	qglBegin( GL_TRIANGLE_STRIP );
 
@@ -87,7 +87,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 	last[1] = indexes[1];
 	last[2] = indexes[2];
 
-	even = qfalse;
+	even = false;
 
 	for ( i = 3; i < numIndexes; i += 3 )
 	{
@@ -99,7 +99,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			{
 				element( indexes[i+2] );
 				assert( (int)indexes[i+2] < tess.numVertexes );
-				even = qtrue;
+				even = true;
 			}
 			// otherwise we're done with this strip so finish it and start
 			// a new one
@@ -114,7 +114,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				element( indexes[i+2] );
 
 
-				even = qfalse;
+				even = false;
 			}
 		}
 		else
@@ -124,7 +124,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			{
 				element( indexes[i+2] );
 
-				even = qfalse;
+				even = false;
 			}
 			// otherwise we're done with this strip so finish it and start
 			// a new one
@@ -138,7 +138,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				element( indexes[i+1] );
 				element( indexes[i+2] );
 
-				even = qfalse;
+				even = false;
 			}
 		}
 
@@ -422,7 +422,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
 
-	tess.SSInitializedWind = qfalse;	//is this right?
+	tess.SSInitializedWind = false;	//is this right?
 
 	tess.xstages = state->stages;
 	tess.numPasses = state->numUnfoggedPasses;
@@ -2076,13 +2076,13 @@ void RB_StageIteratorGeneric( void )
 	//
 	if ( tess.numPasses > 1 || input->shader->multitextureEnv )
 	{
-		setArraysOnce = qfalse;
+		setArraysOnce = false;
 		qglDisableClientState (GL_COLOR_ARRAY);
 		qglDisableClientState (GL_TEXTURE_COORD_ARRAY);
 	}
 	else
 	{
-		setArraysOnce = qtrue;
+		setArraysOnce = true;
 
 		qglEnableClientState( GL_COLOR_ARRAY);
 		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );

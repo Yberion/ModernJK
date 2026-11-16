@@ -29,6 +29,10 @@ def main():
         for f in fields["tables"][tn]: off[("p:", f["name"])] = f["offset"]
     for a in fields["arrays"]:
         for i in range(a["count"]): off[("p:", "%s[%d]" % (a["name"], i))] = a["offset"] + i * a["elem_size"]
+    # bytes of each player-state field: 1 for a bool, else 4 (the arrays hold ints)
+    size = {("p:", f["name"]): f["size"] for tn in ("ps", "pilot", "veh") for f in fields["tables"][tn]}
+    for a in fields["arrays"]:
+        for i in range(a["count"]): size[("p:", "%s[%d]" % (a["name"], i))] = a["elem_size"]
 
     ent = C.EF; pnames = K2.ALLNAMES; pid = {n: i for i, n in enumerate(pnames)}
     pbits = {}
@@ -71,6 +75,8 @@ def main():
         w("} };")
     w("// offsets of every player-state field (union of the three tables): 'has a base' test of the prediction")
     w("inline constexpr std::array<uint16_t, %d> kPlayerAllOffsets{ %s };" % (len(pnames), ", ".join(str(off[("p:", n)]) for n in pnames)))
+    w("// their sizes in bytes (1 for a bool, else 4)")
+    w("inline constexpr std::array<uint8_t, %d> kPlayerAllSizes{ %s };" % (len(pnames), ", ".join(str(size[("p:", n)]) for n in pnames)))
     w("")
     os.makedirs(GEN, exist_ok=True)
     old = os.path.join(GEN, "jka_codec.inc")

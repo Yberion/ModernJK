@@ -76,9 +76,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define maxs r.maxs
 #define legsAnimTimer legsTimer
 #define torsoAnimTimer torsoTimer
-#define bool qboolean
-#define false qfalse
-#define true qtrue
+#define bool bool
+#define false false
+#define true true
 
 #define sqrtf sqrt
 #define Q_flrand flrand
@@ -112,7 +112,7 @@ extern void CG_ChangeWeapon( int num );
 #endif
 
 extern void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 
 // Update death sequence.
@@ -151,7 +151,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				}
 			}
 
-			parent->takedamage = qfalse;//so we don't recursively damage ourselves
+			parent->takedamage = false;//so we don't recursively damage ourselves
 			if ( pVeh->m_pVehicleInfo->explosionRadius > 0 && pVeh->m_pVehicleInfo->explosionDamage > 0 )
 			{
 				VectorCopy( parent->mins, mins );
@@ -523,8 +523,8 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 				NULL, parent->modelScale );
 	BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, vTail );
 #else
-	iRootBone = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_01", qtrue );
-	iRootTail = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_04", qtrue );
+	iRootBone = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_01", true );
+	iRootTail = gi.G2API_GetBoneIndex( &parent->ghoul2[parent->playerModel], "tail_04", true );
 
 	// Get the positions of the root of the tail and the tail end of it.
 	gi.G2API_GetBoltMatrix( parent->ghoul2, parent->playerModel, iRootBone,
@@ -590,7 +590,7 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 					hit->client->ps.velocity[2] = 100;
 				}
 #else
-				G_Knockdown( hit, parent, pushDir, 300, qtrue );
+				G_Knockdown( hit, parent, pushDir, 300, true );
 #endif
 				G_Damage( hit, parent, parent, NULL, NULL, iDamage, DAMAGE_NO_KNOCKBACK | DAMAGE_IGNORE_TEAM, MOD_MELEE );
 				//G_PlayEffect( pVeh->m_pVehicleInfo->explodeFX, parent->currentOrigin );
@@ -1059,7 +1059,7 @@ void G_CreateAnimalNPC( Vehicle_t **pVeh, const char *strAnimalType )
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #else
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, qtrue );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #endif
 }

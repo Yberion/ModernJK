@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //---------------
 
 //---------------------------------------------------------
-void WP_FireBryarPistol( gentity_t *ent, qboolean alt_fire )
+void WP_FireBryarPistol( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	vec3_t	start;

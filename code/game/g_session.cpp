@@ -140,7 +140,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	// Clear the objectives out
 	for (i=0;i< MAX_OBJECTIVES; i++)
 	{
-		client->sess.mission_objectives[i].display = qfalse;
+		client->sess.mission_objectives[i].display = false;
 		client->sess.mission_objectives[i].status = OBJECTIVE_STAT_PENDING;
 	}
 
@@ -148,7 +148,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	sscanf( var, "%i %i",
 		&lightsideDisplay,
 		&client->sess.mission_objectives[LIGHTSIDE_OBJ].status);
-	client->sess.mission_objectives[LIGHTSIDE_OBJ].display = lightsideDisplay ? qtrue : qfalse;
+	client->sess.mission_objectives[LIGHTSIDE_OBJ].display = lightsideDisplay ? true : false;
 
 	var = va( "missionstats%i", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );

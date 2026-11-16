@@ -132,7 +132,7 @@ void Droid_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 
 		if( NPC->client && NPC->client->NPC_class == CLASS_MOUSE )
 		{
@@ -178,7 +178,7 @@ void Droid_Patrol( void )
 //		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 }
 
@@ -204,14 +204,14 @@ void Droid_Run( void )
 		//If we have somewhere to go, then do that
 		if ( UpdateGoal() )
 		{
-			if (NPC_MoveToGoal( qfalse ))
+			if (NPC_MoveToGoal( false ))
 			{
 				NPCInfo->desiredYaw += sin(level.time*.5) * 5; // Weaves side to side a little
 			}
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -276,7 +276,7 @@ void Droid_Spin( void )
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -558,7 +558,7 @@ void NPC_BSDroid_Default( void )
 	}
 	else if ( NPCInfo->localState == LSTATE_DROP )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		ucmd.upmove = Q_flrand(-1.0f, 1.0f) * 64;
 	}
 	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )

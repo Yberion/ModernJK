@@ -516,7 +516,7 @@ protected:
 	float		mSize2Start;
 	float		mSize2End;
 	float		mSize2Parm;
-	qboolean	mTraceEnd;
+	bool	mTraceEnd;
 
 	void	UpdateSize2();
 
@@ -533,7 +533,7 @@ public:
 	inline void SetSize2Start( float sz )	{ mSize2Start = sz;			}
 	inline void SetSize2End( float sz )		{ mSize2End = sz;			}
 	inline void SetSize2Parm( float parm )	{ mSize2Parm = parm;		}
-	inline void SetTraceEnd(qboolean traceEnd) { mTraceEnd = traceEnd; }
+	inline void SetTraceEnd(bool traceEnd) { mTraceEnd = traceEnd; }
 
 	inline void SetNormal( vec3_t norm )	{ VectorCopy( norm, mRefEnt.axis[0] ); }
 };

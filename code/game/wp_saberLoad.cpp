@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "../cgame/cg_local.h"
 
-extern qboolean G_ParseLiteral( const char **data, const char *string );
+extern bool G_ParseLiteral( const char **data, const char *string );
 extern saber_colors_t TranslateSaberColor( const char *name );
-extern qboolean PM_SaberInStart( int move );
-extern qboolean PM_SaberInTransition( int move );
-extern qboolean PM_SaberInAttack( int move );
+extern bool PM_SaberInStart( int move );
+extern bool PM_SaberInTransition( int move );
+extern bool PM_SaberInAttack( int move );
 
 extern stringID_table_t FPTable[];
 
@@ -184,32 +184,32 @@ void WP_SaberFreeStrings( saberInfo_t &saber ) {
 	}
 }
 
-qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
+bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 	if ( saber
 		&& saber->bladeStyle2Start > 0
 		&& bladeNum >= saber->bladeStyle2Start )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
-qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
+bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	//use first blade style for this blade
 	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE) )
-		return qtrue;
+		return true;
 
 	//use second blade style for this blade
 	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
-qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
+bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 {
 	if ( ent && ent->client )
 	{
-		qboolean styleInvalid = qfalse;
+		bool styleInvalid = false;
 		int	validStyles = 0, styleNum;
 
 		//initially, all styles are valid
@@ -223,7 +223,7 @@ qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 		{
 			if ( (ent->client->ps.saber[0].stylesForbidden&(1<<*saberAnimLevel)) )
 			{//not a valid style for first saber!
-				styleInvalid = qtrue;
+				styleInvalid = true;
 				validStyles &= ~ent->client->ps.saber[0].stylesForbidden;
 			}
 		}
@@ -234,7 +234,7 @@ qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 			{
 				if ( (ent->client->ps.saber[1].stylesForbidden&(1<<*saberAnimLevel)) )
 				{//not a valid style for second saber!
-					styleInvalid = qtrue;
+					styleInvalid = true;
 					//only the ones both sabers allow is valid
 					validStyles &= ~ent->client->ps.saber[1].stylesForbidden;
 				}
@@ -249,7 +249,7 @@ qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 			validStyles &= ~(1<<SS_DUAL);
 			if( *saberAnimLevel == SS_DUAL )		// saber style switch bug fixed --eez
 			{
-				styleInvalid = qtrue;
+				styleInvalid = true;
 			}
 		}
 		if ( styleInvalid && validStyles )
@@ -259,15 +259,15 @@ qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 				if ( (validStyles&(1<<styleNum)) )
 				{
 					*saberAnimLevel = styleNum;
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
+bool WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 {
 	if ( ent && ent->client )
 	{
@@ -276,7 +276,7 @@ qboolean WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 		{
 			if ( (ent->client->ps.saber[0].stylesForbidden&(1<<saberAnimLevel)) )
 			{//not a valid style for first saber!
-				return qfalse;
+				return false;
 			}
 		}
 		if ( ent->client->ps.dualSabers )
@@ -287,7 +287,7 @@ qboolean WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 				{
 					if ( (ent->client->ps.saber[1].stylesForbidden&(1<<saberAnimLevel)) )
 					{//not a valid style for second saber!
-						return qfalse;
+						return false;
 					}
 				}
 
@@ -296,7 +296,7 @@ qboolean WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 				{//dual is okay
 					if ( saberAnimLevel != SS_TAVION )
 					{//tavion might be okay, all others are not
-						return qfalse;
+						return false;
 					}
 					else
 					{//see if "tavion" style is okay
@@ -309,25 +309,25 @@ qboolean WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 						}
 						else
 						{//tavion style is not allowed because neither of the sabers we're using gave it to us (I know, doesn't quite make sense, but...)
-							return qfalse;
+							return false;
 						}
 					}
 				}
 			}
 			else if ( saberAnimLevel == SS_DUAL )
 			{//can't use dual style if not using dualSabers
-				return qfalse;
+				return false;
 			}
 		}
 		else if ( saberAnimLevel == SS_DUAL )
 		{//can't use dual style if not using dualSabers
-			return qfalse;
+			return false;
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber )
+bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber )
 {
 	if ( saber->bladeStyle2Start > 0
 		&& saber->numBlades > saber->bladeStyle2Start )
@@ -335,21 +335,21 @@ qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber )
 		if ( (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE)
 			&& (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
 		{//all blades are always on
-			return qfalse;
+			return false;
 		}
 	}
 	else
 	{
 		if ( (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
 		{//all blades are always on
-			return qfalse;
+			return false;
 		}
 	}
 	//you can turn some off
-	return qtrue;
+	return true;
 }
 
-void WP_SaberSetDefaults( saberInfo_t *saber, qboolean setColors = qtrue )
+void WP_SaberSetDefaults( saberInfo_t *saber, bool setColors = true )
 {
 	//Set defaults so that, if it fails, there's at least something there
 	saber->name = NULL;
@@ -535,7 +535,7 @@ static void Saber_ParseNumBlades( saberInfo_t *saber, const char **p ) {
 	}
 	saber->numBlades = n;
 }
-qboolean Saber_SetColor = qtrue;
+bool Saber_SetColor = true;
 static void Saber_ParseSaberColor( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	int i=0;
@@ -1974,7 +1974,7 @@ static keywordHash_t saberParseKeywords[] = {
 	{ NULL,						NULL,							NULL	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];
-static qboolean hashSetup = qfalse;
+static bool hashSetup = false;
 
 static void WP_SaberSetupKeywordHash( void ) {
 	int i;
@@ -1983,10 +1983,10 @@ static void WP_SaberSetupKeywordHash( void ) {
 	for ( i=0; saberParseKeywords[i].keyword; i++ )
 		KeywordHash_Add( saberParseKeywordHash, &saberParseKeywords[i] );
 
-	hashSetup = qtrue;
+	hashSetup = true;
 }
 
-qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean setColors )
+bool WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, bool setColors )
 {
 	const char	*token;
 	const char	*p;
@@ -1997,13 +1997,13 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 		WP_SaberSetupKeywordHash();
 
 	if ( !saber )
-		return qfalse;
+		return false;
 
 	//Set defaults so that, if it fails, there's at least something there
 	WP_SaberSetDefaults( saber, setColors );
 
 	if ( !VALIDSTRING( SaberName ) )
-		return qfalse;
+		return false;
 
 	//check if we want to set the sabercolors or not (for if we're loading a savegame)
 	Saber_SetColor = setColors;
@@ -2014,9 +2014,9 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 
 	// look for the right saber
 	while ( p ) {
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
-			return qfalse;
+			return false;
 
 		if ( !Q_stricmp( token, SaberName ) )
 			break;
@@ -2025,19 +2025,19 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 	}
 
 	if ( !p )
-		return qfalse;
+		return false;
 
 	saber->name = G_NewString( SaberName );
 
 	if ( G_ParseLiteral( &p, "{" ) )
-		return qfalse;
+		return false;
 
 	// parse the saber info block
 	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] ) {
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", SaberName );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, "}" ) )
@@ -2059,7 +2059,7 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 	{//precache all the sith sword sounds
 		Saber_SithSwordPrecache();
 	}
-	return qtrue;
+	return true;
 }
 
 void WP_RemoveSaber( gentity_t *ent, int saberNum )
@@ -2071,7 +2071,7 @@ void WP_RemoveSaber( gentity_t *ent, int saberNum )
 	//reset everything for this saber just in case
 	WP_SaberSetDefaults( &ent->client->ps.saber[saberNum] );
 
-	ent->client->ps.dualSabers = qfalse;
+	ent->client->ps.dualSabers = false;
 	ent->client->ps.saber[saberNum].Deactivate();
 	ent->client->ps.saber[saberNum].SetLength( 0.0f );
 	if ( ent->weaponModel[saberNum] > 0 )
@@ -2132,14 +2132,14 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 	WP_SaberInitBladeData( ent );
 	if ( saberNum == 1 )
 	{//now have 2 sabers
-		ent->client->ps.dualSabers = qtrue;
+		ent->client->ps.dualSabers = true;
 	}
 	/*
 	else if ( saberNum == 0 )
 	{
 		if ( ent->weaponModel[1] == -1 )
 		{//don't have 2 sabers
-			ent->client->ps.dualSabers = qfalse;
+			ent->client->ps.dualSabers = false;
 		}
 	}
 	*/
@@ -2172,11 +2172,11 @@ void WP_SaberSetColor( gentity_t *ent, int saberNum, int bladeNum, char *colorNa
 }
 
 extern void WP_SetSaberEntModelSkin( gentity_t *ent, gentity_t *saberent );
-qboolean WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType )
+bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType )
 {//Make sure there *is* one specified and not using dualSabers
 	if ( ent == NULL || ent->client == NULL )
 	{//invalid ent or client
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->s.number < MAX_CLIENTS )
@@ -2184,55 +2184,55 @@ qboolean WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberT
 		//if ( g_spskill->integer < 3 )
 		{//only on the hardest level?
 			//FIXME: add a cvar?
-			return qfalse;
+			return false;
 		}
 	}
 
 	if ( ent->health <= 0 )
 	{//not if they're dead
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{//not holding saber
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->client->ps.dualSabers )
 	{//FIXME: handle this?
-		return qfalse;
+		return false;
 	}
 
 	if ( !ent->client->ps.saber[0].brokenSaber1 )
 	{//not breakable into another type of saber
-		return qfalse;
+		return false;
 	}
 
 	if ( PM_SaberInStart( ent->client->ps.saberMove ) //in a start
 		|| PM_SaberInTransition( ent->client->ps.saberMove ) //in a transition
 		|| PM_SaberInAttack( ent->client->ps.saberMove ) )//in an attack
 	{//don't break when in the middle of an attack
-		return qfalse;
+		return false;
 	}
 
 	if ( Q_stricmpn( "w_", surfName, 2 )
 		&& Q_stricmpn( "saber", surfName, 5 ) //hack because using mod-community made saber
 		&& Q_stricmp( "cylinder01", surfName ) )//hack because using mod-community made saber
 	{//didn't hit my weapon
-		return qfalse;
+		return false;
 	}
 
 	//Sith Sword should ALWAYS do this
 	if ( saberType != SABER_SITH_SWORD && Q_irand( 0, 50 ) )//&& Q_irand( 0, 10 ) )
 	{//10% chance - FIXME: extern this, too?
-		return qfalse;
+		return false;
 	}
 
 	//break it
 	char	*replacementSaber1 = G_NewString( ent->client->ps.saber[0].brokenSaber1 );
 	char	*replacementSaber2 = G_NewString( ent->client->ps.saber[0].brokenSaber2 );
 	int		i, originalNumBlades = ent->client->ps.saber[0].numBlades;
-	qboolean	broken = qfalse;
+	bool	broken = false;
 	saber_colors_t	colors[MAX_BLADES];
 
 	//store the colors
@@ -2253,7 +2253,7 @@ qboolean WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberT
 		{
 			ent->client->ps.saber[0].blade[i].color = colors[i];
 		}
-		broken = qtrue;
+		broken = true;
 		//change my saberent's model and skin to match my new right-hand saber
 		WP_SetSaberEntModelSkin( ent, &g_entities[ent->client->ps.saberEntityNum] );
 	}
@@ -2276,7 +2276,7 @@ qboolean WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberT
 			{
 				ent->client->ps.saber[1].blade[i-ent->client->ps.saber[0].numBlades].color = colors[i];
 			}
-			broken = qtrue;
+			broken = true;
 		}
 	}
 	return broken;

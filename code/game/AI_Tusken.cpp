@@ -30,9 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
+extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
 extern void NPC_AimAdjust( int change );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 
@@ -50,7 +50,7 @@ extern int PM_AnimLength( int index, animNumber_t anim );
 #define	REALIZE_THRESHOLD	0.6f
 #define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
 static float	enemyDist;
 
@@ -141,7 +141,7 @@ ST_HoldPosition
 
 static void Tusken_HoldPosition( void )
 {
-	NPC_FreeCombatPoint( NPCInfo->combatPoint, qtrue );
+	NPC_FreeCombatPoint( NPCInfo->combatPoint, true );
 	NPCInfo->goalEntity = NULL;
 }
 
@@ -151,14 +151,14 @@ ST_Move
 -------------------------
 */
 
-static qboolean Tusken_Move( void )
+static bool Tusken_Move( void )
 {
-	NPCInfo->combatMove = qtrue;//always move straight toward our goal
+	NPCInfo->combatMove = true;//always move straight toward our goal
 
-	qboolean	moved = NPC_MoveToGoal( qtrue );
+	bool	moved = NPC_MoveToGoal( true );
 
 	//If our move failed, then reset
-	if ( moved == qfalse )
+	if ( moved == false )
 	{//couldn't get to enemy
 		//just hang here
 		Tusken_HoldPosition();
@@ -183,7 +183,7 @@ void NPC_BSTusken_Patrol( void )
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
 				//NPC_AngerSound();
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 		}
@@ -191,10 +191,10 @@ void NPC_BSTusken_Patrol( void )
 		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
-			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS );
+			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 				return;
 			}
 			else
@@ -242,7 +242,7 @@ void NPC_BSTusken_Patrol( void )
 				NPCInfo->desiredYaw = angles[YAW];
 				NPCInfo->desiredPitch = angles[PITCH];
 
-				NPC_UpdateAngles( qtrue, qtrue );
+				NPC_UpdateAngles( true, true );
 
 				NPCInfo->desiredYaw = o_yaw;
 				NPCInfo->desiredPitch = o_pitch;
@@ -255,10 +255,10 @@ void NPC_BSTusken_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 
@@ -281,15 +281,15 @@ void NPC_BSTusken_Attack( void )
 //---------
 	if ( NPC->painDebounceTime > level.time )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
 // IN FLEE
 //---------
-	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER ) ) )
+	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( true, true, -1, false, AEL_DANGER ) ) )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -297,7 +297,7 @@ void NPC_BSTusken_Attack( void )
 
 // UPDATE OUR ENEMY
 //------------------
-	if (NPC_CheckEnemyExt()==qfalse || !NPC->enemy)
+	if (NPC_CheckEnemyExt()==false || !NPC->enemy)
 	{
 		NPC_BSTusken_Patrol();
 		return;
@@ -377,7 +377,7 @@ void NPC_BSTusken_Attack( void )
 					ucmd.buttons |= BUTTON_ALT_ATTACK;
 				}
 
-				WeaponThink( qtrue );
+				WeaponThink( true );
 				TIMER_Set(NPC, "attackDelay", NPCInfo->shotTime-level.time);
 			}
 
@@ -402,12 +402,12 @@ void NPC_BSTusken_Attack( void )
 //---------------
 	if (canSeeEnemy)
 	{
-		NPC_FaceEnemy(qtrue);
+		NPC_FaceEnemy(true);
 	}
-	NPC_UpdateAngles(qtrue, qtrue);
+	NPC_UpdateAngles(true, true);
 }
 
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 void Tusken_StaffTrace( void )
 {
 	if ( !NPC->ghoul2.size()
@@ -420,7 +420,7 @@ void Tusken_StaffTrace( void )
 	if ( boltIndex != -1 )
 	{
 		int curTime = (cg.time?cg.time:level.time);
-		qboolean hit = qfalse;
+		bool hit = false;
 		int	lastHit = ENTITYNUM_NONE;
 		for ( int time = curTime-25; time <= curTime+25&&!hit; time += 25 )
 		{
@@ -440,7 +440,7 @@ void Tusken_StaffTrace( void )
 	#ifndef FINAL_BUILD
 			if ( d_saberCombat->integer > 1 )
 			{
-				G_DebugLine(base, tip, 1000, 0x000000ff, qtrue);
+				G_DebugLine(base, tip, 1000, 0x000000ff, true);
 			}
 	#endif
 			gi.trace( &trace, base, mins, maxs, tip, NPC->s.number, MASK_SHOT, G2_RETURNONHIT, 10 );
@@ -459,17 +459,17 @@ void Tusken_StaffTrace( void )
 						&& ( (traceEnt->client&&traceEnt->client->NPC_class==CLASS_JAWA&&!Q_irand(0,1))
 							|| dmg > 19 ) )//FIXME: base on skill!
 					{//do pain on enemy
-						G_Knockdown( traceEnt, NPC, dir, 300, qtrue );
+						G_Knockdown( traceEnt, NPC, dir, 300, true );
 					}
 					lastHit = trace.entityNum;
-					hit = qtrue;
+					hit = true;
 				}
 			}
 		}
 	}
 }
 
-qboolean G_TuskenAttackAnimDamage( gentity_t *self )
+bool G_TuskenAttackAnimDamage( gentity_t *self )
 {
  	if (self->client->ps.torsoAnim==BOTH_TUSKENATTACK1 ||
 		self->client->ps.torsoAnim==BOTH_TUSKENATTACK2 ||
@@ -494,21 +494,21 @@ qboolean G_TuskenAttackAnimDamage( gentity_t *self )
 			//gi.Printf("%f\n", percentComplete);
 			switch (self->client->ps.torsoAnim)
 			{
-			case BOTH_TUSKENATTACK1: return (qboolean)(percentComplete>0.3 && percentComplete<0.7);
-			case BOTH_TUSKENATTACK2: return (qboolean)(percentComplete>0.3 && percentComplete<0.7);
-			case BOTH_TUSKENATTACK3: return (qboolean)(percentComplete>0.1 && percentComplete<0.5);
-			case BOTH_TUSKENLUNGE1:  return (qboolean)(percentComplete>0.3 && percentComplete<0.5);
+			case BOTH_TUSKENATTACK1: return (percentComplete>0.3 && percentComplete<0.7);
+			case BOTH_TUSKENATTACK2: return (percentComplete>0.3 && percentComplete<0.7);
+			case BOTH_TUSKENATTACK3: return (percentComplete>0.1 && percentComplete<0.5);
+			case BOTH_TUSKENLUNGE1:  return (percentComplete>0.3 && percentComplete<0.5);
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void NPC_BSTusken_Default( void )
 {
 	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
 	{
-		WeaponThink( qtrue );
+		WeaponThink( true );
 	}
 
 	if ( G_TuskenAttackAnimDamage( NPC ) )

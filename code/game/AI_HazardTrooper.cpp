@@ -785,7 +785,7 @@ private:
 
 			if (mActors[actorIndex]->NPC->combatPoint!=-1)
 			{
-				NPC_FreeCombatPoint(mActors[actorIndex]->NPC->combatPoint, qfalse);
+				NPC_FreeCombatPoint(mActors[actorIndex]->NPC->combatPoint, false);
 				mActors[actorIndex]->NPC->combatPoint = -1;
 			}
 
@@ -1441,7 +1441,7 @@ void		Trooper_Think(gentity_t* actor)
 			//--------
 			if (traceTgt==target->s.number)
 			{
-				WeaponThink(qtrue);
+				WeaponThink(true);
 			}
 			else if (!inSmackAway)
 			{
@@ -1497,8 +1497,8 @@ void		Trooper_Think(gentity_t* actor)
 			}
 		}
 
-		NPC_UpdateFiringAngles( qtrue, qtrue );
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateFiringAngles( true, true );
+		NPC_UpdateAngles( true, true );
 
 		if (Trooper_Kneeling(actor))
 		{

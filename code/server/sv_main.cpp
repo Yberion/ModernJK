@@ -391,13 +391,13 @@ void SV_CheckTimeouts( void ) {
 SV_CheckPaused
 ==================
 */
-qboolean SV_CheckPaused( void ) {
+bool SV_CheckPaused( void ) {
 	if ( !cl_paused->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	Cvar_Set("sv_paused", "1");
-	return qtrue;
+	return true;
 }
 
 /*

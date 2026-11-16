@@ -279,14 +279,14 @@ void R_Splash()
 /*	const char* s = ri.Cvar_VariableString("se_language");
 	if (Q_stricmp(s,"english"))
 	{
-		pImage = R_FindImageFile( "menu/splash_eur", qfalse, qfalse, qfalse, GL_CLAMP);
+		pImage = R_FindImageFile( "menu/splash_eur", false, false, false, GL_CLAMP);
 	}
 	else
 	{
-		pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+		pImage = R_FindImageFile( "menu/splash", false, false, false, GL_CLAMP);
 	}
 */
-	pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+	pImage = R_FindImageFile( "menu/splash", false, false, false, GL_CLAMP);
 	extern void	RB_SetGL2D (void);
 	RB_SetGL2D();
 	if (pImage )
@@ -453,17 +453,17 @@ static void GLimp_InitExtensions( void )
 	GLW_InitTextureCompression();
 
 	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
+	glConfig.textureEnvAddAvailable = false;
 	if ( ri.GL_ExtensionSupported( "GL_EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
-			glConfig.textureEnvAddAvailable = qtrue;
+			glConfig.textureEnvAddAvailable = true;
 			Com_Printf ("...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			glConfig.textureEnvAddAvailable = qfalse;
+			glConfig.textureEnvAddAvailable = false;
 			Com_Printf ("...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
@@ -500,7 +500,7 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// GL_EXT_clamp_to_edge
-	glConfig.clampToEdgeAvailable = qtrue;
+	glConfig.clampToEdgeAvailable = true;
 	Com_Printf ("...using GL_EXT_texture_edge_clamp\n" );
 
 	// GL_ARB_multitexture
@@ -703,7 +703,7 @@ static void GLimp_InitExtensions( void )
 	if(bNVRegisterCombiners)
 		qglGetIntegerv( GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners );
 
-	glConfigExt.doGammaCorrectionWithShaders = qfalse;
+	glConfigExt.doGammaCorrectionWithShaders = false;
 	if ( r_gammaShaders->integer && qglActiveTextureARB && bTexRectSupported && bARBVertexProgram && bARBFragmentProgram )
 	{
 #if !defined(__APPLE__)
@@ -711,10 +711,10 @@ static void GLimp_InitExtensions( void )
 		qglTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)ri.GL_GetProcAddress("glTexSubImage3D");
 		if ( qglTexImage3D && qglTexSubImage3D )
 		{
-			glConfigExt.doGammaCorrectionWithShaders = qtrue;
+			glConfigExt.doGammaCorrectionWithShaders = true;
 		}
 #else
-		glConfigExt.doGammaCorrectionWithShaders = qtrue;
+		glConfigExt.doGammaCorrectionWithShaders = true;
 #endif
 	}
 
@@ -736,10 +736,10 @@ static void GLimp_InitExtensions( void )
 	qglStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)ri.GL_GetProcAddress("glStencilOpSeparate");
 	if ( qglStencilOpSeparate )
 	{
-		glConfigExt.doStencilShadowsInOneDrawcall = qtrue;
+		glConfigExt.doStencilShadowsInOneDrawcall = true;
 	}
 #else
-	glConfigExt.doStencilShadowsInOneDrawcall = qtrue;
+	glConfigExt.doStencilShadowsInOneDrawcall = true;
 #endif
 }
 
@@ -1119,7 +1119,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 void R_ScreenShotTGA_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -1127,7 +1127,7 @@ void R_ScreenShotTGA_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1163,7 +1163,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 void R_ScreenShotPNG_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -1171,7 +1171,7 @@ void R_ScreenShotPNG_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1195,14 +1195,14 @@ void R_ScreenShotPNG_f (void) {
 
 void R_ScreenShot_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
 		return;
 	}
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1583,7 +1583,7 @@ void R_Register( void )
 	r_DynamicGlowWidth					= ri.Cvar_Get( "r_DynamicGlowWidth",				"320",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_DynamicGlowHeight					= ri.Cvar_Get( "r_DynamicGlowHeight",				"240",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_picmip							= ri.Cvar_Get( "r_picmip",							"0",						CVAR_ARCHIVE|CVAR_LATCH, "" );
-	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
+	ri.Cvar_CheckRange( r_picmip, 0, 16, true );
 	r_colorMipLevels					= ri.Cvar_Get( "r_colorMipLevels",					"0",						CVAR_LATCH, "" );
 	r_detailTextures					= ri.Cvar_Get( "r_detailtextures",					"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_texturebits						= ri.Cvar_Get( "r_texturebits",					"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
@@ -1594,7 +1594,7 @@ void R_Register( void )
 	r_vertexLight						= ri.Cvar_Get( "r_vertexLight",					"0",						CVAR_ARCHIVE|CVAR_LATCH, "" );
 	r_uiFullScreen						= ri.Cvar_Get( "r_uifullscreen",					"0",						CVAR_NONE, "" );
 	r_subdivisions						= ri.Cvar_Get( "r_subdivisions",					"4",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
-	ri.Cvar_CheckRange( r_subdivisions, 0, 80, qfalse );
+	ri.Cvar_CheckRange( r_subdivisions, 0, 80, false );
 
 	r_fullbright						= ri.Cvar_Get( "r_fullbright",						"0",						CVAR_CHEAT, "" );
 	r_intensity							= ri.Cvar_Get( "r_intensity",						"1",						CVAR_LATCH, "" );
@@ -1605,7 +1605,7 @@ void R_Register( void )
 	r_flares							= ri.Cvar_Get( "r_flares",							"1",						CVAR_ARCHIVE_ND, "" );
 
 	r_znear								= ri.Cvar_Get( "r_znear",							"4",						CVAR_ARCHIVE_ND, "" );
-	ri.Cvar_CheckRange( r_znear, 0.001f, 10, qfalse );
+	ri.Cvar_CheckRange( r_znear, 0.001f, 10, false );
 	r_ignoreGLErrors					= ri.Cvar_Get( "r_ignoreGLErrors",					"1",						CVAR_ARCHIVE_ND, "" );
 	r_fastsky							= ri.Cvar_Get( "r_fastsky",						"0",						CVAR_ARCHIVE_ND, "" );
 	r_inGameVideo						= ri.Cvar_Get( "r_inGameVideo",					"1",						CVAR_ARCHIVE_ND, "" );
@@ -1622,7 +1622,7 @@ void R_Register( void )
 	r_roofCullCeilDist					= ri.Cvar_Get( "r_roofCullCeilDist",				"256",						CVAR_CHEAT, "" ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_roofCullFloorDist					= ri.Cvar_Get( "r_roofCeilFloorDist",				"128",						CVAR_CHEAT, "" ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_primitives						= ri.Cvar_Get( "r_primitives",						"0",						CVAR_ARCHIVE_ND, "" );
-	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
+	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, true );
 	r_ambientScale						= ri.Cvar_Get( "r_ambientScale",					"0.6",						CVAR_CHEAT, "" );
 	r_directedScale						= ri.Cvar_Get( "r_directedScale",					"1",						CVAR_CHEAT, "" );
 	r_autoMap							= ri.Cvar_Get( "r_autoMap",						"0",						CVAR_ARCHIVE_ND, "" ); //automap renderside toggle for debugging -rww
@@ -1705,8 +1705,8 @@ Ghoul2 Insert End
 	r_aviMotionJpegQuality				= ri.Cvar_Get( "r_aviMotionJpegQuality",			"90",						CVAR_ARCHIVE_ND, "" );
 	r_screenshotJpegQuality				= ri.Cvar_Get( "r_screenshotJpegQuality",			"95",						CVAR_ARCHIVE_ND, "" );
 
-	ri.Cvar_CheckRange( r_aviMotionJpegQuality, 10, 100, qtrue );
-	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10, 100, qtrue );
+	ri.Cvar_CheckRange( r_aviMotionJpegQuality, 10, 100, true );
+	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10, 100, true );
 
 	r_patchStitching = ri.Cvar_Get("r_patchStitching", "1", CVAR_ARCHIVE, "Enable stitching of neighbouring patch surfaces" );
 
@@ -1787,7 +1787,7 @@ void R_Init( void ) {
 	InitOpenGL();
 
 	R_InitImages();
-	R_InitShaders(qfalse);
+	R_InitShaders(false);
 	R_InitSkins();
 
 	R_InitFonts();
@@ -1816,7 +1816,7 @@ void R_Init( void ) {
 RE_Shutdown
 ===============
 */
-void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
+void RE_Shutdown( bool destroyWindow, bool restarting ) {
 
 //	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
@@ -1888,7 +1888,7 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 		ri.WIN_Shutdown();
 	}
 
-	tr.registered = qfalse;
+	tr.registered = false;
 }
 
 /*
@@ -1933,16 +1933,16 @@ void RE_SetLightStyle(int style, int color)
 
 static void SetRangedFog( float range ) { tr.rangedFog = range; }
 
-extern qboolean gG2_GBMNoReconstruct;
-extern qboolean gG2_GBMUseSPMethod;
-static void G2API_BoltMatrixReconstruction( qboolean reconstruct ) { gG2_GBMNoReconstruct = (qboolean)!reconstruct; }
-static void G2API_BoltMatrixSPMethod( qboolean spMethod ) { gG2_GBMUseSPMethod = spMethod; }
+extern bool gG2_GBMNoReconstruct;
+extern bool gG2_GBMUseSPMethod;
+static void G2API_BoltMatrixReconstruction( bool reconstruct ) { gG2_GBMNoReconstruct = !reconstruct; }
+static void G2API_BoltMatrixSPMethod( bool spMethod ) { gG2_GBMUseSPMethod = spMethod; }
 
 extern float tr_distortionAlpha; //opaque
 extern float tr_distortionStretch; //no stretch override
-extern qboolean tr_distortionPrePost; //capture before postrender phase?
-extern qboolean tr_distortionNegate; //negative blend mode
-static void SetRefractionProperties( float distortionAlpha, float distortionStretch, qboolean distortionPrePost, qboolean distortionNegate ) {
+extern bool tr_distortionPrePost; //capture before postrender phase?
+extern bool tr_distortionNegate; //negative blend mode
+static void SetRefractionProperties( float distortionAlpha, float distortionStretch, bool distortionPrePost, bool distortionNegate ) {
 	tr_distortionAlpha = distortionAlpha;
 	tr_distortionStretch = distortionStretch;
 	tr_distortionPrePost = distortionPrePost;
@@ -1958,7 +1958,7 @@ static void GetRealRes( int *w, int *h ) {
 
 extern void R_SVModelInit( void ); //tr_model.cpp
 extern void R_AutomapElevationAdjustment( float newHeight ); //tr_world.cpp
-extern qboolean R_InitializeWireframeAutomap( void ); //tr_world.cpp
+extern bool R_InitializeWireframeAutomap( void ); //tr_world.cpp
 
 extern qhandle_t RE_RegisterServerSkin( const char *name );
 

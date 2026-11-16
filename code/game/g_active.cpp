@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	MIN_NPC_SPEED	16.0f
 
 extern void VehicleExplosionDelay( gentity_t *self );
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void G_MaintainFormations(gentity_t *self);
 extern void BG_CalculateOffsetAngles( gentity_t *ent, usercmd_t *ucmd );//in bg_pangles.cpp
 extern void TryUse( gentity_t *ent );
@@ -50,67 +50,67 @@ extern void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  );
 extern void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd );
 extern gentity_t *SeekerAcquiresTarget ( gentity_t *ent, vec3_t pos );
 extern void FireSeeker( gentity_t *owner, gentity_t *target, vec3_t origin, vec3_t dir );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
-extern qboolean PM_LockAngles( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
-extern qboolean PM_AdjustAnglesToPuller( gentity_t *ent, gentity_t *puller, usercmd_t *ucmd, qboolean faceAway );
-extern qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doMove );
-extern qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean doMove );
-extern qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboolean anglesOnly );
-extern qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean angleClampOnly );
-extern qboolean PM_AdjustAnglesForDualJumpAttack( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForLongJump( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForGrapple( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean doMove );
-extern qboolean PM_AdjustAnglesForBFKick( gentity_t *ent, usercmd_t *ucmd, vec3_t fwdAngs, qboolean aimFront );
-extern qboolean PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForSpinProtect( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForWallRunUpFlipAlt( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster, usercmd_t *ucmd );
-extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
-extern qboolean PM_LeapingSaberAnim( int anim );
-extern qboolean PM_SpinningSaberAnim( int anim );
-extern qboolean PM_SaberInAttack( int move );
-extern qboolean PM_KickingAnim( int anim );
+extern bool PM_LockAngles( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
+extern bool PM_AdjustAnglesToPuller( gentity_t *ent, gentity_t *puller, usercmd_t *ucmd, bool faceAway );
+extern bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove );
+extern bool PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, bool doMove );
+extern bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool anglesOnly );
+extern bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleClampOnly );
+extern bool PM_AdjustAnglesForDualJumpAttack( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForLongJump( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForGrapple( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, bool doMove );
+extern bool PM_AdjustAnglesForBFKick( gentity_t *ent, usercmd_t *ucmd, vec3_t fwdAngs, bool aimFront );
+extern bool PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForSpinProtect( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForWallRunUpFlipAlt( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster, usercmd_t *ucmd );
+extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_LeapingSaberAnim( int anim );
+extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_SaberInAttack( int move );
+extern bool PM_KickingAnim( int anim );
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InGetUp( playerState_t *ps );
-extern qboolean PM_InRoll( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InGetUp( playerState_t *ps );
+extern bool PM_InRoll( playerState_t *ps );
 extern void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd );
-extern qboolean PM_InAttackRoll( int anim );
-extern qboolean PM_CrouchAnim( int anim );
-extern qboolean PM_FlippingAnim( int anim );
-extern qboolean PM_InCartwheel( int anim );
-extern qboolean PM_StandingAnim( int anim );
-extern qboolean PM_InForceGetUp( playerState_t *ps );
-extern qboolean PM_GetupAnimNoMove( int legsAnim );
-extern qboolean PM_SuperBreakLoseAnim( int anim );
-extern qboolean PM_SuperBreakWinAnim( int anim );
-extern qboolean PM_CanRollFromSoulCal( playerState_t *ps );
-extern qboolean BG_FullBodyTauntAnim( int anim );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool PM_InAttackRoll( int anim );
+extern bool PM_CrouchAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
+extern bool PM_InCartwheel( int anim );
+extern bool PM_StandingAnim( int anim );
+extern bool PM_InForceGetUp( playerState_t *ps );
+extern bool PM_GetupAnimNoMove( int legsAnim );
+extern bool PM_SuperBreakLoseAnim( int anim );
+extern bool PM_SuperBreakWinAnim( int anim );
+extern bool PM_CanRollFromSoulCal( playerState_t *ps );
+extern bool BG_FullBodyTauntAnim( int anim );
+extern bool FlyingCreature( gentity_t *ent );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 extern void G_AttachToVehicle( gentity_t *ent, usercmd_t **ucmd );
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex = 0 );
 extern void G_UpdateEmplacedWeaponData( gentity_t *ent );
 extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
-extern qboolean G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
+extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
 extern void NPC_SetPainEvent( gentity_t *self );
-extern qboolean G_HasKnockdownAnims( gentity_t *ent );
+extern bool G_HasKnockdownAnims( gentity_t *ent );
 extern int G_GetEntsNearBolt( gentity_t *self, gentity_t **radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
-extern qboolean PM_InOnGroundAnim ( playerState_t *ps );
-extern qboolean PM_LockedAnim( int anim );
-extern qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode );
-extern qboolean G_JediInNormalAI( gentity_t *ent );
+extern bool PM_InOnGroundAnim ( playerState_t *ps );
+extern bool PM_LockedAnim( int anim );
+extern bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode );
+extern bool G_JediInNormalAI( gentity_t *ent );
 
 extern bool		in_camera;
-extern qboolean	player_locked;
-extern qboolean	stop_icarus;
-extern qboolean	MatrixMode;
+extern bool	player_locked;
+extern bool	stop_icarus;
+extern bool	MatrixMode;
 
 extern cvar_t	*g_spskill;
 extern cvar_t	*g_timescale;
@@ -210,11 +210,11 @@ int G_FindLookItem( gentity_t *self )
 	return bestEntNum;
 }
 
-extern void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt );
-qboolean G_ClearViewEntity( gentity_t *ent )
+extern void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt );
+bool G_ClearViewEntity( gentity_t *ent )
 {
 	if ( !ent->client->ps.viewEntity )
-		return qfalse;
+		return false;
 
 	if ( ent->client->ps.viewEntity > 0 && ent->client->ps.viewEntity < ENTITYNUM_NONE )
 	{
@@ -230,11 +230,11 @@ qboolean G_ClearViewEntity( gentity_t *ent )
 				g_entities[ent->client->ps.viewEntity].NPC->desiredYaw = g_entities[ent->client->ps.viewEntity].currentAngles[YAW];
 			}
 		}
-		CG_SetClientViewAngles( ent->pos4, qtrue );
+		CG_SetClientViewAngles( ent->pos4, true );
 		SetClientViewAngle( ent, ent->pos4 );
 	}
 	ent->client->ps.viewEntity = 0;
-	return qtrue;
+	return true;
 }
 
 void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
@@ -263,7 +263,7 @@ void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
 	if ( viewEntity->client )
 	{
 		//vec3_t	clear = {0,0,0};
-		CG_SetClientViewAngles( viewEntity->client->ps.viewangles, qtrue );
+		CG_SetClientViewAngles( viewEntity->client->ps.viewangles, true );
 		//SetClientViewAngle( self, viewEntity->client->ps.viewangles );
 		//SetClientViewAngle( viewEntity, clear );
 		/*
@@ -280,39 +280,39 @@ void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
 	}
 }
 
-qboolean G_ControlledByPlayer( gentity_t *self )
+bool G_ControlledByPlayer( gentity_t *self )
 {
 	if ( self && self->NPC && self->NPC->controlledTime > level.time )
 	{//being controlled
 		gentity_t *controller = &g_entities[0];
 		if ( controller->client && controller->client->ps.viewEntity == self->s.number )
 		{//we're the player's viewEntity
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
+bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 {
 	if ( !enemy )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( enemy->flags&FL_NOTARGET )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( (enemy->s.eFlags&EF_NODRAW) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( !enemy || enemy == self || !enemy->inuse )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( !enemy->client || !enemy->NPC )
 	{//not valid
@@ -321,11 +321,11 @@ qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 			&& enemy->noDamageTeam != self->client->playerTeam
 			&& enemy->health > 0 )
 		{//a turret
-			//return qtrue;
+			//return true;
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	else
@@ -333,20 +333,20 @@ qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 		if ( self->client->playerTeam != TEAM_FREE//evil player hates everybody
 			&& enemy->client->playerTeam == self->client->playerTeam )
 		{//on same team
-			return qfalse;
+			return false;
 		}
 
 		Vehicle_t *pVeh = G_IsRidingVehicle( self );
 		if ( pVeh && pVeh == enemy->m_pVehicle )
 		{
-			return qfalse;
+			return false;
 		}
 
 		if ( enemy->health <= 0 && ((level.time-enemy->s.time) > 3000||!InFront(enemy->currentOrigin,self->currentOrigin,self->client->ps.viewangles,0.2f)||DistanceHorizontal(enemy->currentOrigin,self->currentOrigin)>16384))//>128
 		{//corpse, been dead too long or too out of sight to be interesting
 			if ( !enemy->message )
 			{
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -354,12 +354,12 @@ qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 	if ( (!InFront( enemy->currentOrigin, self->currentOrigin, self->client->ps.viewangles, 0.0f) || !G_ClearLOS( self, self->client->renderInfo.eyePoint, enemy ) )
 		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || fabs(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
 	{//(not in front or not clear LOS) & greater than 256 away
-		return qfalse;
+		return false;
 	}
 
 	//LOS?
 
-	return qtrue;
+	return true;
 }
 
 void G_ChooseLookEnemy( gentity_t *self, usercmd_t *ucmd )
@@ -705,7 +705,7 @@ void G_SetClientSound( gentity_t *ent ) {
 
 
 //==============================================================
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 void G_GetMassAndVelocityForEnt( gentity_t *ent, float *mass, vec3_t velocity )
 {
@@ -736,7 +736,7 @@ void G_GetMassAndVelocityForEnt( gentity_t *ent, float *mass, vec3_t velocity )
 	}
 }
 
-void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *trace )
+void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trace )
 {
 	float magnitude, my_mass;
 	bool	thrown = false;
@@ -892,7 +892,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *
 	{
 		vec3_t dir1, dir2;
 		float force = 0, dot;
-		qboolean vehicleHitOwner = qfalse;
+		bool vehicleHitOwner = false;
 
 		if ( other->material == MAT_GLASS || other->material == MAT_GLASS_METAL || other->material == MAT_GRATE1 || ((other->svFlags&SVF_BBRUSH)&&(other->spawnflags&8/*THIN*/)) )//(other->absmax[0]-other->absmin[0]<=32||other->absmax[1]-other->absmin[1]<=32||other->absmax[2]-other->absmin[2]<=32)) )
 		{//glass and thin breakable brushes (axially aligned only, unfortunately) take more impact damage
@@ -1042,7 +1042,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *
 					if ( self->client->respawnTime - level.time < 1000 )
 					{//just spawned in a second ago
 						//don't actually damage or throw him...
-						vehicleHitOwner = qtrue;
+						vehicleHitOwner = true;
 					}
 				}
 			}
@@ -1147,7 +1147,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *
 						{
 							G_Throw( other, dir2, force );
 						}
-						G_Knockdown( other, self, dir2, force, qtrue );
+						G_Knockdown( other, self, dir2, force, true );
 						G_Damage( other, self, self, velocity, self->currentOrigin, force, DAMAGE_NO_ARMOR|DAMAGE_EXTRA_KNOCKBACK, MOD_IMPACT );
 					}
 				}
@@ -1191,14 +1191,14 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf, trace_t *
 							{
                                 if ( PM_InKnockDown( &self->client->ps ) || (self->client->ps.eFlags&EF_FORCE_GRIPPED) )
 								{
-									G_Knockdown( other, self, dir2, Q_irand( 200, 400 ), qtrue );
+									G_Knockdown( other, self, dir2, Q_irand( 200, 400 ), true );
 								}
 							}
 							else if ( self->forcePuller != ENTITYNUM_NONE
 								&& g_entities[self->forcePuller].client
 								&& self->mass > Q_irand( 50, 100 ) )
 							{
-								G_Knockdown( other, &g_entities[self->forcePuller], dir2, Q_irand( 200, 400 ), qtrue );
+								G_Knockdown( other, &g_entities[self->forcePuller], dir2, Q_irand( 200, 400 ), true );
 							}
 						}
 					}
@@ -1363,8 +1363,8 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 	trace_t		trace;
 	vec3_t		end, mins, maxs, diff;
 	const vec3_t	range = { 40, 40, 52 };
-	qboolean	touched[MAX_GENTITIES];
-	qboolean	done = qfalse;
+	bool	touched[MAX_GENTITIES];
+	bool	done = false;
 
 	if ( !ent->client ) {
 		return;
@@ -1396,14 +1396,14 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 	{
 		return;
 	}
-	memset (touched, qfalse, sizeof(touched) );
+	memset (touched, false, sizeof(touched) );
 
 	for ( curDist = 0; !done && ent->maxs[1]>0; curDist += (float)ent->maxs[1]/2.0f )
 	{
 		if ( curDist >= dist )
 		{
 			VectorCopy( ent->currentOrigin, end );
-			done = qtrue;
+			done = true;
 		}
 		else
 		{
@@ -1428,7 +1428,7 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 				continue;
 			}
 
-			if ( touched[i] == qtrue ) {
+			if ( touched[i] == true ) {
 				continue;//already touched this move
 			}
 			if ( ent->client->ps.stats[STAT_HEALTH] <= 0 )
@@ -1452,7 +1452,7 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 				}
 			}
 
-			touched[i] = qtrue;
+			touched[i] = true;
 
 			// all zero, the collision records included: only their default constructor makes trace_t non-trivial
 			memset( (void *)&trace, 0, sizeof(trace) );
@@ -1738,16 +1738,16 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 ClientIntermissionThink
 ====================
 */
-static qboolean ClientCinematicThink( gclient_t *client ) {
+static bool ClientCinematicThink( gclient_t *client ) {
 	client->ps.eFlags &= ~EF_FIRING;
 
 	// swap button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->usercmd.buttons;
 	if ( client->buttons & ( BUTTON_USE ) & ( client->oldbuttons ^ client->buttons ) ) {
-		return( qtrue );
+		return( true );
 	}
-	return( qfalse );
+	return( false );
 }
 
 
@@ -1759,7 +1759,7 @@ Events will be passed on to the clients for presentation,
 but any server game effects are handled here
 ================
 */
-extern void WP_SabersDamageTrace( gentity_t *ent, qboolean noEffects = qfalse );
+extern void WP_SabersDamageTrace( gentity_t *ent, bool noEffects = false );
 extern void WP_SaberUpdateOldBladeData( gentity_t *ent );
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;
@@ -1767,7 +1767,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	gclient_t *client;
 	//int		damage;
 #ifndef FINAL_BUILD
-	qboolean	fired = qfalse;
+	bool	fired = false;
 #endif
 
 	client = ent->client;
@@ -1801,9 +1801,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( fired ) {
 				gi.Printf( "DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n" );
 			}
-			fired = qtrue;
+			fired = true;
 #endif
-			FireWeapon( ent, qfalse );
+			FireWeapon( ent, false );
 			break;
 
 		case EV_ALT_FIRE:
@@ -1811,9 +1811,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( fired ) {
 				gi.Printf( "DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n" );
 			}
-			fired = qtrue;
+			fired = true;
 #endif
-			FireWeapon( ent, qtrue );
+			FireWeapon( ent, true );
 			break;
 
 		default:
@@ -1950,7 +1950,7 @@ void G_ThrownDeathAnimForDeathAnim( gentity_t *hitEnt, vec3_t impactPoint )
 	}
 }
 
-gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t kickEnd, int kickDamage, float kickPush, qboolean doSoundOnWalls )
+gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t kickEnd, int kickDamage, float kickPush, bool doSoundOnWalls )
 {
 	vec3_t	traceOrg, traceEnd, kickMins={-2,-2,-2}, kickMaxs={2,2,2};
 	trace_t	trace;
@@ -2027,7 +2027,7 @@ gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t k
 								{
 									G_Throw( hitEnt, kickDir, kickPush/3.0f );
 								}
-								G_Knockdown( hitEnt, ent, kickDir, 300, qtrue );
+								G_Knockdown( hitEnt, ent, kickDir, 300, true );
 							}
 							else
 							{//force them to play a pain anim
@@ -2075,7 +2075,7 @@ gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t k
 								hitEnt->client->ps.pm_time = 100;
 							}
 							//knock them down
-							G_Knockdown( hitEnt, ent, kickDir, 300, qtrue );
+							G_Knockdown( hitEnt, ent, kickDir, 300, true );
 						}
 						else
 						{
@@ -2105,11 +2105,11 @@ gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t k
 						}
 						if ( kickPush >= 150.0f/*75.0f*/ && !Q_irand( 0, 2 ) )
 						{
-							G_Knockdown( hitEnt, ent, kickDir, 300, qtrue );
+							G_Knockdown( hitEnt, ent, kickDir, 300, true );
 						}
 						else
 						{
-							G_Knockdown( hitEnt, ent, kickDir, kickPush, qtrue );
+							G_Knockdown( hitEnt, ent, kickDir, kickPush, true );
 						}
 					}
 				}
@@ -2138,7 +2138,7 @@ gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, vec3_t k
 	return (hitEnt);
 }
 
-qboolean G_CheckRollSafety( gentity_t *self, int anim, float testDist )
+bool G_CheckRollSafety( gentity_t *self, int anim, float testDist )
 {
 	vec3_t	forward, right, testPos, angles;
 	trace_t	trace;
@@ -2146,7 +2146,7 @@ qboolean G_CheckRollSafety( gentity_t *self, int anim, float testDist )
 
 	if ( !self || !self->client )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( self->s.number < MAX_CLIENTS )
@@ -2184,7 +2184,7 @@ qboolean G_CheckRollSafety( gentity_t *self, int anim, float testDist )
 		VectorMA( self->currentOrigin, -testDist, forward, testPos );
 		break;
 	default://FIXME: add normal rolls?  Make generic for any forced-movement anim?
-		return qtrue;
+		return true;
 		break;
 	}
 
@@ -2193,12 +2193,12 @@ qboolean G_CheckRollSafety( gentity_t *self, int anim, float testDist )
 		|| trace.allsolid
 		|| trace.startsolid )
 	{//inside something or will hit something
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-void G_CamPullBackForLegsAnim( gentity_t *ent, qboolean useTorso = qfalse )
+void G_CamPullBackForLegsAnim( gentity_t *ent, bool useTorso = false )
 {
 	if ( (ent->s.number < MAX_CLIENTS||G_ControlledByPlayer(ent)) )
 	{
@@ -2231,7 +2231,7 @@ void G_CamCircleForLegsAnim( gentity_t *ent )
 	}
 }
 
-qboolean G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
+bool G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
 {
 	gentity_t	*bestEnt = NULL, *radiusEnts[ 128 ];
 	int			numEnts;
@@ -2317,14 +2317,14 @@ qboolean G_GrabClient( gentity_t *ent, usercmd_t *ucmd )
 			lockType = LOCK_KYLE_GRAB2;
 		}
 		WP_SabersCheckLock2( ent, bestEnt, (sabersLockMode_t)lockType );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_PullAttack( gentity_t *ent, usercmd_t *ucmd )
+bool G_PullAttack( gentity_t *ent, usercmd_t *ucmd )
 {
-	qboolean overridAngles = qfalse;
+	bool overridAngles = false;
 	if ( ent->client->ps.torsoAnim == BOTH_PULL_IMPALE_STAB
 		|| ent->client->ps.torsoAnim == BOTH_PULL_IMPALE_SWING )
 	{//pulling
@@ -2332,7 +2332,7 @@ qboolean G_PullAttack( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 	}
 	else if ( ent->client->ps.torsoAnim == BOTH_PULLED_INAIR_B
@@ -2377,8 +2377,8 @@ qboolean G_PullAttack( gentity_t *ent, usercmd_t *ucmd )
 			ent->forcePuller = puller->s.number;
 			ent->forcePushTime = level.time + 100; // let the push effect last for 100 more ms
 			//look at him
-			PM_AdjustAnglesToPuller( ent, puller, ucmd, qboolean(ent->client->ps.legsAnim==BOTH_PULLED_INAIR_B) );
-			overridAngles = qtrue;
+			PM_AdjustAnglesToPuller( ent, puller, ucmd, bool(ent->client->ps.legsAnim==BOTH_PULLED_INAIR_B) );
+			overridAngles = true;
 			//don't move
 			if ( ent->NPC )
 			{
@@ -2455,9 +2455,9 @@ void G_FixMins( gentity_t *ent )
 }
 
 
-qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
+bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 {
-	qboolean overridAngles = qfalse;
+	bool overridAngles = false;
 
 	if ( ent->client->NPC_class == CLASS_PROTOCOL
 		|| ent->client->NPC_class == CLASS_R2D2
@@ -2512,7 +2512,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 	}
 
-	overridAngles = (PM_AdjustAnglesForKnockdown( ent, ucmd, qfalse )?qtrue:overridAngles);
+	overridAngles = (PM_AdjustAnglesForKnockdown( ent, ucmd, false )?true:overridAngles);
 	if ( PM_GetupAnimNoMove( ent->client->ps.legsAnim ) )
 	{
 		ucmd->forwardmove = ucmd->rightmove = 0;//ucmd->upmove = ?
@@ -2530,7 +2530,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			ucmd->buttons &= ~(ucmd->buttons&~BUTTON_ATTACK);
 		}
-		overridAngles = (PM_AdjustAnglesForSaberLock( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_AdjustAnglesForSaberLock( ent, ucmd )?true:overridAngles);
 		if ( ent->NPC )
 		{
 			VectorClear( ent->client->ps.moveDir );
@@ -2576,7 +2576,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			ent->client->ps.velocity[2] = savZ;
 		}
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
-		overridAngles = (PM_AdjustAnglesForWallRunUpFlipAlt( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_AdjustAnglesForWallRunUpFlipAlt( ent, ucmd )?true:overridAngles);
 	}
 
 	if ( ent->client->ps.saberMove == LS_A_JUMP_T__B_ )
@@ -2659,7 +2659,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 		//else
 		{//disallow turning unless in the middle frame when you're on the ground
-			//overridAngles = (PM_AdjustAnglesForDualJumpAttack( ent, ucmd )?qtrue:overridAngles);
+			//overridAngles = (PM_AdjustAnglesForDualJumpAttack( ent, ucmd )?true:overridAngles);
 		}
 
 		//dynamically reduce bounding box to let character sail over heads of enemies
@@ -2731,7 +2731,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			}
 
 			//disallow turning unless in the middle frame when you're on the ground
-			//overridAngles = (PM_AdjustAnglesForDualJumpAttack( ent, ucmd )?qtrue:overridAngles);
+			//overridAngles = (PM_AdjustAnglesForDualJumpAttack( ent, ucmd )?true:overridAngles);
 		}
 
 		if ( ent->NPC )
@@ -2786,7 +2786,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 
 	if ( ent->client->ps.torsoAnim == BOTH_LK_DL_S_T_SB_1_W )
 	{
-		G_CamPullBackForLegsAnim( ent, qtrue );
+		G_CamPullBackForLegsAnim( ent, true );
 	}
 
 	if ( ent->client->ps.torsoAnim == BOTH_A6_FB
@@ -2796,7 +2796,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 	}
 	else if ( ent->client->ps.legsAnim == BOTH_ROLL_STAB )
@@ -2805,7 +2805,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 		if ( ent->client->ps.legsAnimTimer )
 		{
@@ -2822,7 +2822,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 		if ( ent->client->ps.legsAnim == BOTH_LK_DL_ST_T_SB_1_L )
 		{
@@ -2871,7 +2871,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			VectorClear( ent->client->ps.moveDir );
 		}
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
-		overridAngles = PM_LockAngles( ent, ucmd )?qtrue:overridAngles;
+		overridAngles = PM_LockAngles( ent, ucmd )?true:overridAngles;
 	}
 	else if ( ent->client->ps.legsAnim==BOTH_PLAYER_PA_1
 		|| ent->client->ps.legsAnim==BOTH_PLAYER_PA_2
@@ -2885,7 +2885,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = PM_AdjustAnglesForGrapple( ent, ucmd )?qtrue:overridAngles;
+		overridAngles = PM_AdjustAnglesForGrapple( ent, ucmd )?true:overridAngles;
 		//if ( g_debugMelee->integer )
 		{//actually do some damage during sequence
 			int damage = 0;
@@ -3057,7 +3057,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 			}
 		}
-		qboolean clearMove = qtrue;
+		bool clearMove = true;
 		int endOfAnimTime = 100;
 		if ( ent->s.number < MAX_CLIENTS
 			&& ent->client->ps.legsAnim == BOTH_PLAYER_PA_3_FLY )
@@ -3065,7 +3065,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			//endOfAnimTime += PLAYER_KNOCKDOWN_HOLD_EXTRA_TIME;
 			if ( ent->client->ps.legsAnimTimer <= endOfAnimTime )//PLAYER_KNOCKDOWN_HOLD_EXTRA_TIME )
 			{
-				clearMove = qfalse;
+				clearMove = false;
 			}
 		}
 		if ( clearMove )
@@ -3140,7 +3140,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		overridAngles = PM_AdjustAnglesForLongJump( ent, ucmd )?qtrue:overridAngles;
+		overridAngles = PM_AdjustAnglesForLongJump( ent, ucmd )?true:overridAngles;
 	}
 	else if ( PM_KickingAnim( ent->client->ps.legsAnim )
 		|| ent->client->ps.legsAnim == BOTH_ARIAL_F1
@@ -3173,15 +3173,15 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		int	  kickDamage2 = Q_irand( 3, 8 );
 		int	  kickPush = Q_flrand( 100.0f, 200.0f );//Q_flrand( 50.0f, 100.0f );
 		int	  kickPush2 = Q_flrand( 100.0f, 200.0f );//Q_flrand( 50.0f, 100.0f );
-		qboolean doKick = qfalse;
-		qboolean doKick2 = qfalse;
-		qboolean kickSoundOnWalls = qfalse;
+		bool doKick = false;
+		bool doKick2 = false;
+		bool kickSoundOnWalls = false;
 		//HMM... or maybe trace from origin to footRBolt/footLBolt?  Which one?  G2 trace?  Will do hitLoc, if so...
 		if ( ent->client->ps.torsoAnim == BOTH_A7_HILT )
 		{
 			if ( elapsedTime >= 250 && remainingTime >= 250 )
 			{//front
-				doKick = qtrue;
+				doKick = true;
 				if ( ent->handRBolt != -1 )
 				{//actually trace to a bolt
 					G_GetBoltPosition( ent, ent->handRBolt, kickEnd );
@@ -3203,7 +3203,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
 				if ( elapsedTime >= 1400 && elapsedTime <= 1500 )
 				{//right leg
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3220,7 +3220,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			case BOTH_ARIAL_F1:
 				if ( elapsedTime >= 550 && elapsedTime <= 1000 )
 				{//right leg
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3235,7 +3235,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				if ( elapsedTime >= 800 && elapsedTime <= 1200 )
 				{//left leg
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd2 );
@@ -3254,7 +3254,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 200 && elapsedTime <= 600 )
 				{//lead leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_ARIAL_LEFT)?ent->footRBolt:ent->footLBolt;//mirrored anims
-					doKick = qtrue;
+					doKick = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd );
@@ -3270,7 +3270,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 400 && elapsedTime <= 850 )
 				{//trailing leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_ARIAL_LEFT)?ent->footLBolt:ent->footRBolt;//mirrored anims
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd2 );
@@ -3289,7 +3289,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 200 && elapsedTime <= 600 )
 				{//lead leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_CARTWHEEL_LEFT)?ent->footRBolt:ent->footLBolt;//mirrored anims
-					doKick = qtrue;
+					doKick = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd );
@@ -3305,7 +3305,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 350 && elapsedTime <= 650 )
 				{//trailing leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_CARTWHEEL_LEFT)?ent->footLBolt:ent->footRBolt;//mirrored anims
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd2 );
@@ -3322,7 +3322,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			case BOTH_JUMPATTACK7:
 				if ( elapsedTime >= 300 && elapsedTime <= 900 )
 				{//right knee
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->kneeRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->kneeRBolt, kickEnd );
@@ -3337,7 +3337,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				if ( elapsedTime >= 600 && elapsedTime <= 900 )
 				{//left leg
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd2 );
@@ -3356,7 +3356,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 950 && elapsedTime <= 1300 )
 				{//lead leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_BUTTERFLY_FL1)?ent->footRBolt:ent->footLBolt;//mirrored anims
-					doKick = qtrue;
+					doKick = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd );
@@ -3372,7 +3372,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 1150 && elapsedTime <= 1600 )
 				{//trailing leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_BUTTERFLY_FL1)?ent->footLBolt:ent->footRBolt;//mirrored anims
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd2 );
@@ -3392,7 +3392,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 					|| (elapsedTime >= 1100 && elapsedTime <= 1350) )
 				{//lead leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_BUTTERFLY_LEFT)?ent->footLBolt:ent->footRBolt;//mirrored anims
-					doKick = qtrue;
+					doKick = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd );
@@ -3408,7 +3408,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				if ( elapsedTime >= 900 && elapsedTime <= 1600 )
 				{//trailing leg
 					int footBolt = (ent->client->ps.legsAnim==BOTH_BUTTERFLY_LEFT)?ent->footRBolt:ent->footLBolt;//mirrored anims
-					doKick2 = qtrue;
+					doKick2 = true;
 					if ( footBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, footBolt, kickEnd2 );
@@ -3429,7 +3429,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
 				if ( elapsedTime >= 250 && remainingTime >= 250 )
 				{//front
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3450,10 +3450,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				break;
 			case BOTH_A7_KICK_F_AIR:
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				if ( elapsedTime >= 100 && remainingTime >= 500 )
 				{//front
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3468,11 +3468,11 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				break;
 			case BOTH_A7_KICK_F:
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				//FIXME: push forward?
 				if ( elapsedTime >= 250 && remainingTime >= 250 )
 				{//front
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3488,10 +3488,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				break;
 			case BOTH_A7_KICK_B_AIR:
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				if ( elapsedTime >= 100 && remainingTime >= 400 )
 				{//back
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3507,10 +3507,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				break;
 			case BOTH_A7_KICK_B:
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				if ( elapsedTime >= 250 && remainingTime >= 250 )
 				{//back
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3527,10 +3527,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				break;
 			case BOTH_A7_KICK_R_AIR:
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				if ( elapsedTime >= 150 && remainingTime >= 300 )
 				{//left
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd );
@@ -3546,11 +3546,11 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				break;
 			case BOTH_A7_KICK_R:
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				//FIXME: push right?
 				if ( elapsedTime >= 250 && remainingTime >= 250 )
 				{//right
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3566,10 +3566,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				break;
 			case BOTH_A7_KICK_L_AIR:
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				if ( elapsedTime >= 150 && remainingTime >= 300 )
 				{//left
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd );
@@ -3585,11 +3585,11 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				break;
 			case BOTH_A7_KICK_L:
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				//FIXME: push left?
 				if ( elapsedTime >= 250 && remainingTime >= 250 )
 				{//left
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd );
@@ -3611,7 +3611,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 					if ( elapsedTime >= 550
 						&& elapsedTime <= 1050 )
 					{
-						doKick = qtrue;
+						doKick = true;
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
 						VectorSubtract( kickEnd, ent->currentOrigin, kickDir );
 						kickDir[2] = 0;//ah, flatten it, I guess...
@@ -3624,47 +3624,47 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				{//guess
 					if ( elapsedTime >= 400 && elapsedTime < 500 )
 					{//front
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 					}
 					else if ( elapsedTime >= 500 && elapsedTime < 600 )
 					{//front-right?
-						doKick = qtrue;
+						doKick = true;
 						fwdAngs[YAW] += 45;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 					}
 					else if ( elapsedTime >= 600 && elapsedTime < 700 )
 					{//right
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, NULL, kickDir, NULL );
 					}
 					else if ( elapsedTime >= 700 && elapsedTime < 800 )
 					{//back-right?
-						doKick = qtrue;
+						doKick = true;
 						fwdAngs[YAW] += 45;
 						AngleVectors( fwdAngs, NULL, kickDir, NULL );
 					}
 					else if ( elapsedTime >= 800 && elapsedTime < 900 )
 					{//back
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 						VectorScale( kickDir, -1, kickDir );
 					}
 					else if ( elapsedTime >= 900 && elapsedTime < 1000 )
 					{//back-left?
-						doKick = qtrue;
+						doKick = true;
 						fwdAngs[YAW] += 45;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 					}
 					else if ( elapsedTime >= 1000 && elapsedTime < 1100 )
 					{//left
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, NULL, kickDir, NULL );
 						VectorScale( kickDir, -1, kickDir );
 					}
 					else if ( elapsedTime >= 1100 && elapsedTime < 1200 )
 					{//front-left?
-						doKick = qtrue;
+						doKick = true;
 						fwdAngs[YAW] += 45;
 						AngleVectors( fwdAngs, NULL, kickDir, NULL );
 						VectorScale( kickDir, -1, kickDir );
@@ -3675,7 +3675,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
 				if ( elapsedTime < 1500 )
 				{//auto-aim!
-					overridAngles = PM_AdjustAnglesForBFKick( ent, ucmd, fwdAngs, qboolean(elapsedTime<850) )?qtrue:overridAngles;
+					overridAngles = PM_AdjustAnglesForBFKick( ent, ucmd, fwdAngs, bool(elapsedTime<850) )?true:overridAngles;
 					//FIXME: if we haven't done the back kick yet and there's no-one there to
 					//			kick anymore, go into some anim that returns us to our base stance
 				}
@@ -3684,7 +3684,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 					if ( ( elapsedTime >= 750 && elapsedTime < 850 )
 						|| ( elapsedTime >= 1400 && elapsedTime < 1500 ) )
 					{//right, though either would do
-						doKick = qtrue;
+						doKick = true;
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
 						VectorSubtract( kickEnd, ent->currentOrigin, kickDir );
 						kickDir[2] = 0;//ah, flatten it, I guess...
@@ -3697,25 +3697,25 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				{//guess
 					if ( elapsedTime >= 250 && elapsedTime < 350 )
 					{//front
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 					}
 					else if ( elapsedTime >= 350 && elapsedTime < 450 )
 					{//back
-						doKick = qtrue;
+						doKick = true;
 						AngleVectors( fwdAngs, kickDir, NULL, NULL );
 						VectorScale( kickDir, -1, kickDir );
 					}
 				}
 				break;
 			case BOTH_A7_KICK_RL:
-				kickSoundOnWalls = qtrue;
+				kickSoundOnWalls = true;
 				kickPush = Q_flrand( 150.0f, 250.0f );//Q_flrand( 75.0f, 125.0f );
 				//FIXME: auto aim at enemies on the side of us?
-				//overridAngles = PM_AdjustAnglesForRLKick( ent, ucmd, fwdAngs, qboolean(elapsedTime<850) )?qtrue:overridAngles;
+				//overridAngles = PM_AdjustAnglesForRLKick( ent, ucmd, fwdAngs, bool(elapsedTime<850) )?true:overridAngles;
 				if ( elapsedTime >= 250 && elapsedTime < 350 )
 				{//right
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footRBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footRBolt, kickEnd );
@@ -3732,7 +3732,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 				}
 				else if ( elapsedTime >= 350 && elapsedTime < 450 )
 				{//left
-					doKick = qtrue;
+					doKick = true;
 					if ( ent->footLBolt != -1 )
 					{//actually trace to a bolt
 						G_GetBoltPosition( ent, ent->footLBolt, kickEnd );
@@ -3773,7 +3773,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		if ( (overridAngles = (PM_AdjustAnglesForBackAttack( ent, ucmd )?qtrue:overridAngles)) == qtrue )
+		if ( (overridAngles = (PM_AdjustAnglesForBackAttack( ent, ucmd )?true:overridAngles)) == true )
 		{
 			//pull back the view
 			G_CamPullBackForLegsAnim( ent );
@@ -3817,7 +3817,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			cg.overrides.thirdPersonRange = cg_thirdPersonRange.value+backDist;
 			cg.overrides.thirdPersonPitchOffset = cg_thirdPersonPitchOffset.value+(backDist/2.0f);
 		}
-		overridAngles = (PM_AdjustAnglesForSpinProtect( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_AdjustAnglesForSpinProtect( ent, ucmd )?true:overridAngles);
 	}
 	else if ( ent->client->ps.legsAnim == BOTH_A3_SPECIAL )
 	{//push forward
@@ -3880,7 +3880,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			VectorClear( ent->client->ps.moveDir );
 			ent->client->ps.forceJumpCharge = 0;
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 	}
 	else if ( BG_FullBodyTauntAnim( ent->client->ps.legsAnim )
 		&& BG_FullBodyTauntAnim( ent->client->ps.torsoAnim ) )
@@ -3930,7 +3930,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 					VectorClear( ent->client->ps.moveDir );
 					ent->client->ps.forceJumpCharge = 0;
 				}
-				overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+				overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 			}
 		}
 	}
@@ -3946,7 +3946,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			VectorClear( ent->client->ps.moveDir );
 			ent->client->ps.forceJumpCharge = 0;
 		}
-		overridAngles = (PM_LockAngles( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_LockAngles( ent, ucmd )?true:overridAngles);
 	}
 	else if ( !ent->s.number )
 	{
@@ -4047,10 +4047,10 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 	}
 
-	overridAngles = (PM_AdjustAnglesForStabDown( ent, ucmd )?qtrue:overridAngles);
-	overridAngles = (PM_AdjustAngleForWallJump( ent, ucmd, qtrue )?qtrue:overridAngles);
-	overridAngles = (PM_AdjustAngleForWallRunUp( ent, ucmd, qtrue )?qtrue:overridAngles);
-	overridAngles = (PM_AdjustAngleForWallRun( ent, ucmd, qtrue )?qtrue:overridAngles);
+	overridAngles = (PM_AdjustAnglesForStabDown( ent, ucmd )?true:overridAngles);
+	overridAngles = (PM_AdjustAngleForWallJump( ent, ucmd, true )?true:overridAngles);
+	overridAngles = (PM_AdjustAngleForWallRunUp( ent, ucmd, true )?true:overridAngles);
+	overridAngles = (PM_AdjustAngleForWallRun( ent, ucmd, true )?true:overridAngles);
 
 	return overridAngles;
 }
@@ -4090,7 +4090,7 @@ void BG_AddPushVecToUcmd( gentity_t *self, usercmd_t *ucmd )
 	}
 }
 
-void NPC_Accelerate( gentity_t *ent, qboolean fullWalkAcc, qboolean fullRunAcc )
+void NPC_Accelerate( gentity_t *ent, bool fullWalkAcc, bool fullRunAcc )
 {
 	if ( !ent->client || !ent->NPC )
 	{
@@ -4414,7 +4414,7 @@ ClientAlterSpeed
 This function is called ONLY from ClientThinkReal, and is responsible for setting client ps.speed
 ==============
 */
-void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlayer, float vehicleFrameTimeModifier)
+void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, float vehicleFrameTimeModifier)
 {
 	gclient_t	*client = ent->client;
 	Vehicle_t *pVeh = NULL;
@@ -4429,12 +4429,12 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlay
 	if ( ent->NPC != NULL && ent->client && ( ent->s.m_iVehicleNum != 0 )/*&& ent->client->NPC_class == CLASS_VEHICLE*/ )
 	{//we don't actually scale the ucmd, we use actual speeds
 		//FIXME: swoop should keep turning (and moving forward?) for a little bit?
-		if ( ent->NPC->combatMove == qfalse )
+		if ( ent->NPC->combatMove == false )
 		{
 			if ( !(ucmd->buttons & BUTTON_USE) )
 			{//Not leaning
-				qboolean Flying = (qboolean)(ucmd->upmove && ent->client->moveType == MT_FLYSWIM);
-				qboolean Climbing = (qboolean)(ucmd->upmove && ent->watertype&CONTENTS_LADDER );
+				bool Flying = (ucmd->upmove && ent->client->moveType == MT_FLYSWIM);
+				bool Climbing = (ucmd->upmove && ent->watertype&CONTENTS_LADDER );
 
 				client->ps.friction = 6;
 
@@ -4479,7 +4479,7 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlay
 					ent->NPC->desiredSpeed = 0;
 				}
 
-				NPC_Accelerate( ent, qfalse, qfalse );
+				NPC_Accelerate( ent, false, false );
 
 				if ( ent->NPC->currentSpeed <= 24 && ent->NPC->desiredSpeed < ent->NPC->currentSpeed )
 				{//No-one walks this slow
@@ -4689,7 +4689,7 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlay
 }
 
 
-extern qboolean ForceDrain2(gentity_t *ent);
+extern bool ForceDrain2(gentity_t *ent);
 extern void ForceGrip(gentity_t *ent);
 extern void ForceLightning(gentity_t *ent);
 extern void ForceProtect(gentity_t *ent);
@@ -4710,10 +4710,10 @@ static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 		ForceSpeed( ent );
 		break;
 	case GENCMD_FORCE_THROW:
-		ForceThrow(ent, qfalse);
+		ForceThrow(ent, false);
 		break;
 	case GENCMD_FORCE_PULL:
-		ForceThrow(ent, qtrue);
+		ForceThrow(ent, true);
 		break;
 	case GENCMD_FORCE_DISTRACT:
 		ForceTelepathy(ent);
@@ -4763,8 +4763,8 @@ void ClientThink_real( gentity_t *ent, usercmd_t *ucmd )
 	vec3_t		oldOrigin;
 	int			oldEventSequence;
 	int			msec;
-	qboolean	inSpinFlipAttack = PM_AdjustAnglesForSpinningFlip( ent, ucmd, qfalse );
-	qboolean	controlledByPlayer = qfalse;
+	bool	inSpinFlipAttack = PM_AdjustAnglesForSpinningFlip( ent, ucmd, false );
+	bool	controlledByPlayer = false;
 
 	Vehicle_t *pVeh = NULL;
 
@@ -4865,7 +4865,7 @@ extern cvar_t	*g_skippingcin;
 			}
 			if ( ent->client->ps.pm_type == PM_DEAD && cg.missionStatusDeadTime < level.time )
 			{//mission status screen is up because player is dead, stop all scripts
-				stop_icarus = qtrue;
+				stop_icarus = true;
 			}
 		}
 
@@ -4890,7 +4890,7 @@ extern cvar_t	*g_skippingcin;
 				G_Sound( ent, G_SoundIndex( "sound/weapons/disruptor/zoomend.wav" ));
 				cg.zoomMode = 0;
 				cg.zoomTime = cg.time;
-				cg.zoomLocked = qfalse;
+				cg.zoomLocked = false;
 			}
 		}
 
@@ -4929,7 +4929,7 @@ extern cvar_t	*g_skippingcin;
 		}
 		if ( player && player->client && player->client->ps.viewEntity == ent->s.number )
 		{
-			controlledByPlayer = qtrue;
+			controlledByPlayer = true;
 			int sav_weapon = ucmd->weapon;
 			memcpy( ucmd, &player->client->usercmd, sizeof( usercmd_t ) );
 			ucmd->weapon = sav_weapon;
@@ -4984,7 +4984,7 @@ extern cvar_t	*g_skippingcin;
 				//FIXME: project this in the direction I'm moving?
 				if ( ent->client->NPC_class != CLASS_RANCOR && !Q_irand( 0, 10 ) )
 				{//not so often...
-					AddSoundEvent( ent, ent->currentOrigin, ent->maxs[1]*5, AEL_DANGER, qfalse, qtrue );
+					AddSoundEvent( ent, ent->currentOrigin, ent->maxs[1]*5, AEL_DANGER, false, true );
 					AddSightEvent( ent, ent->currentOrigin, ent->maxs[1]*5, AEL_DANGER, 100 );
 				}
 			}
@@ -5010,7 +5010,7 @@ extern cvar_t	*g_skippingcin;
 				else if ( groundEnt->client && groundEnt->client->NPC_class == CLASS_SAND_CREATURE
 					&& G_HasKnockdownAnims( ent ) )
 				{//step on a sand creature = *you* fall down
-                    G_Knockdown( ent, groundEnt, vec3_origin, 300, qtrue );
+                    G_Knockdown( ent, groundEnt, vec3_origin, 300, true );
 				}
 				else if ( groundEnt->client && groundEnt->client->NPC_class == CLASS_RANCOR )
 				{//step on a Rancor, it bucks & throws you off
@@ -5030,7 +5030,7 @@ extern cvar_t	*g_skippingcin;
 						}
 						if ( G_HasKnockdownAnims( ent ) )
 						{
-							G_Knockdown( ent, groundEnt, vec3_origin, 300, qtrue );
+							G_Knockdown( ent, groundEnt, vec3_origin, 300, true );
 						}
 						NPC_SetAnim( groundEnt, SETANIM_BOTH, BOTH_BUCK_RIDER, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
 					}
@@ -5044,12 +5044,12 @@ extern cvar_t	*g_skippingcin;
 							&& !inSpinFlipAttack )
 
 				{//landed on a live client who is on the ground, jump off them and knock them down
-					qboolean forceKnockdown = qfalse;
+					bool forceKnockdown = false;
 
 					// If in a vehicle when land on someone, always knockdown.
 					if ( pVeh )
 					{
-						forceKnockdown = qtrue;
+						forceKnockdown = true;
 					}
 					else if ( ent->s.number
 						&& ent->NPC
@@ -5058,7 +5058,7 @@ extern cvar_t	*g_skippingcin;
 						//don't jump off, too many ledges, plus looks weird
 						if ( groundEnt->client->playerTeam != ent->client->playerTeam )
 						{//don't knock down own guys
-							forceKnockdown = (qboolean)(Q_irand( 0, RANK_CAPTAIN+4 )<ent->NPC->rank);
+							forceKnockdown = (Q_irand( 0, RANK_CAPTAIN+4 )<ent->NPC->rank);
 						}
 						//now what... push the groundEnt out of the way?
 						if ( !ent->client->ps.velocity[0]
@@ -5136,7 +5136,7 @@ extern cvar_t	*g_skippingcin;
 					else
 					{//a corpse?  Shit
 						//Hmm, corpses should probably *always* knockdown...
-						forceKnockdown = qtrue;
+						forceKnockdown = true;
 						ent->clipmask &= ~CONTENTS_BODY;
 					}
 					//FIXME: need impact sound event
@@ -5398,7 +5398,7 @@ extern cvar_t	*g_skippingcin;
 	pm.trace = gi.trace;
 	pm.pointcontents = gi.pointcontents;
 	pm.debugLevel = g_debugMove->integer;
-	pm.noFootsteps = qfalse;//( g_dmflags->integer & DF_NO_FOOTSTEPS ) > 0;
+	pm.noFootsteps = false;//( g_dmflags->integer & DF_NO_FOOTSTEPS ) > 0;
 
 	if ( ent->client && ent->NPC )
 	{
@@ -5548,11 +5548,11 @@ A new command has arrived from the client
 ==================
 */
 extern void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  );
-extern qboolean PM_GentCantJump( gentity_t *gent );
-extern qboolean PM_WeaponOkOnVehicle( int weapon );
+extern bool PM_GentCantJump( gentity_t *gent );
+extern bool PM_WeaponOkOnVehicle( int weapon );
 void ClientThink( int clientNum, usercmd_t *ucmd ) {
 	gentity_t *ent;
-	qboolean restore_ucmd = qfalse;
+	bool restore_ucmd = false;
 	usercmd_t sav_ucmd = {0};
 
 	ent = g_entities + clientNum;
@@ -5562,7 +5562,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 		if ( ent->client->ps.viewEntity > 0 && ent->client->ps.viewEntity < ENTITYNUM_WORLD )
 		{//you're controlling another NPC
 			gentity_t *controlled = &g_entities[ent->client->ps.viewEntity];
-			qboolean freed = qfalse;
+			bool freed = false;
 			if ( controlled->NPC
 				&& controlled->NPC->controlledTime
 				&& ent->client->ps.forcePowerLevel[FP_TELEPATHY] > FORCE_LEVEL_3 )
@@ -5570,7 +5570,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 				if ( controlled->NPC->controlledTime < level.time )
 				{//time's up!
 					G_ClearViewEntity( ent );
-					freed = qtrue;
+					freed = true;
 				}
 				else if ( ucmd->upmove > 0 )
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
@@ -5578,7 +5578,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 					ucmd->upmove = 0;//ucmd->buttons = 0;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
-					freed = qtrue;
+					freed = true;
 				}
 			}
 			else if ( controlled->client //an NPC
@@ -5591,13 +5591,13 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 					ucmd->upmove = 0;//ucmd->buttons = 0;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
-					freed = qtrue;
+					freed = true;
 				}
 			}
 
 			if ( !freed )
 			{//still controlling, save off my ucmd and clear it for my actual run through pmove
-				restore_ucmd = qtrue;
+				restore_ucmd = true;
 				memcpy( &sav_ucmd, ucmd, sizeof( usercmd_t ) );
 				memset( ucmd, 0, sizeof( usercmd_t ) );
 				//to keep pointing in same dir, need to set ucmd->angles
@@ -5639,7 +5639,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 		// If we're still in the vehicle...
 		if ( pVeh->m_pVehicleInfo->UpdateRider( pVeh, ent, ucmd ) )
 		{
-			restore_ucmd = qtrue;
+			restore_ucmd = true;
 			memcpy( &sav_ucmd, ucmd, sizeof( usercmd_t ) );
 			memset( ucmd, 0, sizeof( usercmd_t ) );
 			//to keep pointing in same dir, need to set ucmd->angles

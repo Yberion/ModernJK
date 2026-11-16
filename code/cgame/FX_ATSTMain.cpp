@@ -78,7 +78,7 @@ void FX_ATSTMainHitWall( vec3_t origin, vec3_t normal )
 FX_ATSTMainHitPlayer
 ---------------------------
 */
-void FX_ATSTMainHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_ATSTMainHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	if ( humanoid )
 	{

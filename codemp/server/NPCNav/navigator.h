@@ -100,7 +100,7 @@ public:
 	void AddEdge( int ID, int cost, int flags = EFLAG_NONE );
 	void AddRank( int ID, int rank );
 
-	void Draw( qboolean radius );
+	void Draw( bool radius );
 
 	int	GetID( void )					const	{	return m_ID;	}
 	void GetPosition( vec3_t position )	const	{	if ( position )	VectorCopy( m_position, position );	}
@@ -171,7 +171,7 @@ public:
 	bool Save( const char *filename, int checksum );
 
 	int  AddRawPoint( vec3_t point, int flags, int radius );
-	void CalculatePaths( qboolean recalc=qfalse );
+	void CalculatePaths( bool recalc=false );
 
 #if _HARD_CONNECT
 
@@ -203,15 +203,15 @@ public:
 //MCG Added BEGIN
 	void CheckFailedNodes( sharedEntity_t *ent );
 	void AddFailedNode( sharedEntity_t *ent, int nodeID );
-	qboolean NodeFailed( sharedEntity_t *ent, int nodeID );
-	qboolean NodesAreNeighbors( int startID, int endID );
+	bool NodeFailed( sharedEntity_t *ent, int nodeID );
+	bool NodesAreNeighbors( int startID, int endID );
 	void ClearFailedEdge( failedEdge_t	*failedEdge );
 	void ClearAllFailedEdges( void );
 	int EdgeFailed( int startID, int endID );
 	void AddFailedEdge( int entID, int startID, int endID );
-	qboolean CheckFailedEdge( failedEdge_t *failedEdge );
+	bool CheckFailedEdge( failedEdge_t *failedEdge );
 	void CheckAllFailedEdges( void );
-	qboolean RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank );
+	bool RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank );
 	int GetBestNodeAltRoute( int startID, int endID, int *pathCost, int rejectID = NODE_NONE );
 	int GetBestNodeAltRoute( int startID, int endID, int rejectID = NODE_NONE );
 	int GetBestPathBetweenEnts( sharedEntity_t *ent, sharedEntity_t *goal, int flags );
@@ -223,12 +223,12 @@ public:
 
 	void FlagAllNodes( int newFlag );
 
-	qboolean pathsCalculated;
+	bool pathsCalculated;
 //MCG Added END
 
 protected:
 
-	int		TestNodePath( sharedEntity_t *ent, int okToHitEntNum, vec3_t position, qboolean includeEnts );
+	int		TestNodePath( sharedEntity_t *ent, int okToHitEntNum, vec3_t position, bool includeEnts );
 	int		TestNodeLOS( sharedEntity_t *ent, vec3_t position );
 	int		TestBestFirst( sharedEntity_t *ent, int lastID, int flags );
 

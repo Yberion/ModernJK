@@ -264,24 +264,24 @@ functionend:
 	return;
 }
 
-qboolean G_ValidRoff( roff_hdr2_t *header )
+bool G_ValidRoff( roff_hdr2_t *header )
 {
 	if ( !strncmp( header->mHeader, "ROFF", 4 ))
 	{
 		if ( LittleLong(header->mVersion) == ROFF_VERSION2 && LittleLong(header->mCount) > 0 )
 		{
-			return qtrue;
+			return true;
 		}
 		else if ( LittleLong(header->mVersion) == ROFF_VERSION && LittleFloat(((roff_hdr_t*)header)->mCount) > 0.0f )
 		{ // version 1 defines the count as a float, so we best do the count check as a float or we'll get bogus results
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean G_InitRoff( char *file, unsigned char *data )
+bool G_InitRoff( char *file, unsigned char *data )
 {
 	roff_hdr_t *header = (roff_hdr_t *)data;
 	int	count;
@@ -327,7 +327,7 @@ qboolean G_InitRoff( char *file, unsigned char *data )
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	else
@@ -398,11 +398,11 @@ qboolean G_InitRoff( char *file, unsigned char *data )
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 //-------------------------------------------------------
@@ -582,7 +582,7 @@ void G_Roff( gentity_t *ent )
 		VectorAdd( ent->pos1, org, ent->pos1 );
 
 		//make it true linear... FIXME: sticks around after ROFF is done, but do we really care?
-		ent->alt_fire = qtrue;
+		ent->alt_fire = true;
 
 		if ( !ent->e_ThinkFunc
 			&& ent->s.eType != ET_MISSILE

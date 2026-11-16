@@ -62,7 +62,7 @@ typedef enum //# rank_e
 	RANK_CAPTAIN
 } rank_t;
 
-qboolean NPC_CheckPlayerTeamStealth( void );
+bool NPC_CheckPlayerTeamStealth( void );
 
 //AI_GRENADIER
 void NPC_BSGrenadier_Default( void );
@@ -149,7 +149,7 @@ class AIGroupInfo_t
 {
 public:
 	int			numGroup;
-	qboolean	processed;
+	bool	processed;
 	team_t		team;
 	gentity_t	*enemy;
 	int			enemyWP;

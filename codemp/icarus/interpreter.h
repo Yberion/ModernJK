@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 typedef float	vector_t[3];
 
-//If you modify this, you MUST modify in g_ICARUScb.c as well.
+//If you modify this, you MUST modify in g_ICARUScb.cpp as well.
 //Token defines
 enum
 {
@@ -132,7 +132,7 @@ enum
 	NUM_MESSAGES,
 };
 
-#ifdef __cplusplus
+#if defined( __cplusplus ) && !defined( _GAME )	// the interpreter's own part, the engine's; the game module uses the part above
 
 typedef struct variable_s
 {

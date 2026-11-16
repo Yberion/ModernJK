@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_utils.c -- misc utility functions for game module
+// g_utils.cpp -- misc utility functions for game module
 
 #include "../cgame/cg_local.h"
 #include "Q3_Interface.h"
@@ -31,10 +31,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-#define ACT_ACTIVE		qtrue
-#define ACT_INACTIVE	qfalse
-extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, qboolean useWhenDone );
-extern qboolean PM_CrouchAnim( int anim );
+#define ACT_ACTIVE		true
+#define ACT_INACTIVE	false
+extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, bool useWhenDone );
+extern bool PM_CrouchAnim( int anim );
 /*
 =========================================================================
 
@@ -50,7 +50,7 @@ G_FindConfigstringIndex
 ================
 */
 extern void ForceTelepathy( gentity_t *self );
-int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create ) {
+int G_FindConfigstringIndex( const char *name, int start, int max, bool create ) {
 	int		i;
 	char	s[MAX_STRING_CHARS];
 
@@ -85,7 +85,7 @@ Ghoul2 Insert Start
 */
 
 int G_SkinIndex( const char *name ) {
-	return G_FindConfigstringIndex (name, CS_CHARSKINS, MAX_CHARSKINS, qtrue);
+	return G_FindConfigstringIndex (name, CS_CHARSKINS, MAX_CHARSKINS, true);
 }
 
 /*
@@ -93,7 +93,7 @@ Ghoul2 Insert End
 */
 
 int G_ModelIndex( const char *name ) {
-	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, qtrue);
+	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, true);
 }
 
 int G_SoundIndex( const char *name ) {
@@ -101,7 +101,7 @@ int G_SoundIndex( const char *name ) {
 	char stripped[MAX_QPATH];
 	COM_StripExtension(name, stripped, sizeof(stripped));
 
-	return G_FindConfigstringIndex (stripped, CS_SOUNDS, MAX_SOUNDS, qtrue);
+	return G_FindConfigstringIndex (stripped, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
 int G_EffectIndex( const char *name )
@@ -111,12 +111,12 @@ int G_EffectIndex( const char *name )
 	// We just don't want extensions on the things we are registering
 	COM_StripExtension( name, temp, sizeof(temp) );
 
-	return G_FindConfigstringIndex( temp, CS_EFFECTS, MAX_FX, qtrue );
+	return G_FindConfigstringIndex( temp, CS_EFFECTS, MAX_FX, true );
 }
 
 int G_BSPIndex( char *name )
 {
-	return G_FindConfigstringIndex (name, CS_BSP_MODELS, MAX_SUB_BSP, qtrue);
+	return G_FindConfigstringIndex (name, CS_BSP_MODELS, MAX_SUB_BSP, true);
 }
 
 #define FX_ENT_RADIUS 32
@@ -193,7 +193,7 @@ void G_PlayEffect( int fxID, const vec3_t origin, const vec3_t axis[3] )
 
 // Effect playing utilities	- bolt an effect to a ghoul2 models bolton point
 //-----------------------------
-void G_PlayEffect( int fxID, const int modelIndex, const int boltIndex, const int entNum, const vec3_t origin, int iLoopTime, qboolean isRelative )//iLoopTime 0 = not looping, 1 for infinite, else duration
+void G_PlayEffect( int fxID, const int modelIndex, const int boltIndex, const int entNum, const vec3_t origin, int iLoopTime, bool isRelative )//iLoopTime 0 = not looping, 1 for infinite, else duration
 {
 	gentity_t	*tent;
 
@@ -253,7 +253,7 @@ void G_StopEffect(const char *name, const int modelIndex, const int boltIndex, c
 
 extern void cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
 #include "../cgame/cg_media.h"	//access to cgs
-extern qboolean CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
+extern bool CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
 extern cvar_t *g_timescale;
 //NOTE: Do NOT Try to use this before the cgame DLL is valid, it will NOT work!
 void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath )
@@ -496,7 +496,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 G_RadiusList - given an origin and a radius, return all entities that are in use that are within the list
 ============
 */
-int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES])
+int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, bool takeDamage, gentity_t *ent_list[MAX_GENTITIES])
 {
 	float		dist;
 	gentity_t	*ent;
@@ -736,9 +736,9 @@ float vectoyaw( const vec3_t vec ) {
 }
 
 
-void G_InitGentity( gentity_t *e, qboolean bFreeG2 )
+void G_InitGentity( gentity_t *e, bool bFreeG2 )
 {
-	e->inuse = qtrue;
+	e->inuse = true;
 	SetInUse(e);
 	e->m_iIcarusID = IIcarusInterface::ICARUS_INVALID;
 	e->classname = "noclass";
@@ -802,7 +802,7 @@ gentity_t *G_Spawn( void )
 			}
 
 			// reuse this slot
-			G_InitGentity( e, qtrue );
+			G_InitGentity( e, true );
 			return e;
 		}
 		e=&g_entities[i];
@@ -849,7 +849,7 @@ gentity_t *G_Spawn( void )
 
 	// open up a new slot
 	globals.num_entities++;
-	G_InitGentity( e, qtrue );
+	G_InitGentity( e, true );
 	return e;
 }
 
@@ -990,7 +990,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	ed->s.number = ENTITYNUM_NONE;
 	ed->classname = "freed";
 	ed->freetime = level.time;
-	ed->inuse = qfalse;
+	ed->inuse = false;
 	ClearInUse(ed);
 }
 
@@ -1012,7 +1012,7 @@ gentity_t *G_TempEntity( const vec3_t origin, int event ) {
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
-	e->freeAfterEvent = qtrue;
+	e->freeAfterEvent = true;
 
 	VectorCopy( origin, snapped );
 	SnapVector( snapped );		// save network bandwidth
@@ -1117,7 +1117,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 		temp->s.otherEntityNum = ent->s.number;
 		G_SetOrigin( temp, ent->s.origin );
 		G_AddEvent( temp, event, eventParm );
-		temp->freeAfterEvent = qtrue;
+		temp->freeAfterEvent = true;
 		gi.linkentity( temp );
 		return;
 	}
@@ -1173,7 +1173,7 @@ void G_Sound( gentity_t *ent, int soundIndex )
 G_Sound
 =============
 */
-void G_SoundAtSpot( vec3_t org, int soundIndex, qboolean broadcast )
+void G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast )
 {
 	gentity_t	*te;
 
@@ -1241,7 +1241,7 @@ void G_SetOrigin( gentity_t *ent, const vec3_t origin )
 
 }
 
-qboolean G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self)
+bool G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self)
 {
 	trace_t	trace;
 	vec3_t	end, mins;
@@ -1254,13 +1254,13 @@ qboolean G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self)
 	gi.trace(&trace, teleportPos, mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 //===============================================================================
-qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
+bool G_CheckInSolid (gentity_t *self, bool fix)
 {
 	trace_t	trace;
 	vec3_t	end, mins;
@@ -1273,7 +1273,7 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 	gi.trace(&trace, self->currentOrigin, mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
-		return qtrue;
+		return true;
 	}
 
 #ifdef _DEBUG
@@ -1291,18 +1291,18 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 			G_SetOrigin(self, neworg);
 			gi.linkentity(self);
 
-			return G_CheckInSolid(self, qfalse);
+			return G_CheckInSolid(self, false);
 		}
 		else
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean infront(gentity_t *from, gentity_t *to)
+bool infront(gentity_t *from, gentity_t *to)
 {
 	vec3_t	angles, dir, forward;
 	float	dot;
@@ -1317,10 +1317,10 @@ qboolean infront(gentity_t *from, gentity_t *to)
 	dot = DotProduct(forward, dir);
 	if(dot < 0.0f)
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 void Svcmd_Use_f( void )
@@ -1371,7 +1371,7 @@ void Svcmd_Use_f( void )
 
 //======================================================
 
-void G_SetActiveState(char *targetstring, qboolean actState)
+void G_SetActiveState(char *targetstring, bool actState)
 {
 	gentity_t	*target = NULL;
 	while( NULL != (target = G_Find(target, FOFS(targetname), targetstring)) )
@@ -1423,30 +1423,30 @@ ValidUseTarget
 Returns whether or not the targeted entity is useable
 ==============
 */
-qboolean ValidUseTarget( gentity_t *ent )
+bool ValidUseTarget( gentity_t *ent )
 {
 	if ( ent->e_UseFunc == useF_NULL )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->svFlags & SVF_INACTIVE )
 	{//set by target_deactivate
-		return qfalse;
+		return false;
 	}
 
 	if ( !(ent->svFlags & SVF_PLAYER_USABLE) )
 	{//Check for flag that denotes BUTTON_USE useability
-		return qfalse;
+		return false;
 	}
 
 	//FIXME: This is only a temp fix..
 	if ( !Q_strncmp( ent->classname, "trigger", 7) )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 static void DebugTraceForNPC(gentity_t *ent)
@@ -1485,35 +1485,35 @@ static void DebugTraceForNPC(gentity_t *ent)
 	}
 }
 
-static qboolean G_ValidActivateBehavior (gentity_t* self, int bset)
+static bool G_ValidActivateBehavior (gentity_t* self, int bset)
 {
 	if ( !self )
 	{
-		return qfalse;
+		return false;
 	}
 
 	const char *bs_name = self->behaviorSet[bset];
 
 	if( !(VALIDSTRING( bs_name )) )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
-static qboolean G_IsTriggerUsable(gentity_t* self, gentity_t* other)
+static bool G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 {
 	if ( self->svFlags & SVF_INACTIVE )
 	{//set by target_deactivate
-		return qfalse;
+		return false;
 	}
 
 	if( self->noDamageTeam )
 	{
 		if ( other->client->playerTeam != self->noDamageTeam )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -1522,12 +1522,12 @@ static qboolean G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 	{//USE_BUTTON
 		if ( !other->client )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	else
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( self->spawnflags & 2 )
@@ -1545,7 +1545,7 @@ static qboolean G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 
 		if ( DotProduct( self->movedir, forward ) < 0.5 )
 		{//Not Within 45 degrees
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -1558,7 +1558,7 @@ static qboolean G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 		(Q_stricmp(self->target, "locked") == 0)
 		))))
 	{
-		return qfalse;
+		return false;
 	}
 
 
@@ -1566,14 +1566,14 @@ static qboolean G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 	//NOTE: This doesn't stop you from using it, just delays the use action!
 	if(self->delay && self->painDebounceTime < (level.time + self->delay) )
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 
-	return qtrue;
+	return true;
 }
 
-static qboolean CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
+static bool CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
 {
 	int			i, num;
 	gentity_t	*touch[MAX_GENTITIES], *hit;
@@ -1581,7 +1581,7 @@ static qboolean CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
 	const vec3_t	range = { 40, 40, 52 };
 
 	if ( !ent->client ) {
-		return qfalse;
+		return false;
 	}
 
 	VectorSubtract( ent->client->ps.origin, range, mins );
@@ -1613,7 +1613,7 @@ static qboolean CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
 			case touchF_Touch_Multi:
 				if (G_IsTriggerUsable(hit, ent))
 				{
-					return qtrue;
+					return true;
 				}
 				continue;
 				break;
@@ -1622,12 +1622,12 @@ static qboolean CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 #define USE_DISTANCE	64.0f
-extern qboolean eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator );
-qboolean CanUseInfrontOf(gentity_t *ent)
+extern bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator );
+bool CanUseInfrontOf(gentity_t *ent)
 {
 	gentity_t	*target;
 	trace_t		trace;
@@ -1636,7 +1636,7 @@ qboolean CanUseInfrontOf(gentity_t *ent)
 	if ( ent->s.number && ent->client->NPC_class == CLASS_ATST )
 	{//a player trying to get out of his ATST
 //		GEntity_UseFunc( ent->activator, ent, ent );
-		return qfalse;
+		return false;
 	}
 
 	if (ent->client->ps.viewEntity != ent->s.number)
@@ -1654,18 +1654,18 @@ qboolean CanUseInfrontOf(gentity_t *ent)
 			{//found another one
 				if ( !Q_stricmp( "misc_camera", next->classname ) )
 				{//make sure it's another camera
-					return qtrue;
+					return true;
 				}
 			}
 			else //if ( ent->health > 0 )
 			{//I was the last (only?) one, clear out the viewentity
-				return qfalse;
+				return false;
 			}
 		}
 	}
 
 	if ( !ent->client ) {
-		return qfalse;
+		return false;
 	}
 
 
@@ -1690,7 +1690,7 @@ qboolean CanUseInfrontOf(gentity_t *ent)
 	if ( target && target->client && target->client->NPC_class == CLASS_VEHICLE )
 	{
 		// Attempt to board this vehicle.
-		return qtrue;
+		return true;
 	}
 	//Check for a use command
 	if (ValidUseTarget( target )) {
@@ -1700,33 +1700,33 @@ qboolean CanUseInfrontOf(gentity_t *ent)
 			{//player has to be touching me and hit use to pick it up, so don't allow this
 				if ( !G_BoundsOverlap( target->absmin, target->absmax, ent->absmin, ent->absmax ) )
 				{//not touching
-					return qfalse;
+					return false;
 				}
 			}
 			if ( !BG_CanItemBeGrabbed( &target->s, &ent->client->ps ) )
 			{//nope, so don't indicate that we can use it
-				return qfalse;
+				return false;
 			}
 		}
 		else if ( target->e_UseFunc == useF_misc_atst_use )
 		{//drivable AT-ST from JK2
 			if ( ent->client->ps.groundEntityNum != target->s.number )
 			{//must be standing on it to use it
-				return qfalse;
+				return false;
 			}
 		}
 		else if ( target->NPC!=NULL && target->health<=0 )
 		{
-			return qfalse;
+			return false;
 		}
 		else if ( target->e_UseFunc == useF_eweb_use )
 		{
 			if ( !eweb_can_be_used( target, ent, ent ) )
 			{
-				return qfalse;
+				return false;
 			}
 		}
-		return qtrue;
+		return true;
 	}
 
 	if ( target->client
@@ -1737,14 +1737,14 @@ qboolean CanUseInfrontOf(gentity_t *ent)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE)
 		&& G_ValidActivateBehavior (target, BSET_USE))
 	{
-		return qtrue;
+		return true;
 	}
 
 	if (CanUseInfrontOfPartOfLevel(ent)) {
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1833,7 +1833,7 @@ void TryUse( gentity_t *ent )
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
 	{
-		NPC_UseResponse ( target, ent, qfalse );
+		NPC_UseResponse ( target, ent, false );
 		return;
 	}
 	/*
@@ -1845,7 +1845,7 @@ void TryUse( gentity_t *ent )
 }
 
 extern int killPlayerTimer;
-void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
+void G_ChangeMap (const char *mapname, const char *spawntarget, bool hub)
 {
 //	gi.Printf("Loading...");
 	//ignore if player is dead
@@ -1867,7 +1867,7 @@ void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
 	if ( spawntarget == NULL ) {
 		spawntarget = "";	//prevent it from becoming "(null)"
 	}
-	if ( hub == qtrue )
+	if ( hub == true )
 	{
 		gi.SendConsoleCommand( va("loadtransition %s %s\n", mapname, spawntarget) );
 	}
@@ -1877,24 +1877,24 @@ void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
 	}
 }
 
-qboolean G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs )
+bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs )
 {
 	for(int i = 0; i < 3; i++ )
 	{
 		if ( point[i] < mins[i] )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( point[i] > maxs[i] )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs )
+bool G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs )
 {
 	vec3_t boxMins;
 	vec3_t boxMaxs;
@@ -1903,25 +1903,25 @@ qboolean G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs
 	VectorAdd( point, maxs, boxMaxs );
 
 	if(boxMaxs[0]>boundsMaxs[0])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[1]>boundsMaxs[1])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[2]>boundsMaxs[2])
-		return qfalse;
+		return false;
 
 	if(boxMins[0]<boundsMins[0])
-		return qfalse;
+		return false;
 
 	if(boxMins[1]<boundsMins[1])
-		return qfalse;
+		return false;
 
 	if(boxMins[2]<boundsMins[2])
-		return qfalse;
+		return false;
 
 	//box is completely contained within bounds
-	return qtrue;
+	return true;
 }
 
 
@@ -1932,7 +1932,7 @@ void G_SetAngles( gentity_t *ent, const vec3_t angles )
 	VectorCopy( angles, ent->s.apos.trBase );
 }
 
-qboolean G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask )
+bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask )
 {
 	static	trace_t	tr;
 
@@ -1940,14 +1940,14 @@ qboolean G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs,
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 extern void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int radius);
-void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, qboolean deleteornot)
+void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot)
 {
 	/*
 	gentity_t *tent = G_TempEntity( A, EV_DEBUG_LINE );
@@ -1961,7 +1961,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, qboolean deleteorn
 	CG_TestLine( A, B, duration, color, 1 );
 }
 
-qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
+bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
 {
 	trace_t	tr;
 	vec3_t	start, end;
@@ -1975,7 +1975,7 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 		gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, (EG2_Collision)0, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( tr.fraction < 1.0 )
 		{
@@ -1984,11 +1984,11 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 			gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, (EG2_Collision)0, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
-				return qfalse;
+				return false;
 			}
 			if ( tr.fraction < 1.0 )
 			{
-				return qfalse;
+				return false;
 			}
 			VectorCopy( end, start );
 		}
@@ -1997,10 +1997,10 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 	gi.trace( &tr, start, mins, maxs, start, ignore, clipmask, (EG2_Collision)0, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
-		return qfalse;
+		return false;
 	}
 	VectorCopy( start, point );
-	return qtrue;
+	return true;
 }
 /*
 Ghoul2 Insert Start

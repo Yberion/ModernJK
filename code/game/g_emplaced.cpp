@@ -36,14 +36,14 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	mdxaBone_t boltMatrix;
 	vec3_t p, p2, d;
 	trace_t tr;
-	qboolean traceOver = qtrue;
+	bool traceOver = true;
 
 	if ( owner->s.number < MAX_CLIENTS )
 	{//extra checks
 		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, owner->currentOrigin, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
 		if ( tr.startsolid || tr.allsolid )
 		{//crap, they're already in solid somehow, don't bother tracing over
-			traceOver = qfalse;
+			traceOver = false;
 		}
 	}
 	if ( traceOver )
@@ -72,7 +72,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	if ( !traceOver )
 	{
 		VectorCopy( p, tr.endpos );
-		tr.allsolid = tr.startsolid = qfalse;
+		tr.allsolid = tr.startsolid = false;
 	}
 	else
 	{
@@ -198,7 +198,7 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	self->health = 0;
 //	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->lastEnemy = attacker;
 
 	if ( self->activator && self->activator->client )
@@ -267,48 +267,48 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	G_ActivateBehavior( self, BSET_DEATH );
 }
 
-qboolean eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
+bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if ( self->health <= 0 )
 	{
 		// can't use a dead gun.
-		return qfalse;
+		return false;
 	}
 
 	if ( self->svFlags & SVF_INACTIVE )
 	{
-		return qfalse; // can't use inactive gun
+		return false; // can't use inactive gun
 	}
 
 	if ( !activator->client )
 	{
-		return qfalse; // only a client can use it.
+		return false; // only a client can use it.
 	}
 
 	if ( self->activator )
 	{
 		// someone is already in the gun.
-		return qfalse;
+		return false;
 	}
 
 	if ( other && other->client && G_IsRidingVehicle( other ) )
 	{//can't use eweb when on a vehicle
-		return qfalse;
+		return false;
 	}
 
 	if ( activator && activator->client && G_IsRidingVehicle( activator ) )
 	{//can't use eweb when on a vehicle
-		return qfalse;
+		return false;
 	}
 
 	if ( activator && activator->client && (activator->client->ps.pm_flags&PMF_DUCKED) )
 	{//stand up, ya cowardly varmint!
-		return qfalse;
+		return false;
 	}
 
 	if ( activator && activator->health <= 0 )
 	{//dead men ain't got no more use fer guns...
-		return qfalse;
+		return false;
 	}
 
 	vec3_t fwd1, fwd2;
@@ -330,15 +330,15 @@ qboolean eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activat
 		// Must be reasonably facing the way the gun points ( 90 degrees or so ), otherwise we don't allow to use it.
 		if ( dot < 0.75f )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
 	if ( self->delay + 500 < level.time )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -428,7 +428,7 @@ void SP_emplaced_eweb( gentity_t *ent )
 	VectorSet( ent->mins, -12, -12, -24 );
 	VectorSet( ent->maxs, 12, 12, 24 );
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	if ( ( ent->spawnflags & EWEB_INVULNERABLE ))
 	{
@@ -471,9 +471,9 @@ void SP_emplaced_eweb( gentity_t *ent )
 	// Activate our tags and bones
 	ent->handLBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*cannonflash" ); //muzzle bolt
 	ent->headBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "cannon_Xrot" ); //for placing the owner relative to rotation
-	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", qtrue );
-	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Yrot", qtrue );
-	ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Xrot", qtrue );
+	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "model_root", true );
+	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Yrot", true );
+	ent->upperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "cannon_Xrot", true );
 	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, NULL, 0, 0);
 	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->upperLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, NULL, 0, 0);
 	//gi.G2API_SetBoneAngles( &ent->ghoul2[0], "cannon_Yrot", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL);
@@ -700,7 +700,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	self->health = 0;
 //	self->s.weapon = WP_EMPLACED_GUN; // we need to be able to switch back to the old weapon
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->lastEnemy = attacker;
 
 	// we defer explosion so the player has time to get out
@@ -798,7 +798,7 @@ void SP_emplaced_gun( gentity_t *ent )
 	VectorSet( ent->mins, -30, -30, -5 );
 	VectorSet( ent->maxs, 30, 30, 60 );
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	if ( !( ent->spawnflags & EMPLACED_VULNERABLE ))
 	{
@@ -837,8 +837,8 @@ void SP_emplaced_gun( gentity_t *ent )
 	ent->headBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*seat" );
 	ent->handLBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*flash01" );
 	ent->handRBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*flash02" );
-	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", qtrue );
-	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "swivel_bone", qtrue );
+	ent->rootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "base_bone", true );
+	ent->lowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->playerModel], "swivel_bone", true );
 	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->playerModel], ent->lowerLumbarBone, vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0);
 
 	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));
@@ -921,7 +921,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 				gentity_t *eweb = ent->owner;
 				float curRadius = 0.0f;
 				float minRadius, maxRadius;
-				qboolean safeExit = qfalse;
+				bool safeExit = false;
 
 				VectorSubtract( ent->currentOrigin, eweb->currentOrigin, backDir );
 				backDir[2] = 0;
@@ -950,7 +950,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 					{
 						G_SetOrigin( ent, trace.endpos );
 						gi.linkentity( ent );
-						safeExit = qtrue;
+						safeExit = true;
 						break;
 					}
 				}

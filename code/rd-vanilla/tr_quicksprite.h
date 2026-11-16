@@ -35,13 +35,13 @@ private:
 			textureBundle_t	*mTexBundle;
 			uint32_t	mGLStateBits;
 			int				mFogIndex;
-			qboolean		mUseFog;
+			bool		mUseFog;
 			vec4_t			mVerts[SHADER_MAX_VERTEXES];
 			vec2_t			mTextureCoords[SHADER_MAX_VERTEXES];	// Ideally this would be static, cause it never changes
 			vec2_t			mFogTextureCoords[SHADER_MAX_VERTEXES];
 			uint32_t		mColors[SHADER_MAX_VERTEXES];
 			int				mNextVert;
-			qboolean		mTurnCullBackOn;
+			bool		mTurnCullBackOn;
 
 			void Flush(void);
 

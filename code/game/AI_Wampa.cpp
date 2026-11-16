@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define LSTATE_WAITING		1
 
 float enemyDist = 0;
-extern qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern cvar_t	*g_dismemberment;
 /*
@@ -73,20 +73,20 @@ void Wampa_Idle( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons &= ~BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 }
 
-qboolean Wampa_CheckRoar( gentity_t *self )
+bool Wampa_CheckRoar( gentity_t *self )
 {
 	if ( self->wait < level.time )
 	{
 		self->wait = level.time + Q_irand( 5000, 20000 );
 		NPC_SetAnim( self, SETANIM_BOTH, Q_irand(BOTH_GESTURE1,BOTH_GESTURE2), (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD) );
 		TIMER_Set( self, "rageTime", self->client->ps.legsAnimTimer );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 /*
 -------------------------
@@ -101,10 +101,10 @@ void Wampa_Patrol( void )
 	if ( UpdateGoal() )
 	{
 		ucmd.buttons |= BUTTON_WALKING;
-		NPC_MoveToGoal( qtrue );
+		NPC_MoveToGoal( true );
 	}
 
-	if ( NPC_CheckEnemyExt( qtrue ) == qfalse )
+	if ( NPC_CheckEnemyExt( true ) == false )
 	{
 		Wampa_Idle();
 		return;
@@ -118,7 +118,7 @@ void Wampa_Patrol( void )
 Wampa_Move
 -------------------------
 */
-void Wampa_Move( qboolean visible )
+void Wampa_Move( bool visible )
 {
 	if ( NPCInfo->localState != LSTATE_WAITING )
 	{
@@ -127,7 +127,7 @@ void Wampa_Move( qboolean visible )
 		trace_t	trace;
 		if ( !NAV_CheckAhead( NPC, NPCInfo->goalEntity->currentOrigin, trace, (NPC->clipmask|CONTENTS_BOTCLIP) ) )
 		{
-			if ( !NPC_MoveToGoal( qfalse ) )
+			if ( !NPC_MoveToGoal( false ) )
 			{
 				STEER::Activate(NPC);
 				STEER::Seek(NPC, NPCInfo->goalEntity->currentOrigin);
@@ -180,11 +180,11 @@ void Wampa_Move( qboolean visible )
 }
 
 //---------------------------------------------------------
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
-extern qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, qboolean force = qfalse );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false );
 extern int NPC_GetEntsNearBolt( gentity_t **radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 
-void Wampa_Slash( int boltIndex, qboolean backhand )
+void Wampa_Slash( int boltIndex, bool backhand )
 {
 	gentity_t	*radiusEnts[ 128 ];
 	int			numEnts;
@@ -234,7 +234,7 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 					G_Throw( radiusEnts[i], pushDir, 65 );
 					if ( radiusEnts[i]->health > 0 && Q_irand( 0, 1 ) )
 					{//do pain on enemy
-						G_Knockdown( radiusEnts[i], NPC, pushDir, 300, qtrue );
+						G_Knockdown( radiusEnts[i], NPC, pushDir, 300, true );
 					}
 				}
 			}
@@ -261,7 +261,7 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 					}
 					radiusEnts[i]->client->dismembered = false;
 					//FIXME: the limb should just disappear, cuz I ate it
-					G_DoDismemberment( radiusEnts[i], radiusEnts[i]->currentOrigin, MOD_SABER, 1000, hitLoc, qtrue );
+					G_DoDismemberment( radiusEnts[i], radiusEnts[i]->currentOrigin, MOD_SABER, 1000, hitLoc, true );
 				}
 			}
 			else if ( !Q_irand( 0, 3 ) && radiusEnts[i]->health > 0 )
@@ -272,7 +272,7 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 				angs[YAW] += Q_flrand( 25, 50 );
 				angs[PITCH] = Q_flrand( -25, -15 );
 				AngleVectors( angs, pushDir, NULL, NULL );
-				G_Knockdown( radiusEnts[i], NPC, pushDir, 35, qtrue );
+				G_Knockdown( radiusEnts[i], NPC, pushDir, 35, true );
 			}
 			G_Sound( radiusEnts[i], G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
 		}
@@ -280,7 +280,7 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 }
 
 //------------------------------
-void Wampa_Attack( float distance, qboolean doCharge )
+void Wampa_Attack( float distance, bool doCharge )
 {
 	if ( !TIMER_Exists( NPC, "attacking" ) )
 	{
@@ -320,44 +320,44 @@ void Wampa_Attack( float distance, qboolean doCharge )
 
 	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
 
-	if ( TIMER_Done2( NPC, "attack_dmg", qtrue ) )
+	if ( TIMER_Done2( NPC, "attack_dmg", true ) )
 	{
 		switch ( NPC->client->ps.legsAnim )
 		{
 		case BOTH_ATTACK1:
-			Wampa_Slash( NPC->handRBolt, qfalse );
+			Wampa_Slash( NPC->handRBolt, false );
 			//do second hit
 			TIMER_Set( NPC, "attack_dmg2", 100 );
 			break;
 		case BOTH_ATTACK2:
-			Wampa_Slash( NPC->handRBolt, qfalse );
+			Wampa_Slash( NPC->handRBolt, false );
 			TIMER_Set( NPC, "attack_dmg2", 100 );
 			break;
 		case BOTH_ATTACK3:
-			Wampa_Slash( NPC->handLBolt, qtrue );
+			Wampa_Slash( NPC->handLBolt, true );
 			break;
 		}
 	}
-	else if ( TIMER_Done2( NPC, "attack_dmg2", qtrue ) )
+	else if ( TIMER_Done2( NPC, "attack_dmg2", true ) )
 	{
 		switch ( NPC->client->ps.legsAnim )
 		{
 		case BOTH_ATTACK1:
-			Wampa_Slash( NPC->handLBolt, qfalse );
+			Wampa_Slash( NPC->handLBolt, false );
 			break;
 		case BOTH_ATTACK2:
-			Wampa_Slash( NPC->handLBolt, qfalse );
+			Wampa_Slash( NPC->handLBolt, false );
 			break;
 		}
 	}
 
 	// Just using this to remove the attacking flag at the right time
-	TIMER_Done2( NPC, "attacking", qtrue );
+	TIMER_Done2( NPC, "attacking", true );
 
 	if ( NPC->client->ps.legsAnim == BOTH_ATTACK1 && distance > (NPC->maxs[0]+MIN_DISTANCE) )
 	{//okay to keep moving
 		ucmd.buttons |= BUTTON_WALKING;
-		Wampa_Move( qtrue );
+		Wampa_Move( true );
 	}
 }
 
@@ -374,17 +374,17 @@ void Wampa_Combat( void )
 				return;
 			}
 		}
-		NPCInfo->combatMove = qtrue;
+		NPCInfo->combatMove = true;
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = MIN_DISTANCE;//MAX_DISTANCE;	// just get us within combat range
 
-		Wampa_Move( qfalse );
+		Wampa_Move( false );
 		return;
 	}
 	/*
 	else if ( UpdateGoal() )
 	{
-		NPCInfo->combatMove = qtrue;
+		NPCInfo->combatMove = true;
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = MIN_DISTANCE;//MAX_DISTANCE;	// just get us within combat range
 
@@ -394,12 +394,12 @@ void Wampa_Combat( void )
 
 	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 	//FIXME: always seems to face off to the left or right?!!!!
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	float distance	= enemyDist = Distance( NPC->currentOrigin, NPC->enemy->currentOrigin );
 
-	qboolean	advance = (qboolean)( distance > (NPC->maxs[0]+MIN_DISTANCE) ? qtrue : qfalse  );
-	qboolean	doCharge = qfalse;
+	bool	advance = ( distance > (NPC->maxs[0]+MIN_DISTANCE) ? true : false  );
+	bool	doCharge = false;
 
 	if ( advance )
 	{//have to get closer
@@ -410,21 +410,21 @@ void Wampa_Combat( void )
 		{//10% chance of doing charge anim
 			if ( !Q_irand( 0, 6 ) )
 			{//go for the charge
-				doCharge = qtrue;
-				advance = qfalse;
+				doCharge = true;
+				advance = false;
 			}
 		}
 	}
 
 	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
-		if ( TIMER_Done2( NPC, "takingPain", qtrue ))
+		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
 			NPCInfo->localState = LSTATE_CLEAR;
 		}
 		else
 		{
-			Wampa_Move( qtrue );
+			Wampa_Move( true );
 		}
 	}
 	else
@@ -447,7 +447,7 @@ NPC_Wampa_Pain
 */
 void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
 {
-	qboolean hitByWampa = qfalse;
+	bool hitByWampa = false;
 	if ( self->count )
 	{//FIXME: need pain anim
 		NPC_SetAnim( self, SETANIM_BOTH, BOTH_STAND2TO1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
@@ -457,7 +457,7 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 	}
 	if ( other&&other->client&&other->client->NPC_class==CLASS_WAMPA )
 	{
-		hitByWampa = qtrue;
+		hitByWampa = true;
 	}
 	if ( other
 		&& other->inuse
@@ -571,12 +571,12 @@ void Wampa_DropVictim( gentity_t *self )
 	self->count = 0;//drop him
 }
 
-qboolean Wampa_CheckDropVictim( gentity_t *self, qboolean excludeMe )
+bool Wampa_CheckDropVictim( gentity_t *self, bool excludeMe )
 {
 	if ( !self
 		|| !self->activator )
 	{
-		return qtrue;
+		return true;
 	}
 	vec3_t mins={self->activator->mins[0]-1,self->activator->mins[1]-1,0};
 	vec3_t maxs={self->activator->maxs[0]+1,self->activator->maxs[1]+1,1};
@@ -595,7 +595,7 @@ qboolean Wampa_CheckDropVictim( gentity_t *self, qboolean excludeMe )
 	if ( !trace.allsolid && !trace.startsolid && trace.fraction >= 1.0f )
 	{
 		Wampa_DropVictim( self );
-		return qtrue;
+		return true;
 	}
 	if ( excludeMe )
 	{//victim stuck in wall
@@ -605,11 +605,11 @@ qboolean Wampa_CheckDropVictim( gentity_t *self, qboolean excludeMe )
 			self->NPC->lockedDesiredYaw = self->NPC->desiredYaw;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 extern float NPC_EnemyRangeFromBolt( int boltIndex );
-qboolean Wampa_TryGrab( void )
+bool Wampa_TryGrab( void )
 {
 	const float	radius = 64.0f;
 
@@ -617,7 +617,7 @@ qboolean Wampa_TryGrab( void )
 		|| !NPC->enemy->client
 		|| NPC->enemy->health <= 0 )
 	{
-		return qfalse;
+		return false;
 	}
 
 	float enemyDist = NPC_EnemyRangeFromBolt( NPC->handRBolt );
@@ -650,7 +650,7 @@ qboolean Wampa_TryGrab( void )
 		NPC_SetAnim( NPC->enemy, SETANIM_BOTH, BOTH_GRABBED, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_HOLD_END, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		TIMER_Set( NPC, "takingPain", -level.time );
-		return qtrue;
+		return true;
 	}
 	else if ( enemyDist < radius*2.0f )
 	{//smack
@@ -669,11 +669,11 @@ qboolean Wampa_TryGrab( void )
 			G_Throw( NPC->enemy, pushDir, Q_irand( 30, 70 ) );
 			if ( NPC->enemy->health > 0 )
 			{//do pain on enemy
-				G_Knockdown( NPC->enemy, NPC, pushDir, 300, qtrue );
+				G_Knockdown( NPC->enemy, NPC, pushDir, 300, true );
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -697,7 +697,7 @@ void NPC_BSWampa_Default( void )
 	//	stand2to1 = drop victim
 	if ( NPC->client->ps.legsAnim == BOTH_HOLD_START )
 	{
-		NPC_FaceEnemy( qtrue );
+		NPC_FaceEnemy( true );
 		if ( NPC->client->ps.legsAnimTimer < 200 )
 		{//see if he's there to grab
 			if ( !Wampa_TryGrab() )
@@ -723,7 +723,7 @@ void NPC_BSWampa_Default( void )
 			{
 				if ( NPC->client->ps.legsAnimTimer < PM_AnimLength(NPC->client->clientInfo.animFileIndex, (animNumber_t)NPC->client->ps.legsAnim)-500 )
 				{//at least half a second into the anim
-					if ( Wampa_CheckDropVictim( NPC, qfalse ) )
+					if ( Wampa_CheckDropVictim( NPC, false ) )
 					{
 						TIMER_Set( NPC, "attacking", 1000+(Q_irand(500,1000)*(3-g_spskill->integer)) );
 					}
@@ -731,13 +731,13 @@ void NPC_BSWampa_Default( void )
 			}
 			else if ( !TIMER_Done( NPC, "takingPain" ) )
 			{
-				Wampa_CheckDropVictim( NPC, qfalse );
+				Wampa_CheckDropVictim( NPC, false );
 			}
 			else if ( NPC->activator->health <= 0 )
 			{
 				if ( TIMER_Done(NPC,"sniffCorpse") )
 				{
-					Wampa_CheckDropVictim( NPC, qfalse );
+					Wampa_CheckDropVictim( NPC, false );
 				}
 			}
 			else if ( NPC->useDebounceTime >= level.time
@@ -775,7 +775,7 @@ void NPC_BSWampa_Default( void )
 					{
 						if ( NPC->client->ps.legsAnimTimer )
 						{
-							if ( TIMER_Done2(NPC,"grabAttackDamage",qtrue) )
+							if ( TIMER_Done2(NPC,"grabAttackDamage",true) )
 							{
 								G_Sound( NPC->activator, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );
 								G_Damage( NPC->activator, NPC, NPC, vec3_origin, NPC->activator->currentOrigin, Q_irand( 25, 40 ), (DAMAGE_NO_KNOCKBACK|DAMAGE_NO_ARMOR), MOD_MELEE );
@@ -792,7 +792,7 @@ void NPC_BSWampa_Default( void )
 									}
 									NPC->activator->client->dismembered = false;
 									//FIXME: the limb should just disappear, cuz I ate it
-									G_DoDismemberment( NPC->activator, NPC->activator->currentOrigin, MOD_SABER, 1000, hitLoc, qtrue );
+									G_DoDismemberment( NPC->activator, NPC->activator->currentOrigin, MOD_SABER, 1000, hitLoc, true );
 									TIMER_Set( NPC, "sniffCorpse", Q_irand( 2000, 5000 ) );
 								}
 								NPC_SetAnim( NPC->activator, SETANIM_BOTH, BOTH_HANG_PAIN, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -812,19 +812,19 @@ void NPC_BSWampa_Default( void )
 			}
 		}
 
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
 	if ( NPCInfo->localState == LSTATE_WAITING
-		&& TIMER_Done2( NPC, "takingPain", qtrue ) )
+		&& TIMER_Done2( NPC, "takingPain", true ) )
 	{//was not doing anything because we were taking pain, but pain is done now, so clear it...
 		NPCInfo->localState = LSTATE_CLEAR;
 	}
 
 	if ( !TIMER_Done( NPC, "rageTime" ) )
 	{//do nothing but roar first time we see an enemy
-		NPC_FaceEnemy( qtrue );
+		NPC_FaceEnemy( true );
 		return;
 	}
 	if ( NPC->enemy )
@@ -839,10 +839,10 @@ void NPC_BSWampa_Default( void )
 		if ( !TIMER_Done(NPC,"attacking") )
 		{//in middle of attack
 			//face enemy
-			NPC_FaceEnemy( qtrue );
+			NPC_FaceEnemy( true );
 			//continue attack logic
 			enemyDist = Distance( NPC->currentOrigin, NPC->enemy->currentOrigin );
-			Wampa_Attack( enemyDist, qfalse );
+			Wampa_Attack( enemyDist, false );
 			return;
 		}
 		else
@@ -858,19 +858,19 @@ void NPC_BSWampa_Default( void )
 			{//got mad at another Wampa, look for a valid enemy
 				if ( TIMER_Done( NPC, "wampaInfight" ) )
 				{
-					NPC_CheckEnemyExt( qtrue );
+					NPC_CheckEnemyExt( true );
 				}
 			}
 			else
 			{
-				if ( NPC_ValidEnemy( NPC->enemy ) == qfalse )
+				if ( NPC_ValidEnemy( NPC->enemy ) == false )
 				{
 					TIMER_Remove( NPC, "lookForNewEnemy" );//make them look again right now
 					if ( !NPC->enemy->inuse || level.time - NPC->enemy->s.time > Q_irand( 10000, 15000 ) )
 					{//it's been a while since the enemy died, or enemy is completely gone, get bored with him
 						NPC->enemy = NULL;
 						Wampa_Patrol();
-						NPC_UpdateAngles( qtrue, qtrue );
+						NPC_UpdateAngles( true, true );
 						return;
 					}
 				}
@@ -878,7 +878,7 @@ void NPC_BSWampa_Default( void )
 				{
 					gentity_t *sav_enemy = NPC->enemy;//FIXME: what about NPC->lastEnemy?
 					NPC->enemy = NULL;
-					gentity_t *newEnemy = NPC_CheckEnemy( (qboolean)(NPCInfo->confusionTime < level.time), qfalse, qfalse );
+					gentity_t *newEnemy = NPC_CheckEnemy( (NPCInfo->confusionTime < level.time), false, false );
 					NPC->enemy = sav_enemy;
 					if ( newEnemy && newEnemy != sav_enemy )
 					{//picked up a new enemy!
@@ -919,5 +919,5 @@ void NPC_BSWampa_Default( void )
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }

@@ -46,9 +46,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define maxs r.maxs
 #define legsAnimTimer legsTimer
 #define torsoAnimTimer torsoTimer
-#define bool qboolean
-#define false qfalse
-#define true qtrue
+#define bool bool
+#define false false
+#define true true
 
 #define sqrtf sqrt
 
@@ -63,16 +63,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
 extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
 #else
-extern gentity_t *NPC_Spawn_Do( gentity_t *pEnt, qboolean fullSpawnNow );
-extern qboolean G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask);
+extern gentity_t *NPC_Spawn_Do( gentity_t *pEnt, bool fullSpawnNow );
+extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask);
 
-extern qboolean G_SetG2PlayerModelInfo( gentity_t *pEnt, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
+extern bool G_SetG2PlayerModelInfo( gentity_t *pEnt, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
 extern void G_RemovePlayerModel( gentity_t *pEnt );
 extern void G_ChangePlayerModel( gentity_t *pEnt, const char *newModel );
 extern void G_RemoveWeaponModels( gentity_t *pEnt );
 extern void CG_ChangeWeapon( int num );
 extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 
 extern vmCvar_t	cg_thirdPersonAlpha;
@@ -83,7 +83,7 @@ extern cvar_t *in_joystick;
 extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 #endif
 
 #ifdef _JK2MP
@@ -101,7 +101,7 @@ extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time 
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 #endif
 
-extern qboolean BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
+extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
 void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend)
 {
@@ -233,7 +233,7 @@ void G_VehicleSpawn( gentity_t *self )
 #ifdef _JK2MP
 	vehEnt = NPC_Spawn_Do( self );
 #else
-	vehEnt = NPC_Spawn_Do( self, qtrue );
+	vehEnt = NPC_Spawn_Do( self, true );
 #endif
 
 	if ( !vehEnt )
@@ -315,7 +315,7 @@ void G_AttachToVehicle( gentity_t *pEnt, usercmd_t **ucmd )
 }
 
 #ifndef _JK2MP
-void G_KnockOffVehicle( gentity_t *pRider, gentity_t *self, qboolean bPull )
+void G_KnockOffVehicle( gentity_t *pRider, gentity_t *self, bool bPull )
 {
 	Vehicle_t *pVeh = NULL;
 	vec3_t riderAngles, fDir, rDir, dir2Me;
@@ -389,7 +389,7 @@ void G_KnockOffVehicle( gentity_t *pRider, gentity_t *self, qboolean bPull )
 		}
 	}
 	//now forcibly eject them
-	pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qtrue );
+	pVeh->m_pVehicleInfo->Eject( pVeh, pRider, true );
 }
 #endif
 
@@ -955,7 +955,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	return true;
 }
 
-void G_EjectDroidUnit( Vehicle_t *pVeh, qboolean kill )
+void G_EjectDroidUnit( Vehicle_t *pVeh, bool kill )
 {
 	pVeh->m_pDroidUnit->s.m_iVehicleNum = ENTITYNUM_NONE;
 #ifdef _JK2MP
@@ -985,7 +985,7 @@ void G_EjectDroidUnit( Vehicle_t *pVeh, qboolean kill )
 }
 
 // Eject the pilot from the vehicle.
-bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
+bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 {
 	gentity_t	*parent;
 	vec3_t		vExitPos;
@@ -996,12 +996,12 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
 	int			firstEjectDir;
 
 #ifdef _JK2MP
-	qboolean	taintedRider = qfalse;
-	qboolean	deadRider = qfalse;
+	bool	taintedRider = false;
+	bool	deadRider = false;
 
 	if ( pEnt == pVeh->m_pDroidUnit )
 	{
-		G_EjectDroidUnit( pVeh, qfalse );
+		G_EjectDroidUnit( pVeh, false );
 		return true;
 	}
 
@@ -1009,13 +1009,13 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
 	{
 		if (!ent->inuse || !ent->client || ent->client->pers.connected != CON_CONNECTED)
 		{
-			taintedRider = qtrue;
+			taintedRider = true;
 			parent = (gentity_t *)pVeh->m_pParentEntity;
 			goto getItOutOfMe;
 		}
 		else if (ent->health < 1)
 		{
-			deadRider = qtrue;
+			deadRider = true;
 		}
 	}
 #endif
@@ -1030,7 +1030,7 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject )
 		if ( !( pVeh->m_iBoarding == 0 || pVeh->m_iBoarding == -999 || ( pVeh->m_iBoarding < -3 && pVeh->m_iBoarding >= -9 ) ) )
 		{
 #ifdef _JK2MP //I don't care, if he's dead get him off even if he died while boarding
-			deadRider = qtrue;
+			deadRider = true;
 			pVeh->m_iBoarding = 0;
 			pVeh->m_bWasBoarding = false;
 #else
@@ -1327,7 +1327,7 @@ bool EjectAll( Vehicle_t *pVeh )
 #ifdef QAGAME
 		gentity_t *pilot = (gentity_t*)pVeh->m_pPilot;
 #endif
-		pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, qtrue );
+		pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, true );
 #ifdef QAGAME
 		if ( pVeh->m_pVehicleInfo->killRiderOnDeath && pilot )
 		{//Kill them, too
@@ -1342,7 +1342,7 @@ bool EjectAll( Vehicle_t *pVeh )
 #ifdef QAGAME
 		gentity_t *pilot = (gentity_t*)pVeh->m_pOldPilot;
 #endif
-		pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pOldPilot, qtrue );
+		pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pOldPilot, true );
 #ifdef QAGAME
 		if ( pVeh->m_pVehicleInfo->killRiderOnDeath && pilot )
 		{//Kill them, too
@@ -1388,7 +1388,7 @@ static void StartDeathDelay( Vehicle_t *pVeh, int iDelayTimeOverride )
 		if (!(pVeh->m_ulFlags&VEH_ARMORGONE) && (pVeh->m_iArmor <= 0))
 		{
 			pVeh->m_ulFlags |= VEH_ARMORGONE;
-			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, qtrue);
+			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, true);
 			parent->s.loopSound = G_SoundIndex( "sound/vehicles/common/fire_lp.wav" );
 		}
 	}
@@ -1488,7 +1488,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				}
 			}
 
-			parent->takedamage = qfalse;//so we don't recursively damage ourselves
+			parent->takedamage = false;//so we don't recursively damage ourselves
 			if ( pVeh->m_pVehicleInfo->explosionRadius > 0 && pVeh->m_pVehicleInfo->explosionDamage > 0 )
 			{
 				VectorCopy( parent->mins, lMins );
@@ -1668,7 +1668,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 	int	curTime;
 	int halfMaxSpeed;
 	playerState_t *parentPS;
-	qboolean linkHeld = qfalse;
+	bool linkHeld = false;
 
 
 #ifdef _JK2MP
@@ -1746,11 +1746,11 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 	//keep the PS value in sync. set it up here in case we return below at some point.
 	if (pVeh->m_iBoarding)
 	{
-		parent->client->ps.vehBoarding = qtrue;
+		parent->client->ps.vehBoarding = true;
 	}
 	else
 	{
-		parent->client->ps.vehBoarding = qfalse;
+		parent->client->ps.vehBoarding = false;
 	}
 #endif
 
@@ -1826,7 +1826,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		{
 			if (pVeh->m_pPilot && !pVeh->m_bHasHadPilot)
 			{
-				pVeh->m_bHasHadPilot = qtrue;
+				pVeh->m_bHasHadPilot = true;
 				pVeh->m_iPilotLastIndex = pVeh->m_pPilot->s.number;
 			}
 			pVeh->m_iPilotTime = level.time + parent->damage;
@@ -1901,7 +1901,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 				if (other && other->client && !other->s.m_iVehicleNum)
 				{
 					G_Throw( other, dir, force/10.0f );
-					G_Knockdown( other, parent, dir, force, qtrue );
+					G_Knockdown( other, parent, dir, force, true );
 					G_Damage( other, player, player, parent->client->ps.velocity, parent->currentOrigin, force, DAMAGE_NO_ARMOR|DAMAGE_EXTRA_KNOCKBACK, MOD_IMPACT);
 				}
 			}
@@ -1918,7 +1918,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			if (!pilotEnt->inuse || !pilotEnt->client || pilotEnt->health <= 0 ||
 				pilotEnt->client->pers.connected != CON_CONNECTED)
 			{
-				pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, qtrue );
+				pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, true );
 				return false;
 			}
 		}
@@ -1968,7 +1968,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 		if (pilotEnt->health <= 0)
 #endif
 		{
-			pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, qtrue );
+			pVeh->m_pVehicleInfo->Eject( pVeh, pVeh->m_pPilot, true );
 		}
 	}
 
@@ -2006,7 +2006,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			//FIXME: just set this once, on Initialize...?
 			if ( !pVeh->weaponStatus[i].linked )
 			{
-				pVeh->weaponStatus[i].linked = qtrue;
+				pVeh->weaponStatus[i].linked = true;
 			}
 		}
 #ifdef _JK2MP
@@ -2032,31 +2032,31 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			{//okay to toggle
 				if ( pVeh->m_pVehicleInfo->weapon[i].linkable == 1 )
 				{//link-toggleable
-					pVeh->weaponStatus[i].linked = (qboolean)!pVeh->weaponStatus[i].linked;
+					pVeh->weaponStatus[i].linked = !pVeh->weaponStatus[i].linked;
 				}
 			}
-			linkHeld = qtrue;
+			linkHeld = true;
 		}
 	}
 	if ( linkHeld )
 	{
 		//so we don't hold it down and toggle it back and forth
-		pVeh->linkWeaponToggleHeld = qtrue;
+		pVeh->linkWeaponToggleHeld = true;
 	}
 	else
 	{
 		//so we don't hold it down and toggle it back and forth
-		pVeh->linkWeaponToggleHeld = qfalse;
+		pVeh->linkWeaponToggleHeld = false;
 	}
 #ifdef _JK2MP
 	//now pass it over the network so cgame knows about it
 	//NOTE: SP can just cheat and check directly
-	parentPS->vehWeaponsLinked = qfalse;
+	parentPS->vehWeaponsLinked = false;
 	for ( i = 0; i < MAX_VEHICLE_WEAPONS; i++ )
 	{//HMM... can't get a seperate command for each weapon, so do them all...?
 		if ( pVeh->weaponStatus[i].linked )
 		{
-			parentPS->vehWeaponsLinked = qtrue;
+			parentPS->vehWeaponsLinked = true;
 		}
 	}
 #endif
@@ -2195,11 +2195,11 @@ maintainSelfDuringBoarding:
 	//keep the PS value in sync
 	if (pVeh->m_iBoarding)
 	{
-		parent->client->ps.vehBoarding = qtrue;
+		parent->client->ps.vehBoarding = true;
 	}
 	else
 	{
-		parent->client->ps.vehBoarding = qfalse;
+		parent->client->ps.vehBoarding = false;
 	}
 #endif
 
@@ -2243,7 +2243,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		if ( pVeh->m_pVehicleInfo->type == VH_WALKER )
 		{//just get the fuck out
 			pVeh->m_EjectDir = VEH_EJECT_REAR;
-			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
 		else if ( !(pVeh->m_ulFlags & VEH_FLYING))
@@ -2251,7 +2251,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			// If going too fast, roll off.
 			if ((parent->client->ps.speed<=600) && pUmcd->rightmove!=0)
 			{
-				if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+				if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				{
 					animNumber_t Anim;
 					int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, iBlend = 300;
@@ -2325,7 +2325,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		else
 		{
 			pVeh->m_EjectDir = VEH_EJECT_LEFT;
-			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
 	}
@@ -2341,7 +2341,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		rider->client->ps.eFlags &= ~EF_VEH_BOARDING;
 #endif
 		// Eject this guy now.
-		if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+		if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 		{
 			return false;
 		}
@@ -2363,7 +2363,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				// Eject Player From Current Vehicle
 				//-----------------------------------
 				pVeh->m_EjectDir = VEH_EJECT_TOP;
-				pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qtrue );
+				pVeh->m_pVehicleInfo->Eject( pVeh, pRider, true );
 
 				// Send Current Vehicle Spinning Out Of Control
 				//----------------------------------------------
@@ -2393,7 +2393,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 #endif
 //===================================================================
 
-			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 			{
 				// Allow them to force jump off.
 				VectorScale( parent->client->ps.velocity, 0.5f, rider->client->ps.velocity );
@@ -2447,7 +2447,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				pVeh->m_EjectDir = VEH_EJECT_FRONT;
 			}
 
-			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, qfalse ) )
+			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 			{
 				if ( !(pVeh->m_ulFlags & VEH_FLYING) )
 				{
@@ -2728,7 +2728,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 	vec3_t fwd, right;
 	vec3_t fPos;
 	Vehicle_t *pVeh = veh->m_pVehicle;
-	qboolean noseClear = qfalse;
+	bool noseClear = false;
 
 	if (!trace || !pVeh || !veh->client)
 	{
@@ -2744,7 +2744,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 	trap_Trace(&localTrace, veh->client->ps.origin, testMins, testMaxs, fPos, veh->s.number, veh->clipmask);
 	if (!localTrace.startsolid && !localTrace.allsolid && localTrace.fraction == 1.0f)
 	{ //otherwise I guess it's not clear..
-		noseClear = qtrue;
+		noseClear = true;
 	}
 
 	if (noseClear)
@@ -2804,7 +2804,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 //try to break surfaces off the ship on impact
 #define TURN_ON				0x00000000
 #define TURN_OFF			0x00000100
-extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags); //NPC_utils.c
+extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags); //NPC_utils.cpp
 int G_ShipSurfaceForSurfName( const char *surfaceName )
 {
 	if ( !surfaceName )
@@ -2977,7 +2977,7 @@ void G_VehicleSetDamageLocFlags( gentity_t *veh, int impactDir, int deathPoint )
 	}
 }
 
-qboolean G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
+bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 {
 	char *surfName[4]; //up to 4 surfs at once
 	int numSurfs = 0;
@@ -2985,7 +2985,7 @@ qboolean G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 
 	if (surface == -1)
 	{ //not valid?
-		return qfalse;
+		return false;
 	}
 
 	switch(surface)
@@ -3037,7 +3037,7 @@ qboolean G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 
 	if (numSurfs < 1)
 	{ //didn't get any valid surfs..
-		return qfalse;
+		return false;
 	}
 
 	while (numSurfs > 0)
@@ -3062,15 +3062,15 @@ qboolean G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 	//when spiraling to your death, do the electical shader
 	veh->client->ps.electrifyTime = level.time + 10000;
 
-	return qtrue;
+	return true;
 }
 
-void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, qboolean force)
+void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, bool force)
 {
 	int impactDir;
 	int secondImpact;
 	int deathPoint = -1;
-	qboolean alreadyRebroken = qfalse;
+	bool alreadyRebroken = false;
 
 	if (!veh->ghoul2 || !veh->m_pVehicle)
 	{ //no g2 instance.. or no vehicle instance
@@ -3129,7 +3129,7 @@ anotherImpact:
 		secondImpact = G_FlyVehicleImpactDir(veh, trace);
 		if (impactDir != secondImpact)
 		{ //can break off another piece in this same impact.. but only break off up to 2 at once
-			alreadyRebroken = qtrue;
+			alreadyRebroken = true;
 			impactDir = secondImpact;
 			goto anotherImpact;
 		}

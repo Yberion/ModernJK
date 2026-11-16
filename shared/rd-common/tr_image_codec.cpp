@@ -77,7 +77,7 @@ private:
 		if ( count == 0 || count > MAX_IMAGE_PIXELS ) {
 			return AllocPixbufResult( std::string( "the image has no pixel or too many" ) );
 		}
-		pixels = static_cast<byte *>( R_ImageMalloc( static_cast<int>( count * 4 ), allowUninitialized ? qfalse : qtrue ) );
+		pixels = static_cast<byte *>( R_ImageMalloc( static_cast<int>( count * 4 ), allowUninitialized ? false : true ) );
 
 		wuffs_base__pixel_buffer pixbuf;
 		const wuffs_base__status status = pixbuf.set_from_slice( &config.pixcfg,
@@ -176,7 +176,7 @@ void RE_SaveJPG( const char *filename, int quality, int image_width, int image_h
 	size_t bufSize;
 
 	bufSize = image_width * image_height * 3;
-	out = R_ImageMalloc( static_cast<int>( bufSize ), qfalse );
+	out = R_ImageMalloc( static_cast<int>( bufSize ), false );
 
 	bufSize = RE_SaveJPGToBuffer( out, bufSize, quality, image_width, image_height, image_buffer, padding, false );
 	ri.FS_WriteFile( filename, out, bufSize );

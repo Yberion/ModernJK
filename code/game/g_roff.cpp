@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 roff_list_t	roffs[MAX_ROFFS];
 int			num_roffs = 0;
 
-qboolean g_bCollidableRoffs = qfalse;
+bool g_bCollidableRoffs = false;
 
 extern void	Q3_TaskIDComplete( gentity_t *ent, taskID_t taskType );
 
@@ -461,21 +461,21 @@ functionend:
 // Checks header to verify we have a valid .ROF file
 //-------------------------------------------------------
 
-static qboolean G_ValidRoff( roff_hdr2_t *header )
+static bool G_ValidRoff( roff_hdr2_t *header )
 {
 	if ( !strncmp( header->mHeader, "ROFF", 4 ))
 	{
 		if ( LittleLong(header->mVersion) == ROFF_VERSION2 && LittleLong(header->mCount) > 0 )
 		{
-			return qtrue;
+			return true;
 		}
 		else if ( LittleLong(header->mVersion) == ROFF_VERSION && LittleFloat(((roff_hdr_t*)header)->mCount) > 0.0f )
 		{ // version 1 defines the count as a float, so we best do the count check as a float or we'll get bogus results
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -500,7 +500,7 @@ static void G_FreeRoff(int index)
 // Initializes the .ROF file
 //-------------------------------------------------------
 
-static qboolean G_InitRoff( char *file, unsigned char *data )
+static bool G_InitRoff( char *file, unsigned char *data )
 {
 	roff_hdr_t *header = (roff_hdr_t *)data;
 	int	count;
@@ -547,7 +547,7 @@ static qboolean G_InitRoff( char *file, unsigned char *data )
 				VectorCopy( roff_data->rotate_delta, mem->rotate_delta );
 #endif
 			}
-			return qtrue;
+			return true;
 		}
 	}
 	else if ( LittleLong(header->mVersion) == ROFF_VERSION2 )
@@ -622,11 +622,11 @@ static qboolean G_InitRoff( char *file, unsigned char *data )
 				}
 			}
 
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -820,7 +820,7 @@ void G_Roff( gentity_t *ent )
 		VectorAdd( ent->pos1, org, ent->pos1 );
 
 		//make it true linear... FIXME: sticks around after ROFF is done, but do we really care?
-		ent->alt_fire = qtrue;
+		ent->alt_fire = true;
 
 		if ( ent->e_ThinkFunc == thinkF_TieFighterThink || ent->e_ThinkFunc == thinkF_TieBomberThink ||
 			( !ent->e_ThinkFunc

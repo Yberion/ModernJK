@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_utils.c -- misc utility functions for game module
+// g_utils.cpp -- misc utility functions for game module
 
 #include "g_headers.h"
 
@@ -33,10 +33,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "../../code/rd-common/mdx_format.h"
 
-#define ACT_ACTIVE		qtrue
-#define ACT_INACTIVE	qfalse
-extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, qboolean useWhenDone );
-extern qboolean PM_CrouchAnim( int anim );
+#define ACT_ACTIVE		true
+#define ACT_INACTIVE	false
+extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, bool useWhenDone );
+extern bool PM_CrouchAnim( int anim );
 /*
 =========================================================================
 
@@ -52,7 +52,7 @@ G_FindConfigstringIndex
 ================
 */
 extern void ForceTelepathy( gentity_t *self );
-int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create ) {
+int G_FindConfigstringIndex( const char *name, int start, int max, bool create ) {
 	int		i;
 	char	s[MAX_STRING_CHARS];
 
@@ -87,21 +87,21 @@ Ghoul2 Insert Start
 */
 
 int G_SkinIndex( const char *name ) {
-	return G_FindConfigstringIndex (name, CS_CHARSKINS, MAX_CHARSKINS, qtrue);
+	return G_FindConfigstringIndex (name, CS_CHARSKINS, MAX_CHARSKINS, true);
 }
 /*
 Ghoul2 Insert End
 */
 
 int G_ModelIndex( const char *name ) {
-	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, qtrue);
+	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, true);
 }
 
 int G_SoundIndex( const char *name ) {
 	char stripped[MAX_QPATH];
 	COM_StripExtension(name, stripped, sizeof(stripped));
 
-	return G_FindConfigstringIndex (stripped, CS_SOUNDS, MAX_SOUNDS, qtrue);
+	return G_FindConfigstringIndex (stripped, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
 int G_EffectIndex( const char *name )
@@ -111,7 +111,7 @@ int G_EffectIndex( const char *name )
 	// We just don't want extensions on the things we are registering
 	COM_StripExtension( name, temp, sizeof(temp) );
 
-	return G_FindConfigstringIndex( temp, CS_EFFECTS, MAX_FX, qtrue );
+	return G_FindConfigstringIndex( temp, CS_EFFECTS, MAX_FX, true );
 }
 
 #define FX_ENT_RADIUS 32
@@ -444,7 +444,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 G_RadiusList - given an origin and a radius, return all entities that are in use that are within the list
 ============
 */
-int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES])
+int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, bool takeDamage, gentity_t *ent_list[MAX_GENTITIES])
 {
 	float		dist;
 	gentity_t	*ent;
@@ -696,7 +696,7 @@ float vectoyaw( const vec3_t vec ) {
 
 void G_InitGentity( gentity_t *e )
 {
-	e->inuse = qtrue;
+	e->inuse = true;
 	SetInUse(e);
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
@@ -837,7 +837,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	ed->s.number = ENTITYNUM_NONE;
 	ed->classname = "freed";
 	ed->freetime = level.time;
-	ed->inuse = qfalse;
+	ed->inuse = false;
 	ClearInUse(ed);
 }
 
@@ -859,7 +859,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
-	e->freeAfterEvent = qtrue;
+	e->freeAfterEvent = true;
 
 	VectorCopy( origin, snapped );
 	SnapVector( snapped );		// save network bandwidth
@@ -964,7 +964,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 		temp->s.otherEntityNum = ent->s.number;
 		G_SetOrigin( temp, ent->s.origin );
 		G_AddEvent( temp, event, eventParm );
-		temp->freeAfterEvent = qtrue;
+		temp->freeAfterEvent = true;
 		gi.linkentity( temp );
 		return;
 	}
@@ -1073,7 +1073,7 @@ void G_SetOrigin( gentity_t *ent, const vec3_t origin )
 }
 
 //===============================================================================
-qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
+bool G_CheckInSolid (gentity_t *self, bool fix)
 {
 	trace_t	trace;
 	vec3_t	end, mins;
@@ -1086,7 +1086,7 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 	gi.trace(&trace, self->currentOrigin, mins, self->maxs, end, self->s.number, self->clipmask, G2_NOCOLLIDE, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
-		return qtrue;
+		return true;
 	}
 
 	if(trace.fraction < 1.0)
@@ -1100,18 +1100,18 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 			G_SetOrigin(self, neworg);
 			gi.linkentity(self);
 
-			return G_CheckInSolid(self, qfalse);
+			return G_CheckInSolid(self, false);
 		}
 		else
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean infront(gentity_t *from, gentity_t *to)
+bool infront(gentity_t *from, gentity_t *to)
 {
 	vec3_t	angles, dir, forward;
 	float	dot;
@@ -1126,10 +1126,10 @@ qboolean infront(gentity_t *from, gentity_t *to)
 	dot = DotProduct(forward, dir);
 	if(dot < 0.0f)
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 void Svcmd_Use_f( void )
@@ -1180,7 +1180,7 @@ void Svcmd_Use_f( void )
 
 //======================================================
 
-void G_SetActiveState(char *targetstring, qboolean actState)
+void G_SetActiveState(char *targetstring, bool actState)
 {
 	gentity_t	*target = NULL;
 	while( NULL != (target = G_Find(target, FOFS(targetname), targetstring)) )
@@ -1232,30 +1232,30 @@ ValidUseTarget
 Returns whether or not the targeted entity is useable
 ==============
 */
-qboolean ValidUseTarget( gentity_t *ent )
+bool ValidUseTarget( gentity_t *ent )
 {
 	if ( ent->e_UseFunc == useF_NULL )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->svFlags & SVF_INACTIVE )
 	{//set by target_deactivate
-		return qfalse;
+		return false;
 	}
 
 	if ( !(ent->svFlags & SVF_PLAYER_USABLE) )
 	{//Check for flag that denotes BUTTON_USE useability
-		return qfalse;
+		return false;
 	}
 
 	//FIXME: This is only a temp fix..
 	if ( !strncmp( ent->classname, "trigger", 7) )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1325,7 +1325,7 @@ void TryUse( gentity_t *ent )
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
 	{
-		NPC_UseResponse ( target, ent, qfalse );
+		NPC_UseResponse ( target, ent, false );
 		return;
 	}
 	/*
@@ -1337,7 +1337,7 @@ void TryUse( gentity_t *ent )
 }
 
 extern int killPlayerTimer;
-void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
+void G_ChangeMap (const char *mapname, const char *spawntarget, bool hub)
 {
 //	gi.Printf("Loading...");
 	//ignore if player is dead
@@ -1351,7 +1351,7 @@ void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
 	if ( spawntarget == NULL ) {
 		spawntarget = "";	//prevent it from becoming "(null)"
 	}
-	if ( hub == qtrue )
+	if ( hub == true )
 	{
 		gi.SendConsoleCommand( va("loadtransition %s %s\n", mapname, spawntarget) );
 	}
@@ -1361,24 +1361,24 @@ void G_ChangeMap (const char *mapname, const char *spawntarget, qboolean hub)
 	}
 }
 
-qboolean G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs )
+bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs )
 {
 	for(int i = 0; i < 3; i++ )
 	{
 		if ( point[i] < mins[i] )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( point[i] > maxs[i] )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs )
+bool G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs )
 {
 	vec3_t boxMins;
 	vec3_t boxMaxs;
@@ -1387,25 +1387,25 @@ qboolean G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs
 	VectorAdd( point, maxs, boxMaxs );
 
 	if(boxMaxs[0]>boundsMaxs[0])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[1]>boundsMaxs[1])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[2]>boundsMaxs[2])
-		return qfalse;
+		return false;
 
 	if(boxMins[0]<boundsMins[0])
-		return qfalse;
+		return false;
 
 	if(boxMins[1]<boundsMins[1])
-		return qfalse;
+		return false;
 
 	if(boxMins[2]<boundsMins[2])
-		return qfalse;
+		return false;
 
 	//box is completely contained within bounds
-	return qtrue;
+	return true;
 }
 
 
@@ -1416,7 +1416,7 @@ void G_SetAngles( gentity_t *ent, const vec3_t angles )
 	VectorCopy( angles, ent->s.apos.trBase );
 }
 
-qboolean G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask )
+bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask )
 {
 	static	trace_t	tr;
 
@@ -1424,14 +1424,14 @@ qboolean G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs,
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 extern void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int radius);
-void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, qboolean deleteornot)
+void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot)
 {
 	/*
 	gentity_t *tent = G_TempEntity( A, EV_DEBUG_LINE );
@@ -1445,7 +1445,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, qboolean deleteorn
 	CG_TestLine( A, B, duration, color, 1 );
 }
 
-qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
+bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
 {
 	trace_t	tr;
 	vec3_t	start, end;
@@ -1459,7 +1459,7 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 		gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, G2_NOCOLLIDE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( tr.fraction < 1.0 )
 		{
@@ -1468,11 +1468,11 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 			gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, G2_NOCOLLIDE, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
-				return qfalse;
+				return false;
 			}
 			if ( tr.fraction < 1.0 )
 			{
-				return qfalse;
+				return false;
 			}
 			VectorCopy( end, start );
 		}
@@ -1481,10 +1481,10 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 	gi.trace( &tr, start, mins, maxs, start, ignore, clipmask, G2_NOCOLLIDE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
-		return qfalse;
+		return false;
 	}
 	VectorCopy( start, point );
-	return qtrue;
+	return true;
 }
 /*
 Ghoul2 Insert Start

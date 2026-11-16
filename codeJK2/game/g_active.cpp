@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	SLOWDOWN_DIST	128.0f
 #define	MIN_NPC_SPEED	16.0f
 
-extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
+extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void G_MaintainFormations(gentity_t *self);
 extern void BG_CalculateOffsetAngles( gentity_t *ent, usercmd_t *ucmd );//in bg_pangles.cpp
 extern void TryUse( gentity_t *ent );
@@ -50,32 +50,32 @@ extern void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd );
 extern void WP_SaberInitBladeData( gentity_t *ent );
 extern gentity_t *SeekerAcquiresTarget ( gentity_t *ent, vec3_t pos );
 extern void FireSeeker( gentity_t *owner, gentity_t *target, vec3_t origin, vec3_t dir );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
-extern qboolean PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
-extern qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doMove );
-extern qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboolean anglesOnly );
-extern qboolean PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd );
-extern qboolean PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, qboolean angleClampOnly );
-extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
-extern qboolean PM_SpinningSaberAnim( int anim );
-extern qboolean PM_SaberInAttack( int move );
+extern bool PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
+extern bool PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, bool doMove );
+extern bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool anglesOnly );
+extern bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleClampOnly );
+extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_SaberInAttack( int move );
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InRoll( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InRoll( playerState_t *ps );
 extern void PM_CmdForRoll( int anim, usercmd_t *pCmd );
-extern qboolean PM_CrouchAnim( int anim );
-extern qboolean PM_FlippingAnim( int anim );
-extern qboolean PM_InCartwheel( int anim );
-extern qboolean PM_StandingAnim( int anim );
-extern qboolean PM_InForceGetUp( playerState_t *ps );
+extern bool PM_CrouchAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
+extern bool PM_InCartwheel( int anim );
+extern bool PM_StandingAnim( int anim );
+extern bool PM_InForceGetUp( playerState_t *ps );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 
 extern bool		in_camera;
-extern qboolean	player_locked;
-extern qboolean	stop_icarus;
+extern bool	player_locked;
+extern bool	stop_icarus;
 extern cvar_t	*g_spskill;
 extern cvar_t	*g_timescale;
 extern cvar_t	*g_saberMoveSpeed;
@@ -162,11 +162,11 @@ int G_FindLookItem( gentity_t *self )
 	return bestEntNum;
 }
 
-extern void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt );
-qboolean G_ClearViewEntity( gentity_t *ent )
+extern void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt );
+bool G_ClearViewEntity( gentity_t *ent )
 {
 	if ( !ent->client->ps.viewEntity )
-		return qfalse;
+		return false;
 
 	if ( ent->client->ps.viewEntity > 0 && ent->client->ps.viewEntity < ENTITYNUM_NONE )
 	{
@@ -182,11 +182,11 @@ qboolean G_ClearViewEntity( gentity_t *ent )
 				g_entities[ent->client->ps.viewEntity].NPC->desiredYaw = g_entities[ent->client->ps.viewEntity].currentAngles[YAW];
 			}
 		}
-		CG_SetClientViewAngles( ent->pos4, qtrue );
+		CG_SetClientViewAngles( ent->pos4, true );
 		SetClientViewAngle( ent, ent->pos4 );
 	}
 	ent->client->ps.viewEntity = 0;
-	return qtrue;
+	return true;
 }
 
 void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
@@ -215,7 +215,7 @@ void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
 	if ( viewEntity->client )
 	{
 		//vec3_t	clear = {0,0,0};
-		CG_SetClientViewAngles( viewEntity->client->ps.viewangles, qtrue );
+		CG_SetClientViewAngles( viewEntity->client->ps.viewangles, true );
 		//SetClientViewAngle( self, viewEntity->client->ps.viewangles );
 		//SetClientViewAngle( viewEntity, clear );
 		/*
@@ -232,34 +232,34 @@ void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity )
 	}
 }
 
-qboolean G_ControlledByPlayer( gentity_t *self )
+bool G_ControlledByPlayer( gentity_t *self )
 {
 	if ( self && self->NPC && self->NPC->controlledTime > level.time )
 	{//being controlled
 		gentity_t *controller = &g_entities[0];
 		if ( controller->client && controller->client->ps.viewEntity == self->s.number )
 		{//we're the player's viewEntity
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
+bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 {
 	if ( !enemy )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( enemy->flags&FL_NOTARGET )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( !enemy || enemy == self || !enemy->inuse )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( !enemy->client || !enemy->NPC )
 	{//not valid
@@ -268,25 +268,25 @@ qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 			&& enemy->noDamageTeam != self->client->playerTeam
 			&& enemy->health > 0 )
 		{//a turret
-			//return qtrue;
+			//return true;
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	else
 	{
 		if ( enemy->client->playerTeam == self->client->playerTeam )
 		{//on same team
-			return qfalse;
+			return false;
 		}
 
 		if ( enemy->health <= 0 && ((level.time-enemy->s.time) > 3000||!InFront(enemy->currentOrigin,self->currentOrigin,self->client->ps.viewangles,0.2f)||DistanceHorizontal(enemy->currentOrigin,self->currentOrigin)>16384))//>128
 		{//corpse, been dead too long or too out of sight to be interesting
 			if ( !enemy->message )
 			{
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -294,12 +294,12 @@ qboolean G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 	if ( (!InFront( enemy->currentOrigin, self->currentOrigin, self->client->ps.viewangles, 0.0f) || !G_ClearLOS( self, self->client->renderInfo.eyePoint, enemy ) )
 		&& ( DistanceHorizontalSquared( enemy->currentOrigin, self->currentOrigin ) > 65536 || fabs(enemy->currentOrigin[2]-self->currentOrigin[2]) > 384 )  )
 	{//(not in front or not clear LOS) & greater than 256 away
-		return qfalse;
+		return false;
 	}
 
 	//LOS?
 
-	return qtrue;
+	return true;
 }
 
 void G_ChooseLookEnemy( gentity_t *self, usercmd_t *ucmd )
@@ -447,7 +447,7 @@ void P_DamageFeedback( gentity_t *player ) {
 		client->ps.damagePitch = 255;
 		client->ps.damageYaw = 255;
 
-		client->damage_fromWorld = qfalse;
+		client->damage_fromWorld = false;
 	}
 	else
 	{
@@ -585,7 +585,7 @@ void G_SetClientSound( gentity_t *ent ) {
 
 
 //==============================================================
-void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
+void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 {
 	float magnitude, my_mass;
 	vec3_t	velocity;
@@ -828,8 +828,8 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 	trace_t		trace;
 	vec3_t		end, mins, maxs, diff;
 	const vec3_t	range = { 40, 40, 52 };
-	qboolean	touched[MAX_GENTITIES];
-	qboolean	done = qfalse;
+	bool	touched[MAX_GENTITIES];
+	bool	done = false;
 
 	if ( !ent->client ) {
 		return;
@@ -853,14 +853,14 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 	VectorSubtract( ent->currentOrigin, ent->lastOrigin, diff );
 	dist = VectorNormalize( diff );
 
-	memset (touched, qfalse, sizeof(touched) );
+	memset (touched, false, sizeof(touched) );
 
 	for ( curDist = 0; !done && ent->maxs[1]>0; curDist += (float)ent->maxs[1]/2.0f )
 	{
 		if ( curDist >= dist )
 		{
 			VectorCopy( ent->currentOrigin, end );
-			done = qtrue;
+			done = true;
 		}
 		else
 		{
@@ -885,7 +885,7 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 				continue;
 			}
 
-			if ( touched[i] == qtrue ) {
+			if ( touched[i] == true ) {
 				continue;//already touched this move
 			}
 			if ( ent->client->ps.stats[STAT_HEALTH] <= 0 )
@@ -909,7 +909,7 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 				}
 			}
 
-			touched[i] = qtrue;
+			touched[i] = true;
 
 			// all zero, the collision records included: only their default constructor makes trace_t non-trivial
 			memset( (void *)&trace, 0, sizeof(trace) );
@@ -1135,16 +1135,16 @@ void G_NPCMunroMatchPlayerWeapon( gentity_t *ent )
 =================
 ClientInactivityTimer
 
-Returns qfalse if the client is dropped
+Returns false if the client is dropped
 =================
 */
-qboolean ClientInactivityTimer( gclient_t *client ) {
+bool ClientInactivityTimer( gclient_t *client ) {
 	if ( ! g_inactivity->integer )
 	{
 		// give everyone some time, so if the operator sets g_inactivity during
 		// gameplay, everyone isn't kicked
 		client->inactivityTime = level.time + 60 * 1000;
-		client->inactivityWarning = qfalse;
+		client->inactivityWarning = false;
 	}
 	else if ( client->usercmd.forwardmove ||
 		client->usercmd.rightmove ||
@@ -1153,25 +1153,25 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		(client->usercmd.buttons & BUTTON_ALT_ATTACK) )
 	{
 		client->inactivityTime = level.time + g_inactivity->integer * 1000;
-		client->inactivityWarning = qfalse;
+		client->inactivityWarning = false;
 	}
 	else if ( !client->pers.localClient )
 	{
 		if ( level.time > client->inactivityTime )
 		{
 			gi.DropClient( client - level.clients, "Dropped due to inactivity" );
-			return qfalse;
+			return false;
 		}
 		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning )
 		{
-			client->inactivityWarning = qtrue;
+			client->inactivityWarning = true;
 			gi.SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
 		}
 	}
 	else
 	{//FIXME: here is where we can decide to play an idle animation
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1219,16 +1219,16 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 ClientIntermissionThink
 ====================
 */
-static qboolean ClientCinematicThink( gclient_t *client ) {
+static bool ClientCinematicThink( gclient_t *client ) {
 	client->ps.eFlags &= ~EF_FIRING;
 
 	// swap button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->usercmd.buttons;
 	if ( client->buttons & ( BUTTON_USE ) & ( client->oldbuttons ^ client->buttons ) ) {
-		return( qtrue );
+		return( true );
 	}
-	return( qfalse );
+	return( false );
 }
 
 
@@ -1248,7 +1248,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	gclient_t *client;
 	//int		damage;
 #ifndef FINAL_BUILD
-	qboolean	fired = qfalse;
+	bool	fired = false;
 #endif
 
 	client = ent->client;
@@ -1282,9 +1282,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( fired ) {
 				gi.Printf( "DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n" );
 			}
-			fired = qtrue;
+			fired = true;
 #endif
-			FireWeapon( ent, qfalse );
+			FireWeapon( ent, false );
 			break;
 
 		case EV_ALT_FIRE:
@@ -1292,9 +1292,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( fired ) {
 				gi.Printf( "DOUBLE EV_FIRE_WEAPON AND-OR EV_ALT_FIRE!!\n" );
 			}
-			fired = qtrue;
+			fired = true;
 #endif
-			FireWeapon( ent, qtrue );
+			FireWeapon( ent, true );
 			break;
 
 		default:
@@ -1328,9 +1328,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	}
 }
 
-qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
+bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 {
-	qboolean overridAngles = qfalse;
+	bool overridAngles = false;
 
 	if ( (!ent->s.number&&ent->aimDebounceTime>level.time)
 		|| (ent->client->ps.pm_time && (ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK))
@@ -1346,7 +1346,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 	}
 
-	overridAngles = (PM_AdjustAnglesForKnockdown( ent, ucmd, qfalse )?qtrue:overridAngles);
+	overridAngles = (PM_AdjustAnglesForKnockdown( ent, ucmd, false )?true:overridAngles);
 
 	if ( ent->client->ps.saberLockTime > level.time )
 	{
@@ -1360,7 +1360,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			ucmd->buttons &= ~(ucmd->buttons&~BUTTON_ATTACK);
 		}
-		overridAngles = (PM_AdjustAnglesForSaberLock( ent, ucmd )?qtrue:overridAngles);
+		overridAngles = (PM_AdjustAnglesForSaberLock( ent, ucmd )?true:overridAngles);
 		if ( ent->NPC )
 		{
 			VectorClear( ent->client->ps.moveDir );
@@ -1405,7 +1405,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		{
 			VectorClear( ent->client->ps.moveDir );
 		}
-		if ( (overridAngles = (PM_AdjustAnglesForBackAttack( ent, ucmd )?qtrue:overridAngles)) == qtrue )
+		if ( (overridAngles = (PM_AdjustAnglesForBackAttack( ent, ucmd )?true:overridAngles)) == true )
 		{
 			//pull back the view
 			if ( !ent->s.number )
@@ -1498,7 +1498,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 	}
 
-	overridAngles = (PM_AdjustAngleForWallRun( ent, ucmd, qtrue )?qtrue:overridAngles);
+	overridAngles = (PM_AdjustAngleForWallRun( ent, ucmd, true )?true:overridAngles);
 
 	return overridAngles;
 }
@@ -1538,7 +1538,7 @@ void BG_AddPushVecToUcmd( gentity_t *self, usercmd_t *ucmd )
 	}
 }
 
-void NPC_Accelerate( gentity_t *ent, qboolean fullWalkAcc, qboolean fullRunAcc )
+void NPC_Accelerate( gentity_t *ent, bool fullWalkAcc, bool fullRunAcc )
 {
 	if ( !ent->client || !ent->NPC )
 	{
@@ -1991,8 +1991,8 @@ void ClientThink_real( gentity_t *ent, usercmd_t *ucmd )
 	vec3_t		oldOrigin;
 	int			oldEventSequence;
 	int			msec;
-	qboolean	inSpinFlipAttack = PM_AdjustAnglesForSpinningFlip( ent, ucmd, qfalse );
-	qboolean	controlledByPlayer = qfalse;
+	bool	inSpinFlipAttack = PM_AdjustAnglesForSpinningFlip( ent, ucmd, false );
+	bool	controlledByPlayer = false;
 
 	//Don't let the player do anything if in a camera
 	if ( ent->s.number == 0 )
@@ -2107,7 +2107,7 @@ extern cvar_t	*g_skippingcin;
 			}
 			if ( ent->client->ps.pm_type == PM_DEAD && cg.missionStatusDeadTime < level.time )
 			{//mission status screen is up because player is dead, stop all scripts
-				stop_icarus = qtrue;
+				stop_icarus = true;
 			}
 		}
 
@@ -2132,7 +2132,7 @@ extern cvar_t	*g_skippingcin;
 				G_Sound( ent, G_SoundIndex( "sound/weapons/disruptor/zoomend.wav" ));
 				cg.zoomMode = 0;
 				cg.zoomTime = cg.time;
-				cg.zoomLocked = qfalse;
+				cg.zoomLocked = false;
 			}
 		}
 
@@ -2165,7 +2165,7 @@ extern cvar_t	*g_skippingcin;
 		}
 		if ( player && player->client && player->client->ps.viewEntity == ent->s.number )
 		{
-			controlledByPlayer = qtrue;
+			controlledByPlayer = true;
 			int sav_weapon = ucmd->weapon;
 			memcpy( ucmd, &player->client->usercmd, sizeof( usercmd_t ) );
 			ucmd->weapon = sav_weapon;
@@ -2365,12 +2365,12 @@ extern cvar_t	*g_skippingcin;
 	// set speed
 	if ( ent->NPC != NULL )
 	{//we don't actually scale the ucmd, we use actual speeds
-		if ( ent->NPC->combatMove == qfalse )
+		if ( ent->NPC->combatMove == false )
 		{
 			if ( !(ucmd->buttons & BUTTON_USE) )
 			{//Not leaning
-				qboolean Flying = (qboolean)(ucmd->upmove && ent->NPC->stats.moveType == MT_FLYSWIM);
-				qboolean Climbing = (qboolean)(ucmd->upmove && (ent->watertype & CONTENTS_LADDER));
+				bool Flying = (ucmd->upmove && ent->NPC->stats.moveType == MT_FLYSWIM);
+				bool Climbing = (ucmd->upmove && (ent->watertype & CONTENTS_LADDER));
 
 				client->ps.friction = 6;
 
@@ -2415,7 +2415,7 @@ extern cvar_t	*g_skippingcin;
 					ent->NPC->desiredSpeed = 0;
 				}
 
-				NPC_Accelerate( ent, qfalse, qfalse );
+				NPC_Accelerate( ent, false, false );
 
 				if ( ent->NPC->currentSpeed <= 24 && ent->NPC->desiredSpeed < ent->NPC->currentSpeed )
 				{//No-one walks this slow
@@ -2765,7 +2765,7 @@ extern cvar_t	*g_skippingcin;
 	pm.trace = gi.trace;
 	pm.pointcontents = gi.pointcontents;
 	pm.debugLevel = g_debugMove->integer;
-	pm.noFootsteps = qfalse;//( g_dmflags->integer & DF_NO_FOOTSTEPS ) > 0;
+	pm.noFootsteps = false;//( g_dmflags->integer & DF_NO_FOOTSTEPS ) > 0;
 
 	VectorCopy( client->ps.origin, oldOrigin );
 
@@ -2913,10 +2913,10 @@ A new command has arrived from the client
 ==================
 */
 extern void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  );
-extern qboolean PM_GentCantJump( gentity_t *gent );
+extern bool PM_GentCantJump( gentity_t *gent );
 void ClientThink( int clientNum, usercmd_t *ucmd ) {
 	gentity_t *ent;
-	qboolean restore_ucmd = qfalse;
+	bool restore_ucmd = false;
 	usercmd_t sav_ucmd = {0};
 
 	ent = g_entities + clientNum;
@@ -2926,7 +2926,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 		if ( ent->client->ps.viewEntity > 0 && ent->client->ps.viewEntity < ENTITYNUM_WORLD )
 		{//you're controlling another NPC
 			gentity_t *controlled = &g_entities[ent->client->ps.viewEntity];
-			qboolean freed = qfalse;
+			bool freed = false;
 			if ( controlled->NPC
 				&& controlled->NPC->controlledTime
 				&& ent->client->ps.forcePowerLevel[FP_TELEPATHY] > FORCE_LEVEL_3 )
@@ -2934,7 +2934,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 				if ( controlled->NPC->controlledTime < level.time )
 				{//time's up!
 					G_ClearViewEntity( ent );
-					freed = qtrue;
+					freed = true;
 				}
 				else if ( ucmd->upmove > 0 )
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
@@ -2942,7 +2942,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 					ucmd->upmove = 0;//ucmd->buttons = 0;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
-					freed = qtrue;
+					freed = true;
 				}
 			}
 			else if ( controlled->NPC //an NPC
@@ -2955,7 +2955,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 					ucmd->upmove = 0;//ucmd->buttons = 0;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
-					freed = qtrue;
+					freed = true;
 				}
 			}
 			else
@@ -2964,12 +2964,12 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
 					G_ClearViewEntity( ent );
 					ucmd->buttons = 0;
-					freed = qtrue;
+					freed = true;
 				}
 			}
 			if ( !freed )
 			{//still controlling, save off my ucmd and clear it for my actual run through pmove
-				restore_ucmd = qtrue;
+				restore_ucmd = true;
 				memcpy( &sav_ucmd, ucmd, sizeof( usercmd_t ) );
 				memset( ucmd, 0, sizeof( usercmd_t ) );
 				//to keep pointing in same dir, need to set ucmd->angles

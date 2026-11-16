@@ -182,7 +182,7 @@ CTextPool::CTextPool(int initSize) :
 	mUsed(0)
 {
 //	mPool = (char *)Z_Malloc(mSize, TAG_GP2);
-	mPool = (char *)Z_Malloc(mSize, TAG_TEXTPOOL, qtrue);
+	mPool = (char *)Z_Malloc(mSize, TAG_TEXTPOOL, true);
 }
 
 CTextPool::~CTextPool(void)

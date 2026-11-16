@@ -129,7 +129,7 @@ typedef struct miniRefEntity_s
 
 	// most recent data
 	matrix3_t			axis;			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	vec3_t				origin;				// also used as MODEL_BEAM's "from"
 
 	// previous data for frame interpolation
@@ -163,7 +163,7 @@ typedef struct refEntity_s {
 
 	// most recent data
 	matrix3_t			axis;			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	vec3_t				origin;				// also used as MODEL_BEAM's "from"
 
 	// previous data for frame interpolation
@@ -244,15 +244,15 @@ typedef struct refEntity_s {
 			float stscale;
 			float height;
 			float bias;
-			qboolean wrap;
+			bool wrap;
 		} cylinder;
 		struct
 		{
 			float width;
 			float deviation;
 			float stscale;
-			qboolean wrap;
-			qboolean taper;
+			bool wrap;
+			bool taper;
 		} electricity;
 	} data;
 
@@ -355,10 +355,10 @@ typedef struct glconfig_s {
 
 	int						colorBits, depthBits, stencilBits;
 
-	qboolean				deviceSupportsGamma;
+	bool				deviceSupportsGamma;
 	textureCompression_t	textureCompression;
-	qboolean				textureEnvAddAvailable;
-	qboolean				clampToEdgeAvailable;
+	bool				textureEnvAddAvailable;
+	bool				clampToEdgeAvailable;
 
 	int						vidWidth, vidHeight;
 
@@ -367,6 +367,6 @@ typedef struct glconfig_s {
 	// synonymous with "does rendering consume the entire screen?", therefore
 	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
 	// used CDS.
-	qboolean				isFullscreen;
-	qboolean				stereoEnabled;
+	bool				isFullscreen;
+	bool				stereoEnabled;
 } glconfig_t;

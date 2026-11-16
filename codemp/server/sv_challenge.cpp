@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 static const size_t SECRET_KEY_LENGTH = MD5_DIGEST_SIZE; // Key length equal to digest length is adequate
 
-static qboolean challengerInitialized = qfalse;
+static bool challengerInitialized = false;
 static hmacMD5Context_t challenger;
 
 #ifdef DEBUG_SV_CHALLENGE
@@ -80,7 +80,7 @@ void SV_ChallengeInit()
 
 	HMAC_MD5_Init(&challenger, secretKey, sizeof(secretKey));
 
-	challengerInitialized = qtrue;
+	challengerInitialized = true;
 }
 
 /*
@@ -94,7 +94,7 @@ void SV_ChallengeShutdown()
 {
 	if (challengerInitialized) {
 		memset(&challenger, 0, sizeof(challenger));
-		challengerInitialized = qfalse;
+		challengerInitialized = false;
 	}
 }
 
@@ -160,7 +160,7 @@ SV_VerifyChallenge
 Verify a challenge received by the client matches the expected challenge.
 ====================
 */
-qboolean SV_VerifyChallenge(int receivedChallenge, const netadr_t *from)
+bool SV_VerifyChallenge(int receivedChallenge, const netadr_t *from)
 {
 	if (!challengerInitialized) {
 		Com_Error(ERR_FATAL, "SV_VerifyChallenge: The challenge subsystem has not been initialized");
@@ -182,5 +182,5 @@ qboolean SV_VerifyChallenge(int receivedChallenge, const netadr_t *from)
 #endif
 
 	int expectedChallenge = SV_CreateChallenge(challengeTimestamp, from);
-	return (qboolean)(receivedChallenge == expectedChallenge);
+	return (receivedChallenge == expectedChallenge);
 }

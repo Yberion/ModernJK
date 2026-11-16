@@ -1163,7 +1163,7 @@ void CEmitter::Draw()
 	// Emitters don't draw themselves, but they may need to add an attached model
 	if ( mFlags & FX_ATTACHED_MODEL )
 	{
-		mRefEnt.nonNormalizedAxes = qtrue;
+		mRefEnt.nonNormalizedAxes = true;
 
 		VectorCopy( mOrigin1, mRefEnt.origin );
 

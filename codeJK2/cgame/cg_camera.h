@@ -76,9 +76,9 @@ typedef struct camera_s
 	vec3_t	subjectPos;
 	float	subjectSpeed;
 	float	followSpeed;
-	qboolean followInitLerp;
+	bool followInitLerp;
 	float	distance;
-	qboolean distanceInitLerp;
+	bool distanceInitLerp;
 	//int		aimEntNum;//FIXME: remove
 
 	//Tracking information

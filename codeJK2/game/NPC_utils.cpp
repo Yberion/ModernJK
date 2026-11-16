@@ -197,7 +197,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 //===================================================================================
 
 /*
-qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
+bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 
 Added: option to do just pitch or just yaw
 
@@ -206,7 +206,7 @@ Does not include "aim" in it's calculations
 FIXME: stop compressing angles into shorts!!!!
 */
 extern cvar_t		*g_timescale;
-qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
+bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 {
 #if 1
 
@@ -215,7 +215,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	float		targetPitch = 0;
 	float		targetYaw = 0;
 	float		yawSpeed;
-	qboolean	exact = qtrue;
+	bool	exact = true;
 
 	// if angle changes are locked; just keep the current angles
 	// aimTime isn't even set anymore... so this code was never reached, but I need a way to lock NPC's yaw, so instead of making a new SCF_ flag, just use the existing render flag... - dmv
@@ -268,7 +268,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 		{
 			if ( error )
 			{
-				exact = qfalse;
+				exact = false;
 
 				decay = 60.0 + yawSpeed * 3;
 				decay *= 50.0f / 1000.0f;//msec
@@ -304,7 +304,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 		{
 			if ( error )
 			{
-				exact = qfalse;
+				exact = false;
 
 				decay = 60.0 + yawSpeed * 3;
 				decay *= 50.0f / 1000.0f;//msec
@@ -347,8 +347,8 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 	float		targetYaw = 0;
 	float		yawSpeed;
 	//float		runningMod = NPCInfo->currentSpeed/100.0f;
-	qboolean	exact = qtrue;
-	qboolean	doSound = qfalse;
+	bool	exact = true;
+	bool	doSound = false;
 
 	// if angle changes are locked; just keep the current angles
 	if ( level.time < NPCInfo->aimTime )
@@ -386,7 +386,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 			{//HACK - borg turn more jittery
 				if ( error )
 				{
-					exact = qfalse;
+					exact = false;
 
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
@@ -395,7 +395,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{
-							doSound = qtrue;
+							doSound = true;
 						}
 					}
 
@@ -421,7 +421,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 
 			if ( error )
 			{
-				exact = qfalse;
+				exact = false;
 
 				decay = 60.0 + yawSpeed * 3;
 				decay *= 50.0 / 1000.0;//msec
@@ -460,7 +460,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 			{//HACK - borg turn more jittery
 				if ( error )
 				{
-					exact = qfalse;
+					exact = false;
 
 					decay = 60.0 + yawSpeed * 3;
 					decay *= 50.0 / 1000.0;//msec
@@ -469,7 +469,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 					{
 						if(Q_flrand(0.0f, 1.0f) > 0.6)
 						{
-							doSound = qtrue;
+							doSound = true;
 						}
 					}
 
@@ -495,7 +495,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 
 			if ( error )
 			{
-				exact = qfalse;
+				exact = false;
 
 				decay = 60.0 + yawSpeed * 3;
 				decay *= 50.0 / 1000.0;//msec
@@ -553,11 +553,11 @@ void NPC_AimWiggle( vec3_t enemy_org )
 }
 
 /*
-qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
+bool NPC_UpdateFiringAngles ( bool doPitch, bool doYaw )
 
   Includes aim when determining angles - so they don't always hit...
   */
-qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
+bool NPC_UpdateFiringAngles ( bool doPitch, bool doYaw )
 {
 
 #if 0
@@ -566,7 +566,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 	float		error;
 	float		targetPitch = 0;
 	float		targetYaw = 0;
-	qboolean	exact = qtrue;
+	bool	exact = true;
 
 	if ( level.time < NPCInfo->aimTime )
 	{
@@ -602,7 +602,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 		diff = AngleDelta ( NPC->client->ps.viewangles[YAW], targetYaw );
 
 		if ( diff )
-			exact = qfalse;
+			exact = false;
 
 		ucmd.angles[YAW] = ANGLE2SHORT( targetYaw + diff + error ) - client->ps.delta_angles[YAW];
 	}
@@ -615,7 +615,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 		diff = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
 
 		if ( diff )
-			exact = qfalse;
+			exact = false;
 
 		ucmd.angles[PITCH] = ANGLE2SHORT( targetPitch + diff + error ) - client->ps.delta_angles[PITCH];
 	}
@@ -630,7 +630,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 	float		decay;
 	float		targetPitch = 0;
 	float		targetYaw = 0;
-	qboolean	exact = qtrue;
+	bool	exact = true;
 
 	// if angle changes are locked; just keep the current angles
 	if ( level.time < NPCInfo->aimTime )
@@ -674,7 +674,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 
 		if ( diff)
 		{
-			exact = qfalse;
+			exact = false;
 
 			decay = 60.0 + 80.0;
 			decay *= 50.0f / 1000.0f;//msec
@@ -715,7 +715,7 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 		diff = AngleDelta ( NPC->client->ps.viewangles[PITCH], targetPitch );
 		if ( diff)
 		{
-			exact = qfalse;
+			exact = false;
 
 			decay = 60.0 + 80.0;
 			decay *= 50.0f / 1000.0f;//msec
@@ -752,12 +752,12 @@ qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw )
 //===================================================================================
 
 /*
-static void NPC_UpdateShootAngles (vec3_t angles, qboolean doPitch, qboolean doYaw )
+static void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw )
 
 Does update angles on shootAngles
 */
 
-void NPC_UpdateShootAngles (vec3_t angles, qboolean doPitch, qboolean doYaw )
+void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw )
 {//FIXME: shoot angles either not set right or not used!
 	float		error;
 	float		decay;
@@ -868,21 +868,21 @@ void SetTeamNumbers (void)
 
 extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
-qboolean G_ActivateBehavior (gentity_t *self, int bset )
+bool G_ActivateBehavior (gentity_t *self, int bset )
 {
 	bState_t	bSID = (bState_t)-1;
 	char *bs_name = NULL;
 
 	if ( !self )
 	{
-		return qfalse;
+		return false;
 	}
 
 	bs_name = self->behaviorSet[bset];
 
 	if( !(VALIDSTRING( bs_name )) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( self->NPC )
@@ -909,7 +909,7 @@ qboolean G_ActivateBehavior (gentity_t *self, int bset )
 		}
 		ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -928,27 +928,27 @@ NPC_ValidEnemy
 -------------------------
 */
 
-qboolean NPC_ValidEnemy( gentity_t *ent )
+bool NPC_ValidEnemy( gentity_t *ent )
 {
 	//Must be a valid pointer
 	if ( ent == NULL )
-		return qfalse;
+		return false;
 
 	//Must not be me
 	if ( ent == NPC )
-		return qfalse;
+		return false;
 
 	//Must not be deleted
-	if ( ent->inuse == qfalse )
-		return qfalse;
+	if ( ent->inuse == false )
+		return false;
 
 	//Must be alive
 	if ( ent->health <= 0 )
-		return qfalse;
+		return false;
 
 	//In case they're in notarget mode
 	if ( ent->flags & FL_NOTARGET )
-		return qfalse;
+		return false;
 
 	//Must be an NPC
 	if ( ent->client == NULL )
@@ -957,28 +957,28 @@ qboolean NPC_ValidEnemy( gentity_t *ent )
 		{//still potentially valid
 			if ( ent->noDamageTeam == NPC->client->playerTeam )
 			{
-				return qfalse;
+				return false;
 			}
 			else
 			{
-				return qtrue;
+				return true;
 			}
 		}
 		else
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
 	//Can't be on the same team
 	if ( ent->client->playerTeam == NPC->client->playerTeam )
-		return qfalse;
+		return false;
 
 	//if haven't seen him in a while, give up
 	//if ( NPCInfo->enemyLastSeenTime != 0 && level.time - NPCInfo->enemyLastSeenTime > 7000 )//FIXME: make a stat?
-	//	return qfalse;
+	//	return false;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -987,21 +987,21 @@ NPC_TargetVisible
 -------------------------
 */
 
-qboolean NPC_TargetVisible( gentity_t *ent )
+bool NPC_TargetVisible( gentity_t *ent )
 {
 	//Make sure we're in a valid range
 	if ( DistanceSquared( ent->currentOrigin, NPC->currentOrigin ) > ( NPCInfo->stats.visrange * NPCInfo->stats.visrange ) )
-		return qfalse;
+		return false;
 
 	//Check our FOV
-	if ( InFOV( ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov ) == qfalse )
-		return qfalse;
+	if ( InFOV( ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov ) == false )
+		return false;
 
 	//Check for sight
-	if ( NPC_ClearLOS( ent ) == qfalse )
-		return qfalse;
+	if ( NPC_ClearLOS( ent ) == false )
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1016,7 +1016,7 @@ NPC_GetCheckDelta
 
 static int NPC_GetCheckDelta( void )
 {
-	if ( NPC_ValidEnemy( NPC->enemy ) == qfalse )
+	if ( NPC_ValidEnemy( NPC->enemy ) == false )
 	{
 		int distance = DistanceSquared( NPC->currentOrigin, g_entities[0].currentOrigin );
 
@@ -1065,11 +1065,11 @@ int NPC_FindNearestEnemy( gentity_t *ent )
 			continue;
 
 		//Must be valid
-		if ( NPC_ValidEnemy( radiusEnts[i] ) == qfalse )
+		if ( NPC_ValidEnemy( radiusEnts[i] ) == false )
 			continue;
 
 		//Must be visible
-		if ( NPC_TargetVisible( radiusEnts[i] ) == qfalse )
+		if ( NPC_TargetVisible( radiusEnts[i] ) == false )
 			continue;
 
 		distance = DistanceSquared( ent->currentOrigin, radiusEnts[i]->currentOrigin );
@@ -1091,7 +1091,7 @@ NPC_PickEnemyExt
 -------------------------
 */
 
-gentity_t *NPC_PickEnemyExt( qboolean checkAlerts = qfalse )
+gentity_t *NPC_PickEnemyExt( bool checkAlerts = false )
 {
 	//If we've asked for the closest enemy
 	int entID = NPC_FindNearestEnemy( NPC );
@@ -1102,7 +1102,7 @@ gentity_t *NPC_PickEnemyExt( qboolean checkAlerts = qfalse )
 
 	if ( checkAlerts )
 	{
-		int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED );
+		int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, AEL_DISCOVERED );
 
 		//There is an event to look at
 		if ( alertEvent >= 0 )
@@ -1135,7 +1135,7 @@ NPC_FindPlayer
 -------------------------
 */
 
-qboolean NPC_FindPlayer( void )
+bool NPC_FindPlayer( void )
 {
 	return NPC_TargetVisible( &g_entities[0] );
 }
@@ -1146,33 +1146,33 @@ NPC_CheckPlayerDistance
 -------------------------
 */
 
-static qboolean NPC_CheckPlayerDistance( void )
+static bool NPC_CheckPlayerDistance( void )
 {
 	//Make sure we have an enemy
 	if ( NPC->enemy == NULL )
-		return qfalse;
+		return false;
 
 	//Only do this for non-players
 	if ( NPC->enemy->s.number == 0 )
-		return qfalse;
+		return false;
 
 	//must be set up to get mad at player
 	if ( !NPC->client || NPC->client->enemyTeam != TEAM_PLAYER )
-		return qfalse;
+		return false;
 
 	//Must be within our FOV
-	if ( InFOV( &g_entities[0], NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov ) == qfalse )
-		return qfalse;
+	if ( InFOV( &g_entities[0], NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov ) == false )
+		return false;
 
 	float	distance = DistanceSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 
 	if ( distance > DistanceSquared( NPC->currentOrigin, g_entities[0].currentOrigin ) )
 	{
 		G_SetEnemy( NPC, &g_entities[0] );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1181,29 +1181,29 @@ NPC_FindEnemy
 -------------------------
 */
 
-qboolean NPC_FindEnemy( qboolean checkAlerts = qfalse )
+bool NPC_FindEnemy( bool checkAlerts = false )
 {
 	//We're ignoring all enemies for now
 	if( NPC->svFlags & SVF_IGNORE_ENEMIES )
 	{
 		G_ClearEnemy( NPC );
-		return qfalse;
+		return false;
 	}
 
 	//we can't pick up any enemies for now
 	if( NPCInfo->confusionTime > level.time )
 	{
-		return qfalse;
+		return false;
 	}
 
 	//Don't want a new enemy
 	if ( ( ValidEnemy( NPC->enemy ) ) && ( NPC->svFlags & SVF_LOCKEDENEMY ) )
-		return qtrue;
+		return true;
 
 	//See if the player is closer than our current enemy
 	if ( NPC_CheckPlayerDistance() )
 	{
-		return qtrue;
+		return true;
 	}
 
 	//Otherwise, turn off the flag
@@ -1211,7 +1211,7 @@ qboolean NPC_FindEnemy( qboolean checkAlerts = qfalse )
 
 	//If we've gotten here alright, then our target it still valid
 	if ( NPC_ValidEnemy( NPC->enemy ) )
-		return qtrue;
+		return true;
 
 	gentity_t *newenemy = NPC_PickEnemyExt( checkAlerts );
 
@@ -1219,10 +1219,10 @@ qboolean NPC_FindEnemy( qboolean checkAlerts = qfalse )
 	if( NPC_ValidEnemy( newenemy ) )
 	{
 		G_SetEnemy( NPC, newenemy );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1231,12 +1231,12 @@ NPC_CheckEnemyExt
 -------------------------
 */
 
-qboolean NPC_CheckEnemyExt( qboolean checkAlerts )
+bool NPC_CheckEnemyExt( bool checkAlerts )
 {
 	//Make sure we're ready to think again
 /*
 	if ( NPCInfo->enemyCheckDebounceTime > level.time )
-		return qfalse;
+		return false;
 
 	//Get our next think time
 	NPCInfo->enemyCheckDebounceTime = level.time + NPC_GetCheckDelta();
@@ -1253,10 +1253,10 @@ NPC_FacePosition
 -------------------------
 */
 
-qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
+bool NPC_FacePosition( vec3_t position, bool doPitch )
 {
 	vec3_t		muzzle;
-	qboolean	facing = qtrue;
+	bool	facing = true;
 
 	//Get the positions
 	if ( NPC->client && NPC->client->NPC_class == CLASS_GALAKMECH )
@@ -1283,14 +1283,14 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 		NPCInfo->desiredPitch += Q_flrand( -2, 2 );
 	}
 	//Face that yaw
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	//Find the delta between our goal and our current facing
 	float yawDelta = AngleNormalize360( NPCInfo->desiredYaw - ( SHORT2ANGLE( ucmd.angles[YAW] + client->ps.delta_angles[YAW] ) ) );
 
 	//See if we are facing properly
 	if ( fabs( yawDelta ) > VALID_ATTACK_CONE )
-		facing = qfalse;
+		facing = false;
 
 	if ( doPitch )
 	{
@@ -1300,7 +1300,7 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 
 		//See if we are facing properly
 		if ( fabs( pitchDelta ) > VALID_ATTACK_CONE )
-			facing = qfalse;
+			facing = false;
 	}
 
 	return facing;
@@ -1312,7 +1312,7 @@ NPC_FaceEntity
 -------------------------
 */
 
-qboolean NPC_FaceEntity( gentity_t *ent, qboolean doPitch )
+bool NPC_FaceEntity( gentity_t *ent, bool doPitch )
 {
 	vec3_t		entPos;
 
@@ -1328,13 +1328,13 @@ NPC_FaceEnemy
 -------------------------
 */
 
-qboolean NPC_FaceEnemy( qboolean doPitch )
+bool NPC_FaceEnemy( bool doPitch )
 {
 	if ( NPC == NULL )
-		return qfalse;
+		return false;
 
 	if ( NPC->enemy == NULL )
-		return qfalse;
+		return false;
 
 	return NPC_FaceEntity( NPC->enemy, doPitch );
 }
@@ -1345,21 +1345,21 @@ NPC_CheckCanAttackExt
 -------------------------
 */
 
-qboolean NPC_CheckCanAttackExt( void )
+bool NPC_CheckCanAttackExt( void )
 {
 	//We don't want them to shoot
 	if( NPCInfo->scriptFlags & SCF_DONT_FIRE )
-		return qfalse;
+		return false;
 
 	//Turn to face
-	if ( NPC_FaceEnemy( qtrue ) == qfalse )
-		return qfalse;
+	if ( NPC_FaceEnemy( true ) == false )
+		return false;
 
 	//Must have a clear line of sight to the target
-	if ( NPC_ClearShot( NPC->enemy ) == qfalse )
-		return qfalse;
+	if ( NPC_ClearShot( NPC->enemy ) == false )
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1400,7 +1400,7 @@ void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime )
 NPC_CheckLookTarget
 -------------------------
 */
-qboolean NPC_CheckLookTarget( gentity_t *self )
+bool NPC_CheckLookTarget( gentity_t *self )
 {
 	if ( self->client )
 	{
@@ -1420,12 +1420,12 @@ qboolean NPC_CheckLookTarget( gentity_t *self )
 			}
 			else
 			{
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*

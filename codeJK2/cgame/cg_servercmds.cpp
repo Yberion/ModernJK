@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_servercmds.c -- text commands sent by the server
+// cg_servercmds.cpp -- text commands sent by the server
 
 #include "cg_local.h"
 #include "cg_media.h"
@@ -58,14 +58,14 @@ void CG_ParseServerinfo( void ) {
 	//	I know, if I'd known there was going to be this much messing about I'd have subroutinised it all and done it
 	//	neater, but it kinda evolved...   Feel free to bug me if you want to add to it... ?  -Ste.
 	//
-	if (!cgi_SP_Register(cgs.stripLevelName[0], qfalse))
+	if (!cgi_SP_Register(cgs.stripLevelName[0], false))
 	{
 		// failed to load SP file, maybe it's one of the ones they renamed?...
 		//
 		if (!Q_stricmp(cgs.stripLevelName[0],"YAVIN_FINAL") || !Q_stricmp(cgs.stripLevelName[0],"YAVIN_SWAMP"))
 		{
 			Q_strncpyz( cgs.stripLevelName[0], "YAVIN_CANYON", sizeof(cgs.stripLevelName[0]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[0], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[0], false))
 			{
 				// failed again, give up for now...
 				//
@@ -74,7 +74,7 @@ void CG_ParseServerinfo( void ) {
 		else if (!Q_stricmp(cgs.stripLevelName[0],"YAVIN_TRIAL"))
 		{
 			Q_strncpyz( cgs.stripLevelName[0], "YAVIN_TEMPLE", sizeof(cgs.stripLevelName[0]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[0], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[0], false))
 			{
 				// failed again, give up for now...
 				//
@@ -83,7 +83,7 @@ void CG_ParseServerinfo( void ) {
 		else if (!Q_stricmp(cgs.stripLevelName[0],"VALLEY"))
 		{
 			Q_strncpyz( cgs.stripLevelName[0], "ARTUS_TOPSIDE", sizeof(cgs.stripLevelName[0]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[0], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[0], false))
 			{
 				// failed again, give up for now...
 				//
@@ -99,7 +99,7 @@ void CG_ParseServerinfo( void ) {
 			)
 		{
 			Q_strncpyz( cgs.stripLevelName[1], "ARTUS_MINE", sizeof(cgs.stripLevelName[1]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[1], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[1], false))
 			{
 				// failed again, give up for now...
 				//
@@ -110,7 +110,7 @@ void CG_ParseServerinfo( void ) {
 			)
 		{
 			Q_strncpyz( cgs.stripLevelName[1], "DOOM_COMM", sizeof(cgs.stripLevelName[1]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[1], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[1], false))
 			{
 				// failed again, give up for now...
 				//
@@ -119,7 +119,7 @@ void CG_ParseServerinfo( void ) {
 		if (!Q_stricmp(cgs.stripLevelName[0],"DOOM_COMM"))
 		{
 			Q_strncpyz( cgs.stripLevelName[1], "CAIRN_BAY", sizeof(cgs.stripLevelName[1]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[1], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[1], false))
 			{
 				// failed again, give up for now...
 				//
@@ -128,14 +128,14 @@ void CG_ParseServerinfo( void ) {
 		if (!Q_stricmp(cgs.stripLevelName[0],"NS_STARPAD"))
 		{
 			Q_strncpyz( cgs.stripLevelName[1], "ARTUS_TOPSIDE", sizeof(cgs.stripLevelName[1]) );	// for dream sequence...
-			if (!cgi_SP_Register(cgs.stripLevelName[1], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[1], false))
 			{
 				// failed again, give up for now...
 				//
 			}
 
 			Q_strncpyz( cgs.stripLevelName[2], "BESPIN_UNDERCITY", sizeof(cgs.stripLevelName[1]) );	// for dream sequence...
-			if (!cgi_SP_Register(cgs.stripLevelName[2], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[2], false))
 			{
 				// failed again, give up for now...
 				//
@@ -144,7 +144,7 @@ void CG_ParseServerinfo( void ) {
 		if (!Q_stricmp(cgs.stripLevelName[0],"BESPIN_PLATFORM"))
 		{
 			Q_strncpyz( cgs.stripLevelName[1], "BESPIN_UNDERCITY", sizeof(cgs.stripLevelName[1]) );
-			if (!cgi_SP_Register(cgs.stripLevelName[1], qfalse))
+			if (!cgi_SP_Register(cgs.stripLevelName[1], false))
 			{
 				// failed again, give up for now...
 				//
@@ -190,7 +190,7 @@ static void CG_ConfigStringModified( void ) {
 		}
 	}
 	else if ( num == CS_MUSIC ) {
-		CG_StartMusic( qtrue );
+		CG_StartMusic( true );
 	} else if ( num == CS_SERVERINFO ) {
 		CG_ParseServerinfo();
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -248,7 +248,7 @@ static void CG_LCARSText_f( void ) {
 static void CG_ClientLevelShot_f( void ) {
 	// clientLevelShot is sent before taking a special screenshot for
 	// the menu system during development
-	cg.levelShot = qtrue;
+	cg.levelShot = true;
 }
 
 typedef struct serverCommand_s {

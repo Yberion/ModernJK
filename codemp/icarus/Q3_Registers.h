@@ -30,7 +30,7 @@ enum
 	VTYPE_VECTOR,
 };
 
-#ifdef __cplusplus
+#if defined( __cplusplus ) && !defined( _GAME )	// the interpreter's own part, the engine's; the game module uses the part above
 
 #define	MAX_VARIABLES	32
 

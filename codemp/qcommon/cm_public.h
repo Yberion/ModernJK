@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "qfiles.h"
 
-void		CM_LoadMap( const char *name, qboolean clientload, int *checksum);
+void		CM_LoadMap( const char *name, bool clientload, int *checksum);
 
 void		CM_ClearMap( void );
 clipHandle_t CM_InlineModel( int index );		// 0 = world, 1 + are bmodels
@@ -57,8 +57,8 @@ int			CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *boxList,
 int			CM_LeafCluster (int leafnum);
 int			CM_LeafArea (int leafnum);
 
-void		CM_AdjustAreaPortalState( int area1, int area2, qboolean open );
-qboolean	CM_AreasConnected( int area1, int area2 );
+void		CM_AdjustAreaPortalState( int area1, int area2, bool open );
+bool	CM_AreasConnected( int area1, int area2 );
 
 int			CM_WriteAreaBits( byte *buffer, int area );
 

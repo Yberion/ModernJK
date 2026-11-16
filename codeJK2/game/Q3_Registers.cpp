@@ -379,7 +379,7 @@ int Q3_VariableSave( void )
 	Q3_VariableSaveStrings( varStrings );
 	Q3_VariableSaveStrings( varVectors);
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -515,5 +515,5 @@ int Q3_VariableLoad( void )
 	Q3_VariableLoadStrings( TK_STRING, varStrings );
 	Q3_VariableLoadStrings( TK_VECTOR, varVectors);
 
-	return qfalse;
+	return false;
 }

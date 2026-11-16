@@ -171,7 +171,7 @@ int AAS_PointContents(vec3_t point)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_EntityCollision(int entnum,
+bool AAS_EntityCollision(int entnum,
 					vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end,
 								int contentmask, bsp_trace_t *trace)
 {
@@ -181,9 +181,9 @@ qboolean AAS_EntityCollision(int entnum,
 	if (enttrace.fraction < trace->fraction)
 	{
 		Com_Memcpy(trace, &enttrace, sizeof(bsp_trace_t));
-		return qtrue;
+		return true;
 	} //end if
-	return qfalse;
+	return false;
 } //end of the function AAS_EntityCollision
 //===========================================================================
 // returns true if in Potentially Hearable Set
@@ -192,9 +192,9 @@ qboolean AAS_EntityCollision(int entnum,
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPVS(vec3_t p1, vec3_t p2)
+bool AAS_inPVS(vec3_t p1, vec3_t p2)
 {
-	return (qboolean)botimport.inPVS(p1, p2);
+	return botimport.inPVS(p1, p2);
 } //end of the function AAS_InPVS
 //===========================================================================
 // returns true if in Potentially Visible Set
@@ -203,9 +203,9 @@ qboolean AAS_inPVS(vec3_t p1, vec3_t p2)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_inPHS(vec3_t p1, vec3_t p2)
+bool AAS_inPHS(vec3_t p1, vec3_t p2)
 {
-	return qtrue;
+	return true;
 } //end of the function AAS_inPHS
 //===========================================================================
 //
@@ -270,9 +270,9 @@ int AAS_BSPEntityInRange(int ent)
 	if (ent <= 0 || ent >= bspworld.numentities)
 	{
 		botimport.Print(PRT_MESSAGE, "bsp entity out of range\n");
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function AAS_BSPEntityInRange
 //===========================================================================
 //
@@ -285,17 +285,17 @@ int AAS_ValueForBSPEpairKey(int ent, const char *key, char *value, int size)
 	bsp_epair_t *epair;
 
 	value[0] = '\0';
-	if (!AAS_BSPEntityInRange(ent)) return qfalse;
+	if (!AAS_BSPEntityInRange(ent)) return false;
 	for (epair = bspworld.entities[ent].epairs; epair; epair = epair->next)
 	{
 		if (!strcmp(epair->key, key))
 		{
 			strncpy(value, epair->value, size-1);
 			value[size-1] = '\0';
-			return qtrue;
+			return true;
 		} //end if
 	} //end for
-	return qfalse;
+	return false;
 } //end of the function AAS_FindBSPEpair
 //===========================================================================
 //
@@ -309,14 +309,14 @@ int AAS_VectorForBSPEpairKey(int ent, const char *key, vec3_t v)
 	double v1, v2, v3;
 
 	VectorClear(v);
-	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
+	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return false;
 	//scanf into doubles, then assign, so it is float size independent
 	v1 = v2 = v3 = 0;
 	sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3);
 	v[0] = v1;
 	v[1] = v2;
 	v[2] = v3;
-	return qtrue;
+	return true;
 } //end of the function AAS_VectorForBSPEpairKey
 //===========================================================================
 //
@@ -329,9 +329,9 @@ int AAS_FloatForBSPEpairKey(int ent, const char *key, float *value)
 	char buf[MAX_EPAIRKEY];
 
 	*value = 0;
-	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
+	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return false;
 	*value = Q_atof(buf);
-	return qtrue;
+	return true;
 } //end of the function AAS_FloatForBSPEpairKey
 //===========================================================================
 //
@@ -344,9 +344,9 @@ int AAS_IntForBSPEpairKey(int ent, const char *key, int *value)
 	char buf[MAX_EPAIRKEY];
 
 	*value = 0;
-	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
+	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return false;
 	*value = atoi(buf);
-	return qtrue;
+	return true;
 } //end of the function AAS_IntForBSPEpairKey
 //===========================================================================
 //
@@ -469,7 +469,7 @@ void AAS_DumpBSPData(void)
 	bspworld.dentdata = NULL;
 	bspworld.entdatasize = 0;
 	//
-	bspworld.loaded = qfalse;
+	bspworld.loaded = false;
 	Com_Memset( &bspworld, 0, sizeof(bspworld) );
 } //end of the function AAS_DumpBSPData
 //===========================================================================
@@ -486,6 +486,6 @@ int AAS_LoadBSPFile(void)
 	bspworld.dentdata = (char *) GetClearedHunkMemory(bspworld.entdatasize);
 	Com_Memcpy(bspworld.dentdata, botimport.BSPEntityData(), bspworld.entdatasize);
 	AAS_ParseBSPEntities();
-	bspworld.loaded = qtrue;
+	bspworld.loaded = true;
 	return BLERR_NOERROR;
 } //end of the function AAS_LoadBSPFile

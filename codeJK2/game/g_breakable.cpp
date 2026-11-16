@@ -29,14 +29,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern team_t TranslateTeamName( const char *name );
 
 //client side shortcut hacks from cg_local.h
-//extern void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, qboolean smoke );
+//extern void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke );
 extern void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkType );
 extern void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs,
 							float speed, int numChunks, material_t chunkType, int customChunk, float baseScale );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-extern	qboolean	player_locked;
+extern	bool	player_locked;
 
 //---------------------------------------------------
 static void CacheChunkEffects( material_t material )
@@ -176,7 +176,7 @@ void funcBBrushDieGo (gentity_t *self)
 	//FIXME: base numChunks off size?
 	CG_Chunks( self->s.number, org, dir, self->mins, self->maxs, 300, numChunks, chunkType, 0, scale );
 
-	gi.AdjustAreaPortalState( self, qtrue );
+	gi.AdjustAreaPortalState( self, true );
 	self->e_ThinkFunc = thinkF_G_FreeEntity;
 	self->nextthink = level.time + 50;
 	//G_FreeEntity( self );
@@ -184,7 +184,7 @@ void funcBBrushDieGo (gentity_t *self)
 
 void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc)
 {
-	self->takedamage = qfalse;//stop chain reaction runaway loops
+	self->takedamage = false;//stop chain reaction runaway loops
 
 	G_SetEnemy(self, attacker);
 
@@ -266,7 +266,7 @@ static void InitBBrush ( gentity_t *ent )
 {
 	float		light;
 	vec3_t		color;
-	qboolean	lightSet, colorSet;
+	bool	lightSet, colorSet;
 
 	VectorCopy( ent->s.origin, ent->pos1 );
 
@@ -400,7 +400,7 @@ void SP_func_breakable( gentity_t *self )
 
 	if (self->health)
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 
 	G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");//precaching
@@ -500,7 +500,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 	self->e_DieFunc  = dieF_NULL;
 //	self->e_UseFunc  = useF_NULL;
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	if ( !(self->spawnflags & 4) )
 	{//We don't want to stay solid
@@ -666,7 +666,7 @@ void misc_model_breakable_init( gentity_t *ent )
 	{
 		G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");
 		ent->max_health = ent->health;
-		ent->takedamage = qtrue;
+		ent->takedamage = true;
 		ent->e_PainFunc = painF_misc_model_breakable_pain;
 		ent->e_DieFunc  = dieF_misc_model_breakable_die;
 	}
@@ -780,7 +780,7 @@ void TieFighterThink ( gentity_t *self )
 	}
 }
 
-void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
+void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 {
 	ent->s.eType = ET_GENERAL;
 	ent->s.eFlags |= EF_BOUNCE_HALF;
@@ -975,7 +975,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 	{//affected by gravity
 		G_SetAngles( ent, ent->s.angles );
 		G_SetOrigin( ent, ent->currentOrigin );
-		misc_model_breakable_gravity_init( ent, qtrue );
+		misc_model_breakable_gravity_init( ent, true );
 	}
 }
 
@@ -1009,7 +1009,7 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 	cgi_R_GetBModelVerts( cgs.inlineDrawModel[self->s.modelindex], verts, normal );
 	CG_DoGlass( verts, normal, self->pos1, self->pos2, self->splashRadius );
 
-	self->takedamage = qfalse;//stop chain reaction runaway loops
+	self->takedamage = false;//stop chain reaction runaway loops
 
 	G_SetEnemy( self, self->enemy );
 
@@ -1024,7 +1024,7 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 		G_UseTargets( self, attacker );
 	}
 
-	gi.AdjustAreaPortalState( self, qtrue );
+	gi.AdjustAreaPortalState( self, true );
 	G_FreeEntity( self );
 }
 
@@ -1077,7 +1077,7 @@ void SP_func_glass( gentity_t *self )
 
 	if ( self->health )
 	{
-		self->takedamage = qtrue;
+		self->takedamage = true;
 	}
 
 	self->e_UseFunc = useF_funcGlassUse;
@@ -1100,30 +1100,30 @@ void SP_func_glass( gentity_t *self )
 	gi.linkentity( self );
 }
 
-qboolean G_EntIsBreakable( int entityNum )
+bool G_EntIsBreakable( int entityNum )
 {
 	if ( entityNum < 0 || entityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	gentity_t *ent = &g_entities[entityNum];
 	if ( (ent->svFlags&SVF_GLASS_BRUSH) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( (ent->svFlags&SVF_BBRUSH) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( !Q_stricmp( "misc_model_breakable", ent->classname ) )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( !Q_stricmp( "misc_maglock", ent->classname ) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }

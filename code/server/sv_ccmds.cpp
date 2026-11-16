@@ -38,7 +38,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 ===============================================================================
 */
 
-qboolean qbLoadTransition = qfalse;
+bool qbLoadTransition = false;
 
 //=========================================================
 // don't call this directly, it should only be called from SV_Map_f() or SV_MapTransition_f()
@@ -78,7 +78,7 @@ static bool SV_Map_( ForceReload_e eForceReload )
 		SG_WipeSavegame("auto");
 	}
 
-	SV_SpawnServer( map, eForceReload, qtrue );	// start up the map
+	SV_SpawnServer( map, eForceReload, true );	// start up the map
 	return true;
 }
 
@@ -274,11 +274,11 @@ static void SV_Map_f( void )
 	else if ( !Q_stricmp( cmd, "devmapall") )
 		eForceReload = eForceReload_ALL;
 
-	qboolean cheat = (qboolean)(!Q_stricmpn( cmd, "devmap", 6 ) );
+	bool cheat = (!Q_stricmpn( cmd, "devmap", 6 ) );
 
 	// retain old cheat state
 	if ( !cheat && Cvar_VariableIntegerValue( "helpUsObi" ) )
-		cheat = qtrue;
+		cheat = true;
 
 	if (SV_Map_( eForceReload ))
 	{
@@ -308,7 +308,7 @@ void SV_LoadTransition_f(void)
 		return;
 	}
 
-	qbLoadTransition = qtrue;
+	qbLoadTransition = true;
 
 #ifdef JK2_MODE
 	SCR_PrecacheScreenshot();
@@ -316,7 +316,7 @@ void SV_LoadTransition_f(void)
 	SV_Player_EndOfLevelSave();
 
 	//Save the full current state of the current map so we can return to it later
-	SG_WriteSavegame( va("hub/%s", sv_mapname->string), qfalse );
+	SG_WriteSavegame( va("hub/%s", sv_mapname->string), false );
 
 	//set the spawntarget if there is one
 	spawntarget = Cmd_Argv(2);
@@ -333,7 +333,7 @@ void SV_LoadTransition_f(void)
 	{//couldn't load a savegame
 		SV_Map_( eForceReload_NOTHING );
 	}
-	qbLoadTransition = qfalse;
+	qbLoadTransition = false;
 }
 //===============================================================
 
@@ -460,7 +460,7 @@ SV_CompleteMapName
 */
 static void SV_CompleteMapName( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
+		Field_CompleteFilename( "maps", "bsp", true, false );
 }
 
 /*
@@ -470,7 +470,7 @@ SV_CompleteMapName
 */
 static void SV_CompleteSaveName( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "saves", "sav", qtrue, qtrue );
+		Field_CompleteFilename( "saves", "sav", true, true );
 }
 
 /*
@@ -479,12 +479,12 @@ SV_AddOperatorCommands
 ==================
 */
 void SV_AddOperatorCommands( void ) {
-	static qboolean	initialized;
+	static bool	initialized;
 
 	if ( initialized ) {
 		return;
 	}
-	initialized = qtrue;
+	initialized = true;
 
 	Cmd_AddCommand ("status", SV_Status_f);
 	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);

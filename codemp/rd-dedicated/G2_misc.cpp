@@ -341,7 +341,7 @@ void G2_List_Model_Bones(const char *fileName, int frame)
  *    true if we successfully obtained a filename, false otherwise
  *
  ************************************************************************************************/
-qboolean G2_GetAnimFileName(const char *fileName, char **filename)
+bool G2_GetAnimFileName(const char *fileName, char **filename)
 {
 	// find the model we want
 	model_t				*mod = R_GetModelByHandle(RE_RegisterModel(fileName));
@@ -349,9 +349,9 @@ qboolean G2_GetAnimFileName(const char *fileName, char **filename)
 	if (mod && mod->mdxm && (mod->mdxm->animName[0] != 0))
 	{
 		*filename = mod->mdxm->animName;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
@@ -546,7 +546,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 {
 	int				i, lod;
 	vec3_t			correctScale;
-	qboolean		firstModelOnly = qfalse;
+	bool		firstModelOnly = false;
 
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == NULL )
@@ -557,7 +557,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )
 	{
-		firstModelOnly = qtrue;
+		firstModelOnly = true;
 	}
 #endif
 
@@ -689,9 +689,9 @@ static void G2_BuildHitPointST( const vec3_t A, const float SA, const float TA,
 
 
 // routine that works out given a ray whether or not it hits a poly
-qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
+bool G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
 	const vec3_t A, const vec3_t B, const vec3_t C,
-	qboolean backFaces,qboolean frontFaces,vec3_t returnedPoint,vec3_t returnedNormal, float *denom)
+	bool backFaces,bool frontFaces,vec3_t returnedPoint,vec3_t returnedNormal, float *denom)
 {
 	static const float tiny=1E-10f;
 	vec3_t returnedNormalT;
@@ -711,7 +711,7 @@ qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
 		(!backFaces && *denom>0)||		// not accepting back faces
 		(!frontFaces && *denom<0))		//not accepting front faces
 	{
-		return qfalse;
+		return false;
 	}
 
 	vec3_t toPlane;
@@ -721,7 +721,7 @@ qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
 
 	if (t<0.0f||t>1.0f)
 	{
-		return qfalse; // off segment
+		return false; // off segment
 	}
 
 	VectorScale(ray, t, ray);
@@ -742,21 +742,21 @@ qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
 	CrossProduct(edgePA, edgePB, temp);
 	if (DotProduct(temp, returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
 
 	CrossProduct(edgePC, edgePA, temp);
 	if (DotProduct(temp,returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
 
 	CrossProduct(edgePB, edgePC, temp);
 	if (DotProduct(temp, returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
-	return qtrue;
+	return true;
 }
 
 #ifdef _G2_GORE
@@ -1000,7 +1000,7 @@ void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const mdxmSu
 			sizeof(float)*2*newNumVerts+ // texture coordinates
 			sizeof(int)*newNumTris*3;  // new indecies
 
-		int *data=(int *)Z_Malloc ( sizeof(int)*size, TAG_GHOUL2_GORE, qtrue );
+		int *data=(int *)Z_Malloc ( sizeof(int)*size, TAG_GHOUL2_GORE, true );
 
 		if ( gore->tex[TS.lod] )
 		{
@@ -1083,7 +1083,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 		const float *point3 = &verts[(tris[j].indexes[2] * 5)];
 		// did we hit it?
 		int i;
-		if (G2_SegmentTriangleTest(TS.rayStart, TS.rayEnd, point1, point2, point3, qtrue, qtrue, hitPoint, normal, &face))
+		if (G2_SegmentTriangleTest(TS.rayStart, TS.rayEnd, point1, point2, point3, true, true, hitPoint, normal, &face))
 		{	// find space in the collision records for this record
 			for (i=0; i<MAX_G2_COLLISIONS;i++)
 			{
@@ -1487,7 +1487,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 }
 
 #ifdef _G2_GORE
-void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, qboolean skipIfLODNotMatch)
+void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch)
 #else
 void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CollisionRecord_t *collRecMap, int entNum, int eG2TraceType, int useLod, float fRadius)
 #endif
@@ -1495,7 +1495,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 	int				i, lod;
 	skin_t			*skin;
 	shader_t		*cust_shader;
-	qboolean		firstModelOnly = qfalse;
+	bool		firstModelOnly = false;
 
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == NULL )
@@ -1506,7 +1506,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )
 	{
-		firstModelOnly = qtrue;
+		firstModelOnly = true;
 	}
 #endif
 
@@ -1695,17 +1695,17 @@ void *G2_FindSurface(void *mod_t, int index, int lod)
 #define BOLT_SAVE_BLOCK_SIZE (sizeof(boltInfo_t) - sizeof(mdxaBone_t))
 #define BONE_SAVE_BLOCK_SIZE sizeof(boneInfo_t)
 
-qboolean G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
+bool G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 {
 
 	// is there anything to save?
 	if (!ghoul2.size())
 	{
-		*buffer = (char *)Z_Malloc(4, TAG_GHOUL2, qtrue);
+		*buffer = (char *)Z_Malloc(4, TAG_GHOUL2, true);
 		int *tempBuffer = (int *)*buffer;
 		*tempBuffer = 0;
 		*size = 4;
-		return qtrue;
+		return true;
 	}
 
 	// yeah, lets get busy
@@ -1733,7 +1733,7 @@ qboolean G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 	}
 
 	// ok, we should know how much space we need now
-	*buffer = (char*)Z_Malloc(*size, TAG_GHOUL2, qtrue);
+	*buffer = (char*)Z_Malloc(*size, TAG_GHOUL2, true);
 
 	// now lets start putting the data we care about into the buffer
 	char *tempBuffer = *buffer;
@@ -1783,7 +1783,7 @@ qboolean G2_SaveGhoul2Models(CGhoul2Info_v &ghoul2, char **buffer, int *size)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 // have to free space malloced in the save system here because the game DLL can't.
@@ -1792,8 +1792,8 @@ void G2_FreeSaveBuffer(char *buffer)
 	Z_Free(buffer);
 }
 
-qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
-qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
+bool G2_SetupModelPointers(CGhoul2Info *ghlInfo);
+bool G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 
 void G2_LoadGhoul2Model(CGhoul2Info_v &ghoul2, char *buffer)
 {

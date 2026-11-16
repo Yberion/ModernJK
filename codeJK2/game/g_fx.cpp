@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "g_functions.h"
 
-extern int	G_FindConfigstringIndex( const char *name, int start, int max, qboolean create );
+extern int	G_FindConfigstringIndex( const char *name, int start, int max, bool create );
 
 #define FX_ENT_RADIUS 32
 
@@ -286,8 +286,8 @@ void SP_CreateSnow( gentity_t *ent )
 	{
 		sprintf( temp, "snow init %i", (int)( ent->count * r_weatherScale->value ));
 
-		G_FindConfigstringIndex( temp, CS_WORLD_FX, MAX_WORLD_FX, qtrue );
-		G_FindConfigstringIndex( "wind", CS_WORLD_FX, MAX_WORLD_FX, qtrue );
+		G_FindConfigstringIndex( temp, CS_WORLD_FX, MAX_WORLD_FX, true );
+		G_FindConfigstringIndex( "wind", CS_WORLD_FX, MAX_WORLD_FX, true );
 
 		level.worldFlags |= WF_SNOWING;
 	}
@@ -311,8 +311,8 @@ void SP_CreateRain( gentity_t *ent )
 	{
 		sprintf( temp, "rain init %i", (int)( ent->count * r_weatherScale->value ));
 
-		G_FindConfigstringIndex( temp, CS_WORLD_FX, MAX_WORLD_FX, qtrue );
-		G_FindConfigstringIndex( "wind", CS_WORLD_FX, MAX_WORLD_FX, qtrue );
+		G_FindConfigstringIndex( temp, CS_WORLD_FX, MAX_WORLD_FX, true );
+		G_FindConfigstringIndex( "wind", CS_WORLD_FX, MAX_WORLD_FX, true );
 
 		level.worldFlags |= WF_RAINING;
 	}
@@ -566,7 +566,7 @@ void fx_target_beam_fire( gentity_t *ent )
 {
 	trace_t		trace;
 	vec3_t		dir, org, end;
-	qboolean	open;
+	bool	open;
 
 	if ( !ent->enemy || !ent->enemy->inuse )
 	{//info_null most likely
@@ -585,12 +585,12 @@ void fx_target_beam_fire( gentity_t *ent )
 	gi.trace( &trace, ent->s.origin, NULL, NULL, org, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
 	if ( ent->spawnflags & 2 )
 	{
-		open = qtrue;
+		open = true;
 		VectorCopy( org, end );
 	}
 	else
 	{
-		open = qfalse;
+		open = false;
 		VectorCopy( trace.endpos, end );
 	}
 

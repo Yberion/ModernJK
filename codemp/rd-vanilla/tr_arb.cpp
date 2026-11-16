@@ -214,7 +214,7 @@ void ARB_InitGPUShaders(void) {
 	if ( errorChar != -1 )
 	{
 		Com_Printf(S_COLOR_RED "ERROR: Failed to compile gamma correction vertex shader. Error at character %d\n", errorChar);
-		glConfigExt.doGammaCorrectionWithShaders = qfalse;
+		glConfigExt.doGammaCorrectionWithShaders = false;
 	}
 	else
 	{
@@ -226,7 +226,7 @@ void ARB_InitGPUShaders(void) {
 		if ( errorChar != -1 )
 		{
 			Com_Printf(S_COLOR_RED "Failed to compile gamma correction pixel shader. Error at character %d\n", errorChar);
-			glConfigExt.doGammaCorrectionWithShaders = qfalse;
+			glConfigExt.doGammaCorrectionWithShaders = false;
 		}
 	}
 }

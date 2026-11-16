@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	DEFAULT_RADIUS		45
 
 extern cvar_t		*d_noGroupAI;
-qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member );
+bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member );
 
 /*
 -------------------------
@@ -118,7 +118,7 @@ void AI_SortGroupByPathCostToEnemy( AIGroupInfo_t *group )
 {
 	AIGroupMember_t bestMembers[MAX_GROUP_MEMBERS];
 	int				i, j, k;
-	qboolean		sort = qfalse;
+	bool		sort = false;
 
 	if ( group->enemy != NULL )
 	{//FIXME: just use enemy->waypoint?
@@ -143,7 +143,7 @@ void AI_SortGroupByPathCostToEnemy( AIGroupInfo_t *group )
 			{
 				group->member[i].pathCostToEnemy = NAV::EstimateCostToGoal( group->member[i].waypoint, group->enemyWP );
 				//at least one of us has a path, so do sorting
-				sort = qtrue;
+				sort = true;
 			}
 			else
 			{
@@ -192,7 +192,7 @@ void AI_SortGroupByPathCostToEnemy( AIGroupInfo_t *group )
 	}
 }
 
-qboolean AI_FindSelfInPreviousGroup( gentity_t *self )
+bool AI_FindSelfInPreviousGroup( gentity_t *self )
 {//go through other groups made this frame and see if any of those contain me already
 	int	i, j;
 	for ( i = 0; i < MAX_FRAME_GROUPS; i++ )
@@ -204,12 +204,12 @@ qboolean AI_FindSelfInPreviousGroup( gentity_t *self )
 				if ( level.groups[i].member[j].number == self->s.number )
 				{
 					self->NPC->group = &level.groups[i];
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void AI_InsertGroupMember( AIGroupInfo_t *group, gentity_t *member )
@@ -238,7 +238,7 @@ void AI_InsertGroupMember( AIGroupInfo_t *group, gentity_t *member )
 	member->NPC->group = group;
 }
 
-qboolean AI_TryJoinPreviousGroup( gentity_t *self )
+bool AI_TryJoinPreviousGroup( gentity_t *self )
 {//go through other groups made this frame and see if any of those have the same enemy as me... if so, add me in!
 	int	i;
 	for ( i = 0; i < MAX_FRAME_GROUPS; i++ )
@@ -251,23 +251,23 @@ qboolean AI_TryJoinPreviousGroup( gentity_t *self )
 			if ( AI_ValidateGroupMember( &level.groups[i], self ) )
 			{//I am a valid member for this group
 				AI_InsertGroupMember( &level.groups[i], self );
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean AI_GetNextEmptyGroup( gentity_t *self )
+bool AI_GetNextEmptyGroup( gentity_t *self )
 {
 	if ( AI_FindSelfInPreviousGroup( self ) )
 	{//already in one, no need to make a new one
-		return qfalse;
+		return false;
 	}
 
 	if ( AI_TryJoinPreviousGroup( self ) )
 	{//try to just put us in one that already exists
-		return qfalse;
+		return false;
 	}
 
 	//okay, make a whole new one, then
@@ -276,22 +276,22 @@ qboolean AI_GetNextEmptyGroup( gentity_t *self )
 		if ( !level.groups[i].numGroup )
 		{//make a new one
 			self->NPC->group = &level.groups[i];
-			return qtrue;
+			return true;
 		}
 	}
 
 	//if ( i >= MAX_FRAME_GROUPS )
 	{//WTF?  Out of groups!
 		self->NPC->group = NULL;
-		return qfalse;
+		return false;
 	}
 }
 
-qboolean AI_ValidateNoEnemyGroupMember( AIGroupInfo_t *group, gentity_t *member )
+bool AI_ValidateNoEnemyGroupMember( AIGroupInfo_t *group, gentity_t *member )
 {
 	if ( !group )
 	{
-		return qfalse;
+		return false;
 	}
 	vec3_t center;
 	if ( group->commander )
@@ -302,70 +302,70 @@ qboolean AI_ValidateNoEnemyGroupMember( AIGroupInfo_t *group, gentity_t *member 
 	{//hmm, just pick the first member
 		if ( group->member[0].number < 0 || group->member[0].number >= ENTITYNUM_WORLD )
 		{
-			return qfalse;
+			return false;
 		}
 		VectorCopy( g_entities[group->member[0].number].currentOrigin, center );
 	}
 	//FIXME: maybe it should be based on the center of the mass of the group, not the commander?
 	if ( DistanceSquared( center, member->currentOrigin ) > 147456/*384*384*/ )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( !gi.inPVS( member->currentOrigin, center ) )
 	{//not within PVS of the group enemy
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
+bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 {
 	//Validate ents
 	if ( member == NULL )
-		return qfalse;
+		return false;
 
 	//Validate clients
 	if ( member->client == NULL )
-		return qfalse;
+		return false;
 
 	//Validate NPCs
 	if ( member->NPC == NULL )
-		return qfalse;
+		return false;
 
 	//must be aware
 	if ( member->NPC->confusionTime > level.time )
-		return qfalse;
+		return false;
 
 	//must be allowed to join groups
 	if ( member->NPC->scriptFlags&SCF_NO_GROUPS )
-		return qfalse;
+		return false;
 
 	//Must not be in another group
 	if ( member->NPC->group != NULL && member->NPC->group != group )
 	{//FIXME: if that group's enemy is mine, why not absorb that group into mine?
-		return qfalse;
+		return false;
 	}
 
 	//Must be alive
 	if ( member->health <= 0 )
-		return qfalse;
+		return false;
 
 	//can't be in an emplaced gun
 	if( member->s.eFlags & EF_LOCKED_TO_WEAPON )
-		return qfalse;
+		return false;
 
 	if( member->s.eFlags & EF_HELD_BY_RANCOR )
-		return qfalse;
+		return false;
 
 	if( member->s.eFlags & EF_HELD_BY_SAND_CREATURE )
-		return qfalse;
+		return false;
 
 	if( member->s.eFlags & EF_HELD_BY_WAMPA )
-		return qfalse;
+		return false;
 
 	//Must be on the same team
 	if ( member->client->playerTeam != group->team )
-		return qfalse;
+		return false;
 
 	if ( member->client->ps.weapon == WP_SABER ||//!= self->s.weapon )
 		member->client->ps.weapon == WP_THERMAL ||
@@ -378,7 +378,7 @@ qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		member->client->ps.weapon == WP_ATST_SIDE ||
 		member->client->ps.weapon == WP_TIE_FIGHTER )
 	{//not really a squad-type guy
-		return qfalse;
+		return false;
 	}
 
 	if ( member->client->NPC_class == CLASS_ATST ||
@@ -393,7 +393,7 @@ qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		member->client->NPC_class == CLASS_MARK1 ||
 		member->client->NPC_class == CLASS_MARK2 )
 	{//these kinds of enemies don't actually use this group AI
-		return qfalse;
+		return false;
 	}
 
 	//should have same enemy
@@ -401,25 +401,25 @@ qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 	{
 		if ( member->enemy != NULL )
 		{//he's fighting someone else, leave him out
-			return qfalse;
+			return false;
 		}
 		if ( !gi.inPVS( member->currentOrigin, group->enemy->currentOrigin ) )
 		{//not within PVS of the group enemy
-			return qfalse;
+			return false;
 		}
 	}
 	else if ( group->enemy == NULL )
 	{//if the group is a patrol group, only take those within the room and radius
 		if ( !AI_ValidateNoEnemyGroupMember( group, member ) )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	//must be actually in combat mode
 	if ( !TIMER_Done( member, "interrogating" ) )
-		return qfalse;
+		return false;
 	//FIXME: need to have a route to enemy and/or clear shot?
-	return qtrue;
+	return true;
 }
 
 /*
@@ -472,7 +472,7 @@ void AI_GetGroup( gentity_t *self )
 
 	self->NPC->group->enemy = self->enemy;
 	self->NPC->group->team = self->client->playerTeam;
-	self->NPC->group->processed = qfalse;
+	self->NPC->group->processed = false;
 	self->NPC->group->commander = self;
 	self->NPC->group->memberValidateTime = level.time + 2000;
 	self->NPC->group->activeMemberNum = 0;
@@ -599,7 +599,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 {
 /*	AIGroupInfo_t *group = self->NPC->group;
 	gentity_t	*member;
-	qboolean	noflee = qfalse;
+	bool	noflee = false;
 
 	if ( !group )
 	{//what group?
@@ -621,7 +621,7 @@ void AI_GroupMemberKilled( gentity_t *self )
 		}
 		if ( member->NPC->rank > RANK_ENSIGN )
 		{//officers do not panic
-			noflee = qtrue;
+			noflee = true;
 		}
 		else
 		{
@@ -712,7 +712,7 @@ void AI_GroupUpdateSquadstates( AIGroupInfo_t *group, gentity_t *member, int new
 	}
 }
 
-qboolean AI_RefreshGroup( AIGroupInfo_t *group )
+bool AI_RefreshGroup( AIGroupInfo_t *group )
 {
 	gentity_t	*member;
 	int			i;//, j;
@@ -730,7 +730,7 @@ qboolean AI_RefreshGroup( AIGroupInfo_t *group )
 			{//2 groups with same enemy
 				if ( level.groups[i].numGroup+group->numGroup < (MAX_GROUP_MEMBERS - 1) )
 				{//combining the members would fit in one group
-					qboolean deleteWhenDone = qtrue;
+					bool deleteWhenDone = true;
 					//combine the members of mine into theirs
 					for ( int j = 0; j < group->numGroup; j++ )
 					{
@@ -739,7 +739,7 @@ qboolean AI_RefreshGroup( AIGroupInfo_t *group )
 						{//special case for groups without enemies, must be in range
 							if ( !AI_ValidateNoEnemyGroupMember( &level.groups[i], member ) )
 							{
-								deleteWhenDone = qfalse;
+								deleteWhenDone = false;
 								continue;
 							}
 						}
@@ -753,7 +753,7 @@ qboolean AI_RefreshGroup( AIGroupInfo_t *group )
 					//return and delete this group
 					if ( deleteWhenDone )
 					{
-						return qfalse;
+						return false;
 					}
 				}
 			}
@@ -852,7 +852,7 @@ qboolean AI_RefreshGroup( AIGroupInfo_t *group )
 		}
 		if ( group->commander && debugNPCAI->integer )
 		{
-			G_DebugLine( group->commander->currentOrigin, member->currentOrigin, FRAMETIME, 0x00ff00ff, qtrue );
+			G_DebugLine( group->commander->currentOrigin, member->currentOrigin, FRAMETIME, 0x00ff00ff, true );
 		}
 	}
 	if ( group->enemy )
@@ -932,9 +932,9 @@ qboolean AI_RefreshGroup( AIGroupInfo_t *group )
 		group->moraleDebounce = level.time + 1000;//FIXME: define?
 	}
 	//mark this group as not having been run this frame
-	group->processed = qfalse;
+	group->processed = false;
 
-	return (qboolean)(group->numGroup>0);
+	return (group->numGroup>0);
 }
 
 void AI_UpdateGroups( void )
@@ -946,27 +946,27 @@ void AI_UpdateGroups( void )
 	//Clear all Groups
 	for ( int i = 0; i < MAX_FRAME_GROUPS; i++ )
 	{
-		if ( !level.groups[i].numGroup || AI_RefreshGroup( &level.groups[i] ) == qfalse )//level.groups[i].enemy == NULL ||
+		if ( !level.groups[i].numGroup || AI_RefreshGroup( &level.groups[i] ) == false )//level.groups[i].enemy == NULL ||
 		{
 			memset( &level.groups[i], 0, sizeof( level.groups[i] ) );
 		}
 	}
 }
 
-qboolean AI_GroupContainsEntNum( AIGroupInfo_t *group, int entNum )
+bool AI_GroupContainsEntNum( AIGroupInfo_t *group, int entNum )
 {
 	if ( !group )
 	{
-		return qfalse;
+		return false;
 	}
 	for ( int i = 0; i < group->numGroup; i++ )
 	{
 		if ( group->member[i].number == entNum )
 		{
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 //Overload
 

@@ -86,7 +86,7 @@ void FX_BryarHitWall( vec3_t origin, vec3_t normal )
 FX_BryarHitPlayer
 -------------------------
 */
-void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( cgs.effects.bryarFleshImpactEffect, origin, normal );
 }
@@ -168,7 +168,7 @@ void FX_BryarAltHitWall( vec3_t origin, vec3_t normal, int power )
 FX_BryarAltHitPlayer
 -------------------------
 */
-void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid )
+void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid )
 {
 	theFxScheduler.PlayEffect( cgs.effects.bryarFleshImpactEffect, origin, normal );
 }

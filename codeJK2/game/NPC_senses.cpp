@@ -31,18 +31,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int eventClearTime;
 /*
-qboolean G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
 
 returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't work with portals
 */
-qboolean G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
 {
 	trace_t		tr;
 
 	gi.trace ( &tr, point1, NULL, NULL, point2, ignore, clipmask, G2_NOCOLLIDE, 0 );
 	if ( tr.fraction == 1.0 )
 	{
-		return qtrue;
+		return true;
 	}
 
 	gentity_t	*hit = &g_entities[ tr.entityNum ];
@@ -54,11 +54,11 @@ qboolean G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore
 
 		if ( tr.fraction == 1.0 )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -70,7 +70,7 @@ or take any AI related factors (for example, the NPC's reaction time) into accou
 
 FIXME do we need fat and thin version of this?
 */
-qboolean CanSee ( gentity_t *ent )
+bool CanSee ( gentity_t *ent )
 {
 	trace_t		tr;
 	vec3_t		eyes;
@@ -83,7 +83,7 @@ qboolean CanSee ( gentity_t *ent )
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
-		return qtrue;
+		return true;
 	}
 
 	CalcEntitySpot( ent, SPOT_HEAD, spot );
@@ -91,7 +91,7 @@ qboolean CanSee ( gentity_t *ent )
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
-		return qtrue;
+		return true;
 	}
 
 	CalcEntitySpot( ent, SPOT_LEGS, spot );
@@ -99,13 +99,13 @@ qboolean CanSee ( gentity_t *ent )
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f )
+bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f )
 {
 	vec3_t	dir, forward, angles;
 	float	dot;
@@ -120,7 +120,7 @@ qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold 
 
 	dot = DotProduct( dir, forward );
 
-	return (qboolean)(dot > threshHold);
+	return (dot > threshHold);
 }
 
 /*
@@ -132,7 +132,7 @@ IDEA: further off to side of FOV range, higher chance of failing even if technic
 
 //Position compares
 
-qboolean InFOV( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV )
+bool InFOV( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV )
 {
 	vec3_t	deltaVector, angles, deltaAngles;
 
@@ -144,15 +144,15 @@ qboolean InFOV( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV 
 
 	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //NPC to position
 
-qboolean InFOV( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
+bool InFOV( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
 {
 	vec3_t	fromAngles, eyes;
 
@@ -172,7 +172,7 @@ qboolean InFOV( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
 
 //Entity to entity
 
-qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
+bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 {
 	vec3_t	eyes;
 	vec3_t	spot;
@@ -207,7 +207,7 @@ qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
 	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
 	{
-		return qtrue;
+		return true;
 	}
 
 	CalcEntitySpot( ent, SPOT_HEAD, spot );
@@ -217,7 +217,7 @@ qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
 	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
 	{
-		return qtrue;
+		return true;
 	}
 
 	CalcEntitySpot( ent, SPOT_LEGS, spot );
@@ -227,13 +227,13 @@ qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 	deltaAngles[YAW] = AngleDelta ( fromAngles[YAW], angles[YAW] );
 	if ( fabs ( deltaAngles[PITCH] ) <= vFOV && fabs ( deltaAngles[YAW] ) <= hFOV )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean InVisrange ( gentity_t *ent )
+bool InVisrange ( gentity_t *ent )
 {//FIXME: make a calculate visibility for ents that takes into account
 	//lighting, movement, turning, crouch/stand up, other anims, hide brushes, etc.
 	vec3_t	eyes;
@@ -270,10 +270,10 @@ qboolean InVisrange ( gentity_t *ent )
 
 	if(VectorLengthSquared(deltaVector) > visrange)
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -355,7 +355,7 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 NPC_CheckSoundEvents
 -------------------------
 */
-static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
+static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
 {
 	int	bestEvent = -1;
 	int bestAlert = -1;
@@ -391,7 +391,7 @@ static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAle
 
 		if ( level.alertEvents[i].addLight )
 		{//a quiet sound, must have LOS to hear it
-			if ( G_ClearLOS( self, level.alertEvents[i].position ) == qfalse )
+			if ( G_ClearLOS( self, level.alertEvents[i].position ) == false )
 			{//no LOS, didn't hear it
 				continue;
 			}
@@ -426,7 +426,7 @@ float G_GetLightLevel( vec3_t pos, vec3_t fromDir )
 NPC_CheckSightEvents
 -------------------------
 */
-static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
+static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSeeDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
 {
 	int	bestEvent = -1;
 	int bestAlert = -1;
@@ -461,10 +461,10 @@ static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSee
 			continue;
 
 		//Must be visible
-		if ( InFOV( level.alertEvents[i].position, self, hFOV, vFOV ) == qfalse )
+		if ( InFOV( level.alertEvents[i].position, self, hFOV, vFOV ) == false )
 			continue;
 
-		if ( G_ClearLOS( self, level.alertEvents[i].position ) == qfalse )
+		if ( G_ClearLOS( self, level.alertEvents[i].position ) == false )
 			continue;
 
 		//FIXME: possibly have the light level at this point affect the
@@ -495,7 +495,7 @@ NPC_CheckAlertEvents
 -------------------------
 */
 
-int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
+int G_CheckAlertEvents( gentity_t *self, bool checkSight, bool checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
 {
 	if ( g_entities[0].health <= 0 )
 	{
@@ -549,16 +549,16 @@ int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSoun
 	return bestSoundEvent;
 }
 
-int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
+int NPC_CheckAlertEvents( bool checkSight, bool checkSound, int ignoreAlert, bool mustHaveOwner, int minAlertLevel )
 {
 	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel );
 }
 
-qboolean G_CheckForDanger( gentity_t *self, int alertEvent )
+bool G_CheckForDanger( gentity_t *self, int alertEvent )
 {//FIXME: more bStates need to call this?
 	if ( alertEvent == -1 )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( level.alertEvents[alertEvent].level >= AEL_DANGER )
@@ -569,23 +569,23 @@ qboolean G_CheckForDanger( gentity_t *self, int alertEvent )
 			{
 				if ( self->NPC->scriptFlags & SCF_DONT_FLEE )
 				{//can't flee
-					return qfalse;
+					return false;
 				}
 				else
 				{
 					NPC_StartFlee( level.alertEvents[alertEvent].owner, level.alertEvents[alertEvent].position, level.alertEvents[alertEvent].level, 3000, 6000 );
-					return qtrue;
+					return true;
 				}
 			}
 			else
 			{
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
-qboolean NPC_CheckForDanger( int alertEvent )
+bool NPC_CheckForDanger( int alertEvent )
 {//FIXME: more bStates need to call this?
 	return G_CheckForDanger( NPC, alertEvent );
 }
@@ -595,8 +595,8 @@ qboolean NPC_CheckForDanger( int alertEvent )
 AddSoundEvent
 -------------------------
 */
-qboolean RemoveOldestAlert( void );
-void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS )
+bool RemoveOldestAlert( void );
+void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, bool needLOS )
 {
 	//FIXME: Handle this in another manner?
 	if ( level.numAlertEvents >= MAX_ALERT_EVENTS )
@@ -717,7 +717,7 @@ void ClearPlayerAlertEvents( void )
 	}
 }
 
-qboolean RemoveOldestAlert( void )
+bool RemoveOldestAlert( void )
 {
 	int	oldestEvent = -1, oldestTime = Q3_INFINITE;
 	//loop through them all (max 32)
@@ -750,7 +750,7 @@ qboolean RemoveOldestAlert( void )
 	//make sure this never drops below zero... if it does, something very very bad happened
 	assert( level.numAlertEvents >= 0 );
 	//return true is have room for one now
-	return (qboolean)(level.numAlertEvents < MAX_ALERT_EVENTS);
+	return (level.numAlertEvents < MAX_ALERT_EVENTS);
 }
 
 /*
@@ -760,7 +760,7 @@ G_ClearLOS
 */
 
 // Position to position
-qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
+bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 {
 	trace_t		tr;
 	int			traceCount = 0;
@@ -778,17 +778,17 @@ qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 				continue;
 			}
 		}
-		return qfalse;
+		return false;
 	}
 
 	if ( tr.fraction == 1.0 )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 //Entity to position
-qboolean G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end )
+bool G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end )
 {
 	vec3_t	eyes;
 
@@ -798,7 +798,7 @@ qboolean G_ClearLOS( gentity_t *self, gentity_t *ent, const vec3_t end )
 }
 
 //Position to entity
-qboolean G_ClearLOS( gentity_t *self, const vec3_t start, gentity_t *ent )
+bool G_ClearLOS( gentity_t *self, const vec3_t start, gentity_t *ent )
 {
 	vec3_t		spot;
 
@@ -806,19 +806,19 @@ qboolean G_ClearLOS( gentity_t *self, const vec3_t start, gentity_t *ent )
 	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
 
 	if ( G_ClearLOS( self, start, spot ) )
-		return qtrue;
+		return true;
 
 	//Look for the head next
 	CalcEntitySpot( ent, SPOT_HEAD_LEAN, spot );
 
 	if ( G_ClearLOS( self, start, spot ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 //NPC's eyes to entity
-qboolean G_ClearLOS( gentity_t *self, gentity_t *ent )
+bool G_ClearLOS( gentity_t *self, gentity_t *ent )
 {
 	vec3_t	eyes;
 
@@ -829,7 +829,7 @@ qboolean G_ClearLOS( gentity_t *self, gentity_t *ent )
 }
 
 //NPC's eyes to position
-qboolean G_ClearLOS( gentity_t *self, const vec3_t end )
+bool G_ClearLOS( gentity_t *self, const vec3_t end )
 {
 	vec3_t	eyes;
 

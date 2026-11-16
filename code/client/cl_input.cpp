@@ -66,7 +66,7 @@ kbutton_t	in_up, in_down;
 kbutton_t	in_buttons[32];
 
 
-qboolean	in_mlooking;
+bool	in_mlooking;
 
 extern cvar_t	*in_joystick;
 
@@ -132,19 +132,19 @@ static void IN_UseGivenForce(void)
 	}
 
 	if(genCmdNum) {
-		cl.gcmdSendValue = qtrue;
+		cl.gcmdSendValue = true;
 		cl.gcmdValue = genCmdNum;
 	}
 }
 
 
 void IN_MLookDown( void ) {
-	in_mlooking = qtrue;
+	in_mlooking = true;
 }
 
 void IN_CenterView( void );
 void IN_MLookUp( void ) {
-	in_mlooking = qfalse;
+	in_mlooking = false;
 	if ( !cl_freelook->integer ) {
 		IN_CenterView ();
 	}
@@ -182,8 +182,8 @@ void IN_KeyDown( kbutton_t *b ) {
 	c = Cmd_Argv(2);
 	b->downtime = atoi(c);
 
-	b->active = qtrue;
-	b->wasPressed = qtrue;
+	b->active = true;
+	b->wasPressed = true;
 }
 
 void IN_KeyUp( kbutton_t *b ) {
@@ -197,7 +197,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	} else {
 		// typed manually at the console, assume for unsticking, so clear all
 		b->down[0] = b->down[1] = 0;
-		b->active = qfalse;
+		b->active = false;
 		return;
 	}
 
@@ -212,7 +212,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		return;		// some other key is still holding it down
 	}
 
-	b->active = qfalse;
+	b->active = false;
 
 	// save timestamp for partial frame summing
 	c = Cmd_Argv(2);
@@ -223,7 +223,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		b->msec += frame_msec / 2;
 	}
 
-	b->active = qfalse;
+	b->active = false;
 }
 
 
@@ -407,7 +407,7 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	// the walking flag is to keep animations consistant
 	// even during acceleration and develeration
 	//
-	if ( in_speed.active ^ cl_run->integer ) {
+	if ( in_speed.active != (cl_run->integer != 0) ) {
 		movespeed = 127;
 		cmd->buttons &= ~BUTTON_WALKING;
 	} else {
@@ -482,7 +482,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		return;
 	}
 
-	if ( !(in_speed.active ^ cl_run->integer) ) {
+	if ( in_speed.active == (cl_run->integer != 0) ) {
 		cmd->buttons |= BUTTON_WALKING;
 	}
 
@@ -620,7 +620,7 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
 			cmd->buttons |= 1 << i;
 		}
-		in_buttons[i].wasPressed = qfalse;
+		in_buttons[i].wasPressed = false;
 	}
 
 	if ( Key_GetCatcher( ) ) {
@@ -651,7 +651,7 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	if (cl.gcmdSendValue)
 	{
 		cmd->generic_cmd = cl.gcmdValue;
-		cl.gcmdSendValue = qfalse;
+		cl.gcmdSendValue = false;
 	}
 	else
 	{
@@ -673,7 +673,7 @@ CL_CreateCmd
 =================
 */
 vec3_t cl_overriddenAngles = {0,0,0};
-qboolean cl_overrideAngles = qfalse;
+bool cl_overrideAngles = false;
 usercmd_t CL_CreateCmd( void ) {
 	usercmd_t	cmd;
 	vec3_t		oldAngles;
@@ -706,7 +706,7 @@ usercmd_t CL_CreateCmd( void ) {
 	if ( cl_overrideAngles )
 	{
 		VectorCopy( cl_overriddenAngles, cl.viewangles );
-		cl_overrideAngles = qfalse;
+		cl_overrideAngles = false;
 	}
 	// store out the final values
 	CL_FinishMove( &cmd );
@@ -763,30 +763,30 @@ void CL_CreateNewCommands( void ) {
 =================
 CL_ReadyToSendPacket
 
-Returns qfalse if we are over the maxpackets limit
+Returns false if we are over the maxpackets limit
 and should choke back the bandwidth a bit by not sending
 a packet this frame.  All the commands will still get
 delivered in the next packet, but saving a header and
 getting more delta compression will reduce total bandwidth.
 =================
 */
-qboolean CL_ReadyToSendPacket( void ) {
+bool CL_ReadyToSendPacket( void ) {
 	// don't send anything if playing back a demo
 //	if ( cls.state == CA_CINEMATIC )
 	if ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
 	{
-		return qfalse;
+		return false;
 	}
 
 	// if we don't have a valid gamestate yet, only send
 	// one packet a second
 	if ( cls.state != CA_ACTIVE && cls.state != CA_PRIMED
 		&& cls.realtime - clc.lastPacketSentTime < 1000 ) {
-		return qfalse;
+		return false;
 	}
 
 	// send every frame for loopbacks
-	return qtrue;
+	return true;
 }
 
 /*

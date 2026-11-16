@@ -28,11 +28,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 extern int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
-extern qboolean NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum );
-extern qboolean G_EntIsUnlockedDoor( int entityNum );
-extern qboolean G_EntIsDoor( int entityNum );
-extern qboolean G_EntIsBreakable( int entityNum );
-extern qboolean G_EntIsRemovableUsable( int entNum );
+extern bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum );
+extern bool G_EntIsUnlockedDoor( int entityNum );
+extern bool G_EntIsDoor( int entityNum );
+extern bool G_EntIsBreakable( int entityNum );
+extern bool G_EntIsRemovableUsable( int entNum );
 
 extern	cvar_t		*d_altRoutes;
 extern	cvar_t		*d_patched;
@@ -197,7 +197,7 @@ Draw
 -------------------------
 */
 
-void CNode::Draw( qboolean showRadius )
+void CNode::Draw( bool showRadius )
 {
 	CG_DrawNode( m_position, NODE_NORMAL );
 	if( showRadius )
@@ -878,7 +878,7 @@ void CNavigator::CalculatePaths( bool	recalc )
 		CP_FindCombatPointWaypoints();
 	}
 
-	pathsCalculated = qtrue;
+	pathsCalculated = true;
 }
 
 /*
@@ -892,7 +892,7 @@ void CNavigator::ShowNodes( void )
 	node_v::iterator	ni;
 
 	vec3_t	position;
-	qboolean showRadius;
+	bool showRadius;
 	float	dist,
 			radius;
 
@@ -900,7 +900,7 @@ void CNavigator::ShowNodes( void )
 	{
 		(*ni)->GetPosition( position );
 
-		showRadius = qfalse;
+		showRadius = false;
 		if( NAVDEBUG_showRadius )
 		{
 			dist = DistanceSquared( g_entities[0].currentOrigin, position );
@@ -908,7 +908,7 @@ void CNavigator::ShowNodes( void )
 			// if player within node radius or 256, draw radius (sometimes the radius is really small, so we check for 256 to catch everything)
 			if( (dist <= radius*radius) || dist <= 65536 )
 			{
-				showRadius = qtrue;
+				showRadius = true;
 			}
 		}
 		else
@@ -1009,7 +1009,7 @@ void CNavigator::CheckBlockedEdges( void )
 	vec3_t	p1, p2;
 	int		flags, first, second;
 	trace_t	trace;
-	qboolean failed;
+	bool failed;
 	int		edgeNum;
 	node_v::iterator	ni;
 
@@ -1026,7 +1026,7 @@ void CNavigator::CheckBlockedEdges( void )
 				second	= (*ni)->GetEdge( edgeNum );
 				start	= m_nodes[first];
 				end		= m_nodes[second];
-				failed	= qfalse;
+				failed	= false;
 
 				start->GetPosition( p1 );
 				end->GetPosition( p2 );
@@ -1034,24 +1034,24 @@ void CNavigator::CheckBlockedEdges( void )
 				//FIXME: can't we just store the trace.entityNum from the HardConnect trace?  So we don't have to do another trace here...
 				gi.trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
 
-				if ( trace.entityNum < ENTITYNUM_WORLD && (trace.fraction < 1.0f || trace.startsolid == qtrue || trace.allsolid == qtrue) )
+				if ( trace.entityNum < ENTITYNUM_WORLD && (trace.fraction < 1.0f || trace.startsolid == true || trace.allsolid == true) )
 				{//could be assumed, since failed before
 					if ( G_EntIsDoor( trace.entityNum ) )
 					{//door
 						if ( !G_EntIsUnlockedDoor( trace.entityNum ) )
 						{//locked door
-							failed = qtrue;
+							failed = true;
 						}
 					}
 					else
 					{
 						if ( G_EntIsBreakable( trace.entityNum ) )
 						{//do same for breakable brushes/models/glass?
-							failed = qtrue;
+							failed = true;
 						}
 						else if ( G_EntIsRemovableUsable( trace.entityNum ) )
 						{
-							failed = qtrue;
+							failed = true;
 						}
 						else if ( trace.allsolid || trace.startsolid )
 						{//FIXME: the entitynum would be none here, so how do we know if this is stuck inside an ent or the world?
@@ -1100,7 +1100,7 @@ void CNavigator::HardConnect( int first, int second )
 
 	int cost = Distance( p1, p2 );
 
-	if ( trace.fraction != 1.0f || trace.startsolid == qtrue || trace.allsolid == qtrue )
+	if ( trace.fraction != 1.0f || trace.startsolid == true || trace.allsolid == true )
 	{
 		flags |= EFLAG_BLOCKED;
 	}
@@ -1117,7 +1117,7 @@ TestNodePath
 -------------------------
 */
 
-int CNavigator::TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, qboolean includeEnts )
+int CNavigator::TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, bool includeEnts )
 {
 	int clipmask = ent->clipmask;
 
@@ -1168,7 +1168,7 @@ int	CNavigator::TestBestFirst( gentity_t *ent, int lastID, int flags )
 	node->GetPosition( nodePos );
 
 	//Setup our last node as our root, and search for a closer one according to its edges
-	int bestNode = ( TestNodePath( ent, ENTITYNUM_NONE, nodePos, qtrue ) ) ? lastID : NODE_NONE;
+	int bestNode = ( TestNodePath( ent, ENTITYNUM_NONE, nodePos, true ) ) ? lastID : NODE_NONE;
 	float bestDist = ( bestNode == NODE_NONE ) ? Q3_INFINITE : DistanceSquared( ent->currentOrigin, nodePos );
 
 	//Test all these edges first
@@ -1190,7 +1190,7 @@ int	CNavigator::TestBestFirst( gentity_t *ent, int lastID, int flags )
 		if ( dist < bestDist )
 		{
 			//See if this node is valid
-			if ( CheckedNode(testNode->GetID(),ent->s.number) == CHECKED_PASSED || TestNodePath( ent, ENTITYNUM_NONE, nodePos, qtrue ) )
+			if ( CheckedNode(testNode->GetID(),ent->s.number) == CHECKED_PASSED || TestNodePath( ent, ENTITYNUM_NONE, nodePos, true ) )
 			{
 				bestDist = dist;
 				bestNode = testNode->GetID();
@@ -1360,7 +1360,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 				//Do we need a clear path?
 				if ( flags & NF_CLEAR_PATH )
 				{
-					if ( TestNodePath( ent, goal->s.number, position, qtrue ) == false )
+					if ( TestNodePath( ent, goal->s.number, position, true ) == false )
 					{
 						SetCheckedNode( nodeNum, ent->s.number, CHECKED_FAILED );
 						continue;
@@ -1448,7 +1448,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 					//Do we need a clear path?
 					if ( flags & NF_CLEAR_PATH )
 					{
-						if ( TestNodePath( goal, ent->s.number, position2, qfalse ) == false )//qtrue?
+						if ( TestNodePath( goal, ent->s.number, position2, false ) == false )//true?
 						{
 							SetCheckedNode( nodeNum2, goal->s.number, CHECKED_FAILED );
 							continue;
@@ -1552,7 +1552,7 @@ int CNavigator::GetNearestNode( gentity_t *ent, int lastID, int flags, int targe
 			//Do we need a clear path?
 			if ( flags & NF_CLEAR_PATH )
 			{
-				if ( TestNodePath( ent, ENTITYNUM_NONE, position, qfalse ) == false )//qtrue?
+				if ( TestNodePath( ent, ENTITYNUM_NONE, position, false ) == false )//true?
 				{
 					SetCheckedNode((*nci).nodeID,ent->s.number,CHECKED_FAILED);
 					continue;
@@ -1759,23 +1759,23 @@ void CNavigator::AddFailedNode( gentity_t *ent, int nodeID )
 	}
 }
 
-qboolean CNavigator::NodeFailed( gentity_t *ent, int nodeID )
+bool CNavigator::NodeFailed( gentity_t *ent, int nodeID )
 {
 	for ( int j = 0; j < MAX_FAILED_NODES; j++ )
 	{
 		if ( (ent->failedWaypoints[j]-1) == nodeID )
 		{
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CNavigator::NodesAreNeighbors( int startID, int endID )
+bool CNavigator::NodesAreNeighbors( int startID, int endID )
 {//See if these 2 are neighbors
 	if ( startID == endID )
 	{
-		return qfalse;
+		return false;
 	}
 
 	CNode *start = m_nodes[startID];
@@ -1786,11 +1786,11 @@ qboolean CNavigator::NodesAreNeighbors( int startID, int endID )
 		nextID = start->GetEdge(i);
 		if ( nextID == endID )
 		{
-			return qtrue;
+			return true;
 		}
 	}
 	//not neighbors
-	return qfalse;
+	return false;
 }
 
 void CNavigator::ClearFailedEdge( failedEdge_t *failedEdge )
@@ -2015,11 +2015,11 @@ void CNavigator::AddFailedEdge( int entID, int startID, int endID )
 #endif
 }
 
-qboolean CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
+bool CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 {
 	if ( !failedEdge )
 	{
-		return qfalse;
+		return false;
 	}
 
 	//Every 1 second, see if our failed edges are clear
@@ -2065,14 +2065,14 @@ qboolean CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 			//Test if they're even conceivably close to one another
 			if ( !gi.inPVSIgnorePortals( start, end ) )
 			{
-				return qfalse;
+				return false;
 			}
 
 			gi.trace( &trace, start, mins, maxs, end, ignore, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );//NOTE: should we really always include monsterclip (physically blocks NPCs) and botclip (do not enter)?
 
-			if( trace.startsolid == qtrue || trace.allsolid == qtrue )
+			if( trace.startsolid == true || trace.allsolid == true )
 			{
-				return qfalse;
+				return false;
 			}
 			hitEntNum = trace.entityNum;
 #endif
@@ -2089,7 +2089,7 @@ qboolean CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 			{
 				//If so, clear it
 				ClearFailedEdge( failedEdge );
-				return qtrue;
+				return true;
 			}
 			else
 			{
@@ -2098,13 +2098,13 @@ qboolean CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void CNavigator::CheckAllFailedEdges( void )
 {
 	failedEdge_t	*failedEdge;
-	qboolean		clearedAny = qfalse;
+	bool		clearedAny = false;
 
 	//Must have nodes
 	if ( m_nodes.size() == 0 )
@@ -2114,7 +2114,7 @@ void CNavigator::CheckAllFailedEdges( void )
 	{
 		failedEdge = &failedEdges[j];
 
-		clearedAny = CheckFailedEdge( failedEdge )?qtrue:clearedAny;
+		clearedAny = CheckFailedEdge( failedEdge )?true:clearedAny;
 	}
 	if ( clearedAny )
 	{//need to recalc the paths
@@ -2127,24 +2127,24 @@ void CNavigator::CheckAllFailedEdges( void )
 	}
 }
 
-qboolean CNavigator::RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank )
+bool CNavigator::RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank )
 {
 	int		nextID, edgeID, lastID, bestNextID = NODE_NONE;
 	int		bestRank = rejectRank;
 	int		testRank;
-	qboolean	allEdgesFailed;
+	bool	allEdgesFailed;
 	CNode	*end;
 	CNode	*next;
 
 
 	if ( EdgeFailed( startID, testEdgeID ) != -1 )
 	{
-		return qtrue;
+		return true;
 	}
 
 	if ( testEdgeID == endID )
 	{//Neighbors, checked out, all clear
-		return qfalse;
+		return false;
 	}
 
 	//Okay, first edge is clear, now check rest of route!
@@ -2155,7 +2155,7 @@ qboolean CNavigator::RouteBlocked( int startID, int testEdgeID, int endID, int r
 	while( 1 )
 	{
 		next = m_nodes[ nextID ];
-		allEdgesFailed = qtrue;
+		allEdgesFailed = true;
 
 		for ( int i = 0; i < next->GetNumEdges(); i++ )
 		{
@@ -2179,7 +2179,7 @@ qboolean CNavigator::RouteBlocked( int startID, int testEdgeID, int endID, int r
 
 			if ( edgeID == endID )
 			{//We got there all clear!
-				return qfalse;
+				return false;
 			}
 
 			//Still going...
@@ -2195,14 +2195,14 @@ qboolean CNavigator::RouteBlocked( int startID, int testEdgeID, int endID, int r
 			{
 				bestNextID = edgeID;
 				bestRank = testRank;
-				allEdgesFailed = qfalse;
+				allEdgesFailed = false;
 			}
 		}
 
 		if ( allEdgesFailed )
 		{
 			//This route has no clear way of getting to end
-			return qtrue;
+			return true;
 		}
 		else
 		{

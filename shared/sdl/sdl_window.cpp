@@ -89,20 +89,20 @@ static const int	s_numVidModes = ARRAY_LEN( r_vidModes );
 
 #define R_MODE_FALLBACK (4) // 640x480
 
-qboolean R_GetModeInfo( int *width, int *height, int mode ) {
+bool R_GetModeInfo( int *width, int *height, int mode ) {
 	const vidmode_t	*vm;
 
     if ( mode < -1 ) {
-        return qfalse;
+        return false;
 	}
 	if ( mode >= s_numVidModes ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( mode == -1 ) {
 		*width = r_customwidth->integer;
 		*height = r_customheight->integer;
-		return qtrue;
+		return true;
 	}
 
 	vm = &r_vidModes[mode];
@@ -110,7 +110,7 @@ qboolean R_GetModeInfo( int *width, int *height, int mode ) {
     *width  = vm->width;
     *height = vm->height;
 
-    return qtrue;
+    return true;
 }
 
 /*
@@ -150,7 +150,7 @@ void WIN_Present( window_t *window )
 
 		if ( r_swapInterval->modified )
 		{
-			r_swapInterval->modified = qfalse;
+			r_swapInterval->modified = false;
 			if ( SDL_GL_SetSwapInterval( r_swapInterval->integer ) == -1 )
 			{
 				Com_DPrintf( "SDL_GL_SetSwapInterval failed: %s\n", SDL_GetError() );
@@ -162,7 +162,7 @@ void WIN_Present( window_t *window )
 	{
 		bool	fullscreen;
 		bool	needToToggle;
-		bool	sdlToggled = qfalse;
+		bool	sdlToggled = false;
 
 		// Find out the current state
 		fullscreen = (SDL_GetWindowFlags( screen ) & SDL_WINDOW_FULLSCREEN) != 0;
@@ -171,7 +171,7 @@ void WIN_Present( window_t *window )
 		{
 			Com_Printf( "Fullscreen not allowed with in_nograb 1\n" );
 			Cvar_Set( "r_fullscreen", "0" );
-			r_fullscreen->modified = qfalse;
+			r_fullscreen->modified = false;
 		}
 
 		// Is the state we want different from the current state?
@@ -188,7 +188,7 @@ void WIN_Present( window_t *window )
 			IN_Restart();
 		}
 
-		r_fullscreen->modified = qfalse;
+		r_fullscreen->modified = false;
 	}
 }
 
@@ -315,7 +315,7 @@ static bool GLimp_DetectAvailableModes(void)
 GLimp_SetMode
 ===============
 */
-static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, const char *windowTitle, int mode, qboolean fullscreen, qboolean noborder)
+static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, const char *windowTitle, int mode, bool fullscreen, bool noborder)
 {
 	int perChannelColorBits;
 	int colorBits, depthBits, stencilBits;
@@ -426,14 +426,14 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 #else
         flags |= SDL_WINDOW_FULLSCREEN;
 #endif
-		glConfig->isFullscreen = qtrue;
+		glConfig->isFullscreen = true;
 	}
 	else
 	{
 		if( noborder )
 			flags |= SDL_WINDOW_BORDERLESS;
 
-		glConfig->isFullscreen = qfalse;
+		glConfig->isFullscreen = false;
 	}
 
 	colorBits = r_colorbits->integer;
@@ -559,12 +559,12 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 
 			if(r_stereo->integer)
 			{
-				glConfig->stereoEnabled = qtrue;
+				glConfig->stereoEnabled = true;
 				SDL_GL_SetAttribute(SDL_GL_STEREO, 1);
 			}
 			else
 			{
-				glConfig->stereoEnabled = qfalse;
+				glConfig->stereoEnabled = false;
 				SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 			}
 
@@ -668,7 +668,7 @@ static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDes
 GLimp_StartDriverAndSetMode
 ===============
 */
-static qboolean GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, int mode, qboolean fullscreen, qboolean noborder)
+static bool GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, int mode, bool fullscreen, bool noborder)
 {
 	rserr_t err;
 
@@ -679,7 +679,7 @@ static qboolean GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDe
 		if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		{
 			Com_Printf( "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n", SDL_GetError());
-			return qfalse;
+			return false;
 		}
 
 		driverName = SDL_GetCurrentVideoDriver();
@@ -687,7 +687,7 @@ static qboolean GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDe
 		if (!driverName)
 		{
 			Com_Error( ERR_FATAL, "No video driver initialized" );
-			return qfalse;
+			return false;
 		}
 
 		Com_Printf( "SDL using driver \"%s\"\n", driverName );
@@ -703,8 +703,8 @@ static qboolean GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDe
 	{
 		Com_Printf( "Fullscreen not allowed with in_nograb 1\n");
 		Cvar_Set( "r_fullscreen", "0" );
-		r_fullscreen->modified = qfalse;
-		fullscreen = qfalse;
+		r_fullscreen->modified = false;
+		fullscreen = false;
 	}
 
 	err = GLimp_SetMode(glConfig, windowDesc, CLIENT_WINDOW_TITLE, mode, fullscreen, noborder);
@@ -713,18 +713,18 @@ static qboolean GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDe
 	{
 		case RSERR_INVALID_FULLSCREEN:
 			Com_Printf( "...WARNING: fullscreen unavailable in this mode\n" );
-			return qfalse;
+			return false;
 		case RSERR_INVALID_MODE:
 			Com_Printf( "...WARNING: could not set the given mode (%d)\n", mode );
-			return qfalse;
+			return false;
 		case RSERR_UNKNOWN:
 			Com_Printf( "...ERROR: no display modes could be found.\n" );
-			return qfalse;
+			return false;
 		default:
 			break;
 	}
 
-	return qtrue;
+	return true;
 }
 
 window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
@@ -745,7 +745,7 @@ window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
 	r_stereo			= Cvar_Get( "r_stereo",				"0",		CVAR_ARCHIVE_ND|CVAR_LATCH );
 	r_mode				= Cvar_Get( "r_mode",				"4",		CVAR_ARCHIVE|CVAR_LATCH );
 	r_displayRefresh	= Cvar_Get( "r_displayRefresh",		"0",		CVAR_LATCH );
-	Cvar_CheckRange( r_displayRefresh, 0, 240, qtrue );
+	Cvar_CheckRange( r_displayRefresh, 0, 240, true );
 
 	// Window render surface cvars
 	r_stencilbits		= Cvar_Get( "r_stencilbits",		"8",		CVAR_ARCHIVE_ND|CVAR_LATCH );
@@ -757,13 +757,13 @@ window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
 
 	// Create the window and set up the context
 	if(!GLimp_StartDriverAndSetMode( glConfig, windowDesc, r_mode->integer,
-										(qboolean)r_fullscreen->integer, (qboolean)r_noborder->integer ))
+										r_fullscreen->integer, r_noborder->integer ))
 	{
 		if( r_mode->integer != R_MODE_FALLBACK )
 		{
 			Com_Printf( "Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer, R_MODE_FALLBACK );
 
-			if (!GLimp_StartDriverAndSetMode( glConfig, windowDesc, R_MODE_FALLBACK, qfalse, qfalse ))
+			if (!GLimp_StartDriverAndSetMode( glConfig, windowDesc, R_MODE_FALLBACK, false, false ))
 			{
 				// Nothing worked, give up
 				Com_Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
@@ -772,7 +772,7 @@ window_t WIN_Init( const windowDesc_t *windowDesc, glconfig_t *glConfig )
 	}
 
 	glConfig->deviceSupportsGamma =
-		(qboolean)(!r_ignorehwgamma->integer && SDL_SetWindowBrightness( screen, 1.0f ) >= 0);
+		(!r_ignorehwgamma->integer && SDL_SetWindowBrightness( screen, 1.0f ) >= 0);
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
 	IN_Init( screen );
@@ -827,7 +827,7 @@ void WIN_Shutdown( void )
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 
-void GLimp_EnableLogging( qboolean enable )
+void GLimp_EnableLogging( bool enable )
 {
 }
 
@@ -894,7 +894,7 @@ void *WIN_GL_GetProcAddress( const char *proc )
 	return SDL_GL_GetProcAddress( proc );
 }
 
-qboolean WIN_GL_ExtensionSupported( const char *extension )
+bool WIN_GL_ExtensionSupported( const char *extension )
 {
-	return SDL_GL_ExtensionSupported( extension ) == SDL_TRUE ? qtrue : qfalse;
+	return SDL_GL_ExtensionSupported( extension ) == SDL_TRUE ? true : false;
 }

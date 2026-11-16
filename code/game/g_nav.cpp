@@ -27,16 +27,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //Global navigator
 //CNavigator		navigator;
 
-extern qboolean G_EntIsUnlockedDoor( int entityNum );
-extern qboolean G_EntIsDoor( int entityNum );
-extern qboolean G_EntIsRemovableUsable( int entNum );
-extern qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
+extern bool G_EntIsUnlockedDoor( int entityNum );
+extern bool G_EntIsDoor( int entityNum );
+extern bool G_EntIsRemovableUsable( int entNum );
+extern bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 //For debug graphics
 extern void CG_Line( vec3_t start, vec3_t end, vec3_t color, float alpha );
 extern void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
 extern void CG_CubeOutline( vec3_t mins, vec3_t maxs, int time, unsigned int color, float alpha );
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 
 
 extern vec3_t NPCDEBUG_RED;
@@ -48,7 +48,7 @@ NPC_SetMoveGoal
 -------------------------
 */
 
-void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, qboolean isNavGoal, int combatPoint, gentity_t *targetEnt )
+void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, int combatPoint, gentity_t *targetEnt )
 {
 	//Must be an NPC
 	if ( ent->NPC == NULL )
@@ -187,10 +187,10 @@ void SP_waypoint ( gentity_t *ent )
 			ent->currentOrigin[2] += 128.0f;
 		}
 
-		if( !(ent->spawnflags&1) && G_CheckInSolid (ent, qtrue))
+		if( !(ent->spawnflags&1) && G_CheckInSolid (ent, true))
 		{//if not SOLID_OK, and in solid
 			ent->maxs[2] = CROUCH_MAXS_2;
-			if(G_CheckInSolid (ent, qtrue))
+			if(G_CheckInSolid (ent, true))
 			{
 				gi.Printf(S_COLOR_RED"ERROR: Waypoint %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 				assert(0 && "Waypoint in solid!");
@@ -228,10 +228,10 @@ void SP_waypoint_small (gentity_t *ent)
 		ent->count = -1;
 		ent->classname = "waypoint";
 
-		if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qtrue ) )
+		if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, true ) )
 		{
 			ent->maxs[2] = CROUCH_MAXS_2;
-			if ( G_CheckInSolid( ent, qtrue ) )
+			if ( G_CheckInSolid( ent, true ) )
 			{
 				gi.Printf(S_COLOR_RED"ERROR: Waypoint_small %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 				assert(0);
@@ -280,7 +280,7 @@ void SP_waypoint_navgoal( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, -24 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 	ent->s.origin[2] += 0.125;
-	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, qfalse ) )
+	if ( !(ent->spawnflags&1) && G_CheckInSolid( ent, false ) )
 	{
 		gi.Printf(S_COLOR_RED"ERROR: Waypoint_navgoal %s at %s in solid!\n", ent->targetname, vtos(ent->currentOrigin));
 		assert(0);

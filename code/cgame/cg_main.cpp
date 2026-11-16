@@ -34,12 +34,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 typedef	std::map< sstring_t, unsigned char  >	namePrecache_m;
 extern namePrecache_m	*as_preCacheMap;
 extern void CG_RegisterNPCCustomSounds( clientInfo_t *ci );
-extern qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth );
+extern bool G_AddSexToMunroString ( char *string, bool qDoBoth );
 extern int G_ParseAnimFileSet( const char *skeletonName, const char *modelName=0);
 extern void CG_DrawDataPadInventorySelect( void );
 
 void CG_Init( int serverCommandSequence );
-qboolean CG_ConsoleCommand( void );
+bool CG_ConsoleCommand( void );
 void CG_Shutdown( void );
 int CG_GetCameraPos( vec3_t camerapos );
 int CG_GetCameraAng( vec3_t cameraang );
@@ -228,8 +228,8 @@ weaponInfo_t		cg_weapons[MAX_WEAPONS];
 itemInfo_t			cg_items[MAX_ITEMS];
 
 typedef struct {
-	qboolean		registered;		// Has the player picked it up
-	qboolean		active;			// Is it the chosen inventory item
+	bool		registered;		// Has the player picked it up
+	bool		active;			// Is it the chosen inventory item
 	int				count;			// Count of items.
 	char			description[128];
 } inventoryInfo_t;
@@ -850,7 +850,7 @@ CLIENT INFO
 CG_RegisterClientSkin
 ==========================
 */
-qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
+bool	CG_RegisterClientSkin( clientInfo_t *ci,
 								  const char *headModelName, const char *headSkinName,
 								  const char *torsoModelName, const char *torsoSkinName,
 								  const char *legsModelName, const char *legsSkinName)
@@ -865,7 +865,7 @@ qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
 	if ( !ci->legsSkin )
 	{
 //		Com_Printf( "Failed to load skin file: %s : %s\n", legsModelName, legsSkinName );
-		//return qfalse;
+		//return false;
 	}
 
 	if(torsoModelName && torsoSkinName && torsoModelName[0] && torsoSkinName[0])
@@ -876,7 +876,7 @@ qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
 		if ( !ci->torsoSkin )
 		{
 			Com_Printf( "Failed to load skin file: %s : %s\n", torsoModelName, torsoSkinName );
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -888,11 +888,11 @@ qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
 		if ( !ci->headSkin )
 		{
 			Com_Printf( "Failed to load skin file: %s : %s\n", headModelName, headSkinName );
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -900,7 +900,7 @@ qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
 CG_RegisterClientModelname
 ==========================
 */
-qboolean CG_RegisterClientModelname( clientInfo_t *ci,
+bool CG_RegisterClientModelname( clientInfo_t *ci,
 									const char *headModelName, const char *headSkinName,
 									const char *torsoModelName, const char *torsoSkinName,
 									const char *legsModelName, const char *legsSkinName )
@@ -914,7 +914,7 @@ Ghoul2 Insert Start
 
 	if ( !legsModelName || !legsModelName[0] )
 	{
-		return qtrue;
+		return true;
 	}
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.mdr", legsModelName );
 	ci->legsModel = cgi_R_RegisterModel( filename );
@@ -925,7 +925,7 @@ Ghoul2 Insert Start
 		if ( !ci->legsModel )
 		{
 			Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -940,7 +940,7 @@ Ghoul2 Insert Start
 			if ( !ci->torsoModel )
 			{
 				Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
-				return qfalse;
+				return false;
 			}
 		}
 	}
@@ -956,7 +956,7 @@ Ghoul2 Insert Start
 		if ( !ci->headModel )
 		{
 			Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
-			return qfalse;
+			return false;
 		}
 	}
 	else
@@ -969,7 +969,7 @@ Ghoul2 Insert Start
 	if ( !CG_RegisterClientSkin( ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName ) )
 	{
 		//Com_Printf( "Failed to load skin file: %s : %s/%s : %s/%s : %s\n", headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName );
-		return qfalse;
+		return false;
 	}
 
 	//FIXME: for now, uses the legs model dir for anim cfg, but should we set this in some sort of NPCs.cfg?
@@ -978,13 +978,13 @@ Ghoul2 Insert Start
 	if (ci->animFileIndex<0)
 	{
 		Com_Printf( S_COLOR_RED"Failed to load animation file set models/players/%s\n", legsModelName );
-		return qfalse;
+		return false;
 	}
 #endif
 /*
 Ghoul2 Insert End
 */
-	return qtrue;
+	return true;
 }
 
 
@@ -1177,7 +1177,7 @@ void CG_RegisterClientModels (int entityNum)
 		return;
 	}
 
-	ent->client->clientInfo.infoValid = qtrue;
+	ent->client->clientInfo.infoValid = true;
 
 	if ( ent->playerModel != -1 && ent->ghoul2.size() )
 	{
@@ -1265,7 +1265,7 @@ HUDMenuItem_t otherHUDBits[] =
 };
 */
 extern void CG_NPC_Precache ( gentity_t *spawner );
-qboolean NPCsPrecached = qfalse;
+bool NPCsPrecached = false;
 /*
 =================
 CG_PrepRefresh
@@ -1684,7 +1684,7 @@ Ghoul2 Insert End
 
 	cg.loadLCARSStage = 9;
 
-	NPCsPrecached = qtrue;
+	NPCsPrecached = true;
 
 	extern	cvar_t	*com_buildScript;
 
@@ -1710,7 +1710,7 @@ Ghoul2 Insert End
 		}
 		CG_LoadingString( "BSP instances" );
 
-		cgi_CM_LoadMap( bspName, qtrue );
+		cgi_CM_LoadMap( bspName, true );
 		cgs.inlineDrawModel[breakPoint] = cgi_R_RegisterModel( bspName );
 		cgi_R_ModelBounds( cgs.inlineDrawModel[breakPoint], mins, maxs );
 		for ( j = 0 ; j < 3 ; j++ )
@@ -1788,7 +1788,7 @@ CG_StartMusic
 
 ======================
 */
-void CG_StartMusic( qboolean bForceStart ) {
+void CG_StartMusic( bool bForceStart ) {
 	const char	*s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
 
@@ -1799,7 +1799,7 @@ void CG_StartMusic( qboolean bForceStart ) {
 	Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 	COM_EndParseSession();
 
-	cgi_S_StartBackgroundTrack( parm1, parm2, (qboolean)!bForceStart );
+	cgi_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
 }
 
 /*
@@ -1811,10 +1811,10 @@ Displays the info screen while loading media
 */
 
 int iCGResetCount=0;
-qboolean qbVidRestartOccured = qfalse;
+bool qbVidRestartOccured = false;
 
 //===================
-qboolean gbUseTheseValuesFromLoadSave = qfalse;	// MUST default to this
+bool gbUseTheseValuesFromLoadSave = false;	// MUST default to this
 int gi_cg_forcepowerSelect;
 int gi_cg_inventorySelect;
 //===================
@@ -1826,11 +1826,11 @@ static void CG_GameStateReceived( void ) {
 	extern void CG_ClearAnimEvtCache( void );
 	CG_ClearAnimEvtCache();	// else sound handles wrong after vid_restart
 
-	qbVidRestartOccured = qtrue;
+	qbVidRestartOccured = true;
 	iCGResetCount++;
 	if (iCGResetCount == 1)	// this will only equal 1 first time, after each vid_restart it just gets higher.
 	{						//	This non-clear is so the user can vid_restart during scrolling text without losing it.
-		qbVidRestartOccured = qfalse;
+		qbVidRestartOccured = false;
 	}
 
 	if (!qbVidRestartOccured)
@@ -1847,7 +1847,7 @@ static void CG_GameStateReceived( void ) {
 
 	if (gbUseTheseValuesFromLoadSave)
 	{
-		gbUseTheseValuesFromLoadSave = qfalse;	// ack
+		gbUseTheseValuesFromLoadSave = false;	// ack
 		cg.forcepowerSelect = gi_cg_forcepowerSelect;
 		cg.inventorySelect	= gi_cg_inventorySelect;
 	}
@@ -1875,7 +1875,7 @@ static void CG_GameStateReceived( void ) {
 	cgs.media.levelLoad = cgi_R_RegisterShaderNoMip( "gfx/hud/mp_levelload" );
 	CG_LoadingString( "collision map" );
 
-	cgi_CM_LoadMap( cgs.mapname, qfalse );
+	cgi_CM_LoadMap( cgs.mapname, false );
 
 	CG_RegisterSounds();
 
@@ -1886,7 +1886,7 @@ static void CG_GameStateReceived( void ) {
 //	CG_InitMarkPolys();
 
 	CG_LoadingString( "music" );
-	CG_StartMusic( qfalse );
+	CG_StartMusic( false );
 
 	// remove the last loading update
 	cg.infoScreenText[0] = 0;
@@ -1896,8 +1896,8 @@ static void CG_GameStateReceived( void ) {
 	CG_ClearLightStyles();
 
 	// Okay so this doesn't exactly belong here
-	cg.messageLitActive = qfalse;
-	cg.forceHUDActive = qtrue;
+	cg.messageLitActive = false;
+	cg.forceHUDActive = true;
 	cg.forceHUDTotalFlashTime = 0;
 	cg.forceHUDNextFlashTime = 0;
 
@@ -1930,7 +1930,7 @@ void CG_ReadTheEvilCGHackStuff()
 		INT_ID('I', 'V', 'S', 'L'),
 		::gi_cg_inventorySelect);
 
-	gbUseTheseValuesFromLoadSave = qtrue;
+	gbUseTheseValuesFromLoadSave = true;
 }
 
 /*
@@ -2063,7 +2063,7 @@ void CG_TransitionPermanent(void)
 			cent->nextState = &cent->currentState;
 			VectorCopy (cent->currentState.origin, cent->lerpOrigin);
 			VectorCopy (cent->currentState.angles, cent->lerpAngles);
-			cent->currentValid = qtrue;
+			cent->currentValid = true;
 
 			cg_permanents[cg_numpermanents++] = cent;
 		}
@@ -2166,9 +2166,9 @@ void CG_Init( int serverCommandSequence ) {
 	cg.weaponPickupTextTime = 0;
 
 	cg.missionInfoFlashTime = 0;
-	cg.missionStatusShow = qfalse;
+	cg.missionStatusShow = false;
 
-	cg.missionFailedScreen = qfalse;	// Screen hasn't been opened.
+	cg.missionFailedScreen = false;	// Screen hasn't been opened.
 	cgi_UI_MenuCloseAll();	// So the loadscreen menu will turn off just after the opening snapshot
 }
 
@@ -2542,35 +2542,35 @@ void CG_DrawAlert( vec3_t origin, float rating )
 // new hud stuff ( mission pack )
 // ==============================
 //
-qboolean CG_Asset_Parse(const char **p)
+bool CG_Asset_Parse(const char **p)
 {
 	const char *token;
 	const char *tempStr;
 	int pointSize;
 
-	token = COM_ParseExt(p, qtrue);
+	token = COM_ParseExt(p, true);
 
 	if (!token)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (Q_stricmp(token, "{") != 0)
 	{
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 )
 	{
-		token = COM_ParseExt(p, qtrue);
+		token = COM_ParseExt(p, true);
 		if (!token)
 		{
-			return qfalse;
+			return false;
 		}
 
 		if (Q_stricmp(token, "}") == 0)
 		{
-			return qtrue;
+			return true;
 		}
 
 		// font
@@ -2584,7 +2584,7 @@ qboolean CG_Asset_Parse(const char **p)
 
 			if (!tempStr || !pointSize)
 			{
-				return qfalse;
+				return false;
 			}
 */
 //			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
@@ -2596,7 +2596,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
 			continue;
@@ -2607,7 +2607,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
 			continue;
@@ -2619,7 +2619,7 @@ qboolean CG_Asset_Parse(const char **p)
 			int pointSize;
 			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
 			continue;
@@ -2630,7 +2630,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
 			continue;
@@ -2641,7 +2641,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr );
 			continue;
@@ -2652,7 +2652,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr );
 			continue;
@@ -2663,7 +2663,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr );
 			continue;
@@ -2674,7 +2674,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 			if (!COM_ParseString(p, &tempStr))
 			{
-				return qfalse;
+				return false;
 			}
 //			cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr );
 			continue;
@@ -2684,7 +2684,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseString(p, &cgDC.Assets.cursorStr))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 //			cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
 			continue;
@@ -2694,7 +2694,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseFloat(p, &cgDC.Assets.fadeClamp))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 			continue;
 		}
@@ -2703,7 +2703,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseInt(p, &cgDC.Assets.fadeCycle))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 			continue;
 		}
@@ -2712,7 +2712,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseFloat(p, &cgDC.Assets.fadeAmount))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 			continue;
 		}
@@ -2721,7 +2721,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseFloat(p, &cgDC.Assets.shadowX))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 			continue;
 		}
@@ -2730,7 +2730,7 @@ qboolean CG_Asset_Parse(const char **p)
 		{
 //			if (!COM_ParseFloat(p, &cgDC.Assets.shadowY))
 //			{
-//				return qfalse;
+//				return false;
 //			}
 			continue;
 		}
@@ -2740,14 +2740,14 @@ qboolean CG_Asset_Parse(const char **p)
 			/*
 			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor))
 			{
-				return qfalse;
+				return false;
 			}
 			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
 			*/
 			continue;
 		}
 	}
-	return qfalse; // bk001204 - why not?
+	return false; // bk001204 - why not?
 }
 
 void cgi_UI_EndParseSession(char *buf);
@@ -2836,35 +2836,35 @@ CG_Load_Menu();
 
 =================
 */
-qboolean CG_Load_Menu( const char **p)
+bool CG_Load_Menu( const char **p)
 {
 	const char *token;
 
-	token = COM_ParseExt(p, qtrue);
+	token = COM_ParseExt(p, true);
 
 	if (token[0] != '{')
 	{
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 )
 	{
 
-		token = COM_ParseExt(p, qtrue);
+		token = COM_ParseExt(p, true);
 
 		if (Q_stricmp(token, "}") == 0)
 		{
-			return qtrue;
+			return true;
 		}
 
 		if ( !token || token[0] == 0 )
 		{
-			return qfalse;
+			return false;
 		}
 
 		CG_ParseMenu(token);
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -2918,7 +2918,7 @@ void CG_LoadMenus(const char *menuFile)
 	COM_BeginParseSession();
 	while ( 1 )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if( !token || token[0] == 0 || token[0] == '}')
 		{
 			break;
@@ -3028,14 +3028,14 @@ INVENTORY SELECTION
 CG_InventorySelectable
 ===============
 */
-static inline qboolean CG_InventorySelectable( int index)
+static inline bool CG_InventorySelectable( int index)
 {
 	if (cg.snap->ps.inventory[index])	// Is there any in the inventory?
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -3368,7 +3368,7 @@ void CG_DrawInventorySelect( void )
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);
+				NUM_FONT_SMALL,false);
 
 			holdX -= (smallIconSize+pad);
 		}
@@ -3383,7 +3383,7 @@ void CG_DrawInventorySelect( void )
 		addX = (float) bigIconSize * .75;
 		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 		CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
-			NUM_FONT_SMALL,qfalse);
+			NUM_FONT_SMALL,false);
 
 		if (inv_names[cg.inventorySelect])
 		{
@@ -3439,7 +3439,7 @@ void CG_DrawInventorySelect( void )
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);
+				NUM_FONT_SMALL,false);
 
 			holdX += (smallIconSize+pad);
 		}
@@ -3561,7 +3561,7 @@ void CG_DrawDataPadInventorySelect( void )
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);
+				NUM_FONT_SMALL,false);
 
 			holdX -= (smallIconSize+pad);
 		}
@@ -3576,7 +3576,7 @@ void CG_DrawDataPadInventorySelect( void )
 		addX = (float) bigIconSize * .75;
 		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 		CG_DrawNumField ((centerXPos-(bigIconSize/2)) + addX, graphicYPos, 2, cg.snap->ps.inventory[cg.DataPadInventorySelect], 6, 12,
-			NUM_FONT_SMALL,qfalse);
+			NUM_FONT_SMALL,false);
 
 	}
 
@@ -3612,7 +3612,7 @@ void CG_DrawDataPadInventorySelect( void )
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
 			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);
+				NUM_FONT_SMALL,false);
 
 			holdX += (smallIconSize+pad);
 		}
@@ -3721,7 +3721,7 @@ int showDataPadPowers[MAX_DPSHOWPOWERS] =
 ForcePower_Valid
 ===============
 */
-qboolean ForcePower_Valid(int index)
+bool ForcePower_Valid(int index)
 {
 	gentity_t	*player = &g_entities[0];
 
@@ -3730,10 +3730,10 @@ qboolean ForcePower_Valid(int index)
 	if (player->client->ps.forcePowersKnown & (1 << showPowers[index]) &&
 		player->client->ps.forcePowerLevel[showPowers[index]])	// Does he have the force power?
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -3983,7 +3983,7 @@ void CG_DrawForceSelect( void )
 ForcePowerDataPad_Valid
 ===============
 */
-qboolean ForcePowerDataPad_Valid(int index)
+bool ForcePowerDataPad_Valid(int index)
 {
 	gentity_t	*player = &g_entities[0];
 
@@ -3991,10 +3991,10 @@ qboolean ForcePowerDataPad_Valid(int index)
 	if (player->client->ps.forcePowersKnown & (1 << showDataPadPowers[index]) &&
 		player->client->ps.forcePowerLevel[showDataPadPowers[index]])	// Does he have the force power?
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -4371,7 +4371,7 @@ int CG_MagicFontToReal( int menuFontIndex )
 	static int fonthandle_anewhope;
 	static int fonthandle_arialnb;
 
-	static qboolean fontsRegistered = qfalse;
+	static bool fontsRegistered = false;
 
 	if ( !fontsRegistered )
 	{ // Only try registering the fonts once
@@ -4380,7 +4380,7 @@ int CG_MagicFontToReal( int menuFontIndex )
 		fonthandle_anewhope = cgi_R_RegisterFont( "anewhope" );
 		fonthandle_arialnb  = cgi_R_RegisterFont( "arialnb" );
 
-		fontsRegistered = qtrue;
+		fontsRegistered = true;
 	}
 
 	// Default fonts from a clean installation

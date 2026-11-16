@@ -54,10 +54,10 @@ extern stringID_table_t VehicleTable[VH_NUM_VEHICLES+1];
 typedef struct vehWeaponInfo_s {
 //*** IMPORTANT!!! *** vWeapFields table correponds to this structure!
 	char	*name;
-	qboolean	bIsProjectile;	//traceline or entity?
-	qboolean	bHasGravity;	//if a projectile, drops
-	qboolean	bIonWeapon;//disables ship shields and sends them out of control
-	qboolean	bSaberBlockable;//lightsabers can deflect this projectile
+	bool	bIsProjectile;	//traceline or entity?
+	bool	bHasGravity;	//if a projectile, drops
+	bool	bIonWeapon;//disables ship shields and sends them out of control
+	bool	bSaberBlockable;//lightsabers can deflect this projectile
 	int		iMuzzleFX;	//index of Muzzle Effect
 	int		iModel;		//handle to the model used by this projectile
 	int		iShotFX;	//index of Shot Effect
@@ -77,7 +77,7 @@ typedef struct vehWeaponInfo_s {
 	float	fWidth;		//width of traceline or bounding box of projecile (non-rotating!)
 	float	fHeight;		//height of traceline or bounding box of projecile (non-rotating!)
 	int		iLifeTime;	//removes itself after this amount of time
-	qboolean	bExplodeOnExpire;	//when iLifeTime is up, explodes rather than simply removing itself
+	bool	bExplodeOnExpire;	//when iLifeTime is up, explodes rather than simply removing itself
 } vehWeaponInfo_t;
 
 #define	VWFOFS(x) offsetof(vehWeaponInfo_t, x)
@@ -115,8 +115,8 @@ typedef struct turretStats_s {
 	int			iMuzzle[MAX_VEHICLE_TURRET_MUZZLES];//iMuzzle-1 = index of ship's muzzle to fire this turret's 1st and 2nd shots from
 	char		*gunnerViewTag;//Where to put the view origin of the gunner (name)
 	float		fTurnSpeed;	//how quickly the turret can turn
-	qboolean	bAI;	//whether or not the turret auto-targets enemies when it's not manned
-	qboolean	bAILead;//whether
+	bool	bAI;	//whether or not the turret auto-targets enemies when it's not manned
+	bool	bAILead;//whether
 	float		fAIRange;	//how far away the AI will look for enemies
 	int			passengerNum;//which passenger, if any, has control of this turret (overrides AI)
 } turretStats_t;
@@ -130,7 +130,7 @@ typedef struct vehWeaponStats_s {
 	// Whether or not all the muzzles for each weapon can be linked together (linked delay = weapon delay * number of muzzles linked!)
 	int			linkable;
 	// Whether or not to auto-aim the projectiles/tracelines at the thing under the crosshair when we fire
-	qboolean	aimCorrect;
+	bool	aimCorrect;
 	//maximum ammo
 	int			ammoMax;
 	//ammo recharge rate - milliseconds per unit (minimum of 100, which is 10 ammo per second)
@@ -161,7 +161,7 @@ typedef struct vehicleInfo_s {
 	float		accelIdle;		//if speedIdle > 0, how quickly it goes up to that speed
 	float		acceleration;	//when pressing on accelerator
 	float		decelIdle;		//when giving no input, how quickly it drops to speedIdle
-	float		throttleSticks;	//if true, speed stays at whatever you accel/decel to, unless you turbo or brake
+	bool		throttleSticks;	//if true, speed stays at whatever you accel/decel to, unless you turbo or brake
 	float		strafePerc;		//multiplier on current speed for strafing.  If 1.0f, you can strafe at the same speed as you're going forward, 0.5 is half, 0 is no strafing
 
 	//handling stats
@@ -172,11 +172,11 @@ typedef struct vehicleInfo_s {
 	float		mouseYaw;		// The mouse yaw override.
 	float		mousePitch;		// The mouse pitch override.
 	float		turningSpeed;	//how quickly you can turn
-	qboolean	turnWhenStopped;//whether or not you can turn when not moving
+	bool	turnWhenStopped;//whether or not you can turn when not moving
 	float		traction;		//how much your command input affects velocity
 	float		friction;		//how much velocity is cut on its own
 	float		maxSlope;		//the max slope that it can go up with control
-	qboolean	speedDependantTurning;//vehicle turns faster the faster it's going
+	bool	speedDependantTurning;//vehicle turns faster the faster it's going
 
 	//durability stats
 	int			mass;			//for momentum and impact force (player mass is 10)
@@ -256,7 +256,7 @@ typedef struct vehicleInfo_s {
 	int			gravity;		//normal is 800
 	float		hoverHeight;	//if 0, it's a ground vehicle
 	float		hoverStrength;	//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
-	qboolean	waterProof;		//can drive underwater if it has to
+	bool	waterProof;		//can drive underwater if it has to
 	float		bouyancy;		//when in water, how high it floats (1 is neutral bouyancy)
 	int			fuelMax;		//how much fuel it can hold (capacity)
 	int			fuelRate;		//how quickly is uses up fuel
@@ -268,19 +268,19 @@ typedef struct vehicleInfo_s {
 	int			explosionDamage;//damage of explosion
 
 	int			maxPassengers;	// The max number of passengers this vehicle may have (Default = 0).
-	qboolean	hideRider;		// rider (and passengers?) should not be drawn
-	qboolean	killRiderOnDeath;//if rider is on vehicle when it dies, they should die
-	qboolean	flammable;		//whether or not the vehicle should catch on fire before it explodes
+	bool	hideRider;		// rider (and passengers?) should not be drawn
+	bool	killRiderOnDeath;//if rider is on vehicle when it dies, they should die
+	bool	flammable;		//whether or not the vehicle should catch on fire before it explodes
 	int			explosionDelay;	//how long the vehicle should be on fire/dying before it explodes
 	//camera stuff
-	qboolean	cameraOverride;	//whether or not to use all of the following 3rd person camera override values
+	bool	cameraOverride;	//whether or not to use all of the following 3rd person camera override values
 	float		cameraRange;	//how far back the camera should be - normal is 80
 	float		cameraVertOffset;//how high over the vehicle origin the camera should be - normal is 16
 	float		cameraHorzOffset;//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
 	float		cameraPitchOffset;//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
 	float		cameraFOV;		//third person camera FOV, default is 80
 	float		cameraAlpha;	//fade out the vehicle to this alpha (0.1-1.0f) if it's in the way of the crosshair
-	qboolean	cameraPitchDependantVertOffset;//use the hacky AT-ST pitch dependant vertical offset
+	bool	cameraPitchDependantVertOffset;//use the hacky AT-ST pitch dependant vertical offset
 
 	//NOTE: some info on what vehicle weapon to use?  Like ATST or TIE bomber or TIE fighter or X-Wing...?
 
@@ -304,7 +304,7 @@ typedef struct vehicleInfo_s {
 	void (*AnimateRiders)( Vehicle_t *pVeh );
 
 	// Determine whether this entity is able to board this vehicle or not.
-	qboolean (*ValidateBoard)( Vehicle_t *pVeh, bgEntity_t *pEnt );
+	bool (*ValidateBoard)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
 	// Set the parent entity of this Vehicle NPC.
 	void (*SetParent)( Vehicle_t *pVeh, bgEntity_t *pParentEntity );
@@ -313,19 +313,19 @@ typedef struct vehicleInfo_s {
 	void (*SetPilot)( Vehicle_t *pVeh, bgEntity_t *pPilot );
 
 	// Add a passenger to the vehicle (false if we're full).
-	qboolean (*AddPassenger)( Vehicle_t *pVeh );
+	bool (*AddPassenger)( Vehicle_t *pVeh );
 
 	// Animate the vehicle and it's riders.
 	void (*Animate)( Vehicle_t *pVeh );
 
 	// Board this Vehicle (get on). The first entity to board an empty vehicle becomes the Pilot.
-	qboolean (*Board)( Vehicle_t *pVeh, bgEntity_t *pEnt );
+	bool (*Board)( Vehicle_t *pVeh, bgEntity_t *pEnt );
 
 	// Eject an entity from the vehicle.
-	qboolean (*Eject)( Vehicle_t *pVeh, bgEntity_t *pEnt, qboolean forceEject );
+	bool (*Eject)( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject );
 
 	// Eject all the inhabitants of this vehicle.
-	qboolean (*EjectAll)( Vehicle_t *pVeh );
+	bool (*EjectAll)( Vehicle_t *pVeh );
 
 	// Start a delay until the vehicle dies.
 	void (*StartDeathDelay)( Vehicle_t *pVeh, int iDelayTime );
@@ -337,15 +337,15 @@ typedef struct vehicleInfo_s {
 	void (*RegisterAssets)( Vehicle_t *pVeh );
 
 	// Initialize the vehicle (should be called by Spawn?).
-	qboolean (*Initialize)( Vehicle_t *pVeh );
+	bool (*Initialize)( Vehicle_t *pVeh );
 
 	// Like a think or move command, this updates various vehicle properties.
-	qboolean (*Update)( Vehicle_t *pVeh, const usercmd_t *pUcmd );
+	bool (*Update)( Vehicle_t *pVeh, const usercmd_t *pUcmd );
 
 	// Update the properties of a Rider (that may reflect what happens to the vehicle).
 	//
 	//	[return]		bool			True if still in vehicle, false if otherwise.
-	qboolean (*UpdateRider)( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUcmd );
+	bool (*UpdateRider)( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUcmd );
 
 	// ProcessMoveCommands the Vehicle.
 	void (*ProcessMoveCommands)( Vehicle_t *pVeh );
@@ -366,7 +366,7 @@ typedef struct vehicleInfo_s {
 	const bgEntity_t *(*GetPilot)( Vehicle_t *pVeh );
 
 	// Whether this vehicle is currently inhabited (by anyone) or not.
-	qboolean (*Inhabited)( Vehicle_t *pVeh );
+	bool (*Inhabited)( Vehicle_t *pVeh );
 } vehicleInfo_t;
 
 
@@ -457,7 +457,7 @@ typedef enum
 
 typedef struct vehWeaponStatus_s {
 	//linked firing mode
-	qboolean	linked;//weapon 1's muzzles are in linked firing mode
+	bool	linked;//weapon 1's muzzles are in linked firing mode
 	//current weapon ammo
 	int			ammo;
 	//debouncer for ammo recharge
@@ -492,7 +492,7 @@ typedef struct Vehicle_s
 
 	int m_iPilotTime; //if spawnflag to die without pilot and this < level.time then die.
 	int m_iPilotLastIndex; //index to last pilot
-	qboolean m_bHasHadPilot; //qtrue once the vehicle gets its first pilot
+	bool m_bHasHadPilot; //true once the vehicle gets its first pilot
 
 	// The passengers of this vehicle.
 	//bgEntity_t **m_ppPassengers;
@@ -512,7 +512,7 @@ typedef struct Vehicle_s
 	int		m_iBoarding;
 
 	// Used to check if we've just started the boarding process
-	qboolean	m_bWasBoarding;
+	bool	m_bWasBoarding;
 
 	// The speed the vehicle maintains while boarding occurs (often zero)
 	vec3_t	m_vBoardingVelocity;
@@ -621,7 +621,7 @@ typedef struct Vehicle_s
 	int			lastShieldInc;
 
 	//so we don't hold it down and toggle it back and forth
-	qboolean	linkWeaponToggleHeld;
+	bool	linkWeaponToggleHeld;
 
 	//info about our weapons (linked, ammo, etc.)
 	vehWeaponStatus_t	weaponStatus[MAX_VEHICLE_WEAPONS];

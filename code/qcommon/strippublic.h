@@ -72,7 +72,7 @@ enum
 
 
 // Registration
-qboolean				JK2SP_Register(const char *Package, unsigned char Registration);
+bool				JK2SP_Register(const char *Package, unsigned char Registration);
 void					JK2SP_Unload(unsigned char Registration);
 
 // Direct string functions
@@ -94,17 +94,17 @@ inline void				JK2SP_Shutdown(void)
 extern cvar_t	*sp_language;
 // query function from font code
 //
-/*inline qboolean Language_IsKorean(void)
+/*inline bool Language_IsKorean(void)
 {
 	return (sp_language && sp_language->integer == SP_LANGUAGE_KOREAN);
 }
 
-inline qboolean Language_IsTaiwanese(void)
+inline bool Language_IsTaiwanese(void)
 {
 	return (sp_language && sp_language->integer == SP_LANGUAGE_TAIWANESE);
 }
 
-inline qboolean Language_IsJapanese(void)
+inline bool Language_IsJapanese(void)
 {
 	return (sp_language && sp_language->integer == SP_LANGUAGE_JAPANESE);
 }

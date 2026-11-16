@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/game_version.h"
 
 extern void WP_SaberLoadParms( void );
-extern qboolean G_PlayerSpawned( void );
+extern bool G_PlayerSpawned( void );
 
 extern void Rail_Initialize( void );
 extern void Rail_Update( void );
@@ -58,7 +58,7 @@ extern void G_ASPreCacheFree(void);
 
 int		eventClearTime = 0;
 
-extern qboolean g_bCollidableRoffs;
+extern bool g_bCollidableRoffs;
 
 
 #define	STEPSIZE		18
@@ -90,14 +90,14 @@ void ClearInUse(gentity_t *ent)
 	g_entityInUseBits[entNum/32]&=~(((unsigned int)1)<<(entNum&0x1f));
 }
 
-qboolean PInUse(unsigned int entNum)
+bool PInUse(unsigned int entNum)
 {
 	assert(entNum>=0);
 	assert(entNum<MAX_GENTITIES);
-	return (qboolean)((g_entityInUseBits[entNum/32]&(((unsigned int)1)<<(entNum&0x1f)))!=0);
+	return ((g_entityInUseBits[entNum/32]&(((unsigned int)1)<<(entNum&0x1f)))!=0);
 }
 
-/*qboolean PInUse2(gentity_t *ent)
+/*bool PInUse2(gentity_t *ent)
 {
 	assert(((unsigned int)ent)>=(unsigned int)g_entities);
 	assert(((unsigned int)ent)<=(unsigned int)(g_entities+MAX_GENTITIES-1));
@@ -226,11 +226,11 @@ cvar_t	*g_broadsword;
 
 cvar_t	*g_allowBunnyhopping;
 
-qboolean	stop_icarus = qfalse;
+bool	stop_icarus = false;
 
 extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void CP_FindCombatPointWaypoints( void );
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 
 void G_RunFrame (int levelTime);
 void PrintEntClassname( int gentNum );
@@ -257,9 +257,9 @@ static void G_DynamicMusicUpdate( void )
 	vec3_t		center;
 	int			battle = 0;
 	int			entTeam;
-	//qboolean	dangerNear = qfalse;
-	//qboolean	suspicious = qfalse;
-	qboolean	clearLOS = qfalse;
+	//bool	dangerNear = false;
+	//bool	suspicious = false;
+	bool	clearLOS = false;
 
 	//FIXME: intro and/or other cues? (one-shot music sounds)
 
@@ -363,7 +363,7 @@ static void G_DynamicMusicUpdate( void )
 			continue;
 		}
 
-		clearLOS = qfalse;
+		clearLOS = false;
 		if ( (ent->enemy==player&&(!ent->NPC||ent->NPC->confusionTime<level.time)) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
 		{//mad
 			if ( ent->health > 0 )
@@ -394,7 +394,7 @@ static void G_DynamicMusicUpdate( void )
 					else if ( distSq > 1048576/*1024*1024*/ )
 					{//> 1024 away
 						clearLOS = G_ClearLOS( player, player->client->renderInfo.eyePoint, ent );
-						if ( clearLOS == qfalse )
+						if ( clearLOS == false )
 						{//No LOS
 							continue;
 						}
@@ -407,7 +407,7 @@ static void G_DynamicMusicUpdate( void )
 
 	if ( !battle )
 	{//no active enemies, but look for missiles, shot impacts, etc...
-		int alert = G_CheckAlertEvents( player, qtrue, qtrue, 1024, 1024, -1, qfalse, AEL_SUSPICIOUS );
+		int alert = G_CheckAlertEvents( player, true, true, 1024, 1024, -1, false, AEL_SUSPICIOUS );
 		if ( alert != -1 )
 		{//FIXME: maybe tripwires and other FIXED things need their own sound, some kind of danger/caution theme
 			if ( G_CheckForDanger( player, alert ) )
@@ -419,13 +419,13 @@ static void G_DynamicMusicUpdate( void )
 				switch ( level.alertEvents[alert].level )
 				{
 				case AEL_DISCOVERED:
-					//dangerNear = qtrue;
+					//dangerNear = true;
 					break;
 				case AEL_SUSPICIOUS:
-					//suspicious = qtrue;
+					//suspicious = true;
 					break;
 				case AEL_MINOR:
-					//distraction = qtrue;
+					//distraction = true;
 					break;
 				default:
 					break;
@@ -678,13 +678,13 @@ InitGame
 //	may get changed anyway if a new nav system is ever used. This way saves messing with g_local.h each time -slc
 int giMapChecksum;
 SavedGameJustLoaded_e g_eSavedGameJustLoaded;
-qboolean g_qbLoadTransition = qfalse;
-void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition )
+bool g_qbLoadTransition = false;
+void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, bool qbLoadTransition )
 {
 	//rww - default this to 0, we will auto-set it to 1 if we run into a terrain ent
 	gi.cvar_set("RMG", "0");
 
-	g_bCollidableRoffs = qfalse;
+	g_bCollidableRoffs = false;
 
 	giMapChecksum = checkSum;
 	g_eSavedGameJustLoaded = eSavedGameJustLoaded;
@@ -819,7 +819,7 @@ static void G_Cvar_Create( const char *var_name, const char *var_value, int flag
 }
 
 //BEGIN GAMESIDE RMG
-qboolean G_ParseSpawnVars( const char **data );
+bool G_ParseSpawnVars( const char **data );
 void G_SpawnGEntityFromSpawnVars( void );
 
 void G_GameSpawnRMGEntity(char *s)
@@ -979,7 +979,7 @@ static void G_CheckSpecialPersistentEvents( gentity_t *ent )
 	{
 		if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 		{//events were just cleared out so add me again
-			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, qfalse, qtrue );
+			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, false, true );
 			AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER );
 		}
 	}
@@ -1241,12 +1241,12 @@ static void G_CheckEndLevelTimers( gentity_t *ent )
 		if ( ent->client && ent->client->ps.stats[STAT_HEALTH] > 0 )
 		{
 			G_PlayerGuiltDeath();
-			//cg.missionStatusShow = qtrue;
+			//cg.missionStatusShow = true;
 			statusTextIndex = MISSIONFAILED_TURNED;
 			//debounce respawn time
 			ent->client->respawnTime = level.time + 2000;
 			//stop all scripts
-			stop_icarus = qtrue;
+			stop_icarus = true;
 			//make the team killable
 			G_MakeTeamVulnerable();
 		}
@@ -1284,7 +1284,7 @@ class CGameRagDollUpdateParams : public CRagDollUpdateParams
 
 		VectorAdd(effectorTotal, effectorPosDif, effectorTotal);
 
-		hasEffectorData = qtrue;
+		hasEffectorData = true;
 		return;
 	}
 	void RagDollBegin()
@@ -1312,7 +1312,7 @@ class CGameRagDollUpdateParams : public CRagDollUpdateParams
 #endif
 public:
 	vec3_t effectorTotal;
-	qboolean hasEffectorData;
+	bool hasEffectorData;
 };
 
 //list of valid ragdoll effectors
@@ -1333,10 +1333,10 @@ static const char *g_effectorStringTable[] =
 	NULL //always terminate
 };
 
-extern qboolean G_StandardHumanoid( gentity_t *self );
+extern bool G_StandardHumanoid( gentity_t *self );
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
-extern qboolean G_ReleaseEntity( gentity_t *grabber );
+extern bool G_ReleaseEntity( gentity_t *grabber );
 
 static void G_BodyDragUpdate(gentity_t *ent, gentity_t *dragger)
 {
@@ -1393,7 +1393,7 @@ static int G_RagAnimForPositioning(gentity_t *ent)
 	}
 }
 
-static inline qboolean G_RagWantsHumanoidsOnly( CGhoul2Info *ghlInfo )
+static inline bool G_RagWantsHumanoidsOnly( CGhoul2Info *ghlInfo )
 {
 	char	*GLAName;
 	GLAName = gi.G2API_GetGLAName( ghlInfo );
@@ -1401,28 +1401,28 @@ static inline qboolean G_RagWantsHumanoidsOnly( CGhoul2Info *ghlInfo )
 
 	if ( !Q_stricmp( "models/players/_humanoid/_humanoid", GLAName ) )
 	{//only _humanoid skeleton is expected to have these
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //rww - game interface for the ragdoll stuff.
-//Returns qtrue if the entity is now in a ragdoll state, otherwise qfalse.
+//Returns true if the entity is now in a ragdoll state, otherwise false.
 //(ported from MP's CG version)
 
-qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
+bool G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 {
 	vec3_t G2Angles;
 	vec3_t usedOrg;
-	qboolean inSomething = qfalse;
+	bool inSomething = false;
 	int ragAnim;
 	//int ragVar = gi.Cvar_VariableIntegerValue("broadsword");
 	int ragVar = g_broadsword->integer;
 
 	if (!ragVar)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (!ent ||
@@ -1438,7 +1438,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 		!G_RagWantsHumanoidsOnly(&ent->ghoul2[ent->playerModel])
 		)
 	{
-		return qfalse;
+		return false;
 	}
 
 	VectorCopy(forcedAngles, G2Angles);
@@ -1464,7 +1464,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 	{ //If we're not in a ragdoll state, perform the checks.
 		if (ent->client->ps.heldByClient <= ENTITYNUM_WORLD)
 		{ //want to rag no matter what then
-			inSomething = qtrue;
+			inSomething = true;
 		}
 		else if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
 		{
@@ -1474,13 +1474,13 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 
 			if (VectorNormalize(cVel) > 400)
 			{ //if he's flying through the air at a good enough speed, switch into ragdoll
-				inSomething = qtrue;
+				inSomething = true;
 			}
 		}
 
 		if (ragVar > 1)
 		{ //go into rag instantly upon death
-			inSomething = qtrue;
+			inSomething = true;
 
 			//also shove them a tad so they don't just collapse onto the floor
 			//VectorScale(ent->client->ps.velocity, 1.3f, ent->client->ps.velocity);
@@ -1494,7 +1494,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 			vec3_t boltPoints[5];
 			vec3_t trStart, trEnd;
 			vec3_t tAng;
-			//qboolean deathDone = qfalse;
+			//bool deathDone = false;
 			trace_t tr;
 			mdxaBone_t boltMatrix;
 
@@ -1502,7 +1502,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 
 			if (ent->client->ps.legsAnimTimer <= 0)
 			{ //Looks like the death anim is done playing
-				//deathDone = qtrue;
+				//deathDone = true;
 			}
 
 			//if (deathDone)
@@ -1560,10 +1560,10 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 
 					if (deathDone || (vSub[PITCH] < 50 && vSub[PITCH] > -50))
 					{
-						inSomething = qtrue;
+						inSomething = true;
 					}
 #else
-					inSomething = qtrue;
+					inSomething = true;
 #endif
 					break;
 				}
@@ -1581,7 +1581,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 			PM_SetAnimFinal(&ent->client->ps.torsoAnim,&ent->client->ps.legsAnim,SETANIM_BOTH,ragAnim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD,
 				&ent->client->ps.torsoAnimTimer,&ent->client->ps.legsAnimTimer,ent,500);
 			*/
-			ent->client->isRagging = qtrue;
+			ent->client->isRagging = true;
 		}
 	}
 
@@ -1596,7 +1596,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 		if (ent->ikStatus)
 		{ //ik must be reset before ragdoll is started, or you'll get some interesting results.
 			trap_G2API_SetBoneIKState(cent->ghoul2, cg.time, NULL, IKS_NONE, NULL);
-			cent->ikStatus = qfalse;
+			cent->ikStatus = false;
 		}
 		*/
 
@@ -1639,7 +1639,7 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 		gi.G2API_SetRagDoll(ent->ghoul2, &tParms);
 
 
-		tuParms.hasEffectorData = qfalse;
+		tuParms.hasEffectorData = false;
 		VectorClear(tuParms.effectorTotal);
 
 		VectorCopy(G2Angles, tuParms.angles);
@@ -1699,11 +1699,11 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 
 				if (VectorLength(hands) < 3.0f)
 				{
-					gi.G2API_RagForceSolve(ent->ghoul2, qfalse);
+					gi.G2API_RagForceSolve(ent->ghoul2, false);
 				}
 				else
 				{
-					gi.G2API_RagForceSolve(ent->ghoul2, qtrue);
+					gi.G2API_RagForceSolve(ent->ghoul2, true);
 				}
 
 				//got the hand pos of him, now we want to make our hand go to it
@@ -1799,12 +1799,12 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 
 			if (ent->client->overridingBones < level.time)
 			{
-				gi.G2API_RagForceSolve(ent->ghoul2, qfalse);
+				gi.G2API_RagForceSolve(ent->ghoul2, false);
 				ent->client->overridingBones = 0;
 			}
 			else
 			{
-				gi.G2API_RagForceSolve(ent->ghoul2, qtrue);
+				gi.G2API_RagForceSolve(ent->ghoul2, true);
 			}
 		}
 
@@ -1834,10 +1834,10 @@ qboolean G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 			VectorAdd(ent->client->ps.velocity, tuParms.effectorTotal, ent->client->ps.velocity);
 		}
 
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 //rww - RAGDOLL_END
 
@@ -1917,7 +1917,7 @@ void G_RunFrame( int levelTime ) {
 			/*	// This is never set to true anywhere. Killing the field (BTO - VV)
 			else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
-				ent->unlinkAfterEvent = qfalse;
+				ent->unlinkAfterEvent = false;
 				gi.unlinkentity( ent );
 			}
 			*/
@@ -2076,7 +2076,7 @@ extern int delayedShutDown;
 
 
 
-extern qboolean player_locked;
+extern bool player_locked;
 
 void G_LoadSave_WriteMiscData()
 {

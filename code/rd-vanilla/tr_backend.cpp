@@ -30,8 +30,8 @@ backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
 bool tr_stencilled = false;
-extern qboolean tr_distortionPrePost; //tr_shadows.cpp
-extern qboolean tr_distortionNegate; //tr_shadows.cpp
+extern bool tr_distortionPrePost; //tr_shadows.cpp
+extern bool tr_distortionNegate; //tr_shadows.cpp
 extern void RB_CaptureScreenImage(void); //tr_shadows.cpp
 extern void RB_DistortionFill(void); //tr_shadows.cpp
 static void RB_DrawGlowOverlay();
@@ -416,7 +416,7 @@ static void RB_Hyperspace( void ) {
 	qglClearColor( c, c, c, 1 );
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	backEnd.isHyperspace = qtrue;
+	backEnd.isHyperspace = true;
 }
 
 
@@ -446,15 +446,15 @@ static void RB_BeginDrawingView (void) {
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
 		qglFinish ();
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	//
 	// set the modelview matrix for the viewer
@@ -537,13 +537,13 @@ static void RB_BeginDrawingView (void) {
 	}
 	else
 	{
-		backEnd.isHyperspace = qfalse;
+		backEnd.isHyperspace = false;
 	}
 
 	glState.faceCulling = -1;		// force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
-	backEnd.skyRenderedThisView = qfalse;
+	backEnd.skyRenderedThisView = false;
 
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
@@ -671,10 +671,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
 	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
+	oldDepthRange = false;
+	oldDlighted = false;
 	oldSort = (unsigned int) -1;
-	depthRange = qfalse;
+	depthRange = false;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -773,7 +773,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// change the modelview matrix if needed
 		//
 		if ( entityNum != oldEntityNum ) {
-			depthRange = qfalse;
+			depthRange = false;
 
 			if ( entityNum != REFENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
@@ -793,7 +793,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				}
 				else if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
 					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
+					depthRange = true;
 				}
 			} else {
 				backEnd.currentEntity = &tr.worldEntity;
@@ -973,7 +973,7 @@ RB_SetGL2D
 ================
 */
 void	RB_SetGL2D (void) {
-	backEnd.projection2D = qtrue;
+	backEnd.projection2D = true;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
@@ -1551,7 +1551,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		long sum = 0;
 		unsigned char *stencilReadback;
 
-		stencilReadback = (unsigned char *) R_Malloc( glConfig.vidWidth * glConfig.vidHeight, TAG_TEMP_WORKSPACE, qfalse );
+		stencilReadback = (unsigned char *) R_Malloc( glConfig.vidWidth * glConfig.vidHeight, TAG_TEMP_WORKSPACE, false );
 		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {
@@ -1570,7 +1570,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 	ri.WIN_Present(&window);
 
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	return (const void *)(cmd + 1);
 }

@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "Q3_Interface.h"
 
-extern qboolean FlyingCreature( gentity_t *ent );
+extern bool FlyingCreature( gentity_t *ent );
 /*
 SetGoal
 */
@@ -114,27 +114,27 @@ G_BoundsOverlap
 -------------------------
 */
 
-qboolean G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2)
+bool G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2)
 {//NOTE: flush up against counts as overlapping
 	if(mins1[0]>maxs2[0])
-		return qfalse;
+		return false;
 
 	if(mins1[1]>maxs2[1])
-		return qfalse;
+		return false;
 
 	if(mins1[2]>maxs2[2])
-		return qfalse;
+		return false;
 
 	if(maxs1[0]<mins2[0])
-		return qfalse;
+		return false;
 
 	if(maxs1[1]<mins2[1])
-		return qfalse;
+		return false;
 
 	if(maxs1[2]<mins2[2])
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 void NPC_ReachedGoal( void )
@@ -155,8 +155,8 @@ ReachedGoal
 
 id removed checks against waypoints and is now checking surfaces
 */
-//qboolean NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, gentity_t *goal, qboolean flying );
-qboolean ReachedGoal( gentity_t *goal )
+//bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, gentity_t *goal, bool flying );
+bool ReachedGoal( gentity_t *goal )
 {
 	//FIXME: For script waypoints, need a special check
 /*
@@ -183,7 +183,7 @@ qboolean ReachedGoal( gentity_t *goal )
 			goalWpNum = NAV_FindWaypointAt ( goal->currentOrigin );
 			if ( NPC->waypoint != goalWpNum )
 			{
-				return qfalse;
+				return false;
 			}
 		}
 
@@ -195,7 +195,7 @@ qboolean ReachedGoal( gentity_t *goal )
 		delta = AngleDelta ( NPC->client->ps.viewangles[YAW], angles[YAW] );
 		if ( fabs ( delta ) > NPCInfo->stats.hfov )
 		{
-			return qfalse;
+			return false;
 		}
 		*/
 
@@ -205,7 +205,7 @@ qboolean ReachedGoal( gentity_t *goal )
 		{
 			if ( NPC->waypoint == goal->waypoint )
 			{
-				return qtrue;
+				return true;
 			}
 		}
 		*/
@@ -213,16 +213,16 @@ qboolean ReachedGoal( gentity_t *goal )
 /*
 		if ( VectorLengthSquared( vec ) < (64*64) )
 		{//Close enough
-			return qtrue;
+			return true;
 		}
 
-		return qfalse;
+		return false;
 	}
 */
 	if ( NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL )
 	{
 		NPCInfo->aiFlags &= ~NPCAI_TOUCHED_GOAL;
-		return qtrue;
+		return true;
 	}
 /*
 	if ( goal->s.eFlags & EF_NODRAW )
@@ -230,9 +230,9 @@ qboolean ReachedGoal( gentity_t *goal )
 		goalWpNum = NAV_FindWaypointAt( goal->currentOrigin );
 		if ( NPC->waypoint == goalWpNum )
 		{
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 	}
 
 	if(goal->client && goal->health <= 0)
@@ -245,7 +245,7 @@ qboolean ReachedGoal( gentity_t *goal )
 			delta = VectorLengthSquared(vec);
 			if(delta <= 800)
 			{//with 20-30 of other guy's origin
-				return qtrue;
+				return true;
 			}
 		}
 	}

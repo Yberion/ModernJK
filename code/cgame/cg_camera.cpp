@@ -30,16 +30,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 bool		in_camera = false;
 camera_t	client_camera={};
-extern qboolean	player_locked;
+extern bool	player_locked;
 
 extern gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
 extern void G_UseTargets (gentity_t *ent, gentity_t *activator);
 void CGCam_FollowDisable( void );
 void CGCam_TrackDisable( void );
-void CGCam_Distance( float distance, qboolean initLerp );
+void CGCam_Distance( float distance, bool initLerp );
 void CGCam_DistanceDisable( void );
-extern qboolean CG_CalcFOVFromX( float fov_x );
-extern void WP_SaberCatch( gentity_t *self, gentity_t *saber, qboolean switchToSaber );
+extern bool CG_CalcFOVFromX( float fov_x );
+extern void WP_SaberCatch( gentity_t *self, gentity_t *saber, bool switchToSaber );
 
 /*
 TODO:
@@ -61,7 +61,7 @@ CGCam_Init
 
 void CGCam_Init( void )
 {
-	extern qboolean qbVidRestartOccured;
+	extern bool qbVidRestartOccured;
 	if (!qbVidRestartOccured)
 	{
 		memset( &client_camera, 0, sizeof ( camera_t ) );
@@ -112,7 +112,7 @@ void CGCam_Enable( void )
 			gentity_t *saberent = &g_entities[g_entities[0].client->ps.saberEntityNum];
 			if ( saberent )
 			{
-				WP_SaberCatch( &g_entities[0], saberent, qfalse );
+				WP_SaberCatch( &g_entities[0], saberent, false );
 			}
 		}
 
@@ -507,11 +507,11 @@ void CGCam_Follow( const char *cameraGroup, float speed, float initLerp )
 
 	if ( initLerp )
 	{
-		client_camera.followInitLerp = qtrue;
+		client_camera.followInitLerp = true;
 	}
 	else
 	{
-		client_camera.followInitLerp = qfalse;
+		client_camera.followInitLerp = false;
 	}
 }
 
@@ -590,11 +590,11 @@ void CGCam_Track( const char *trackName, float speed, float initLerp )
 
 	if ( initLerp )
 	{
-		client_camera.trackInitLerp = qtrue;
+		client_camera.trackInitLerp = true;
 	}
 	else
 	{
-		client_camera.trackInitLerp = qfalse;
+		client_camera.trackInitLerp = false;
 	}
 	/*
 	if ( client_camera.info_state & CAMERA_FOLLOWING )
@@ -660,9 +660,9 @@ void CG_CameraAutoTrack( const char *name )
 	}
 
 	//FIXME: last arg will be passed in
-	CGCam_Track( trackEnt->s.number, trackEnt->speed, qfalse );
+	CGCam_Track( trackEnt->s.number, trackEnt->speed, false );
 	//FIXME: this will be a seperate call
-	CGCam_Distance( trackEnt->radius, qtrue);
+	CGCam_Distance( trackEnt->radius, true);
 	*/
 }
 
@@ -678,11 +678,11 @@ void CGCam_Distance( float distance, float initLerp )
 
 	if ( initLerp )
 	{
-		client_camera.distanceInitLerp = qtrue;
+		client_camera.distanceInitLerp = true;
 	}
 	else
 	{
-		client_camera.distanceInitLerp = qfalse;
+		client_camera.distanceInitLerp = false;
 	}
 }
 
@@ -695,7 +695,7 @@ void CGCam_FollowUpdate ( void )
 	gentity_t	*from = NULL;
 	centity_t	*fromCent = NULL;
 	int			num_subjects = 0, i;
-	qboolean	focused = qfalse;
+	bool	focused = false;
 
 	if ( client_camera.cameraGroup[0] )
 	{
@@ -721,7 +721,7 @@ void CGCam_FollowUpdate ( void )
 				continue;
 			}
 
-			focused = qfalse;
+			focused = false;
 			if ( from->client && client_camera.cameraGroupTag[0] && fromCent->gent->ghoul2.size() )
 			{
 				int newBolt = gi.G2API_AddBolt( &fromCent->gent->ghoul2[from->playerModel], client_camera.cameraGroupTag );
@@ -733,7 +733,7 @@ void CGCam_FollowUpdate ( void )
 					gi.G2API_GetBoltMatrix( fromCent->gent->ghoul2, from->playerModel, newBolt, &boltMatrix, fromAngles, fromCent->lerpOrigin, cg.time, cgs.model_draw, fromCent->currentState.modelScale );
 					gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, focus[num_subjects] );
 
-					focused = qtrue;
+					focused = true;
 				}
 			}
 			if ( !focused )
@@ -826,7 +826,7 @@ void CGCam_FollowUpdate ( void )
 	else
 	{//Snapping, should do this first time if follow_lerp_to_start_duration is zero
 		//will lerp from this point on
-		client_camera.followInitLerp = qtrue;
+		client_camera.followInitLerp = true;
 		for( i = 0; i < 3; i++ )
 		{//normalize so that when we start lerping, it doesn't freak out
 			cameraAngles[i] = AngleNormalize180( cameraAngles[i] );
@@ -850,7 +850,7 @@ void CGCam_TrackEntUpdate ( void )
 {//FIXME: only do every 100 ms
 	gentity_t	*trackEnt = NULL;
 	gentity_t	*newTrackEnt = NULL;
-	qboolean	reached = qfalse;
+	bool	reached = false;
 	vec3_t		vec;
 	float		dist;
 
@@ -862,7 +862,7 @@ void CGCam_TrackEntUpdate ( void )
 		if ( dist < 256 )//16 squared
 		{//FIXME: who should be doing the using here?
 			G_UseTargets( trackEnt, trackEnt );
-			reached = qtrue;
+			reached = true;
 		}
 	}
 
@@ -914,7 +914,7 @@ void CGCam_TrackUpdate ( void )
 {
 	vec3_t		goalVec, curVec, trackPos, vec;
 	float		goalDist, dist;
-	//qboolean	slowDown = qfalse;
+	//bool	slowDown = false;
 
 	if ( client_camera.nextTrackEntUpdateTime <= cg.time )
 	{
@@ -944,7 +944,7 @@ void CGCam_TrackUpdate ( void )
 			//FIXME: use client_camera.moveDir here?
 			VectorMA( client_camera.subjectPos, client_camera.distance, vec, client_camera.origin );
 			//Snap to first time only
-			client_camera.distanceInitLerp = qtrue;
+			client_camera.distanceInitLerp = true;
 			return;
 		}
 		else if ( client_camera.subjectSpeed > 0.05f )
@@ -1007,7 +1007,7 @@ void CGCam_TrackUpdate ( void )
 	}
 	else
 	{
-		//slowDown = qtrue;
+		//slowDown = true;
 	}
 
 
@@ -1088,8 +1088,8 @@ static void CGCam_Roff( void );
 void CGCam_Update( void )
 {
 	int	i;
-	qboolean	checkFollow = qfalse;
-	qboolean	checkTrack = qfalse;
+	bool	checkFollow = false;
+	bool	checkTrack = false;
 
 	// Apply new roff data to the camera as needed
 	if ( client_camera.info_state & CAMERA_ROFFING )
@@ -1236,7 +1236,7 @@ void CGCam_Update( void )
 	}
 	else
 	{
-		checkFollow = qtrue;
+		checkFollow = true;
 	}
 
 	//Check for movement
@@ -1270,7 +1270,7 @@ void CGCam_Update( void )
 	}
 	else
 	{
-		checkTrack = qtrue;
+		checkTrack = true;
 	}
 
 	if ( checkFollow )
@@ -1952,5 +1952,5 @@ void CMD_CGCam_Disable( void )
 
 	CGCam_Disable();
 	CGCam_SetFade( fade );
-	player_locked = qfalse;
+	player_locked = false;
 }

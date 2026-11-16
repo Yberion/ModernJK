@@ -3665,7 +3665,7 @@
 			Name="Vehicles"
 			>
 			<File
-				RelativePath="AnimalNPC.c"
+				RelativePath="AnimalNPC.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"
@@ -3701,7 +3701,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="bg_vehicleLoad.c"
+				RelativePath="bg_vehicleLoad.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"
@@ -3741,7 +3741,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="FighterNPC.c"
+				RelativePath="FighterNPC.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"
@@ -3777,7 +3777,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="g_vehicles.c"
+				RelativePath="g_vehicles.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"
@@ -3817,7 +3817,7 @@
 				>
 			</File>
 			<File
-				RelativePath="SpeederNPC.c"
+				RelativePath="SpeederNPC.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"
@@ -3858,7 +3858,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="WalkerNPC.c"
+				RelativePath="WalkerNPC.cpp"
 				>
 				<FileConfiguration
 					Name="SHDebug|Win32"

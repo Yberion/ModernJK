@@ -145,7 +145,7 @@ void NPC_ATST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec
 ATST_Hunt
 -------------------------`
 */
-void ATST_Hunt( qboolean visible, qboolean advance )
+void ATST_Hunt( bool visible, bool advance )
 {
 
 	if ( NPCInfo->goalEntity == NULL )
@@ -153,9 +153,9 @@ void ATST_Hunt( qboolean visible, qboolean advance )
 		NPCInfo->goalEntity = NPC->enemy;
 	}
 
-	NPCInfo->combatMove = qtrue;
+	NPCInfo->combatMove = true;
 
-	NPC_MoveToGoal( qtrue );
+	NPC_MoveToGoal( true );
 
 }
 
@@ -164,7 +164,7 @@ void ATST_Hunt( qboolean visible, qboolean advance )
 ATST_Ranged
 -------------------------
 */
-void ATST_Ranged( qboolean visible, qboolean advance, qboolean altAttack )
+void ATST_Ranged( bool visible, bool advance, bool altAttack )
 {
 
 	if ( TIMER_Done( NPC, "atkDelay" ) && visible )	// Attack?
@@ -194,25 +194,25 @@ ATST_Attack
 */
 void ATST_Attack( void )
 {
-	qboolean	altAttack=qfalse;
+	bool	altAttack=false;
 	int			blasterTest,chargerTest,weapon;
 
-	if ( NPC_CheckEnemyExt() == qfalse )//!NPC->enemy )//
+	if ( NPC_CheckEnemyExt() == false )//!NPC->enemy )//
 	{
 		NPC->enemy = NULL;
 		return;
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -243,21 +243,21 @@ void ATST_Attack( void )
 
 			if (weapon)				// Fire charger
 			{
-				altAttack = qtrue;
+				altAttack = true;
 			}
 			else
 			{
-				altAttack = qfalse;
+				altAttack = false;
 			}
 
 		}
 		else if (!(blasterTest & TURN_OFF))	// Blaster is on
 		{
-			altAttack = qfalse;
+			altAttack = false;
 		}
 		else if (!(chargerTest & TURN_OFF))	// Blaster is on
 		{
-			altAttack = qtrue;
+			altAttack = true;
 		}
 		else
 		{
@@ -266,7 +266,7 @@ void ATST_Attack( void )
 		break;
 	}
 
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	ATST_Ranged( visible, advance,altAttack );
 }
@@ -280,7 +280,7 @@ void ATST_Patrol( void )
 {
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -290,8 +290,8 @@ void ATST_Patrol( void )
 		if ( UpdateGoal() )
 		{
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
-			NPC_UpdateAngles( qtrue, qtrue );
+			NPC_MoveToGoal( true );
+			NPC_UpdateAngles( true, true );
 		}
 	}
 

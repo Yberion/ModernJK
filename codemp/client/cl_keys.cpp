@@ -40,15 +40,15 @@ field_t		historyEditLines[COMMAND_HISTORY];
 
 // chat
 field_t		chatField;
-qboolean	chat_team;
+bool	chat_team;
 int			chat_playerNum;
 
 keyGlobals_t	kg;
 
 // either side's modifier: the right ones are keys of their own (RSHIFT, RCTRL, RALT), bindable apart
-static qboolean Key_ShiftDown( void ) { return (qboolean)( kg.keys[A_SHIFT].down || kg.keys[A_SHIFT2].down ); }
-static qboolean Key_CtrlDown( void ) { return (qboolean)( kg.keys[A_CTRL].down || kg.keys[A_CTRL2].down ); }
-static qboolean Key_AltDown( void ) { return (qboolean)( kg.keys[A_ALT].down || kg.keys[A_ALT2].down ); }
+static bool Key_ShiftDown( void ) { return ( kg.keys[A_SHIFT].down || kg.keys[A_SHIFT2].down ); }
+static bool Key_CtrlDown( void ) { return ( kg.keys[A_CTRL].down || kg.keys[A_CTRL2].down ); }
+static bool Key_AltDown( void ) { return ( kg.keys[A_ALT].down || kg.keys[A_ALT2].down ); }
 
 // do NOT blithely change any of the key names (3rd field) here, since they have to match the key binds
 //	in the CFG files, they're also prepended with "KEYNAME_" when looking up StringEd references
@@ -407,7 +407,7 @@ x, y, amd width are in pixels
 ===================
 */
 extern console_t con;
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int size, qboolean showCursor, qboolean noColorEscape ) {
+void Field_VariableSizeDraw( field_t *edit, int x, int y, int size, bool showCursor, bool noColorEscape ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -451,7 +451,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int size, qboolean sho
 		float	color[4];
 
 		color[0] = color[1] = color[2] = color[3] = 1.0;
-		SCR_DrawSmallStringExt( x, y, str, color, qfalse, noColorEscape );
+		SCR_DrawSmallStringExt( x, y, str, color, false, noColorEscape );
 	} else {
 		// draw big string with drop shadow
 		SCR_DrawBigString( x, y, str, 1.0, noColorEscape );
@@ -476,17 +476,17 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int size, qboolean sho
 		} else {
 			str[0] = cursorChar;
 			str[1] = 0;
-			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, qfalse );
+			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
 		}
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, qboolean showCursor, qboolean noColorEscape )
+void Field_Draw( field_t *edit, int x, int y, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, con.charWidth, showCursor, noColorEscape );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, qboolean showCursor, qboolean noColorEscape )
+void Field_BigDraw( field_t *edit, int x, int y, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, BIGCHAR_WIDTH, showCursor, noColorEscape );
 }
@@ -566,7 +566,7 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 			break;
 
 		case A_INSERT:
-			kg.key_overstrikeMode = (qboolean)!kg.key_overstrikeMode;
+			kg.key_overstrikeMode = !kg.key_overstrikeMode;
 			break;
 
 		default:
@@ -824,7 +824,7 @@ void Message_Key( int key ) {
 			else if ( chat_team )				Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
 			else								Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
 
-			CL_AddReliableCommand( buffer, qfalse );
+			CL_AddReliableCommand( buffer, false );
 		}
 		Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_MESSAGE );
 		Field_Clear( &chatField );
@@ -837,12 +837,12 @@ void Message_Key( int key ) {
 //============================================================================
 
 
-qboolean Key_GetOverstrikeMode( void ) {
+bool Key_GetOverstrikeMode( void ) {
 	return kg.key_overstrikeMode;
 }
 
 
-void Key_SetOverstrikeMode( qboolean state ) {
+void Key_SetOverstrikeMode( bool state ) {
 	kg.key_overstrikeMode = state;
 }
 
@@ -852,9 +852,9 @@ void Key_SetOverstrikeMode( qboolean state ) {
 Key_IsDown
 ===================
 */
-qboolean Key_IsDown( int keynum ) {
+bool Key_IsDown( int keynum ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS )
-		return qfalse;
+		return false;
 
 	return kg.keys[keynames[keynum].upper].down;
 }
@@ -1181,7 +1181,7 @@ static void Key_CompleteBind( char *args, int argNum ) {
 		p = Com_SkipTokens( args, 2, " " );
 
 		if ( p > args )
-			Field_CompleteCommand( p, qtrue, qtrue );
+			Field_CompleteCommand( p, true, true );
 	}
 }
 
@@ -1204,19 +1204,19 @@ void CL_InitKeyCommands( void ) {
 ===================
 CL_BindUICommand
 
-Returns qtrue if bind command should be executed while user interface is shown
+Returns true if bind command should be executed while user interface is shown
 ===================
 */
-static qboolean CL_BindUICommand( const char *cmd ) {
+static bool CL_BindUICommand( const char *cmd ) {
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		return qfalse;
+		return false;
 
 	if ( !Q_stricmp( cmd, "toggleconsole" ) )
-		return qtrue;
+		return true;
 	if ( !Q_stricmp( cmd, "togglemenu" ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1226,10 +1226,10 @@ CL_ParseBinding
 Execute the commands in the bind string
 ===================
 */
-void CL_ParseBinding( int key, qboolean down, unsigned time )
+void CL_ParseBinding( int key, bool down, unsigned time )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
-	qboolean allCommands, allowUpCmds;
+	bool allCommands, allowUpCmds;
 
 	if( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == 0 )
 		return;
@@ -1238,10 +1238,10 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 	Q_strncpyz( buf, kg.keys[keynames[key].upper].binding, sizeof( buf ) );
 
 	// run all bind commands if console, ui, etc aren't reading keys
-	allCommands = (qboolean)( Key_GetCatcher( ) == 0 );
+	allCommands = ( Key_GetCatcher( ) == 0 );
 
 	// allow button up commands if in game even if key catcher is set
-	allowUpCmds = (qboolean)( cls.state != CA_DISCONNECTED );
+	allowUpCmds = ( cls.state != CA_DISCONNECTED );
 
 	while( 1 )
 	{
@@ -1306,11 +1306,11 @@ Called by CL_KeyEvent to handle a keypress
 */
 void CL_KeyDownEvent( int key, unsigned time )
 {
-	kg.keys[keynames[key].upper].down = qtrue;
+	kg.keys[keynames[key].upper].down = true;
 	kg.keys[keynames[key].upper].repeats++;
 	if( kg.keys[keynames[key].upper].repeats == 1 ) {
 		kg.keyDownCount++;
-		kg.anykeydown = qtrue;
+		kg.anykeydown = true;
 	}
 
 	if ( cl_allowAltEnter->integer && Key_AltDown() && key == A_ENTER )
@@ -1366,12 +1366,12 @@ void CL_KeyDownEvent( int key, unsigned time )
 			return;
 		}
 
-		if ( !cls.cursorActive ) UIVM_KeyEvent( key, qtrue );
+		if ( !cls.cursorActive ) UIVM_KeyEvent( key, true );
 		return;
 	}
 
 	// send the bound action
-	if ( !cls.cursorActive ) CL_ParseBinding( key, qtrue, time );
+	if ( !cls.cursorActive ) CL_ParseBinding( key, true, time );
 
 	// distribute the key down event to the appropriate handler
 	// console
@@ -1383,12 +1383,12 @@ void CL_KeyDownEvent( int key, unsigned time )
 	// ui
 	else if ( Key_GetCatcher() & KEYCATCH_UI ) {
 		if ( cls.uiStarted && !cls.cursorActive )
-			UIVM_KeyEvent( key, qtrue );
+			UIVM_KeyEvent( key, true );
 	}
 	// cgame
 	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
 		if ( cls.cgameStarted && !cls.cursorActive )
-			CGVM_KeyEvent( key, qtrue );
+			CGVM_KeyEvent( key, true );
 	}
 	// chatbox
 	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE )
@@ -1408,11 +1408,11 @@ Called by CL_KeyEvent to handle a keyrelease
 void CL_KeyUpEvent( int key, unsigned time )
 {
 	kg.keys[keynames[key].upper].repeats = 0;
-	kg.keys[keynames[key].upper].down = qfalse;
+	kg.keys[keynames[key].upper].down = false;
 	kg.keyDownCount--;
 
 	if (kg.keyDownCount <= 0) {
-		kg.anykeydown = qfalse;
+		kg.anykeydown = false;
 		kg.keyDownCount = 0;
 	}
 
@@ -1426,12 +1426,12 @@ void CL_KeyUpEvent( int key, unsigned time )
 	// console mode and menu mode, to keep the character from continuing
 	// an action started before a mode switch.
 	//
-	CL_ParseBinding( key, qfalse, time );
+	CL_ParseBinding( key, false, time );
 
 	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.uiStarted )
-		UIVM_KeyEvent( key, qfalse );
+		UIVM_KeyEvent( key, false );
 	else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cls.cgameStarted )
-		CGVM_KeyEvent( key, qfalse );
+		CGVM_KeyEvent( key, false );
 }
 
 /*
@@ -1441,7 +1441,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent (int key, qboolean down, unsigned time) {
+void CL_KeyEvent (int key, bool down, unsigned time) {
 	if( down )
 		CL_KeyDownEvent( key, time );
 	else
@@ -1462,8 +1462,8 @@ void CL_CharEvent( int key ) {
 
 	// distribute the key down event to the appropriate handler
 		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )		Field_CharEvent( &g_consoleField, key );
-	else if ( Key_GetCatcher() & KEYCATCH_UI )			UIVM_KeyEvent( key|K_CHAR_FLAG, qtrue );
-	else if ( Key_GetCatcher() & KEYCATCH_CGAME )		CGVM_KeyEvent( key|K_CHAR_FLAG, qtrue );
+	else if ( Key_GetCatcher() & KEYCATCH_UI )			UIVM_KeyEvent( key|K_CHAR_FLAG, true );
+	else if ( Key_GetCatcher() & KEYCATCH_CGAME )		CGVM_KeyEvent( key|K_CHAR_FLAG, true );
 	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE )		Field_CharEvent( &chatField, key );
 	else if ( cls.state == CA_DISCONNECTED )			Field_CharEvent( &g_consoleField, key );
 }
@@ -1474,12 +1474,12 @@ Key_ClearStates
 ===================
 */
 void Key_ClearStates( void ) {
-	kg.anykeydown = qfalse;
+	kg.anykeydown = false;
 
 	for ( int i=0; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].down )
-			CL_KeyEvent( i, qfalse, 0 );
-		kg.keys[i].down = qfalse;
+			CL_KeyEvent( i, false, 0 );
+		kg.keys[i].down = false;
 		kg.keys[i].repeats = 0;
 	}
 }

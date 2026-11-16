@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define PICKUPSOUND "sound/weapons/w_pkup.wav"
 
-//qboolean COM_ParseInt( char **data, int *i );
-//qboolean COM_ParseString( char **data, char **s );
-//qboolean COM_ParseFloat( char **data, float *f );
+//bool COM_ParseInt( char **data, int *i );
+//bool COM_ParseString( char **data, char **s );
+//bool COM_ParseFloat( char **data, float *f );
 
 extern gitem_t	bg_itemlist[];
 
@@ -637,7 +637,7 @@ static void IT_ParseWeaponParms(const char **holdBuf)
 
 	while (holdBuf)
 	{
-		token = COM_ParseExt( holdBuf, qtrue );
+		token = COM_ParseExt( holdBuf, true );
 
 		if (!Q_stricmp( token, "}" ))	// End of data for this weapon
 			break;
@@ -674,7 +674,7 @@ static void IT_ParseParms(const char *buffer)
 
 	while ( holdBuf )
 	{
-		token = COM_ParseExt( &holdBuf, qtrue );
+		token = COM_ParseExt( &holdBuf, true );
 
 		if ( !Q_stricmp( token, "{" ) )
 		{

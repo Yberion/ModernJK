@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
@@ -73,7 +73,7 @@ void ImperialProbe_MaintainHeight( void )
 //	trace_t	trace;
 
 	// Update our angles regardless
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 
 	// If we have an enemy, we should try to hover at about enemy eye level
 	if ( NPC->enemy )
@@ -237,7 +237,7 @@ ImperialProbe_Hunt
 #define HUNTER_FORWARD_BASE_SPEED	10
 #define HUNTER_FORWARD_MULTIPLIER	5
 
-void ImperialProbe_Hunt( qboolean visible, qboolean advance )
+void ImperialProbe_Hunt( bool visible, bool advance )
 {
 	float	distance, speed;
 	vec3_t	forward;
@@ -256,18 +256,18 @@ void ImperialProbe_Hunt( qboolean visible, qboolean advance )
 	}
 
 	//If we don't want to advance, stop here
-	if ( advance == qfalse )
+	if ( advance == false )
 		return;
 
 	//Only try and navigate if the player is visible
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		// Move towards our goal
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = 12;
 
 		//Get our direction from the navigator if we can't see our target
-		if ( NPC_GetMoveDirection( forward, &distance ) == qfalse )
+		if ( NPC_GetMoveDirection( forward, &distance ) == false )
 			return;
 	}
 	else
@@ -344,7 +344,7 @@ void ImperialProbe_FireBlaster(void)
 ImperialProbe_Ranged
 -------------------------
 */
-void ImperialProbe_Ranged( qboolean visible, qboolean advance )
+void ImperialProbe_Ranged( bool visible, bool advance )
 {
 	int	delay_min,delay_max;
 
@@ -407,7 +407,7 @@ void ImperialProbe_AttackDecision( void )
 	}
 
 	// If we don't have an enemy, just idle
-	if ( NPC_CheckEnemyExt() == qfalse )
+	if ( NPC_CheckEnemyExt() == false )
 	{
 		ImperialProbe_Idle();
 		return;
@@ -418,11 +418,11 @@ void ImperialProbe_AttackDecision( void )
 	// Rate our distance to the target, and our visibilty
 	float		distance	= (int) DistanceHorizontalSquared( NPC->currentOrigin, NPC->enemy->currentOrigin );
 //	distance_e	distRate	= ( distance > MIN_MELEE_RANGE_SQR ) ? DIST_LONG : DIST_MELEE;
-	qboolean	visible		= NPC_ClearLOS( NPC->enemy );
-	qboolean	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
+	bool	visible		= NPC_ClearLOS( NPC->enemy );
+	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// If we cannot see our target, move to see it
-	if ( visible == qfalse )
+	if ( visible == false )
 	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
@@ -432,7 +432,7 @@ void ImperialProbe_AttackDecision( void )
 	}
 
 	// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
-	NPC_FaceEnemy( qtrue );
+	NPC_FaceEnemy( true );
 
 	// Decide what type of attack to do
 	ImperialProbe_Ranged( visible, advance );
@@ -529,7 +529,7 @@ void ImperialProbe_Patrol( void )
 
 	if ( NPC_CheckPlayerTeamStealth() )
 	{
-		NPC_UpdateAngles( qtrue, qtrue );
+		NPC_UpdateAngles( true, true );
 		return;
 	}
 
@@ -543,7 +543,7 @@ void ImperialProbe_Patrol( void )
 			//start loop sound once we move
 			NPC->s.loopSound = G_SoundIndex( "sound/chars/probe/misc/probedroidloop" );
 			ucmd.buttons |= BUTTON_WALKING;
-			NPC_MoveToGoal( qtrue );
+			NPC_MoveToGoal( true );
 		}
 		//randomly talk
 		if (TIMER_Done(NPC,"patrolNoise"))
@@ -560,7 +560,7 @@ void ImperialProbe_Patrol( void )
 		//NPCInfo->behaviorState = BS_HUNT_AND_KILL;
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*
@@ -586,7 +586,7 @@ void ImperialProbe_Wait(void)
 		}
 	}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles( true, true );
 }
 
 /*

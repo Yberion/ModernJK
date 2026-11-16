@@ -367,7 +367,7 @@ void G2_List_Model_Bones(const char *fileName, int frame)
  *    true if we successfully obtained a filename, false otherwise
  *
  ************************************************************************************************/
-qboolean G2_GetAnimFileName(const char *fileName, char **filename)
+bool G2_GetAnimFileName(const char *fileName, char **filename)
 {
 	// find the model we want
 	model_t				*mod = R_GetModelByHandle(RE_RegisterModel(fileName));
@@ -375,9 +375,9 @@ qboolean G2_GetAnimFileName(const char *fileName, char **filename)
 	if (mod && mod->mdxm && (mod->mdxm->animName[0] != 0))
 	{
 		*filename = mod->mdxm->animName;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
@@ -575,7 +575,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	vec3_t			correctScale;
 
 #if !defined(JK2_MODE) || defined(_G2_GORE)
-	qboolean		firstModelOnly = qfalse;
+	bool		firstModelOnly = false;
 #endif // !JK2_MODE || _G2_GORE
 
 #ifndef JK2_MODE
@@ -587,7 +587,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )
 	{
-		firstModelOnly = qtrue;
+		firstModelOnly = true;
 	}
 #endif // !JK2_MODE
 
@@ -595,7 +595,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	if ( gore
 		&& gore->firstModel > 0 )
 	{
-		firstModelOnly = qfalse;
+		firstModelOnly = false;
 	}
 #endif
 
@@ -722,9 +722,9 @@ static void G2_BuildHitPointST( const vec3_t A, const float SA, const float TA,
 
 
 // routine that works out given a ray whether or not it hits a poly
-static inline qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
+static inline bool G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
 	const vec3_t A, const vec3_t B, const vec3_t C,
-	qboolean backFaces,qboolean frontFaces,vec3_t returnedPoint,vec3_t returnedNormal, float *denom)
+	bool backFaces,bool frontFaces,vec3_t returnedPoint,vec3_t returnedNormal, float *denom)
 {
 	static const float tiny=1E-10f;
 	vec3_t returnedNormalT;
@@ -744,7 +744,7 @@ static inline qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t 
 		(!backFaces && *denom>0)||		// not accepting back faces
 		(!frontFaces && *denom<0))		//not accepting front faces
 	{
-		return qfalse;
+		return false;
 	}
 
 	vec3_t toPlane;
@@ -754,7 +754,7 @@ static inline qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t 
 
 	if (t<0.0f||t>1.0f)
 	{
-		return qfalse; // off segment
+		return false; // off segment
 	}
 
 	VectorScale(ray, t, ray);
@@ -775,21 +775,21 @@ static inline qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t 
 	CrossProduct(edgePA, edgePB, temp);
 	if (DotProduct(temp, returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
 
 	CrossProduct(edgePC, edgePA, temp);
 	if (DotProduct(temp,returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
 
 	CrossProduct(edgePB, edgePC, temp);
 	if (DotProduct(temp, returnedNormal)<0.0f)
 	{
-		return qfalse; // off triangle
+		return false; // off triangle
 	}
-	return qtrue;
+	return true;
 }
 
 #ifdef _G2_GORE
@@ -1057,7 +1057,7 @@ static void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const
 			sizeof(float)*2*newNumVerts+ // texture coordinates
 			sizeof(int)*newNumTris*3;  // new indecies
 
-		int *data=(int *)R_Malloc ( sizeof(int)*size, TAG_GHOUL2, qtrue );
+		int *data=(int *)R_Malloc ( sizeof(int)*size, TAG_GHOUL2, true );
 
 		if ( gore->tex[TS.lod] )
 			R_Free(gore->tex[TS.lod]);
@@ -1137,7 +1137,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 		const float *point2 = &verts[(tris[j].indexes[1] * 5)];
 		const float *point3 = &verts[(tris[j].indexes[2] * 5)];
 		// did we hit it?
-		if (G2_SegmentTriangleTest(TS.rayStart, TS.rayEnd, point1, point2, point3, qtrue, qtrue, hitPoint, normal, &face))
+		if (G2_SegmentTriangleTest(TS.rayStart, TS.rayEnd, point1, point2, point3, true, true, hitPoint, normal, &face))
 		{	// find space in the collision records for this record
 			int i=0;
 			for (; i<MAX_G2_COLLISIONS;i++)
@@ -1555,7 +1555,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 }
 
 #ifdef _G2_GORE
-void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord *collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, qboolean skipIfLODNotMatch)
+void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord *collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius, float ssize,float tsize,float theta,int shader, SSkinGoreData *gore, bool skipIfLODNotMatch)
 #else
 void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CCollisionRecord *collRecMap, int entNum, EG2_Collision eG2TraceType, int useLod, float fRadius)
 #endif
@@ -1564,7 +1564,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 	skin_t			*skin;
 	shader_t		*cust_shader;
 #if !defined(JK2_MODE) || defined(_G2_GORE)
-	qboolean		firstModelOnly = qfalse;
+	bool		firstModelOnly = false;
 #endif // !JK2_MODE || _G2_GORE
 	int				firstModel = 0;
 
@@ -1577,7 +1577,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )
 	{
-		firstModelOnly = qtrue;
+		firstModelOnly = true;
 	}
 #endif // !JK2_MODE
 
@@ -1586,7 +1586,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 		&& gore->firstModel > 0 )
 	{
 		firstModel = gore->firstModel;
-		firstModelOnly = qfalse;
+		firstModelOnly = false;
 	}
 #endif
 

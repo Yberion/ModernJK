@@ -32,14 +32,14 @@ extern void G_NextTestAxes( void );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
 extern void G_InitPlayerFromCvars( gentity_t *ent );
 extern void Q3_SetViewEntity(int entID, const char *name);
-extern qboolean G_ClearViewEntity( gentity_t *ent );
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern bool G_ClearViewEntity( gentity_t *ent );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 
 extern void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 extern saber_colors_t TranslateSaberColor( const char *name );
-extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
-extern qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
+extern bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
+extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
 
 extern void G_SetWeapon( gentity_t *self, int wp );
 extern stringID_table_t WPTable[];
@@ -241,14 +241,14 @@ static void Svcmd_SaberBlade_f()
 	{
 		return;
 	}
-	qboolean turnOn;
+	bool turnOn;
 	if ( gi.argc() > 2 )
 	{//explicit
-		turnOn = (qboolean)(atoi(gi.argv(3))!=0);
+		turnOn = (atoi(gi.argv(3))!=0);
 	}
 	else
 	{//toggle
-		turnOn = (qboolean)!g_entities[0].client->ps.saber[sabernum].blade[bladenum].active;
+		turnOn = !g_entities[0].client->ps.saber[sabernum].blade[bladenum].active;
 	}
 
 	g_entities[0].client->ps.SaberBladeActivate( sabernum, bladenum, turnOn );
@@ -357,10 +357,10 @@ static void Svcmd_ForceSetLevel_f( int forcePower )
 	}
 }
 
-extern qboolean PM_SaberInStart( int move );
-extern qboolean PM_SaberInTransition( int move );
-extern qboolean PM_SaberInAttack( int move );
-extern qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
+extern bool PM_SaberInStart( int move );
+extern bool PM_SaberInTransition( int move );
+extern bool PM_SaberInAttack( int move );
+extern bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
 void Svcmd_SaberAttackCycle_f( void )
 {
 	if ( !g_entities[0].client )
@@ -381,27 +381,27 @@ void Svcmd_SaberAttackCycle_f( void )
 		{//can turn second saber off
 			if ( self->client->ps.saber[1].ActiveManualOnly() )
 			{//turn it off
-				qboolean skipThisBlade;
+				bool skipThisBlade;
 				for ( int bladeNum = 0; bladeNum < self->client->ps.saber[1].numBlades; bladeNum++ )
 				{
-					skipThisBlade = qfalse;
+					skipThisBlade = false;
 					if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 					{//check to see if we should check the secondary style's flags
 						if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
 						{
-							skipThisBlade = qtrue;
+							skipThisBlade = true;
 						}
 					}
 					else
 					{//use the primary style's flags
 						if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
 						{
-							skipThisBlade = qtrue;
+							skipThisBlade = true;
 						}
 					}
 					if ( !skipThisBlade )
 					{
-						self->client->ps.saber[1].BladeActivate( bladeNum, qfalse );
+						self->client->ps.saber[1].BladeActivate( bladeNum, false );
 						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[1].soundOff );
 					}
 				}
@@ -433,45 +433,45 @@ void Svcmd_SaberAttackCycle_f( void )
 			return;
 		}
 		*/
-		qboolean playedSound = qfalse;
+		bool playedSound = false;
 		if ( !self->client->ps.saber[0].blade[0].active )
 		{//first one is not even on
 			//turn only it on
-			self->client->ps.SaberBladeActivate( 0, 0, qtrue );
+			self->client->ps.SaberBladeActivate( 0, 0, true );
 			return;
 		}
 
-		qboolean skipThisBlade;
+		bool skipThisBlade;
 		for ( int bladeNum = 1; bladeNum < self->client->ps.saber[0].numBlades; bladeNum++ )
 		{
 			if ( !self->client->ps.saber[0].blade[bladeNum].active )
 			{//extra is off, turn it on
-				self->client->ps.saber[0].BladeActivate( bladeNum, qtrue );
+				self->client->ps.saber[0].BladeActivate( bladeNum, true );
 			}
 			else
 			{//turn extra off
-				skipThisBlade = qfalse;
+				skipThisBlade = false;
 				if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 				{//check to see if we should check the secondary style's flags
 					if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
 					{
-						skipThisBlade = qtrue;
+						skipThisBlade = true;
 					}
 				}
 				else
 				{//use the primary style's flags
 					if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
 					{
-						skipThisBlade = qtrue;
+						skipThisBlade = true;
 					}
 				}
 				if ( !skipThisBlade )
 				{
-					self->client->ps.saber[0].BladeActivate( bladeNum, qfalse );
+					self->client->ps.saber[0].BladeActivate( bladeNum, false );
 					if ( !playedSound )
 					{
 						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[0].soundOff );
-						playedSound = qtrue;
+						playedSound = true;
 					}
 				}
 			}
@@ -584,7 +584,7 @@ void Svcmd_SaberAttackCycle_f( void )
 #endif
 }
 
-qboolean G_ReleaseEntity( gentity_t *grabber )
+bool G_ReleaseEntity( gentity_t *grabber )
 {
 	if ( grabber && grabber->client && grabber->client->ps.heldClient < ENTITYNUM_WORLD )
 	{
@@ -596,9 +596,9 @@ qboolean G_ReleaseEntity( gentity_t *grabber )
 
 			heldClient->owner = NULL;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 void G_GrabEntity( gentity_t *grabber, const char *target )
@@ -757,7 +757,7 @@ static void Svcmd_Grab_f(void)
 
 static void Svcmd_Knockdown_f(void)
 {
-	G_Knockdown( &g_entities[0], &g_entities[0], vec3_origin, 300, qtrue );
+	G_Knockdown( &g_entities[0], &g_entities[0], vec3_origin, 300, true );
 }
 
 static void Svcmd_PlayerModel_f(void)
@@ -949,9 +949,9 @@ static svcmd_t svcmds[] = {
 	{ "secrets",					Svcmd_Secrets_f,							CMD_NONE },
 	{ "difficulty",					Svcmd_Difficulty_f,							CMD_NONE },
 
-	//{ "say",						Svcmd_Say_f,						qtrue },
-	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			qfalse },
-	//{ "toggleuserinfovalidation",	Svcmd_ToggleUserinfoValidation_f,	qfalse },
+	//{ "say",						Svcmd_Say_f,						true },
+	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			false },
+	//{ "toggleuserinfovalidation",	Svcmd_ToggleUserinfoValidation_f,	false },
 };
 static const size_t numsvcmds = ARRAY_LEN( svcmds );
 
@@ -960,27 +960,27 @@ static const size_t numsvcmds = ARRAY_LEN( svcmds );
 ConsoleCommand
 =================
 */
-qboolean	ConsoleCommand( void ) {
+bool	ConsoleCommand( void ) {
 	const char *cmd = gi.argv(0);
 	const svcmd_t *command = (const svcmd_t *)Q_LinearSearch( cmd, svcmds, numsvcmds, sizeof( svcmds[0] ), svcmdcmp );
 
 	if ( !command )
-		return qfalse;
+		return false;
 
 	if ( (command->flags & CMD_CHEAT)
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
-		return qtrue;
+		return true;
 	}
 	else if ( (command->flags & CMD_ALIVE)
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );
-		return qtrue;
+		return true;
 	}
 	else
 		command->func();
-	return qtrue;
+	return true;
 }
 

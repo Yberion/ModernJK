@@ -75,9 +75,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define maxs r.maxs
 #define legsAnimTimer legsTimer
 #define torsoAnimTimer torsoTimer
-#define bool qboolean
-#define false qfalse
-#define true qtrue
+#define bool bool
+#define false false
+#define true true
 
 #define sqrtf sqrt
 #define Q_flrand flrand
@@ -97,7 +97,7 @@ extern cvar_t	*g_speederControlScheme;
 extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
-extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
+extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 
 static void RegisterAssets( Vehicle_t *pVeh )
@@ -260,8 +260,8 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 }
 
 #ifdef _JK2MP
-extern void FighterYawAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS); //FighterNPC.c
-extern void FighterPitchAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS); //FighterNPC.c
+extern void FighterYawAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS); //FighterNPC.cpp
+extern void FighterPitchAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS); //FighterNPC.cpp
 #endif
 
 //MP RULE - ALL PROCESSORIENTCOMMANDS FUNCTIONS MUST BE BG-COMPATIBLE!!!
@@ -391,7 +391,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		return;
 	}
 
-// Following is redundant to g_vehicles.c
+// Following is redundant to g_vehicles.cpp
 //	if ( pVeh->m_iBoarding )
 //	{
 //		//we have no boarding anim
@@ -565,7 +565,7 @@ void G_CreateWalkerNPC( Vehicle_t **pVeh, const char *strAnimalType )
 	memset(*pVeh, 0, sizeof(Vehicle_t));
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #else
-	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, qtrue );
+	(*pVeh) = (Vehicle_t *) gi.Malloc( sizeof(Vehicle_t), TAG_G_ALLOC, true );
 	(*pVeh)->m_pVehicleInfo = &g_vehicleInfo[BG_VehicleGetIndex( strAnimalType )];
 #endif
 }

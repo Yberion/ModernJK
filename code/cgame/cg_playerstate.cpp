@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_playerstate.c -- this file acts on changes in a new playerState_t
+// cg_playerstate.cpp -- this file acts on changes in a new playerState_t
 // With normal play, this will be done after local prediction, but when
 // following another player or playing back a demo, it will be checked
 // when the snapshot transitions like all the other entities
@@ -221,7 +221,7 @@ A respawn happened this snapshot
 */
 void CG_Respawn( void ) {
 	// no error decay on player movement
-	cg.thisFrameTeleport = qtrue;
+	cg.thisFrameTeleport = true;
 
 	// display weapons available
 //	cg.weaponSelectTime = cg.time;
@@ -334,14 +334,14 @@ CG_TransitionPlayerState
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// teleporting
 	if ( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) {
-		cg.thisFrameTeleport = qtrue;
+		cg.thisFrameTeleport = true;
 	} else {
-		cg.thisFrameTeleport = qfalse;
+		cg.thisFrameTeleport = false;
 	}
 
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {
-		cg.thisFrameTeleport = qtrue;
+		cg.thisFrameTeleport = true;
 		// make sure we don't get any unwanted transition effects
 		*ops = *ps;
 	}

@@ -29,10 +29,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ENTDIST_PLAYER	1
 #define ENTDIST_NPC		2
 
-extern qboolean G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
-extern qboolean G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask );
-extern qboolean SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
-extern qboolean PM_CrouchAnim( int anim );
+extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
+extern bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask );
+extern bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
+extern bool PM_CrouchAnim( int anim );
 
 void InitTrigger( gentity_t *self ) {
 	if (!VectorCompare (self->s.angles, vec3_origin))
@@ -337,23 +337,23 @@ void trigger_cleared_fire (gentity_t *self)
 	}
 }
 
-qboolean G_TriggerActive( gentity_t *self )
+bool G_TriggerActive( gentity_t *self )
 {
 	if ( self->svFlags & SVF_INACTIVE )
 	{//set by target_deactivate
-		return qfalse;
+		return false;
 	}
 
 	if ( self->spawnflags & 1 )
 	{//player only
-		return qfalse;
+		return false;
 	}
 
 	/*
 	???
 	if ( self->spawnflags & 4 )
 	{//USE_BUTTON
-		return qfalse;
+		return false;
 	}
 	*/
 
@@ -361,7 +361,7 @@ qboolean G_TriggerActive( gentity_t *self )
 	???
 	if ( self->spawnflags & 8 )
 	{//FIRE_BUTTON
-		return qfalse;
+		return false;
 	}
 	*/
 
@@ -370,10 +370,10 @@ qboolean G_TriggerActive( gentity_t *self )
 	{//Only works if your head is in it, but we allow leaning out
 		//NOTE: We don't use CalcEntitySpot SPOT_HEAD because we don't want this
 		//to be reliant on the physical model the player uses.
-		return qfalse;
+		return false;
 	}
 	*/
-	return qtrue;
+	return true;
 }
 
 /*QUAKED trigger_multiple (.1 .5 .1) ? PLAYERONLY FACING USE_BUTTON FIRE_BUTTON NPCONLY x x INACTIVE MULTIPLE
@@ -935,7 +935,7 @@ trigger_teleport
 #define NO_NPCS		4
 #define TTSF_STASIS		8
 #define TTSF_DEAD_OK	16
-void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, qboolean snapAngle );
+void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, bool snapAngle );
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace )
 {
 	gentity_t	*dest;
@@ -980,7 +980,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	else if ( !(self->svFlags & SVF_NO_TELEPORT) && !(self->spawnflags & NO_MISSILES) && VectorLengthSquared( other->s.pos.trDelta ) )
 	{//It's a mover of some sort and is currently moving
 		vec3_t	diffAngles = {0, 0, 0};
-		qboolean	snap = qfalse;
+		bool	snap = false;
 
 		if ( self->lastEnemy )
 		{
@@ -989,7 +989,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		else
 		{//snaps to angle
 			VectorSubtract( dest->s.angles, other->currentAngles, diffAngles );
-			snap = qtrue;
+			snap = true;
 		}
 
 		TeleportMover( other, dest->s.origin, diffAngles, snap );
@@ -1373,7 +1373,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 	vec3_t		diff;
 	gentity_t	*found = NULL;
 	gentity_t	*owner = NULL;
-	qboolean	useflag;
+	bool	useflag;
 	const char	*token, *holdString;
 
 	if ( self->svFlags & SVF_INACTIVE )	// Don't use INACTIVE
@@ -1393,7 +1393,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 
 	self->activator = activator;
 
-	useflag = qfalse;
+	useflag = false;
 
 	self->svFlags |= SVF_INACTIVE;	// Make it inactive after one use
 
@@ -1406,7 +1406,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 			VectorSubtract(owner->currentOrigin, found->currentOrigin, diff);
 			if(VectorLength(diff) < self->count)
 			{
-				useflag = qtrue;
+				useflag = true;
 			}
 		}
 	}
@@ -1429,7 +1429,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 				VectorSubtract(owner->currentOrigin, found->currentOrigin, diff);
 				if(VectorLength(diff) < self->count)	// Within distance
 				{
-					useflag = qtrue;
+					useflag = true;
 					break;
 				}
 			}

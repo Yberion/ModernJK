@@ -41,7 +41,7 @@ void charge_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 	// make us so we can take damage
 	self->clipmask = MASK_SHOT;
 	self->contents = CONTENTS_SHOTCLIP;
-	self->takedamage = qtrue;
+	self->takedamage = true;
 	self->health = 25;
 
 	self->e_DieFunc = dieF_WP_ExplosiveDie;
@@ -72,7 +72,7 @@ static void WP_DropDetPack( gentity_t *self, vec3_t start, vec3_t dir )
 	VectorCopy( wpMuzzle, start );
 	WP_TraceSetStart( self, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
 
-	gentity_t	*missile = CreateMissile( start, wpFwd, 300, 10000, self, qfalse );
+	gentity_t	*missile = CreateMissile( start, wpFwd, 300, 10000, self, false );
 
 	missile->fxID = G_EffectIndex( "detpack/explosion" ); // if we set an explosion effect, explode death can use that instead
 
@@ -100,12 +100,12 @@ static void WP_DropDetPack( gentity_t *self, vec3_t start, vec3_t dir )
 	VectorSet( missile->s.modelScale, 1.0f, 1.0f, 1.0f );
 	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[WP_DET_PACK].missileMdl ), NULL_HANDLE, NULL_HANDLE, 0, 0);
 
-	AddSoundEvent( NULL, missile->currentOrigin, 128, AEL_MINOR, qtrue );
+	AddSoundEvent( NULL, missile->currentOrigin, 128, AEL_MINOR, true );
 	AddSightEvent( NULL, missile->currentOrigin, 128, AEL_SUSPICIOUS, 10 );
 }
 
 //---------------------------------------------------------
-void WP_FireDetPack( gentity_t *ent, qboolean alt_fire )
+void WP_FireDetPack( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	if ( !ent || !ent->client )

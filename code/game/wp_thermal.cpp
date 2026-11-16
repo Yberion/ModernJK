@@ -36,7 +36,7 @@ void thermalDetonatorExplode( gentity_t *ent )
 {
 	if ( (ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{
-		ent->takedamage = qfalse; // don't allow double deaths!
+		ent->takedamage = false; // don't allow double deaths!
 
 		G_Damage( ent->activator, ent, ent->owner, vec3_origin, ent->currentOrigin, weaponData[WP_THERMAL].altDamage, 0, MOD_EXPLOSIVE );
 		G_PlayEffect( "thermal/explosion", ent->currentOrigin );
@@ -57,7 +57,7 @@ void thermalDetonatorExplode( gentity_t *ent )
 
 		VectorSet( pos, ent->currentOrigin[0], ent->currentOrigin[1], ent->currentOrigin[2] + 8 );
 
-		ent->takedamage = qfalse; // don't allow double deaths!
+		ent->takedamage = false; // don't allow double deaths!
 
 		G_RadiusDamage( ent->currentOrigin, ent->owner, weaponData[WP_THERMAL].splashDamage, weaponData[WP_THERMAL].splashRadius, NULL, MOD_EXPLOSIVE_SPLASH );
 
@@ -76,16 +76,16 @@ void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 }
 
 //---------------------------------------------------------
-qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
-				vec3_t velocity, qboolean tracePath, int ignoreEntNum, int enemyNum,
-				float minSpeed, float maxSpeed, float idealSpeed, qboolean mustHit )
+bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
+				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
+				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit )
 //---------------------------------------------------------
 {
 	float	targetDist, shotSpeed, speedInc = 100, travelTime, impactDist, bestImpactDist = Q3_INFINITE;//fireSpeed,
 	vec3_t	targetDir, shotVel, failCase = { 0.0f };
 	trace_t	trace;
 	trajectory_t	tr;
-	qboolean	blocked;
+	bool	blocked;
 	int		elapsedTime, skipNum, timeStep = 500, hitCount = 0, maxHits = 7;
 	vec3_t	lastPos, testPos;
 	gentity_t	*traceEnt;
@@ -127,7 +127,7 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 
 		if ( tracePath )
 		{//do a rough trace of the path
-			blocked = qfalse;
+			blocked = false;
 
 			VectorCopy( start, tr.trBase );
 			VectorCopy( shotVel, tr.trDelta );
@@ -148,7 +148,7 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 
 				if ( trace.allsolid || trace.startsolid )
 				{
-					blocked = qtrue;
+					blocked = true;
 					break;
 				}
 				if ( trace.fraction < 1.0f )
@@ -169,7 +169,7 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 							bestImpactDist = impactDist;
 							VectorCopy( shotVel, failCase );
 						}
-						blocked = qtrue;
+						blocked = true;
 						//see if we should store this as the failCase
 						if ( trace.entityNum < ENTITYNUM_WORLD )
 						{//hit an ent
@@ -217,10 +217,10 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 	{//NOTE: worst case scenario, use the one that impacted closest to the target (or just use the first try...?)
 		assert( (failCase[0] + failCase[1] + failCase[2]) > 0.0f );
 		VectorCopy( failCase, velocity );
-		return qfalse;
+		return false;
 	}
 	VectorCopy( shotVel, velocity );
-	return qtrue;
+	return true;
 }
 
 //---------------------------------------------------------
@@ -228,7 +228,7 @@ void WP_ThermalThink( gentity_t *ent )
 //---------------------------------------------------------
 {
 	int			count;
-	qboolean	blow = qfalse;
+	bool	blow = false;
 
 	// Thermal detonators for the player do occasional radius checks and blow up if there are entities in the blast radius
 	//	This is done so that the main fire is actually useful as an attack.  We explode anyway after delay expires.
@@ -256,7 +256,7 @@ void WP_ThermalThink( gentity_t *ent )
 		//	Finally, we force it to bounce at least once before doing the special checks, otherwise it's just too easy for the player?
 		if ( ent->has_bounced )
 		{
-			count = G_RadiusList( ent->currentOrigin, TD_TEST_RAD, ent, qtrue, ent_list );
+			count = G_RadiusList( ent->currentOrigin, TD_TEST_RAD, ent, true, ent_list );
 
 			for ( int i = 0; i < count; i++ )
 			{
@@ -264,7 +264,7 @@ void WP_ThermalThink( gentity_t *ent )
 				{
 					// avoid deliberately blowing up next to the player, no matter how close any enemy is..
 					//	...if the delay time expires though, there is no saving the player...muwhaaa haa ha
-					blow = qfalse;
+					blow = false;
 					break;
 				}
 				else if ( ent_list[i]->client
@@ -272,7 +272,7 @@ void WP_ThermalThink( gentity_t *ent )
 					&& ent_list[i]->health > 0 )
 				{
 					//FIXME! sometimes the ent_list order changes, so we should make sure that the player isn't anywhere in this list
-					blow = qtrue;
+					blow = true;
 				}
 			}
 		}
@@ -280,7 +280,7 @@ void WP_ThermalThink( gentity_t *ent )
 	else
 	{
 		// our death time has arrived, even if nothing is near us
-		blow = qtrue;
+		blow = true;
 	}
 
 	if ( blow )
@@ -296,7 +296,7 @@ void WP_ThermalThink( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-gentity_t *WP_FireThermalDetonator( gentity_t *ent, qboolean alt_fire )
+gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	gentity_t	*bolt;
@@ -337,7 +337,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, qboolean alt_fire )
 	bolt->clipmask = MASK_SHOT;
 	bolt->clipmask &= ~CONTENTS_CORPSE;
 	bolt->contents = CONTENTS_SHOTCLIP;
-	bolt->takedamage = qtrue;
+	bolt->takedamage = true;
 	bolt->health = 15;
 	bolt->e_DieFunc = dieF_thermal_die;
 
@@ -363,7 +363,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, qboolean alt_fire )
 	}
 
 	float	thrownSpeed = TD_VELOCITY;
-	const qboolean thisIsAShooter = (qboolean)!Q_stricmp( "misc_weapon_shooter", ent->classname);
+	const bool thisIsAShooter = !Q_stricmp( "misc_weapon_shooter", ent->classname);
 
 	if (thisIsAShooter)
 	{
@@ -401,17 +401,17 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, qboolean alt_fire )
 			target[1] += Q_flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-ent->NPC->currentAim)*2);
 			target[2] += Q_flrand( -5, 5 )+(Q_flrand(-1.0f, 1.0f)*(6-ent->NPC->currentAim)*2);
 
-			WP_LobFire( ent, start, target, bolt->mins, bolt->maxs, bolt->clipmask, bolt->s.pos.trDelta, qtrue, ent->s.number, ent->enemy->s.number );
+			WP_LobFire( ent, start, target, bolt->mins, bolt->maxs, bolt->clipmask, bolt->s.pos.trDelta, true, ent->s.number, ent->enemy->s.number );
 		}
 		else if ( thisIsAShooter && ent->target && !VectorCompare( ent->pos1, vec3_origin ) )
 		{//misc_weapon_shooter firing at a position
-			WP_LobFire( ent, start, ent->pos1, bolt->mins, bolt->maxs, bolt->clipmask, bolt->s.pos.trDelta, qtrue, ent->s.number, ent->enemy->s.number );
+			WP_LobFire( ent, start, ent->pos1, bolt->mins, bolt->maxs, bolt->clipmask, bolt->s.pos.trDelta, true, ent->s.number, ent->enemy->s.number );
 		}
 	}
 
 	if ( alt_fire )
 	{
-		bolt->alt_fire = qtrue;
+		bolt->alt_fire = true;
 	}
 	else
 	{
@@ -457,5 +457,5 @@ gentity_t *WP_DropThermal( gentity_t *ent )
 {
 	AngleVectors( ent->client->ps.viewangles, forwardVec, vrightVec, up );
 	CalcEntitySpot( ent, SPOT_WEAPON, muzzle );
-	return (WP_FireThermalDetonator( ent, qfalse ));
+	return (WP_FireThermalDetonator( ent, false ));
 }

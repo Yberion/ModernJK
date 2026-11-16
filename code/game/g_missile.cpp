@@ -32,17 +32,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include <float.h>
 #endif //_DEBUG
 
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
-extern qboolean PM_SaberInParry( int move );
-extern qboolean PM_SaberInReflect( int move );
-extern qboolean PM_SaberInIdle( int move );
-extern qboolean PM_SaberInAttack( int move );
-extern qboolean PM_SaberInTransitionAny( int move );
-extern qboolean PM_SaberInSpecialAttack( int anim );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
+extern bool PM_SaberInParry( int move );
+extern bool PM_SaberInReflect( int move );
+extern bool PM_SaberInIdle( int move );
+extern bool PM_SaberInAttack( int move );
+extern bool PM_SaberInTransitionAny( int move );
+extern bool PM_SaberInSpecialAttack( int anim );
 
 //-------------------------------------------------------------------------
-void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir, qboolean hitWorld )
+void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir, bool hitWorld )
 {
 	//FIXME: have an EV_BOUNCE_MISSILE event that checks the s.weapon and does the appropriate effect
 	switch( ent->s.weapon )
@@ -149,7 +149,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	vec3_t	bounce_dir;
 	int		i;
 	float	speed;
-	qboolean reflected = qfalse;
+	bool reflected = false;
 	gentity_t	*owner = ent;
 
 	if ( ent->owner )
@@ -203,7 +203,7 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 				}
 			}
 			VectorNormalize( bounce_dir );
-			reflected = qtrue;
+			reflected = true;
 		}
 	}
 	if ( !reflected )
@@ -407,7 +407,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 
 		if ( ent->s.weapon == WP_THERMAL )
 		{
-			ent->has_bounced = qtrue;
+			ent->has_bounced = true;
 		}
 	}
 
@@ -480,7 +480,7 @@ void NoghriGasCloudThink( gentity_t *self )
 
 void G_SpawnNoghriGasCloud( gentity_t *ent )
 {//FIXME: force-pushable/dispersable?
-	ent->freeAfterEvent = qfalse;
+	ent->freeAfterEvent = false;
 	ent->e_TouchFunc = touchF_NULL;
 	//ent->s.loopSound = G_SoundIndex( "sound/weapons/noghri/smoke.wav" );
 	//G_SoundOnEnt( ent, CHAN_AUTO, "sound/weapons/noghri/smoke.wav" );
@@ -497,7 +497,7 @@ void G_SpawnNoghriGasCloud( gentity_t *ent )
 }
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod );
+extern bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod );
 void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE )
 {
 	// impact damage
@@ -578,11 +578,11 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 	if ( ent->owner )//&& ent->owner->s.number == 0 )
 	{
 		//Add the event
-		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_SUSPICIOUS, qfalse, qtrue );
+		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_SUSPICIOUS, false, true );
 		AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED, 75 );
 	}
 
-	ent->freeAfterEvent = qtrue;
+	ent->freeAfterEvent = true;
 
 	// change over to a normal entity right at the point of impact
 	ent->s.eType = ET_GENERAL;
@@ -615,12 +615,12 @@ static void G_MissileAddAlerts( gentity_t *ent )
 	{//a thermal about to explode or rolling
 		if ( (ent->delay-level.time) < 500 )
 		{//half a second before it explodes!
-			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER_GREAT, qfalse, qtrue );
+			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER_GREAT, false, true );
 			AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER_GREAT, 20 );
 		}
 		else
 		{//2 seconds until it explodes or it's rolling
-			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, qfalse, qtrue );
+			AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, false, true );
 			AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, 20 );
 		}
 	}
@@ -664,7 +664,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 			}
 			if ( ent->owner->client && !ent->owner->s.number )
 			{
-				if ( W_AccuracyLoggableWeapon( ent->s.weapon, qfalse, ent->methodOfDeath ) )
+				if ( W_AccuracyLoggableWeapon( ent->s.weapon, false, ent->methodOfDeath ) )
 				{
 					ent->owner->client->sess.missionStats.hits++;
 				}
@@ -673,12 +673,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 	}
 	// check for bounce
 	//OR: if the surfaceParm is has a reflect property (magnetic shielding) and the missile isn't an exploding missile
-	qboolean bounce = (qboolean)( (!other->takedamage && (ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF))) || (((trace->surfaceFlags&SURF_FORCEFIELD)||(other->flags&FL_SHIELDED))&&!ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK) );
+	bool bounce = ( (!other->takedamage && (ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF))) || (((trace->surfaceFlags&SURF_FORCEFIELD)||(other->flags&FL_SHIELDED))&&!ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK) );
 
 	if ( ent->dflags & DAMAGE_HEAVY_WEAP_CLASS )
 	{
 		// heavy class missiles generally never bounce.
-		bounce = qfalse;
+		bounce = false;
 	}
 
 	if ( other->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ))
@@ -688,7 +688,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 		if ( (!strcmp( "misc_ion_cannon", other->classname )) && (other->flags & FL_SHIELDED) )
 		{
 			// Anything will bounce off of us.
-			bounce = qtrue;
+			bounce = true;
 
 			// Not exactly the debounce time, but rather the impact time for the shield effect...play effect for 1 second
 			other->painDebounceTime = level.time + 1000;
@@ -698,7 +698,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 	if ( ent->s.weapon == WP_DEMP2 )
 	{
 		// demp2 shots can never bounce
-		bounce = qfalse;
+		bounce = false;
 
 		// in fact, alt-charge shots will not call the regular impact functions
 		if ( ent->alt_fire )
@@ -734,7 +734,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 		{
 			G_MissileAddAlerts( ent );
 		}
-		G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (qboolean)(trace->entityNum==ENTITYNUM_WORLD) );
+		G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (trace->entityNum==ENTITYNUM_WORLD) );
 
 		return;
 	}
@@ -755,7 +755,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 			{
 				ent->s.eFlags &= ~EF_BOUNCE_SHRAPNEL;
 			}
-			G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (qboolean)(trace->entityNum==ENTITYNUM_WORLD) );
+			G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (trace->entityNum==ENTITYNUM_WORLD) );
 			return;
 		}
 	}
@@ -781,16 +781,16 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
 			//Add the event
 			if ( ent->s.weapon == WP_TRIP_MINE )
 			{
-				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius/2, AEL_DISCOVERED/*AEL_DANGER*/, qfalse, qtrue );
+				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius/2, AEL_DISCOVERED/*AEL_DANGER*/, false, true );
 				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DISCOVERED/*AEL_DANGER*/, 60 );
 				/*
-				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, qfalse, qtrue );
+				AddSoundEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, false, true );
 				AddSightEvent( ent->owner, ent->currentOrigin, ent->splashRadius*2, AEL_DANGER, 60 );
 				*/
 			}
 			else
 			{
-				AddSoundEvent( ent->owner, ent->currentOrigin, 128, AEL_DISCOVERED, qfalse, qtrue );
+				AddSoundEvent( ent->owner, ent->currentOrigin, 128, AEL_DISCOVERED, false, true );
 				AddSightEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED, 10 );
 			}
 		}
@@ -885,13 +885,13 @@ void G_ExplodeMissile( gentity_t *ent )
 	if ( ent->owner )//&& ent->owner->s.number == 0 )
 	{
 		//Add the event
-		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED, qfalse, qtrue );//FIXME: are we on ground or not?
+		AddSoundEvent( ent->owner, ent->currentOrigin, 256, AEL_DISCOVERED, false, true );//FIXME: are we on ground or not?
 		AddSightEvent( ent->owner, ent->currentOrigin, 512, AEL_DISCOVERED, 100 );
 	}
 /*	ent->s.eType = ET_GENERAL;
 	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
-	ent->freeAfterEvent = qtrue;*/
+	ent->freeAfterEvent = true;*/
 
 	// splash damage
 	if ( ent->splashDamage )
@@ -947,37 +947,37 @@ int G_GroundTrace( gentity_t *ent, pml_t *pPml )
 	// do something corrective if the trace starts in a solid...
 	if ( trace.allsolid )
 	{
-		pPml->groundPlane = qfalse;
-		pPml->walking = qfalse;
+		pPml->groundPlane = false;
+		pPml->walking = false;
 		return ENTITYNUM_NONE;
 	}
 
 	// if the trace didn't hit anything, we are in free fall
 	if ( trace.fraction == 1.0 )
 	{
-		pPml->groundPlane = qfalse;
-		pPml->walking = qfalse;
+		pPml->groundPlane = false;
+		pPml->walking = false;
 		return ENTITYNUM_NONE;
 	}
 
 	// check if getting thrown off the ground
 	if ( ent->s.pos.trDelta[2] > 0 && DotProduct( ent->s.pos.trDelta, trace.plane.normal ) > 10 )
 	{
-		pPml->groundPlane = qfalse;
-		pPml->walking = qfalse;
+		pPml->groundPlane = false;
+		pPml->walking = false;
 		return ENTITYNUM_NONE;
 	}
 
 	// slopes that are too steep will not be considered onground
 	if ( trace.plane.normal[2] < MIN_WALK_NORMAL )
 	{
-		pPml->groundPlane = qtrue;
-		pPml->walking = qfalse;
+		pPml->groundPlane = true;
+		pPml->walking = false;
 		return ENTITYNUM_NONE;
 	}
 
-	pPml->groundPlane = qtrue;
-	pPml->walking = qtrue;
+	pPml->groundPlane = true;
+	pPml->walking = true;
 
 	/*
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE )
@@ -1116,7 +1116,7 @@ void G_RollMissile( gentity_t *ent )
 			// entity is completely trapped in another solid
 			//FIXME: this happens a lot now when we hit a G2 ent... WTF?
 			ent->s.pos.trDelta[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return;// qtrue;
+			return;// true;
 		}
 
 		if ( trace.fraction > 0 )
@@ -1137,7 +1137,7 @@ void G_RollMissile( gentity_t *ent )
 
 		//Hit it
 		/*
-		if ( PM_ClientImpact( trace.entityNum, qtrue ) )
+		if ( PM_ClientImpact( trace.entityNum, true ) )
 		{
 			continue;
 		}
@@ -1149,7 +1149,7 @@ void G_RollMissile( gentity_t *ent )
 		{
 			// this shouldn't really happen
 			VectorClear( ent->s.pos.trDelta );
-			return;// qtrue;
+			return;// true;
 		}
 
 		//
@@ -1252,7 +1252,7 @@ void G_RollMissile( gentity_t *ent )
 
 					// stop dead at a triple plane interaction
 					VectorClear( ent->s.pos.trDelta );
-					return;// qtrue;
+					return;// true;
 				}
 			}
 
@@ -1389,7 +1389,7 @@ void G_RunMissile( gentity_t *ent )
 //?	if ( tr.fraction != 1 )
 	{
 	// did we hit or go near a Ghoul2 model?
-//		qboolean hitModel = qfalse;
+//		bool hitModel = false;
 		for (int i=0; i < MAX_G2_COLLISIONS; i++)
 		{
 			if (tr.G2CollisionMap[i].mEntityNum == -1)

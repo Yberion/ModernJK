@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_draw.c -- draw all of the graphical elements during
+// cg_draw.cpp -- draw all of the graphical elements during
 // active (after loading) gameplay
 
 #include "../game/g_local.h"
@@ -33,13 +33,13 @@ void CG_DrawIconBackground(void);
 void CG_DrawMissionInformation( void );
 void CG_DrawInventorySelect( void );
 void CG_DrawForceSelect( void );
-qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
+bool CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y);
+bool CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
 extern float g_crosshairEntDist;
 extern int g_crosshairSameEntTime;
 extern int g_crosshairEntNum;
 extern int g_crosshairEntTime;
-qboolean cg_forceCrosshair = qfalse;
+bool cg_forceCrosshair = false;
 
 // bad cheating
 extern int g_rocketLockEntNum;
@@ -110,7 +110,7 @@ void CG_DrawHead( float x, float y, float w, float h, int speaker_i, vec3_t head
 	vec3_t			origin;
 	vec3_t			mins, maxs;
 	gentity_t	*ent;
-	qboolean	extensions = qfalse;
+	bool	extensions = false;
 	int			talking = 0;
 
 	//If the talking ent is actually on the level, use his info
@@ -258,7 +258,7 @@ static void CG_DrawMessageLit(centity_t *cent,int x,int y)
 			if (!cg.messageLitActive)
 			{
 				cgi_S_StartSound( NULL, 0, CHAN_AUTO, cgs.media.messageLitSound );
-				cg.messageLitActive = qtrue;
+				cg.messageLitActive = true;
 			}
 
 			cgi_R_SetColor(colorTable[CT_HUD_RED]);
@@ -266,7 +266,7 @@ static void CG_DrawMessageLit(centity_t *cent,int x,int y)
 		}
 		else
 		{
-			cg.messageLitActive = qfalse;
+			cg.messageLitActive = false;
 		}
 	}
 
@@ -433,7 +433,7 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 	}
 
 	cgi_R_SetColor( colorTable[numColor_i] );
-	CG_DrawNumField(x + 29, y + 26, 3, value, 6, 12, NUM_FONT_SMALL,qfalse);
+	CG_DrawNumField(x + 29, y + 26, 3, value, 6, 12, NUM_FONT_SMALL,false);
 
 	inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_TICS;
 	value =ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
@@ -523,7 +523,7 @@ static void CG_DrawHealth(int x,int y)
 
 	cgi_R_SetColor( colorTable[CT_HUD_RED] );
 	CG_DrawNumField (x + 16, y + 40, 3, ps->stats[STAT_HEALTH], 6, 12,
-		NUM_FONT_SMALL,qtrue);
+		NUM_FONT_SMALL,true);
 
 }
 
@@ -581,22 +581,22 @@ static void CG_DrawArmor(int x,int y)
 				cg.HUDTickFlashTime = cg.time + 100;
 				if (cg.HUDArmorFlag)
 				{
-					cg.HUDArmorFlag = qfalse;
+					cg.HUDArmorFlag = false;
 				}
 				else
 				{
-					cg.HUDArmorFlag = qtrue;
+					cg.HUDArmorFlag = true;
 				}
 			}
 		}
 		else
 		{
-			cg.HUDArmorFlag=qtrue;
+			cg.HUDArmorFlag=true;
 		}
 	}
 	else						// No armor? Don't show it.
 	{
-		cg.HUDArmorFlag=qfalse;
+		cg.HUDArmorFlag=false;
 	}
 
 	if (cg.HUDArmorFlag)
@@ -607,12 +607,12 @@ static void CG_DrawArmor(int x,int y)
 */
 	cgi_R_SetColor( colorTable[CT_HUD_GREEN] );
 	CG_DrawNumField (x + 16 + 14, y + 40 + 14, 3, ps->stats[STAT_ARMOR], 6, 12,
-		NUM_FONT_SMALL,qfalse);
+		NUM_FONT_SMALL,false);
 
 }
 
 //-----------------------------------------------------
-static qboolean CG_DrawCustomHealthHud( centity_t *cent )
+static bool CG_DrawCustomHealthHud( centity_t *cent )
 {
 	float	health = 0;
 	vec4_t	color;
@@ -650,7 +650,7 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		cgi_R_SetColor( colorTable[CT_WHITE] );
 		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.emplacedHealthBarShader);
 
-		return qfalse; // drew this hud, so don't draw the player one
+		return false; // drew this hud, so don't draw the player one
 	}
 	else if (( cent->currentState.eFlags & EF_IN_ATST ))
 	{
@@ -683,7 +683,7 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		cgi_R_SetColor( colorTable[CT_WHITE] );
 		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.emplacedHealthBarShader);
 
-		return qfalse; // drew this hud, so don't draw the player one
+		return false; // drew this hud, so don't draw the player one
 	}
 	else if ( cg.snap->ps.viewEntity && ( g_entities[cg.snap->ps.viewEntity].dflags & DAMAGE_CUSTOM_HUD ))
 	{
@@ -705,10 +705,10 @@ static qboolean CG_DrawCustomHealthHud( centity_t *cent )
 		cgi_R_SetColor( colorTable[CT_WHITE] );
 		CG_DrawPic( 2, 480 - 64, 128, 64, cgs.media.ladyLuckHealthShader );
 
-		return qfalse; // drew this hud, so don't draw the player one
+		return false; // drew this hud, so don't draw the player one
 	}
 
-	return qtrue;
+	return true;
 }
 
 //--------------------------------------
@@ -744,7 +744,7 @@ CG_DrawHUD
 ================
 */
 extern void *cgi_UI_GetMenuByName( const char *menu );
-extern void cgi_UI_Menu_Paint( void *menu, qboolean force );
+extern void cgi_UI_Menu_Paint( void *menu, bool force );
 static void CG_DrawHUD( centity_t *cent )
 {
 	int x,y,value;
@@ -752,7 +752,7 @@ static void CG_DrawHUD( centity_t *cent )
 	if (cgi_UI_GetMenuInfo("lefthud",&x,&y))
 	{
 		// Draw all the HUD elements --eez
-		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "lefthud" ), qtrue );
+		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "lefthud" ), true );
 
 		// Draw armor & health values
 		if ( cg_draw2D.integer == 2 )
@@ -770,7 +770,7 @@ static void CG_DrawHUD( centity_t *cent )
 	if (cgi_UI_GetMenuInfo("righthud",&x,&y))
 	{
 		// Draw all the HUD elements --eez
-		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "righthud" ), qtrue );
+		cgi_UI_Menu_Paint( cgi_UI_GetMenuByName( "righthud" ), true );
 
 		// Draw armor & health values
 		if ( cg_draw2D.integer == 2 )
@@ -838,7 +838,7 @@ void CG_DrawDataPadHUD( centity_t *cent )
 	{
 		// Stop flashing light
 		cg.missionInfoFlashTime = 0;
-		missionInfo_Updated = qfalse;
+		missionInfo_Updated = false;
 
 		// Set which force power to show.
 		// cg_updatedDataPadForcePower is set from Q3_Interface, because force powers would only be given
@@ -871,7 +871,7 @@ void CG_DrawDataPadHUD( centity_t *cent )
 //------------------------
 // CG_DrawZoomMask
 //------------------------
-static void CG_DrawBinocularNumbers( qboolean power )
+static void CG_DrawBinocularNumbers( bool power )
 {
 	vec4_t color1;
 
@@ -905,7 +905,7 @@ static void CG_DrawBinocularNumbers( qboolean power )
 			if (( off > 3.0f && i == -10 ) || i > -10 )
 			{
 				// draw the value, but add 200 just to bump the range up...arbitrary, so change it if you like
-				CG_DrawNumField( 155 + i * 10 + off * 10, 374, 3, val + 200, 24, 14, NUM_FONT_CHUNKY, qtrue );
+				CG_DrawNumField( 155 + i * 10 + off * 10, 374, 3, val + 200, 24, 14, NUM_FONT_CHUNKY, true );
 				CG_DrawPic( 245 + (i-1) * 10 + off * 10, 376, 6, 6, cgs.media.whiteShader );
 			}
 		}
@@ -927,15 +927,15 @@ static void CG_DrawZoomMask( void )
 	vec4_t			color1;
 	centity_t		*cent;
 	float			level;
-	static qboolean	flip = qtrue;
+	static bool	flip = true;
 	float			charge = cg.snap->ps.batteryCharge / (float)MAX_BATTERIES; // convert charge to a percentage
-	qboolean		power = qfalse;
+	bool		power = false;
 
 	cent = &cg_entities[0];
 
 	if ( charge > 0.0f )
 	{
-		power = qtrue;
+		power = true;
 	}
 
 	//-------------
@@ -1022,7 +1022,7 @@ static void CG_DrawZoomMask( void )
 
 		if ( Q_flrand(0.0f, 1.0f) > 0.98f && ( cg.time & 1024 ))
 		{
-			flip = (qboolean)!flip;
+			flip = !flip;
 		}
 
 		if ( power )
@@ -1225,7 +1225,7 @@ static void CG_DrawStats( void )
 
 	cgi_UI_MenuPaintAll();
 
-	qboolean drawHud = qtrue;
+	bool drawHud = true;
 
 	if ( cent && cent->gent )
 	{
@@ -1279,8 +1279,8 @@ void CG_DrawCredits(void)
 	if (!cg.creditsStart)
 	{
 		//
-		cg.creditsStart = qtrue;
-		cgi_SP_Register("CREDITS", qfalse);	// do not keep around after level
+		cg.creditsStart = true;
+		cgi_SP_Register("CREDITS", false);	// do not keep around after level
 		CG_Credits_Init("CREDITS_RAVEN", &colorTable[CT_ICON_BLUE]);
 		if ( cg_skippingcin.integer )
 		{//Were skipping a cinematic and it's over now
@@ -1319,7 +1319,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 {
 	float		w, h;
 	qhandle_t	hShader;
-	qboolean	corona = qfalse;
+	bool	corona = false;
 	vec4_t		ecolor;
 	float		f;
 	float		x, y;
@@ -1346,7 +1346,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 		ecolor[1] = 0.5f;
 		ecolor[2] = 1.0f;
 
-		corona = qtrue;
+		corona = true;
 	}
 	else if ( cg_crosshairIdentifyTarget.integer )
 	{
@@ -1553,11 +1553,11 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 }
 
 /*
-qboolean CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y)
+bool CG_WorldCoordToScreenCoord(vec3_t worldCoord, int *x, int *y)
 
   Take any world coord and convert it to a 2D virtual 640x480 screen coord
 */
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
+bool CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
 {
     vec3_t trans;
     float xc, yc;
@@ -1575,24 +1575,24 @@ qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
 	// z = how far is the object in our forward direction
     z = DotProduct(trans, cg.refdef.viewaxis[0]);
     if (z <= 0.001)
-        return qfalse;
+        return false;
 
     *x = xc - DotProduct(trans, cg.refdef.viewaxis[1])*xc/(z*px);
     *y = yc - DotProduct(trans, cg.refdef.viewaxis[2])*yc/(z*py);
 
-    return qtrue;
+    return true;
 }
 
-qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
+bool CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
 	float xF, yF;
 
 	if ( CG_WorldCoordToScreenCoordFloat( worldCoord, &xF, &yF ) ) {
 		*x = (int)xF;
 		*y = (int)yF;
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 // I'm keeping the rocket tracking code separate for now since I may want to do different logic...but it still uses trace info from scanCrosshairEnt
@@ -1601,7 +1601,7 @@ static void CG_ScanForRocketLock( void )
 //-----------------------------------------
 {
 	gentity_t	*traceEnt;
-	static qboolean tempLock = qfalse; // this will break if anything else uses this locking code ( other than the player )
+	static bool tempLock = false; // this will break if anything else uses this locking code ( other than the player )
 
 	traceEnt = &g_entities[g_crosshairEntNum];
 
@@ -1618,7 +1618,7 @@ static void CG_ScanForRocketLock( void )
 			// didn't have a full lock and not in grace period, so drop the lock
 			g_rocketLockTime = 0;
 			g_rocketSlackTime = 0;
-			tempLock = qfalse;
+			tempLock = false;
 		}
 
 		if ( g_rocketSlackTime + 500 >= cg.time && g_rocketLockEntNum < ENTITYNUM_WORLD )
@@ -1630,7 +1630,7 @@ static void CG_ScanForRocketLock( void )
 
 		if ( !tempLock && g_rocketLockEntNum < ENTITYNUM_WORLD && dif >= 8 )
 		{
-			tempLock = qtrue;
+			tempLock = true;
 
 			if ( g_rocketLockTime + 1200 < cg.time )
 			{
@@ -1649,7 +1649,7 @@ static void CG_ScanForRocketLock( void )
 	}
 	else
 	{
-		tempLock = qfalse;
+		tempLock = false;
 
 		if ( g_rocketLockEntNum >= ENTITYNUM_WORLD )
 		{
@@ -1681,7 +1681,7 @@ CG_ScanForCrosshairEntity
 =================
 */
 extern float forcePushPullRadius[];
-static void CG_ScanForCrosshairEntity( qboolean scanAll )
+static void CG_ScanForCrosshairEntity( bool scanAll )
 {
 	trace_t		trace;
 	gentity_t	*traceEnt = NULL;
@@ -1691,7 +1691,7 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 
 	//FIXME: debounce this to about 10fps?
 
-	cg_forceCrosshair = qfalse;
+	cg_forceCrosshair = false;
 	if ( cg_entities[0].gent && cg_entities[0].gent->client ) // <-Mike said it should always do this   //if (cg_crosshairForceHint.integer &&
 	{//try to check for force-affectable stuff first
 		vec3_t d_f, d_rt, d_up;
@@ -1715,7 +1715,7 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 					if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_TELEPATHY] && traceEnt->health > 0 && VALIDSTRING(traceEnt->behaviorSet[BSET_MINDTRICK]) )
 					{//I have the ability to mind-trick and he is alive and he has a mind trick script
 						//NOTE: no need to check range since it's always 2048
-						cg_forceCrosshair = qtrue;
+						cg_forceCrosshair = true;
 					}
 				}
 				// No?  Check for force-push/pullable doors and func_statics
@@ -1738,7 +1738,7 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 								}
 								if ( maxRange >= trace.fraction * 2048 )
 								{//actually close enough to use one of our force powers on it
-									cg_forceCrosshair = qtrue;
+									cg_forceCrosshair = true;
 								}
 							}
 						}
@@ -1758,21 +1758,21 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 							}
 							if ( maxRange >= trace.fraction * 2048 )
 							{//actually close enough to use one of our force powers on it
-								cg_forceCrosshair = qtrue;
+								cg_forceCrosshair = true;
 							}
 						}
 						else if ( (traceEnt->spawnflags & 1/*F_PUSH*/) )
 						{//pushable only
 							if ( forcePushPullRadius[cg_entities[0].gent->client->ps.forcePowerLevel[FP_PUSH]] >= trace.fraction * 2048 )
 							{//actually close enough to use force push on it
-								cg_forceCrosshair = qtrue;
+								cg_forceCrosshair = true;
 							}
 						}
 						else if ( (traceEnt->spawnflags & 2/*F_PULL*/) )
 						{//pullable only
 							if ( forcePushPullRadius[cg_entities[0].gent->client->ps.forcePowerLevel[FP_PULL]] >= trace.fraction * 2048 )
 							{//actually close enough to use force pull on it
-								cg_forceCrosshair = qtrue;
+								cg_forceCrosshair = true;
 							}
 						}
 					}
@@ -1920,7 +1920,7 @@ CG_DrawCrosshairNames
 */
 static void CG_DrawCrosshairNames( void )
 {
-	qboolean	scanAll = qfalse;
+	bool	scanAll = false;
 	centity_t	*player = &cg_entities[0];
 
 	if ( cg_dynamicCrosshair.integer )
@@ -2206,7 +2206,7 @@ static void CG_DrawAmmoWarning( void ) {
 }
 
 //---------------------------------------
-static qboolean CG_RenderingFromMiscCamera()
+static bool CG_RenderingFromMiscCamera()
 {
 	//centity_t *cent;
 
@@ -2228,7 +2228,7 @@ static qboolean CG_RenderingFromMiscCamera()
 				CG_DrawPic( 0, 0, 640, 480, cgi_R_RegisterShader( "gfx/2d/brokenCamera" ));
 			}
 			// don't render other 2d stuff
-			return qtrue;
+			return true;
 		}
 		else if ( !Q_stricmp( "misc_panel_turret", g_entities[cg.snap->ps.viewEntity].classname ))
 		{
@@ -2244,7 +2244,7 @@ static qboolean CG_RenderingFromMiscCamera()
 	}
 
 	// not in misc_camera, render other stuff.
-	return qfalse;
+	return false;
 }
 
 /*
@@ -2390,7 +2390,7 @@ static void CG_Draw2D( void )
 			if (cg.missionInfoFlashTime < cg.time)	// Time's up.  They didn't read it.
 			{
 				cg.missionInfoFlashTime = 0;
-				missionInfo_Updated = qfalse;
+				missionInfo_Updated = false;
 
 				CG_ClearDataPadCvars();
 			}

@@ -286,7 +286,7 @@ Returns false if the item should not be picked up.
 This needs to be the same for client side prediction and server use.
 ================
 */
-qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
+bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 	gitem_t	*item;
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
@@ -302,17 +302,17 @@ qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps 
 		if ( !(ps->stats[ STAT_WEAPONS ] & ( 1 << item->giTag )))
 		{
 			// Don't have this weapon yet, so pick it up.
-			return qtrue;
+			return true;
 		}
 
 		// Make sure that we aren't already full on ammo for this weapon
 		if ( ps->ammo[weaponData[item->giTag].ammoIndex] >= ammoData[weaponData[item->giTag].ammoIndex].max )
 		{
 			// full, so don't grab the item
-			return qfalse;
+			return false;
 		}
 
-		return qtrue; // could use more of this type of ammo, so grab the item
+		return true; // could use more of this type of ammo, so grab the item
 
 	case IT_AMMO:
 
@@ -324,64 +324,64 @@ qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps 
 			case AMMO_THERMAL:
 				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) )
 				{
-					return qtrue;
+					return true;
 				}
 				break;
 			case AMMO_DETPACK:
 				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_DET_PACK ) ) )
 				{
-					return qtrue;
+					return true;
 				}
 				break;
 			case AMMO_TRIPMINE:
 				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_TRIP_MINE ) ) )
 				{
-					return qtrue;
+					return true;
 				}
 				break;
 			}
 
 			if ( ps->ammo[ item->giTag ] >= ammoData[item->giTag].max )	// checkme
 			{
-				return qfalse;		// can't hold any more
+				return false;		// can't hold any more
 			}
 		}
 		else
 		{
 			if (ps->forcePower >= ammoData[item->giTag].max*2)
 			{
-				return qfalse;		// can't hold any more
+				return false;		// can't hold any more
 			}
 
 		}
 
-		return qtrue;
+		return true;
 
 	case IT_ARMOR:
 		// we also clamp armor to the maxhealth for handicapping
 		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] ) {
-			return qfalse;
+			return false;
 		}
-		return qtrue;
+		return true;
 
 	case IT_HEALTH:
 		// don't pick up if already at max
 		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
-			return qfalse;
+			return false;
 		}
-		return qtrue;
+		return true;
 
 	case IT_BATTERY:
 		// don't pick up if already at max
 		if ( ps->batteryCharge >= MAX_BATTERIES )
 		{
-			return qfalse;
+			return false;
 		}
-		return qtrue;
+		return true;
 
 	case IT_HOLOCRON:
 		// pretty lame but for now you can always pick these up
-		return qtrue;
+		return true;
 
 
 	case IT_HOLDABLE:
@@ -390,17 +390,17 @@ qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps 
 			// hardcoded--can only pick up five of any holdable
 			if ( ps->inventory[item->giTag] >= 5 )
 			{
-				return qfalse;
+				return false;
 			}
 		}
-		return qtrue;
+		return true;
 
 	default:
 		assert( !"BG_CanItemBeGrabbed: invalid item" );
 		break;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //======================================================================
@@ -652,7 +652,7 @@ BG_PlayerTouchesItem
 Items can be picked up without actually touching their physical bounds
 ============
 */
-qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
+bool	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
 	vec3_t origin = { 0.0f };
 
 	EvaluateTrajectory( &item->pos, atTime, origin );
@@ -664,10 +664,10 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 		|| ps->origin[1] - origin[1] < -36
 		|| ps->origin[2] - origin[2] > 36
 		|| ps->origin[2] - origin[2] < -36 ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 

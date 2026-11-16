@@ -35,7 +35,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 //---------------------------------------------------------
 {
 	int			damage = weaponData[WP_DISRUPTOR].damage;
-	qboolean	render_impact = qtrue;
+	bool	render_impact = true;
 	vec3_t		start, end, spot;
 	trace_t		tr;
 	gentity_t	*traceEnt = NULL, *tent;
@@ -94,7 +94,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT )
 	{
-		render_impact = qfalse;
+		render_impact = false;
 	}
 
 	// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
@@ -147,13 +147,13 @@ void WP_DisruptorAltFire( gentity_t *ent )
 //---------------------------------------------------------
 {
 	int			damage = weaponData[WP_DISRUPTOR].altDamage, skip, traces = DISRUPTOR_ALT_TRACES;
-	qboolean	render_impact = qtrue;
+	bool	render_impact = true;
 	vec3_t		start, end;
 	vec3_t		muzzle2, spot, dir;
 	trace_t		tr;
 	gentity_t	*traceEnt, *tent;
 	float		dist, shotDist, shotRange = 8192;
-	qboolean	hitDodged = qfalse, fullCharge = qfalse;
+	bool	hitDodged = false, fullCharge = false;
 
 	VectorCopy( muzzle, muzzle2 ); // making a backup copy
 
@@ -175,7 +175,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 		VectorCopy( muzzle, start );
 
-		fullCharge = qtrue;
+		fullCharge = true;
 	}
 	else
 	{
@@ -192,7 +192,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		else if ( count >= 10 )
 		{
 			count = 10;
-			fullCharge = qtrue;
+			fullCharge = true;
 		}
 
 		// more powerful charges go through more things
@@ -227,7 +227,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 		if ( tr.surfaceFlags & SURF_NOIMPACT )
 		{
-			render_impact = qfalse;
+			render_impact = false;
 		}
 
 		if ( tr.entityNum == ent->s.number )
@@ -311,7 +311,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		VectorCopy( tr.endpos, muzzle2 );
 		VectorCopy( tr.endpos, start );
 		skip = tr.entityNum;
-		hitDodged = qfalse;
+		hitDodged = false;
 	}
 	//just draw one solid beam all the way to the end...
 	tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_SHOT );
@@ -337,7 +337,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 }
 
 //---------------------------------------------------------
-void WP_FireDisruptor( gentity_t *ent, qboolean alt_fire )
+void WP_FireDisruptor( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	if ( alt_fire )

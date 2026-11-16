@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_event.c -- handle entity events at snapshot or playerstate transitions
+// cg_event.cpp -- handle entity events at snapshot or playerstate transitions
 
 #include "cg_headers.h"
 
@@ -30,18 +30,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../game/anims.h"
 
-extern qboolean CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
+extern bool CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
 extern void FX_KothosBeam( vec3_t start, vec3_t end );
 
 //==========================================================================
 
-qboolean CG_IsFemale( const char *infostring ) {
+bool CG_IsFemale( const char *infostring ) {
 	const char		*sex;
 
 	sex = Info_ValueForKey( infostring, "s" );
 	if (sex[0] == 'f' || sex[0] == 'F')
-		return qtrue;
-	return qfalse;
+		return true;
+	return false;
 }
 
 const char	*CG_PlaceString( int rank ) {
@@ -89,7 +89,7 @@ CG_ItemPickup
 A new item was picked up this frame
 ================
 */
-void CG_ItemPickup( int itemNum, qboolean bHadItem ) {
+void CG_ItemPickup( int itemNum, bool bHadItem ) {
 	cg.itemPickup = itemNum;
 	cg.itemPickupTime = cg.time;
 	cg.itemPickupBlendTime = cg.time;
@@ -459,14 +459,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			gitem_t	*item;
 			int		index;
-			qboolean bHadItem = qfalse;
+			bool bHadItem = false;
 
 			index = es->eventParm;		// player predicted
 
 			if ( (char)index < 0 )
 			{
 				index = -(char)index;
-				bHadItem = qtrue;
+				bHadItem = true;
 			}
 
 			if ( index >= bg_numItems ) {
@@ -497,7 +497,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if ( es->weapon == WP_SABER )
 		{
 			/*
-			if ( !cent->gent || !cent->gent->client || (cent->currentState.saberInFlight == qfalse && cent->currentState.saberActive == qtrue) )
+			if ( !cent->gent || !cent->gent->client || (cent->currentState.saberInFlight == false && cent->currentState.saberActive == true) )
 			{
 				cgi_S_StartSound (NULL, es->number, CHAN_AUTO, cgi_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ) );
 			}
@@ -506,7 +506,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			{
 				//if ( cent->gent->client->ps.saberInFlight )
 				{//if it's not in flight or lying around, turn it off!
-					cent->currentState.saberActive = qfalse;
+					cent->currentState.saberActive = false;
 				}
 			}
 		}
@@ -526,12 +526,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");
-		CG_FireWeapon( cent, qfalse );
+		CG_FireWeapon( cent, false );
 		break;
 
 	case EV_ALT_FIRE:
 		DEBUGNAME("EV_ALT_FIRE");
-		CG_FireWeapon( cent, qtrue );
+		CG_FireWeapon( cent, true );
 		break;
 
 	case EV_DISRUPTOR_MAIN_SHOT:
@@ -606,7 +606,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DISINTEGRATION:
 		{
 			DEBUGNAME("EV_DISINTEGRATION");
-			qboolean makeNotSolid = qfalse;
+			bool makeNotSolid = false;
 			int disintPW = es->eventParm;
 			int disintEffect = 0;
 			int disintLength = 0;
@@ -622,7 +622,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				disintSound2 = cgs.media.disintegrate2Sound;//no scream
 				//disintSound3 = cgs.media.disintegrate3Sound;//with inhuman scream
 				disintLength = 2000;
-				makeNotSolid = qtrue;
+				makeNotSolid = true;
 				break;
 /*			case PW_SHOCKED:// arc welder
 				disintEffect = EF_DISINT_1;//ef_

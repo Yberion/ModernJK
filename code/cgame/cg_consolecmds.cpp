@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_consolecmds.c -- text commands typed in at the local console, or
+// cg_consolecmds.cpp -- text commands typed in at the local console, or
 // executed by a key binding
 
 #include "cg_headers.h"
@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_media.h"	//just for cgs....
 
 void CG_TargetCommand_f( void );
-extern qboolean	player_locked;
+extern bool	player_locked;
 extern void CMD_CGCam_Disable( void );
 void CG_NextInventory_f( void );
 void CG_PrevInventory_f( void );
@@ -90,7 +90,7 @@ void CG_WriteCam_f (void)
 
 void Lock_Disable ( void )
 {
-	player_locked = qfalse;
+	player_locked = false;
 }
 
 extern float cg_zoomFov;	//from cg_view.cpp
@@ -117,7 +117,7 @@ void CG_ToggleBinoculars( void )
 		}
 
 		cg.zoomMode = 1;
-		cg.zoomLocked = qfalse;
+		cg.zoomLocked = false;
 
 		if ( cg.weaponSelect == WP_SABER )
 		{
@@ -176,7 +176,7 @@ void CG_ToggleLAGoggles( void )
 		}
 
 		cg.zoomMode = 3;
-		cg.zoomLocked = qfalse;
+		cg.zoomLocked = false;
 		if ( cg.overrides.active & CG_OVERRIDE_FOV )
 		{
 			cg_zoomFov = cg.overrides.fov;
@@ -264,16 +264,16 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-qboolean CG_ConsoleCommand( void ) {
+bool CG_ConsoleCommand( void ) {
 	consoleCommand_t	*command = NULL;
 
 	command = (consoleCommand_t *)Q_LinearSearch( CG_Argv( 0 ), commands, numCommands, sizeof( commands[0] ), cmdcmp );
 
 	if ( !command )
-		return qfalse;
+		return false;
 
 	command->func();
-	return qtrue;
+	return true;
 }
 
 static const char *gcmds[] = {

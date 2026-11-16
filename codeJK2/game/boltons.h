@@ -22,7 +22,7 @@ extern void G_RegisterBoltOns(void);
 //extern void Q3_SetActiveBoltOn( int entID, const char *boltOnName );
 //extern void Q3_SetActiveBoltOnStartFrame( int entID, int startFrame );
 //extern void Q3_SetActiveBoltOnEndFrame( int entID, int endFrame );
-//extern void Q3_SetActiveBoltOnAnimLoop( int entID, qboolean loopAnim );
+//extern void Q3_SetActiveBoltOnAnimLoop( int entID, bool loopAnim );
 extern void G_DropBoltOn( gentity_t *ent, const char *boltOnName );
 extern byte G_BoltOnNumberForName( gentity_t *ent, const char *boltOnName );
 extern void G_InitBoltOnData ( gentity_t *ent );

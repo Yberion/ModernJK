@@ -237,7 +237,7 @@ void RE_SetLightStyle(int style, int color);
 
 void R_Splash()
 {
-	image_t *pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+	image_t *pImage = R_FindImageFile( "menu/splash", false, false, false, GL_CLAMP);
 
 	if ( !pImage )
 	{
@@ -409,17 +409,17 @@ static void GLimp_InitExtensions( void )
 	GLW_InitTextureCompression();
 
 	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
+	glConfig.textureEnvAddAvailable = false;
 	if ( ri.GL_ExtensionSupported( "GL_EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
-			glConfig.textureEnvAddAvailable = qtrue;
+			glConfig.textureEnvAddAvailable = true;
 			Com_Printf ("...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			glConfig.textureEnvAddAvailable = qfalse;
+			glConfig.textureEnvAddAvailable = false;
 			Com_Printf ("...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
@@ -456,7 +456,7 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// GL_EXT_clamp_to_edge
-	glConfig.clampToEdgeAvailable = qtrue;
+	glConfig.clampToEdgeAvailable = true;
 	Com_Printf ("...using GL_EXT_texture_edge_clamp\n" );
 
 	// GL_ARB_multitexture
@@ -677,10 +677,10 @@ static void GLimp_InitExtensions( void )
 	qglStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)ri.GL_GetProcAddress("glStencilOpSeparate");
 	if (qglStencilOpSeparate)
 	{
-		glConfig.doStencilShadowsInOneDrawcall = qtrue;
+		glConfig.doStencilShadowsInOneDrawcall = true;
 	}
 #else
-	glConfig.doStencilShadowsInOneDrawcall = qtrue;
+	glConfig.doStencilShadowsInOneDrawcall = true;
 #endif
 }
 
@@ -819,7 +819,7 @@ byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *pa
 	padwidth = PAD(linelen, packAlign);
 
 	// Allocate a few more bytes so that we can choose an alignment we like
-	buffer = (byte *) R_Malloc(padwidth * height + *offset + packAlign - 1, TAG_TEMP_WORKSPACE, qfalse);
+	buffer = (byte *) R_Malloc(padwidth * height + *offset + packAlign - 1, TAG_TEMP_WORKSPACE, false);
 
 	bufstart = (byte *)PADP((intptr_t) buffer + *offset, packAlign);
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart);
@@ -967,7 +967,7 @@ static void R_LevelShot( void ) {
 	allsource = RB_ReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen);
 	source = allsource + offset;
 
-	buffer = (byte *) R_Malloc(LEVELSHOTSIZE * LEVELSHOTSIZE*3 + 18, TAG_TEMP_WORKSPACE, qfalse);
+	buffer = (byte *) R_Malloc(LEVELSHOTSIZE * LEVELSHOTSIZE*3 + 18, TAG_TEMP_WORKSPACE, false);
 	Com_Memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = LEVELSHOTSIZE & 255;
@@ -1024,7 +1024,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 void R_ScreenShotTGA_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -1032,7 +1032,7 @@ void R_ScreenShotTGA_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1068,7 +1068,7 @@ Doesn't print the pacifier message if there is a second arg
 */
 void R_ScreenShotPNG_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -1076,7 +1076,7 @@ void R_ScreenShotPNG_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1100,14 +1100,14 @@ void R_ScreenShotPNG_f (void) {
 
 void R_ScreenShot_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
 		return;
 	}
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1531,7 +1531,7 @@ void R_Register( void )
 	r_DynamicGlowHeight = ri.Cvar_Get( "r_DynamicGlowHeight", "240", CVAR_ARCHIVE_ND | CVAR_LATCH );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
+	ri.Cvar_CheckRange( r_picmip, 0, 16, true );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
 	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
@@ -1541,7 +1541,7 @@ void R_Register( void )
 	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
 	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_subdivisions = ri.Cvar_Get ("r_subdivisions", "4", CVAR_ARCHIVE_ND | CVAR_LATCH);
-	ri.Cvar_CheckRange( r_subdivisions, 0, 80, qfalse );
+	ri.Cvar_CheckRange( r_subdivisions, 0, 80, false );
 	r_intensity = ri.Cvar_Get ("r_intensity", "1", CVAR_LATCH|CVAR_ARCHIVE_ND );
 
 	//
@@ -1559,7 +1559,7 @@ void R_Register( void )
 	r_lodscale = ri.Cvar_Get( "r_lodscale", "10", CVAR_ARCHIVE_ND );
 
 	r_znear = ri.Cvar_Get( "r_znear", "4", CVAR_ARCHIVE_ND );	//if set any lower, you lose a lot of precision in the distance
-	ri.Cvar_CheckRange( r_znear, 0.001f, 10, qfalse ); // was qtrue in JA, is qfalse properly in ioq3
+	ri.Cvar_CheckRange( r_znear, 0.001f, 10, false ); // was true in JA, is false properly in ioq3
 	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE_ND );
 	r_fastsky = ri.Cvar_Get( "r_fastsky", "0", CVAR_ARCHIVE_ND );
 	r_drawSun = ri.Cvar_Get( "r_drawSun", "0", CVAR_ARCHIVE_ND );
@@ -1584,7 +1584,7 @@ void R_Register( void )
 	r_windPointY = ri.Cvar_Get ("r_windPointY", "0", 0);
 
 	r_primitives = ri.Cvar_Get( "r_primitives", "0", CVAR_ARCHIVE_ND );
-	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
+	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, true );
 
 	r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.5", CVAR_CHEAT );
 	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT );
@@ -1681,7 +1681,7 @@ Ghoul2 Insert End
 
 	r_screenshotJpegQuality				= ri.Cvar_Get( "r_screenshotJpegQuality",			"95",						CVAR_ARCHIVE_ND );
 
-	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10, 100, qtrue );
+	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10, 100, true );
 
 	for ( size_t i = 0; i < numCommands; i++ )
 		ri.Cmd_AddCommand( commands[i].cmd, commands[i].func );
@@ -1751,7 +1751,7 @@ void R_Init( void ) {
 	R_NoiseInit();
 	R_Register();
 
-	backEndData = (backEndData_t *) R_Hunk_Alloc( sizeof( backEndData_t ), qtrue );
+	backEndData = (backEndData_t *) R_Hunk_Alloc( sizeof( backEndData_t ), true );
 	R_InitNextFrame();
 
 	const color4ub_t color = {0xff, 0xff, 0xff, 0xff};
@@ -1785,7 +1785,7 @@ RE_Shutdown
 ===============
 */
 extern void R_ShutdownWorldEffects(void);
-void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
+void RE_Shutdown( bool destroyWindow, bool restarting ) {
 	for ( size_t i = 0; i < numCommands; i++ )
 		ri.Cmd_RemoveCommand( commands[i].cmd );
 
@@ -1842,7 +1842,7 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 	if ( destroyWindow ) {
 		ri.WIN_Shutdown();
 	}
-	tr.registered = qfalse;
+	tr.registered = false;
 }
 
 /*
@@ -1894,8 +1894,8 @@ DLL glue
 
 extern float tr_distortionAlpha;
 extern float tr_distortionStretch;
-extern qboolean tr_distortionPrePost;
-extern qboolean tr_distortionNegate;
+extern bool tr_distortionPrePost;
+extern bool tr_distortionNegate;
 
 float *get_tr_distortionAlpha( void )
 {
@@ -1907,12 +1907,12 @@ float *get_tr_distortionStretch( void )
 	return &tr_distortionStretch;
 }
 
-qboolean *get_tr_distortionPrePost( void )
+bool *get_tr_distortionPrePost( void )
 {
 	return &tr_distortionPrePost;
 }
 
-qboolean *get_tr_distortionNegate( void )
+bool *get_tr_distortionNegate( void )
 {
 	return &tr_distortionNegate;
 }
@@ -1952,17 +1952,17 @@ GetRefAPI
 */
 extern void R_LoadImage( const char *shortname, byte **pic, int *width, int *height );
 extern void R_WorldEffectCommand(const char *command);
-extern qboolean R_inPVS( vec3_t p1, vec3_t p2 );
+extern bool R_inPVS( vec3_t p1, vec3_t p2 );
 extern void RE_GetModelBounds(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2);
 extern void G2API_AnimateG2Models(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUpdateParams *params);
-extern qboolean G2API_GetRagBonePos(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale);
-extern qboolean G2API_RagEffectorKick(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
-extern qboolean G2API_RagForceSolve(CGhoul2Info_v &ghoul2, qboolean force);
-extern qboolean G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
-extern qboolean G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
-extern qboolean G2API_RagEffectorGoal(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos);
-extern qboolean G2API_RagPCJGradientSpeed(CGhoul2Info_v &ghoul2, const char *boneName, const float speed);
-extern qboolean G2API_RagPCJConstraint(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t min, vec3_t max);
+extern bool G2API_GetRagBonePos(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale);
+extern bool G2API_RagEffectorKick(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t velocity);
+extern bool G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force);
+extern bool G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+extern bool G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
+extern bool G2API_RagEffectorGoal(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos);
+extern bool G2API_RagPCJGradientSpeed(CGhoul2Info_v &ghoul2, const char *boneName, const float speed);
+extern bool G2API_RagPCJConstraint(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t min, vec3_t max);
 extern void G2API_SetRagDoll(CGhoul2Info_v &ghoul2,CRagDollParams *parms);
 #ifdef G2_PERFORMANCE_ANALYSIS
 extern void G2Time_ResetTimers(void);
@@ -1971,7 +1971,7 @@ extern void G2Time_ReportTimers(void);
 extern IGhoul2InfoArray &TheGhoul2InfoArray();
 
 #ifdef JK2_MODE
-unsigned int AnyLanguage_ReadCharFromString_JK2 ( char **text, qboolean *pbIsTrailingPunctuation ) {
+unsigned int AnyLanguage_ReadCharFromString_JK2 ( char **text, bool *pbIsTrailingPunctuation ) {
 	return AnyLanguage_ReadCharFromString (text, pbIsTrailingPunctuation);
 }
 #endif

@@ -64,7 +64,7 @@ typedef enum
 typedef struct sfx_s {
 	short			*pSoundData;
 	bool			bDefaultSound;			// couldn't be loaded, so use buzz
-	bool			bInMemory;				// not in Memory, set qtrue when loaded, and qfalse when its buffers are freed up because of being old, so can be reloaded
+	bool			bInMemory;				// not in Memory, set true when loaded, and false when its buffers are freed up because of being old, so can be reloaded
 	short			iLastLevelUsedOn;		// used for cacheing purposes
 	SoundCompressionMethod_t eSoundCompressionMethod;
 	MP3STREAM		*pMP3StreamHeader;		// NULL ptr unless this sfx_t is an MP3. Use Z_Malloc and Z_Free
@@ -101,7 +101,7 @@ typedef struct {
 typedef struct
 {
 // back-indented fields new in TA codebase, will re-format when MP3 code finished -ste
-// note: field missing in TA: qboolean	loopSound;		// from an S_AddLoopSound call, cleared each frame
+// note: field missing in TA: bool	loopSound;		// from an S_AddLoopSound call, cleared each frame
 //
 	int				startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
 	int				entnum;			// to allow overriding a specific sound
@@ -113,9 +113,9 @@ typedef struct
 
 	vec3_t		origin;			// only use if fixed_origin is set
 
-	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
+	bool	fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
-	qboolean	loopSound;		// from an S_AddLoopSound call, cleared each frame
+	bool	loopSound;		// from an S_AddLoopSound call, cleared each frame
 	//
 	MP3STREAM	MP3StreamHeader;
 	byte		MP3SlidingDecodeBuffer[50000/*12000*/];	// typical back-request = -3072, so roughly double is 6000 (safety), then doubled again so the 6K pos is in the middle of the buffer)
@@ -175,7 +175,7 @@ extern cvar_t *s_volumeVoice;
 
 wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength);
 
-qboolean S_LoadSound( sfx_t *sfx );
+bool S_LoadSound( sfx_t *sfx );
 
 
 void S_PaintChannels(int endtime);

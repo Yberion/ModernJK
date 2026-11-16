@@ -135,7 +135,7 @@ typedef struct {
 	usercmd_t	cmd;
 	int			tracemask;			// collide against these types of surfaces
 	int			debugLevel;			// if set, diagnostic output will be printed
-	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
+	bool	noFootsteps;		// if the game is setup for no footsteps by the server
 
 	// results (out)
 	int			numtouch;
@@ -707,7 +707,7 @@ gitem_t	*FindItemForInventory( int inv );
 
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
 
-qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
+bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 
 
 // content masks
@@ -760,6 +760,6 @@ int	CurrentPlayerstateEvent( playerState_t *ps );
 
 void PlayerStateToEntityState( playerState_t *ps, entityState_t *s );
 
-qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
+bool	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
 #endif//#ifndef __BG_PUBLIC_H__

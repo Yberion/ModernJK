@@ -127,7 +127,7 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = ge->ClientConnect( clientNum, qtrue, eSavedGameJustLoaded ); // firstTime = qtrue
+	denied = ge->ClientConnect( clientNum, true, eSavedGameJustLoaded ); // firstTime = true
 	if ( denied ) {
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf ("Game rejected a connection: %s.\n", denied);
@@ -471,18 +471,18 @@ static void SV_UserMove( client_t *cl, msg_t *msg ) {
 			char savename[MAX_QPATH];
 			if ( eSavedGameJustLoaded == eNO )
 			{
-				SG_WriteSavegame("auto",qtrue);
+				SG_WriteSavegame("auto",true);
 				if ( Q_stricmpn(sv_mapname->string, "academy", 7) != 0)
 				{
 					Com_sprintf (savename, sizeof(savename), "auto_%s",sv_mapname->string);
-					SG_WriteSavegame(savename,qtrue);//can't use va becuase it's nested
+					SG_WriteSavegame(savename,true);//can't use va becuase it's nested
 				}
 			}
-			else if ( qbLoadTransition == qtrue )
+			else if ( qbLoadTransition == true )
 			{
 				Com_sprintf (savename, sizeof(savename), "hub/%s", sv_mapname->string );
-				SG_WriteSavegame( savename, qfalse );//save a full one
-				SG_WriteSavegame( "auto", qfalse );//need a copy for auto, too
+				SG_WriteSavegame( savename, false );//save a full one
+				SG_WriteSavegame( "auto", false );//need a copy for auto, too
 			}
 		}
 		eSavedGameJustLoaded = eNO;
@@ -501,7 +501,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg ) {
 	// with a packetdup of 0, firstNum == cmdNum
 	firstNum = cmdNum - ( cmdCount - 1 );
 	if ( cl->cmdNum < firstNum - 1 ) {
-		cl->droppedCommands = qtrue;
+		cl->droppedCommands = true;
 		if ( sv_showloss->integer ) {
 			Com_Printf("Lost %i usercmds from %s\n", firstNum - 1 - cl->cmdNum,
 				cl->name);

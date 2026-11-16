@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.h"
 #include "ui_shared.h"
 
-// ui_cvar.c
+// ui_cvar.cpp
 #define XCVAR_PROTO
 	#include "ui_xcvar.h"
 #undef XCVAR_PROTO
@@ -41,12 +41,12 @@ void UI_UpdateCvars( void );
 #define MAX_SABER_HILTS			256 //64
 
 //
-// ui_main.c
+// ui_main.cpp
 //
-qboolean UI_FeederSelection( float feederID, int index, itemDef_t *item );
+bool UI_FeederSelection( float feederID, int index, itemDef_t *item );
 void UI_Report( void );
 void UI_Load( void );
-void UI_LoadMenus( const char *menuFile, qboolean reset );
+void UI_LoadMenus( const char *menuFile, bool reset );
 void UI_LoadArenas( void );
 void UI_LoadForceConfig_List( void );
 
@@ -65,9 +65,9 @@ typedef struct lerpFrame_s {
 	float		backlerp;
 
 	float		yawAngle;
-	qboolean	yawing;
+	bool	yawing;
 	float		pitchAngle;
-	qboolean	pitching;
+	bool	pitching;
 
 	int			animationNumber;
 	animation_t	*animation;
@@ -113,10 +113,10 @@ typedef struct playerInfo_s {
 	int				pendingTorsoAnim;
 	int				legsAnimationTimer;
 
-	qboolean		chat;
-	qboolean		newModel;
+	bool		chat;
+	bool		newModel;
 
-	qboolean		barrelSpinning;
+	bool		barrelSpinning;
 	float			barrelAngle;
 	int				barrelTime;
 
@@ -180,7 +180,7 @@ typedef struct mapInfo_s {
 	int cinematic;
 	int timeToBeat[MAX_GAMETYPES];
 	qhandle_t levelShot;
-	qboolean active;
+	bool active;
 } mapInfo_t;
 
 typedef struct tierInfo_s {
@@ -211,7 +211,7 @@ typedef struct serverStatus_s {
 	int		sortKey;
 	int		sortDir;
 	int		lastCount;
-	qboolean refreshActive;
+	bool refreshActive;
 	int		currentServer;
 	int		displayServers[MAX_DISPLAY_SERVERS];
 	int		numDisplayServers;
@@ -234,7 +234,7 @@ typedef struct pendingServer_s {
 	char		name[MAX_ADDRESSLENGTH];
 	int			startTime;
 	int			serverNum;
-	qboolean	valid;
+	bool	valid;
 } pendingServer_t;
 
 typedef struct pendingServerStatus_s {
@@ -244,7 +244,7 @@ typedef struct pendingServerStatus_s {
 
 typedef struct serverStatusInfo_s {
 	char address[MAX_ADDRESSLENGTH];
-	char *lines[MAX_SERVERSTATUS_LINES][4];
+	const char *lines[MAX_SERVERSTATUS_LINES][4];
 	char text[MAX_SERVERSTATUS_TEXT];
 	char pings[MAX_CLIENTS * 3];
 	int numLines;
@@ -308,7 +308,7 @@ typedef struct uiInfo_s {
 	int						playerRefresh;
 	int						playerIndex;
 	int						playerNumber;
-	qboolean				teamLeader;
+	bool				teamLeader;
 	char					playerNames[MAX_CLIENTS][MAX_NETNAME];
 	char					teamNames[MAX_CLIENTS][MAX_TEAMNAME];
 	int						teamClientNums[MAX_CLIENTS];
@@ -368,11 +368,11 @@ typedef struct uiInfo_s {
 	int						forceConfigCount;
 	int						forceConfigSelected;
 	char					forceConfigNames[MAX_FORCE_CONFIGS][128];
-	qboolean				forceConfigSide[MAX_FORCE_CONFIGS]; //true if it's a light side config, false if dark side
+	bool				forceConfigSide[MAX_FORCE_CONFIGS]; //true if it's a light side config, false if dark side
 	int						forceConfigDarkIndexBegin; //mark the index number dark configs start at
 	int						forceConfigLightIndexBegin; //mark the index number light configs start at
 
-	qboolean				inGameLoad;
+	bool				inGameLoad;
 
 	int						playerSpeciesMax;
 	int						playerSpeciesCount;
@@ -388,14 +388,14 @@ typedef struct uiInfo_s {
 } uiInfo_t;
 extern uiInfo_t uiInfo;
 
-qboolean	UI_ConsoleCommand( int realTime );
+bool	UI_ConsoleCommand( int realTime );
 void		UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
 void		UI_FillRect( float x, float y, float width, float height, const float *color );
 char		*UI_Cvar_VariableString( const char *var_name );
 
 
 //
-// ui_gameinfo.c
+// ui_gameinfo.cpp
 //
 
 int UI_GetNumBots( void );
@@ -404,11 +404,11 @@ const char *UI_GetBotNameByNumber( int num );
 
 
 //
-// ui_saber.c
+// ui_saber.cpp
 //
 
-qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel );
-qboolean UI_SaberTypeForSaber( const char *saberName, char *saberType );
+bool UI_SaberModelForSaber( const char *saberName, char *saberModel );
+bool UI_SaberTypeForSaber( const char *saberName, char *saberType );
 
 
 // new ui

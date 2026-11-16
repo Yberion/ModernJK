@@ -35,9 +35,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // msg.c
 //
 typedef struct msg_s {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
+	bool	allowoverflow;	// if false, do a Com_Error
+	bool	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
+	bool	oob;			// set to true if the buffer size failed (with allowoverflow set)
 	byte	*data;
 	int		maxsize;
 	int		cursize;
@@ -87,16 +87,16 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , qboolean force );
+						   , bool force );
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						 int number );
 
 #ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, qboolean isVehiclePS = qfalse );
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, bool isVehiclePS = false );
 #else
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS = qfalse );
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, bool isVehiclePS = false );
 #endif
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS = qfalse );
+void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, bool isVehiclePS = false );
 
 #ifndef FINAL_BUILD
 void MSG_ReportChangeVectors_f( void );
@@ -163,25 +163,25 @@ typedef enum {
 void		NET_Init( void );
 void		NET_Shutdown( void );
 void		NET_Restart_f( void );
-void		NET_Config( qboolean enableNetworking );
+void		NET_Config( bool enableNetworking );
 
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, const netadr_t *to);
 void		NET_OutOfBandPrint( netsrc_t net_socket, const netadr_t *adr, const char *format, ...);
 void		NET_OutOfBandData( netsrc_t sock, const netadr_t *adr, byte *format, int len );
 
-qboolean	NET_CompareAdr (const netadr_t *a, const netadr_t *b);
-qboolean	NET_CompareBaseAdrMask( const netadr_t *a, const netadr_t *b, unsigned int netmask );
-qboolean	NET_CompareBaseAdr (const netadr_t *a, const netadr_t *b);
-qboolean	NET_IsLocalAddress (const netadr_t *adr);
+bool	NET_CompareAdr (const netadr_t *a, const netadr_t *b);
+bool	NET_CompareBaseAdrMask( const netadr_t *a, const netadr_t *b, unsigned int netmask );
+bool	NET_CompareBaseAdr (const netadr_t *a, const netadr_t *b);
+bool	NET_IsLocalAddress (const netadr_t *adr);
 const char	*NET_AdrToString (const netadr_t *a);
-qboolean	NET_StringToAdr ( const char *s, netadr_t *a);
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
+bool	NET_StringToAdr ( const char *s, netadr_t *a);
+bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
 void		NET_Sleep(int usec);
 
 void		Sys_SendPacket( int length, const void *data, const netadr_t *to );
 //Does NOT parse port numbers, only base addresses.
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
-qboolean	Sys_IsLANAddress (const netadr_t *adr);
+bool	Sys_StringToAdr( const char *s, netadr_t *a );
+bool	Sys_IsLANAddress (const netadr_t *adr);
 void		Sys_ShowIP(void);
 
 
@@ -217,7 +217,7 @@ typedef struct netchan_s {
 
 	// outgoing fragment buffer
 	// we need to space out the sending of large fragmented messages
-	qboolean	unsentFragments;
+	bool	unsentFragments;
 	int			unsentFragmentStart;
 	int			unsentLength;
 	byte		unsentBuffer[MAX_MSGLEN];
@@ -229,7 +229,7 @@ void Netchan_Setup( netsrc_t sock, netchan_t *chan, const netadr_t *adr, int qpo
 void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
 
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
+bool Netchan_Process( netchan_t *chan, msg_t *msg );
 
 
 /*
@@ -303,7 +303,7 @@ typedef struct vm_s {
 	vmSlots_t	slot; // VM_GAME, VM_CGAME, VM_UI
     char		name[MAX_QPATH];
 	void		*dllHandle;
-	qboolean	isLegacy; // uses the legacy syscall/vm_call api, is set by VM_CreateLegacy
+	bool	isLegacy; // uses the legacy syscall/vm_call api, is set by VM_CreateLegacy
 
 	// fill the import/export tables
 	void *		(*GetModuleAPI)( int apiVersion, ... );
@@ -393,7 +393,7 @@ void Cbuf_ExecuteText( int exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
 void Cbuf_Execute (void);
-qboolean Cbuf_Waiting( void );
+bool Cbuf_Waiting( void );
 // Pulls off \n terminated lines of text from the command buffer and sends
 // them through Cmd_ExecuteString.  Stops when the buffer is empty.
 // Normally called once per frame, but may be explicitly invoked.
@@ -504,7 +504,7 @@ void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultVa
 void	Cvar_Update( vmCvar_t *vmCvar );
 // updates an interpreted modules' version of a cvar
 
-cvar_t	*Cvar_Set2(const char *var_name, const char *value, uint32_t defaultFlags, qboolean force);
+cvar_t	*Cvar_Set2(const char *var_name, const char *value, uint32_t defaultFlags, bool force);
 //
 
 cvar_t	*Cvar_Set( const char *var_name, const char *value );
@@ -545,7 +545,7 @@ void 	Cvar_ForceReset( const char *var_name );
 void	Cvar_SetCheatState( void );
 // reset all testing vars to a safe value
 
-qboolean Cvar_Command( void );
+bool Cvar_Command( void );
 // called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
@@ -563,9 +563,9 @@ char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
-void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 
-void	Cvar_Restart(qboolean unsetVM);
+void	Cvar_Restart(bool unsetVM);
 void	Cvar_Restart_f( void );
 
 void Cvar_CompleteCvarName( char *args, int argNum );
@@ -609,8 +609,8 @@ typedef struct field_s {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
+void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
 
 /*
 ==============================================================
@@ -641,7 +641,7 @@ int      Com_HashKey(char *string, int maxlen);
 int			Com_Filter(const char *filter, const char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, const char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
-qboolean	Com_SafeMode( void );
+bool	Com_SafeMode( void );
 void		Com_RunAndTimeServerPacket(const netadr_t *evFrom, msg_t *buf);
 
 void		Com_StartupVariable( const char *match );
@@ -685,7 +685,7 @@ extern	int		time_backend;		// renderer backend time
 
 extern	int		com_frameTime;
 
-extern	qboolean	com_errorEntered;
+extern	bool	com_errorEntered;
 
 
 extern	fileHandle_t	logfile;
@@ -748,10 +748,10 @@ void Z_LogHeap( void );
 // later on I'll re-implement __FILE__, __LINE__ etc, but for now...
 //
 #ifdef DEBUG_ZONE_ALLOCS
-void *Z_Malloc  ( int iSize, memtag_t eTag, qboolean bZeroit = qfalse, int iAlign = 4);	// return memory NOT zero-filled by default
+void *Z_Malloc  ( int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4);	// return memory NOT zero-filled by default
 void *S_Malloc	( int iSize );					// NOT 0 filled memory only for small allocations
 #else
-void *Z_Malloc  ( int iSize, memtag_t eTag, qboolean bZeroit = qfalse, int iAlign = 4);	// return memory NOT zero-filled by default
+void *Z_Malloc  ( int iSize, memtag_t eTag, bool bZeroit = false, int iAlign = 4);	// return memory NOT zero-filled by default
 void *S_Malloc	( int iSize );					// NOT 0 filled memory only for small allocations
 #endif
 void  Z_MorphMallocTag( void *pvBuffer, memtag_t eDesiredTag );
@@ -769,7 +769,7 @@ void Com_ShutdownHunkMemory(void);
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
-qboolean Hunk_CheckMark( void );
+bool Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
 void *Hunk_AllocateTempMemory( int size );
 void Hunk_FreeTempMemory( void *buf );
@@ -801,15 +801,15 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
-void CL_Disconnect( qboolean showMainMenu );
+void CL_Disconnect( bool showMainMenu );
 void CL_Shutdown( void );
 void CL_Frame( int msec );
 
 // the client's command of a tick, made between two frames (Com_Frame, cl_input.cpp)
 int CL_NextCommandMsec( void );
-qboolean CL_InputTick( void );
-qboolean CL_GameCommand( void );
-void CL_KeyEvent (int key, qboolean down, unsigned time);
+bool CL_InputTick( void );
+bool CL_GameCommand( void );
+void CL_KeyEvent (int key, bool down, unsigned time);
 
 void CL_CharEvent( int key );
 // char events are for field typing, not game control
@@ -833,7 +833,7 @@ void	CL_ForwardCommandToServer( const char *string );
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
-void CL_ShutdownAll( qboolean shutdownRef );
+void CL_ShutdownAll( bool shutdownRef );
 // shutdown all the client stuff
 
 void CL_FlushMemory( void );
@@ -842,8 +842,8 @@ void CL_FlushMemory( void );
 void CL_StartHunkUsers( void );
 // start all the client stuff using the hunk
 
-qboolean CL_ConnectedToRemoteServer( void );
-// returns qtrue if connected to a server
+bool CL_ConnectedToRemoteServer( void );
+// returns true if connected to a server
 
 void Key_KeynameCompletion ( void(*callback)( const char *s ) );
 // for keyname autocompletion
@@ -868,13 +868,13 @@ void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
 void SV_PacketEvent( const netadr_t *from, msg_t *msg );
 int SV_FrameMsec( void );
-qboolean SV_GameCommand( void );
+bool SV_GameCommand( void );
 
 
 //
 // UI interface
 //
-qboolean UI_GameCommand( void );
+bool UI_GameCommand( void );
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

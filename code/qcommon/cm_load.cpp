@@ -106,7 +106,7 @@ void CMod_LoadShaders( lump_t *l, clipMap_t	&cm )
 	if (count < 1) {
 		Com_Error (ERR_DROP, "Map with no shaders");
 	}
-	cm.shaders = (CCMShader *)Z_Malloc( (1 + count) * sizeof( *cm.shaders ), TAG_BSP, qtrue );	//+1 for the BOX_SIDES to point at
+	cm.shaders = (CCMShader *)Z_Malloc( (1 + count) * sizeof( *cm.shaders ), TAG_BSP, true );	//+1 for the BOX_SIDES to point at
 	cm.numShaders = count;
 
 	out = cm.shaders;
@@ -144,7 +144,7 @@ void CMod_LoadSubmodels( lump_t *l, clipMap_t	&cm ) {
 		Com_Error( ERR_DROP, "MAX_SUBMODELS (%d) exceeded by %d", MAX_SUBMODELS, count-MAX_SUBMODELS );
 	}
 
-	cm.cmodels = (struct cmodel_s *) Z_Malloc( count * sizeof( *cm.cmodels ), TAG_BSP, qtrue );
+	cm.cmodels = (struct cmodel_s *) Z_Malloc( count * sizeof( *cm.cmodels ), TAG_BSP, true );
 	cm.numSubModels = count;
 
 	for ( i=0 ; i<count ; i++, in++, out++)
@@ -168,14 +168,14 @@ void CMod_LoadSubmodels( lump_t *l, clipMap_t	&cm ) {
 
 		// make a "leaf" just to hold the model's brushes and surfaces
 		out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
-		indexes = (int *) Z_Malloc( out->leaf.numLeafBrushes * 4, TAG_BSP, qfalse);
+		indexes = (int *) Z_Malloc( out->leaf.numLeafBrushes * 4, TAG_BSP, false);
 		out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
 		for ( j = 0 ; j < out->leaf.numLeafBrushes ; j++ ) {
 			indexes[j] = LittleLong( in->firstBrush ) + j;
 		}
 
 		out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
-		indexes = (int *) Z_Malloc( out->leaf.numLeafSurfaces * 4, TAG_BSP, qfalse);
+		indexes = (int *) Z_Malloc( out->leaf.numLeafSurfaces * 4, TAG_BSP, false);
 		out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
 		for ( j = 0 ; j < out->leaf.numLeafSurfaces ; j++ ) {
 			indexes[j] = LittleLong( in->firstSurface ) + j;
@@ -203,7 +203,7 @@ void CMod_LoadNodes( lump_t *l, clipMap_t &cm ) {
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map has no nodes");
-	cm.nodes = (cNode_t *) Z_Malloc( count * sizeof( *cm.nodes ), TAG_BSP, qfalse);
+	cm.nodes = (cNode_t *) Z_Malloc( count * sizeof( *cm.nodes ), TAG_BSP, false);
 	cm.numNodes = count;
 
 	out = cm.nodes;
@@ -255,7 +255,7 @@ void CMod_LoadBrushes( lump_t *l, clipMap_t &cm ) {
 	}
 	count = l->filelen / sizeof(*in);
 
-	cm.brushes = (cbrush_t *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), TAG_BSP, qfalse);
+	cm.brushes = (cbrush_t *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), TAG_BSP, false);
 	cm.numBrushes = count;
 
 	out = cm.brushes;
@@ -304,7 +304,7 @@ void CMod_LoadLeafs (lump_t *l, clipMap_t &cm)
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no leafs");
 
-	cm.leafs = (cLeaf_t *) Z_Malloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), TAG_BSP, qfalse);
+	cm.leafs = (cLeaf_t *) Z_Malloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), TAG_BSP, false);
 	cm.numLeafs = count;
 	out = cm.leafs;
 
@@ -323,8 +323,8 @@ void CMod_LoadLeafs (lump_t *l, clipMap_t &cm)
 			cm.numAreas = out->area + 1;
 	}
 
-	cm.areas = (cArea_t *) Z_Malloc( cm.numAreas * sizeof( *cm.areas ), TAG_BSP, qtrue );
-	cm.areaPortals = (int *) Z_Malloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), TAG_BSP, qtrue );
+	cm.areas = (cArea_t *) Z_Malloc( cm.numAreas * sizeof( *cm.areas ), TAG_BSP, true );
+	cm.areaPortals = (int *) Z_Malloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), TAG_BSP, true );
 }
 
 /*
@@ -347,7 +347,7 @@ void CMod_LoadPlanes (lump_t *l, clipMap_t &cm)
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no planes");
-	cm.planes = (struct cplane_s *) Z_Malloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ), TAG_BSP, qfalse);
+	cm.planes = (struct cplane_s *) Z_Malloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ), TAG_BSP, false);
 	cm.numPlanes = count;
 
 	out = cm.planes;
@@ -385,7 +385,7 @@ void CMod_LoadLeafBrushes (lump_t *l, clipMap_t &cm)
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
 
-	cm.leafbrushes = (int *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.leafbrushes ), TAG_BSP, qfalse);
+	cm.leafbrushes = (int *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.leafbrushes ), TAG_BSP, false);
 	cm.numLeafBrushes = count;
 
 	out = cm.leafbrushes;
@@ -412,7 +412,7 @@ void CMod_LoadLeafSurfaces( lump_t *l, clipMap_t &cm )
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
 
-	cm.leafsurfaces = (int *) Z_Malloc( count * sizeof( *cm.leafsurfaces ), TAG_BSP, qfalse);
+	cm.leafsurfaces = (int *) Z_Malloc( count * sizeof( *cm.leafsurfaces ), TAG_BSP, false);
 	cm.numLeafSurfaces = count;
 
 	out = cm.leafsurfaces;
@@ -441,7 +441,7 @@ void CMod_LoadBrushSides (lump_t *l, clipMap_t &cm)
 	}
 	count = l->filelen / sizeof(*in);
 
-	cm.brushsides = (cbrushside_t *) Z_Malloc( ( BOX_SIDES + count ) * sizeof( *cm.brushsides ), TAG_BSP, qfalse);
+	cm.brushsides = (cbrushside_t *) Z_Malloc( ( BOX_SIDES + count ) * sizeof( *cm.brushsides ), TAG_BSP, false);
 	cm.numBrushSides = count;
 
 	out = cm.brushsides;
@@ -473,10 +473,10 @@ void CMod_LoadEntityString( lump_t *l, clipMap_t &cm, const char* name ) {
 	entName[entNameLen - 3] = 'e';
 	entName[entNameLen - 2] = 'n';
 	entName[entNameLen - 1] = 't';
-	const int iEntityFileLen = FS_FOpenFileRead(entName, &h, qfalse);
+	const int iEntityFileLen = FS_FOpenFileRead(entName, &h, false);
 	if (h)
 	{
-		cm.entityString = (char *) Z_Malloc( iEntityFileLen + 1, TAG_BSP, qfalse );
+		cm.entityString = (char *) Z_Malloc( iEntityFileLen + 1, TAG_BSP, false );
 		cm.numEntityChars = iEntityFileLen + 1;
 		FS_Read(cm.entityString, iEntityFileLen, h);
 		FS_FCloseFile(h);
@@ -485,7 +485,7 @@ void CMod_LoadEntityString( lump_t *l, clipMap_t &cm, const char* name ) {
 		return;
 	}
 
-	cm.entityString = (char *) Z_Malloc( l->filelen, TAG_BSP, qfalse);
+	cm.entityString = (char *) Z_Malloc( l->filelen, TAG_BSP, false);
 	cm.numEntityChars = l->filelen;
 	memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
 }
@@ -503,14 +503,14 @@ void CMod_LoadVisibility( lump_t *l, clipMap_t &cm ) {
     len = l->filelen;
 	if ( !len ) {
 		cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
-		cm.visibility = (unsigned char *) Z_Malloc( cm.clusterBytes, TAG_BSP, qfalse);
+		cm.visibility = (unsigned char *) Z_Malloc( cm.clusterBytes, TAG_BSP, false);
 		memset( cm.visibility, 255, cm.clusterBytes );
 		return;
 	}
 	buf = cmod_base + l->fileofs;
 
-	cm.vised = qtrue;
-	cm.visibility = (unsigned char *) Z_Malloc( len, TAG_BSP, qtrue );
+	cm.vised = true;
+	cm.visibility = (unsigned char *) Z_Malloc( len, TAG_BSP, true );
 	cm.numClusters = LittleLong( ((int *)buf)[0] );
 	cm.clusterBytes = LittleLong( ((int *)buf)[1] );
 	memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
@@ -540,7 +540,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts, clipMap_t &cm ) {
 	if (surfs->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	cm.numSurfaces = count = surfs->filelen / sizeof(*in);
-	cm.surfaces = (cPatch_t **) Z_Malloc( cm.numSurfaces * sizeof( cm.surfaces[0] ), TAG_BSP, qtrue );
+	cm.surfaces = (cPatch_t **) Z_Malloc( cm.numSurfaces * sizeof( cm.surfaces[0] ), TAG_BSP, true );
 
 	dv = (mapVert_t *)(cmod_base + verts->fileofs);
 	if (verts->filelen % sizeof(*dv))
@@ -554,7 +554,7 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts, clipMap_t &cm ) {
 		}
 		// FIXME: check for non-colliding patches
 
-		cm.surfaces[ i ] = patch = (cPatch_t *) Z_Malloc( sizeof( *patch ), TAG_BSP, qtrue );
+		cm.surfaces[ i ] = patch = (cPatch_t *) Z_Malloc( sizeof( *patch ), TAG_BSP, true );
 
 		// load the full drawverts onto the stack
 		width = LittleLong( in->patchWidth );
@@ -608,15 +608,15 @@ Loads in the map and all submodels
 */
 void *gpvCachedMapDiskImage = NULL;
 char  gsCachedMapDiskImage[MAX_QPATH];
-qboolean gbUsingCachedMapDataRightNow = qfalse;	// if true, signifies that you can't delete this at the moment!! (used during z_malloc()-fail recovery attempt)
+bool gbUsingCachedMapDataRightNow = false;	// if true, signifies that you can't delete this at the moment!! (used during z_malloc()-fail recovery attempt)
 
-// called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in qtrue
+// called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in true
 //
 // new bool return used to see if anything was freed, used during z_malloc failure re-try
 //
-qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
+bool CM_DeleteCachedMap(bool bGuaranteedOkToDelete)
 {
-	qboolean bActuallyFreedSomething = qfalse;
+	bool bActuallyFreedSomething = false;
 
 	if (bGuaranteedOkToDelete || !gbUsingCachedMapDataRightNow)
 	{
@@ -627,7 +627,7 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 			Z_Free(	gpvCachedMapDiskImage );
 					gpvCachedMapDiskImage = NULL;
 
-			bActuallyFreedSomething = qtrue;
+			bActuallyFreedSomething = true;
 		}
 		gsCachedMapDiskImage[0] = '\0';
 
@@ -639,7 +639,7 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 	return bActuallyFreedSomething;
 }
 
-static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *checksum, clipMap_t &cm ) {
+static void CM_LoadMap_Actual( const char *name, bool clientload, int *checksum, clipMap_t &cm ) {
 	const int		*buf;
 	size_t			i;
 	dheader_t		header;
@@ -712,7 +712,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 				cm.numLeafs = 1;
 				cm.numClusters = 1;
 				cm.numAreas = 1;
-				cm.cmodels = (struct cmodel_s *) Z_Malloc( sizeof( *cm.cmodels ), TAG_BSP, qtrue );
+				cm.cmodels = (struct cmodel_s *) Z_Malloc( sizeof( *cm.cmodels ), TAG_BSP, true );
 				*checksum = 0;
 				return;
 			}
@@ -722,7 +722,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		//	then keep it long enough to save the renderer re-loading it, then discard it after that.
 		//
 		fileHandle_t h;
-		const int iBSPLen = FS_FOpenFileRead( name, &h, qfalse );
+		const int iBSPLen = FS_FOpenFileRead( name, &h, false );
 		if(!h)
 		{
 			Com_Error (ERR_DROP, "Couldn't load %s", name);
@@ -737,7 +737,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 				Z_Free(gpvCachedMapDiskImage);
 			}
 			gsCachedMapDiskImage[0]	= '\0';		// flag that map isn't valid, until name is filled in
-			gpvCachedMapDiskImage	= Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE, qfalse);
+			gpvCachedMapDiskImage	= Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE, false);
 			FS_Read(gpvCachedMapDiskImage, iBSPLen, h);
 			FS_FCloseFile( h );
 
@@ -745,7 +745,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		}
 		else
 		{ //otherwise, read straight in..
-			subBSPData = Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE, qfalse);
+			subBSPData = Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE, false);
 			FS_Read(subBSPData, iBSPLen, h);
 			FS_FCloseFile( h );
 
@@ -792,7 +792,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		//actually we do because the new hunk sys won't allow it
 		// actually we DON'T now <g>, if we've got enough ram to keep it for the renderer's disk-load...
 		//
-		extern qboolean Sys_LowPhysicalMemory();
+		extern bool Sys_LowPhysicalMemory();
 		if (Sys_LowPhysicalMemory() //|| com_dedicated->integer	// no need to check for dedicated in single-player codebase
 			)
 		{
@@ -833,44 +833,44 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 
 // need a wrapper function around this because of multiple returns, need to ensure bool is correct...
 //
-void CM_LoadMap( const char *name, qboolean clientload, int *checksum, qboolean subBSP )
+void CM_LoadMap( const char *name, bool clientload, int *checksum, bool subBSP )
 {
 	if (subBSP)
 	{
-		Com_DPrintf("^5CM_LoadMap->CMLoadSubBSP(%s, %i)\n", name, qfalse);
-		CM_LoadSubBSP(va("maps/%s.bsp", ((const char *)name) + 1), qfalse);
+		Com_DPrintf("^5CM_LoadMap->CMLoadSubBSP(%s, %i)\n", name, false);
+		CM_LoadSubBSP(va("maps/%s.bsp", ((const char *)name) + 1), false);
 		//CM_LoadMap_Actual( name, clientload, checksum, cmg );
 	}
 	else
 	{
-		gbUsingCachedMapDataRightNow = qtrue;	// !!!!!!!!!!!!!!!!!!
+		gbUsingCachedMapDataRightNow = true;	// !!!!!!!!!!!!!!!!!!
 
 			CM_LoadMap_Actual( name, clientload, checksum, cmg );
 
-		gbUsingCachedMapDataRightNow = qfalse;	// !!!!!!!!!!!!!!!!!!
+		gbUsingCachedMapDataRightNow = false;	// !!!!!!!!!!!!!!!!!!
 	}
 	/*
-	gbUsingCachedMapDataRightNow = qtrue;	// !!!!!!!!!!!!!!!!!!
+	gbUsingCachedMapDataRightNow = true;	// !!!!!!!!!!!!!!!!!!
 
 		CM_LoadMap_Actual( name, clientload, checksum, cmg );
 
-	gbUsingCachedMapDataRightNow = qfalse;	// !!!!!!!!!!!!!!!!!!
+	gbUsingCachedMapDataRightNow = false;	// !!!!!!!!!!!!!!!!!!
 	*/
 }
 
-qboolean CM_SameMap(const char *server)
+bool CM_SameMap(const char *server)
 {
 	if (!cmg.name[0] || !server || !server[0])
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (Q_stricmp(cmg.name, va("maps/%s.bsp", server)))
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1098,7 +1098,7 @@ void CM_ModelBounds( clipMap_t &cm, clipHandle_t model, vec3_t mins, vec3_t maxs
 	VectorCopy( cmod->maxs, maxs );
 }
 
-int CM_LoadSubBSP(const char *name, qboolean clientload)
+int CM_LoadSubBSP(const char *name, bool clientload)
 {
 	int		i;
 	int		checksum;
@@ -1198,7 +1198,7 @@ Writes the portal state to a savegame file
 ===================
 */
 //
-qboolean SG_Append(unsigned int chid, const void *data, int length);
+bool SG_Append(unsigned int chid, const void *data, int length);
 int SG_Read(unsigned int chid, void *pvAddress, int iLength, void **ppvAddressPtr = NULL);
 
 void CM_WritePortalState()

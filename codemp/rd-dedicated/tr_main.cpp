@@ -51,7 +51,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 	int		i;
 	float	dist;
 	cplane_t	*frust;
-	qboolean mightBeClipped = qfalse;
+	bool mightBeClipped = false;
 
 	if ( r_nocull->integer==1 ) {
 		return CULL_CLIP;
@@ -69,7 +69,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 		}
 		else if ( dist <= radius )
 		{
-			mightBeClipped = qtrue;
+			mightBeClipped = true;
 		}
 	}
 

@@ -25,7 +25,9 @@ constexpr uint32_t kEscapedDelta = 256;         // added to the base delta symbo
 // ------------------------------------------------------------------ player states
 // the base player state has some non-zero networked field: then it is the same player's previous state
 bool AnyNonZero(ImageView ps) noexcept {
-	return std::ranges::any_of(kPlayerAllOffsets, [&](uint16_t off) { return Load(ps, off) != 0; });
+	for (size_t i = 0; i < kPlayerAllOffsets.size(); i++)
+		if (LoadSized(ps, kPlayerAllOffsets[i], kPlayerAllSizes[i]) != 0) return true;
+	return false;
 }
 
 int64_t VehicleNum(ImageView ps) noexcept { return ValueBits(Load(ps, kVehicleNumOffset), 10); }
@@ -44,7 +46,7 @@ template <class O> void PutFieldsRaw(O &io, std::span<const FieldDesc> fields, I
 	for (const FieldDesc &f : fields) {
 		const bool changed = FieldDiffers(nw, old, f);
 		io.Raw(changed ? 1 : 0, 1);
-		if (changed) PutRawField(io, f, Value(nw, f));
+		if (changed) PutRawField(io, f, ValueBits(LoadField(nw, f), f.bits));   // a bool's byte, not its word
 	}
 }
 
@@ -811,12 +813,19 @@ constexpr auto kEntityOffsets = [] {
 	for (uint32_t i = 0; i < kNumEntityFields; i++) a[i] = kEntityFields[i].offset;
 	return a;
 }();
+constexpr auto kEntitySizes = [] {
+	std::array<uint8_t, kNumEntityFields> a{};
+	for (uint32_t i = 0; i < kNumEntityFields; i++) a[i] = kEntityFields[i].ctype == CType::kBool ? 1 : 4;
+	return a;
+}();
 
 } // namespace
 } // namespace detail
 
 std::span<const uint16_t> EntityFieldOffsets() noexcept { return detail::kEntityOffsets; }
+std::span<const uint8_t> EntityFieldSizes() noexcept { return detail::kEntitySizes; }
 std::span<const uint16_t> PlayerFieldOffsets() noexcept { return detail::kPlayerAllOffsets; }
+std::span<const uint8_t> PlayerFieldSizes() noexcept { return detail::kPlayerAllSizes; }
 
 bool MessageEncoder::Encode(const Message &msg, const Base &base, const BaselineTable &baselines,
                             const CommandHistory &history, size_t maxBytes,

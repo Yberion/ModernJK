@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// cg_predict.c -- this file generates cg.predicted_player_state by either
+// cg_predict.cpp -- this file generates cg.predicted_player_state by either
 // interpolating between snapshots from the server or locally predicting
 // ahead the client's movement
 
@@ -84,7 +84,7 @@ void CG_BuildSolidList( void )
 		if (cent->currentState.eType == ET_TERRAIN ||
 			((difference[0]*difference[0]) + (difference[1]*difference[1]) + (difference[2]*difference[2])) <= dsquared)
 		{
-			cent->currentValid = qtrue;
+			cent->currentValid = true;
 			if ( cent->nextState && cent->nextState->solid )
 			{
 				cg_solidEntities[cg_numSolidEntities] = cent;
@@ -93,7 +93,7 @@ void CG_BuildSolidList( void )
 		}
 		else
 		{
-			cent->currentValid = qfalse;
+			cent->currentValid = false;
 		}
 	}
 }
@@ -163,7 +163,7 @@ void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t
 			trace.entityNum = ent->number;
 			*tr = trace;
 		} else if (trace.startsolid) {
-			tr->startsolid = qtrue;
+			tr->startsolid = true;
 		}
 		if ( tr->allsolid ) {
 			return;
@@ -235,7 +235,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 }
 #endif
 
-void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt )
+void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt )
 {
 	if ( cg.snap->ps.viewEntity <= 0 || cg.snap->ps.viewEntity >= ENTITYNUM_WORLD || overrideViewEnt )
 	{//don't clamp angles when looking through a viewEntity
@@ -251,13 +251,13 @@ void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt )
 	}
 }
 
-extern qboolean PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
-extern qboolean PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, qboolean anglesOnly );
-extern qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd );
+extern bool PM_AdjustAnglesToGripper( gentity_t *gent, usercmd_t *cmd );
+extern bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, bool anglesOnly );
+extern bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
-qboolean CG_CheckModifyUCmd( usercmd_t *cmd, vec3_t viewangles )
+bool CG_CheckModifyUCmd( usercmd_t *cmd, vec3_t viewangles )
 {
-	qboolean overridAngles = qfalse;
+	bool overridAngles = false;
 	if ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )
 	{//controlling something else
 		memset( cmd, 0, sizeof( usercmd_t ) );
@@ -268,12 +268,12 @@ qboolean CG_CheckModifyUCmd( usercmd_t *cmd, vec3_t viewangles )
 		cmd->angles[ROLL] = 0;
 		*/
 		VectorCopy( g_entities[0].pos4, viewangles );
-		overridAngles = qtrue;
-		//CG_SetClientViewAngles( g_entities[cg.snap->ps.viewEntity].client->ps.viewangles, qtrue );
+		overridAngles = true;
+		//CG_SetClientViewAngles( g_entities[cg.snap->ps.viewEntity].client->ps.viewangles, true );
 	}
 	else if ( G_IsRidingVehicle( &g_entities[0] ) )
 	{
-		overridAngles = qtrue;
+		overridAngles = true;
 		/*
 		int vehIndex = g_entities[0].owner->client->ps.vehicleIndex;
 		if ( vehIndex != VEHICLE_NONE
@@ -285,7 +285,7 @@ qboolean CG_CheckModifyUCmd( usercmd_t *cmd, vec3_t viewangles )
 				cmd->rightmove = 0;
 				cmd->angles[PITCH] = 0;
 				cmd->angles[YAW] = ANGLE2SHORT( cg.snap->ps.viewangles[YAW] ) - cg.snap->ps.delta_angles[YAW];
-				CG_SetClientViewAngles( cg.snap->ps.viewangles, qfalse );
+				CG_SetClientViewAngles( cg.snap->ps.viewangles, false );
 			}
 		}
 		*/
@@ -295,39 +295,39 @@ qboolean CG_CheckModifyUCmd( usercmd_t *cmd, vec3_t viewangles )
 	{
 		if ( !PM_AdjustAnglesToGripper( &g_entities[0], cmd ) )
 		{
-			if ( PM_AdjustAnglesForSpinningFlip( &g_entities[0], cmd, qtrue ) )
+			if ( PM_AdjustAnglesForSpinningFlip( &g_entities[0], cmd, true ) )
 			{
-				CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, qfalse );
+				CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, false );
 				if ( viewangles )
 				{
 					VectorCopy( g_entities[0].client->ps.viewangles, viewangles );
-					overridAngles = qtrue;
+					overridAngles = true;
 				}
 			}
 		}
 		else
 		{
-			CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, qfalse );
+			CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, false );
 			if ( viewangles )
 			{
 				VectorCopy( g_entities[0].client->ps.viewangles, viewangles );
-				overridAngles = qtrue;
+				overridAngles = true;
 			}
 		}
 		if ( G_CheckClampUcmd( &g_entities[0], cmd ) )
 		{
-			CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, qfalse );
+			CG_SetClientViewAngles( g_entities[0].client->ps.viewangles, false );
 			if ( viewangles )
 			{
 				VectorCopy( g_entities[0].client->ps.viewangles, viewangles );
-				overridAngles = qtrue;
+				overridAngles = true;
 			}
 		}
 	}
 	return overridAngles;
 }
 
-qboolean CG_OnMovingPlat( playerState_t *ps )
+bool CG_OnMovingPlat( playerState_t *ps )
 {
 	if ( ps->groundEntityNum != ENTITYNUM_NONE )
 	{
@@ -340,20 +340,20 @@ qboolean CG_OnMovingPlat( playerState_t *ps )
 				{//a constant mover
 					if ( !VectorCompare( vec3_origin, es->pos.trDelta ) )
 					{//is moving
-						return qtrue;
+						return true;
 					}
 				}
 				else
 				{//a linear-stop mover
 					if ( es->pos.trTime+es->pos.trDuration > cg.time )
 					{//still moving
-						return qtrue;
+						return true;
 					}
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 /*
 ========================
@@ -363,12 +363,12 @@ Generates cg.predicted_player_state by interpolating between
 cg.snap->player_state and cg.nextFrame->player_state
 ========================
 */
-void CG_InterpolatePlayerState( qboolean grabAngles ) {
+void CG_InterpolatePlayerState( bool grabAngles ) {
 	float			f;
 	int				i;
 	playerState_t	*out;
 	snapshot_t		*prev, *next;
-	qboolean		skip = qfalse;
+	bool		skip = false;
 	vec3_t			oldOrg;
 
 	out = &cg.predicted_player_state;
@@ -558,14 +558,14 @@ void CG_TouchTriggerPrediction( void ) {
 	entityState_t	*ent;
 	clipHandle_t cmodel;
 	centity_t	*cent;
-	qboolean	spectator;
+	bool	spectator;
 
 	// dead clients don't activate triggers
 	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 ) {
 		return;
 	}
 
-	spectator = (qboolean)( cg.predicted_player_state.pm_type == PM_SPECTATOR );
+	spectator = ( cg.predicted_player_state.pm_type == PM_SPECTATOR );
 
 	if ( cg.predicted_player_state.pm_type != PM_NORMAL && !spectator ) {
 		return;
@@ -601,7 +601,7 @@ void CG_TouchTriggerPrediction( void ) {
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			cg.hyperspace = qtrue;
+			cg.hyperspace = true;
 		} else {
 			// we hit this push trigger
 			if ( spectator ) {
@@ -636,18 +636,18 @@ We detect prediction errors and allow them to be decayed off over several frames
 to ease the jerk.
 =================
 */
-extern	qboolean	player_locked;
+extern	bool	player_locked;
 void CG_PredictPlayerState( void ) {
 	int			cmdNum, current;
 	playerState_t	oldPlayerState;
 
-	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
+	cg.hyperspace = false;	// will be set if touching a trigger_teleport
 
 	// if this is the first frame we must guarantee
 	// predicted_player_state is valid even if there is some
 	// other error condition
 	if ( !cg.validPPS ) {
-		cg.validPPS = qtrue;
+		cg.validPPS = true;
 		cg.predicted_player_state = cg.snap->ps;
 	}
 
@@ -657,13 +657,13 @@ void CG_PredictPlayerState( void ) {
 		// demo playback just copies the moves
 		/*
 		if ( (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-			CG_InterpolatePlayerState( qfalse );
+			CG_InterpolatePlayerState( false );
 			return;
 		}
 		*/
 
 		// non-predicting local movement will grab the latest angles
-		CG_InterpolatePlayerState( qtrue );
+		CG_InterpolatePlayerState( true );
 		return;
 	}
 
@@ -674,7 +674,7 @@ void CG_PredictPlayerState( void ) {
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
 	cg_pmove.tracemask = MASK_PLAYERSOLID;
-	cg_pmove.noFootsteps = qfalse;//( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
+	cg_pmove.noFootsteps = false;//( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predicted_player_state;
@@ -709,7 +709,7 @@ void CG_PredictPlayerState( void ) {
 			if ( cg.thisFrameTeleport ) {
 				// a teleport will not cause an error decay
 				VectorClear( cg.predictedError );
-				cg.thisFrameTeleport = qfalse;
+				cg.thisFrameTeleport = false;
 			} else {
 				vec3_t	adjusted;
 				CG_AdjustPositionForMover( cg.predicted_player_state.origin,

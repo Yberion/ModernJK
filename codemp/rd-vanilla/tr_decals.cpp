@@ -157,7 +157,7 @@ passed to the renderer.
 #define	MAX_DECAL_FRAGMENTS	128
 #define	MAX_DECAL_POINTS		384
 
-void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, qboolean alphaFade, float radius, qboolean temporary )
+void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, bool alphaFade, float radius, bool temporary )
 {
 	matrix3_t		axis;
 	float			texCoordScale;

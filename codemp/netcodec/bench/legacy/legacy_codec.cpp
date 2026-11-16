@@ -33,13 +33,13 @@ void EmitPacketEntities(msg_t *msg, const SnapshotView *from, const SnapshotView
 		const int newnum = newent ? newent->number : 9999;
 		const int oldnum = oldent ? oldent->number : 9999;
 		if (newnum == oldnum) {
-			MSG_WriteDeltaEntity(msg, oldent, newent, qfalse);
+			MSG_WriteDeltaEntity(msg, oldent, newent, false);
 			oldindex++; newindex++;
 		} else if (newnum < oldnum) {
-			MSG_WriteDeltaEntity(msg, Ent(baselines[newnum]), newent, qtrue);
+			MSG_WriteDeltaEntity(msg, Ent(baselines[newnum]), newent, true);
 			newindex++;
 		} else {
-			MSG_WriteDeltaEntity(msg, oldent, NULL, qtrue);
+			MSG_WriteDeltaEntity(msg, oldent, NULL, true);
 			oldindex++;
 		}
 	}
@@ -69,12 +69,12 @@ int Encode(const MessageView &m, const SnapshotView *base, const uint8_t *const 
 		if (base) {
 			MSG_WriteDeltaPlayerstate(&msg, Ps(base->ps), ps);
 			if (ps->m_iVehicleNum) {
-				if (!Ps(base->ps)->m_iVehicleNum) MSG_WriteDeltaPlayerstate(&msg, NULL, vps, qtrue);
-				else MSG_WriteDeltaPlayerstate(&msg, base->vps ? Ps(base->vps) : const_cast<playerState_t *>(&ZeroPs()), vps, qtrue);
+				if (!Ps(base->ps)->m_iVehicleNum) MSG_WriteDeltaPlayerstate(&msg, NULL, vps, true);
+				else MSG_WriteDeltaPlayerstate(&msg, base->vps ? Ps(base->vps) : const_cast<playerState_t *>(&ZeroPs()), vps, true);
 			}
 		} else {
 			MSG_WriteDeltaPlayerstate(&msg, NULL, ps);
-			if (ps->m_iVehicleNum) MSG_WriteDeltaPlayerstate(&msg, NULL, vps, qtrue);
+			if (ps->m_iVehicleNum) MSG_WriteDeltaPlayerstate(&msg, NULL, vps, true);
 		}
 		EmitPacketEntities(&msg, base, m.snap, baselines);
 	}
@@ -108,10 +108,10 @@ bool Decode(const uint8_t *data, int size, const SnapshotView *base, const uint8
 			if (base) {
 				MSG_ReadDeltaPlayerstate(&msg, Ps(base->ps), ps);
 				if (ps->m_iVehicleNum)
-					MSG_ReadDeltaPlayerstate(&msg, base->vps ? Ps(base->vps) : const_cast<playerState_t *>(&ZeroPs()), vps, qtrue);
+					MSG_ReadDeltaPlayerstate(&msg, base->vps ? Ps(base->vps) : const_cast<playerState_t *>(&ZeroPs()), vps, true);
 			} else {
 				MSG_ReadDeltaPlayerstate(&msg, NULL, ps);
-				if (ps->m_iVehicleNum) MSG_ReadDeltaPlayerstate(&msg, NULL, vps, qtrue);
+				if (ps->m_iVehicleNum) MSG_ReadDeltaPlayerstate(&msg, NULL, vps, true);
 			}
 			// CL_ParsePacketEntities and CL_DeltaEntity
 			entityState_t *ents = reinterpret_cast<entityState_t *>(out.entities);

@@ -75,14 +75,14 @@ int newsize = 0;
 CL_Netchan_Process
 =================
 */
-qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
+bool CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int ret;
 //	int i;
 //	static		int newsize = 0;
 
 	ret = Netchan_Process( chan, msg );
 	if (!ret)
-		return qfalse;
+		return false;
 //	Huff_Decompress( msg, CL_DECODE_START );
 //	for(i=CL_DECODE_START+msg->readcount;i<msg->cursize;i++) {
 //		if (msg->data[i] != chksum[i-(CL_DECODE_START+msg->readcount)]) {
@@ -91,5 +91,5 @@ qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 //	}
 	newsize += msg->cursize;
 //	Com_Printf("saved %d to %d (%d%%)\n", (oldsize>>3), newsize, 100-(newsize*100/(oldsize>>3)));
-	return qtrue;
+	return true;
 }

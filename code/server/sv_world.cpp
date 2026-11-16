@@ -178,7 +178,7 @@ void SV_UnlinkEntity( gentity_t *gEnt ) {
 
 	ent = SV_SvEntityForGentity( gEnt );
 
-	gEnt->linked = qfalse;
+	gEnt->linked = false;
 
 	ws = ent->worldSector;
 	if ( !ws ) {
@@ -362,7 +362,7 @@ void SV_LinkEntity( gentity_t *gEnt ) {
 	ent->nextEntityInWorldSector = node->entities;
 	node->entities = ent;
 
-	gEnt->linked = qtrue;
+	gEnt->linked = true;
 }
 
 /*
@@ -697,7 +697,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			{//We didn't come in here all solid, so set the clip->trace's entityNum
 				clip->trace.entityNum = touch->s.number;
 			}
-			clip->trace.allsolid = qtrue;
+			clip->trace.allsolid = true;
 			trace.entityNum = touch->s.number;
 		}
 		else if ( trace.startsolid )
@@ -706,13 +706,13 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			{//We didn't come in here starting solid, so set the clip->trace's entityNum
 				clip->trace.entityNum = touch->s.number;
 			}
-			clip->trace.startsolid = qtrue;
+			clip->trace.startsolid = true;
 			trace.entityNum = touch->s.number;
 		}
 
 		if ( trace.fraction < clip->trace.fraction )
 		{
-			qboolean	oldStart;
+			bool	oldStart;
 
 			// make sure we keep a startsolid from a previous trace
 			oldStart = clip->trace.startsolid;
@@ -721,7 +721,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			clip->trace = trace;
 			if ( oldStart )
 			{
-				clip->trace.startsolid = qtrue;
+				clip->trace.startsolid = true;
 			}
 		}
 /*

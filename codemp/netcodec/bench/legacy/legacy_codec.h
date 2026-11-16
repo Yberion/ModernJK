@@ -9,8 +9,8 @@
 
 namespace legacy {
 
-constexpr size_t kEntityBytes = 532;
-constexpr size_t kPlayerBytes = 1552;
+constexpr size_t kEntityBytes = 524;
+constexpr size_t kPlayerBytes = 1536;
 constexpr int kMaxEntities = 1024;
 
 struct SnapshotView {

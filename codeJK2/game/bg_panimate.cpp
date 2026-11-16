@@ -43,28 +43,28 @@ extern cvar_t	*g_synchSplitAnims;
 extern cvar_t	*g_saberAnimSpeed;
 extern cvar_t	*g_saberAutoAim;
 
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
+extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-extern qboolean ValidAnimFileIndex ( int index );
-extern qboolean PM_ControlledByPlayer( void );
-extern qboolean PM_DroidMelee( int npc_class );
-extern qboolean PM_PainAnim( int anim );
-extern qboolean PM_JumpingAnim( int anim );
-extern qboolean PM_FlippingAnim( int anim );
-extern qboolean PM_RollingAnim( int anim );
-extern qboolean PM_SwimmingAnim( int anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InRoll( playerState_t *ps );
-extern qboolean PM_DodgeAnim( int anim );
-extern qboolean PM_InSlopeAnim( int anim );
-extern qboolean PM_ForceAnim( int anim );
-extern qboolean PM_InKnockDownOnGround( playerState_t *ps );
-extern qboolean PM_InSpecialJump( int anim );
-extern qboolean PM_RunningAnim( int anim );
-extern qboolean PM_WalkingAnim( int anim );
-extern qboolean PM_SwimmingAnim( int anim );
-extern qboolean PM_JumpingAnim( int anim );
+extern bool ValidAnimFileIndex ( int index );
+extern bool PM_ControlledByPlayer( void );
+extern bool PM_DroidMelee( int npc_class );
+extern bool PM_PainAnim( int anim );
+extern bool PM_JumpingAnim( int anim );
+extern bool PM_FlippingAnim( int anim );
+extern bool PM_RollingAnim( int anim );
+extern bool PM_SwimmingAnim( int anim );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InRoll( playerState_t *ps );
+extern bool PM_DodgeAnim( int anim );
+extern bool PM_InSlopeAnim( int anim );
+extern bool PM_ForceAnim( int anim );
+extern bool PM_InKnockDownOnGround( playerState_t *ps );
+extern bool PM_InSpecialJump( int anim );
+extern bool PM_RunningAnim( int anim );
+extern bool PM_WalkingAnim( int anim );
+extern bool PM_SwimmingAnim( int anim );
+extern bool PM_JumpingAnim( int anim );
 
 int PM_AnimLength( int index, animNumber_t anim );
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
@@ -390,7 +390,7 @@ void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir )
 	VectorSubtract( endQ, startQ, throwDir );
 }
 
-qboolean PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
+bool PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
 {
 	vec3_t	vForward, vRight, vUp;
 	AngleVectors( ps->viewangles, vForward, vRight, vUp );
@@ -416,12 +416,12 @@ qboolean PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
 		VectorScale( vUp, 2, throwDir );
 		break;
 	default:
-		return qfalse;
+		return false;
 		break;
 	}
 	VectorMA( throwDir, 2, vForward, throwDir );
 	VectorScale( throwDir, 250, throwDir );//FIXME: pass in the throw strength?
-	return qtrue;
+	return true;
 }
 
 int PM_AnimLevelForSaberAnim( int anim )
@@ -511,7 +511,7 @@ int PM_PowerLevelForSaberAnim( playerState_t *ps )
 	return FORCE_LEVEL_0;
 }
 
-qboolean PM_InAnimForSaberMove( int anim, int saberMove )
+bool PM_InAnimForSaberMove( int anim, int saberMove )
 {
 	switch ( anim )
 	{//special case anims
@@ -526,52 +526,52 @@ qboolean PM_InAnimForSaberMove( int anim, int saberMove )
 	case BOTH_FORCELEAP2_T__B_:
 	case BOTH_JUMPFLIPSLASHDOWN1://#
 	case BOTH_JUMPFLIPSTABDOWN://#
-		return qtrue;
+		return true;
 	}
 	int animLevel = PM_AnimLevelForSaberAnim( anim );
 	if ( animLevel <= 0 )
 	{//NOTE: this will always return false for the ready poses and putaway/draw...
-		return qfalse;
+		return false;
 	}
 	//drop the anim to the first level and start the checks there
 	anim -= (animLevel-FORCE_LEVEL_1)*SABER_ANIM_GROUP_SIZE;
 	//check level 1
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
-		return qtrue;
+		return true;
 	}
 	//check level 2
 	anim += SABER_ANIM_GROUP_SIZE;
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
-		return qtrue;
+		return true;
 	}
 	//check level 3
 	anim += SABER_ANIM_GROUP_SIZE;
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
-		return qtrue;
+		return true;
 	}
 	//check level 4
 	anim += SABER_ANIM_GROUP_SIZE;
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
-		return qtrue;
+		return true;
 	}
 	//check level 5
 	anim += SABER_ANIM_GROUP_SIZE;
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( anim >= BOTH_P1_S1_T_ && anim <= BOTH_H1_S1_BR )
 	{//parries, knockaways and broken parries
-		return (qboolean)(anim == saberMoveData[saberMove].animToUse);
+		return (anim == saberMoveData[saberMove].animToUse);
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_SaberInIdle( int move )
+bool PM_SaberInIdle( int move )
 {
 	switch ( move )
 	{
@@ -579,12 +579,12 @@ qboolean PM_SaberInIdle( int move )
 	case LS_READY:
 	case LS_DRAW:
 	case LS_PUTAWAY:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInSpecialAttack( int anim )
+bool PM_SaberInSpecialAttack( int anim )
 {
 	switch ( anim )
 	{
@@ -599,15 +599,15 @@ qboolean PM_SaberInSpecialAttack( int anim )
 	case BOTH_FORCELEAP2_T__B_:
 	case BOTH_JUMPFLIPSLASHDOWN1://#
 	case BOTH_JUMPFLIPSTABDOWN://#
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInAttack( int move )
+bool PM_SaberInAttack( int move )
 {
 	if ( move >= LS_A_TL2BR && move <= LS_A_T2B )
 	{
-		return qtrue;
+		return true;
 	}
 	switch ( move )
 	{
@@ -618,109 +618,109 @@ qboolean PM_SaberInAttack( int move )
 	case LS_A_JUMP_T__B_:
 	case LS_A_FLIP_STAB:
 	case LS_A_FLIP_SLASH:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInTransition( int move )
+bool PM_SaberInTransition( int move )
 {
 	if ( move >= LS_T1_BR__R && move <= LS_T1_BL__L )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInStart( int move )
+bool PM_SaberInStart( int move )
 {
 	if ( move >= LS_S_TL2BR && move <= LS_S_T2B )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInReturn( int move )
+bool PM_SaberInReturn( int move )
 {
 	if ( move >= LS_R_TL2BR && move <= LS_R_TL2BR )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInTransitionAny( int move )
+bool PM_SaberInTransitionAny( int move )
 {
 	if ( PM_SaberInStart( move ) )
 	{
-		return qtrue;
+		return true;
 	}
 	else if ( PM_SaberInTransition( move ) )
 	{
-		return qtrue;
+		return true;
 	}
 	else if ( PM_SaberInReturn( move ) )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInBounce( int move )
+bool PM_SaberInBounce( int move )
 {
 	if ( move >= LS_B1_BR && move <= LS_B1_BL )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( move >= LS_D1_BR && move <= LS_D1_BL )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInBrokenParry( int move )
+bool PM_SaberInBrokenParry( int move )
 {
 	if ( move >= LS_V1_BR && move <= LS_V1_B_ )
 	{
-		return qtrue;
+		return true;
 	}
 	if ( move >= LS_H1_T_ && move <= LS_H1_BL )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInDeflect( int move )
+bool PM_SaberInDeflect( int move )
 {
 	if ( move >= LS_D1_BR && move <= LS_D1_B_ )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInParry( int move )
+bool PM_SaberInParry( int move )
 {
 	if ( move >= LS_PARRY_UP && move <= LS_PARRY_LL )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInKnockaway( int move )
+bool PM_SaberInKnockaway( int move )
 {
 	if ( move >= LS_K1_T_ && move <= LS_K1_BL )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
-qboolean PM_SaberInReflect( int move )
+bool PM_SaberInReflect( int move )
 {
 	if ( move >= LS_REFLECT_UP && move <= LS_REFLECT_LL )
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_SaberInSpecial( int move )
+bool PM_SaberInSpecial( int move )
 {
 	switch( move )
 	{
@@ -731,9 +731,9 @@ qboolean PM_SaberInSpecial( int move )
 	case LS_A_JUMP_T__B_:
 	case LS_A_FLIP_STAB:
 	case LS_A_FLIP_SLASH:
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 int PM_BrokenParryForAttack( int move )
@@ -986,7 +986,7 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
 }
 
-qboolean PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
+bool PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 {
 	/*
 	if ( pm->gent && pm->gent->client )
@@ -994,13 +994,13 @@ qboolean PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 		if ( pm->gent->client->NPC_class == CLASS_DESANN ||
 			pm->gent->client->NPC_class == CLASS_TAVION )
 		{//desann and tavion can link up as many attacks as they want
-			return qfalse;
+			return false;
 		}
 	}
 	*/
 	if ( pm->ps->saberAnimLevel > FORCE_LEVEL_3 )
 	{//desann and tavion can link up as many attacks as they want
-		return qfalse;
+		return false;
 	}
 	//FIXME: instead of random, apply some sort of logical conditions to whether or
 	//		not you can chain?  Like if you were completely missed, you can't chain as much, or...?
@@ -1012,32 +1012,32 @@ qboolean PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 		{
 			if ( pm->ps->saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > Q_irand( 0, 1 ) )
 			{
-				return qtrue;
+				return true;
 			}
 		}
 		else if ( pm->ps->saberAttackChainCount > Q_irand( 2, 3 ) )
 		{
-			return qtrue;
+			return true;
 		}
 		else if ( pm->ps->saberAttackChainCount > 0 )
 		{
 			int chainAngle = PM_SaberAttackChainAngle( curmove, newmove );
 			if ( chainAngle < 135 || chainAngle > 215 )
 			{//if trying to chain to a move that doesn't continue the momentum
-				return qtrue;
+				return true;
 			}
 			else if ( chainAngle == 180 )
 			{//continues the momentum perfectly, allow it to chain 66% of the time
 				if ( pm->ps->saberAttackChainCount > 1 )
 				{
-					return qtrue;
+					return true;
 				}
 			}
 			else
 			{//would continue the movement somewhat, 50% chance of continuing
 				if ( pm->ps->saberAttackChainCount > 2 )
 				{
-					return qtrue;
+					return true;
 				}
 			}
 		}
@@ -1046,21 +1046,21 @@ qboolean PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 	{//FIXME: have chainAngle influence fast and medium chains as well?
 		if ( pm->ps->saberAnimLevel == FORCE_LEVEL_2 && pm->ps->saberAttackChainCount > Q_irand( 2, 5 ) )
 		{
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_CheckEnemyInBack( float backCheckDist )
+bool PM_CheckEnemyInBack( float backCheckDist )
 {
 	if ( !pm->gent || !pm->gent->client )
 	{
-		return qfalse;
+		return false;
 	}
 	if ( !pm->ps->clientNum && !g_saberAutoAim->integer && pm->cmd.forwardmove >= 0 )
 	{//don't auto-backstab
-		return qfalse;
+		return false;
 	}
 	trace_t	trace;
 	vec3_t end, fwd, fwdAngles = {0,pm->ps->viewangles[YAW],0};
@@ -1085,10 +1085,10 @@ qboolean PM_CheckEnemyInBack( float backCheckDist )
 					pm->gent->enemy = traceEnt;
 				}
 			}
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 int PM_PickBackStab( void )
@@ -1134,7 +1134,7 @@ int PM_PickBackStab( void )
 }
 extern int PM_NPCSaberAttackFromQuad( int quad );
 int PM_SaberFlipOverAttackMove( void );
-int PM_AttackForEnemyPos( qboolean allowFB )
+int PM_AttackForEnemyPos( bool allowFB )
 {
 	int autoMove = -1;
 
@@ -1448,7 +1448,7 @@ int PM_SaberAttackForMovement( int forwardmove, int rightmove, int move )
 					//if the enemy is not a jedi, don't use top-down, pick a diagonal or side attack
 					if ( pm->gent->enemy->s.weapon != WP_SABER && g_saberAutoAim->integer )
 					{
-						int autoMove = PM_AttackForEnemyPos( qfalse );
+						int autoMove = PM_AttackForEnemyPos( false );
 						if ( autoMove != -1 )
 						{
 							return autoMove;
@@ -1655,7 +1655,7 @@ int PM_SaberAttackForMovement( int forwardmove, int rightmove, int move )
 			{//auto-aim
 				if ( pm->gent && pm->gent->enemy )
 				{//based on enemy position, pick a proper attack
-					int autoMove = PM_AttackForEnemyPos( qtrue );
+					int autoMove = PM_AttackForEnemyPos( true );
 					if ( autoMove != -1 )
 					{
 						return autoMove;
@@ -1851,7 +1851,7 @@ int PM_LegsAnimForFrame( gentity_t *ent, int legsFrame )
 		return -1;
 
 	//Must have a file index entry
-	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == qfalse )
+	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
 		return -1;
 
 	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
@@ -1929,7 +1929,7 @@ int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame )
 		return -1;
 
 	//Must have a file index entry
-	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == qfalse )
+	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
 		return -1;
 
 	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
@@ -1954,14 +1954,14 @@ int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame )
 	return -1;
 }
 
-qboolean PM_FinishedCurrentLegsAnim( gentity_t *self )
+bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 {
 	int		junk, curFrame;
 	float	currentFrame, animSpeed;
 
 	if ( !self->client )
 	{
-		return qtrue;
+		return true;
 	}
 
 	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junk, &animSpeed, NULL );
@@ -1972,10 +1972,10 @@ qboolean PM_FinishedCurrentLegsAnim( gentity_t *self )
 
 	if ( curFrame >= animations[legsAnim].firstFrame + (animations[legsAnim].numFrames - 2) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1984,29 +1984,29 @@ PM_HasAnimation
 -------------------------
 */
 
-qboolean PM_HasAnimation( gentity_t *ent, int animation )
+bool PM_HasAnimation( gentity_t *ent, int animation )
 {
 	//Must be a valid client
 	if ( !ent || ent->client == NULL )
-		return qfalse;
+		return false;
 
 	//must be a valid anim number
 	if ( animation < 0 || animation >= MAX_ANIMATIONS )
 	{
-		return qfalse;
+		return false;
 	}
 	//Must have a file index entry
-	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == qfalse )
-		return qfalse;
+	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
+		return false;
 
 	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 
 	//No frames, no anim
 	if ( animations[animation].numFrames == 0 )
-		return qfalse;
+		return false;
 
 	//Has the sequence
-	return qtrue;
+	return true;
 }
 
 int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim )
@@ -2107,7 +2107,7 @@ void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time )
 	}
 }
 
-extern qboolean PM_SpinningSaberAnim( int anim );
+extern bool PM_SpinningSaberAnim( int anim );
 extern float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS];
 void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gentity_t *gent )
 {
@@ -2191,8 +2191,8 @@ void PM_SaberStartTransAnim( int anim, int entNum, int saberOffenseLevel, float 
 	return;
 }
 */
-extern qboolean		player_locked;
-extern qboolean		MatrixMode;
+extern bool		player_locked;
+extern bool		MatrixMode;
 float PM_GetTimeScaleMod( gentity_t *gent )
 {
 	if ( g_timescale->value )
@@ -2335,10 +2335,10 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 						animFlags |= BONE_ANIM_BLEND;
 					}
 					//HACKHACKHACK
-					//qboolean animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
+					//bool animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
 					float	currentFrame, legAnimSpeed, firstFrame, lastFrame;
 					int		flags;
-					qboolean animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
+					bool animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
 										gent->rootBone, actualTime, &currentFrame,
 										&startFrame, &endFrame, &flags, &legAnimSpeed, NULL );
 					if ( g_synchSplitAnims->integer
@@ -2408,7 +2408,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 							lastFrame = (animations[anim].numFrames) + animations[anim].firstFrame;
 						}
 						// first decide if we are doing an animation on the torso already
-						qboolean animatingTorso =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "lower_lumbar", &startFrame, &endFrame);//"upper_lumbar"
+						bool animatingTorso =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "lower_lumbar", &startFrame, &endFrame);//"upper_lumbar"
 
 						// lets see if a) we are already animating and b) we aren't going to do the same animation again
 						if (animatingTorso && ( (firstFrame != startFrame) || (lastFrame != endFrame) ) )
@@ -2586,10 +2586,10 @@ setAnimLegs:
 					lastFrame = (animations[anim].numFrames ) + animations[anim].firstFrame;
 				}
 				//HACKHACKHACK
-				//qboolean animatingTorso =  gi.G2API_GetAnimRangeIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, &startFrame, &endFrame);
+				//bool animatingTorso =  gi.G2API_GetAnimRangeIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, &startFrame, &endFrame);
 				float	currentFrame, torsoAnimSpeed;
 				int		flags;
-				qboolean animatingTorso = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone,actualTime, &currentFrame, &startFrame, &endFrame, &flags, &torsoAnimSpeed, NULL);
+				bool animatingTorso = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone,actualTime, &currentFrame, &startFrame, &endFrame, &flags, &torsoAnimSpeed, NULL);
 				if ( g_synchSplitAnims->integer
 					&& !(setAnimFlags & SETANIM_FLAG_RESTART)
 					&& animatingTorso
@@ -2632,10 +2632,10 @@ setAnimLegs:
 				else
 				{// no, we aren't the same anim as the torso is running, so just run it.
 					// before we do this, lets see if this animation is one the legs are already playing?
-					//qboolean animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
+					//bool animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
 					float	currentFrame, legAnimSpeed;
 					int		flags;
-					qboolean animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
+					bool animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
 										gent->rootBone, actualTime, &currentFrame,
 										&startFrame, &endFrame, &flags, &legAnimSpeed, NULL );
 					// lets see if a) we are already animating and b) we aren't going to do the same animation again
@@ -2761,9 +2761,9 @@ PM_TorsoAnimLightsaber
 // only does idle-ish anims.  Anything that has a timer associated, such as attacks and blocks,
 // are set by PM_WeaponLightsaber()
 
-extern qboolean PM_LandingAnim( int anim );
-extern qboolean PM_JumpingAnim( int anim );
-qboolean PM_InCartwheel( int anim );
+extern bool PM_LandingAnim( int anim );
+extern bool PM_JumpingAnim( int anim );
+bool PM_InCartwheel( int anim );
 void PM_TorsoAnimLightsaber()
 {
 	// *********************************************************
@@ -2930,21 +2930,21 @@ void PM_TorsoAnimLightsaber()
 			// Idle for Lightsaber
 			if ( pm->gent && pm->gent->client )
 			{
-//				pm->gent->client->saberTrail.inAction = qfalse;
+//				pm->gent->client->saberTrail.inAction = false;
 			}
 
-			qboolean saberInAir = qtrue;
+			bool saberInAir = true;
 			if ( pm->ps->saberInFlight )
 			{//guiding saber
 				if ( PM_SaberInBrokenParry( pm->ps->saberMove ) || pm->ps->saberBlocked == BLOCKED_PARRY_BROKEN || PM_DodgeAnim( pm->ps->torsoAnim ) )
 				{//we're stuck in a broken parry
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 				if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 				{//
 					if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 					{//fell to the ground and we're not trying to pull it back
-						saberInAir = qfalse;
+						saberInAir = false;
 					}
 				}
 			}
@@ -2960,7 +2960,7 @@ void PM_TorsoAnimLightsaber()
 				// Idle for Lightsaber
 				if ( pm->gent && pm->gent->client )
 				{
-					pm->gent->client->saberTrail.inAction = qfalse;
+					pm->gent->client->saberTrail.inAction = false;
 				}
 				// Idle for idle/ready Lightsaber
 //				PM_SetAnim(pm,SETANIM_TORSO,BOTH_ATTACK1,SETANIM_FLAG_NORMAL);//TORSO_WEAPONIDLE1
@@ -3041,7 +3041,7 @@ void PM_TorsoAnimation( void )
 		if ( PM_HasAnimation( pm->gent, BOTH_GESTURE1 ) )
 		{
 			PM_SetAnim(pm,SETANIM_BOTH,BOTH_GESTURE1,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);//SETANIM_FLAG_NORMAL
-			pm->gent->client->saberTrail.inAction = qtrue;
+			pm->gent->client->saberTrail.inAction = true;
 			pm->gent->client->saberTrail.duration = 100;
 			//FIXME: will this reset?
 			//FIXME: force-control (yellow glow) effect on hand and saber?
@@ -3071,7 +3071,7 @@ void PM_TorsoAnimation( void )
 				//PM_SetAnim( pm, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 				return;
 			}
-			qboolean saberInAir = qtrue;
+			bool saberInAir = true;
 
 			if ( PM_SaberInBrokenParry( pm->ps->saberMove ) || pm->ps->saberBlocked == BLOCKED_PARRY_BROKEN || PM_DodgeAnim( pm->ps->torsoAnim ) )
 			{//we're stuck in a broken parry
@@ -3082,7 +3082,7 @@ void PM_TorsoAnimation( void )
 			{//
 				if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 				{//fell to the ground and we're not trying to pull it back
-					saberInAir = qfalse;
+					saberInAir = false;
 				}
 			}
 
@@ -3126,36 +3126,36 @@ void PM_TorsoAnimation( void )
 	}
 
 
-	qboolean weaponBusy = qfalse;
+	bool weaponBusy = false;
 
 	if ( pm->ps->weapon == WP_NONE )
 	{
-		weaponBusy = qfalse;
+		weaponBusy = false;
 	}
 	else if ( pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_CHARGING || pm->ps->weaponstate == WEAPON_CHARGING_ALT )
 	{
-		weaponBusy = qtrue;
+		weaponBusy = true;
 	}
 	else if ( pm->ps->lastShotTime > level.time - 3000 )
 	{
-		weaponBusy = qtrue;
+		weaponBusy = true;
 	}
 	else if ( pm->ps->weaponTime )
 	{
-		weaponBusy = qtrue;
+		weaponBusy = true;
 	}
 	else if ( pm->gent && pm->gent->client->fireDelay > 0 )
 	{
-		weaponBusy = qtrue;
+		weaponBusy = true;
 	}
 	else if ( !pm->ps->clientNum && cg.zoomTime > cg.time - 5000 )
 	{//if we used binoculars recently, aim weapon
-		weaponBusy = qtrue;
+		weaponBusy = true;
 		pm->ps->weaponstate = WEAPON_IDLE;
 	}
 	else if ( pm->ps->pm_flags & PMF_DUCKED )
 	{//ducking is considered on alert... plus looks stupid to have arms hanging down when crouched
-		weaponBusy = qtrue;
+		weaponBusy = true;
 	}
 
 	if (	pm->ps->weapon == WP_NONE ||
@@ -3862,7 +3862,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 	}
 }
 
-qboolean PM_InOnGroundAnim ( playerState_t *ps )
+bool PM_InOnGroundAnim ( playerState_t *ps )
 {
 	switch( ps->legsAnim )
 	{
@@ -3898,7 +3898,7 @@ qboolean PM_InOnGroundAnim ( playerState_t *ps )
 	case BOTH_SLEEP_IDLE2:		//# shift position while asleep - stays in sleep2
 	case BOTH_SLEEP1_NOSE:		//# Scratch nose from SLEEP1 pose
 	case BOTH_SLEEP2_SHIFT:		//# Shift in sleep from SLEEP2 pose
-		return qtrue;
+		return true;
 		break;
 	case BOTH_KNOCKDOWN1:		//#
 	case BOTH_KNOCKDOWN2:		//#
@@ -3907,7 +3907,7 @@ qboolean PM_InOnGroundAnim ( playerState_t *ps )
 	case BOTH_KNOCKDOWN5:		//#
 		if ( ps->legsAnimTimer < 500 )
 		{//pretty much horizontal by this point
-			return qtrue;
+			return true;
 		}
 		break;
 	case BOTH_GETUP1:
@@ -3927,15 +3927,15 @@ qboolean PM_InOnGroundAnim ( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B6:
 		if ( ps->legsAnimTimer > PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim )-400 )
 		{//still pretty much horizontal at this point
-			return qtrue;
+			return true;
 		}
 		break;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean PM_InSpecialDeathAnim( int anim )
+bool PM_InSpecialDeathAnim( int anim )
 {
 	switch( pm->ps->legsAnim )
 	{
@@ -3949,15 +3949,15 @@ qboolean PM_InSpecialDeathAnim( int anim )
 	case BOTH_DEATH_FALLING_DN:	//# Death anim when falling on face
 	case BOTH_DEATH_FALLING_UP:	//# Death anim when falling on back
 	case BOTH_DEATH_CROUCHED:	//# Death anim when crouched
-		return qtrue;
+		return true;
 		break;
 	default:
-		return qfalse;
+		return false;
 		break;
 	}
 }
 
-qboolean PM_InDeathAnim ( void )
+bool PM_InDeathAnim ( void )
 {//Purposely does not cover stumbledeath and falldeath...
 	switch( pm->ps->legsAnim )
 	{
@@ -4053,7 +4053,7 @@ qboolean PM_InDeathAnim ( void )
 	case BOTH_DISMEMBER_RLEG:	//#
 	case BOTH_DISMEMBER_RARM:	//#
 	case BOTH_DISMEMBER_LARM:	//#
-		return qtrue;
+		return true;
 		break;
 	default:
 		return PM_InSpecialDeathAnim( pm->ps->legsAnim );
@@ -4061,7 +4061,7 @@ qboolean PM_InDeathAnim ( void )
 	}
 }
 
-qboolean PM_InCartwheel( int anim )
+bool PM_InCartwheel( int anim )
 {
 	switch ( anim )
 	{
@@ -4070,13 +4070,13 @@ qboolean PM_InCartwheel( int anim )
 	case BOTH_ARIAL_F1:
 	case BOTH_CARTWHEEL_LEFT:
 	case BOTH_CARTWHEEL_RIGHT:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PM_StandingAnim( int anim )
+bool PM_StandingAnim( int anim )
 {//NOTE: does not check idles or special (cinematic) stands
 	switch ( anim )
 	{
@@ -4084,8 +4084,8 @@ qboolean PM_StandingAnim( int anim )
 	case BOTH_STAND2:
 	case BOTH_STAND3:
 	case BOTH_STAND4:
-		return qtrue;
+		return true;
 		break;
 	}
-	return qfalse;
+	return false;
 }

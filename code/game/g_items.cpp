@@ -28,12 +28,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_local.h"
 #include "b_local.h"
 
-extern qboolean	missionInfo_Updated;
+extern bool	missionInfo_Updated;
 
 extern void CrystalAmmoSettings(gentity_t *ent);
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean PM_InGetUp( playerState_t *ps );
+extern bool PM_InKnockDown( playerState_t *ps );
+extern bool PM_InGetUp( playerState_t *ps );
 extern void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 extern void WP_SaberFallSound( gentity_t *owner, gentity_t *saber );
@@ -76,18 +76,18 @@ extern cvar_t	*g_saberPickuppableDroppedSabers;
 G_InventorySelectable
 ===============
 */
-qboolean G_InventorySelectable( int index,gentity_t *other)
+bool G_InventorySelectable( int index,gentity_t *other)
 {
 	if (other->client->ps.inventory[index])
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-extern qboolean INV_GoodieKeyGive( gentity_t *target );
-extern qboolean INV_SecurityKeyGive( gentity_t *target, const char *keyname );
+extern bool INV_GoodieKeyGive( gentity_t *target );
+extern bool INV_SecurityKeyGive( gentity_t *target, const char *keyname );
 int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 {
 	int		i,original;
@@ -159,7 +159,7 @@ int Add_Ammo2 (gentity_t *ent, int ammoType, int count)
 		if ( ent->client->ps.ammo[ammoType] > ammoData[ammoType].max )
 		{
 			ent->client->ps.ammo[ammoType] = ammoData[ammoType].max;
-			return qfalse;
+			return false;
 		}
 	}
 	else
@@ -180,10 +180,10 @@ int Add_Ammo2 (gentity_t *ent, int ammoType, int count)
 		if ( ent->client->ps.forcePower >= ammoData[ammoType].max*2 )
 		{//always cap at twice a full charge
 			ent->client->ps.forcePower = ammoData[ammoType].max*2;
-			return qfalse;		// can't hold any more
+			return false;		// can't hold any more
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 //-------------------------------------------------------
@@ -301,65 +301,65 @@ gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, ve
 }
 
 extern void G_SetSabersFromCVars( gentity_t *ent );
-qboolean Pickup_Saber( gentity_t *self, qboolean hadSaber, gentity_t *pickUpSaber )
+bool Pickup_Saber( gentity_t *self, bool hadSaber, gentity_t *pickUpSaber )
 {
 	//NOTE: loopAnim = saberSolo, alt_fire = saberLeftHand, NPC_type = saberType, NPC_targetname = saberColor
-	qboolean foundIt = qfalse;
+	bool foundIt = false;
 
 	if ( !pickUpSaber || !self || !self->client )
 	{
-		return qfalse;
+		return false;
 	}
 
 	//G_RemoveWeaponModels( ent );//???
 	if ( Q_stricmp( "player", pickUpSaber->NPC_type ) == 0 )
 	{//"player" means use cvar info
 		G_SetSabersFromCVars( self );
-		foundIt = qtrue;
+		foundIt = true;
 	}
 	else
 	{
 		saberInfo_t	newSaber={0};
-		qboolean swapSabers = qfalse;
+		bool swapSabers = false;
 
 		if ( self->client->ps.weapon == WP_SABER
 			&& self->client->ps.weaponTime > 0 )
 		{//can't pick up a new saber while the old one is busy (also helps to work as a debouncer so you don't swap out sabers rapidly when touching more than one at a time)
-			return qfalse;
+			return false;
 		}
 
 		if ( pickUpSaber->count == 1
 			&& g_saberPickuppableDroppedSabers->integer )
 		{
-			swapSabers = qtrue;
+			swapSabers = true;
 		}
 
 		if ( WP_SaberParseParms( pickUpSaber->NPC_type, &newSaber ) )
 		{//successfully found a saber .sab entry to use
 			int	saberNum = 0;
-			qboolean removeLeftSaber = qfalse;
+			bool removeLeftSaber = false;
 			if ( pickUpSaber->alt_fire )
 			{//always go in the left hand
 				if ( !hadSaber )
 				{//can't have a saber only in your left hand!
-					return qfalse;
+					return false;
 				}
 				saberNum = 1;
 				//just in case...
-				removeLeftSaber = qtrue;
+				removeLeftSaber = true;
 			}
 			else if ( !hadSaber )
 			{//don't have a saber at all yet, put it in our right hand
 				saberNum = 0;
 				//just in case...
-				removeLeftSaber = qtrue;
+				removeLeftSaber = true;
 			}
 			else if ( pickUpSaber->loopAnim//only supposed to use this one saber when grab this pickup
 				|| (newSaber.saberFlags&SFL_TWO_HANDED) //new saber is two-handed
 				|| (hadSaber && (self->client->ps.saber[0].saberFlags&SFL_TWO_HANDED)) )//old saber is two-handed
 			{//replace the old right-hand saber and remove the left hand one
 				saberNum = 0;
-				removeLeftSaber = qtrue;
+				removeLeftSaber = true;
 			}
 			else
 			{//have, at least, a saber in our right hand and the new one could go in either left or right hand
@@ -379,14 +379,14 @@ qboolean Pickup_Saber( gentity_t *self, qboolean hadSaber, gentity_t *pickUpSabe
 					{
 						saberNum = 1;
 						//just in case...
-						removeLeftSaber = qtrue;
+						removeLeftSaber = true;
 					}
 				}
 				else
 				{//just add it as a second saber
 					saberNum = 1;
 					//just in case...
-					removeLeftSaber = qtrue;
+					removeLeftSaber = true;
 				}
 			}
 			if ( saberNum == 0 )
@@ -438,7 +438,7 @@ qboolean Pickup_Saber( gentity_t *self, qboolean hadSaber, gentity_t *pickUpSabe
 			{//don't let them attack right away, force them to finish the anim
 				self->client->ps.weaponTime = self->client->ps.torsoAnimTimer;
 			}
-			foundIt = qtrue;
+			foundIt = true;
 		}
 		WP_SaberFreeStrings(newSaber);
 	}
@@ -449,7 +449,7 @@ extern void CG_ChangeWeapon( int num );
 int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
-	qboolean	hadWeapon = qfalse;
+	bool	hadWeapon = false;
 
 	/*
 	if ( ent->count || (ent->activator && !ent->activator->s.number) )
@@ -475,7 +475,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	// add the weapon
 	if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
 	{
-		hadWeapon = qtrue;
+		hadWeapon = true;
 	}
 	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
@@ -548,10 +548,10 @@ int ITM_AddHealth (gentity_t *ent, int count)
 	{
 		ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
 
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 
 }
 
@@ -590,10 +590,10 @@ int ITM_AddArmor (gentity_t *ent, int count)
 	if (ent->client->ps.stats[STAT_ARMOR] > ent->client->ps.stats[STAT_MAX_HEALTH])
 	{
 		ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -638,7 +638,7 @@ int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 	other->client->ps.forcePowerLevel[forcePower] = forceLevel;
 	other->client->ps.forcePowersKnown |= ( 1 << forcePower );
 
-	missionInfo_Updated = qtrue;	// Activate flashing text
+	missionInfo_Updated = true;	// Activate flashing text
 	gi.cvar_set("cg_updatedDataPadForcePower1", va("%d",forcePower+1)); // The +1 is offset in the print routine.
 	cg_updatedDataPadForcePower1.integer = forcePower+1;
 	gi.cvar_set("cg_updatedDataPadForcePower2", "0"); // The +1 is offset in the print routine.
@@ -661,14 +661,14 @@ void RespawnItem( gentity_t *ent ) {
 }
 
 
-qboolean CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
+bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 {
 	if ( !item->item ) {
-		return qfalse;
+		return false;
 	}
 	if ( item->item->giType == IT_HOLDABLE &&
 		item->item->giTag == INV_SECURITY_KEY ) {
-		return qfalse;
+		return false;
 	}
 	if ( (item->flags&FL_DROPPED_ITEM)
 		&& item->activator != &g_entities[0]
@@ -681,18 +681,18 @@ qboolean CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
 		if ( level.time - item->s.time < 3000 )//was 5000
 		{
-			return qfalse;
+			return false;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean G_CanPickUpWeapons( gentity_t *other )
+bool G_CanPickUpWeapons( gentity_t *other )
 {
 	if ( !other || !other->client )
 	{
-		return qfalse;
+		return false;
 	}
 	switch ( other->client->NPC_class )
 	{
@@ -712,12 +712,12 @@ qboolean G_CanPickUpWeapons( gentity_t *other )
 	case CLASS_JAWA: //FIXME: in some cases it's okay?
 	case CLASS_UGNAUGHT: //FIXME: in some cases it's okay?
 	case CLASS_SENTRY:
-		return qfalse;
+		return false;
 		break;
 	default:
 		break;
 	}
-	return qtrue;
+	return true;
 }
 /*
 ===============
@@ -824,7 +824,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 	}
 
-	qboolean bHadWeapon = qfalse;
+	bool bHadWeapon = false;
 	// call the item-specific pickup function
 	switch( ent->item->giType )
 	{
@@ -841,7 +841,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 		if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
 		{
-			bHadWeapon = qtrue;
+			bHadWeapon = true;
 		}
 		respawn = Pickup_Weapon(ent, other);
 		break;
@@ -875,7 +875,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// play the normal pickup sound
 	if ( !other->s.number && g_timescale->value < 1.0f  )
 	{//SIGH... with timescale on, you lose events left and right
-extern void CG_ItemPickup( int itemNum, qboolean bHadItem );
+extern void CG_ItemPickup( int itemNum, bool bHadItem );
 		// but we're SP so we'll cheat
 		cgi_S_StartSound( NULL, other->s.number, CHAN_AUTO,	cgi_S_RegisterSound( ent->item->pickup_sound ) );
 		// show icon and name on status bar
@@ -921,7 +921,7 @@ extern void CG_ItemPickup( int itemNum, qboolean bHadItem );
 		ent->svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
 		ent->contents = 0;
-		ent->unlinkAfterEvent = qtrue;
+		ent->unlinkAfterEvent = true;
 		*/
 		return;
 	}
@@ -1019,7 +1019,7 @@ Drop_Item
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, qboolean copytarget ) {
+gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, bool copytarget ) {
 	gentity_t	*dropped = NULL;
 	vec3_t	velocity;
 	vec3_t	angles;
@@ -1408,14 +1408,14 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
 	int		hitTime;
-	qboolean droppedSaber = qtrue;
+	bool droppedSaber = true;
 
 	if ( ent->item
 		&& ent->item->giType == IT_WEAPON
 		&& ent->item->giTag == WP_SABER
 		&& (ent->flags&FL_DROPPED_ITEM) )
 	{
-		droppedSaber = qtrue;
+		droppedSaber = true;
 	}
 
 	// reflect the velocity on the trace plane
@@ -1456,7 +1456,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 					}
 				}
 			}
-			pitch_roll_for_slope( ent, trace->plane.normal, ent->currentAngles, qtrue );
+			pitch_roll_for_slope( ent, trace->plane.normal, ent->currentAngles, true );
 			G_SetAngles( ent, ent->currentAngles );
 		}
 		return;

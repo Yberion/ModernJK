@@ -26,8 +26,8 @@ using ctx::Of;
 using enum ctx::ClientScalar;
 
 // playerState_t offsets (the engine checks them, sv_netcodec.cpp and cl_netcodec.cpp)
-constexpr size_t kPsCommandTime = 0, kPsDeltaAngles = 80, kPsWeapon = 176, kPsViewAngles = 184, kPsHoldable = 248,
-                 kPsForceSelected = 884;
+constexpr size_t kPsCommandTime = 0, kPsDeltaAngles = 80, kPsWeapon = 172, kPsViewAngles = 180, kPsHoldable = 244,
+                 kPsForceSelected = 868;
 // usercmd_t offsets
 constexpr size_t kCmdTime = 0, kCmdAngles = 4, kCmdButtons = 16, kCmdBytes = 20;
 constexpr uint32_t kStepEscaped = ctx::kStepAlphabet - 1;

@@ -1357,7 +1357,7 @@ void CFxScheduler::AddScheduledEffects( bool portal )
 	vec3_t						origin;
 	vec3_t						axis[3];
 	int							oldEntNum = -1, oldBoltIndex = -1, oldModelNum = -1;
-	qboolean					doesBoltExist  = qfalse;
+	bool					doesBoltExist  = false;
 
 	if (portal)
 	{
@@ -1407,7 +1407,7 @@ void CFxScheduler::AddScheduledEffects( bool portal )
 						{
 							if (cent.gent->ghoul2[effect->mModelNum].mModelindex>=0)
 							{
-								doesBoltExist = (qboolean)(theFxHelper.GetOriginAxisFromBolt(cent, effect->mModelNum, effect->mBoltNum, origin, axis) != 0);
+								doesBoltExist = (theFxHelper.GetOriginAxisFromBolt(cent, effect->mModelNum, effect->mBoltNum, origin, axis) != 0);
 							}
 						}
 					}
@@ -1796,7 +1796,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		// The downside is that it's much less flexible....
 		CG_ImpactMark( fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(),
 			sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(),
-			qtrue, fx->mSizeStart.GetVal(), qfalse );
+			true, fx->mSizeStart.GetVal(), false );
 
 		if (fx->mFlags & FX_GHOUL2_DECALS)
 		{

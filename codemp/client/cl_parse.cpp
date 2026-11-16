@@ -55,9 +55,9 @@ void CL_ParseSnapshot( clSnapshot_t *newSnap ) {
 
 	// if we were just unpaused, we can only *now* really let the
 	// change come into effect or the client hangs.
-	cl_paused->modified = qfalse;
+	cl_paused->modified = false;
 
-	newSnap->valid = qtrue;
+	newSnap->valid = true;
 
 	// clear the valid flags of any snapshots between the last
 	// received and this one, so if there was a dropped packet
@@ -69,7 +69,7 @@ void CL_ParseSnapshot( clSnapshot_t *newSnap ) {
 		oldMessageNum = newSnap->messageNum - ( PACKET_BACKUP - 1 );
 	}
 	for ( ; oldMessageNum < newSnap->messageNum ; oldMessageNum++ ) {
-		cl.snapshots[oldMessageNum & PACKET_MASK].valid = qfalse;
+		cl.snapshots[oldMessageNum & PACKET_MASK].valid = false;
 	}
 
 	// copy to the current good spot
@@ -95,7 +95,7 @@ void CL_ParseSnapshot( clSnapshot_t *newSnap ) {
 		cl.snap.deltaNum, cl.snap.ping );
 	}
 
-	cl.newSnapshots = qtrue;
+	cl.newSnapshots = true;
 }
 
 
@@ -153,7 +153,7 @@ void CL_SystemInfoChanged( void ) {
 	const char		*s, *t;
 	char			key[BIG_INFO_KEY];
 	char			value[BIG_INFO_VALUE];
-	qboolean		gameSet;
+	bool		gameSet;
 
 	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
 	// NOTE TTimo:
@@ -183,7 +183,7 @@ void CL_SystemInfoChanged( void ) {
 	t = Info_ValueForKey( systemInfo, "sv_referencedPakNames" );
 	FS_PureServerSetReferencedPaks( s, t );
 
-	gameSet = qfalse;
+	gameSet = false;
 	// scan through all the variables in the systeminfo and locally set cvars to match
 	s = systemInfo;
 	while ( s ) {
@@ -204,7 +204,7 @@ void CL_SystemInfoChanged( void ) {
 				Q_strncpyz(value, "", sizeof(value));
 			}
 
-			gameSet = qtrue;
+			gameSet = true;
 		}
 		Cvar_Server_Set( key, value );
 	}
@@ -273,7 +273,7 @@ void CL_ParseGamestateEnd( const entityState_t *baselines, int clientNum, int ch
 		// don't set to true because we yet have to start downloading
 		// enabling this can cause double loading of a map when connecting to
 		// a server which has a different game directory set
-		//clc.downloadRestart = qtrue;
+		//clc.downloadRestart = true;
 	}
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
@@ -299,7 +299,7 @@ void CL_ParseDownload ( int block, int fileSize, const byte *data, int size ) {
 
 	if (!*clc.downloadTempName) {
 		Com_Printf("Server sending download, but no download was requested\n");
-		CL_AddReliableCommand("stopdl", qfalse);
+		CL_AddReliableCommand("stopdl", false);
 		return;
 	}
 
@@ -344,7 +344,7 @@ void CL_ParseDownload ( int block, int fileSize, const byte *data, int size ) {
 
 		if (!clc.download) {
 			Com_Printf( "Could not create %s\n", clc.downloadTempName );
-			CL_AddReliableCommand( "stopdl", qfalse );
+			CL_AddReliableCommand( "stopdl", false );
 			CL_NextDownload();
 			return;
 		}
@@ -353,7 +353,7 @@ void CL_ParseDownload ( int block, int fileSize, const byte *data, int size ) {
 	if (size)
 		FS_Write( data, size, clc.download );
 
-	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), qfalse );
+	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), false );
 	clc.downloadBlock++;
 
 	clc.downloadCount += size;
@@ -367,7 +367,7 @@ void CL_ParseDownload ( int block, int fileSize, const byte *data, int size ) {
 			clc.download = 0;
 
 			// rename the file
-			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, qfalse );
+			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, false );
 		}
 
 		// send intentions now

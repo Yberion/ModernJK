@@ -141,7 +141,7 @@ public:
 	int Completed( int id );
 
 	int Update( void );
-	qboolean IsRunning( void );
+	bool IsRunning( void );
 
 	CTaskGroup *AddTaskGroup( const char *name );
 	CTaskGroup *GetTaskGroup( const char *name );

@@ -136,7 +136,7 @@ typedef enum //# StatusText_e
 	MAX_STATUSTEXT,
 } statusText_t;
 
-extern qboolean	missionInfo_Updated;
+extern bool	missionInfo_Updated;
 
 #define SET_TACTICAL_OFF	0
 #define SET_TACTICAL_ON		1

@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "../Ratl/vector_vs.h"
 
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
-extern qboolean NPCsPrecached;
+extern bool NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern stringID_table_t WPTable[];
@@ -191,24 +191,24 @@ int NPC_ReactionTime ( void )
 // parse support routines
 //
 
-qboolean G_ParseLiteral( const char **data, const char *string )
+bool G_ParseLiteral( const char **data, const char *string )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qtrue );
+	token = COM_ParseExt( data, true );
 	if ( token[0] == 0 )
 	{
 		gi.Printf( "unexpected EOF\n" );
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( token, string ) )
 	{
 		gi.Printf( "required string '%s' missing\n", string );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //
@@ -876,7 +876,7 @@ models/players/visor/animation.cfg, etc
 
 ======================
 */
-qboolean G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
+bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 {
 	char			text[80000];
 	int				len			= 0;
@@ -898,13 +898,13 @@ qboolean G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIn
 		len = gi.RE_GetAnimationCFG(skeletonPath, text, sizeof(text));
 		if ( len <= 0 )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 	if ( len >= (int)(sizeof( text ) - 1) )
 	{
 		G_Error( "G_ParseAnimationFile: File %s too long\n (%d > %d)", skeletonName, len, sizeof( text ) - 1);
-		return qfalse;
+		return false;
 	}
 
 
@@ -937,7 +937,7 @@ qboolean G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIn
 			//unrecognized animation so skip to end of line,
 			while (token[0])
 			{
-				token = COM_ParseExt( &text_p, qfalse );	//returns empty string when next token is EOL
+				token = COM_ParseExt( &text_p, false );	//returns empty string when next token is EOL
 			}
 			continue;
 		}
@@ -1024,7 +1024,7 @@ qboolean G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIn
 	}
 #endif
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1267,7 +1267,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 	// look for the right NPC
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
@@ -1297,7 +1297,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 	// parse the NPC info block
 	while ( 1 )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", NPC_type );
@@ -1585,7 +1585,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 	const char	*p;
 	char	*patch;
 	char	sound[MAX_QPATH];
-	qboolean	md3Model = qfalse;
+	bool	md3Model = false;
 	char	playerModel[MAX_QPATH] = { 0 };
 	char	customSkin[MAX_QPATH];
 
@@ -1602,7 +1602,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 	// look for the right NPC
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
@@ -1634,7 +1634,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 	{
 		COM_EndParseSession();	// if still in session (or using continue;)
 		COM_BeginParseSession();
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", spawner->NPC_type );
@@ -1662,7 +1662,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			{
 				Q_strncpyz( ri.headModelName, value, sizeof(ri.headModelName));
 			}
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -1681,7 +1681,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			{
 				Q_strncpyz( ri.torsoModelName, value, sizeof(ri.torsoModelName));
 			}
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -1693,7 +1693,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 				continue;
 			}
 			Q_strncpyz( ri.legsModelName, value, sizeof(ri.legsModelName));
-			md3Model = qtrue;
+			md3Model = true;
 			continue;
 		}
 
@@ -1705,7 +1705,7 @@ void CG_NPC_Precache ( gentity_t *spawner )
 				continue;
 			}
 			Q_strncpyz( playerModel, value, sizeof(playerModel));
-			md3Model = qfalse;
+			md3Model = false;
 			continue;
 		}
 
@@ -1930,7 +1930,7 @@ void NPC_BuildRandom( gentity_t *NPC )
 extern void G_MatchPlayerWeapon( gentity_t *ent );
 extern void G_InitPlayerFromCvars( gentity_t *ent );
 extern void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
-qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
+bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 {
 	const char	*token;
 	const char	*value;
@@ -1944,10 +1944,10 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	clientInfo_t	*ci = &NPC->client->clientInfo;
 	renderInfo_t	*ri = &NPC->client->renderInfo;
 	gNPCstats_t		*stats = NULL;
-	qboolean	md3Model = qtrue;
+	bool	md3Model = true;
 	char	surfOff[1024]={0};
 	char	surfOn[1024]={0};
-	qboolean parsingPlayer = qfalse;
+	bool parsingPlayer = false;
 
 	strcpy(customSkin,"default");
 	if ( !NPCName || !NPCName[0])
@@ -1957,7 +1957,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 
 	if ( !NPC->s.number && NPC->client != NULL )
 	{//player, only want certain data
-		parsingPlayer = qtrue;
+		parsingPlayer = true;
 	}
 
 	if ( NPC->NPC )
@@ -2009,9 +2009,9 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	//Set defaults
 	//FIXME: should probably put default torso and head models, but what about enemies
 	//that don't have any- like Stasis?
-	//Q_strncpyz( ri->headModelName,	DEFAULT_HEADMODEL,  sizeof(ri->headModelName),	qtrue);
-	//Q_strncpyz( ri->torsoModelName, DEFAULT_TORSOMODEL, sizeof(ri->torsoModelName),	qtrue);
-	//Q_strncpyz( ri->legsModelName,	DEFAULT_LEGSMODEL,  sizeof(ri->legsModelName),	qtrue);
+	//Q_strncpyz( ri->headModelName,	DEFAULT_HEADMODEL,  sizeof(ri->headModelName),	true);
+	//Q_strncpyz( ri->torsoModelName, DEFAULT_TORSOMODEL, sizeof(ri->torsoModelName),	true);
+	//Q_strncpyz( ri->legsModelName,	DEFAULT_LEGSMODEL,  sizeof(ri->legsModelName),	true);
 	ri->headModelName[0] = 0;
 	ri->torsoModelName[0]= 0;
 	ri->legsModelName[0] =0;
@@ -2056,11 +2056,11 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		// look for the right NPC
 		while ( p )
 		{
-			token = COM_ParseExt( &p, qtrue );
+			token = COM_ParseExt( &p, true );
 			if ( token[0] == 0 )
 			{
 				COM_EndParseSession(  );
-				return qfalse;
+				return false;
 			}
 
 			if ( !Q_stricmp( token, NPCName ) )
@@ -2073,24 +2073,24 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		if ( !p )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		if ( G_ParseLiteral( &p, "{" ) )
 		{
 			COM_EndParseSession(  );
-			return qfalse;
+			return false;
 		}
 
 		// parse the NPC info block
 		while ( 1 )
 		{
-			token = COM_ParseExt( &p, qtrue );
+			token = COM_ParseExt( &p, true );
 			if ( !token[0] )
 			{
 				gi.Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", NPCName );
 				COM_EndParseSession(  );
-				return qfalse;
+				return false;
 			}
 
 			if ( !Q_stricmp( token, "}" ) )
@@ -2536,7 +2536,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				Q_strncpyz( playerModel, value, sizeof(playerModel));
-				md3Model = qfalse;
+				md3Model = false;
 				continue;
 			}
 
@@ -3124,9 +3124,9 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{//you didn't spawn this guy right!
 						Com_Printf ( S_COLOR_RED "ERROR: Tried to spawn a vehicle NPC (%s) without using NPC_Vehicle or 'NPC spawn vehicle <vehiclename>'!!!  Bad, bad, bad!  Shame on you!\n", NPCName );
 						COM_EndParseSession();
-						return qfalse;
+						return false;
 					}
-					md3Model = qfalse;
+					md3Model = false;
 				}
 
 				continue;
@@ -3670,7 +3670,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					}
 					else
 					{
-						NPC->client->ps.dualSabers = qtrue;
+						NPC->client->ps.dualSabers = true;
 					}
 				}
 				continue;
@@ -3996,7 +3996,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		COM_EndParseSession(  );
 	}
 
-	ci->infoValid = qfalse;
+	ci->infoValid = false;
 
 /*
 Ghoul2 Insert Start
@@ -4074,7 +4074,7 @@ Ghoul2 Insert End
 		//CG_RegisterNPCEffects( NPC->client->playerTeam );
 	}
 
-	return qtrue;
+	return true;
 }
 
 void NPC_LoadParms( void )

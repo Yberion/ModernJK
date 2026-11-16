@@ -582,7 +582,7 @@ bool CPrimitiveTemplate::ParseRotation( const gsl::cstring_span& val )
 {
 	float min, max;
 
-	if ( ParseFloat( val, min, max ) == qtrue )
+	if ( ParseFloat( val, min, max ) == true )
 	{
 		mRotation.SetRange( min, max );
 		return true;
@@ -605,7 +605,7 @@ bool CPrimitiveTemplate::ParseRotationDelta( const gsl::cstring_span& val )
 {
 	float min, max;
 
-	if ( ParseFloat( val, min, max ) == qtrue )
+	if ( ParseFloat( val, min, max ) == true )
 	{
 		mRotationDelta.SetRange( min, max );
 		return true;

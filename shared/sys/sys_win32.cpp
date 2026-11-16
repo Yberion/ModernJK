@@ -222,23 +222,23 @@ Sys_LowPhysicalMemory()
 ==================
 */
 
-qboolean Sys_LowPhysicalMemory(void) {
+bool Sys_LowPhysicalMemory(void) {
 	static MEMORYSTATUSEX stat;
-	static qboolean bAsked = qfalse;
+	static bool bAsked = false;
 	static cvar_t* sys_lowmem = Cvar_Get( "sys_lowmem", "0", 0 );
 
 	if (!bAsked)	// just in case it takes a little time for GlobalMemoryStatusEx() to gather stats on
 	{				//	stuff we don't care about such as virtual mem etc.
-		bAsked = qtrue;
+		bAsked = true;
 
 		stat.dwLength = sizeof (stat);
 		GlobalMemoryStatusEx (&stat);
 	}
 	if (sys_lowmem->integer)
 	{
-		return qtrue;
+		return true;
 	}
-	return (stat.ullTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
+	return (stat.ullTotalPhys <= MEM_THRESHOLD) ? true : false;
 }
 
 /*
@@ -246,13 +246,13 @@ qboolean Sys_LowPhysicalMemory(void) {
 Sys_Mkdir
 ==============
 */
-qboolean Sys_Mkdir( const char *path ) {
+bool Sys_Mkdir( const char *path ) {
 	if( !CreateDirectory( path, NULL ) )
 	{
 		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
-			return qfalse;
+			return false;
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -338,7 +338,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		psList[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -347,7 +347,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 	_findclose (findhandle);
 }
 
-static qboolean strgtr(const char *s0, const char *s1) {
+static bool strgtr(const char *s0, const char *s1) {
 	int l0, l1, i;
 
 	l0 = strlen(s0);
@@ -359,16 +359,16 @@ static qboolean strgtr(const char *s0, const char *s1) {
 
 	for(i=0;i<l0;i++) {
 		if (s1[i] > s0[i]) {
-			return qtrue;
+			return true;
 		}
 		if (s1[i] < s0[i]) {
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs ) {
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, bool wantsubs ) {
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;

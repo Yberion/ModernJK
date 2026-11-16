@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "sys_local.h"
 
-qboolean stdinIsATTY = qfalse;
+bool stdinIsATTY = false;
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
@@ -60,9 +60,9 @@ void Sys_PlatformInit( int argc, char *argv[] )
 	signal( SIGBUS, Sys_SigHandler );
 
 	if (isatty( STDIN_FILENO ) && !( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) ))
-		stdinIsATTY = qtrue;
+		stdinIsATTY = true;
 	else
-		stdinIsATTY = qfalse;
+		stdinIsATTY = false;
 
 	// raise open file limit to allow more pk3 files
 	int retval;
@@ -166,9 +166,9 @@ Sys_LowPhysicalMemory
 TODO
 ==================
 */
-qboolean Sys_LowPhysicalMemory( void )
+bool Sys_LowPhysicalMemory( void )
 {
-	return qfalse;
+	return false;
 }
 
 /*
@@ -252,7 +252,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -261,11 +261,11 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 	closedir(fdir);
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, bool wantsubs )
 {
 	struct dirent *d;
 	DIR		*fdir;
-	qboolean dironly = wantsubs;
+	bool dironly = wantsubs;
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;
@@ -284,7 +284,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 		if (!nfiles)
 			return NULL;
 
-		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, qfalse );
+		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, false );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -298,7 +298,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 
 	if ( extension[0] == '/' && extension[1] == 0 ) {
 		extension = "";
-		dironly = qtrue;
+		dironly = true;
 	}
 
 	size_t extLen = strlen( extension );
@@ -345,7 +345,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 		return NULL;
 	}
 
-	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, qfalse );
+	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, false );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -414,14 +414,14 @@ void Sys_Sleep( int msec )
 Sys_Mkdir
 ==================
 */
-qboolean Sys_Mkdir( const char *path )
+bool Sys_Mkdir( const char *path )
 {
 	int result = mkdir( path, 0750 );
 
 	if( result != 0 )
-		return (qboolean)(errno == EEXIST);
+		return (errno == EEXIST);
 
-	return qtrue;
+	return true;
 }
 
 char *Sys_Cwd( void )

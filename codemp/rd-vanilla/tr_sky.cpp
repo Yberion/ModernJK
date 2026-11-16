@@ -155,7 +155,7 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 {
 	float	*norm;
 	float	*v;
-	qboolean	front, back;
+	bool	front, back;
 	float	d, e;
 	float	dists[MAX_CLIP_VERTS];
 	int		sides[MAX_CLIP_VERTS];
@@ -171,19 +171,19 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 		return;
 	}
 
-	front = back = qfalse;
+	front = back = false;
 	norm = sky_clip[stage];
 	for (i=0, v = vecs ; i<nump ; i++, v+=3)
 	{
 		d = DotProduct (v, norm);
 		if (d > ON_EPSILON)
 		{
-			front = qtrue;
+			front = true;
 			sides[i] = SIDE_FRONT;
 		}
 		else if (d < -ON_EPSILON)
 		{
-			back = qtrue;
+			back = true;
 			sides[i] = SIDE_BACK;
 		}
 		else
@@ -458,7 +458,7 @@ static void DrawSkyBox( shader_t *shader )
 
 }
 
-static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes )
+static void FillCloudySkySide( const int mins[2], const int maxs[2], bool addIndexes )
 {
 	int s, t;
 	int vertexStart = tess.numVertexes;
@@ -599,7 +599,7 @@ static void FillCloudBox( const shader_t *shader, int stage )
 		}
 
 		// only add indexes for first stage
-		FillCloudySkySide( sky_mins_subd, sky_maxs_subd, (qboolean)( stage == 0 ) );
+		FillCloudySkySide( sky_mins_subd, sky_maxs_subd, ( stage == 0 ) );
 	}
 }
 
@@ -846,6 +846,6 @@ void RB_StageIteratorSky( void )
 	qglDepthRange( 0.0, 1.0 );
 
 	// note that sky was drawn so we will draw a sun later
-	backEnd.skyRenderedThisView = qtrue;
+	backEnd.skyRenderedThisView = true;
 }
 

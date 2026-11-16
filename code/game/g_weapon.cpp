@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// g_weapon.c
+// g_weapon.cpp
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -78,7 +78,7 @@ float weaponSpeed[WP_NUM_WEAPONS][2] =
 	{ 0,0 },//WP_NOGHRI_STICK,
 };
 
-float WP_SpeedOfMissileForWeapon( int wp, qboolean alt_fire )
+float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire )
 {
 	if ( alt_fire )
 	{
@@ -123,7 +123,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 //-----------------------------------------------------------------------------
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire )
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire )
 //-----------------------------------------------------------------------------
 {
 	gentity_t	*missile;
@@ -189,7 +189,7 @@ void WP_Explode( gentity_t *self )
 	vec3_t		forwardVec={0,0,1};
 
 	// stop chain reaction runaway loops
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	self->s.loopSound = 0;
 
@@ -335,7 +335,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
+bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -354,24 +354,24 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case MOD_ROCKET_ALT:
 		case MOD_CONC:
 		case MOD_CONC_ALT:
-			return qtrue;
+			return true;
 			break;
 		//non-alt standard
 		case MOD_REPEATER:
 		case MOD_DEMP2:
 		case MOD_FLECHETTE:
-			return qtrue;
+			return true;
 			break;
 		//emplaced gun
 		case MOD_EMPLACED:
-			return qtrue;
+			return true;
 			break;
 		//atst
 		case MOD_ENERGY:
 		case MOD_EXPLOSIVE:
 			if ( weapon == WP_ATST_MAIN || weapon == WP_ATST_SIDE )
 			{
-				return qtrue;
+				return true;
 			}
 			break;
 		}
@@ -387,7 +387,7 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case WP_BOWCASTER:
 		case WP_ROCKET_LAUNCHER:
 		case WP_CONCUSSION:
-			return qtrue;
+			return true;
 			break;
 		//non-alt standard
 		case WP_REPEATER:
@@ -395,21 +395,21 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 		case WP_FLECHETTE:
 			if ( !alt_fire )
 			{
-				return qtrue;
+				return true;
 			}
 			break;
 		//emplaced gun
 		case WP_EMPLACED_GUN:
-			return qtrue;
+			return true;
 			break;
 		//atst
 		case WP_ATST_MAIN:
 		case WP_ATST_SIDE:
-			return qtrue;
+			return true;
 			break;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -417,32 +417,32 @@ qboolean W_AccuracyLoggableWeapon( int weapon, qboolean alt_fire, int mod )
 LogAccuracyHit
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+bool LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	if( !target->takedamage ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( target == attacker ) {
-		return qfalse;
+		return false;
 	}
 
 	if( !target->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if( !attacker->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( OnSameTeam( target, attacker ) ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 //---------------------------------------------------------
@@ -663,7 +663,7 @@ void WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWeaponIn
 		WP_TraceSetStart( ent, start, mins, maxs );
 
 		//QUERY: alt_fire true or not?  Does it matter?
-		missile = CreateMissile( start, dir, vehWeapon->fSpeed, 10000, ent, qfalse );
+		missile = CreateMissile( start, dir, vehWeapon->fSpeed, 10000, ent, false );
 		if ( vehWeapon->bHasGravity )
 		{//TESTME: is this all we need to do?
 			missile->s.pos.trType = TR_GRAVITY;
@@ -737,7 +737,7 @@ void WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWeaponIn
 		if ( vehWeapon->iHealth )
 		{//the missile can take damage
 			missile->health = vehWeapon->iHealth;
-			missile->takedamage = qtrue;
+			missile->takedamage = true;
 			missile->contents = MASK_SHOT;
 			missile->e_DieFunc = dieF_WP_ExplosiveDie;//dieF_RocketDie;
 		}
@@ -838,14 +838,14 @@ void WP_VehLeadCrosshairVeh( gentity_t *camTraceEnt, vec3_t newEnd, const vec3_t
 	//FIXME: implement from MP?
 }
 
-qboolean WP_VehCheckTraceFromCamPos( gentity_t *ent, const vec3_t shotStart, vec3_t shotDir )
+bool WP_VehCheckTraceFromCamPos( gentity_t *ent, const vec3_t shotStart, vec3_t shotDir )
 {
 	//FIXME: implement from MP?
-	return qfalse;
+	return false;
 }
 
 //---------------------------------------------------------
-void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
+void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	Vehicle_t *pVeh = ent->m_pVehicle;
@@ -876,8 +876,8 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 	{//fighters can only fire when wings are open
 		int	weaponNum = 0, vehWeaponIndex = VEH_WEAPON_NONE;
 		int	delay = 1000;
-		qboolean aimCorrect = qfalse;
-		qboolean linkedFiring = qfalse;
+		bool aimCorrect = false;
+		bool linkedFiring = false;
 
 		if ( !alt_fire )
 		{
@@ -919,7 +919,7 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 			|| ( pVeh->m_pVehicleInfo->weapon[weaponNum].linkable == 1//optionally linkable
 				&& pVeh->weaponStatus[weaponNum].linked ) )//linked
 		{//we're linking the primary or alternate weapons, so we'll do *all* the muzzles
-			linkedFiring = qtrue;
+			linkedFiring = true;
 		}
 
 		if ( vehWeaponIndex <= VEH_WEAPON_BASE || vehWeaponIndex >= MAX_VEH_WEAPONS )
@@ -929,7 +929,7 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 		else
 		{
 			int i, numMuzzles = 0, numMuzzlesReady = 0, cumulativeDelay = 0, cumulativeAmmo = 0;
-			qboolean sentAmmoWarning = qfalse;
+			bool sentAmmoWarning = false;
 
 			vehWeaponInfo_t *vehWeapon = &g_vehWeaponInfo[vehWeaponIndex];
 
@@ -1004,7 +1004,7 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 					{//out of ammo!
 						if ( !sentAmmoWarning )
 						{
-							sentAmmoWarning = qtrue;
+							sentAmmoWarning = true;
 							if ( pVeh->m_pPilot && pVeh->m_pPilot->s.number < MAX_CLIENTS )
 							{// let the client know he's out of ammo
 								G_AddEvent( (gentity_t*)pVeh->m_pPilot, EV_NOAMMO, weaponNum );
@@ -1124,14 +1124,14 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 	}
 }
 
-void WP_FireScepter( gentity_t *ent, qboolean alt_fire )
+void WP_FireScepter( gentity_t *ent, bool alt_fire )
 {//just a straight beam
 	int			damage = 1;
 	vec3_t		start, end;
 	trace_t		tr;
 	gentity_t	*traceEnt = NULL, *tent;
 	float		shotRange = 8192;
-	qboolean	render_impact = qtrue;
+	bool	render_impact = true;
 
 	VectorCopy( muzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );
@@ -1144,7 +1144,7 @@ void WP_FireScepter( gentity_t *ent, qboolean alt_fire )
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT )
 	{
-		render_impact = qfalse;
+		render_impact = false;
 	}
 
 	// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
@@ -1184,7 +1184,7 @@ void WP_FireScepter( gentity_t *ent, qboolean alt_fire )
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 //---------------------------------------------------------
-void FireWeapon( gentity_t *ent, qboolean alt_fire )
+void FireWeapon( gentity_t *ent, bool alt_fire )
 //---------------------------------------------------------
 {
 	float alert = 256;
@@ -1478,7 +1478,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		// TEMP
 		if ( alt_fire )
 		{
-//			WP_FireRocket( ent, qfalse );
+//			WP_FireRocket( ent, false );
 			WP_ATSTSideAltFire(ent);
 		}
 		else
@@ -1520,7 +1520,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 
 //	case WP_BLASTER_PISTOL:
 	case WP_JAWA:
-		WP_FireBryarPistol( ent, qfalse ); // never an alt-fire?
+		WP_FireBryarPistol( ent, false ); // never an alt-fire?
 		break;
 
 	case WP_SCEPTER:
@@ -1562,7 +1562,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 			&& ent->s.weapon != WP_TRIP_MINE
 			&& ent->s.weapon != WP_DET_PACK )
 		{//the vibration of the shot carries through your feet into the ground
-			AddSoundEvent( ent, muzzle, alert, AEL_DISCOVERED, qfalse, qtrue );
+			AddSoundEvent( ent, muzzle, alert, AEL_DISCOVERED, false, true );
 		}
 		else
 		{//an in-air alert
@@ -1609,7 +1609,7 @@ TOGGLE - keep firing until used again (fires at intervals of "wait")
 */
 void misc_weapon_shooter_fire( gentity_t *self )
 {
-	FireWeapon( self, (qboolean)((self->spawnflags&1) != 0) );
+	FireWeapon( self, ((self->spawnflags&1) != 0) );
 	if ( (self->spawnflags&2) )
 	{//repeat
 		self->e_ThinkFunc = thinkF_misc_weapon_shooter_fire;
@@ -1663,7 +1663,7 @@ extern stringID_table_t WPTable[];
 void SP_misc_weapon_shooter( gentity_t *self )
 {
 	//alloc a client just for the weapon code to use
-	self->client = (gclient_t *)gi.Malloc(sizeof(gclient_t), TAG_G_ALLOC, qtrue);
+	self->client = (gclient_t *)gi.Malloc(sizeof(gclient_t), TAG_G_ALLOC, true);
 
 	//set weapon
 	self->s.weapon = self->client->ps.weapon = WP_BLASTER;
