@@ -506,10 +506,10 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 #endif
 
 			if (!libHandle) {
-				char *basepath = Cvar_VariableString( "fs_basepath" );
-				char *homepath = Cvar_VariableString( "fs_homepath" );
-				char *cdpath = Cvar_VariableString( "fs_cdpath" );
-				char *gamedir = Cvar_VariableString( "fs_game" );
+				const char *basepath = Cvar_VariableString( "fs_basepath" );
+				const char *homepath = Cvar_VariableString( "fs_homepath" );
+				const char *cdpath = Cvar_VariableString( "fs_cdpath" );
+				const char *gamedir = Cvar_VariableString( "fs_game" );
 		#ifdef MACOS_X
 				char *apppath = Cvar_VariableString( "fs_apppath" );
 		#endif
@@ -564,12 +564,12 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 #endif
 
 	if (!libHandle) {
-		char *basepath = Cvar_VariableString( "fs_basepath" );
-		char *homepath = Cvar_VariableString( "fs_homepath" );
-		char *cdpath = Cvar_VariableString( "fs_cdpath" );
-		char *gamedir = Cvar_VariableString( "fs_game" );
+		const char *basepath = Cvar_VariableString( "fs_basepath" );
+		const char *homepath = Cvar_VariableString( "fs_homepath" );
+		const char *cdpath = Cvar_VariableString( "fs_cdpath" );
+		const char *gamedir = Cvar_VariableString( "fs_game" );
 #ifdef MACOS_X
-        char *apppath = Cvar_VariableString( "fs_apppath" );
+        const char *apppath = Cvar_VariableString( "fs_apppath" );
 #endif
 
 		const char *searchPaths[] = {
@@ -639,10 +639,10 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 #endif
 
 			if (!libHandle) {
-				char *basepath = Cvar_VariableString( "fs_basepath" );
-				char *homepath = Cvar_VariableString( "fs_homepath" );
-				char *cdpath = Cvar_VariableString( "fs_cdpath" );
-				char *gamedir = Cvar_VariableString( "fs_game" );
+				const char *basepath = Cvar_VariableString( "fs_basepath" );
+				const char *homepath = Cvar_VariableString( "fs_homepath" );
+				const char *cdpath = Cvar_VariableString( "fs_cdpath" );
+				const char *gamedir = Cvar_VariableString( "fs_game" );
 #ifdef MACOS_X
 				char *apppath = Cvar_VariableString( "fs_apppath" );
 #endif

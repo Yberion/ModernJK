@@ -901,26 +901,22 @@ void SP_misc_model_breakable( gentity_t *ent )
 	misc_model_breakable_init( ent );
 
 	len = strlen( ent->model ) - 4;
-	strncpy( damageModel, ent->model, len );
-	damageModel[len] = 0;	//chop extension
-	strncpy( chunkModel, damageModel, sizeof(chunkModel));
-	strncpy( useModel, damageModel, sizeof(useModel));
+	Com_sprintf( damageModel, sizeof(damageModel), "%.*s_d1.md3", len, ent->model );	//chop extension
+	Com_sprintf( chunkModel, sizeof(chunkModel), "%.*s_c1.md3", len, ent->model );
+	Com_sprintf( useModel, sizeof(useModel), "%.*s_u1.md3", len, ent->model );
 
 	if (ent->takedamage) {
 		//Dead/damaged model
 		if( !(ent->spawnflags & 8) ) {	//no dmodel
-			strcat( damageModel, "_d1.md3" );
 			ent->s.modelindex2 = G_ModelIndex( damageModel );
 		}
 
 		//Chunk model
-		strcat( chunkModel, "_c1.md3" );
 		ent->s.modelindex3 = G_ModelIndex( chunkModel );
 	}
 
 	//Use model
 	if( ent->spawnflags & 32 ) {	//has umodel
-		strcat( useModel, "_u1.md3" );
 		ent->sound1to2 = G_ModelIndex( useModel );
 	}
 	if ( !ent->mins[0] && !ent->mins[1] && !ent->mins[2] )

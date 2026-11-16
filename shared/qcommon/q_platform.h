@@ -28,10 +28,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define QDECL
 #define QCALL
 
-// Win64
-#if defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
+// Windows: x86_64 only (docs_rewrite/modernization/PLAN.md, step 17)
+#if defined(_WIN32)
 
-	#define idx64
+	#if !defined(_M_X64) && !defined(__x86_64__)
+		#error ModernJK builds only for x86_64 on Windows
+	#endif
 
 	#undef QDECL
 	#define QDECL __cdecl
@@ -48,39 +50,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define QINLINE __inline
 	#define PATH_SEP '\\'
 
-	#if defined(_M_ALPHA)
-		#define ARCH_STRING "AXP"
-	#else
-		#define ARCH_STRING "x86_64"
-	#endif
-
-	#define Q3_LITTLE_ENDIAN
-
-	#define DLL_EXT ".dll"
-
-// Win32
-#elif defined(_WIN32) || defined(__WIN32__)
-
-	#undef QDECL
-	#define	QDECL __cdecl
-
-	#undef QCALL
-	#define QCALL __stdcall
-
-	#if defined(_MSC_VER)
-		#define OS_STRING "win_msvc"
-	#elif defined(__MINGW32__)
-		#define OS_STRING "win_mingw"
-	#endif
-
-	#define QINLINE __inline
-	#define PATH_SEP '\\'
-
-	#if defined(_M_IX86) || defined(__i386__)
-		#define ARCH_STRING "x86"
-	#elif defined _M_ALPHA
-		#define ARCH_STRING "AXP"
-	#endif
+	#define ARCH_STRING "x86_64"
 
 	#define Q3_LITTLE_ENDIAN
 
@@ -98,33 +68,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define QINLINE inline
 	#define	PATH_SEP '/'
 
-	#if defined(__ppc__)
-		#define ARCH_STRING "ppc"
-		#define Q3_BIG_ENDIAN
-	#elif defined(__i386__)
-		#define ARCH_STRING "x86"
-		#define Q3_LITTLE_ENDIAN
-	#elif defined(__x86_64__)
-		#define idx64
+	#if defined(__x86_64__)
 		#define ARCH_STRING "x86_64"
 		#define Q3_LITTLE_ENDIAN
 	#elif defined(__arm64__)
 		#define ARCH_STRING "arm64"
 		#define Q3_LITTLE_ENDIAN
+	#else
+		#error ModernJK builds only for x86_64 and arm64 on macOS
 	#endif
 
     #define DLL_EXT ".dylib"
 
 // Linux
-#elif defined(__linux__) || defined(__FreeBSD_kernel__)
+#elif defined(__linux__)
 
 	#include <endian.h>
 
-	#if defined(__linux__)
-		#define OS_STRING "linux"
-	#else
-		#define OS_STRING "kFreeBSD"
-	#endif
+	#define OS_STRING "linux"
 
 	#define QINLINE inline
 
@@ -132,10 +93,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 	#if !defined(ARCH_STRING)
 		#error ARCH_STRING should be defined by the build system
-	#endif
-
-	#if defined(__x86_64__)
-		#define idx64
 	#endif
 
 	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
@@ -146,42 +103,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 	#define DLL_EXT ".so"
 
-// BSD
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-
-	#include <sys/types.h>
-	#include <machine/endian.h>
-
-	#ifndef __BSD__
-		#define __BSD__
-	#endif
-
-	#if defined(__FreeBSD__)
-		#define OS_STRING "freebsd"
-	#elif defined(__OpenBSD__)
-		#define OS_STRING "openbsd"
-	#elif defined(__NetBSD__)
-		#define OS_STRING "netbsd"
-	#endif
-
-	#define QINLINE inline
-	#define PATH_SEP '/'
-
-	#if !defined(ARCH_STRING)
-		#error ARCH_STRING should be defined by the build system
-	#endif
-
-	#if defined(__amd64__)
-		#define idx64
-	#endif
-
-	#if BYTE_ORDER == BIG_ENDIAN
-		#define Q3_BIG_ENDIAN
-	#else
-		#define Q3_LITTLE_ENDIAN
-	#endif
-
-	#define DLL_EXT ".so"
+#else
+	#error ModernJK builds only for Windows, Linux and macOS
 #endif
 
 #if (defined( _MSC_VER ) && (_MSC_VER < 1900)) || (defined(__GNUC__))

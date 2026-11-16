@@ -1941,7 +1941,7 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 
 	//FIXME: parse these 2 from some cvar or require playermodel to be in a *.npc?
 	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
-		gi.Free(ent->NPC_type);
+		gi.Free( (void *)ent->NPC_type);
 	}
 
 	// Bad casting I know, but NPC_type can also come the memory manager,
@@ -1997,7 +1997,7 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 
 	//attempt to free the string (currently can't since it's always "player" )
 	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
-		gi.Free(ent->NPC_type);
+		gi.Free( (void *)ent->NPC_type);
 	}
 	ent->NPC_type = G_NewString( newModel );
 	G_RemoveWeaponModels( ent );

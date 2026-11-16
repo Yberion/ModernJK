@@ -129,7 +129,7 @@ void G_LoadArenasFromFile( char *filename ) {
 	level.arenas.num += G_ParseInfos( buf, MAX_ARENAS - level.arenas.num, &level.arenas.infos[level.arenas.num] );
 }
 
-int G_GetMapTypeBits(char *type)
+int G_GetMapTypeBits(const char *type)
 {
 	int typeBits = 0;
 
@@ -179,7 +179,7 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 	int			typeBits = 0;
 	int			thisLevel = -1;
 	int			n = 0;
-	char		*type = NULL;
+	const char		*type = NULL;
 
 	if (!level.arenas.infos[0])
 	{
@@ -225,7 +225,7 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 	int			thisLevel = 0;
 	int			desiredMap = 0;
 	int			n = 0;
-	char		*type = NULL;
+	const char		*type = NULL;
 	qboolean	loopingUp = qfalse;
 	vmCvar_t	mapname;
 
@@ -419,7 +419,8 @@ G_AddRandomBot
 void G_AddRandomBot( int team ) {
 	int		i, n, num;
 	float	skill;
-	char	*value, netname[36], *teamstr;
+	const char	*value, *teamstr;
+	char	netname[36];
 	gclient_t	*cl;
 
 	num = 0;
@@ -826,8 +827,8 @@ G_AddBot
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
 	gentity_t		*bot = NULL;
 	int				clientNum, preTeam = TEAM_FREE;
-	char			userinfo[MAX_INFO_STRING] = {0},
-					*botinfo = NULL, *key = NULL, *s = NULL, *botname = NULL, *model = NULL;
+	char			userinfo[MAX_INFO_STRING] = {0}, *botinfo = NULL, *key = NULL;
+	const char		*s = NULL, *botname = NULL, *model = NULL;
 
 	// have the server allocate a client slot
 	clientNum = trap->BotAllocateClient();
@@ -1270,7 +1271,7 @@ G_GetBotInfoByName
 */
 char *G_GetBotInfoByName( const char *name ) {
 	int		n;
-	char	*value;
+	const char	*value;
 
 	for ( n = 0; n < level.bots.num ; n++ ) {
 		value = Info_ValueForKey( level.bots.infos[n], "name" );

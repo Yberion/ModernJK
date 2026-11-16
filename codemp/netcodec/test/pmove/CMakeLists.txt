@@ -24,7 +24,7 @@ set(netcodec_pmove_sources
 # the math functions' entry point on LLVM libc, as ModernJK's qlibm target builds it (top-level CMakeLists.txt)
 set_source_files_properties("${netcodec_root}/shared/qcommon/q_libm.cpp" PROPERTIES
 	INCLUDE_DIRECTORIES "${netcodec_root}/lib/llvm-libc"
-	COMPILE_OPTIONS "$<IF:$<CXX_COMPILER_ID:MSVC>,/std:c++17,-std=c++17>")
+	COMPILE_OPTIONS "$<IF:$<CXX_COMPILER_ID:MSVC>,/std:c++20,-std=c++20>")
 
 foreach(side game cgame)
 	set(t netcodec_pmove_${side})
@@ -33,28 +33,19 @@ foreach(side game cgame)
 	target_compile_definitions(${t} PRIVATE ${def})
 	# ModernJK's SharedDefines (top-level CMakeLists.txt)
 	target_compile_definitions(${t} PRIVATE $<IF:$<CONFIG:Debug>,_DEBUG,FINAL_BUILD>)
-	if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-		target_compile_definitions(${t} PRIVATE WIN64)
-	elseif(NOT WIN32)
-		target_compile_definitions(${t} PRIVATE "ARCH_STRING=\"$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x86_64,i386>\"")
+	if(NOT WIN32)
+		target_compile_definitions(${t} PRIVATE "ARCH_STRING=\"${CMAKE_SYSTEM_PROCESSOR}\"")
 	endif()
 	if(MSVC)
 		target_compile_definitions(${t} PRIVATE NOMINMAX _CRT_NONSTDC_NO_DEPRECATE)
 	endif()
 	target_include_directories(${t} PRIVATE "${netcodec_root}/codemp" "${netcodec_root}/shared" include)
-	# ModernJK's settings for C (top-level CMakeLists.txt): SSE2 math on 32-bit x86, signed char, no contraction, -O3 in
-	# Release
+	# ModernJK's settings for C (top-level CMakeLists.txt): signed char, no contraction, -O3 in Release
 	if(MSVC)
 		target_compile_options(${t} PRIVATE /W0)   # /W0, not /w: CMake maps /W0 to the project's warning level (/w comes after MSBuild's default /W1: D9025)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-			target_compile_options(${t} PRIVATE /arch:SSE2)
-		endif()
 		target_compile_definitions(${t} PRIVATE _CRT_SECURE_NO_WARNINGS)
 	else()
 		target_compile_options(${t} PRIVATE -w -fsigned-char -ffp-contract=off $<$<CONFIG:Release>:-O3>)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-			target_compile_options(${t} PRIVATE -msse2 -mfpmath=sse -mstackrealign)
-		endif()
 		target_link_libraries(${t} PRIVATE m)
 	endif()
 	if(MINGW)
@@ -63,33 +54,3 @@ foreach(side game cgame)
 	add_test(NAME netcodec.pmove_${side} COMMAND ${t} 20000)
 endforeach()
 
-# The original 1.01 game code (E:\Git\jka\jediacademy, next to this repository; on the VMs' shared folders too), built
-# as 1.01 was: 32-bit with x87 math (Visual C++ 7.1 for Windows, GCC for the Linux server), QAGAME, its own rounding.
-# Only on 32-bit presets: the original headers hold x86 inline assembly.
-set(netcodec_JKA101_DIR "${netcodec_MODERNJK_DIR}/../jediacademy" CACHE PATH "Original 1.01 source tree, for the pmove test")
-if(EXISTS "${netcodec_JKA101_DIR}/codemp/game/bg_pmove.c" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set(g "${netcodec_JKA101_DIR}/codemp/game")
-	add_executable(netcodec_pmove_101 "${g}/bg_g2_utils.c" "${g}/bg_misc.c" "${g}/bg_panimate.c" "${g}/bg_pmove.c" "${g}/bg_saber.c"
-		"${g}/bg_saberLoad.c" "${g}/bg_saga.c" "${g}/bg_slidemove.c" "${g}/bg_vehicleLoad.c" "${g}/bg_weapons.c" "${g}/q_math.c"
-		"${g}/q_shared.c" pmove_det.c stubs101.c)
-	# C_ONLY: the C versions of q_math.c's assembly functions (collision helpers that pmove does not call)
-	target_compile_definitions(netcodec_pmove_101 PRIVATE JKA101 QAGAME MISSIONPACK _JK2 FINAL_BUILD C_ONLY $<$<BOOL:${WIN32}>:WIN32>)
-	target_include_directories(netcodec_pmove_101 PRIVATE "${g}")
-	if(MSVC)
-		target_compile_options(netcodec_pmove_101 PRIVATE /W0 /arch:IA32 "/FI${CMAKE_CURRENT_SOURCE_DIR}/prelude101.h")
-		target_compile_definitions(netcodec_pmove_101 PRIVATE _CRT_SECURE_NO_WARNINGS)
-	else()
-		target_compile_options(netcodec_pmove_101 PRIVATE -w -fsigned-char -include "${CMAKE_CURRENT_SOURCE_DIR}/prelude101.h"
-			$<$<CONFIG:Release>:-O2>)
-		if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-			target_compile_options(netcodec_pmove_101 PRIVATE -fms-extensions -fasm-blocks -mno-sse)   # x87 math
-		else()
-			target_compile_options(netcodec_pmove_101 PRIVATE -mfpmath=387)   # x87 math
-		endif()
-		target_link_libraries(netcodec_pmove_101 PRIVATE m)
-	endif()
-	if(MINGW)
-		target_link_options(netcodec_pmove_101 PRIVATE -static)
-	endif()
-	add_test(NAME netcodec.pmove_101 COMMAND netcodec_pmove_101 20000)
-endif()

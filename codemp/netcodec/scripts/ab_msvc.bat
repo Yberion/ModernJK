@@ -1,12 +1,11 @@
 @echo off
-rem A/B (owner, Windows VM): bench_codec of a reference against the working tree, MSVC x64 Release, run alternately
+rem A/B (Windows VM): bench_codec of a reference against the working tree, MSVC x64 Release, run alternately
 rem on logical CPU 1 with high priority; prints each run, then the best of each build against ref with the checks of
 rem ab_summary.ps1 (netcodec mismatches, a busy machine, code placement).
 rem The reference: ABM_REF_DIR=<a copy holding codemp\netcodec> if set; else extracted here when git is in the PATH
 rem (ABM_REF=<commit>, default HEAD); otherwise the copy that ab_msvc_ref.sh [commit] writes on the host into
 rem build-netcodec\ab-msvc, used only if its commit is HEAD (read from .git, no git needed): a stale copy stops the run
 rem (ABM_ANY_REF=1 compares it anyway).
-rem ABM_ARCH=Win32: 32-bit builds (default x64).
 rem ABM_BENCH=client: netcodec_bench_client on the recorded client packets (docs_rewrite\modernization\data\clientpackets\*.jkcp)
 rem instead of bench_codec; the times are then per client packet.
 rem Usage (cmd or PowerShell, from anywhere): codemp\netcodec\scripts\ab_msvc.bat [rounds]
@@ -15,7 +14,6 @@ set "R=%~dp0..\..\.."
 for %%i in ("%R%") do set "R=%%~fi"
 set "ROUNDS=%~1"
 if "%ROUNDS%"=="" set "ROUNDS=6"
-if not defined ABM_ARCH set "ABM_ARCH=x64"
 if not defined ABM_BENCH set "ABM_BENCH=codec"
 set "ARGS="%R%\docs_rewrite\modernization\data\traces\codec_trace.bin" 10"
 if "%ABM_BENCH%"=="client" (
@@ -86,7 +84,7 @@ if not errorlevel 1 (
 )
 
 :refready
-echo building the reference and the working tree (%ABM_ARCH%, bench_%ABM_BENCH%) ...
+echo building the reference and the working tree (bench_%ABM_BENCH%) ...
 call :build "!REFDIR!" "%W%\build-ref" || exit /b 1
 call :build "%R%\codemp\netcodec" "%W%\build-cur" || exit /b 1
 for /l %%i in (1,1,%ROUNDS%) do (
@@ -100,7 +98,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ab_summary.ps1" "%W%"
 exit /b 0
 
 :build
-cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A %ABM_ARCH% -Dnetcodec_MODERNJK_DIR="%R%" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
+cmake -S "%~1" -B "%~2" -G "Visual Studio 18 2026" -A x64 -Dnetcodec_MODERNJK_DIR="%R%" -Dnetcodec_TRACE_DIR="%R%\docs_rewrite\modernization\data\traces" > "%W%\cfg.txt" 2>&1
 if errorlevel 1 (type "%W%\cfg.txt" & exit /b 1)
 cmake --build "%~2" --config Release --target netcodec_bench_%ABM_BENCH% --parallel > "%W%\bld.txt" 2>&1
 if errorlevel 1 (type "%W%\bld.txt" & exit /b 1)

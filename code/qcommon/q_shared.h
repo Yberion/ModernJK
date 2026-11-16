@@ -134,25 +134,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #if (defined _MSC_VER)
 	#define Q_EXPORT __declspec(dllexport)
-#elif (defined __SUNPRO_C)
-	#define Q_EXPORT __global
-#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
+#elif (__GNUC__ >= 3)
 	#define Q_EXPORT __attribute__((visibility("default")))
 #else
 	#define Q_EXPORT
-#endif
-
-// this is the define for determining if we have an asm version of a C function
-#if (defined(_M_IX86) || defined(__i386__)) && !defined(__sun__)
-	#define id386	1
-#else
-	#define id386	0
-#endif
-
-#if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
-	#define idppc	1
-#else
-	#define idppc	0
 #endif
 
 #include "qcommon/q_platform.h"
@@ -378,8 +363,8 @@ int Com_HexStrToInt( const char *str );
 
 int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
-char *Com_SkipCharset( char *s, char *sep );
+char *Com_SkipTokens( char *s, int numTokens, const char *sep );
+char *Com_SkipCharset( char *s, const char *sep );
 
 
 // mode parm for FS_FOpenFile
@@ -519,7 +504,7 @@ Ghoul2 Insert End
 
 #define MAX_G2_COLLISIONS 16
 // a trace is returned when a box is swept through the world
-typedef struct {
+typedef struct trace_s {
 	qboolean	allsolid;	// if true, plane is not valid
 	qboolean	startsolid;	// if true, the initial point was in a solid area
 	float		fraction;	// time completed, 1.0 = didn't hit anything
@@ -816,7 +801,7 @@ typedef enum
 } waterHeightLevel_t;
 
 // !!!!!!! loadsave affecting struct !!!!!!!
-typedef struct
+typedef struct saberTrail_s
 {
 	// Actual trail stuff
 	int		inAction;	// controls whether should we even consider starting one
@@ -862,7 +847,7 @@ typedef struct
 #define MAX_SABER_TRAIL_SEGS 8
 
 // !!!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!
-typedef struct
+typedef struct bladeInfo_s
 {
 	qboolean	active;
 	saber_colors_t	color;
@@ -986,12 +971,12 @@ typedef enum
 #define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
-typedef struct
+typedef struct saberInfo_s
 {
 	char		*name;						//entry in sabers.cfg, if any
 	char		*fullName;					//the "Proper Name" of the saber, shown in the UI
 	saberType_t	type;						//none, single or staff
-	char		*model;						//hilt model
+	const char	*model;						//hilt model
 	char		*skin;						//hilt custom skin
 	int			soundOn;					//game soundindex for turning on sound
 	int			soundLoop;					//game soundindex for hum/loop sound
@@ -1378,7 +1363,7 @@ public:
 	char		*name;						//entry in sabers.cfg, if any
 	char		*fullName;					//the "Proper Name" of the saber, shown in the UI
 	saberType_t	type;						//none, single or staff
-	char		*model;						//hilt model
+	const char	*model;						//hilt model
 	char		*skin;						//hilt custom skin
 	int			soundOn;					//game soundindex for turning on sound
 	int			soundLoop;					//game soundindex for hum/loop sound
@@ -1832,7 +1817,7 @@ public:
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-	char		*saberModel;
+	const char	*saberModel;
 #endif
 
 	int			forcePowersKnown;
@@ -2338,7 +2323,7 @@ typedef enum {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	TR_GRAVITY
 } trType_t;
 
-typedef struct {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
+typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	trType_t	trType;
 	int		trTime;
 	int		trDuration;			// if non 0, trTime + trDuration = stop time

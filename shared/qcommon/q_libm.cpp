@@ -26,6 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cctype>
 #include <cerrno>
 
+// LLVM libc is written in C++17: GCC reports its compound assignments to a volatile, deprecated in C++20
+#if defined( __GNUC__ ) && !defined( __clang__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 #include "shared/math/acos.h"
 #include "shared/math/acosf.h"
 #include "shared/math/asin.h"
@@ -51,6 +56,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "shared/math/tanf.h"
 #include "shared/math/tanpif.h"
 #include "src/__support/str_to_float.h"
+#if defined( __GNUC__ ) && !defined( __clang__ )
+#pragma GCC diagnostic pop
+#endif
 
 float Q_sinf( float x ) noexcept { return LIBC_NAMESPACE::shared::sinf( x ); }
 float Q_cosf( float x ) noexcept { return LIBC_NAMESPACE::shared::cosf( x ); }

@@ -129,7 +129,7 @@ and whenever the server updates any serverinfo flagged cvars
 */
 void CG_ParseServerinfo( void ) {
 	const char *info = NULL;
-	char *mapname;
+	const char *mapname;
 	int i, value;
 
 	info = CG_ConfigString( CS_SERVERINFO );

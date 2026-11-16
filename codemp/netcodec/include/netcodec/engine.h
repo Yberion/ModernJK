@@ -1,8 +1,7 @@
 // netcodec: the engine's interface to the message codec (server to client), and to the client packets (client to
 // server, at the end).
 //
-// Compiled by the engine's own translation units, so this header is C++11: plain structures, pointers and sizes. The
-// library converts them to the views of codec.h and reads and writes the engine's arrays in place:
+// Compiled by the engine's own translation units: plain structures, pointers and sizes. The library converts them to the views of codec.h and reads and writes the engine's arrays in place:
 // - entity states are entityState_t images (532 bytes) holding their number at offset 0, in the engine's rings
 //   (svs.snapshotEntities on the server, cl.parseEntities on the client);
 // - player states are playerState_t images (1,552 bytes);
@@ -23,8 +22,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace netcodec {   // NOLINT(modernize-concat-nested-namespaces): this header is C++11
-namespace engine {
+namespace netcodec::engine {
 
 const uint32_t kPacketBackup = 128;         // PACKET_BACKUP: message slots kept by both sides
 const uint32_t kMinCommands = 256;          // commands both sides keep at least (MAX_RELIABLE_COMMANDS)
@@ -139,7 +137,7 @@ public:
 
 	// Whether the last Encode sent the message's raw form (a message coded larger than 1 KB is also coded raw and
 	// the smaller form is sent); for statistics.
-	bool Escaped() const;   // NOLINT(modernize-use-nodiscard): this header is C++11
+	[[nodiscard]] bool Escaped() const;
 
 	// Decodes a client packet (see ClientPacket below). latest: the last message sent to this client
 	// (netchan.outgoingSequence - 1); bases: its kAckWindow PacketBases. Returns false if the packet is malformed or
@@ -274,5 +272,4 @@ struct ClientPacket {
 	uint32_t numUserCmds;
 };
 
-} // namespace engine
-} // namespace netcodec
+} // namespace netcodec::engine

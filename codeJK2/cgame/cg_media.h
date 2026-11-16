@@ -48,7 +48,7 @@ typedef struct forceTicPos_s
 	int				y;
 	int				width;
 	int				height;
-	char			*file;
+	const char		*file;
 	qhandle_t		tic;
 } forceTicPos_t;
 extern forceTicPos_t forceTicPos[];

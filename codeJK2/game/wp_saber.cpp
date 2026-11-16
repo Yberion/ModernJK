@@ -758,7 +758,7 @@ qboolean WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags, 
 	for ( int i = 0; i < numVictims; i++ )
 	{
 		dFlags = baseDFlags|DAMAGE_DEATH_KNOCKBACK|DAMAGE_NO_HIT_LOC;
-		if ( victimEntityNum[i] != ENTITYNUM_NONE && &g_entities[victimEntityNum[i]] != NULL )
+		if ( victimEntityNum[i] != ENTITYNUM_NONE )
 		{	// Don't bother with this damage if the fraction is higher than the saber's fraction
 			if ( dmgFraction[i] < saberHitFraction || brokenParry )
 			{
@@ -1261,8 +1261,8 @@ qboolean WP_SabersIntersection( gentity_t *ent1, gentity_t *ent2, vec3_t interse
 	return qtrue;
 }
 
-char *hit_blood_sparks = "blood_sparks";
-char *hit_sparks = "saber_cut";
+const char *hit_blood_sparks = "blood_sparks";
+const char *hit_sparks = "saber_cut";
 
 extern qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod );
 qboolean WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float dmg, vec3_t dmgDir, vec3_t bladeDir, int enemyTeam )
@@ -1280,7 +1280,7 @@ qboolean WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, f
 	int			i,z;
 	int			numHitEnts = 0;
 	float		distFromStart,doDmg;
-	char		*hitEffect;
+	const char		*hitEffect;
 	gentity_t	*hitEnt;
 
 	for (z=0; z < MAX_G2_COLLISIONS; z++)
@@ -1516,7 +1516,6 @@ qboolean WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg
 		return qtrue;
 	}
 
-	if ( &g_entities[tr.entityNum] )
 	{
 		gentity_t *hitEnt = &g_entities[tr.entityNum];
 		gentity_t *owner = g_entities[tr.entityNum].owner;
@@ -1591,7 +1590,7 @@ qboolean WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg
 				{
  					return qtrue;
 				}
-				if ( tr.entityNum == ENTITYNUM_NONE || &g_entities[tr.entityNum] == NULL )
+				if ( tr.entityNum == ENTITYNUM_NONE )
 				{//didn't hit the owner
 					/*
 					if ( attacker
@@ -1760,7 +1759,7 @@ qboolean WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg
 				float len = VectorNormalize( dir );//VectorLength( dir );
 				if ( noGhoul || !hitEnt->ghoul2.size() )
 				{//we weren't doing a ghoul trace
-					char	*hitEffect;
+					const char	*hitEffect;
 					if ( dmg >= 1.0 && hitEnt->bmodel )
 					{
 						dmg = 1.0;
@@ -8385,7 +8384,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{//don't regen force power while throwing saber
 		if ( self->client->ps.saberEntityNum < ENTITYNUM_NONE && self->client->ps.saberEntityNum > 0 )//player is 0
 		{//
-			if ( &g_entities[self->client->ps.saberEntityNum] != NULL && g_entities[self->client->ps.saberEntityNum].s.pos.trType == TR_LINEAR )
+			if ( g_entities[self->client->ps.saberEntityNum].s.pos.trType == TR_LINEAR )
 			{//fell to the ground and we're trying to pull it back
 				usingForce = qtrue;
 			}

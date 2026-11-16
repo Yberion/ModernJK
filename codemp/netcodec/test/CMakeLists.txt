@@ -54,12 +54,6 @@ target_include_directories(netcodec_test_engine PRIVATE "${PROJECT_SOURCE_DIR}/s
 add_test(NAME netcodec.engine COMMAND netcodec_test_engine "--hash=${netcodec_ROUNDTRIP_HASH}"
 	"${netcodec_TRACE_DIR}/captures.bin" "${netcodec_TRACE_DIR}/holdout.bin")
 
-# engine.h compiles as C++11, the engine's standard (an object library, linked into nothing).
-add_library(netcodec_engine_cxx11 OBJECT engine_cxx11.cpp)
-target_include_directories(netcodec_engine_cxx11 PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(netcodec_engine_cxx11 PRIVATE netcodec_warnings)
-set_target_properties(netcodec_engine_cxx11 PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
-
 # Client packets (plan step 8): synthetic round trip (needs no trace), and the round trip of the client traces
 # (netcodec_bench_client --trace), with and without base. Each hash changes with the client format or tables.
 netcodec_add_program(netcodec_test_client test_client.cpp client_synthetic.h client_trace.h synthetic.h fnv.h)

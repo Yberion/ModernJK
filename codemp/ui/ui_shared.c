@@ -215,7 +215,6 @@ typedef struct stringDef_s {
 static int strPoolIndex = 0;
 static char strPool[STRING_POOL_SIZE];
 
-static int strHandleCount = 0;
 static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 
@@ -296,7 +295,6 @@ void String_Init() {
 	for (i = 0; i < HASH_TABLE_SIZE; i++) {
 		strHandle[i] = 0;
 	}
-	strHandleCount = 0;
 	strPoolIndex = 0;
 	menuCount = 0;
 	openMenuCount = 0;
@@ -8469,7 +8467,6 @@ Hacks to fix issues with Team Arena menu scripts
 ===============
 */
 static void Item_ApplyHacks( itemDef_t *item ) {
-#if !defined(_WIN32) || ( defined(_WIN32) && defined(idx64) )
 	if ( item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp( item->cvar, "s_UseOpenAL" ) ) {
 		if( item->parent )
 		{
@@ -8493,7 +8490,6 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 			Com_Printf( "Hiding eax_icon object because current platform does not support EAX.\n");
 		}
 	}
-#endif
 
 	// Fix length of favorite address in createfavorite.menu
 	if ( item->type == ITEM_TYPE_EDITFIELD && item->cvar && !Q_stricmp( item->cvar, "ui_favoriteAddress" ) ) {

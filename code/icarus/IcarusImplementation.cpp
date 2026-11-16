@@ -358,7 +358,7 @@ void CIcarus::Precache(char* buffer, long length)
 			{
 				float f = *(float *) block.GetMemberData( 0 );
 
-				if (f == TYPE_PATH)
+				if (f == (float)TYPE_PATH)
 				{
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
@@ -489,7 +489,7 @@ int CIcarus::SaveSequencers()
 	BufferWrite( &numSequencers, sizeof( numSequencers ) );
 
 	//The sequencers are then saved
-	int sequencessaved = 0;
+	[[maybe_unused]] int sequencessaved = 0;
 	sequencer_l::iterator	si;
 	STL_ITERATE( si, m_sequencers )
 	{

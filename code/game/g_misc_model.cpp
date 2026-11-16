@@ -44,16 +44,13 @@ void SetMiscModelModels( char *modelNameString, gentity_t *ent, qboolean damage_
 		len = strlen( modelNameString ) - 4; // extract the extension
 
 		//Dead/damaged model
-		strncpy( damageModel, modelNameString, len );
-		damageModel[len] = 0;
-		strncpy( chunkModel, damageModel, sizeof(chunkModel));
-		strcat( damageModel, "_d1.md3" );
+		Com_sprintf( damageModel, sizeof(damageModel), "%.*s_d1.md3", len, modelNameString );
 		ent->s.modelindex2 = G_ModelIndex( damageModel );
 
 		ent->spawnflags |= 4; // deadsolid
 
 		//Chunk model
-		strcat( chunkModel, "_c1.md3" );
+		Com_sprintf( chunkModel, sizeof(chunkModel), "%.*s_c1.md3", len, modelNameString );
 		ent->s.modelindex3 = G_ModelIndex( chunkModel );
 	}
 }

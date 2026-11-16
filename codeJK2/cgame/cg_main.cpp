@@ -87,7 +87,7 @@ const char *inv_names[] =
 int	force_icons[NUM_FORCE_POWERS];
 
 
-int cgi_UI_GetMenuInfo(char *menuFile,int *x,int *y);
+int cgi_UI_GetMenuInfo(const char *menuFile,int *x,int *y);
 void CG_DrawDataPadHUD( centity_t *cent );
 void MissionInformation_Draw( centity_t *cent );
 void CG_DrawIconBackground(void);
@@ -1035,20 +1035,20 @@ extern void	cgi_R_WorldEffectCommand( const char *command );
 
 static void CG_RegisterEffects( void )
 {
-	char	*effectName;
+	const char	*effectName;
 	int		i;
 
 	// Register external effects
 	for ( i = 1 ; i < MAX_FX ; i++ )
 	{
-		effectName = ( char *)CG_ConfigString( CS_EFFECTS + i );
+		effectName = CG_ConfigString( CS_EFFECTS + i );
 
 		if ( !effectName[0] )
 		{
 			break;
 		}
 
-		theFxScheduler.RegisterEffect( (const char*)effectName );
+		theFxScheduler.RegisterEffect( effectName );
 	}
 
 	// Start world effects
@@ -1162,7 +1162,7 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void ) {
 	int			i;
 	char		items[MAX_ITEMS+1];
-	static char		*sb_nums[11] = {
+	static const char	*sb_nums[11] = {
 		"gfx/2d/numbers/zero",
 		"gfx/2d/numbers/one",
 		"gfx/2d/numbers/two",
@@ -1176,7 +1176,7 @@ static void CG_RegisterGraphics( void ) {
 		"gfx/2d/numbers/minus",
 	};
 
-	static char		*sb_t_nums[11] = {
+	static const char	*sb_t_nums[11] = {
 		"gfx/2d/numbers/t_zero",
 		"gfx/2d/numbers/t_one",
 		"gfx/2d/numbers/t_two",
@@ -1190,7 +1190,7 @@ static void CG_RegisterGraphics( void ) {
 		"gfx/2d/numbers/t_minus",
 	};
 
-	static char		*sb_c_nums[11] = {
+	static const char	*sb_c_nums[11] = {
 		"gfx/2d/numbers/c_zero",
 		"gfx/2d/numbers/c_one",
 		"gfx/2d/numbers/c_two",
@@ -1742,7 +1742,7 @@ void CG_Init( int serverCommandSequence ) {
 	cgs.media.loadTick		= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
 
-	static char		*force_icon_files[NUM_FORCE_POWERS] =
+	static const char	*force_icon_files[NUM_FORCE_POWERS] =
 	{
 		"gfx/hud/f_icon_heal",
 		"gfx/hud/f_icon_levitation",
@@ -2941,7 +2941,7 @@ void CG_DrawInventorySelect( void )
 
 int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
 
-char *inventoryDesc[15] =
+const char *inventoryDesc[15] =
 {
 "NEURO_SAAV_DESC",
 "BACTA_DESC",
@@ -3172,7 +3172,7 @@ int showPowers[MAX_SHOWPOWERS] =
 	FP_GRIP,
 	FP_LIGHTNING
 };
-char *showPowersName[MAX_SHOWPOWERS] =
+const char *showPowersName[MAX_SHOWPOWERS] =
 {
 	"HEAL2",
 	"SPEED2",
@@ -3566,7 +3566,7 @@ void CG_DPPrevForcePower_f( void )
 	cg.DataPadforcepowerSelect = original;
 }
 
-char *forcepowerDesc[NUM_FORCE_POWERS] =
+const char *forcepowerDesc[NUM_FORCE_POWERS] =
 {
 "FORCE_HEAL_DESC",
 "FORCE_JUMP_DESC",
@@ -3581,7 +3581,7 @@ char *forcepowerDesc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_DESC",
 };
 
-char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 {
 "FORCE_HEAL_LVL1_DESC",
 "FORCE_JUMP_LVL1_DESC",
@@ -3596,7 +3596,7 @@ char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_LVL1_DESC",
 };
 
-char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 {
 "FORCE_HEAL_LVL2_DESC",
 "FORCE_JUMP_LVL2_DESC",
@@ -3611,7 +3611,7 @@ char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_LVL2_DESC",
 };
 
-char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
 {
 "FORCE_HEAL_LVL3_DESC",
 "FORCE_JUMP_LVL3_DESC",

@@ -502,7 +502,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 	//Look for a tag() inline call
 	if ( Check( ID_TAG, block, memberNum ) )
 	{
-		char	*tagName;
+		const char	*tagName;
 		float	tagLookup;
 
 		memberNum++;
@@ -545,11 +545,11 @@ Get
 -------------------------
 */
 
-int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value )
+int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **value )
 {
 	static	char	tempBuffer[128];	//FIXME: EEEK!
 	vector_t		vector;
-	char			*name, *tagName;
+	const char			*name, *tagName;
 	float			tagLookup;
 	int				type;
 
@@ -1080,7 +1080,7 @@ int CTaskManager::Wait( CTask *task, bool &completed  )
 {
 	CBlockMember	*bm;
 	CBlock			*block = task->GetBlock();
-	char			*sVal;
+	const char			*sVal;
 	float			dwtime;
 	int				memberNum = 0;
 
@@ -1163,7 +1163,7 @@ WaitSignal
 int CTaskManager::WaitSignal( CTask *task, bool &completed  )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	completed = false;
@@ -1194,7 +1194,7 @@ Print
 int CTaskManager::Print( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1217,7 +1217,7 @@ Sound
 int CTaskManager::Sound( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal, *sVal2;
+	const char	*sVal, *sVal2;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1242,7 +1242,7 @@ int CTaskManager::Rotate( CTask *task )
 {
 	vector_t	vector;
 	CBlock		*block = task->GetBlock();
-	char		*tagName;
+	const char		*tagName;
 	float		tagLookup, duration;
 	int			memberNum = 0;
 
@@ -1286,7 +1286,7 @@ Remove
 int CTaskManager::Remove( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1311,7 +1311,7 @@ int CTaskManager::Camera( CTask *task )
 	CBlock		*block = task->GetBlock();
 	vector_t	vector, vector2;
 	float		type, fVal, fVal2, fVal3;
-	char		*sVal;
+	const char		*sVal;
 	int			memberNum = 0;
 
 	//Get the camera function type
@@ -1479,7 +1479,7 @@ Kill
 int CTaskManager::Kill( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1501,7 +1501,7 @@ Set
 int CTaskManager::Set( CTask *task )
 {
 	CBlock			*block = task->GetBlock();
-	char			*sVal, *sVal2;
+	const char			*sVal, *sVal2;
 	int				memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1522,7 +1522,7 @@ Use
 int CTaskManager::Use( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1544,7 +1544,7 @@ DeclareVariable
 int CTaskManager::DeclareVariable( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 	float	fVal;
 
@@ -1569,7 +1569,7 @@ FreeVariable
 int CTaskManager::FreeVariable( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1592,7 +1592,7 @@ Signal
 int CTaskManager::Signal( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1614,7 +1614,7 @@ Play
 int CTaskManager::Play( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal, *sVal2;
+	const char	*sVal, *sVal2;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal ) );
@@ -1708,7 +1708,7 @@ void CTaskManager::Save( void )
 	uint32_t	timeStamp;
 	bool		completed;
 	int			id, numCommands;
-	int			numWritten;
+	[[maybe_unused]] int	numWritten;
 
 	ojk::SavedGameHelper saved_game(
 		m_owner->GetInterface()->saved_game);

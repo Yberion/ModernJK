@@ -1203,11 +1203,11 @@ static int SV_BotLibShutdown( void ) {
 	return botlib_export->BotLibShutdown();
 }
 
-static int SV_BotLibVarSet( char *var_name, char *value ) {
+static int SV_BotLibVarSet( const char *var_name, const char *value ) {
 	return botlib_export->BotLibVarSet( var_name, value );
 }
 
-static int SV_BotLibVarGet( char *var_name, char *value, int size ) {
+static int SV_BotLibVarGet( const char *var_name, char *value, int size ) {
 	return botlib_export->BotLibVarGet( var_name, value, size );
 }
 
@@ -1283,19 +1283,19 @@ static int SV_AAS_NextBSPEntity( int ent ) {
 	return botlib_export->aas.AAS_NextBSPEntity( ent );
 }
 
-static int SV_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
+static int SV_AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size ) {
 	return botlib_export->aas.AAS_ValueForBSPEpairKey( ent, key, value, size );
 }
 
-static int SV_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
+static int SV_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v ) {
 	return botlib_export->aas.AAS_VectorForBSPEpairKey( ent, key, v );
 }
 
-static int SV_AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
+static int SV_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value ) {
 	return botlib_export->aas.AAS_FloatForBSPEpairKey( ent, key, value );
 }
 
-static int SV_AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
+static int SV_AAS_IntForBSPEpairKey( int ent, const char *key, int *value ) {
 	return botlib_export->aas.AAS_IntForBSPEpairKey( ent, key, value );
 }
 

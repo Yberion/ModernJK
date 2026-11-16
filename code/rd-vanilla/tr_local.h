@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "mdx_format.h"
 #include "qgl.h"
 
+#define LL(x) x=LittleLong(x)
+
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -1385,7 +1387,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
 */
-static inline void GLimp_LogComment( char *comment ) {}
+static inline void GLimp_LogComment( const char *comment ) {}
 
 
 /*

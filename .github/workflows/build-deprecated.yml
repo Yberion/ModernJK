@@ -12,12 +12,10 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        arch: [x86, x86_64]
+        arch: [x86_64]
         build_type: [Release]
         portable: [Non-Portable]
         include:
-          - arch: x86
-            platform: Win32
           - arch: x86_64
             platform: x64
 

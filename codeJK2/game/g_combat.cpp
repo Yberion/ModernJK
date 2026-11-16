@@ -1153,7 +1153,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 		{//we care about direction (presumably for dismemberment)
 			if ( g_dismemberProbabilities->value<=0.0f||G_Dismemberable( ent, *hitLoc ) )
 			{//either we don't care about probabilties or the probability let us continue
-				char *tagName = NULL;
+				const char *tagName = NULL;
 				float	aoa = 0.5f;
 				//dir must be roughly perpendicular to the hitLoc's cap bolt
 				switch ( *hitLoc )
@@ -1662,7 +1662,7 @@ float hitLocHealthPercentage[HL_MAX] =
 	0.0f	//HL_GENERIC6
 };
 
-char *hitLocName[HL_MAX] =
+const char *hitLocName[HL_MAX] =
 {
 	"none",	//HL_NONE = 0,
 	"right foot",	//HL_FOOT_RT,
@@ -1778,8 +1778,8 @@ qboolean G_LimbLost( gentity_t *ent, int hitLoc )
 }
 
 static qboolean G_Dismember( gentity_t *ent, vec3_t point,
-				 const char *limbBone, const char *rotateBone, char *limbName,
-				 char *limbCapName, char *stubCapName, char *limbTagName, char *stubTagName,
+				 const char *limbBone, const char *rotateBone, const char *limbName,
+				 const char *limbCapName, const char *stubCapName, const char *limbTagName, const char *stubTagName,
 				 int limbAnim, float limbRollBase, float limbPitchBase,
 				 int damage, int hitLoc )
 {
@@ -2165,7 +2165,7 @@ extern cvar_t	*g_iscensored;
 			//where the split will be- if the hit dir is roughly perpendicular to
 			//the direction of the cap, then the split is allowed, otherwise we
 			//hit it at the wrong angle and should not dismember...
-			char	*limbBone = NULL, *rotateBone = NULL, *limbName = NULL, *limbCapName = NULL, *stubCapName = NULL, *limbTagName = NULL, *stubTagName = NULL;
+			const char	*limbBone = NULL, *rotateBone = NULL, *limbName = NULL, *limbCapName = NULL, *stubCapName = NULL, *limbTagName = NULL, *stubTagName = NULL;
 			int		anim = -1;
 			float	limbRollBase = 0, limbPitchBase = 0;
 			qboolean doDismemberment = qfalse;

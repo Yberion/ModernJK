@@ -151,11 +151,11 @@ static void UpdateIPBans( void ) {
 G_FilterPacket
 =================
 */
-qboolean G_FilterPacket( char *from ) {
+qboolean G_FilterPacket( const char *from ) {
 	int i;
 	uint32_t in;
 	byteAlias_t m;
-	char *p;
+	const char *p;
 
 	i = 0;
 	p = from;

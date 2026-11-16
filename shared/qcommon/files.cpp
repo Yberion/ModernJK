@@ -244,13 +244,13 @@ static cvar_t          *fs_apppath;
 static cvar_t		*fs_basepath;
 static cvar_t		*fs_basegame;
 static cvar_t		*fs_cdpath;
+#ifdef _WIN32	// the copy from fs_cdpath is Windows code only
 static cvar_t		*fs_copyfiles;
+#endif
 static cvar_t		*fs_gamedirvar;
 static cvar_t		*fs_dirbeforepak; //rww - when building search path, keep directories at top and insert pk3's under them
 static cvar_t		*fs_forcegame;
 static searchpath_t	*fs_searchpaths;
-static int			fs_readCount;			// total bytes read
-static int			fs_loadCount;			// total files read
 static int			fs_packFiles = 0;		// total number of files in packs
 
 static int			fs_fakeChkSum;
@@ -1688,7 +1688,6 @@ int FS_Read( void *buffer, int len, fileHandle_t f ) {
 	}
 
 	buf = (byte *)buffer;
-	fs_readCount += len;
 
 	if (fsh[f].zipFile == qfalse) {
 		remaining = len;
@@ -1940,8 +1939,6 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 				Com_Error( ERR_FATAL, "Read from journalDataFile failed" );
 			}
 
-			fs_loadCount++;
-
 			// guarantee that it will have a trailing 0 for string operations
 			buf[len] = 0;
 
@@ -1976,8 +1973,6 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 		FS_FCloseFile( h);
 		return len;
 	}
-
-	fs_loadCount++;
 
 	buf = (byte*)Z_Malloc( len+1, TAG_FILESYS, qfalse);
 	buf[len]='\0';	// because we're not calling Z_Malloc with optional trailing 'bZeroIt' bool
@@ -2262,7 +2257,7 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, int *numfiles ) {
+char **FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, int *numfiles ) {
 	int				nfiles;
 	char			**listCopy;
 	char			*list[MAX_FOUND_FILES];
@@ -2669,8 +2664,8 @@ FS_Dir_f
 ================
 */
 void FS_Dir_f( void ) {
-	char	*path;
-	char	*extension;
+	const char	*path;
+	const char	*extension;
 	char	**dirnames;
 	int		ndirs;
 	int		i;
@@ -2786,7 +2781,7 @@ FS_NewDir_f
 ================
 */
 void FS_NewDir_f( void ) {
-	char	*filter;
+	const char	*filter;
 	char	**dirnames;
 	int		ndirs;
 	int		i;
@@ -2876,7 +2871,7 @@ FS_Which_f
 */
 void FS_Which_f( void ) {
 	searchpath_t	*search;
-	char		*filename;
+	const char		*filename;
 
 	filename = Cmd_Argv(1);
 
@@ -3106,7 +3101,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 FS_idPak
 ================
 */
-qboolean FS_idPak( char *pak, char *base ) {
+qboolean FS_idPak( const char *pak, const char *base ) {
 	int i;
 
 	for (i = 0; i < NUM_ID_PAKS; i++) {
@@ -3512,7 +3507,9 @@ void FS_Startup( const char *gameName ) {
 	fs_packFiles = 0;
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
+#ifdef _WIN32
 	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
+#endif
 	fs_cdpath = Cvar_Get ("fs_cdpath", "", CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for development files" );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for game files" );
 	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
@@ -3963,7 +3960,9 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_basepath" );
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
+#ifdef _WIN32
 	Com_StartupVariable( "fs_copyfiles" );
+#endif
 	Com_StartupVariable( "fs_dirbeforepak" );
 #ifdef MACOS_X
 	Com_StartupVariable( "fs_apppath" );

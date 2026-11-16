@@ -270,7 +270,7 @@ typedef struct refimport_s {
 
 	void			(*Cmd_ExecuteString)				( const char *text );
 	int				(*Cmd_Argc)							( void );
-	char *			(*Cmd_Argv)							( int arg );
+	const char *	(*Cmd_Argv)							( int arg );
 	void			(*Cmd_ArgsBuffer)					( char *buffer, int bufferLength );
 	void			(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function, const char *cmd_desc );
 	void			(*Cmd_AddCommandList)				( const cmdList_t *cmdList );
@@ -281,7 +281,7 @@ typedef struct refimport_s {
 	cvar_t *		(*Cvar_SetValue)					( const char *name, float value );
 	void			(*Cvar_CheckRange)					( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 	void			(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
-	char *			(*Cvar_VariableString)				( const char *var_name );
+	const char *	(*Cvar_VariableString)				( const char *var_name );
 	float			(*Cvar_VariableValue)				( const char *var_name );
 	int				(*Cvar_VariableIntegerValue)		( const char *var_name );
 	qboolean		(*Sys_LowPhysicalMemory)			( void );

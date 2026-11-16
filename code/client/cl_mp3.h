@@ -34,13 +34,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 
+// ID3v1's text fields are fixed-width and padded with zeros, with no terminating NUL (strncpy fills them)
+#if defined( __GNUC__ ) && !defined( __clang__ )
+#define ID3_TEXT __attribute__(( nonstring ))
+#else
+#define ID3_TEXT
+#endif
+
 typedef struct id3v1_1 {
     char id[3];
-    char title[30];		// <file basename>
-    char artist[30];	// "Raven Software"
-    char album[30];		// "#UNCOMP %d"		// needed
-    char year[4];		// "2000"
-    char comment[28];	// "#MAXVOL %g"		// needed
+    char title[30] ID3_TEXT;		// <file basename>
+    char artist[30] ID3_TEXT;	// "Raven Software"
+    char album[30] ID3_TEXT;		// "#UNCOMP %d"		// needed
+    char year[4] ID3_TEXT;		// "2000"
+    char comment[28] ID3_TEXT;	// "#MAXVOL %g"		// needed
     char zero;
     char track;
     char genre;

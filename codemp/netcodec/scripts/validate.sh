@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Validation of netcodec on Linux (GCC and Clang): configure, build and test every Linux preset, then the size
-# benchmark (Release and ASan + UBSan), the codec benchmark (two runs) and the x86 trainers, which must rewrite the
+# benchmark (Release and ASan + UBSan), the codec benchmark (two runs) and the trainers, which must rewrite the
 # committed tables unchanged, then the game in Release when its build directory exists: build-modernjk/gcc-ded (the
-# dedicated server and the game module, the VPS build) and build-modernjk/gcc-mp (every multiplayer target: client,
-# renderer, cgame and ui as well). Needs the traces of docs_rewrite/modernization/data/traces (export_rans_trace.py,
-# export_codec_trace.py, export_demo_traces.py, and the client traces of netcodec_bench_client --trace).
+# dedicated server and the game module, the VPS build), build-modernjk/gcc-mp and build-modernjk/clang-mp (every
+# target they are configured with: the client, its renderers and modules, the single-player games). Needs the traces
+# of docs_rewrite/modernization/data/traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and
+# the client traces of netcodec_bench_client --trace).
 # Run from anywhere: codemp/netcodec/scripts/validate.sh
 # Output: the console and build-netcodec/validate-linux.log; the summary and the benchmark figures come last.
 set -u
@@ -30,7 +31,7 @@ step() {
 	if "$@"; then summary+=("ok    $name"); else summary+=("FAIL  $name"); failed=1; fi
 }
 
-for p in gcc-release gcc-debug gcc-asan gcc-x86 clang-release; do
+for p in gcc-release gcc-debug gcc-asan clang-release; do
 	step "$p: configure" cmake --preset "$p"
 	step "$p: build" cmake --build --preset "$p" -j "$JOBS"
 	step "$p: tests" ctest --preset "$p"
@@ -41,13 +42,13 @@ step "size benchmark, gcc-release" bash -c "'$B/gcc-release/bench/netcodec_bench
 step "size benchmark, gcc-asan" bash -c "'$B/gcc-asan/bench/netcodec_bench_size' '$T/holdout.bin' > '$OUT/size-asan'"
 step "codec benchmark, gcc-release, run 1" bash -c "'$B/gcc-release/bench/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec1'"
 step "codec benchmark, gcc-release, run 2" bash -c "'$B/gcc-release/bench/netcodec_bench_codec' '$T/codec_trace.bin' 10 > '$OUT/codec2'"
-step "trainer gcc-x86 writes the committed tables" bash -c \
-	"'$B/gcc-x86/tools/netcodec_train' '$T/train.bin' '$OUT/tables.inc' && cmp '$OUT/tables.inc' src/generated/jka_tables.inc"
-step "client trainer gcc-x86 writes the committed client tables" bash -c \
-	"'$B/gcc-x86/tools/netcodec_train_client' '$OUT/client_tables.inc' '$T/client_train.bin' && cmp '$OUT/client_tables.inc' src/generated/jka_client_tables.inc"
+step "trainer gcc-release writes the committed tables" bash -c \
+	"'$B/gcc-release/tools/netcodec_train' '$T/train.bin' '$OUT/tables.inc' && cmp '$OUT/tables.inc' src/generated/jka_tables.inc"
+step "client trainer gcc-release writes the committed client tables" bash -c \
+	"'$B/gcc-release/tools/netcodec_train_client' '$OUT/client_tables.inc' '$T/client_train.bin' && cmp '$OUT/client_tables.inc' src/generated/jka_client_tables.inc"
 
 # the engine and its glue to the codec (sv_netcodec.cpp, cl_netcodec.cpp, ...), which the presets above do not build
-for g in gcc-ded gcc-mp; do
+for g in gcc-ded gcc-mp clang-mp; do
 	G=../../build-modernjk/$g
 	if [ -f "$G/CMakeCache.txt" ]; then
 		step "game build, $g" cmake --build "$G" -j "$JOBS"

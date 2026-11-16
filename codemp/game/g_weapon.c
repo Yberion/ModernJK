@@ -918,7 +918,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 
 			if ( traceEnt->takedamage )
 			{
-				vec3_t preAng;
+				vec3_t preAng = { 0 };
 				int preHealth = traceEnt->health;
 				int preLegs = 0;
 				int preTorso = 0;
@@ -2169,7 +2169,7 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 //---------------------------------------------------------
 { //for the galak mech NPC
 	float	targetDist, shotSpeed, speedInc = 100, travelTime, impactDist, bestImpactDist = Q3_INFINITE;//fireSpeed,
-	vec3_t	targetDir, shotVel, failCase;
+	vec3_t	targetDir, shotVel, failCase = { 0.0f };
 	trace_t	trace;
 	trajectory_t	tr;
 	qboolean	blocked;
@@ -2663,14 +2663,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 		if ( removeMe != -1 )
 		{
 			//remove it... or blow it?
-			if ( &g_entities[foundLaserTraps[removeMe]] == NULL )
-			{
-				break;
-			}
-			else
-			{
-				G_FreeEntity( &g_entities[foundLaserTraps[removeMe]] );
-			}
+			G_FreeEntity( &g_entities[foundLaserTraps[removeMe]] );
 			foundLaserTraps[removeMe] = ENTITYNUM_NONE;
 			trapcount--;
 		}
@@ -3037,16 +3030,9 @@ void WP_DropDetPack( gentity_t *ent, qboolean alt_fire )
 		if ( removeMe != -1 )
 		{
 			//remove it... or blow it?
-			if ( &g_entities[foundDetPacks[removeMe]] == NULL )
-			{
-				break;
-			}
-			else
-			{
-				if (!CheatsOn())
-				{ //Let them have unlimited if cheats are enabled
-					G_FreeEntity( &g_entities[foundDetPacks[removeMe]] );
-				}
+			if (!CheatsOn())
+			{ //Let them have unlimited if cheats are enabled
+				G_FreeEntity( &g_entities[foundDetPacks[removeMe]] );
 			}
 			foundDetPacks[removeMe] = ENTITYNUM_NONE;
 			trapcount--;

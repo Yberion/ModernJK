@@ -54,44 +54,12 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		set(SPEngineLibraries ${SPEngineLibraries} ${OPENGL_LIBRARIES})
 	endif()
 
-	# OpenAL (is optionally included for Windows)
-	if(MSVC AND NOT WIN64)
-		if(UseInternalOpenAL)
-			# There's a libs/OpenAL32.lib
-			# (mrw) TODO Is this actually required on windows? It is loaded at runtime, should not be linked?
-			find_library(OpenALLibrary NAMES OpenAL32 PATHS "${ModernJKLibDir}")
-			if(NOT OpenALLibrary)
-				message(FATAL_ERROR "UseInternalOpenAL enabled, but lib/OpenAL32.lib not found!")
-			endif(NOT OpenALLibrary)
-			set(SPEngineLibraries ${SPEngineLibraries} ${OpenALLibrary})
-		else(UseInternalOpenAL)
-			find_package(OpenAL REQUIRED)
-			set(SPEngineIncludeDirectories ${SPEngineIncludeDirectories} ${OPENAL_INCLUDE_DIR})
-			set(SPEngineLibraries ${SPEngineLibraries} ${OPENAL_LIBRARY})
-		endif(UseInternalOpenAL)
-
-		set(SPEngineEAXFiles
-			"${SPDir}/client/eax/eax.h"
-			"${SPDir}/client/eax/EaxMan.h"
-			)
-		source_group("eax" FILES ${SPEngineEAXFiles})
-		set(SPEngineFiles ${SPEngineFiles} ${SPEngineEAXFiles})
-	endif()
-
 	if(UseInternalSDL2)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-			set(SPEngineLibraries
-				${SPEngineLibraries}
-				${ModernJKLibDir}/SDL2/lib/x86/SDL2main.lib
-				${ModernJKLibDir}/SDL2/lib/x86/SDL2.lib
-				)
-		else()
-			set(SPEngineLibraries
-				${SPEngineLibraries}
-				${ModernJKLibDir}/SDL2/lib/x64/SDL2main.lib
-				${ModernJKLibDir}/SDL2/lib/x64/SDL2.lib
-				)
-		endif()
+		set(SPEngineLibraries
+			${SPEngineLibraries}
+			${ModernJKLibDir}/SDL2/lib/x64/SDL2main.lib
+			${ModernJKLibDir}/SDL2/lib/x64/SDL2.lib
+			)
 
 		set(SPEngineIncludeDirectories
 			${SPEngineIncludeDirectories}
@@ -385,15 +353,9 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 			
 			add_executable(${ProjectName} WIN32 ${SPEngineFiles})
 			if(UseInternalSDL2)
-				if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-					set(SPEngineExtraInstallFiles
-						${ModernJKLibDir}/SDL2/bin/x86/SDL2.dll
-						)
-				else()
-					set(SPEngineExtraInstallFiles
-						${ModernJKLibDir}/SDL2/bin/x64/SDL2.dll
-						)
-				endif()
+				set(SPEngineExtraInstallFiles
+					${ModernJKLibDir}/SDL2/bin/x64/SDL2.dll
+					)
 			endif()
 		else(WIN32)
 			if(MakeApplicationBundles)

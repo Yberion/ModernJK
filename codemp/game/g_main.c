@@ -84,10 +84,7 @@ All but the last will have the teamchain field set to the next one
 void G_FindTeams( void ) {
 	gentity_t	*e, *e2;
 	int		i, j;
-	int		c, c2;
 
-	c = 0;
-	c2 = 0;
 	for ( i=MAX_CLIENTS, e=g_entities+i ; i < level.num_entities ; i++,e++ ) {
 		if (!e->inuse)
 			continue;
@@ -98,8 +95,6 @@ void G_FindTeams( void ) {
 		if (e->r.contents==CONTENTS_TRIGGER)
 			continue;//triggers NEVER link up in teams!
 		e->teammaster = e;
-		c++;
-		c2++;
 		for (j=i+1, e2=e+1 ; j < level.num_entities ; j++,e2++)
 		{
 			if (!e2->inuse)
@@ -110,7 +105,6 @@ void G_FindTeams( void ) {
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
-				c2++;
 				e2->teamchain = e->teamchain;
 				e->teamchain = e2;
 				e2->teammaster = e;
@@ -125,7 +119,6 @@ void G_FindTeams( void ) {
 		}
 	}
 
-//	trap->Print ("%i teams with %i entities\n", c, c2);
 }
 
 sharedBuffer_t gSharedBuffer;

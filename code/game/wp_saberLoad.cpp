@@ -167,7 +167,7 @@ void WP_SaberFreeStrings( saberInfo_t &saber ) {
 		saber.fullName = NULL;
 	}
 	if ( saber.model && gi.bIsFromZone( saber.model, TAG_G_ALLOC ) ) {
-		gi.Free( saber.model );
+		gi.Free( (void *)saber.model );
 		saber.model = NULL;
 	}
 	if ( saber.skin && gi.bIsFromZone( saber.skin, TAG_G_ALLOC ) ) {
@@ -1779,7 +1779,7 @@ Keyword Hash
 #define KEYWORDHASH_SIZE (512)
 
 typedef struct keywordHash_s {
-	char	*keyword;
+	const char	*keyword;
 	void	(*func)(saberInfo_t *saber, const char **p);
 
 	struct keywordHash_s *next;

@@ -915,13 +915,13 @@ void G_FreeEntity( gentity_t *ed ) {
 			gi.Free(ed->client->ps.saber[0].name);
 		}
 		if(ed->client->ps.saber[0].model && gi.bIsFromZone(ed->client->ps.saber[0].model, TAG_G_ALLOC) ) {
-			gi.Free(ed->client->ps.saber[0].model);
+			gi.Free( (void *)ed->client->ps.saber[0].model);
 		}
 		if(ed->client->ps.saber[1].name && gi.bIsFromZone(ed->client->ps.saber[1].name, TAG_G_ALLOC) ) {
 			gi.Free(ed->client->ps.saber[1].name);
 		}
 		if(ed->client->ps.saber[1].model && gi.bIsFromZone(ed->client->ps.saber[1].model, TAG_G_ALLOC) ) {
- 			gi.Free(ed->client->ps.saber[1].model);
+ 			gi.Free( (void *)ed->client->ps.saber[1].model);
 		}
 
 		gi.Free(ed->client);
@@ -931,19 +931,19 @@ void G_FreeEntity( gentity_t *ed ) {
 		gi.Free(ed->soundSet);
 	}
 	if (ed->targetname && gi.bIsFromZone(ed->targetname, TAG_G_ALLOC)) {
-		gi.Free(ed->targetname);
+		gi.Free( (void *)ed->targetname );
 	}
 	if (ed->NPC_targetname && gi.bIsFromZone(ed->NPC_targetname, TAG_G_ALLOC)) {
 		gi.Free(ed->NPC_targetname);
 	}
 	if (ed->NPC_type && gi.bIsFromZone(ed->NPC_type, TAG_G_ALLOC)) {
-		gi.Free(ed->NPC_type);
+		gi.Free( (void *)ed->NPC_type);
 	}
 	if (ed->classname && gi.bIsFromZone(ed->classname, TAG_G_ALLOC)) {
-		gi.Free(ed->classname );
+		gi.Free( (void *)ed->classname );
 	}
 	if (ed->message && gi.bIsFromZone(ed->message, TAG_G_ALLOC)) {
-		gi.Free(ed->message);
+		gi.Free( (void *)ed->message);
 	}
 	if (ed->model && gi.bIsFromZone(ed->model, TAG_G_ALLOC)) {
 		gi.Free(ed->model);
@@ -951,7 +951,7 @@ void G_FreeEntity( gentity_t *ed ) {
 
 //scripting
 	if (ed->script_targetname && gi.bIsFromZone(ed->script_targetname, TAG_G_ALLOC)) {
-		gi.Free(ed->script_targetname);
+		gi.Free( (void *)ed->script_targetname );
 	}
 	if (ed->cameraGroup && gi.bIsFromZone(ed->cameraGroup, TAG_G_ALLOC)) {
 		gi.Free(ed->cameraGroup);
@@ -985,7 +985,8 @@ void G_FreeEntity( gentity_t *ed ) {
 	// Free any associated timers
 	TIMER_Clear(ed->s.number);
 
-	memset (ed, 0, sizeof(*ed));
+	// all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
+	memset ((void *)ed, 0, sizeof(*ed));
 	ed->s.number = ENTITYNUM_NONE;
 	ed->classname = "freed";
 	ed->freetime = level.time;

@@ -92,7 +92,7 @@ void IN_Button6Down(void);
 void IN_Button6Up(void);
 void IN_UseGivenForce(void)
 {
-	char *c = Cmd_Argv(1);
+	const char *c = Cmd_Argv(1);
 	int forceNum =-1;
 	int genCmdNum = 0;
 
@@ -402,7 +402,7 @@ void IN_VoiceChatButton(void)
 
 void IN_KeyDown( kbutton_t *b ) {
 	int		k;
-	char	*c;
+	const char	*c;
 
 	c = Cmd_Argv(1);
 	if ( c[0] ) {
@@ -438,7 +438,7 @@ void IN_KeyDown( kbutton_t *b ) {
 
 void IN_KeyUp( kbutton_t *b ) {
 	int		k;
-	char	*c;
+	const char	*c;
 	unsigned	uptime;
 
 	c = Cmd_Argv(1);

@@ -927,7 +927,8 @@ void G_RollMissile( gentity_t *ent )
 	float		bounceAmt = BUMPCLIP;
 	gentity_t	*hitEnt = NULL;
 
-	memset( &objPML, 0, sizeof( objPML ) );
+	// all zero, groundTrace's collision records included: only their default constructor makes pml_t non-trivial
+	memset( (void *)&objPML, 0, sizeof( objPML ) );
 
 	G_GroundTrace( ent, &objPML );
 
@@ -1258,7 +1259,7 @@ void G_RunMissile( gentity_t *ent )
 		}
 		*/
 
-		if ( tr.entityNum != ENTITYNUM_NONE && &g_entities[tr.entityNum] != NULL )
+		if ( tr.entityNum != ENTITYNUM_NONE )
 		{
 			gentity_t *other = &g_entities[tr.entityNum];
 			// check for hitting a lightsaber

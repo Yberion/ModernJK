@@ -1314,7 +1314,7 @@ argCheck:
 
 extern qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
 extern qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
-qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride)
+qboolean G_SetSaber(gentity_t *ent, int saberNum, const char *saberName, qboolean siegeOverride)
 {
 	char truncSaberName[MAX_QPATH] = {0};
 
@@ -1986,7 +1986,8 @@ void Cmd_MapList_f( gentity_t *ent ) {
 }
 
 qboolean G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	char s[MAX_CVAR_VALUE_STRING] = {0}, bspName[MAX_QPATH] = {0}, *mapName = NULL, *mapName2 = NULL;
+	char s[MAX_CVAR_VALUE_STRING] = {0}, bspName[MAX_QPATH] = {0};
+	const char *mapName = NULL, *mapName2 = NULL;
 	fileHandle_t fp = NULL_FILE;
 	const char *arenaInfo;
 

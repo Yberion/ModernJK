@@ -896,7 +896,6 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	int dlighted;
 	vec4_t clip, eye;
 	int i;
-	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
 
 	R_RotateForViewer();
@@ -926,7 +925,6 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 			}
 		}
 		pointAnd &= pointFlags;
-		pointOr |= pointFlags;
 	}
 
 	// trivially reject
@@ -1231,12 +1229,12 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	for ( int i = 0 ; i < numDrawSurfs ; i++ ) {
 		R_DecomposeSort( (drawSurfs+i)->sort, &entityNum, &shader, &fogNum, &dlighted );
 
-		if ( shader->sort > SS_PORTAL ) {
+		if ( shader->sort > (float)SS_PORTAL ) {
 			break;
 		}
 
 		// no shader should ever have this sort type
-		if ( shader->sort == SS_BAD ) {
+		if ( shader->sort == (float)SS_BAD ) {
 			Com_Error (ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
 		}
 

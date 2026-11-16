@@ -1046,7 +1046,8 @@ void G_RollMissile( gentity_t *ent )
 	float		bounceAmt = BUMPCLIP;
 	gentity_t	*hitEnt = NULL;
 
-	memset( &objPML, 0, sizeof( objPML ) );
+	// all zero, groundTrace's collision records included: only their default constructor makes pml_t non-trivial
+	memset( (void *)&objPML, 0, sizeof( objPML ) );
 
 	G_GroundTrace( ent, &objPML );
 

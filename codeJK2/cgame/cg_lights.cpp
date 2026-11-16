@@ -29,7 +29,6 @@ typedef struct clightstyle_s {
 } clightstyle_t;
 
 static	clightstyle_t	cl_lightstyle[MAX_LIGHT_STYLES];
-static	int				lastofs;
 
 /*
 ================
@@ -41,7 +40,6 @@ void CG_ClearLightStyles (void)
 	int	i;
 
 	memset (cl_lightstyle, 0, sizeof(cl_lightstyle));
-	lastofs = -1;
 
 	for(i=0;i<MAX_LIGHT_STYLES*3;i++)
 	{
@@ -61,9 +59,6 @@ void CG_RunLightStyles (void)
 	clightstyle_t	*ls;
 
 	ofs = cg.time / 50;
-//	if (ofs == lastofs)
-//		return;
-	lastofs = ofs;
 
 	for (i=0,ls=cl_lightstyle ; i<MAX_LIGHT_STYLES ; i++, ls++)
 	{

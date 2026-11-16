@@ -15,7 +15,7 @@
 #include "g_local.h"
 
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
-extern qboolean G_SetSaber( gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride );
+extern qboolean G_SetSaber( gentity_t *ent, int saberNum, const char *saberName, qboolean siegeOverride );
 extern void Svcmd_GameStats_f( void );
 extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
 extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );

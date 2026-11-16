@@ -2857,9 +2857,7 @@ int CTFTakesPriority(bot_state_t *bs)
 	int enemyHasOurFlag = 0;
 	//int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
-	int numOnEnemyTeam = 0;
 	int numAttackers = 0;
-	int numDefenders = 0;
 	int i = 0;
 	int idleWP;
 	int dosw = 0;
@@ -2976,10 +2974,6 @@ int CTFTakesPriority(bot_state_t *bs)
 			{
 				numOnMyTeam++;
 			}
-			else
-			{
-				numOnEnemyTeam++;
-			}
 
 			if (botstates[ent->s.number])
 			{
@@ -2987,10 +2981,6 @@ int CTFTakesPriority(bot_state_t *bs)
 					botstates[ent->s.number]->ctfState == CTFSTATE_RETRIEVAL)
 				{
 					numAttackers++;
-				}
-				else
-				{
-					numDefenders++;
 				}
 			}
 			else
@@ -3970,9 +3960,7 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	int enemyHasOurFlag = 0;
 	int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
-	int numOnEnemyTeam = 0;
 	int numAttackers = 0;
-	int numDefenders = 0;
 
 	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED)
 	{
@@ -4011,10 +3999,6 @@ void CommanderBotCTFAI(bot_state_t *bs)
 			{
 				numOnMyTeam++;
 			}
-			else
-			{
-				numOnEnemyTeam++;
-			}
 
 			if (botstates[ent->s.number])
 			{
@@ -4022,10 +4006,6 @@ void CommanderBotCTFAI(bot_state_t *bs)
 					botstates[ent->s.number]->ctfState == CTFSTATE_RETRIEVAL)
 				{
 					numAttackers++;
-				}
-				else
-				{
-					numDefenders++;
 				}
 			}
 			else
@@ -4207,7 +4187,6 @@ void CommanderBotTeamplayAI(bot_state_t *bs)
 {
 	int i = 0;
 	int squadmates = 0;
-	int teammates = 0;
 	int teammate_indanger = -1;
 	int teammate_helped = 0;
 	int foundsquadleader = 0;
@@ -4242,8 +4221,6 @@ void CommanderBotTeamplayAI(bot_state_t *bs)
 
 		if (ent && ent->client && OnSameTeam(&g_entities[bs->client], ent))
 		{
-			teammates++;
-
 			if (ent->health < worsthealth)
 			{
 				teammate_indanger = ent->s.number;

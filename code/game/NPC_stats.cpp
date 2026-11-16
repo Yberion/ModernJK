@@ -1203,7 +1203,7 @@ void G_LoadAnimFileSet( gentity_t *ent, const char *pModelName )
 	char	animName[MAX_QPATH];
 	char	*GLAName, *modelName;
 	char	*slash = NULL;
-	char	*strippedName;
+	const char	*strippedName;
 
 	if ( ent->playerModel == -1 )
 	{
@@ -1332,7 +1332,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 				continue;
 			}
 			char	animName[MAX_QPATH];
-			char	*GLAName;
+			const char	*GLAName;
 			char	*slash = NULL;
 			char	*strippedName;
 
@@ -1364,7 +1364,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 }
 
 extern int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type );
-void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, char *NPCtype )
+void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype )
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;

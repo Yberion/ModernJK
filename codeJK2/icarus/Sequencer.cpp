@@ -631,7 +631,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		//try to parse a 'get' command that is embeded in this 'affect'
 
 		int				id;
-		char			*p1 = NULL;
+		const char			*p1 = NULL;
 		char			*name = 0;
 		CBlockMember	*bm = NULL;
 		//
@@ -1070,7 +1070,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 	char			tempString1[128], tempString2[128];
 	vector_t		vec;
 	int				id, i, oper, memberNum = 0;
-	char			*p1 = NULL, *p2 = NULL;
+	const char		*p1 = NULL, *p2 = NULL;
 	int				t1, t2;
 
 	//
@@ -1759,7 +1759,7 @@ void CSequencer::CheckAffect( CBlock **command )
 			//try to parse a 'get' command that is embeded in this 'affect'
 
 			int				id;
-			char			*p1 = NULL;
+			const char			*p1 = NULL;
 			char			*name = 0;
 			CBlockMember	*bm = NULL;
 			//

@@ -1,8 +1,8 @@
 @echo off
 rem Validation of netcodec on Windows (Visual Studio): configure, build and test the MSVC presets (x64 Release and
-rem Debug, Win32 Release, x64 with AddressSanitizer), then the size benchmark, the codec benchmark (two runs) and the
-rem Win32 trainers, which must rewrite the committed tables unchanged, then the game (build-modernjk\msvc-x64, Release)
-rem when that build directory exists. Needs the traces of
+rem Debug, x64 with AddressSanitizer), then the size benchmark, the codec benchmark (two runs) and the trainers, which
+rem must rewrite the committed tables unchanged, then the game (build-modernjk\msvc-x64, Release) when that build
+rem directory exists. Needs the traces of
 rem docs_rewrite\modernization\data\traces (export_rans_trace.py, export_codec_trace.py, export_demo_traces.py, and the
 rem client traces of netcodec_bench_client --trace).
 rem Run from anywhere (cmd or PowerShell): codemp\netcodec\scripts\validate.bat
@@ -28,9 +28,6 @@ call :buildstep "msvc-x64-release: build" --preset msvc-x64-release
 call :step "msvc-x64-release: tests" ctest --preset msvc-x64-release
 call :buildstep "msvc-x64-debug: build" --preset msvc-x64-debug
 call :step "msvc-x64-debug: tests" ctest --preset msvc-x64-debug
-call :step "msvc-x86: configure" cmake --preset msvc-x86
-call :buildstep "msvc-x86-release: build" --preset msvc-x86-release
-call :step "msvc-x86-release: tests" ctest --preset msvc-x86-release
 call :step "msvc-asan: configure" cmake --preset msvc-asan
 call :buildstep "msvc-asan: build" --preset msvc-asan
 call :step "msvc-asan: tests" ctest --preset msvc-asan
@@ -39,10 +36,10 @@ call :bench "size benchmark, msvc-x64" size "%B%\msvc-x64\bench\Release\netcodec
 call :bench "size benchmark, msvc-asan" size-asan "%B%\msvc-asan\bench\RelWithDebInfo\netcodec_bench_size.exe" "%T%\holdout.bin"
 call :bench "codec benchmark, msvc-x64, run 1" codec1 "%B%\msvc-x64\bench\Release\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
 call :bench "codec benchmark, msvc-x64, run 2" codec2 "%B%\msvc-x64\bench\Release\netcodec_bench_codec.exe" "%T%\codec_trace.bin" 10
-call :step "trainer msvc-x86: train" "%B%\msvc-x86\tools\Release\netcodec_train.exe" "%T%\train.bin" "%OUT%\tables.inc"
-call :step "trainer msvc-x86 writes the committed tables" fc.exe /b "%OUT%\tables.inc" src\generated\jka_tables.inc
-call :step "client trainer msvc-x86: train" "%B%\msvc-x86\tools\Release\netcodec_train_client.exe" "%OUT%\client_tables.inc" "%T%\client_train.bin"
-call :step "client trainer msvc-x86 writes the committed client tables" fc.exe /b "%OUT%\client_tables.inc" src\generated\jka_client_tables.inc
+call :step "trainer msvc-x64: train" "%B%\msvc-x64\tools\Release\netcodec_train.exe" "%T%\train.bin" "%OUT%\tables.inc"
+call :step "trainer msvc-x64 writes the committed tables" fc.exe /b "%OUT%\tables.inc" src\generated\jka_tables.inc
+call :step "client trainer msvc-x64: train" "%B%\msvc-x64\tools\Release\netcodec_train_client.exe" "%OUT%\client_tables.inc" "%T%\client_train.bin"
+call :step "client trainer msvc-x64 writes the committed client tables" fc.exe /b "%OUT%\client_tables.inc" src\generated\jka_client_tables.inc
 
 rem the engine and its glue to the codec (sv_netcodec.cpp, cl_netcodec.cpp, ...), which the presets above do not build
 set "G=..\..\build-modernjk\msvc-x64"

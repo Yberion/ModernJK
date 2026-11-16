@@ -30,7 +30,7 @@ extern void Q3_SetViewEntity(int entID, const char *name);
 extern qboolean G_ClearViewEntity( gentity_t *ent );
 
 extern team_t TranslateTeamName( const char *name );
-extern char	*TeamNames[TEAM_NUM_TEAMS];
+extern const char	*TeamNames[TEAM_NUM_TEAMS];
 
 /*
 ===================
@@ -255,7 +255,7 @@ SetForceCmd SetForceTable[] = {
 
 static void Svcmd_ForceSetLevel_f( int forcePower )
 {
-	if ( !&g_entities[0] || !g_entities[0].client )
+	if ( !g_entities[0].client )
 	{
 		return;
 	}
@@ -296,7 +296,7 @@ extern qboolean PM_SaberInTransition( int move );
 extern qboolean PM_SaberInAttack( int move );
 void Svcmd_SaberAttackCycle_f( void )
 {
-	if ( !&g_entities[0] || !g_entities[0].client )
+	if ( !g_entities[0].client )
 	{
 		return;
 	}

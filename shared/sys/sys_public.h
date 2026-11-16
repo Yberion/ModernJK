@@ -103,7 +103,7 @@ void	* QDECL Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, Syste
 void	* QDECL Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI );
 void	Sys_UnloadDll( void *dllHandle );
 
-char	*Sys_GetCurrentUser( void );
+const char	*Sys_GetCurrentUser( void );
 
 void	NORETURN QDECL Sys_Error( const char *error, ... );
 void	NORETURN Sys_Quit (void);
@@ -146,7 +146,7 @@ const char *Sys_Basename( const char *path );
 
 bool Sys_PathCmp( const char *path1, const char *path2 );
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void	Sys_FreeFileList( char **fileList );
 //rwwRMG - changed to fileList to not conflict with list type
 

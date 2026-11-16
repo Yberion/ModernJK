@@ -675,7 +675,7 @@ Ghoul2 Insert End
 		ident = *(unsigned *)buf;
 		if (!bAlreadyCached)
 		{
-			ident = LittleLong(ident);
+			LL(ident);
 		}
 
 		switch (ident)
@@ -807,8 +807,8 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 	if (!bAlreadyCached)
 	{
-		version = LittleLong(version);
-		size	= LittleLong(size);
+		LL(version);
+		LL(size);
 	}
 
 	if (version != MD3_VERSION) {

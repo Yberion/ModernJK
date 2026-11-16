@@ -1274,7 +1274,7 @@ int NPC_FindNearestEnemy( gentity_t *ent )
 	int			nearestEntID = -1;
 	float		nearestDist = (float)WORLD_SIZE*(float)WORLD_SIZE;
 	float		distance;
-	int			numEnts, numChecks = 0;
+	int			numEnts;
 	int			i;
 
 	//Setup the bbox to search in
@@ -1298,7 +1298,6 @@ int NPC_FindNearestEnemy( gentity_t *ent )
 		if ( NPC_ValidEnemy( radEnt ) == qfalse )
 			continue;
 
-		numChecks++;
 		//Must be visible
 		if ( NPC_TargetVisible( radEnt ) == qfalse )
 			continue;
@@ -1671,7 +1670,7 @@ qboolean NPC_CheckLookTarget( gentity_t *self )
 	{
 		if ( self->client->renderInfo.lookTarget >= 0 && self->client->renderInfo.lookTarget < ENTITYNUM_WORLD )
 		{//within valid range
-			if ( (&g_entities[self->client->renderInfo.lookTarget] == NULL) || !g_entities[self->client->renderInfo.lookTarget].inuse )
+			if ( !g_entities[self->client->renderInfo.lookTarget].inuse )
 			{//lookTarget not inuse or not valid anymore
 				NPC_ClearLookTarget( self );
 			}
@@ -1757,7 +1756,7 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 
 float NPC_EntRangeFromBolt( gentity_t *targEnt, int boltIndex )
 {
-	vec3_t	org;
+	vec3_t	org = { 0.0f };
 
 	if ( !targEnt )
 	{
@@ -1780,7 +1779,7 @@ int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, vec3_t bo
 	int			i;
 
 	//get my handRBolt's position
-	vec3_t	org;
+	vec3_t	org = { 0.0f };
 
 	G_GetBoltPosition( NPCS.NPC, boltIndex, org, 0 );
 

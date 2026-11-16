@@ -198,7 +198,7 @@ protected:
 
 	int GetVector( int entID, CBlock *block, int &memberNum, vec3_t &value, CIcarus* icarus );
 	int GetFloat( int entID, CBlock *block, int &memberNum, float &value, CIcarus* icarus );
-	int Get( int entID, CBlock *block, int &memberNum, char **value, CIcarus* icarus );
+	int Get( int entID, CBlock *block, int &memberNum, const char **value, CIcarus* icarus );
 
 	int	PushTask( CTask *task, int flag );
 	CTask *PopTask( int flag );

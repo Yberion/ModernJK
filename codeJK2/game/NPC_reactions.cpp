@@ -531,7 +531,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//I am dead and carrying a key
 		if ( other && player && player->health > 0 && other == player )
 		{//player touched me
-			char *text;
+			const char *text;
 			qboolean	keyTaken;
 			//give him my key
 			if ( Q_stricmp( "goodie", self->message ) == 0 )

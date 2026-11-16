@@ -196,7 +196,7 @@ static int GetConfigString(int index, char *buf, int size)
 }
 
 static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
-	char	*value;
+	const char	*value;
 
 	value = Key_GetBinding( keynum );
 	if ( value ) {

@@ -1,10 +1,10 @@
 #!/bin/bash
 # A/B (this Windows machine, Git Bash, llvm-mingw clang): bench_codec of a reference (REF=<commit>, default HEAD, or
 # REF_DIR=<a copy holding codemp/netcodec>) against the working tree, Release, run alternately on logical CPU 20 (the
-# second CCD; the first, with the 3D V-Cache, is the owner's) with high priority. Builds in build-netcodec/ab-clang.
+# second CCD; the first, with the 3D V-Cache, is left to the desktop) with high priority. Builds in build-netcodec/ab-clang.
 # Prints the warm and cold timings per run, then the best of each build against ref with the checks of
-# ab_summary.awk. Only meaningful on a quiet machine (no game, the VMs off): ask the owner first.
-# Usage, from anywhere: [REF=<commit> | REF_DIR=<dir>] [CUR_DIR=<dir>] [NOALIGN=1] [CXXFLAGS=...] [PRESET=mingw-clang-x86]
+# ab_summary.awk. Only meaningful on a quiet machine (no game, the VMs off), to check before a run.
+# Usage, from anywhere: [REF=<commit> | REF_DIR=<dir>] [CUR_DIR=<dir>] [NOALIGN=1] [CXXFLAGS=...] [PRESET=<preset>]
 #   [BENCH=client] bash codemp/netcodec/scripts/ab_clang.sh [rounds] [--no-build]
 # BENCH=client: netcodec_bench_client on the recorded client packets (docs_rewrite/modernization/data/clientpackets/*.jkcp)
 # instead of bench_codec; the times are then per client packet.
@@ -21,7 +21,7 @@ mkdir -p "$S"
 export PATH="/c/Logiciels/llvm-mingw-20261104-ucrt-x86_64/bin:/c/Logiciels/cmake-4.4.5/bin:/c/Logiciels/ninja:$PATH"
 ROUNDS=${1:-6}
 REF=${REF:-HEAD}
-PRESET=${PRESET:-mingw-clang-release}   # mingw-clang-x86 for 32-bit builds
+PRESET=${PRESET:-mingw-clang-release}
 BENCH=${BENCH:-codec}                    # codec (server messages) or client (client packets)
 ALIGN="-falign-functions=64 -falign-loops=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN=""

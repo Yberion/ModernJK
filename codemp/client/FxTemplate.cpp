@@ -210,7 +210,7 @@ bool CPrimitiveTemplate::ParseFloat( const char *val, float *min, float *max )
 	if ( v >= 1 ) *min = values[0];
 	if ( v >= 2 ) *max = values[1];
 
-	if ( v == 0 )
+	if ( v <= 0 )
 	{ // nothing was there, failure
 		return false;
 	}

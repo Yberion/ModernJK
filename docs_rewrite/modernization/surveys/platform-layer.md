@@ -178,7 +178,7 @@ The layer is accepted when, on Windows 11 and on Linux (X11 and Wayland):
 ## 9. What was not read or verified
 
 - `codemp/client/snd_dma.cpp` and the OpenAL path: the sound part's design is from the device layer only.
-- rend2 and its use of the context's version and profile; the Direct3D handle's users, if any.
+- rend2 and its use of the context's version and profile; the Direct3D handle's users, if any. (16 November 2026: rend2 removed in plan step 17, a more recent one to be taken later.)
 - SDL 3's gamepad, audio stream and display APIs were not checked call by call against the headers; the migration guide's text was read through a search's summary, not in full.
 - How SDL 3 stamps keyboard events on Windows, and what the raw keyboard really gains: secondary sources only, nothing measured.
 - Whether OpenJK has work on SDL 3: searched on the web only.

@@ -1371,7 +1371,7 @@ void CG_PredictMiss_f( void ) {
 	cg_predictMiss.on = qtrue;
 }
 
-// Option C of plan step 14 (owner, 13 November 2026): the commands are made one tick ahead (CL_CreateNewCommands), so the
+// Option C of plan step 14 (chosen on 13 November 2026): the commands are made one tick ahead (CL_CreateNewCommands), so the
 // tick in progress is already predicted. The local player is drawn between the last two ticks at the command clock's
 // time (the engine's clock the commands are made on, ahead of the server's since part 4c; cg.cmdTime), its
 // position and velocity interpolated and its discrete state (animations, flags, events) the newest tick's, with the view
@@ -1470,7 +1470,7 @@ void CG_PredictPlayerState( void ) {
 	int			cmdNum, current, i;
 	int			baseTime;	// the command time of the snapshot's state the prediction starts from
 	playerState_t	oldPlayerState;
-	playerState_t	oldVehicleState;
+	playerState_t	oldVehicleState = { 0 };
 	qboolean	moved;
 	usercmd_t	oldestCmd;
 	usercmd_t	latestCmd;

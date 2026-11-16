@@ -397,24 +397,14 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
   {
     afd.audio = qfalse;
   }
-  else if( Cvar_VariableIntegerValue( "s_UseOpenAL" ) == 0 )
-  //else if( Q_stricmp( Cvar_VariableString( "s_backend" ), "OpenAL" ) )
+  else if( afd.a.bits != 16 || afd.a.channels != 2 )
   {
-    if( afd.a.bits != 16 || afd.a.channels != 2 )
-    {
-      Com_Printf( S_COLOR_YELLOW "WARNING: Audio format of %d bit/%d channels not supported",
-          afd.a.bits, afd.a.channels );
-      afd.audio = qfalse;
-    }
-    else
-      afd.audio = qtrue;
+    Com_Printf( S_COLOR_YELLOW "WARNING: Audio format of %d bit/%d channels not supported",
+        afd.a.bits, afd.a.channels );
+    afd.audio = qfalse;
   }
   else
-  {
-    afd.audio = qfalse;
-    Com_Printf( S_COLOR_YELLOW "WARNING: Audio capture is not supported "
-        "with OpenAL. Set s_UseOpenAL to 0 for audio capture\n" );
-  }
+    afd.audio = qtrue;
 
   // This doesn't write a real header, but allocates the
   // correct amount of space at the beginning of the file

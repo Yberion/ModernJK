@@ -1721,7 +1721,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 	{
 		for ( int parmNum = 0; parmNum < MAX_PARMS; parmNum++ )
 		{
-			if ( ent->parms->parm[parmNum] && ent->parms->parm[parmNum][0] )
+			if ( ent->parms->parm[parmNum][0] )
 			{
 				Q3_SetParm( newent->s.number, parmNum, ent->parms->parm[parmNum] );
 			}
@@ -4097,7 +4097,7 @@ static void NPC_Spawn_f(void)
 	NPCspawner->e_ThinkFunc = thinkF_G_FreeEntity;
 	NPCspawner->nextthink = level.time + FRAMETIME;
 
-	char	*npc_type = gi.argv( 2 );
+	const char	*npc_type = gi.argv( 2 );
 	if (!npc_type || !npc_type[0] )
 	{
 		gi.Printf( S_COLOR_RED"Error, expected:\n NPC spawn [NPC type (from NCPCs.cfg)]\n" );
@@ -4187,7 +4187,7 @@ void NPC_Kill_f( void )
 {
 	int			n;
 	gentity_t	*player;
-	char		*name;
+	const char		*name;
 	team_t		killTeam = TEAM_FREE;
 	qboolean	killNonSF = qfalse;
 
@@ -4341,7 +4341,7 @@ parse and dispatch bot commands
 qboolean	showBBoxes = qfalse;
 void Svcmd_NPC_f( void )
 {
-	char	*cmd;
+	const char	*cmd;
 
 	cmd = gi.argv( 1 );
 
@@ -4368,7 +4368,7 @@ void Svcmd_NPC_f( void )
 	}
 	else if ( Q_stricmp ( cmd, "score" ) == 0 )
 	{
-		char		*cmd2 = gi.argv(2);
+		const char		*cmd2 = gi.argv(2);
 		gentity_t *ent = NULL;
 
 		if ( !cmd2 || !cmd2[0] )

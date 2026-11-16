@@ -117,7 +117,7 @@ typedef struct scrollInfo_s {
 static scrollInfo_t scrollInfo;
 
 static char		memoryPool[MEM_POOL_SIZE];
-static int		allocPoint, outOfMemory;
+static int		allocPoint;
 
 displayContextDef_t *DC = NULL;
 
@@ -137,7 +137,6 @@ typedef struct stringDef_s {
 
 #define HASH_TABLE_SIZE 2048
 
-static int strHandleCount = 0;
 static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 typedef struct  itemFlagsDef_s {
@@ -1034,7 +1033,6 @@ Hacks to fix issues with Team Arena menu scripts
 ===============
 */
 static void Item_ApplyHacks( itemDef_t *item ) {
-#if !defined(_WIN32) || ( defined(_WIN32) && defined(idx64) )
 	// Fix length of favorite address in createfavorite.menu
 	if ( item->type == ITEM_TYPE_MULTI && item->cvar && !Q_stricmp( item->cvar, "s_UseOpenAL" ) ) {
 		if( item->parent )
@@ -1059,7 +1057,6 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 			Com_Printf( "Hiding eax_icon object because current platform does not support EAX.\n");
 		}
 	}
-#endif
 
 	if ( item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp( item->window.name, "sound_quality") ) {
 		multiDef_t *multiPtr = (multiDef_t *)item->typeData;
@@ -1395,7 +1392,6 @@ void String_Init(void)
 		strHandle[i] = 0;
 	}
 
-	strHandleCount = 0;
 	strPoolIndex = 0;
 	UI_InitMemory();
 	Item_SetupKeywordHash();
@@ -1424,7 +1420,6 @@ void *UI_Alloc( int size )
 
 	if ( allocPoint + size > MEM_POOL_SIZE )
 	{
-		outOfMemory = qtrue;
 		if (DC->Print)
 		{
 			DC->Print("UI_Alloc: Failure. Out of memory!\n");
@@ -1447,7 +1442,6 @@ UI_InitMemory
 void UI_InitMemory( void )
 {
 	allocPoint = 0;
-	outOfMemory = qfalse;
 }
 
 
@@ -2985,7 +2979,8 @@ Item_Init
 */
 void Item_Init(itemDef_t *item)
 {
-	memset(item, 0, sizeof(itemDef_t));
+	// all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
+	memset((void *)item, 0, sizeof(itemDef_t));
 	item->textscale = 0.55f;
 	Window_Init(&item->window);
 }

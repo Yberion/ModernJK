@@ -67,15 +67,12 @@ R_DrawStripElements
 
 ===================
 */
-static int		c_vertexes;		// for seeing how long our average strips are
-static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
 	int i;
 	glIndex_t last[3];
 	qboolean even;
 
 	qglBegin( GL_TRIANGLE_STRIP );
-	c_begins++;
 
 	if ( numIndexes <= 0 ) {
 		return;
@@ -85,7 +82,6 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 	element( indexes[0] );
 	element( indexes[1] );
 	element( indexes[2] );
-	c_vertexes += 3;
 
 	last[0] = indexes[0];
 	last[1] = indexes[1];
@@ -102,7 +98,6 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			if ( ( indexes[i+0] == last[2] ) && ( indexes[i+1] == last[1] ) )
 			{
 				element( indexes[i+2] );
-				c_vertexes++;
 				assert( (int)indexes[i+2] < tess.numVertexes );
 				even = qtrue;
 			}
@@ -113,13 +108,11 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				qglEnd();
 
 				qglBegin( GL_TRIANGLE_STRIP );
-				c_begins++;
 
 				element( indexes[i+0] );
 				element( indexes[i+1] );
 				element( indexes[i+2] );
 
-				c_vertexes += 3;
 
 				even = qfalse;
 			}
@@ -130,7 +123,6 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 			if ( ( last[2] == indexes[i+1] ) && ( last[0] == indexes[i+0] ) )
 			{
 				element( indexes[i+2] );
-				c_vertexes++;
 
 				even = qfalse;
 			}
@@ -141,12 +133,10 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				qglEnd();
 
 				qglBegin( GL_TRIANGLE_STRIP );
-				c_begins++;
 
 				element( indexes[i+0] );
 				element( indexes[i+1] );
 				element( indexes[i+2] );
-				c_vertexes += 3;
 
 				even = qfalse;
 			}
@@ -2129,7 +2119,7 @@ void RB_StageIteratorGeneric( void )
 	//
 	// now do any dynamic lighting needed
 	//
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
+	if ( tess.dlightBits && tess.shader->sort <= (float)SS_OPAQUE
 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
 		if (r_dlightStyle->integer>0)
 		{

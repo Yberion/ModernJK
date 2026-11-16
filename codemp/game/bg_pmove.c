@@ -11145,7 +11145,7 @@ void PmoveSingle (pmove_t *pmove) {
 	// entering / leaving water splashes
 	PM_WaterEvents();
 
-	// the velocity is not rounded (owner, 9 November 2026): the client gets it exactly, the jumps no longer depend on
+	// the velocity is not rounded (decided on 9 November 2026): the client gets it exactly, the jumps no longer depend on
 	// the frame time, and an MSVC client and a GCC server cannot flip a rounding apart
 
  	if (pm->ps->pm_type == PM_JETPACK || gPMDoSlowFall )

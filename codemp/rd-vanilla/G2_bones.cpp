@@ -83,7 +83,8 @@ int G2_Add_Bone (const model_t *mod, boneInfo_v &blist, const char *boneName)
 	boneInfo_t			tempBone;
 
 	//rww - RAGDOLL_BEGIN
-	memset(&tempBone, 0, sizeof(tempBone));
+	// all zero, the ragdoll members that boneInfo_t's constructor leaves unset included
+	memset((void *)&tempBone, 0, sizeof(tempBone));
 	//rww - RAGDOLL_END
 
    	offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
@@ -2274,8 +2275,6 @@ static bool G2_RagDollSetup(CGhoul2Info &ghoul2,int frameNum,bool resetOrigin,co
 	assert(ghoul2.mFileName[0]);
 	boneInfo_v &blist = ghoul2.mBlist;
 	rag.clear();
-	int numRendered=0;
-	int numNotRendered=0;
 	//int pelvisAt=-1;
 	for(size_t i=0; i<blist.size(); i++)
 	{
@@ -2292,13 +2291,11 @@ static bool G2_RagDollSetup(CGhoul2Info &ghoul2,int frameNum,bool resetOrigin,co
 				if (!wasRendered)
 				{
 					bone.RagFlags|=RAG_WAS_NOT_RENDERED;
-					numNotRendered++;
 				}
 				else
 				{
 					bone.RagFlags&=~RAG_WAS_NOT_RENDERED;
 					bone.RagFlags|=RAG_WAS_EVER_RENDERED;
-					numRendered++;
 				}
 				if	(bone.RagFlags&RAG_PCJ_PELVIS)
 				{
@@ -2588,7 +2585,7 @@ static void G2_RagDoll(CGhoul2Info_v &ghoul2V,int g2Index,CRagDollUpdateParams *
 #define _DEBUG_BONE_NAMES
 #endif
 
-static inline char *G2_Get_Bone_Name(CGhoul2Info *ghlInfo, boneInfo_v &blist, int boneNum)
+static inline const char *G2_Get_Bone_Name(CGhoul2Info *ghlInfo, boneInfo_v &blist, int boneNum)
 {
 	mdxaSkel_t			*skel;
 	mdxaSkelOffsets_t	*offsets;
@@ -2632,7 +2629,7 @@ static void G2_RagDollCurrentPosition(CGhoul2Info_v &ghoul2V,int g2Index,int fra
 		G2_GetBoneMatrixLow(ghoul2,bone.boneNumber,scale,ragBones[i],ragBasepose[i],ragBaseposeInv[i]);
 
 #ifdef _DEBUG_BONE_NAMES
-		char *debugBoneName = G2_Get_Bone_Name(&ghoul2, ghoul2.mBlist, bone.boneNumber);
+		const char *debugBoneName = G2_Get_Bone_Name(&ghoul2, ghoul2.mBlist, bone.boneNumber);
 		assert(debugBoneName);
 #endif
 
@@ -3833,7 +3830,7 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 #ifdef _DEBUG_BONE_NAMES
 			if (bone.solidCount > 64)
 			{
-				char *debugBoneName = G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber);
+				const char *debugBoneName = G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber);
 				vec3_t absmin, absmax;
 
 				assert(debugBoneName);
@@ -4335,7 +4332,6 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 		// fixme precompute this
 		int numDep=G2_GetBoneDependents(ghoul2,bone.boneNumber,tempDependents,MAX_BONES_RAG);
 		int j;
-		int numRagDep=0;
 		for (j=0;j<numDep;j++)
 		{
 			//fixme why do this for the special roots?
@@ -4353,7 +4349,6 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 			if (depBone.RagFlags & RAG_EFFECTOR)
 			{
 				// this is a dependent of me, and also a rag
-				numRagDep++;
 				for (k=0;k<3;k++)
 				{
 					Multiply_3x4Matrix(&Enew[k],&Gs[k],&ragBones[depIndex]); //dest first arg

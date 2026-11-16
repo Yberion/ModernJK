@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void CG_LightningBolt( centity_t *cent, vec3_t origin );
 
 #define	PHASER_HOLDFRAME	2
-int cgi_UI_GetMenuInfo(char *menuFile,int *x,int *y);
+int cgi_UI_GetMenuInfo(const char *menuFile,int *x,int *y);
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight,
 								const char *psText, int iFontHandle, float fScale,
@@ -1427,7 +1427,7 @@ void CG_DrawIconBackground(void)
 
 int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
 
-char *weaponDesc[13] =
+const char *weaponDesc[13] =
 {
 "SABER_DESC",
 "BLASTER_PISTOL_DESC",
@@ -2445,7 +2445,7 @@ void CG_Weapon_f( void )
 			if ( !in_camera )
 			{//player can't activate/deactivate saber when in a cinematic
 				//can't toggle it if not holding it and not controlling it or dead
-				if ( cg.predicted_player_state.stats[STAT_HEALTH] > 0 && (!cg_entities[0].currentState.saberInFlight || (&g_entities[cg_entities[0].gent->client->ps.saberEntityNum] != NULL && g_entities[cg_entities[0].gent->client->ps.saberEntityNum].s.pos.trType == TR_LINEAR) ) )
+				if ( cg.predicted_player_state.stats[STAT_HEALTH] > 0 && (!cg_entities[0].currentState.saberInFlight || g_entities[cg_entities[0].gent->client->ps.saberEntityNum].s.pos.trType == TR_LINEAR ) )
 				{//it's either in-hand or it's under telekinetic control
 					if ( cg_entities[0].currentState.saberActive )
 					{

@@ -415,10 +415,10 @@ int trap_BotLibSetup( void ) {
 int trap_BotLibShutdown( void ) {
 	return Q_syscall( BOTLIB_SHUTDOWN );
 }
-int trap_BotLibVarSet(char *var_name, char *value) {
+int trap_BotLibVarSet(const char *var_name, const char *value) {
 	return Q_syscall( BOTLIB_LIBVAR_SET, var_name, value );
 }
-int trap_BotLibVarGet(char *var_name, char *value, int size) {
+int trap_BotLibVarGet(const char *var_name, char *value, int size) {
 	return Q_syscall( BOTLIB_LIBVAR_GET, var_name, value, size );
 }
 int trap_BotLibDefine(char *string) {
@@ -480,16 +480,16 @@ int trap_AAS_PointContents(vec3_t point) {
 int trap_AAS_NextBSPEntity(int ent) {
 	return Q_syscall( BOTLIB_AAS_NEXT_BSP_ENTITY, ent );
 }
-int trap_AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size) {
+int trap_AAS_ValueForBSPEpairKey(int ent, const char *key, char *value, int size) {
 	return Q_syscall( BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, ent, key, value, size );
 }
-int trap_AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v) {
+int trap_AAS_VectorForBSPEpairKey(int ent, const char *key, vec3_t v) {
 	return Q_syscall( BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY, ent, key, v );
 }
-int trap_AAS_FloatForBSPEpairKey(int ent, char *key, float *value) {
+int trap_AAS_FloatForBSPEpairKey(int ent, const char *key, float *value) {
 	return Q_syscall( BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, ent, key, value );
 }
-int trap_AAS_IntForBSPEpairKey(int ent, char *key, int *value) {
+int trap_AAS_IntForBSPEpairKey(int ent, const char *key, int *value) {
 	return Q_syscall( BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY, ent, key, value );
 }
 int trap_AAS_AreaReachability(int areanum) {

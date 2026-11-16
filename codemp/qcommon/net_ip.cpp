@@ -42,7 +42,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define socketError WSAGetLastError( )
 
 	static WSADATA	winsockdata;
-	static qboolean	winsockInitialized = qfalse;
 #else
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
@@ -67,9 +66,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <net/if_dl.h>         // for 'struct sockaddr_dl'
 #endif
 
-#ifdef __sun
-#include <sys/filio.h>
-#endif
 
 typedef int SOCKET;
 #define INVALID_SOCKET                -1
@@ -113,7 +109,7 @@ static	byte	localIP[MAX_IPS][4];
 NET_ErrorString
 ====================
 */
-char *NET_ErrorString( void ) {
+const char *NET_ErrorString( void ) {
 #ifdef _WIN32
 	switch( socketError ) {
 	case WSAEINTR: return "WSAEINTR";
@@ -969,7 +965,6 @@ void NET_Init( void ) {
 		return;
 	}
 
-	winsockInitialized = qtrue;
 	Com_Printf( "Winsock Initialized\n" );
 #endif
 
@@ -991,7 +986,6 @@ void NET_Shutdown( void ) {
 	NET_Config( qfalse );
 #ifdef _WIN32
 	WSACleanup();
-	winsockInitialized = qfalse;
 #endif
 }
 

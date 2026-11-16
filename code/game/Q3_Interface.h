@@ -694,7 +694,7 @@ public:
 
 	int		GetFloat( int entID, const char *name, float *value ) OVERRIDE;
 	int		GetVector( int entID, const char *name, vec3_t value ) OVERRIDE;
-	int		GetString( int entID, const char *name, char **value ) OVERRIDE;
+	int		GetString( int entID, const char *name, const char **value ) OVERRIDE;
 
 	int		Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType ) OVERRIDE;
 

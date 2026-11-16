@@ -265,7 +265,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 			if ( self->client->ps.weapon == WP_SABER
 				&& other->s.number < MAX_CLIENTS )
 			{//hmm, shouldn't *always* react to damage from player if I have a saber
-				pain_chance = 1.05f - ((self->NPC->rank)/(float)RANK_CAPTAIN);
+				pain_chance = 1.05f - ((float)self->NPC->rank/(float)RANK_CAPTAIN);
 			}
 			else
 			{
@@ -596,7 +596,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//I am dead and carrying a key
 		if ( other && player && player->health > 0 && other == player )
 		{//player touched me
-			char *text;
+			const char *text;
 			qboolean	keyTaken;
 			//give him my key
 			if ( Q_stricmp( "goodie", self->message ) == 0 )

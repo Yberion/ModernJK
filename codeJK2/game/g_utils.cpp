@@ -828,7 +828,8 @@ void G_FreeEntity( gentity_t *ed ) {
 	// remove any ghoul2 models here
 	gi.G2API_CleanGhoul2Models(ed->ghoul2);
 
-	memset (ed, 0, sizeof(*ed));
+	// all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
+	memset ((void *)ed, 0, sizeof(*ed));
 	//FIXME: This sets the entity number to zero, which is the player.
 	//			This is really fucking stupid and has caused us no end of
 	//			trouble!!!  Change it to set the s.number to the proper index

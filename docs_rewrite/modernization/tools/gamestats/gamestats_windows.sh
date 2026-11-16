@@ -1,5 +1,5 @@
 #!/bin/bash
-# Windows version of gamestats.sh for the owner's machine (llvm-mingw clang build, run under lldb: the clang dedicated
+# Windows version of gamestats.sh for the development machine (llvm-mingw clang build, run under lldb: the clang dedicated
 # server crashes without a console). Runs local dedicated servers (no network) with 16 saber bots and prints
 # gamestats after a measured time. The runs go in $GAMESTATS_DIR/gs_<tag>; GAME is set below, BUILD too unless the
 # environment gives another folder (to time two builds of the server against each other).
@@ -37,7 +37,7 @@ run() {
 		echo "set fraglimit 0"
 		echo "set timelimit 0"
 		echo "set g_weaponDisable 524279"
-		# the owner's server settings, set here because the dedicated server also reads the modernjk_server.cfg of
+		# the test server's settings, set here because the dedicated server also reads the modernjk_server.cfg of
 		# fs_basepath, which differs between machines: sabers and force jump only, no saber locks, no private duels
 		echo "set g_forcePowerDisable 163837"
 		echo "set g_saberLocking 0"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# A/B (owner, Debian VM): bench_codec of a reference commit (REF, default HEAD) against the working tree, GCC Release,
+# A/B (Linux VM): bench_codec of a reference commit (REF, default HEAD) against the working tree, GCC 15 Release,
 # run alternately on core 1; prints the warm and cold timings per run, then the best of each build and the difference.
 # Usage, from anywhere: [REF=<commit> | REF_DIR=<copy>] [CUR_DIR=<copy>] [NOINL=1] [NOALIGN=1] [CXXFLAGS=...] [BENCH=client]
 #   bash codemp/netcodec/scripts/ab_gcc.sh [rounds]
@@ -38,7 +38,7 @@ fi
 ALIGN="-falign-functions=64 -falign-loops=64 -falign-jumps=64"
 [ "${NOALIGN:-0}" = 1 ] && ALIGN="" && echo "no alignment forced: each build has its own CMakeLists.txt flags"
 build() {   # $1 = name (ref, cur)
-	cmake -S "$W/$1/codemp/netcodec" -B "$W/build-$1" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++ \
+	cmake -S "$W/$1/codemp/netcodec" -B "$W/build-$1" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-15 \
 		-DCMAKE_CXX_FLAGS="$ALIGN ${CXXFLAGS:-}" \
 		-Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" > "$W/build-$1.log" 2>&1 &&
 	cmake --build "$W/build-$1" --target "netcodec_bench_$BENCH" -j 4 >> "$W/build-$1.log" 2>&1 ||

@@ -217,7 +217,7 @@ static void CG_DrawTalk(centity_t	*cent)
 }
 
 
-int cgi_UI_GetMenuInfo(char *menuFile,int *x,int *y);
+int cgi_UI_GetMenuInfo(const char *menuFile,int *x,int *y);
 
 /*
 ================

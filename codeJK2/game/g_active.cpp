@@ -786,7 +786,8 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 	trace_t	trace;
 	gentity_t	*other;
 
-	memset( &trace, 0, sizeof( trace ) );
+	// all zero, the collision records included: only their default constructor makes trace_t non-trivial
+	memset( (void *)&trace, 0, sizeof( trace ) );
 	for (i=0 ; i<pm->numtouch ; i++) {
 		for (j=0 ; j<i ; j++) {
 			if (pm->touchents[j] == pm->touchents[i] ) {
@@ -910,7 +911,8 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 
 			touched[i] = qtrue;
 
-			memset( &trace, 0, sizeof(trace) );
+			// all zero, the collision records included: only their default constructor makes trace_t non-trivial
+			memset( (void *)&trace, 0, sizeof(trace) );
 
 			if ( hit->e_TouchFunc != touchF_NULL ) {
 				GEntity_TouchFunc(hit, ent, &trace);
@@ -983,7 +985,8 @@ void	G_TouchTriggers( gentity_t *ent ) {
 			}
 		}
 
-		memset( &trace, 0, sizeof(trace) );
+		// all zero, the collision records included: only their default constructor makes trace_t non-trivial
+		memset( (void *)&trace, 0, sizeof(trace) );
 
 		if ( hit->e_TouchFunc != touchF_NULL ) {
 			GEntity_TouchFunc(hit, ent, &trace);
@@ -1065,7 +1068,8 @@ void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg )
 				continue;
 			}
 
-			memset( &trace, 0, sizeof(trace) );
+			// all zero, the collision records included: only their default constructor makes trace_t non-trivial
+			memset( (void *)&trace, 0, sizeof(trace) );
 
 			if ( hit->e_TouchFunc != touchF_NULL )
 			{

@@ -352,7 +352,8 @@ SEffectTemplate *CFxScheduler::GetNewEffectTemplate( int *id, const char *file )
 		if ( !effect->mInUse )
 		{
 			*id = i;
-			memset( effect, 0, sizeof( SEffectTemplate ));
+			// every member is trivial: only the user-declared operator= (a deep copy) makes the type non-trivially copyable
+			memset( (void *)effect, 0, sizeof( SEffectTemplate ));
 
 			// If we are a copy, we really won't have a name that we care about saving for later
 			if ( file )

@@ -113,20 +113,11 @@ namespace NAV
 		CELL_RANGE			= 1000,
 		VIEW_RANGE			= 550,
 
-		BIAS_NONWAYPOINT	= 500,
-		BIAS_DANGER			= 8000,
-		BIAS_TOOSMALL		= 10000,
-
 		NULL_PATH_USER_INDEX= -1,
 		MAX_PATH_USERS		= 100,
 		MAX_PATH_SIZE		= NUM_NODES/7,
 
-		Z_CULL_OFFSET		= 60,
-
 		MAX_NODES_PER_NAME	= 30,
-		MAX_EDGE_SEG_LEN	= 100,
-		MAX_EDGE_FLOOR_DIST	= 60,
-		MAX_EDGE_AUTO_LEN   = 500,
 
 		MAX_EDGES_PER_ENT	= 10,
 		MAX_BLOCKING_ENTS	= 100,
@@ -137,23 +128,33 @@ namespace NAV
 		MAX_NONWP_NEIGHBORS = 1,
 
 
-		// Human Sized
-		//-------------
-		SC_MEDIUM_RADIUS	= 20,
-		SC_MEDIUM_HEIGHT	= 60,
-
-		// Rancor Sized
-		//--------------
-		SC_LARGE_RADIUS		= 60,
-		SC_LARGE_HEIGHT		= 120,
-
-
 		SAVE_LOAD			= 0,
 
 		CHECK_JUMP			= 0,
 		CHECK_START_OPEN	= 1,
 		CHECK_START_SOLID	= 1,
 	};
+
+	// distances in game units and path costs: every use is a float expression
+	constexpr float BIAS_NONWAYPOINT	= 500.0f;
+	constexpr float BIAS_DANGER			= 8000.0f;
+	[[maybe_unused]] constexpr float BIAS_TOOSMALL	= 10000.0f;	// its use in cost() is commented out
+
+	constexpr float Z_CULL_OFFSET		= 60.0f;
+
+	constexpr float MAX_EDGE_SEG_LEN	= 100.0f;
+	constexpr float MAX_EDGE_FLOOR_DIST	= 60.0f;
+	constexpr float MAX_EDGE_AUTO_LEN	= 500.0f;
+
+	// Human Sized
+	//-------------
+	constexpr float SC_MEDIUM_RADIUS	= 20.0f;
+	constexpr float SC_MEDIUM_HEIGHT	= 60.0f;
+
+	// Rancor Sized
+	//--------------
+	constexpr float SC_LARGE_RADIUS		= 60.0f;
+	constexpr float SC_LARGE_HEIGHT		= 120.0f;
 }
 
 namespace STEER
@@ -164,8 +165,9 @@ namespace STEER
 		MAX_NEIGHBORS		 = 20,
 		Z_CULL_OFFSET		 = 60,
 		SIDE_LOCKED_TIMER	 = 2000,
-		NEIGHBOR_RANGE		 = 60,
 	};
+
+	constexpr float NEIGHBOR_RANGE		 = 60.0f;	// a distance in game units, added to a float radius
 }
 
 
@@ -1177,7 +1179,8 @@ bool			NAV::LoadFromFile(const char *filename, int checksum)
 	mIslandRegion = 0;
 	mAirRegion = 0;
 
-	memset(&mEntityAlertList, 0, sizeof(mEntityAlertList));
+	// plain SDangerAlert {int, float} storage: only ratl::array_base's empty destructor makes it non-trivially copyable
+	memset((void *)&mEntityAlertList, 0, sizeof(mEntityAlertList));
 
 #if !defined(FINAL_BUILD)
 	ratl::ratl_base::OutputPrint = stupid_print;
@@ -1271,8 +1274,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, qboolean IsDebugEdge
 	if (!CanGo &&
 		!mMoveTrace.startsolid &&
 		EntHit!=ENTITYNUM_WORLD &&
-		EntHit!=ENTITYNUM_NONE &&
-		(&g_entities[EntHit])!=0)
+		EntHit!=ENTITYNUM_NONE)
 	{
 		gentity_t*	ent		= &g_entities[EntHit];
 

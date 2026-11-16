@@ -644,30 +644,15 @@ static memtag_t hunk_tag;
 ===============
 Com_TouchMemory
 
-Touch all known used data to make sure it is paged in
+Checks the zone. It also read the used memory to page it in, but discarded what it read, so the optimized
+builds never ran that loop; removed on 16 November 2026.
 ===============
 */
 void Com_TouchMemory( void ) {
 //	int		start, end;
-	int		i, j;
-	unsigned int		sum;
 
 //	start = Sys_Milliseconds();
 	Z_Validate();
-
-	sum = 0;
-
-	zoneHeader_t *pMemory = TheZone.Header.pNext;
-	while (pMemory)
-	{
-		byte *pMem = (byte *) &pMemory[1];
-		j = pMemory->iSize >> 2;
-		for (i=0; i<j; i+=64){
-			sum += ((unsigned int*)pMem)[i];
-		}
-
-		pMemory = pMemory->pNext;
-	}
 
 //	end = Sys_Milliseconds();
 //	Com_Printf( "Com_TouchMemory: %i msec\n", end - start );

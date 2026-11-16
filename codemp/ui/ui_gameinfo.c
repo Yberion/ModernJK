@@ -153,7 +153,7 @@ void UI_LoadArenas( void ) {
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
-	char		*type;
+	const char		*type;
 
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
@@ -335,7 +335,7 @@ UI_GetBotInfoByName
 */
 char *UI_GetBotInfoByName( const char *name ) {
 	int		n;
-	char	*value;
+	const char	*value;
 
 	for ( n = 0; n < ui_numBots ; n++ ) {
 		value = Info_ValueForKey( ui_botInfos[n], "name" );
@@ -352,7 +352,7 @@ int UI_GetNumBots() {
 }
 
 
-char *UI_GetBotNameByNumber( int num ) {
+const char *UI_GetBotNameByNumber( int num ) {
 	char *info = UI_GetBotInfoByNumber(num);
 	if (info) {
 		return Info_ValueForKey( info, "name" );

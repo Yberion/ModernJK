@@ -17,7 +17,7 @@ The work happens in this repository (ModernJK, a fork of OpenJK). Paths are rela
 
 ## 2. Steps
 
-### Step 1: confirm the prediction modes with the real codec (Python, S)
+### ✅ Step 1: confirm the prediction modes with the real codec (Python, S)
 
 Depends on: nothing.
 
@@ -30,7 +30,7 @@ Depends on: nothing.
 - Add the rANS initial-state trick (05 section 5.9) and measure the end-of-stream cost.
 - Check: 0 round-trip failures on the 8,842 real messages, on `fuzz.py` seeds 1 to 5, and in `sim_loss.py`; mean real bytes on 5min-test at most 110 (study: 139.6 without prediction, 106.1 ideal with it); the integer version of P2 within 2 bytes of the float version, or the float version kept with its determinism test of step 6.
 
-### Step 2: one source of truth for the field descriptors (S)
+### ✅ Step 2: one source of truth for the field descriptors (S)
 
 Depends on: nothing (can run alongside step 1).
 
@@ -40,7 +40,7 @@ Depends on: nothing (can run alongside step 1).
 - Decide the fate of the runtime width overrides (`netf_overrides.txt`, `psf_overrides.txt`, 02 section 2.3). Decided: removed from the new protocol; `user*` fields are coded by C type.
 - Check: the descriptors reproduce the tables extracted by `jkadec.py` (132, 137, 140, 69 entries); the Python tools read the same generated file.
 
-### Step 3: state recorder in the server (S)
+### ⏳ Step 3: state recorder in the server (S)
 
 Depends on: step 2. **No longer needed before step 5**: client demos give the data (step 4). The recorder is still wanted later, to record states on this branch's server without a Huffman decoder and to feed the training of step 13.
 
@@ -48,7 +48,7 @@ Depends on: step 2. **No longer needed before step 5**: client demos give the da
 - It replaces the proxy capture of the study (which recorded bitstreams and needed a Huffman decoder). The proxy stays usable on the original 1.01 server.
 - Check: replaying a recording through the legacy writer gives back the same bytes as the live server sent (or the same values, if byte identity is not possible because of server-side `-0.0`, 05 section 5.4).
 
-### Step 4: demo corpus (S; demos supplied for the study)
+### ✅ Step 4: demo corpus (S; demos supplied for the study)
 
 Depends on: nothing (decided 5 November 2026: client demos replace new recordings).
 
@@ -69,7 +69,7 @@ Work:
 - Wanted: protocol 1.01 (`.dm_26`; 1.00 `.dm_25` was not checked); several humans per game; many maps; FFA, CTF, team FFA, duel, siege, race; base, JA+, JAPRO and other mods; both game-module behaviours (players as `TR_LINEAR_STOP` and as `TR_INTERPOLATE`, 03 section 3.12); server-side demos (`sv_autoDemo`) as well, which use the same format.
 - Check: every demo of the list decodes with the validation above; the list file exists; train and held-out sets are separate.
 
-### Step 5: re-measure on the new data, finish the model (S)
+### ✅ Step 5: re-measure on the new data, finish the model (S)
 
 Depends on: steps 1 and 4. **Done** 5 November 2026: [progress/step-05-demo-measurements.md](progress/step-05-demo-measurements.md). One global table set, no age context; held-out ratio to the engine 0.445 on snapshots; `bench2.py` / `bench5.py` and the `TR_INTERPOLATE` check dropped.
 
@@ -79,7 +79,7 @@ Depends on: steps 1 and 4. **Done** 5 November 2026: [progress/step-05-demo-meas
 - Decide: one global table set or per-mode sets; age as a context or not (04 section 4.5).
 - Check: documented mean / p95 / max on the held-out set per map and mode; if held-out sizes exceed training sizes by more than 15 %, widen the training data first.
 
-### Step 6: the codec library in C++ (M)
+### ✅ Step 6: the codec library in C++ (M)
 
 Depends on: steps 2 and 5. **Done on 8 November 2026** ([progress/step-06-cpp-codec.md](progress/step-06-cpp-codec.md)): rANS and whole-message codec in `codemp/netcodec/`, the format in C++ only (held-out ratio 0.381 of the engine's bytes), faster than OpenJK's coder; robustness and completeness checks (determinism hashes on every compiler, synthetic and malformed-input tests, libFuzzer, per-message escape); the codec reads the engine's arrays in place; the engine header; the precision inventory and its decisions (part F).
 
@@ -99,7 +99,7 @@ Depends on: steps 2 and 5. **Done on 8 November 2026** ([progress/step-06-cpp-co
 - Check: with the same tables, the C++ encoder produces byte-identical output to the Python codec on all recordings; 0 mismatches on at least 100,000 synthetic messages; random and mutated bytes never crash under ASAN / UBSAN; angle decode and P2 prediction bit-identical on MSVC, GCC and Clang, x86 and x64, optimised and not, for all 65,536 indices and for the recorded positions; encode about 2 microseconds per snapshot on an optimised build (study: 1 to 2 µs for 300 symbols).
 - Then (7 November 2026): an inventory of the places where the game code rounds networked values before the codec (`SnapVector`, `ANGLE2SHORT`, ...), each with what the client loses and what its removal would cost in bytes; decided case by case ([progress/step-06-cpp-codec.md](progress/step-06-cpp-codec.md), part F).
 
-### Step 7: integration in the engine (M)
+### ✅ Step 7: integration in the engine (M)
 
 Depends on: step 6.
 
@@ -115,7 +115,7 @@ Depends on: step 6.
 - Statistics cvars or commands: bytes per snapshot, symbols, escapes, base age.
 - Check: a normal game plays with no visible difference; `cg_showmiss` shows no new prediction misses; the statistics match step 5 within 5 %; client and server demos record and play back.
 
-### Step 8: client-to-server messages by the codec (M)
+### ✅ Step 8: client-to-server messages by the codec (M)
 
 Depends on: step 7. Decided 9 November 2026: the client-to-server direction is coded by netcodec too; the steps after it were renumbered (the former steps 8 to 13 are 9 to 14). **Done on 10 November 2026** ([progress/step-08-client-to-server.md](progress/step-08-client-to-server.md)): the recorder (`sv_recordClientPackets`) and the offline reader (`netcodec_bench_client`) are written; the recordings are made on a server reached over the Internet, since on the loopback and a LAN the client sends one user command per packet; six sessions recorded. The format is in the library (part 2, 10 November 2026): 9.89 bytes per packet against 38.58 for the legacy format on the held-out session (0.256), with `serverId` added to the server messages so that the client codes its own against the acknowledged message; encoding 0.34 to 0.40 and decoding 0.74 to 0.86 of the legacy time (warm) on clang, MSVC, GCC 12 and Clang 14. The integration in the engine is done (part 3, 10 November 2026: the server keeps the bases of its last 256 messages per client, the ping is measured in real time, the XOR and the user-command key are removed, the recorder too; checked in game on the loopback and on a VPS with simulated loss, about 0.22 of the legacy bytes, no packet the server could not decode); the robustness tests are done too (part 4: 400,000 malformed packets on every build, a libFuzzer target, client command texts limited to 1,023 characters); validated on every compiler.
 
@@ -128,7 +128,7 @@ Today each client packet (about 60 per second, `CL_WritePacket`) carries the ser
 - Out of scope here: connectionless messages (`connect`, `getinfo`, `getstatus`, the master server), decided with the protocol number at the end of the plan.
 - Check: a normal game plays with no visible difference (movement, prediction, chat, votes); round trip and determinism tests on the recordings; the byte ratio against the legacy format is documented.
 
-### Step 9: safety and limits (S)
+### ✅ Step 9: safety and limits (S)
 
 Depends on: steps 7 and 8.
 
@@ -139,7 +139,7 @@ Depends on: steps 7 and 8.
 - Fuzz corpus and sanitizer builds in CI.
 - Check: the synthetic worst case (every field random, 1,000 entities) stays within the raw layout plus a small constant and decodes.
 
-### Step 10: acknowledgements, base selection, reliable data (M)
+### ✅ Step 10: acknowledgements, base selection, reliable data (M)
 
 Depends on: steps 7 and 8. The options and the decision procedure are in [07](study/07-transport-study.md).
 
@@ -152,7 +152,7 @@ Depends on: steps 7 and 8. The options and the decision procedure are in [07](st
 - UDP downloads: since step 7 the codec carries one 2,048-byte block per message. The legacy format sent as many as the rate allowed in one snapshot interval (up to the 8-block window): also one block at the branch's defaults (`sv_clientRate` 25000, 50 ms), but 3 on a LAN (rate 100000), so downloads are slower only from a rate of about 41,000 bytes per second. To fix (8 November 2026), possibly with a system of their own: several blocks per message, or a separate download channel next to the reliable path above.
 - Check: simulated loss, latency and jitter (as `sim_loss.py`, extended to burst loss and lost acknowledgements) and two-machine tests; 0 decode failures; base age equal to RTT / frame time plus at most one frame.
 
-### Step 11: settings computed at run time (M)
+### ✅ Step 11: settings computed at run time (M)
 
 Depends on: step 10.
 
@@ -166,7 +166,7 @@ Depends on: step 10.
 - Debug cvars force only the computed value (the interpolation delay, `CVAR_CHEAT`); fixed values have no cvar.
 - Check: the measured packet rates and losses in `svnetstats`, the interpolation statistics in `netstats`, in game locally and on the VPS with `net_dropsim`; no setting is needed on any link.
 
-### Step 12: transport security and library decision (M to L, optional)
+### ⏳ Step 12: transport security and library decision (M to L, optional)
 
 Depends on: steps 10 and 11, and the answers in 07 section 7.7.
 
@@ -176,7 +176,7 @@ Depends on: steps 10 and 11, and the answers in 07 section 7.7.
 - The connection's challenge (noted on 15 November 2026): a client that waits to join a full server is told "Incorrect challenge for your address" after about ten attempts (seen with a local server full of bots). To analyse and improve, with JKA_YBEProxy as a reference (https://github.com/Yberion/JKA_YBEProxy), `src/JKA_YBEProxy/Engine/Challenge.cpp` and its documentation.
 - Check: the decision is recorded with measured overhead, CPU at 64 clients, behaviour under loss, and licence review.
 
-### Step 13: live measurement and tuning (M)
+### ⏳ Step 13: live measurement and tuning (M)
 
 Depends on: steps 7 to 12.
 
@@ -189,7 +189,7 @@ Depends on: steps 7 to 12.
 - The engine's collision traces (noted on 15 November 2026, from the culling prototype of step 14 part 11): `CM_BoxTrace` walks the BSP tree and tests the brushes of each leaf, about 0.6 to 1.7 microseconds per point trace on the base maps, and traces are about 40 % of a server tick (step 14 part 7). A bounding volume hierarchy over the same brushes, with the same plane arithmetic, could be several times faster while giving the same results (estimated, not measured; ties between brushes at the same distance to check against the 40 scenarios). Not a hierarchy over the drawn triangles: those are what a player sees, not what stops a body (invisible clip brushes, models without collision, glass), so the game would change.
 - To verify with it (noted the same day): the engine's point traces cross some curved patches that are solid and opaque (on `mp/ctf5`, the pillars of `textures/factory/piller`, contents `0x8001`, are crossed by 1,919 of 4.2 million traced segments that the drawn triangles block). If the patch collision misses them, a point trace such as a disruptor shot may pass through those pillars, in the base game too; not tested in game.
 
-### Step 14: beyond the codec (L)
+### ✅ Step 14: beyond the codec (L)
 
 **Started on 11 November 2026.** After a survey of recent games and measurements of the server's CPU time at 20, 40 and 125 Hz ([surveys/tick-and-lag-compensation.md](surveys/tick-and-lag-compensation.md)), the modern model was chosen: the client and the server share a **fixed simulation tick of 125 Hz** (8 ms), movement runs once per tick instead of once per user command, the client sends one input per tick and runs ahead of the server with a slight time dilation to keep the server's input buffer small, the other players are interpolated, and **lag compensation rewinds by tick**; the fixed rate to each client is **200,000 bytes per second**. The design follows recent games, not the JKA mods, done cleanly and optimised even if it means starting again from zero; every defect found on the way is fixed (among them the server commands repeated without loss at short intervals, the tick survey, section 7). The design and the inventory of the code to change (engine client and server, shared movement, game module, cgame) are in [progress/step-14-fixed-tick.md](progress/step-14-fixed-tick.md). The model covers several items below at once: `sv_fps`, the fixed physics step, `cg_smoothClients`, lag compensation and part of the prediction misses.
 
@@ -209,7 +209,7 @@ The items as listed before the survey (05 section 5.7):
 
 Placed on 14 November 2026 (every open point gets a place; the parts are in [progress/step-14-fixed-tick.md](progress/step-14-fixed-tick.md) section 5): the cost of the statistics commands with part 7 (server CPU); the prediction of the local player, the saber first, with the animation misses and the misses when crouching or jumping while attacking, as part 10; what the audits and the sessions left (the demos' size at 100 messages per second, the dead code reported, a long client hitch, the sound at 333 frames per second, priority and culling) as part 11, at the end of the step. Added to part 11 on 14 November 2026: the drawn delay of the other players depends on the frame rate (section 17 of that document); kept as it is (15 November 2026).
 
-### Step 15: a new platform layer on SDL 3 (L)
+### ⏳ Step 15: a new platform layer on SDL 3 (L)
 
 Depends on: step 14 (it touches the input that step 14 settles). Added on 14 November 2026. The survey, the design and the decisions are in [surveys/platform-layer.md](surveys/platform-layer.md); the decisions P1 to P9 were taken on 15 November 2026 (that survey's section 7), and the parts below carry them; nothing is implemented.
 
@@ -227,7 +227,7 @@ The client's platform code (window and OpenGL context, input, sound device, joys
 - The menus (15 November 2026): each part changes, in the game's own pk3, the menus that show a setting it removes or changes, with the UI's code that drives them (`setup.menu` and `ingame_setup.menu`: the display's modes, fullscreen and colour depth in part 1, the brightness in part 4, the sound's quality and EAX removed in part 3; `controls.menu` and `ingame_controls.menu`: the joystick in part 5). The sound: OpenAL Soft's resampler `bsinc24`.
 - Check: on Windows 11 and Linux (X11 and Wayland), the feel of the mouse and the keys unchanged (the same turn for the same mouse movement, the binds, the keypad, the console key on QWERTY and AZERTY, text with accents); `netstats`' input margin no higher at 100, 125 and 333 frames per second; the display's three states, two screens, alt-tab; the same brightness on screenshots; the sound following the default device; no setting needed.
 
-### Step 16: points set aside (no order)
+### ⏳ Step 16: points set aside (no order)
 
 Added on 15 November 2026: the points set aside on the way, out of the order of the plan. Each comes back only when decided, and some may never be done.
 
@@ -235,9 +235,9 @@ Added on 15 November 2026: the points set aside on the way, out of the order of 
 - The dead code the agents of the step 14 audit reported (the saber's old "silent stop" paths, `MISSILE_PRESTEP_TIME` unused; [progress/step-14-audit-100hz.md](progress/step-14-audit-100hz.md) section 10): to remove or keep, the list to be decided.
 - Check: none until a point is taken back; it then gets its own check.
 
-### Step 17: C++20, and only Windows, Linux and macOS in 64-bit (S to M)
+### ✅ Step 17: C++20, and only Windows, Linux and macOS in 64-bit (S to M)
 
-Depends on: nothing. Added on 15 November 2026, done before step 15 (section 3). Nothing is implemented.
+Depends on: nothing. Added on 15 November 2026, done before step 15 (section 3). Done on 16 November 2026: checked with clang, validated on the VMs (MSVC, GCC and clang warnings fixed), the game played on Windows and Linux ([progress/step-17-cxx20-64bit.md](progress/step-17-cxx20-64bit.md)).
 
 The platforms kept: Windows x64 (MSVC, and MinGW with llvm-mingw clang), Linux x86_64, and macOS kept portable (decision P9 of step 15); the arm64 code paths stay, for macOS and for Linux on ARM64 (a Raspberry Pi 4B can build and test there). Everything else goes: 32-bit x86 and ARM, PowerPC, Alpha, the BSDs, Solaris, IRIX, Cygwin.
 
@@ -245,11 +245,12 @@ The platforms kept: Windows x64 (MSVC, and MinGW with llvm-mingw clang), Linux x
 - Measured on 15 November 2026 with clang 23, the sources unchanged (`-std=c++20` added to a separate build): the multiplayer engine, the dedicated server and rd-vanilla build with no error and 16 warnings that C++20 adds (12 enumeration and floating-point conversions deprecated, 4 literal operators deprecated in `shared/qcommon/safe/gsl.h`); the single-player tree with no error, and 1,913 `-Wnon-c-typedef-for-linkage`, 42 literal operators and 33 enumeration and floating-point conversions. MSVC and GCC 12 not tried yet.
 - Removed with the 32-bit support: the configuration refused on a 32-bit target; the `x86`, `i386` and `arm` architectures, `-mstackrealign`, `-mfpmath=sse` and `/arch:SSE2` (which MSVC x64 ignores) in `CMakeLists.txt`; the x86 assembler mixer of MSVC (`codemp/client/snd_mix.cpp:65`) and `id386` (`codemp/qcommon/q_shared.h:130`); the 32-bit branches of `codemp/qcommon/vm.cpp`, `codemp/mp3code/port.h`, `shared/qcommon/q_platform.h` and netcodec's `src/numeric.h`; `lib/OpenAL32.lib`, `lib/ALut.lib` and the x86 binaries of `lib/SDL2`; the multiplayer OpenAL and EAX path (compiled only with MSVC in 32-bit; the sound is replaced in step 15 anyway); the `#if 0 //_M_IX86` blocks of `tr_ghoul2.cpp`; the presets `mingw-clang-x86`, `msvc-x86` and `gcc-x86`, the x86 runs of `validate.sh` and `validate.bat`, `M32=1` and `ABM_ARCH=Win32` of the A/B scripts, the x86 builds of `tools/mathlib`.
 - Removed with the other platforms: PowerPC (`idppc`, `__ppc__`, the `ppc` and `ppc64` architectures; the `register` keyword left in the code is only in two `#if idppc` blocks of `tr_surface.cpp`, rd-vanilla and rend2), Alpha (`_M_ALPHA`), the BSDs (`__FreeBSD__`, `__FreeBSD_kernel__`, `__OpenBSD__`, `__NetBSD__`, the `BSD` block of `CMakeLists.txt`), Solaris (`__sun`), IRIX (`__sgi`), Cygwin (`__CYGWIN__`).
+- rend2, OpenJK's experimental renderer (`codemp/rd-rend2`), removed (16 November 2026): ModernJK uses rd-vanilla only, rend2 was never played, and GCC reported 48 sign comparisons in it, among them in its loader of IQM models, which reads the pk3s' data; a more recent rend2 is to be taken later from the `rend2-unified-wip` branch of https://github.com/SomaZ/OpenJK.
 - The documents follow: the goals' item 5 of the README, section 27 of CHANGES (the compilers), every mention of x86 and x64 as targets.
 - With the first pass in the code: the comments that still name a person as the author of a decision, rephrased with the date only (12 lines: `codemp/netcodec/scripts/ab_clang.sh`, `ab_gcc.sh`, `ab_gcc_multi.sh`, `ab_gcc_podman.sh`, `ab_msvc.bat`, `codemp/netcodec/test/pmove/pmove_det.c`, `codemp/game/bg_pmove.c`, `codemp/cgame/cg_predict.c`, `docs_rewrite/modernization/tools/gamestats/gamestats.sh`, `gamestats_windows.sh`, `scenarios40.sh`).
 - Check: the VM validations (netcodec changes) with every preset left; the determinism hashes, the round-trip hashes and the codec benchmarks unchanged in x64 (its x64 code does not change); the 40 scenarios `golden: SAME`; no new warning with MSVC, GCC and clang; the multiplayer game played on the loopback and on the VPS as before.
 
-### Step 18: the C code in C++ (M)
+### ⏳ Step 18: the C code in C++ (M)
 
 Depends on: step 17. Added on 15 November 2026 (everything in one language): the multiplayer game, cgame and UI modules (`codemp/game`, 86 files; `codemp/cgame`, 35; `codemp/ui`, 8), the MP3 decoder (`codemp/mp3code` and `code/mp3code`, 21 files each), `shared/qcommon` (4), `codemp/qcommon` (1), netcodec's movement test (`test/pmove`, 2) and rend2's MikkTSpace (1): 179 files of the project in C, about 267,000 lines with the decoder. The vendored libraries (zlib-ng, Wuffs, stb, LLVM libc) stay as they are.
 
@@ -258,38 +259,38 @@ Depends on: step 17. Added on 15 November 2026 (everything in one language): the
 - The modules keep their C entry points (`extern "C"`) so that the engine finds them.
 - Check: the 40 scenarios `golden: SAME` (the game unchanged), the VM validations, no new warning with MSVC, GCC and clang, a game played on the loopback and on the VPS.
 
-### Step 19: a modern CMake project (M)
+### ⏳ Step 19: a modern CMake project (M)
 
 Depends on: step 18. Added on 15 November 2026: the build of the whole project written after cpp-best-practices/cmake_template, as `codemp/netcodec` already is for its warnings, sanitizers and static analyzers (`codemp/netcodec/cmake/`): interface targets carrying the options and the warnings, given to every target; warnings as errors; AddressSanitizer and UndefinedBehaviorSanitizer; clang-tidy and cppcheck; presets for every compiler and build type; the tests through CTest. 21 `CMakeLists.txt` today, about 4,000 lines, `cmake_minimum_required(VERSION 3.1...3.31)`.
 
-- To decide at the start of the step: the template asks CMake 3.29 and Debian 12 ships 3.25 (the version the Debian VM uses to check); the template fetches its dependencies while configuring (CPM), against the rule of vendored libraries, so `lib/` stays; it aims at C++23, the project stays at C++20; hardening and link-time optimization, each measured in time before it is kept.
+- To decide at the start of the step: the template asks CMake 3.29 and Ubuntu 22.04, the Linux VM since 16 November 2026, ships 3.22; the template fetches its dependencies while configuring (CPM), against the rule of vendored libraries, so `lib/` stays; it aims at C++23, the project stays at C++20; hardening and link-time optimization, each measured in time before it is kept.
 - Check: every target built with MSVC, GCC and clang with no warning; the VM validations; the scenarios and the benchmarks unchanged.
 
 ## 3. Order at a glance
 
 Order of work (10 November 2026): step 14 comes right after step 11, before steps 12 (encryption, not wanted for now) and 13 (retraining on recordings of this build). Then (15 November 2026): steps 17, 18 and 19, in that order, before step 15.
 
-| step | what | depends on | effort |
-|---|---|---|---|
-| 1 | prediction modes and rANS trick in the Python codec | none | S |
-| 2 | field descriptors from one source | none | S |
-| 3 | state recorder (later; not needed before step 5) | 2 | S |
-| 4 | demo corpus: `.dm_26` reader, demos supplied | none | S |
-| 5 | re-measure, finish the model | 1, 4 | S |
-| 6 | C++ codec library | 2, 5 | M |
-| 7 | engine integration, demos | 6 | M |
-| 8 | client-to-server messages by the codec | 7 | M |
-| 9 | safety and limits | 7, 8 | S |
-| 10 | acknowledgements, reliable data | 7, 8 | M |
-| 11 | settings computed at run time | 10 | M |
-| 12 | transport security decision | 10, 11 | M to L |
-| 13 | live measurement | 7 to 12 | M |
-| 14 | beyond the codec (after step 11) | 11 | L |
-| 15 | a new platform layer on SDL 3, from zero | 14 | L |
-| 16 | points set aside: culling against wallhacks, dead code | none; when decided | M |
-| 17 | C++20; only Windows, Linux and macOS in 64-bit (before step 15) | none | S to M |
-| 18 | the C code in C++ | 17 | M |
-| 19 | a modern CMake project | 18 | M |
+| step | what | depends on | effort | state |
+|---|---|---|---|---|
+| 1 | prediction modes and rANS trick in the Python codec | none | S | ✅ |
+| 2 | field descriptors from one source | none | S | ✅ |
+| 3 | state recorder (later; not needed before step 5) | 2 | S | ⏳ |
+| 4 | demo corpus: `.dm_26` reader, demos supplied | none | S | ✅ |
+| 5 | re-measure, finish the model | 1, 4 | S | ✅ |
+| 6 | C++ codec library | 2, 5 | M | ✅ |
+| 7 | engine integration, demos | 6 | M | ✅ |
+| 8 | client-to-server messages by the codec | 7 | M | ✅ |
+| 9 | safety and limits | 7, 8 | S | ✅ |
+| 10 | acknowledgements, reliable data | 7, 8 | M | ✅ |
+| 11 | settings computed at run time | 10 | M | ✅ |
+| 12 | transport security decision | 10, 11 | M to L | ⏳ |
+| 13 | live measurement | 7 to 12 | M | ⏳ |
+| 14 | beyond the codec (after step 11) | 11 | L | ✅ |
+| 15 | a new platform layer on SDL 3, from zero | 14 | L | ⏳ |
+| 16 | points set aside: culling against wallhacks, dead code | none; when decided | M | ⏳ |
+| 17 | C++20; only Windows, Linux and macOS in 64-bit (before step 15) | none | S to M | ✅ |
+| 18 | the C code in C++ | 17 | M | ⏳ |
+| 19 | a modern CMake project | 18 | M | ⏳ |
 
 ## 4. Test matrix
 

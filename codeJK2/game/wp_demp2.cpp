@@ -199,7 +199,6 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 	int		damage	= weaponData[WP_DEMP2].altDamage;
 	int		count;
 	vec3_t	start;
-	trace_t	tr;
 
 	VectorCopy( wpMuzzle, start );
 	WP_TraceSetStart( ent, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
@@ -225,7 +224,8 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 	missile->count = count;
 
 //	missile->speed = missile->nextthink;
-	VectorCopy( tr.plane.normal, missile->pos1 );
+	// the effect's direction for a detonation in the air (an impact sets the surface's normal)
+	VectorSet( missile->pos1, 0, 1, 0 );
 
 	missile->classname = "demp2_alt_proj";
 	missile->s.weapon = WP_DEMP2;

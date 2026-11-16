@@ -311,7 +311,7 @@ Inserts the current value of a variable as command text
 ===============
 */
 static void Cmd_Vstr_f( void ) {
-	char	*v;
+	const char	*v;
 
 	if (Cmd_Argc () != 2) {
 		Com_Printf ("vstr <variablename> : execute a variable command\n");
@@ -377,7 +377,7 @@ int		Cmd_Argc( void ) {
 Cmd_Argv
 ============
 */
-char	*Cmd_Argv( int arg ) {
+const char	*Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= (unsigned)cmd_argc )
 		return "";
 
@@ -765,7 +765,7 @@ void Cmd_VM_RemoveCommand( const char *cmd_name, vmSlots_t vmslot ) {
 Cmd_DescriptionString
 ============
 */
-char *Cmd_DescriptionString( const char *cmd_name )
+const char *Cmd_DescriptionString( const char *cmd_name )
 {
 	const cmd_function_t *cmd = Cmd_FindCommand( cmd_name );
 
@@ -896,7 +896,7 @@ static void Cmd_List_f (void)
 {
 	const cmd_function_t	*cmd = NULL;
 	int				i, j;
-	char			*match = NULL;
+	const char			*match = NULL;
 	CmdFuncVector	cmds;
 
 	if ( Cmd_Argc() > 1 ) {

@@ -36,7 +36,7 @@ These commands can only be entered from stdin or by a remote operator datagram
 ===============================================================================
 */
 
-const char *SV_GetStringEdString(char *refSection, char *refName)
+const char *SV_GetStringEdString(const char *refSection, const char *refName)
 {
 	//Well, it would've been lovely doing it the above way, but it would mean mixing
 	//languages for the client depending on what the server is. So we'll mark this as
@@ -58,7 +58,7 @@ Returns the player with player id or name from Cmd_Argv(1)
 static client_t *SV_GetPlayerByHandle( void ) {
 	client_t	*cl;
 	int			i;
-	char		*s;
+	const char		*s;
 	char		cleanName[64];
 
 	// make sure server is running
@@ -123,7 +123,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	client_t	*cl;
 	int			i;
 	int			idnum;
-	char		*s;
+	const char		*s;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -167,7 +167,7 @@ Restart the server on a different map
 ==================
 */
 static void SV_Map_f( void ) {
-	char		*cmd = NULL, *map = NULL;
+	const char	*cmd = NULL, *map = NULL;
 	qboolean	killBots=qfalse, cheat=qfalse;
 	char		expanded[MAX_QPATH] = {0}, mapname[MAX_QPATH] = {0};
 
@@ -720,18 +720,20 @@ Parse a CIDR notation type string and return a netadr_t and suffix by reference
 ==================
 */
 
-static qboolean SV_ParseCIDRNotation( netadr_t *dest, int *mask, char *adrstr )
+static qboolean SV_ParseCIDRNotation( netadr_t *dest, int *mask, const char *adrstr )
 {
+	char address[MAX_STRING_CHARS];
 	char *suffix;
 
-	suffix = strchr( adrstr, '/' );
+	Q_strncpyz( address, adrstr, sizeof( address ) );
+	suffix = strchr( address, '/' );
 	if ( suffix )
 	{
 		*suffix = '\0';
 		suffix++;
 	}
 
-	if ( !NET_StringToAdr( adrstr, dest ) )
+	if ( !NET_StringToAdr( address, dest ) )
 		return qtrue;
 
 	if ( suffix )
@@ -764,7 +766,7 @@ Ban a user from being able to play on this server based on his ip address.
 
 static void SV_AddBanToList( qboolean isexception )
 {
-	char *banstring;
+	const char *banstring;
 	char addy2[NET_ADDRSTRMAXLEN];
 	netadr_t ip;
 	int index, argc, mask;
@@ -907,7 +909,7 @@ static void SV_DelBanFromList( qboolean isexception )
 {
 	int index, count = 0, todel, mask;
 	netadr_t ip;
-	char *banstring;
+	const char *banstring;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -1314,7 +1316,7 @@ const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
 static void SV_ForceToggle_f( void ) {
 	int bits = Cvar_VariableIntegerValue("g_forcePowerDisable");
 	int i, val;
-	char *s;
+	const char *s;
 
 	// make sure server is running
 	if( !com_sv_running->integer ) {
@@ -1382,7 +1384,7 @@ const char *weaponToggleNamePrints[WP_NUM_WEAPONS] = {
 static void SV_WeaponToggle_f( void ) {
 	int bits = 0;
 	int i, val;
-	char *s;
+	const char *s;
 	const char *cvarStr = NULL;
 
 	if ( sv_gametype->integer == GT_DUEL || sv_gametype->integer == GT_POWERDUEL ) {
@@ -1794,7 +1796,7 @@ static void SV_Record_f( void ) {
 	char		demoName[MAX_OSPATH];
 	char		name[MAX_OSPATH];
 	int			i;
-	char		*s;
+	const char		*s;
 	client_t	*cl;
 
 	if ( svs.clients == NULL ) {

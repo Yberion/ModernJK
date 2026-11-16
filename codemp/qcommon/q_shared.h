@@ -118,25 +118,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #if (defined _MSC_VER)
 	#define Q_EXPORT __declspec(dllexport)
-#elif (defined __SUNPRO_C)
-	#define Q_EXPORT __global
-#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
+#elif (__GNUC__ >= 3)
 	#define Q_EXPORT __attribute__((visibility("default")))
 #else
 	#define Q_EXPORT
-#endif
-
-// this is the define for determining if we have an asm version of a C function
-#if (defined(_M_IX86) || defined(__i386__)) && !defined(__sun__)
-	#define id386	1
-#else
-	#define id386	0
-#endif
-
-#if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
-	#define idppc	1
-#else
-	#define idppc	0
 #endif
 
 #include "qcommon/q_platform.h"
@@ -586,7 +571,7 @@ char	*COM_Parse( const char **data_p );
 char	*COM_ParseExt( const char **data_p, qboolean allowLineBreak );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... );
-void	COM_ParseWarning( char *format, ... );
+void	COM_ParseWarning( const char *format, ... );
 qboolean COM_ParseString( const char **data, const char **s );
 qboolean COM_ParseInt( const char **data, int *i );
 qboolean COM_ParseFloat( const char **data, float *f );
@@ -615,7 +600,7 @@ typedef struct pc_token_s
 
 // data is an in/out parm, returns a parsed out token
 
-void	COM_MatchToken( const char**buf_p, char *match );
+void	COM_MatchToken( const char**buf_p, const char *match );
 
 qboolean SkipBracedSection (const char **program, int depth);
 void SkipRestOfLine ( const char **data );
@@ -627,8 +612,8 @@ int Com_HexStrToInt( const char *str );
 
 int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
-char *Com_SkipCharset( char *s, char *sep );
+char *Com_SkipTokens( char *s, int numTokens, const char *sep );
+char *Com_SkipCharset( char *s, const char *sep );
 
 void Com_RandomBytes( byte *string, int len );
 
@@ -673,7 +658,7 @@ void Com_TruncateLongString( char *buffer, const char *s );
 //
 // key / value info strings
 //
-char *Info_ValueForKey( const char *s, const char *key );
+const char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_Big( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );

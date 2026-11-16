@@ -41,17 +41,8 @@ inline constexpr double kAngleStep = 360.0 / 65536;   // a 16-bit angle index st
 [[nodiscard]] constexpr uint32_t Pack(double x) noexcept { return std::bit_cast<uint32_t>(static_cast<float>(x)); }
 // floor of x, for |x| < 2^51 (not NaN): exact, without the library call std::floor is on SSE2 targets
 [[nodiscard]] constexpr int64_t FloorI(double x) noexcept {
-#if defined(__i386__) || defined(_M_IX86)
-	// 32-bit x86 has no SSE2 conversion between double and int64_t (x87 with two control-word changes, or a library
-	// call: half of the decoding time): x + 1.5 * 2^52 is x rounded to the nearest integer, held in the low bits
-	constexpr double kRound = 6755399441055744.0;   // 1.5 * 2^52: the sum's last place is 1 for |x| < 2^51
-	const double big = x + kRound;
-	const int64_t n = std::bit_cast<int64_t>(big) - std::bit_cast<int64_t>(kRound);
-	return big - kRound > x ? n - 1 : n;
-#else
 	const auto t = static_cast<int64_t>(x);   // rounds toward zero
 	return static_cast<double>(t) > x ? t - 1 : t;
-#endif
 }
 [[nodiscard]] constexpr int64_t Rnd(double x) noexcept { return FloorI(x + 0.5); }
 

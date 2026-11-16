@@ -105,7 +105,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 //directive name with parse function
 typedef struct directive_s
 {
-	char *name;
+	const char *name;
 	int (*func)(source_t *source);
 } directive_t;
 
@@ -134,7 +134,7 @@ qboolean	addGlobalDefine = qfalse;
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void QDECL SourceError(source_t *source, char *str, ...)
+void QDECL SourceError(source_t *source, const char *str, ...)
 {
 	char text[1024];
 	va_list ap;
@@ -158,7 +158,7 @@ void QDECL SourceError(source_t *source, char *str, ...)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL SourceWarning(source_t *source, char *str, ...)
+void QDECL SourceWarning(source_t *source, const char *str, ...)
 {
 	char text[1024];
 	va_list ap;
@@ -478,7 +478,8 @@ int PC_StringizeTokens(token_t *tokens, token_t *token)
 	strcat(token->string, "\"");
 	for (t = tokens; t; t = t->next)
 	{
-		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string) - 1);
+		const size_t len = strlen(token->string);
+		Q_strncpyz(token->string + len, t->string, MAX_TOKEN - len);
 	} //end for
 	strncat(token->string, "\"", MAX_TOKEN - strlen(token->string) - 1);
 	return qtrue;
@@ -689,7 +690,7 @@ void PC_AddBuiltinDefines(source_t *source)
 	define_t *define;
 	struct builtin
 	{
-		char *string;
+		const char *string;
 		int mBuiltin;
 	} builtin[] = { // bk001204 - brackets
 		{ "__LINE__",	BUILTIN_LINE },
@@ -2863,7 +2864,7 @@ int PC_ReadToken(source_t *source, token_t *token)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_ExpectTokenString(source_t *source, char *string)
+int PC_ExpectTokenString(source_t *source, const char *string)
 {
 	token_t token;
 
@@ -2958,7 +2959,7 @@ int PC_ExpectAnyToken(source_t *source, token_t *token)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_CheckTokenString(source_t *source, char *string)
+int PC_CheckTokenString(source_t *source, const char *string)
 {
 	token_t tok;
 
@@ -3324,7 +3325,7 @@ int PC_SourceFileAndLine(int handle, char *filename, int *line)
 // Returns:				-
 // Changes Globals:		-
 //============================================================================
-void PC_SetBaseFolder(char *path)
+void PC_SetBaseFolder(const char *path)
 {
 	PS_SetBaseFolder(path);
 } //end of the function PC_SetBaseFolder

@@ -284,7 +284,8 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		it_ent->classname = G_NewString(it->classname);
 		G_SpawnItem (it_ent, it);
 		FinishSpawningItem(it_ent );
-		memset( &trace, 0, sizeof( trace ) );
+		// all zero, the collision records included: only their default constructor makes trace_t non-trivial
+		memset( (void *)&trace, 0, sizeof( trace ) );
 		Touch_Item (it_ent, ent, &trace);
 		if (it_ent->inuse) {
 			G_FreeEntity( it_ent );
@@ -805,7 +806,7 @@ qboolean PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, v
 	vec3_t	mins, maxs, forward, end;
 	trace_t tr;
 
-	VectorSet( maxs, -8, -8, -24); // ?? size
+	VectorSet( mins, -8, -8, -24); // ?? size
 	VectorSet( maxs, 8, 8, 8 );
 
 	VectorCopy( fwd, forward );

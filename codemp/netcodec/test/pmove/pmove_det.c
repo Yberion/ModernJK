@@ -1,18 +1,17 @@
 // Determinism test of the game's player movement (bg_pmove.c, bg_slidemove.c), outside the engine: the same synthetic
 // commands through Pmove, in a small world of brushes, and a hash of the player state after every command. Built
 // twice, as the server's game module (-D_GAME) and as cgame (-D_CGAME), with each compiler: cgame's prediction is
-// right only if a client build gives the same states as the server build. Pmove no longer rounds the velocity (owner,
+// right only if a client build gives the same states as the server build. Pmove no longer rounds the velocity (decided on
 // 9 November 2026), so this game code runs one mode, 1: no rounding (modes 0, the engine's Sys_SnapVector, and 2, ties
-// to even, were measured before that decision). Built with -DJKA101 and the original 1.01 game code
-// (E:\Git\jka\jediacademy\codemp\game), mode 3: 1.01's own rounding (fistp on Windows and Linux; 1.01 always rounds).
+// to even, were measured before that decision). The comparison with the original 1.01 game code, built in 32-bit with
+// x87 math as 1.01 was (removed with the 32-bit targets on 16 November 2026), is in
+// docs_rewrite/modernization/progress/step-06-cpp-codec.md.
 // Output: one line per scenario and mode: the hash of the movement fields (origin, velocity, view angles, ground
 // entity, pm_flags, pm_time, commandTime) and of the whole player state after every command, and the final origin and
 // velocity as float bit patterns. --dump=<file>: the movement fields after every command (float bits), to compare two
 // builds command by command (scripts/pmove_compare.py).
-// Usage: netcodec_pmove_game [--dump=file] [commands]   (same for netcodec_pmove_cgame and netcodec_pmove_101)
-#if defined(JKA101)
-#include "g_local.h"
-#elif defined(_GAME)
+// Usage: netcodec_pmove_game [--dump=file] [commands]   (same for netcodec_pmove_cgame)
+#if defined(_GAME)
 #include "game/g_local.h"
 #elif defined(_CGAME)
 #include "cgame/cg_local.h"
@@ -159,31 +158,6 @@ static int World_Contents(const vec3_t point, int passEntityNum) {
 
 static int harnessTime;
 
-#if defined(JKA101)
-// to nearest, ties to even, through an integer (+0 for -0.5): what 1.01's fistp does
-static void SnapEven(float *v) {
-	v[0] = (float)lrintf(v[0]);
-	v[1] = (float)lrintf(v[1]);
-	v[2] = (float)lrintf(v[2]);
-}
-
-void QDECL Com_Error(int level, const char *error, ...) {
-	(void)level;
-	fprintf(stderr, "Com_Error: %s\n", error);
-	exit(2);
-}
-void QDECL Com_Printf(const char *msg, ...) { (void)msg; }
-// 1.01's Sys_SnapVector: fld, fistp on Windows (win32/win_shared.cpp) and on Linux (unix/snapvector.nasm, with the
-// control word set to round to nearest even); the rint version of unix/unix_shared.cpp is Sys_SnapVector3, Mac only
-void trap_SnapVector(float *v) { SnapEven(v); }
-level_locals_t level;
-gentity_t g_entities[MAX_GENTITIES];
-vmCvar_t g_gametype, bg_fighterAltControl;
-int BG_GetTime(void) { return harnessTime; }
-// the other functions the bg code links to are never called here: stubs101.c
-#define HARNESS_ENTITIES g_entities
-#define HARNESS_ENTSIZE sizeof(gentity_t)
-#else
 static NORETURN void QDECL HarnessError(int code, const char *fmt, ...) {
 	(void)code;
 	fprintf(stderr, "Com_Error: %s\n", fmt);
@@ -250,7 +224,6 @@ void G_SetAnimalVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
 void G_SetFighterVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
 void G_SetSpeederVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
 void G_SetWalkerVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
-#endif
 
 // ------------------------------------------------------------------ commands and hashes
 
@@ -390,9 +363,7 @@ int main(int argc, char **argv) {
 		if (strncmp(argv[a], "--dump=", 7) == 0) dump = fopen(argv[a] + 7, "w");
 		else commands = atoi(argv[a]);
 	}
-#if !defined(JKA101)
 	imports.Cvar_Register = CvarRegisterTrap;
-#endif
 	for (i = 0; i < MAX_TOTALANIMATIONS; i++) {
 		anims[i].firstFrame = 0;
 		anims[i].numFrames = 10;
@@ -402,20 +373,14 @@ int main(int argc, char **argv) {
 	bgAllAnims[0].anims = anims;
 	BuildWorld();
 	printf("pmove determinism (%s build), %d commands per run\n",
-#if defined(JKA101)
-	       "1.01 game"
-#elif defined(_GAME)
+#if defined(_GAME)
 	       "game"
 #else
 	       "cgame"
 #endif
 	       , commands);
 	for (s = 0; s < 4; s++) {
-#if defined(JKA101)
-		Run(s, 3, commands, dump);
-#else
 		Run(s, 1, commands, dump);
-#endif
 	}
 	if (dump) fclose(dump);
 	return 0;

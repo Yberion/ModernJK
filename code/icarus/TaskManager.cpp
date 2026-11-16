@@ -497,7 +497,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 	//Look for a tag() inline call
 	if ( Check( CIcarus::ID_TAG, block, memberNum ) )
 	{
-		char	*tagName;
+		const char	*tagName;
 		float	tagLookup;
 
 		memberNum++;
@@ -545,11 +545,11 @@ int CTaskManager::GetID()
 	return m_id;
 }
 
-int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value, CIcarus* icarus )
+int CTaskManager::Get( int entID, CBlock *block, int &memberNum, const char **value, CIcarus* icarus )
 {
 	static	char	tempBuffer[128];	//FIXME: EEEK!
 	vec3_t			vector;
-	char			*name, *tagName;
+	const char		*name, *tagName;
 	float			tagLookup;
 	int				type;
 
@@ -1079,7 +1079,7 @@ int CTaskManager::Wait( CTask *task, bool &completed , CIcarus* icarus )
 {
 	CBlockMember	*bm;
 	CBlock			*block = task->GetBlock();
-	char			*sVal;
+	const char			*sVal;
 	float			dwtime;
 	int				memberNum = 0;
 
@@ -1162,7 +1162,7 @@ WaitSignal
 int CTaskManager::WaitSignal( CTask *task, bool &completed , CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	completed = false;
@@ -1193,7 +1193,7 @@ Print
 int CTaskManager::Print( CTask *task , CIcarus* icarus)
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1216,7 +1216,7 @@ Sound
 int CTaskManager::Sound( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal, *sVal2;
+	const char	*sVal, *sVal2;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1241,7 +1241,7 @@ int CTaskManager::Rotate( CTask *task , CIcarus* icarus)
 {
 	vec3_t		vector;
 	CBlock		*block = task->GetBlock();
-	char		*tagName;
+	const char		*tagName;
 	float		tagLookup, duration;
 	int			memberNum = 0;
 
@@ -1285,7 +1285,7 @@ Remove
 int CTaskManager::Remove( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1309,7 +1309,7 @@ int CTaskManager::Camera( CTask *task , CIcarus* icarus)
 	CBlock		*block = task->GetBlock();
 	vec3_t		vector, vector2;
 	float		type, fVal, fVal2, fVal3;
-	char		*sVal;
+	const char		*sVal;
 	int			memberNum = 0;
 
 	//Get the camera function type
@@ -1477,7 +1477,7 @@ Kill
 int CTaskManager::Kill( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1499,7 +1499,7 @@ Set
 int CTaskManager::Set( CTask *task, CIcarus* icarus )
 {
 	CBlock			*block = task->GetBlock();
-	char			*sVal, *sVal2;
+	const char			*sVal, *sVal2;
 	int				memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1520,7 +1520,7 @@ Use
 int CTaskManager::Use( CTask *task , CIcarus* icarus)
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1542,7 +1542,7 @@ DeclareVariable
 int CTaskManager::DeclareVariable( CTask *task , CIcarus* icarus)
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 	float	fVal;
 
@@ -1567,7 +1567,7 @@ FreeVariable
 int CTaskManager::FreeVariable( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1590,7 +1590,7 @@ Signal
 int CTaskManager::Signal( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal;
+	const char	*sVal;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1612,7 +1612,7 @@ Play
 int CTaskManager::Play( CTask *task, CIcarus* icarus )
 {
 	CBlock	*block = task->GetBlock();
-	char	*sVal, *sVal2;
+	const char	*sVal, *sVal2;
 	int		memberNum = 0;
 
 	ICARUS_VALIDATE( Get( m_ownerID, block, memberNum, &sVal, icarus ) );
@@ -1685,7 +1685,7 @@ void CTaskManager::Save()
 	unsigned int		timeStamp;
 	bool		completed;
 	int			id, numCommands;
-	int			numWritten;
+	[[maybe_unused]] int	numWritten;
 
 	// Data saved here.
 	//	Taskmanager GUID.

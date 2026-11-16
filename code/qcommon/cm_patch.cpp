@@ -110,8 +110,6 @@ int	c_totalPatchBlocks;
 int	c_totalPatchSurfaces;
 int	c_totalPatchEdges;
 
-static const patchCollide_t	*debugPatchCollide;
-static const facet_t		*debugFacet;
 static qboolean		debugBlock;
 static vec3_t		debugBlockPoints[4];
 
@@ -121,8 +119,6 @@ CM_ClearLevelPatches
 =================
 */
 void CM_ClearLevelPatches( void ) {
-	debugPatchCollide = NULL;
-	debugFacet = NULL;
 }
 
 /*
@@ -1376,9 +1372,6 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		//
 		if (fraction < tw->trace.fraction)
 		{
-			debugPatchCollide = pc;
-			debugFacet = facet;
-
 			tw->trace.fraction = fraction;
 			planes = &pc->planes[ facet->surfacePlane ];
 			VectorCopy( planes->plane, tw->trace.plane.normal );
@@ -1403,9 +1396,6 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	int			i, j, k;
 	float		offset;
 	float		d1, d2;
-#ifndef BSPC
-	static cvar_t *cv;
-#endif //BSPC
 
 #ifndef BSPC
 	if ( !cm_playerCurveClip->integer && !tw->isPoint ) {
@@ -1466,15 +1456,6 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 		}
 		if ( j == facet->numBorders ) {
 			// we hit this facet
-#ifndef BSPC
-			if (!cv) {
-				cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
-			}
-			if (cv->integer) {
-				debugPatchCollide = pc;
-				debugFacet = facet;
-			}
-#endif //BSPC
 			planes = &pc->planes[facet->surfacePlane];
 
 			// calculate intersection with a slight pushoff
@@ -1552,9 +1533,6 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 	facet_t	*facet;
 	float plane[4] = { 0.0f }, bestplane[4] = { 0.0f };
 	vec3_t startp, endp;
-#ifndef BSPC
-	static cvar_t *cv;
-#endif //BSPC
 
 	if (tw->isPoint) {
 		CM_TracePointThroughPatchCollide( tw, pc );
@@ -1653,15 +1631,6 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				if (enterFrac < 0) {
 					enterFrac = 0;
 				}
-#ifndef BSPC
-				if (!cv) {
-					cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
-				}
-				if (cv && cv->integer) {
-					debugPatchCollide = pc;
-					debugFacet = facet;
-				}
-#endif // BSPC
 
 				tw->trace.fraction = enterFrac;
 				VectorCopy( bestplane, tw->trace.plane.normal );

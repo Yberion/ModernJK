@@ -32,7 +32,7 @@ extern qboolean NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
-char	*TeamNames[TEAM_NUM_TEAMS] =
+const char	*TeamNames[TEAM_NUM_TEAMS] =
 {
 	"",
 	"player",
@@ -41,7 +41,7 @@ char	*TeamNames[TEAM_NUM_TEAMS] =
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
-char	*ClassNames[CLASS_NUM_CLASSES] =
+const char	*ClassNames[CLASS_NUM_CLASSES] =
 {
 	"",				// class none
 	"atst",
@@ -520,7 +520,7 @@ void G_LoadAnimFileSet( gentity_t *ent, const char *modelName )
 	char	animName[MAX_QPATH];
 	char	*GLAName;
 	char	*slash = NULL;
-	char	*strippedName;
+	const char	*strippedName;
 
 	if ( ent->playerModel == -1 )
 	{
@@ -669,7 +669,7 @@ void NPC_PrecacheAnimationCFG( const char *NPC_type )
 }
 
 extern int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type );
-void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, char *NPCtype )
+void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype )
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;

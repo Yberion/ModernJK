@@ -443,7 +443,7 @@ be after execing the config and default.
 ===============
 */
 void Com_StartupVariable( const char *match ) {
-	char	*s;
+	const char	*s;
 
 	for (int i=0 ; i < com_numConsoleLines ; i++) {
 		Cmd_TokenizeString( com_consoleLines[i] );
@@ -1078,7 +1078,6 @@ Com_Init
 =================
 */
 void Com_Init( char *commandLine ) {
-	char	*s;
 
 	Com_Printf( "%s %s %s\n", JK_VERSION, PLATFORM_STRING, SOURCE_DATE );
 

@@ -1297,7 +1297,7 @@ extern gentity_t *gJMSaberEnt;
 //
 qboolean	ConsoleCommand( void );
 void G_ProcessIPBans(void);
-qboolean G_FilterPacket (char *from);
+qboolean G_FilterPacket (const char *from);
 
 //
 // g_weapon.c

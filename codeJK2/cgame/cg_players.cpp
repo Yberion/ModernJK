@@ -4022,7 +4022,7 @@ int CG_PlayerHeadExtension( centity_t *cent, refEntity_t *head )
 //
 // Can pass in NULL for the axis
 //--------------------------------------------------------------
-void CG_GetTagWorldPosition( refEntity_t *model, char *tag, vec3_t pos, vec3_t axis[3] )
+void CG_GetTagWorldPosition( refEntity_t *model, const char *tag, vec3_t pos, vec3_t axis[3] )
 {
 	orientation_t	orientation;
 

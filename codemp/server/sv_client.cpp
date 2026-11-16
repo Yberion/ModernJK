@@ -135,11 +135,11 @@ void SV_DirectConnect( const netadr_t *from ) {
 	int			version;
 	int			qport;
 	int			challenge;
-	char		*password;
+	const char		*password;
 	int			startIndex;
 	char		*denied;
 	int			count;
-	char		*ip;
+	const char	*ip;
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 
@@ -192,7 +192,7 @@ void SV_DirectConnect( const netadr_t *from ) {
 	if ( NET_IsLocalAddress (from) )
 		ip = "localhost";
 	else
-		ip = (char *)NET_AdrToString( from );
+		ip = NET_AdrToString( from );
 	if( ( strlen( ip ) + strlen( userinfo ) + 4 ) >= MAX_INFO_STRING ) {
 		NET_OutOfBandPrint( NS_SERVER, from,
 			"print\nUserinfo string length exceeded.  "
@@ -282,7 +282,7 @@ void SV_DirectConnect( const netadr_t *from ) {
 			}
 		}
 		else {
-			const char *SV_GetStringEdString(char *refSection, char *refName);
+			const char *SV_GetStringEdString(const char *refSection, const char *refName);
 			NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SV_GetStringEdString("MP_SVGAME","SERVER_IS_FULL")));
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
@@ -833,7 +833,7 @@ SV_Disconnect_f
 The client is going to disconnect, so remove the connection immediately  FIXME: move to game?
 =================
 */
-const char *SV_GetStringEdString(char *refSection, char *refName);
+const char *SV_GetStringEdString(const char *refSection, const char *refName);
 static void SV_Disconnect_f( client_t *cl ) {
 //	SV_DropClient( cl, "disconnected" );
 	SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","DISCONNECTED") );
@@ -1007,7 +1007,7 @@ into a more C friendly form.
 =================
 */
 void SV_UserinfoChanged( client_t *cl ) {
-	char	*val=NULL, *ip=NULL;
+	const char	*val=NULL, *ip=NULL;
 	int		len=0;
 
 	// name for C code
@@ -1019,7 +1019,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	if( NET_IsLocalAddress(&cl->netchan.remoteAddress) )
 		ip = "localhost";
 	else
-		ip = (char*)NET_AdrToString( &cl->netchan.remoteAddress );
+		ip = NET_AdrToString( &cl->netchan.remoteAddress );
 
 	val = Info_ValueForKey( cl->userinfo, "ip" );
 	if( val[0] )
@@ -1042,7 +1042,7 @@ SV_UpdateUserinfo_f
 ==================
 */
 static void SV_UpdateUserinfo_f( client_t *cl ) {
-	char *arg = Cmd_Argv(1);
+	const char *arg = Cmd_Argv(1);
 
 	// Stop random empty /userinfo calls without hurting anything
 	if( !arg || !*arg )

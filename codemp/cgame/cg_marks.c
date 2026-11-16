@@ -37,7 +37,6 @@ MARK POLYS
 markPoly_t	cg_activeMarkPolys;			// double linked list
 markPoly_t	*cg_freeMarkPolys;			// single linked list
 markPoly_t	cg_markPolys[MAX_MARK_POLYS];
-static		int	markTotal;
 
 /*
 ===================
@@ -225,7 +224,6 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 		mark->color[2] = blue;
 		mark->color[3] = alpha;
 		memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) );
-		markTotal++;
 	}
 }
 

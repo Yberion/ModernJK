@@ -172,7 +172,6 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 	byte		image[LIGHTMAP_SIZE*LIGHTMAP_SIZE*4];
 	int			i, j;
 	float maxIntensity = 0;
-	double sumIntensity = 0;
 
 	if (&worldData == &s_worldData)
 	{
@@ -234,8 +233,6 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 				image[j*4+1] = out[1] * 255;
 				image[j*4+2] = out[2] * 255;
 				image[j*4+3] = 255;
-
-				sumIntensity += intensity;
 			}
 		} else {
 			for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
@@ -1272,10 +1269,9 @@ R_StitchAllPatches
 ===============
 */
 void R_StitchAllPatches( world_t &worldData ) {
-	int i, stitched, numstitches;
+	int i, stitched;
 	srfGridMesh_t *grid1;
 
-	numstitches = 0;
 	do
 	{
 		stitched = qfalse;
@@ -1292,11 +1288,10 @@ void R_StitchAllPatches( world_t &worldData ) {
 			grid1->lodStitched = qtrue;
 			stitched = qtrue;
 			//
-			numstitches += R_TryStitchingPatch( i, worldData );
+			R_TryStitchingPatch( i, worldData );
 		}
 	}
 	while (stitched);
-//	ri.Printf( PRINT_ALL, "stitched %d LoD cracks\n", numstitches );
 }
 
 /*
@@ -1927,8 +1922,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 		Q_strncpyz(value, token, sizeof(value));
 
 		// check for remapping of shaders for vertex lighting
-		s = "vertexremapshader";
-		if (!Q_strncmp(keyname, s, strlen(s)) ) {
+		if (!Q_strncmp(keyname, "vertexremapshader", strlen("vertexremapshader")) ) {
 			s = strchr(value, ';');
 			if (!s) {
 				ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: no semi colon in vertexshaderremap '%s'\n", value );
@@ -1941,8 +1935,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 			continue;
 		}
 		// check for remapping of shaders
-		s = "remapshader";
-		if (!Q_strncmp(keyname, s, strlen(s)) ) {
+		if (!Q_strncmp(keyname, "remapshader", strlen("remapshader")) ) {
 			s = strchr(value, ';');
 			if (!s) {
 				ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: no semi colon in shaderremap '%s'\n", value );

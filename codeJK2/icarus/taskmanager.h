@@ -162,7 +162,7 @@ protected:
 
 	int GetVector( int entID, CBlock *block, int &memberNum, vector_t &value );
 	int GetFloat( int entID, CBlock *block, int &memberNum, float &value );
-	int Get( int entID, CBlock *block, int &memberNum, char **value );
+	int Get( int entID, CBlock *block, int &memberNum, const char **value );
 
 	int	PushTask( CTask *task, int flag );
 	CTask *PopTask( int flag );

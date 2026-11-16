@@ -10,6 +10,10 @@ cmake_minimum_required(VERSION 3.21)
 
 project(netcodec VERSION 0.1.0 DESCRIPTION "JKA netcode snapshot and message codec" LANGUAGES CXX)
 
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)   # 64-bit targets only, as ModernJK (docs_rewrite/modernization/PLAN.md, step 17)
+	message(FATAL_ERROR "netcodec builds only for 64-bit targets")
+endif()
+
 if(PROJECT_IS_TOP_LEVEL)
 	file(REAL_PATH "${CMAKE_SOURCE_DIR}" netcodec_src)
 	file(REAL_PATH "${CMAKE_BINARY_DIR}" netcodec_bin)
@@ -37,8 +41,7 @@ include(cmake/Sanitizers.cmake)
 include(cmake/StaticAnalyzers.cmake)
 
 # Settings shared by every netcodec target, linked privately: C++20; floating-point determinism (the codec's float
-# tests must give the same bits on every compiler: no FMA contraction, SSE2 instead of x87 on 32-bit x86); index
-# checks of std::span and the containers in debug builds (libstdc++, libc++; MSVC checks by default in Debug).
+# tests must give the same bits on every compiler: no FMA contraction); index checks of std::span and the containers in debug builds (libstdc++, libc++; MSVC checks by default in Debug).
 add_library(netcodec_options INTERFACE)
 target_compile_features(netcodec_options INTERFACE cxx_std_20)
 target_compile_definitions(netcodec_options INTERFACE
@@ -50,9 +53,6 @@ else()
 	# functions and loops on 64-byte boundaries: otherwise an unrelated change that moves the code by a few bytes moves
 	# the hot loops across fetch blocks and changes the encoding time by up to 5 % (clang) or 10 to 20 % (GCC)
 	target_compile_options(netcodec_options INTERFACE -falign-functions=64 -falign-loops=64)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		target_compile_options(netcodec_options INTERFACE -msse2 -mfpmath=sse)
-	endif()
 endif()
 netcodec_enable_sanitizers(netcodec_options ${netcodec_ENABLE_SANITIZER_ADDRESS} ${netcodec_ENABLE_SANITIZER_UNDEFINED})
 if(netcodec_ENABLE_FUZZING)
@@ -85,7 +85,7 @@ add_library(netcodec STATIC
 	src/generated/jka_tables.inc)
 add_library(netcodec::netcodec ALIAS netcodec)
 target_include_directories(netcodec PUBLIC "${PROJECT_SOURCE_DIR}/include")
-target_compile_features(netcodec PRIVATE cxx_std_20)   # C++20 inside only: the engine includes engine.h in C++11
+target_compile_features(netcodec PUBLIC cxx_std_20)
 set_target_properties(netcodec PROPERTIES CXX_EXTENSIONS OFF)
 target_link_libraries(netcodec PRIVATE netcodec_options netcodec_warnings)
 if(netcodec_ENABLE_CLANG_TIDY)
@@ -109,13 +109,8 @@ function(netcodec_add_program name)
 	if(MSVC AND netcodec_ENABLE_SANITIZER_ADDRESS)
 		# MSVC's AddressSanitizer runtime is a DLL of the compiler's directory, not in the PATH: copied next to the program
 		get_filename_component(netcodec_msvc_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			set(netcodec_asan_dll "clang_rt.asan_dynamic-x86_64.dll")
-		else()
-			set(netcodec_asan_dll "clang_rt.asan_dynamic-i386.dll")
-		endif()
 		add_custom_command(TARGET ${name} POST_BUILD COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-		                   "${netcodec_msvc_bin}/${netcodec_asan_dll}" "$<TARGET_FILE_DIR:${name}>")
+		                   "${netcodec_msvc_bin}/clang_rt.asan_dynamic-x86_64.dll" "$<TARGET_FILE_DIR:${name}>")
 	endif()
 endfunction()
 

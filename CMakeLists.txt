@@ -28,6 +28,23 @@ project(${ProjectName})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+# C++20 for every C++ target, without compiler extensions; with MSVC, /std:c++20 implies the strict standard mode
+# (/permissive-)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+# The project has no C++20 module: no dependency scan (MSBuild's scan files of two sources named files.cpp in one
+# target collided, warning MSB8074)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
+# Only Windows, Linux and macOS, in 64-bit (docs_rewrite/modernization/PLAN.md, step 17)
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+	message(FATAL_ERROR "ModernJK builds only for 64-bit targets")
+endif()
+if(NOT WIN32 AND NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	message(FATAL_ERROR "ModernJK builds only for Windows, Linux and macOS, not ${CMAKE_SYSTEM_NAME}")
+endif()
+
 #=============================================================================
 #
 # Customizable options
@@ -41,7 +58,6 @@ option(BuildMPDed "Whether to create projects for the MP dedicated server (moder
 option(BuildMPGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
 option(BuildMPCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
 option(BuildMPUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
-option(BuildMPRend2 "Whether to create projects for the EXPERIMENTAL MP rend2 renderer (rd-rend2_x86.dll)" ON)
 
 option(BuildSPEngine "Whether to create projects for the SP engine (modernjk_sp.exe)" ON)
 option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
@@ -61,15 +77,12 @@ cmake_dependent_option(BuildSymbolServer "Build WIP Windows Symbol Server (exper
 # Configure the use of bundled libraries.  By default, we assume the user is on
 # a platform that does not require any bundling.
 
-set(UseInternalOpenALDefault OFF)
 set(UseInternalSDL2Default   OFF)
 
 if(UseInternalLibs OR WIN32)
-  set(UseInternalOpenALDefault ON)
   set(UseInternalSDL2Default   ON)
 endif()
 
-option(UseInternalOpenAL "If set, use bundled OpenAL."  ${UseInternalOpenALDefault})
 option(UseInternalSDL2   "If set, use bundled SDL2."    ${UseInternalSDL2Default})
 
 # This option won't appear on non-Apple platforms.
@@ -98,41 +111,17 @@ endif()
 #
 #=============================================================================
 # ${Architecture} must match ARCH_STRING in q_platform.h,
-# and is used in DLL names (jagamex86.dll, jagamex86.dylib, jagamei386.so).
+# and is used in DLL names (jampgamex86_64.dll, jampgamearm64.dylib, jampgamex86_64.so).
+# Windows: x86_64 only (q_platform.h refuses another processor).
 if(WIN32)
-	set(X86 ON)
-	if(CMAKE_SIZEOF_VOID_P MATCHES "8")
-		set(Architecture "x86_64")
-		set(WIN64 TRUE)
-	else()
-		set(Architecture "x86")
-		set(WIN64 FALSE)
-	endif()
+	set(Architecture "x86_64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64)$")
+	set(Architecture "arm64")
+	add_definitions(-DPNG_ARM_NEON_OPT=0)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.64$")
+	set(Architecture "x86_64")
 else()
-	set(X86 OFF)
-	if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64)$")
-		set(Architecture "arm64")
-		add_definitions(-DPNG_ARM_NEON_OPT=0)
-	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
-		set(Architecture "arm")
-	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
-		set(X86 ON)
-		if(APPLE)
-			set(Architecture "x86")
-		else()
-			# e.g. Linux
-			set(Architecture "i386")
-		endif()
-	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.64$")
-		set(X86 ON)
-		set(Architecture "x86_64")
-	elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc")
-		set(Architecture "ppc")
-	elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc64")
-		set(Architecture "ppc64")
-	else()
-		set(Architecture "${CMAKE_SYSTEM_PROCESSOR}")
-	endif()
+	message(FATAL_ERROR "ModernJK builds only for x86_64 and arm64, not ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 message(STATUS "Architecture is ${Architecture}")
@@ -155,7 +144,6 @@ set(MPDed "modernjkded.${Architecture}")
 set(MPGame "jampgame${Architecture}")
 set(MPCGame "cgame${Architecture}")
 set(MPUI "ui${Architecture}")
-set(MPRend2 "rd-rend2_${Architecture}")
 set(JK2SPEngine "openjo_sp.${Architecture}")
 set(JK2SPGame "jospgame${Architecture}")
 set(JK2SPVanillaRenderer "rdjosp-vanilla_${Architecture}")
@@ -185,20 +173,12 @@ include(InstallConfig)
 #=============================================================================
 
 # Operating system settings
-if(WIN64)
-	set(SharedDefines ${SharedDefines} "WIN64")
-endif()
-
 if (APPLE)
 	set(SharedDefines ${SharedDefines} "MACOS_X")
 endif()
 
 if (NOT WIN32 AND NOT APPLE)
 	set(SharedDefines ${SharedDefines} "ARCH_STRING=\"${Architecture}\"")
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "BSD")
-  add_definitions(-DIOAPI_NO_64)
 endif()
 
 # Compiler settings
@@ -208,10 +188,8 @@ if(MSVC)
 	set(SharedDefines ${SharedDefines} "_SCL_SECURE_NO_WARNINGS")
 	set(SharedDefines ${SharedDefines} "_CRT_NONSTDC_NO_DEPRECATE")
 
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
 	# We don't try to control symbol visibility under MSVC.
@@ -245,16 +223,8 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 
-	if (X86)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
-	endif()
-
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-
-	# enable somewhat modern C++
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 	# the same floating-point results on every compiler and target: no fused multiply-add contracted from a separate
 	# multiply and add (MSVC's /fp:precise does not contract); docs_rewrite/modernization/surveys/deterministic-math.md
@@ -265,14 +235,6 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-comment")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
-		if (X86)
-			# "x86 vm will crash without -mstackrealign since MMX
-			# instructions will be used no matter what and they
-			# corrupt the frame pointer in VM calls"
-			# -ioquake3 Makefile
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mstackrealign")
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpmath=sse")
-		endif()
 
 		if(WIN32)
 			# Link libgcc and libstdc++ statically
@@ -289,17 +251,10 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-comment")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char")
-		if (X86)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstackrealign")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse")
-		endif()
 	elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-writable-strings")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-comment")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char")
@@ -337,7 +292,7 @@ endif()
 # Current Git tag/version
 # ideally we would separate the hash suffix into its own variable, but sed is not available everywhere
 execute_process(
-	COMMAND "git" "describe" "--tag"
+	COMMAND "git" "describe" "--tag" "--always"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_TAG
 	RESULT_VARIABLE GIT_TAG_ERROR
@@ -373,8 +328,6 @@ set(SharedCommonFiles
 add_library(qlibm STATIC "${SharedDir}/qcommon/q_libm.h" "${SharedDir}/qcommon/q_libm.cpp")
 target_include_directories(qlibm PRIVATE "${CMAKE_SOURCE_DIR}/lib/llvm-libc")
 target_compile_definitions(qlibm PRIVATE ${SharedDefines})   # ARCH_STRING and the others, for q_platform.h
-# an explicit flag: the -std=c++11 of CMAKE_CXX_FLAGS wins when the compiler's default already satisfies cxx_std_17
-target_compile_options(qlibm PRIVATE $<IF:$<CXX_COMPILER_ID:MSVC>,/std:c++17,-std=c++17>)
 set_target_properties(qlibm PROPERTIES POSITION_INDEPENDENT_CODE ON CXX_VISIBILITY_PRESET hidden
 	VISIBILITY_INLINES_HIDDEN ON)
 

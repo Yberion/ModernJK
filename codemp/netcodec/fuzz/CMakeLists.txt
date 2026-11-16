@@ -3,11 +3,7 @@
 if(MINGW)
 	# the driver refuses -fsanitize=fuzzer for these targets: libFuzzer's archive from the compiler's resource directory
 	execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-resource-dir OUTPUT_VARIABLE netcodec_clang_res OUTPUT_STRIP_TRAILING_WHITESPACE)
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(netcodec_fuzz_arch x86_64)
-	else()
-		set(netcodec_fuzz_arch i386)
-	endif()
+	set(netcodec_fuzz_arch x86_64)
 endif()
 foreach(target decode client)
 	netcodec_add_program(netcodec_fuzz_${target} fuzz_${target}.cpp)

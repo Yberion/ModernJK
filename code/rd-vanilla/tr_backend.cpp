@@ -757,7 +757,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			if (oldShader != NULL) {
 				RB_EndSurface();
 
-				if (!didShadowPass && shader && shader->sort > SS_BANNER)
+				if (!didShadowPass && shader && shader->sort > (float)SS_BANNER)
 				{
 					RB_ShadowFinish();
 					didShadowPass = true;
@@ -1750,7 +1750,7 @@ static inline void RB_BlurGlowTexture()
 	/////////////////////////////////////////////////////////
 
 	// How much to offset each texel by.
-	float fTexelWidthOffset = 0.1f, fTexelHeightOffset = 0.1f;
+	float fTexelWidthOffset = 0.1f;
 
 	GLuint uiTex = tr.screenGlow;
 
@@ -1842,7 +1842,6 @@ static inline void RB_BlurGlowTexture()
 		// I might want to use an actual gaussian equation to correctly calculate the pixel coefficients and attenuates, texel
 		// offsets, gaussian amplitude and radius...
 		fTexelWidthOffset += r_DynamicGlowDelta->value;
-		fTexelHeightOffset += r_DynamicGlowDelta->value;
 	}
 
 	// Disable multi-texturing.

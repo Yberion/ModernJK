@@ -574,8 +574,8 @@ typedef enum
 
 
 typedef struct gitem_s {
-	char		*classname;	// spawning name
-	char		*pickup_sound;
+	const char	*classname;	// spawning name
+	const char	*pickup_sound;
 	char		*world_model;
 
 	char		*icon;

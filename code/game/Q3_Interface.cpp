@@ -47,7 +47,7 @@ extern	cvar_t	*com_buildScript;
 extern void InitMover( gentity_t *ent );
 extern void MatchTeam( gentity_t *teamLeader, int moverState, int time );
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-extern char *G_GetLocationForEnt( gentity_t *ent );
+extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void NPC_BSSearchStart( int homeWp, bState_t bState );
 extern void InitMoverTrData( gentity_t *ent );
 extern qboolean SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
@@ -753,13 +753,11 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 	int objectiveID;
 	gclient_t	*client;
 	objectives_t	*objective;
-	int				*objectivesShown;
 
 	client = &level.clients[0];
 
 	objectiveID = GetIDForString( objectiveTable, ObjEnum );
 	objective = &client->sess.mission_objectives[objectiveID];
-	objectivesShown = &client->sess.missionObjectivesShown;
 
 
 	switch (status)
@@ -769,14 +767,12 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 		break;
 	case SET_OBJ_SHOW :
 		objective->display = (qboolean)(OBJECTIVE_SHOW != 0);
-		objectivesShown++;
 		missionInfo_Updated = qtrue;	// Activate flashing text
 		break;
 	case SET_OBJ_PENDING :
 		objective->status = OBJECTIVE_STAT_PENDING;
 		if (objective->display != OBJECTIVE_HIDE)
 		{
-			objectivesShown++;
 			missionInfo_Updated = qtrue;	// Activate flashing text
 		}
 		break;
@@ -784,7 +780,6 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 		objective->status = OBJECTIVE_STAT_SUCCEEDED;
 		if (objective->display != OBJECTIVE_HIDE)
 		{
-			objectivesShown++;
 			missionInfo_Updated = qtrue;	// Activate flashing text
 		}
 		break;
@@ -792,7 +787,6 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 		objective->status = OBJECTIVE_STAT_FAILED;
 		if (objective->display != OBJECTIVE_HIDE)
 		{
-			objectivesShown++;
 			missionInfo_Updated = qtrue;	// Activate flashing text
 		}
 		break;
@@ -999,7 +993,7 @@ static qboolean G_AddSexToPlayerString ( char *string, qboolean qDoBoth )
 		if ( g_sex->string[0] == 'f' ) {
 			start = strstr( string, "jaden_male/" );
 			if ( start != NULL ) {
-				strncpy( start, "jaden_fmle", 10 );
+				memcpy( start, "jaden_fmle", 10 );
 				return qtrue;
 			} else {
 				start = strrchr( string, '/' );		//get the last slash before the wav
@@ -6597,7 +6591,7 @@ Q3_SetLocation
 static qboolean Q3_SetLocation( int entID, const char *location )
 {
 	gentity_t	*ent = &g_entities[entID];
-	char		*currentLoc;
+	const char		*currentLoc;
 
 	if ( !ent )
 	{
@@ -7667,7 +7661,7 @@ int CQuake3GameInterface::RegisterScript( const char *strFileName, void **ppBuf,
 
 	// Prepare the name with the extension.
 	char		newname[MAX_FILENAME_LENGTH];
-	sprintf((char *) newname, "%s%s", sFilename, IBI_EXT );
+	Com_sprintf( newname, sizeof( newname ), "%s%s", sFilename, IBI_EXT );
 
 	qboolean qbIgnoreFileRead = qfalse;
 
@@ -7790,7 +7784,7 @@ void CQuake3GameInterface::RunScript( const gentity_t *pEntity, const char *strS
 
 void CQuake3GameInterface::Svcmd( void )
 {
-	char	*cmd = gi.argv( 1 );
+	const char	*cmd = gi.argv( 1 );
 
 	if ( Q_stricmp( cmd, "log" ) == 0 )
 	{
@@ -10560,7 +10554,7 @@ int		CQuake3GameInterface::GetVector( int entID, const char *name, vec3_t value 
 	return true;
 }
 
-int		CQuake3GameInterface::GetString( int entID, const char *name, char **value )
+int		CQuake3GameInterface::GetString( int entID, const char *name, const char **value )
 {
 	gentity_t	*ent = &g_entities[entID];
 	if ( !ent )

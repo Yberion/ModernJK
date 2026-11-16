@@ -41,7 +41,6 @@ static int currentSetTime = 0;
 static int oldSetTime = 0;
 
 // Globals for debug purposes
-static int		numSets	= 0;
 
 // Main ambient sound group
 static CSetGroup*	aSets = NULL;
@@ -631,9 +630,6 @@ static qboolean AS_ParseSet( int setID, CSetGroup *sg )
 		//Check for a valid set group
 		if ( Q_strncmp( parseBuffer+parsePos, name, strlen(name) ) == 0 )
 		{
-			//Update the debug info
-			numSets++;
-
 			//Push past the set specifier and on to the name
 			parsePos+=strlen(name)+1;	//Also take the following space out
 
@@ -762,8 +758,6 @@ void AS_Init( void )
 {
 	if (!aSets)
 	{
-		numSets = 0;
-
 		pMap = new namePrecache_m;
 
 		//Setup the structure
@@ -863,8 +857,6 @@ void AS_Free( void )
 
 		currentSetTime = 0;
 		oldSetTime = 0;
-
-		numSets	= 0;
 	}
 }
 
@@ -879,8 +871,6 @@ void AS_FreePartial(void)
 
 		currentSetTime = 0;
 		oldSetTime = 0;
-
-		numSets	= 0;
 
 		delete pMap;
 		pMap = new namePrecache_m;

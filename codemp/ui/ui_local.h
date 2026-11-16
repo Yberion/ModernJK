@@ -400,7 +400,7 @@ char		*UI_Cvar_VariableString( const char *var_name );
 
 int UI_GetNumBots( void );
 void UI_LoadBots( void );
-char *UI_GetBotNameByNumber( int num );
+const char *UI_GetBotNameByNumber( int num );
 
 
 //

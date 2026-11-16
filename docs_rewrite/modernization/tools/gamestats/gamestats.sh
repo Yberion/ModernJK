@@ -50,7 +50,7 @@ run() {
 		echo "set fraglimit 0"
 		echo "set timelimit 0"
 		echo "set g_weaponDisable 524279"
-		# the owner's server settings, set here because the dedicated server also reads the modernjk_server.cfg of
+		# the test server's settings, set here because the dedicated server also reads the modernjk_server.cfg of
 		# fs_basepath, which differs between machines: sabers and force jump only, no saber locks, no private duels
 		echo "set g_forcePowerDisable 163837"
 		echo "set g_saberLocking 0"

@@ -3071,12 +3071,9 @@ so the client will know which ones to precache
 void SaveRegisteredItems( void ) {
 	char	string[MAX_ITEMS+1];
 	int		i;
-	int		count;
 
-	count = 0;
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
 		if ( itemRegistered[i] ) {
-			count++;
 			string[i] = '1';
 		} else {
 			string[i] = '0';
@@ -3084,7 +3081,6 @@ void SaveRegisteredItems( void ) {
 	}
 	string[ bg_numItems ] = 0;
 
-//	trap->Print( "%i items registered\n", count );
 	trap->SetConfigstring(CS_ITEMS, string);
 }
 

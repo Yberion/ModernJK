@@ -157,7 +157,7 @@ Each line links to its section.
 | [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step | fixed |
 | [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
-**Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. Not changed yet](#30-not-changed-yet).
+**Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. C++20, 64-bit Windows, Linux and macOS](#30-c20-64-bit-windows-linux-and-macos), [31. Not changed yet](#31-not-changed-yet).
 
 ## A. Responsiveness and equality
 
@@ -1011,17 +1011,18 @@ Added commands. The statistics commands print their counters since the previous 
 
 | | OpenJK | this branch |
 |---|---|---|
-| New library | | `codemp/netcodec/`: C++20 inside, a C++11 interface for the engine (`engine.h`), trained tables compiled in; linked by the client and the dedicated server |
-| Math functions | the C library's | `lib/llvm-libc/`: the headers of LLVM libc's math functions (Apache 2.0 with LLVM exceptions, a fixed commit, `update.py` to refresh them); `shared/qcommon/q_libm.cpp` (C++17) in the static library `qlibm`, linked by every binary that uses `q_math.c`, the single-player targets included; `-ffp-contract=off` for GCC and Clang |
+| New library | | `codemp/netcodec/`: C++20, its interface for the engine in `engine.h`, trained tables compiled in; linked by the client and the dedicated server |
+| Math functions | the C library's | `lib/llvm-libc/`: the headers of LLVM libc's math functions (Apache 2.0 with LLVM exceptions, a fixed commit, `update.py` to refresh them); `shared/qcommon/q_libm.cpp` in the static library `qlibm`, linked by every binary that uses `q_math.c`, the single-player targets included; `-ffp-contract=off` for GCC and Clang |
 | Image libraries | libjpeg 9a and libpng 1.6, built with the project on Windows only; the system's on Linux | `lib/wuffs/` (Wuffs, MIT, decodes JPEG, PNG and TGA) and `lib/stb/` (stb_image_write, writes the screenshots and the video capture), vendored and compiled inside `shared/rd-common/tr_image_codec.cpp`, the only file that knows them, shared by the multiplayer and the single-player renderers with the loader (`tr_image_load.cpp`); the multiplayer renderers no longer link libjpeg, libpng or zlib; `lib/jpeg-9a` and `lib/libpng` are removed from the repository, with the options `UseInternalJPEG` and `UseInternalPNG`; the single-player renderers build the same two files; the measurements: `docs_rewrite/modernization/tools/imagebench/`, [surveys/image-libraries.md](surveys/image-libraries.md) |
 | Compression libraries | zlib 1.2.8, built with the project on Windows only, the system's on Linux; minizip, always the repository's | `lib/zlib-ng/` (zlib-ng 2.3.3, zlib licence, its source tree built by its own CMake file on every platform), known to `shared/qcommon/q_pk3.cpp` only, one file for the multiplayer and the single-player engines; `lib/zlib` and `lib/minizip` are removed from the repository, with the option `UseInternalZlib`; nothing links the system's zlib any more; the measurements, the checks of the reader and its fuzz target: `docs_rewrite/modernization/tools/zipbench/`, [surveys/compression-libraries.md](surveys/compression-libraries.md) |
 | File system | `qcommon/files.cpp` twice: 3,071 lines in the single-player engine, 4,384 in the multiplayer one, 56 functions identical and 21 nearly | one: `shared/qcommon/files.cpp` and its interface `shared/qcommon/files.h`, built by both engines; what differs between them (the configuration files' names, the modules loaded from pk3 files, the sound buffer cleared before a read) is in each engine's `qcommon/files_engine.h`. The multiplayer engines' machine code is unchanged; the single-player engine gets the multiplayer file system, whose pure-server code stays idle in it, and opens the same files in the same order on a scripted session |
 | Random numbers | `holdrand` in `q_math.c`, the C library's `rand()` | `shared/qcommon/q_rand.h` and `q_rand.c`; tools `docs_rewrite/modernization/tools/rng/` |
 | Scripted fights | | `docs_rewrite/modernization/tools/gamestats/scenarios40.sh` runs the 40 cases on Windows or Linux and compares them with `scenarios40_golden.txt`, the same on every platform |
 | Tests of the library | | round trip on about 36,000 recorded messages, 100,100 synthetic messages, malformed-input test and fuzzer, determinism hashes per compiler, movement determinism (game against cgame, compiler against compiler); client packets: 100,000 synthetic packets, the recorded packets through the library and through the engine interface, 400,000 malformed packets, and a fuzzer |
-| Compilers checked | | MSVC (x64, x86), GCC 12 (x64, x86) and 16 (x64), Clang (llvm-mingw on Windows, Clang 14 on Linux) |
+| Language and targets | C++11 (`-std=c++11`); Windows in 32 and 64 bits, Linux, macOS, the BSDs, and code for PowerPC, Alpha, Solaris, IRIX and Cygwin | C++20 for every C++ target, MSVC in strict mode; Windows x64, Linux and macOS (x86_64 and arm64) only (section 30) |
+| Compilers checked | | MSVC x64, GCC 12 and 16, Clang (llvm-mingw on Windows, Clang 14 on Linux); 32-bit builds were checked until 16 November 2026 |
 | `.gitattributes`, `.gitignore` | | line endings of scripts, demo files and local traces ignored |
-| GitHub workflow | installs libjpeg, libpng and zlib on Linux and macOS | installs none of them, since no build links them (not run) |
+| GitHub workflow | installs libjpeg, libpng and zlib on Linux and macOS; builds Windows and Linux in 32 and 64 bits | installs none of them, since no build links them; 64-bit jobs only (not run) |
 | Study, plan, progress | | `docs_rewrite/modernization/` (this folder) |
 
 ### 28. Name: ModernJK
@@ -1054,7 +1055,24 @@ Added commands. The statistics commands print their counters since the previous 
 | Server browser, master server, `getstatus`, `getinfo` | yes, unchanged |
 | Configuration files from OpenJK | yes, once copied under the new name (section 28); removed cvars are stored and never read |
 
-### 30. Not changed yet
+### 30. C++20, 64-bit Windows, Linux and macOS
+
+**Before.** OpenJK's C++ is built as C++11, and its build and code still carry 32-bit Windows and Linux, the BSDs, and branches for PowerPC, Alpha, Solaris, IRIX and Cygwin. A 32-bit Windows build made with MSVC played its sound through OpenAL and EAX (with the 32-bit `OpenAL32.dll` and `EaxMan.dll`, also copied into the 64-bit installations); every other build mixes its sound itself.
+
+**Now.** Every C++ file is built as C++20, MSVC in its strict standard mode (the C files stay C until plan step 18). The build stops on a target that is not 64-bit or not Windows, Linux or macOS; Windows is x86_64 only, Linux and macOS x86_64 or arm64. The code of the other targets, the OpenAL and EAX path and their libraries are removed. Every warning of a clang build is fixed and every string literal is const (MSVC's strict mode refuses one given as `char *`); three bugs of the single-player game it showed are fixed as their code meant: an air kick no longer counts in the multikick, a fall kills only past the health (at least 20, five times for a howler), and the ragdoll leaves flat ground alone. The warnings of MSVC and GCC 12 are fixed the same way, and the bugs they showed with them: in multiplayer, a skin name sent by another player could write one byte past a buffer of the client, an effect file's value made only of spaces left a range unset, and the Galak mech could lob with an unset velocity; in single player, the seeker's spawn trace used a random box, the DEMP2's charged shot detonating in the air took a random direction for its effect, loading a save of the original game read past its data, and a long misc_model name overflowed its buffers. rend2, OpenJK's experimental renderer, is removed (a more recent one is to come).
+
+**Why.** One language level and three systems in 64-bit (16 November 2026): the platforms the game is built and tested on, and a modern C++ for the work ahead (the C code in C++, plan step 18; a modern CMake project, step 19; the new platform layer, step 15).
+
+**Gain.** No change in game: the 40 scripted scenarios give the same counts. Less code to read and keep (about 5,700 lines of sound code for a path no 64-bit build compiled). A bug fixed: the `com_affinity` setting on Windows x64 filled only half of the processor mask and left the rest uninitialized. The cost: no 32-bit build.
+
+<details>
+<summary>Technical details</summary>
+
+Top-level `CMakeLists.txt`: `CMAKE_CXX_STANDARD` 20, required, without extensions (MSVC's `/std:c++20` implies `/permissive-`), the checks of the pointer size, the system and the processor, the x86 flags removed (`/arch:SSE2`, `-msse2`, `-mstackrealign`, `-mfpmath=sse`: none changed the x64 code). `shared/qcommon/q_platform.h` refuses another processor on Windows and another system. Removed: `id386`, `idppc` and their code, the `USE_OPENAL` blocks of `snd_dma.cpp`, `snd_mem.cpp`, `snd_local.h` and `sdl_sound.cpp`, `client/OpenAL`, `client/eax`, `lib/OpenAL32.lib`, `lib/ALut.lib`, the x86 binaries of `lib/SDL2`, the i686 toolchain files, the presets `msvc-x86`, `mingw-clang-x86` and `gcc-x86`, and `netcodec_pmove_101` (the original 1.01 movement code in 32-bit x87; its results: [progress/step-06-cpp-codec.md](progress/step-06-cpp-codec.md)). `codemp/rd-rend2` and the option `BuildMPRend2` removed. `CMAKE_CXX_SCAN_FOR_MODULES` off (the project has no C++20 module; MSBuild's scan files of two sources named `files.cpp` collided). The warnings and how each was checked: [progress/step-17-cxx20-64bit.md](progress/step-17-cxx20-64bit.md).
+
+</details>
+
+### 31. Not changed yet
 
 | subject | where |
 |---|---|

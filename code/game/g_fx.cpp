@@ -955,7 +955,9 @@ void SP_fx_explosion_trail( gentity_t *ent )
 	}
 
 	// Get our defaults
-	G_SpawnString( "fxFile", "env/exp_trail_comp", &ent->fxFile );
+	char *fxFile;
+	G_SpawnString( "fxFile", "env/exp_trail_comp", &fxFile );
+	ent->fxFile = fxFile;
 	G_SpawnInt( "damage", "128", &ent->damage );
 	G_SpawnFloat( "radius", "128", &ent->radius );
 	G_SpawnFloat( "speed", "350", &ent->speed );
@@ -1197,7 +1199,9 @@ void SP_fx_target_beam( gentity_t *ent )
 	}
 
 	G_SpawnInt( "damage", "0", &ent->damage );
-	G_SpawnString( "fxFile", "env/targ_beam", &ent->fxFile );
+	char *fxFile;
+	G_SpawnString( "fxFile", "env/targ_beam", &fxFile );
+	ent->fxFile = fxFile;
 
 	if ( ent->spawnflags & 16 ) // NO_IMPACT FX
 	{

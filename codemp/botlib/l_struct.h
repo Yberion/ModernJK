@@ -53,7 +53,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //structure field definition
 typedef struct fielddef_s
 {
-	char *name;										//name of the field
+	const char *name;								//name of the field
 	int offset;										//offset in the structure
 	int type;										//type of the field
 	//type specific fields

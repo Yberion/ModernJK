@@ -155,7 +155,7 @@ static char *GetToken(char **text, bool allowLineBreaks, bool readUntilEOL = fal
 		}
 	}
 
-	if (token[0] == '\"')
+	if (length > 0 && token[0] == '\"')
 	{	// remove start quote
 		length--;
 		memmove(token, token+1, length);
@@ -190,7 +190,7 @@ CTextPool::~CTextPool(void)
 	Z_Free(mPool);
 }
 
-char *CTextPool::AllocText(char *text, bool addNULL, CTextPool **poolPtr)
+char *CTextPool::AllocText(const char *text, bool addNULL, CTextPool **poolPtr)
 {
 	int	length = strlen(text) + (addNULL ? 1 : 0);
 
@@ -245,12 +245,12 @@ bool CGPObject::WriteText(CTextPool **textPool, const char *text)
    if (strchr(text, ' ') || !text[0])
    {
 	   (*textPool)->AllocText("\"", false, textPool);
-	   (*textPool)->AllocText((char *)text, false, textPool);
+	   (*textPool)->AllocText(text, false, textPool);
 	   (*textPool)->AllocText("\"", false, textPool);
    }
    else
    {
-	   (*textPool)->AllocText((char *)text, false, textPool);
+	   (*textPool)->AllocText(text, false, textPool);
    }
 
    return true;
@@ -299,7 +299,7 @@ CGPValue *CGPValue::Duplicate(CTextPool **textPool)
 
 	if (textPool)
 	{
-		name = (*textPool)->AllocText((char *)mName, true, textPool);
+		name = (*textPool)->AllocText(mName, true, textPool);
 	}
 	else
 	{
@@ -312,7 +312,7 @@ CGPValue *CGPValue::Duplicate(CTextPool **textPool)
 	{
 		if (textPool)
 		{
-			name = (*textPool)->AllocText((char *)iterator->GetName(), true, textPool);
+			name = (*textPool)->AllocText(iterator->GetName(), true, textPool);
 		}
 		else
 		{
@@ -349,7 +349,7 @@ void CGPValue::AddValue(const char *newValue, CTextPool **textPool)
 {
 	if (textPool)
 	{
-		newValue = (*textPool)->AllocText((char *)newValue, true, textPool);
+		newValue = (*textPool)->AllocText(newValue, true, textPool);
 	}
 
 	if (mList == 0)
@@ -542,7 +542,7 @@ CGPGroup *CGPGroup::Duplicate(CTextPool **textPool, CGPGroup *initParent)
 
 	if (textPool)
 	{
-		name = (*textPool)->AllocText((char *)mName, true, textPool);
+		name = (*textPool)->AllocText(mName, true, textPool);
 	}
 	else
 	{
@@ -623,10 +623,10 @@ CGPValue *CGPGroup::AddPair(const char *name, const char *value, CTextPool **tex
 
 	if (textPool)
 	{
-		name = (*textPool)->AllocText((char *)name, true, textPool);
+		name = (*textPool)->AllocText(name, true, textPool);
 		if (value)
 		{
-			value = (*textPool)->AllocText((char *)value, true, textPool);
+			value = (*textPool)->AllocText(value, true, textPool);
 		}
 	}
 
@@ -649,7 +649,7 @@ CGPGroup *CGPGroup::AddGroup(const char *name, CTextPool **textPool)
 
 	if (textPool)
 	{
-		name = (*textPool)->AllocText((char *)name, true, textPool);
+		name = (*textPool)->AllocText(name, true, textPool);
 	}
 
 	newGroup = new CGPGroup(name, this);

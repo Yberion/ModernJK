@@ -809,7 +809,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-int Key_StringToKeynum( char *str ) {
+int Key_StringToKeynum( const char *str ) {
 	if ( !VALIDSTRING( str ) )
 		return -1;
 

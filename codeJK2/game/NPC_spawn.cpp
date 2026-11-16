@@ -43,7 +43,7 @@ extern void Jedi_Cloak( gentity_t *self );
 extern void G_MatchPlayerWeapon( gentity_t *ent );
 extern void Q3_SetParm (int entID, int parmNum, const char *parmValue);
 extern team_t TranslateTeamName( const char *name );
-extern char	*TeamNames[TEAM_NUM_TEAMS];
+extern const char	*TeamNames[TEAM_NUM_TEAMS];
 
 //extern void CG_ShimmeryThing_Spawner( vec3_t start, vec3_t end, float radius, qboolean taper, int duration );
 extern void Q3_DebugPrint( int level, const char *format, ... );
@@ -1347,7 +1347,7 @@ void NPC_Spawn_Go( gentity_t *ent )
 	{
 		for ( int parmNum = 0; parmNum < MAX_PARMS; parmNum++ )
 		{
-			if ( ent->parms->parm[parmNum] && ent->parms->parm[parmNum][0] )
+			if ( ent->parms->parm[parmNum][0] )
 			{
 				Q3_SetParm( newent->s.number, parmNum, ent->parms->parm[parmNum] );
 			}

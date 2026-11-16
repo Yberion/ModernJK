@@ -228,7 +228,7 @@ cvar_t	*g_allowBunnyhopping;
 
 qboolean	stop_icarus = qfalse;
 
-extern char *G_GetLocationForEnt( gentity_t *ent );
+extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void CP_FindCombatPointWaypoints( void );
 extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 
@@ -255,12 +255,11 @@ static void G_DynamicMusicUpdate( void )
 	int			i, e;
 	int			distSq, radius = 2048;
 	vec3_t		center;
-	int			danger = 0;
 	int			battle = 0;
 	int			entTeam;
 	//qboolean	dangerNear = qfalse;
 	//qboolean	suspicious = qfalse;
-	qboolean	LOScalced = qfalse, clearLOS = qfalse;
+	qboolean	clearLOS = qfalse;
 
 	//FIXME: intro and/or other cues? (one-shot music sounds)
 
@@ -310,11 +309,6 @@ static void G_DynamicMusicUpdate( void )
 	}
 
 	level.dmBeatTime = level.time + 1000;//1 second beats
-
-	if ( player->health <= 20 )
-	{
-		danger = 1;
-	}
 
 	//enemy-based
 	VectorCopy( player->currentOrigin, center );
@@ -369,7 +363,7 @@ static void G_DynamicMusicUpdate( void )
 			continue;
 		}
 
-		LOScalced = clearLOS = qfalse;
+		clearLOS = qfalse;
 		if ( (ent->enemy==player&&(!ent->NPC||ent->NPC->confusionTime<level.time)) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
 		{//mad
 			if ( ent->health > 0 )
@@ -400,7 +394,6 @@ static void G_DynamicMusicUpdate( void )
 					else if ( distSq > 1048576/*1024*1024*/ )
 					{//> 1024 away
 						clearLOS = G_ClearLOS( player, player->client->renderInfo.eyePoint, ent );
-						LOScalced = qtrue;
 						if ( clearLOS == qfalse )
 						{//No LOS
 							continue;
@@ -410,34 +403,6 @@ static void G_DynamicMusicUpdate( void )
 				battle++;
 			}
 		}
-
-		if ( level.dmState == DM_EXPLORE )
-		{//only do these visibility checks if you're still in exploration mode
-			if ( !InFront( ent->currentOrigin, player->currentOrigin, player->client->ps.viewangles, 0.0f) )
-			{//not in front
-				continue;
-			}
-
-			if ( !LOScalced )
-			{
-				clearLOS = G_ClearLOS( player, player->client->renderInfo.eyePoint, ent );
-			}
-			if ( !clearLOS )
-			{//can't see them directly
-				continue;
-			}
-		}
-
-		if ( ent->health <= 0 )
-		{//dead
-			if ( !ent->client || level.time - ent->s.time > 10000 )
-			{//corpse has been dead for more than 10 seconds
-				//FIXME: coming across corpses should cause danger sounds too?
-				continue;
-			}
-		}
-		//we see enemies and/or corpses
-		danger++;
 	}
 
 	if ( !battle )
@@ -447,7 +412,6 @@ static void G_DynamicMusicUpdate( void )
 		{//FIXME: maybe tripwires and other FIXED things need their own sound, some kind of danger/caution theme
 			if ( G_CheckForDanger( player, alert ) )
 			{//found danger near by
-				danger++;
 				battle = 1;
 			}
 			else if ( level.alertEvents[alert].owner && (level.alertEvents[alert].owner == player->enemy || (level.alertEvents[alert].owner->client && level.alertEvents[alert].owner->client->playerTeam == player->client->enemyTeam) ) )
@@ -551,10 +515,7 @@ All but the last will have the teamchain field set to the next one
 void G_FindTeams( void ) {
 	gentity_t	*e, *e2;
 	int		i, j;
-	int		c, c2;
 
-	c = 0;
-	c2 = 0;
 //	for ( i=1, e=g_entities,i ; i < globals.num_entities ; i++,e++ )
 	for ( i=MAX_CLIENTS ; i < globals.num_entities ; i++ )
 	{
@@ -569,8 +530,6 @@ void G_FindTeams( void ) {
 		if (e->flags & FL_TEAMSLAVE)
 			continue;
 		e->teammaster = e;
-		c++;
-		c2++;
 //		for (j=i+1, e2=e+1 ; j < globals.num_entities ; j++,e2++)
 		for (j=i+1; j < globals.num_entities ; j++)
 		{
@@ -586,7 +545,6 @@ void G_FindTeams( void ) {
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
-				c2++;
 				e2->teamchain = e->teamchain;
 				e->teamchain = e2;
 				e2->teammaster = e;
@@ -601,7 +559,6 @@ void G_FindTeams( void ) {
 		}
 	}
 
-	//gi.Printf ("%i teams with %i entities\n", c, c2);
 }
 
 
@@ -761,7 +718,8 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 	G_InitWorldSession();
 
 	// initialize all entities for this game
-	memset( g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );
+	// all zero is every member's empty state: ghoul2, the only non-trivial member, is a handle (0: none)
+	memset( (void *)g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );
 	globals.gentities = g_entities;
 	ClearAllInUse();
 	// initialize all clients for this game
@@ -1001,7 +959,7 @@ static void G_CheckTasksCompleted (gentity_t *ent)
 
 	if ( Q3_TaskIDPending( ent, TID_LOCATION ) )
 	{
-		char	*currentLoc = G_GetLocationForEnt( ent );
+		const char	*currentLoc = G_GetLocationForEnt( ent );
 
 		if ( currentLoc && currentLoc[0] && Q_stricmp( ent->message, currentLoc ) == 0 )
 		{//we're in the desired location

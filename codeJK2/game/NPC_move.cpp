@@ -183,7 +183,8 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	vec3_t		angles;
 
 	//Clear the struct
-	memset( &frameNavInfo, 0, sizeof( frameNavInfo ) );
+	// all zero, the trace's collision records included: only their default constructor makes navInfo_t non-trivial
+	memset( (void *)&frameNavInfo, 0, sizeof( frameNavInfo ) );
 
 	//Get our movement, if any
 	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == qfalse )
@@ -264,7 +265,8 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 	NPCInfo->aiFlags &= ~NPCAI_BLOCKED;
 
 	//Clear the struct
-	memset( &frameNavInfo, 0, sizeof( frameNavInfo ) );
+	// all zero, the trace's collision records included: only their default constructor makes navInfo_t non-trivial
+	memset( (void *)&frameNavInfo, 0, sizeof( frameNavInfo ) );
 
 	//Get our movement, if any
 	if ( NPC_GetMoveInformation( frameNavInfo.direction, &frameNavInfo.distance ) == qfalse )

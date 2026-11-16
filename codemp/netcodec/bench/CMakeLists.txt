@@ -9,7 +9,7 @@ netcodec_add_program(netcodec_bench_size bench_size.cpp)
 target_include_directories(netcodec_bench_size PRIVATE "${PROJECT_SOURCE_DIR}/test")
 
 # Codec benchmark against the legacy coding: OpenJK's own codemp/qcommon/msg.cpp and huffman.cpp, built as the
-# engine builds them (C++11, FINAL_BUILD, its headers), without the project's warnings (engine code, unchanged).
+# engine builds them (C++20, FINAL_BUILD, its headers), without the project's warnings (engine code, unchanged).
 set(netcodec_MODERNJK_DIR "${PROJECT_SOURCE_DIR}/../.." CACHE PATH "ModernJK source tree, for the legacy benchmark")
 if(EXISTS "${netcodec_MODERNJK_DIR}/codemp/qcommon/msg.cpp")
 	add_library(netcodec_legacy OBJECT
@@ -17,16 +17,12 @@ if(EXISTS "${netcodec_MODERNJK_DIR}/codemp/qcommon/msg.cpp")
 		"${netcodec_MODERNJK_DIR}/codemp/qcommon/huffman.cpp"
 		legacy/legacy_codec.cpp
 		legacy/legacy_stubs.cpp)
-	set_target_properties(netcodec_legacy PROPERTIES CXX_STANDARD 11 CXX_EXTENSIONS OFF)
+	set_target_properties(netcodec_legacy PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 	target_include_directories(netcodec_legacy PRIVATE
 		"${netcodec_MODERNJK_DIR}/codemp" "${netcodec_MODERNJK_DIR}/shared" "${netcodec_MODERNJK_DIR}/lib/gsl-lite/include")
 	target_compile_definitions(netcodec_legacy PRIVATE FINAL_BUILD $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
 	if(NOT WIN32)   # ModernJK's CMakeLists.txt defines it outside Windows (q_platform.h does on Windows)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			target_compile_definitions(netcodec_legacy PRIVATE ARCH_STRING="x86_64")
-		else()
-			target_compile_definitions(netcodec_legacy PRIVATE ARCH_STRING="i386")
-		endif()
+		target_compile_definitions(netcodec_legacy PRIVATE "ARCH_STRING=\"${CMAKE_SYSTEM_PROCESSOR}\"")
 	endif()
 	target_compile_options(netcodec_legacy PRIVATE $<IF:$<BOOL:${MSVC}>,/W0,-w>)
 	# aligned as the library (CMakeLists.txt): the legacy timings are the A/B scripts' check of a busy machine, so they
@@ -34,8 +30,7 @@ if(EXISTS "${netcodec_MODERNJK_DIR}/codemp/qcommon/msg.cpp")
 	if(NOT MSVC)
 		target_compile_options(netcodec_legacy PRIVATE -falign-functions=64 -falign-loops=64)
 	endif()
-	# not netcodec_options: its C++20 requirement would turn on MSVC's conformance mode, which the engine code does
-	# not build with (the engine builds msg.cpp as C++11); the legacy code is not instrumented by the sanitizers
+	# not netcodec_options: the legacy code is not instrumented by the sanitizers
 	if(MSVC AND netcodec_ENABLE_SANITIZER_ADDRESS)
 		# except AddressSanitizer with MSVC: its standard library refuses to link objects built with and without it, or
 		# with different container annotations (same settings as cmake/Sanitizers.cmake)

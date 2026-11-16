@@ -4599,20 +4599,6 @@ float PM_GetTimeScaleMod( gentity_t *gent )
 	return 1.0f;
 }
 
-static inline qboolean PM_IsHumanoid( CGhoul2Info *ghlInfo )
-{
-	char	*GLAName;
-	GLAName = gi.G2API_GetGLAName( ghlInfo );
-	assert(GLAName);
-
-	if ( !Q_stricmp( "models/players/_humanoid/_humanoid", GLAName ) )
-	{
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
 /*
 -------------------------
 PM_SetAnimFinal
@@ -5421,7 +5407,7 @@ void PM_TorsoAnimLightsaber()
 				}
 				if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 				{//
-					if ( &g_entities[pm->ps->saberEntityNum] != NULL && g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
+					if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 					{//fell to the ground and we're not trying to pull it back
 						saberInAir = qfalse;
 					}
@@ -5655,7 +5641,7 @@ void PM_TorsoAnimation( void )
 			{
 				if ( pm->ps->saberEntityNum < ENTITYNUM_NONE && pm->ps->saberEntityNum > 0 )//player is 0
 					{//
-					if ( &g_entities[pm->ps->saberEntityNum] != NULL && g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
+					if ( g_entities[pm->ps->saberEntityNum].s.pos.trType == TR_STATIONARY )
 					{//fell to the ground and we're not trying to pull it back
 						saberInAir = qfalse;
 					}

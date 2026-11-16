@@ -72,7 +72,7 @@ typedef struct interface_export_s
 
 	int				(*I_GetFloat)( int entID, int type, const char *name, float *value );
 	int				(*I_GetVector)( int entID, int type, const char *name, vec3_t value );
-	int				(*I_GetString)( int entID, int type, const char *name, char **value );
+	int				(*I_GetString)( int entID, int type, const char *name, const char **value );
 
 	int				(*I_Evaluate)( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType );
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# A/B (owner, Debian VM): bench_codec built with a recent GCC in a podman container, run on the VM outside it.
+# A/B (Linux VM): bench_codec built with a recent GCC in a podman container, run on the VM outside it.
 # Three builds: a reference commit (REF, default HEAD), the working tree without the forced inlining of PredictAngle
 # (noinl), the working tree (cur); code aligned to 64 bytes in all of them, as ab_gcc.sh. Prints the warm and cold timings per
 # run, then the best of each build against ref, with the checks of ab_summary.awk.

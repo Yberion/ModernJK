@@ -29,9 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 /*
 Debug_Printf
 */
-void Debug_Printf (cvar_t *cv, int debugLevel, char *fmt, ...)
+void Debug_Printf (cvar_t *cv, int debugLevel, const char *fmt, ...)
 {
-	char		*color;
+	const char		*color;
 	va_list		argptr;
 	char		msg[1024];
 

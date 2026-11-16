@@ -1,12 +1,11 @@
 #!/bin/bash
-# Several builds in one run (owner, Debian VM), to find which of a series of commits changed the timing: bench_codec of
+# Several builds in one run (Linux VM), to find which of a series of commits changed the timing: bench_codec of
 # each copy (a directory holding codemp/netcodec, for example build-netcodec/bisect/* prepared on the host), GCC
 # Release with functions, loops and jumps aligned to 64 bytes in every build (as ab_gcc.sh), run in turn on core 1.
 # The first copy is the reference; the summary (ab_summary.awk) compares every build with it, and the lines "step"
 # compare each build with the one before it.
-# Usage, from anywhere: [CXX=clang++ CC=clang] [M32=1] bash codemp/netcodec/scripts/ab_gcc_multi.sh <rounds> <copy> ...
-# CXX / CC: another compiler (default g++ / gcc); with clang, functions and loops only (clang has no -falign-jumps).
-# M32=1: 32-bit x86 builds (-m32, as the gcc-x86 preset).
+# Usage, from anywhere: [CXX=clang++ CC=clang] bash codemp/netcodec/scripts/ab_gcc_multi.sh <rounds> <copy> ...
+# CXX / CC: another compiler (default g++-15 / gcc-15); with clang, functions and loops only (clang has no -falign-jumps).
 set -e
 export LC_ALL=C   # numbers with a decimal point in awk (a French locale reads 1404.9 as 1404)
 R="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -14,12 +13,10 @@ ROUNDS=$1
 shift
 W=/tmp/netcodec-ab-multi
 rm -rf "$W" && mkdir -p "$W"
-CXX=${CXX:-g++}
-CC=${CC:-gcc}
+CXX=${CXX:-g++-15}
+CC=${CC:-gcc-15}
 ALIGN="-falign-functions=64 -falign-loops=64 -falign-jumps=64"
 case "$CXX" in *clang*) ALIGN="-falign-functions=64 -falign-loops=64" ;; esac
-M32FLAG=""
-[ "${M32:-0}" = 1 ] && M32FLAG="-m32"
 NAMES=()
 for d in "$@"; do
 	n=$(basename "$d")
@@ -30,7 +27,7 @@ for d in "$@"; do
 	rm -rf "$W/$n/codemp/netcodec/build-netcodec"
 	echo "$n = $d"
 	cmake -S "$W/$n/codemp/netcodec" -B "$W/build-$n" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="$CXX" -DCMAKE_C_COMPILER="$CC" \
-		-DCMAKE_CXX_FLAGS="$ALIGN $M32FLAG" -DCMAKE_C_FLAGS="$M32FLAG" -Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" \
+		-DCMAKE_CXX_FLAGS="$ALIGN" -Dnetcodec_MODERNJK_DIR="$R" -Dnetcodec_TRACE_DIR="$R/docs_rewrite/modernization/data/traces" \
 		> "$W/build-$n.log" 2>&1 &&
 	cmake --build "$W/build-$n" --target netcodec_bench_codec -j 4 >> "$W/build-$n.log" 2>&1 ||
 	{ echo "build of $n failed:"; tail -30 "$W/build-$n.log"; exit 1; }

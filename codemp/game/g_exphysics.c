@@ -116,9 +116,9 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 		vec3_t gbmAngles;
 		vec3_t boneOrg;
 		vec3_t projectedBoneOrg;
-		vec3_t collisionRootPos;
+		vec3_t collisionRootPos = { 0 };
 		mdxaBone_t matrix;
-		trace_t bestCollision;
+		trace_t bestCollision = { 0 };
 		qboolean hasFirstCollision = qfalse;
 		int i = 0;
 

@@ -296,7 +296,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 	int		ct = 13;
 	float	r;
 	vec3_t	org, mid, dir;
-	char	*effect = NULL, *effect2 = NULL;
+	const char	*effect = NULL, *effect2 = NULL;
 
 	VectorAdd( mins, maxs, mid );
 	VectorScale( mid, 0.5f, mid );

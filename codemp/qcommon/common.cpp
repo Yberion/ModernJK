@@ -444,7 +444,7 @@ void Com_StartupVariable( const char *match ) {
 			continue;
 		}
 
-		char *s = Cmd_Argv(1);
+		const char *s = Cmd_Argv(1);
 
 		if ( !match || !strcmp( s, match ) )
 			Cvar_User_Set( s, Cmd_ArgsFrom( 2 ) );
@@ -535,7 +535,7 @@ void Info_Print( const char *s ) {
 Com_StringContains
 ============
 */
-char *Com_StringContains(char *str1, char *str2, int casesensitive) {
+const char *Com_StringContains(const char *str1, const char *str2, int casesensitive) {
 	int len, i, j;
 
 	len = strlen(str1) - strlen(str2);
@@ -564,10 +564,10 @@ char *Com_StringContains(char *str1, char *str2, int casesensitive) {
 Com_Filter
 ============
 */
-int Com_Filter(char *filter, char *name, int casesensitive)
+int Com_Filter(const char *filter, const char *name, int casesensitive)
 {
 	char buf[MAX_TOKEN_CHARS];
-	char *ptr;
+	const char *ptr;
 	int i, found;
 
 	while(*filter) {
@@ -644,7 +644,7 @@ int Com_Filter(char *filter, char *name, int casesensitive)
 Com_FilterPath
 ============
 */
-int Com_FilterPath(char *filter, char *name, int casesensitive)
+int Com_FilterPath(const char *filter, const char *name, int casesensitive)
 {
 	int i;
 	char new_filter[MAX_QPATH];
@@ -1807,7 +1807,7 @@ PrintMatches
 
 ===============
 */
-char *Cmd_DescriptionString( const char *cmd_name );
+const char *Cmd_DescriptionString( const char *cmd_name );
 static void PrintMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, (int)strlen( shortestMatch ) ) ) {
 		const char *description = Cmd_DescriptionString( s );
@@ -1864,7 +1864,7 @@ PrintCvarMatches
 
 ===============
 */
-char *Cvar_DescriptionString( const char *var_name );
+const char *Cvar_DescriptionString( const char *var_name );
 static void PrintCvarMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, (int)strlen( shortestMatch ) ) ) {
 		char value[TRUNCATE_LENGTH] = {0};

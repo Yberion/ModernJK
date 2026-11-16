@@ -73,10 +73,7 @@ public:
 		clear();
 	}
 
-	enum
-	{
-		RANGE_NULL = 12345,
-	};
+	static constexpr float RANGE_NULL = 12345.0f;	// mMins and mMaxs before any point, compared with floats
 
 
     ////////////////////////////////////////////////////////////////////////////////////

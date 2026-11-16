@@ -6,7 +6,7 @@
 #   scenarios40.sh <prefix> <jampgame dll> [cases at a time, 30]
 # Usage (Linux; gamestats.sh's arguments in the environment):
 #   DED=<modernjkded> BASE=<fs_basepath> scenarios40.sh <prefix> <jampgame .so> [cases at a time, 4]
-# One server per case: 30 at a time on the owner's machine, 4 on the VPS (1 vCPU, 2 GB).
+# One server per case: 30 at a time on the development machine, 4 on the VPS (1 vCPU, 2 GB).
 set -u
 PREFIX=$1
 MODULE=$2

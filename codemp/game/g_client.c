@@ -1559,7 +1559,7 @@ qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName);
 qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
 void BG_GetVehicleModelName(char *modelName, const char *vehicleName, size_t len);
 
-void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
+void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *skinName)
 {
 	int handle;
 	char		afilename[MAX_QPATH];
@@ -1952,7 +1952,7 @@ if desired.
 ============
 */
 
-qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride);
+qboolean G_SetSaber(gentity_t *ent, int saberNum, const char *saberName, qboolean siegeOverride);
 void G_ValidateSiegeClassForTeam(gentity_t *ent, int team);
 
 typedef struct userinfoValidate_s {
@@ -2109,7 +2109,8 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	gclient_t *client = ent->client;
 	int team=TEAM_FREE, health=100, maxHealth=100, teamLeader;
 	const char *s=NULL;
-	char *value=NULL, userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
+	const char *value=NULL;
+	char userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
 		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], className[MAX_QPATH], color1[16], color2[16];
 	qboolean modelChanged = qfalse;
 	gender_t gender = GENDER_MALE;
@@ -2348,7 +2349,7 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	// only going to be true for allowable server-side custom skeleton cases
 	if ( modelChanged ) {
 		// update the server g2 instance if appropriate
-		char *modelname = Info_ValueForKey( userinfo, "model" );
+		const char *modelname = Info_ValueForKey( userinfo, "model" );
 		SetupGameGhoul2Model( ent, modelname, NULL );
 
 		if ( ent->ghoul2 && ent->client )
@@ -2405,7 +2406,7 @@ static qboolean CompareIPs( const char *ip1, const char *ip2 )
 }
 
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char		*value = NULL;
+	const char		*value = NULL;
 	gentity_t	*ent = NULL, *te = NULL;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING] = {0},
@@ -2601,7 +2602,8 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags, i;
-	char		userinfo[MAX_INFO_VALUE], *modelname;
+	char		userinfo[MAX_INFO_VALUE];
+	const char	*modelname;
 	int			spawnCount;
 
 	ent = g_entities + clientNum;
@@ -3093,7 +3095,8 @@ void ClientSpawn(gentity_t *ent) {
 	int					persistant[MAX_PERSISTANT] = {0};
 	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
 	void				*g2WeaponPtrs[MAX_SABERS];
-	char				userinfo[MAX_INFO_STRING] = {0}, *key = NULL, *value = NULL, *saber = NULL;
+	char				userinfo[MAX_INFO_STRING] = {0}, *key = NULL, *saber = NULL;
+	const char			*value = NULL;
 	qboolean			changedSaber = qfalse, inSiegeWithClass = qfalse;
 
 	index = ent - g_entities;

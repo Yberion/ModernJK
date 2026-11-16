@@ -135,7 +135,7 @@ public:
 	virtual int		GetFloat( int gameID, const char *name, float *value ) = 0;
 	// Should be float return type?
 	virtual int		GetVector( int gameID, const char *name, float value[3] ) = 0;
-	virtual int		GetString( int gameID, const char *name, char **value ) = 0;
+	virtual int		GetString( int gameID, const char *name, const char **value ) = 0;
 
 	virtual int		Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType ) = 0;
 

@@ -1833,7 +1833,7 @@ void G2API_SetGhoul2ModelIndexes(CGhoul2Info_v &ghoul2, qhandle_t *modelList, qh
 }
 
 
-char *G2API_GetAnimFileNameIndex(qhandle_t modelIndex)
+const char *G2API_GetAnimFileNameIndex(qhandle_t modelIndex)
 {
 	model_t		*mod_m = R_GetModelByHandle(modelIndex);
 	G2ERROR(mod_m&&mod_m->mdxm,"Bad Model");
@@ -1847,7 +1847,7 @@ char *G2API_GetAnimFileNameIndex(qhandle_t modelIndex)
 // as above, but gets the internal embedded name, not the name of the disk file.
 // This is needed for some unfortunate jiggery-hackery to do with frameskipping & the animevents.cfg file
 //
-char *G2API_GetAnimFileInternalNameIndex(qhandle_t modelIndex)
+const char *G2API_GetAnimFileInternalNameIndex(qhandle_t modelIndex)
 {
 	model_t		*mod_a = R_GetModelByHandle(modelIndex);
 	G2ERROR(mod_a&&mod_a->mdxa,"Bad Model");
