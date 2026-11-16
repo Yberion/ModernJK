@@ -56,7 +56,7 @@ extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHo
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern bool ValidAnimFileIndex ( int index );
 extern bool PM_ControlledByPlayer( void );
-extern bool PM_DroidMelee( int npc_class );
+extern bool PM_DroidMelee( class_t npc_class );
 extern bool PM_PainAnim( int anim );
 extern bool PM_JumpingAnim( int anim );
 extern bool PM_FlippingAnim( int anim );
@@ -520,27 +520,27 @@ bool PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
 	return true;
 }
 
-int PM_AnimLevelForSaberAnim( int anim )
+saber_styles_t PM_AnimLevelForSaberAnim( int anim )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
 	{
-		return FORCE_LEVEL_1;
+		return SS_FAST;
 	}
 	if ( anim >= BOTH_A2_T__B_ && anim <= BOTH_D2_B____ )
 	{
-		return FORCE_LEVEL_2;
+		return SS_MEDIUM;
 	}
 	if ( anim >= BOTH_A3_T__B_ && anim <= BOTH_D3_B____ )
 	{
-		return FORCE_LEVEL_3;
+		return SS_STRONG;
 	}
 	if ( anim >= BOTH_A4_T__B_ && anim <= BOTH_D4_B____ )
 	{//desann
-		return FORCE_LEVEL_4;
+		return SS_DESANN;
 	}
 	if ( anim >= BOTH_A5_T__B_ && anim <= BOTH_D5_B____ )
 	{//tavion
-		return FORCE_LEVEL_5;
+		return SS_TAVION;
 	}
 	if ( anim >= BOTH_A6_T__B_ && anim <= BOTH_D6_B____ )
 	{//dual
@@ -550,7 +550,7 @@ int PM_AnimLevelForSaberAnim( int anim )
 	{//staff
 		return SS_STAFF;
 	}
-	return FORCE_LEVEL_0;
+	return SS_NONE;
 }
 
 int PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum )
@@ -1160,13 +1160,13 @@ bool PM_InAnimForSaberMove( int anim, int saberMove )
 		}
 		return false;
 	}
-	int animLevel = PM_AnimLevelForSaberAnim( anim );
-	if ( animLevel <= 0 )
+	const saber_styles_t animLevel = PM_AnimLevelForSaberAnim( anim );
+	if ( animLevel <= SS_NONE )
 	{//NOTE: this will always return false for the ready poses and putaway/draw...
 		return false;
 	}
 	//drop the anim to the first level and start the checks there
-	anim -= (animLevel-FORCE_LEVEL_1)*SABER_ANIM_GROUP_SIZE;
+	anim -= (animLevel-SS_FAST)*SABER_ANIM_GROUP_SIZE;
 	//check level 1
 	if ( anim == saberMoveData[saberMove].animToUse )
 	{
@@ -2038,11 +2038,11 @@ bool PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 		//TEMP: for now, let staff attacks infinitely chain
 		return false;
 	}
-	else if ( pm->ps->saberAnimLevel == FORCE_LEVEL_3 )
+	else if ( pm->ps->saberAnimLevel == SS_STRONG )
 	{
 		if ( curmove == LS_NONE || newmove == LS_NONE )
 		{
-			if ( pm->ps->saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > Q_irand( 0, 1 ) )
+			if ( pm->ps->saberAnimLevel >= SS_STRONG && pm->ps->saberAttackChainCount > Q_irand( 0, 1 ) )
 			{
 				return true;
 			}
@@ -2076,7 +2076,7 @@ bool PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )
 	}
 	else
 	{//FIXME: have chainAngle influence fast and medium chains as well?
-		if ( (pm->ps->saberAnimLevel == FORCE_LEVEL_2 || pm->ps->saberAnimLevel == SS_DUAL)
+		if ( (pm->ps->saberAnimLevel == SS_MEDIUM || pm->ps->saberAnimLevel == SS_DUAL)
 			&& pm->ps->saberAttackChainCount > Q_irand( 2, 5 ) )
 		{
 			return true;
@@ -2166,7 +2166,7 @@ saberMoveName_t PM_PickBackStab( void )
 			return LS_A_BACK;
 		}
 	}
-	else if ( pm->ps->saberAnimLevel == FORCE_LEVEL_2
+	else if ( pm->ps->saberAnimLevel == SS_MEDIUM
 		|| pm->ps->saberAnimLevel == SS_DUAL )
 	{//using medium attacks or dual sabers
 		if ( pm->ps->pm_flags & PMF_DUCKED )
@@ -2481,8 +2481,8 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 bool PM_InSecondaryStyle( void )
 {
 	if ( pm->ps->saber[0].numBlades > 1
-		&& pm->ps->saber[0].singleBladeStyle
-		&& (pm->ps->saber[0].stylesForbidden&(1<<pm->ps->saber[0].singleBladeStyle))
+		&& pm->ps->saber[0].singleBladeStyle != SS_NONE
+		&& (pm->ps->saber[0].stylesForbidden&Bit( pm->ps->saber[0].singleBladeStyle ))
 		&& pm->ps->saberAnimLevel == pm->ps->saber[0].singleBladeStyle )
 	{
 		return true;
@@ -3828,7 +3828,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 							else
 							{//enemy in front
 								float enemyDistSq = DistanceSquared( pm->gent->currentOrigin, pm->gent->enemy->currentOrigin );
-								if ( ((pm->ps->saberAnimLevel == FORCE_LEVEL_1 ||
+								if ( ((pm->ps->saberAnimLevel == SS_FAST ||
 										pm->ps->saberAnimLevel == SS_STAFF ||
 										pm->gent->client->NPC_class == CLASS_TAVION ||
 										pm->gent->client->NPC_class == CLASS_ALORA ||
@@ -3845,7 +3845,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 										}
 									}
 								}
-								else if ( ((pm->ps->saberAnimLevel >= FORCE_LEVEL_2 || pm->gent->client->NPC_class == CLASS_DESANN) && enemyDistSq > 40000) || pm->gent->enemy->health <= 0 )//200 squared
+								else if ( ((pm->ps->saberAnimLevel >= SS_MEDIUM || pm->gent->client->NPC_class == CLASS_DESANN) && enemyDistSq > 40000) || pm->gent->enemy->health <= 0 )//200 squared
 								{//enemy is very faw away and I'm using medium/strong attacks
 									if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) ||
 										( pm->gent && pm->gent->client && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, to_underlying( pm->gent->NPC->rank ) ) > to_underlying( RANK_ENSIGN ) ) )
@@ -4465,7 +4465,7 @@ void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time )
 
 extern bool PM_SpinningSaberAnim( int anim );
 extern float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS];
-void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gentity_t *gent )
+void PM_SaberStartTransAnim( saber_styles_t saberAnimLevel, int anim, float *animSpeed, gentity_t *gent )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
 	{
@@ -4538,11 +4538,11 @@ void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gen
 		( anim >= BOTH_T5_BR__R &&
 		anim <= BOTH_T5_BL_TL ) )
 	{
-		if ( saberAnimLevel == FORCE_LEVEL_1 || saberAnimLevel == FORCE_LEVEL_5 )
+		if ( saberAnimLevel == SS_FAST || saberAnimLevel == SS_TAVION )
 		{//FIXME: should not be necc for FORCE_LEVEL_1's
 			*animSpeed *= 1.5;
 		}
-		else if ( saberAnimLevel == FORCE_LEVEL_3 )
+		else if ( saberAnimLevel == SS_STRONG )
 		{
 			*animSpeed *= 0.75;
 		}

@@ -4392,10 +4392,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 
 
 			// Knows Fast style?
-			if (pState->saberStylesKnown & (1<<SS_FAST))
+			if (pState->saberStylesKnown & Bit( SS_FAST ))
 			{
 				// And Medium?
-				if (pState->saberStylesKnown & (1<<SS_MEDIUM))
+				if (pState->saberStylesKnown & Bit( SS_MEDIUM ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "6" );	// Has FAST and MEDIUM, so can only choose STRONG
 					Cvar_Set ( "ui_newfightingstyle", "2" );		// STRONG
@@ -4407,10 +4407,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 				}
 			}
 			// Knows Medium style?
-			else if (pState->saberStylesKnown & (1<<SS_MEDIUM))
+			else if (pState->saberStylesKnown & Bit( SS_MEDIUM ))
 			{
 				// And Strong?
-				if (pState->saberStylesKnown & (1<<SS_STRONG))
+				if (pState->saberStylesKnown & Bit( SS_STRONG ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "4" );	// Has MEDIUM and STRONG, so can only choose FAST
 					Cvar_Set ( "ui_newfightingstyle", "0" );		// FAST
@@ -4422,10 +4422,10 @@ static void UI_UpdateFightingStyleChoices ( void )
 				}
 			}
 			// Knows Strong style?
-			else if (pState->saberStylesKnown & (1<<SS_STRONG))
+			else if (pState->saberStylesKnown & Bit( SS_STRONG ))
 			{
 				// And Fast
-				if (pState->saberStylesKnown & (1<<SS_FAST))
+				if (pState->saberStylesKnown & Bit( SS_FAST ))
 				{
 					Cvar_Set ( "ui_fightingstylesallowed", "5" );	// Has STRONG and FAST, so can only take MEDIUM
 					Cvar_Set ( "ui_newfightingstyle", "1" );		// MEDIUM
@@ -5348,7 +5348,8 @@ static void UI_ResetForceLevels ( void )
 static void UI_UpdateFightingStyle ( void )
 {
 	playerState_t	*pState;
-	int				fightingStyle,saberStyle;
+	int				fightingStyle;
+	saber_styles_t	saberStyle;
 
 
 	fightingStyle = Cvar_VariableIntegerValue( "ui_newfightingstyle" );
@@ -5381,11 +5382,11 @@ static void UI_UpdateFightingStyle ( void )
 	if (cl && cl->gentity && cl->gentity->client)
 	{
 		pState = cl->gentity->client;
-		pState->saberStylesKnown |= (1<<saberStyle);
+		pState->saberStylesKnown |= Bit( saberStyle );
 	}
 	else	// Must be at the beginning of the game so the client hasn't been created, shove data in a cvar
 	{
-		Cvar_Set ( "g_fighting_style", va("%d",saberStyle) );
+		Cvar_Set ( "g_fighting_style", va("%d",to_underlying( saberStyle )) );
 	}
 }
 #endif // !JK2_MODE

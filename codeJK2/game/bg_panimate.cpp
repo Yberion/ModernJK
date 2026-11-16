@@ -48,7 +48,7 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 
 extern bool ValidAnimFileIndex ( int index );
 extern bool PM_ControlledByPlayer( void );
-extern bool PM_DroidMelee( int npc_class );
+extern bool PM_DroidMelee( class_t npc_class );
 extern bool PM_PainAnim( int anim );
 extern bool PM_JumpingAnim( int anim );
 extern bool PM_FlippingAnim( int anim );

@@ -116,8 +116,8 @@ extern bool G_TryingSpecial( gentity_t *self, usercmd_t *cmd );
 extern bool G_TryingJumpAttack( gentity_t *self, usercmd_t *cmd );
 extern bool G_TryingJumpForwardAttack( gentity_t *self, usercmd_t *cmd );
 extern void WP_SaberSwingSound( gentity_t *ent, int saberNum, swingType_t swingType );
-extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
-extern bool WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel );
+extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, saber_styles_t *saberAnimLevel );
+extern bool WP_SaberStyleValidForSaber( gentity_t *ent, saber_styles_t saberAnimLevel );
 
 bool PM_InKnockDown( playerState_t *ps );
 bool PM_InKnockDownOnGround( playerState_t *ps );
@@ -9244,7 +9244,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		{
 			anim = BOTH_SABERDUAL_STANCE;
 		}
-		else if ( (pm->ps->SaberStaff() && (!pm->ps->saber[0].singleBladeStyle||pm->ps->saber[0].blade[1].active))//saber staff with more than first blade active
+		else if ( (pm->ps->SaberStaff() && (pm->ps->saber[0].singleBladeStyle == SS_NONE||pm->ps->saber[0].blade[1].active))//saber staff with more than first blade active
 			|| pm->ps->saber[0].type == SABER_ARC )
 		{
 			anim = BOTH_SABERSTAFF_STANCE;
@@ -9274,13 +9274,13 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		{
 			anim = pm->ps->saber[1].drawAnim;
 		}
-		else if ( pm->ps->saber[0].stylesLearned==(1<<SS_STAFF) )
+		else if ( pm->ps->saber[0].stylesLearned==Bit( SS_STAFF ) )
 		{
 			anim = BOTH_S1_S7;
 		}
 		else if ( pm->ps->dualSabers
-			&& !(pm->ps->saber[0].stylesForbidden&(1<<SS_DUAL))
-			&& !(pm->ps->saber[1].stylesForbidden&(1<<SS_DUAL)) )
+			&& !(pm->ps->saber[0].stylesForbidden&Bit( SS_DUAL ))
+			&& !(pm->ps->saber[1].stylesForbidden&Bit( SS_DUAL )) )
 		{
 			anim = BOTH_S1_S6;
 		}
@@ -9300,14 +9300,14 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		{
 			anim = pm->ps->saber[1].putawayAnim;
 		}
-		else if ( pm->ps->saber[0].stylesLearned==(1<<SS_STAFF)
+		else if ( pm->ps->saber[0].stylesLearned==Bit( SS_STAFF )
 			&& pm->ps->saber[0].blade[1].active )
 		{
 			anim = BOTH_S7_S1;
 		}
 		else if ( pm->ps->dualSabers
-			&& !(pm->ps->saber[0].stylesForbidden&(1<<SS_DUAL))
-			&& !(pm->ps->saber[1].stylesForbidden&(1<<SS_DUAL))
+			&& !(pm->ps->saber[0].stylesForbidden&Bit( SS_DUAL ))
+			&& !(pm->ps->saber[1].stylesForbidden&Bit( SS_DUAL ))
 			&& pm->ps->saber[1].Active() )
 		{
 			anim = BOTH_S6_S1;
@@ -9337,7 +9337,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	else if ( (pm->ps->saberAnimLevel == SS_DUAL
@@ -9376,7 +9376,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	/*
@@ -9386,7 +9386,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		anim = BOTH_SABERSTAFF_STANCE;
 	}
 	*/
-	else if ( pm->ps->saberAnimLevel > FORCE_LEVEL_1 &&
+	else if ( pm->ps->saberAnimLevel > SS_FAST &&
 		 !PM_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !PM_SaberInSpecial( newMove ))
 	{//readies, parries and reflections have only 1 level
 		if ( pm->ps->saber[0].type == SABER_LANCE || pm->ps->saber[0].type == SABER_TRIDENT )
@@ -9394,7 +9394,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		}
 		else
 		{//increment the anim to the next level of saber anims
-			anim += (pm->ps->saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	else if ( newMove == LS_KICK_F_AIR
@@ -9558,6 +9558,9 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 						case SS_TAVION:
 						case SS_FAST:
 							WP_SaberSwingSound( pm->gent, 0, SWING_FAST );
+							break;
+						
+						default:
 							break;
 						}
 					}
@@ -12428,6 +12431,9 @@ void PM_WeaponLightsaber(void)
 			case SS_STAFF:
 				PM_SetSaberMove( LS_STAFF_SOULCAL );
 				break;
+			
+			default:
+				break;
 			}
 			pm->ps->weaponstate = WEAPON_FIRING;
 			if ( pm->gent )
@@ -13254,7 +13260,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 	return count;
 }
 
-bool PM_DroidMelee( int npc_class )
+bool PM_DroidMelee( class_t npc_class )
 {
 	if ( npc_class == CLASS_PROBE
 		|| npc_class == CLASS_SEEKER

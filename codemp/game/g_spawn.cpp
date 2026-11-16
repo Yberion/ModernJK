@@ -127,24 +127,24 @@ typedef struct field_s {
 
 field_t fields[] = {
 	{ "alliedteam",				FOFS( alliedTeam ),						F_INT },//for misc_turrets
-	{ "angerscript",			FOFS( behaviorSet[BSET_ANGER] ),		F_STRING },//name of script to run
+	{ "angerscript",			FOFS( behaviorSet.elems[to_underlying( BSET_ANGER )] ),		F_STRING },//name of script to run
 	{ "angle",					FOFS( s.angles ),						F_ANGLEHACK },
 	{ "angles",					FOFS( s.angles ),						F_VECTOR },
-	{ "attackscript",			FOFS( behaviorSet[BSET_ATTACK] ),		F_STRING },//name of script to run
-	{ "awakescript",			FOFS( behaviorSet[BSET_AWAKE] ),		F_STRING },//name of script to run
-	{ "blockedscript",			FOFS( behaviorSet[BSET_BLOCKED] ),		F_STRING },//name of script to run
+	{ "attackscript",			FOFS( behaviorSet.elems[to_underlying( BSET_ATTACK )] ),		F_STRING },//name of script to run
+	{ "awakescript",			FOFS( behaviorSet.elems[to_underlying( BSET_AWAKE )] ),		F_STRING },//name of script to run
+	{ "blockedscript",			FOFS( behaviorSet.elems[to_underlying( BSET_BLOCKED )] ),		F_STRING },//name of script to run
 	{ "chunksize",				FOFS( mass ),							F_FLOAT },//for func_breakables
 	{ "classname",				FOFS( classname ),						F_STRING },
 	{ "closetarget",			FOFS( closetarget ),					F_STRING },//for doors
 	{ "count",					FOFS( count ),							F_INT },
-	{ "deathscript",			FOFS( behaviorSet[BSET_DEATH] ),		F_STRING },//name of script to run
+	{ "deathscript",			FOFS( behaviorSet.elems[to_underlying( BSET_DEATH )] ),		F_STRING },//name of script to run
 	{ "delay",					FOFS( delay ),							F_INT },
-	{ "delayscript",			FOFS( behaviorSet[BSET_DELAYED] ),		F_STRING },//name of script to run
+	{ "delayscript",			FOFS( behaviorSet.elems[to_underlying( BSET_DELAYED )] ),		F_STRING },//name of script to run
 	{ "delayscripttime",		FOFS( delayScriptTime ),				F_INT },//name of script to run
 	{ "dmg",					FOFS( damage ),							F_INT },
-	{ "ffdeathscript",			FOFS( behaviorSet[BSET_FFDEATH] ),		F_STRING },//name of script to run
-	{ "ffirescript",			FOFS( behaviorSet[BSET_FFIRE] ),		F_STRING },//name of script to run
-	{ "fleescript",				FOFS( behaviorSet[BSET_FLEE] ),			F_STRING },//name of script to run
+	{ "ffdeathscript",			FOFS( behaviorSet.elems[to_underlying( BSET_FFDEATH )] ),		F_STRING },//name of script to run
+	{ "ffirescript",			FOFS( behaviorSet.elems[to_underlying( BSET_FFIRE )] ),		F_STRING },//name of script to run
+	{ "fleescript",				FOFS( behaviorSet.elems[to_underlying( BSET_FLEE )] ),			F_STRING },//name of script to run
 	{ "fullname",				FOFS( fullName ),						F_STRING },
 	{ "goaltarget",				FOFS( goaltarget ),						F_STRING },//for siege
 	{ "healingclass",			FOFS( healingclass ),					F_STRING },
@@ -153,9 +153,9 @@ field_t fields[] = {
 	{ "health",					FOFS( health ),							F_INT },
 	{ "idealclass",				FOFS( idealclass ),						F_STRING },//for siege spawnpoints
 	{ "linear",					FOFS( alt_fire ),						F_BOOL },//for movers to use linear movement
-	{ "lostenemyscript",		FOFS( behaviorSet[BSET_LOSTENEMY] ),	F_STRING },//name of script to run
+	{ "lostenemyscript",		FOFS( behaviorSet.elems[to_underlying( BSET_LOSTENEMY )] ),	F_STRING },//name of script to run
 	{ "message",				FOFS( message ),						F_STRING },
-	{ "mindtrickscript",		FOFS( behaviorSet[BSET_MINDTRICK] ),	F_STRING },//name of script to run
+	{ "mindtrickscript",		FOFS( behaviorSet.elems[to_underlying( BSET_MINDTRICK )] ),	F_STRING },//name of script to run
 	{ "model",					FOFS( model ),							F_STRING },
 	{ "model2",					FOFS( model2 ),							F_STRING },
 	{ "npc_target",				FOFS( NPC_target ),						F_STRING },
@@ -167,7 +167,7 @@ field_t fields[] = {
 	{ "opentarget",				FOFS( opentarget ),						F_STRING },//for doors
 	{ "origin",					FOFS( s.origin ),						F_VECTOR },
 	{ "ownername",				FOFS( ownername ),						F_STRING },
-	{ "painscript",				FOFS( behaviorSet[BSET_PAIN] ),			F_STRING },//name of script to run
+	{ "painscript",				FOFS( behaviorSet.elems[to_underlying( BSET_PAIN )] ),			F_STRING },//name of script to run
 	{ "paintarget",				FOFS( paintarget ),						F_STRING },//for doors
 	{ "parm1",					0,										F_PARM1 },
 	{ "parm10",					0,										F_PARM10 },
@@ -192,7 +192,7 @@ field_t fields[] = {
 	{ "script_targetname",		FOFS( script_targetname ),				F_STRING },//scripts look for this when "affecting"
 	{ "soundset",				FOFS( soundSet ),						F_STRING },
 	{ "spawnflags",				FOFS( spawnflags ),						F_INT },
-	{ "spawnscript",			FOFS( behaviorSet[BSET_SPAWN] ),		F_STRING },//name of script to run
+	{ "spawnscript",			FOFS( behaviorSet.elems[to_underlying( BSET_SPAWN )] ),		F_STRING },//name of script to run
 	{ "speed",					FOFS( speed ),							F_FLOAT },
 	{ "target",					FOFS( target ),							F_STRING },
 	{ "target2",				FOFS( target2 ),						F_STRING },
@@ -207,8 +207,8 @@ field_t fields[] = {
 	{ "teamnodmg",				FOFS( teamnodmg ),						F_INT },
 	{ "teamowner",				FOFS( s.teamowner ),					F_INT },
 	{ "teamuser",				FOFS( alliedTeam ),						F_INT },
-	{ "usescript",				FOFS( behaviorSet[BSET_USE] ),			F_STRING },//name of script to run
-	{ "victoryscript",			FOFS( behaviorSet[BSET_VICTORY] ),		F_STRING },//name of script to run
+	{ "usescript",				FOFS( behaviorSet.elems[to_underlying( BSET_USE )] ),			F_STRING },//name of script to run
+	{ "victoryscript",			FOFS( behaviorSet.elems[to_underlying( BSET_VICTORY )] ),		F_STRING },//name of script to run
 	{ "wait",					FOFS( wait ),							F_FLOAT },
 };
 

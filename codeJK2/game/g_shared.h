@@ -1141,7 +1141,7 @@ Ghoul2 Insert End
 	CTaskManager	*taskManager;
 	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
-	char		*behaviorSet[NUM_BSETS];
+	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
 	const char	*script_targetname;
 	int			delayScriptTime;
 	const char	*fullName;
@@ -1369,7 +1369,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(taskManager);
 		saved_game.write<int32_t>(taskID.elems);
 		saved_game.write<int32_t>(parms);
-		saved_game.write<int32_t>(behaviorSet);
+		saved_game.write<int32_t>(behaviorSet.elems);
 		saved_game.write<int32_t>(script_targetname);
 		saved_game.write<int32_t>(delayScriptTime);
 		saved_game.write<int32_t>(fullName);
@@ -1550,7 +1550,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(taskManager);
 		saved_game.read<int32_t>(taskID.elems);
 		saved_game.read<int32_t>(parms);
-		saved_game.read<int32_t>(behaviorSet);
+		saved_game.read<int32_t>(behaviorSet.elems);
 		saved_game.read<int32_t>(script_targetname);
 		saved_game.read<int32_t>(delayScriptTime);
 		saved_game.read<int32_t>(fullName);

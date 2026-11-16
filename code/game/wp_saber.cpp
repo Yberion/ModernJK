@@ -338,21 +338,21 @@ float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS] =
 
 stringID_table_t SaberStyleTable[] =
 {
-	{ "NULL",SS_NONE },
+	{ "NULL",to_underlying( SS_NONE ) },
 	ENUM2STRING(SS_FAST),
-	{ "fast",SS_FAST },
+	{ "fast",to_underlying( SS_FAST ) },
 	ENUM2STRING(SS_MEDIUM),
-	{ "medium",SS_MEDIUM },
+	{ "medium",to_underlying( SS_MEDIUM ) },
 	ENUM2STRING(SS_STRONG),
-	{ "strong",SS_STRONG },
+	{ "strong",to_underlying( SS_STRONG ) },
 	ENUM2STRING(SS_DESANN),
-	{ "desann",SS_DESANN },
+	{ "desann",to_underlying( SS_DESANN ) },
 	ENUM2STRING(SS_TAVION),
-	{ "tavion",SS_TAVION },
+	{ "tavion",to_underlying( SS_TAVION ) },
 	ENUM2STRING(SS_DUAL),
-	{ "dual",SS_DUAL },
+	{ "dual",to_underlying( SS_DUAL ) },
 	ENUM2STRING(SS_STAFF),
-	{ "staff",SS_STAFF },
+	{ "staff",to_underlying( SS_STAFF ) },
 	{ "", 0 },
 };
 
@@ -879,7 +879,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 		ent->client->ps.saberLockTime = 0;
 		if ( ent->s.number )
 		{
-			if ( !ent->client->ps.saberAnimLevel )
+			if ( ent->client->ps.saberAnimLevel == SS_NONE )
 			{
 				if ( ent->client->NPC_class == CLASS_DESANN )
 				{
@@ -896,7 +896,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				//FIXME: CLASS_CULTIST instead of this Q_stricmpn?
 				else if ( !Q_stricmpn( "cultist", ent->NPC_type, 7 ) )
 				{//should already be set in the .npc file
-					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
+					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
 				}
 				else if ( ent->NPC && ent->client->playerTeam == TEAM_ENEMY && (ent->NPC->rank == RANK_CIVILIAN || ent->NPC->rank == RANK_LT_JG) )
 				{//grunt and fencer always uses quick attacks
@@ -908,7 +908,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				}
 				else if ( ent->client->playerTeam == TEAM_ENEMY && ent->client->NPC_class == CLASS_SHADOWTROOPER )
 				{//shadowtroopers
-					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
+					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
 				}
 				else if ( ent->NPC && ent->client->playerTeam == TEAM_ENEMY && ent->NPC->rank == RANK_LT )
 				{//boss always starts with strong attacks
@@ -920,27 +920,27 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				}
 				else
 				{//?
-					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
+					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
 				}
 			}
 		}
 		else
 		{
-			if ( !ent->client->ps.saberAnimLevel )
+			if ( ent->client->ps.saberAnimLevel == SS_NONE )
 			{//initialize, but don't reset
 				if (ent->s.number < MAX_CLIENTS)
 				{
 					if (!ent->client->ps.saberStylesKnown)
 					{
-						ent->client->ps.saberStylesKnown = (1<<SS_MEDIUM);
+						ent->client->ps.saberStylesKnown = Bit( SS_MEDIUM );
 					}
 
 
-					if (ent->client->ps.saberStylesKnown & (1<<SS_FAST))
+					if (ent->client->ps.saberStylesKnown & Bit( SS_FAST ))
 					{
 						ent->client->ps.saberAnimLevel = SS_FAST;
 					}
-					else if (ent->client->ps.saberStylesKnown & (1<<SS_STRONG))
+					else if (ent->client->ps.saberStylesKnown & Bit( SS_STRONG ))
 					{
 						ent->client->ps.saberAnimLevel = SS_STRONG;
 					}
@@ -2948,7 +2948,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 extern void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs );
 extern bool ValidAnimFileIndex ( int index );
-int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSide, int lockOrBreakOrSuperBreak, int winOrLose )
+int G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t defenderSaberStyle, int topOrSide, int lockOrBreakOrSuperBreak, int winOrLose )
 {
 	int baseAnim = -1;
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )

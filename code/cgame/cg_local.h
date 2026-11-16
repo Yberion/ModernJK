@@ -359,7 +359,7 @@ typedef struct {
 
 	// input state sent to server
 	int			weaponSelect;
-	int			saberAnimLevelPending;
+	saber_styles_t	saberAnimLevelPending;
 
 	// auto rotating items
 	vec3_t		autoAngles;

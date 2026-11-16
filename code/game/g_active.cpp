@@ -4578,6 +4578,9 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, 
 				case SS_STRONG:
 					client->ps.speed *= 0.45f;
 					break;
+				
+				default:
+					break;
 				}
 				if ( g_saberMoveSpeed->value != 1.0f )
 				{
@@ -4608,6 +4611,9 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, bool	controlledByPlayer, 
 					break;
 				case SS_STRONG:
 					client->ps.speed *= 0.70f;
+					break;
+				
+				default:
 					break;
 				}
 				if ( g_saberMoveSpeed->value != 1.0f )

@@ -929,6 +929,8 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 - `WP_CreateFlechetteBouncyThing` (`game/g_weapon.c`), `NPC.c`, `NPC_AI_GalakMech.c`.
 - `PM_TorsoAnimation` (`game/bg_pmove.c`): the test that sets the weapon's ready animation is skipped while zoomed with the disruptor.
 - `PM_RocketLock` (`game/bg_pmove.cpp`) and the single player's `WP_RocketLock` (`code/game/g_weapon.cpp`) tested `s.powerups & PW_CLOAKED`, the powerup's number used as a mask (11: the bits of `PW_PULL` and of two powerups never set; 4 in single player: `PW_BATTLESUIT`), now `Bit( PW_CLOAKED )`.
+- Single player: taking a saber staff added its one-blade style (medium for the game's staffs) to the styles known as a value, not as a bit, so it taught the fast style; it teaches the medium one now (`g_client.cpp`, `NPC_stats.cpp`, `g_items.cpp`, `wp_saberLoad.cpp` of `code/game`).
+- The scripts' `SetForcePowerLevel` (`game/g_ICARUScb.cpp`, and `Q3_Interface.cpp` of the single-player games) tested the level where it meant the power's index, so a map's script with a power index past the last wrote past the player state's force levels: the index is tested now.
 - `G_CheckClientIdle` (`game/g_active.cpp`): `ps.saberBlocking >= level.time` (a block type, 0 to 2, against the time) replaced by `ps.saberBlockTime >= level.time`, true for 150 to 250 ms after a deflection (defence 2 and 1; never in defence 3).
 - The legs of a player pushing against a wall: section 9. `g_randFix`: section 12.
 

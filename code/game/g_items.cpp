@@ -424,9 +424,9 @@ bool Pickup_Saber( gentity_t *self, bool hadSaber, gentity_t *pickUpSaber )
 			{
 				self->client->ps.saberStylesKnown |= self->client->ps.saber[saberNum].stylesLearned;
 			}
-			if ( self->client->ps.saber[saberNum].singleBladeStyle )
+			if ( self->client->ps.saber[saberNum].singleBladeStyle != SS_NONE )
 			{
-				self->client->ps.saberStylesKnown |= self->client->ps.saber[saberNum].singleBladeStyle;
+				self->client->ps.saberStylesKnown |= Bit( self->client->ps.saber[saberNum].singleBladeStyle );
 			}
 			if ( pickUpSaber->NPC_targetname != nullptr )
 			{//NPC_targetname = saberColor

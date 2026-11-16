@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "bg_saga.h"
 
+#include <algorithm>
+
 // g_client.cpp -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
@@ -35,8 +37,8 @@ extern int g_siegeRespawnCheck;
 
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
-extern bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
-extern bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
+extern bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t saberAnimLevel );
+extern bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t *saberAnimLevel );
 
 forcedata_t Client_Force[MAX_CLIENTS];
 
@@ -3149,12 +3151,12 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		else
 		{
-			ent->client->sess.saberLevel = Com_Clampi( SS_FAST, SS_STRONG, ent->client->sess.saberLevel );
+			ent->client->sess.saberLevel = std::clamp( ent->client->sess.saberLevel, SS_FAST, SS_STRONG );
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 			// limit our saber style to our force points allocated to saber offense
-			if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
-				ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
+			if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] ) )
+				ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] );
 		}
 		if ( level.gametype != GT_SIEGE )
 		{// let's just make sure the styles we chose are cool
@@ -3176,12 +3178,12 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->ps.fd.saberAnimLevel == ent->client->ps.fd.saberDrawAnimLevel &&
 		ent->client->ps.fd.saberAnimLevel == ent->client->sess.saberLevel)
 	{
-		ent->client->sess.saberLevel = Com_Clampi( SS_FAST, SS_STRONG, ent->client->sess.saberLevel );
+		ent->client->sess.saberLevel = std::clamp( ent->client->sess.saberLevel, SS_FAST, SS_STRONG );
 		ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 		// limit our saber style to our force points allocated to saber offense
-		if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
-			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
+		if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] ) )
+			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] );
 	}
 
 	// find a spawn point
@@ -3471,7 +3473,7 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		else
 		{
-			if (client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
+			if (client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] != FORCE_LEVEL_0)
 			{
 				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 			}

@@ -1112,6 +1112,9 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					ent->client->ps.SaberActivate();
 					anim = BOTH_STAFF_TAUNT;
 					break;
+				
+				default:
+					break;
 				}
 			}
 			break;
@@ -1211,6 +1214,9 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					case SS_STAFF:
 						anim = BOTH_SHOWOFF_STAFF;
 						break;
+					
+					default:
+						break;
 					}
 				}
 			}
@@ -1250,6 +1256,9 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					case SS_STAFF:
 						ent->client->ps.SaberActivate();
 						anim = BOTH_VICTORY_STAFF;
+						break;
+					
+					default:
 						break;
 					}
 				}
@@ -1477,7 +1486,7 @@ void ClientCommand( int clientNum ) {
 		}
 
 		int addStyle = GetIDForString( SaberStyleTable, gi.argv(1) );
-		if ( addStyle > SS_NONE && addStyle < SS_STAFF )
+		if ( addStyle > to_underlying( SS_NONE ) && addStyle < to_underlying( SS_STAFF ) )
 		{
 			ent->client->ps.saberStylesKnown |= (1<<addStyle);
 		}
@@ -1497,10 +1506,10 @@ void ClientCommand( int clientNum ) {
 		}
 
 		int setStyle = GetIDForString( SaberStyleTable, gi.argv(1) );
-		if ( setStyle > SS_NONE && setStyle < SS_STAFF )
+		if ( setStyle > to_underlying( SS_NONE ) && setStyle < to_underlying( SS_STAFF ) )
 		{
 			ent->client->ps.saberStylesKnown = (1<<setStyle);
-			cg.saberAnimLevelPending = ent->client->ps.saberAnimLevel = setStyle;
+			cg.saberAnimLevelPending = ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( setStyle );
 		}
 	}
 	else if (Q_stricmp (cmd, "taunt") == 0)

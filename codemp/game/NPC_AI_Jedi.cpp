@@ -94,7 +94,7 @@ extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 static void Jedi_Aggression( gentity_t *self, int change );
 bool Jedi_WaitingAmbush( gentity_t *self );
 
-extern int bg_parryDebounce[];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bg_parryDebounce;
 
 static EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	jediSpeechDebounceTime;//used to stop several jedi from speaking all at once
 //Local state enums
@@ -1328,7 +1328,7 @@ static void Jedi_Advance( void )
 	//TIMER_Set( NPC, "duck", 0 );
 }
 
-static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
+static void Jedi_AdjustSaberAnimLevel( gentity_t *self, saber_styles_t newLevel )
 {
 	if ( !self || !self->client )
 	{
@@ -1337,25 +1337,25 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 	//FIXME: each NPC shold have a unique pattern of behavior for the order in which they
 	if ( self->client->NPC_class == CLASS_TAVION )
 	{//special attacks
-		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_5;
+		self->client->ps.fd.saberAnimLevel = SS_TAVION;
 		return;
 	}
 	else if ( self->client->NPC_class == CLASS_DESANN )
 	{//special attacks
-		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_4;
+		self->client->ps.fd.saberAnimLevel = SS_DESANN;
 		return;
 	}
 	if ( self->client->playerTeam == NPCTEAM_ENEMY )
 	{
 		if ( self->NPC->rank == RANK_CIVILIAN || self->NPC->rank == RANK_LT_JG )
 		{//grunt and fencer always uses quick attacks
-			self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
+			self->client->ps.fd.saberAnimLevel = SS_FAST;
 			return;
 		}
 		if ( self->NPC->rank == RANK_CREWMAN
 			|| self->NPC->rank == RANK_ENSIGN )
 		{//acrobat & force-users always use medium attacks
-			self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_2;
+			self->client->ps.fd.saberAnimLevel = SS_MEDIUM;
 			return;
 		}
 		/*
@@ -1367,13 +1367,13 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 		*/
 	}
 	//use the different attacks, how often they switch and under what circumstances
-	if ( newLevel > self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
+	if ( newLevel > BG_MaxSaberStyle( self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] ) )
 	{//cap it
-		self->client->ps.fd.saberAnimLevel = self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
+		self->client->ps.fd.saberAnimLevel = BG_MaxSaberStyle( self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] );
 	}
-	else if ( newLevel < FORCE_LEVEL_1 )
+	else if ( newLevel < SS_FAST )
 	{
-		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
+		self->client->ps.fd.saberAnimLevel = SS_FAST;
 	}
 	else
 	{//go ahead and set it
@@ -1384,14 +1384,17 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 	{
 		switch ( self->client->ps.fd.saberAnimLevel )
 		{
-		case FORCE_LEVEL_1:
+		case SS_FAST:
 			Com_Printf( S_COLOR_GREEN"%s Saber Attack Set: fast\n", self->NPC_type );
 			break;
-		case FORCE_LEVEL_2:
+		case SS_MEDIUM:
 			Com_Printf( S_COLOR_YELLOW"%s Saber Attack Set: medium\n", self->NPC_type );
 			break;
-		case FORCE_LEVEL_3:
+		case SS_STRONG:
 			Com_Printf( S_COLOR_RED"%s Saber Attack Set: strong\n", self->NPC_type );
+			break;
+		
+		default:
 			break;
 		}
 	}
@@ -1404,7 +1407,7 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 		if ( TIMER_Done( NPCS.NPC, "saberLevelDebounce" ) && !Q_irand( 0, 10 ) )
 		{
 			//Jedi_AdjustSaberAnimLevel( NPC, (NPC->client->ps.fd.saberAnimLevel-1) );//drop
-			Jedi_AdjustSaberAnimLevel( NPCS.NPC, Q_irand( FORCE_LEVEL_1, FORCE_LEVEL_3 ));//random
+			Jedi_AdjustSaberAnimLevel( NPCS.NPC, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );//random
 			TIMER_Set( NPCS.NPC, "saberLevelDebounce", Q_irand( 3000, 10000 ) );
 		}
 	}
@@ -1750,7 +1753,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 					}
 					//rwwFIXMEFIXME: After new drain stuff from SP is in re-enable this.
 					else if ( (NPCS.NPC->health < NPCS.NPC->client->ps.stats[STAT_MAX_HEALTH] * 0.75f
-							&& Q_irand( FORCE_LEVEL_0, NPCS.NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] ) > FORCE_LEVEL_1
+							&& Q_irand( to_underlying( FORCE_LEVEL_0 ), to_underlying( NPCS.NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] ) ) > to_underlying( FORCE_LEVEL_1 )
 							&& WP_ForcePowerUsable( NPCS.NPC, FP_DRAIN )
 							&& ((NPCS.NPCInfo->scriptFlags&SCF_DONT_FIRE)&&Q_stricmp("cultist_drain",NPCS.NPC->NPC_type))) || Q_irand( 0, 1 ) )
 						{
@@ -2424,7 +2427,7 @@ bool Jedi_QuickReactions( gentity_t *self )
 bool Jedi_SaberBusy( gentity_t *self )
 {
 	if ( self->client->ps.torsoTimer > 300
-	&& ( (BG_SaberInAttack( self->client->ps.saberMove )&&self->client->ps.fd.saberAnimLevel==FORCE_LEVEL_3)
+	&& ( (BG_SaberInAttack( self->client->ps.saberMove )&&self->client->ps.fd.saberAnimLevel==SS_STRONG)
 		|| BG_SpinningSaberAnim( self->client->ps.torsoAnim )
 		|| BG_SaberInSpecialAttack( self->client->ps.torsoAnim )
 		//|| PM_SaberInBounce( self->client->ps.saberMove )
@@ -4360,7 +4363,7 @@ static bool Jedi_AttackDecide( int enemy_dist )
 			NPCS.NPC->client->ps.weaponTime = NPCS.NPCInfo->shotTime = NPCS.NPC->attackDebounceTime = 0;
 			//NPC->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + 500;
 			NPCS.NPC->client->ps.saberBlocked = BLOCKED_NONE;
-			Jedi_AdjustSaberAnimLevel( NPCS.NPC, FORCE_LEVEL_1 );//try to follow-up with a quick attack
+			Jedi_AdjustSaberAnimLevel( NPCS.NPC, SS_FAST );//try to follow-up with a quick attack
 			WeaponThink( true );
 			return true;
 		}
@@ -5350,7 +5353,7 @@ void NPC_Jedi_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		}
 		if ( !Q_irand( 0, 3 ) )
 		{//ouch... maybe switch up which saber power level we're using
-			Jedi_AdjustSaberAnimLevel( self, Q_irand( FORCE_LEVEL_1, FORCE_LEVEL_3 ) );
+			Jedi_AdjustSaberAnimLevel( self, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );
 		}
 		if ( !Q_irand( 0, 1 ) )//damage > 20 || self->health < 40 ||
 		{
@@ -6095,7 +6098,7 @@ static void Jedi_Attack( void )
 
 	if ( NPCS.ucmd.buttons & BUTTON_ATTACK && NPCS.NPC->client->playerTeam == NPCTEAM_ENEMY )
 	{
-		if ( Q_irand( 0, NPCS.NPC->client->ps.fd.saberAnimLevel ) > 0
+		if ( Q_irand( 0, to_underlying( NPCS.NPC->client->ps.fd.saberAnimLevel ) ) > 0
 			&& Q_irand( 0, NPCS.NPC->client->pers.maxHealth+10 ) > NPCS.NPC->health
 			&& !Q_irand( 0, 3 ))
 		{//the more we're hurt and the stronger the attack we're using, the more likely we are to make a anger noise when we swing

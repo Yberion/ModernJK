@@ -159,9 +159,9 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 	{
 		xPos = rect->x;
 
-		for (i=FORCE_LEVEL_1;i<=max;i++)
+		for (i=to_underlying( FORCE_LEVEL_1 );i<=max;i++)
 		{
-			starcolor = bgForcePowerCost[forceindex][i];
+			starcolor = bgForcePowerCost[forceindex][static_cast<forcePowerLevels_t>( i )];
 
 			if (uiForcePowersDisabled[forceindex])
 			{
@@ -444,22 +444,22 @@ void UpdateForceUsed()
 	{	// Make sure that our ranks are within legal limits.
 		if (uiForcePowersRank[curpower]<0)
 			uiForcePowersRank[curpower]=0;
-		else if (uiForcePowersRank[curpower]>=NUM_FORCE_POWER_LEVELS)
-			uiForcePowersRank[curpower]=(NUM_FORCE_POWER_LEVELS-1);
+		else if (uiForcePowersRank[curpower]>=to_underlying( NUM_FORCE_POWER_LEVELS ))
+			uiForcePowersRank[curpower]=(to_underlying( NUM_FORCE_POWER_LEVELS )-1);
 
-		for (currank=FORCE_LEVEL_1;currank<=uiForcePowersRank[curpower];currank++)
+		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=uiForcePowersRank[curpower];currank++)
 		{	// Check on this force power
 			if (uiForcePowersRank[curpower]>0)
 			{	// Do not charge the player for the one freebie in jump, or if there is one in saber.
-				if  (	(curpower == FP_LEVITATION && currank == FORCE_LEVEL_1) ||
-						(curpower == FP_SABER_OFFENSE && currank == FORCE_LEVEL_1 && ui_freeSaber.integer) ||
-						(curpower == FP_SABER_DEFENSE && currank == FORCE_LEVEL_1 && ui_freeSaber.integer) )
+				if  (	(curpower == FP_LEVITATION && currank == to_underlying( FORCE_LEVEL_1 )) ||
+						(curpower == FP_SABER_OFFENSE && currank == to_underlying( FORCE_LEVEL_1 ) && ui_freeSaber.integer) ||
+						(curpower == FP_SABER_DEFENSE && currank == to_underlying( FORCE_LEVEL_1 ) && ui_freeSaber.integer) )
 				{
 					// Do nothing (written this way for clarity)
 				}
 				else
 				{	// Check if we can accrue the cost of this power.
-					if (bgForcePowerCost[curpower][currank] > uiForceAvailable)
+					if (bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
 					{	// We can't afford this power.  Break to the next one.
 						// Remove this power from the player's roster.
 						uiForcePowersRank[curpower] = currank-1;
@@ -467,8 +467,8 @@ void UpdateForceUsed()
 					}
 					else
 					{	// Sure we can afford it.
-						uiForceUsed += bgForcePowerCost[curpower][currank];
-						uiForceAvailable -= bgForcePowerCost[curpower][currank];
+						uiForceUsed += bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )];
+						uiForceAvailable -= bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )];
 					}
 				}
 			}
@@ -599,7 +599,7 @@ void UI_ReadLegalForce(void)
 
 		forcePowerRank = iBuf;
 
-		if (forcePowerRank > FORCE_LEVEL_3 || forcePowerRank < 0)
+		if (forcePowerRank > to_underlying( FORCE_LEVEL_3 ) || forcePowerRank < 0)
 		{ //err..  not correct
 			continue;  // skip this power
 		}
@@ -610,15 +610,15 @@ void UI_ReadLegalForce(void)
 		}
 
 		// Accrue cost for each assigned rank for this power.
-		for (currank=FORCE_LEVEL_1;currank<=forcePowerRank;currank++)
+		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=forcePowerRank;currank++)
 		{
-			if (bgForcePowerCost[c][currank] > uiForceAvailable)
+			if (bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
 			{	// Break out, we can't afford any more power.
 				break;
 			}
 			// Pay for this rank of this power.
-			uiForceUsed += bgForcePowerCost[c][currank];
-			uiForceAvailable -= bgForcePowerCost[c][currank];
+			uiForceUsed += bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
+			uiForceAvailable -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
 
 			uiForcePowersRank[c]++;
 		}
@@ -944,13 +944,13 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 		}
 		else if ( num )
 		{//a jedi, set the minimums, hopefuly they know to set the rest!
-			if ( uiForcePowersRank[FP_LEVITATION] < FORCE_LEVEL_1 )
+			if ( uiForcePowersRank[FP_LEVITATION] < to_underlying( FORCE_LEVEL_1 ) )
 			{//force jump 1 minimum
-				uiForcePowersRank[FP_LEVITATION] = FORCE_LEVEL_1;
+				uiForcePowersRank[FP_LEVITATION] = to_underlying( FORCE_LEVEL_1 );
 			}
-			if ( uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1 )
+			if ( uiForcePowersRank[FP_SABER_OFFENSE] < to_underlying( FORCE_LEVEL_1 ) )
 			{//saber attack 1, minimum
-				uiForcePowersRank[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
+				uiForcePowersRank[FP_SABER_OFFENSE] = to_underlying( FORCE_LEVEL_1 );
 			}
 		}
 
@@ -1067,22 +1067,22 @@ bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, in
 		if (raising)
 		{	// Check if we can accrue the cost of this power.
 			rank = uiForcePowersRank[forcepower]+1;
-			if (bgForcePowerCost[forcepower][rank] > uiForceAvailable)
+			if (bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )] > uiForceAvailable)
 			{	// We can't afford this power.  Abandon ship.
 				return true;
 			}
 			else
 			{	// Sure we can afford it.
-				uiForceUsed += bgForcePowerCost[forcepower][rank];
-				uiForceAvailable -= bgForcePowerCost[forcepower][rank];
+				uiForceUsed += bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
+				uiForceAvailable -= bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
 				uiForcePowersRank[forcepower]=rank;
 			}
 		}
 		else
 		{	// Lower the point.
 			rank = uiForcePowersRank[forcepower];
-			uiForceUsed -= bgForcePowerCost[forcepower][rank];
-			uiForceAvailable += bgForcePowerCost[forcepower][rank];
+			uiForceUsed -= bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
+			uiForceAvailable += bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
 			uiForcePowersRank[forcepower]--;
 		}
 
@@ -1316,7 +1316,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 
 		forcePowerRank = iBuf;
 
-		if (forcePowerRank > FORCE_LEVEL_3 || forcePowerRank < 0)
+		if (forcePowerRank > to_underlying( FORCE_LEVEL_3 ) || forcePowerRank < 0)
 		{ //err..  not correct
 			continue;  // skip this power
 		}
@@ -1327,15 +1327,15 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		}
 
 		// Accrue cost for each assigned rank for this power.
-		for (currank=FORCE_LEVEL_1;currank<=forcePowerRank;currank++)
+		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=forcePowerRank;currank++)
 		{
-			if (bgForcePowerCost[c][currank] > uiForceAvailable)
+			if (bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
 			{	// Break out, we can't afford any more power.
 				break;
 			}
 			// Pay for this rank of this power.
-			uiForceUsed += bgForcePowerCost[c][currank];
-			uiForceAvailable -= bgForcePowerCost[c][currank];
+			uiForceUsed += bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
+			uiForceAvailable -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
 
 			uiForcePowersRank[c]++;
 		}

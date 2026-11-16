@@ -2673,7 +2673,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		i = uiForcePowersRank[findex];
 
-		if (i < 0 || i > NUM_FORCE_POWER_LEVELS-1)
+		if (i < 0 || i > to_underlying( NUM_FORCE_POWER_LEVELS )-1)
 		{
 			i = 0;
 		}
@@ -3076,7 +3076,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		}
 */		drawRank = uiForcePowersRank[findex];
 
-		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, 0, NUM_FORCE_POWER_LEVELS-1);
+		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, 0, to_underlying( NUM_FORCE_POWER_LEVELS )-1);
 		break;
     case UI_EFFECTS:
       break;
@@ -4227,7 +4227,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int 
 	case UI_FORCE_RANK_SABERTHROW:
 		findex = (ownerDraw - UI_FORCE_RANK)-1;
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], 0, NUM_FORCE_POWER_LEVELS-1, ownerDraw);
+		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], 0, to_underlying( NUM_FORCE_POWER_LEVELS )-1, ownerDraw);
 		break;
     case UI_EFFECTS:
       break;
@@ -5789,7 +5789,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 			trap->Cvar_Set(va("ui_class_powerlevelslot%i", i), "0");	// Zero this out to start.
 		}
 
-		if (scl->forcePowerLevels[i])
+		if (scl->forcePowerLevels[i] != FORCE_LEVEL_0)
 		{
 			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",scl->forcePowerLevels[i]));
 			trap->Cvar_Set(va("ui_class_power%i", count), HolocronIcons[i]);

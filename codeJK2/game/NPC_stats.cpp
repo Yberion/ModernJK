@@ -41,7 +41,7 @@ const char	*TeamNames[TEAM_NUM_TEAMS] =
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
-const char	*ClassNames[CLASS_NUM_CLASSES] =
+EnumArray<const char *, class_t, CLASS_NUM_CLASSES>	ClassNames =
 {
 	"",				// class none
 	"atst",
@@ -152,11 +152,11 @@ team_t TranslateTeamName( const char *name )
 
 class_t TranslateClassName( const char *name )
 {
-	for ( int n = (CLASS_NONE + 1); n < CLASS_NUM_CLASSES; n++ )
+	for ( class_t n = (CLASS_NONE + 1); n < CLASS_NUM_CLASSES; n++ )
 	{
 		if ( Q_stricmp( ClassNames[n], name ) == 0 )
 		{
-			return ((class_t) n);
+			return n;
 		}
 	}
 

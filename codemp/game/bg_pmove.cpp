@@ -93,8 +93,8 @@ float forceSpeedLevels[4] =
 	1.75
 };
 
-int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
-{
+EnumArray<int[NUM_FORCE_POWERS], forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded =
+{{
 	{ //nothing should be usable at rank 0..
 		999,//FP_HEAL,//instant
 		999,//FP_LEVITATION,//hold/duration
@@ -179,9 +179,9 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		20//FP_SABERTHROW,
 		//NUM_FORCE_POWERS
 	}
-};
+}};
 
-float forceJumpHeight[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight =
 {
 	32,//normal jump (+stepheight+crouchdiff = 66)
 	96,//(+stepheight+crouchdiff = 130)
@@ -189,7 +189,7 @@ float forceJumpHeight[NUM_FORCE_POWER_LEVELS] =
 	384//(+stepheight+crouchdiff = 418)
 };
 
-float forceJumpStrength[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength =
 {
 	JUMP_VELOCITY,//normal jump
 	420,
@@ -1741,7 +1741,7 @@ void PM_SetForceJumpZStart(float value)
 	}
 }
 
-float forceJumpHeightMax[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeightMax =
 {
 	66,//normal jump (32+stepheight(18)+crouchdiff(24) = 74)
 	130,//(96+stepheight(18)+crouchdiff(24) = 138)
@@ -1903,12 +1903,12 @@ static bool PM_CheckJump( void )
 			{//holding jump in air
 				float curHeight = pm->ps->origin[2] - pm->ps->fd.forceJumpZStart;
 				//check for max force jump level and cap off & cut z vel
-				if ( ( curHeight<=forceJumpHeight[0] ||//still below minimum jump height
+				if ( ( curHeight<=forceJumpHeight[FORCE_LEVEL_0] ||//still below minimum jump height
 						(pm->ps->fd.forcePower&&pm->cmd.upmove>=10) ) &&////still have force power available and still trying to jump up
 					curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] &&
 					pm->ps->fd.forceJumpZStart)//still below maximum jump height
 				{//can still go up
-					if ( curHeight > forceJumpHeight[0] )
+					if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] )
 					{//passed normal jump height  *2?
 						if ( !(pm->ps->fd.forcePowersActive&(1<<FP_LEVITATION)) )//haven't started forcejump yet
 						{
@@ -2036,7 +2036,7 @@ static bool PM_CheckJump( void )
 					pm->ps->velocity[2] += JUMP_VELOCITY;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
 				}
-				else if ( curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] )
+				else if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] && curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[FORCE_LEVEL_0] )
 				{//still have some headroom, don't totally stop it
 					if ( pm->ps->velocity[2] > JUMP_VELOCITY )
 					{
@@ -6818,7 +6818,7 @@ static void PM_Weapon( void )
 			else if ( (pm->ps->fd.forcePowersActive&(1<<FP_LIGHTNING)) )
 			{//lightning
 				if ( pm->ps->weapon == WP_MELEE
-					&& pm->ps->activeForcePass > FORCE_LEVEL_2 )
+					&& pm->ps->activeForcePass > to_underlying( FORCE_LEVEL_2 ) )
 				{//2-handed lightning
 					desiredAnim = BOTH_FORCE_2HANDEDLIGHTNING_HOLD;
 				}
@@ -8428,15 +8428,15 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	{//if running backwards while attacking, don't run as fast.
 		switch( ps->fd.saberAnimLevel )
 		{
-		case FORCE_LEVEL_1:
+		case SS_FAST:
 			ps->speed *= 0.75f;
 			break;
-		case FORCE_LEVEL_2:
+		case SS_MEDIUM:
 		case SS_DUAL:
 		case SS_STAFF:
 			ps->speed *= 0.60f;
 			break;
-		case FORCE_LEVEL_3:
+		case SS_STRONG:
 			ps->speed *= 0.45f;
 			break;
 		default:
@@ -8445,7 +8445,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	}
 	else if ( BG_SpinningSaberAnim( ps->legsAnim ) )
 	{
-		if (ps->fd.saberAnimLevel == FORCE_LEVEL_3)
+		if (ps->fd.saberAnimLevel == SS_STRONG)
 		{
 			ps->speed *= 0.3f;
 		}
@@ -8458,19 +8458,19 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	{//if attacking with saber while running, drop your speed
 		switch( ps->fd.saberAnimLevel )
 		{
-		case FORCE_LEVEL_2:
+		case SS_MEDIUM:
 		case SS_DUAL:
 		case SS_STAFF:
 			ps->speed *= 0.85f;
 			break;
-		case FORCE_LEVEL_3:
+		case SS_STRONG:
 			ps->speed *= 0.55f;
 			break;
 		default:
 			break;
 		}
 	}
-	else if (ps->weapon == WP_SABER && ps->fd.saberAnimLevel == FORCE_LEVEL_3 &&
+	else if (ps->weapon == WP_SABER && ps->fd.saberAnimLevel == SS_STRONG &&
 		PM_SaberInTransition(ps->saberMove))
 	{ //Now, we want to even slow down in transitions for level 3 (since it has chains and stuff now)
 		if (cmd->forwardmove < 0)

@@ -369,13 +369,15 @@ typedef enum
 	NUM_FORCE_POWERS
 } forcePowers_t;
 
-typedef enum forcePowerLevels_e {
+enum class forcePowerLevels_t {
 	FORCE_LEVEL_0,
 	FORCE_LEVEL_1,
 	FORCE_LEVEL_2,
 	FORCE_LEVEL_3,
 	NUM_FORCE_POWER_LEVELS
-} forcePowerLevels_t;
+};
+using enum forcePowerLevels_t;
+template <> inline constexpr bool enableEnumArithmetic<forcePowerLevels_t> = true;
 
 #define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
 #define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
@@ -965,6 +967,7 @@ template <> inline constexpr bool enableEnumArithmetic<trackchan_t> = true;
 
 #define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS - TRACK_CHANNEL_NONE)
 
+enum class saber_styles_t;	// bg_public.h
 typedef struct forcedata_s {
 	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
 	int			forcePowersKnown;
@@ -975,8 +978,8 @@ typedef struct forcedata_s {
 	int			forcePower;
 	int			forcePowerMax;
 	int			forcePowerRegenDebounceTime;
-	int			forcePowerLevel[NUM_FORCE_POWERS];		//so we know the max forceJump power you have
-	int			forcePowerBaseLevel[NUM_FORCE_POWERS];
+	forcePowerLevels_t	forcePowerLevel[NUM_FORCE_POWERS];		//so we know the max forceJump power you have
+	forcePowerLevels_t	forcePowerBaseLevel[NUM_FORCE_POWERS];
 	int			forceUsingAdded;
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
@@ -1013,9 +1016,9 @@ typedef struct forcedata_s {
 
 	bool	sentryDeployed;
 
-	int			saberAnimLevelBase;//sigh...
-	int			saberAnimLevel;
-	int			saberDrawAnimLevel;
+	saber_styles_t	saberAnimLevelBase;//sigh...
+	saber_styles_t	saberAnimLevel;
+	saber_styles_t	saberDrawAnimLevel;
 
 	int			suicides;
 
@@ -1575,6 +1578,7 @@ typedef struct trajectory_s {
 // Different eTypes may use the information in different ways
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
+enum class class_t;	// teams.h
 typedef struct entityState_s {
 	int		number;			// entity index
 	int		eType;			// entityType_t
@@ -1721,7 +1725,7 @@ typedef struct entityState_s {
 	vec3_t	boneAngles3; //angles of boneIndex3
 	vec3_t	boneAngles4; //angles of boneIndex4
 
-	int		NPC_class; //we need to see what it is on the client for a few effects.
+	class_t	NPC_class; //we need to see what it is on the client for a few effects.
 
 	//If non-0, this is the index of the vehicle a player/NPC is riding.
 	int		m_iVehicleNum;

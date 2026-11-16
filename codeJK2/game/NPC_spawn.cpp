@@ -1150,7 +1150,6 @@ NPC_Spawn_Go
 void NPC_Spawn_Go( gentity_t *ent )
 {
 	gentity_t	*newent;
-	int			index;
 	vec3_t		saveOrg;
 
 /*	//Do extra code for stasis spawners
@@ -1305,7 +1304,7 @@ void NPC_Spawn_Go( gentity_t *ent )
 	newent->target4 = ent->target4;//ffire death
 	newent->wait = ent->wait;
 
-	for( index = BSET_FIRST; index < NUM_BSETS; index++)
+	for( bSet_t index = BSET_FIRST; index < NUM_BSETS; index++)
 	{
 		if ( ent->behaviorSet[index] )
 		{

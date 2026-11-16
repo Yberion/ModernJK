@@ -1154,7 +1154,7 @@ Ghoul2 Insert End
 	int				m_iIcarusID;
 	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
-	char		*behaviorSet[NUM_BSETS];
+	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
 	const char	*script_targetname;
 	int			delayScriptTime;
 
@@ -1394,7 +1394,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(m_iIcarusID);
 		saved_game.write<int32_t>(taskID.elems);
 		saved_game.write<int32_t>(parms);
-		saved_game.write<int32_t>(behaviorSet);
+		saved_game.write<int32_t>(behaviorSet.elems);
 		saved_game.write<int32_t>(script_targetname);
 		saved_game.write<int32_t>(delayScriptTime);
 		saved_game.write<int32_t>(soundSet);
@@ -1583,7 +1583,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(m_iIcarusID);
 		saved_game.read<int32_t>(taskID.elems);
 		saved_game.read<int32_t>(parms);
-		saved_game.read<int32_t>(behaviorSet);
+		saved_game.read<int32_t>(behaviorSet.elems);
 		saved_game.read<int32_t>(script_targetname);
 		saved_game.read<int32_t>(delayScriptTime);
 		saved_game.read<int32_t>(soundSet);

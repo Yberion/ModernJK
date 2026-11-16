@@ -35,7 +35,7 @@ void ViewHeightFix( const gentity_t * const ent );
 bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 extern bool G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs );
 extern bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
-extern bool PM_DroidMelee( int npc_class );
+extern bool PM_DroidMelee( class_t npc_class );
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 extern bool G_HasKnockdownAnims( gentity_t *ent );
 

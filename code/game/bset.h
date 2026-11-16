@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-typedef enum //# bSet_e
+enum class bSet_t //# bSet_e
 {//This should check to matching a behavior state name first, then look for a script
 	BSET_INVALID = -1,
 	BSET_FIRST = 0,
@@ -43,4 +43,6 @@ typedef enum //# bSet_e
 	BSET_MINDTRICK,//# script to run when player does a mind trick on this NPC
 
 	NUM_BSETS
-} bSet_t;
+};
+using enum bSet_t;
+template <> inline constexpr bool enableEnumArithmetic<bSet_t> = true;

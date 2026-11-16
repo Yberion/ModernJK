@@ -176,7 +176,7 @@ const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoi
 	100		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bgForcePowerCost[NUM_FORCE_POWERS] = //0 == neutral
 {
 	{	0,	2,	4,	6	},	// Heal			// FP_HEAL
 	{	0,	0,	2,	6	},	// Jump			//FP_LEVITATION,//hold/duration
@@ -522,18 +522,18 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
-		countDown = Com_Clampi( 0, NUM_FORCE_POWER_LEVELS, final_Powers[i] );
+		countDown = Com_Clampi( 0, to_underlying( NUM_FORCE_POWER_LEVELS ), final_Powers[i] );
 
 		while (countDown > 0)
 		{
-			usedPoints += bgForcePowerCost[i][countDown]; //[fp index][fp level]
+			usedPoints += bgForcePowerCost[i][static_cast<forcePowerLevels_t>( countDown )]; //[fp index][fp level]
 			//if this is jump, or we have a free saber and it's offense or defense, take the level back down on level 1
 			if ( countDown == 1 &&
 				((i == FP_LEVITATION) ||
 				 (i == FP_SABER_OFFENSE && freeSaber) ||
 				 (i == FP_SABER_DEFENSE && freeSaber)) )
 			{
-				usedPoints -= bgForcePowerCost[i][countDown];
+				usedPoints -= bgForcePowerCost[i][static_cast<forcePowerLevels_t>( countDown )];
 			}
 			countDown--;
 		}
@@ -578,7 +578,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 								( (whichOne != FP_SABER_OFFENSE || !freeSaber) &&
 								  (whichOne != FP_SABER_DEFENSE || !freeSaber) ) )
 							{ //don't take attack or defend down on level 1 still, if it's free
-								usedPoints -= bgForcePowerCost[whichOne][final_Powers[whichOne]];
+								usedPoints -= bgForcePowerCost[whichOne][static_cast<forcePowerLevels_t>( final_Powers[whichOne] )];
 								final_Powers[whichOne]--;
 							}
 							else
@@ -596,7 +596,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 								(c != FP_SABER_OFFENSE || !freeSaber) &&
 								(c != FP_SABER_DEFENSE || !freeSaber)) )
 							{
-								usedPoints -= bgForcePowerCost[c][final_Powers[c]];
+								usedPoints -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( final_Powers[c] )];
 								final_Powers[c]--;
 							}
 							else
@@ -651,8 +651,8 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
-		if (final_Powers[i] > FORCE_LEVEL_3)
-			final_Powers[i] = FORCE_LEVEL_3;
+		if (final_Powers[i] > to_underlying( FORCE_LEVEL_3 ))
+			final_Powers[i] = to_underlying( FORCE_LEVEL_3 );
 		i++;
 	}
 
@@ -2882,7 +2882,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 
 	s->time2 = ps->holocronBits;
 
-	s->fireflag = ps->fd.saberAnimLevel;
+	s->fireflag = to_underlying( ps->fd.saberAnimLevel );
 
 	s->heldByClient = ps->heldByClient;
 	s->ragAttach = ps->ragAttach;
@@ -3033,7 +3033,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
 	s->time2 = ps->holocronBits;
 
-	s->fireflag = ps->fd.saberAnimLevel;
+	s->fireflag = to_underlying( ps->fd.saberAnimLevel );
 
 	s->heldByClient = ps->heldByClient;
 	s->ragAttach = ps->ragAttach;

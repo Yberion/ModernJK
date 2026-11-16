@@ -202,7 +202,7 @@ extern bool NPC_UpdateAngles ( bool doPitch, bool doYaw );
 extern void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw );
 extern bool NPC_UpdateFiringAngles ( bool doPitch, bool doYaw );
 extern void SetTeamNumbers (void);
-extern bool G_ActivateBehavior (gentity_t *self, int bset );
+extern bool G_ActivateBehavior (gentity_t *self, bSet_t bset );
 extern void NPC_AimWiggle( vec3_t enemy_org );
 extern void NPC_ClearLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );

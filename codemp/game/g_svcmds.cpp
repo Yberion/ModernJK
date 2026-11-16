@@ -478,9 +478,9 @@ extern bool PM_SaberInBounce( int move );
 // attack cancelled by a block), by the client's saber style
 void G_StatsSaberMove( gentity_t *ent, int oldSaberMove ) {
 	const int move = ent->client->ps.saberMove;
-	const int style = ent->client->ps.fd.saberAnimLevel;
+	const saber_styles_t style = ent->client->ps.fd.saberAnimLevel;
 
-	if ( ent->s.number >= MAX_CLIENTS || move == oldSaberMove || style < 0 || style >= SS_NUM_SABER_STYLES ) {
+	if ( ent->s.number >= MAX_CLIENTS || move == oldSaberMove || style < SS_NONE || style >= SS_NUM_SABER_STYLES ) {
 		return;
 	}
 	if ( BG_SaberInAttack( move ) && !BG_SaberInAttack( oldSaberMove ) ) {
@@ -493,7 +493,7 @@ void G_StatsSaberMove( gentity_t *ent, int oldSaberMove ) {
 
 // the central counters: events by type, health taken and deaths by cause, shots by weapon, saber attacks and bounces by style
 static void G_PrintCentralStats( void ) {
-	static const char *styles[SS_NUM_SABER_STYLES] = { "none", "fast", "medium", "strong", "desann", "tavion", "dual", "staff" };
+	static const EnumArray<const char *, saber_styles_t, SS_NUM_SABER_STYLES> styles = { "none", "fast", "medium", "strong", "desann", "tavion", "dual", "staff" };
 	const gameStats_t *s = &g_stats;
 	char line[4096];
 	int i;
@@ -520,9 +520,9 @@ static void G_PrintCentralStats( void ) {
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "saber style statistics (attacks started, moves bounced or deflected):", sizeof( line ) );
-	for ( i = 1; i < SS_NUM_SABER_STYLES; i++ ) {
-		if ( s->styleAttacks[i] || s->styleBounces[i] ) {
-			Q_strcat( line, sizeof( line ), va( " %s %d %d", styles[i], s->styleAttacks[i], s->styleBounces[i] ) );
+	for ( saber_styles_t style = SS_FAST; style < SS_NUM_SABER_STYLES; style++ ) {
+		if ( s->styleAttacks[style] || s->styleBounces[style] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d %d", styles[style], s->styleAttacks[style], s->styleBounces[style] ) );
 		}
 	}
 	trap->Print( "%s\n", line );

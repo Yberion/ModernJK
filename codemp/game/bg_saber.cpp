@@ -102,9 +102,9 @@ void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overri
 
 		if (jumpDrain)
 		{
-			if (ps->fd.forcePowerLevel[FP_LEVITATION])
+			if (ps->fd.forcePowerLevel[FP_LEVITATION] != FORCE_LEVEL_0)
 			{ //don't divide by 0!
-				jumpDrain /= ps->fd.forcePowerLevel[FP_LEVITATION];
+				jumpDrain /= to_underlying( ps->fd.forcePowerLevel[FP_LEVITATION] );
 			}
 		}
 
@@ -769,11 +769,11 @@ bool PM_SaberKataDone(int curmove, int newmove)
 		//TEMP: for now, let staff attacks infinitely chain
 		return false;
 	}
-	else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
+	else if ( pm->ps->fd.saberAnimLevel == SS_STRONG )
 	{
 		if ( curmove == LS_NONE || newmove == LS_NONE )
 		{
-			if ( pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > PM_irand_timesync( 0, 1 ) )
+			if ( pm->ps->fd.saberAnimLevel >= SS_STRONG && pm->ps->saberAttackChainCount > PM_irand_timesync( 0, 1 ) )
 			{
 				return true;
 			}
@@ -816,7 +816,7 @@ bool PM_SaberKataDone(int curmove, int newmove)
 		{ //lower chaining tolerance for spinning saber anims
 			int chainTolerance;
 
-			if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1)
+			if (pm->ps->fd.saberAnimLevel == SS_FAST)
 			{
 				chainTolerance = 5;
 			}
@@ -830,7 +830,7 @@ bool PM_SaberKataDone(int curmove, int newmove)
 				return true;
 			}
 		}
-		if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 && pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 5 ) )
+		if ( pm->ps->fd.saberAnimLevel == SS_MEDIUM && pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 5 ) )
 		{
 			return true;
 		}
@@ -1398,7 +1398,7 @@ void PM_SaberLocked( void )
 			animation_t *anim;
 			float		currentFrame;
 			int			curFrame;
-			int			strength = pm->ps->fd.forcePowerLevel[FP_SABER_OFFENSE]+1;
+			int			strength = to_underlying( pm->ps->fd.forcePowerLevel[FP_SABER_OFFENSE] )+1;
 
 			pm->ps->saberLockAdvance = false;
 
@@ -2485,7 +2485,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 			}
 			else if (PM_CanBackstab() && !BG_SaberInSpecialAttack(pm->ps->torsoAnim))
 			{ //BACKSTAB (attack varies by level)
-				if (pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_2 && pm->ps->fd.saberAnimLevel != SS_STAFF)
+				if (pm->ps->fd.saberAnimLevel >= SS_MEDIUM && pm->ps->fd.saberAnimLevel != SS_STAFF)
 				{//medium and higher attacks
 					if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 					{
@@ -2715,7 +2715,7 @@ bool PM_CheckAltKickAttack( void )
 	return false;
 }
 
-int bg_parryDebounce[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bg_parryDebounce =
 {
 	500,//if don't even have defense, can't use defense!
 	300,
@@ -2995,7 +2995,7 @@ void PM_WeaponLightsaber(void)
 				//pm->ps->fd.forcePower >= forcePowerNeeded[pm->ps->fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW] &&
 				!BG_HasYsalamiri(pm->gametype, pm->ps) &&
 				BG_CanUseFPNow(pm->gametype, pm->ps, pm->cmd.serverTime, FP_SABERTHROW) &&
-				pm->ps->fd.forcePowerLevel[FP_SABERTHROW] > 0 &&
+				pm->ps->fd.forcePowerLevel[FP_SABERTHROW] > FORCE_LEVEL_0 &&
 				PM_SaberPowerCheck() )
 		{
 			trace_t sabTr;
@@ -3338,6 +3338,9 @@ weapChecks:
 				break;
 			case SS_STAFF:
 				PM_SetSaberMove( LS_STAFF_SOULCAL );
+				break;
+			
+			default:
 				break;
 			}
 			pm->ps->weaponstate = WEAPON_FIRING;
@@ -3817,7 +3820,7 @@ void PM_SetSaberMove(short newMove)
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			anim += (pm->ps->fd.saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	else if ( pm->ps->fd.saberAnimLevel == SS_DUAL && newMove >= LS_S_TL2BR && newMove < LS_REFLECT_LL )
@@ -3830,7 +3833,7 @@ void PM_SetSaberMove(short newMove)
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+			anim += (pm->ps->fd.saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	/*
@@ -3840,10 +3843,10 @@ void PM_SetSaberMove(short newMove)
 		anim = BOTH_SABERSTAFF_STANCE;
 	}
 	*/
-	else if ( pm->ps->fd.saberAnimLevel > FORCE_LEVEL_1 &&
+	else if ( pm->ps->fd.saberAnimLevel > SS_FAST &&
 		 !BG_SaberInIdle( newMove ) && !PM_SaberInParry( newMove ) && !PM_SaberInKnockaway( newMove ) && !PM_SaberInBrokenParry( newMove ) && !PM_SaberInReflect( newMove ) && !BG_SaberInSpecial(newMove))
 	{//readies, parries and reflections have only 1 level
-		anim += (pm->ps->fd.saberAnimLevel-FORCE_LEVEL_1) * SABER_ANIM_GROUP_SIZE;
+		anim += (pm->ps->fd.saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 	}
 
 	// If the move does the same animation as the last one, we need to force a restart...

@@ -809,8 +809,8 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 	// draw the current saber style in this window
 	switch ( cg.predictedPlayerState.fd.saberDrawAnimLevel )
 	{
-	case 1://FORCE_LEVEL_1:
-	case 5://FORCE_LEVEL_5://Tavion
+	case SS_FAST:
+	case SS_TAVION:
 
 		focusItem = Menu_FindItemByName(menuHUD, "saberstyle_fast");
 
@@ -828,9 +828,9 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 		}
 
 		break;
-	case 2://FORCE_LEVEL_2:
-	case 6://SS_DUAL
-	case 7://SS_STAFF
+	case SS_MEDIUM:
+	case SS_DUAL:
+	case SS_STAFF:
 		focusItem = Menu_FindItemByName(menuHUD, "saberstyle_medium");
 
 		if (focusItem)
@@ -846,8 +846,8 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 				);
 		}
 		break;
-	case 3://FORCE_LEVEL_3:
-	case 4://FORCE_LEVEL_4://Desann
+	case SS_STRONG:
+	case SS_DESANN:
 		focusItem = Menu_FindItemByName(menuHUD, "saberstyle_strong");
 
 		if (focusItem)
@@ -862,6 +862,9 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 				focusItem->window.background
 				);
 		}
+		break;
+	
+	default:
 		break;
 	}
 

@@ -894,7 +894,7 @@ void SetTeamNumbers (void)
 
 extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
-bool G_ActivateBehavior (gentity_t *self, int bset )
+bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 {
 	bState_t	bSID = (bState_t)-1;
 	char *bs_name = nullptr;
@@ -939,7 +939,7 @@ bool G_ActivateBehavior (gentity_t *self, int bset )
 	}
 	else
 	{
-		Quake3Game()->DebugPrint( IGameInterface::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, bset ), bs_name );
+		Quake3Game()->DebugPrint( IGameInterface::WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
 		Quake3Game()->RunScript( self, bs_name );
 	}
 	return true;

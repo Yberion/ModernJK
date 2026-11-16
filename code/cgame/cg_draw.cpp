@@ -274,7 +274,7 @@ static void CG_DrawSaberStyle(const centity_t	*cent,const int xPos,const int yPo
 
 	cgi_R_SetColor( colorTable[CT_WHITE] );
 
-	if ( !cg.saberAnimLevelPending && cent->gent->client )
+	if ( cg.saberAnimLevelPending == SS_NONE && cent->gent->client )
 	{//uninitialized after a loadgame, cheat across and get it
 		cg.saberAnimLevelPending = cent->gent->client->ps.saberAnimLevel;
 	}
@@ -1665,7 +1665,7 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 		return;
 	}
 
-	if ( !cg.saberAnimLevelPending && cent->gent && cent->gent->client )
+	if ( cg.saberAnimLevelPending == SS_NONE && cent->gent && cent->gent->client )
 	{//uninitialized after a loadgame, cheat across and get it
 		cg.saberAnimLevelPending = cent->gent->client->ps.saberAnimLevel;
 	}

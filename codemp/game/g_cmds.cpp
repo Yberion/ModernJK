@@ -1312,8 +1312,8 @@ argCheck:
 	}
 }
 
-extern bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
-extern bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
+extern bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t saberAnimLevel );
+extern bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t *saberAnimLevel );
 bool G_SetSaber(gentity_t *ent, int saberNum, const char *saberName, bool siegeOverride)
 {
 	char truncSaberName[MAX_QPATH] = {0};
@@ -2761,7 +2761,7 @@ extern vmCvar_t		d_saberStanceDebug;
 extern bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
 void Cmd_SaberAttackCycle_f(gentity_t *ent)
 {
-	int selectLevel = 0;
+	saber_styles_t selectLevel = SS_NONE;
 	bool usingSiegeStyle = false;
 
 	if ( !ent || !ent->client )
@@ -2898,7 +2898,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		return;
 	}
 
-	if (ent->client->saberCycleQueue)
+	if (ent->client->saberCycleQueue != SS_NONE)
 	{ //resume off of the queue if we haven't gotten a chance to update it yet
 		selectLevel = ent->client->saberCycleQueue;
 	}
@@ -2911,7 +2911,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		ent->client->siegeClass != -1 &&
 		bgSiegeClasses[ent->client->siegeClass].saberStance)
 	{ //we have a flag of useable stances so cycle through it instead
-		int i = selectLevel+1;
+		saber_styles_t i = selectLevel+1;
 
 		usingSiegeStyle = true;
 
@@ -2922,7 +2922,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 				i = SS_FAST;
 			}
 
-			if (bgSiegeClasses[ent->client->siegeClass].saberStance & (1 << i))
+			if (bgSiegeClasses[ent->client->siegeClass].saberStance & Bit( i ))
 			{ //we can use this one, select it and break out.
 				selectLevel = i;
 				break;
@@ -2938,9 +2938,9 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 	else
 	{
 		selectLevel++;
-		if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
+		if ( selectLevel > BG_MaxSaberStyle( ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] ) )
 		{
-			selectLevel = FORCE_LEVEL_1;
+			selectLevel = SS_FAST;
 		}
 		if (d_saberStanceDebug.integer)
 		{

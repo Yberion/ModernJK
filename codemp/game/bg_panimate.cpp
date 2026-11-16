@@ -2713,7 +2713,7 @@ void PM_SetTorsoAnimTimer(int time )
 	BG_SetTorsoAnimTimer(pm->ps, time);
 }
 
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken )
+void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, int weapon, int anim, float *animSpeed, int broken )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
 	{
@@ -2741,11 +2741,11 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 		( (anim) >= BOTH_T3_BR__R &&
 		(anim) <= BOTH_T3_BL_TL ) )
 	{
-		if ( saberAnimLevel == FORCE_LEVEL_1 )
+		if ( saberAnimLevel == SS_FAST )
 		{
 			*animSpeed *= 1.5f;
 		}
-		else if ( saberAnimLevel == FORCE_LEVEL_3 )
+		else if ( saberAnimLevel == SS_STRONG )
 		{
 			*animSpeed *= 0.75f;
 		}

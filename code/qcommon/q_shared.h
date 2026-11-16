@@ -916,7 +916,7 @@ typedef struct bladeInfo_s
 
 #define MAX_BLADES 8
 
-typedef enum
+enum class saber_styles_t
 {
 	SS_NONE = 0,
 	SS_FAST,
@@ -927,7 +927,9 @@ typedef enum
 	SS_DUAL,
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
-} saber_styles_t;
+};
+using enum saber_styles_t;
+template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 //SABER FLAGS
 //Old bools converted to a flag now
@@ -1824,7 +1826,11 @@ public:
 	int			saberHitWallSoundDebounceTime;
 	int			saberEventFlags;
 	int			saberBlockingTime;
-	int			saberAnimLevel;
+#ifdef JK2_MODE
+	int			saberAnimLevel;		// a force level in Jedi Outcast
+#else
+	saber_styles_t	saberAnimLevel;
+#endif
 	int			saberAttackChainCount;
 	int			saberLockTime;
 	int			saberLockEnemy;

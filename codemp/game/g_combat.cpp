@@ -5388,7 +5388,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		{//rage overridden by no_protection
 			if (targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_RAGE)) && (inflictor->client || attacker->client))
 			{
-				take /= (targ->client->ps.fd.forcePowerLevel[FP_RAGE]+1);
+				take /= (to_underlying( targ->client->ps.fd.forcePowerLevel[FP_RAGE] )+1);
 			}
 		}
 		targ->health = targ->health - take;

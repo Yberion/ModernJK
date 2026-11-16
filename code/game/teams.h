@@ -38,7 +38,7 @@ typedef enum //# team_e
 extern stringID_table_t TeamTable[];
 
 // This list is made up from the model directories, this MUST be in the same order as the ClassNames array in NPC_stats.cpp
-typedef enum
+enum class class_t
 {
 	CLASS_NONE,				// hopefully this will never be used by an npc, just covering all bases
 	CLASS_ATST,				// technically droid...
@@ -108,7 +108,9 @@ typedef enum
 	CLASS_VEHICLE,
 
 	CLASS_NUM_CLASSES
-} class_t;
+};
+using enum class_t;
+template <> inline constexpr bool enableEnumArithmetic<class_t> = true;
 
 extern stringID_table_t ClassTable[];
 

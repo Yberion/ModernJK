@@ -1442,7 +1442,6 @@ NPC_Spawn_Go
 gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 {
 	gentity_t	*newent;
-	int			index;
 	vec3_t		saveOrg;
 
 /*	//Do extra code for stasis spawners
@@ -1697,7 +1696,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 
 	newent->NPC->eventualGoal = ent->enemy;
 
-	for( index = BSET_FIRST; index < NUM_BSETS; index++)
+	for( bSet_t index = BSET_FIRST; index < NUM_BSETS; index++)
 	{
 		if ( ent->behaviorSet[index] )
 		{

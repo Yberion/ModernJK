@@ -386,7 +386,7 @@ void EnumerateField(const field_t *pField, byte *pbBase)
 	case F_BEHAVIORSET:
 		{
 			const char **p = (const char **) pv;
-			for (int i=0; i<NUM_BSETS; i++)
+			for (int i=0; i<to_underlying( NUM_BSETS ); i++)
 			{
 				pv = &p[i];	// since you can't ++ a void ptr
 				*(intptr_t *)pv = GetStringNum(*(char **)pv);
@@ -525,7 +525,7 @@ static void EvaluateField(const field_t *pField, byte *pbBase, byte *pbOriginalR
 		{
 			char **p = (char **) pv;
 			char **pO= (char **) pvOriginal;
-			for (int i=0; i<NUM_BSETS; i++, p++, pO++)
+			for (int i=0; i<to_underlying( NUM_BSETS ); i++, p++, pO++)
 			{
 				*p = GetStringPtr(*(intptr_t *)p, pbOriginalRefData?*(char **)pO:nullptr);
 			}

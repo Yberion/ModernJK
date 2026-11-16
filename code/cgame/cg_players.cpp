@@ -2012,8 +2012,8 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 	return;
 }
 
-extern bool G_ClassHasBadBones( int NPC_class );
-extern void G_BoneOrientationsForClass( int NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd );
+extern bool G_ClassHasBadBones( class_t NPC_class );
+extern void G_BoneOrientationsForClass( class_t NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd );
 extern bool PM_FlippingAnim( int anim );
 extern bool PM_SpinningSaberAnim( int anim );
 static CGhoul2Info_v	dummyGhoul2;

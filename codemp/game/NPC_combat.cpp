@@ -32,7 +32,7 @@ extern void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy );
 extern int NAV_FindClosestWaypointForPoint2( vec3_t point );
 extern int NAV_GetNearestNode( gentity_t *self, int lastNode );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
-extern bool PM_DroidMelee( int npc_class );
+extern bool PM_DroidMelee( class_t npc_class );
 
 void ChangeWeapon( gentity_t *ent, int newWeapon );
 

@@ -312,22 +312,22 @@ field_t fields[] = {
 	{"splashDamage", FOFS(splashDamage), F_INT},
 	{"splashRadius", FOFS(splashRadius), F_INT},
 	//Script stuff
-	{"spawnscript", FOFS(behaviorSet[BSET_SPAWN]), F_LSTRING},//name of script to run
-	{"usescript", FOFS(behaviorSet[BSET_USE]), F_LSTRING},//name of script to run
-	{"awakescript", FOFS(behaviorSet[BSET_AWAKE]), F_LSTRING},//name of script to run
-	{"angerscript", FOFS(behaviorSet[BSET_ANGER]), F_LSTRING},//name of script to run
-	{"attackscript", FOFS(behaviorSet[BSET_ATTACK]), F_LSTRING},//name of script to run
-	{"victoryscript", FOFS(behaviorSet[BSET_VICTORY]), F_LSTRING},//name of script to run
-	{"lostenemyscript", FOFS(behaviorSet[BSET_LOSTENEMY]), F_LSTRING},//name of script to run
-	{"painscript", FOFS(behaviorSet[BSET_PAIN]), F_LSTRING},//name of script to run
-	{"fleescript", FOFS(behaviorSet[BSET_FLEE]), F_LSTRING},//name of script to run
-	{"deathscript", FOFS(behaviorSet[BSET_DEATH]), F_LSTRING},//name of script to run
-	{"delayscript", FOFS(behaviorSet[BSET_DELAYED]), F_LSTRING},//name of script to run
+	{"spawnscript", FOFS(behaviorSet.elems[to_underlying( BSET_SPAWN )]), F_LSTRING},//name of script to run
+	{"usescript", FOFS(behaviorSet.elems[to_underlying( BSET_USE )]), F_LSTRING},//name of script to run
+	{"awakescript", FOFS(behaviorSet.elems[to_underlying( BSET_AWAKE )]), F_LSTRING},//name of script to run
+	{"angerscript", FOFS(behaviorSet.elems[to_underlying( BSET_ANGER )]), F_LSTRING},//name of script to run
+	{"attackscript", FOFS(behaviorSet.elems[to_underlying( BSET_ATTACK )]), F_LSTRING},//name of script to run
+	{"victoryscript", FOFS(behaviorSet.elems[to_underlying( BSET_VICTORY )]), F_LSTRING},//name of script to run
+	{"lostenemyscript", FOFS(behaviorSet.elems[to_underlying( BSET_LOSTENEMY )]), F_LSTRING},//name of script to run
+	{"painscript", FOFS(behaviorSet.elems[to_underlying( BSET_PAIN )]), F_LSTRING},//name of script to run
+	{"fleescript", FOFS(behaviorSet.elems[to_underlying( BSET_FLEE )]), F_LSTRING},//name of script to run
+	{"deathscript", FOFS(behaviorSet.elems[to_underlying( BSET_DEATH )]), F_LSTRING},//name of script to run
+	{"delayscript", FOFS(behaviorSet.elems[to_underlying( BSET_DELAYED )]), F_LSTRING},//name of script to run
 	{"delayscripttime", FOFS(delayScriptTime), F_INT},//name of script to run
-	{"blockedscript", FOFS(behaviorSet[BSET_BLOCKED]), F_LSTRING},//name of script to run
-	{"ffirescript", FOFS(behaviorSet[BSET_FFIRE]), F_LSTRING},//name of script to run
-	{"ffdeathscript", FOFS(behaviorSet[BSET_FFDEATH]), F_LSTRING},//name of script to run
-	{"mindtrickscript", FOFS(behaviorSet[BSET_MINDTRICK]), F_LSTRING},//name of script to run
+	{"blockedscript", FOFS(behaviorSet.elems[to_underlying( BSET_BLOCKED )]), F_LSTRING},//name of script to run
+	{"ffirescript", FOFS(behaviorSet.elems[to_underlying( BSET_FFIRE )]), F_LSTRING},//name of script to run
+	{"ffdeathscript", FOFS(behaviorSet.elems[to_underlying( BSET_FFDEATH )]), F_LSTRING},//name of script to run
+	{"mindtrickscript", FOFS(behaviorSet.elems[to_underlying( BSET_MINDTRICK )]), F_LSTRING},//name of script to run
 	{"script_targetname", FOFS(script_targetname), F_LSTRING},//scripts look for this when "affecting"
 	//For NPCs
 	//{"playerTeam", FOFS(playerTeam), F_INT},

@@ -1144,7 +1144,7 @@ static bool Jedi_Advance( void )
 	//TIMER_Set( NPC, "duck", 0 );
 }
 
-static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
+static void Jedi_AdjustSaberAnimLevel( gentity_t *self, saber_styles_t newLevel )
 {
 	if ( !self || !self->client )
 	{
@@ -1204,7 +1204,7 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 		newLevel = SS_STAFF;
 	}
 	//use the different attacks, how often they switch and under what circumstances
-	if ( !(self->client->ps.saberStylesKnown&(1<<newLevel)) )
+	if ( !(self->client->ps.saberStylesKnown&Bit( newLevel )) )
 	{//don't know that style, sorry
 		return;
 	}
@@ -1226,6 +1226,9 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 		case SS_STRONG:
 			gi.Printf( S_COLOR_RED"%s Saber Attack Set: strong\n", self->NPC_type );
 			break;
+		
+		default:
+			break;
 		}
 	}
 }
@@ -1237,7 +1240,7 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 		if ( TIMER_Done( NPC, "saberLevelDebounce" ) && !Q_irand( 0, 10 ) )
 		{
 			//Jedi_AdjustSaberAnimLevel( NPC, (NPC->client->ps.saberAnimLevel-1) );//drop
-			Jedi_AdjustSaberAnimLevel( NPC, Q_irand( SS_FAST, SS_STRONG ));//random
+			Jedi_AdjustSaberAnimLevel( NPC, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ));//random
 			TIMER_Set( NPC, "saberLevelDebounce", Q_irand( 3000, 10000 ) );
 		}
 	}
@@ -6043,7 +6046,7 @@ void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, con
 		}
 		if ( !Q_irand( 0, 3 ) )
 		{//ouch... maybe switch up which saber power level we're using
-			Jedi_AdjustSaberAnimLevel( self, Q_irand( SS_FAST, SS_STRONG ) );
+			Jedi_AdjustSaberAnimLevel( self, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );
 		}
 		if ( !Q_irand( 0, 1 ) )//damage > 20 || self->health < 40 ||
 		{
@@ -6926,7 +6929,7 @@ static void Jedi_Attack( void )
 
 	if ( ucmd.buttons & BUTTON_ATTACK && NPC->client->playerTeam == TEAM_ENEMY )
 	{
-		if ( Q_irand( 0, NPC->client->ps.saberAnimLevel ) > 0
+		if ( Q_irand( 0, to_underlying( NPC->client->ps.saberAnimLevel ) ) > 0
 			&& Q_irand( 0, NPC->max_health+10 ) > NPC->health
 			&& !Q_irand( 0, 3 ))
 		{//the more we're hurt and the stronger the attack we're using, the more likely we are to make a anger noise when we swing

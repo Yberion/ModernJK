@@ -7936,7 +7936,7 @@ static int PM_DoChargingAmmoUsage( int *amount )
 	return count;
 }
 
-bool PM_DroidMelee( int npc_class )
+bool PM_DroidMelee( class_t npc_class )
 {
 	if ( npc_class == CLASS_PROBE
 		|| npc_class == CLASS_SEEKER

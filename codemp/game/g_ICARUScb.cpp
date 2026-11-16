@@ -3964,15 +3964,15 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
 	gentity_t	*self  = &g_entities[entID];
 
-	if ( forcePower < FP_FIRST || forceLevel >= NUM_FORCE_POWERS )
+	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
 	{
 		G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
 		return;
 	}
 
-	if ( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
+	if ( forceLevel < 0 || forceLevel >= to_underlying( NUM_FORCE_POWER_LEVELS ) )
 	{
-		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= SS_NUM_SABER_STYLES )
+		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
 		{
 			G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 			return;
@@ -3991,7 +3991,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	self->client->ps.fd.forcePowerLevel[forcePower] = forceLevel;
+	self->client->ps.fd.forcePowerLevel[forcePower] = static_cast<forcePowerLevels_t>( forceLevel );
 	if ( forceLevel )
 	{
 		self->client->ps.fd.forcePowersKnown |= ( 1 << forcePower );

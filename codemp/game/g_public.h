@@ -177,7 +177,7 @@ enum class taskID_t //# taskID_e
 using enum taskID_t;
 template <> inline constexpr bool enableEnumArithmetic<taskID_t> = true;
 
-typedef enum //# bSet_e
+enum class bSet_t //# bSet_e
 {//This should check to matching a behavior state name first, then look for a script
 	BSET_INVALID = -1,
 	BSET_FIRST = 0,
@@ -200,7 +200,9 @@ typedef enum //# bSet_e
 	BSET_MINDTRICK,//# script to run when player does a mind trick on this NPC
 
 	NUM_BSETS
-} bSet_t;
+};
+using enum bSet_t;
+template <> inline constexpr bool enableEnumArithmetic<bSet_t> = true;
 
 #define	MAX_PARMS	16
 #define	MAX_PARM_STRING_LENGTH	MAX_QPATH//was 16, had to lengthen it so they could take a valid file path
@@ -237,7 +239,7 @@ typedef struct sharedEntity_s {
 	//Script/ICARUS-related fields
 	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
-	char			*behaviorSet[NUM_BSETS];
+	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
 	char			*script_targetname;
 	int				delayScriptTime;
 	char			*fullName;

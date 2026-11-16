@@ -1360,7 +1360,6 @@ extern void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType );
 gentity_t *NPC_Spawn_Do( gentity_t *ent )
 {
 	gentity_t	*newent = nullptr;
-	int			index;
 	vec3_t		saveOrg;
 
 /*	//Do extra code for stasis spawners
@@ -1620,7 +1619,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 	newent->target4 = ent->target4;//ffire death
 	newent->wait = ent->wait;
 
-	for( index = BSET_FIRST; index < NUM_BSETS; index++)
+	for( bSet_t index = BSET_FIRST; index < NUM_BSETS; index++)
 	{
 		if ( ent->behaviorSet[index] )
 		{

@@ -614,7 +614,7 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 		}
 		else
 		{
-			siegeClass->forcePowerLevels[i] = 0;
+			siegeClass->forcePowerLevels[i] = FORCE_LEVEL_0;
 		}
 		i++;
 	}
@@ -657,9 +657,9 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 				{
 					parsedLevel = 0;
 				}
-				if (parsedLevel > FORCE_LEVEL_5)
+				if (parsedLevel > to_underlying( FORCE_LEVEL_5 ))
 				{
-					parsedLevel = FORCE_LEVEL_5;
+					parsedLevel = to_underlying( FORCE_LEVEL_5 );
 				}
 			}
 			else
@@ -680,7 +680,7 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 				{
 					if (!Q_stricmp(checkPower, FPTable[k].name))
 					{ //found it, add the weapon into the weapons value
-						siegeClass->forcePowerLevels[k] = parsedLevel;
+						siegeClass->forcePowerLevels[k] = static_cast<forcePowerLevels_t>( parsedLevel );
 						break;
 					}
 					k++;
@@ -919,7 +919,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		i = 0;
 		while (i < NUM_FORCE_POWERS)
 		{
-			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[i] = 0;
+			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[i] = FORCE_LEVEL_0;
 			i++;
 		}
 	}

@@ -868,7 +868,7 @@ void SetTeamNumbers (void)
 
 extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
-bool G_ActivateBehavior (gentity_t *self, int bset )
+bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 {
 	bState_t	bSID = (bState_t)-1;
 	char *bs_name = nullptr;
@@ -905,7 +905,7 @@ bool G_ActivateBehavior (gentity_t *self, int bset )
 		//FIXME: between here and actually getting into the ICARUS_RunScript function, the stack gets blown!
 		if ( ( ICARUS_entFilter == -1 ) || ( ICARUS_entFilter == self->s.number ) )
 		{
-			Q3_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, bset ), bs_name );
+			Q3_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, to_underlying( bset ) ), bs_name );
 		}
 		ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 	}

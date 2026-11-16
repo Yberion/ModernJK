@@ -31,7 +31,7 @@ extern void Jedi_Decloak( gentity_t *self );
 bool PM_SaberInTransition( int move );
 bool PM_SaberInStart( int move );
 bool PM_SaberInReturn( int move );
-bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
+bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t saberAnimLevel );
 bool saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
 
 void P_SetTwitchInfo(gclient_t	*client)
@@ -1692,6 +1692,9 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					ent->client->ps.saberHolstered = 0;
 					anim = BOTH_STAFF_TAUNT;
 					break;
+				
+				default:
+					break;
 				}
 			}
 			break;
@@ -1788,6 +1791,9 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					case SS_STAFF:
 						anim = BOTH_SHOWOFF_STAFF;
 						break;
+					
+					default:
+						break;
 					}
 				}
 			}
@@ -1842,6 +1848,9 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					}
 					ent->client->ps.saberHolstered = 0;
 					anim = BOTH_VICTORY_STAFF;
+					break;
+				
+				default:
 					break;
 				}
 			}
@@ -1930,13 +1939,13 @@ void ClientThink_real( gentity_t *ent ) {
 			client->siegeClass != -1 &&
 			bgSiegeClasses[client->siegeClass].saberStance)
 		{ //the class says we have to use this stance set.
-			if (!(bgSiegeClasses[client->siegeClass].saberStance & (1 << client->ps.fd.saberAnimLevel)))
+			if (!(bgSiegeClasses[client->siegeClass].saberStance & Bit( client->ps.fd.saberAnimLevel )))
 			{ //the current stance is not in the bitmask, so find the first one that is.
-				int i = SS_FAST;
+				saber_styles_t i = SS_FAST;
 
 				while (i < SS_NUM_SABER_STYLES)
 				{
-					if (bgSiegeClasses[client->siegeClass].saberStance & (1 << i))
+					if (bgSiegeClasses[client->siegeClass].saberStance & Bit( i ))
 					{
 						if (i == SS_DUAL
 							&& client->ps.saberHolstered == 1 )
@@ -1984,7 +1993,7 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 		else
 		{
-			if (client->saber[0].stylesLearned == (1<<SS_STAFF) )
+			if (client->saber[0].stylesLearned == Bit( SS_STAFF ) )
 			{ //then *always* use the staff style
 				client->ps.fd.saberAnimLevelBase = SS_STAFF;
 			}
@@ -2935,7 +2944,7 @@ void ClientThink_real( gentity_t *ent ) {
 					//NOTE: FP_SABER_OFFENSE level already taken into account in PM_SaberLocked
 					if ( (ent->client->ps.fd.forcePowersActive&(1<<FP_RAGE)) )
 					{//raging: push harder
-						lockHits = 1+ent->client->ps.fd.forcePowerLevel[FP_RAGE];
+						lockHits = 1+to_underlying( ent->client->ps.fd.forcePowerLevel[FP_RAGE] );
 					}
 					else
 					{//normal attack
@@ -2953,6 +2962,9 @@ void ClientThink_real( gentity_t *ent ) {
 						case SS_STRONG:
 						case SS_DESANN:
 							lockHits = 3;
+							break;
+						
+						default:
 							break;
 						}
 					}
@@ -3415,7 +3427,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_Damage( faceKicked, ent, ent, oppDir, client->ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE );
 
 				if ( faceKicked->client->ps.weapon != WP_SABER ||
-					 faceKicked->client->ps.fd.saberAnimLevel != FORCE_LEVEL_3 ||
+					 faceKicked->client->ps.fd.saberAnimLevel != SS_STRONG ||
 					 (!BG_SaberInAttack(faceKicked->client->ps.saberMove) && !PM_SaberInStart(faceKicked->client->ps.saberMove) && !PM_SaberInReturn(faceKicked->client->ps.saberMove) && !PM_SaberInTransition(faceKicked->client->ps.saberMove)) )
 				{
 					if (faceKicked->health > 0 &&

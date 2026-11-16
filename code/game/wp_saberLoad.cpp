@@ -205,23 +205,23 @@ bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	return false;
 }
 
-bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
+bool WP_UseFirstValidSaberStyle( gentity_t *ent, saber_styles_t *saberAnimLevel )
 {
 	if ( ent && ent->client )
 	{
 		bool styleInvalid = false;
-		int	validStyles = 0, styleNum;
+		int	validStyles = 0;
 
 		//initially, all styles are valid
-		for ( styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+		for ( saber_styles_t styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
 		{
-			validStyles |= (1<<styleNum);
+			validStyles |= Bit( styleNum );
 		}
 
 		if ( ent->client->ps.saber[0].Active()
 			&& ent->client->ps.saber[0].stylesForbidden )
 		{
-			if ( (ent->client->ps.saber[0].stylesForbidden&(1<<*saberAnimLevel)) )
+			if ( (ent->client->ps.saber[0].stylesForbidden&Bit( *saberAnimLevel )) )
 			{//not a valid style for first saber!
 				styleInvalid = true;
 				validStyles &= ~ent->client->ps.saber[0].stylesForbidden;
@@ -232,7 +232,7 @@ bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 			if ( ent->client->ps.saber[1].Active()
 				&& ent->client->ps.saber[1].stylesForbidden )
 			{
-				if ( (ent->client->ps.saber[1].stylesForbidden&(1<<*saberAnimLevel)) )
+				if ( (ent->client->ps.saber[1].stylesForbidden&Bit( *saberAnimLevel )) )
 				{//not a valid style for second saber!
 					styleInvalid = true;
 					//only the ones both sabers allow is valid
@@ -241,12 +241,12 @@ bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 			}
 			else
 			{//can't use dual style if not using 2 sabers
-				validStyles &= ~(1<<SS_DUAL);
+				validStyles &= ~Bit( SS_DUAL );
 			}
 		}
 		else
 		{//can't use dual style if not using 2 sabers
-			validStyles &= ~(1<<SS_DUAL);
+			validStyles &= ~Bit( SS_DUAL );
 			if( *saberAnimLevel == SS_DUAL )		// saber style switch bug fixed --eez
 			{
 				styleInvalid = true;
@@ -254,9 +254,9 @@ bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 		}
 		if ( styleInvalid && validStyles )
 		{//using an invalid style and have at least one valid style to use, so switch to it
-			for ( styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+			for ( saber_styles_t styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
 			{
-				if ( (validStyles&(1<<styleNum)) )
+				if ( (validStyles&Bit( styleNum )) )
 				{
 					*saberAnimLevel = styleNum;
 					return true;
@@ -267,14 +267,14 @@ bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel )
 	return false;
 }
 
-bool WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
+bool WP_SaberStyleValidForSaber( gentity_t *ent, saber_styles_t saberAnimLevel )
 {
 	if ( ent && ent->client )
 	{
 		if ( ent->client->ps.saber[0].Active()
 			&& ent->client->ps.saber[0].stylesForbidden )
 		{
-			if ( (ent->client->ps.saber[0].stylesForbidden&(1<<saberAnimLevel)) )
+			if ( (ent->client->ps.saber[0].stylesForbidden&Bit( saberAnimLevel )) )
 			{//not a valid style for first saber!
 				return false;
 			}
@@ -285,7 +285,7 @@ bool WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 			{
                 if ( ent->client->ps.saber[1].stylesForbidden )
 				{
-					if ( (ent->client->ps.saber[1].stylesForbidden&(1<<saberAnimLevel)) )
+					if ( (ent->client->ps.saber[1].stylesForbidden&Bit( saberAnimLevel )) )
 					{//not a valid style for second saber!
 						return false;
 					}
@@ -301,10 +301,10 @@ bool WP_SaberStyleValidForSaber( gentity_t *ent, int saberAnimLevel )
 					else
 					{//see if "tavion" style is okay
 						if ( ent->client->ps.saber[0].Active()
-							&& (ent->client->ps.saber[0].stylesLearned&(1<<SS_TAVION)) )
+							&& (ent->client->ps.saber[0].stylesLearned&Bit( SS_TAVION )) )
 						{//okay to use tavion style, first saber gave it to us
 						}
-						else if ( (ent->client->ps.saber[1].stylesLearned&(1<<SS_TAVION)) )
+						else if ( (ent->client->ps.saber[1].stylesLearned&Bit( SS_TAVION )) )
 						{//okay to use tavion style, second saber gave it to us
 						}
 						else
@@ -803,7 +803,7 @@ static void Saber_ParseSaberRadius7( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberStyle( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	int style, styleNum;
+	saber_styles_t style;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -811,25 +811,25 @@ static void Saber_ParseSaberStyle( saberInfo_t *saber, const char **p ) {
 	//OLD WAY: only allowed ONE style
 	style = TranslateSaberStyle( value );
 	//learn only this style
-	saber->stylesLearned = (1<<style);
+	saber->stylesLearned = Bit( style );
 	//forbid all other styles
 	saber->stylesForbidden = 0;
-	for ( styleNum=SS_NONE+1; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
+	for ( saber_styles_t styleNum=SS_NONE+1; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
 		if ( styleNum != style )
-			saber->stylesForbidden |= (1<<styleNum);
+			saber->stylesForbidden |= Bit( styleNum );
 	}
 }
 static void Saber_ParseSaberStyleLearned( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	saber->stylesLearned |= (1<<TranslateSaberStyle( value ));
+	saber->stylesLearned |= Bit( TranslateSaberStyle( value ) );
 }
 static void Saber_ParseSaberStyleForbidden( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	saber->stylesForbidden |= (1<<TranslateSaberStyle( value ));
+	saber->stylesForbidden |= Bit( TranslateSaberStyle( value ) );
 }
 static void Saber_ParseMaxChain( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -2083,9 +2083,9 @@ void WP_RemoveSaber( gentity_t *ent, int saberNum )
 	if ( ent->client->ps.saberAnimLevel == SS_DUAL
 		|| ent->client->ps.saberAnimLevel == SS_STAFF )
 	{//change to the style to the default
-		for ( int i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
+		for ( saber_styles_t i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
 		{
-			if ( (ent->client->ps.saberStylesKnown&(1<<i)) )
+			if ( (ent->client->ps.saberStylesKnown&Bit( i )) )
 			{
 				ent->client->ps.saberAnimLevel = i;
 				if ( ent->s.number < MAX_CLIENTS )
@@ -2119,9 +2119,9 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 	{
 		ent->client->ps.saberStylesKnown |= ent->client->ps.saber[saberNum].stylesLearned;
 	}
-	if ( ent->client->ps.saber[saberNum].singleBladeStyle )
+	if ( ent->client->ps.saber[saberNum].singleBladeStyle != SS_NONE )
 	{
-		ent->client->ps.saberStylesKnown |= ent->client->ps.saber[saberNum].singleBladeStyle;
+		ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[saberNum].singleBladeStyle );
 	}
 	if ( saberNum == 1 && (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
 	{//not allowed to use a 2-handed saber as second saber
@@ -2151,9 +2151,9 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 	{//change to the style we're supposed to be using
 		ent->client->ps.saberStylesKnown |= ent->client->ps.saber[saberNum].stylesLearned;
 	}
-	if ( ent->client->ps.saber[saberNum].singleBladeStyle )
+	if ( ent->client->ps.saber[saberNum].singleBladeStyle != SS_NONE )
 	{
-		ent->client->ps.saberStylesKnown |= ent->client->ps.saber[saberNum].singleBladeStyle;
+		ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[saberNum].singleBladeStyle );
 	}
 	WP_UseFirstValidSaberStyle( ent, &ent->client->ps.saberAnimLevel );
 	if ( ent->s.number < MAX_CLIENTS )

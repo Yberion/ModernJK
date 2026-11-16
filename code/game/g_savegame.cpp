@@ -428,7 +428,7 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 	case F_BEHAVIORSET:
 		{
 			const char **p = (const char **) pv;
-			for (int i=0; i<NUM_BSETS; i++)
+			for (int i=0; i<to_underlying( NUM_BSETS ); i++)
 			{
 				pv = &p[i];	// since you can't ++ a void ptr
 				*(int *)pv = GetStringNum(*(char **)pv);
@@ -589,7 +589,7 @@ static void EvaluateField(const save_field_t *pField, byte *pbBase, byte *pbOrig
 		{
 			char **p = (char **) pv;
 			char **pO= (char **) pvOriginal;
-			for (int i=0; i<NUM_BSETS; i++, p++, pO++)
+			for (int i=0; i<to_underlying( NUM_BSETS ); i++, p++, pO++)
 			{
 				*p = GetStringPtr(*(int *)p, pbOriginalRefData?*(char **)pO:nullptr);
 			}
@@ -738,15 +738,15 @@ void saberInfoRetail_t::sg_export(
 	{
 		//OLD WAY: only allowed ONE style
 		//learn only this style
-		dst.stylesLearned = 1 << style;
+		dst.stylesLearned = Bit( style );
 
 		//forbid all other styles
 		dst.stylesForbidden = 0;
-		for (int styleNum = SS_NONE + 1; styleNum < SS_NUM_SABER_STYLES; ++styleNum)
+		for (saber_styles_t styleNum = SS_NONE + 1; styleNum < SS_NUM_SABER_STYLES; ++styleNum)
 		{
 			if (styleNum != style)
 			{
-				dst.stylesForbidden |= 1 << styleNum;
+				dst.stylesForbidden |= Bit( styleNum );
 			}
 		}
 	}

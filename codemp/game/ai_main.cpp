@@ -1212,7 +1212,7 @@ int PassWayCheck(bot_state_t *bs, int windex)
 
 	if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
 		gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-		bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] < gWPArray[windex]->forceJumpTo)
+		to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
 	{ //waypoint requires force jump level greater than our current one to pass
 		return 0;
 	}
@@ -1266,7 +1266,7 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 
 			if (gdif)
 			{
-				if (bs && bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] < gWPArray[beginat]->forceJumpTo)
+				if (bs && to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[beginat]->forceJumpTo)
 				{
 					return -1;
 				}
@@ -1275,7 +1275,7 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 
 		if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
 			gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-			bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] < gWPArray[windex]->forceJumpTo)
+			to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) < gWPArray[windex]->forceJumpTo)
 		{
 			return -1;
 		}
@@ -1339,7 +1339,7 @@ void CheckForShorterRoutes(bot_state_t *bs, int newwpindex)
 
 		if (checklen < bestlen-64 || bestlen == -1)
 		{ //this path covers less distance, let's take it instead
-			if (bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] >= gWPArray[newwpindex]->neighbors[i].forceJumpTo)
+			if (to_underlying( bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] ) >= gWPArray[newwpindex]->neighbors[i].forceJumpTo)
 			{
 				bestlen = checklen;
 				bestindex = gWPArray[newwpindex]->neighbors[i].num;
@@ -6998,7 +6998,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_DUAL )
 			{
 				if (bs->currentEnemy->health > 75
-					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 2)
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > FORCE_LEVEL_2)
 				{
 					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STRONG
 						&& bs->saberPower)
@@ -7007,7 +7007,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 					}
 				}
 				else if (bs->currentEnemy->health > 40
-					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 1)
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > FORCE_LEVEL_1)
 				{
 					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_MEDIUM)
 					{ //they're down on health a little, use level 2 if we can

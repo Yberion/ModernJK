@@ -477,7 +477,7 @@ using enum forceMasteries_t;
 extern const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels;
 extern const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints;
 
-extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bgForcePowerCost[NUM_FORCE_POWERS];
 
 // pmove->pm_flags
 #define	PMF_DUCKED			1
@@ -1573,7 +1573,7 @@ typedef struct bladeInfo_s {
 } bladeInfo_t;
 #define MAX_BLADES 8
 
-typedef enum saber_styles_e {
+enum class saber_styles_t {
 	SS_NONE=0,
 	SS_FAST,
 	SS_MEDIUM,
@@ -1583,7 +1583,15 @@ typedef enum saber_styles_e {
 	SS_DUAL,
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
-} saber_styles_t;
+};
+using enum saber_styles_t;
+template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
+
+// the strongest of the three single-saber styles a level of saber offence allows: fast at level 1, medium at 2,
+// strong at 3 (none at 0)
+[[nodiscard]] constexpr saber_styles_t BG_MaxSaberStyle( const forcePowerLevels_t offenceLevel ) {
+	return static_cast<saber_styles_t>( to_underlying( offenceLevel ) );
+}
 
 //SABER FLAGS
 //Old bools converted to a flag now
@@ -1764,7 +1772,7 @@ bool BG_InSaberLock( int anim );
 void BG_FixSaberMoveData( void );
 void BG_FixWeaponAttackAnim( void );
 
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken );
+void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, int weapon, int anim, float *animSpeed, int broken );
 
 void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );
 

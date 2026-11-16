@@ -1485,7 +1485,7 @@ static void DebugTraceForNPC(gentity_t *ent)
 	}
 }
 
-static bool G_ValidActivateBehavior (gentity_t* self, int bset)
+static bool G_ValidActivateBehavior (gentity_t* self, bSet_t bset)
 {
 	if ( !self )
 	{

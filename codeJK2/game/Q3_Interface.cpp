@@ -79,7 +79,7 @@ extern cvar_t	*g_skippingcin;
 
 extern bool	stop_icarus;
 
-#define stringIDExpand(str, strEnum)	{ str, strEnum }, ENUM2STRING(strEnum)
+#define stringIDExpand(str, strEnum)	{ str, to_underlying( strEnum ) }, ENUM2STRING(strEnum)
 //#define stringIDExpand(str, strEnum)	str,strEnum
 
 /*
@@ -4031,7 +4031,7 @@ static void Q3_SetMusicState( const char *dms )
 
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
-	if ( forcePower < FP_FIRST || forceLevel >= NUM_FORCE_POWERS )
+	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
 	{
 		Q3_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
 		return;

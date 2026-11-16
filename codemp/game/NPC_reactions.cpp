@@ -329,7 +329,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 				{
 					pain_anim = BG_PickAnim( self->localAnimIndex, BOTH_PAIN1, BOTH_PAIN18 );
 				}
-				self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;//next attack must be a quick attack
+				self->client->ps.fd.saberAnimLevel = SS_FAST;//next attack must be a quick attack
 				self->client->ps.saberMove = LS_READY;//don't finish whatever saber move you may have been in
 				parts = SETANIM_BOTH;
 				if ( BG_CrouchAnim( self->client->ps.legsAnim ) || PM_InCartwheel( self->client->ps.legsAnim ) )

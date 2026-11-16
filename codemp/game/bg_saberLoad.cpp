@@ -245,11 +245,11 @@ bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	return false;
 }
 
-bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel ) {
+bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t *saberAnimLevel ) {
 	bool styleInvalid = false;
 	bool saber1Active, saber2Active;
 	bool dualSabers = false;
-	int	validStyles=0, styleNum;
+	int	validStyles=0;
 
 	if ( saber2 && saber2->model[0] )
 		dualSabers = true;
@@ -287,11 +287,11 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 	}
 
 	//initially, all styles are valid
-	validStyles = (1<<SS_NUM_SABER_STYLES)-2; // mask off 1<<SS_NONE
+	validStyles = Bit( SS_NUM_SABER_STYLES )-2; // mask off 1<<SS_NONE
 
 	// check for invalid styles
 	if ( saber1Active && saber1 && saber1->model[0] && saber1->stylesForbidden ) {
-		if ( (saber1->stylesForbidden & (1<<*saberAnimLevel)) ) {
+		if ( (saber1->stylesForbidden & Bit( *saberAnimLevel )) ) {
 			//not a valid style for first saber!
 			styleInvalid = true;
 			validStyles &= ~saber1->stylesForbidden;
@@ -299,7 +299,7 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 	}
 	if ( dualSabers ) {
 		if ( saber2Active && saber2->stylesForbidden ) {
-			if ( (saber2->stylesForbidden & (1<<*saberAnimLevel)) ) {
+			if ( (saber2->stylesForbidden & Bit( *saberAnimLevel )) ) {
 				//not a valid style for second saber!
 				styleInvalid = true;
 				//only the ones both sabers allow is valid
@@ -317,8 +317,8 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 
 	//using an invalid style and have at least one valid style to use, so switch to it
 	else if ( styleInvalid ) {
-		for ( styleNum=SS_FAST; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
-			if ( (validStyles & (1<<styleNum)) ) {
+		for ( saber_styles_t styleNum=SS_FAST; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
+			if ( (validStyles & Bit( styleNum )) ) {
 				*saberAnimLevel = styleNum;
 				return true;
 			}
@@ -327,7 +327,7 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 	return false;
 }
 
-bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel ) {
+bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t saberAnimLevel ) {
 	bool saber1Active, saber2Active;
 	bool dualSabers = false;
 
@@ -359,13 +359,13 @@ bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int s
 	}
 
 	if ( saber1Active && saber1 && saber1->model[0] && saber1->stylesForbidden ) {
-		if ( (saber1->stylesForbidden & (1<<saberAnimLevel)) )
+		if ( (saber1->stylesForbidden & Bit( saberAnimLevel )) )
 			return false;
 	}
 	if ( dualSabers && saber2Active && saber2 && saber2->model[0] )
 	{
 		if ( saber2->stylesForbidden ) {
-			if ( (saber2->stylesForbidden & (1<<saberAnimLevel)) )
+			if ( (saber2->stylesForbidden & Bit( saberAnimLevel )) )
 				return false;
 		}
 		//now: if using dual sabers, only dual and tavion (if given with this saber) are allowed
@@ -374,8 +374,8 @@ bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int s
 				return false;
 			else {
 				//see if "tavion" style is okay
-				if ( !(saber1Active && (saber1->stylesLearned & (1<<SS_TAVION)))
-					|| !(saber2->stylesLearned & (1<<SS_TAVION)) )
+				if ( !(saber1Active && (saber1->stylesLearned & Bit( SS_TAVION )))
+					|| !(saber2->stylesLearned & Bit( SS_TAVION )) )
 					return false;
 			}
 		}
@@ -809,7 +809,7 @@ static void Saber_ParseSaberRadius7( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberStyle( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	int style, styleNum;
+	saber_styles_t style;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -817,25 +817,25 @@ static void Saber_ParseSaberStyle( saberInfo_t *saber, const char **p ) {
 	//OLD WAY: only allowed ONE style
 	style = TranslateSaberStyle( value );
 	//learn only this style
-	saber->stylesLearned = (1<<style);
+	saber->stylesLearned = Bit( style );
 	//forbid all other styles
 	saber->stylesForbidden = 0;
-	for ( styleNum=SS_NONE+1; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
+	for ( saber_styles_t styleNum=SS_NONE+1; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
 		if ( styleNum != style )
-			saber->stylesForbidden |= (1<<styleNum);
+			saber->stylesForbidden |= Bit( styleNum );
 	}
 }
 static void Saber_ParseSaberStyleLearned( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	saber->stylesLearned |= (1<<TranslateSaberStyle( value ));
+	saber->stylesLearned |= Bit( TranslateSaberStyle( value ) );
 }
 static void Saber_ParseSaberStyleForbidden( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	saber->stylesForbidden |= (1<<TranslateSaberStyle( value ));
+	saber->stylesForbidden |= Bit( TranslateSaberStyle( value ) );
 }
 static void Saber_ParseMaxChain( saberInfo_t *saber, const char **p ) {
 	int n;

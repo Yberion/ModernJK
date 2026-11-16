@@ -198,7 +198,7 @@ struct gentity_s {
 	//rww - these are shared icarus things. They must be in this order as well in relation to the entityshared structure.
 	EnumArray<int, taskID_t, NUM_TIDS>				taskID;
 	parms_t			*parms;
-	char			*behaviorSet[NUM_BSETS];
+	EnumArray<char *, bSet_t, NUM_BSETS>	behaviorSet;
 	char			*script_targetname;
 	int				delayScriptTime;
 	const char		*fullName;
@@ -473,7 +473,7 @@ typedef struct clientSession_s {
 	int			spectatorClient;	// for chasecam and follow mode
 	int			wins, losses;		// tournament stats
 	int			selectedFP;			// check against this, if doesn't match value in playerstate then update userinfo
-	int			saberLevel;			// similar to above method, but for current saber attack level
+	saber_styles_t	saberLevel;			// similar to above method, but for current saber attack level
 	int			setForce;			// set to true once player is given the chance to set force powers
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
 	bool	teamLeader;			// true when this client is a team leader
@@ -613,7 +613,7 @@ struct gclient_s {
 
 	int			invulnerableTimer;
 
-	int			saberCycleQueue;
+	saber_styles_t	saberCycleQueue;
 
 	int			legsAnimExecute;
 	int			torsoAnimExecute;
@@ -1133,7 +1133,7 @@ void	G_KillG2Queue(int entNum);
 void	G_FreeEntity( gentity_t *e );
 bool	G_EntitiesFree( void );
 
-bool G_ActivateBehavior (gentity_t *self, int bset );
+bool G_ActivateBehavior (gentity_t *self, bSet_t bset );
 
 void	G_TouchTriggers (gentity_t *ent);
 void	G_TouchSolids (gentity_t *ent);
@@ -1538,8 +1538,8 @@ typedef struct gameStats_s {
 	int		modDamage[MOD_MAX];	// health taken from clients, by cause
 	int		modKills[MOD_MAX];	// client deaths, by cause
 	int		shots[WP_NUM_WEAPONS][2];	// FireWeapon by weapon, primary and alternate
-	int		styleAttacks[SS_NUM_SABER_STYLES];	// saber attack moves started by clients, by style
-	int		styleBounces[SS_NUM_SABER_STYLES];	// saber moves of clients sent into a bounce or deflection, by style
+	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
+	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );

@@ -121,7 +121,7 @@ stringID_table_t BSTable[] =
 	{"",				-1},
 };
 
-#define stringIDExpand(str, strEnum)	{str, strEnum}, ENUM2STRING(strEnum)
+#define stringIDExpand(str, strEnum)	{str, to_underlying( strEnum )}, ENUM2STRING(strEnum)
 
 stringID_table_t BSETTable[] =
 {
@@ -157,7 +157,7 @@ const char	*TeamNames[TEAM_NUM_TEAMS] =
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
-const char	*ClassNames[CLASS_NUM_CLASSES] =
+EnumArray<const char *, class_t, CLASS_NUM_CLASSES>	ClassNames =
 {
 	"",				// class none
 	"atst",
@@ -2616,7 +2616,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{//clear
 					NPC->client->ps.fd.forcePowersKnown &= ~( 1 << fp );
 				}
-				NPC->client->ps.fd.forcePowerLevel[fp] = n;
+				NPC->client->ps.fd.forcePowerLevel[fp] = static_cast<forcePowerLevels_t>( n );
 				continue;
 			}
 
@@ -3476,7 +3476,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					n = 5;
 				}
-				NPC->client->ps.fd.saberAnimLevel = n;
+				NPC->client->ps.fd.saberAnimLevel = static_cast<saber_styles_t>( n );
 				/*
 				if ( parsingPlayer )
 				{

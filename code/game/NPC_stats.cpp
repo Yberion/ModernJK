@@ -3637,9 +3637,9 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[0].stylesLearned;
 				}
-				if ( NPC->client->ps.saber[0].singleBladeStyle )
+				if ( NPC->client->ps.saber[0].singleBladeStyle != SS_NONE )
 				{
-					NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[0].singleBladeStyle;
+					NPC->client->ps.saberStylesKnown |= Bit( NPC->client->ps.saber[0].singleBladeStyle );
 				}
 				continue;
 			}
@@ -3660,9 +3660,9 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[1].stylesLearned;
 					}
-					if ( NPC->client->ps.saber[1].singleBladeStyle )
+					if ( NPC->client->ps.saber[1].singleBladeStyle != SS_NONE )
 					{
-						NPC->client->ps.saberStylesKnown |= NPC->client->ps.saber[1].singleBladeStyle;
+						NPC->client->ps.saberStylesKnown |= Bit( NPC->client->ps.saber[1].singleBladeStyle );
 					}
 					if ( (NPC->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
 					{//tsk tsk, can't use a twoHanded saber as second saber
@@ -3960,13 +3960,13 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				//cap
-				if ( n > SS_STAFF )
+				if ( n > to_underlying( SS_STAFF ) )
 				{
-					n = SS_STAFF;
+					n = to_underlying( SS_STAFF );
 				}
-				else if ( n < SS_FAST )
+				else if ( n < to_underlying( SS_FAST ) )
 				{
-					n = SS_FAST;
+					n = to_underlying( SS_FAST );
 				}
 				if ( n )
 				{//set
@@ -3976,10 +3976,10 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{//clear
 					NPC->client->ps.saberStylesKnown &= ~( 1 << n );
 				}
-				NPC->client->ps.saberAnimLevel = n;
+				NPC->client->ps.saberAnimLevel = static_cast<saber_styles_t>( n );
 				if ( parsingPlayer )
 				{
-					cg.saberAnimLevelPending = n;
+					cg.saberAnimLevelPending = static_cast<saber_styles_t>( n );
 				}
 				continue;
 			}

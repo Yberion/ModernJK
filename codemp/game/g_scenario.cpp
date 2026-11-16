@@ -40,7 +40,7 @@ static struct {
 	bool		done;			// all repetitions played: the bots stand still
 	int				repStart;		// level.time of the current repetition's reset, 0 before the first
 	int				client[2];		// attacker, defender
-	int				style;			// the attacker's saber style
+	saber_styles_t	style;			// the attacker's saber style
 	bool		counter;		// the defender attacks at the same time
 	forcePowers_t	power;
 	int				weapon;
@@ -457,7 +457,7 @@ void Svcmd_Scenario_f( void ) {
 	trap->Argv( 3, arg, sizeof( arg ) );
 	if ( !Q_stricmp( type, "saber" ) ) {
 		static const char *styles[] = { "fast", "medium", "strong", "dual", "staff" };
-		static const int styleValues[] = { SS_FAST, SS_MEDIUM, SS_STRONG, SS_DUAL, SS_STAFF };
+		static const saber_styles_t styleValues[] = { SS_FAST, SS_MEDIUM, SS_STRONG, SS_DUAL, SS_STAFF };
 		char mode[MAX_TOKEN_CHARS];
 
 		scn.style = SS_MEDIUM;

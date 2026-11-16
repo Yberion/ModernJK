@@ -507,7 +507,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
 		vec3_t fwd;
 		gentity_t *te;
-		int otherDefLevel = other->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
+		forcePowerLevels_t otherDefLevel = other->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
 
 		te = G_TempEntity( ent->r.currentOrigin, EV_SABER_BLOCK );
 		VectorCopy(ent->r.currentOrigin, te->s.origin);
@@ -523,10 +523,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		if (other->client->ps.velocity[2] > 0 ||
 			other->client->pers.cmd.forwardmove < 0) //now we only do it if jumping or running backward. Should be able to full-on charge.
 		{
-			otherDefLevel -= 1;
-			if (otherDefLevel < 0)
+			if (otherDefLevel > FORCE_LEVEL_0)
 			{
-				otherDefLevel = 0;
+				otherDefLevel -= 1;
 			}
 		}
 
@@ -543,7 +542,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		{
 			G_ReflectMissile(other, ent, fwd);
 		}
-		other->client->ps.saberBlockTime = level.time + (350 - (otherDefLevel*100)); //200;
+		other->client->ps.saberBlockTime = level.time + (350 - (to_underlying( otherDefLevel )*100)); //200;
 
 		//For jedi AI
 		other->client->ps.saberEventFlags |= SEF_DEFLECTED;
@@ -577,7 +576,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		{ //for now still deflect even if saberBlockTime >= level.time because it hit the actual saber
 			vec3_t fwd;
 			gentity_t *te;
-			int otherDefLevel = otherOwner->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
+			forcePowerLevels_t otherDefLevel = otherOwner->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
 
 			//in this case, deflect it even if we can't actually block it because it hit our saber
 			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, true, 0);
@@ -599,10 +598,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if (otherOwner->client->ps.velocity[2] > 0 ||
 				otherOwner->client->pers.cmd.forwardmove < 0) //now we only do it if jumping or running backward. Should be able to full-on charge.
 			{
-				otherDefLevel -= 1;
-				if (otherDefLevel < 0)
+				if (otherDefLevel > FORCE_LEVEL_0)
 				{
-					otherDefLevel = 0;
+					otherDefLevel -= 1;
 				}
 			}
 
@@ -620,7 +618,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			{
 				G_ReflectMissile(otherOwner, ent, fwd);
 			}
-			otherOwner->client->ps.saberBlockTime = level.time + (350 - (otherDefLevel*100));//200;
+			otherOwner->client->ps.saberBlockTime = level.time + (350 - (to_underlying( otherDefLevel )*100));//200;
 
 			//For jedi AI
 			otherOwner->client->ps.saberEventFlags |= SEF_DEFLECTED;

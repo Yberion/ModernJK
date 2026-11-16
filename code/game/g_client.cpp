@@ -697,6 +697,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 		if (strlen(s))	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 		{//				|general info				  |-force powers |-saber 1										   |-saber 2										  |-general saber
 			int weaponstate;
+			int saberAnimLevel;
 			int saber1BladeActive[8];
 			int saber2BladeActive[8];
 			unsigned int saber1BladeColor[8];
@@ -757,11 +758,12 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&saber2BladeColor[7],
 								//general saber data
 								&client->ps.saberStylesKnown,
-								&client->ps.saberAnimLevel,
+								&saberAnimLevel,
 								&client->ps.saberLockEnemy,
 								&client->ps.saberLockTime
 					);
 			client->ps.weaponstate = static_cast<weaponstate_t>( weaponstate );
+			client->ps.saberAnimLevel = static_cast<saber_styles_t>( saberAnimLevel );
 			for (int j = 0; j < 8; j++)
 			{
 				client->ps.saber[0].blade[j].active = saber1BladeActive[j] ? true : false;
@@ -940,7 +942,7 @@ bool G_StandardHumanoid( gentity_t *self )
 	return false;
 }
 
-bool G_ClassHasBadBones( int NPC_class )
+bool G_ClassHasBadBones( class_t NPC_class )
 {
 	switch ( NPC_class )
 	{
@@ -951,6 +953,9 @@ bool G_ClassHasBadBones( int NPC_class )
 	case CLASS_ASSASSIN_DROID:
 	case CLASS_RANCOR:
 		return true;
+	
+	default:
+		break;
 	}
 	return false;
 }
@@ -1015,7 +1020,7 @@ void G_NextTestAxes( void )
 	}
 }
 
-void G_BoneOrientationsForClass( int NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd )
+void G_BoneOrientationsForClass( class_t NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd )
 {
 	//defaults
 	*oUp = POSITIVE_X;
@@ -1109,6 +1114,9 @@ void G_BoneOrientationsForClass( int NPC_class, const char *boneName, Eorientati
 			*oRt = POSITIVE_Y;
 			*oFwd = POSITIVE_Z;
 		}
+		break;
+	
+	default:
 		break;
 	}
 }
@@ -1861,9 +1869,9 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].stylesLearned;
 		}
-		if ( ent->client->ps.saber[0].singleBladeStyle )
+		if ( ent->client->ps.saber[0].singleBladeStyle != SS_NONE )
 		{
-			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].singleBladeStyle;
+			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[0].singleBladeStyle );
 		}
 	}
 
@@ -1898,9 +1906,9 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			{
 				ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].stylesLearned;
 			}
-			if ( ent->client->ps.saber[1].singleBladeStyle )
+			if ( ent->client->ps.saber[1].singleBladeStyle != SS_NONE )
 			{
-				ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].singleBladeStyle;
+				ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[1].singleBladeStyle );
 			}
 			if ( (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
 			{//tsk tsk, can't use a twoHanded saber as second saber
@@ -2054,9 +2062,9 @@ void G_ReloadSaberData( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].stylesLearned;
 		}
-		if ( ent->client->ps.saber[0].singleBladeStyle )
+		if ( ent->client->ps.saber[0].singleBladeStyle != SS_NONE )
 		{
-			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].singleBladeStyle;
+			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[0].singleBladeStyle );
 		}
 	}
 	if ( ent->client->ps.saber[1].name != nullptr )
@@ -2066,9 +2074,9 @@ void G_ReloadSaberData( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].stylesLearned;
 		}
-		if ( ent->client->ps.saber[1].singleBladeStyle )
+		if ( ent->client->ps.saber[1].singleBladeStyle != SS_NONE )
 		{
-			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].singleBladeStyle;
+			ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[1].singleBladeStyle );
 		}
 	}
 }
@@ -2459,7 +2467,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 	if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER))
 		&& !ent->client->ps.saberStylesKnown )
 	{//um, if you have a saber, you need at least 1 style to use it with...
-		ent->client->ps.saberStylesKnown |= (1<<SS_MEDIUM);
+		ent->client->ps.saberStylesKnown |= Bit( SS_MEDIUM );
 	}
 
 	return beamInEffect;

@@ -75,7 +75,7 @@ void G_WriteClientSessionData( gclient_t *client )
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.losses ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.teamLeader ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.setForce ) );
-	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.saberLevel ) );
+	Q_strcat( s, sizeof( s ), va( "%i ", to_underlying( client->sess.saberLevel ) ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.selectedFP ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.duelTeam ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.siegeDesiredTeam ) );
@@ -98,7 +98,7 @@ void G_ReadSessionData( gclient_t *client )
 {
 	char			s[MAX_CVAR_VALUE_STRING] = {0};
 	const char		*var;
-	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0;
+	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0, tempSaberLevel=0;
 
 	var = va( "session%i", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -112,7 +112,7 @@ void G_ReadSessionData( gclient_t *client )
 		&client->sess.losses,
 		&tempTeamLeader, //&client->sess.teamLeader,
 		&client->sess.setForce,
-		&client->sess.saberLevel,
+		&tempSaberLevel, //&client->sess.saberLevel,
 		&client->sess.selectedFP,
 		&tempDuelTeam, //&client->sess.duelTeam,
 		&client->sess.siegeDesiredTeam,
@@ -124,6 +124,7 @@ void G_ReadSessionData( gclient_t *client )
 	client->sess.spectatorState	= (spectatorState_t)tempSpectatorState;
 	client->sess.teamLeader		= tempTeamLeader;
 	client->sess.duelTeam		= static_cast<duelTeam_t>( tempDuelTeam );
+	client->sess.saberLevel		= static_cast<saber_styles_t>( tempSaberLevel );
 
 	// convert back to spaces from unused chars, as session data is written that way.
 	for ( i=0; client->sess.siegeClass[i]; i++ )

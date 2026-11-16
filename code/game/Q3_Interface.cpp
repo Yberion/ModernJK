@@ -83,7 +83,7 @@ extern cvar_t	*g_skippingcin;
 
 extern bool	stop_icarus;
 
-#define stringIDExpand(str, strEnum)	{ str, strEnum }, ENUM2STRING(strEnum)
+#define stringIDExpand(str, strEnum)	{ str, to_underlying( strEnum ) }, ENUM2STRING(strEnum)
 
 stringID_table_t BSTable[] =
 {
@@ -3924,7 +3924,7 @@ static void Q3_SetMusicState( const char *dms )
 
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
-	if ( forcePower < FP_FIRST || forceLevel >= NUM_FORCE_POWERS )
+	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
 	{
 		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
 		return;
@@ -3932,7 +3932,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 
 	if ( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
 	{
-		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= SS_NUM_SABER_STYLES )
+		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
 		{
 			Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 			return;
@@ -7565,16 +7565,15 @@ void CQuake3GameInterface::FreeEntity( gentity_t *pEntity )
 // Determines whether or not a Game Element needs ICARUS information.
 bool CQuake3GameInterface::ValidEntity( gentity_t *pEntity )
 {
-	int i;
 
 	// Targeted by a script.
 	if ( pEntity->script_targetname && pEntity->script_targetname[0] )
 		return true;
 
 	// Potentially able to call a script.
-	for ( i = 0; i < NUM_BSETS; i++ )
+	for ( const char *script : pEntity->behaviorSet )
 	{
-		if VALIDSTRING( pEntity->behaviorSet[i] )
+		if VALIDSTRING( script )
 		{
 			//Com_Printf( "WARNING: Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", pEntity->s.number, pEntity->targetname );
 			pEntity->script_targetname = G_NewString(pEntity->targetname);
@@ -7727,20 +7726,18 @@ int CQuake3GameInterface::RegisterScript( const char *strFileName, void **ppBuf,
 // Precache all the resources needed by a Script and it's Entity (or vice-versa).
 int CQuake3GameInterface::PrecacheEntity( gentity_t *pEntity )
 {
-	int		i;
-
-	for ( i = 0; i < NUM_BSETS; i++ )
+	for ( const char *script : pEntity->behaviorSet )
 	{
-		if ( pEntity->behaviorSet[i] == nullptr )
+		if ( script == nullptr )
 			continue;
 
-		if ( GetIDForString( BSTable, pEntity->behaviorSet[i] ) == -1 )
+		if ( GetIDForString( BSTable, script ) == -1 )
 		{//not a behavior set
 			char *pBuf = nullptr;
 			int iLength = 0;
 
 			// Try to register this script.
-			if ( RegisterScript( pEntity->behaviorSet[i], (void **) &pBuf, iLength ) != SCRIPT_COULDNOTREGISTER )
+			if ( RegisterScript( script, (void **) &pBuf, iLength ) != SCRIPT_COULDNOTREGISTER )
 			{
 				assert( pBuf );
 				assert( iLength );

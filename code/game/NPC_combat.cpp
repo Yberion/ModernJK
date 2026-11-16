@@ -33,7 +33,7 @@ extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_ClearLookTarget( gentity_t *self );
 extern void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy );
-extern bool PM_DroidMelee( int npc_class );
+extern bool PM_DroidMelee( class_t npc_class );
 extern int delayedShutDown;
 extern bool G_ValidEnemy( gentity_t *self, gentity_t *enemy );
 

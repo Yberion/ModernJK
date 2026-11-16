@@ -39,7 +39,7 @@ extern void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 extern saber_colors_t TranslateSaberColor( const char *name );
 extern bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
-extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
+extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, saber_styles_t *saberAnimLevel );
 
 extern void G_SetWeapon( gentity_t *self, int wp );
 extern stringID_table_t WPTable[];
@@ -316,7 +316,7 @@ SetForceCmd SetForceTable[NUM_FORCE_POWERS] = {
 	{ "forceLightning",		"setForceLightning",	FORCE_LEVEL_3			},
 	{ "saberThrow",			"setSaberThrow",		FORCE_LEVEL_3			},
 	{ "saberDefense",		"setSaberDefense",		FORCE_LEVEL_3			},
-	{ "saberOffense",		"setSaberOffense",		SS_NUM_SABER_STYLES-1	},
+	{ "saberOffense",		"setSaberOffense",		to_underlying( SS_NUM_SABER_STYLES )-1	},
 	{ "forceRage",			"setForceRage",			FORCE_LEVEL_3			},
 	{ "forceProtect",		"setForceProtect",		FORCE_LEVEL_3			},
 	{ "forceAbsorb",		"setForceAbsorb",		FORCE_LEVEL_3			},
@@ -484,23 +484,23 @@ void Svcmd_SaberAttackCycle_f( void )
 		&& self->client->ps.saber[0].Active()
 		&& self->client->ps.saber[1].Active() )
 	{
-		allowedStyles |= (1<<SS_DUAL);
-		for ( int styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+		allowedStyles |= Bit( SS_DUAL );
+		for ( saber_styles_t styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
 		{
 			if ( styleNum == SS_TAVION
-				&& ((self->client->ps.saber[0].stylesLearned&(1<<SS_TAVION))||(self->client->ps.saber[1].stylesLearned&(1<<SS_TAVION)))//was given this style by one of my sabers
-				&& !(self->client->ps.saber[0].stylesForbidden&(1<<SS_TAVION))
-				&& !(self->client->ps.saber[1].stylesForbidden&(1<<SS_TAVION)) )
+				&& ((self->client->ps.saber[0].stylesLearned&Bit( SS_TAVION ))||(self->client->ps.saber[1].stylesLearned&Bit( SS_TAVION )))//was given this style by one of my sabers
+				&& !(self->client->ps.saber[0].stylesForbidden&Bit( SS_TAVION ))
+				&& !(self->client->ps.saber[1].stylesForbidden&Bit( SS_TAVION )) )
 			{//if have both sabers on, allow tavion only if one of our sabers specifically wanted to use it... (unless specifically forbidden)
 			}
 			else if ( styleNum == SS_DUAL
-				&& !(self->client->ps.saber[0].stylesForbidden&(1<<SS_DUAL))
-				&& !(self->client->ps.saber[1].stylesForbidden&(1<<SS_DUAL)) )
+				&& !(self->client->ps.saber[0].stylesForbidden&Bit( SS_DUAL ))
+				&& !(self->client->ps.saber[1].stylesForbidden&Bit( SS_DUAL )) )
 			{//if have both sabers on, only dual style is allowed (unless specifically forbidden)
 			}
 			else
 			{
-				allowedStyles &= ~(1<<styleNum);
+				allowedStyles &= ~Bit( styleNum );
 			}
 		}
 	}
@@ -510,7 +510,7 @@ void Svcmd_SaberAttackCycle_f( void )
 		return;
 	}
 
-	int	saberAnimLevel;
+	saber_styles_t	saberAnimLevel;
 	if ( !self->s.number )
 	{
 		saberAnimLevel = cg.saberAnimLevelPending;
@@ -522,8 +522,8 @@ void Svcmd_SaberAttackCycle_f( void )
 	saberAnimLevel++;
 	int sanityCheck = 0;
 	while ( self->client->ps.saberAnimLevel != saberAnimLevel
-		&& !(allowedStyles&(1<<saberAnimLevel))
-		&& sanityCheck < SS_NUM_SABER_STYLES+1 )
+		&& !(allowedStyles&Bit( saberAnimLevel ))
+		&& sanityCheck < to_underlying( SS_NUM_SABER_STYLES )+1 )
 	{
 		saberAnimLevel++;
 		if ( saberAnimLevel > SS_STAFF )
@@ -533,7 +533,7 @@ void Svcmd_SaberAttackCycle_f( void )
 		sanityCheck++;
 	}
 
-	if ( !(allowedStyles&(1<<saberAnimLevel)) )
+	if ( !(allowedStyles&Bit( saberAnimLevel )) )
 	{
 		return;
 	}
@@ -637,9 +637,9 @@ static void Svcmd_SetForceAll_f(void)
 
 	if( gi.argc() > 1 )
 	{
-		for ( int i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
+		for ( saber_styles_t i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
 		{
-			g_entities[0].client->ps.saberStylesKnown |= (1<<i);
+			g_entities[0].client->ps.saberStylesKnown |= Bit( i );
 		}
 	}
 }
@@ -649,9 +649,9 @@ static void Svcmd_SetSaberAll_f(void)
 	Svcmd_ForceSetLevel_f( FP_SABERTHROW );
 	Svcmd_ForceSetLevel_f( FP_SABER_DEFENSE );
 	Svcmd_ForceSetLevel_f( FP_SABER_OFFENSE );
-	for ( int i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
+	for ( saber_styles_t i = SS_NONE+1; i < SS_NUM_SABER_STYLES; i++ )
 	{
-		g_entities[0].client->ps.saberStylesKnown |= (1<<i);
+		g_entities[0].client->ps.saberStylesKnown |= Bit( i );
 	}
 }
 

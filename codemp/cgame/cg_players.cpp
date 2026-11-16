@@ -2918,7 +2918,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 		animSpeed *= animSpeedMult;
 
-		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, cent->currentState.brokenLimbs);
+		BG_SaberStartTransAnim(cent->currentState.number, static_cast<saber_styles_t>( cent->currentState.fireflag ), cent->currentState.weapon, newAnimation, &animSpeed, cent->currentState.brokenLimbs);
 
 		if (torsoOnly)
 		{
@@ -9416,14 +9416,14 @@ void CG_Player( centity_t *cent ) {
 		ci->frame = cent->pe.torso.frame;
 	}
 
-	if (cent->currentState.activeForcePass > FORCE_LEVEL_3
+	if (cent->currentState.activeForcePass > to_underlying( FORCE_LEVEL_3 )
 		&& cent->currentState.NPC_class != CLASS_VEHICLE)
 	{
 		matrix3_t axis;
 		vec3_t tAng, fAng, fxDir;
 		vec3_t efOrg;
 
-		int realForceLev = (cent->currentState.activeForcePass - FORCE_LEVEL_3);
+		int realForceLev = (cent->currentState.activeForcePass - to_underlying( FORCE_LEVEL_3 ));
 
 		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
@@ -9455,7 +9455,7 @@ void CG_Player( centity_t *cent ) {
 
 		AnglesToAxis( fAng, axis );
 
-		if ( realForceLev > FORCE_LEVEL_2 )
+		if ( realForceLev > to_underlying( FORCE_LEVEL_2 ) )
 		{//arc
 			//trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
 			//trap->FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
@@ -9502,7 +9502,7 @@ void CG_Player( centity_t *cent ) {
 
 		AnglesToAxis( fAng, axis );
 
-		if ( cent->currentState.activeForcePass > FORCE_LEVEL_2 )
+		if ( cent->currentState.activeForcePass > to_underlying( FORCE_LEVEL_2 ) )
 		{//arc
 			//trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
 			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);

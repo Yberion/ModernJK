@@ -698,7 +698,7 @@ void WriteLevel(bool qbAutosave);
 void ReadLevel(bool qbAutosave, bool qbLoadTransition);
 bool GameAllowedToSaveHere(void);
 
-extern bool G_ActivateBehavior( gentity_t *ent, int bset );
+extern bool G_ActivateBehavior( gentity_t *ent, bSet_t bset );
 
 //Timing information
 void		TIMER_Clear( void );

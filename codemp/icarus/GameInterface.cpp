@@ -285,16 +285,15 @@ Determines whether or not an entity needs ICARUS information
 
 bool ICARUS_ValidEnt( sharedEntity_t *ent )
 {
-	int i;
 
 	//Targeted by a script
 	if VALIDSTRING( ent->script_targetname )
 		return true;
 
 	//Potentially able to call a script
-	for ( i = 0; i < NUM_BSETS; i++ )
+	for ( const char *script : ent->behaviorSet )
 	{
-		if VALIDSTRING( ent->behaviorSet[i] )
+		if VALIDSTRING( script )
 		{
 			//Com_Printf( "WARNING: Entity %d (%s) has behaviorSet but no script_targetname -- using targetname\n", ent->s.number, ent->targetname );
 
@@ -631,16 +630,15 @@ Precache all scripts being used by the entity
 void ICARUS_PrecacheEnt( sharedEntity_t *ent )
 {
 	char	newname[MAX_FILENAME_LENGTH];
-	int		i;
 
-	for ( i = 0; i < NUM_BSETS; i++ )
+	for ( const char *script : ent->behaviorSet )
 	{
-		if ( ent->behaviorSet[i] == nullptr )
+		if ( script == nullptr )
 			continue;
 
-		if ( GetIDForString( BSTable, ent->behaviorSet[i] ) == -1 )
+		if ( GetIDForString( BSTable, script ) == -1 )
 		{//not a behavior set
-			Com_sprintf( newname, sizeof(newname), "%s/%s", Q3_SCRIPT_DIR, ent->behaviorSet[i] );
+			Com_sprintf( newname, sizeof(newname), "%s/%s", Q3_SCRIPT_DIR, script );
 
 			//Precache this, and all internally referenced scripts
 			ICARUS_InterrogateScript( newname );

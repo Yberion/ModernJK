@@ -347,7 +347,7 @@ void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator)
 	ExplodeDeath( self );
 }
 
-bool G_ActivateBehavior (gentity_t *self, int bset );
+bool G_ActivateBehavior (gentity_t *self, bSet_t bset );
 void G_CheckVictoryScript(gentity_t *self)
 {
 	if ( !G_ActivateBehavior( self, BSET_VICTORY ) )
