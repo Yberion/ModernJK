@@ -2911,7 +2911,7 @@ static bool CG_PlayerShadow( centity_t *const cent, float *const shadowPlane ) {
 	}
 
 	// no shadows when cloaked
-	if ( cent->currentState.powerups & ( 1 << PW_CLOAKED ))
+	if ( cent->currentState.powerups & Bit( PW_CLOAKED ))
 	{
 		return false;
 	}
@@ -3406,7 +3406,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	}
 	if ( gent->client->ps.powerups[PW_DISRUPTION] < cg.time )
 	{//disruptor
-		if (( powerups & ( 1 << PW_DISRUPTION )))
+		if (( powerups & Bit( PW_DISRUPTION )))
 		{
 			//stop drawing him after this effect
 			gent->client->ps.eFlags |= EF_NODRAW;
@@ -3476,10 +3476,10 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	// Cloaking & Uncloaking Technology
 	//----------------------------------------
 
-	if (( powerups & ( 1 << PW_UNCLOAKING )))
+	if (( powerups & Bit( PW_UNCLOAKING )))
 	{//in the middle of cloaking
 		float perc = (float)(gent->client->ps.powerups[PW_UNCLOAKING] - cg.time) / 2000.0f;
-		if (( powerups & ( 1 << PW_CLOAKED )))
+		if (( powerups & Bit( PW_CLOAKED )))
 		{//actually cloaking, so reverse it
 			perc = 1.0f - perc;
 		}
@@ -3501,7 +3501,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 			cgi_R_AddRefEntityToScene( ent );
 		}
 	}
-	else if (( powerups & ( 1 << PW_CLOAKED )))
+	else if (( powerups & Bit( PW_CLOAKED )))
 	{//fully cloaked
 		ent->renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 		ent->shaderRGBA[0] = ent->shaderRGBA[1] = ent->shaderRGBA[2] = ent->shaderRGBA[3] = 255;
@@ -3511,7 +3511,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// Electricity
 	//------------------------------------------------
-	if ( (powerups & ( 1 << PW_SHOCKED )) )
+	if ( (powerups & Bit( PW_SHOCKED )) )
 	{
 		int	dif = gent->client->ps.powerups[PW_SHOCKED] - cg.time;
 
@@ -3568,7 +3568,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// Personal Shields
 	//------------------------
-	if ( powerups & ( 1 << PW_BATTLESUIT ))
+	if ( powerups & Bit( PW_BATTLESUIT ))
 	{
 		float diff = gent->client->ps.powerups[PW_BATTLESUIT] - cg.time;
 		float t;
@@ -3595,7 +3595,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// Galak Mech shield bubble
 	//------------------------------------------------------
-	if ( powerups & ( 1 << PW_GALAK_SHIELD ))
+	if ( powerups & Bit( PW_GALAK_SHIELD ))
 	{
 		refEntity_t tent;
 
@@ -3629,7 +3629,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// Invincibility -- effect needs work
 	//------------------------------------------------------
-	if ( powerups & ( 1 << PW_INVINCIBLE ))
+	if ( powerups & Bit( PW_INVINCIBLE ))
 	{
 		theFxScheduler.PlayEffect( cgs.effects.forceInvincibility, cent->lerpOrigin );
 	}
@@ -5861,7 +5861,7 @@ Ghoul2 Insert End
 			if ( drawGun )
 			{
 				CG_AddRefEntityWithPowerups( &gun,
-					(cent->currentState.powerups & ((1<<PW_CLOAKED)|(1<<PW_BATTLESUIT)) ),
+					(cent->currentState.powerups & (Bit( PW_CLOAKED )|Bit( PW_BATTLESUIT )) ),
 					cent );
 			}
 

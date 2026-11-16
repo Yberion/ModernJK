@@ -314,7 +314,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 //						G_PlayEffect( "small_chunks" , self->currentOrigin );
 						G_PlayEffect( "chunks/r5d2head", self->currentOrigin );
 
-						self->s.powerups |= ( 1 << PW_SHOCKED );
+						self->s.powerups |= Bit( PW_SHOCKED );
 						self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 
 						TIMER_Set( self, "droidsmoketotal", 5000);
@@ -350,7 +350,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
 		{
 			self->NPC->localState = LSTATE_SPINNING;
-			self->s.powerups |= ( 1 << PW_SHOCKED );
+			self->s.powerups |= Bit( PW_SHOCKED );
 			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 		}
 		else

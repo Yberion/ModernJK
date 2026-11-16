@@ -82,7 +82,7 @@ void BubbleShield_PushEnt(gentity_t* pushed, vec3_t smackDir)
 
 	// Make Em Electric
 	//------------------
- 	pushed->s.powerups |= (1 << PW_SHOCKED);
+ 	pushed->s.powerups |= Bit( PW_SHOCKED );
 	if (pushed->client)
 	{
 		pushed->client->ps.powerups[PW_SHOCKED] = level.time + 1000;

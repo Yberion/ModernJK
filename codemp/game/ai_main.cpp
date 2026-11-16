@@ -2623,7 +2623,7 @@ int BotGetEnemyFlag(bot_state_t *bs)
 int BotGetFlagBack(bot_state_t *bs)
 {
 	int i = 0;
-	int myFlag = 0;
+	powerup_t myFlag = PW_NONE;
 	int foundCarrier = 0;
 	int tempInt = 0;
 	gentity_t *ent = nullptr;
@@ -2689,7 +2689,7 @@ int BotGetFlagBack(bot_state_t *bs)
 int BotGuardFlagCarrier(bot_state_t *bs)
 {
 	int i = 0;
-	int enemyFlag = 0;
+	powerup_t enemyFlag = PW_NONE;
 	int foundCarrier = 0;
 	int tempInt = 0;
 	gentity_t *ent = nullptr;
@@ -2852,8 +2852,8 @@ void GetNewFlagPoint(wpobject_t *wp, gentity_t *flagEnt, int team)
 int CTFTakesPriority(bot_state_t *bs)
 {
 	gentity_t *ent = nullptr;
-	int enemyFlag = 0;
-	int myFlag = 0;
+	powerup_t enemyFlag = PW_NONE;
+	powerup_t myFlag = PW_NONE;
 	int enemyHasOurFlag = 0;
 	//int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;
@@ -3571,7 +3571,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	}
 	else if (as->item->giType == IT_POWERUP)
 	{
-		if (bs->cur_ps.powerups[as->item->giTag])
+		if (bs->cur_ps.powerups[static_cast<powerup_t>( as->item->giTag )])
 		{
 			return 1;
 		}
@@ -3580,7 +3580,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	}
 	else if (as->item->giType == IT_AMMO)
 	{
-		if (bs->cur_ps.ammo[as->item->giTag] > 10) //hack
+		if (bs->cur_ps.ammo[static_cast<ammo_t>( as->item->giTag )] > 10) //hack
 		{
 			return 1;
 		}
@@ -3955,8 +3955,8 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	int defendAttackPriority = 0; //0 == attack, 1 == defend
 	int guardDefendPriority = 0; //0 == defend, 1 == guard
 	int attackRetrievePriority = 0; //0 == retrieve, 1 == attack
-	int myFlag = 0;
-	int enemyFlag = 0;
+	powerup_t myFlag = PW_NONE;
+	powerup_t enemyFlag = PW_NONE;
 	int enemyHasOurFlag = 0;
 	int weHaveEnemyFlag = 0;
 	int numOnMyTeam = 0;

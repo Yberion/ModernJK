@@ -2055,10 +2055,10 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	int			i;
 	gclient_t	*client;
 
-	if ( !other->client->ps.powerups[ent->item->giTag] ) {
+	if ( !other->client->ps.powerups[static_cast<powerup_t>( ent->item->giTag )] ) {
 		// round timing to seconds to make multiple powerup timers
 		// count in sync
-		other->client->ps.powerups[ent->item->giTag] =
+		other->client->ps.powerups[static_cast<powerup_t>( ent->item->giTag )] =
 			level.time - ( level.time % 1000 );
 
 		G_LogWeaponPowerup(other->s.number, ent->item->giTag);
@@ -2070,9 +2070,9 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		quantity = ent->item->quantity;
 	}
 
-	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
+	other->client->ps.powerups[static_cast<powerup_t>( ent->item->giTag )] += quantity * 1000;
 
-	if (ent->item->giTag == PW_YSALAMIRI)
+	if (ent->item->giTag == to_underlying( PW_YSALAMIRI ))
 	{
 		other->client->ps.powerups[PW_FORCE_ENLIGHTENED_LIGHT] = 0;
 		other->client->ps.powerups[PW_FORCE_ENLIGHTENED_DARK] = 0;
@@ -2144,7 +2144,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo (gentity_t *ent, ammo_t weapon, int count)
 {
 	int max = ammoData[weapon].max;
 
@@ -2204,7 +2204,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 	}
 	else
 	{
-		Add_Ammo (other, ent->item->giTag, quantity);
+		Add_Ammo (other, static_cast<ammo_t>( ent->item->giTag ), quantity);
 	}
 
 	return adjustRespawnTime(RESPAWN_AMMO, ent->item->giType, ent->item->giTag);
@@ -2232,8 +2232,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			// New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
 
 			// drop the quantity if the already have over the minimum
-			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity*0.5 ) {
-				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
+			if ( other->client->ps.ammo[ static_cast<ammo_t>( ent->item->giTag ) ] < quantity*0.5 ) {
+				quantity = quantity - other->client->ps.ammo[ static_cast<ammo_t>( ent->item->giTag ) ];
 			} else {
 				quantity = quantity*0.5;		// only add half the value.
 			}
@@ -2430,9 +2430,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;		// dead people can't pickup
 
 	if (ent->item->giType == IT_POWERUP &&
-		(ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT || ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK))
+		(ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) || ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_DARK )))
 	{
-		if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
+		if (ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
 		{
 			if (other->client->ps.fd.forceSide != FORCE_LIGHTSIDE)
 			{
@@ -2527,15 +2527,15 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		break;
 	case IT_AMMO:
 		respawn = Pickup_Ammo(ent, other);
-		if (ent->item->giTag == AMMO_THERMAL || ent->item->giTag == AMMO_TRIPMINE || ent->item->giTag == AMMO_DETPACK)
+		if (ent->item->giTag == to_underlying( AMMO_THERMAL ) || ent->item->giTag == to_underlying( AMMO_TRIPMINE ) || ent->item->giTag == to_underlying( AMMO_DETPACK ))
 		{
 			int weapForAmmo = 0;
 
-			if (ent->item->giTag == AMMO_THERMAL)
+			if (ent->item->giTag == to_underlying( AMMO_THERMAL ))
 			{
 				weapForAmmo = WP_THERMAL;
 			}
-			else if (ent->item->giTag == AMMO_TRIPMINE)
+			else if (ent->item->giTag == to_underlying( AMMO_TRIPMINE ))
 			{
 				weapForAmmo = WP_TRIP_MINE;
 			}
@@ -2725,11 +2725,11 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 		Team_CheckDroppedItem( dropped );
 
 		//rww - so bots know
-		if (dropped->item->giTag == PW_REDFLAG)
+		if (dropped->item->giTag == to_underlying( PW_REDFLAG ))
 		{
 			droppedRedFlag = dropped;
 		}
-		else if (dropped->item->giTag == PW_BLUEFLAG)
+		else if (dropped->item->giTag == to_underlying( PW_BLUEFLAG ))
 		{
 			droppedBlueFlag = dropped;
 		}
@@ -2864,8 +2864,8 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		if (ent->item->giType == IT_POWERUP)
 		{
-			if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT ||
-				ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK)
+			if (ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) ||
+				ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_DARK ))
 			{
 				G_FreeEntity(ent);
 				return;
@@ -2877,9 +2877,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{ //if force powers disabled, don't add force powerups
 		if (ent->item->giType == IT_POWERUP)
 		{
-			if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT ||
-				ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK ||
-				ent->item->giTag == PW_FORCE_BOON)
+			if (ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) ||
+				ent->item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_DARK ) ||
+				ent->item->giTag == to_underlying( PW_FORCE_BOON ))
 			{
 				G_FreeEntity(ent);
 				return;
@@ -2904,7 +2904,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		int killMe = 0;
 
-		switch (ent->item->giTag)
+		switch (static_cast<powerup_t>( ent->item->giTag ))
 		{
 		case PW_REDFLAG:
 			killMe = 1;

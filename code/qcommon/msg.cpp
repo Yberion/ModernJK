@@ -1075,7 +1075,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 	//
 	statsbits = 0;
 	for (i=0 ; i<MAX_STATS ; i++) {
-		if (to->stats[i] != from->stats[i]) {
+		if (to->stats.data()[i] != from->stats.data()[i]) {
 			statsbits |= 1<<i;
 		}
 	}
@@ -1084,7 +1084,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 		MSG_WriteShort( msg, statsbits );
 		for (i=0 ; i<MAX_STATS ; i++)
 			if (statsbits & (1<<i) )
-				MSG_WriteBits(msg, to->stats[i], 32);
+				MSG_WriteBits(msg, to->stats.data()[i], 32);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1109,7 +1109,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 
 	ammobits = 0;
 	for (i=0 ; i<MAX_AMMO ; i++) {
-		if (to->ammo[i] != from->ammo[i]) {
+		if (to->ammo.data()[i] != from->ammo.data()[i]) {
 			ammobits |= 1<<i;
 		}
 	}
@@ -1118,14 +1118,14 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 		MSG_WriteShort( msg, ammobits );
 		for (i=0 ; i<MAX_AMMO ; i++)
 			if (ammobits & (1<<i) )
-				MSG_WriteSShort (msg, to->ammo[i]);
+				MSG_WriteSShort (msg, to->ammo.data()[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
 
 	powerupbits = 0;
 	for (i=0 ; i<MAX_POWERUPS ; i++) {
-		if (to->powerups[i] != from->powerups[i]) {
+		if (to->powerups.data()[i] != from->powerups.data()[i]) {
 			powerupbits |= 1<<i;
 		}
 	}
@@ -1134,7 +1134,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 		MSG_WriteShort( msg, powerupbits );
 		for (i=0 ; i<MAX_POWERUPS ; i++)
 			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
+				MSG_WriteLong( msg, to->powerups.data()[i] );
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1224,7 +1224,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		bits = MSG_ReadShort (msg);
 		for (i=0 ; i<MAX_STATS ; i++) {
 			if (bits & (1<<i) ) {
-				to->stats[i] = MSG_ReadBits(msg,32);
+				to->stats.data()[i] = MSG_ReadBits(msg,32);
 			}
 		}
 	}
@@ -1246,7 +1246,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		bits = MSG_ReadShort (msg);
 		for (i=0 ; i<MAX_AMMO ; i++) {
 			if (bits & (1<<i) ) {
-				to->ammo[i] = MSG_ReadSShort(msg);
+				to->ammo.data()[i] = MSG_ReadSShort(msg);
 			}
 		}
 	}
@@ -1257,7 +1257,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		bits = MSG_ReadShort (msg);
 		for (i=0 ; i<MAX_POWERUPS ; i++) {
 			if (bits & (1<<i) ) {
-				to->powerups[i] = MSG_ReadLong(msg);
+				to->powerups.data()[i] = MSG_ReadLong(msg);
 			}
 		}
 	}

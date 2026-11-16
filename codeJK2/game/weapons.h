@@ -87,7 +87,7 @@ typedef enum //# weapon_e
 #define MAX_PLAYER_WEAPONS	WP_STUN_BATON	// this is the max you can switch to and get with the give all.
 
 // AMMO_NONE must be first and AMMO_MAX must be last, cause weapon load validates based off of these vals
-typedef enum //# ammo_e
+enum class ammo_t //# ammo_e
 {
 	AMMO_NONE,
 	AMMO_FORCE,		// AMMO_PHASER
@@ -100,7 +100,9 @@ typedef enum //# ammo_e
 	AMMO_TRIPMINE,
 	AMMO_DETPACK,
 	AMMO_MAX
-} ammo_t;
+};
+using enum ammo_t;
+template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
 
 typedef struct weaponData_s
@@ -116,7 +118,7 @@ typedef struct weaponData_s
 	char	altChargeSnd[64];	// alt sound to start when the weapon initiates the charging sequence
 	char	selectSnd[64];		// the sound to play when this weapon gets selected
 
-	int		ammoIndex;			// Index to proper ammo slot
+	ammo_t	ammoIndex;			// Index to proper ammo slot
 	int		ammoLow;			// Count when ammo is low
 
 	int		energyPerShot;		// Amount of energy used per shot

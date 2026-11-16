@@ -1064,7 +1064,7 @@ void WeaponThink( bool inCombat )
 	if(NPCS.NPC->client->ps.ammo[ weaponData[NPCS.client->ps.weapon].ammoIndex ] < 10)	// checkme
 //	if(NPC->client->ps.ammo[ client->ps.weapon ] < 10)
 	{
-		Add_Ammo (NPCS.NPC, NPCS.client->ps.weapon, 100);
+		Add_Ammo (NPCS.NPC, weaponData[NPCS.client->ps.weapon].ammoIndex, 100);
 	}
 
 	NPCS.ucmd.weapon = NPCS.client->ps.weapon;

@@ -3605,14 +3605,12 @@ void ClientSpawn(gentity_t *ent) {
 		bgSiegeClasses[client->siegeClass].powerups &&
 		client->sess.sessionTeam != TEAM_SPECTATOR)
 	{ //this class has some start powerups
-		i = 0;
-		while (i < PW_NUM_POWERUPS)
+		for (powerup_t p = PW_NONE; p < PW_NUM_POWERUPS; p++)
 		{
-			if (bgSiegeClasses[client->siegeClass].powerups & (1 << i))
+			if (bgSiegeClasses[client->siegeClass].powerups & Bit( p ))
 			{
-				client->ps.powerups[i] = Q3_INFINITE;
+				client->ps.powerups[p] = Q3_INFINITE;
 			}
-			i++;
 		}
 	}
 

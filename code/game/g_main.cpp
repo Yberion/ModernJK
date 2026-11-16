@@ -1431,7 +1431,7 @@ bool G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 		ent->health > 0 ||
 		ent->client->noRagTime >= level.time ||
 		ent->client->noRagTime==-1 ||
-		(ent->s.powerups & (1 << PW_DISRUPTION)) ||
+		(ent->s.powerups & Bit( PW_DISRUPTION )) ||
 		ent->e_DieFunc == dieF_NULL ||
  		ent->playerModel < 0 ||
 		!ent->ghoul2.size() ||

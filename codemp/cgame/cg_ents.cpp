@@ -1861,18 +1861,18 @@ static void CG_Speaker( centity_t *cent ) {
 bool CG_GreyItem(itemType_t type, int tag, int plSide)
 {
 	if (type == IT_POWERUP &&
-		(tag == PW_FORCE_ENLIGHTENED_LIGHT || tag == PW_FORCE_ENLIGHTENED_DARK))
+		(tag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) || tag == to_underlying( PW_FORCE_ENLIGHTENED_DARK )))
 	{
 		if (plSide == FORCE_LIGHTSIDE)
 		{
-			if (tag == PW_FORCE_ENLIGHTENED_DARK)
+			if (tag == to_underlying( PW_FORCE_ENLIGHTENED_DARK ))
 			{
 				return true;
 			}
 		}
 		else if (plSide == FORCE_DARKSIDE)
 		{
-			if (tag == PW_FORCE_ENLIGHTENED_LIGHT)
+			if (tag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
 			{
 				return true;
 			}
@@ -1975,14 +1975,14 @@ Ghoul2 Insert End
 
 		ent.origin[2] += 16;
 
-		if (item->giType != IT_POWERUP || item->giTag != PW_FORCE_BOON)
+		if (item->giType != IT_POWERUP || item->giTag != to_underlying( PW_FORCE_BOON ))
 		{
 			ent.renderfx |= RF_FORCE_ENT_ALPHA;
 		}
 
 		if ( es->eFlags & EF_ITEMPLACEHOLDER )
 		{
-			if (item->giType == IT_POWERUP && item->giTag == PW_FORCE_BOON)
+			if (item->giType == IT_POWERUP && item->giTag == to_underlying( PW_FORCE_BOON ))
 			{
 				return;
 			}
@@ -2004,7 +2004,7 @@ Ghoul2 Insert End
 
 			ent.shaderRGBA[3] = 200;
 
-			if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
+			if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
 			{
 				ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
 			}
@@ -2172,7 +2172,7 @@ Ghoul2 Insert End
 
 		ent.shaderRGBA[3] = 200;
 
-		if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
+		if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
 		{
 			ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
 		}
@@ -2223,7 +2223,7 @@ Ghoul2 Insert End
 			a=1;
 
 		ent.shaderRGBA[3] = a;
-		if (item->giType != IT_POWERUP || item->giTag != PW_FORCE_BOON)
+		if (item->giType != IT_POWERUP || item->giTag != to_underlying( PW_FORCE_BOON ))
 		{ //boon model uses a different blending mode for the sprite inside and doesn't look proper with this method
 			ent.renderfx |= RF_FORCE_ENT_ALPHA;
 		}
@@ -2273,7 +2273,7 @@ Ghoul2 Insert End
 	else
 	{	// add to refresh list  -- normal item
 		if (item->giType == IT_TEAM &&
-			(item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG))
+			(item->giTag == to_underlying( PW_REDFLAG ) || item->giTag == to_underlying( PW_BLUEFLAG )))
 		{
 			ent.modelScale[0] = 0.7f;
 			ent.modelScale[1] = 0.7f;

@@ -236,7 +236,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 		if ( hitLoc == HL_GENERIC1 )
 		{//hit the antenna!
 			pain_chance = 1.0f;
-			self->s.powerups |= ( 1 << PW_SHOCKED );
+			self->s.powerups |= Bit( PW_SHOCKED );
 			self->client->ps.powerups[PW_SHOCKED] = level.time + Q_irand( 500, 2500 );
 		}
 		else if ( self->client->ps.powerups[PW_GALAK_SHIELD] )

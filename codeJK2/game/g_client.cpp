@@ -697,6 +697,7 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 		char	s[MAX_STRING_CHARS];
 		const char	*var;
 		int saberActive;
+		int weaponstate;
 
 		gi.Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
 
@@ -708,7 +709,7 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 								&client->ps.stats[STAT_WEAPONS],
 								&client->ps.stats[STAT_ITEMS],
 								&client->ps.weapon,
-								&client->ps.weaponstate,
+								&weaponstate,
 								&client->ps.batteryCharge,
 								&client->ps.viewangles[0],
 								&client->ps.viewangles[1],
@@ -720,6 +721,7 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 								&client->ps.saberLockEnemy,
 								&client->ps.saberLockTime
 					);
+			client->ps.weaponstate = static_cast<weaponstate_t>( weaponstate );
 			client->ps.saberActive = (saberActive ? true : false);
 			ent->health = client->ps.stats[STAT_HEALTH];
 
@@ -737,11 +739,11 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.ammo[i++] = atoi(var);
+			  client->ps.ammo.data()[i++] = atoi(var);
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==AMMO_MAX);
+			assert (i==to_underlying( AMMO_MAX ));
 
 			//inventory
 			gi.Cvar_VariableStringBuffer( "playerinv", s, sizeof(s) );
@@ -1652,9 +1654,9 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//this is precached in SP_info_player_deathmatch
 		}
 
-		for ( i = 0; i < AMMO_THERMAL; i++ ) // don't give ammo for explosives
+		for ( ammo_t a = AMMO_NONE; a < AMMO_THERMAL; a++ ) // don't give ammo for explosives
 		{
-			client->ps.ammo[i] = ammoData[i].max;
+			client->ps.ammo[a] = ammoData[a].max;
 		}
 
 		client->ps.saberColor = SABER_BLUE;

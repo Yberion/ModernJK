@@ -93,7 +93,7 @@ enum class pmtype_t {
 };
 using enum pmtype_t;
 
-typedef enum {
+enum class weaponstate_t {
 	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
@@ -101,7 +101,8 @@ typedef enum {
 	WEAPON_CHARGING,
 	WEAPON_CHARGING_ALT,
 	WEAPON_IDLE, //lowered
-} weaponstate_t;
+};
+using enum weaponstate_t;
 
 // pmove->pm_flags
 #define	PMF_DUCKED			1
@@ -240,7 +241,7 @@ using enum persEnum_t;
 //#define EF_use_me				0x40000000	// Not used
 #define EF_BLOCKED_MOVER		0x80000000	// for movers that are blocked - shared with previous
 
-typedef enum {
+enum class powerup_t {
 	PW_NONE,
 	PW_QUAD,// This can go away
 	PW_BATTLESUIT,
@@ -257,9 +258,11 @@ typedef enum {
 	PW_FORCE_PUSH,
 
 	PW_NUM_POWERUPS
-} powerup_t;
+};
+using enum powerup_t;
+template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 
-#define PW_REMOVE_AT_DEATH ((1<<PW_QUAD)|(1<<PW_BATTLESUIT)|(1<<PW_HASTE)|(1<<PW_CLOAKED)|(1<<PW_UNCLOAKING)|(1<<PW_UNCLOAKING)|(1<<PW_GALAK_SHIELD)|(1<<PW_DISINT_2)|(1<<PW_INVINCIBLE)|(1<<PW_SEEKER))
+#define PW_REMOVE_AT_DEATH (Bit( PW_QUAD )|Bit( PW_BATTLESUIT )|Bit( PW_HASTE )|Bit( PW_CLOAKED )|Bit( PW_UNCLOAKING )|Bit( PW_UNCLOAKING )|Bit( PW_GALAK_SHIELD )|Bit( PW_DISINT_2 )|Bit( PW_INVINCIBLE )|Bit( PW_SEEKER ))
 // entityState_t->event values
 // entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
@@ -615,7 +618,7 @@ typedef struct ginfoitem_s
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
 
 //==============================================================================
-extern ammoData_t ammoData[AMMO_MAX];
+extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 //==============================================================================
 

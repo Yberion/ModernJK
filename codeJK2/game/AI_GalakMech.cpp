@@ -155,7 +155,7 @@ void GM_Dying( gentity_t *self )
 {
 	if ( level.time - self->s.time < 4000 )
 	{//FIXME: need a real effect
-		self->s.powerups |= ( 1 << PW_SHOCKED );
+		self->s.powerups |= Bit( PW_SHOCKED );
 		self->client->ps.powerups[PW_SHOCKED] = level.time + 1000;
 		if ( TIMER_Done( self, "dyingExplosion" ) )
 		{
@@ -326,7 +326,7 @@ void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, ve
 	else if ( hitLoc == HL_GENERIC1 )
 	{
 		NPC_SetPainEvent( self );
-		self->s.powerups |= ( 1 << PW_SHOCKED );
+		self->s.powerups |= Bit( PW_SHOCKED );
 		self->client->ps.powerups[PW_SHOCKED] = level.time + Q_irand( 500, 2500 );
 	}
 
@@ -1173,7 +1173,7 @@ void NPC_BSGM_Attack( void )
 			G_Damage( NPC->enemy, NPC, NPC, smackDir, NPC->currentOrigin, (g_spskill->integer+1)*Q_irand( 5, 10), DAMAGE_NO_KNOCKBACK, MOD_ELECTROCUTE );
 			//throw them
 			G_Throw( NPC->enemy, smackDir, 100 );
-			NPC->enemy->s.powerups |= ( 1 << PW_SHOCKED );
+			NPC->enemy->s.powerups |= Bit( PW_SHOCKED );
 			if ( NPC->enemy->client )
 			{
 				NPC->enemy->client->ps.powerups[PW_SHOCKED] = level.time + 1000;

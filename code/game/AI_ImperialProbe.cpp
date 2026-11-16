@@ -485,7 +485,7 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 				self->client->ps.velocity[2] -= 127;
 			}
 
-			self->s.powerups |= ( 1 << PW_SHOCKED );
+			self->s.powerups |= Bit( PW_SHOCKED );
 			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 
 			self->NPC->localState = LSTATE_DROP;

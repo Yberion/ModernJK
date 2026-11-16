@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
-extern ammoData_t ammoData[AMMO_MAX];
+extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 
 #define PICKUPSOUND "sound/weapons/w_pkup.wav"
@@ -299,7 +299,7 @@ gitem_t	*FindItemForAmmo( ammo_t ammo )
 
 	for ( i = 1 ; i < bg_numItems ; i++ )
 	{
-		if ( bg_itemlist[i].giType == IT_AMMO && bg_itemlist[i].giTag == ammo )
+		if ( bg_itemlist[i].giType == IT_AMMO && bg_itemlist[i].giTag == to_underlying( ammo ) )
 		{
 			return &bg_itemlist[i];
 		}
@@ -369,10 +369,10 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 	case IT_AMMO:
 
-		if (item->giTag != AMMO_FORCE)
+		if (item->giTag != to_underlying( AMMO_FORCE ))
 		{
 			// since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
-			switch( item->giTag )
+			switch( static_cast<ammo_t>( item->giTag ) )
 			{
 			case AMMO_THERMAL:
 				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) )
@@ -392,16 +392,19 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 					return true;
 				}
 				break;
+
+			default:
+				break;
 			}
 
-			if ( ps->ammo[ item->giTag ] >= ammoData[item->giTag].max )	// checkme
+			if ( ps->ammo[ static_cast<ammo_t>( item->giTag ) ] >= ammoData[static_cast<ammo_t>( item->giTag )].max )	// checkme
 			{
 				return false;		// can't hold any more
 			}
 		}
 		else
 		{
-			if (ps->forcePower >= ammoData[item->giTag].max*2)
+			if (ps->forcePower >= ammoData[static_cast<ammo_t>( item->giTag )].max*2)
 			{
 				return false;		// can't hold any more
 			}
@@ -612,7 +615,6 @@ and after local prediction on the client
 */
 void PlayerStateToEntityState( playerState_t *ps, entityState_t *s )
 {
-	int		i;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR )
 	{
@@ -662,9 +664,9 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s )
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-		if ( ps->powerups[ i ] ) {
-			s->powerups |= 1 << i;
+	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+		if ( ps->powerups[ p ] ) {
+			s->powerups |= Bit( p );
 		}
 	}
 #if 0

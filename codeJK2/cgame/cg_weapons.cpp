@@ -122,7 +122,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
-		if ( ammo->giType == IT_AMMO && ammo->giTag == weaponData[weaponNum].ammoIndex) {
+		if ( ammo->giType == IT_AMMO && ammo->giTag == to_underlying( weaponData[weaponNum].ammoIndex )) {
 			break;
 		}
 	}
@@ -572,7 +572,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	// some ammo types are actually the weapon, like in the case of explosives
 	if ( item->giType == IT_AMMO )
 	{
-		switch( item->giTag )
+		switch( static_cast<ammo_t>( item->giTag ) )
 		{
 		case AMMO_THERMAL:
 			CG_RegisterWeapon( WP_THERMAL );
@@ -582,6 +582,9 @@ void CG_RegisterItemVisuals( int itemNum ) {
 			break;
 		case AMMO_DETPACK:
 			CG_RegisterWeapon( WP_DET_PACK );
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -2921,7 +2924,7 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 		// Do a full body effect here for some more feedback
 		if ( other && other->client )
 		{
-			other->s.powerups |= ( 1 << PW_SHOCKED );
+			other->s.powerups |= Bit( PW_SHOCKED );
 			other->client->ps.powerups[PW_SHOCKED] = cg.time + 1000;
 		}
 		break;

@@ -159,7 +159,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 		G_Damage( gent, ent, ent->owner, dir, ent->currentOrigin, weaponData[WP_DEMP2].altDamage, DAMAGE_DEATH_KNOCKBACK, ent->splashMethodOfDeath );
 		if ( gent->takedamage && gent->client )
 		{
-			gent->s.powerups |= ( 1 << PW_SHOCKED );
+			gent->s.powerups |= Bit( PW_SHOCKED );
 			gent->client->ps.powerups[PW_SHOCKED] = level.time + 2000;
 		}
 	}

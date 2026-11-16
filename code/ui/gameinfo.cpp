@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/weapons.h"
 
 weaponData_t weaponData[WP_NUM_WEAPONS];
-ammoData_t ammoData[AMMO_MAX];
+EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 extern void WP_LoadWeaponParms (void);
 

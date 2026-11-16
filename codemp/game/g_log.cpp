@@ -48,7 +48,7 @@ int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogLastTime[MAX_CLIENTS];
 bool G_WeaponLogClientTouch[MAX_CLIENTS];
 int G_WeaponLogPowerups[MAX_CLIENTS][to_underlying( HI_NUM_HOLDABLE )];
-int	G_WeaponLogItems[MAX_CLIENTS][PW_NUM_POWERUPS];
+int	G_WeaponLogItems[MAX_CLIENTS][to_underlying( PW_NUM_POWERUPS )];
 
 // MOD-weapon mapping array.
 int weaponFromMOD[MOD_MAX] =
@@ -971,7 +971,7 @@ bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 			}
 			nStuffUsed += G_WeaponLogPowerups[i][j];
 		}
-		for (j = PW_NONE+1; j < PW_NUM_POWERUPS; j++)
+		for (j = to_underlying( PW_NONE )+1; j < to_underlying( PW_NUM_POWERUPS ); j++)
 		{
 			if (G_WeaponLogItems[i][j])
 			{
@@ -1718,7 +1718,7 @@ void QDECL G_ClearClientLog(int client)
 	{
 		G_WeaponLogPowerups[client][i] = 0;
 	}
-	for (i = 0; i < PW_NUM_POWERUPS; i++)
+	for (i = 0; i < to_underlying( PW_NUM_POWERUPS ); i++)
 	{
 		G_WeaponLogItems[client][i] = 0;
 	}

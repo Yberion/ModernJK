@@ -3697,7 +3697,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	self->s.loopSound = 0;
 
 	// remove powerups
-	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+	self->client->ps.powerups = {};
 
 	if ( self->client->NPC_class == CLASS_MARK1 )
 	{
@@ -3824,7 +3824,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			{//on ground, need different death anim
 				anim = BOTH_LYINGDEATH1;
 			}
-			else if ( meansOfDeath == MOD_TRIGGER_HURT && (self->s.powerups&(1<<PW_SHOCKED)) )
+			else if ( meansOfDeath == MOD_TRIGGER_HURT && (self->s.powerups&Bit( PW_SHOCKED )) )
 			{//electrocuted
 				anim = BOTH_DEATH17;
 			}
@@ -4017,7 +4017,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			self->flags |= FL_DISINTEGRATED;
 			self->svFlags |= SVF_BROADCAST;
 			tent = G_TempEntity( spot, EV_DISINTEGRATION );
-			tent->s.eventParm = PW_DISRUPTION;
+			tent->s.eventParm = to_underlying( PW_DISRUPTION );
 			tent->svFlags |= SVF_BROADCAST;
 			tent->owner = self;
 

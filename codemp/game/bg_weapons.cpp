@@ -341,7 +341,7 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 	},
 	{	// WP_EMPLCACED_GUN
 //		"Emplaced Gun",			//	char	classname[32];		// Spawning name
-		/*AMMO_BLASTER*/0,			//	int		ammoIndex;			// Index to proper ammo slot
+		/*AMMO_BLASTER*/AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
 		/*5*/0,						//	int		ammoLow;			// Count when ammo is low
 		/*2*/0,						//	int		energyPerShot;		// Amount of energy used per shot
 		100,					//	int		fireTime;			// Amount of time between firings
@@ -358,7 +358,7 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 	},
 	{	// WP_TURRET - NOTE NOT ACTUALLY USEABLE BY PLAYER!
 //		"Emplaced Gun",			//	char	classname[32];		// Spawning name
-		/*AMMO_BLASTER*/0,			//	int		ammoIndex;			// Index to proper ammo slot
+		/*AMMO_BLASTER*/AMMO_NONE,			//	int		ammoIndex;			// Index to proper ammo slot
 		/*5*/0,						//	int		ammoLow;			// Count when ammo is low
 		/*2*/0,						//	int		energyPerShot;		// Amount of energy used per shot
 		0,					//	int		fireTime;			// Amount of time between firings
@@ -375,7 +375,8 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 	}
 };
 
-ammoData_t ammoData[AMMO_MAX] =
+EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData =
+{
 {
 	{	// AMMO_NONE
 //		"",				//	char	icon[32];	// Name of ammo icon file
@@ -417,6 +418,6 @@ ammoData_t ammoData[AMMO_MAX] =
 //		"",				//	char	icon[32];	// Name of ammo icon file
 		10				//	int		max;		// Max amount player can hold of ammo
 	}
-};
+}};
 
 

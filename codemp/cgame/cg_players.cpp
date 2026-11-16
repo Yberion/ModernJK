@@ -4505,26 +4505,26 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 	}
 
 	// quad gives a dlight
-	if ( powerups & ( 1 << PW_QUAD ) )
+	if ( powerups & Bit( PW_QUAD ) )
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2f, 0.2f, 1 );
 
 	if (cent->currentState.eType == ET_NPC)
 		assert(cent->npcClient);
 
 	// redflag
-	if ( powerups & ( 1 << PW_REDFLAG ) ) {
+	if ( powerups & Bit( PW_REDFLAG ) ) {
 		CG_PlayerFlag( cent, cgs.media.redFlagModel );
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 1.0, 0.2f, 0.2f );
 	}
 
 	// blueflag
-	if ( powerups & ( 1 << PW_BLUEFLAG ) ) {
+	if ( powerups & Bit( PW_BLUEFLAG ) ) {
 		CG_PlayerFlag( cent, cgs.media.blueFlagModel );
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 0.2f, 0.2f, 1.0 );
 	}
 
 	// neutralflag
-	if ( powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+	if ( powerups & Bit( PW_NEUTRALFLAG ) ) {
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (Q_irand( 0, 31 )), 1.0, 1.0, 1.0 );
 	}
 
@@ -4664,7 +4664,7 @@ static bool CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	}
 
 	// no shadows when cloaked
-	if ( cent->currentState.powerups & ( 1 << PW_CLOAKED ))
+	if ( cent->currentState.powerups & Bit( PW_CLOAKED ))
 	{
 		return false;
 	}
@@ -4901,7 +4901,7 @@ static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 		}
 
 		//scale from 1.0f to 0.1f then hold at 0.1 for the rest of the duration
-		if (cent->currentState.powerups & (1 << PW_PULL))
+		if (cent->currentState.powerups & Bit( PW_PULL ))
 		{
 			scale = (float)(REFRACT_EFFECT_DURATION-tDif)*0.003f;
 		}
@@ -6325,7 +6325,7 @@ CheckTrail:
 	{
 		if (!dontDraw)
 		{
-			if ( (BG_SuperBreakWinAnim(cent->currentState.torsoAnim) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & (1 << PW_SPEED) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one
+			if ( (BG_SuperBreakWinAnim(cent->currentState.torsoAnim) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & Bit( PW_SPEED ) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one
 			{
 	#if 0
 				if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4)
@@ -8513,7 +8513,7 @@ void CG_Player( centity_t *cent ) {
 		{ //smooth the origin more when in this state, because movement is origin-based on server.
 			smoothFactor = 0.2f;
 		}
-		else if ( (cent->currentState.powerups & (1 << PW_SPEED)) ||
+		else if ( (cent->currentState.powerups & Bit( PW_SPEED )) ||
 			(cent->currentState.forcePowersActive & (1 << FP_RAGE)) )
 		{ //we're moving fast so don't smooth as much
 			smoothFactor = 0.6f;
@@ -9333,7 +9333,7 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 
 	//rww - force speed "trail" effect
-	if (!(cent->currentState.powerups & (1 << PW_SPEED)) || doAlpha || !cg_speedTrail.integer)
+	if (!(cent->currentState.powerups & Bit( PW_SPEED )) || doAlpha || !cg_speedTrail.integer)
 	{
 		cent->frame_minus1_refreshed = 0;
 		cent->frame_minus2_refreshed = 0;
@@ -9530,7 +9530,7 @@ void CG_Player( centity_t *cent ) {
 		CG_ForcePushBodyBlur(cent);
 	}
 
-	if ( cent->currentState.powerups & (1 << PW_DISINT_4) )
+	if ( cent->currentState.powerups & Bit( PW_DISINT_4 ) )
 	{
 		vec3_t tAng;
 		vec3_t efOrg;
@@ -9917,14 +9917,14 @@ void CG_Player( centity_t *cent ) {
 		}
 	}
 
-	if ((cent->currentState.powerups & (1 << PW_YSALAMIRI)) ||
-		(cgs.gametype == GT_CTY && ((cent->currentState.powerups & (1 << PW_REDFLAG)) || (cent->currentState.powerups & (1 << PW_BLUEFLAG)))) )
+	if ((cent->currentState.powerups & Bit( PW_YSALAMIRI )) ||
+		(cgs.gametype == GT_CTY && ((cent->currentState.powerups & Bit( PW_REDFLAG )) || (cent->currentState.powerups & Bit( PW_BLUEFLAG )))) )
 	{
-		if (cgs.gametype == GT_CTY && (cent->currentState.powerups & (1 << PW_REDFLAG)))
+		if (cgs.gametype == GT_CTY && (cent->currentState.powerups & Bit( PW_REDFLAG )))
 		{
 			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, cgs.media.ysaliredShader );
 		}
-		else if (cgs.gametype == GT_CTY && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
+		else if (cgs.gametype == GT_CTY && (cent->currentState.powerups & Bit( PW_BLUEFLAG )))
 		{
 			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, cgs.media.ysaliblueShader );
 		}
@@ -9934,16 +9934,16 @@ void CG_Player( centity_t *cent ) {
 		}
 	}
 
-	if (cent->currentState.powerups & (1 << PW_FORCE_BOON))
+	if (cent->currentState.powerups & Bit( PW_FORCE_BOON ))
 	{
 		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.boonShader );
 	}
 
-	if (cent->currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_DARK))
+	if (cent->currentState.powerups & Bit( PW_FORCE_ENLIGHTENED_DARK ))
 	{
 		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.endarkenmentShader );
 	}
-	else if (cent->currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_LIGHT))
+	else if (cent->currentState.powerups & Bit( PW_FORCE_ENLIGHTENED_LIGHT ))
 	{
 		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.enlightenmentShader );
 	}
@@ -10678,7 +10678,7 @@ stillDoSaber:
 		cent->miscTime = 0;
 	}
 
-	if (cent->currentState.powerups & (1 << PW_CLOAKED))
+	if (cent->currentState.powerups & Bit( PW_CLOAKED ))
 	{
 		if (!cent->cloaked)
 		{
@@ -10702,7 +10702,7 @@ stillDoSaber:
 		else
 		{
 			float perc = (float)(cent->uncloaking - cg.time) / 2000.0f;
-			if (( cent->currentState.powerups & ( 1 << PW_CLOAKED )))
+			if (( cent->currentState.powerups & Bit( PW_CLOAKED )))
 			{//actually cloaking, so reverse it
 				perc = 1.0f - perc;
 			}
@@ -10725,7 +10725,7 @@ stillDoSaber:
 			}
 		}
 	}
-	else if (( cent->currentState.powerups & ( 1 << PW_CLOAKED )))
+	else if (( cent->currentState.powerups & Bit( PW_CLOAKED )))
 	{//fully cloaked
 		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))
 			&& cg.snap->ps.clientNum != cent->currentState.number)
@@ -10783,7 +10783,7 @@ stillDoSaber:
 		}
 	}
 
-	if (!(cent->currentState.powerups & (1 << PW_CLOAKED)))
+	if (!(cent->currentState.powerups & Bit( PW_CLOAKED )))
 	{ //don't add the normal model if cloaked
 		CG_CheckThirdPersonAlpha( cent, &legs );
 		trap->R_AddRefEntityToScene(&legs);
@@ -10802,7 +10802,7 @@ stillDoSaber:
 
 	cent->frame_minus1_refreshed = 1;
 
-	if (!cent->frame_hold_refreshed && (cent->currentState.powerups & (1 << PW_SPEEDBURST)))
+	if (!cent->frame_hold_refreshed && (cent->currentState.powerups & Bit( PW_SPEEDBURST )))
 	{
 		cent->frame_hold_time = cg.time + 254;
 	}
@@ -11109,7 +11109,7 @@ stillDoSaber:
 		CG_ForceElectrocution( cent, legs.origin, tempAngles, cgs.media.boltShader, false );
 	}
 
-	if (cent->currentState.powerups & (1 << PW_SHIELDHIT))
+	if (cent->currentState.powerups & Bit( PW_SHIELDHIT ))
 	{
 		/*
 		legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = 255.0f * 0.5f;//t;

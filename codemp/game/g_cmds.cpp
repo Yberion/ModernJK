@@ -302,8 +302,8 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		int num = 999;
 		if ( argc == 3 )
 			num = Com_Clampi( 0, 999, atoi( args ) );
-		for ( i=AMMO_BLASTER; i<AMMO_MAX; i++ )
-			ent->client->ps.ammo[i] = num;
+		for ( ammo_t a=AMMO_BLASTER; a<AMMO_MAX; a++ )
+			ent->client->ps.ammo[a] = num;
 		if ( !give_all )
 			return;
 	}
@@ -935,7 +935,6 @@ to free floating spectator mode
 */
 extern void G_LeaveVehicle( gentity_t *ent, bool ConCheck );
 void StopFollowing( gentity_t *ent ) {
-	int i=0;
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
@@ -964,8 +963,7 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.bobCycle = 0;
 	ent->client->ps.pm_type = PM_SPECTATOR;
 	ent->client->ps.eFlags &= ~EF_DISINTEGRATION;
-	for ( i=0; i<PW_NUM_POWERUPS; i++ )
-		ent->client->ps.powerups[i] = 0;
+	ent->client->ps.powerups = {};
 }
 
 /*

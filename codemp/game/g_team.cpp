@@ -330,13 +330,13 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 }
 
 void Team_CheckDroppedItem( gentity_t *dropped ) {
-	if( dropped->item->giTag == PW_REDFLAG ) {
+	if( dropped->item->giTag == to_underlying( PW_REDFLAG ) ) {
 		Team_SetFlagStatus( TEAM_RED, FLAG_DROPPED );
 	}
-	else if( dropped->item->giTag == PW_BLUEFLAG ) {
+	else if( dropped->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_DROPPED );
 	}
-	else if( dropped->item->giTag == PW_NEUTRALFLAG ) {
+	else if( dropped->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
 		Team_SetFlagStatus( TEAM_FREE, FLAG_DROPPED );
 	}
 }
@@ -354,7 +354,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 {
 	int i;
 	gentity_t *ent;
-	int flag_pw, enemy_flag_pw;
+	powerup_t flag_pw, enemy_flag_pw;
 	int otherteam;
 	gentity_t *flag, *carrier = nullptr;
 	const char *c;
@@ -513,7 +513,7 @@ carrier defense.
 */
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 {
-	int flag_pw;
+	powerup_t flag_pw;
 
 	if (!targ->client || !attacker->client)
 		return;
@@ -661,13 +661,13 @@ void Team_ReturnFlag( int team ) {
 }
 
 void Team_FreeEntity( gentity_t *ent ) {
-	if( ent->item->giTag == PW_REDFLAG ) {
+	if( ent->item->giTag == to_underlying( PW_REDFLAG ) ) {
 		Team_ReturnFlag( TEAM_RED );
 	}
-	else if( ent->item->giTag == PW_BLUEFLAG ) {
+	else if( ent->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
 		Team_ReturnFlag( TEAM_BLUE );
 	}
-	else if( ent->item->giTag == PW_NEUTRALFLAG ) {
+	else if( ent->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
 		Team_ReturnFlag( TEAM_FREE );
 	}
 }
@@ -684,13 +684,13 @@ Flags are unique in that if they are dropped, the base flag must be respawned wh
 void Team_DroppedFlagThink(gentity_t *ent) {
 	int		team = TEAM_FREE;
 
-	if( ent->item->giTag == PW_REDFLAG ) {
+	if( ent->item->giTag == to_underlying( PW_REDFLAG ) ) {
 		team = TEAM_RED;
 	}
-	else if( ent->item->giTag == PW_BLUEFLAG ) {
+	else if( ent->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
 		team = TEAM_BLUE;
 	}
-	else if( ent->item->giTag == PW_NEUTRALFLAG ) {
+	else if( ent->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
 		team = TEAM_FREE;
 	}
 
@@ -718,7 +718,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	int			i, num, j, enemyTeam;
 	gentity_t	*player;
 	gclient_t	*cl = other->client;
-	int			enemy_flag;
+	powerup_t	enemy_flag;
 	vec3_t		mins, maxs;
 	int			touch[MAX_GENTITIES];
 	gentity_t*	enemy;
@@ -861,7 +861,8 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 	gclient_t *cl = other->client;
 	vec3_t		mins, maxs;
-	int			num, j, ourFlag;
+	int			num, j;
+	powerup_t	ourFlag;
 	int			touch[MAX_GENTITIES];
 	gentity_t*	enemy;
 	float		enemyDist, dist;

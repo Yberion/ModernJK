@@ -897,7 +897,7 @@ typedef struct cg_s {
 	int			crosshairVehTime;
 
 	// powerup active flashing
-	int			powerupActive;
+	powerup_t	powerupActive;
 	int			powerupTime;
 
 	// attacking player

@@ -424,7 +424,7 @@ typedef struct {
 	int			crosshairClientTime;	//last time you looked at them
 
 	// powerup active flashing
-	int			powerupActive;
+	powerup_t	powerupActive;
 	int			powerupTime;
 
 	//==========================

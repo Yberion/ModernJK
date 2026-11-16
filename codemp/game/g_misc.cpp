@@ -1462,7 +1462,7 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 			i++;
 		}
 		*/
-		int i = AMMO_BLASTER;
+		ammo_t i = AMMO_BLASTER;
 		if (!self->s.loopSound)
 		{
 			self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run");
@@ -1823,7 +1823,7 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 
 		if (self->count)	// Has it got any power left?
 		{
-			int i = AMMO_BLASTER;
+			ammo_t i = AMMO_BLASTER;
 			while (i < AMMO_MAX)
 			{
 				add = ammoData[i].max*0.1;

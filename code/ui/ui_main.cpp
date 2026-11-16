@@ -5784,9 +5784,9 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, 
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>0) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
 			{
-				pState->ammo[ ammoIndex ] = ammoAmount;
+				pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = ammoAmount;
 			}
 		}
 	}
@@ -5889,11 +5889,11 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 			}
 
 			// Remove ammo too
-			if ((ammoIndex>0) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
 			{	// But don't take it away if the other weapon is using that ammo
 				if ( uiInfo.selectedWeapon1AmmoIndex != uiInfo.selectedWeapon2AmmoIndex )
 				{
-					pState->ammo[ ammoIndex ] = 0;
+					pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = 0;
 				}
 			}
 		}
@@ -6075,9 +6075,9 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIn
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>0) && (ammoIndex<AMMO_MAX))
+			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
 			{
-				pState->ammo[ ammoIndex ] = ammoAmount;
+				pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = ammoAmount;
 			}
 		}
 	}
@@ -6154,9 +6154,9 @@ static void UI_RemoveThrowWeaponSelection ( void )
 			}
 
 			// Remove ammo too
-			if ((uiInfo.selectedThrowWeaponAmmoIndex>0) && (uiInfo.selectedThrowWeaponAmmoIndex<AMMO_MAX))
+			if ((uiInfo.selectedThrowWeaponAmmoIndex>0) && (uiInfo.selectedThrowWeaponAmmoIndex<to_underlying( AMMO_MAX )))
 			{
-				pState->ammo[ uiInfo.selectedThrowWeaponAmmoIndex ] = 0;
+				pState->ammo[ static_cast<ammo_t>( uiInfo.selectedThrowWeaponAmmoIndex ) ] = 0;
 			}
 
 		}

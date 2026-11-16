@@ -11134,7 +11134,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, flo
 				{
 					G_Sound( traceEnt, G_SoundIndex( va( "sound/weapons/force/lightninghit%d.wav", Q_irand( 1, 3 ) ) ) );
 				}
-				traceEnt->s.powerups |= ( 1 << PW_SHOCKED );
+				traceEnt->s.powerups |= Bit( PW_SHOCKED );
 
 				// If we are dead or we are a bot, we can do the full version
 				class_t npc_class = traceEnt->client->NPC_class;
@@ -13248,7 +13248,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 					else
 					{//leave the effect playing on them for a few seconds
 						//drainEnt->client->ps.eFlags |= EF_FORCE_DRAINED;
-						drainEnt->s.powerups |= ( 1 << PW_DRAINED );
+						drainEnt->s.powerups |= Bit( PW_DRAINED );
 						drainEnt->client->ps.powerups[PW_DRAINED] = level.time + Q_irand( 1000, 4000 );
 					}
 				}

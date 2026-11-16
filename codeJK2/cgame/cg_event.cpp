@@ -586,7 +586,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			DEBUGNAME("EV_DISINTEGRATION");
 			bool makeNotSolid = false;
-			int disintPW = es->eventParm;
+			const powerup_t disintPW = static_cast<powerup_t>( es->eventParm );
 			int disintEffect = 0;
 			int disintLength = 0;
 			qhandle_t disintSound1 = NULL_HANDLE;
@@ -643,7 +643,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 							cgi_S_StartSound ( nullptr, cent->gent->s.number, CHAN_AUTO, disintSound2 );
 						}
 					}
-					cent->gent->owner->s.powerups |= ( 1 << disintPW );
+					cent->gent->owner->s.powerups |= Bit( disintPW );
 					cent->gent->owner->client->ps.powerups[disintPW] = cg.time + disintLength;
 
 					// Things that are being disintegrated should probably not be solid...

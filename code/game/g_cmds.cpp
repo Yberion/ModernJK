@@ -166,7 +166,6 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 {
 	gitem_t		*it;
-	int			i;
 	bool	give_all = false;
 
 	if ( !Q_stricmp( name, "all" ) )
@@ -228,8 +227,8 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		int num = 999;
 		if ( argc == 3 )
 			num = Com_Clampi( -1, 999, atoi( args ) );
-		for ( i=AMMO_BLASTER; i<AMMO_MAX; i++ )
-			ent->client->ps.ammo[i] = num != -1 ? num : ammoData[i].max;
+		for ( ammo_t a=AMMO_BLASTER; a<AMMO_MAX; a++ )
+			ent->client->ps.ammo[a] = num != -1 ? num : ammoData[a].max;
 		if ( !give_all )
 			return;
 	}

@@ -530,7 +530,7 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 					if ( other->client->ps.powerups[PW_SHOCKED] < level.time + 100 )
 					{
 						// ... do the effect for a split second for some more feedback
-						other->s.powerups |= ( 1 << PW_SHOCKED );
+						other->s.powerups |= Bit( PW_SHOCKED );
 						other->client->ps.powerups[PW_SHOCKED] = level.time + 450;
 					}
 					//FIXME: throw some sparks off droids,too

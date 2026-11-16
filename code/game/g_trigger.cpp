@@ -1215,7 +1215,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		if (( self->spawnflags & 64 ) && other->client )//electrical damage
 		{
 			// zap effect
-			other->s.powerups |= ( 1 << PW_SHOCKED );
+			other->s.powerups |= Bit( PW_SHOCKED );
 			other->client->ps.powerups[PW_SHOCKED] = level.time + 1000;
 		}
 

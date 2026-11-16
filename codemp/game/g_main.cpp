@@ -1252,7 +1252,7 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->client->ps.pm_type = PM_INTERMISSION;
 
 	// clean up powerup info
-	memset( ent->client->ps.powerups, 0, sizeof(ent->client->ps.powerups) );
+	ent->client->ps.powerups = {};
 
 	G_LeaveVehicle( ent, false );
 
@@ -3343,13 +3343,12 @@ void G_RunFrame( int levelTime ) {
 		}
 		else if (ent->s.eType == ET_NPC)
 		{
-			int j;
 			if ( G_GRID20_STEP )
 			{ // as for the clients above
 				// turn off any expired powerups
-				for ( j = 0 ; j < MAX_POWERUPS ; j++ ) {
-					if ( ent->client->ps.powerups[ j ] < level.time ) {
-						ent->client->ps.powerups[ j ] = 0;
+				for ( int &until : ent->client->ps.powerups ) {
+					if ( until < level.time ) {
+						until = 0;
 					}
 				}
 

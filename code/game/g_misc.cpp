@@ -1399,7 +1399,7 @@ void health_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 //
 // --------------------------------------------------------------------
 void ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator);
-int Add_Ammo2 (gentity_t *ent, int ammoType, int count);
+int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count);
 
 void ammo_shutdown( gentity_t *self )
 {

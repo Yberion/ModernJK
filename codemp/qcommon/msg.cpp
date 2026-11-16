@@ -2232,7 +2232,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	//
 	statsbits = 0;
 	for (i=0 ; i<MAX_STATS ; i++) {
-		if (to->stats[i] != from->stats[i]) {
+		if (to->stats.data()[i] != from->stats.data()[i]) {
 			statsbits |= 1<<i;
 		}
 	}
@@ -2244,13 +2244,13 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	}
 	ammobits = 0;
 	for (i=0 ; i<MAX_AMMO_TRANSMIT ; i++) {
-		if (to->ammo[i] != from->ammo[i]) {
+		if (to->ammo.data()[i] != from->ammo.data()[i]) {
 			ammobits |= 1<<i;
 		}
 	}
 	powerupbits = 0;
 	for (i=0 ; i<MAX_POWERUPS ; i++) {
-		if (to->powerups[i] != from->powerups[i]) {
+		if (to->powerups.data()[i] != from->powerups.data()[i]) {
 			powerupbits |= 1<<i;
 		}
 	}
@@ -2276,11 +2276,11 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 				if (i == STAT_WEAPONS)
 				{ //ugly.. but we're gonna need it anyway -rww
 					//(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
-					MSG_WriteBits(msg, to->stats[i], MAX_WEAPONS);
+					MSG_WriteBits(msg, to->stats.data()[i], MAX_WEAPONS);
 				}
 				else
 				{
-					MSG_WriteShort (msg, to->stats[i]);
+					MSG_WriteShort (msg, to->stats.data()[i]);
 				}
 			}
 		}
@@ -2305,7 +2305,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		MSG_WriteBits( msg, ammobits, MAX_AMMO_TRANSMIT );
 		for (i=0 ; i<MAX_AMMO_TRANSMIT ; i++)
 			if (ammobits & (1<<i) )
-				MSG_WriteShort (msg, to->ammo[i]);
+				MSG_WriteShort (msg, to->ammo.data()[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -2316,7 +2316,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		MSG_WriteBits( msg, powerupbits, MAX_POWERUPS );
 		for (i=0 ; i<MAX_POWERUPS ; i++)
 			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
+				MSG_WriteLong( msg, to->powerups.data()[i] );
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -2477,11 +2477,11 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 				{
 					if (i == STAT_WEAPONS)
 					{ //ugly.. but we're gonna need it anyway -rww
-						to->stats[i] = MSG_ReadBits(msg, MAX_WEAPONS);
+						to->stats.data()[i] = MSG_ReadBits(msg, MAX_WEAPONS);
 					}
 					else
 					{
-						to->stats[i] = MSG_ReadShort(msg);
+						to->stats.data()[i] = MSG_ReadShort(msg);
 					}
 				}
 			}
@@ -2504,7 +2504,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			bits = MSG_ReadBits (msg, MAX_AMMO_TRANSMIT);
 			for (i=0 ; i<MAX_AMMO_TRANSMIT ; i++) {
 				if (bits & (1<<i) ) {
-					to->ammo[i] = MSG_ReadShort(msg);
+					to->ammo.data()[i] = MSG_ReadShort(msg);
 				}
 			}
 		}
@@ -2515,7 +2515,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			bits = MSG_ReadBits (msg, MAX_POWERUPS);
 			for (i=0 ; i<MAX_POWERUPS ; i++) {
 				if (bits & (1<<i) ) {
-					to->powerups[i] = MSG_ReadLong(msg);
+					to->powerups.data()[i] = MSG_ReadLong(msg);
 				}
 			}
 		}

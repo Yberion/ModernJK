@@ -113,7 +113,7 @@ func_t	funcs[] = {
 struct wpnParms_s
 {
 	int	weaponNum;	// Current weapon number
-	int	ammoNum;
+	ammo_t	ammoNum;
 } wpnParms;
 
 void WPN_Ammo (const char **holdBuf);
@@ -612,13 +612,13 @@ void WPN_AmmoType(const char **holdBuf)
 		return;
 	}
 
-	if ((tokenInt < AMMO_NONE ) || (tokenInt >= AMMO_MAX ))
+	if ((tokenInt < to_underlying( AMMO_NONE ) ) || (tokenInt >= to_underlying( AMMO_MAX ) ))
 	{
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad Ammotype in external weapon data '%d'\n", tokenInt);
 		return;
 	}
 
-	weaponData[wpnParms.weaponNum].ammoIndex = tokenInt;
+	weaponData[wpnParms.weaponNum].ammoIndex = static_cast<ammo_t>( tokenInt );
 }
 
 //--------------------------------------------
@@ -923,7 +923,7 @@ void WPN_Ammo(const char **holdBuf)
 	else
 	{
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad ammotype in external weapon data '%s'\n", tokenStr);
-		wpnParms.ammoNum = 0;
+		wpnParms.ammoNum = AMMO_NONE;
 	}
 }
 

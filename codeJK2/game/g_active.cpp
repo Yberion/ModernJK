@@ -3020,18 +3020,17 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 
 void ClientEndPowerUps( gentity_t *ent )
 {
-	int			i;
 
 	if ( ent == nullptr || ent->client == nullptr )
 	{
 		return;
 	}
 	// turn off any expired powerups
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ )
+	for ( int &until : ent->client->ps.powerups )
 	{
-		if ( ent->client->ps.powerups[ i ] < level.time )
+		if ( until < level.time )
 		{
-			ent->client->ps.powerups[ i ] = 0;
+			until = 0;
 		}
 	}
 }

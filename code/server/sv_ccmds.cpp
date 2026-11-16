@@ -193,9 +193,9 @@ void SV_Player_EndOfLevelSave(void)
 
 		//ammo
 		s2 = "";
-		for (i=0;i< AMMO_MAX; i++)
+		for (i=0;i< to_underlying( AMMO_MAX ); i++)
 		{
-			s2 = va("%s %i",s2, pState->ammo[i]);
+			s2 = va("%s %i",s2, pState->ammo.data()[i]);
 		}
 		Cvar_Set( "playerammo", s2 );
 

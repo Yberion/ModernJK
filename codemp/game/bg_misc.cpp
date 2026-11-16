@@ -1016,7 +1016,7 @@ Adds one rank to all Force powers temporarily. Only light jedi can use.
 /* pickup *///	"Light Force Enlightenment",
 		25,
 		IT_POWERUP,
-		PW_FORCE_ENLIGHTENED_LIGHT,
+		to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1035,7 +1035,7 @@ Adds one rank to all Force powers temporarily. Only dark jedi can use.
 /* pickup *///	"Dark Force Enlightenment",
 		25,
 		IT_POWERUP,
-		PW_FORCE_ENLIGHTENED_DARK,
+		to_underlying( PW_FORCE_ENLIGHTENED_DARK ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1054,7 +1054,7 @@ Unlimited Force Pool for a short time.
 /* pickup *///	"Force Boon",
 		25,
 		IT_POWERUP,
-		PW_FORCE_BOON,
+		to_underlying( PW_FORCE_BOON ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1073,7 +1073,7 @@ A small lizard carried on the player, which prevents the possessor from using an
 /* pickup *///	"Ysalamiri",
 		25,
 		IT_POWERUP,
-		PW_YSALAMIRI,
+		to_underlying( PW_YSALAMIRI ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1336,7 +1336,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Thermal Detonators",
 		4,
 		IT_AMMO,
-		AMMO_THERMAL,
+		to_underlying( AMMO_THERMAL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_THERMAL_DETONATOR"					// description
@@ -1354,7 +1354,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Trip Mines",
 		3,
 		IT_AMMO,
-		AMMO_TRIPMINE,
+		to_underlying( AMMO_TRIPMINE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
@@ -1371,7 +1371,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Det Packs",
 		3,
 		IT_AMMO,
-		AMMO_DETPACK,
+		to_underlying( AMMO_DETPACK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_A_DETONATION_PACK_IS"					// description
@@ -1483,7 +1483,7 @@ Don't place this
 /* pickup *///	"Force??",
 		100,
 		IT_AMMO,
-		AMMO_FORCE,
+		to_underlying( AMMO_FORCE ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1502,7 +1502,7 @@ Ammo for the Bryar and Blaster pistols.
 /* pickup *///	"Blaster Pack",
 		100,
 		IT_AMMO,
-		AMMO_BLASTER,
+		to_underlying( AMMO_BLASTER ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1521,7 +1521,7 @@ Ammo for Tenloss Disruptor, Wookie Bowcaster, and the Destructive Electro Magnet
 /* pickup *///	"Power Cell",
 		100,
 		IT_AMMO,
-		AMMO_POWERCELL,
+		to_underlying( AMMO_POWERCELL ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1540,7 +1540,7 @@ Ammo for Imperial Heavy Repeater and the Golan Arms Flechette
 /* pickup *///	"Metallic Bolts",
 		100,
 		IT_AMMO,
-		AMMO_METAL_BOLTS,
+		to_underlying( AMMO_METAL_BOLTS ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1559,7 +1559,7 @@ Ammo for Merr-Sonn portable missile launcher
 /* pickup *///	"Rockets",
 		3,
 		IT_AMMO,
-		AMMO_ROCKETS,
+		to_underlying( AMMO_ROCKETS ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1601,7 +1601,7 @@ Only in CTF games
 /* pickup *///	"Red Flag",
 		0,
 		IT_TEAM,
-		PW_REDFLAG,
+		to_underlying( PW_REDFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1620,7 +1620,7 @@ Only in CTF games
 /* pickup *///	"Blue Flag",
 		0,
 		IT_TEAM,
-		PW_BLUEFLAG,
+		to_underlying( PW_BLUEFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1643,7 +1643,7 @@ Only in One Flag CTF games
 /* pickup *///	"Neutral Flag",
 		0,
 		IT_TEAM,
-		PW_NEUTRALFLAG,
+		to_underlying( PW_NEUTRALFLAG ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1859,7 +1859,7 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_AMMO && it->giTag == ammo ) {
+		if ( it->giType == IT_AMMO && it->giTag == to_underlying( ammo ) ) {
 			return it;
 		}
 	}
@@ -2084,14 +2084,14 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 				&& item->giType != IT_ARMOR//not shields
 				&& (item->giType != IT_WEAPON || item->giTag != WP_SABER)//not a saber
 				&& (item->giType != IT_HOLDABLE || item->giTag != to_underlying( HI_SEEKER ))//not a seeker
-				&& (item->giType != IT_POWERUP || item->giTag == PW_YSALAMIRI) )//not a force pick-up
+				&& (item->giType != IT_POWERUP || item->giTag == to_underlying( PW_YSALAMIRI )) )//not a force pick-up
 			{
 				return false;
 			}
 		}
 		else if ( ps->trueNonJedi )
 		{//can't pick up force powerups
-			if ( (item->giType == IT_POWERUP && item->giTag != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
+			if ( (item->giType == IT_POWERUP && item->giTag != to_underlying( PW_YSALAMIRI )) //if a powerup, can only can pick up ysalamiri
 				|| (item->giType == IT_HOLDABLE && item->giTag == to_underlying( HI_SEEKER ))//if holdable, cannot pick up seeker
 				|| (item->giType == IT_WEAPON && item->giTag == WP_SABER ) )//or if it's a saber
 			{
@@ -2125,7 +2125,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		}
 		if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
-			int ammoIndex = weaponData[item->giTag].ammoIndex;
+			const ammo_t ammoIndex = weaponData[item->giTag].ammoIndex;
 			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max)
 			{ //don't need it
 				return false;
@@ -2138,7 +2138,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{ //special case for "all ammo" packs
 			return true;
 		}
-		if ( ps->ammo[item->giTag] >= ammoData[item->giTag].max) {
+		if ( ps->ammo[static_cast<ammo_t>( item->giTag )] >= ammoData[static_cast<ammo_t>( item->giTag )].max) {
 			return false;		// can't hold any more
 		}
 		return true;
@@ -2172,7 +2172,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	case IT_POWERUP:
 		if (ps && (ps->powerups[PW_YSALAMIRI]))
 		{
-			if (item->giTag != PW_YSALAMIRI)
+			if (item->giTag != to_underlying( PW_YSALAMIRI ))
 			{
 				return false;
 			}
@@ -2185,14 +2185,14 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
 			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
-				if (item->giTag == PW_BLUEFLAG ||
-					(item->giTag == PW_REDFLAG && ent->modelindex2) ||
-					(item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]) )
+				if (item->giTag == to_underlying( PW_BLUEFLAG ) ||
+					(item->giTag == to_underlying( PW_REDFLAG ) && ent->modelindex2) ||
+					(item->giTag == to_underlying( PW_REDFLAG ) && ps->powerups[PW_BLUEFLAG]) )
 					return true;
 			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-				if (item->giTag == PW_REDFLAG ||
-					(item->giTag == PW_BLUEFLAG && ent->modelindex2) ||
-					(item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]) )
+				if (item->giTag == to_underlying( PW_REDFLAG ) ||
+					(item->giTag == to_underlying( PW_BLUEFLAG ) && ent->modelindex2) ||
+					(item->giTag == to_underlying( PW_BLUEFLAG ) && ps->powerups[PW_REDFLAG]) )
 					return true;
 			}
 		}
@@ -2762,7 +2762,6 @@ and after local prediction on the client
 ========================
 */
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap ) {
-	int		i;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
 		s->eType = ET_INVISIBLE;
@@ -2864,9 +2863,9 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-		if ( ps->powerups[ i ] ) {
-			s->powerups |= 1 << i;
+	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+		if ( ps->powerups[ p ] ) {
+			s->powerups |= Bit( p );
 		}
 	}
 
@@ -2874,7 +2873,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	s->generic1 = ps->generic1;
 
 	//NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
-	s->modelindex2 = ps->weaponstate;
+	s->modelindex2 = to_underlying( ps->weaponstate );
 	s->constantLight = ps->weaponChargeTime;
 
 	VectorCopy(ps->lastHitLoc, s->origin2);
@@ -2912,7 +2911,6 @@ and after local prediction on the client
 ========================
 */
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap ) {
-	int		i;
 
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
 		s->eType = ET_INVISIBLE;
@@ -3016,9 +3014,9 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->groundEntityNum = ps->groundEntityNum;
 
 	s->powerups = 0;
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-		if ( ps->powerups[ i ] ) {
-			s->powerups |= 1 << i;
+	for ( powerup_t p = PW_NONE ; p < PW_NUM_POWERUPS ; p++ ) {
+		if ( ps->powerups[ p ] ) {
+			s->powerups |= Bit( p );
 		}
 	}
 
@@ -3026,7 +3024,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->generic1 = ps->generic1;
 
 	//NOT INCLUDED IN ENTITYSTATETOPLAYERSTATE:
-	s->modelindex2 = ps->weaponstate;
+	s->modelindex2 = to_underlying( ps->weaponstate );
 	s->constantLight = ps->weaponChargeTime;
 
 	VectorCopy(ps->lastHitLoc, s->origin2);

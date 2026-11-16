@@ -1749,13 +1749,9 @@ CG_PowerupTimerSounds
 */
 static void CG_PowerupTimerSounds( void )
 {
-	int	i, time;
-
 	// powerup timers going away
-	for ( i = 0 ; i < MAX_POWERUPS ; i++ )
+	for ( const int time : cg.snap->ps.powerups )
 	{
-		time = cg.snap->ps.powerups[i];
-
 		if ( time > 0 && time < cg.time )
 		{
 			// add any special powerup expiration sounds here

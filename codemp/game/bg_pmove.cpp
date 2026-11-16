@@ -5955,7 +5955,7 @@ void PM_RocketLock( float lockDist, bool vehicleLock )
 	if (tr.fraction != 1 && tr.entityNum < ENTITYNUM_NONE && tr.entityNum != pm->ps->clientNum)
 	{
 		bgEntity_t *bgEnt = PM_BGEntForNum(tr.entityNum);
-		if ( bgEnt && (bgEnt->s.powerups&PW_CLOAKED) )
+		if ( bgEnt && (bgEnt->s.powerups & Bit( PW_CLOAKED )) )
 		{
 			pm->ps->rocketLockIndex = ENTITYNUM_NONE;
 			pm->ps->rocketLockTime = 0;
@@ -6025,11 +6025,11 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 			{//just make sure we have this veh info
 				if ( ( (pm->cmd.buttons&BUTTON_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].fHoming
-						&&pm->ps->ammo[0]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
+						&&pm->ps->ammo.data()[0]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
 						||
 					( (pm->cmd.buttons&BUTTON_ALT_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].fHoming
-						&&pm->ps->ammo[1]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot ) )
+						&&pm->ps->ammo.data()[1]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot ) )
 				{//pressing the appropriate fire button for the lock-on/charging weapon
 					PM_RocketLock(16384, true);
 					charging = true;
@@ -6174,7 +6174,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 
 			if ( vehicleRocketLock )
 			{//check vehicle ammo
-				if ( veh && pm->ps->ammo[1] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot )
+				if ( veh && pm->ps->ammo.data()[1] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot )
 				{
 					pm->ps->weaponstate = WEAPON_CHARGING_ALT;
 					goto rest;
@@ -6212,7 +6212,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 
 			if ( vehicleRocketLock )
 			{
-				if ( veh && pm->ps->ammo[0] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
+				if ( veh && pm->ps->ammo.data()[0] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
 				{//check vehicle ammo
 					pm->ps->weaponstate = WEAPON_CHARGING;
 					goto rest;

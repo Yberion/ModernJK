@@ -78,7 +78,7 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
 		Team_ReturnFlag( TEAM_FREE );
 	}
 
-	memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) );
+	activator->client->ps.powerups = {};
 }
 
 void SP_target_remove_powerups( gentity_t *ent ) {

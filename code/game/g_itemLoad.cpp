@@ -375,23 +375,23 @@ static void IT_Tag(const char **holdBuf)
 	else if (!Q_stricmp(tokenStr,"WP_NOGHRI_STICK"))
 		tag = WP_NOGHRI_STICK;
 	else if (!Q_stricmp(tokenStr,"AMMO_FORCE"))
-		tag = AMMO_FORCE;
+		tag = to_underlying( AMMO_FORCE );
 	else if (!Q_stricmp(tokenStr,"AMMO_BLASTER"))
-		tag = AMMO_BLASTER;
+		tag = to_underlying( AMMO_BLASTER );
 	else if (!Q_stricmp(tokenStr,"AMMO_POWERCELL"))
-		tag = AMMO_POWERCELL;
+		tag = to_underlying( AMMO_POWERCELL );
 	else if (!Q_stricmp(tokenStr,"AMMO_METAL_BOLTS"))
-		tag = AMMO_METAL_BOLTS;
+		tag = to_underlying( AMMO_METAL_BOLTS );
 	else if (!Q_stricmp(tokenStr,"AMMO_ROCKETS"))
-		tag = AMMO_ROCKETS;
+		tag = to_underlying( AMMO_ROCKETS );
 	else if (!Q_stricmp(tokenStr,"AMMO_EMPLACED"))
-		tag = AMMO_EMPLACED;
+		tag = to_underlying( AMMO_EMPLACED );
 	else if (!Q_stricmp(tokenStr,"AMMO_THERMAL"))
-		tag = AMMO_THERMAL;
+		tag = to_underlying( AMMO_THERMAL );
 	else if (!Q_stricmp(tokenStr,"AMMO_TRIPMINE"))
-		tag = AMMO_TRIPMINE;
+		tag = to_underlying( AMMO_TRIPMINE );
 	else if (!Q_stricmp(tokenStr,"AMMO_DETPACK"))
-		tag = AMMO_DETPACK;
+		tag = to_underlying( AMMO_DETPACK );
 	else if (!Q_stricmp(tokenStr,"FP_HEAL"))
 	{
 		tag = FP_HEAL;

@@ -633,17 +633,17 @@ static void CG_TouchItem( centity_t *cent ) {
 	// Make sure the item type is also a flag too
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giType == IT_TEAM && item->giTag == PW_REDFLAG)
+			item->giType == IT_TEAM && item->giTag == to_underlying( PW_REDFLAG ))
 			return;
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giType == IT_TEAM && item->giTag == PW_BLUEFLAG)
+			item->giType == IT_TEAM && item->giTag == to_underlying( PW_BLUEFLAG ))
 			return;
 	}
 
 	if (item->giType == IT_POWERUP &&
-		(item->giTag == PW_FORCE_ENLIGHTENED_LIGHT || item->giTag == PW_FORCE_ENLIGHTENED_DARK))
+		(item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) || item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_DARK )))
 	{
-		if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
+		if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
 		{
 			if (cg.predictedPlayerState.fd.forceSide != FORCE_LIGHTSIDE)
 			{
@@ -672,8 +672,8 @@ static void CG_TouchItem( centity_t *cent ) {
 	// if its a weapon, give them some predicted ammo so the autoswitch will work
 	if ( item->giType == IT_WEAPON ) {
 		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-		if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
-			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
+		if ( !cg.predictedPlayerState.ammo[ weaponData[item->giTag].ammoIndex ] ) {
+			cg.predictedPlayerState.ammo[ weaponData[item->giTag].ammoIndex ] = 1;
 		}
 	}
 }

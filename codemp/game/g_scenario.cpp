@@ -189,7 +189,7 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	client->ps.eFlags &= ~EF_INVULNERABLE;
 	// powerups picked up in the free play before the scenario, and the pain sound timers (P_DamageFeedback), which a
 	// pain in the previous repetition or in the free play would carry into this one
-	memset( client->ps.powerups, 0, sizeof( client->ps.powerups ) );
+	client->ps.powerups = {};
 	client->ps.painTime = 0;
 	ent->pain_debounce_time = 0;
 	// the damage P_DamageFeedback keeps summing until it plays a pain (under 10 points, or within 500 ms of a pain)

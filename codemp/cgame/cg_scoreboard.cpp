@@ -96,7 +96,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	ci = &cgs.clientinfo[score->client];
 
 	// draw the handicap or bot skill marker (unless player has flag)
-	if ( ci->powerups & (1<<PW_NEUTRALFLAG) )
+	if ( ci->powerups & Bit( PW_NEUTRALFLAG ) )
 	{
 		if ( largeFormat )
 			CG_DrawFlagModel( iconx, y - (32 - BIGCHAR_HEIGHT) / 2, iconSize, iconSize, TEAM_FREE, false );
@@ -104,10 +104,10 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 			CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_FREE, false );
 	}
 
-	else if ( ci->powerups & ( 1 << PW_REDFLAG ) )
+	else if ( ci->powerups & Bit( PW_REDFLAG ) )
 		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_RED, false );
 
-	else if ( ci->powerups & ( 1 << PW_BLUEFLAG ) )
+	else if ( ci->powerups & Bit( PW_BLUEFLAG ) )
 		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_BLUE, false );
 
 	else if ( cgs.gametype == GT_POWERDUEL && (ci->duelTeam == DUELTEAM_LONE || ci->duelTeam == DUELTEAM_DOUBLE) )

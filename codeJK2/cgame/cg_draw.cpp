@@ -1897,7 +1897,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 	}
 
 	// if the player is cloaked, don't show it
-	if ( cg_entities[ trace.entityNum ].currentState.powerups & ( 1 << PW_CLOAKED ))
+	if ( cg_entities[ trace.entityNum ].currentState.powerups & Bit( PW_CLOAKED ))
 	{
 		return;
 	}

@@ -1070,6 +1070,10 @@ using enum itemUseFail_t;
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
 enum class persEnum_t;	// bg_public.h
+enum class statIndex_t;	// bg_public.h
+enum class powerup_t;	// bg_public.h
+enum class ammo_t;	// bg_weapons.h
+enum class weaponstate_t;	// bg_public.h
 enum class forceHandAnims_t;	// bg_public.h
 enum class pmtype_t;	// bg_public.h
 
@@ -1127,7 +1131,7 @@ typedef struct playerState_s {
 
 	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
 	int			weapon;			// copied to entityState_t->weapon
-	int			weaponstate;
+	weaponstate_t	weaponstate;
 
 	vec3_t		viewangles;		// for fixed views
 	int			viewheight;
@@ -1146,10 +1150,10 @@ typedef struct playerState_s {
 	float		pitchAngle;		// NOT sent across the network
 	bool	pitching;		// NOT sent across the network
 
-	int			stats[MAX_STATS];
+	EnumArray<int, statIndex_t, MAX_STATS>	stats;
 	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;	// stats that aren't cleared on death
-	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
-	int			ammo[MAX_AMMO];
+	EnumArray<int, powerup_t, MAX_POWERUPS>	powerups;	// level.time that the powerup runs out
+	EnumArray<int, ammo_t, MAX_AMMO>	ammo;
 
 	int			generic1;
 	int			loopSound;

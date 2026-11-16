@@ -329,7 +329,7 @@ extern const char *CG_GetLocationString(const char *loc); //cg_main.cpp
 void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale, vec4_t color, qhandle_t shader) {
 	int xx;
 	float y;
-	int i, j, len, count;
+	int i, len, count;
 	const char *p;
 	vec4_t		hcolor;
 	float pwidth, lwidth, maxx, leftOver;
@@ -367,10 +367,10 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 
 			xx = rect->x + 1;
-			for (j = 0; j < PW_NUM_POWERUPS; j++) {
-				if (ci->powerups & (1 << j)) {
+			for (powerup_t j = PW_NONE; j < PW_NUM_POWERUPS; j++) {
+				if (ci->powerups & Bit( j )) {
 
-					item = BG_FindItemForPowerup( (powerup_t)j );
+					item = BG_FindItemForPowerup( j );
 
 					if (item) {
 						CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, trap->R_RegisterShader( item->icon ) );

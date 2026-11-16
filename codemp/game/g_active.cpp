@@ -1304,6 +1304,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		|| (ent->client->ps.weaponstate != WEAPON_READY && ent->client->ps.weapon != WP_SABER)
 		|| ent->client->ps.forceHandExtend != HANDEXTEND_NONE
 		|| ent->client->ps.saberBlocked != BLOCKED_NONE
+		|| ent->client->ps.saberBlockTime >= level.time
 		|| ent->client->ps.weapon == WP_MELEE
 		|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
 	{//FIXME: also check for turning?
@@ -1319,7 +1320,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			|| ent->client->ps.weaponstate == WEAPON_CHARGING_ALT
 			|| ent->client->ps.forceHandExtend != HANDEXTEND_NONE
 			|| ent->client->ps.saberBlocked != BLOCKED_NONE
-				|| ent->client->ps.weapon == WP_MELEE
+			|| ent->client->ps.saberBlockTime >= level.time
+			|| ent->client->ps.weapon == WP_MELEE
 			|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
 		{
 			//if in an idle, break out
@@ -3673,7 +3675,6 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 ==============
 */
 void ClientEndFrame( gentity_t *ent ) {
-	int			i;
 	bool isNPC = false;
 
 	if (ent->s.eType == ET_NPC)
@@ -3687,9 +3688,11 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 
 	// turn off any expired powerups (on the 20 Hz instants of the tick, as at sv_fps 20: plan step 14)
-	for ( i = 0 ; G_GRID20_STEP && i < MAX_POWERUPS ; i++ ) {
-		if ( ent->client->ps.powerups[ i ] < level.time ) {
-			ent->client->ps.powerups[ i ] = 0;
+	if ( G_GRID20_STEP ) {
+		for ( int &until : ent->client->ps.powerups ) {
+			if ( until < level.time ) {
+				until = 0;
+			}
 		}
 	}
 

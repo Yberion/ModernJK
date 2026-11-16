@@ -68,7 +68,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo->registered = true;
 
 	if (item->giType == IT_TEAM &&
-		(item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG) &&
+		(item->giTag == to_underlying( PW_REDFLAG ) || item->giTag == to_underlying( PW_BLUEFLAG )) &&
 		cgs.gametype == GT_CTY)
 	{ //in CTY the flag model is different
 		itemInfo->models[0] = trap->R_RegisterModel( item->world_model[1] );
@@ -581,10 +581,10 @@ Ghoul2 Insert End
 	// Do special charge bits
 	//-----------------------
 	if ( (ps || cg.renderingThirdPerson || cg.predictedPlayerState.clientNum != cent->currentState.number) &&
-		( ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_PISTOL ) ||
-		  ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_OLD ) ||
-		  ( cent->currentState.weapon == WP_BOWCASTER && cent->currentState.modelindex2 == WEAPON_CHARGING ) ||
-		  ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.modelindex2 == WEAPON_CHARGING_ALT) ) )
+		( ( cent->currentState.modelindex2 == to_underlying( WEAPON_CHARGING_ALT ) && cent->currentState.weapon == WP_BRYAR_PISTOL ) ||
+		  ( cent->currentState.modelindex2 == to_underlying( WEAPON_CHARGING_ALT ) && cent->currentState.weapon == WP_BRYAR_OLD ) ||
+		  ( cent->currentState.weapon == WP_BOWCASTER && cent->currentState.modelindex2 == to_underlying( WEAPON_CHARGING ) ) ||
+		  ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.modelindex2 == to_underlying( WEAPON_CHARGING_ALT )) ) )
 	{
 		int		shader = 0;
 		float	val = 0.0f;
@@ -1912,7 +1912,7 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 	}
 
 	// play quad sound if needed
-	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
+	if ( cent->currentState.powerups & Bit( PW_QUAD ) ) {
 		//trap->S_StartSound (nullptr, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 

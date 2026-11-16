@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
+#include "qcommon/q_enum.h"
+
 typedef enum {
 	WP_NONE,
 
@@ -63,7 +65,7 @@ typedef enum {
 //anything > this will be considered not player useable
 #define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
 
-typedef enum //# ammo_e
+enum class ammo_t //# ammo_e
 {
 	AMMO_NONE,
 	AMMO_FORCE,		// AMMO_PHASER
@@ -76,14 +78,16 @@ typedef enum //# ammo_e
 	AMMO_TRIPMINE,
 	AMMO_DETPACK,
 	AMMO_MAX
-} ammo_t;
+};
+using enum ammo_t;
+template <> inline constexpr bool enableEnumArithmetic<ammo_t> = true;
 
 
 typedef struct weaponData_s
 {
 //	char	classname[32];		// Spawning name
 
-	int		ammoIndex;			// Index to proper ammo slot
+	ammo_t	ammoIndex;			// Index to proper ammo slot
 	int		ammoLow;			// Count when ammo is low
 
 	int		energyPerShot;		// Amount of energy used per shot
@@ -113,7 +117,7 @@ typedef struct  ammoData_s
 
 
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
-extern ammoData_t ammoData[AMMO_MAX];
+extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 
 // Specific weapon information

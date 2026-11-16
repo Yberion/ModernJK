@@ -2043,7 +2043,7 @@ void CG_DrawVehicleAmmo( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[0];
+	currValue = cg.predictedVehicleState.ammo.data()[0];
 
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<=MAX_VHUD_AMMO_TICS;i++)
@@ -2114,7 +2114,7 @@ void CG_DrawVehicleAmmoUpper( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[0];
+	currValue = cg.predictedVehicleState.ammo.data()[0];
 
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
@@ -2186,7 +2186,7 @@ void CG_DrawVehicleAmmoLower( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[1].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[1];
+	currValue = cg.predictedVehicleState.ammo.data()[1];
 
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
@@ -3834,7 +3834,7 @@ CG_DrawTeamOverlay
 extern const char *CG_GetLocationString(const char *loc); //cg_main.cpp
 static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 	int x, w, h, xx;
-	int i, j, len;
+	int i, len;
 	const char *p;
 	vec4_t		hcolor;
 	int pwidth, lwidth;
@@ -3978,10 +3978,10 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 			} else {
 				xx = x + w - TINYCHAR_WIDTH;
 			}
-			for (j = 0; j < PW_NUM_POWERUPS; j++) {
-				if (ci->powerups & (1 << j)) {
+			for (powerup_t j = PW_NONE; j < PW_NUM_POWERUPS; j++) {
+				if (ci->powerups & Bit( j )) {
 
-					item = BG_FindItemForPowerup( (powerup_t)j );
+					item = BG_FindItemForPowerup( j );
 
 					if (item) {
 						CG_DrawPic( xx + xOffset, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
@@ -4006,7 +4006,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 
 static void CG_DrawPowerupIcons(int y)
 {
-	int j;
+	powerup_t j;
 	int ico_size = 64;
 	//int y = ico_size/2;
 	int xOffset = 0;
@@ -4021,13 +4021,13 @@ static void CG_DrawPowerupIcons(int y)
 
 	y += 16;
 
-	for (j = 0; j < PW_NUM_POWERUPS; j++)
+	for (j = PW_NONE; j < PW_NUM_POWERUPS; j++)
 	{
 		if (cg.snap->ps.powerups[j] > cg.time)
 		{
 			int secondsleft = (cg.snap->ps.powerups[j] - cg.time)/1000;
 
-			item = BG_FindItemForPowerup( (powerup_t)j );
+			item = BG_FindItemForPowerup( j );
 
 			if (item)
 			{
@@ -5014,7 +5014,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		{
 			crossEnt = &cg_entities[cg.crosshairClientNum];
 
-			if ( crossEnt->currentState.powerups & (1 <<PW_CLOAKED) )
+			if ( crossEnt->currentState.powerups & Bit( PW_CLOAKED ) )
 			{ //don't show up for cloaked guys
 				ecolor[0] = 1.0;//R
 				ecolor[1] = 1.0;//G
@@ -5087,7 +5087,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 						plTeam = NPCTEAM_PLAYER;
 					}
 
-					if ( crossEnt->currentState.powerups & (1 <<PW_CLOAKED) )
+					if ( crossEnt->currentState.powerups & Bit( PW_CLOAKED ) )
 					{
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 1.0f;//G
@@ -6389,7 +6389,7 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 
-	if (cg_entities[cg.crosshairClientNum].currentState.powerups & (1 << PW_CLOAKED))
+	if (cg_entities[cg.crosshairClientNum].currentState.powerups & Bit( PW_CLOAKED ))
 	{
 		return;
 	}

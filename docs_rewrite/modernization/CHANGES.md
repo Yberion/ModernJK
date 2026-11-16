@@ -154,7 +154,7 @@ Each line links to its section.
 | change | before | now |
 |---|---|---|
 | [23. Server](#23-server-fixes) | an idle Linux server used a tenth of a core; a clock change could freeze it; work repeated for nothing at every tick | it sleeps; a clock that only moves forward; about a third less time per tick |
-| [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step | fixed |
+| [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step; the rocket launcher's homing lock took cloaked players and refused pulled ones; an idle animation went on through a deflected shot | fixed |
 | [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
 **Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. C++20, 64-bit Windows, Linux and macOS](#30-c20-64-bit-windows-linux-and-macos), [31. Not changed yet](#31-not-changed-yet).
@@ -907,14 +907,18 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 - The saber's random choices in the movement code (chain ends, lock breaks, flip and jump attacks) draw their numbers by overwriting the command's time, so the rest of that movement step reads a random time: footstep and slope timers, weapon charge, saber lock and hand extension times, zoom.
 - Three places draw two random numbers in one expression, in an order the language leaves to the compiler: the bouncing flechettes of the alternate fire (their speed and their lifetime), an NPC's victory voice and the Galak mech's aim. A server built with MSVC gives other flechettes than one built with clang or GCC.
 - Zoomed with the disruptor, the torso animation is left and taken again at every movement step.
+- The homing lock of the rocket launcher's alternate fire (and of the vehicles' missiles) is meant to refuse a cloaked target, but tests the wrong bits: a cloaked player can be locked, while a player who makes or undergoes a force pull cannot be for about 0.6 s. In single player, a target whose armour just took a hit cannot be locked for 0.5 s, a cloaked one can.
+- A player in an idle animation (after 5 s without action) whose saber deflects a shot without a block (fired from too close to be seen coming) keeps playing the idle animation while the shot bounces off.
 
 **Now.**
 
 - The saber's choices draw from a seed of their own; the command's time stays intact. The numbers are the same, and the client and the server still agree.
 - The draws are made one after the other, in the left-to-right order.
 - The zoomed animation is kept.
+- A cloaked target is never locked; a force pull or a hit on the armour no longer matters.
+- The deflection cuts the idle animation, as any other action does, and the 5 s count starts again.
 
-**Why.** Each one made two machines, or the client and the server, compute something different.
+**Why.** Each of the first three made two machines, or the client and the server, compute something different. The lock did the opposite of what its code says, and the idle test compared a block type with the time, so it never held (both found on 16 November 2026, plan step 18).
 
 **Gain.** The flechette's alternate fire was the one scripted fight of 40 that differed between a clang and an MSVC server; all 40 now agree. No animation difference while zoomed (section 6).
 
@@ -924,6 +928,8 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 - `PM_irand_timesync` (`game/bg_saber.c`).
 - `WP_CreateFlechetteBouncyThing` (`game/g_weapon.c`), `NPC.c`, `NPC_AI_GalakMech.c`.
 - `PM_TorsoAnimation` (`game/bg_pmove.c`): the test that sets the weapon's ready animation is skipped while zoomed with the disruptor.
+- `PM_RocketLock` (`game/bg_pmove.cpp`) and the single player's `WP_RocketLock` (`code/game/g_weapon.cpp`) tested `s.powerups & PW_CLOAKED`, the powerup's number used as a mask (11: the bits of `PW_PULL` and of two powerups never set; 4 in single player: `PW_BATTLESUIT`), now `Bit( PW_CLOAKED )`.
+- `G_CheckClientIdle` (`game/g_active.cpp`): `ps.saberBlocking >= level.time` (a block type, 0 to 2, against the time) replaced by `ps.saberBlockTime >= level.time`, true for 150 to 250 ms after a deflection (defence 2 and 1; never in defence 3).
 - The legs of a player pushing against a wall: section 9. `g_randFix`: section 12.
 
 </details>

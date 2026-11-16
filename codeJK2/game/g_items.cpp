@@ -129,7 +129,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 
 
 //======================================================================
-int Add_Ammo2 (gentity_t *ent, int ammoType, int count)
+int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 {
 
 	if (ammoType != AMMO_FORCE)
@@ -147,6 +147,9 @@ int Add_Ammo2 (gentity_t *ent, int ammoType, int count)
 			break;
 		case AMMO_TRIPMINE:
 			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_TRIP_MINE );
+			break;
+
+		default:
 			break;
 		}
 
@@ -197,7 +200,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 		quantity = ent->item->quantity;
 	}
 
-	Add_Ammo2 (other, ent->item->giTag, quantity);
+	Add_Ammo2 (other, static_cast<ammo_t>( ent->item->giTag ), quantity);
 
 	return 30;
 }
@@ -690,7 +693,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 			dropped->nextthink = level.time + 30000;
 		}
 
-		if ( dropped->item->giType == IT_AMMO && dropped->item->giTag == AMMO_FORCE )
+		if ( dropped->item->giType == IT_AMMO && dropped->item->giTag == to_underlying( AMMO_FORCE ) )
 		{
 			dropped->nextthink = -1;
 			dropped->e_ThinkFunc = thinkF_NULL;

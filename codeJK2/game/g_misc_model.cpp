@@ -340,7 +340,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 
 		if ( gun->giType == IT_AMMO )
 		{
-			if ( gun->giTag == AMMO_BLASTER ) // I guess this just has to use different logic??
+			if ( gun->giTag == to_underlying( AMMO_BLASTER ) ) // I guess this just has to use different logic??
 			{
 				if ( g_spskill->integer >= 2 )
 				{

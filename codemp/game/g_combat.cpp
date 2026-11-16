@@ -590,7 +590,6 @@ void TossClientItems( gentity_t *self ) {
 	gitem_t		*item;
 	int			weapon;
 	float		angle;
-	int			i;
 	gentity_t	*drop;
 
 	if (level.gametype == GT_SIEGE)
@@ -637,15 +636,15 @@ void TossClientItems( gentity_t *self ) {
 	// drop all the powerups if not in teamplay
 	if ( level.gametype != GT_TEAM && level.gametype != GT_SIEGE ) {
 		angle = 45;
-		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
-			if ( self->client->ps.powerups[ i ] > level.time ) {
-				item = BG_FindItemForPowerup( (powerup_t)i );
+		for ( powerup_t p = PW_NONE + 1 ; p < PW_NUM_POWERUPS ; p++ ) {
+			if ( self->client->ps.powerups[ p ] > level.time ) {
+				item = BG_FindItemForPowerup( p );
 				if ( !item ) {
 					continue;
 				}
 				drop = Drop_Item( self, item, angle );
 				// decide how many seconds it has left
-				drop->count = ( self->client->ps.powerups[ i ] - level.time ) / 1000;
+				drop->count = ( self->client->ps.powerups[ p ] - level.time ) / 1000;
 				if ( drop->count < 1 ) {
 					drop->count = 1;
 				}
@@ -2752,7 +2751,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	self->client->respawnTime = level.time + 1700;
 
 	// remove powerups
-	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+	self->client->ps.powerups = {};
 
 	self->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
 	self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;

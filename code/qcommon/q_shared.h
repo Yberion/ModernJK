@@ -1566,6 +1566,10 @@ public:
 // from it.
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 enum class persEnum_t;	// bg_public.h
+enum class statIndex_t;	// statindex.h
+enum class powerup_t;	// bg_public.h
+enum class ammo_t;	// weapons.h
+enum class weaponstate_t;	// bg_public.h
 enum class saberBlockedType_t;	// g_shared.h
 enum class pmtype_t;	// bg_public.h
 
@@ -1613,7 +1617,7 @@ public:
 
 	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
 	int			weapon;			// copied to entityState_t->weapon
-	int			weaponstate;
+	weaponstate_t	weaponstate;
 
 	int			batteryCharge;
 
@@ -1627,10 +1631,10 @@ public:
 	int			damagePitch;
 	int			damageCount;
 
-	int			stats[MAX_STATS];
+	EnumArray<int, statIndex_t, MAX_STATS>	stats;
 	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;				// stats that aren't cleared on death
-	int			powerups[MAX_POWERUPS];					// level.time that the powerup runs out
-	int			ammo[MAX_AMMO];
+	EnumArray<int, powerup_t, MAX_POWERUPS>	powerups;					// level.time that the powerup runs out
+	EnumArray<int, ammo_t, MAX_AMMO>	ammo;
 	int			inventory[MAX_INVENTORY];							// Count of each inventory item.
 	char  		security_key_message[MAX_SECURITY_KEYS][MAX_SECURITY_KEY_MESSSAGE];	// Security key types
 
@@ -1939,10 +1943,10 @@ public:
 		saved_game.write<int32_t>(damageYaw);
 		saved_game.write<int32_t>(damagePitch);
 		saved_game.write<int32_t>(damageCount);
-		saved_game.write<int32_t>(stats);
+		saved_game.write<int32_t>(stats.elems);
 		saved_game.write<int32_t>(persistant.elems);
-		saved_game.write<int32_t>(powerups);
-		saved_game.write<int32_t>(ammo);
+		saved_game.write<int32_t>(powerups.elems);
+		saved_game.write<int32_t>(ammo.elems);
 		saved_game.write<int32_t>(inventory);
 		saved_game.write<int8_t>(security_key_message);
 		saved_game.write<float>(serverViewOrg);
@@ -2108,10 +2112,10 @@ public:
 		saved_game.read<int32_t>(damageYaw);
 		saved_game.read<int32_t>(damagePitch);
 		saved_game.read<int32_t>(damageCount);
-		saved_game.read<int32_t>(stats);
+		saved_game.read<int32_t>(stats.elems);
 		saved_game.read<int32_t>(persistant.elems);
-		saved_game.read<int32_t>(powerups);
-		saved_game.read<int32_t>(ammo);
+		saved_game.read<int32_t>(powerups.elems);
+		saved_game.read<int32_t>(ammo.elems);
 		saved_game.read<int32_t>(inventory);
 		saved_game.read<int8_t>(security_key_message);
 		saved_game.read<float>(serverViewOrg);

@@ -505,7 +505,7 @@ void target_kill_use( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 
 		if ( activator->client )
 		{
-			activator->s.powerups |= ( 1 << PW_SHOCKED );
+			activator->s.powerups |= Bit( PW_SHOCKED );
 			activator->client->ps.powerups[PW_SHOCKED] = level.time + 4000;
 		}
 	}

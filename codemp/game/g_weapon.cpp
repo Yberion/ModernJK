@@ -4391,7 +4391,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 					//NOTE: in order to send the vehicle's ammo info to the client, we copy the ammo into the first 2 ammo slots on the vehicle NPC's client->ps.ammo array
 					if ( pVeh->m_pParentEntity && ((gentity_t*)(pVeh->m_pParentEntity))->client )
 					{
-						((gentity_t*)(pVeh->m_pParentEntity))->client->ps.ammo[weaponNum] = pVeh->weaponStatus[weaponNum].ammo;
+						((gentity_t*)(pVeh->m_pParentEntity))->client->ps.ammo.data()[weaponNum] = pVeh->weaponStatus[weaponNum].ammo;
 					}
 					//done!
 					//we'll get in here again next frame and try the next muzzle...
@@ -4407,7 +4407,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 				//NOTE: in order to send the vehicle's ammo info to the client, we copy the ammo into the first 2 ammo slots on the vehicle NPC's client->ps.ammo array
 				if ( pVeh->m_pParentEntity && ((gentity_t*)(pVeh->m_pParentEntity))->client )
 				{
-					((gentity_t*)(pVeh->m_pParentEntity))->client->ps.ammo[weaponNum] = pVeh->weaponStatus[weaponNum].ammo;
+					((gentity_t*)(pVeh->m_pParentEntity))->client->ps.ammo.data()[weaponNum] = pVeh->weaponStatus[weaponNum].ammo;
 				}
 			}
 			if ( cumulativeDelay )

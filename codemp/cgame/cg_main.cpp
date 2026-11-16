@@ -2008,13 +2008,13 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	if (info && info->infoValid) {
 		switch (column) {
 			case 0:
-				if ( info->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
+				if ( info->powerups & Bit( PW_NEUTRALFLAG ) ) {
 					item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & ( 1 << PW_REDFLAG ) ) {
+				} else if ( info->powerups & Bit( PW_REDFLAG ) ) {
 					item = BG_FindItemForPowerup( PW_REDFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & ( 1 << PW_BLUEFLAG ) ) {
+				} else if ( info->powerups & Bit( PW_BLUEFLAG ) ) {
 					item = BG_FindItemForPowerup( PW_BLUEFLAG );
 					*handle1 = cg_items[ ITEM_INDEX(item) ].icon;
 				} else {

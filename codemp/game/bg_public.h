@@ -449,7 +449,7 @@ enum class pmtype_t {
 };
 using enum pmtype_t;
 
-typedef enum {
+enum class weaponstate_t {
 	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
@@ -457,7 +457,8 @@ typedef enum {
 	WEAPON_CHARGING,
 	WEAPON_CHARGING_ALT,
 	WEAPON_IDLE, //lowered		// NOTENOTE Added with saber
-} weaponstate_t;
+};
+using enum weaponstate_t;
 
 
 enum class forceMasteries_t {
@@ -594,7 +595,7 @@ void Pmove (pmove_t *pmove);
 
 // playerState_t->stats[] indexes
 // NOTE: may not have more than 16
-typedef enum {
+enum class statIndex_t {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
 	STAT_HOLDABLE_ITEMS,
@@ -606,7 +607,8 @@ typedef enum {
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
-} statIndex_t;
+};
+using enum statIndex_t;
 
 
 // playerState_t->persistant[] indexes
@@ -728,7 +730,7 @@ enum class effectTypes_t {
 using enum effectTypes_t;
 
 // NOTE: may not have more than 16
-typedef enum {
+enum class powerup_t {
 	PW_NONE,
 
 	PW_QUAD,
@@ -753,7 +755,9 @@ typedef enum {
 
 	PW_NUM_POWERUPS
 
-} powerup_t;
+};
+using enum powerup_t;
+template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 
 enum class holdable_t {
 	HI_NONE,

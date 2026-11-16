@@ -44,7 +44,7 @@ static_assert( sizeof( playerState_t ) == 1536, "player-state images of the code
 // the player-state fields client packets are coded against (codemp/netcodec/src/client_codec.cpp), and usercmd_t
 static_assert( offsetof( playerState_t, commandTime ) == 0 && offsetof( playerState_t, delta_angles ) == 80 &&
 	offsetof( playerState_t, weapon ) == 172 && offsetof( playerState_t, viewangles ) == 180 &&
-	offsetof( playerState_t, stats ) + STAT_HOLDABLE_ITEM * sizeof( int ) == 244 &&
+	offsetof( playerState_t, stats ) + to_underlying( STAT_HOLDABLE_ITEM ) * sizeof( int ) == 244 &&
 	offsetof( playerState_t, fd.forcePowerSelected ) == 868, "player-state offsets of the client packet codec" );
 static_assert( sizeof( usercmd_t ) == 28 && offsetof( usercmd_t, angles ) == 4 && offsetof( usercmd_t, buttons ) == 16 &&
 	offsetof( usercmd_t, weapon ) == 20 && offsetof( usercmd_t, upmove ) == 26, "usercmd_t images of the client packet codec" );

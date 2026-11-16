@@ -696,6 +696,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 
 		if (strlen(s))	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 		{//				|general info				  |-force powers |-saber 1										   |-saber 2										  |-general saber
+			int weaponstate;
 			int saber1BladeActive[8];
 			int saber2BladeActive[8];
 			unsigned int saber1BladeColor[8];
@@ -707,7 +708,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&client->ps.stats[STAT_WEAPONS],
 								&client->ps.stats[STAT_ITEMS],
 								&client->ps.weapon,
-								&client->ps.weaponstate,
+								&weaponstate,
 								&client->ps.batteryCharge,
 								&client->ps.viewangles[0],
 								&client->ps.viewangles[1],
@@ -760,6 +761,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&client->ps.saberLockEnemy,
 								&client->ps.saberLockTime
 					);
+			client->ps.weaponstate = static_cast<weaponstate_t>( weaponstate );
 			for (int j = 0; j < 8; j++)
 			{
 				client->ps.saber[0].blade[j].active = saber1BladeActive[j] ? true : false;
@@ -808,11 +810,11 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.ammo[i++] = atoi(var);
+			  client->ps.ammo.data()[i++] = atoi(var);
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==AMMO_MAX);
+			assert (i==to_underlying( AMMO_MAX ));
 
 			//inventory
 			gi.Cvar_VariableStringBuffer( "playerinv", s, sizeof(s) );

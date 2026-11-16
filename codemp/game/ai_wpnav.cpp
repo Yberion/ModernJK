@@ -3185,7 +3185,7 @@ void G_RMGPathing(void)
 			if (gSpawnPoints[i+1]->inuse && gSpawnPoints[i+1]->item &&
 				gSpawnPoints[i+1]->item->giType == IT_TEAM)
 			{ //This point is actually a CTF flag.
-				if (gSpawnPoints[i+1]->item->giTag == PW_REDFLAG || gSpawnPoints[i+1]->item->giTag == PW_BLUEFLAG)
+				if (gSpawnPoints[i+1]->item->giTag == to_underlying( PW_REDFLAG ) || gSpawnPoints[i+1]->item->giTag == to_underlying( PW_BLUEFLAG ))
 				{ //Place a waypoint on the flag next in the trail, so the nearest grid point will link to it.
 					CreateNewWP_InsertUnder(gSpawnPoints[i+1]->s.origin, WPFLAG_NEVERONEWAY, gWPNum-1);
 				}
@@ -3241,7 +3241,7 @@ void BeginAutoPathRoutine(void)
 			}
 		}
 		else if (ent && ent->inuse && ent->item && ent->item->giType == IT_TEAM &&
-			(ent->item->giTag == PW_REDFLAG || ent->item->giTag == PW_BLUEFLAG))
+			(ent->item->giTag == to_underlying( PW_REDFLAG ) || ent->item->giTag == to_underlying( PW_BLUEFLAG )))
 		{ //also make it path to flags in CTF.
 			gSpawnPoints[gSpawnPointNum] = ent;
 			gSpawnPointNum++;
