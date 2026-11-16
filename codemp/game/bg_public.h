@@ -272,7 +272,8 @@ typedef enum _flag_status {
 	FLAG_DROPPED
 } flagStatus_t;
 
-typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
+enum class gender_t { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER };
+using enum gender_t;
 
 extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 

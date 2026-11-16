@@ -466,88 +466,6 @@ static void FreeUnpackDLLResult(UnpackDLLResult *result)
 		Z_Free((void *)result->tempDLLPath);
 }
 
-void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallProc *systemcalls )
-{
-	void	*libHandle = nullptr;
-	char	filename[MAX_OSPATH];
-
-	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
-
-#if defined(_DEBUG)
-	libHandle = Sys_LoadLibrary( filename );
-	if ( !libHandle )
-#endif
-	{
-		if ( com_unpackLibraries->integer ) {
-			UnpackDLLResult unpackResult = Sys_UnpackDLL(filename);
-			if ( !unpackResult.succeeded )
-			{
-				if ( Sys_DLLNeedsUnpacking() )
-				{
-					FreeUnpackDLLResult(&unpackResult);
-					Com_DPrintf( "Sys_LoadLegacyGameDll: Failed to unpack %s from PK3.\n", filename );
-					return nullptr;
-				}
-			}
-			else
-			{
-				libHandle = Sys_LoadLibrary(unpackResult.tempDLLPath);
-			}
-
-			FreeUnpackDLLResult(&unpackResult);
-		}
-
-		if ( !libHandle )
-		{
-#if defined(MACOS_X) && !defined(_JK2EXE)
-			//First, look for the old-style mac .bundle that's inside a pk3
-			//It's actually zipped, and the zipfile has the same name as 'name'
-			libHandle = Sys_LoadMachOBundle( name );
-#endif
-
-			if (!libHandle) {
-				const char *basepath = Cvar_VariableString( "fs_basepath" );
-				const char *homepath = Cvar_VariableString( "fs_homepath" );
-				const char *cdpath = Cvar_VariableString( "fs_cdpath" );
-				const char *gamedir = Cvar_VariableString( "fs_game" );
-		#ifdef MACOS_X
-				char *apppath = Cvar_VariableString( "fs_apppath" );
-		#endif
-
-				const char *searchPaths[] = {
-					homepath,
-		#ifdef MACOS_X
-					apppath,
-		#endif
-					basepath,
-					cdpath,
-				};
-				size_t numPaths = ARRAY_LEN( searchPaths );
-
-				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
-				if ( !libHandle )
-					return nullptr;
-			}
-		}
-	}
-
-	typedef void QDECL DllEntryProc( SystemCallProc *syscallptr );
-
-	DllEntryProc *dllEntry = (DllEntryProc *)Sys_LoadFunction( libHandle, "dllEntry" );
-	*vmMain = (VMMainProc *)Sys_LoadFunction( libHandle, "vmMain" );
-
-	if ( !*vmMain || !dllEntry ) {
-		Com_DPrintf ( "Sys_LoadLegacyGameDll(%s) failed to find vmMain function:\n...%s!\n", name, Sys_LibraryError() );
-		Sys_UnloadLibrary( libHandle );
-		return nullptr;
-	}
-
-	Com_DPrintf ( "Sys_LoadLegacyGameDll(%s) found vmMain function at 0x%" PRIxPTR "\n", name, *vmMain );
-	dllEntry( systemcalls );
-
-	return libHandle;
-}
-
 void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 {
 	void	*libHandle = nullptr;
@@ -618,7 +536,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 				if ( Sys_DLLNeedsUnpacking() )
 				{
 					FreeUnpackDLLResult(&unpackResult);
-					Com_DPrintf( "Sys_LoadLegacyGameDll: Failed to unpack %s from PK3.\n", filename );
+					Com_DPrintf( "Sys_LoadGameDll: Failed to unpack %s from PK3.\n", filename );
 					return nullptr;
 				}
 			}

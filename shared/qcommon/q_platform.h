@@ -280,10 +280,6 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned long ulong;
 
-#if !defined( __cplusplus )	// C files (the MP3 decoder) that include q_shared.h: C17 has bool there
-#include <stdbool.h>
-#endif
-
 // 32 bit field aliasing
 typedef union byteAlias_u {
 	float f;

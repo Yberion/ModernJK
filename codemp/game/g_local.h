@@ -421,12 +421,13 @@ typedef enum {
 	CON_CONNECTED
 } clientConnected_t;
 
-typedef enum {
+enum class spectatorState_t {
 	SPECTATOR_NOT,
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
 	SPECTATOR_SCOREBOARD
-} spectatorState_t;
+};
+using enum spectatorState_t;
 
 typedef enum {
 	TEAM_BEGIN,		// Beginning a team game, spawn at base
@@ -831,11 +832,12 @@ typedef struct
 
 #define	MAX_ALERT_EVENTS	32
 
-typedef enum
+enum class alertEventType_e
 {
 	AET_SIGHT,
 	AET_SOUND,
-} alertEventType_e;
+};
+using enum alertEventType_e;
 
 typedef enum
 {

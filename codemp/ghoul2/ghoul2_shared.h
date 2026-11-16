@@ -188,7 +188,7 @@ struct boltInfo_t{
 };
 
 #ifdef _SOF2
-typedef enum
+enum class goreEnum_t
 {
 	PGORE_NONE,
 	PGORE_ARMOR,
@@ -197,7 +197,8 @@ typedef enum
 	PGORE_BULLETBIG,
 	PGORE_HEGRENADE,
 	PGORE_COUNT
-} goreEnum_t;
+};
+using enum goreEnum_t;
 
 struct goreEnumShader_t
 {

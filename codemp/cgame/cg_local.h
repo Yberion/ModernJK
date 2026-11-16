@@ -121,11 +121,12 @@ typedef enum {
 	FOOTSTEP_TOTAL
 } footstep_t;
 
-typedef enum {
+enum class impactSound_t {
 	IMPACTSOUND_DEFAULT,
 	IMPACTSOUND_METAL,
 	IMPACTSOUND_FLESH
-} impactSound_t;
+};
+using enum impactSound_t;
 
 //=================================================
 
@@ -476,7 +477,7 @@ typedef struct markPoly_s {
 } markPoly_t;
 
 
-typedef enum {
+enum class leType_t {
 	LE_MARK,
 	LE_EXPLOSION,
 	LE_SPRITE_EXPLOSION,
@@ -491,7 +492,8 @@ typedef enum {
 	LE_OLINE,
 	LE_SHOWREFENTITY,
 	LE_LINE
-} leType_t;
+};
+using enum leType_t;
 
 typedef enum {
 	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
@@ -500,19 +502,21 @@ typedef enum {
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
 } leFlag_t;
 
-typedef enum {
+enum class leMarkType_t {
 	LEMT_NONE,
 	LEMT_BURN,
 	LEMT_BLOOD
-} leMarkType_t;			// fragment local entities can leave marks on walls
+};
+using enum leMarkType_t;			// fragment local entities can leave marks on walls
 
-typedef enum {
+enum class leBounceSoundType_t {
 	LEBS_NONE,
 	LEBS_BLOOD,
 	LEBS_BRASS,
 	LEBS_METAL,
 	LEBS_ROCK
-} leBounceSoundType_t;	// fragment local entities can make sounds on impacts
+};
+using enum leBounceSoundType_t;	// fragment local entities can make sounds on impacts
 
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
@@ -1002,7 +1006,6 @@ Ghoul2 Insert End
 		TCGGetBoltData				getBoltData;
 		TCGTrace					trace;
 		TCGG2Mark					g2Mark;
-		TCGImpactMark				impactMark;
 		ragCallbackDebugBox_t		rcbDebugBox;
 		ragCallbackDebugLine_t		rcbDebugLine;
 		ragCallbackBoneSnap_t		rcbBoneSnap;

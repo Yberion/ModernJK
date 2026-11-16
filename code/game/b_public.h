@@ -106,30 +106,34 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //#endif //__DEBUG
 
 typedef enum {VIS_UNKNOWN, VIS_NOT, VIS_PVS, VIS_360, VIS_FOV, VIS_SHOOT} visibility_t;
-typedef enum {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND} spot_t;
+enum class spot_t {SPOT_ORIGIN, SPOT_CHEST, SPOT_HEAD, SPOT_HEAD_LEAN, SPOT_WEAPON, SPOT_LEGS, SPOT_GROUND};
+using enum spot_t;
 
-typedef enum //# lookMode_e
+enum class lookMode_t //# lookMode_e
 {
 	LM_ENT = 0,
 	LM_INTEREST
-} lookMode_t;
+};
+using enum lookMode_t;
 
-typedef enum //# jumpState_e
+enum class jumpState_t //# jumpState_e
 {
 	JS_WAITING = 0,
 	JS_FACING,
 	JS_CROUCHING,
 	JS_JUMPING,
 	JS_LANDING
-} jumpState_t;
+};
+using enum jumpState_t;
 
-typedef enum
+enum class sexType_t
 {
 	SEX_NEUTRAL = 0,
 	SEX_MALE,
 	SEX_FEMALE,
 	SEX_SHEMALE//what the Hell, ya never know...
-} sexType_t;
+};
+using enum sexType_t;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class gNPCstats_t

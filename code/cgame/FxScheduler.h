@@ -144,7 +144,7 @@ public:
 // Supported primitive types
 //----------------------------
 
-enum EPrimType
+enum class EPrimType
 {
 	None = 0,
 	Particle,		// sprite
@@ -161,6 +161,7 @@ enum EPrimType
 	CameraShake,
 	ScreenFlash
 };
+using enum EPrimType;
 
 
 //-----------------------------------------------------------------

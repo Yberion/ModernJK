@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum //# saying_e
+enum class saying_t //# saying_e
 {
 	//Acknowledge command
 	SAY_ACKCOMM1,
@@ -24,4 +24,5 @@ typedef enum //# saying_e
 	SAY_BADHAIL4,
 	//# #eol
 	NUM_SAYINGS
-} saying_t;
+};
+using enum saying_t;

@@ -224,7 +224,7 @@ Ghoul2 Insert End
 } cgameImport_t;
 
 #ifdef JK2_MODE
-typedef enum {
+enum class cgameJK2Import_t {
 	CG_PRINT_JK2,
 	CG_ERROR_JK2,
 	CG_MILLISECONDS_JK2,
@@ -346,7 +346,8 @@ Ghoul2 Insert End
 
 	CG_MODERNJK_MENU_PAINT_JK2,
 	CG_MODERNJK_GETMENU_BYNAME_JK2,
-} cgameJK2Import_t;
+};
+using enum cgameJK2Import_t;
 #endif
 
 //----------------------------------------------

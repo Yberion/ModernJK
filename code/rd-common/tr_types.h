@@ -202,11 +202,12 @@ typedef struct {
 } refdef_t;
 
 
-typedef enum {
+enum class stereoFrame_t {
 	STEREO_CENTER,
 	STEREO_LEFT,
 	STEREO_RIGHT
-} stereoFrame_t;
+};
+using enum stereoFrame_t;
 
 
 /*

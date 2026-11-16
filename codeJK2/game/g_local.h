@@ -110,11 +110,12 @@ typedef struct
 
 #define	MAX_ALERT_EVENTS	32
 
-enum alertEventType_e
+enum class alertEventType_e
 {
 	AET_SIGHT,
 	AET_SOUND,
 };
+using enum alertEventType_e;
 
 enum alertEventLevel_e
 {

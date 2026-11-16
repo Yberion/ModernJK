@@ -303,16 +303,9 @@ typedef struct vm_s {
 	vmSlots_t	slot; // VM_GAME, VM_CGAME, VM_UI
     char		name[MAX_QPATH];
 	void		*dllHandle;
-	bool	isLegacy; // uses the legacy syscall/vm_call api, is set by VM_CreateLegacy
 
 	// fill the import/export tables
 	void *		(*GetModuleAPI)( int apiVersion, ... );
-
-	// legacy stuff
-	struct {
-		VMMainProc* main; // module vmMain
-		intptr_t	(QDECL *syscall)( intptr_t *parms );	// engine syscall handler
-	} legacy;
 } vm_t;
 
 extern vm_t *currentVM;
@@ -328,42 +321,15 @@ public:
 
 extern const char *vmStrs[MAX_VM];
 
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
-
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT,
-
-	TRAP_ACOS,
-	TRAP_ASIN
-} sharedTraps_t;
-
 void			VM_Init( void );
-vm_t			*VM_CreateLegacy( vmSlots_t vmSlot, intptr_t (*systemCalls)(intptr_t *) );
 vm_t			*VM_Create( vmSlots_t vmSlot );
 void			 VM_Free( vm_t *vm );
 void			 VM_Clear(void);
 vm_t			*VM_Restart( vm_t *vm );
-intptr_t QDECL	 VM_Call( vm_t *vm, int callNum, intptr_t arg0 = 0, intptr_t arg1 = 0, intptr_t arg2 = 0, intptr_t arg3 = 0, intptr_t arg4 = 0, intptr_t arg5 = 0, intptr_t arg6 = 0, intptr_t arg7 = 0, intptr_t arg8 = 0, intptr_t arg9 = 0, intptr_t arg10 = 0, intptr_t arg11 = 0 );
 void			 VM_Shifted_Alloc( void **ptr, int size );
 void			 VM_Shifted_Free( void **ptr );
 void			*VM_ArgPtr( intptr_t intValue );
 void			*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
-float			_vmf( intptr_t x );
-
-#define	VMA(x) VM_ArgPtr( args[x] )
-#define	VMF(x) _vmf( args[x] )
 
 /*
 ==============================================================

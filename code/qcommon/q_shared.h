@@ -783,7 +783,7 @@ typedef enum
 #define MIN_WORLD_COORD		( -64*1024 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
-typedef enum
+enum class waterHeightLevel_t
 {
 	WHL_NONE,
 	WHL_ANKLES,
@@ -793,7 +793,8 @@ typedef enum
 	WHL_SHOULDERS,
 	WHL_HEAD,
 	WHL_UNDER
-} waterHeightLevel_t;
+};
+using enum waterHeightLevel_t;
 
 // !!!!!!! loadsave affecting struct !!!!!!!
 typedef struct saberTrail_s

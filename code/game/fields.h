@@ -50,7 +50,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define strNPCOFS(x) #x,NPCOFS(x)
 #define strVHICOFS(x) #x,VHOFS(x)
 
-typedef enum
+enum class fieldtypeSAVE_t
 {
 //	F_INT,
 //	F_SHORT,
@@ -72,7 +72,8 @@ typedef enum
 	F_GROUP,
 	F_VEHINFO,
 	F_IGNORE
-} fieldtypeSAVE_t;
+};
+using enum fieldtypeSAVE_t;
 
 typedef struct
 {

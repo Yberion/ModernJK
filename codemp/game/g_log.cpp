@@ -1392,7 +1392,7 @@ bool CalculateTeamRedShirt(gentity_t *ent)
 	return false;
 }
 
-typedef enum {
+enum class awardType_t {
 	AWARD_EFFICIENCY,		// Accuracy
 	AWARD_SHARPSHOOTER,		// Most compression rifle frags
 	AWARD_UNTOUCHABLE,		// Perfect (no deaths)
@@ -1403,7 +1403,8 @@ typedef enum {
 	AWARD_TEAM,				// MVP/Defender/Warrior/Carrier/Interceptor/Bravery
 	AWARD_SECTION31,		// All-around god
 	AWARD_MAX
-} awardType_t;
+};
+using enum awardType_t;
 
 typedef enum
 {

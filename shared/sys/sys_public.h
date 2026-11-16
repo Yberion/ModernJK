@@ -25,14 +25,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAXPRINTMSG 4096
 
-typedef enum netadrtype_s
+enum class netadrtype_t
 {
 	NA_BAD = 0,					// an address lookup failed
 	NA_BOT,
 	NA_LOOPBACK,
 	NA_BROADCAST,
 	NA_IP
-} netadrtype_t;
+};
+using enum netadrtype_t;
 
 typedef struct netadr_s
 {
@@ -93,13 +94,10 @@ void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
 typedef void *GetGameAPIProc( void  *);
-typedef intptr_t QDECL VMMainProc( int, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t );
-typedef intptr_t QDECL SystemCallProc( intptr_t, ... );
 typedef void * QDECL GetModuleAPIProc( int, ... );
 
 void	*Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI );
 void	* QDECL Sys_LoadDll(const char *name, bool useSystemLib);
-void	* QDECL Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallProc *systemcalls );
 void	* QDECL Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI );
 void	Sys_UnloadDll( void *dllHandle );
 
@@ -156,13 +154,14 @@ bool Sys_LowPhysicalMemory();
 
 void Sys_SetProcessorAffinity( void );
 
-typedef enum graphicsApi_e
+enum class graphicsApi_t
 {
 	GRAPHICS_API_GENERIC,
 
 	// Only OpenGL needs special treatment..
 	GRAPHICS_API_OPENGL,
-} graphicsApi_t;
+};
+using enum graphicsApi_t;
 
 // Graphics API
 typedef struct window_s
@@ -171,12 +170,13 @@ typedef struct window_s
 	graphicsApi_t api;
 } window_t;
 
-typedef enum glProfile_e
+enum class glProfile_t
 {
 	GLPROFILE_COMPATIBILITY,
 	GLPROFILE_CORE,
 	GLPROFILE_ES,
-} glProfile_t;
+};
+using enum glProfile_t;
 
 typedef enum glContextFlag_e
 {

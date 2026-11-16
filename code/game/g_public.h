@@ -74,12 +74,13 @@ class CRagDollParams;
 typedef struct gentity_s gentity_t;
 //typedef struct gclient_s gclient_t;
 
-typedef enum
+enum class SavedGameJustLoaded_e
 {
 	eNO = 0,
 	eFULL,
 	eAUTO,
-} SavedGameJustLoaded_e;
+};
+using enum SavedGameJustLoaded_e;
 
 
 

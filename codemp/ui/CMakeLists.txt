@@ -75,7 +75,6 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_main.cpp"
 	"${MPDir}/ui/ui_saber.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
-	"${MPDir}/ui/ui_syscalls.cpp"
 	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
 	"${MPDir}/ui/ui_force.h"

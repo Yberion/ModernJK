@@ -65,7 +65,7 @@ typedef enum forceJump_e
 	FJ_UP
 } forceJump_t;
 
-typedef enum
+enum class evasionType_t
 {
 	EVASION_NONE = 0,
 	EVASION_PARRY,
@@ -78,7 +78,8 @@ typedef enum
 	EVASION_CARTWHEEL,
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
-} evasionType_t;
+};
+using enum evasionType_t;
 
 #define SABERMINS_X -3.0f//-24.0f
 #define SABERMINS_Y -3.0f//-24.0f

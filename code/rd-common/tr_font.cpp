@@ -42,7 +42,7 @@ cvar_t *r_fontSharpness;
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef enum
+enum class Language_e
 {
 	eWestern,	// ( I only care about asian languages in here at the moment )
 #ifndef JK2_MODE
@@ -56,7 +56,8 @@ typedef enum
 	eChinese,	// 15x15 glyphs tucked against TL of 16x16 space
 	eThai,		// 16x16 cells with glyphs against left edge, special file (tha_widths.dat) for variable widths
 #endif
-} Language_e;
+};
+using enum Language_e;
 
 // this is to cut down on all the stupid string compares I've been doing, and convert asian stuff to switch-case
 //

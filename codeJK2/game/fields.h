@@ -47,7 +47,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	strCLOFS(x)  #x,CLOFS(x)
 #define strNPCOFS(x) #x,NPCOFS(x)
 
-typedef enum
+enum class fieldtypeSAVE_t
 {
 //	F_INT,
 //	F_SHORT,
@@ -83,7 +83,8 @@ typedef enum
 */
 	F_GROUP,
 	F_IGNORE
-} fieldtypeSAVE_t;
+};
+using enum fieldtypeSAVE_t;
 
 typedef struct
 {

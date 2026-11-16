@@ -208,7 +208,7 @@ typedef struct markPoly_s {
 } markPoly_t;
 
 
-typedef enum {
+enum class leType_t {
 	LE_MARK,
 	LE_FADE_MODEL,
 	LE_FADE_SCALE_MODEL, // currently only for Demp2 shock sphere
@@ -219,7 +219,8 @@ typedef enum {
 	LE_LINE,
 	LE_QUAD,
 	LE_SPRITE,
-} leType_t;
+};
+using enum leType_t;
 
 typedef enum {
 	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
@@ -228,12 +229,13 @@ typedef enum {
 	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
 } leFlag_t;
 
-typedef enum
+enum class leBounceSound_t
 {
 	LEBS_NONE,
 	LEBS_METAL,
 	LEBS_ROCK
-} leBounceSound_t;	// fragment local entities can make sounds on impacts
+};
+using enum leBounceSound_t;	// fragment local entities can make sounds on impacts
 
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;

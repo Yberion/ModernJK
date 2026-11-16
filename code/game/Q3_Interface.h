@@ -336,7 +336,7 @@ typedef enum //# setType_e
 
 // this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
 //
-typedef enum //# playType_e
+enum class playType_t //# playType_e
 {
 	//# #sep Types of file to play
 	PLAY_ROFF = 0,//## %s="filename" !!"W:\game\base\scripts\!!#*.rof" # Play a ROFF file
@@ -344,7 +344,8 @@ typedef enum //# playType_e
 	//# #eol
 	PLAY_NUMBEROF
 
-} playType_t;
+};
+using enum playType_t;
 
 
 const	int	Q3_TIME_SCALE	= 1;	//MILLISECONDS

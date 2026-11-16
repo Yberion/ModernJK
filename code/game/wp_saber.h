@@ -58,12 +58,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	SABER_LOCK_TIME			10000
 #define	SABER_LOCK_DELAYED_TIME 9500
-typedef enum
+enum class saberLockResult_t
 {
 	LOCK_VICTORY = 0,//one side won
 	LOCK_STALEMATE,//neither side won
 	LOCK_DRAW//both people fall back
-} saberLockResult_t;
+};
+using enum saberLockResult_t;
 
 typedef enum
 {
@@ -212,7 +213,7 @@ extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int c
 extern int G_CostForSpecialMove( int cost, bool kataMove = false );
 extern gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, vec3_t saberPos, vec3_t saberVel, vec3_t saberAngles, gentity_t *copySaber = nullptr );
 
-typedef enum
+enum class evasionType_t
 {
 	EVASION_NONE = 0,
 	EVASION_PARRY,
@@ -225,7 +226,8 @@ typedef enum
 	EVASION_CARTWHEEL,
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
-} evasionType_t;
+};
+using enum evasionType_t;
 
 typedef enum
 {

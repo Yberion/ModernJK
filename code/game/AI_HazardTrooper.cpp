@@ -537,7 +537,7 @@ private:
 	//
 	// The troop as a whole can be acting under a number of different "behavior states"
 	////////////////////////////////////////////////////////////////////////////////////
-	enum ETroopState
+	enum class ETroopState
 	{
 		TS_NONE = 0,				// No troop wide activity active
 
@@ -555,6 +555,7 @@ private:
 
 		TS_MAX
 	};
+	using enum ETroopState;
 	ETroopState		mState;
 
 	CVec3			mFormHead;

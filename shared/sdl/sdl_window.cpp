@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys/sys_local.h"
 #include "sdl_icon.h"
 
-enum rserr_t
+enum class rserr_t
 {
 	RSERR_OK,
 
@@ -35,6 +35,7 @@ enum rserr_t
 
 	RSERR_UNKNOWN
 };
+using enum rserr_t;
 
 static SDL_Window *screen = nullptr;
 static SDL_GLContext opengl_context;

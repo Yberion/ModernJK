@@ -68,7 +68,7 @@ int		numVehicles = 0;//first one is null/default
 
 void BG_VehicleLoadParms( void );
 
-typedef enum {
+enum class vehFieldType_t {
 	VF_IGNORE,
 	VF_INT,
 	VF_FLOAT,
@@ -86,7 +86,8 @@ typedef enum {
 	VF_SHADER_NOMIP,// (cgame only) take the string, call trap->R_RegisterShaderNoMip
 	VF_SOUND,	// take the string, get the G_SoundIndex
 	VF_SOUND_CLIENT	// (cgame only) take the string, get the index
-} vehFieldType_t;
+};
+using enum vehFieldType_t;
 
 typedef struct vehField_s {
 	const char	*name;

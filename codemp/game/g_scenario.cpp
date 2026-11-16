@@ -25,12 +25,13 @@ extern void WP_SaberRemoveG2Model( gentity_t *saberent );
 #define SCN_REP_MSEC		2000	// one repetition
 #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
 
-typedef enum {
+enum class scenarioType_t {
 	SCN_NONE,
 	SCN_SABER,
 	SCN_FORCE,
 	SCN_WEAPON
-} scenarioType_t;
+};
+using enum scenarioType_t;
 
 static struct {
 	scenarioType_t	type;

@@ -11,7 +11,7 @@ extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponMod
 vehicleInfo_t g_vehicleInfo[MAX_VEHICLES];
 int		numVehicles = 1;//first one is null/default
 
-typedef enum {
+enum class vehFieldType_t {
 	VF_INT,
 	VF_FLOAT,
 	VF_LSTRING,	// string on disk, pointer in memory, TAG_LEVEL
@@ -19,7 +19,8 @@ typedef enum {
 	VF_BOOL,
 	VF_VEHTYPE,
 	VF_ANIM
-} vehFieldType_t;
+};
+using enum vehFieldType_t;
 
 typedef struct
 {

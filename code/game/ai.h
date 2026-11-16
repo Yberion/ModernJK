@@ -24,18 +24,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __AI__
 
 //Distance ratings
-enum distance_e
+enum class distance_e
 {
 	DIST_MELEE,
 	DIST_LONG,
 };
+using enum distance_e;
 
 //Attack types
-enum attack_e
+enum class attack_e
 {
 	ATTACK_MELEE,
 	ATTACK_RANGE,
 };
+using enum attack_e;
 
 enum
 {

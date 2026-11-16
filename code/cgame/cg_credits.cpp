@@ -274,7 +274,7 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color)
 
 	// read whole string in and process as cards, lines etc...
 	//
-	typedef enum
+	enum class Mode_e
 	{
 		eNothing = 0,
 		eLine,
@@ -282,7 +282,8 @@ void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color)
 		eTitle,
 		eCard,
 		eFinished,
-	} Mode_e;
+	};
+	using enum Mode_e;
 	Mode_e eMode = eNothing;
 
 	bool bCardsFinished = false;

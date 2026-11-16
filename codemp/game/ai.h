@@ -23,18 +23,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 //Distance ratings
-typedef enum
+enum class distance_e
 {
 	DIST_MELEE,
 	DIST_LONG,
-} distance_e;
+};
+using enum distance_e;
 
 //Attack types
-typedef enum
+enum class attack_e
 {
 	ATTACK_MELEE,
 	ATTACK_RANGE,
-} attack_e;
+};
+using enum attack_e;
 
 enum
 {

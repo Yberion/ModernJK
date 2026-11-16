@@ -54,12 +54,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	SABER_LOCK_TIME			10000
 #define	SABER_LOCK_DELAYED_TIME 9500
-typedef enum
+enum class saberLockResult_t
 {
 	LOCK_VICTORY = 0,//one side won
 	LOCK_STALEMATE,//neither side won
 	LOCK_DRAW//both people fall back
-} saberLockResult_t;
+};
+using enum saberLockResult_t;
 
 #define	MAX_FORCE_HEAL	25
 #define	FORCE_HEAL_INTERVAL	200//FIXME: maybe level 1 is slower or level 2 is faster?
@@ -103,7 +104,7 @@ enum
 extern void WP_InitForcePowers( gentity_t *ent );
 extern int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
 
-typedef enum
+enum class evasionType_t
 {
 	EVASION_NONE = 0,
 	EVASION_PARRY,
@@ -116,7 +117,8 @@ typedef enum
 	EVASION_CARTWHEEL,
 	EVASION_OTHER,
 	NUM_EVASION_TYPES
-} evasionType_t;
+};
+using enum evasionType_t;
 
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.

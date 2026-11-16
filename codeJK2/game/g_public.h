@@ -69,12 +69,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 typedef struct gentity_s gentity_t;
 //typedef struct gclient_s gclient_t;
 
-typedef enum
+enum class SavedGameJustLoaded_e
 {
 	eNO = 0,
 	eFULL,
 	eAUTO,
-} SavedGameJustLoaded_e;
+};
+using enum SavedGameJustLoaded_e;
 
 
 #define GAME_INCLUDE

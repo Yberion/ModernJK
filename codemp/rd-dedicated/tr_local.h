@@ -43,11 +43,12 @@ typedef unsigned int glIndex_t;
 #define MAX_STATES_PER_SHADER 32
 #define MAX_STATE_NAME 32
 
-typedef enum
+enum class eDLightTypes
 {
 	DLIGHT_VERTICAL	= 0,
 	DLIGHT_PROJECTED
-} eDLightTypes;
+};
+using enum eDLightTypes;
 
 typedef struct dlight_s {
 	eDLightTypes	mType;
@@ -162,7 +163,7 @@ typedef enum {
 
 #define MAX_SHADER_STAGES 8
 
-typedef enum {
+enum class genFunc_t {
 	GF_NONE,
 
 	GF_SIN,
@@ -174,7 +175,8 @@ typedef enum {
 	GF_NOISE,
 	GF_RAND
 
-} genFunc_t;
+};
+using enum genFunc_t;
 
 
 typedef enum {
@@ -242,12 +244,13 @@ typedef enum {
 	TCGEN_VECTOR			// S and T from world coordinates
 } texCoordGen_t;
 
-typedef enum {
+enum class acff_t {
 	ACFF_NONE,
 	ACFF_MODULATE_RGB,
 	ACFF_MODULATE_RGBA,
 	ACFF_MODULATE_ALPHA
-} acff_t;
+};
+using enum acff_t;
 
 typedef enum {
 	GLFOGOVERRIDE_NONE = 0,
@@ -268,7 +271,7 @@ typedef struct waveForm_s {
 
 #define TR_MAX_TEXMODS 4
 
-typedef enum {
+enum class texMod_t {
 	TMOD_NONE,
 	TMOD_TRANSFORM,
 	TMOD_TURBULENT,
@@ -277,7 +280,8 @@ typedef enum {
 	TMOD_STRETCH,
 	TMOD_ROTATE,
 	TMOD_ENTITY_TRANSLATE
-} texMod_t;
+};
+using enum texMod_t;
 
 #define	MAX_SHADER_DEFORMS	3
 typedef struct deformStage_s {
@@ -841,7 +845,7 @@ typedef struct world_s {
 
 //======================================================================
 
-typedef enum {
+enum class modtype_t {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
@@ -854,7 +858,8 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-} modtype_t;
+};
+using enum modtype_t;
 
 typedef struct model_s {
 	char		name[MAX_QPATH];

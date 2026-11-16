@@ -237,7 +237,7 @@ typedef struct modelInfo_s
 	}
 } modelInfo_t;
 
-typedef enum
+enum class targetModel_t
 {
 	MODEL_LEGS = 0,
 	MODEL_TORSO,
@@ -248,7 +248,8 @@ typedef enum
 	MODEL_EXTRA1,
 	MODEL_EXTRA2,
 	NUM_TARGET_MODELS
-} targetModel_t;
+};
+using enum targetModel_t;
 
 //renderFlags
 #define	RF_LOCKEDANGLE	1

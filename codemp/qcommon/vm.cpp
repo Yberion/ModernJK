@@ -45,51 +45,15 @@ const char *vmStrs[MAX_VM] = {
 // The VM table should never be directly accessed from other files.
 // Example usage:
 //	cgvm = VM_Create( VM_CGAME );	// vmTable[VM_CGAME] is allocated
-//	CGVM_Init( foo, bar );			// internally may use VM_Call( cgvm, CGAME_INIT, foo, bar ) for legacy cgame modules
+//	CGVM_Init( foo, bar );
 //	cgvm = VM_Restart( cgvm );		// vmTable[VM_CGAME] is recreated, we update the cgvm pointer
 //	VM_Free( cgvm );				// vmTable[VM_CGAME] is deallocated and set to nullptr
 //	cgvm = nullptr;					// ...so we update the cgvm pointer
 
 static vm_t *vmTable[MAX_VM];
 
-#ifdef _DEBUG
-cvar_t *vm_legacy;
-#endif
-
 void VM_Init( void ) {
-#ifdef _DEBUG
-	vm_legacy = Cvar_Get( "vm_legacy", "0", 0 );
-#endif
-
 	memset( vmTable, 0, sizeof(vmTable) );
-}
-
-// The syscall mechanism relies on stack manipulation to get it's args.
-// This is likely due to C's inability to pass "..." parameters to a function in one clean chunk.
-// On PowerPC Linux, these parameters are not necessarily passed on the stack, so while (&arg[0] == arg) is true,
-//	(&arg[1] == 2nd function parameter) is not necessarily accurate, as arg's value might have been stored to the stack
-//	or other piece of scratch memory to give it a valid address, but the next parameter might still be sitting in a
-//	register.
-// QVM's syscall system also assumes that the stack grows downward, and that any needed types can be squeezed, safely,
-//	into a signed int.
-// This hack below copies all needed values for an argument to an array in memory, so that QVM can get the correct values.
-// This can also be used on systems where the stack grows upwards, as the presumably standard and safe stdargs.h macros
-//	are used.
-// For speed, we just grab 15 arguments, and don't worry about exactly how many the syscall actually needs; the extra is
-//	thrown away.
-intptr_t QDECL VM_DllSyscall( intptr_t arg, ... ) {
-	// rcg010206 - see commentary above
-	intptr_t args[16];
-	va_list ap;
-
-	args[0] = arg;
-
-	va_start( ap, arg );
-	for (size_t i = 1; i < ARRAY_LEN (args); i++)
-		args[i] = va_arg( ap, intptr_t );
-	va_end( ap );
-
-	return currentVM->legacy.syscall( args );
 }
 
 // Reload the data, but leave everything else in place
@@ -99,60 +63,12 @@ vm_t *VM_Restart( vm_t *vm ) {
 
 	VM_Free( vm );
 
-	if ( saved.isLegacy )
-		return VM_CreateLegacy( saved.slot, saved.legacy.syscall );
-	else
-		return VM_Create( saved.slot );
-}
-
-vm_t *VM_CreateLegacy( vmSlots_t vmSlot, intptr_t( *systemCalls )(intptr_t *) ) {
-	vm_t *vm = nullptr;
-
-	if ( !systemCalls ) {
-		Com_Error( ERR_FATAL, "VM_CreateLegacy: bad parms" );
-		return nullptr;
-	}
-
-	// see if we already have the VM
-	if ( vmTable[vmSlot] )
-		return vmTable[vmSlot];
-
-	// find a free vm
-	vmTable[vmSlot] = (vm_t *)Z_Malloc( sizeof(*vm), TAG_VM, true );
-	vm = vmTable[vmSlot];
-
-	// initialise it
-	vm->isLegacy = true;
-	vm->slot = vmSlot;
-	Q_strncpyz( vm->name, vmNames[vmSlot], sizeof(vm->name) );
-	vm->legacy.syscall = systemCalls;
-
-	// find the legacy syscall api
-	FS_FindPureDLL( vm->name );
-	vm->dllHandle = Sys_LoadLegacyGameDll( vm->name, &vm->legacy.main, VM_DllSyscall );
-
-	Com_Printf( "VM_CreateLegacy: %s" ARCH_STRING DLL_EXT, vm->name );
-	if ( vm->dllHandle ) {
-		if ( com_developer->integer )
-			Com_Printf( " succeeded [0x%" PRIxPTR "]\n", (uintptr_t)vm->dllHandle );
-		else
-			Com_Printf( " succeeded\n" );
-		return vm;
-	}
-
-	VM_Free( vm );
-	Com_Printf( " failed!\n" );
-	return nullptr;
+	return VM_Create( saved.slot );
 }
 
 vm_t *VM_Create( vmSlots_t vmSlot ) {
 	vm_t *vm = nullptr;
 
-#ifdef _DEBUG
-	if ( (vm_legacy->integer & (1<<vmSlot)) )
-		return nullptr;
-#endif
-
 	// see if we already have the VM
 	if ( vmTable[vmSlot] )
 		return vmTable[vmSlot];
@@ -162,7 +78,6 @@ vm_t *VM_Create( vmSlots_t vmSlot ) {
 	vm = vmTable[vmSlot];
 
 	// initialise it
-	vm->isLegacy = false;
 	vm->slot = vmSlot;
 	Q_strncpyz( vm->name, vmNames[vmSlot], sizeof(vm->name) );
 
@@ -267,22 +182,4 @@ void *VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue ) {
 		return nullptr;
 
 	return (void *)intValue;
-}
-
-float _vmf( intptr_t x ) {
-	byteAlias_t fi;
-	fi.i = (int)x;
-	return fi.f;
-}
-
-intptr_t QDECL VM_Call( vm_t *vm, int callnum, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11 ) {
-	if ( !vm || !vm->name[0] ) {
-		Com_Error( ERR_FATAL, "VM_Call with NULL vm" );
-		return 0;
-	}
-
-	VMSwap v( vm );
-
-	return vm->legacy.main( callnum, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,
-		arg9, arg10, arg11 );
 }

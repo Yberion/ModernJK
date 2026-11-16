@@ -28,6 +28,6 @@ Historically communication with these libraries was done using two functions exp
     
     Called once upon loading the dll. The supplied syscallptr is saved by the library; it is the client function to be called whenever the library needs something from the client. Similar to `vmMain` the first argument is the requested call, according to which the arguments are interpreted.
 
-This has its roots in the Quake 3 days, where the code was run in the Quake Virtual Machine (QVM). Since prior to the release of the full source code every mod worked this way, OpenJK still supports this to remain backwards compatible.
+This has its roots in the Quake 3 days, where the code was run in the Quake Virtual Machine (QVM). Since prior to the release of the full source code every mod worked this way, OpenJK still supports this to remain backwards compatible. ModernJK removed it on 16 November 2026: the engine loads a library only through `GetModuleAPI`, below.
 
 Additionally OpenJK introduced `<library>Export_t* GetModuleAPI( int apiVersion, <library>Import_t *import )`, which is a type-safe way of achieving the same thing without the additional layer of indirection by directly passing the function pointers in question.

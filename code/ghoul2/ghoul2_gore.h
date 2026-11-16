@@ -143,7 +143,7 @@ class CRagDollParams
 {
 public:
 
-	enum ERagPhase
+	enum class ERagPhase
 	{
 		RP_START_DEATH_ANIM,
 		RP_END_DEATH_ANIM,
@@ -153,6 +153,7 @@ public:
 		RP_SET_PELVIS_OFFSET,  // this actually does nothing but set the pelvisAnglesOffset, and pelvisPositionOffset
 		RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 	};
+	using enum ERagPhase;
 	vec3_t angles;
 	vec3_t position;
 	vec3_t scale;
@@ -178,7 +179,7 @@ public:
 
 // effector control, used for RP_DISABLE_EFFECTORS call
 
-	enum ERagEffector
+	enum class ERagEffector
 	{
 		RE_MODEL_ROOT=			0x00000001, //"model_root"
 		RE_PELVIS=				0x00000002, //"pelvis"
@@ -206,6 +207,7 @@ public:
 		RE_LFEMURX=				0x00800000, //"lfemurX"
 		RE_CEYEBROW=			0x01000000 //"ceyebrow"
 	};
+	using enum ERagEffector;
 
 	ERagEffector effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
 

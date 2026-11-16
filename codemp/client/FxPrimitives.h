@@ -115,11 +115,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 // stuff that can occur when an effect is flagged with "materialImpact" and it hits something
-enum EMatImpactEffect
+enum class EMatImpactEffect
 {
 	MATIMPACTFX_NONE = 0,
 	MATIMPACTFX_SHELLSOUND
 };
+using enum EMatImpactEffect;
 
 //------------------------------
 class CEffect

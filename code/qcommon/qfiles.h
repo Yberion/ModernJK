@@ -399,7 +399,7 @@ typedef struct {
 	int			patchHeight;
 } dsurface_t;
 
-typedef enum //# hunkAllocType_e
+enum class hunkAllocType_t //# hunkAllocType_e
 {
 	HA_MISC,
 	HA_MAP,
@@ -411,7 +411,8 @@ typedef enum //# hunkAllocType_e
 	HA_SUBMODELS,
 	HA_MODELS,
 	MAX_HA_TYPES
-} hunkAllocType_t;
+};
+using enum hunkAllocType_t;
 
 
 
