@@ -65,12 +65,9 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
     ////////////////////////////////////////////////////////////////////////////////////
- 	enum
-	{
-		NULL_REGION	= -1,
-		NULL_EDGE	= -1,
-		CAPACITY	= MAXREGIONS
-	};
+	static constexpr int NULL_REGION	= -1;
+	static constexpr int NULL_EDGE	= -1;
+	static constexpr int CAPACITY	= MAXREGIONS;
 
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -101,8 +98,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	void	clear()
 	{
-		mRegions.resize(0, (int)NULL_REGION);
-		mRegions.resize(MAXNODES, (int)NULL_REGION);
+		mRegions.resize(0, NULL_REGION);
+		mRegions.resize(MAXNODES, NULL_REGION);
 		mRegionCount = 0;
 		mReservedRegionCount = 0;
 

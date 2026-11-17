@@ -64,6 +64,6 @@ int AAS_NextEntity(int entnum);
 //returns the origin of the entity
 void AAS_EntityOrigin(int entnum, vec3_t origin);
 //returns the entity type
-int AAS_EntityType(int entnum);
+entityType_t AAS_EntityType(int entnum);
 //returns the model index of the entity
 int AAS_EntityModelindex(int entnum);

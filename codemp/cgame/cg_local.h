@@ -1083,7 +1083,7 @@ extern cgscreffects_t cgScreenEffects;
 void CGCam_Shake( float intensity, int duration );
 void CGCam_SetMusicMult( float multiplier, int duration );
 
-enum
+enum class chunkType_t
 {
 	CHUNK_METAL1 = 0,
 	CHUNK_METAL2,
@@ -1095,6 +1095,7 @@ enum
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
+using enum chunkType_t;
 #define NUM_CHUNK_MODELS	4
 
 // all of the model, shader, and sound references that are
@@ -1132,7 +1133,7 @@ typedef struct cgMedia_s {
 	qhandle_t	wireframeAutomapFrame_bottom;
 
 //Chunks
-	qhandle_t	chunkModels[NUM_CHUNK_TYPES][4];
+	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;
@@ -1779,10 +1780,10 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 void CG_DrawActive( stereoFrame_t stereoView );
 void CG_DrawFlagModel( float x, float y, float w, float h, team_t team, bool force2D );
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, team_t team );
-void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font);
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont);
-int CG_Text_Width(const char *text, float scale, int iMenuFont);
-int CG_Text_Height(const char *text, float scale, int iMenuFont);
+void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,menuFont_t font);
+void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, menuFont_t iMenuFont);
+int CG_Text_Width(const char *text, float scale, menuFont_t iMenuFont);
+int CG_Text_Height(const char *text, float scale, menuFont_t iMenuFont);
 float CG_GetValue(int ownerDraw);
 bool CG_OwnerDrawVisible(int flags);
 void CG_RunMenuScript(char **args);

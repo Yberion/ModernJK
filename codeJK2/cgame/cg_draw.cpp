@@ -365,23 +365,25 @@ static void CG_DrawAmmo(centity_t	*cent,int x,int y)
 	{
 		cgi_R_SetColor( colorTable[CT_WHITE] );
 
-		if ( !cg.saberAnimLevelPending && cent->gent->client )
+		if ( cg.saberAnimLevelPending == FORCE_LEVEL_0 && cent->gent->client )
 		{//uninitialized after a loadgame, cheat across and get it
 			cg.saberAnimLevelPending = cent->gent->client->ps.saberAnimLevel;
 		}
 		// don't need to draw ammo, but we will draw the current saber style in this window
 		switch ( cg.saberAnimLevelPending )
 		{
-		case 1://FORCE_LEVEL_1:
-		case 5://FORCE_LEVEL_5://Tavion
+		case FORCE_LEVEL_1:
+		case FORCE_LEVEL_5://Tavion
 			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleFast );
 			break;
-		case 2://FORCE_LEVEL_2:
+		case FORCE_LEVEL_2:
 			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleMed );
 			break;
-		case 3://FORCE_LEVEL_3:
-		case 4://FORCE_LEVEL_4://Desann
+		case FORCE_LEVEL_3:
+		case FORCE_LEVEL_4://Desann
 			CG_DrawPic( x, y, 80, 40, cgs.media.HUDSaberStyleStrong );
+			break;
+		default:
 			break;
 		}
 		return;
@@ -1247,11 +1249,11 @@ CG_DrawPickupItem
 ===================
 */
 static void CG_DrawPickupItem( void ) {
-	int		value;
+	itemNum_t	value;
 	float	*fadeColor;
 
 	value = cg.itemPickup;
-	if ( value && cg_items[ value ].icon != -1 )
+	if ( value != ITM_NONE && cg_items[ value ].icon != -1 )
 	{
 		fadeColor = CG_FadeColor( cg.itemPickupTime, 3000 );
 		if ( fadeColor )
@@ -1680,7 +1682,7 @@ static void CG_ScanForRocketLock( void )
 CG_ScanForCrosshairEntity
 =================
 */
-extern float forcePushPullRadius[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
 static void CG_ScanForCrosshairEntity( bool scanAll )
 {
 	trace_t		trace;
@@ -1712,7 +1714,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 				// Check for mind trickable-guys
 				if ( traceEnt->client )
 				{//is a client
-					if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_TELEPATHY] && traceEnt->health > 0 && VALIDSTRING(traceEnt->behaviorSet[BSET_MINDTRICK]) )
+					if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_TELEPATHY] != FORCE_LEVEL_0 && traceEnt->health > 0 && VALIDSTRING(traceEnt->behaviorSet[BSET_MINDTRICK]) )
 					{//I have the ability to mind-trick and he is alive and he has a mind trick script
 						//NOTE: no need to check range since it's always 2048
 						cg_forceCrosshair = true;
@@ -1725,7 +1727,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 					{//it's a func_door
 						if ( traceEnt->spawnflags & 2/*MOVER_FORCE_ACTIVATE*/ )
 						{//it's force-usable
-							if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_PULL] || cg_entities[0].gent->client->ps.forcePowerLevel[FP_PUSH] )
+							if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_PULL] != FORCE_LEVEL_0 || cg_entities[0].gent->client->ps.forcePowerLevel[FP_PUSH] != FORCE_LEVEL_0 )
 							{//player has push or pull
 								float maxRange;
 								if ( cg_entities[0].gent->client->ps.forcePowerLevel[FP_PULL] > cg_entities[0].gent->client->ps.forcePowerLevel[FP_PUSH] )

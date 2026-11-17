@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Cvar callbacks
 //
 
-static int UI_GetScreenshotFormatForString( const char *str ) {
+static std::optional<screenshotFormat_t> UI_GetScreenshotFormatForString( const char *str ) {
 	if ( !Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg") )
 		return SSF_JPEG;
 	else if ( !Q_stricmp(str, "tga") )
@@ -35,10 +35,10 @@ static int UI_GetScreenshotFormatForString( const char *str ) {
 	else if ( !Q_stricmp(str, "png") )
 		return SSF_PNG;
 	else
-		return -1;
+		return std::nullopt;
 }
 
-static const char *UI_GetScreenshotFormatString( int format )
+static const char *UI_GetScreenshotFormatString( screenshotFormat_t format )
 {
 	switch ( format )
 	{
@@ -58,24 +58,24 @@ static void UI_UpdateScreenshot( void )
 	// check some things
 	if ( ui_screenshotType.string[0] && isalpha( ui_screenshotType.string[0] ) )
 	{
-		int ssf = UI_GetScreenshotFormatForString( ui_screenshotType.string );
-		if ( ssf == -1 )
+		const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString( ui_screenshotType.string );
+		if ( !ssf )
 		{
 			trap->Print( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
 			uiInfo.uiDC.screenshotFormat = SSF_JPEG;
 			changed = true;
 		}
 		else
-			uiInfo.uiDC.screenshotFormat = ssf;
+			uiInfo.uiDC.screenshotFormat = *ssf;
 	}
-	else if ( ui_screenshotType.integer < SSF_JPEG || ui_screenshotType.integer > SSF_PNG )
+	else if ( ui_screenshotType.integer < to_underlying( SSF_JPEG ) || ui_screenshotType.integer > to_underlying( SSF_PNG ) )
 	{
 		trap->Print( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
 		uiInfo.uiDC.screenshotFormat = SSF_JPEG;
 		changed = true;
 	}
 	else {
-		uiInfo.uiDC.screenshotFormat = atoi( ui_screenshotType.string );
+		uiInfo.uiDC.screenshotFormat = static_cast<screenshotFormat_t>( atoi( ui_screenshotType.string ) );
 		changed = true;
 	}
 

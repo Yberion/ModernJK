@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef HITLOCS_H
 #define HITLOCS_H
 
-enum //# hitloc_e
+enum class hitLocation_t //# hitloc_e
 {
 	HL_NONE = 0,
 	HL_FOOT_RT,
@@ -51,6 +51,8 @@ enum //# hitloc_e
 	//# #eol
 	HL_MAX
 };
+using enum hitLocation_t;
+template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
 
 extern stringID_table_t HLTable[];
 

@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_STRINGS		256
 #define MAX_ID			255
 
-enum
+enum class spLanguage_t
 {
 	SP_LANGUAGE_ENGLISH = 0,
 	SP_LANGUAGE_FRENCH,
@@ -45,6 +45,7 @@ enum
 	SP_LANGUGAGE_MAX,
 	SP_LANGUAGE_ALL = 255
 };
+using enum spLanguage_t;
 
 
 #define SP_PACKAGE		0xff00

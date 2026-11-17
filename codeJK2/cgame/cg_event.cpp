@@ -87,7 +87,7 @@ CG_ItemPickup
 A new item was picked up this frame
 ================
 */
-void CG_ItemPickup( int itemNum, bool bHadItem ) {
+void CG_ItemPickup( itemNum_t itemNum, bool bHadItem ) {
 	cg.itemPickup = itemNum;
 	cg.itemPickupTime = cg.time;
 	cg.itemPickupBlendTime = cg.time;
@@ -171,7 +171,7 @@ UseItem
 extern void CG_ToggleBinoculars( void );
 extern void CG_ToggleLAGoggles( void );
 
-void UseItem(int itemNum)
+void UseItem(inventory_t itemNum)
 {
 	centity_t		*cent;
 
@@ -197,6 +197,8 @@ void UseItem(int itemNum)
 			cent->gent->client->ps.inventory[INV_SECURITY_KEY]--;
 		}
 		break;
+	default:
+		break;
 	}
 }
 
@@ -218,21 +220,21 @@ CG_UseItem
 */
 static void CG_UseItem( centity_t *cent )
 {
-	int			itemNum;
+	inventory_t	itemNum;
 	entityState_t *es;
 
 	es = &cent->currentState;
 
 	itemNum = cg.inventorySelect;
-	if ( itemNum < 0 || itemNum > INV_MAX )
+	if ( itemNum < INV_ELECTROBINOCULARS || itemNum >= INV_MAX )
 	{
-		itemNum = 0;
+		itemNum = INV_ELECTROBINOCULARS;
 	}
 
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum )
 	{
-		if ( !itemNum )
+		if ( itemNum == INV_ELECTROBINOCULARS )
 		{
 //			CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		}
@@ -472,12 +474,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			if ( index >= bg_numItems ) {
 				break;
 			}
-			item = &bg_itemlist[ index ];
+			const itemNum_t itemNum = static_cast<itemNum_t>( index );	// the event's parameter
+			item = &bg_itemlist[ itemNum ];
 			cgi_S_StartSound (nullptr, es->number, CHAN_AUTO,	cgi_S_RegisterSound( item->pickup_sound ) );
 
 			// show icon and name on status bar
 			if ( es->number == cg.snap->ps.clientNum ) {
-				CG_ItemPickup( index, bHadItem );
+				CG_ItemPickup( itemNum, bHadItem );
 			}
 		}
 		break;

@@ -186,7 +186,7 @@ PopCommand
 -------------------------
 */
 
-CBlock *CSequence::PopCommand( int type )
+CBlock *CSequence::PopCommand( pushPop_t type )
 {
 	CBlock	*command = nullptr;
 
@@ -215,6 +215,9 @@ CBlock *CSequence::PopCommand( int type )
 
 		return command;
 		break;
+
+	default:
+		break;
 	}
 
 	//Invalid flag
@@ -227,7 +230,7 @@ PushCommand
 -------------------------
 */
 
-int CSequence::PushCommand( CBlock *block, int type )
+int CSequence::PushCommand( CBlock *block, pushPop_t type )
 {
 	//Make sure everything is ok
 	assert( (type == PUSH_FRONT) || (type == PUSH_BACK) );
@@ -249,6 +252,9 @@ int CSequence::PushCommand( CBlock *block, int type )
 		m_numCommands++;
 
 		return true;
+		break;
+
+	default:
 		break;
 	}
 
@@ -343,7 +349,7 @@ int CSequence::SaveCommand( CBlock *block )
 	CBlockMember	*bm;
 
 	//Save out the block ID
-	bID = block->GetBlockID();
+	bID = to_underlying( block->GetBlockID() );
 	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','L','I','D'), &bID, sizeof ( bID ) );
 
 	//Save out the block's flags
@@ -359,7 +365,7 @@ int CSequence::SaveCommand( CBlock *block )
 		bm = block->GetMember( i );
 
 		//Save the block id
-		bID = bm->GetID();
+		bID = to_underlying( bm->GetID() );
 		(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','M','I','D'), &bID, sizeof ( bID ) );
 
 		//Save out the data size
@@ -488,7 +494,7 @@ int CSequence::Load( void )
 		(m_owner->GetInterface())->I_ReadSaveData( 'BLID', &id, sizeof( id ) );
 		block = new CBlock;
 
-		block->Create( id );
+		block->Create( static_cast<icarusToken_t>( id ) );
 
 		//Read the block's flags
 		(m_owner->GetInterface())->I_ReadSaveData( 'BFLG', &flags, sizeof( flags ) );
@@ -513,7 +519,8 @@ int CSequence::Load( void )
 			(m_owner->GetInterface())->I_ReadSaveData( 'BMEM', bData, bSize );
 
 			//Write out the correct type
-			switch ( bID )
+			const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
+			switch ( memberID )
 			{
 			case TK_INT:
 				{
@@ -539,22 +546,22 @@ int CSequence::Load( void )
 				break;
 
 			case ID_TAG:
-				block->Write( ID_TAG, (float) ID_TAG );
+				block->Write( ID_TAG, (float) to_underlying( ID_TAG ) );
 				break;
 
 			case ID_GET:
-				block->Write( ID_GET, (float) ID_GET );
+				block->Write( ID_GET, (float) to_underlying( ID_GET ) );
 				break;
 
 			case ID_RANDOM:
-				block->Write( ID_RANDOM, *(float *) bData );//(float) ID_RANDOM );
+				block->Write( ID_RANDOM, *(float *) bData );//(float) to_underlying( ID_RANDOM ) );
 				break;
 
 			case TK_EQUALS:
 			case TK_GREATER_THAN:
 			case TK_LESS_THAN:
 			case TK_NOT:
-				block->Write( bID, 0 );
+				block->Write( memberID, 0 );
 				break;
 
 			default:

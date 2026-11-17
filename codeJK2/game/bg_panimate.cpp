@@ -429,7 +429,7 @@ bool PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
 	return true;
 }
 
-int PM_AnimLevelForSaberAnim( animNumber_t anim )
+forcePowerLevels_t PM_AnimLevelForSaberAnim( animNumber_t anim )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
 	{
@@ -454,7 +454,7 @@ int PM_AnimLevelForSaberAnim( animNumber_t anim )
 	return FORCE_LEVEL_0;
 }
 
-int PM_PowerLevelForSaberAnim( playerState_t *ps )
+forcePowerLevels_t PM_PowerLevelForSaberAnim( playerState_t *ps )
 {
 	animNumber_t anim = ps->torsoAnim;
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
@@ -537,8 +537,8 @@ bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove )
 	default:
 		break;
 	}
-	int animLevel = PM_AnimLevelForSaberAnim( anim );
-	if ( animLevel <= 0 )
+	forcePowerLevels_t animLevel = PM_AnimLevelForSaberAnim( anim );
+	if ( animLevel <= FORCE_LEVEL_0 )
 	{//NOTE: this will always return false for the ready poses and putaway/draw...
 		return false;
 	}
@@ -2159,8 +2159,8 @@ void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time )
 }
 
 extern bool PM_SpinningSaberAnim( animNumber_t anim );
-extern float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS];
-void PM_SaberStartTransAnim( int saberAnimLevel, animNumber_t anim, float *animSpeed, gentity_t *gent )
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> saberAnimSpeedMod;
+void PM_SaberStartTransAnim( forcePowerLevels_t saberAnimLevel, animNumber_t anim, float *animSpeed, gentity_t *gent )
 {
 	if ( g_saberAnimSpeed->value != 1.0f )
 	{
@@ -2198,7 +2198,7 @@ void PM_SaberStartTransAnim( int saberAnimLevel, animNumber_t anim, float *animS
 	}
 }
 /*
-void PM_SaberStartTransAnim( animNumber_t anim, int entNum, int saberOffenseLevel, float *animSpeed )
+void PM_SaberStartTransAnim( animNumber_t anim, int entNum, forcePowerLevels_t saberOffenseLevel, float *animSpeed )
 {
 	//check starts
 	if ( ( anim >= BOTH_S1_S1_T_ &&

@@ -3512,7 +3512,7 @@ static void G_ICARUS_Lerp2Angles( void ) {
 }
 static int G_ICARUS_GetTag( void ) {
 	T_G_ICARUS_GETTAG *sharedMem = &gSharedBuffer.getTag;
-	return Q3_GetTag( sharedMem->entID, sharedMem->name, sharedMem->lookup, sharedMem->info );
+	return Q3_GetTag( sharedMem->entID, sharedMem->name, static_cast<icarusToken_t>( sharedMem->lookup ), sharedMem->info );
 }
 static void G_ICARUS_Lerp2Start( void ) {
 	T_G_ICARUS_LERP2START *sharedMem = &gSharedBuffer.lerp2Start;
@@ -3540,17 +3540,17 @@ static void G_ICARUS_Play( void ) {
 }
 static int G_ICARUS_GetFloat( void ) {
 	T_G_ICARUS_GETFLOAT *sharedMem = &gSharedBuffer.getFloat;
-	return Q3_GetFloat( sharedMem->entID, sharedMem->type, sharedMem->name, &sharedMem->value );
+	return Q3_GetFloat( sharedMem->entID, static_cast<icarusToken_t>( sharedMem->type ), sharedMem->name, &sharedMem->value );
 }
 static int G_ICARUS_GetVector( void ) {
 	T_G_ICARUS_GETVECTOR *sharedMem = &gSharedBuffer.getVector;
-	return Q3_GetVector( sharedMem->entID, sharedMem->type, sharedMem->name, sharedMem->value );
+	return Q3_GetVector( sharedMem->entID, static_cast<icarusToken_t>( sharedMem->type ), sharedMem->name, sharedMem->value );
 }
 static int G_ICARUS_GetString( void ) {
 	T_G_ICARUS_GETSTRING *sharedMem = &gSharedBuffer.getString;
 	const char *crap = nullptr; //I am sorry for this -rww
 	const char **morecrap = &crap; //and this
-	int r = Q3_GetString( sharedMem->entID, sharedMem->type, sharedMem->name, morecrap );
+	int r = Q3_GetString( sharedMem->entID, static_cast<icarusToken_t>( sharedMem->type ), sharedMem->name, morecrap );
 
 	if ( crap )
 		strcpy( sharedMem->value, crap );

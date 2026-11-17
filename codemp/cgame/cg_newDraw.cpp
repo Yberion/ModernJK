@@ -262,11 +262,11 @@ const char *CG_GetGameStatusText(void) {
 	return s;
 }
 
-extern int MenuFontToHandle(int iMenuFont);
+extern int MenuFontToHandle(menuFont_t iMenuFont);
 
 // maxX param is initially an X limit, but is also used as feedback. 0 = text was clipped to fit within, else maxX = next pos
 //
-static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit, int iMenuFont)
+static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit, menuFont_t iMenuFont)
 {
 	bool bIsTrailingPunctuation;
 
@@ -343,7 +343,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
-			len = CG_Text_Width( ci->name, scale, 0);
+			len = CG_Text_Width( ci->name, scale, FONT_NONE);
 			if (len > pwidth)
 				pwidth = len;
 		}
@@ -354,7 +354,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 1; i < MAX_LOCATIONS; i++) {
 		p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+i));
 		if (p && *p) {
-			len = CG_Text_Width(p, scale, 0);
+			len = CG_Text_Width(p, scale, FONT_NONE);
 			if (len > lwidth)
 				lwidth = len;
 		}
@@ -456,7 +456,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorTime = cg.time + 10;
 			if (cg.spectatorPaintX <= rect->x + 2) {
 				if (cg.spectatorOffset < cg.spectatorLen) {
-					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1;
+					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, FONT_SMALL) - 1;
 					cg.spectatorOffset++;
 				} else {
 					cg.spectatorOffset = 0;
@@ -552,7 +552,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 	if (text) {
 		color[3] = 1.0;
-		value = CG_Text_Width(text, scale, 0);
+		value = CG_Text_Width(text, scale, FONT_NONE);
 		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , scale, color, text, 0, 0, 0, FONT_MEDIUM);
 	}
 	trap->R_SetColor(nullptr);
@@ -561,7 +561,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 
 //
-void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font) {
+void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,menuFont_t font) {
 
 	//Ignore all this, at least for now. May put some stat stuff back in menu files later.
 #if 0

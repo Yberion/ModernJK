@@ -278,7 +278,7 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 //rww - bg_public.h won't cooperate in here
 #define EF_PERMANENT			0x00080000
 
-float sv_sightRangeForLevel[6] =
+EnumArray<float, forcePowerLevels_t, to_underlying( FORCE_LEVEL_5 ) + 1> sv_sightRangeForLevel =
 {
 	0,//FORCE_LEVEL_0
     1024.f, //FORCE_LEVEL_1
@@ -288,7 +288,7 @@ float sv_sightRangeForLevel[6] =
 	4096.0f//FORCE_LEVEL_5
 };
 
-bool SV_PlayerCanSeeEnt( gentity_t *ent, int sightLevel )
+bool SV_PlayerCanSeeEnt( gentity_t *ent, forcePowerLevels_t sightLevel )
 {//return true if this ent is in view
 	//NOTE: this is similar to the func CG_PlayerCanSeeCent in cg_players
 	vec3_t viewOrg, viewAngles, viewFwd, dir2Ent;

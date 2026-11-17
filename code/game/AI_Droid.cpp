@@ -29,14 +29,7 @@ float NPC_GetPainChance( gentity_t *self, int damage );
 #define TURN_OFF   0x00000100
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_BACKINGUP,
-	LSTATE_SPINNING,
-	LSTATE_PAIN,
-	LSTATE_DROP
-};
+using enum droidLocalState_t;
 
 /*
 -------------------------
@@ -190,12 +183,12 @@ void Droid_Run( void )
 {
 	R2D2_PartsMove();
 
-	if ( NPCInfo->localState == LSTATE_BACKINGUP )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_BACKINGUP )
 	{
 		ucmd.forwardmove = -127;
 		NPCInfo->desiredYaw += 5;
 
-		NPCInfo->localState = LSTATE_NONE;	// So he doesn't constantly backup.
+		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );	// So he doesn't constantly backup.
 	}
 	else
 	{
@@ -255,7 +248,7 @@ void Droid_Spin( void )
 		{
 			if (TIMER_Done(NPC,"roam"))
 			{
-				NPCInfo->localState = LSTATE_NONE;
+				NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 			}
 			else
 			{
@@ -267,7 +260,7 @@ void Droid_Spin( void )
 	{
 		if (TIMER_Done(NPC,"roam"))
 		{
-			NPCInfo->localState = LSTATE_NONE;
+			NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 		}
 		else
 		{
@@ -283,7 +276,7 @@ void Droid_Spin( void )
 NPC_BSDroid_Pain
 -------------------------
 */
-void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	animNumber_t		anim;
 	float	pain_chance;
@@ -306,7 +299,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 			{
 				if (!(self->spawnflags & 2))	// Doesn't have to ALWAYSDIE
 				{
-					if ((self->NPC->localState != LSTATE_SPINNING) &&
+					if ((NPC_LocalState<droidLocalState_t>( *self->NPC ) != LSTATE_SPINNING) &&
 						(!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head" )))
 					{
 						gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head", TURN_OFF );
@@ -319,7 +312,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 
 						TIMER_Set( self, "droidsmoketotal", 5000);
 						TIMER_Set( self, "droidspark", 100);
-						self->NPC->localState = LSTATE_SPINNING;
+						NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
 					}
 				}
 			}
@@ -340,7 +333,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 				NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
 				// Spin around in pain
-				self->NPC->localState = LSTATE_SPINNING;
+				NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
 				TIMER_Set( self, "roam", Q_irand(1000,2000));
 			}
 		}
@@ -349,13 +342,13 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 	{
 		if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
 		{
-			self->NPC->localState = LSTATE_SPINNING;
+			NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
 			self->s.powerups |= Bit( PW_SHOCKED );
 			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 		}
 		else
 		{
-			self->NPC->localState = LSTATE_BACKINGUP;
+			NPC_SetLocalState( *self->NPC, LSTATE_BACKINGUP );
 		}
 
 		self->NPC->scriptFlags &= ~SCF_LOOK_FOR_ENEMIES;
@@ -381,7 +374,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 			NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
 			// Spin around in pain
-			self->NPC->localState = LSTATE_SPINNING;
+			NPC_SetLocalState( *self->NPC, LSTATE_SPINNING );
 			TIMER_Set( self, "roam", Q_irand(1000,2000));
 		}
 	}
@@ -409,7 +402,7 @@ void Droid_Pain(void)
 {
 	if (TIMER_Done(NPC,"droidpain"))	//He's done jumping around
 	{
-		NPCInfo->localState = LSTATE_NONE;
+		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 	}
 }
 
@@ -551,15 +544,15 @@ NPC_BSDroid_Default
 void NPC_BSDroid_Default( void )
 {
 
-	if ( NPCInfo->localState == LSTATE_SPINNING )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_SPINNING )
 	{
 		Droid_Spin();
 	}
-	else if ( NPCInfo->localState == LSTATE_PAIN )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_PAIN )
 	{
 		Droid_Pain();
 	}
-	else if ( NPCInfo->localState == LSTATE_DROP )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
 	{
 		NPC_UpdateAngles( true, true );
 		ucmd.upmove = Q_flrand(-1.0f, 1.0f) * 64;

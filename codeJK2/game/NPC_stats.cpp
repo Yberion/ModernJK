@@ -678,8 +678,8 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 		if ( (weapons & Bit( curWeap )) )
 		{
 			item = FindItemForWeapon( curWeap );	//precache the weapon
-			CG_RegisterItemSounds( (item-bg_itemlist) );
-			CG_RegisterItemVisuals( (item-bg_itemlist) );
+			CG_RegisterItemSounds( ITEM_INDEX( item ) );
+			CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 			//precache the in-hand/in-world ghoul2 weapon model
 
 			char weaponModel[MAX_QPATH];

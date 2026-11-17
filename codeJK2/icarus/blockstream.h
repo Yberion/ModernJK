@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <vector>
 
+#include "tokens.h"
+
 #define IBI_HEADER_ID_LENGTH 4 // Length of IBI_HEADER_ID + 1 for the null terminating byte.
 #define	IBI_EXT			".IBI"	//(I)nterpreted (B)lock (I)nstructions
 #define IBI_HEADER_ID	"IBI"
@@ -40,13 +42,14 @@ const	int		MAX_FILENAME_LENGTH = 1024;
 
 typedef	float	vector_t[3];
 
-enum
+enum class pushPop_t
 {
 	POP_FRONT,
 	POP_BACK,
 	PUSH_FRONT,
 	PUSH_BACK
 };
+using enum pushPop_t;
 
 // Templates
 
@@ -64,17 +67,17 @@ public:
 	int WriteMember ( FILE * );				//Writes the member's data, in block format, to FILE *
 	int	ReadMember( char **, int * );		//Reads the member's data, in block format, from FILE *
 
-	void SetID( int id )		{	m_id = id;		}	//Set the ID member variable
+	void SetID( icarusToken_t id )	{	m_id = id;		}	//Set the ID member variable
 	void SetSize( int size )	{	m_size = size;	}	//Set the size member variable
 
-	void GetInfo( int *, int *, void **);
+	void GetInfo( icarusToken_t *, int *, void **);
 
 	//SetData overloads
 	void SetData( const char * );
 	void SetData( vector_t );
 	void SetData( void *data, int size );
 
-	int	GetID( void )		const	{	return m_id;	}	//Get ID member variables
+	icarusToken_t	GetID( void )	const	{	return m_id;	}	//Get ID member variables
 	void *GetData( void )	const	{	return m_data;	}	//Get data member variable
 	int	GetSize( void )		const	{	return m_size;	}	//Get size member variable
 
@@ -106,7 +109,7 @@ public:
 
 protected:
 
-	int		m_id;		//ID of the value contained in data
+	icarusToken_t	m_id;		//ID of the value contained in data
 	int		m_size;		//Size of the data member variable
 	void	*m_data;	//Data for this member
 };
@@ -124,15 +127,15 @@ public:
 
 	int Init( void );
 
-	int Create( int );
+	int Create( icarusToken_t );
 	int Free();
 
 	//Write Overloads
 
-	int Write( int, vector_t );
-	int Write( int, float );
-	int Write( int, const char * );
-	int Write( int, int );
+	int Write( icarusToken_t, vector_t );
+	int Write( icarusToken_t, float );
+	int Write( icarusToken_t, const char * );
+	int Write( icarusToken_t, int );
 	int Write( CBlockMember * );
 
 	//Member push / pop functions
@@ -141,10 +144,11 @@ public:
 	CBlockMember *GetMember( int memberNum );
 
 	void	*GetMemberData( int memberNum );
+	icarusToken_t GetMemberToken( int memberNum )	{	return static_cast<icarusToken_t>( (int) *(float *) GetMemberData( memberNum ) );	}	//Get a member whose data is a token stored as a float
 
 	CBlock *Duplicate( void );
 
-	int	GetBlockID( void )		const	{	return m_id;			}	//Get the ID for the block
+	icarusToken_t	GetBlockID( void )	const	{	return m_id;			}	//Get the ID for the block
 	int	GetNumMembers( void )	const	{	return (int)m_members.size();}	//Get the number of member in the block's list
 
 	void SetFlags( unsigned char flags )	{	m_flags = flags;	}
@@ -156,7 +160,7 @@ public:
 protected:
 
 	blockMember_v				m_members;			//List of all CBlockMembers owned by this list
-	int							m_id;				//ID of the block
+	icarusToken_t				m_id;				//ID of the block
 	unsigned char				m_flags;
 };
 

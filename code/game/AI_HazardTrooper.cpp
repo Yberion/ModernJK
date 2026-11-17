@@ -67,26 +67,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 bool NPC_IsTrooper(gentity_t* actor);
 
-enum
-{
-	SPEECH_CHASE,
-	SPEECH_CONFUSED,
-	SPEECH_COVER,
-	SPEECH_DETECTED,
-	SPEECH_GIVEUP,
-	SPEECH_LOOK,
-	SPEECH_LOST,
-	SPEECH_OUTFLANK,
-	SPEECH_ESCAPING,
-	SPEECH_SIGHT,
-	SPEECH_SOUND,
-	SPEECH_SUSPICIOUS,
-	SPEECH_YELL,
-	SPEECH_PUSHED
-};
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
-extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
-static void HT_Speech( gentity_t *self, int speechType, float failChance )
+extern void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type );
+static void HT_Speech( gentity_t *self, speechType_t speechType, float failChance )
 {
 	if ( Q_flrand(0.0f, 1.0f) < failChance )
 	{

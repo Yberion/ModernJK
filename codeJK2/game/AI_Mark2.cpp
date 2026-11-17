@@ -37,13 +37,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 
 //Local state enums
-enum
+enum class mark2LocalState_t
 {
 	LSTATE_NONE = 0,
 	LSTATE_DROPPINGDOWN,
 	LSTATE_DOWN,
 	LSTATE_RISINGUP,
 };
+using enum mark2LocalState_t;
 
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 
@@ -99,7 +100,7 @@ NPC_Mark2_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
 */
-void NPC_Mark2_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Mark2_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	int newBolt,i;
 
@@ -206,7 +207,7 @@ void Mark2_BlasterAttack(bool advance)
 {
 	if ( TIMER_Done( NPC, "attackDelay" ) )	// Attack?
 	{
-		if (NPCInfo->localState == LSTATE_NONE)	// He's up so shoot less often.
+		if (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_NONE)	// He's up so shoot less often.
 		{
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2000) );
 		}
@@ -237,14 +238,14 @@ void Mark2_AttackDecision( void )
 	bool	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// He's been ordered to get up
-	if (NPCInfo->localState == LSTATE_RISINGUP)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_RISINGUP)
 	{
 		NPC->flags &= ~FL_SHIELDED;
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1START, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		if ((NPC->client->ps.legsAnimTimer==0) &&
 			NPC->client->ps.torsoAnim == BOTH_RUN1START )
 		{
-			NPCInfo->localState = LSTATE_NONE;	// He's up again.
+			NPC_SetLocalState( *NPCInfo, LSTATE_NONE );	// He's up again.
 		}
 		return;
 	}
@@ -253,11 +254,11 @@ void Mark2_AttackDecision( void )
 	if ((!visible) || (!NPC_FaceEnemy(true)))
 	{
 		// If he's going down or is down, make him get up
-		if ((NPCInfo->localState == LSTATE_DOWN) || (NPCInfo->localState == LSTATE_DROPPINGDOWN))
+		if ((NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_DOWN) || (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_DROPPINGDOWN))
 		{
 			if ( TIMER_Done( NPC, "downTime" ) )	// Down being down?? (The delay is so he doesn't pop up and down when the player goes in and out of range)
 			{
-				NPCInfo->localState = LSTATE_RISINGUP;
+				NPC_SetLocalState( *NPCInfo, LSTATE_RISINGUP );
 				NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 				TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 			}
@@ -270,9 +271,9 @@ void Mark2_AttackDecision( void )
 	}
 
 	// He's down but he could advance if he wants to.
-	if ((advance) && (TIMER_Done( NPC, "downTime" )) && (NPCInfo->localState == LSTATE_DOWN))
+	if ((advance) && (TIMER_Done( NPC, "downTime" )) && (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_DOWN))
 	{
-		NPCInfo->localState = LSTATE_RISINGUP;
+		NPC_SetLocalState( *NPCInfo, LSTATE_RISINGUP );
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 	}
@@ -280,7 +281,7 @@ void Mark2_AttackDecision( void )
 	NPC_FaceEnemy( true );
 
 	// Dropping down to shoot
-	if (NPCInfo->localState == LSTATE_DROPPINGDOWN)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_DROPPINGDOWN)
 	{
 		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPC, "downTime", Q_irand( 3000, 9000) );
@@ -288,11 +289,11 @@ void Mark2_AttackDecision( void )
 		if ((NPC->client->ps.legsAnimTimer==0) && NPC->client->ps.torsoAnim == BOTH_RUN1STOP )
 		{
 			NPC->flags |= FL_SHIELDED;
-			NPCInfo->localState = LSTATE_DOWN;
+			NPC_SetLocalState( *NPCInfo, LSTATE_DOWN );
 		}
 	}
 	// He's down and shooting
-	else if (NPCInfo->localState == LSTATE_DOWN)
+	else if (NPC_LocalState<mark2LocalState_t>( *NPCInfo ) == LSTATE_DOWN)
 	{
 //		NPC->flags |= FL_SHIELDED;//only damagable by lightsabers and missiles
 
@@ -300,7 +301,7 @@ void Mark2_AttackDecision( void )
 	}
 	else if (TIMER_Done( NPC, "runTime" ))	// Lowering down to attack. But only if he's done running at you.
 	{
-		NPCInfo->localState = LSTATE_DROPPINGDOWN;
+		NPC_SetLocalState( *NPCInfo, LSTATE_DROPPINGDOWN );
 	}
 	else if (advance)
 	{

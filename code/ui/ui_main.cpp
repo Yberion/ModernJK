@@ -170,7 +170,7 @@ void			UI_AdjustSaveGameListBox( int currentLine );
 void			Menus_CloseByName(const char *p);
 
 // Movedata Sounds
-enum
+enum class datapadMoveSound_t
 {
 	MDS_NONE = 0,
 	MDS_FORCE_JUMP,
@@ -178,21 +178,11 @@ enum
 	MDS_SABER,
 	MDS_MOVE_SOUNDS_MAX
 };
-
-enum
-{
-	MD_ACROBATICS = 0,
-	MD_SINGLE_FAST,
-	MD_SINGLE_MEDIUM,
-	MD_SINGLE_STRONG,
-	MD_DUAL_SABERS,
-	MD_SABER_STAFF,
-	MD_MOVE_TITLE_MAX
-};
+using enum datapadMoveSound_t;
 
 // Some hard coded badness
 // At some point maybe this should be externalized to a .dat file
-const char *datapadMoveTitleData[MD_MOVE_TITLE_MAX] =
+EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleData =
 {
 "@MENUS_ACROBATICS",
 "@MENUS_SINGLE_FAST",
@@ -202,7 +192,7 @@ const char *datapadMoveTitleData[MD_MOVE_TITLE_MAX] =
 "@MENUS_SABER_STAFF",
 };
 
-const char *datapadMoveTitleBaseAnims[MD_MOVE_TITLE_MAX] =
+EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleBaseAnims =
 {
 "BOTH_RUN1",
 "BOTH_SABERFAST_STANCE",
@@ -219,11 +209,11 @@ typedef struct
 	const char	*title;
 	const char	*desc;
 	const char	*anim;
-	short	sound;
+	datapadMoveSound_t	sound;
 } datpadmovedata_t;
 
-static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =
-{
+static EnumArray<datpadmovedata_t[MAX_MOVES], datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveData =
+{{
 {
 // Acrobatics
 { "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",			"BOTH_FORCEJUMP1",				MDS_FORCE_JUMP },
@@ -343,7 +333,7 @@ static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] =
 { nullptr, nullptr, nullptr,	MDS_NONE },
 { nullptr, nullptr, nullptr,	MDS_NONE },
 }
-};
+}};
 
 
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
@@ -353,7 +343,7 @@ uiInfo_t uiInfo;
 static void UI_RegisterCvars( void );
 void UI_Load(void);
 
-static int UI_GetScreenshotFormatForString( const char *str ) {
+static std::optional<screenshotFormat_t> UI_GetScreenshotFormatForString( const char *str ) {
 	if ( !Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg") )
 		return SSF_JPEG;
 	else if ( !Q_stricmp(str, "tga") )
@@ -361,10 +351,10 @@ static int UI_GetScreenshotFormatForString( const char *str ) {
 	else if ( !Q_stricmp(str, "png") )
 		return SSF_PNG;
 	else
-		return -1;
+		return std::nullopt;
 }
 
-static const char *UI_GetScreenshotFormatString( int format )
+static const char *UI_GetScreenshotFormatString( screenshotFormat_t format )
 {
 	switch ( format )
 	{
@@ -411,24 +401,24 @@ static void UI_UpdateScreenshot( void )
 	// check some things
 	if ( ui_screenshotType.string[0] && isalpha( ui_screenshotType.string[0] ) )
 	{
-		int ssf = UI_GetScreenshotFormatForString( ui_screenshotType.string );
-		if ( ssf == -1 )
+		const std::optional<screenshotFormat_t> ssf = UI_GetScreenshotFormatForString( ui_screenshotType.string );
+		if ( !ssf )
 		{
 			ui.Printf( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
 			uiInfo.uiDC.screenshotFormat = SSF_JPEG;
 			changed = true;
 		}
 		else
-			uiInfo.uiDC.screenshotFormat = ssf;
+			uiInfo.uiDC.screenshotFormat = *ssf;
 	}
-	else if ( ui_screenshotType.integer < SSF_JPEG || ui_screenshotType.integer > SSF_PNG )
+	else if ( ui_screenshotType.integer < to_underlying( SSF_JPEG ) || ui_screenshotType.integer > to_underlying( SSF_PNG ) )
 	{
 		ui.Printf( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
 		uiInfo.uiDC.screenshotFormat = SSF_JPEG;
 		changed = true;
 	}
 	else {
-		uiInfo.uiDC.screenshotFormat = atoi( ui_screenshotType.string );
+		uiInfo.uiDC.screenshotFormat = static_cast<screenshotFormat_t>( atoi( ui_screenshotType.string ) );
 		changed = true;
 	}
 
@@ -694,7 +684,7 @@ const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *
 	}
 	else if (feederID == FEEDER_MOVES_TITLES)
 	{
-		return datapadMoveTitleData[index];
+		return datapadMoveTitleData[static_cast<datapadMoveTitle_t>( index )];
 	}
 	else if (feederID == FEEDER_PLAYER_SPECIES)
 	{
@@ -1129,7 +1119,7 @@ static bool UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "setMovesListDefault") == 0)
 		{
-			uiInfo.movesTitleIndex = 2;
+			uiInfo.movesTitleIndex = MD_SINGLE_MEDIUM;
 		}
 		else if (Q_stricmp(name, "resetMovesDesc") == 0)
 		{
@@ -1183,7 +1173,7 @@ static bool UI_RunMenuScript ( const char **args )
 			UI_GetCharacterCvars();
 			UI_GetSaberCvars();
 
-			uiInfo.movesTitleIndex = 0;
+			uiInfo.movesTitleIndex = MD_ACROBATICS;
 
 			menu = Menus_FindByName("datapadMovesMenu");
 
@@ -1591,17 +1581,7 @@ static float UI_GetValue(int ownerDraw)
   return 0;
 }
 
-//Force Warnings
-enum
-{
-	FW_VERY_LIGHT = 0,
-	FW_SEMI_LIGHT,
-	FW_NEUTRAL,
-	FW_SEMI_DARK,
-	FW_VERY_DARK
-};
-
-const char *lukeForceStatusSounds[] =
+EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> lukeForceStatusSounds =
 {
 "sound/chars/luke/misc/MLUK_03.mp3",	// Very Light
 "sound/chars/luke/misc/MLUK_04.mp3",	// Semi Light
@@ -1610,7 +1590,7 @@ const char *lukeForceStatusSounds[] =
 "sound/chars/luke/misc/MLUK_02.mp3",	// Very dark
 };
 
-const char *kyleForceStatusSounds[] =
+EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> kyleForceStatusSounds =
 {
 "sound/chars/kyle/misc/MKYK_05.mp3",	// Very Light
 "sound/chars/kyle/misc/MKYK_04.mp3",	// Semi Light
@@ -1621,10 +1601,18 @@ const char *kyleForceStatusSounds[] =
 
 
 #ifndef JK2_MODE
+// the points spent on the given powers: their levels added up as numbers
+template <typename... Powers>
+static int UI_LevelSum( const EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS> &levels, Powers... powers )
+{
+	return ( to_underlying( levels[powers] ) + ... );
+}
+
 static void UI_CalcForceStatus(void)
 {
 	float		lightSide,darkSide,total;
-	short		who, index=FW_VERY_LIGHT;
+	short		who;
+	forceWarning_t	index=FW_VERY_LIGHT;
 	bool	lukeFlag=true;
 	float		percent;
 	client_t*	cl = &svs.clients[0];	// 0 because only ever us as a player
@@ -1643,15 +1631,9 @@ static void UI_CalcForceStatus(void)
 
 	memset(value, 0, sizeof(value));
 
-	lightSide = pState->forcePowerLevel[FP_HEAL] +
-		pState->forcePowerLevel[FP_TELEPATHY] +
-		pState->forcePowerLevel[FP_PROTECT] +
-		pState->forcePowerLevel[FP_ABSORB];
+	lightSide = UI_LevelSum( pState->forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB );
 
-	darkSide = pState->forcePowerLevel[FP_GRIP] +
-		pState->forcePowerLevel[FP_LIGHTNING] +
-		pState->forcePowerLevel[FP_RAGE] +
-		pState->forcePowerLevel[FP_DRAIN];
+	darkSide = UI_LevelSum( pState->forcePowerLevel, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
 
 	total = lightSide + darkSide;
 
@@ -1836,7 +1818,7 @@ static int UI_FeederCount(float feederID)
 	}
 	else if (feederID == FEEDER_MOVES_TITLES)
 	{
-		return (MD_MOVE_TITLE_MAX);
+		return to_underlying( MD_MOVE_TITLE_MAX );
 	}
 	else if (feederID == FEEDER_MODS)
 	{
@@ -1970,7 +1952,7 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 		menuDef_t *menu;
 		modelDef_t *modelPtr;
 
-		uiInfo.movesTitleIndex = index;
+		uiInfo.movesTitleIndex = static_cast<datapadMoveTitle_t>( index );
 		uiInfo.movesBaseAnim = datapadMoveTitleBaseAnims[uiInfo.movesTitleIndex];
 		menu = Menus_FindByName("datapadMovesMenu");
 
@@ -4548,7 +4530,7 @@ static void UI_InitAllocForcePowers ( const char *forceName )
 	menuDef_t	*menu;
 	itemDef_t	*item;
 	short		forcePowerI=0;
-	int			forcelevel;
+	forcePowerLevels_t	forcelevel;
 
 	menu = Menu_GetFocused();	// Get current menu
 
@@ -4583,11 +4565,11 @@ static void UI_InitAllocForcePowers ( const char *forceName )
 	if (item)
 	{
 		char itemGraphic[128];
-		Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",forcelevel >= 4 ? 3 : forcelevel);
+		Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d",to_underlying( forcelevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : forcelevel ));
 		item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
 
 		// If maxed out on power - don't allow update
-		if (forcelevel>=3)
+		if (forcelevel>=FORCE_LEVEL_3)
 		{
 			Com_sprintf (itemName, sizeof(itemName), "%s_fbutton", powerEnums[forcePowerI].title);
 			item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
@@ -4656,24 +4638,10 @@ static int UI_CountForcePowers( void ) {
 
 	if ( cl && cl->gentity ) {
 		const playerState_t *ps = cl->gentity->client;
-		return		ps->forcePowerLevel[FP_HEAL] +
-					ps->forcePowerLevel[FP_TELEPATHY] +
-					ps->forcePowerLevel[FP_PROTECT] +
-					ps->forcePowerLevel[FP_ABSORB] +
-					ps->forcePowerLevel[FP_GRIP] +
-					ps->forcePowerLevel[FP_LIGHTNING] +
-					ps->forcePowerLevel[FP_RAGE] +
-					ps->forcePowerLevel[FP_DRAIN];
+		return		UI_LevelSum( ps->forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
 	}
 	else {
-		return		uiInfo.forcePowerLevel[FP_HEAL] +
-					uiInfo.forcePowerLevel[FP_TELEPATHY] +
-					uiInfo.forcePowerLevel[FP_PROTECT] +
-					uiInfo.forcePowerLevel[FP_ABSORB] +
-					uiInfo.forcePowerLevel[FP_GRIP] +
-					uiInfo.forcePowerLevel[FP_LIGHTNING] +
-					uiInfo.forcePowerLevel[FP_RAGE] +
-					uiInfo.forcePowerLevel[FP_DRAIN];
+		return		UI_LevelSum( uiInfo.forcePowerLevel, FP_HEAL, FP_TELEPATHY, FP_PROTECT, FP_ABSORB, FP_GRIP, FP_LIGHTNING, FP_RAGE, FP_DRAIN );
 	}
 }
 #endif
@@ -4716,7 +4684,7 @@ static void UI_ForcePowerWeaponsButton(bool activeFlag)
 
 void UI_SetItemColor(itemDef_t *item,const char *itemname,const char *name,vec4_t color);
 
-static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const int powerLevel, const bool	goldFlag )
+static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const forcePowerLevels_t powerLevel, const bool	goldFlag )
 {
 	char itemName[128];
 	itemDef_t	*item;
@@ -4731,11 +4699,11 @@ static void UI_SetHexPicLevel( const menuDef_t	*menu,const int forcePowerI,const
 		char itemGraphic[128];
 		if (goldFlag)
 		{
-			Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d_gold",powerLevel >= 4 ? 3 : powerLevel);
+			Com_sprintf (itemGraphic, sizeof(itemGraphic), "gfx/menus/hex_pattern_%d_gold",to_underlying( powerLevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : powerLevel ));
 		}
 		else
 		{
-			Com_sprintf (itemGraphic, sizeof(itemGraphic),  "gfx/menus/hex_pattern_%d",powerLevel >= 4 ? 3 : powerLevel);
+			Com_sprintf (itemGraphic, sizeof(itemGraphic),  "gfx/menus/hex_pattern_%d",to_underlying( powerLevel >= FORCE_LEVEL_4 ? FORCE_LEVEL_3 : powerLevel ));
 		}
 
 		item->window.background = ui.R_RegisterShaderNoMip(itemGraphic);
@@ -4799,50 +4767,50 @@ static void	UI_DemoSetForceLevels( void )
 	if( Q_stricmp( buffer, "t1_sour")==0 )
 	{// NOTE : always set the uiInfo powers
 		// level 1 in all core powers
-		uiInfo.forcePowerLevel[FP_LEVITATION]=1;
-		uiInfo.forcePowerLevel[FP_SPEED]=1;
-		uiInfo.forcePowerLevel[FP_PUSH]=1;
-		uiInfo.forcePowerLevel[FP_PULL]=1;
-		uiInfo.forcePowerLevel[FP_SEE]=1;
-		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=1;
-		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=1;
-		uiInfo.forcePowerLevel[FP_SABERTHROW]=1;
+		uiInfo.forcePowerLevel[FP_LEVITATION]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_SPEED]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_PUSH]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_PULL]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_SEE]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_SABERTHROW]=FORCE_LEVEL_1;
 		// plus these extras
-		uiInfo.forcePowerLevel[FP_HEAL]=1;
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=1;
-		uiInfo.forcePowerLevel[FP_GRIP]=1;
+		uiInfo.forcePowerLevel[FP_HEAL]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_TELEPATHY]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_GRIP]=FORCE_LEVEL_1;
 
 		// and set the rest to zero
-		uiInfo.forcePowerLevel[FP_ABSORB]=0;
-		uiInfo.forcePowerLevel[FP_PROTECT]=0;
-		uiInfo.forcePowerLevel[FP_DRAIN]=0;
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=0;
-		uiInfo.forcePowerLevel[FP_RAGE]=0;
+		uiInfo.forcePowerLevel[FP_ABSORB]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_PROTECT]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_DRAIN]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_LIGHTNING]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_RAGE]=FORCE_LEVEL_0;
 	}
 	else
 	{
 		// level 3 in all core powers
-		uiInfo.forcePowerLevel[FP_LEVITATION]=3;
-		uiInfo.forcePowerLevel[FP_SPEED]=3;
-		uiInfo.forcePowerLevel[FP_PUSH]=3;
-		uiInfo.forcePowerLevel[FP_PULL]=3;
-		uiInfo.forcePowerLevel[FP_SEE]=3;
-		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=3;
-		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=3;
-		uiInfo.forcePowerLevel[FP_SABERTHROW]=3;
+		uiInfo.forcePowerLevel[FP_LEVITATION]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_SPEED]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_PUSH]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_PULL]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_SEE]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_SABER_OFFENSE]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_SABER_DEFENSE]=FORCE_LEVEL_3;
+		uiInfo.forcePowerLevel[FP_SABERTHROW]=FORCE_LEVEL_3;
 
 		// plus these extras
-		uiInfo.forcePowerLevel[FP_HEAL]=1;
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=1;
-		uiInfo.forcePowerLevel[FP_GRIP]=2;
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=1;
-		uiInfo.forcePowerLevel[FP_PROTECT]=1;
+		uiInfo.forcePowerLevel[FP_HEAL]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_TELEPATHY]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_GRIP]=FORCE_LEVEL_2;
+		uiInfo.forcePowerLevel[FP_LIGHTNING]=FORCE_LEVEL_1;
+		uiInfo.forcePowerLevel[FP_PROTECT]=FORCE_LEVEL_1;
 
 		// and set the rest to zero
 
-		uiInfo.forcePowerLevel[FP_ABSORB]=0;
-		uiInfo.forcePowerLevel[FP_DRAIN]=0;
-		uiInfo.forcePowerLevel[FP_RAGE]=0;
+		uiInfo.forcePowerLevel[FP_ABSORB]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_DRAIN]=FORCE_LEVEL_0;
+		uiInfo.forcePowerLevel[FP_RAGE]=FORCE_LEVEL_0;
 	}
 
 	if (pState)
@@ -4876,7 +4844,7 @@ static void	UI_RecordForceLevels( void )
 	const char *s2 = "";
 	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		s2 = va("%s %i",s2, uiInfo.forcePowerLevel[fp]);
+		s2 = va("%s %i",s2, to_underlying( uiInfo.forcePowerLevel[fp] ));
 	}
 	Cvar_Set( "demo_playerfplvl", s2 );
 
@@ -4987,7 +4955,7 @@ static void UI_ShutdownForceHelp( void )
 			sizeof(itemName),
 			"%s_level%ddesc",
 			powerEnums[uiInfo.forcePowerUpdated].title,
-			pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]
+			to_underlying( pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum] )
 			);
 
 		item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
@@ -5037,7 +5005,7 @@ static void UI_DecrementCurrentForcePower ( void )
 	// Get player state
 	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
 	playerState_t*		pState = nullptr;
-	int forcelevel;
+	forcePowerLevels_t forcelevel;
 
 	if( cl )
 	{
@@ -5056,14 +5024,14 @@ static void UI_DecrementCurrentForcePower ( void )
 
 	DC->startLocalSound(uiInfo.uiDC.Assets.forceUnchosenSound, CHAN_AUTO );
 
-	if (forcelevel>0)
+	if (forcelevel>FORCE_LEVEL_0)
 	{
 		if( pState )
 		{
 			pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]--;	// Decrement it
 			forcelevel = pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum];
 			// Turn off power if level is 0
-			if (pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]<1)
+			if (pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]<FORCE_LEVEL_1)
 			{
 				pState->forcePowersKnown &= ~Bit( powerEnums[uiInfo.forcePowerUpdated].powerEnum );
 			}
@@ -5142,7 +5110,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 	// Get player state
 	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
 	playerState_t*		pState = nullptr;
-	int	forcelevel;
+	forcePowerLevels_t	forcelevel;
 	if( cl )
 	{
 		pState = cl->gentity->client;
@@ -5154,7 +5122,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 	}
 
 
-	if (forcelevel>2)
+	if (forcelevel>FORCE_LEVEL_2)
 	{	// Too big, can't be incremented
 		return;
 	}
@@ -5278,7 +5246,7 @@ static void UI_ShowForceLevelDesc ( const char *forceName )
 		sizeof(itemName),
 		"%s_level%ddesc",
 		powerEnums[forcePowerI].title,
-		pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]
+		to_underlying( pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum] )
 		);
 
 	item = (itemDef_s *) Menu_FindItemByName(menu, itemName);
@@ -5470,10 +5438,9 @@ static void UI_ClearInventory ( void )
 		playerState_t*		pState = cl->gentity->client;
 
 		// Clear out inventory for the player
-		int i;
-		for (i=0;i<MAX_INVENTORY;i++)
+		for (int &count : pState->inventory)
 		{
-			pState->inventory[i] = 0;
+			count = 0;
 		}
 	}
 }
@@ -5492,9 +5459,9 @@ static void UI_GiveInventory ( const int itemIndex, const int amount )
 	{
 		playerState_t*	pState = cl->gentity->client;
 
-		if (itemIndex < MAX_INVENTORY)
+		if (itemIndex >= 0 && itemIndex < MAX_INVENTORY)
 		{
-			pState->inventory[itemIndex]=amount;
+			pState->inventory[static_cast<inventory_t>( itemIndex )]=amount;
 		}
 	}
 

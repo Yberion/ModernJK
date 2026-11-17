@@ -316,7 +316,7 @@ void SG_TestSave(void);
 // What it's used for is for things like mission pack etc if we need to distinguish "street-copy" savegames from
 //	any new enhanced ones that need to ask for new chunks during loading.
 //
-#define iSAVEGAME_VERSION 1
+#define iSAVEGAME_VERSION 2
 int SG_Version(void);	// call this to know what version number a successfully-opened savegame file was
 //
 extern SavedGameJustLoaded_e eSavedGameJustLoaded;
@@ -326,6 +326,8 @@ extern bool qbLoadTransition;
 
 #ifdef JK2_MODE
 // glue
+enum class stripToken_t;	// qcommon/strip.cpp
+
 class cStrings
 {
 private:
@@ -344,7 +346,7 @@ public:
 	unsigned int	GetFlags(void) { return Flags; }
 	char			*GetReference(void) { return Reference; }
 
-	virtual bool	UnderstandToken(int token, char *data );
+	virtual bool	UnderstandToken(stripToken_t token, char *data );
 	virtual bool	Load(char *&Data, int &Size );
 };
 
@@ -363,7 +365,7 @@ public:
 
 	char			*GetText(void) { return Text; }
 
-	virtual bool	UnderstandToken(int token, char *data );
+	virtual bool	UnderstandToken(stripToken_t token, char *data );
 };
 #endif
 

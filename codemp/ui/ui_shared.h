@@ -109,11 +109,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SLIDER_THUMB_HEIGHT 20.0
 #define	NUM_CROSSHAIRS			9
 
-enum {
+enum class screenshotFormat_t {
 	SSF_JPEG = 0,
 	SSF_TGA,
 	SSF_PNG
 };
+using enum screenshotFormat_t;
 
 typedef struct scriptDef_s {
   const char *command;
@@ -315,7 +316,7 @@ typedef struct itemDef_s {
 	} typeData;								// type specific data ptr's
 	const char	*descText;					//	Description text
 	int			appearanceSlot;				// order of appearance
-	int			iMenuFont;					// FONT_SMALL,FONT_MEDIUM,FONT_LARGE	// changed from 'font' so I could see what didn't compile, and differentiate between font handles returned from RegisterFont -ste
+	menuFont_t	iMenuFont;					// FONT_SMALL,FONT_MEDIUM,FONT_LARGE	// changed from 'font' so I could see what didn't compile, and differentiate between font handles returned from RegisterFont -ste
 	bool	disabled;					// Does this item ignore mouse and keyboard focus
 	int			invertYesNo;
 	int			xoffset;
@@ -419,9 +420,9 @@ typedef struct displayContextDef_s {
 	void			(*setColor)							( const vec4_t v );
 	void			(*drawHandlePic)					( float x, float y, float w, float h, qhandle_t asset );
 	void			(*drawStretchPic)					( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	void			(*drawText)							( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont );
-	int				(*textWidth)						( const char *text, float scale, int iMenuFont );
-	int				(*textHeight)						( const char *text, float scale, int iMenuFont );
+	void			(*drawText)							( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, menuFont_t iMenuFont );
+	int				(*textWidth)						( const char *text, float scale, menuFont_t iMenuFont );
+	int				(*textHeight)						( const char *text, float scale, menuFont_t iMenuFont );
 	qhandle_t		(*registerModel)					( const char *p );
 	void			(*modelBounds)						( qhandle_t model, vec3_t min, vec3_t max );
 	void			(*fillRect)							( float x, float y, float w, float h, const vec4_t color );
@@ -439,7 +440,7 @@ typedef struct displayContextDef_s {
 	bool		(*Language_IsAsian)					( void );
 	bool		(*Language_UsesSpaces)				( void );
 	unsigned int	(*AnyLanguage_ReadCharFromString)	( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation );
-	void			(*ownerDrawItem)					( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, int iMenuFont );
+	void			(*ownerDrawItem)					( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, menuFont_t iMenuFont );
 	float			(*getValue)							( int ownerDraw );
 	bool		(*ownerDrawVisible)					( int flags );
 	void			(*runScript)						( char **p );
@@ -448,7 +449,7 @@ typedef struct displayContextDef_s {
 	void			(*getCVarString)					( const char *cvar, char *buffer, int bufsize );
 	float			(*getCVarValue)						( const char *cvar );
 	void			(*setCVar)							( const char *cvar, const char *value );
-	void			(*drawTextWithCursor)				( float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iFontIndex );
+	void			(*drawTextWithCursor)				( float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, menuFont_t iFontIndex );
 	void			(*setOverstrikeMode)				( bool b );
 	bool		(*getOverstrikeMode)				( void );
 	void			(*startLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
@@ -489,7 +490,7 @@ typedef struct displayContextDef_s {
 	qhandle_t		gradientImage;
 	qhandle_t		cursor;
 	float			FPS;
-	int				screenshotFormat;
+	screenshotFormat_t	screenshotFormat;
 
 	struct {
 		float			(*Font_StrLenPixels)				( const char *text, const int iFontIndex, const float scale );

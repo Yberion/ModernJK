@@ -48,17 +48,17 @@ public:
 	int WriteMember ( FILE * );				//Writes the member's data, in block format, to FILE *
 	int	ReadMember( char **, long *, CIcarus* icarus );		//Reads the member's data, in block format, from FILE *
 
-	void SetID( int id )		{	m_id = id;		}	//Set the ID member variable
+	void SetID( icarusToken_t id )	{	m_id = id;		}	//Set the ID member variable
 	void SetSize( int size )	{	m_size = size;	}	//Set the size member variable
 
-	void GetInfo( int *, int *, void **);
+	void GetInfo( icarusToken_t *, int *, void **);
 
 	//SetData overloads
 	void SetData( const char * ,CIcarus* icarus);
 	void SetData( vec3_t , CIcarus* icarus);
 	void SetData( void *data, int size, CIcarus* icarus);
 
-	int	GetID( void )		const	{	return m_id;	}	//Get ID member variables
+	icarusToken_t	GetID( void )	const	{	return m_id;	}	//Get ID member variables
 	void *GetData( void )	const	{	return m_data;	}	//Get data member variable
 	int	GetSize( void )		const	{	return m_size;	}	//Get size member variable
 
@@ -104,13 +104,21 @@ public:
 
 protected:
 
-	int		m_id;		//ID of the value contained in data
+	icarusToken_t	m_id;		//ID of the value contained in data
 	int		m_size;		//Size of the data member variable
 	void	*m_data;	//Data for this member
 
 };
 
 //CBlock
+
+// The flags of a block, set by the sequencer
+enum class blockFlag_t
+{
+	BF_ELSE			= 0x00000001,	//Block has an else id	//FIXME: This was a sloppy fix for a problem that arose from conditionals
+};
+using enum blockFlag_t;
+template <> inline constexpr bool enableEnumFlags<blockFlag_t> = true;
 
 class CBlock
 {
@@ -120,22 +128,22 @@ public:
 
 	CBlock()
 	{
-		m_flags			= 0;
-		m_id			= 0;
+		m_flags			= {};
+		m_id			= TK_UNDEFINED;
 	}
 	~CBlock() {	assert(!GetNumMembers()); }
 
 	int Init( void );
 
-	int Create( int );
+	int Create( icarusToken_t );
 	int Free(CIcarus* icarus);
 
 	//Write Overloads
 
-	int Write( int, vec3_t, CIcarus* icaru );
-	int Write( int, float, CIcarus* icaru );
-	int Write( int, const char *, CIcarus* icaru );
-	int Write( int, int, CIcarus* icaru );
+	int Write( icarusToken_t, vec3_t, CIcarus* icaru );
+	int Write( icarusToken_t, float, CIcarus* icaru );
+	int Write( icarusToken_t, const char *, CIcarus* icaru );
+	int Write( icarusToken_t, int, CIcarus* icaru );
 	int Write( CBlockMember *, CIcarus* icaru );
 
 	//Member push / pop functions
@@ -144,17 +152,18 @@ public:
 	CBlockMember *GetMember( int memberNum );
 
 	void	*GetMemberData( int memberNum );
+	icarusToken_t GetMemberToken( int memberNum )	{	return static_cast<icarusToken_t>( (int) *(float *) GetMemberData( memberNum ) );	}	//Get a member whose data is a token stored as a float
 
 	CBlock *Duplicate( CIcarus* icarus );
 
-	int	GetBlockID( void )		const	{	return m_id;			}	//Get the ID for the block
+	icarusToken_t	GetBlockID( void )	const	{	return m_id;			}	//Get the ID for the block
 	int	GetNumMembers( void )	const	{	return (int)m_members.size();}	//Get the number of member in the block's list
 
-	void SetFlags( unsigned char flags )	{	m_flags = flags;	}
-	void SetFlag( unsigned char flag )		{	m_flags |= flag;	}
+	void SetFlags( blockFlag_t flags )	{	m_flags = flags;	}
+	void SetFlag( blockFlag_t flag )		{	m_flags |= flag;	}
 
-	int HasFlag( unsigned char flag )	const	{	return ( m_flags & flag );	}
-	unsigned char GetFlags( void )		const	{	return m_flags;				}
+	bool HasFlag( blockFlag_t flag )	const	{	return Any( m_flags & flag );	}
+	blockFlag_t GetFlags( void )		const	{	return m_flags;				}
 
 	// Overloaded new operator.
 	inline void *operator new( size_t size )
@@ -176,8 +185,8 @@ public:
 protected:
 
 	blockMember_v				m_members;			//List of all CBlockMembers owned by this list
-	int							m_id;				//ID of the block
-	unsigned char				m_flags;
+	icarusToken_t				m_id;				//ID of the block
+	blockFlag_t					m_flags;
 };
 
 // CBlockStream

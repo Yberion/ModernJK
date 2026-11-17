@@ -24,6 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ICARUS Interface header file
 
+#include "tokens.h"
+
 typedef	float vec3_t[3];
 
 class CSequencer;
@@ -42,7 +44,7 @@ typedef struct interface_export_s
 	void			(*I_Lerp2Pos)( int taskID, int entID, vec3_t origin, vec3_t angles, float duration );
 	void			(*I_Lerp2Origin)( int taskID, int entID, vec3_t origin, float duration );
 	void			(*I_Lerp2Angles)( int taskID, int entID, vec3_t angles, float duration );
-	int				(*I_GetTag)( int entID, const char *name, int lookup, vec3_t info );
+	int				(*I_GetTag)( int entID, const char *name, icarusToken_t lookup, vec3_t info );
 	void			(*I_Lerp2Start)( int taskID, int entID, float duration );
 	void			(*I_Lerp2End)( int taskID, int entID, float duration );
 	void			(*I_Set)( int taskID, int entID, const char *type_name, const char *data );
@@ -66,13 +68,13 @@ typedef struct interface_export_s
 	void			(*I_CameraDisable)( void );
 	void			(*I_CameraShake)( float intensity, int duration );
 
-	int				(*I_GetFloat)( int entID, int type, const char *name, float *value );
-	int				(*I_GetVector)( int entID, int type, const char *name, vec3_t value );
-	int				(*I_GetString)( int entID, int type, const char *name, char **value );
+	int				(*I_GetFloat)( int entID, icarusToken_t type, const char *name, float *value );
+	int				(*I_GetVector)( int entID, icarusToken_t type, const char *name, vec3_t value );
+	int				(*I_GetString)( int entID, icarusToken_t type, const char *name, char **value );
 
-	int				(*I_Evaluate)( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType );
+	int				(*I_Evaluate)( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType );
 
-	void			(*I_DeclareVariable)( int type, const char *name );
+	void			(*I_DeclareVariable)( icarusToken_t type, const char *name );
 	void			(*I_FreeVariable)( const char *name );
 
 	//Save / Load functions

@@ -216,7 +216,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 #ifndef _JK2MP //bad for prediction - fixme
 	// Bucking so we can't do anything.
-	if ( pVeh->m_ulFlags & VEH_BUCKING || pVeh->m_ulFlags & VEH_FLYING || pVeh->m_ulFlags & VEH_CRASHING )
+	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) || Any( pVeh->m_ulFlags & VEH_FLYING ) || Any( pVeh->m_ulFlags & VEH_CRASHING ) )
 	{
 //#ifdef QAGAME //this was in Update above
 //		((gentity_t *)parent)->client->ps.speed = 0;
@@ -377,7 +377,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	// Bucking so we can't do anything.
 #ifndef _JK2MP //bad for prediction - fixme
-	if ( pVeh->m_ulFlags & VEH_BUCKING || pVeh->m_ulFlags & VEH_FLYING || pVeh->m_ulFlags & VEH_CRASHING )
+	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) || Any( pVeh->m_ulFlags & VEH_FLYING ) || Any( pVeh->m_ulFlags & VEH_CRASHING ) )
 	{
 		return;
 	}
@@ -644,7 +644,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			return;
 		}
 	}
-	else if ( pVeh->m_ulFlags & VEH_BUCKING )
+	else if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
 	{
 		iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 		Anim = BOTH_VT_BUCK;
@@ -856,15 +856,15 @@ static void AnimateRiders( Vehicle_t *pVeh )
 		}
 		else if (pilotPS->weapon==WP_SABER)
 		{
-			if ( (pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VT_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATL_TO_R_S)
 			{
 				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
 			}
-			if (!(pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VT_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VT_ATR_TO_L_S)
 			{
 				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (pVeh->m_ulFlags&VEH_SABERINLEFTHAND)?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
 		}
 
 

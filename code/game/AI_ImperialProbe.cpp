@@ -29,14 +29,7 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_BACKINGUP,
-	LSTATE_SPINNING,
-	LSTATE_PAIN,
-	LSTATE_DROP
-};
+using enum droidLocalState_t;
 
 void ImperialProbe_Idle( void );
 
@@ -442,7 +435,7 @@ void ImperialProbe_AttackDecision( void )
 NPC_BSDroid_Pain
 -------------------------
 */
-void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	float	pain_chance;
 
@@ -488,7 +481,7 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 			self->s.powerups |= Bit( PW_SHOCKED );
 			self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 
-			self->NPC->localState = LSTATE_DROP;
+			NPC_SetLocalState( *self->NPC, LSTATE_DROP );
 		}
 	}
 	else
@@ -569,7 +562,7 @@ ImperialProbe_Wait
 */
 void ImperialProbe_Wait(void)
 {
-	if ( NPCInfo->localState == LSTATE_DROP )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
 	{
 		vec3_t endPos;
 		trace_t	trace;
@@ -605,7 +598,7 @@ void NPC_BSImperialProbe_Default( void )
 	{
 		ImperialProbe_Patrol();
 	}
-	else if ( NPCInfo->localState == LSTATE_DROP )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCInfo ) == LSTATE_DROP )
 	{
 		ImperialProbe_Wait();
 	}

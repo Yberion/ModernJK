@@ -57,7 +57,7 @@ extern forceTicPos_t ammoTicPos[];
 
 #define NUM_CHUNK_MODELS	4
 
-enum
+enum class chunkType_t
 {
 	CHUNK_METAL1 = 0,
 	CHUNK_METAL2,
@@ -69,6 +69,7 @@ enum
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
+using enum chunkType_t;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -107,7 +108,7 @@ typedef struct {
 	int			currentDataPadIconBackground;
 
 //Chunks
-	qhandle_t	chunkModels[NUM_CHUNK_TYPES][4];
+	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;

@@ -149,7 +149,7 @@ int G_FindLookItem( gentity_t *self )
 		VectorSubtract( ent->currentOrigin, center, dir );
 		rating = (1.0f-(VectorNormalize( dir )/radius));
 		rating *= DotProduct( forward, dir );
-		if ( ent->item->giType == IT_HOLDABLE && ent->item->giTag == INV_SECURITY_KEY )
+		if ( ent->item->giType == IT_HOLDABLE && GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
 		{//security keys are of the highest importance
 			rating *= 2.0f;
 		}
@@ -2578,6 +2578,8 @@ extern cvar_t	*g_skippingcin;
 				case FORCE_LEVEL_3:
 					client->ps.speed *= 0.45f;
 					break;
+				default:
+					break;
 				}
 				if ( g_saberMoveSpeed->value != 1.0f )
 				{
@@ -2602,6 +2604,8 @@ extern cvar_t	*g_skippingcin;
 					break;
 				case FORCE_LEVEL_3:
 					client->ps.speed *= 0.70f;
+					break;
+				default:
 					break;
 				}
 				if ( g_saberMoveSpeed->value != 1.0f )

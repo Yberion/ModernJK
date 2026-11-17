@@ -1230,24 +1230,24 @@ void NPC_BSGM_Attack( void )
 		}
 	}
 
-	if ( NPCS.NPCInfo->movementSpeech < 3 && NPCS.NPCInfo->blockedSpeechDebounceTime <= level.time )
+	if ( NPCS.NPCInfo->angerTaunts < 3 && NPCS.NPCInfo->blockedSpeechDebounceTime <= level.time )
 	{
 		if ( NPCS.NPC->enemy && NPCS.NPC->enemy->health > 0 && NPCS.NPC->enemy->painDebounceTime > level.time )
 		{
-			if ( NPCS.NPC->enemy->health < 50 && NPCS.NPCInfo->movementSpeech == 2 )
+			if ( NPCS.NPC->enemy->health < 50 && NPCS.NPCInfo->angerTaunts == 2 )
 			{
 				G_AddVoiceEvent( NPCS.NPC, EV_ANGER2, Q_irand( 2000, 4000 ) );
-				NPCS.NPCInfo->movementSpeech = 3;
+				NPCS.NPCInfo->angerTaunts = 3;
 			}
-			else if ( NPCS.NPC->enemy->health < 75 && NPCS.NPCInfo->movementSpeech == 1 )
+			else if ( NPCS.NPC->enemy->health < 75 && NPCS.NPCInfo->angerTaunts == 1 )
 			{
 				G_AddVoiceEvent( NPCS.NPC, EV_ANGER1, Q_irand( 2000, 4000 ) );
-				NPCS.NPCInfo->movementSpeech = 2;
+				NPCS.NPCInfo->angerTaunts = 2;
 			}
-			else if ( NPCS.NPC->enemy->health < 100 && NPCS.NPCInfo->movementSpeech == 0 )
+			else if ( NPCS.NPC->enemy->health < 100 && NPCS.NPCInfo->angerTaunts == 0 )
 			{
 				G_AddVoiceEvent( NPCS.NPC, EV_ANGER3, Q_irand( 2000, 4000 ) );
-				NPCS.NPCInfo->movementSpeech = 1;
+				NPCS.NPCInfo->angerTaunts = 1;
 			}
 		}
 	}

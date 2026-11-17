@@ -255,7 +255,7 @@ NPC_GM_Pain
 */
 
 extern void NPC_SetPainEvent( gentity_t *self );
-void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	if ( self->client->ps.powerups[PW_GALAK_SHIELD] == 0 )
 	{//shield is currently down
@@ -1183,24 +1183,24 @@ void NPC_BSGM_Attack( void )
 		}
 	}
 
-	if ( NPCInfo->movementSpeech < 3 && NPCInfo->blockedSpeechDebounceTime <= level.time )
+	if ( NPCInfo->angerTaunts < 3 && NPCInfo->blockedSpeechDebounceTime <= level.time )
 	{
 		if ( NPC->enemy && NPC->enemy->health > 0 && NPC->enemy->painDebounceTime > level.time )
 		{
-			if ( NPC->enemy->health < 50 && NPCInfo->movementSpeech == 2 )
+			if ( NPC->enemy->health < 50 && NPCInfo->angerTaunts == 2 )
 			{
 				G_AddVoiceEvent( NPC, EV_ANGER2, Q_irand( 2000, 4000 ) );
-				NPCInfo->movementSpeech = 3;
+				NPCInfo->angerTaunts = 3;
 			}
-			else if ( NPC->enemy->health < 75 && NPCInfo->movementSpeech == 1 )
+			else if ( NPC->enemy->health < 75 && NPCInfo->angerTaunts == 1 )
 			{
 				G_AddVoiceEvent( NPC, EV_ANGER1, Q_irand( 2000, 4000 ) );
-				NPCInfo->movementSpeech = 2;
+				NPCInfo->angerTaunts = 2;
 			}
-			else if ( NPC->enemy->health < 100 && NPCInfo->movementSpeech == 0 )
+			else if ( NPC->enemy->health < 100 && NPCInfo->angerTaunts == 0 )
 			{
 				G_AddVoiceEvent( NPC, EV_ANGER3, Q_irand( 2000, 4000 ) );
-				NPCInfo->movementSpeech = 1;
+				NPCInfo->angerTaunts = 1;
 			}
 		}
 	}

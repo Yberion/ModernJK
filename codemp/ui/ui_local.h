@@ -283,6 +283,19 @@ typedef struct playerSpeciesInfo_s {
 	playerColor_t	*Color;
 } playerSpeciesInfo_t;
 
+// the titles of the datapad's moves database
+enum class datapadMoveTitle_t
+{
+	MD_ACROBATICS = 0,
+	MD_SINGLE_FAST,
+	MD_SINGLE_MEDIUM,
+	MD_SINGLE_STRONG,
+	MD_DUAL_SABERS,
+	MD_SABER_STAFF,
+	MD_MOVE_TITLE_MAX
+};
+using enum datapadMoveTitle_t;
+
 typedef struct uiInfo_s {
 	displayContextDef_t		uiDC;
 
@@ -379,7 +392,7 @@ typedef struct uiInfo_s {
 	playerSpeciesInfo_t		*playerSpecies;
 	int						playerSpeciesIndex;
 
-	short					movesTitleIndex;
+	datapadMoveTitle_t		movesTitleIndex;
 	const char				*movesBaseAnim;
 	int						moveAnimTime;
 

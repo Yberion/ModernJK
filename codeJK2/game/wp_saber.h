@@ -68,29 +68,18 @@ using enum saberLockResult_t;
 #define	FORCE_GRIP_DIST	512.0f//FIXME: vary by power level?
 #define	FORCE_GRIP_DIST_SQUARED	(FORCE_GRIP_DIST*FORCE_GRIP_DIST)
 
-extern float forceJumpStrength[];
-extern float forceJumpHeight[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
 
-extern float forcePushPullRadius[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
 
 extern void ForceSpeed( gentity_t *self, int duration = 0 );
-extern float forceSpeedValue[];
-extern float forceSpeedRangeMod[];
-extern float forceSpeedFOVMod[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
 #define FORCE_SPEED_DURATION 10000.0f
 
-enum
-{
-	FORCE_LEVEL_0,
-	FORCE_LEVEL_1,
-	FORCE_LEVEL_2,
-	FORCE_LEVEL_3,
-	NUM_FORCE_POWER_LEVELS
-};
-#define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
-#define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
-
-enum
+enum class forceJump_t
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,
@@ -98,11 +87,12 @@ enum
 	FJ_LEFT,
 	FJ_UP
 };
+using enum forceJump_t;
 
 #define FORCE_JUMP_CHARGE_TIME 1000.0f	//Force jump reaches maximum power in one second
 
 extern void WP_InitForcePowers( gentity_t *ent );
-extern int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
+extern forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
 
 enum class evasionType_t
 {

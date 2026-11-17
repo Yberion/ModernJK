@@ -251,7 +251,7 @@ struct	SIntRange
 class	CWeatherParticle
 {
 public:
-	enum
+	enum class particleFlag_t
 	{
 		FLAG_RENDER = 0,
 
@@ -261,7 +261,8 @@ public:
 
 		FLAG_MAX
 	};
-	typedef		ratl::bits_vs<FLAG_MAX>		TFlags;
+	using enum particleFlag_t;
+	typedef		ratl::bits_vs<to_underlying( FLAG_MAX )>		TFlags;
 
 	float	mAlpha;
 	TFlags	mFlags;
@@ -1097,7 +1098,7 @@ public:
 			part->mPosition.ScaleAdd(part->mVelocity, mSecondsElapsed);
 
 			partToCamera	= (part->mPosition - mCameraPosition);
-			partRendering	= part->mFlags.get_bit(CWeatherParticle::FLAG_RENDER);
+			partRendering	= part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
 			partOutside		= mOutside.PointOutside(part->mPosition, mWidth, mHeight);
 			partInRange		= mRange.In(part->mPosition);
 			partInView		= (partOutside && partInRange && (partToCamera.Dot(mCameraForward)>0.0f));
@@ -1134,16 +1135,16 @@ public:
 				//------------------
 				if		(partRendering && !partInView)
 				{
-					part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEIN);
-					part->mFlags.set_bit(CWeatherParticle::FLAG_FADEOUT);
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
 				}
 
 				// Switch From Fade Out To Fade In
 				//---------------------------------
-				else if (partRendering && partInView && part->mFlags.get_bit(CWeatherParticle::FLAG_FADEOUT))
+				else if (partRendering && partInView && part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) ))
 				{
-					part->mFlags.set_bit(CWeatherParticle::FLAG_FADEIN);
-					part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEOUT);
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
 				}
 
 				// Start A Fade In
@@ -1152,9 +1153,9 @@ public:
 				{
 					partRendering = true;
 					part->mAlpha = 0.0f;
-					part->mFlags.set_bit(CWeatherParticle::FLAG_RENDER);
-					part->mFlags.set_bit(CWeatherParticle::FLAG_FADEIN);
-					part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEOUT);
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
+					part->mFlags.set_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
+					part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
 				}
 
 				// Update Fade
@@ -1164,27 +1165,27 @@ public:
 
 					// Update Fade Out
 					//-----------------
-					if (part->mFlags.get_bit(CWeatherParticle::FLAG_FADEOUT))
+					if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) ))
 					{
 						part->mAlpha -= particleFade;
 						if (part->mAlpha<=0.0f)
 						{
 							part->mAlpha = 0.0f;
-							part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEOUT);
-							part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEIN);
-							part->mFlags.clear_bit(CWeatherParticle::FLAG_RENDER);
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEOUT ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) );
 							partRendering = false;
 						}
 					}
 
 					// Update Fade In
 					//----------------
-					else if (part->mFlags.get_bit(CWeatherParticle::FLAG_FADEIN))
+					else if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) ))
 					{
 						part->mAlpha += particleFade;
 						if (part->mAlpha>=mColor[3])
 						{
-							part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEIN);
+							part->mFlags.clear_bit( to_underlying( CWeatherParticle::FLAG_FADEIN ) );
 							part->mAlpha = mColor[3];
 						}
 					}
@@ -1193,7 +1194,7 @@ public:
 
 			// Keep Track Of The Number Of Particles To Render
 			//-------------------------------------------------
-			if (part->mFlags.get_bit(CWeatherParticle::FLAG_RENDER))
+			if (part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) ))
 			{
 				mParticleCountRender ++;
 			}
@@ -1244,7 +1245,7 @@ public:
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
 			part = &(mParticles[particleNum]);
-			if (!part->mFlags.get_bit(CWeatherParticle::FLAG_RENDER))
+			if (!part->mFlags.get_bit( to_underlying( CWeatherParticle::FLAG_RENDER ) ))
 			{
 				continue;
 			}

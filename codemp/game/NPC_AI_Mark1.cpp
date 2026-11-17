@@ -44,7 +44,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BOWCASTER_SPLASH_RADIUS		0
 
 //Local state enums
-enum
+enum class mark1LocalState_t
 {
 	LSTATE_NONE = 0,
 	LSTATE_ASLEEP,
@@ -55,6 +55,7 @@ enum
 	LSTATE_FIRED3,
 	LSTATE_FIRED4,
 };
+using enum mark1LocalState_t;
 
 bool NPC_CheckPlayerTeamStealth( void );
 void Mark1_BlasterAttack(bool advance);
@@ -449,24 +450,24 @@ void Mark1_FireBlaster(void)
 	int			bolt;
 
 	// Which muzzle to fire from?
-	if ((NPCS.NPCInfo->localState <= LSTATE_FIRED0) || (NPCS.NPCInfo->localState == LSTATE_FIRED4))
+	if ((NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) <= LSTATE_FIRED0) || (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == LSTATE_FIRED4))
 	{
-		NPCS.NPCInfo->localState = LSTATE_FIRED1;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_FIRED1 );
 		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash1");
 	}
-	else if (NPCS.NPCInfo->localState == LSTATE_FIRED1)
+	else if (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == LSTATE_FIRED1)
 	{
-		NPCS.NPCInfo->localState = LSTATE_FIRED2;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_FIRED2 );
 		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash2");
 	}
-	else if (NPCS.NPCInfo->localState == LSTATE_FIRED2)
+	else if (NPC_LocalState<mark1LocalState_t>( *NPCS.NPCInfo ) == LSTATE_FIRED2)
 	{
-		NPCS.NPCInfo->localState = LSTATE_FIRED3;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_FIRED3 );
 		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash3");
 	}
 	else
 	{
-		NPCS.NPCInfo->localState = LSTATE_FIRED4;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_FIRED4 );
 		bolt = trap->G2API_AddBolt(NPCS.NPC->ghoul2, 0, "*flash4");
 	}
 

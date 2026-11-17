@@ -302,7 +302,7 @@ static void Svcmd_SaberColor_f()
 struct SetForceCmd {
 	const char *desc;
 	const char *cmdname;
-	const int maxlevel;
+	const forcePowerLevels_t maxlevel;
 };
 
 EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
@@ -316,7 +316,7 @@ EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
 	{ "forceLightning",		"setForceLightning",	FORCE_LEVEL_3			},
 	{ "saberThrow",			"setSaberThrow",		FORCE_LEVEL_3			},
 	{ "saberDefense",		"setSaberDefense",		FORCE_LEVEL_3			},
-	{ "saberOffense",		"setSaberOffense",		to_underlying( SS_NUM_SABER_STYLES )-1	},
+	{ "saberOffense",		"setSaberOffense",		FORCE_LEVEL_0 + ( SS_NUM_SABER_STYLES - SS_FAST )	},	// one level per style, past FORCE_LEVEL_5
 	{ "forceRage",			"setForceRage",			FORCE_LEVEL_3			},
 	{ "forceProtect",		"setForceProtect",		FORCE_LEVEL_3			},
 	{ "forceAbsorb",		"setForceAbsorb",		FORCE_LEVEL_3			},
@@ -333,11 +333,11 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 	const char *newVal = gi.argv(1);
 	if ( !VALIDSTRING( newVal ) )
 	{
-		gi.Printf( "Current %s level is %d\n", SetForceTable[forcePower].desc, g_entities[0].client->ps.forcePowerLevel[forcePower] );
-		gi.Printf( "Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, SetForceTable[forcePower].maxlevel );
+		gi.Printf( "Current %s level is %d\n", SetForceTable[forcePower].desc, to_underlying( g_entities[0].client->ps.forcePowerLevel[forcePower] ) );
+		gi.Printf( "Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, to_underlying( SetForceTable[forcePower].maxlevel ) );
 		return;
 	}
-	int val = atoi(newVal);
+	const forcePowerLevels_t val = static_cast<forcePowerLevels_t>( atoi(newVal) );
 	if ( val > FORCE_LEVEL_0 )
 	{
 		g_entities[0].client->ps.forcePowersKnown |= Bit( forcePower );

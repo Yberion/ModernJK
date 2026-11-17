@@ -40,7 +40,7 @@ Q3_VariableDeclared
 -------------------------
 */
 
-int Q3_VariableDeclared( const char *name )
+variableType_t Q3_VariableDeclared( const char *name )
 {
 	//Check the strings
 	varString_m::iterator	vsi = varStrings.find( name );
@@ -69,7 +69,7 @@ Q3_DeclareVariable
 -------------------------
 */
 
-void Q3_DeclareVariable( int type, const char *name )
+void Q3_DeclareVariable( icarusToken_t type, const char *name )
 {
 	//Cannot declare the same variable twice
 	if ( Q3_VariableDeclared( name ) != VTYPE_NONE )
@@ -235,7 +235,7 @@ int Q3_SetFloatVariable( const char *name, float value )
 	varFloat_m::iterator	vfi = varFloats.find( name );
 
 	if ( vfi == varFloats.end() )
-		return VTYPE_FLOAT;
+		return false;
 
 	(*vfi).second = value;
 
@@ -437,7 +437,7 @@ Q3_VariableLoadStrings
 -------------------------
 */
 
-void Q3_VariableLoadStrings( int type, varString_m &fmap )
+void Q3_VariableLoadStrings( icarusToken_t type, varString_m &fmap )
 {
 	int		numFloats = 0;
 	char	tempBuffer[1024];
@@ -496,6 +496,9 @@ void Q3_VariableLoadStrings( int type, varString_m &fmap )
 		case TK_VECTOR:
 			Q3_DeclareVariable( TK_VECTOR, (const char *) &tempBuffer );
 			Q3_SetVectorVariable( (const char *) &tempBuffer, (const char *) &tempBuffer2 );
+			break;
+
+		default:
 			break;
 		}
 	}

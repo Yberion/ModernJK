@@ -241,7 +241,6 @@ set(SPGameCGameFiles
 	"${SPDir}/cgame/FxScheduler.h"
 	"${SPDir}/cgame/FxSystem.h"
 	"${SPDir}/cgame/FxUtil.h"
-	"${SPDir}/cgame/strip_objectives.h"
 	)
 source_group("cgame" FILES ${SPGameCGameFiles})
 set(SPGameFiles ${SPGameFiles} ${SPGameCGameFiles})
@@ -292,6 +291,7 @@ set(SPGameIcarusFiles
 	"${SPDir}/icarus/sequencer.h"
 	"${SPDir}/icarus/StdAfx.h"
 	"${SPDir}/icarus/taskmanager.h"
+	"${SPDir}/icarus/tokens.h"
 	)
 source_group("icarus" FILES ${SPGameIcarusFiles})
 set(SPGameFiles ${SPGameFiles} ${SPGameIcarusFiles})

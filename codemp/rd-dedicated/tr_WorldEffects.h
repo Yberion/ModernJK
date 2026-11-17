@@ -22,16 +22,6 @@ protected:
 	bool			mEnabled, mIsSlave;
 
 public:
-	enum
-	{
-		WORLDEFFECT_ENABLED = 0,
-		WORLDEFFECT_PARTICLES,
-		WORLDEFFECT_PARTICLE_COUNT,
-
-		WORLDEFFECT_END
-	};
-
-public:
 			CWorldEffect(CWorldEffect *owner = 0);
 	virtual ~CWorldEffect(void);
 

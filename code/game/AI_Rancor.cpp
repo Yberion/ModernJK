@@ -33,8 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_DISTANCE		1024
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
+using enum monsterLocalState_t;
 
 #define SPF_RANCOR_MUTANT	1
 #define SPF_RANCOR_FASTKILL	2
@@ -114,7 +113,7 @@ Rancor_Idle
 */
 void Rancor_Idle( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -143,7 +142,7 @@ Rancor_Patrol
 */
 void Rancor_Patrol( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -168,7 +167,7 @@ Rancor_Move
 */
 void Rancor_Move( bool visible )
 {
-	if ( NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = NPC->maxs[0]+(MIN_DISTANCE*NPC->s.modelScale[0]);	// just get us within combat range
@@ -311,7 +310,7 @@ void Rancor_Move( bool visible )
 
 //---------------------------------------------------------
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false );
 extern float NPC_EntRangeFromBolt( gentity_t *targEnt, int boltIndex );
 extern int NPC_GetEntsNearBolt( gentity_t **radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 
@@ -736,7 +735,7 @@ void Rancor_Bite( void )
 			{//killed them, chance of dismembering
 				if ( !Q_irand( 0, 1 ) )
 				{//bite something off
-					int hitLoc = HL_WAIST;
+					hitLocation_t hitLoc = HL_WAIST;
 					if ( g_dismemberment->integer < 3 )
 					{
 						hitLoc = Q_irand( HL_BACK_RT, HL_HAND_LT );
@@ -1073,7 +1072,7 @@ void Rancor_Combat( void )
 		NPCInfo->enemyLastSeenTime = level.time;
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 		}
 		else if ( (NPC->spawnflags&SPF_RANCOR_FASTKILL)
 			&& NPC->activator
@@ -1160,11 +1159,11 @@ void Rancor_Combat( void )
 		}
 	}
 
-	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 		}
 		else
 		{
@@ -1182,7 +1181,7 @@ void Rancor_Combat( void )
 NPC_Rancor_Pain
 -------------------------
 */
-void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	bool hitByRancor = false;
 
@@ -1266,7 +1265,7 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 
 						if ( self->NPC )
 						{
-							self->NPC->localState = LSTATE_WAITING;
+							NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 						}
 					}
 				}
@@ -1516,10 +1515,10 @@ void NPC_BSRancor_Default( void )
 		return;
 	}
 
-	if ( NPCInfo->localState == LSTATE_WAITING
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING
 		&& TIMER_Done2( NPC, "takingPain", true ) )
 	{//was not doing anything because we were taking pain, but pain is done now, so clear it...
-		NPCInfo->localState = LSTATE_CLEAR;
+		NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 	}
 
 	if ( !TIMER_Done( NPC, "confusionTime" ) )
@@ -1648,7 +1647,7 @@ void NPC_BSRancor_Default( void )
 		if ( TIMER_Done( NPC, "attacking" )
 			&& TIMER_Done( NPC, "takingpain" )
 			&& TIMER_Done( NPC, "confusionDebounce" )
-			&& NPCInfo->localState == LSTATE_CLEAR
+			&& NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_CLEAR
 			&& !NPC->count )
 		{//not busy
 			if ( !ucmd.forwardmove

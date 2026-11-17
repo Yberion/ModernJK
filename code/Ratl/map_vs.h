@@ -60,12 +60,9 @@ class tree_node
 	int		mLeft;
 	int		mRight;
 public:
- 	enum
-	{
-		RED_BIT			= 0x40000000, // to save space we are putting the red bool in a high bit
-										// this is in the parent only
-		NULL_NODE		= 0x3fffffff, // this must not have the red bit set
-	};
+	static constexpr int RED_BIT			= 0x40000000; // to save space we are putting the red bool in a high bit
+									// this is in the parent only
+	static constexpr int NULL_NODE		= 0x3fffffff; // this must not have the red bit set
 	void	init()
 	{
 		mLeft	= NULL_NODE;

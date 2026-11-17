@@ -59,12 +59,12 @@ void SandCreature_ClearTimers( gentity_t *ent )
 	TIMER_Set( NPC, "missDebounce", -level.time );
 }
 
-void NPC_SandCreature_Die( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_SandCreature_Die( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	//FIXME: somehow make him solid when he dies?
 }
 
-void NPC_SandCreature_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_SandCreature_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	if ( TIMER_Done( self, "pain" ) )
 	{

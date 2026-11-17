@@ -296,7 +296,7 @@ bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType );
 void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID );
 void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType );
 void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data );
-int Q3_VariableDeclared( const char *name );
+variableType_t Q3_VariableDeclared( const char *name );
 int Q3_GetFloatVariable( const char *name, float *value );
 int Q3_GetStringVariable( const char *name, const char **value );
 int Q3_GetVectorVariable( const char *name, vec3_t value );

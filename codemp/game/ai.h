@@ -38,7 +38,7 @@ enum class attack_e
 };
 using enum attack_e;
 
-enum
+enum class squadState_t
 {
 	SQUAD_IDLE,					//No target found, waiting
 	SQUAD_STAND_AND_SHOOT,		//Standing in position and shoot (no cover)
@@ -48,6 +48,52 @@ enum
 	SQUAD_POINT,				//On point, laying down suppressive fire
 	SQUAD_SCOUT,				//Poking out to draw enemy
 	NUM_SQUAD_STATES,
+};
+using enum squadState_t;
+
+// What a trooper says (ST_Speech)
+enum class speechType_t
+{
+	SPEECH_NONE,		// nothing to say (gNPC_t::movementSpeech; a cleared NPC says nothing)
+	SPEECH_CHASE,
+	SPEECH_CONFUSED,
+	SPEECH_COVER,
+	SPEECH_DETECTED,
+	SPEECH_GIVEUP,
+	SPEECH_LOOK,
+	SPEECH_LOST,
+	SPEECH_OUTFLANK,
+	SPEECH_ESCAPING,
+	SPEECH_SIGHT,
+	SPEECH_SOUND,
+	SPEECH_SUSPICIOUS,
+	SPEECH_YELL,
+	SPEECH_PUSHED
+};
+using enum speechType_t;
+
+// The sets of gNPC_t::localState that several AI files share, written once. The AI files reuse the same names with
+// other values (each names its own set), so these bring no names in: a file says `using enum` for its set.
+enum class droidLocalState_t	// Droid, ImperialProbe
+{
+	LSTATE_NONE = 0,
+	LSTATE_BACKINGUP,
+	LSTATE_SPINNING,
+	LSTATE_PAIN,
+	LSTATE_DROP
+};
+
+enum class soldierLocalState_t	// Grenadier, Sniper, Stormtrooper
+{
+	LSTATE_NONE = 0,
+	LSTATE_UNDERFIRE,
+	LSTATE_INVESTIGATE,
+};
+
+enum class monsterLocalState_t	// Howler, MineMonster, Rancor, Wampa
+{
+	LSTATE_CLEAR = 0,
+	LSTATE_WAITING,
 };
 
 //sigh... had to move in here for groupInfo
@@ -136,7 +182,7 @@ typedef struct AIGroupInfo_s
 	int			activeMemberNum;
 	gentity_t	*commander;
 	vec3_t		enemyLastSeenPos;
-	int			numState[ NUM_SQUAD_STATES ];
+	EnumArray<int, squadState_t, NUM_SQUAD_STATES>	numState;
 	AIGroupMember_t member[ MAX_GROUP_MEMBERS ];
 } AIGroupInfo_t;
 

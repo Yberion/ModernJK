@@ -354,7 +354,7 @@ Q3_SetVar
 */
 void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 {
-	int	vret = Q3_VariableDeclared( type_name ) ;
+	variableType_t	vret = Q3_VariableDeclared( type_name ) ;
 	float	float_data;
 	float	val = 0.0f;
 
@@ -383,6 +383,9 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 
 		case VTYPE_VECTOR:
 			Q3_SetVectorVariable( type_name, (char *) data );
+			break;
+
+		default:
 			break;
 		}
 
@@ -424,14 +427,14 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 Q3_Evaluate
   Description	:
   Return type	: int
-  Argument		:  int p1Type
+  Argument		:  icarusToken_t p1Type
   Argument		: const char *p1
-  Argument		: int p2Type
+  Argument		: icarusToken_t p2Type
   Argument		: const char *p2
-  Argument		: int operatorType
+  Argument		: icarusToken_t operatorType
 ============
 */
-static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType )
+static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType )
 {
 	float	f1=0, f2=0;
 	vec3_t	v1, v2;
@@ -834,14 +837,14 @@ static void Q3_Lerp2Angles( int taskID, int entID, vec3_t angles, float duration
 	VectorCopy(sharedMem->angles, angles);
 }
 
-static int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
+static int	Q3_GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info )
 {
 	int r;
 	T_G_ICARUS_GETTAG *sharedMem = (T_G_ICARUS_GETTAG *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
 	strcpy(sharedMem->name, name);
-	sharedMem->lookup = lookup;
+	sharedMem->lookup = to_underlying( lookup );
 	VectorCopy(info, sharedMem->info);
 
 	r = GVM_ICARUS_GetTag();
@@ -913,13 +916,13 @@ static void Q3_Play( int taskID, int entID, const char *type, const char *name )
 	GVM_ICARUS_Play();
 }
 
-static int Q3_GetFloat( int entID, int type, const char *name, float *value )
+static int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 {
 	int r;
 	T_G_ICARUS_GETFLOAT *sharedMem = (T_G_ICARUS_GETFLOAT *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	sharedMem->type = type;
+	sharedMem->type = to_underlying( type );
 	strcpy(sharedMem->name, name);
 	sharedMem->value = 0;//*value;
 
@@ -928,13 +931,13 @@ static int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	return r;
 }
 
-static int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
+static int Q3_GetVector( int entID, icarusToken_t type, const char *name, vec3_t value )
 {
 	int r;
 	T_G_ICARUS_GETVECTOR *sharedMem = (T_G_ICARUS_GETVECTOR *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	sharedMem->type = type;
+	sharedMem->type = to_underlying( type );
 	strcpy(sharedMem->name, name);
 	VectorCopy(value, sharedMem->value);
 
@@ -943,13 +946,13 @@ static int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 	return r;
 }
 
-static int Q3_GetString( int entID, int type, const char *name, char **value )
+static int Q3_GetString( int entID, icarusToken_t type, const char *name, char **value )
 {
 	int r;
 	T_G_ICARUS_GETSTRING *sharedMem = (T_G_ICARUS_GETSTRING *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	sharedMem->type = type;
+	sharedMem->type = to_underlying( type );
 	strcpy(sharedMem->name, name);
 
 	r = GVM_ICARUS_GetString();

@@ -659,13 +659,13 @@ void Player_CacheFromPrevLevel(void)
 			}
 		}
 
-extern gitem_t	*FindItemForInventory( int inv );
+extern gitem_t	*FindItemForInventory( inventory_t inv );
 
 		for ( i = 0 ; i < 16 ; i++ )
 		{
 			if ( ibits & ( 1 << i ) )
 			{
-				RegisterItem( FindItemForInventory( i ));
+				RegisterItem( FindItemForInventory( static_cast<inventory_t>( i ) ));
 			}
 		}
 	}
@@ -827,11 +827,11 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.inventory[i++] = atoi(var);
+			  client->ps.inventory.data()[i++] = atoi(var);
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==INV_MAX);
+			assert (i==to_underlying( INV_MAX ));
 
 
 			// the new JK2 stuff - force powers, etc...
@@ -842,7 +842,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			while( var != nullptr )
 			{
 				/* While there are tokens in "s" */
-				  client->ps.forcePowerLevel[fp++] = atoi(var);
+				  client->ps.forcePowerLevel[fp++] = static_cast<forcePowerLevels_t>( atoi(var) );
 				/* Get next token: */
 				var = strtok( nullptr, " " );
 			}

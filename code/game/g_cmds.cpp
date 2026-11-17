@@ -1012,7 +1012,7 @@ void G_Victory( gentity_t *ent )
 	}
 }
 
-enum
+enum class tauntTypes_t
 {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
@@ -1020,9 +1020,10 @@ enum
 	TAUNT_FLOURISH,
 	TAUNT_GLOAT
 };
+using enum tauntTypes_t;
 
 extern void G_SpeechEvent( gentity_t *self, entity_event_t event );
-void G_TauntSound( gentity_t *ent, int taunt )
+void G_TauntSound( gentity_t *ent, tauntTypes_t taunt )
 {
 	switch ( taunt )
 	{
@@ -1057,7 +1058,7 @@ void G_TauntSound( gentity_t *ent, int taunt )
 	}
 }
 
-void G_SetTauntAnim( gentity_t *ent, int taunt )
+void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 {
 	if ( !ent || !ent->client )
 	{

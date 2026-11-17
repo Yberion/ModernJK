@@ -55,8 +55,8 @@ public:
 	CSequence *GetParent( void )	const	{	return m_parent;	}
 
 	//Block manipulation
-	CBlock *PopCommand( int );
-	int PushCommand( CBlock *, int );
+	CBlock *PopCommand( pushPop_t );
+	int PushCommand( CBlock *, pushPop_t );
 
 	//Flag utilties
 	void SetFlag( int );

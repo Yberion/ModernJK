@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
 #include "qcommon/q_shared.h"
+#include "game/bg_public.h"
 #include "l_utils.h"
 #include "l_libvar.h"
 #include "l_memory.h"
@@ -92,25 +93,6 @@ typedef struct campspot_s
 	float random;
 	struct campspot_s *next;
 } campspot_t;
-
-//FIXME: these are game specific
-enum {
-	GT_FFA,				// free for all
-	GT_HOLOCRON,		// holocron match
-	GT_JEDIMASTER,		// jedi master
-	GT_DUEL,		// one on one tournament
-	GT_POWERDUEL,
-	GT_SINGLE_PLAYER,	// single player tournament
-
-	//-- team games go after this --
-
-	GT_TEAM,			// team deathmatch
-	GT_SIEGE,			// siege
-	GT_CTF,				// capture the flag
-	GT_CTY,
-	GT_MAX_GAME_TYPE
-};
-typedef int gametype_t;
 
 typedef struct levelitem_s
 {
@@ -195,7 +177,7 @@ maplocation_t *maplocations = nullptr; // bk001206 - init
 //camp spots
 campspot_t *campspots = nullptr; // bk001206 - init
 //the game type
-int g_gametype = 0; // bk001206 - init
+gametype_t g_gametype = GT_FFA; // bk001206 - init
 //additional dropped item weight
 libvar_t *droppedweight = nullptr; // bk001206 - init
 
@@ -1007,9 +989,6 @@ void BotFindEntityForLevelItem(levelitem_t *li)
 // Changes Globals:		-
 //===========================================================================
 
-//NOTE: enum entityType_t in bg_public.h
-#define ET_ITEM			2
-
 void BotUpdateEntityItems(void)
 {
 	int ent, i, modelindex;
@@ -1780,7 +1759,7 @@ int BotSetupGoalAI(void)
 	char *filename;
 
 	//check if teamplay is on
-	g_gametype = LibVarValue("g_gametype", "0");
+	g_gametype = static_cast<gametype_t>( (int)LibVarValue("g_gametype", "0") );
 	//item configuration file
 	filename = LibVarString("itemconfig", "items.c");
 	//load the item configuration

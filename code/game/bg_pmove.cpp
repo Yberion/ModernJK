@@ -46,7 +46,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_vehicles.h"
 #include <float.h>
 
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false );
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
@@ -134,7 +134,7 @@ bool PM_InReboundJump( animNumber_t anim );
 bool PM_ForceJumpingAnim( animNumber_t anim );
 void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd );
 
-extern int parryDebounce[];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> parryDebounce;
 extern bool cg_usingInFrontOf;
 extern bool		player_locked;
 extern bool		MatrixMode;
@@ -595,7 +595,7 @@ static void PM_Friction( void ) {
 
 		if ( pm->gent->m_pVehicle && pm->gent->m_pVehicle->m_pVehicleInfo->hoverHeight > 0 )
 		{//in a hovering vehicle, have air control
-			if ( pm->gent->m_pVehicle->m_ulFlags & VEH_FLYING )
+			if ( Any( pm->gent->m_pVehicle->m_ulFlags & VEH_FLYING ) )
 			{
 				friction = 0.10f;
 			}
@@ -1242,14 +1242,14 @@ static bool PM_CheckJump( void )
 				*/
 				float curHeight = pm->ps->origin[2] - pm->ps->forceJumpZStart;
 				//check for max force jump level and cap off & cut z vel
-				if ( ( curHeight<=forceJumpHeight[0] ||//still below minimum jump height
+				if ( ( curHeight<=forceJumpHeight[FORCE_LEVEL_0] ||//still below minimum jump height
 						(pm->ps->forcePower&&pm->cmd.upmove>=10) ) &&////still have force power available and still trying to jump up
 					curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] )//still below maximum jump height
 				{//can still go up
 					//FIXME: after a certain amount of time of held jump, play force jump sound and flip if a dir is being held
 					//FIXME: if hit a wall... should we cut velocity or allow them to slide up it?
 					//FIXME: constantly drain force power at a rate by which the usage for maximum height would use up the full cost of force jump
-					if ( curHeight > forceJumpHeight[0] )
+					if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] )
 					{//passed normal jump height  *2?
 						if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )//haven't started forcejump yet
 						{
@@ -1409,7 +1409,7 @@ static bool PM_CheckJump( void )
 					pm->ps->velocity[2] += JUMP_VELOCITY;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
 				}
-				else if ( curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] )
+				else if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] && curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[FORCE_LEVEL_0] )
 				{//still have some headroom, don't totally stop it
 					if ( pm->ps->velocity[2] > JUMP_VELOCITY )
 					{
@@ -2920,7 +2920,7 @@ static void PM_AirMove( void ) {
 
 		// Flying Or Breaking, No Control
 		//--------------------------------
-		if ( pVeh->m_ulFlags&VEH_FLYING || pVeh->m_ulFlags&VEH_SLIDEBREAKING)
+		if ( Any( pVeh->m_ulFlags & VEH_FLYING ) || Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 		{
 			wishspeed = 0.0f;
 			VectorClear( wishvel );
@@ -2929,7 +2929,7 @@ static void PM_AirMove( void ) {
 
 		// Out Of Control - Maintain pos3 Velocity
 		//-----------------------------------------
-		else if ((pVeh->m_ulFlags&VEH_OUTOFCONTROL) || (pVeh->m_ulFlags&VEH_STRAFERAM))
+		else if ((Any( pVeh->m_ulFlags & VEH_OUTOFCONTROL )) || (Any( pVeh->m_ulFlags & VEH_STRAFERAM )))
 		{
  			VectorCopy(pm->gent->pos3, wishvel);
 			VectorCopy(wishvel, wishdir);
@@ -2985,7 +2985,7 @@ static void PM_AirMove( void ) {
 		{//on a slope of some kind, shouldn't have much control and should slide a lot
 			accelerate *= 0.5f;
 		}
- 		if (pVeh->m_ulFlags & VEH_SLIDEBREAKING)
+ 		if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 		{
 			VectorScale(pm->ps->velocity, 0.80f, pm->ps->velocity);
 		}
@@ -4581,11 +4581,11 @@ static void PM_SetVehicleAngles( vec3_t normal )
 	}
 	//NOTE: if angles are flat and we're moving through air (not on ground),
 	//		then pitch/bank?
-	if (pVeh->m_ulFlags & VEH_SPINNING)
+	if (Any( pVeh->m_ulFlags & VEH_SPINNING ))
 	{
 		vAngles[ROLL] = pVeh->m_vOrientation[ROLL] - 25;
 	}
-	else if (pVeh->m_ulFlags & VEH_OUTOFCONTROL)
+	else if (Any( pVeh->m_ulFlags & VEH_OUTOFCONTROL ))
 	{
 		//vAngles[ROLL] = pVeh->m_vOrientation[ROLL] + 5;
 	}
@@ -4631,14 +4631,14 @@ static void PM_SetVehicleAngles( vec3_t normal )
 			//	{
 			//		speed *= 0.1f;
 			//	}
-				if (pVeh->m_ulFlags & VEH_SLIDEBREAKING)
+				if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 				{
 					speed *= 3.0f;
 				}
 
 
   				side = speed * 75.0f;
-	//			if (pVeh->m_ulFlags & VEH_STRAFERAM)
+	//			if (Any( pVeh->m_ulFlags & VEH_STRAFERAM ))
 	//			{
 	//	 			vAngles[ROLL] += side;
 	//			}
@@ -4666,7 +4666,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 		vAngles[PITCH] = -pVeh->m_pVehicleInfo->pitchLimit;
 	}
 
-	if (!(pVeh->m_ulFlags & VEH_SPINNING))
+	if (!(Any( pVeh->m_ulFlags & VEH_SPINNING )))
 	{
 		if ( vAngles[ROLL] > pVeh->m_pVehicleInfo->rollLimit )
 		{
@@ -4686,7 +4686,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 			continue;
 		}
 
-		if ( i == ROLL && pVeh->m_ulFlags & VEH_STRAFERAM)
+		if ( i == ROLL && Any( pVeh->m_ulFlags & VEH_STRAFERAM ))
 		{//during strafe ram, roll is done elsewhere
 			continue;
 		}
@@ -5440,7 +5440,7 @@ void PM_HoverTrace( void )
 					}
 				}
 
-				if (pVeh->m_ulFlags & VEH_SLIDEBREAKING)
+				if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 				{
   				 	if ( Q_irand( pml.frametime, 100 ) >= 50 )
 					{//dust
@@ -5461,7 +5461,7 @@ void PM_HoverTrace( void )
 	{
  		PM_SetVehicleAngles( pml.groundTrace.plane.normal );
 		// We're on the ground.
-//		if (pVeh->m_ulFlags&VEH_FLYING && level.time<pVeh->m_iTurboTime)
+//		if (Any( pVeh->m_ulFlags & VEH_FLYING ) && level.time<pVeh->m_iTurboTime)
 //		{
 //			pVeh->m_iTurboTime = 0;	// stop turbo
 //		}
@@ -9983,7 +9983,7 @@ void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs )
 	}
 }
 
-std::optional<animNumber_t> PM_SaberLockWinAnim( saberLockResult_t result, int breakType )
+std::optional<animNumber_t> PM_SaberLockWinAnim( saberLockResult_t result, saberLockType_t breakType )
 {
 	std::optional<animNumber_t> winAnim;
 	switch ( pm->ps->torsoAnim )
@@ -10075,7 +10075,7 @@ std::optional<animNumber_t> PM_SaberLockWinAnim( saberLockResult_t result, int b
 	return winAnim;
 }
 
-std::optional<animNumber_t> PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, int breakType )
+std::optional<animNumber_t> PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, saberLockType_t breakType )
 {
 	std::optional<animNumber_t> loseAnim;
 	switch ( genemy->client->ps.torsoAnim )
@@ -10203,7 +10203,7 @@ std::optional<animNumber_t> PM_SaberLockLoseAnim( gentity_t *genemy, saberLockRe
 	return loseAnim;
 }
 
-std::optional<animNumber_t> PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int winOrLose )
+std::optional<animNumber_t> PM_SaberLockResultAnim( gentity_t *duelist, saberLockType_t lockOrBreakOrSuperBreak, saberLockType_t winOrLose )
 {
 	animNumber_t baseAnim = duelist->client->ps.torsoAnim;
 	switch ( baseAnim )
@@ -10283,7 +10283,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 {
 	std::optional<animNumber_t>	loseAnim;
 	std::optional<animNumber_t>	winAnim;
-	int breakType = SABERLOCK_BREAK;
+	saberLockType_t breakType = SABERLOCK_BREAK;
 	bool singleVsSingle = true;
 
 	if ( result == LOCK_VICTORY
@@ -10444,7 +10444,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 					}
 					if ( pm->ps->forcePowersActive&Bit( FP_RAGE ) )
 					{
-						victoryStrength += gent->client->ps.forcePowerLevel[FP_RAGE];
+						victoryStrength += to_underlying( gent->client->ps.forcePowerLevel[FP_RAGE] );
 					}
 					else if ( pm->ps->forceRageRecoveryTime > pm->cmd.serverTime )
 					{
@@ -10489,7 +10489,7 @@ int G_SaberLockStrength( gentity_t *gent )
 	}
 	if ( gent->client->ps.forcePowersActive&Bit( FP_RAGE ) )
 	{
-		strength += gent->client->ps.forcePowerLevel[FP_RAGE];
+		strength += to_underlying( gent->client->ps.forcePowerLevel[FP_RAGE] );
 	}
 	else if ( gent->client->ps.forceRageRecoveryTime > pm->cmd.serverTime )
 	{
@@ -10503,7 +10503,7 @@ int G_SaberLockStrength( gentity_t *gent )
 		}
 		else
 		{
-			strength += gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE]+Q_irand(0,g_spskill->integer);
+			strength += to_underlying( gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )+Q_irand(0,g_spskill->integer);
 			if ( gent->NPC )
 			{
 				if ( (gent->NPC->aiFlags&NPCAI_BOSS_CHARACTER)
@@ -10521,7 +10521,7 @@ int G_SaberLockStrength( gentity_t *gent )
 	}
 	else
 	{//player
-		strength += gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE]+Q_irand(0,g_spskill->integer)+Q_irand(0,1);
+		strength += to_underlying( gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )+Q_irand(0,g_spskill->integer)+Q_irand(0,1);
 	}
 	return strength;
 }
@@ -10579,7 +10579,7 @@ bool PM_InSaberLock( animNumber_t anim )
 }
 
 extern bool ValidAnimFileIndex ( int index );
-extern bool G_CheckIncrementLockAnim( animNumber_t anim, int winOrLose );
+extern bool G_CheckIncrementLockAnim( animNumber_t anim, saberLockType_t winOrLose );
 bool PM_SaberLocked( void )
 {
 	//FIXME: maybe kick out of saberlock?
@@ -12735,7 +12735,7 @@ void PM_WeaponLightsaber(void)
 					else */
 					if ( pm->ps->clientNum >= MAX_CLIENTS
 						&& !PM_ControlledByPlayer()
-						&& (Q_irand( 0, pm->ps->forcePowerLevel[FP_SABER_OFFENSE]-1 )
+						&& (Q_irand( 0, to_underlying( pm->ps->forcePowerLevel[FP_SABER_OFFENSE] )-1 )
 							|| (pm->gent&&pm->gent->enemy&&pm->gent->enemy->client&&PM_InKnockDownOnGround(&pm->gent->enemy->client->ps))//enemy knocked down, use some logic
 							|| ( pm->ps->saberAnimLevel == SS_FAST && pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, 1 ) ) ) )//minor change to make fast-attack users use the special attacks more
 					{//NPCs use more randomized attacks the more skilled they are

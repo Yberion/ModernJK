@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ICARUSINTERFACE_DEFINED
 
 #include "../qcommon/q_shared.h"
+#include "tokens.h"
 
 // IcarusInterface.h: ICARUS Interface header file.
 // -Date: ~October, 2002
@@ -44,7 +45,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 class IIcarusInterface
 {
 public:
-	enum { ICARUS_INVALID = 0 };
+	static constexpr int ICARUS_INVALID = 0;
 	virtual ~IIcarusInterface();
 
 	// Get a static singleton instance (of a specific flavor).
@@ -56,7 +57,7 @@ public:
 	virtual int Save() = 0;				// Save all Icarus states.
 	virtual int Load() = 0;				// Load all Icarus states.
 
-	virtual int Run(int icarusID, char* buffer, long length) = 0;	// Execute a script.
+	virtual bool Run(int icarusID, char* buffer, long length) = 0;	// Execute a script: false if it did not start.
 	virtual void DeleteIcarusID(int &icarusID) = 0;				// Delete an Icarus ID from the list (making the ID Invalid on the other end through reference).
 	virtual int GetIcarusID(int gameID) = 0;					// Get an Icarus ID.
 	virtual int Update( int icarusID ) = 0;						// Update all internal Icarus structures.
@@ -109,7 +110,7 @@ public:
 	virtual int 	PlayIcarusSound( int taskID, int gameID, const char *name, const char *channel ) = 0;
 	virtual void	Lerp2Pos( int taskID, int gameID, float origin[3], float angles[3], float duration ) = 0;
 	virtual void	Lerp2Angles( int taskID, int gameID, float angles[3], float duration ) = 0;
-	virtual int		GetTag( int gameID, const char *name, int lookup, float info[3] ) = 0;
+	virtual int		GetTag( int gameID, const char *name, icarusToken_t lookup, float info[3] ) = 0;
 	virtual void	Set( int taskID, int gameID, const char *type_name, const char *data ) = 0;
 	virtual void	Use( int gameID, const char *name ) = 0;
 	virtual void	Activate( int gameID, const char *name ) = 0;
@@ -138,9 +139,9 @@ public:
 	virtual int		GetVector( int gameID, const char *name, float value[3] ) = 0;
 	virtual int		GetString( int gameID, const char *name, const char **value ) = 0;
 
-	virtual int		Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType ) = 0;
+	virtual int		Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType ) = 0;
 
-	virtual void	DeclareVariable( int type, const char *name ) = 0;
+	virtual void	DeclareVariable( icarusToken_t type, const char *name ) = 0;
 	virtual void	FreeVariable( const char *name ) = 0;
 
 	// Save / Load functions

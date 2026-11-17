@@ -349,7 +349,7 @@ typedef struct {
 
 	// input state sent to server
 	weapon_t	weaponSelect;
-	int			saberAnimLevelPending;
+	forcePowerLevels_t	saberAnimLevelPending;
 
 	// auto rotating items
 	vec3_t		autoAngles;
@@ -427,7 +427,7 @@ typedef struct {
 	//==========================
 	int			creditsStart;
 
-	int			itemPickup;
+	itemNum_t	itemPickup;
 	int			itemPickupTime;
 	int			itemPickupBlendTime;	// the pulse around the crosshair is timed seperately
 
@@ -435,7 +435,7 @@ typedef struct {
 	int			iconSelectTime;			// How long the Icon HUD has been active
 	bool	iconHUDActive;
 
-	int			DataPadInventorySelect;		// Current inventory item chosen on Data Pad
+	inventory_t	DataPadInventorySelect;		// Current inventory item chosen on Data Pad
 	weapon_t	DataPadWeaponSelect;		// Current weapon item chosen on Data Pad
 	int			DataPadforcepowerSelect;	// Current force power chosen on Data Pad
 
@@ -445,7 +445,7 @@ typedef struct {
 	int			weaponAnimation;
 	int			weaponAnimationTime;
 
-	int			inventorySelect;		// Current inventory item chosen
+	inventory_t	inventorySelect;		// Current inventory item chosen
 	int			inventorySelectTime;
 
 	int			forcepowerSelect;		// Current force power chosen
@@ -546,7 +546,7 @@ typedef struct
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
 extern	EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>	cg_weapons;
-extern	itemInfo_t		cg_items[MAX_ITEMS];
+extern	EnumArray<itemInfo_t, itemNum_t, MAX_ITEMS>	cg_items;
 extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 
 
@@ -812,8 +812,8 @@ void CG_DPPrevForcePower_f( void );
 
 
 void CG_RegisterWeapon( weapon_t weaponNum );
-void CG_RegisterItemVisuals( int itemNum );
-void CG_RegisterItemSounds( int itemNum );
+void CG_RegisterItemVisuals( itemNum_t itemNum );
+void CG_RegisterItemSounds( itemNum_t itemNum );
 
 void CG_FireWeapon( centity_t *cent, bool alt_fire );
 //void CG_ChargeWeapon( centity_t *cent );

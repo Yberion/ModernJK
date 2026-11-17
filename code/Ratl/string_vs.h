@@ -299,10 +299,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	class tokenizer
 	{
-		enum
-		{
-			TOKEN_GAP_LEN	= 15,
-		};
+		static constexpr int TOKEN_GAP_LEN	= 15;
 
 	public:
 		// Constructors

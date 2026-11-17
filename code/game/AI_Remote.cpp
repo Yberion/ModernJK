@@ -31,12 +31,6 @@ void Remote_Strafe( void );
 #define VELOCITY_DECAY	0.85f
 
 
-//Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-};
-
 void Remote_Idle( void );
 
 void NPC_Remote_Precache(void)
@@ -51,7 +45,7 @@ void NPC_Remote_Precache(void)
 NPC_Remote_Pain
 -------------------------
 */
-void NPC_Remote_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Remote_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	SaveNPCGlobals();
 	SetNPCGlobals( self );

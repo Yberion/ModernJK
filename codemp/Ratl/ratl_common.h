@@ -340,25 +340,19 @@ template <int	SZ>
 class bits_base
 {
 protected:
-	enum
-	{
-		BITS_SHIFT		= 5,									// 5.  Such A Nice Number
-		BITS_INT_SIZE	= 32,									// Size Of A Single Word
-		BITS_AND		= (BITS_INT_SIZE - 1),					// Used For And Operation
-		ARRAY_SIZE		= ((SZ + BITS_AND)/(BITS_INT_SIZE)),	// Num Words Used
-		BYTE_SIZE		= (ARRAY_SIZE*sizeof(unsigned int)),	// Num Bytes Used
-	};
+	static constexpr int BITS_SHIFT		= 5;									// 5.  Such A Nice Number
+	static constexpr int BITS_INT_SIZE	= 32;									// Size Of A Single Word
+	static constexpr int BITS_AND		= (BITS_INT_SIZE - 1);					// Used For And Operation
+	static constexpr int ARRAY_SIZE		= ((SZ + BITS_AND)/(BITS_INT_SIZE));	// Num Words Used
+	static constexpr int BYTE_SIZE		= (ARRAY_SIZE*sizeof(unsigned int));	// Num Bytes Used
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Data
 	////////////////////////////////////////////////////////////////////////////////////
 	unsigned int						mV[ARRAY_SIZE];
 public:
-	enum
-	{
-		SIZE			= SZ,
-		CAPACITY		= SZ,
-	};
+	static constexpr int SIZE			= SZ;
+	static constexpr int CAPACITY		= SZ;
 
 	bits_base(bool init=true,bool initValue=false)
 	{
@@ -529,10 +523,7 @@ namespace storage
 	template<class T,int SIZE>
 	struct value_semantics
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		typedef T TAlign;		// this is any type that has the right alignment
 		typedef T TValue;		// this is the actual thing the user uses
 		typedef T TStorage;		// this is what we make our array of
@@ -541,12 +532,9 @@ namespace storage
 		typedef TStorage TArray[SIZE];
 
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TStorage);
 		static void construct(TStorage *)
 		{
 
@@ -599,10 +587,7 @@ namespace storage
 	template<class T,int SIZE>
 	struct object_semantics
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		typedef mem::alignStruct TAlign;		// this is any type that has the right alignment
 		typedef T TValue;				// this is the actual thing the user uses
 
@@ -614,12 +599,9 @@ namespace storage
 		};
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=1,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=true;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TStorage);
 
 		static void construct(TStorage *me)
 		{
@@ -667,10 +649,7 @@ namespace storage
 	template<class T,int SIZE,int MAX_CLASS_SIZE>
 	struct virtual_semantics
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		typedef mem::alignStruct TAlign;		// this is any type that has the right alignment
 		typedef T TValue;				// this is the actual thing the user uses
 
@@ -682,12 +661,9 @@ namespace storage
 		};
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=1,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=MAX_CLASS_SIZE,
-		};
+		static constexpr bool NEEDS_CONSTRUCT=true;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=MAX_CLASS_SIZE;
 
 		static void construct(TStorage *me)
 		{
@@ -747,10 +723,7 @@ namespace storage
 	template<class T,int SIZE,class NODE>
 	struct value_semantics_node
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		struct SNode
 		{
 			NODE	nodeData;
@@ -763,12 +736,9 @@ namespace storage
 		typedef bits_true TConstructed;
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValue),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValue);
 		static void construct(TStorage *)
 		{
 
@@ -827,10 +797,7 @@ namespace storage
 	template<class T,int SIZE,class NODE>
 	struct object_semantics_node
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		typedef mem::alignStruct TAlign;		// this is any type that has the right alignment
 		typedef T			TValue;		// this is the actual thing the user uses
 
@@ -849,12 +816,9 @@ namespace storage
 		typedef TStorage TArray[SIZE];
 
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValueStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValueStorage);
 
 		static void construct(TStorage *me)
 		{
@@ -923,10 +887,7 @@ namespace storage
 	template<class T,int SIZE,int MAX_CLASS_SIZE,class NODE>
 	struct virtual_semantics_node
 	{
-		enum
-		{
-			CAPACITY		= SIZE,
-		};
+		static constexpr int CAPACITY		= SIZE;
 		typedef mem::alignStruct TAlign;		// this is any type that has the right alignment
 		typedef T TValue;				// this is the actual thing the user uses
 
@@ -944,12 +905,9 @@ namespace storage
 		typedef SNode		TStorage;		// this is what we make our array of
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=1,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValueStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=true;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValueStorage);
 
 		static void construct(TStorage *me)
 		{
@@ -1037,11 +995,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
     ////////////////////////////////////////////////////////////////////////////////////
- 	enum
-	{
-		CAPACITY	= T::CAPACITY,
-		SIZE		= T::CAPACITY,
-	};
+	static constexpr int CAPACITY	= T::CAPACITY;
+	static constexpr int SIZE		= T::CAPACITY;
 	////////////////////////////////////////////////////////////////////////////////////
 	// Data
 	////////////////////////////////////////////////////////////////////////////////////

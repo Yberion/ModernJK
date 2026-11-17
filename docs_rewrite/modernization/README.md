@@ -11,7 +11,7 @@ This folder documents the work on the multiplayer code of ModernJK, a fork of Op
 | The client's platform layer: window, input and sound device rewritten on SDL 3 | ⏳ decided on 15 November 2026 (the sound on OpenAL Soft, chosen after prototypes), nothing implemented (step 15) | [surveys/platform-layer.md](surveys/platform-layer.md), [surveys/audio-libraries.md](surveys/audio-libraries.md) | none yet |
 | Culling against wallhacks; the dead code the step 14 audit reported | ⏳ set aside (step 16) | [surveys/visibility-culling.md](surveys/visibility-culling.md); [PLAN.md](PLAN.md) step 16 | `tools/visibility/` |
 | Transport security; tables retrained on games of this build | ⏳ to do (steps 12 and 13) | [PLAN.md](PLAN.md) | |
-| The build and the languages: C++20 and only Windows, Linux and macOS in 64-bit, the C code in C++, a modern CMake project | ✅ step 17 done on 16 November 2026 (C++20, 64-bit, every warning fixed, rend2 removed); ⏳ steps 18 and 19 planned, before step 15 | [PLAN.md](PLAN.md); [progress/step-17-cxx20-64bit.md](progress/step-17-cxx20-64bit.md) | |
+| The build and the languages: C++20 and only Windows, Linux and macOS in 64-bit, the C code in C++, a modern CMake project | ✅ step 17 done on 16 November 2026 (C++20, 64-bit, every warning fixed, rend2 removed); ⏳ step 18 in progress since 16 November 2026 (parts 1 to 3 done; part 4, the enumerations: every named and unnamed one done, the flags, the numeric `#define`s and the qualified names to come), step 19 planned, both before step 15 | [PLAN.md](PLAN.md); [progress/step-17-cxx20-64bit.md](progress/step-17-cxx20-64bit.md), [progress/step-18-cxx.md](progress/step-18-cxx.md) | |
 
 What the branch changes for a player, subject by subject: [CHANGES.md](CHANGES.md).
 

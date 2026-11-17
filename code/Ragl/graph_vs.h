@@ -201,11 +201,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
     ////////////////////////////////////////////////////////////////////////////////////
- 	enum
-	{
-		CAPACITY = MAXNODES,
-		NULLEDGE = -1,
-	};
+	static constexpr int CAPACITY = MAXNODES;
+	static constexpr int NULLEDGE = -1;
 
 
 	typedef typename ratl::pool_vs<TNODE,		MAXNODES>				TNodes;
@@ -229,12 +226,9 @@ public:
 	class cells : public ratl::ratl_base
 	{
 	public:
-	 	enum
-		{
-			SIZEX = CELLSX,
-			SIZEY = CELLSY,
-			SIZENODES = NODESPERCELL
-		};
+		static constexpr int SIZEX = CELLSX;
+		static constexpr int SIZEY = CELLSY;
+		static constexpr int SIZENODES = NODESPERCELL;
 
 
 		struct SSortNode
@@ -1224,13 +1218,10 @@ public:
 			clear(true, false);
 		}
 
-		enum
-		{
-			NULL_NODE			= 0,
-			NULL_NODE_INDEX		= -1,
-			NULL_VISIT_INDEX	= -1,
-			NULL_COST			= -1,
-		};
+		static constexpr int NULL_NODE			= 0;
+		static constexpr int NULL_NODE_INDEX		= -1;
+		static constexpr int NULL_VISIT_INDEX	= -1;
+		static constexpr int NULL_COST			= -1;
 
 
 		////////////////////////////////////////////////////////////////////////////////

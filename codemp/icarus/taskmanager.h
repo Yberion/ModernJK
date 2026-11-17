@@ -36,19 +36,27 @@ class CSequencer;
 
 const int RUNAWAY_LIMIT	= 256;
 
-enum
+enum class taskReturn_t
 {
 	TASK_RETURN_COMPLETE,
 	TASK_RETURN_FAILED,
 };
+using enum taskReturn_t;
 
-enum
+enum class taskResult_t
 {
 	TASK_OK,
 	TASK_FAILED,
+};
+using enum taskResult_t;
+
+// what MarkTask does to a task group
+enum class taskMark_t
+{
 	TASK_START,
 	TASK_END,
 };
+using enum taskMark_t;
 
 // CTask
 
@@ -66,7 +74,7 @@ public:
 	unsigned int	GetTimeStamp( void )	const	{	return m_timeStamp;				}
 	CBlock	*GetBlock( void )		const	{	return m_block;					}
 	int		GetGUID( void)			const	{	return m_id;					}
-	int		GetID( void )			const	{	return m_block->GetBlockID();	}
+	icarusToken_t		GetID( void )			const	{	return m_block->GetBlockID();	}
 
 	void	SetTimeStamp( unsigned int	timeStamp )		{	m_timeStamp = timeStamp;	}
 	void	SetBlock( CBlock *block )			{	m_block = block;			}
@@ -92,7 +100,7 @@ public:
 
 	void Init( void );
 
-	int Add( CTask *task );
+	taskResult_t Add( CTask *task );
 
 	void SetGUID( int GUID );
 	void SetParent( CTaskGroup *group )	{	m_parent = group;	}
@@ -134,22 +142,22 @@ public:
 
 	CBlock *GetCurrentTask( void );
 
-	int Init( CSequencer *owner );
-	int	Free( void );
+	taskResult_t Init( CSequencer *owner );
+	taskResult_t	Free( void );
 
 	int	Flush( void );
 
-	int	SetCommand( CBlock *block, int type );
-	int Completed( int id );
+	taskResult_t	SetCommand( CBlock *block, pushPop_t type );
+	taskResult_t Completed( int id );
 
-	int Update( void );
+	taskResult_t Update( void );
 	bool IsRunning( void );
 
 	CTaskGroup *AddTaskGroup( const char *name );
 	CTaskGroup *GetTaskGroup( const char *name );
 	CTaskGroup *GetTaskGroup( int id );
 
-	int MarkTask( int id, int operation );
+	taskResult_t MarkTask( int id, taskMark_t operation );
 	CBlock *RecallTask( void );
 
 	void Save( void );
@@ -157,35 +165,36 @@ public:
 
 protected:
 
-	int	Go( void );	//Heartbeat function called once per game frame
-	int CallbackCommand( CTask *task, int returnCode );
+	taskResult_t	Go( void );	//Heartbeat function called once per game frame
+	taskResult_t CallbackCommand( CTask *task, taskReturn_t returnCode );
 
-	inline bool Check( int targetID, CBlock *block, int memberNum );
+	inline bool Check( icarusToken_t targetID, CBlock *block, int memberNum );
 
 	int GetVector( int entID, CBlock *block, int &memberNum, vector_t &value );
 	int GetFloat( int entID, CBlock *block, int &memberNum, float &value );
+	int GetToken( int entID, CBlock *block, int &memberNum, icarusToken_t &value );
 	int Get( int entID, CBlock *block, int &memberNum, char **value );
 
-	int	PushTask( CTask *task, int flag );
-	CTask *PopTask( int flag );
+	taskResult_t	PushTask( CTask *task, pushPop_t flag );
+	CTask *PopTask( pushPop_t flag );
 
 	// Task functions
-	int Rotate( CTask *task );
-	int Remove( CTask *task );
-	int Camera( CTask *task );
-	int Print( CTask *task );
-	int Sound( CTask *task );
-	int Move( CTask *task );
-	int Kill( CTask *task );
-	int Set( CTask *task );
-	int Use( CTask *task );
-	int DeclareVariable( CTask *task );
-	int FreeVariable( CTask *task );
-	int Signal( CTask *task );
-	int Play( CTask *task );
+	taskResult_t Rotate( CTask *task );
+	taskResult_t Remove( CTask *task );
+	taskResult_t Camera( CTask *task );
+	taskResult_t Print( CTask *task );
+	taskResult_t Sound( CTask *task );
+	taskResult_t Move( CTask *task );
+	taskResult_t Kill( CTask *task );
+	taskResult_t Set( CTask *task );
+	taskResult_t Use( CTask *task );
+	taskResult_t DeclareVariable( CTask *task );
+	taskResult_t FreeVariable( CTask *task );
+	taskResult_t Signal( CTask *task );
+	taskResult_t Play( CTask *task );
 
-	int Wait( CTask *task, bool &completed );
-	int WaitSignal( CTask *task, bool &completed );
+	taskResult_t Wait( CTask *task, bool &completed );
+	taskResult_t WaitSignal( CTask *task, bool &completed );
 
 	int	SaveCommand( CBlock *block );
 

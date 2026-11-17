@@ -198,6 +198,7 @@ set(MPGameFiles ${MPGameFiles} ${MPGameG2Files})
 set(MPGameIcarusFiles
 	"${MPDir}/icarus/interpreter.h"
 	"${MPDir}/icarus/Q3_Interface.h"
+	"${MPDir}/icarus/tokens.h"
 	)
 source_group("icarus" FILES ${MPGameIcarusFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameIcarusFiles})

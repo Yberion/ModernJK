@@ -31,10 +31,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //---------------------
 //	Tenloss Disruptor
 //---------------------
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
-int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
+hitLocation_t G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 {
-	int hitLoc = HL_NONE;
+	hitLocation_t hitLoc = HL_NONE;
 	for (int i=0; i < MAX_G2_COLLISIONS; i++)
 	{
 		if ( trace->G2CollisionMap[i].mEntityNum == -1 )
@@ -135,7 +135,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 				ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 			}
 
-			int hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
+			hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
 			if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 			{//hehe
 				G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 3, DAMAGE_DEATH_KNOCKBACK, MOD_DISRUPTOR, hitLoc );
@@ -299,7 +299,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 						ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 					}
 
-					int hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
+					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
 					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 					{//hehe
 						G_Damage( traceEnt, ent, ent, wpFwd, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, fullCharge ? MOD_SNIPER : MOD_DISRUPTOR, hitLoc );

@@ -89,8 +89,6 @@ static bool SV_Map_( ForceReload_e eForceReload )
 // (now also called by auto-save code to setup the cvars correctly
 void SV_Player_EndOfLevelSave(void)
 {
-	int	i;
-
 	// I could just call GetClientState() but that's in sv_bot.cpp, and I'm not sure if that's going to be deleted for
 	//	the single player build, so here's the guts again...
 	//
@@ -123,7 +121,7 @@ void SV_Player_EndOfLevelSave(void)
 						pState->forcePowersKnown,
 						pState->forcePower,
 						pState->saberActive,
-						pState->saberAnimLevel,
+						to_underlying( pState->saberAnimLevel ),
 						pState->saberLockEnemy,
 						pState->saberLockTime
 						);
@@ -201,9 +199,9 @@ void SV_Player_EndOfLevelSave(void)
 
 		//inventory
 		s2 = "";
-		for (i=0;i< INV_MAX; i++)
+		for (inventory_t inv=INV_ELECTROBINOCULARS;inv< INV_MAX; inv++)
 		{
-			s2 = va("%s %i",s2, pState->inventory[i]);
+			s2 = va("%s %i",s2, pState->inventory[inv]);
 		}
 		Cvar_Set( "playerinv", s2 );
 
@@ -212,7 +210,7 @@ void SV_Player_EndOfLevelSave(void)
 		s2 = "";
 		for (forcePowers_t fp=FP_FIRST;fp< NUM_FORCE_POWERS; fp++)
 		{
-			s2 = va("%s %i",s2, pState->forcePowerLevel[fp]);
+			s2 = va("%s %i",s2, to_underlying( pState->forcePowerLevel[fp] ));
 		}
 		Cvar_Set( "playerfplvl", s2 );
 	}

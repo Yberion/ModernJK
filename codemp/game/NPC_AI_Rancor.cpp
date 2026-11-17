@@ -31,8 +31,7 @@ extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int m
 #define MAX_DISTANCE		1024
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
+using enum monsterLocalState_t;
 
 void Rancor_SetBolts( gentity_t *self )
 {
@@ -70,7 +69,7 @@ Rancor_Idle
 */
 void Rancor_Idle( void )
 {
-	NPCS.NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -100,7 +99,7 @@ Rancor_Patrol
 */
 void Rancor_Patrol( void )
 {
-	NPCS.NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -132,7 +131,7 @@ Rancor_Move
 */
 void Rancor_Move( bool visible )
 {
-	if ( NPCS.NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		if ( !NPC_MoveToGoal( true ) )
@@ -641,7 +640,7 @@ void Rancor_Combat( void )
 	{//holding my enemy
 		if ( TIMER_Done2( NPCS.NPC, "takingPain", true ))
 		{
-			NPCS.NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 		}
 		else
 		{
@@ -697,11 +696,11 @@ void Rancor_Combat( void )
 			}
 		}
 
-		if (( advance /*|| NPCInfo->localState == LSTATE_WAITING*/ ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance /*|| NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING*/ ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPCS.NPC, "takingPain", true ))
 			{
-				NPCS.NPCInfo->localState = LSTATE_CLEAR;
+				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 			}
 			else
 			{
@@ -785,7 +784,7 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 						if ( self->NPC )
 						{
-							self->NPC->localState = LSTATE_WAITING;
+							NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 						}
 					}
 				}

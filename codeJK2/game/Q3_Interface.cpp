@@ -1496,7 +1496,7 @@ void Blocked_Mover( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client -- no longer the case
 
 	// don't remove security keys or goodie keys
-	if ( (other->s.eType == ET_ITEM) && (other->item->giTag >= INV_GOODIE_KEY && other->item->giTag <= INV_SECURITY_KEY) )
+	if ( (other->s.eType == ET_ITEM) && (GI_Inventory( *other->item ) >= INV_GOODIE_KEY && GI_Inventory( *other->item ) <= INV_SECURITY_KEY) )
 	{
 		// should we be doing anything special if a key blocks it... move it somehow..?
 	}
@@ -1906,7 +1906,7 @@ Q3_GetTag
 Gets the value of a tag by the give name
 =============
 */
-static int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
+static int	Q3_GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info )
 {
 	gentity_t	*ent = &g_entities[ entID ];
 
@@ -1922,6 +1922,9 @@ static int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
 	case TYPE_ANGLES:
 		//return TAG_GetAngles( ent->targetname, name, info );
 		return TAG_GetAngles( ent->ownername, name, info );
+		break;
+
+	default:
 		break;
 	}
 
@@ -3382,7 +3385,7 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 		self->client->ps.stats[STAT_WEAPONS] |= Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
-		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
+		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 		//force it to change
 		CG_ChangeWeapon( wp );
 		G_AddEvent( self, EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
@@ -3418,7 +3421,7 @@ Q3_SetItem
 static void Q3_SetItem (int entID, const char *item_name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	int		inv;
+	inventory_t	inv;
 
 	if ( !self )
 	{
@@ -3432,16 +3435,22 @@ static void Q3_SetItem (int entID, const char *item_name)
 		return;
 	}
 
-	inv = GetIDForString( INVTable, item_name );
+	const int invID = GetIDForString( INVTable, item_name );
+	if ( invID == -1 )
+	{
+		Com_Error( ERR_DROP, "Couldn't find item for inventory %i", invID );
+		return;
+	}
+	inv = static_cast<inventory_t>( invID );
 
 
 	gitem_t *item = FindItemForInventory(inv);
 	RegisterItem( item );	//make sure the item is cached in case this runs at startup
 
-//		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
+//		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 //		G_AddEvent( self, EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
 
-	self->client->ps.stats[STAT_ITEMS] |= (1<<item->giTag);
+	self->client->ps.stats[STAT_ITEMS] |= Bit( GI_Inventory( *item ) );
 
 	if( (inv == INV_ELECTROBINOCULARS) || (inv == INV_LIGHTAMP_GOGGLES) )
 	{
@@ -4043,13 +4052,14 @@ static void Q3_SetMusicState( const char *dms )
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
 	const forcePowers_t power = static_cast<forcePowers_t>( forcePower );
+	const forcePowerLevels_t level = static_cast<forcePowerLevels_t>( forceLevel );
 	if ( power < FP_FIRST || power >= NUM_FORCE_POWERS )
 	{
 		Q3_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, to_underlying( FP_FIRST ), (to_underlying( NUM_FORCE_POWERS )-1) );
 		return;
 	}
 
-	if ( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
+	if ( level < FORCE_LEVEL_0 || level >= NUM_FORCE_POWER_LEVELS )
 	{
 		Q3_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 		return;
@@ -4069,7 +4079,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	if ((forceLevel > self->client->ps.forcePowerLevel[power]) && (entID==0) && (forceLevel > 0))
+	if ((level > self->client->ps.forcePowerLevel[power]) && (entID==0) && (level > FORCE_LEVEL_0))
 	{
 		if (!cg_updatedDataPadForcePower1.integer)
 		{
@@ -4091,8 +4101,8 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		}
 	}
 
-	self->client->ps.forcePowerLevel[power] = forceLevel;
-	if ( forceLevel )
+	self->client->ps.forcePowerLevel[power] = level;
+	if ( level != FORCE_LEVEL_0 )
 	{
 		self->client->ps.forcePowersKnown |= Bit( power );
 	}
@@ -6486,7 +6496,7 @@ Q3_SetVar
 */
 void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 {
-	int	vret = Q3_VariableDeclared( type_name ) ;
+	variableType_t	vret = Q3_VariableDeclared( type_name ) ;
 	float	float_data;
 	float	val = 0.0f;
 
@@ -6515,6 +6525,9 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 
 		case VTYPE_VECTOR:
 			Q3_SetVectorVariable( type_name, (char *) data );
+			break;
+
+		default:
 			break;
 		}
 
@@ -7899,12 +7912,12 @@ Q3_GetFloat
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: float *value
 ============
 */
-static int Q3_GetFloat( int entID, int type, const char *name, float *value )
+static int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 {
 	gentity_t	*ent = &g_entities[entID];
 //	gclient_t	*client;
@@ -8527,12 +8540,12 @@ Q3_GetVector
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: vec3_t value
 ============
 */
-static int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
+static int Q3_GetVector( int entID, icarusToken_t type, const char *name, vec3_t value )
 {
 	gentity_t	*ent = &g_entities[entID];
 	if ( !ent )
@@ -8595,12 +8608,12 @@ Q3_GetString
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: char **value
 ============
 */
-static int Q3_GetString( int entID, int type, const char *name, const char **value )
+static int Q3_GetString( int entID, icarusToken_t type, const char *name, const char **value )
 {
 	gentity_t	*ent = &g_entities[entID];
 	if ( !ent )
@@ -8894,14 +8907,14 @@ static int Q3_GetString( int entID, int type, const char *name, const char **val
 Q3_Evaluate
   Description	:
   Return type	: int
-  Argument		:  int p1Type
+  Argument		:  icarusToken_t p1Type
   Argument		: const char *p1
-  Argument		: int p2Type
+  Argument		: icarusToken_t p2Type
   Argument		: const char *p2
-  Argument		: int operatorType
+  Argument		: icarusToken_t operatorType
 ============
 */
-static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType )
+static int Q3_Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType )
 {
 	float	f1=0, f2=0;
 	vec3_t	v1, v2;

@@ -97,43 +97,40 @@ extern vec3_t		playerMaxs;
 
 namespace NAV
 {
-	enum
-	{
-		NUM_NODES			= 1024,
-		// now 5 bytes each
-		NUM_EDGES			= 3*NUM_NODES,
-		NUM_EDGES_PER_NODE	= 20,
+	constexpr int NUM_NODES			= 1024;
+	// now 5 bytes each
+	constexpr int NUM_EDGES			= 3*NUM_NODES;
+	constexpr int NUM_EDGES_PER_NODE	= 20;
 
 
-		NUM_REGIONS			= NUM_NODES/3,	// Had to raise this up for bounty
-		NUM_CELLS			= 32,	// should be the square root of NUM_NODES
-		NUM_NODES_PER_CELL	= 60,	// had to raise this for t3_bounty
-		NUM_TARGETS			= 5,	// max number of outgoing edges from a given node
+	constexpr int NUM_REGIONS			= NUM_NODES/3;	// Had to raise this up for bounty
+	constexpr int NUM_CELLS			= 32;	// should be the square root of NUM_NODES
+	constexpr int NUM_NODES_PER_CELL	= 60;	// had to raise this for t3_bounty
+	constexpr int NUM_TARGETS			= 5;	// max number of outgoing edges from a given node
 
-		CELL_RANGE			= 1000,
-		VIEW_RANGE			= 550,
+	constexpr int CELL_RANGE			= 1000;
+	constexpr int VIEW_RANGE			= 550;
 
-		NULL_PATH_USER_INDEX= -1,
-		MAX_PATH_USERS		= 100,
-		MAX_PATH_SIZE		= NUM_NODES/7,
+	constexpr int NULL_PATH_USER_INDEX= -1;
+	constexpr int MAX_PATH_USERS		= 100;
+	constexpr int MAX_PATH_SIZE		= NUM_NODES/7;
 
-		MAX_NODES_PER_NAME	= 30,
+	constexpr int MAX_NODES_PER_NAME	= 30;
 
-		MAX_EDGES_PER_ENT	= 10,
-		MAX_BLOCKING_ENTS	= 100,
-		MAX_ALERTS_PER_AGENT= 10,
-		MAX_ALERT_TIME		= 10000,
+	constexpr int MAX_EDGES_PER_ENT	= 10;
+	constexpr int MAX_BLOCKING_ENTS	= 100;
+	constexpr int MAX_ALERTS_PER_AGENT= 10;
+	constexpr int MAX_ALERT_TIME		= 10000;
 
-		MIN_WAY_NEIGHBORS	= 4,
-		MAX_NONWP_NEIGHBORS = 1,
+	constexpr int MIN_WAY_NEIGHBORS	= 4;
+	constexpr int MAX_NONWP_NEIGHBORS = 1;
 
 
-		SAVE_LOAD			= 0,
+	constexpr bool SAVE_LOAD			= false;
 
-		CHECK_JUMP			= 0,
-		CHECK_START_OPEN	= 1,
-		CHECK_START_SOLID	= 1,
-	};
+	constexpr bool CHECK_JUMP			= false;
+	constexpr bool CHECK_START_OPEN	= true;
+	constexpr bool CHECK_START_SOLID	= true;
 
 	// distances in game units and path costs: every use is a float expression
 	constexpr float BIAS_NONWAYPOINT	= 500.0f;
@@ -159,13 +156,9 @@ namespace NAV
 
 namespace STEER
 {
-	enum
-	{
-		NULL_STEER_USER_INDEX= -1,
-		MAX_NEIGHBORS		 = 20,
-		Z_CULL_OFFSET		 = 60,
-		SIDE_LOCKED_TIMER	 = 2000,
-	};
+	constexpr int NULL_STEER_USER_INDEX= -1;
+	constexpr int MAX_NEIGHBORS		 = 20;
+	constexpr int SIDE_LOCKED_TIMER	 = 2000;
 
 	constexpr float NEIGHBOR_RANGE		 = 60.0f;	// a distance in game units, added to a float radius
 }
@@ -624,7 +617,7 @@ public:
 							//----------------
 							if (mActor!=nullptr && (owner->spawnflags & MOVER_GOODIE))
 							{
-								int key = INV_GoodieKeyCheck(mActor);
+								const std::optional<inventory_t> key = INV_GoodieKeyCheck(mActor);
 								if (!key)
 								{
 									return false;
@@ -3965,7 +3958,7 @@ void			NAV::ShowDebugInfo(const vec3_t& PlayerPosition, int PlayerWaypoint)
 				mCells.get_cell_upperleft(x,y, x1, y1);
 				mCells.get_cell_lowerright(x,y, x2, y2);
 
-				int type = EDGE_CELL_EMPTY;
+				edgeType_t type = EDGE_CELL_EMPTY;
 				if (nodes.size())
 				{
 					type = EDGE_CELL;

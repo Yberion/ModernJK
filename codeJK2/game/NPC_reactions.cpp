@@ -215,8 +215,8 @@ NPC_ChoosePainAnimation
 
 #define	MIN_PAIN_TIME	200
 
-extern std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc );
-void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc, entity_event_t voiceEvent = EV_NONE )
+extern std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, hitLocation_t hitLoc );
+void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc, entity_event_t voiceEvent = EV_NONE )
 {
 	//If we've already taken pain, then don't take it again
 	if ( level.time < self->painDebounceTime && mod != MOD_ELECTROCUTE && mod != MOD_MELEE )
@@ -357,7 +357,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 NPC_Pain
 ===============
 */
-void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	team_t otherTeam = TEAM_FREE;
 	entity_event_t		voiceEvent = EV_NONE;
@@ -539,7 +539,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				if ( (keyTaken = INV_GoodieKeyGive( other )) == true )
 				{
 					text = "cp @INGAME_TOOK_IMPERIAL_GOODIE_KEY";
-					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_GOODIE_KEY )-bg_itemlist) );
+					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_GOODIE_KEY ) - bg_itemlist.data()) );
 				}
 				else
 				{
@@ -551,7 +551,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				if ( (keyTaken = INV_SecurityKeyGive( player, self->message )) == true )
 				{
 					text = "cp @INGAME_TOOK_IMPERIAL_SECURITY_KEY";
-					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_SECURITY_KEY )-bg_itemlist) );
+					G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_SECURITY_KEY ) - bg_itemlist.data()) );
 				}
 				else
 				{

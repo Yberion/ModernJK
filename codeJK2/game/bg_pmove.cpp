@@ -39,7 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include <float.h>
 
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false );
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
@@ -87,7 +87,7 @@ bool PM_PainAnim( animNumber_t anim );
 bool PM_RollingAnim( animNumber_t anim );
 bool PM_SwimmingAnim( animNumber_t anim );
 
-extern int parryDebounce[];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> parryDebounce;
 extern bool		player_locked;
 extern bool		MatrixMode;
 bool		waterForceJump;
@@ -638,14 +638,14 @@ static bool PM_CheckJump( void )
 				*/
 				float curHeight = pm->ps->origin[2] - pm->ps->forceJumpZStart;
 				//check for max force jump level and cap off & cut z vel
-				if ( ( curHeight<=forceJumpHeight[0] ||//still below minimum jump height
+				if ( ( curHeight<=forceJumpHeight[FORCE_LEVEL_0] ||//still below minimum jump height
 						(pm->ps->forcePower&&pm->cmd.upmove>=10) ) &&////still have force power available and still trying to jump up
 					curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] )//still below maximum jump height
 				{//can still go up
 					//FIXME: after a certain amount of time of held jump, play force jump sound and flip if a dir is being held
 					//FIXME: if hit a wall... should we cut velocity or allow them to slide up it?
 					//FIXME: constantly drain force power at a rate by which the usage for maximum height would use up the full cost of force jump
-					if ( curHeight > forceJumpHeight[0] )
+					if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] )
 					{//passed normal jump height  *2?
 						if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )//haven't started forcejump yet
 						{
@@ -785,7 +785,7 @@ static bool PM_CheckJump( void )
 					pm->ps->velocity[2] += JUMP_VELOCITY;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
 				}
-				else if ( curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] )
+				else if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] && curHeight < forceJumpHeight[pm->ps->forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[FORCE_LEVEL_0] )
 				{//still have some headroom, don't totally stop it
 					if ( pm->ps->velocity[2] > JUMP_VELOCITY )
 					{
@@ -5894,6 +5894,8 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 						case FORCE_LEVEL_1:
 							G_SoundOnEnt( pm->gent, CHAN_WEAPON, va( "sound/weapons/saber/saberhup%d.wav", Q_irand( 1, 3 ) ) );
 							break;
+						default:
+							break;
 						}
 					}
 				}
@@ -6467,12 +6469,12 @@ int G_SaberLockStrength( gentity_t *gent )
 		}
 		else
 		{
-			return gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE]+Q_irand(0,g_spskill->integer);
+			return to_underlying( gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )+Q_irand(0,g_spskill->integer);
 		}
 	}
 	else
 	{//player
-		return gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE]+Q_irand(0,g_spskill->integer);
+		return to_underlying( gent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )+Q_irand(0,g_spskill->integer);
 	}
 }
 
@@ -7454,7 +7456,7 @@ void PM_WeaponLightsaber(void)
 					else */
 					if ( pm->ps->clientNum
 						&& !PM_ControlledByPlayer()
-						&& (Q_irand( 0, pm->ps->saberAnimLevel-1 ) || ( pm->ps->saberAnimLevel == FORCE_LEVEL_1 && pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, 1 ) ) ) )//minor change to make fast-attack users use the special attacks more
+						&& (Q_irand( 0, to_underlying( pm->ps->saberAnimLevel )-1 ) || ( pm->ps->saberAnimLevel == FORCE_LEVEL_1 && pm->gent && pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG && Q_irand( 0, 1 ) ) ) )//minor change to make fast-attack users use the special attacks more
 					{//NPCs use more randomized attacks the more skilled they are
 						newmove = PM_NPCSaberAttackFromQuad( saberMoveData[curmove].endQuad );
 					}

@@ -794,6 +794,8 @@ public:
 	int			inSpaceSuffocation;
 	int			inSpaceIndex;
 
+	int			forceDrainStartTime;	// when the drain started: a drained Jedi cannot break free before level * 500 ms
+
 
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
@@ -859,6 +861,7 @@ public:
 		saved_game.write<float>(rocketTargetTime);
 		saved_game.write<int32_t>(inSpaceSuffocation);
 		saved_game.write<int32_t>(inSpaceIndex);
+		saved_game.write<int32_t>(forceDrainStartTime);
 	}
 
 	void sg_import(
@@ -925,6 +928,7 @@ public:
 		saved_game.read<float>(rocketTargetTime);
 		saved_game.read<int32_t>(inSpaceSuffocation);
 		saved_game.read<int32_t>(inSpaceIndex);
+		saved_game.read<int32_t>(forceDrainStartTime);
 	}
 }; // GClientBase
 
@@ -1099,8 +1103,8 @@ Ghoul2 Insert End
 	int			splashRadius;
 	meansOfDeath_t	methodOfDeath;
 	meansOfDeath_t	splashMethodOfDeath;
-	//int			hitLoc;//where you were last hit
-	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
+	//hitLocation_t			hitLoc;//where you were last hit
+	EnumArray<int, hitLocation_t, HL_MAX>	locationDamage;		// Damage accumulated on different body locations
 
 //Entity pointers
 	gentity_t	*chain;
@@ -1357,7 +1361,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(splashRadius);
 		saved_game.write<int32_t>(methodOfDeath);
 		saved_game.write<int32_t>(splashMethodOfDeath);
-		saved_game.write<int32_t>(locationDamage);
+		saved_game.write<int32_t>(locationDamage.elems);
 		saved_game.write<int32_t>(chain);
 		saved_game.write<int32_t>(enemy);
 		saved_game.write<int32_t>(activator);
@@ -1546,7 +1550,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(splashRadius);
 		saved_game.read<int32_t>(methodOfDeath);
 		saved_game.read<int32_t>(splashMethodOfDeath);
-		saved_game.read<int32_t>(locationDamage);
+		saved_game.read<int32_t>(locationDamage.elems);
 		saved_game.read<int32_t>(chain);
 		saved_game.read<int32_t>(enemy);
 		saved_game.read<int32_t>(activator);
@@ -1719,7 +1723,7 @@ typedef struct weaponInfo_s {
 
 extern sfxHandle_t CAS_GetBModelSound( const char *name, int stage );
 
-enum
+enum class edgeType_t
 {
 	EDGE_NORMAL,
 	EDGE_PATH,
@@ -1751,13 +1755,15 @@ enum
 	EDGE_RED_ONESECOND,
 	EDGE_RED_TWOSECOND,
 };
+using enum edgeType_t;
 
-enum
+enum class nodeType_t
 {
 	NODE_NORMAL,
 	NODE_FLOATING,
 	NODE_GOAL,
 	NODE_NAVGOAL,
 };
+using enum nodeType_t;
 
 #endif // #ifndef __G_SHARED_H__

@@ -199,7 +199,7 @@ void NPC_BSSaberDroid_Patrol( void )
 	NPC_UpdateAngles( true, true );
 }
 
-int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
+forcePowerLevels_t SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 {
 	switch ( self->client->ps.legsAnim )
 	{

@@ -67,11 +67,12 @@ static Language_e GetLanguageEnum()
 #ifdef JK2_MODE
 	if ( !sp_language )
 		return eLanguage;
-	else if ( sp_language->integer == SP_LANGUAGE_KOREAN )
+	const spLanguage_t language = static_cast<spLanguage_t>( sp_language->integer );
+	if ( language == SP_LANGUAGE_KOREAN )
 		eLanguage = eKorean;
-	else if ( sp_language->integer == SP_LANGUAGE_JAPANESE )
+	else if ( language == SP_LANGUAGE_JAPANESE )
 		eLanguage = eJapanese;
-	else if ( sp_language->integer == SP_LANGUAGE_TAIWANESE )
+	else if ( language == SP_LANGUAGE_TAIWANESE )
 		eLanguage = eTaiwanese;
 
 	return eLanguage;

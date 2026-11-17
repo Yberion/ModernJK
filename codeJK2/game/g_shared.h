@@ -37,7 +37,7 @@ typedef struct centity_s centity_t;
 class CSequencer;
 class CTaskManager;
 
-enum
+enum class hitLocation_t
 {
 	HL_NONE = 0,
 	HL_FOOT_RT,
@@ -64,6 +64,8 @@ enum
 	HL_GENERIC6,
 	HL_MAX
 };
+using enum hitLocation_t;
+template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
 
 enum class taskID_t //# taskID_e
 {
@@ -1089,8 +1091,8 @@ Ghoul2 Insert End
 	int			splashRadius;
 	meansOfDeath_t	methodOfDeath;
 	meansOfDeath_t	splashMethodOfDeath;
-	//int			hitLoc;//where you were last hit
-	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
+	//hitLocation_t			hitLoc;//where you were last hit
+	EnumArray<int, hitLocation_t, HL_MAX>	locationDamage;		// Damage accumulated on different body locations
 
 //Entity pointers
 	gentity_t	*chain;
@@ -1335,7 +1337,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(splashRadius);
 		saved_game.write<int32_t>(methodOfDeath);
 		saved_game.write<int32_t>(splashMethodOfDeath);
-		saved_game.write<int32_t>(locationDamage);
+		saved_game.write<int32_t>(locationDamage.elems);
 		saved_game.write<int32_t>(chain);
 		saved_game.write<int32_t>(enemy);
 		saved_game.write<int32_t>(activator);
@@ -1516,7 +1518,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(splashRadius);
 		saved_game.read<int32_t>(methodOfDeath);
 		saved_game.read<int32_t>(splashMethodOfDeath);
-		saved_game.read<int32_t>(locationDamage);
+		saved_game.read<int32_t>(locationDamage.elems);
 		saved_game.read<int32_t>(chain);
 		saved_game.read<int32_t>(enemy);
 		saved_game.read<int32_t>(activator);
@@ -1686,7 +1688,7 @@ typedef struct weaponInfo_s {
 
 extern sfxHandle_t CAS_GetBModelSound( const char *name, int stage );
 
-enum
+enum class edgeType_t
 {
 	EDGE_NORMAL,
 	EDGE_PATH,
@@ -1694,14 +1696,16 @@ enum
 	EDGE_FAILED,
 	EDGE_MOVEDIR
 };
+using enum edgeType_t;
 
-enum
+enum class nodeType_t
 {
 	NODE_NORMAL,
 	NODE_START,
 	NODE_GOAL,
 	NODE_NAVGOAL,
 };
+using enum nodeType_t;
 
 #endif // #ifndef __G_SHARED_H__
 

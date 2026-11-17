@@ -31,8 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_DISTANCE		128
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
+using enum monsterLocalState_t;
 
 /*
 -------------------------
@@ -71,7 +70,7 @@ MineMonster_Patrol
 */
 void MineMonster_Patrol( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -102,7 +101,7 @@ MineMonster_Move
 */
 void MineMonster_Move( bool visible )
 {
-	if ( NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPC_MoveToGoal( true );
@@ -219,11 +218,11 @@ void MineMonster_Combat( void )
 
 	bool	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
 
-	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 		}
 		else
 		{
@@ -241,7 +240,7 @@ void MineMonster_Combat( void )
 NPC_MineMonster_Pain
 -------------------------
 */
-void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	G_AddEvent( self, EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
 
@@ -258,7 +257,7 @@ void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *oth
 
 		if ( self->NPC )
 		{
-			self->NPC->localState = LSTATE_WAITING;
+			NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 		}
 	}
 }

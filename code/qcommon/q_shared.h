@@ -757,6 +757,9 @@ enum class forcePowers_t
 using enum forcePowers_t;
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
+// the same set in both single-player games, so the engine (the UI, force sight) names the levels too
+#include "qcommon/q_forcelevels.h"
+
 enum class saberType_t
 {
 	SABER_NONE = 0,
@@ -1588,6 +1591,7 @@ enum class persEnum_t;	// bg_public.h
 enum class statIndex_t;	// statindex.h
 enum class powerup_t;	// bg_public.h
 enum class ammo_t;	// weapons.h
+enum class inventory_t;	// g_items.h of each single-player game (code/game, codeJK2/game), each its own
 enum class weapon_t;	// weapons.h
 enum class weaponstate_t;	// bg_public.h
 enum class saberBlockedType_t;	// g_shared.h
@@ -1657,7 +1661,7 @@ public:
 	EnumArray<int, persEnum_t, MAX_PERSISTANT>	persistant;				// stats that aren't cleared on death
 	EnumArray<int, powerup_t, MAX_POWERUPS>	powerups;					// level.time that the powerup runs out
 	EnumArray<int, ammo_t, MAX_AMMO>	ammo;
-	int			inventory[MAX_INVENTORY];							// Count of each inventory item.
+	EnumArray<int, inventory_t, MAX_INVENTORY>	inventory;				// Count of each inventory item.
 	char  		security_key_message[MAX_SECURITY_KEYS][MAX_SECURITY_KEY_MESSSAGE];	// Security key types
 
 	vec3_t		serverViewOrg;
@@ -1847,7 +1851,7 @@ public:
 	int			saberEventFlags;
 	int			saberBlockingTime;
 #ifdef JK2_MODE
-	int			saberAnimLevel;		// a force level in Jedi Outcast
+	forcePowerLevels_t	saberAnimLevel;		// a force level in Jedi Outcast
 #else
 	saber_styles_t	saberAnimLevel;
 #endif
@@ -1875,7 +1879,7 @@ public:
 	int			forcePowerRegenAmount;				//default is 1
 #endif // !JK2_MODE
 
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
 	int			forceGripEntityNum;					//what entity I'm gripping
@@ -1973,7 +1977,7 @@ public:
 		saved_game.write<int32_t>(persistant.elems);
 		saved_game.write<int32_t>(powerups.elems);
 		saved_game.write<int32_t>(ammo.elems);
-		saved_game.write<int32_t>(inventory);
+		saved_game.write<int32_t>(inventory.elems);
 		saved_game.write<int8_t>(security_key_message);
 		saved_game.write<float>(serverViewOrg);
 		saved_game.write<int32_t>(saberInFlight);
@@ -2142,7 +2146,7 @@ public:
 		saved_game.read<int32_t>(persistant.elems);
 		saved_game.read<int32_t>(powerups.elems);
 		saved_game.read<int32_t>(ammo.elems);
-		saved_game.read<int32_t>(inventory);
+		saved_game.read<int32_t>(inventory.elems);
 		saved_game.read<int8_t>(security_key_message);
 		saved_game.read<float>(serverViewOrg);
 		saved_game.read<int32_t>(saberInFlight);

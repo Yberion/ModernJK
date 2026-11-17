@@ -46,7 +46,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 inline CBlockMember::CBlockMember( void )
 {
-	m_id = -1;
+	m_id = CIcarus::TK_EOF;
 	m_size = -1;
 	m_data = nullptr;
 }
@@ -68,7 +68,8 @@ void CBlockMember::Free(IGameInterface* game)
 		game->Free ( m_data );
 		m_data = nullptr;
 
-		m_id = m_size = -1;
+		m_id = CIcarus::TK_EOF;
+		m_size = -1;
 	}
 	delete this;
 }
@@ -79,7 +80,7 @@ GetInfo
 -------------------------
 */
 
-void CBlockMember::GetInfo( int *id, int *size, void **data )
+void CBlockMember::GetInfo( icarusToken_t *id, int *size, void **data )
 {
 	*id = m_id;
 	*size = m_size;
@@ -124,7 +125,7 @@ ReadMember
 int CBlockMember::ReadMember( char **stream, long *streamPos, CIcarus* icarus )
 {
 	IGameInterface* game = icarus->GetGame();
-	m_id = LittleLong(*(int *) (*stream + *streamPos));
+	m_id = static_cast<icarusToken_t>( LittleLong(*(int *) (*stream + *streamPos)) );
 	*streamPos += sizeof( int );
 
 	if ( m_id == CIcarus::ID_RANDOM )
@@ -160,7 +161,8 @@ WriteMember
 
 int CBlockMember::WriteMember( FILE *m_fileHandle )
 {
-	fwrite( &m_id, sizeof(m_id), 1, m_fileHandle );
+	const int id = to_underlying( m_id );
+	fwrite( &id, sizeof(id), 1, m_fileHandle );
 	fwrite( &m_size, sizeof(m_size), 1, m_fileHandle );
 	fwrite( m_data, m_size, 1, m_fileHandle );
 
@@ -204,8 +206,8 @@ Init
 
 int CBlock::Init( void )
 {
-	m_flags			= 0;
-	m_id			= 0;
+	m_flags			= {};
+	m_id			= CIcarus::TK_UNDEFINED;
 
 	return true;
 }
@@ -216,7 +218,7 @@ Create
 -------------------------
 */
 
-int CBlock::Create( int block_id )
+int CBlock::Create( icarusToken_t block_id )
 {
 	Init();
 
@@ -260,7 +262,7 @@ Write
 -------------------------
 */
 
-int CBlock::Write( int member_id, const char *member_data, CIcarus* icarus )
+int CBlock::Write( icarusToken_t member_id, const char *member_data, CIcarus* icarus )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -274,7 +276,7 @@ int CBlock::Write( int member_id, const char *member_data, CIcarus* icarus )
 	return true;
 }
 
-int CBlock::Write( int member_id, vec3_t member_data, CIcarus* icarus )
+int CBlock::Write( icarusToken_t member_id, vec3_t member_data, CIcarus* icarus )
 {
 	CBlockMember *bMember;
 
@@ -289,7 +291,7 @@ int CBlock::Write( int member_id, vec3_t member_data, CIcarus* icarus )
 	return true;
 }
 
-int CBlock::Write( int member_id, float member_data, CIcarus* icarus )
+int CBlock::Write( icarusToken_t member_id, float member_data, CIcarus* icarus )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -302,7 +304,7 @@ int CBlock::Write( int member_id, float member_data, CIcarus* icarus )
 	return true;
 }
 
-int CBlock::Write( int member_id, int member_data, CIcarus* icarus )
+int CBlock::Write( icarusToken_t member_id, int member_data, CIcarus* icarus )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -478,9 +480,9 @@ WriteBlock
 int CBlockStream::WriteBlock( CBlock *block, CIcarus* icarus )
 {
 	CBlockMember	*bMember;
-	int				id = block->GetBlockID();
+	int				id = to_underlying( block->GetBlockID() );
 	int				numMembers = block->GetNumMembers();
-	unsigned char	flags = block->GetFlags();
+	unsigned char	flags = to_underlying( block->GetFlags() );
 
 	fwrite ( &id, sizeof(id), 1, m_fileHandle );
 	fwrite ( &numMembers, sizeof(numMembers), 1, m_fileHandle );
@@ -538,8 +540,8 @@ int CBlockStream::ReadBlock( CBlock *get, CIcarus* icarus )
 	if (numMembers < 0)
 		return false;
 
-	get->Create( b_id );
-	get->SetFlags( flags );
+	get->Create( static_cast<icarusToken_t>( b_id ) );
+	get->SetFlags( static_cast<blockFlag_t>( flags ) );
 
 	while ( numMembers-- > 0)
 	{

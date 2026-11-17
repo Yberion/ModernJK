@@ -30,7 +30,7 @@ void drop_charge(gentity_t *ent, vec3_t start, vec3_t dir);
 void ViewHeightFix( const gentity_t * const ent );
 bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 extern bool G_BoxInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs, const vec3_t boundsMins, const vec3_t boundsMaxs );
-extern bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
+extern bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc );
 extern bool PM_DroidMelee( class_t npc_class );
 
 extern int g_rocketLockEntNum;
@@ -41,7 +41,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 void WP_Stick( gentity_t *missile, trace_t *trace, float fudge_distance = 0.0f );
 void WP_Explode( gentity_t *self );
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc );
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc );
 
 
 // Functions from the wp_ files
@@ -55,7 +55,7 @@ void WP_FireBowcaster( gentity_t *ent, bool alt_fire );
 void WP_FireBryarPistol( gentity_t *ent, bool alt_fire );
 void WP_FireDEMP2( gentity_t *ent, bool alt_fire );
 void WP_FireDetPack( gentity_t *ent, bool alt_fire );
-int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod );
+hitLocation_t G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod );
 void WP_FireDisruptor( gentity_t *ent, bool alt_fire );
 void WP_EmplacedFire( gentity_t *ent );
 void WP_FireFlechette( gentity_t *ent, bool alt_fire );
@@ -67,7 +67,7 @@ void rocketThink( gentity_t *ent );
 void WP_FireRocket( gentity_t *ent, bool alt_fire );
 void WP_FireStunBaton( gentity_t *ent, bool alt_fire );
 void thermalDetonatorExplode( gentity_t *ent );
-void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc );
+void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc );
 bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
 				float minSpeed = 0, float maxSpeed = 0, float idealSpeed = 0, bool mustHit = false );

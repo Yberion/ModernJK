@@ -36,21 +36,23 @@ typedef struct decalPoly_s
 	polyVert_t			verts[MAX_VERTS_ON_DECAL_POLY];
 } decalPoly_t;
 
-enum
+enum class decalPolyType_t
 {
 	DECALPOLY_TYPE_NORMAL,
 	DECALPOLY_TYPE_FADE,
 	DECALPOLY_TYPE_MAX
 };
+using enum decalPolyType_t;
+template <> inline constexpr bool enableEnumArithmetic<decalPolyType_t> = true;
 
 #define		DECAL_FADE_TIME		1000
 
-decalPoly_t*		RE_AllocDecal( int type );
+decalPoly_t*		RE_AllocDecal( decalPolyType_t type );
 
-static decalPoly_t	re_decalPolys[DECALPOLY_TYPE_MAX][MAX_DECAL_POLYS];
+static EnumArray<decalPoly_t[MAX_DECAL_POLYS], decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolys;
 
-static int			re_decalPolyHead[DECALPOLY_TYPE_MAX];
-static int			re_decalPolyTotal[DECALPOLY_TYPE_MAX];
+static EnumArray<int, decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolyHead;
+static EnumArray<int, decalPolyType_t, DECALPOLY_TYPE_MAX>	re_decalPolyTotal;
 
 /*
 ===================
@@ -60,16 +62,16 @@ This is called to remove all decals from the world
 ===================
 */
 void RE_ClearDecals( void ) {
-	memset( re_decalPolys, 0, sizeof(re_decalPolys) );
-	memset( re_decalPolyHead, 0, sizeof(re_decalPolyHead) );
-	memset( re_decalPolyTotal, 0, sizeof(re_decalPolyTotal) );
+	memset( &re_decalPolys, 0, sizeof(re_decalPolys) );
+	memset( &re_decalPolyHead, 0, sizeof(re_decalPolyHead) );
+	memset( &re_decalPolyTotal, 0, sizeof(re_decalPolyTotal) );
 }
 
 void R_InitDecals( void ) {
 	RE_ClearDecals();
 }
 
-void RE_FreeDecal( int type, int index ) {
+void RE_FreeDecal( decalPolyType_t type, int index ) {
 	if ( !re_decalPolys[type][index].time )
 		return;
 
@@ -96,7 +98,7 @@ RE_AllocDecal
 Will allways succeed, even if it requires freeing an old active mark
 ===================
 */
-decalPoly_t* RE_AllocDecal( int type ) {
+decalPoly_t* RE_AllocDecal( decalPolyType_t type ) {
 	decalPoly_t	*le;
 
 	// See if the cvar changed
@@ -258,7 +260,7 @@ R_AddDecals
 void R_AddDecals( void )
 {
 	int			decalPoly;
-	int			type;
+	decalPolyType_t	type;
 	static int  lastMarkCount = -1;
 
 	if ( r_markcount->integer != lastMarkCount ) {

@@ -38,10 +38,11 @@ bool Count(const char *path, SymbolCounts &counts, size_t &messages) {
 	return in.Ok() && streams == in.Streams() && refused == 0;
 }
 
-enum Family : uint8_t {
+enum class Family : uint8_t {
 	kEntityValue, kPlayerValue, kEntityIndex, kPlayerIndex, kEntityList, kEntityType, kOperation, kCommand, kConfigString,
-	kHeader, kFamilyCount
+	kHeader, kCount
 };
+constexpr size_t kFamilyCount = static_cast<size_t>(Family::kCount);
 constexpr std::array<const char *, kFamilyCount> kFamilyName{ "entity field values", "player-state field values",
 	"entity field indices", "player-state field indices", "entity numbers and operations", "entity type", "message operations",
 	"server commands", "config strings, setgame", "header and other scalars" };
@@ -52,6 +53,7 @@ constexpr std::array<const char *, detail::fctx::kCount> kKindName{ "integer abs
 Family FamilyOf(uint32_t c) noexcept {
 	namespace ctx = detail::ctx;
 	using enum ctx::Scalar;
+	using enum Family;
 	if (c < ctx::kPlayerField) return kEntityValue;
 	if (c < ctx::kPlayerGap) return kPlayerValue;
 	if (c < ctx::kEntityGap) return kPlayerIndex;
@@ -87,7 +89,7 @@ void Report(const SymbolCounts &train, const SymbolCounts &report, size_t messag
 		for (size_t sym = 0; sym < freq.size(); sym++)
 			bits += static_cast<double>(report.symbols[c][sym]) * (15.0 - std::log2(static_cast<double>(freq[sym])));
 		const auto raw = static_cast<double>(report.rawBits[c]);
-		Cost &f = fam[FamilyOf(c)];
+		Cost &f = fam[static_cast<size_t>(FamilyOf(c))];
 		f.symbols += bits;
 		f.raw += raw;
 		if (n != 0) f.freqs += freq.size();
@@ -96,7 +98,7 @@ void Report(const SymbolCounts &train, const SymbolCounts &report, size_t messag
 			k.symbols += bits;
 			k.raw += raw;
 		}
-		if (FamilyOf(c) == kCommand) command.emplace_back(c, bits + raw);
+		if (FamilyOf(c) == Family::kCommand) command.emplace_back(c, bits + raw);
 	}
 	const double perMessage = 8.0 * static_cast<double>(messages);
 	double total = 0;

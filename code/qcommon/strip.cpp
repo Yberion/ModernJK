@@ -119,7 +119,7 @@ public:
 	char			*GetReference(void) { return Reference; }
 	const char		*GetName(void) const { return(name.c_str()); }
 
-	virtual bool	UnderstandToken(char *&Data, int &Size, int token, char *data );
+	virtual bool	UnderstandToken(char *&Data, int &Size, stripToken_t token, char *data );
 #if 0
 	virtual bool	Load(char *FileName );
 #endif
@@ -141,18 +141,24 @@ public:
 	cStringsSingle	*FindString(char *ReferenceLookup);
 	int				FindStringID(const char *ReferenceLookup);
 
-	virtual bool	UnderstandToken(char *&Data, int &Size, int token, char *data );
+	virtual bool	UnderstandToken(char *&Data, int &Size, stripToken_t token, char *data );
 };
 
 
 typedef struct sFlagPair
 {
-	int				Name;
+	stripToken_t	Name;
 	unsigned long	Value;
 } tFlagPair;
 
+typedef struct sLanguagePair
+{
+	stripToken_t	Name;
+	spLanguage_t	Language;
+} tLanguagePair;
 
-enum
+
+enum class stripToken_t
 {
 	TK_INVALID = -1,
 	TK_TEXT_LANGUAGE1 = 0,
@@ -188,9 +194,11 @@ enum
 	TK_CONFIG,
 	TK_END
 };
+using enum stripToken_t;
+template <> inline constexpr bool enableEnumArithmetic<stripToken_t> = true;
 
 
-const char *Tokens[TK_END] =
+const EnumArray<const char *, stripToken_t, TK_END> Tokens =
 {
 	"TEXT_LANGUAGE1",
 	"TEXT_LANGUAGE2",
@@ -241,7 +249,7 @@ sFlagPair FlagPairs[] =
 	{ TK_INVALID,				0 }
 };
 
-sFlagPair LanguagePairs[] =
+sLanguagePair LanguagePairs[] =
 {
 	{ TK_TEXT_LANGUAGE1,	SP_LANGUAGE_ENGLISH },
 	{ TK_TEXT_LANGUAGE2,	SP_LANGUAGE_FRENCH },
@@ -253,7 +261,7 @@ sFlagPair LanguagePairs[] =
 	{ TK_TEXT_LANGUAGE8,	SP_LANGUAGE_SPANISH },
 	{ TK_TEXT_LANGUAGE9,	SP_LANGUAGE_JAPANESE },
 	{ TK_TEXT_LANGUAGE10,	SP_LANGUAGE_10},
-	{ TK_INVALID,		0 }
+	{ TK_INVALID,		SP_LANGUAGE_ENGLISH }
 };
 
 /************************************************************************************************
@@ -267,12 +275,12 @@ sFlagPair LanguagePairs[] =
  *	token enum
  *
  ************************************************************************************************/
-int FindToken(char *token, bool whole)
+stripToken_t FindToken(char *token, bool whole)
 {
-	int token_value;
+	stripToken_t token_value;
 	int	i;
 
-	for(token_value = 0; token_value != TK_END; token_value++)
+	for(token_value = TK_TEXT_LANGUAGE1; token_value != TK_END; token_value++)
 	{
 		if (whole)
 		{
@@ -341,7 +349,7 @@ bool ReadData(char *&Data, int &Size, char *Result, int Result_Size)
  * return:
  *
  ************************************************************************************************/
-void GetLine(char *&Data, int &Size, int &token, char *&data)
+void GetLine(char *&Data, int &Size, stripToken_t &token, char *&data)
 {
 	static char		save_data[8192];
 	char			temp_data[8192];
@@ -504,7 +512,7 @@ void cStrings::SetReference(char *newReference)
 	strcpy(Reference, newReference);
 }
 
-bool cStrings::UnderstandToken(int token, char *data )
+bool cStrings::UnderstandToken(stripToken_t token, char *data )
 {
 	sFlagPair		*FlagPair;
 
@@ -531,6 +539,9 @@ bool cStrings::UnderstandToken(int token, char *data )
 
 		case TK_RIGHT_BRACE:
 			return false;
+
+		default:
+			break;
 	}
 
 	if (token == TK_INVALID)
@@ -556,7 +567,7 @@ bool cStrings::UnderstandToken(int token, char *data )
  ************************************************************************************************/
 bool cStrings::Load(char *&Data, int &Size )
 {
-	int				token;
+	stripToken_t	token;
 	char			*data;
 
 	Clear();
@@ -725,9 +736,9 @@ static void FixIllegalChars(char *psText)
 	}
 }
 
-bool cStringsSingle::UnderstandToken(int token, char *data )
+bool cStringsSingle::UnderstandToken(stripToken_t token, char *data )
 {
-	sFlagPair		*LanguagePair;
+	sLanguagePair	*LanguagePair;
 
 //	switch(token)
 //	{
@@ -747,7 +758,7 @@ bool cStringsSingle::UnderstandToken(int token, char *data )
 					SetText(data);
 					return true;
 				}
-				else if (LanguagePair->Name == token && (signed) LanguagePair->Value == sp_language->integer)
+				else if (LanguagePair->Name == token && LanguagePair->Language == static_cast<spLanguage_t>( sp_language->integer ))
 				{
 					if (LanguagePair->Name == TK_TEXT_LANGUAGE1 ||
 						LanguagePair->Name == TK_TEXT_LANGUAGE2 ||
@@ -805,7 +816,7 @@ void cStringPackage::SetReference(char *newReference)
 }
 
 
-bool cStringPackage::UnderstandToken(char *&Data, int &Size, int token, char *data )
+bool cStringPackage::UnderstandToken(char *&Data, int &Size, stripToken_t token, char *data )
 {
 	switch(token)
 	{
@@ -819,6 +830,9 @@ bool cStringPackage::UnderstandToken(char *&Data, int &Size, int token, char *da
 		case TK_REFERENCE:
 			SetReference(data);
 			return true;
+
+		default:
+			break;
 	}
 
 	if (token == TK_INVALID)
@@ -862,7 +876,7 @@ bool cStringPackage::Load(char *FileName )
 bool cStringPackage::Load(char *Data, int &Size )
 {
 	char	*token_data;
-	int		token;
+	stripToken_t	token;
 
 	GetLine(Data, Size, token, token_data);
 	if (token != TK_VERSION || atol(token_data) != STRIP_VERSION)
@@ -934,7 +948,7 @@ int cStringPackageSingle::FindStringID(const char *ReferenceLookup)
 	return -1;
 }
 
-bool cStringPackageSingle::UnderstandToken(char *&Data, int &Size, int token, char *data )
+bool cStringPackageSingle::UnderstandToken(char *&Data, int &Size, stripToken_t token, char *data )
 {
 	int		count, i, pos;
 	char	*ReferenceLookup;
@@ -1229,7 +1243,7 @@ static void JK2SP_UpdateLanguage(void)
 
 void JK2SP_Init(void)
 {
-	sp_language = Cvar_Get("sp_language", va("%d", SP_LANGUAGE_ENGLISH), CVAR_ARCHIVE | CVAR_NORESTART);
+	sp_language = Cvar_Get("sp_language", va("%d", to_underlying( SP_LANGUAGE_ENGLISH )), CVAR_ARCHIVE | CVAR_NORESTART);
 	sp_show_strip = Cvar_Get ("sp_show_strip", "0", 0);		// don't switch this on!!!!!!, test only (apparently)
 	sp_leet = Cvar_Get ("sp_leet", "0", CVAR_ROM);		// do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
 

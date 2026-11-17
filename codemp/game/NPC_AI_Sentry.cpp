@@ -39,7 +39,7 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 #define SENTRY_HOVER_HEIGHT		24
 
 //Local state enums
-enum
+enum class sentryLocalState_t
 {
 	LSTATE_NONE = 0,
 	LSTATE_ASLEEP,
@@ -48,6 +48,7 @@ enum
 	LSTATE_POWERING_UP,
 	LSTATE_ATTACKING,
 };
+using enum sentryLocalState_t;
 
 /*
 -------------------------
@@ -87,8 +88,8 @@ void sentry_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 
 	self->flags &= ~FL_SHIELDED;
 	NPC_SetAnim( self, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-//	self->NPC->localState = LSTATE_WAKEUP;
-	self->NPC->localState = LSTATE_ACTIVE;
+//	NPC_SetLocalState( *self->NPC, LSTATE_WAKEUP );
+	NPC_SetLocalState( *self->NPC, LSTATE_ACTIVE );
 }
 
 /*
@@ -110,17 +111,17 @@ void NPC_Sentry_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		NPC_SetAnim( self, SETANIM_BOTH, BOTH_FLY_SHIELDED, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/chars/sentry/misc/sentry_pain") );
 
-		self->NPC->localState = LSTATE_ACTIVE;
+		NPC_SetLocalState( *self->NPC, LSTATE_ACTIVE );
 	}
 
 	// You got hit, go after the enemy
-//	if (self->NPC->localState == LSTATE_ASLEEP)
+//	if (NPC_LocalState<sentryLocalState_t>( *self->NPC ) == LSTATE_ASLEEP)
 //	{
 //		G_Sound( self, G_SoundIndex("sound/chars/sentry/misc/shieldsopen.wav"));
 //
 //		self->flags &= ~FL_SHIELDED;
 //		NPC_SetAnim( self, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
-//		self->NPC->localState = LSTATE_WAKEUP;
+//		NPC_SetLocalState( *self->NPC, LSTATE_WAKEUP );
 //	}
 }
 
@@ -139,11 +140,11 @@ void Sentry_Fire (void)
 
 	NPCS.NPC->flags &= ~FL_SHIELDED;
 
-	if ( NPCS.NPCInfo->localState == LSTATE_POWERING_UP )
+	if ( NPC_LocalState<sentryLocalState_t>( *NPCS.NPCInfo ) == LSTATE_POWERING_UP )
 	{
 		if ( TIMER_Done( NPCS.NPC, "powerup" ))
 		{
-			NPCS.NPCInfo->localState = LSTATE_ATTACKING;
+			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_ATTACKING );
 			NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		}
 		else
@@ -152,19 +153,19 @@ void Sentry_Fire (void)
 			return;
 		}
 	}
-	else if ( NPCS.NPCInfo->localState == LSTATE_ACTIVE )
+	else if ( NPC_LocalState<sentryLocalState_t>( *NPCS.NPCInfo ) == LSTATE_ACTIVE )
 	{
-		NPCS.NPCInfo->localState = LSTATE_POWERING_UP;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_POWERING_UP );
 
 		G_Sound( NPCS.NPC, CHAN_AUTO, G_SoundIndex("sound/chars/sentry/misc/sentry_shield_open") );
 		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_POWERUP1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		TIMER_Set( NPCS.NPC, "powerup", 250 );
 		return;
 	}
-	else if ( NPCS.NPCInfo->localState != LSTATE_ATTACKING )
+	else if ( NPC_LocalState<sentryLocalState_t>( *NPCS.NPCInfo ) != LSTATE_ATTACKING )
 	{
 		// bad because we are uninitialized
-		NPCS.NPCInfo->localState = LSTATE_ACTIVE;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_ACTIVE );
 		return;
 	}
 
@@ -332,7 +333,7 @@ void Sentry_Idle( void )
 	Sentry_MaintainHeight();
 
 	// Is he waking up?
-	if (NPCS.NPCInfo->localState == LSTATE_WAKEUP)
+	if (NPC_LocalState<sentryLocalState_t>( *NPCS.NPCInfo ) == LSTATE_WAKEUP)
 	{
 		if (NPCS.NPC->client->ps.torsoTimer<=0)
 		{
@@ -446,7 +447,7 @@ void Sentry_RangedAttack( bool visible, bool advance )
 			}
 			else if ( NPCS.NPC->fly_sound_debounce_time < level.time )
 			{
-				NPCS.NPCInfo->localState = LSTATE_ACTIVE;
+				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_ACTIVE );
 				NPCS.NPC->fly_sound_debounce_time = NPCS.NPCInfo->burstCount = 0;
 				TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 2000, 3500) );
 				NPCS.NPC->flags |= FL_SHIELDED;
@@ -579,7 +580,7 @@ void NPC_BSSentry_Default( void )
 		NPCS.NPC->use = sentry_use;
 	}
 
-	if (( NPCS.NPC->enemy ) && (NPCS.NPCInfo->localState != LSTATE_WAKEUP))
+	if (( NPCS.NPC->enemy ) && (NPC_LocalState<sentryLocalState_t>( *NPCS.NPCInfo ) != LSTATE_WAKEUP))
 	{
 		// Don't attack if waking up or if no enemy
 		Sentry_AttackDecision();

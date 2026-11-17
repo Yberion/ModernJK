@@ -2508,7 +2508,7 @@ int GrappleState(bot_movestate_t *ms, aas_reachability_t *reach)
 	//or visible grapple entity
 	for (i = AAS_NextEntity(0); i; i = AAS_NextEntity(i))
 	{
-		if (AAS_EntityType(i) == (int) entitytypemissile->value)
+		if (AAS_EntityType(i) == static_cast<entityType_t>( (int) entitytypemissile->value ))
 		{
 			AAS_EntityInfo(i, &entinfo);
 			if (entinfo.weapon == (int) weapindex_grapple->value)

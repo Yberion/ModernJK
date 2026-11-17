@@ -45,12 +45,12 @@ void G_CubeOutline( vec3_t mins, vec3_t maxs, int time, unsigned int color, floa
 
 }
 
-void G_DrawEdge( vec3_t start, vec3_t end, int type )
+void G_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 {
 
 }
 
-void G_DrawNode( vec3_t origin, int type )
+void G_DrawNode( vec3_t origin, nodeType_t type )
 {
 
 }

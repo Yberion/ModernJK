@@ -4418,7 +4418,7 @@ static void CG_BoltedEffects( centity_t *cent, const vec3_t origin, vec3_t tempA
 	{
 		Vehicle_t *pVeh = cent->gent->m_pVehicle;
 		gentity_t *parent = cent->gent;
- 		if (pVeh->m_ulFlags&VEH_ARMORLOW
+ 		if (Any( pVeh->m_ulFlags & VEH_ARMORLOW )
 			&& (pVeh->m_iLastFXTime<=cg.time)
 			&& Q_irand(0,1)==0 )
 		{
@@ -4467,6 +4467,8 @@ bool CG_PlayerCanSeeCent( centity_t *cent )
 	case FORCE_LEVEL_5:
 		//dot = 0.4f;
 		range = 4096.0f;
+		break;
+	default:
 		break;
 	}
 

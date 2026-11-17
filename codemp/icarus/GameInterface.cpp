@@ -502,7 +502,7 @@ void ICARUS_InterrogateScript( const char *filename )
 			{
 				float f = *(float *) block.GetMemberData( 0 );
 
-				if (f == (float)TYPE_PATH)
+				if (f == (float) to_underlying( TYPE_PATH ))
 				{
 					sVal1 = (const char *) block.GetMemberData( 1 );
 

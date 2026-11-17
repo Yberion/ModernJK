@@ -107,7 +107,7 @@ extern EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits;
 
 #define NUM_CHUNK_MODELS	4
 
-enum
+enum class chunkType_t
 {
 	CHUNK_METAL1 = 0,
 	CHUNK_METAL2,
@@ -119,6 +119,7 @@ enum
 	CHUNK_WHITE_METAL,
 	NUM_CHUNK_TYPES
 };
+using enum chunkType_t;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -149,7 +150,7 @@ typedef struct {
 	qhandle_t	turretCrossHairShader;
 
 //Chunks
-	qhandle_t	chunkModels[NUM_CHUNK_TYPES][4];
+	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
 	sfxHandle_t	chunkSound;
 	sfxHandle_t	grateSound;
 	sfxHandle_t	rockBreakSound;

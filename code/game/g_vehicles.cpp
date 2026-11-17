@@ -471,25 +471,25 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 		pEnt->s.radius = 320;
 		//weapon
 		gitem_t	*item = FindItemForWeapon( WP_ATST_MAIN );	//precache the weapon
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_ATST_SIDE );	//precache the weapon
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		pEnt->client->ps.stats[STAT_WEAPONS] |= Bit( WP_ATST_MAIN )|Bit( WP_ATST_SIDE );
 		pEnt->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = ammoData[weaponData[WP_ATST_MAIN].ammoIndex].max;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = ammoData[weaponData[WP_ATST_SIDE].ammoIndex].max;
 		CG_ChangeWeapon( WP_ATST_MAIN );
 		//HACKHACKHACKTEMP
 		item = FindItemForWeapon( WP_EMPLACED_GUN );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_ROCKET_LAUNCHER );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_BOWCASTER );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		//HACKHACKHACKTEMP
 		//FIXME: these get lost in load/save!  Must use variables that are set every frame or saved/loaded
 		//camera
@@ -644,7 +644,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 		return false;
 
 	// Bucking so we can't do anything (NOTE: Should probably be a better name since fighters don't buck...).
-	if ( pVeh->m_ulFlags & VEH_BUCKING )
+	if ( Any( pVeh->m_ulFlags & VEH_BUCKING ) )
 		return false;
 
 	// Validate the entity's ability to board this vehicle.
@@ -847,7 +847,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 bool VEH_TryEject( Vehicle_t *pVeh,
 				  gentity_t *parent,
 				  gentity_t *ent,
-				  int ejectDir,
+				  vehEject_t ejectDir,
 				  vec3_t vExitPos )
 {
 	float		fBias;
@@ -993,7 +993,7 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 	vec3_t		vPlayerDir;
 #endif
 	gentity_t	*ent = (gentity_t *)pEnt;
-	int			firstEjectDir;
+	vehEject_t	firstEjectDir;
 
 #ifdef _JK2MP
 	bool	taintedRider = false;
@@ -1385,7 +1385,7 @@ static void StartDeathDelay( Vehicle_t *pVeh, int iDelayTimeOverride )
 	//---------------------------
 	if (pVeh->m_pVehicleInfo->iArmorGoneFX)
 	{
-		if (!(pVeh->m_ulFlags&VEH_ARMORGONE) && (pVeh->m_iArmor <= 0))
+		if (!(Any( pVeh->m_ulFlags & VEH_ARMORGONE )) && (pVeh->m_iArmor <= 0))
 		{
 			pVeh->m_ulFlags |= VEH_ARMORGONE;
 			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, true);
@@ -1602,7 +1602,7 @@ bool Initialize( Vehicle_t *pVeh )
 	*/
 	//why?! -rww
 	{
-		pVeh->m_ulFlags = 0;
+		pVeh->m_ulFlags = VEH_NONE;
 	}
 	pVeh->m_fTimeModifier = 1.0f;
 	pVeh->m_iBoarding = 0;
@@ -2246,7 +2246,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				return false;
 		}
-		else if ( !(pVeh->m_ulFlags & VEH_FLYING))
+		else if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )))
 		{
 			// If going too fast, roll off.
 			if ((parent->client->ps.speed<=600) && pUmcd->rightmove!=0)
@@ -2449,7 +2449,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 
 			if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 			{
-				if ( !(pVeh->m_ulFlags & VEH_FLYING) )
+				if ( !(Any( pVeh->m_ulFlags & VEH_FLYING )) )
 				{
 					VectorScale( parent->client->ps.velocity, 0.25f, rider->client->ps.velocity );
 #if 1

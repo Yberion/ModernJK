@@ -237,10 +237,10 @@ force saberthrow pickup item
 "count"     level of force power this holocron gives activator ( range: 0-3, default 1)
 */
 
-gitem_t	bg_itemlist[ITM_NUM_ITEMS+1];//need a null on the end
+EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;//need a null on the end
 
-//int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) ;
-const int		bg_numItems = ITM_NUM_ITEMS;
+//int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[ITM_NONE]) ;
+const int		bg_numItems = to_underlying( ITM_NUM_ITEMS );
 
 
 
@@ -251,9 +251,7 @@ FindItemForWeapon
 ===============
 */
 gitem_t	*FindItemForWeapon( weapon_t weapon ) {
-	int		i;
-
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
+	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ ) {
 		if ( bg_itemlist[i].giType == IT_WEAPON && GI_Weapon( bg_itemlist[i] ) == weapon ) {
 			return &bg_itemlist[i];
 		}
@@ -264,26 +262,25 @@ gitem_t	*FindItemForWeapon( weapon_t weapon ) {
 }
 
 //----------------------------------------------
-gitem_t	*FindItemForInventory( int inv )
+gitem_t	*FindItemForInventory( inventory_t inv )
 {
-	int		i;
 	gitem_t	*it;
 
 	// Now just check for any other kind of item.
-	for ( i = 1 ; i < bg_numItems ; i++ )
+	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
 	{
 		it = &bg_itemlist[i];
 
 		if ( it->giType == IT_HOLDABLE )
 		{
-			if ( it->giTag == inv )
+			if ( GI_Inventory( *it ) == inv )
 			{
 				return it;
 			}
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for inventory %i", inv );
+	Com_Error( ERR_DROP, "Couldn't find item for inventory %i", to_underlying( inv ) );
 	return nullptr;
 }
 
@@ -295,9 +292,7 @@ FindItemForWeapon
 */
 gitem_t	*FindItemForAmmo( ammo_t ammo )
 {
-	int		i;
-
-	for ( i = 1 ; i < bg_numItems ; i++ )
+	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
 	{
 		if ( bg_itemlist[i].giType == IT_AMMO && GI_Ammo( bg_itemlist[i] ) == ammo )
 		{
@@ -316,9 +311,7 @@ FindItem
 ===============
 */
 gitem_t	*FindItem( const char *className ) {
-	int		i;
-
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
+	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ ) {
 		if ( !Q_stricmp( bg_itemlist[i].classname, className ) )
 			return &bg_itemlist[i];
 	}
@@ -342,7 +335,7 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
 	}
 
-	item = &bg_itemlist[ent->modelindex];
+	item = &bg_itemlist[ES_ItemNum( *ent )];
 
 	switch( item->giType ) {
 
@@ -445,10 +438,10 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 
 	case IT_HOLDABLE:
-		if ( item->giTag >= INV_ELECTROBINOCULARS && item->giTag <= INV_SENTRY )
+		if ( GI_Inventory( *item ) >= INV_ELECTROBINOCULARS && GI_Inventory( *item ) <= INV_SENTRY )
 		{
 			// hardcoded--can only pick up five of any holdable
-			if ( ps->inventory[item->giTag] >= 5 )
+			if ( ps->inventory[GI_Inventory( *item )] >= 5 )
 			{
 				return false;
 			}

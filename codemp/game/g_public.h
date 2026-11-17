@@ -32,6 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	GAME_API_VERSION	1
 
 enum class itemType_t;	// bg_public.h
+enum class variableType_t;	// icarus/Q3_Registers.h
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -143,7 +144,7 @@ enum class bState_t //# bState_e
 };
 using enum bState_t;
 
-enum
+enum class edgeType_t
 {
 	EDGE_NORMAL,
 	EDGE_PATH,
@@ -151,14 +152,16 @@ enum
 	EDGE_FAILED,
 	EDGE_MOVEDIR
 };
+using enum edgeType_t;
 
-enum
+enum class nodeType_t
 {
 	NODE_NORMAL,
 	NODE_START,
 	NODE_GOAL,
 	NODE_NAVGOAL,
 };
+using enum nodeType_t;
 
 enum class taskID_t //# taskID_e
 {
@@ -465,7 +468,7 @@ typedef struct gameImport_s {
 	void		(*ICARUS_TaskIDSet)						( sharedEntity_t *ent, taskID_t taskType, int taskID );
 	void		(*ICARUS_TaskIDComplete)				( sharedEntity_t *ent, taskID_t taskType );
 	void		(*ICARUS_SetVar)						( int taskID, int entID, const char *type_name, const char *data );
-	int			(*ICARUS_VariableDeclared)				( const char *type_name );
+	variableType_t	(*ICARUS_VariableDeclared)				( const char *type_name );
 	int			(*ICARUS_GetFloatVariable)				( const char *name, float *value );
 	int			(*ICARUS_GetStringVariable)				( const char *name, const char *value );
 	int			(*ICARUS_GetVectorVariable)				( const char *name, const vec3_t value );

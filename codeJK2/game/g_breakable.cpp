@@ -182,7 +182,7 @@ void funcBBrushDieGo (gentity_t *self)
 	//G_FreeEntity( self );
 }
 
-void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc)
+void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc)
 {
 	self->takedamage = false;//stop chain reaction runaway loops
 
@@ -214,7 +214,7 @@ void funcBBrushUse (gentity_t *self, gentity_t *other, gentity_t *activator)
 	}
 }
 
-void funcBBrushPain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc)
+void funcBBrushPain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc)
 {
 	if ( self->painDebounceTime > level.time )
 	{
@@ -433,7 +433,7 @@ void SP_func_breakable( gentity_t *self )
 }
 
 
-void misc_model_breakable_pain ( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void misc_model_breakable_pain ( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	if ( self->health > 0 )
 	{
@@ -448,7 +448,7 @@ void misc_model_breakable_pain ( gentity_t *self, gentity_t *inflictor, gentity_
 	}
 }
 
-void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
+void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
 {
 	int		numChunks;
 	float	size = 0, scale;
@@ -992,7 +992,7 @@ extern void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmg
 extern	cgs_t			cgs;
 
 //-----------------------------------------------------
-void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
+void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
 {
 	vec3_t		verts[4], normal;
 

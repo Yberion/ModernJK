@@ -55,16 +55,12 @@ class CSequencer
 	typedef std::map < CTaskGroup *, CSequence * >	taskSequence_m;
 
 public:
-	enum
-	{
-		BF_ELSE			= 0x00000001,	//Block has an else id	//FIXME: This was a sloppy fix for a problem that arose from conditionals
-	};
-
-	enum
+	enum class sequencerResult_t
 	{
 		SEQ_OK,				//Command was successfully added
 		SEQ_FAILED,			//An error occured while trying to insert the command
 	};
+	using enum sequencerResult_t;
 
 	CSequencer();
 
@@ -74,12 +70,12 @@ protected:
 public:
 	int GetID() { return m_id;};
 
-	int Init( int ownerID, CTaskManager *taskManager);
+	sequencerResult_t Init( int ownerID, CTaskManager *taskManager);
 	static CSequencer *Create ( void );
 	void Free( CIcarus* icarus );
 
-	int Run( char *buffer, long size, CIcarus* icarus);
-	int Callback( CTaskManager *taskManager, CBlock *block, int returnCode, CIcarus* icarus );
+	sequencerResult_t Run( char *buffer, long size, CIcarus* icarus);
+	sequencerResult_t Callback( CTaskManager *taskManager, CBlock *block, taskReturn_t returnCode, CIcarus* icarus );
 
 	void SetOwnerID( int owner )	{	m_ownerID = owner;}
 
@@ -110,26 +106,26 @@ protected:
 
 	int EvaluateConditional( CBlock *block, CIcarus* icarus );
 
-	int Route( CSequence *sequence, bstream_t *bstream , CIcarus* icarus);
-	int Flush( CSequence *owner, CIcarus* icarus );
+	sequencerResult_t Route( CSequence *sequence, bstream_t *bstream , CIcarus* icarus);
+	sequencerResult_t Flush( CSequence *owner, CIcarus* icarus );
 	void Interrupt( void );
 
 	bstream_t *AddStream( void );
 	void DeleteStream( bstream_t *bstream );
 
-	int AddAffect( bstream_t *bstream, int retain, int *id, CIcarus* icarus );
+	sequencerResult_t AddAffect( bstream_t *bstream, int retain, int *id, CIcarus* icarus );
 
 	CSequence *AddSequence( CIcarus* icarus );
-	CSequence *AddSequence( CSequence *parent, CSequence *returnSeq, int flags, CIcarus* icarus );
+	CSequence *AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlag_t flags, CIcarus* icarus );
 
 	CSequence *GetSequence( int id );
 
 	//NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!
-	int RemoveSequence( CSequence *sequence, CIcarus* icarus);
-	int DestroySequence( CSequence *sequence, CIcarus* icarus);
+	sequencerResult_t RemoveSequence( CSequence *sequence, CIcarus* icarus);
+	sequencerResult_t DestroySequence( CSequence *sequence, CIcarus* icarus);
 
-	int PushCommand( CBlock *command, int flag );
-	CBlock *PopCommand( int flag );
+	sequencerResult_t PushCommand( CBlock *command, CSequence::pushPop_t flag );
+	CBlock *PopCommand( CSequence::pushPop_t flag );
 
 	inline CSequence *ReturnSequence( CSequence *sequence );
 
@@ -142,16 +138,16 @@ protected:
 
 	void Prep( CBlock ** , CIcarus* icarus);
 
-	int Prime( CTaskManager *taskManager, CBlock *command,  CIcarus* icarus);
+	sequencerResult_t Prime( CTaskManager *taskManager, CBlock *command,  CIcarus* icarus);
 
-	int ParseRun( CBlock *block , CIcarus* icarus);
-	int ParseLoop( CBlock *block, bstream_t *bstream , CIcarus* icarus);
-	int ParseAffect( CBlock *block, bstream_t *bstream, CIcarus* icarus );
-	int ParseIf( CBlock *block, bstream_t *bstream, CIcarus* icarus );
-	int ParseElse( CBlock *block, bstream_t *bstream, CIcarus* icarus );
-	int ParseTask( CBlock *block, bstream_t *bstream , CIcarus* icarus);
+	sequencerResult_t ParseRun( CBlock *block , CIcarus* icarus);
+	sequencerResult_t ParseLoop( CBlock *block, bstream_t *bstream , CIcarus* icarus);
+	sequencerResult_t ParseAffect( CBlock *block, bstream_t *bstream, CIcarus* icarus );
+	sequencerResult_t ParseIf( CBlock *block, bstream_t *bstream, CIcarus* icarus );
+	sequencerResult_t ParseElse( CBlock *block, bstream_t *bstream, CIcarus* icarus );
+	sequencerResult_t ParseTask( CBlock *block, bstream_t *bstream , CIcarus* icarus);
 
-	int Affect( int id, int type , CIcarus* icarus);
+	sequencerResult_t Affect( int id, icarusToken_t type , CIcarus* icarus);
 
 	void AddTaskSequence( CSequence *sequence, CTaskGroup *group );
 	CSequence *GetTaskSequence( CTaskGroup *group );

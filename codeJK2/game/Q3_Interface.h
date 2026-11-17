@@ -315,7 +315,7 @@ extern  void		Q3_CameraDistance( float distance, float initLerp );
 extern	void		Q3_SetAnimBoth( int entID, const char *anim_name );
 extern	void		Q3_SetVelocity( int entID, vec3_t angles );
 
-extern	void		Q3_DeclareVariable ( int type, const char *name );
+extern	void		Q3_DeclareVariable ( icarusToken_t type, const char *name );
 extern	void		Q3_FreeVariable( const char *name );
 
 extern	void		Q3_DebugPrint( WL_e level, const char *format, ... ) __attribute__ ((format (printf, 2, 3)));

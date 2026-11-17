@@ -358,7 +358,7 @@ void CIcarus::Precache(char* buffer, long length)
 			{
 				float f = *(float *) block.GetMemberData( 0 );
 
-				if (f == (float)TYPE_PATH)
+				if (f == (float) to_underlying( TYPE_PATH ))
 				{
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
@@ -427,14 +427,10 @@ CSequencer* CIcarus::FindSequencer(int sequencerID)
 	return (*mi).second;
 }
 
-int CIcarus::Run(int icarusID, char* buffer, long length)
+bool CIcarus::Run(int icarusID, char* buffer, long length)
 {
 	CSequencer* sequencer = FindSequencer(icarusID);
-	if(sequencer)
-	{
-		return sequencer->Run(buffer, length, this);
-	}
-	return ICARUS_INVALID;
+	return sequencer && sequencer->Run(buffer, length, this) == CSequencer::SEQ_OK;
 }
 
 int CIcarus::SaveSequenceIDTable()
@@ -765,7 +761,7 @@ int CIcarus::Update(int icarusID)
 	CSequencer* sequencer = FindSequencer(icarusID);
 	if(sequencer)
 	{
-		return sequencer->GetTaskManager()->Update(this);
+		return to_underlying( sequencer->GetTaskManager()->Update(this) );
 	}
 	return -1;
 }

@@ -457,10 +457,10 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot);
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, const vec3_t origin);
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const vec3_t dir, const vec3_t point, int damage, int dflags, meansOfDeath_t mod, int hitLoc=HL_NONE );
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const vec3_t dir, const vec3_t point, int damage, int dflags, meansOfDeath_t mod, hitLocation_t hitLoc=HL_NONE );
 void G_RadiusDamage (const vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, meansOfDeath_t mod);
 gentity_t *TossClientItems( gentity_t *self );
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc );
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc );
 void ExplodeDeath( gentity_t *self );
 void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator);
 void G_ApplyKnockback( gentity_t *targ, const vec3_t newDir, float knockback );
@@ -525,7 +525,7 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, team_t team, vec3_t origin, vec3_t angles );
 void respawn (gentity_t *ent);
 bool ClientSpawn( gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded );
-void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc);
+void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc);
 void AddScore( gentity_t *ent, int score );
 bool SpotWouldTelefrag( gentity_t *spot, team_t checkteam );
 void G_RemoveWeaponModels( gentity_t *ent );
@@ -613,7 +613,7 @@ void ClientEndFrame (gentity_t *ent);
 //
 extern bool INV_GoodieKeyGive( gentity_t *target );
 extern bool INV_GoodieKeyTake( gentity_t *target );
-extern int INV_GoodieKeyCheck( gentity_t *target );
+extern std::optional<inventory_t> INV_GoodieKeyCheck( gentity_t *target );
 extern bool INV_SecurityKeyGive( gentity_t *target, const char *keyname );
 extern void INV_SecurityKeyTake( gentity_t *target, const char *keyname );
 extern bool INV_SecurityKeyCheck( gentity_t *target, const char *keyname );

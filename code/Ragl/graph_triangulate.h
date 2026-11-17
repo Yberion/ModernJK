@@ -129,12 +129,9 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
     ////////////////////////////////////////////////////////////////////////////////////
- 	enum
-	{
-		CAPACITY = MAXNODES,
-		MAXFACES = MAXEDGES*2,
-		NULLEDGE = -1
-	};
+	static constexpr int CAPACITY = MAXNODES;
+	static constexpr int MAXFACES = MAXEDGES*2;
+	static constexpr int NULLEDGE = -1;
 
 	typedef		graph_vs<TNODE, MAXNODES, TEDGE, MAXEDGES, MAXNODENEIGHBORS>			TGraph;
 

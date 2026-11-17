@@ -251,7 +251,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 	if ( give_all || !Q_stricmp( name, "inventory" ) )
 	{
 		// Huh?  Was doing a INV_MAX+1 which was wrong because then you'd actually have every inventory item including INV_MAX
-		ent->client->ps.stats[STAT_ITEMS] = (1 << (INV_MAX)) - ( 1 << INV_ELECTROBINOCULARS );
+		ent->client->ps.stats[STAT_ITEMS] = Bit( INV_MAX ) - Bit( INV_ELECTROBINOCULARS );
 
 		ent->client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
 		ent->client->ps.inventory[INV_BACTA_CANISTER] = 5;

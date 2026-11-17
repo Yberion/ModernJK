@@ -346,7 +346,7 @@ public:
 	//
 	int			combatPoint;//NPCs in bState BS_COMBAT_POINT will find their closest empty combat_point
 	int			lastFailedCombatPoint;//NPCs in bState BS_COMBAT_POINT will find their closest empty combat_point
-	int			movementSpeech;	//what to say when you first successfully move
+	speechType_t	movementSpeech;	//what to say when you first successfully move
 	float		movementSpeechChance;//how likely you are to say it
 
 	//Testing physics at 20fps
@@ -369,7 +369,7 @@ public:
 	int			standTime;
 
 	int			localState;		//Tracking information local to entity
-	int			squadState;		//Tracking information for team level interaction
+	squadState_t	squadState;		//Tracking information for team level interaction
 
 	//JWEIER ADDITIONS END
 	//
@@ -634,6 +634,15 @@ public:
 		saved_game.read<int32_t>(ffireFadeDebounce);
 	}
 }; // gNPC_t
+
+// gNPC_t::localState holds the set of the NPC's AI file (droidLocalState_t, sentryLocalState_t, ...), named by the
+// caller: the one conversion of the field
+template <typename E>
+	requires std::is_enum_v<E>
+[[nodiscard]] E NPC_LocalState( const gNPC_t &npc ) { return static_cast<E>( npc.localState ); }
+template <typename E>
+	requires std::is_enum_v<E>
+void NPC_SetLocalState( gNPC_t &npc, E state ) { npc.localState = to_underlying( state ); }
 
 
 void G_SquadPathsInit(void);

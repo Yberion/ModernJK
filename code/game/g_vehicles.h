@@ -428,7 +428,7 @@ extern void G_CreateWalkerNPC( Vehicle_t **pVeh, const char *strType );
 #define VEHICLE_BASE				0
 #define VEHICLE_NONE				-1
 
-enum
+enum class vehEject_t
 {
 	VEH_EJECT_LEFT,
 	VEH_EJECT_RIGHT,
@@ -437,9 +437,11 @@ enum
 	VEH_EJECT_TOP,
 	VEH_EJECT_BOTTOM
 };
+using enum vehEject_t;
+template <> inline constexpr bool enableEnumArithmetic<vehEject_t> = true;
 
 // Vehicle flags.
-enum
+enum class vehFlags_t
 {
 	VEH_NONE = 0, VEH_FLYING = 0x00000001, VEH_CRASHING = 0x00000002,
 	VEH_LANDING = 0x00000004, VEH_BUCKING = 0x00000010, VEH_WINGSOPEN = 0x00000020,
@@ -451,6 +453,8 @@ enum
 	VEH_ARMORLOW = 0x00002000,
 	VEH_ARMORGONE = 0x00004000
 };
+using enum vehFlags_t;
+template <> inline constexpr bool enableEnumFlags<vehFlags_t> = true;
 //externed functions
 extern void G_VehicleSpawn( gentity_t *self );
 
@@ -627,10 +631,10 @@ struct Vehicle_t
 	usercmd_t m_ucmd;
 
 	// The direction an entity will eject from the vehicle towards.
-	int m_EjectDir;
+	vehEject_t m_EjectDir;
 
 	// Flags that describe the vehicles behavior.
-	unsigned long m_ulFlags;
+	vehFlags_t m_ulFlags;
 
 	// NOTE: Vehicle Type ID, Orientation, and Armor MUST be transmitted over the net.
 

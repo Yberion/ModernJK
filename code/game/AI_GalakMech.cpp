@@ -63,7 +63,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 extern void G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast );
-extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
+extern void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type );
 
 
 
@@ -275,7 +275,7 @@ bool	Pilot_MasterUpdate()
 			if (NPCInfo->greetEnt && NPCInfo->greetEnt->m_pVehicle && level.time<NPCInfo->confusionTime)
 			{
 				Vehicle_t*	pVeh	= NPCInfo->greetEnt->m_pVehicle;
-				if (!(pVeh->m_ulFlags&VEH_OUTOFCONTROL))
+				if (!(Any( pVeh->m_ulFlags & VEH_OUTOFCONTROL )))
 		 		{
 					gentity_t*	parent	= pVeh->m_pParentEntity;
 					float		CurSpeed = VectorLength(parent->client->ps.velocity);
@@ -473,7 +473,7 @@ void	Pilot_Steer_Vehicle()
 
 	// If my vehicle is spinning out of control, just hold on, we're going to die!!!!!
 	//---------------------------------------------------------------------------------
-	if (ActorVeh && (ActorVeh->m_ulFlags & VEH_OUTOFCONTROL))
+	if (ActorVeh && (Any( ActorVeh->m_ulFlags & VEH_OUTOFCONTROL )))
 	{
 		if (NPC->client->ps.weapon!=WP_NONE)
 		{
@@ -504,7 +504,7 @@ void	Pilot_Steer_Vehicle()
 	Vehicle_t*	EnemyVeh		= (NPC->enemy->s.m_iVehicleNum)?(g_entities[NPC->enemy->s.m_iVehicleNum].m_pVehicle):(nullptr);
 	bool		EnemyInTurbo	= (EnemyVeh && EnemyVeh->m_iTurboTime>level.time);
 	float		EnemySpeed		= (EnemyVeh)?(EnemyVeh->m_pParentEntity->client->ps.speed):(NPC->enemy->resultspeed);
-	bool		EnemySlideBreak	= (EnemyVeh && (EnemyVeh->m_ulFlags&VEH_SLIDEBREAKING || EnemyVeh->m_ulFlags&VEH_STRAFERAM));
+	bool		EnemySlideBreak	= (EnemyVeh && (Any( EnemyVeh->m_ulFlags & VEH_SLIDEBREAKING ) || Any( EnemyVeh->m_ulFlags & VEH_STRAFERAM )));
 	bool		EnemyDead		= (NPC->enemy->health<=0);
 
 	bool		ActorFlank		= (NPCInfo->lastAvoidSteerSideDebouncer>level.time && EnemyVeh && EnemySpeed>10.0f);

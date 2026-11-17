@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __ITEMS_H__
 
 // Items enums
-enum
+enum class itemNum_t
 {
 ITM_NONE,
 
@@ -91,9 +91,11 @@ ITM_SECURITY_KEY_PICKUP,
 
 ITM_NUM_ITEMS
 };
+using enum itemNum_t;
+template <> inline constexpr bool enableEnumArithmetic<itemNum_t> = true;
 
 // Inventory item enums
-enum //# item_e
+enum class inventory_t //# item_e
 {
 	INV_ELECTROBINOCULARS,
 	INV_BACTA_CANISTER,
@@ -106,5 +108,7 @@ enum //# item_e
 
 	INV_MAX						// Be sure to update MAX_INVENTORY
 };
+using enum inventory_t;
+template <> inline constexpr bool enableEnumArithmetic<inventory_t> = true;
 
 #endif

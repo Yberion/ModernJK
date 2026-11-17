@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __INTERPRETER__
 #define __INTERPRETER__
 
+#include "tokens.h"
+
 #define ICARUS_VERSION	1.33
 
 #define MAX_STRING_SIZE	256
@@ -32,110 +34,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 typedef float	vector_t[3];
 
-//Token defines
-enum
-{
-	TK_BLOCK_START = TK_USERDEF,
-	TK_BLOCK_END,
-	TK_VECTOR_START,
-	TK_VECTOR_END,
-	TK_OPEN_PARENTHESIS,
-	TK_CLOSED_PARENTHESIS,
-	TK_VECTOR,
-	TK_GREATER_THAN,
-	TK_LESS_THAN,
-	TK_EQUALS,
-	TK_NOT,
-
-	NUM_USER_TOKENS
-};
-
-//ID defines
-enum
-{
-	ID_AFFECT = NUM_USER_TOKENS,
-	ID_SOUND,
-	ID_MOVE,
-	ID_ROTATE,
-	ID_WAIT,
-	ID_BLOCK_START,
-	ID_BLOCK_END,
-	ID_SET,
-	ID_LOOP,
-	ID_LOOPEND,
-	ID_PRINT,
-	ID_USE,
-	ID_FLUSH,
-	ID_RUN,
-	ID_KILL,
-	ID_REMOVE,
-	ID_CAMERA,
-	ID_GET,
-	ID_RANDOM,
-	ID_IF,
-	ID_ELSE,
-	ID_REM,
-	ID_TASK,
-	ID_DO,
-	ID_DECLARE,
-	ID_FREE,
-	ID_DOWAIT,
-	ID_SIGNAL,
-	ID_WAITSIGNAL,
-	ID_PLAY,
-
-	ID_TAG,
-	ID_EOF,
-	NUM_IDS
-};
-
-//Type defines
-enum
-{
-	//Wait types
-	TYPE_WAIT_COMPLETE	 = NUM_IDS,
-	TYPE_WAIT_TRIGGERED,
-
-	//Set types
-	TYPE_ANGLES,
-	TYPE_ORIGIN,
-
-	//Affect types
-	TYPE_INSERT,
-	TYPE_FLUSH,
-
-	//Camera types
-	TYPE_PAN,
-	TYPE_ZOOM,
-	TYPE_MOVE,
-	TYPE_FADE,
-	TYPE_PATH,
-	TYPE_ENABLE,
-	TYPE_DISABLE,
-	TYPE_SHAKE,
-	TYPE_ROLL,
-	TYPE_TRACK,
-	TYPE_DISTANCE,
-	TYPE_FOLLOW,
-
-	//Variable type
-	TYPE_VARIABLE,
-
-	TYPE_EOF,
-	NUM_TYPES
-};
-
-enum
-{
-	MSG_COMPLETED,
-	MSG_EOF,
-	NUM_MESSAGES,
-};
-
 typedef struct variable_s
 {
 	char	name[MAX_VAR_NAME];
-	int		type;
+	icarusToken_t	type;
 	void	*data;
 } variable_t;
 
@@ -153,10 +55,10 @@ public:
 
 	int Interpret( CTokenizer *, CBlockStream *, char *filename=nullptr );	//Main interpretation function
 
-	int Match( int );		//Looks ahead to the next token to try and match it to the passed token, consumes token on success
-	int LookAhead( int );	//Looks ahead without consuming on success
+	int Match( icarusToken_t );		//Looks ahead to the next token to try and match it to the passed token, consumes token on success
+	int LookAhead( icarusToken_t );	//Looks ahead without consuming on success
 
-	int FindSymbol( const char *,  keywordArray_t * );		//Searches the symbol table for the given name.  Returns the ID if found
+	icarusToken_t FindSymbol( const char *,  keywordArray_t * );		//Searches the symbol table for the given name.  Returns the ID if found
 
 	int GetAffect( void );		//Handles the affect() function
 	int GetWait( void );		//Handles the wait() function
@@ -190,7 +92,7 @@ public:
 	int	GetTag( CBlock *block );		//Handles the tag() identifier
 	int GetVector( CBlock *block );
 
-	int GetNextType( void );
+	icarusToken_t GetNextType( void );
 
 	int GetType( char *get );
 
@@ -200,7 +102,7 @@ public:
 	int	GetIdentifier( CBlock *get );	//Attempts to match and retrieve the value of an identifier token
 	int	GetInteger( CBlock * );		//Attempts to match and retrieve the value of a int token
 	int GetFloat( CBlock * );		//Attempts to match and retrieve the value of a float token
-	int GetVariable( int type );
+	int GetVariable( icarusToken_t type );
 
 	int GetID ( char * );	//Attempts to match and interpret an identifier
 
@@ -213,10 +115,10 @@ protected:
 	void InitVars( void );
 	void FreeVars( void );
 
-	variable_t *AddVar( const char *name, int type );
+	variable_t *AddVar( const char *name, icarusToken_t type );
 	variable_t *FindVar( const char *name );
 
-	const char *GetTokenName( int );	//Returns the name of a token
+	const char *GetTokenName( icarusToken_t );	//Returns the name of a token
 	int Error( char *, ... );			//Prints an error message
 
 	int MatchTag( void );				//Attempts to match to a tag identifier

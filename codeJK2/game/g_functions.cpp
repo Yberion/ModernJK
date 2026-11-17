@@ -326,7 +326,7 @@ void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 	}
 }
 
-void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc)
+void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc)
 {
 //#define PAINCASE(blah) case painF_ ## blah: blah(self,attacker,damage); OutputDebugString(va("%s\n",#blah));break;
 #define PAINCASE(blah) case painF_ ## blah: blah(self,inflictor,attacker,point,damage,mod,hitLoc); break;
@@ -366,7 +366,7 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 }
 
 
-void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc)
+void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc)
 {
 //#define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod); OutputDebugString(va("%s\n",#blah));break;
 #define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod,dFlags,hitLoc); break;

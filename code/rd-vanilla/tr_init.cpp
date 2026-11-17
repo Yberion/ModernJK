@@ -1667,7 +1667,7 @@ Ghoul2 Insert End
 	sv_mapChecksum = ri.Cvar_Get ( "sv_mapChecksum", "", CVAR_ROM );
 	se_language = ri.Cvar_Get ( "se_language", "english", CVAR_ARCHIVE | CVAR_NORESTART );
 #ifdef JK2_MODE
-	sp_language = ri.Cvar_Get ( "sp_language", va("%d", SP_LANGUAGE_ENGLISH), CVAR_ARCHIVE | CVAR_NORESTART );
+	sp_language = ri.Cvar_Get ( "sp_language", va("%d", to_underlying( SP_LANGUAGE_ENGLISH )), CVAR_ARCHIVE | CVAR_NORESTART );
 #endif
 	com_buildScript = ri.Cvar_Get ( "com_buildScript", "0", 0 );
 

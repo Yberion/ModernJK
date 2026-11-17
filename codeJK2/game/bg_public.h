@@ -621,9 +621,10 @@ typedef struct gitem_s {
 // What an item's giTag holds, by its giType: the one conversion of the cell
 [[nodiscard]] inline ammo_t GI_Ammo( const gitem_t &item ) { return static_cast<ammo_t>( item.giTag ); }
 [[nodiscard]] inline weapon_t GI_Weapon( const gitem_t &item ) { return static_cast<weapon_t>( item.giTag ); }
+[[nodiscard]] inline inventory_t GI_Inventory( const gitem_t &item ) { return static_cast<inventory_t>( item.giTag ); }
 
 // included in both the game dll and the client
-extern	gitem_t	bg_itemlist[];
+extern	EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;
 extern	const int		bg_numItems;
 
 
@@ -649,9 +650,12 @@ extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 gitem_t	*FindItem( const char *className );
 gitem_t	*FindItemForWeapon( weapon_t weapon );
-gitem_t	*FindItemForInventory( int inv );
+gitem_t	*FindItemForInventory( inventory_t inv );
 
-#define	ITEM_INDEX(x) ((x)-bg_itemlist)
+// An item's number, its place in bg_itemlist: the one conversion of a pointer into the table
+[[nodiscard]] inline itemNum_t ITEM_INDEX( const gitem_t *item ) { return static_cast<itemNum_t>( item - bg_itemlist.data() ); }
+// An item entity's number, kept in its state's modelindex: the one conversion of the field
+[[nodiscard]] inline itemNum_t ES_ItemNum( const entityState_t &es ) { return static_cast<itemNum_t>( es.modelindex ); }
 
 bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 

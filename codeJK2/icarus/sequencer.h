@@ -62,11 +62,12 @@ typedef struct bstream_s
 
 //Enumerations
 
-enum
+enum class sequencerResult_t
 {
 	SEQ_OK,				//Command was successfully added
 	SEQ_FAILED,			//An error occured while trying to insert the command
 };
+using enum sequencerResult_t;
 
 // Sequencer
 
@@ -91,12 +92,12 @@ public:
 	CSequencer();
 	~CSequencer();
 
-	int Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iCARUS );
+	sequencerResult_t Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iCARUS );
 	static CSequencer *Create ( void );
-	int Free( void );
+	sequencerResult_t Free( void );
 
-	int Run( char *buffer, long size );
-	int Callback( CTaskManager *taskManager, CBlock *block, int returnCode );
+	sequencerResult_t Run( char *buffer, long size );
+	sequencerResult_t Callback( CTaskManager *taskManager, CBlock *block, taskReturn_t returnCode );
 
 	ICARUS_Instance	*GetOwner( void )	{	return m_owner;	}
 
@@ -117,14 +118,14 @@ protected:
 
 	int EvaluateConditional( CBlock *block );
 
-	int Route( CSequence *sequence, bstream_t *bstream );
-	int Flush( CSequence *owner );
+	sequencerResult_t Route( CSequence *sequence, bstream_t *bstream );
+	sequencerResult_t Flush( CSequence *owner );
 	void Interrupt( void );
 
 	bstream_t *AddStream( void );
 	void DeleteStream( bstream_t *bstream );
 
-	int AddAffect( bstream_t *bstream, int retain, int *id );
+	sequencerResult_t AddAffect( bstream_t *bstream, int retain, int *id );
 
 	CSequence *AddSequence( void );
 	CSequence *AddSequence( CSequence *parent, CSequence *returnSeq, int flags );
@@ -132,11 +133,11 @@ protected:
 	CSequence *GetSequence( int id );
 
 	//NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!
-	int RemoveSequence( CSequence *sequence);
-	int DestroySequence( CSequence *sequence);
+	sequencerResult_t RemoveSequence( CSequence *sequence);
+	sequencerResult_t DestroySequence( CSequence *sequence);
 
-	int PushCommand( CBlock *command, int flag );
-	CBlock *PopCommand( int flag );
+	sequencerResult_t PushCommand( CBlock *command, pushPop_t flag );
+	CBlock *PopCommand( pushPop_t flag );
 
 	inline CSequence *ReturnSequence( CSequence *sequence );
 
@@ -149,16 +150,16 @@ protected:
 
 	void Prep( CBlock ** );
 
-	int Prime( CTaskManager *taskManager, CBlock *command );
+	sequencerResult_t Prime( CTaskManager *taskManager, CBlock *command );
 
-	int ParseRun( CBlock *block );
-	int ParseLoop( CBlock *block, bstream_t *bstream );
-	int ParseAffect( CBlock *block, bstream_t *bstream );
-	int ParseIf( CBlock *block, bstream_t *bstream );
-	int ParseElse( CBlock *block, bstream_t *bstream );
-	int ParseTask( CBlock *block, bstream_t *bstream );
+	sequencerResult_t ParseRun( CBlock *block );
+	sequencerResult_t ParseLoop( CBlock *block, bstream_t *bstream );
+	sequencerResult_t ParseAffect( CBlock *block, bstream_t *bstream );
+	sequencerResult_t ParseIf( CBlock *block, bstream_t *bstream );
+	sequencerResult_t ParseElse( CBlock *block, bstream_t *bstream );
+	sequencerResult_t ParseTask( CBlock *block, bstream_t *bstream );
 
-	int Affect( int id, int type );
+	sequencerResult_t Affect( int id, icarusToken_t type );
 
 	void AddTaskSequence( CSequence *sequence, CTaskGroup *group );
 	CSequence *GetTaskSequence( CTaskGroup *group );

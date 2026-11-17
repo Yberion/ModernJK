@@ -114,7 +114,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 				ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 			}
 
-			int hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
+			hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
 			if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 			{//hehe
 				G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 3, DAMAGE_DEATH_KNOCKBACK, MOD_DISRUPTOR, hitLoc );
@@ -281,7 +281,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 						ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 					}
 
-					int hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
+					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
 					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 					{//hehe
 						G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, fullCharge ? MOD_SNIPER : MOD_DISRUPTOR, hitLoc );

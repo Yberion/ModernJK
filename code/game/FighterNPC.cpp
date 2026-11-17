@@ -1591,7 +1591,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		&& curTime - parentPS->hyperSpaceTime < HYPERSPACE_TIME )
 	{//Going to Hyperspace
 		//close the wings (FIXME: makes sense on X-Wing, not Shuttle?)
-		if ( pVeh->m_ulFlags & VEH_WINGSOPEN )
+		if ( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
 		{
 			pVeh->m_ulFlags &= ~VEH_WINGSOPEN;
 			Anim = BOTH_WINGS_CLOSE;
@@ -1606,7 +1606,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		// if we're above launch height (way up in the air)...
 		if ( !isLanding && !isLanded )
 		{
-			if ( !( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
+			if ( !( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) ) )
 			{
 				pVeh->m_ulFlags |= VEH_WINGSOPEN;
 				pVeh->m_ulFlags &= ~VEH_GEARSOPEN;
@@ -1621,7 +1621,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 				&& pVeh->m_LandTrace.plane.normal[2] >= MIN_LANDING_SLOPE )
 			{//already landed or trying to land and close to ground
 				// Open gears.
-				if ( !( pVeh->m_ulFlags & VEH_GEARSOPEN ) )
+				if ( !( Any( pVeh->m_ulFlags & VEH_GEARSOPEN ) ) )
 				{
 #ifdef _JK2MP
 					if ( pVeh->m_pVehicleInfo->soundLand )
@@ -1640,7 +1640,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			else
 			{//trying to take off and almost halfway off the ground
 				// Close gears (if they're open).
-				if ( pVeh->m_ulFlags & VEH_GEARSOPEN )
+				if ( Any( pVeh->m_ulFlags & VEH_GEARSOPEN ) )
 				{
 					pVeh->m_ulFlags &= ~VEH_GEARSOPEN;
 					Anim = BOTH_GEARS_CLOSE;
@@ -1649,7 +1649,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 				// If gears are closed, and we are below launch height, close the wings.
 				else
 				{
-					if ( pVeh->m_ulFlags & VEH_WINGSOPEN )
+					if ( Any( pVeh->m_ulFlags & VEH_WINGSOPEN ) )
 					{
 						pVeh->m_ulFlags &= ~VEH_WINGSOPEN;
 						Anim = BOTH_WINGS_CLOSE;

@@ -43,7 +43,7 @@ void CG_Init( int serverCommandSequence );
 bool CG_ConsoleCommand( void );
 void CG_Shutdown( void );
 int CG_GetCameraPos( vec3_t camerapos );
-void UseItem(int itemNum);
+void UseItem(inventory_t itemNum);
 const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight,
 								const char *psText, int iFontHandle, float fScale,
 								const vec4_t v4Color);
@@ -64,8 +64,8 @@ Ghoul2 Insert End
 
 
 void CG_LoadHudMenu(void);
-int inv_icons[INV_MAX];
-const char *inv_names[] =
+EnumArray<int, inventory_t, INV_MAX> inv_icons;
+EnumArray<const char *, inventory_t, 16> inv_names =
 {
 "ELECTROBINOCULARS",
 "BACTA CANISTER",
@@ -223,7 +223,7 @@ cg_t				cg;
 cgs_t				cgs;
 centity_t			cg_entities[MAX_GENTITIES];
 EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>		cg_weapons;
-itemInfo_t			cg_items[MAX_ITEMS];
+EnumArray<itemInfo_t, itemNum_t, MAX_ITEMS>	cg_items;
 
 typedef struct {
 	bool		registered;		// Has the player picked it up
@@ -232,7 +232,7 @@ typedef struct {
 	char			description[128];
 } inventoryInfo_t;
 
-inventoryInfo_t		cg_inventory[INV_MAX];
+EnumArray<inventoryInfo_t, inventory_t, INV_MAX>		cg_inventory;
 
 
 vmCvar_t	cg_centertime;
@@ -573,7 +573,7 @@ CG_RegisterItemSounds
 The server says this item is used on this level
 =================
 */
-void CG_RegisterItemSounds( int itemNum ) {
+void CG_RegisterItemSounds( itemNum_t itemNum ) {
 	gitem_t			*item;
 	char			data[MAX_QPATH];
 	char			*s, *start;
@@ -736,10 +736,10 @@ static void CG_RegisterSounds( void ) {
 	//Raz: Fixed buffer overflow
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' )	//even with sound pooling, don't clutter it for low end machines
+	for ( itemNum_t itemNum = ITM_NONE + 1 ; itemNum < ITM_NUM_ITEMS ; itemNum++ ) {
+		if ( items[ to_underlying( itemNum ) ] == '1' )	//even with sound pooling, don't clutter it for low end machines
 		{
-			CG_RegisterItemSounds( i );
+			CG_RegisterItemSounds( itemNum );
 		}
 	}
 
@@ -1329,26 +1329,26 @@ static void CG_RegisterGraphics( void ) {
 		ammoTicPos[i].tic = cgi_R_RegisterShaderNoMip( ammoTicPos[i].file );
 	}
 
-	memset( cg_items, 0, sizeof( cg_items ) );
+	memset( &cg_items, 0, sizeof( cg_items ) );
 	memset( &cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
 	Q_strncpyz( items, CG_ConfigString( CS_ITEMS ), sizeof(items) );
 
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' )
+	for ( itemNum_t itemNum = ITM_NONE + 1 ; itemNum < ITM_NUM_ITEMS ; itemNum++ ) {
+		if ( items[ to_underlying( itemNum ) ] == '1' )
 		{
-			if (bg_itemlist[i].classname)
+			if (bg_itemlist[itemNum].classname)
 			{
-				CG_LoadingString( bg_itemlist[i].classname );
-				CG_RegisterItemVisuals( i );
+				CG_LoadingString( bg_itemlist[itemNum].classname );
+				CG_RegisterItemVisuals( itemNum );
 			}
 		}
-		if (bg_itemlist[i].giType == IT_HOLDABLE)
+		if (bg_itemlist[itemNum].giType == IT_HOLDABLE)
 		{
-			if (bg_itemlist[i].giTag < INV_MAX)
+			if (GI_Inventory( bg_itemlist[itemNum] ) < INV_MAX)
 			{
-				inv_icons[bg_itemlist[i].giTag] = cgi_R_RegisterShaderNoMip( bg_itemlist[i].icon );
+				inv_icons[GI_Inventory( bg_itemlist[itemNum] )] = cgi_R_RegisterShaderNoMip( bg_itemlist[itemNum].icon );
 			}
 		}
 	}
@@ -1539,7 +1539,7 @@ bool qbVidRestartOccured = false;
 //===================
 bool gbUseTheseValuesFromLoadSave = false;	// MUST default to this
 int gi_cg_forcepowerSelect;
-int gi_cg_inventorySelect;
+inventory_t gi_cg_inventorySelect;
 //===================
 
 
@@ -1581,7 +1581,7 @@ Ghoul2 Insert End
 */
 
 	memset( &cg_weapons, 0, sizeof(cg_weapons) );
-	memset( cg_items, 0, sizeof(cg_items) );
+	memset( &cg_items, 0, sizeof(cg_items) );
 
 	CG_LinkCentsToGents();
 
@@ -1803,7 +1803,7 @@ void CG_Shutdown( void )
 CG_DrawNode
 -------------------------
 */
-void CG_DrawNode( vec3_t origin, int type )
+void CG_DrawNode( vec3_t origin, nodeType_t type )
 {
 	localEntity_t	*ex;
 
@@ -1856,7 +1856,7 @@ CG_DrawRadius
 -------------------------
 */
 
-void CG_DrawRadius( vec3_t origin, unsigned int radius, int type )
+void CG_DrawRadius( vec3_t origin, unsigned int radius, nodeType_t type )
 {
 	localEntity_t	*ex;
 
@@ -1904,7 +1904,7 @@ CG_DrawEdge
 -------------------------
 */
 
-void CG_DrawEdge( vec3_t start, vec3_t end, int type )
+void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 {
 	switch ( type )
 	{
@@ -2485,7 +2485,7 @@ INVENTORY SELECTION
 CG_InventorySelectable
 ===============
 */
-static bool CG_InventorySelectable( int index)
+static bool CG_InventorySelectable( inventory_t index)
 {
 	if (cg.snap->ps.inventory[index])	// Is there any in the inventory?
 	{
@@ -2523,16 +2523,16 @@ CG_DPPrevInventory_f
 */
 void CG_DPPrevInventory_f( void )
 {
-	int		i;
+	inventory_t	i;
 
 	if ( !cg.snap )
 	{
 		return;
 	}
 
-	const int original = cg.DataPadInventorySelect;
+	const inventory_t original = cg.DataPadInventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		cg.DataPadInventorySelect--;
 
@@ -2556,16 +2556,16 @@ CG_DPNextInventory_f
 */
 void CG_DPNextInventory_f( void )
 {
-	int		i;
+	inventory_t	i;
 
 	if ( !cg.snap )
 	{
 		return;
 	}
 
-	const int original = cg.DataPadInventorySelect;
+	const inventory_t original = cg.DataPadInventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		cg.DataPadInventorySelect++;
 
@@ -2590,7 +2590,7 @@ CG_NextInventory_f
 */
 void CG_NextInventory_f( void )
 {
-	int		i;
+	inventory_t	i;
 	float	*color;
 
 	if ( !cg.snap )
@@ -2606,9 +2606,9 @@ void CG_NextInventory_f( void )
 		return;
 	}
 
-	const int original = cg.inventorySelect;
+	const inventory_t original = cg.inventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		cg.inventorySelect++;
 
@@ -2644,7 +2644,7 @@ CG_PrevInventory_f
 */
 void CG_PrevInventory_f( void )
 {
-	int		i;
+	inventory_t	i;
 	float	*color;
 
 	if ( !cg.snap )
@@ -2660,9 +2660,9 @@ void CG_PrevInventory_f( void )
 		return;
 	}
 
-	const int original = cg.inventorySelect;
+	const inventory_t original = cg.inventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		cg.inventorySelect--;
 
@@ -2688,10 +2688,8 @@ void CG_PrevInventory_f( void )
 FindInventoryItemTag
 ===================
 */
-gitem_t *FindInventoryItemTag(int tag)
+gitem_t *FindInventoryItemTag(inventory_t tag)
 {
-	int		i;
-
 /*	if (!Q_stricmp(tokenStr,"INV_ELECTROBINOCULARS")
 	{
 		tag = INV_ELECTROBINOCULARS;
@@ -2722,9 +2720,9 @@ gitem_t *FindInventoryItemTag(int tag)
 	}
 */
 
-	for ( i = 1 ; i < bg_numItems ; i++ )
+	for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ )
 	{
-		if ( bg_itemlist[i].giTag == tag && bg_itemlist[i].giType == IT_HOLDABLE ) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
+		if ( GI_Inventory( bg_itemlist[i] ) == tag && bg_itemlist[i].giType == IT_HOLDABLE ) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
 		{
 			return &bg_itemlist[i];
 		}
@@ -2743,7 +2741,7 @@ CG_DrawInventorySelect
 */
 void CG_DrawInventorySelect( void )
 {
-	int				i;
+	inventory_t		i;
 	int				sideMax,holdCount,iconCnt;
 	int				smallIconSize,bigIconSize;
 	int				sideLeftIconCnt,sideRightIconCnt;
@@ -2781,7 +2779,7 @@ void CG_DrawInventorySelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
@@ -2819,7 +2817,7 @@ void CG_DrawInventorySelect( void )
 	}
 
 	i = cg.inventorySelect - 1;
-	if (i<0)
+	if (i<INV_ELECTROBINOCULARS)
 	{
 		i = INV_MAX-1;
 	}
@@ -2839,7 +2837,7 @@ void CG_DrawInventorySelect( void )
 
 	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
 	{
-		if (i<0)
+		if (i<INV_ELECTROBINOCULARS)
 		{
 			i = INV_MAX-1;
 		}
@@ -2905,7 +2903,7 @@ void CG_DrawInventorySelect( void )
 	i = cg.inventorySelect + 1;
 	if (i> INV_MAX-1)
 	{
-		i = 0;
+		i = INV_ELECTROBINOCULARS;
 	}
 
 	// Right side ICONS
@@ -2917,7 +2915,7 @@ void CG_DrawInventorySelect( void )
 	{
 		if (i> INV_MAX-1)
 		{
-			i = 0;
+			i = INV_ELECTROBINOCULARS;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -2943,7 +2941,7 @@ void CG_DrawInventorySelect( void )
 
 int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
 
-const char *inventoryDesc[15] =
+EnumArray<const char *, inventory_t, MAX_INVENTORY> inventoryDesc =
 {
 "NEURO_SAAV_DESC",
 "BACTA_DESC",
@@ -2962,7 +2960,7 @@ CG_DrawDataPadInventorySelect
 */
 void CG_DrawDataPadInventorySelect( void )
 {
-	int				i;
+	inventory_t		i;
 	int				sideMax,holdCount,iconCnt;
 	int				smallIconSize,bigIconSize;
 	int				sideLeftIconCnt,sideRightIconCnt;
@@ -2976,7 +2974,7 @@ void CG_DrawDataPadInventorySelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
@@ -3015,10 +3013,10 @@ void CG_DrawDataPadInventorySelect( void )
 	}
 
 //	char buffer[256];
-//	cgi_UI_GetItemText("datapadInventoryMenu",va("invdesc%d",cg.DataPadInventorySelect+1),buffer);
+//	cgi_UI_GetItemText("datapadInventoryMenu",va("invdesc%d",to_underlying( cg.DataPadInventorySelect )+1),buffer);
 
 	i = cg.DataPadInventorySelect - 1;
-	if (i<0)
+	if (i<INV_ELECTROBINOCULARS)
 	{
 		i = INV_MAX-1;
 	}
@@ -3038,7 +3036,7 @@ void CG_DrawDataPadInventorySelect( void )
 
 	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
 	{
-		if (i<0)
+		if (i<INV_ELECTROBINOCULARS)
 		{
 			i = INV_MAX-1;
 		}
@@ -3090,7 +3088,7 @@ void CG_DrawDataPadInventorySelect( void )
 	i = cg.DataPadInventorySelect + 1;
 	if (i> INV_MAX-1)
 	{
-		i = 0;
+		i = INV_ELECTROBINOCULARS;
 	}
 
 	// Right side ICONS
@@ -3102,7 +3100,7 @@ void CG_DrawDataPadInventorySelect( void )
 	{
 		if (i> INV_MAX-1)
 		{
-			i = 0;
+			i = INV_ELECTROBINOCULARS;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3129,7 +3127,7 @@ void CG_DrawDataPadInventorySelect( void )
 	x= 40;
 	y= 70;
 
-	if ((cg.DataPadInventorySelect>=0) && (cg.DataPadInventorySelect<13))
+	if ((cg.DataPadInventorySelect>=INV_ELECTROBINOCULARS) && (to_underlying( cg.DataPadInventorySelect )<13))
 	{
 		cgi_SP_GetStringTextString( va("INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
 
@@ -3234,7 +3232,7 @@ bool ForcePower_Valid(int index)
 	assert (MAX_SHOWPOWERS == ( sizeof(showPowers)/sizeof(showPowers[0]) ));
 	assert (index < MAX_SHOWPOWERS );	//is this a valid index?
 	if (player->client->ps.forcePowersKnown & Bit( showPowers[index] ) &&
-		player->client->ps.forcePowerLevel[showPowers[index]])	// Does he have the force power?
+		player->client->ps.forcePowerLevel[showPowers[index]] != FORCE_LEVEL_0)	// Does he have the force power?
 	{
 		return true;
 	}
@@ -3495,7 +3493,7 @@ bool ForcePowerDataPad_Valid(int index)
 
 	assert (index < MAX_DPSHOWPOWERS);
 	if (player->client->ps.forcePowersKnown & Bit( showDataPadPowers[index] ) &&
-		player->client->ps.forcePowerLevel[showDataPadPowers[index]])	// Does he have the force power?
+		player->client->ps.forcePowerLevel[showDataPadPowers[index]] != FORCE_LEVEL_0)	// Does he have the force power?
 	{
 		return true;
 	}
@@ -3802,11 +3800,11 @@ void CG_DrawDataPadForceSelect( void )
 
 	cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
 
-	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==1)
+	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==FORCE_LEVEL_1)
 	{
 		cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}
-	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==2)
+	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==FORCE_LEVEL_2)
 	{
 		cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}

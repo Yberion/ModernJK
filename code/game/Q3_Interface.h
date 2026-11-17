@@ -384,154 +384,6 @@ extern	void		Q3_SetVelocity( int entID, vec3_t angles );
 #define TKF_NODASHINIDENTIFIER			0x00000400
 #define TKF_COMMENTTOKENS				0x00000800
 
-enum
-{
-	TKERR_NONE,
-	TKERR_UNKNOWN,
-	TKERR_BUFFERCREATE,
-	TKERR_UNRECOGNIZEDSYMBOL,
-	TKERR_DUPLICATESYMBOL,
-	TKERR_STRINGLENGTHEXCEEDED,
-	TKERR_IDENTIFIERLENGTHEXCEEDED,
-	TKERR_EXPECTED_INTEGER,
-	TKERR_EXPECTED_IDENTIFIER,
-	TKERR_EXPECTED_STRING,
-	TKERR_EXPECTED_CHAR,
-	TKERR_EXPECTED_FLOAT,
-	TKERR_UNEXPECTED_TOKEN,
-	TKERR_INVALID_DIRECTIVE,
-	TKERR_INCLUDE_FILE_NOTFOUND,
-	TKERR_UNMATCHED_DIRECTIVE,
-	TKERR_USERERROR,
-};
-
-enum
-{
-	TK_EOF = -1,
-	TK_UNDEFINED,
-	TK_COMMENT,
-	TK_EOL,
-	TK_CHAR,
-	TK_STRING,
-	TK_INT,
-	TK_INTEGER = TK_INT,
-	TK_FLOAT,
-	TK_IDENTIFIER,
-	TK_USERDEF,
-};
-
-//Token defines
-enum
-{
-	TK_BLOCK_START = TK_USERDEF,
-	TK_BLOCK_END,
-	TK_VECTOR_START,
-	TK_VECTOR_END,
-	TK_OPEN_PARENTHESIS,
-	TK_CLOSED_PARENTHESIS,
-	TK_VECTOR,
-	TK_GREATER_THAN,
-	TK_LESS_THAN,
-	TK_EQUALS,
-	TK_NOT,
-
-	NUM_USER_TOKENS
-};
-
-//ID defines
-enum
-{
-	ID_AFFECT = NUM_USER_TOKENS,
-	ID_SOUND,
-	ID_MOVE,
-	ID_ROTATE,
-	ID_WAIT,
-	ID_BLOCK_START,
-	ID_BLOCK_END,
-	ID_SET,
-	ID_LOOP,
-	ID_LOOPEND,
-	ID_PRINT,
-	ID_USE,
-	ID_FLUSH,
-	ID_RUN,
-	ID_KILL,
-	ID_REMOVE,
-	ID_CAMERA,
-	ID_GET,
-	ID_RANDOM,
-	ID_IF,
-	ID_ELSE,
-	ID_REM,
-	ID_TASK,
-	ID_DO,
-	ID_DECLARE,
-	ID_FREE,
-	ID_DOWAIT,
-	ID_SIGNAL,
-	ID_WAITSIGNAL,
-	ID_PLAY,
-
-	ID_TAG,
-	ID_EOF,
-	NUM_IDS
-};
-
-//Type defines
-enum
-{
-	//Wait types
-	TYPE_WAIT_COMPLETE	 = NUM_IDS,
-	TYPE_WAIT_TRIGGERED,
-
-	//Set types
-	TYPE_ANGLES,
-	TYPE_ORIGIN,
-
-	//Affect types
-	TYPE_INSERT,
-	TYPE_FLUSH,
-
-	//Camera types
-	TYPE_PAN,
-	TYPE_ZOOM,
-	TYPE_MOVE,
-	TYPE_FADE,
-	TYPE_PATH,
-	TYPE_ENABLE,
-	TYPE_DISABLE,
-	TYPE_SHAKE,
-	TYPE_ROLL,
-	TYPE_TRACK,
-	TYPE_DISTANCE,
-	TYPE_FOLLOW,
-
-	//Variable type
-	TYPE_VARIABLE,
-
-	TYPE_EOF,
-
-	ID_CONTINUE,
-	ID_BREAK,
-	ID_ACTIVATE,
-	ID_DEACTIVATE,
-	ID_WHILE,
-	ID_WAITUNTIL,
-	ID_WAITAFFECT,
-	ID_TASKCOMPLETED,
-	ID_SIGNALCOUNT,
-	TK_GE,
-	TK_LE,
-
-	NUM_TYPES
-};
-
-enum
-{
-	MSG_COMPLETED,
-	MSG_EOF,
-	NUM_MESSAGES,
-};
 //////////////////////////////////////////////////////////////////////////
 /*						END Constants END								*/
 //////////////////////////////////////////////////////////////////////////
@@ -571,6 +423,16 @@ typedef std::map < std::string, std::array< char, MAX_STRING_CHARS > >		varStrin
 // Created: 10/08/02 by Aurelio Reis.
 class CQuake3GameInterface : public IGameInterface
 {
+public:
+	// Variable enums
+	enum class variableType_t { VTYPE_NONE = 0, VTYPE_FLOAT, VTYPE_STRING, VTYPE_VECTOR };
+	using enum variableType_t;
+	static constexpr int MAX_VARIABLES = 32;
+
+	// Register enums.
+	enum class scriptRegistration_t { SCRIPT_COULDNOTREGISTER = 0, SCRIPT_REGISTERED, SCRIPT_ALREADYREGISTERED };
+	using enum scriptRegistration_t;
+
 private:
 	// A list of script buffers (to ensure we cache a script only once).
 	scriptlist_t		m_ScriptList;
@@ -593,12 +455,12 @@ private:
 	void VariableSaveFloats( varFloat_m &fmap );
 	void VariableSaveStrings( varString_m &smap );
 	void VariableLoadFloats( varFloat_m &fmap );
-	void VariableLoadStrings( int type, varString_m &fmap );
+	void VariableLoadStrings( icarusToken_t type, varString_m &fmap );
 	void InitVariables( void );
 	int  GetStringVariable( const char *name, const char **value );
 	int  GetFloatVariable( const char *name, float *value );
 	int  GetVectorVariable( const char *name, vec3_t value );
-	int  VariableDeclared( const char *name );
+	variableType_t VariableDeclared( const char *name );
 	int  SetFloatVariable( const char *name, float value );
 	int  SetStringVariable( const char *name, const char *value );
 	int  SetVectorVariable( const char *name, const char *value );
@@ -607,12 +469,6 @@ private:
 public:
 	// Static Singleton Instance.
 	static CQuake3GameInterface *m_pInstance;
-
-	// Variable enums
-	enum { VTYPE_NONE = 0, VTYPE_FLOAT, VTYPE_STRING, VTYPE_VECTOR, MAX_VARIABLES = 32 };
-
-	// Register enums.
-	enum { SCRIPT_COULDNOTREGISTER = 0, SCRIPT_REGISTERED, SCRIPT_ALREADYREGISTERED };
 
 	// Constructor.
 	CQuake3GameInterface();
@@ -638,7 +494,7 @@ public:
 	// First looks to see if a script has already been loaded, if so, return SCRIPT_ALREADYREGISTERED. If a script has
 	// NOT been already cached, that script is loaded and the return is SCRIPT_REGISTERED. If a script could not
 	// be found cached and could not be loaded we return SCRIPT_COULDNOTREGISTER.
-	int RegisterScript( const char *strFileName, void **ppBuf, int &iLength );
+	scriptRegistration_t RegisterScript( const char *strFileName, void **ppBuf, int &iLength );
 
 	// Precache all the resources needed by a Script and it's Entity (or vice-versa).
 	int PrecacheEntity( gentity_t *pEntity );
@@ -672,7 +528,7 @@ public:
 	int 	PlayIcarusSound( int taskID, int entID, const char *name, const char *channel ) OVERRIDE;
 	void	Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float duration ) OVERRIDE;
 	void	Lerp2Angles( int taskID, int entID, vec3_t angles, float duration ) OVERRIDE;
-	int		GetTag( int entID, const char *name, int lookup, vec3_t info ) OVERRIDE;
+	int		GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info ) OVERRIDE;
 	void	Set( int taskID, int entID, const char *type_name, const char *data ) OVERRIDE;
 	void	Use( int entID, const char *name ) OVERRIDE;
 	void	Activate( int entID, const char *name ) OVERRIDE;
@@ -700,9 +556,9 @@ public:
 	int		GetVector( int entID, const char *name, vec3_t value ) OVERRIDE;
 	int		GetString( int entID, const char *name, const char **value ) OVERRIDE;
 
-	int		Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType ) OVERRIDE;
+	int		Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType ) OVERRIDE;
 
-	void	DeclareVariable( int type, const char *name ) OVERRIDE;
+	void	DeclareVariable( icarusToken_t type, const char *name ) OVERRIDE;
 	void	FreeVariable( const char *name ) OVERRIDE;
 
 	//Save / Load functions

@@ -37,31 +37,6 @@ bool BG_SabersOff( playerState_t *ps );
 extern stringID_table_t BSTable[];
 
 
-//This is a hack I guess. It's because we can't include the file this enum is in
-//unless we're using cpp. But we need it for the interpreter stuff.
-//In any case, DO NOT modify this enum.
-
-// Hack++
-// This code is compiled as C++ on Xbox. We could try and rig something above
-// so that we only get the C version of the includes (no full Icarus) in that
-// scenario, but I think we'll just try to leave this out instead.
-//#if defined(__linux__) && defined(__GCC__) || !defined(__linux__)
-enum
-{
-	TK_EOF = -1,
-	TK_UNDEFINED,
-	TK_COMMENT,
-	TK_EOL,
-	TK_CHAR,
-	TK_STRING,
-	TK_INT,
-	TK_INTEGER = TK_INT,
-	TK_FLOAT,
-	TK_IDENTIFIER,
-	TK_USERDEF,
-};
-//#endif
-
 #include "icarus/interpreter.h"
 
 
@@ -968,7 +943,7 @@ Q3_GetTag
 Gets the value of a tag by the give name
 =============
 */
-int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
+int	Q3_GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info )
 {
 	gentity_t	*ent = &g_entities[entID];
 
@@ -986,6 +961,9 @@ int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
 
 	case TYPE_ANGLES:
 		return TAG_GetAngles( ent->ownername, name, info );
+		break;
+
+	default:
 		break;
 	}
 
@@ -1204,12 +1182,12 @@ Q3_GetFloat
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: float *value
 ============
 */
-int Q3_GetFloat( int entID, int type, const char *name, float *value )
+int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 {
 	gentity_t	*ent = &g_entities[entID];
 
@@ -1587,12 +1565,12 @@ Q3_GetVector
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: vec3_t value
 ============
 */
-int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
+int Q3_GetVector( int entID, icarusToken_t type, const char *name, vec3_t value )
 {
 	gentity_t	*ent = &g_entities[entID];
 	if ( !ent )
@@ -1658,12 +1636,12 @@ Q3_GetString
   Description	:
   Return type	: int
   Argument		:  int entID
-  Argument		: int type
+  Argument		: icarusToken_t type
   Argument		: const char *name
   Argument		: char **value
 ============
 */
-int Q3_GetString( int entID, int type, const char *name, const char **value )
+int Q3_GetString( int entID, icarusToken_t type, const char *name, const char **value )
 {
 	gentity_t	*ent = &g_entities[entID];
 	if ( !ent )

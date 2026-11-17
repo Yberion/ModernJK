@@ -62,7 +62,7 @@ extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time 
 extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
 extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
-extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc );
+extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc );
 extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern bool G_ClearViewEntity( gentity_t *ent );
 extern bool PM_CrouchAnim( animNumber_t anim );
@@ -70,7 +70,7 @@ extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
 extern bool PM_SpinningAnim( animNumber_t anim );
 extern bool PM_RunningAnim( animNumber_t anim );
-extern int PM_PowerLevelForSaberAnim( playerState_t *ps );
+extern forcePowerLevels_t PM_PowerLevelForSaberAnim( playerState_t *ps );
 extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SpinningSaberAnim( animNumber_t anim );
 extern bool PM_FlippingAnim( animNumber_t anim );
@@ -82,10 +82,10 @@ extern bool PM_SaberInReturn( saberMoveName_t move );
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist );
-static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
-static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
+static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc );
+static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc );
 static void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOfDeath_t mod );
-static bool G_Dismemberable( gentity_t *self, int hitLoc );
+static bool G_Dismemberable( gentity_t *self, hitLocation_t hitLoc );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 /*
 ============
@@ -325,14 +325,14 @@ void ExplodeDeath( gentity_t *self )
 	ObjectDie( self, self, self, 20, MOD_UNKNOWN );
 }
 
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
 {
 	self->e_DieFunc = dieF_NULL;
 	self->nextthink = level.time + Q_irand(100, 500);
 	self->e_ThinkFunc = thinkF_ExplodeDeath;
 }
 
-void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
+void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
 {
 	self->currentOrigin[2] += 16; // me bad for hacking this.  should either do it in the effect file or make a custom explode death??
 	ExplodeDeath( self );
@@ -807,7 +807,7 @@ bool G_JediInRoom( vec3_t from )
 	return false;
 }
 
-bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod )
+bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod )
 {
 	bool dismember = false;
 
@@ -1229,7 +1229,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	return dismember;
 }
 
-int G_GetHitLocation ( gentity_t *target, vec3_t ppoint )
+hitLocation_t G_GetHitLocation ( gentity_t *target, vec3_t ppoint )
 {
 	vec3_t			point, point_dir;
 	vec3_t			forward, right, up;
@@ -1413,7 +1413,7 @@ int G_GetHitLocation ( gentity_t *target, vec3_t ppoint )
 	//return HL_NONE;
 }
 
-std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc = HL_NONE )
+std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, hitLocation_t hitLoc = HL_NONE )
 {
 	if ( hitLoc == HL_NONE )
 	{
@@ -1635,8 +1635,8 @@ void LimbThink( gentity_t *ent )
 	}
 }
 
-float hitLocHealthPercentage[HL_MAX] =
-{
+EnumArray<float, hitLocation_t, HL_MAX> hitLocHealthPercentage =
+{{
 	0.0f,	//HL_NONE = 0,
 	0.05f,	//HL_FOOT_RT,
 	0.05f,	//HL_FOOT_LT,
@@ -1660,10 +1660,10 @@ float hitLocHealthPercentage[HL_MAX] =
 	0.0f,	//HL_GENERIC4,
 	0.0f,	//HL_GENERIC5,
 	0.0f	//HL_GENERIC6
-};
+}};
 
-const char *hitLocName[HL_MAX] =
-{
+EnumArray<const char *, hitLocation_t, HL_MAX> hitLocName =
+{{
 	"none",	//HL_NONE = 0,
 	"right foot",	//HL_FOOT_RT,
 	"left foot",	//HL_FOOT_LT,
@@ -1687,9 +1687,9 @@ const char *hitLocName[HL_MAX] =
 	"generic4",	//HL_GENERIC4,
 	"generic5",	//HL_GENERIC5,
 	"generic6"	//HL_GENERIC6
-};
+}};
 
-bool G_LimbLost( gentity_t *ent, int hitLoc )
+bool G_LimbLost( gentity_t *ent, hitLocation_t hitLoc )
 {
 	switch ( hitLoc )
 	{
@@ -1781,7 +1781,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 				 const char *limbBone, const char *rotateBone, const char *limbName,
 				 const char *limbCapName, const char *stubCapName, const char *limbTagName, const char *stubTagName,
 				 animNumber_t limbAnim, float limbRollBase, float limbPitchBase,
-				 int damage, int hitLoc )
+				 int damage, hitLocation_t hitLoc )
 {
 	int newBolt;
 	vec3_t	dir, newPoint, limbAngles = {0,ent->client->ps.legsYaw,0};
@@ -2074,7 +2074,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	return true;
 }
 
-static bool G_Dismemberable( gentity_t *self, int hitLoc )
+static bool G_Dismemberable( gentity_t *self, hitLocation_t hitLoc )
 {
 	if ( self->client->dismembered )
 	{//cannot dismember me right now
@@ -2126,7 +2126,7 @@ static bool G_Dismemberable( gentity_t *self, int hitLoc )
 	return true;
 }
 
-static bool G_Dismemberable2( gentity_t *self, int hitLoc )
+static bool G_Dismemberable2( gentity_t *self, hitLocation_t hitLoc )
 {
 	if ( self->client->dismembered )
 	{//cannot dismember me right now
@@ -2146,7 +2146,7 @@ static bool G_Dismemberable2( gentity_t *self, int hitLoc )
 }
 
 extern bool G_StandardHumanoid( const char *modelName );
-bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false )
+bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false )
 {
 extern cvar_t	*g_iscensored;
 	// dismemberment -- FIXME: should have a check for how long npc has been dead so people can't
@@ -2324,7 +2324,7 @@ extern cvar_t	*g_iscensored;
 	return false;
 }
 
-static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	std::optional<animNumber_t> deathAnim;
 
@@ -2835,7 +2835,7 @@ static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec
 	return deathAnim;
 }
 extern bool PM_FinishedCurrentLegsAnim( gentity_t *self );
-static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
 	std::optional<animNumber_t> deathAnim;
 	if ( hitLoc == HL_NONE )
@@ -3336,7 +3336,7 @@ extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern bool FlyingCreature( gentity_t *ent );
 extern void G_DrivableATSTDie( gentity_t *self );
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, int dflags, int hitLoc )
+void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, int dflags, hitLocation_t hitLoc )
 {
 	std::optional<animNumber_t>	anim;
 	int			contents;
@@ -4211,7 +4211,7 @@ bool G_CheckForStrongAttackMomentum( gentity_t *self )
 	return false;
 }
 
-void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	if ( self->client->NPC_class == CLASS_ATST )
 	{//different kind of pain checking altogether
@@ -4635,8 +4635,8 @@ static void G_FriendlyFireReaction( gentity_t *self, gentity_t *other, int dflag
 	}
 }
 
-float damageModifier[HL_MAX] =
-{
+EnumArray<float, hitLocation_t, HL_MAX> damageModifier =
+{{
 	1.0f,	//HL_NONE,
 	0.25f,	//HL_FOOT_RT,
 	0.25f,	//HL_FOOT_LT,
@@ -4660,7 +4660,7 @@ float damageModifier[HL_MAX] =
 	1.0f,	//HL_GENERIC4,
 	1.0f,	//HL_GENERIC5,
 	1.0f,	//HL_GENERIC6,
-};
+}};
 
 void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOfDeath_t mod )
 {
@@ -4794,7 +4794,7 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, int hitLoc )
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	gclient_t	*client;
 	int			take;

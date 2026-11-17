@@ -35,13 +35,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern gitem_t	*BG_FindItemForAmmo( ammo_t ammo );
 
 //Local state enums
-enum
+enum class mark2LocalState_t
 {
 	LSTATE_NONE = 0,
 	LSTATE_DROPPINGDOWN,
 	LSTATE_DOWN,
 	LSTATE_RISINGUP,
 };
+using enum mark2LocalState_t;
 
 void NPC_Mark2_Precache( void )
 {
@@ -206,7 +207,7 @@ void Mark2_BlasterAttack(bool advance)
 {
 	if ( TIMER_Done( NPCS.NPC, "attackDelay" ) )	// Attack?
 	{
-		if (NPCS.NPCInfo->localState == LSTATE_NONE)	// He's up so shoot less often.
+		if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_NONE)	// He's up so shoot less often.
 		{
 			TIMER_Set( NPCS.NPC, "attackDelay", Q_irand( 500, 2000) );
 		}
@@ -241,14 +242,14 @@ void Mark2_AttackDecision( void )
 	advance		= (distance > MIN_DISTANCE_SQR);
 
 	// He's been ordered to get up
-	if (NPCS.NPCInfo->localState == LSTATE_RISINGUP)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_RISINGUP)
 	{
 		NPCS.NPC->flags &= ~FL_SHIELDED;
 		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1START, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		if ((NPCS.NPC->client->ps.legsTimer<=0) &&
 			NPCS.NPC->client->ps.torsoAnim == BOTH_RUN1START )
 		{
-			NPCS.NPCInfo->localState = LSTATE_NONE;	// He's up again.
+			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_NONE );	// He's up again.
 		}
 		return;
 	}
@@ -257,11 +258,11 @@ void Mark2_AttackDecision( void )
 	if ((!visible) || (!NPC_FaceEnemy(true)))
 	{
 		// If he's going down or is down, make him get up
-		if ((NPCS.NPCInfo->localState == LSTATE_DOWN) || (NPCS.NPCInfo->localState == LSTATE_DROPPINGDOWN))
+		if ((NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN) || (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROPPINGDOWN))
 		{
 			if ( TIMER_Done( NPCS.NPC, "downTime" ) )	// Down being down?? (The delay is so he doesn't pop up and down when the player goes in and out of range)
 			{
-				NPCS.NPCInfo->localState = LSTATE_RISINGUP;
+				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_RISINGUP );
 				NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 				TIMER_Set( NPCS.NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 			}
@@ -274,9 +275,9 @@ void Mark2_AttackDecision( void )
 	}
 
 	// He's down but he could advance if he wants to.
-	if ((advance) && (TIMER_Done( NPCS.NPC, "downTime" )) && (NPCS.NPCInfo->localState == LSTATE_DOWN))
+	if ((advance) && (TIMER_Done( NPCS.NPC, "downTime" )) && (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN))
 	{
-		NPCS.NPCInfo->localState = LSTATE_RISINGUP;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_RISINGUP );
 		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPCS.NPC, "runTime", Q_irand( 3000, 8000) );	// So he runs for a while before testing to see if he should drop down.
 	}
@@ -284,7 +285,7 @@ void Mark2_AttackDecision( void )
 	NPC_FaceEnemy( true );
 
 	// Dropping down to shoot
-	if (NPCS.NPCInfo->localState == LSTATE_DROPPINGDOWN)
+	if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROPPINGDOWN)
 	{
 		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, BOTH_RUN1STOP, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 		TIMER_Set( NPCS.NPC, "downTime", Q_irand( 3000, 9000) );
@@ -292,11 +293,11 @@ void Mark2_AttackDecision( void )
 		if ((NPCS.NPC->client->ps.legsTimer<=0) && NPCS.NPC->client->ps.torsoAnim == BOTH_RUN1STOP )
 		{
 			NPCS.NPC->flags |= FL_SHIELDED;
-			NPCS.NPCInfo->localState = LSTATE_DOWN;
+			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_DOWN );
 		}
 	}
 	// He's down and shooting
-	else if (NPCS.NPCInfo->localState == LSTATE_DOWN)
+	else if (NPC_LocalState<mark2LocalState_t>( *NPCS.NPCInfo ) == LSTATE_DOWN)
 	{
 		NPCS.NPC->flags |= FL_SHIELDED;//only damagable by lightsabers and missiles
 
@@ -304,7 +305,7 @@ void Mark2_AttackDecision( void )
 	}
 	else if (TIMER_Done( NPCS.NPC, "runTime" ))	// Lowering down to attack. But only if he's done running at you.
 	{
-		NPCS.NPCInfo->localState = LSTATE_DROPPINGDOWN;
+		NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_DROPPINGDOWN );
 	}
 	else if (advance)
 	{

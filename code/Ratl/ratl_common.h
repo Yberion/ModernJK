@@ -322,14 +322,11 @@ template <int	SZ>
 class bits_base
 {
 protected:
-	enum
-	{
-		BITS_SHIFT		= 5,									// 5.  Such A Nice Number
-		BITS_INT_SIZE	= 32,									// Size Of A Single Word
-		BITS_AND		= (BITS_INT_SIZE - 1),					// Used For And Operation
-		ARRAY_SIZE		= ((SZ + BITS_AND)/(BITS_INT_SIZE)),	// Num Words Used
-		BYTE_SIZE		= (ARRAY_SIZE*sizeof(unsigned int)),	// Num Bytes Used
-	};
+	static constexpr int BITS_SHIFT		= 5;									// 5.  Such A Nice Number
+	static constexpr int BITS_INT_SIZE	= 32;									// Size Of A Single Word
+	static constexpr int BITS_AND		= (BITS_INT_SIZE - 1);					// Used For And Operation
+	static constexpr int ARRAY_SIZE		= ((SZ + BITS_AND)/(BITS_INT_SIZE));	// Num Words Used
+	static constexpr int BYTE_SIZE		= (ARRAY_SIZE*sizeof(unsigned int));	// Num Bytes Used
 
 	////////////////////////////////////////////////////////////////////////////////////
 	// Data
@@ -517,12 +514,9 @@ namespace storage
 		typedef TStorage TArray[SIZE];
 
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TStorage);
 		static void construct(TStorage *)
 		{
 
@@ -649,12 +643,9 @@ namespace storage
 		};
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=1,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=MAX_CLASS_SIZE,
-		};
+		static constexpr bool NEEDS_CONSTRUCT=true;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=MAX_CLASS_SIZE;
 
 		static void construct(TStorage *me)
 		{
@@ -727,12 +718,9 @@ namespace storage
 		typedef bits_true TConstructed;
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValue),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValue);
 		static void construct(TStorage *)
 		{
 
@@ -810,12 +798,9 @@ namespace storage
 		typedef TStorage TArray[SIZE];
 
 
-		enum
-		{
-			NEEDS_CONSTRUCT=0,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValueStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=false;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValueStorage);
 
 		static void construct(TStorage *me)
 		{
@@ -902,12 +887,9 @@ namespace storage
 		typedef SNode		TStorage;		// this is what we make our array of
 		typedef TStorage TArray[SIZE];
 
-		enum
-		{
-			NEEDS_CONSTRUCT=1,
-			TOTAL_SIZE=sizeof(TStorage),
-			VALUE_SIZE=sizeof(TValueStorage),
-		};
+		static constexpr bool NEEDS_CONSTRUCT=true;
+		static constexpr int TOTAL_SIZE=sizeof(TStorage);
+		static constexpr int VALUE_SIZE=sizeof(TValueStorage);
 
 		static void construct(TStorage *me)
 		{

@@ -498,7 +498,7 @@ void G_SpawnNoghriGasCloud( gentity_t *ent )
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 extern bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod );
-void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE )
+void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc=HL_NONE )
 {
 	// impact damage
 	if ( other->takedamage )
@@ -632,7 +632,7 @@ static void G_MissileAddAlerts( gentity_t *ent )
 }
 
 //------------------------------------------------------
-void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
+void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NONE )
 {
 	gentity_t		*other;
 	vec3_t			diff;
@@ -831,10 +831,12 @@ extern bool WP_DoingMoronicForcedAnimationForForcePowers(gentity_t *ent);
 				case FORCE_LEVEL_1:
 					blockChance = 1;
 					break;
+				default:
+					break;
 				}
 				if ( blockChance && (other->owner->client->ps.forcePowersActive&Bit( FP_SPEED )) )
 				{//in in force speed, better chance of deflecting the shot
-					blockChance += other->owner->client->ps.forcePowerLevel[FP_SPEED]*2;
+					blockChance += to_underlying( other->owner->client->ps.forcePowerLevel[FP_SPEED] )*2;
 				}
 				if ( Q_irand( 0, blockChance ) )
 				{
@@ -1287,7 +1289,7 @@ void G_RunMissile( gentity_t *ent )
 {
 	vec3_t		oldOrg;
 	trace_t		tr;
-	int			trHitLoc=HL_NONE;
+	hitLocation_t			trHitLoc=HL_NONE;
 
 	if ( (ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{//in a sand creature's mouth
@@ -1369,7 +1371,7 @@ void G_RunMissile( gentity_t *ent )
 				if ( other->owner
 					&& other->owner->client
 					&& !other->owner->client->ps.saberInFlight
-					&& ( Q_irand( 0, (other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE]*other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE]) ) == 0
+					&& ( Q_irand( 0, (to_underlying( other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] )*to_underlying( other->owner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] )) ) == 0
 						|| !InFront( ent->currentOrigin, other->owner->currentOrigin, other->owner->client->ps.viewangles, SABER_REFLECT_MISSILE_CONE ) ) )//other->owner->s.number == 0 &&
 				{//Jedi cannot block shots from behind!
 					//re-trace from here, ignoring the lightsaber

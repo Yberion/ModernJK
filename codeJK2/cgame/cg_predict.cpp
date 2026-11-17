@@ -481,7 +481,7 @@ void CG_TouchItem( centity_t *cent ) {
 		return;		// can't hold it
 	}
 
-	item = &bg_itemlist[ cent->currentState.modelindex ];
+	item = &bg_itemlist[ ES_ItemNum( cent->currentState ) ];
 
 	// grab it
 	AddEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predicted_player_state);

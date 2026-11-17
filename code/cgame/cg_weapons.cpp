@@ -68,7 +68,7 @@ void CG_RegisterWeapon( weapon_t weaponNum ) {
 	weaponInfo->registered = true;
 
 	// find the weapon in the item list
-	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
+	for ( item = bg_itemlist.data() + 1 ; item->classname ; item++ ) {
 		if ( item->giType == IT_WEAPON && GI_Weapon( *item ) == weaponNum ) {
 			weaponInfo->item = item;
 			break;
@@ -78,7 +78,7 @@ void CG_RegisterWeapon( weapon_t weaponNum ) {
 	if ( !item->classname ) {
 		CG_Error( "Couldn't find item for weapon %s\nNeed to update Items.dat!", weaponData[weaponNum].classname);
 	}
-	CG_RegisterItemVisuals( item - bg_itemlist );
+	CG_RegisterItemVisuals( ITEM_INDEX( item ));
 
 	// set up in view weapon model
 	weaponInfo->weaponModel = cgi_R_RegisterModel( weaponData[weaponNum].weaponMdl );
@@ -118,7 +118,7 @@ void CG_RegisterWeapon( weapon_t weaponNum ) {
 		weaponInfo->weaponIconNoAmmo = cgi_R_RegisterShaderNoMip( va("%s_na",weaponData[weaponNum].weaponIcon));
 	}
 
-	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
+	for ( ammo = bg_itemlist.data() + 1 ; ammo->classname ; ammo++ ) {
 		if ( ammo->giType == IT_AMMO && GI_Ammo( *ammo ) == weaponData[weaponNum].ammoIndex) {
 			break;
 		}
@@ -630,7 +630,7 @@ CG_RegisterItemVisuals
 The server says this item is used on this level
 =================
 */
-void CG_RegisterItemVisuals( int itemNum ) {
+void CG_RegisterItemVisuals( itemNum_t itemNum ) {
 	itemInfo_t		*itemInfo;
 	gitem_t			*item;
 
@@ -684,7 +684,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	if ( item->giType == IT_HOLDABLE )
 	{
 		// This should be set up to actually work.
-		switch( item->giTag )
+		switch( GI_Inventory( *item ) )
 		{
 		case INV_SEEKER:
 			cgi_S_RegisterSound("sound/chars/seeker/misc/fire.wav");
@@ -724,6 +724,8 @@ void CG_RegisterItemVisuals( int itemNum ) {
 				cgi_S_RegisterSound( va( "sound/weapons/force/heal%d_m.mp3", i ) );
 				cgi_S_RegisterSound( va( "sound/weapons/force/heal%d_f.mp3", i ) );
 			}
+			break;
+		default:
 			break;
 		}
 	}

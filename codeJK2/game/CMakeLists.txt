@@ -266,6 +266,7 @@ set(JK2SPGameIcarusFiles
 	"${JK2SPDir}/icarus/taskmanager.h"
 	"${JK2SPDir}/icarus/instance.h"
 	"${JK2SPDir}/icarus/tokenizer.h"
+	"${JK2SPDir}/icarus/tokens.h"
 	)
 source_group("icarus" FILES ${JK2SPGameIcarusFiles})
 set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameIcarusFiles})

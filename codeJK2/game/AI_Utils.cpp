@@ -686,7 +686,7 @@ void AI_GroupUpdateClearShotTime( AIGroupInfo_t *group )
 	group->lastClearShotTime = level.time;
 }
 
-void AI_GroupUpdateSquadstates( AIGroupInfo_t *group, gentity_t *member, int newSquadState )
+void AI_GroupUpdateSquadstates( AIGroupInfo_t *group, gentity_t *member, squadState_t newSquadState )
 {
 	if ( !group )
 	{
@@ -754,9 +754,9 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 		}
 	}
 	//clear numStates
-	for ( i = 0; i < NUM_SQUAD_STATES; i++ )
+	for ( int &count : group->numState )
 	{
-		group->numState[i] = 0;
+		count = 0;
 	}
 
 	//go through group and validate each membership

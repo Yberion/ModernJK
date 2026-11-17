@@ -60,12 +60,7 @@ static bool shoot;
 static float	enemyDist;
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_UNDERFIRE,
-	LSTATE_INVESTIGATE,
-};
+using enum soldierLocalState_t;
 
 void Sniper_ClearTimers( gentity_t *ent )
 {
@@ -111,7 +106,7 @@ NPC_ST_Pain
 
 void NPC_Sniper_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod )
 {
-	self->NPC->localState = LSTATE_UNDERFIRE;
+	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
 
 	if ( self->client->NPC_class == CLASS_SABOTEUR )
 	{
@@ -378,7 +373,7 @@ static void Sniper_CheckMoveState( void )
 		if ( STEER::Reached(NPC, NPCInfo->goalEntity, 16, !!FlyingCreature(NPC)) ||
 			( NPCInfo->squadState == SQUAD_SCOUT && enemyLOS && enemyDist <= 10000 ) )
 		{
-			//int	newSquadState = SQUAD_STAND_AND_SHOOT;
+			//squadState_t	newSquadState = SQUAD_STAND_AND_SHOOT;
 			//we got where we wanted to go, set timers based on why we were running
 			switch ( NPCInfo->squadState )
 			{

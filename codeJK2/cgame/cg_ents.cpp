@@ -885,7 +885,7 @@ Ghoul2 Insert End
 		return;
 	}
 
-	item = &bg_itemlist[ es->modelindex ];
+	item = &bg_itemlist[ ES_ItemNum( *es ) ];
 
 	if ( cg_simpleItems.integer )
 	{
@@ -893,7 +893,7 @@ Ghoul2 Insert End
 		ent.reType = RT_SPRITE;
 		VectorCopy( cent->lerpOrigin, ent.origin );
 		ent.radius = 14;
-		ent.customShader = cg_items[es->modelindex].icon;
+		ent.customShader = cg_items[ES_ItemNum( *es )].icon;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
@@ -952,7 +952,7 @@ Ghoul2 Insert End
 	//AxisClear( ent.axis );
 	VectorCopy( cent->gent->s.angles, spinAngles );
 
-	ent.hModel = cg_items[es->modelindex].models;
+	ent.hModel = cg_items[ES_ItemNum( *es )].models;
 /*
 Ghoul2 Insert Start
 */

@@ -231,7 +231,7 @@ void WP_Explode( gentity_t *self )
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
 //-----------------------------------------------------------------------------
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
 //-----------------------------------------------------------------------------
 {
 	self->enemy = attacker;
@@ -253,9 +253,9 @@ bool WP_MissileTargetHint(gentity_t* shooter, vec3_t start, vec3_t out)
 	return false;
 }
 
-int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
+hitLocation_t G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 {
-	int hitLoc = HL_NONE;
+	hitLocation_t hitLoc = HL_NONE;
 	for (int i=0; i < MAX_G2_COLLISIONS; i++)
 	{
 		if ( trace->G2CollisionMap[i].mEntityNum == -1 )
@@ -878,7 +878,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 
 	// If this is not the alternate fire, fire a normal blaster shot...
 	if ( pVeh->m_pVehicleInfo &&
-		(pVeh->m_pVehicleInfo->type != VH_FIGHTER || (pVeh->m_ulFlags&VEH_WINGSOPEN)) ) // NOTE: Wings open also denotes that it has already launched.
+		(pVeh->m_pVehicleInfo->type != VH_FIGHTER || (Any( pVeh->m_ulFlags & VEH_WINGSOPEN ))) ) // NOTE: Wings open also denotes that it has already launched.
 	{//fighters can only fire when wings are open
 		int	weaponNum = 0, vehWeaponIndex = VEH_WEAPON_NONE;
 		int	delay = 1000;
@@ -1165,7 +1165,7 @@ void WP_FireScepter( gentity_t *ent, bool alt_fire )
 			// Create a simple impact type mark that doesn't last long in the world
 			G_PlayEffect( G_EffectIndex( "disruptor/flesh_impact" ), tr.endpos, tr.plane.normal );
 
-			int hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
+			hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_DISRUPTOR );
 			G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, damage, DAMAGE_EXTRA_KNOCKBACK, MOD_DISRUPTOR, hitLoc );
 		}
 		else

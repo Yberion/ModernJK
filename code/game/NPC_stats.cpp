@@ -1376,8 +1376,8 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 		if ( (weapons & Bit( curWeap )) )
 		{
 			item = FindItemForWeapon( curWeap );	//precache the weapon
-			CG_RegisterItemSounds( (item-bg_itemlist) );
-			CG_RegisterItemVisuals( (item-bg_itemlist) );
+			CG_RegisterItemSounds( ITEM_INDEX( item ) );
+			CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 			//precache the in-hand/in-world ghoul2 weapon model
 
 			char weaponModel[64];
@@ -3586,7 +3586,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{//clear
 					NPC->client->ps.forcePowersKnown &= ~Bit( power );
 				}
-				NPC->client->ps.forcePowerLevel[power] = n;
+				NPC->client->ps.forcePowerLevel[power] = static_cast<forcePowerLevels_t>( n );
 				continue;
 			}
 

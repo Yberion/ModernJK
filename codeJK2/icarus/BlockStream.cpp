@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 CBlockMember::CBlockMember( void )
 {
-	m_id = -1;
+	m_id = TK_EOF;
 	m_size = -1;
 	m_data = nullptr;
 }
@@ -64,7 +64,8 @@ void CBlockMember::Free( void )
 		ICARUS_Free ( m_data );
 		m_data = nullptr;
 
-		m_id = m_size = -1;
+		m_id = TK_EOF;
+		m_size = -1;
 	}
 }
 
@@ -74,7 +75,7 @@ GetInfo
 -------------------------
 */
 
-void CBlockMember::GetInfo( int *id, int *size, void **data )
+void CBlockMember::GetInfo( icarusToken_t *id, int *size, void **data )
 {
 	*id = m_id;
 	*size = m_size;
@@ -117,7 +118,7 @@ ReadMember
 
 int CBlockMember::ReadMember( char **stream, int *streamPos )
 {
-	m_id = LittleLong(*(int *) (*stream + *((int *)streamPos)));
+	m_id = static_cast<icarusToken_t>( LittleLong(*(int *) (*stream + *((int *)streamPos))) );
 	*streamPos += sizeof( int );
 
 	if ( m_id == ID_RANDOM )
@@ -153,7 +154,8 @@ WriteMember
 
 int CBlockMember::WriteMember( FILE *m_fileHandle )
 {
-	fwrite( &m_id, sizeof(m_id), 1, m_fileHandle );
+	const int id = to_underlying( m_id );
+	fwrite( &id, sizeof(id), 1, m_fileHandle );
 	fwrite( &m_size, sizeof(m_size), 1, m_fileHandle );
 	fwrite( m_data, m_size, 1, m_fileHandle );
 
@@ -191,7 +193,7 @@ CBlockMember *CBlockMember::Duplicate( void )
 CBlock::CBlock( void )
 {
 	m_flags			= 0;
-	m_id			= 0;
+	m_id			= TK_UNDEFINED;
 }
 
 CBlock::~CBlock( void )
@@ -208,7 +210,7 @@ Init
 int CBlock::Init( void )
 {
 	m_flags			= 0;
-	m_id			= 0;
+	m_id			= TK_UNDEFINED;
 
 	return true;
 }
@@ -219,7 +221,7 @@ Create
 -------------------------
 */
 
-int CBlock::Create( int block_id )
+int CBlock::Create( icarusToken_t block_id )
 {
 	Init();
 
@@ -262,7 +264,7 @@ Write
 -------------------------
 */
 
-int CBlock::Write( int member_id, const char *member_data )
+int CBlock::Write( icarusToken_t member_id, const char *member_data )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -276,7 +278,7 @@ int CBlock::Write( int member_id, const char *member_data )
 	return true;
 }
 
-int CBlock::Write( int member_id, vector_t member_data )
+int CBlock::Write( icarusToken_t member_id, vector_t member_data )
 {
 	CBlockMember *bMember;
 
@@ -291,7 +293,7 @@ int CBlock::Write( int member_id, vector_t member_data )
 	return true;
 }
 
-int CBlock::Write( int member_id, float member_data )
+int CBlock::Write( icarusToken_t member_id, float member_data )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -304,7 +306,7 @@ int CBlock::Write( int member_id, float member_data )
 	return true;
 }
 
-int CBlock::Write( int member_id, int member_data )
+int CBlock::Write( icarusToken_t member_id, int member_data )
 {
 	CBlockMember *bMember = new CBlockMember;
 
@@ -567,7 +569,7 @@ WriteBlock
 int CBlockStream::WriteBlock( CBlock *block )
 {
 	CBlockMember	*bMember;
-	int				id = block->GetBlockID();
+	int				id = to_underlying( block->GetBlockID() );
 	int				numMembers = block->GetNumMembers();
 	unsigned char	flags = block->GetFlags();
 
@@ -622,7 +624,7 @@ int CBlockStream::ReadBlock( CBlock *get )
 	if (numMembers < 0)
 		return false;
 
-	get->Create( b_id );
+	get->Create( static_cast<icarusToken_t>( b_id ) );
 	get->SetFlags( flags );
 
 	while ( numMembers-- > 0)

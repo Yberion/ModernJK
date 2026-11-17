@@ -124,9 +124,8 @@ static void CG_ConfigStringModified( void ) {
 
 	// do something with it if necessary
 	if ( num == CS_ITEMS ) {
-		int i;
-		for ( i = 1 ; i < bg_numItems ; i++ ) {
-			if ( str[ i ] == '1' )
+		for ( itemNum_t i = ITM_NONE + 1 ; i < ITM_NUM_ITEMS ; i++ ) {
+			if ( str[ to_underlying( i ) ] == '1' )
 			{
 				if (bg_itemlist[i].classname)
 				{

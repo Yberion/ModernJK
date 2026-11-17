@@ -197,7 +197,7 @@ int G_FindLookItem( gentity_t *self )
 		VectorSubtract( ent->currentOrigin, center, dir );
 		rating = (1.0f-(VectorNormalize( dir )/radius));
 		rating *= DotProduct( forward, dir );
-		if ( ent->item->giType == IT_HOLDABLE && ent->item->giTag == INV_SECURITY_KEY )
+		if ( ent->item->giType == IT_HOLDABLE && GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
 		{//security keys are of the highest importance
 			rating *= 2.0f;
 		}
@@ -808,11 +808,11 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 
 		// Is The Attacker Actually Not Attacking?
 		//-----------------------------------------
-		if (!(attackerVeh->m_ulFlags&VEH_STRAFERAM))
+		if (!(Any( attackerVeh->m_ulFlags & VEH_STRAFERAM )))
 		{
 			// Ok, So Is The Victim Actually Attacking?
 			//------------------------------------------
-			if (victimVeh->m_ulFlags&VEH_STRAFERAM)
+			if (Any( victimVeh->m_ulFlags & VEH_STRAFERAM ))
 			{
 				// Ah, Ok.  Swap Who Is The Attacker Then
 				//----------------------------------------
@@ -921,7 +921,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 
 				// Modify Magnitude By Hit Percent And Toughness Against Other
 				//-------------------------------------------------------------
-				if (pSelfVeh->m_ulFlags & VEH_OUTOFCONTROL)
+				if (Any( pSelfVeh->m_ulFlags & VEH_OUTOFCONTROL ))
 				{
 					vehToughnessAgainstOther *= 0.01f;		// If Out Of Control, No Damage Resistance
 				}
@@ -972,7 +972,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trac
 
 					// If Out Of Control, And We Hit A Wall Or Landed Or Head On
 					//------------------------------------------------------------
-					if ((pSelfVeh->m_ulFlags&VEH_OUTOFCONTROL) && (vehHitPercent>0.5f || trace->plane.normal[2]<0.5f || velocity[2]<-50.0f))
+					if ((Any( pSelfVeh->m_ulFlags & VEH_OUTOFCONTROL )) && (vehHitPercent>0.5f || trace->plane.normal[2]<0.5f || velocity[2]<-50.0f))
 					{
 						vehDFlags |= DAMAGE_IMPACT_DIE;
 					}

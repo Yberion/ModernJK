@@ -309,6 +309,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/icarus/TaskManager.cpp"
 		"${MPDir}/icarus/taskmanager.h"
 		"${MPDir}/icarus/tokenizer.h"
+		"${MPDir}/icarus/tokens.h"
 		)
 	source_group("icarus" FILES ${MPEngineAndDedIcarusFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedIcarusFiles})

@@ -29,8 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_DISTANCE		128
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
+using enum monsterLocalState_t;
 
 /*
 -------------------------
@@ -73,7 +72,7 @@ void MineMonster_Patrol( void )
 {
 	vec3_t dif;
 
-	NPCS.NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -112,7 +111,7 @@ MineMonster_Move
 */
 void MineMonster_Move( bool visible )
 {
-	if ( NPCS.NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		NPC_MoveToGoal( true );
@@ -232,11 +231,11 @@ void MineMonster_Combat( void )
 
 	advance = ( distance > MIN_DISTANCE_SQR ? true : false  );
 
-	if (( advance || NPCS.NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCS.NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPCS.NPC, "takingPain", true ))
 		{
-			NPCS.NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_CLEAR );
 		}
 		else
 		{
@@ -271,7 +270,7 @@ void NPC_MineMonster_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 		if ( self->NPC )
 		{
-			self->NPC->localState = LSTATE_WAITING;
+			NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 		}
 	}
 }

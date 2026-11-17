@@ -322,12 +322,12 @@ typedef struct refdef_s {
 } refdef_t;
 
 
-enum {
+enum class stereoFrame_t {
 	STEREO_CENTER,
 	STEREO_LEFT,
 	STEREO_RIGHT
 };
-typedef int stereoFrame_t;
+using enum stereoFrame_t;
 
 
 /*

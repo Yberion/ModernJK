@@ -166,7 +166,7 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 }
 
-void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc)
+void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc)
 {
 	if ( self->paintarget )
 	{
@@ -178,7 +178,7 @@ void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	}
 }
 
-void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc)
+void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc)
 {
 	self->takedamage = false;
 	GEntity_UseFunc( self, inflictor, attacker );

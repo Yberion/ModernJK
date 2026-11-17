@@ -27,12 +27,13 @@ void Interrogator_Idle( void );
 void DeathFX( gentity_t *ent );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-enum
+enum class interrogatorLocalState_t
 {
 LSTATE_BLADESTOP=0,
 LSTATE_BLADEUP,
 LSTATE_BLADEDOWN,
 };
+using enum interrogatorLocalState_t;
 
 /*
 -------------------------
@@ -116,13 +117,13 @@ void Interrogator_PartsMove(void)
 	if ( TIMER_Done(NPCS.NPC,"scalpelDelay") )
 	{
 		// Change pitch
-		if ( NPCS.NPCInfo->localState == LSTATE_BLADEDOWN )	// Blade is moving down
+		if ( NPC_LocalState<interrogatorLocalState_t>( *NPCS.NPCInfo ) == LSTATE_BLADEDOWN )	// Blade is moving down
 		{
 			NPCS.NPC->pos2[0]-= 30;
 			if (NPCS.NPC->pos2[0] < 180)
 			{
 				NPCS.NPC->pos2[0] = 180;
-				NPCS.NPCInfo->localState = LSTATE_BLADEUP;	// Make it move up
+				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_BLADEUP );	// Make it move up
 			}
 		}
 		else											// Blade is coming back up
@@ -131,7 +132,7 @@ void Interrogator_PartsMove(void)
 			if (NPCS.NPC->pos2[0] >= 360)
 			{
 				NPCS.NPC->pos2[0] = 360;
-				NPCS.NPCInfo->localState = LSTATE_BLADEDOWN;	// Make it move down
+				NPC_SetLocalState( *NPCS.NPCInfo, LSTATE_BLADEDOWN );	// Make it move down
 				TIMER_Set( NPCS.NPC, "scalpelDelay", Q_irand( 100, 1000 ) );
 			}
 		}

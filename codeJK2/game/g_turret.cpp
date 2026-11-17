@@ -37,7 +37,7 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 #define	HEAD_ANGLE_RANGE	90
 
 //------------------------------------------------------------------------------------------------------------
-void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t dir;
@@ -56,7 +56,7 @@ void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec
 }
 
 //------------------------------------------------------------------------------------------------------------
-void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
+void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0,-1 }, pos;
@@ -1589,7 +1589,7 @@ void ion_cannon_think( gentity_t *self )
 }
 
 //----------------------------------------------------------------------------------------------
-void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
+void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
 //----------------------------------------------------------------------------------------------
 {
 	vec3_t org;
@@ -1938,7 +1938,7 @@ void panel_turret_shoot( gentity_t *self, vec3_t org, vec3_t dir)
 }
 
 //-----------------------------------------
-void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc )
+void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
 {
 	if ( self->target3 )
 	{

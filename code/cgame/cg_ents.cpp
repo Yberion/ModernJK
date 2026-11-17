@@ -926,7 +926,7 @@ Ghoul2 Insert End
 		return;
 	}
 
-	item = &bg_itemlist[ es->modelindex ];
+	item = &bg_itemlist[ ES_ItemNum( *es ) ];
 
 	if ( cg_simpleItems.integer )
 	{
@@ -935,7 +935,7 @@ Ghoul2 Insert End
 		VectorCopy( cent->lerpOrigin, ent.origin );
 		ent.origin[2] += 16;
 		ent.radius = 14;
-		ent.customShader = cg_items[es->modelindex].icon;
+		ent.customShader = cg_items[ES_ItemNum( *es )].icon;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
@@ -1002,7 +1002,7 @@ Ghoul2 Insert End
 	}
 	else
 	{
-		ent.hModel = cg_items[es->modelindex].models;
+		ent.hModel = cg_items[ES_ItemNum( *es )].models;
 	}
 /*
 Ghoul2 Insert Start
@@ -2137,7 +2137,7 @@ void CG_MatrixEffect ( centity_t *cent )
 		else if (g_entities[cent->currentState.otherEntityNum].client->NPC_class == CLASS_VEHICLE)
 		{
 			Vehicle_t*	pVeh = g_entities[cent->currentState.otherEntityNum].m_pVehicle;
-			if (pVeh && !(pVeh->m_ulFlags&VEH_FLYING))
+			if (pVeh && !(Any( pVeh->m_ulFlags & VEH_FLYING )))
 			{
 				stopEffect = true;
 			}

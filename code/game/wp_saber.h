@@ -85,7 +85,7 @@ enum class sabersLockMode_t
 using enum sabersLockMode_t;
 template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
-enum
+enum class saberLockType_t
 {
 	SABERLOCK_TOP,
 	SABERLOCK_SIDE,
@@ -95,14 +95,16 @@ enum
 	SABERLOCK_WIN,
 	SABERLOCK_LOSE
 };
+using enum saberLockType_t;
 
-enum
+enum class direction_t
 {
 	DIR_RIGHT,
 	DIR_LEFT,
 	DIR_FRONT,
 	DIR_BACK
 };
+using enum direction_t;
 
 #define FORCE_LIGHTSIDE			1
 #define FORCE_DARKSIDE			2
@@ -159,34 +161,23 @@ enum
 
 #define SABER_PITCH_HACK 90
 
-extern float forceJumpStrength[];
-extern float forceJumpHeight[];
-extern float forceJumpHeightMax[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeightMax;
 
-extern float forcePushPullRadius[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius;
 
 extern void ForceSpeed( gentity_t *self, int duration = 0 );
-extern float forceSpeedValue[];
-extern float forceSpeedRangeMod[];
-extern float forceSpeedFOVMod[];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
 extern const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE ) + 1> saberColorStringForColor;
 #define FORCE_SPEED_DURATION 10000.0f
 #define FORCE_RAGE_DURATION 10000.0f
 
 #define MASK_FORCE_PUSH (MASK_OPAQUE|CONTENTS_SOLID)
 
-enum
-{
-	FORCE_LEVEL_0,
-	FORCE_LEVEL_1,
-	FORCE_LEVEL_2,
-	FORCE_LEVEL_3,
-	NUM_FORCE_POWER_LEVELS
-};
-#define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
-#define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
-
-enum
+enum class forceJump_t
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,
@@ -194,21 +185,22 @@ enum
 	FJ_LEFT,
 	FJ_UP
 };
+using enum forceJump_t;
 
 #define FORCE_JUMP_CHARGE_TIME 1000.0f	//Force jump reaches maximum power in one second
 
 #define FORCE_POWERS_ROSH_FROM_TWINS (Bit( FP_SPEED )|Bit( FP_GRIP )|Bit( FP_RAGE )|Bit( FP_SABERTHROW ))
 
 extern void WP_InitForcePowers( gentity_t *ent );
-extern int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
+extern forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
 extern int WP_SaberInitBladeData( gentity_t *ent );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
 extern void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum = -1 );
 extern bool WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, bool setColors = true );
 extern bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = SABER_NONE );
 extern void ForceThrow( gentity_t *self, bool pull, bool fake = false );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod, saberType_t saberType = SABER_NONE );
-extern bool G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tolerance = 0.75f );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod, saberType_t saberType = SABER_NONE );
+extern bool G_CheckEnemyPresence( gentity_t *ent, direction_t dir, float radius, float tolerance = 0.75f );
 extern void WP_SaberFreeStrings( saberInfo_t &saber );
 extern bool G_EnoughPowerForSpecialMove( int forcePower, int cost, bool kataMove = false );
 extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int cost, bool kataMove = false );

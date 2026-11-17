@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
 #include "qcommon/q_shared.h"
+#include "game/bg_public.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
@@ -47,17 +48,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
-
-#define MASK_SOLID		CONTENTS_PLAYERCLIP
-
-// the game's entity types (entityType_t, game/bg_public.h), which the botlib does not include
-enum {
-	ET_GENERAL = 0,
-	ET_PLAYER = 1,
-	ET_ITEM = 2,
-	ET_MISSILE = 3,
-	ET_MOVER = 6
-};
 
 //===========================================================================
 //
@@ -92,7 +82,7 @@ int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
 	}
 
 	ent->i.update_time = AAS_Time() - ent->i.ltime;
-	ent->i.type = state->type;
+	ent->i.type = static_cast<entityType_t>( state->type );
 	ent->i.flags = state->flags;
 	ent->i.ltime = AAS_Time();
 	VectorCopy(ent->i.origin, ent->i.lastvisorigin);
@@ -229,14 +219,14 @@ int AAS_EntityModelindex(int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_EntityType(int entnum)
+entityType_t AAS_EntityType(int entnum)
 {
-	if (!aasworld.initialized) return 0;
+	if (!aasworld.initialized) return ET_GENERAL;
 
 	if (entnum < 0 || entnum >= aasworld.maxentities)
 	{
 		botimport.Print(PRT_FATAL, "AAS_EntityType: entnum %d out of range\n", entnum);
-		return 0;
+		return ET_GENERAL;
 	} //end if
 	return aasworld.entities[entnum].i.type;
 } //end of the AAS_EntityType

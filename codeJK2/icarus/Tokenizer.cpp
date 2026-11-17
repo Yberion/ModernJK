@@ -14,48 +14,51 @@
 	#include <stdlib.h>
 #endif
 
-enum
+enum class directive_t
 {
-	DIR_INCLUDE = TK_USERDEF,
+	DIR_INCLUDE = to_underlying( TK_USERDEF ),
 	DIR_IFDEF,
 	DIR_IFNDEF,
 	DIR_ENDIF,
 	DIR_ELSE,
 	DIR_DEFINE,
 	DIR_UNDEFINE,
+
+	DIR_UNKNOWN = -1,	// a name that matches none
 };
+using enum directive_t;
 
 keywordArray_t CTokenizer::directiveKeywords[] =
 {
-	"include",		DIR_INCLUDE,
-	"ifdef",		DIR_IFDEF,
-	"ifndef",		DIR_IFNDEF,
-	"endif",		DIR_ENDIF,
-	"else",			DIR_ELSE,
-	"define",		DIR_DEFINE,
-	"undefine",		DIR_UNDEFINE,
-	"",				TK_EOF,
+	"include",		to_underlying( DIR_INCLUDE ),
+	"ifdef",		to_underlying( DIR_IFDEF ),
+	"ifndef",		to_underlying( DIR_IFNDEF ),
+	"endif",		to_underlying( DIR_ENDIF ),
+	"else",			to_underlying( DIR_ELSE ),
+	"define",		to_underlying( DIR_DEFINE ),
+	"undefine",		to_underlying( DIR_UNDEFINE ),
+	"",				to_underlying( TK_EOF ),
 };
 
 keywordArray_t CTokenizer::errorMessages[] =
 {
-	"No Error",							TKERR_NONE,
-	"Unknown Error",					TKERR_UNKNOWN,
-	"Buffer creation failed",			TKERR_BUFFERCREATE,
-	"Unrecognized symbol",				TKERR_UNRECOGNIZEDSYMBOL,
-	"Duplicate symbol",					TKERR_DUPLICATESYMBOL,
-	"String length exceeded",			TKERR_STRINGLENGTHEXCEEDED,
-	"Identifier length exceeded",		TKERR_IDENTIFIERLENGTHEXCEEDED,
-	"Expected integer",					TKERR_EXPECTED_INTEGER,
-	"Expected identifier",				TKERR_EXPECTED_IDENTIFIER,
-	"Expected string",					TKERR_EXPECTED_STRING,
-	"Expected char",					TKERR_EXPECTED_CHAR,
-	"Expected float",					TKERR_EXPECTED_FLOAT,
-	"Unexpected token",					TKERR_UNEXPECTED_TOKEN,
-	"Invalid directive",				TKERR_INVALID_DIRECTIVE,
-	"Include file not found",			TKERR_INCLUDE_FILE_NOTFOUND,
-	"Unmatched directive",				TKERR_UNMATCHED_DIRECTIVE,
-	"",									TKERR_USERERROR,
+	"No Error",							to_underlying( TKERR_NONE ),
+	"Unknown Error",					to_underlying( TKERR_UNKNOWN ),
+	"Buffer creation failed",			to_underlying( TKERR_BUFFERCREATE ),
+	"Unrecognized symbol",				to_underlying( TKERR_UNRECOGNIZEDSYMBOL ),
+	"Duplicate symbol",					to_underlying( TKERR_DUPLICATESYMBOL ),
+	"String length exceeded",			to_underlying( TKERR_STRINGLENGTHEXCEEDED ),
+	"Identifier length exceeded",		to_underlying( TKERR_IDENTIFIERLENGTHEXCEEDED ),
+	"Expected integer",					to_underlying( TKERR_EXPECTED_INTEGER ),
+	"Expected identifier",				to_underlying( TKERR_EXPECTED_IDENTIFIER ),
+	"Expected string",					to_underlying( TKERR_EXPECTED_STRING ),
+	"Expected char",					to_underlying( TKERR_EXPECTED_CHAR ),
+	"Expected float",					to_underlying( TKERR_EXPECTED_FLOAT ),
+	"Unexpected token",					to_underlying( TKERR_UNEXPECTED_TOKEN ),
+	"Invalid directive",				to_underlying( TKERR_INVALID_DIRECTIVE ),
+	"Include file not found",			to_underlying( TKERR_INCLUDE_FILE_NOTFOUND ),
+	"Unmatched directive",				to_underlying( TKERR_UNMATCHED_DIRECTIVE ),
+	"",									to_underlying( TKERR_USERERROR ),
 };
 
 //
@@ -870,7 +873,7 @@ CToken* CToken::GetNext()
 	return m_next;
 }
 
-int CToken::GetType()
+icarusToken_t CToken::GetType()
 {
 	return TK_EOF;
 }
@@ -966,7 +969,7 @@ void CCharToken::Init(byte theByte)
 	strcpy(m_string, charString);
 }
 
-int CCharToken::GetType()
+icarusToken_t CCharToken::GetType()
 {
 	return TK_CHAR;
 }
@@ -1003,7 +1006,7 @@ void CStringToken::Init(LPCTSTR theString)
 	strcpy(m_string, theString);
 }
 
-int CStringToken::GetType()
+icarusToken_t CStringToken::GetType()
 {
 	return TK_STRING;
 }
@@ -1038,7 +1041,7 @@ void CIntToken::Init(long value)
 	m_value = value;
 }
 
-int CIntToken::GetType()
+icarusToken_t CIntToken::GetType()
 {
 	return TK_INT;
 }
@@ -1097,7 +1100,7 @@ void CFloatToken::Init(float value)
 	m_value = value;
 }
 
-int CFloatToken::GetType()
+icarusToken_t CFloatToken::GetType()
 {
 	return TK_FLOAT;
 }
@@ -1153,7 +1156,7 @@ void CIdentifierToken::Init(LPCTSTR name)
 	strcpy(m_string, name);
 }
 
-int CIdentifierToken::GetType()
+icarusToken_t CIdentifierToken::GetType()
 {
 	return TK_IDENTIFIER;
 }
@@ -1190,7 +1193,7 @@ void CCommentToken::Init(LPCTSTR name)
 	strcpy(m_string, name);
 }
 
-int CCommentToken::GetType()
+icarusToken_t CCommentToken::GetType()
 {
 	return TK_COMMENT;
 }
@@ -1207,7 +1210,7 @@ CUserToken::~CUserToken()
 {
 }
 
-CUserToken* CUserToken::Create(int value, LPCTSTR string)
+CUserToken* CUserToken::Create(icarusToken_t value, LPCTSTR string)
 {
 	CUserToken* theToken = new CUserToken();
 	theToken->Init(value, string);
@@ -1219,7 +1222,7 @@ void CUserToken::Delete()
 	CToken::Delete();
 }
 
-void CUserToken::Init(int value, LPCTSTR string)
+void CUserToken::Init(icarusToken_t value, LPCTSTR string)
 {
 	CToken::InitBaseToken();
 	m_value = value;
@@ -1227,7 +1230,7 @@ void CUserToken::Init(int value, LPCTSTR string)
 	strcpy(m_string, string);
 }
 
-int CUserToken::GetType()
+icarusToken_t CUserToken::GetType()
 {
 	return m_value;
 }
@@ -1263,7 +1266,7 @@ void CUndefinedToken::Init(LPCTSTR string)
 	strcpy(m_string, string);
 }
 
-int CUndefinedToken::GetType()
+icarusToken_t CUndefinedToken::GetType()
 {
 	return TK_UNDEFINED;
 }
@@ -1431,19 +1434,19 @@ void CTokenizer::Delete()
 	delete this;
 }
 
-void CTokenizer::Error(int theError)
+void CTokenizer::Error(tokenizerError_t theError)
 {
 	char errString[128];
 	char lookupstring[128];
 	int i = 0;
-	while ((errorMessages[i].m_tokenvalue != TKERR_USERERROR) && (errorMessages[i].m_tokenvalue != theError))
+	while ((errorMessages[i].m_tokenvalue != to_underlying( TKERR_USERERROR )) && (errorMessages[i].m_tokenvalue != to_underlying( theError )))
 	{
 		i++;
 	}
-	if ((errorMessages[i].m_tokenvalue == TKERR_USERERROR) && (m_errors != nullptr))
+	if ((errorMessages[i].m_tokenvalue == to_underlying( TKERR_USERERROR )) && (m_errors != nullptr))
 	{
 		i = 0;
-		while ((m_errors[i].m_tokenvalue != TK_EOF) && (m_errors[i].m_tokenvalue != theError))
+		while ((m_errors[i].m_tokenvalue != to_underlying( TK_EOF )) && (m_errors[i].m_tokenvalue != to_underlying( theError )))
 		{
 			i++;
 		}
@@ -1453,23 +1456,23 @@ void CTokenizer::Error(int theError)
 	{
 		strcpy(lookupstring, errorMessages[i].m_keyword);
 	}
-	sprintf(errString, "Error -- %d, %s", theError, lookupstring);
+	sprintf(errString, "Error -- %d, %s", to_underlying( theError ), lookupstring);
 	Error(errString, theError);
 }
 
-void CTokenizer::Error(int theError, LPCTSTR errString)
+void CTokenizer::Error(tokenizerError_t theError, LPCTSTR errString)
 {
 	char errstring[128];
 	char lookupstring[128];
 	int i = 0;
-	while ((errorMessages[i].m_tokenvalue != TKERR_USERERROR) && (errorMessages[i].m_tokenvalue != theError))
+	while ((errorMessages[i].m_tokenvalue != to_underlying( TKERR_USERERROR )) && (errorMessages[i].m_tokenvalue != to_underlying( theError )))
 	{
 		i++;
 	}
-	if ((errorMessages[i].m_tokenvalue == TKERR_USERERROR) && (m_errors != nullptr))
+	if ((errorMessages[i].m_tokenvalue == to_underlying( TKERR_USERERROR )) && (m_errors != nullptr))
 	{
 		i = 0;
-		while ((m_errors[i].m_tokenvalue != TK_EOF) && (m_errors[i].m_tokenvalue != theError))
+		while ((m_errors[i].m_tokenvalue != to_underlying( TK_EOF )) && (m_errors[i].m_tokenvalue != to_underlying( theError )))
 		{
 			i++;
 		}
@@ -1479,11 +1482,11 @@ void CTokenizer::Error(int theError, LPCTSTR errString)
 	{
 		strcpy(lookupstring, errorMessages[i].m_keyword);
 	}
-	sprintf(errstring, "Error -- %d, %s - %s", theError, lookupstring, errString);
+	sprintf(errstring, "Error -- %d, %s - %s", to_underlying( theError ), lookupstring, errString);
 	Error(errstring, theError);
 }
 
-void CTokenizer::Error(LPCTSTR errString, int theError)
+void CTokenizer::Error(LPCTSTR errString, tokenizerError_t theError)
 {
 	if (m_errorProc != nullptr)
 	{
@@ -1492,7 +1495,7 @@ void CTokenizer::Error(LPCTSTR errString, int theError)
 #ifdef USES_MODULES
 	else
 	{
-		ReportError(theError, errString);
+		ReportError(to_underlying( theError ), errString);
 	}
 #endif
 }
@@ -1530,7 +1533,7 @@ long CTokenizer::GetRemainingSize()
 	return retval;
 }
 
-LPCTSTR CTokenizer::LookupToken(int tokenID, keywordArray_t* theTable)
+LPCTSTR CTokenizer::LookupToken(icarusToken_t tokenID, keywordArray_t* theTable)
 {
 	if (theTable == nullptr)
 	{
@@ -1542,9 +1545,9 @@ LPCTSTR CTokenizer::LookupToken(int tokenID, keywordArray_t* theTable)
 	}
 
 	int i = 0;
-	while (theTable[i].m_tokenvalue != TK_EOF)
+	while (theTable[i].m_tokenvalue != to_underlying( TK_EOF ))
 	{
-		if (theTable[i].m_tokenvalue == tokenID)
+		if (theTable[i].m_tokenvalue == to_underlying( tokenID ))
 		{
 			return theTable[i].m_keyword;
 		}
@@ -1650,7 +1653,7 @@ CToken* CTokenizer::GetToken(UINT onFlags, UINT offFlags)
 	return theToken;
 }
 
-CToken* CTokenizer::GetToEndOfLine(int tokenType)
+CToken* CTokenizer::GetToEndOfLine(icarusToken_t tokenType)
 {
 	// update, if you just want the whole line returned as a string, then allow a much bigger size than
 	//	the default string size of only 128 chars...
@@ -1829,7 +1832,7 @@ bool CTokenizer::NextChar(byte& theByte)
 	return false;
 }
 
-bool CTokenizer::RequireToken(int tokenType)
+bool CTokenizer::RequireToken(icarusToken_t tokenType)
 {
 	CToken* theToken = GetToken();
 	bool retValue = theToken->GetType() == tokenType;
@@ -1837,10 +1840,10 @@ bool CTokenizer::RequireToken(int tokenType)
 	return retValue;
 }
 
-void CTokenizer::ScanUntilToken(int tokenType)
+void CTokenizer::ScanUntilToken(icarusToken_t tokenType)
 {
 	CToken* curToken;
-	int tokenValue = TK_UNDEFINED;
+	icarusToken_t tokenValue = TK_UNDEFINED;
 	while (tokenValue != tokenType)
 	{
 		curToken = GetToken();
@@ -1904,7 +1907,7 @@ void CTokenizer::SetSymbols(keywordArray_t* theSymbols)
 	{
 		return;
 	}
-	while(theSymbols[i].m_tokenvalue != TK_EOF)
+	while(theSymbols[i].m_tokenvalue != to_underlying( TK_EOF ))
 	{
 		InsertSymbol(theSymbols[i].m_keyword, theSymbols[i].m_tokenvalue);
 		i++;
@@ -2081,22 +2084,22 @@ CToken* CTokenizer::TokenFromName(LPCTSTR name)
 		int i = 0;
 		if ((m_flags & TKF_NOCASEKEYWORDS) == 0)
 		{
-			while (m_keywords[i].m_tokenvalue != TK_EOF)
+			while (m_keywords[i].m_tokenvalue != to_underlying( TK_EOF ))
 			{
 				if (strcmp(m_keywords[i].m_keyword, name) == 0)
 				{
-					return CUserToken::Create(m_keywords[i].m_tokenvalue, name);
+					return CUserToken::Create(static_cast<icarusToken_t>( m_keywords[i].m_tokenvalue ), name);
 				}
 				i++;
 			}
 		}
 		else
 		{
-			while (m_keywords[i].m_tokenvalue != TK_EOF)
+			while (m_keywords[i].m_tokenvalue != to_underlying( TK_EOF ))
 			{
 				if (stricmp(m_keywords[i].m_keyword, name) == 0)
 				{
-					return CUserToken::Create(m_keywords[i].m_tokenvalue, name);
+					return CUserToken::Create(static_cast<icarusToken_t>( m_keywords[i].m_tokenvalue ), name);
 				}
 				i++;
 			}
@@ -2105,21 +2108,21 @@ CToken* CTokenizer::TokenFromName(LPCTSTR name)
 	return CIdentifierToken::Create(name);
 }
 
-int CTokenizer::DirectiveFromName(LPCTSTR name)
+directive_t CTokenizer::DirectiveFromName(LPCTSTR name)
 {
 	if (directiveKeywords != nullptr)
 	{
 		int i = 0;
-		while (directiveKeywords[i].m_tokenvalue != TK_EOF)
+		while (directiveKeywords[i].m_tokenvalue != to_underlying( TK_EOF ))
 		{
 			if (strcmp(directiveKeywords[i].m_keyword, name) == 0)
 			{
-				return directiveKeywords[i].m_tokenvalue;
+				return static_cast<directive_t>( directiveKeywords[i].m_tokenvalue );
 			}
 			i++;
 		}
 	}
-	return -1;
+	return DIR_UNKNOWN;
 }
 
 CToken* CTokenizer::HandleIdentifier(byte theByte)
@@ -2576,7 +2579,7 @@ CToken* CTokenizer::HandleSymbol(byte theByte)
 		}
 		return CUndefinedToken::Create(symbolString);
 	}
-	return CUserToken::Create(lastLookup->GetValue(), symbolString);
+	return CUserToken::Create(static_cast<icarusToken_t>( lastLookup->GetValue() ), symbolString);
 }
 
 CToken* CTokenizer::HandleDirective()
@@ -2597,7 +2600,7 @@ CToken* CTokenizer::HandleDirective()
 
 	CDirectiveSymbol* curSymbol;
 	CTokenizerState* state;
-	int theDirective = DirectiveFromName(theToken->GetStringValue());
+	directive_t theDirective = DirectiveFromName(theToken->GetStringValue());
 	theToken->Delete();
 	byte theByte;
 	switch(theDirective)

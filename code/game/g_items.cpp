@@ -76,7 +76,7 @@ extern cvar_t	*g_saberPickuppableDroppedSabers;
 G_InventorySelectable
 ===============
 */
-bool G_InventorySelectable( int index,gentity_t *other)
+bool G_InventorySelectable( inventory_t index,gentity_t *other)
 {
 	if (other->client->ps.inventory[index])
 	{
@@ -90,17 +90,17 @@ extern bool INV_GoodieKeyGive( gentity_t *target );
 extern bool INV_SecurityKeyGive( gentity_t *target, const char *keyname );
 int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 {
-	int		i,original;
+	inventory_t	i,original;
 
-	other->client->ps.stats[STAT_ITEMS] |= (1<<ent->item->giTag);
+	other->client->ps.stats[STAT_ITEMS] |= Bit( GI_Inventory( *ent->item ) );
 
-	if ( ent->item->giTag == INV_SECURITY_KEY )
+	if ( GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
 	{//give the key
 		//FIXME: temp message
 		gi.SendServerCommand( 0, "cp @SP_INGAME_YOU_TOOK_SECURITY_KEY" );
 		INV_SecurityKeyGive( other, ent->message );
 	}
-	else if ( ent->item->giTag == INV_GOODIE_KEY )
+	else if ( GI_Inventory( *ent->item ) == INV_GOODIE_KEY )
 	{//give the key
 		//FIXME: temp message
 		gi.SendServerCommand( 0, "cp @SP_INGAME_YOU_TOOK_SUPPLY_KEY" );
@@ -108,13 +108,13 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other )
 	}
 	else
 	{// Picking up a normal item?
-		other->client->ps.inventory[ent->item->giTag]++;
+		other->client->ps.inventory[GI_Inventory( *ent->item )]++;
 	}
 	// Got a security key
 
 	// Set the inventory select, just in case it hasn't
 	original = cg.inventorySelect;
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
 		{
@@ -620,11 +620,11 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 {
 	const forcePowers_t forcePower = static_cast<forcePowers_t>( ent->item->giTag );
-	int forceLevel = ent->count;
+	const forcePowerLevels_t forceLevel = static_cast<forcePowerLevels_t>( ent->count );
 	// check if out of range
-	if( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
+	if( forceLevel < FORCE_LEVEL_0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
 	{
-		gi.Printf(" Pickup_Holocron : count %d not in valid range\n", forceLevel );
+		gi.Printf(" Pickup_Holocron : count %d not in valid range\n", ent->count );
 		return 1;
 	}
 
@@ -670,7 +670,7 @@ bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 		return false;
 	}
 	if ( item->item->giType == IT_HOLDABLE &&
-		item->item->giTag == INV_SECURITY_KEY ) {
+		GI_Inventory( *item->item ) == INV_SECURITY_KEY ) {
 		return false;
 	}
 	if ( (item->flags&FL_DROPPED_ITEM)
@@ -878,11 +878,11 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// play the normal pickup sound
 	if ( !other->s.number && g_timescale->value < 1.0f  )
 	{//SIGH... with timescale on, you lose events left and right
-extern void CG_ItemPickup( int itemNum, bool bHadItem );
+extern void CG_ItemPickup( itemNum_t itemNum, bool bHadItem );
 		// but we're SP so we'll cheat
 		cgi_S_StartSound( nullptr, other->s.number, CHAN_AUTO,	cgi_S_RegisterSound( ent->item->pickup_sound ) );
 		// show icon and name on status bar
-		CG_ItemPickup( ent->s.modelindex, bHadWeapon );
+		CG_ItemPickup( ES_ItemNum( ent->s ), bHadWeapon );
 	}
 	else
 	{
@@ -946,7 +946,7 @@ gentity_t *LaunchItem( gitem_t *item, const vec3_t origin, const vec3_t velocity
 	dropped = G_Spawn();
 
 	dropped->s.eType = ET_ITEM;
-	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
+	dropped->s.modelindex = item - bg_itemlist.data();	// store item number in modelindex
 	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
 
 	dropped->classname = G_NewString(item->classname);	//copy it so it can be freed safely
@@ -973,7 +973,7 @@ gentity_t *LaunchItem( gitem_t *item, const vec3_t origin, const vec3_t velocity
 	{
 		// if not targeting something, auto-remove after 30 seconds
 		// only if it's NOT a security or goodie key
-		if (dropped->item->giTag != INV_SECURITY_KEY )
+		if (GI_Inventory( *dropped->item ) != INV_SECURITY_KEY )
 		{
 			dropped->e_ThinkFunc = thinkF_G_FreeEntity;
 			dropped->nextthink = level.time + 30000;
@@ -1106,7 +1106,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	int			itemNum;
 
 	itemNum=1;
-	for ( item = bg_itemlist + 1 ; item->classname ; item++,itemNum++)
+	for ( item = bg_itemlist.data() + 1 ; item->classname ; item++,itemNum++)
 	{
 		if (!strcmp(item->classname,ent->classname))
 		{
@@ -1177,7 +1177,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	}
 */
 	ent->s.eType = ET_ITEM;
-	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
+	ent->s.modelindex = ent->item - bg_itemlist.data();		// store item number in modelindex
 	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
 
 	ent->contents = CONTENTS_TRIGGER|CONTENTS_ITEM;//CONTENTS_BODY;//CONTENTS_TRIGGER|
@@ -1293,7 +1293,7 @@ void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
 		G_Error( "RegisterItem: NULL" );
 	}
-	itemRegistered[ item - bg_itemlist ] = '1';
+	itemRegistered[ item - bg_itemlist.data() ] = '1';
 	gi.SetConfigstring(CS_ITEMS, itemRegistered);	//Write the needed items to a config string
 }
 

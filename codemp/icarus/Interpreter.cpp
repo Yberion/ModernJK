@@ -32,66 +32,66 @@ extern void  ICARUS_Free(void *pMem);
 keywordArray_t CInterpreter::m_symbolKeywords[] =
 {
 	//Blocks
-	"{",	TK_BLOCK_START,
-	"}",	TK_BLOCK_END,
+	"{",	to_underlying( TK_BLOCK_START ),
+	"}",	to_underlying( TK_BLOCK_END ),
 
 	//Vectors
-	"<",	TK_VECTOR_START,
-	">",	TK_VECTOR_END,
+	"<",	to_underlying( TK_VECTOR_START ),
+	">",	to_underlying( TK_VECTOR_END ),
 
 	//Groups
-	"(",	TK_OPEN_PARENTHESIS,
-	")",	TK_CLOSED_PARENTHESIS,
+	"(",	to_underlying( TK_OPEN_PARENTHESIS ),
+	")",	to_underlying( TK_CLOSED_PARENTHESIS ),
 
-	"=",	TK_EQUALS,
-	"!",	TK_NOT,
+	"=",	to_underlying( TK_EQUALS ),
+	"!",	to_underlying( TK_NOT ),
 
 	//End
-	"",		TK_EOF,
+	"",		to_underlying( TK_EOF ),
 };
 
 keywordArray_t CInterpreter::m_conditionalKeywords[] =
 {
-	"",		TK_EOF,
+	"",		to_underlying( TK_EOF ),
 };
 
 //ID Table
 
 keywordArray_t CInterpreter::m_IDKeywords[] =
 {
-	"AFFECT",		ID_AFFECT,
-	"SOUND",		ID_SOUND,
-	"MOVE",			ID_MOVE,
-	"ROTATE",		ID_ROTATE,
-	"WAIT",			ID_WAIT,
-	"SET",			ID_SET,
-	"LOOP",			ID_LOOP,
-	"PRINT",		ID_PRINT,
-	"TAG",			ID_TAG,
-	"USE",			ID_USE,
-	"FLUSH",		ID_FLUSH,
-	"RUN",			ID_RUN,
-	"KILL",			ID_KILL,
-	"REMOVE",		ID_REMOVE,
-	"CAMERA",		ID_CAMERA,
-	"GET",			ID_GET,
-	"RANDOM",		ID_RANDOM,
-	"IF",			ID_IF,
-	"ELSE",			ID_ELSE,
-	"REM",			ID_REM,
-	"FLOAT",		TK_FLOAT,
-	"VECTOR",		TK_VECTOR,
-	"STRING",		TK_STRING,
-	"TASK",			ID_TASK,
-	"DO",			ID_DO,
-	"DECLARE",		ID_DECLARE,
-	"FREE",			ID_FREE,
-	"DOWAIT",		ID_DOWAIT,
-	"SIGNAL",		ID_SIGNAL,
-	"WAITSIGNAL",	ID_WAITSIGNAL,
-	"PLAY",			ID_PLAY,
+	"AFFECT",		to_underlying( ID_AFFECT ),
+	"SOUND",		to_underlying( ID_SOUND ),
+	"MOVE",			to_underlying( ID_MOVE ),
+	"ROTATE",		to_underlying( ID_ROTATE ),
+	"WAIT",			to_underlying( ID_WAIT ),
+	"SET",			to_underlying( ID_SET ),
+	"LOOP",			to_underlying( ID_LOOP ),
+	"PRINT",		to_underlying( ID_PRINT ),
+	"TAG",			to_underlying( ID_TAG ),
+	"USE",			to_underlying( ID_USE ),
+	"FLUSH",		to_underlying( ID_FLUSH ),
+	"RUN",			to_underlying( ID_RUN ),
+	"KILL",			to_underlying( ID_KILL ),
+	"REMOVE",		to_underlying( ID_REMOVE ),
+	"CAMERA",		to_underlying( ID_CAMERA ),
+	"GET",			to_underlying( ID_GET ),
+	"RANDOM",		to_underlying( ID_RANDOM ),
+	"IF",			to_underlying( ID_IF ),
+	"ELSE",			to_underlying( ID_ELSE ),
+	"REM",			to_underlying( ID_REM ),
+	"FLOAT",		to_underlying( TK_FLOAT ),
+	"VECTOR",		to_underlying( TK_VECTOR ),
+	"STRING",		to_underlying( TK_STRING ),
+	"TASK",			to_underlying( ID_TASK ),
+	"DO",			to_underlying( ID_DO ),
+	"DECLARE",		to_underlying( ID_DECLARE ),
+	"FREE",			to_underlying( ID_FREE ),
+	"DOWAIT",		to_underlying( ID_DOWAIT ),
+	"SIGNAL",		to_underlying( ID_SIGNAL ),
+	"WAITSIGNAL",	to_underlying( ID_WAITSIGNAL ),
+	"PLAY",			to_underlying( ID_PLAY ),
 
-	"",			ID_EOF,
+	"",			to_underlying( ID_EOF ),
 };
 
 //Type Table
@@ -99,34 +99,34 @@ keywordArray_t CInterpreter::m_IDKeywords[] =
 keywordArray_t CInterpreter::m_typeKeywords[] =
 {
 	//Set types
-	"ANGLES",		TYPE_ANGLES,
-	"ORIGIN",		TYPE_ORIGIN,
+	"ANGLES",		to_underlying( TYPE_ANGLES ),
+	"ORIGIN",		to_underlying( TYPE_ORIGIN ),
 
 	//Affect types
-	"INSERT",		TYPE_INSERT,
-	"FLUSH",		TYPE_FLUSH,
+	"INSERT",		to_underlying( TYPE_INSERT ),
+	"FLUSH",		to_underlying( TYPE_FLUSH ),
 
 	//Get types
-	"FLOAT",		TK_FLOAT,
-	"INT",			TK_INT,
-	"VECTOR",		TK_VECTOR,
-	"STRING",		TK_STRING,
+	"FLOAT",		to_underlying( TK_FLOAT ),
+	"INT",			to_underlying( TK_INT ),
+	"VECTOR",		to_underlying( TK_VECTOR ),
+	"STRING",		to_underlying( TK_STRING ),
 
-	"PAN",			TYPE_PAN,
-	"ZOOM",			TYPE_ZOOM,
-	"MOVE",			TYPE_MOVE,
-	"FADE",			TYPE_FADE,
-	"PATH",			TYPE_PATH,
-	"ENABLE",		TYPE_ENABLE,
-	"DISABLE",		TYPE_DISABLE,
-	"SHAKE",		TYPE_SHAKE,
-	"ROLL",			TYPE_ROLL,
-	"TRACK",		TYPE_TRACK,
-	"FOLLOW",		TYPE_FOLLOW,
-	"DISTANCE",		TYPE_DISTANCE,
+	"PAN",			to_underlying( TYPE_PAN ),
+	"ZOOM",			to_underlying( TYPE_ZOOM ),
+	"MOVE",			to_underlying( TYPE_MOVE ),
+	"FADE",			to_underlying( TYPE_FADE ),
+	"PATH",			to_underlying( TYPE_PATH ),
+	"ENABLE",		to_underlying( TYPE_ENABLE ),
+	"DISABLE",		to_underlying( TYPE_DISABLE ),
+	"SHAKE",		to_underlying( TYPE_SHAKE ),
+	"ROLL",			to_underlying( TYPE_ROLL ),
+	"TRACK",		to_underlying( TYPE_TRACK ),
+	"FOLLOW",		to_underlying( TYPE_FOLLOW ),
+	"DISTANCE",		to_underlying( TYPE_DISTANCE ),
 
 	//End
-	"",				TYPE_EOF,
+	"",				to_underlying( TYPE_EOF ),
 };
 
 
@@ -257,7 +257,7 @@ AddVar
 -------------------------
 */
 
-variable_t *CInterpreter::AddVar( const char *name, int type )
+variable_t *CInterpreter::AddVar( const char *name, icarusToken_t type )
 {
 	variable_t	*var;
 
@@ -302,7 +302,7 @@ GetVariable
 -------------------------
 */
 
-int CInterpreter::GetVariable( int type )
+int CInterpreter::GetVariable( icarusToken_t type )
 {
 	const char	*varName;
 	variable_t	*var;
@@ -327,7 +327,7 @@ int CInterpreter::GetVariable( int type )
 	CBlock	block;
 
 	block.Create( TYPE_VARIABLE );
-	block.Write( TK_FLOAT, (float) type );
+	block.Write( TK_FLOAT, (float) to_underlying( type ) );
 	block.Write( TK_STRING, varName );
 
 	m_blockStream->WriteBlock( &block );
@@ -362,7 +362,7 @@ int CInterpreter::GetVector( CBlock *block )
 	if ( Match( TK_VECTOR_START ) )
 	{
 		//Get the vector
-		block->Write( TK_VECTOR, (float) TK_VECTOR );
+		block->Write( TK_VECTOR, (float) to_underlying( TK_VECTOR ) );
 
 		for (int i=0; i<3; i++)
 			GetFloat( block );
@@ -392,7 +392,7 @@ int CInterpreter::MatchTag( void )
 {
 	CToken		*token;
 	const char	*idName;
-	int			id;
+	icarusToken_t			id;
 
 	token = m_tokenizer->GetToken( 0, 0 );
 	idName = token->GetStringValue();
@@ -423,7 +423,7 @@ int CInterpreter::MatchGet( void )
 {
 	CToken		*token;
 	const char	*idName;
-	int			id;
+	icarusToken_t			id;
 
 	token = m_tokenizer->GetToken( 0, 0 );
 	idName = token->GetStringValue();
@@ -454,7 +454,7 @@ int CInterpreter::MatchRandom( void )
 {
 	CToken		*token;
 	const char	*idName;
-	int			id;
+	icarusToken_t			id;
 
 	token = m_tokenizer->GetToken( 0, 0 );
 	idName = token->GetStringValue();
@@ -481,17 +481,17 @@ int CInterpreter::MatchRandom( void )
 ===================================================================================================
 */
 
-int CInterpreter::FindSymbol( const char *name,  keywordArray_t *table)
+icarusToken_t CInterpreter::FindSymbol( const char *name,  keywordArray_t *table)
 {
 	keywordArray_t *ids;
 
 	for (ids = table; (strcmp(ids->m_keyword, "")); ids++)
 	{
 		if (!stricmp(name, ids->m_keyword))
-			return ids->m_tokenvalue;
+			return static_cast<icarusToken_t>( ids->m_tokenvalue );
 	}
 
-	return -1;
+	return TK_EOF;	// in no table
 }
 
 
@@ -507,7 +507,7 @@ int CInterpreter::FindSymbol( const char *name,  keywordArray_t *table)
 
 //NOTENOTE:  LookAhead() was separated from Match() for clarity
 
-int CInterpreter::Match( int token_id )
+int CInterpreter::Match( icarusToken_t token_id )
 {
 	CToken	*token;
 
@@ -530,10 +530,10 @@ GetNextType
 -------------------------
 */
 
-int CInterpreter::GetNextType( void )
+icarusToken_t CInterpreter::GetNextType( void )
 {
 	CToken	*token = m_tokenizer->GetToken( 0, 0 );
-	int		id = token->GetType();
+	icarusToken_t	id = token->GetType();
 
 	m_tokenizer->PutBackToken( token );
 
@@ -550,7 +550,7 @@ int CInterpreter::GetNextType( void )
 ===================================================================================================
 */
 
-int CInterpreter::LookAhead( int token_id )
+int CInterpreter::LookAhead( icarusToken_t token_id )
 {
 	CToken	*token;
 
@@ -578,7 +578,7 @@ int CInterpreter::LookAhead( int token_id )
 ===================================================================================================
 */
 
-const char *CInterpreter::GetTokenName( int token_id )
+const char *CInterpreter::GetTokenName( icarusToken_t token_id )
 {
 	switch ( token_id )
 	{
@@ -629,7 +629,7 @@ const char *CInterpreter::GetTokenName( int token_id )
 int CInterpreter::GetFloat( CBlock *block )
 {
 	CToken	*token;
-	int		type;
+	icarusToken_t		type;
 
 	//Look for a get
 	if ( MatchGet() )
@@ -694,7 +694,7 @@ int CInterpreter::GetInteger( CBlock *block )
 int CInterpreter::GetString( CBlock *block )
 {
 	CToken	*token;
-	int		type;
+	icarusToken_t		type;
 
 	//Look for a get
 	if ( MatchGet() )
@@ -760,7 +760,7 @@ int CInterpreter::GetString( CBlock *block )
 int CInterpreter::GetIdentifier( CBlock *block )
 {
 	CToken	*token;
-	int		type;
+	icarusToken_t		type;
 
 	//FIXME: Should identifiers do this?
 	if ( MatchGet() )
@@ -799,7 +799,7 @@ int CInterpreter::GetIdentifier( CBlock *block )
 int CInterpreter::GetEvaluator( CBlock *block )
 {
 	CToken	*token;
-	int		type;
+	icarusToken_t		type;
 
 	if ( MatchGet() )
 		return false;
@@ -849,7 +849,7 @@ int CInterpreter::GetEvaluator( CBlock *block )
 int CInterpreter::GetAny( CBlock *block )
 {
 	CToken	*token;
-	int		type;
+	icarusToken_t		type;
 
 	if ( MatchGet() )
 	{
@@ -937,7 +937,7 @@ int CInterpreter::GetType( char *get )
 {
 	CToken	*token;
 	char	*string;
-	int		type;
+	icarusToken_t		type;
 
 	token = m_tokenizer->GetToken(0, 0);
 	type = token->GetType();
@@ -974,11 +974,11 @@ int CInterpreter::GetType( char *get )
 
 int CInterpreter::GetID( char *id_name )
 {
-	int		id;
+	icarusToken_t		id;
 
 	id = FindSymbol( id_name, m_IDKeywords );
 
-	if ( id == -1 )
+	if ( id == TK_EOF )
 		return Error("'%s' : unknown identifier", id_name);
 
 	//FIXME: Function pointers would be awfully nice.. but not inside a class!  Weee!!
@@ -1112,7 +1112,7 @@ int CInterpreter::GetID( char *id_name )
 	//Unknown ID
 
 	default:
-	case -1:
+	case TK_EOF:
 		return Error("'%s' : unknown identifier", id_name);
 		break;
 	}
@@ -1138,7 +1138,7 @@ int CInterpreter::GetDeclare( void )
 {
 	CBlock	block;
 	char	typeName[MAX_STRING_LENGTH];
-	int		type;
+	icarusToken_t		type;
 
 	block.Create( ID_DECLARE );
 
@@ -1155,7 +1155,7 @@ int CInterpreter::GetDeclare( void )
 	case TK_FLOAT:
 	case TK_VECTOR:
 	case TK_STRING:
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1363,9 +1363,9 @@ int CInterpreter::GetDo( void )
 int CInterpreter::GetGet( CBlock *block )
 {
 	char	typeName[MAX_STRING_LENGTH];
-	int		type;
+	icarusToken_t		type;
 
-	block->Write( ID_GET, (float) ID_GET );
+	block->Write( ID_GET, (float) to_underlying( ID_GET ) );
 
 	if (!Match( TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
@@ -1381,7 +1381,7 @@ int CInterpreter::GetGet( CBlock *block )
 	case TK_INT:
 	case TK_VECTOR:
 	case TK_STRING:
-		block->Write( TK_FLOAT, (float) type );
+		block->Write( TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1412,7 +1412,7 @@ int CInterpreter::GetGet( CBlock *block )
 
 int CInterpreter::GetRandom( CBlock *block )
 {
-	block->Write( ID_RANDOM, (float) ID_RANDOM );
+	block->Write( ID_RANDOM, (float) to_underlying( ID_RANDOM ) );
 
 	if (!Match( TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
@@ -1557,7 +1557,7 @@ int CInterpreter::GetAffect( void )
 {
 	CBlock			block;
 	char			typeName[MAX_STRING_SIZE];
-	int				type;
+	icarusToken_t				type;
 
 	block.Create( ID_AFFECT );
 
@@ -1583,7 +1583,7 @@ int CInterpreter::GetAffect( void )
 	case TYPE_INSERT:
 	case TYPE_FLUSH:
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	default:
@@ -1996,7 +1996,7 @@ int CInterpreter::GetCamera( void )
 {
 	CBlock	block;
 	char	typeName[MAX_STRING_SIZE];
-	int		type;
+	icarusToken_t		type;
 
 	block.Create( ID_CAMERA );
 
@@ -2012,7 +2012,7 @@ int CInterpreter::GetCamera( void )
 	{
 	case TYPE_PAN:		//PAN  ( ANGLES, DURATION )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		if ( GetVector( &block ) == false )
 			return false;
@@ -2027,7 +2027,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_ZOOM:		//ZOOM ( FOV, DURATION )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		if ( GetFloat( &block ) == false )
 			return false;
@@ -2039,7 +2039,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_MOVE:		//MOVE ( ORIGIN, DURATION )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		if ( GetVector( &block ) == false )
 			return false;
@@ -2051,7 +2051,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_FADE:		//FADE ( SOURCE(R,G,B,A), DEST(R,G,B,A), DURATION )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Source color
 		if ( GetVector( &block ) == false )
@@ -2073,7 +2073,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_PATH:		//PATH ( FILENAME )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Filename
 		if ( GetString( &block ) == false )
@@ -2084,12 +2084,12 @@ int CInterpreter::GetCamera( void )
 	case TYPE_ENABLE:
 	case TYPE_DISABLE:
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 		break;
 
 	case TYPE_SHAKE:	//SHAKE ( INTENSITY, DURATION )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Intensity
 		if ( GetFloat( &block ) == false )
@@ -2103,7 +2103,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_ROLL:		//ROLL ( ANGLE, TIME )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Angle
 		if ( GetFloat( &block ) == false )
@@ -2117,7 +2117,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_TRACK:	//TRACK ( TARGETNAME, SPEED, INITLERP )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Target name
 		if ( GetString( &block ) == false )
@@ -2135,7 +2135,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_FOLLOW:	//FOLLOW ( CAMERAGROUP, SPEED, INITLERP )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Camera group
 		if ( GetString( &block ) == false )
@@ -2153,7 +2153,7 @@ int CInterpreter::GetCamera( void )
 
 	case TYPE_DISTANCE:	//DISTANCE ( DISTANCE, INITLERP )
 
-		block.Write( TK_FLOAT, (float) type );
+		block.Write( TK_FLOAT, (float) to_underlying( type ) );
 
 		//Distance
 		if ( GetFloat( &block ) == false )
@@ -2307,10 +2307,10 @@ int CInterpreter::GetPlay( void )
 int CInterpreter::GetTag( CBlock *block )
 {
 	char	typeName[MAX_STRING_SIZE];
-	int		typeID;
+	icarusToken_t		typeID;
 
 	//Mark as a tag
-	block->Write( ID_TAG, (float) ID_TAG );
+	block->Write( ID_TAG, (float) to_underlying( ID_TAG ) );
 
 	if (!Match( TK_OPEN_PARENTHESIS ))
 		return Error("syntax error : '(' not found");
@@ -2330,7 +2330,7 @@ int CInterpreter::GetTag( CBlock *block )
 		return Error("syntax error : 'tag' : %s is not a valid look up identifier", typeName );
 	}
 
-	block->Write( TK_FLOAT, (float) typeID );
+	block->Write( TK_FLOAT, (float) to_underlying( typeID ) );
 
 	if (!Match( TK_CLOSED_PARENTHESIS ))
 		return Error("tag : too many parameters");
@@ -2355,7 +2355,8 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 {
 	CBlock		block;
 	CToken		*token;
-	int			type, blockLevel = 0, parenthesisLevel = 0;
+	icarusToken_t	type;
+	int			blockLevel = 0, parenthesisLevel = 0;
 
 	m_sCurrentFile	= filename;		// used during error reporting because you can't ask tokenizer for pushed streams
 

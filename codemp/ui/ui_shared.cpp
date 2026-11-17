@@ -145,7 +145,7 @@ itemFlagsDef_t itemFlags[] = {
 	{ nullptr,					0 }
 };
 
-extern int MenuFontToHandle(int iMenuFont);
+extern int MenuFontToHandle(menuFont_t iMenuFont);
 
 /*
 ===============
@@ -4570,7 +4570,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 			newLinePtr = p+1;
 			newLineWidth = textWidth;
 		}
-		textWidth = DC->textWidth(buff, item->textscale, 0);
+		textWidth = DC->textWidth(buff, item->textscale, FONT_NONE);
 		if ( (newLine && textWidth > item->window.rect.w) || *p == '\n' || *p == '\0') {
 			if (len) {
 				if (item->textalignment == ITEM_ALIGN_LEFT) {
@@ -7990,11 +7990,14 @@ bool ItemParse_cvar( itemDef_t *item, int handle )
 
 bool ItemParse_font( itemDef_t *item, int handle )
 {
+	int font;
+
 	Item_ValidateTypeData(item);
-	if (!PC_Int_Parse(handle, &item->iMenuFont))
+	if (!PC_Int_Parse(handle, &font))
 	{
 		return false;
 	}
+	item->iMenuFont = static_cast<menuFont_t>( font );
 	return true;
 }
 
@@ -9381,8 +9384,8 @@ void Menu_PaintAll() {
 
 	if (debugMode) {
 		vec4_t v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .75, v, va("fps: %f", DC->FPS), 0, 0, 0, 0);
-		DC->drawText(5, 45, .75, v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0, 0);
+		DC->drawText(5, 25, .75, v, va("fps: %f", DC->FPS), 0, 0, 0, FONT_NONE);
+		DC->drawText(5, 45, .75, v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0, FONT_NONE);
 	}
 }
 

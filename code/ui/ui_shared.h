@@ -24,11 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __UI_SHARED_H
 #define __UI_SHARED_H
 
-enum {
+enum class screenshotFormat_t {
 	SSF_JPEG = 0,
 	SSF_TGA,
 	SSF_PNG
 };
+using enum screenshotFormat_t;
 
 #define MAX_TOKENLENGTH		1024
 #define MAX_OPEN_MENUS 16
@@ -245,7 +246,7 @@ typedef struct {
 	qhandle_t	gradientImage;
 	float FPS;
 
-	int			screenshotFormat;
+	screenshotFormat_t	screenshotFormat;
 
 } displayContextDef_t;
 

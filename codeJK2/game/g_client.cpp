@@ -663,13 +663,13 @@ void Player_CacheFromPrevLevel(void)
 			}
 		}
 
-extern gitem_t	*FindItemForInventory( int inv );
+extern gitem_t	*FindItemForInventory( inventory_t inv );
 
-		for ( i = 1 ; i < 16 ; i++ )
+		for ( i = 0 ; i < 16 ; i++ )
 		{
 			if ( ibits & ( 1 << i ) )
 			{
-				RegisterItem( FindItemForInventory( i-1 ));
+				RegisterItem( FindItemForInventory( static_cast<inventory_t>( i ) ));
 			}
 		}
 	}
@@ -696,6 +696,7 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 		int saberActive;
 		int weapon;
 		int weaponstate;
+		int saberAnimLevel;
 
 		gi.Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
 
@@ -715,12 +716,13 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 								&client->ps.forcePowersKnown,
 								&client->ps.forcePower,
 								&saberActive,
-								&client->ps.saberAnimLevel,
+								&saberAnimLevel,
 								&client->ps.saberLockEnemy,
 								&client->ps.saberLockTime
 					);
 			client->ps.weapon = static_cast<weapon_t>( weapon );
 			client->ps.weaponstate = static_cast<weaponstate_t>( weaponstate );
+			client->ps.saberAnimLevel = static_cast<forcePowerLevels_t>( saberAnimLevel );
 			client->ps.saberActive = (saberActive ? true : false);
 			ent->health = client->ps.stats[STAT_HEALTH];
 
@@ -751,11 +753,11 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.inventory[i++] = atoi(var);
+			  client->ps.inventory.data()[i++] = atoi(var);
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==INV_MAX);
+			assert (i==to_underlying( INV_MAX ));
 
 
 			// the new JK2 stuff - force powers, etc...
@@ -766,7 +768,7 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.forcePowerLevel[fp++] = atoi(var);
+			  client->ps.forcePowerLevel[fp++] = static_cast<forcePowerLevels_t>( atoi(var) );
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
@@ -1371,7 +1373,7 @@ void G_PilotXWing( gentity_t *ent )
 		ent->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = ammoData[weaponData[WP_ATST_SIDE].ammoIndex].max;
 		gitem_t *item = FindItemForWeapon( WP_ATST_SIDE );
 		RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
-		G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist) );
+		G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 		CG_ChangeWeapon( WP_ATST_SIDE );
 
 		ent->client->ps.gravity = 0;
@@ -1467,25 +1469,25 @@ void G_DriveATST( gentity_t *ent, gentity_t *atst )
 		ent->s.radius = 320;
 		//weapon
 		gitem_t	*item = FindItemForWeapon( WP_ATST_MAIN );	//precache the weapon
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_ATST_SIDE );	//precache the weapon
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_ATST_MAIN )|Bit( WP_ATST_SIDE );
 		ent->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = ammoData[weaponData[WP_ATST_MAIN].ammoIndex].max;
 		ent->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = ammoData[weaponData[WP_ATST_SIDE].ammoIndex].max;
 		CG_ChangeWeapon( WP_ATST_MAIN );
 		//HACKHACKHACKTEMP
 		item = FindItemForWeapon( WP_EMPLACED_GUN );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_ROCKET_LAUNCHER );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		item = FindItemForWeapon( WP_BOWCASTER );
-		CG_RegisterItemSounds( (item-bg_itemlist) );
-		CG_RegisterItemVisuals( (item-bg_itemlist) );
+		CG_RegisterItemSounds( ITEM_INDEX( item ) );
+		CG_RegisterItemVisuals( ITEM_INDEX( item ) );
 		//HACKHACKHACKTEMP
 		//FIXME: these get lost in load/save!  Must use variables that are set every frame or saved/loaded
 		//camera

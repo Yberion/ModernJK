@@ -1106,12 +1106,16 @@ int CG_MoverTime( int serverTime ) {
 #define PS_WORDS	( sizeof( playerState_t ) / 4 )
 #define PREDICT_MISS_POSITIONS	80
 #define PREDICT_MISS_ANIMS		30
-enum { MISS_TELEPORT, MISS_HIT, MISS_ENTITY, MISS_OTHER, MISS_CAUSES, MISS_ANIM = MISS_CAUSES };
-static const char *cg_predictMissKinds[MISS_CAUSES + 1] = { "a teleport or a respawn", "within 200 ms of a hit",
+// the kind of a miss: the causes of a position that differs, then an animation only
+enum class predictMissKind_t { MISS_TELEPORT, MISS_HIT, MISS_ENTITY, MISS_OTHER, MISS_ANIM, MISS_KINDS };
+using enum predictMissKind_t;
+template <> inline constexpr bool enableEnumArithmetic<predictMissKind_t> = true;
+constexpr int MISS_CAUSES = to_underlying( MISS_ANIM );	// the causes of a position, the kinds before MISS_ANIM
+static const EnumArray<const char *, predictMissKind_t, MISS_KINDS> cg_predictMissKinds = { "a teleport or a respawn", "within 200 ms of a hit",
 	"in contact with an entity", "none of these", "animation only" };
 
 typedef struct {
-	int				kind;
+	predictMissKind_t	kind;
 	float			d;
 	playerState_t	predicted, server, start;
 	bool		haveStart;
@@ -1128,8 +1132,8 @@ static struct {
 	int			predicted[PS_WORDS], server[PS_WORDS];	// of the last tick the word differed in
 	bool	set[PS_WORDS];							// the server's state held a value there
 	int			lastHit;								// the command time of the last tick that showed a hit
-	int			origin[MISS_CAUSES];
-	float		originSum[MISS_CAUSES], originMax[MISS_CAUSES];
+	EnumArray<int, predictMissKind_t, MISS_CAUSES>		origin;
+	EnumArray<float, predictMissKind_t, MISS_CAUSES>	originSum, originMax;
 	int			animOnly;
 	int			positions, anims, details;				// kept in cg_predictMissDetails
 	int			ahead;									// frames whose prediction started from a snapshot ahead of cgame's
@@ -1141,7 +1145,7 @@ static bool CG_PredictMissWordCounts( size_t i ) {
 		&& i != offsetof( playerState_t, slopeRecalcTime ) / 4;
 }
 
-static void CG_KeepPredictMiss( int kind, float d, const playerState_t *predicted, const playerState_t *base ) {
+static void CG_KeepPredictMiss( predictMissKind_t kind, float d, const playerState_t *predicted, const playerState_t *base ) {
 	const unsigned slot = (unsigned)base->commandTime / TICK_MSEC % PREDICTED_STATES;
 	predictMissDetail_t *m = &cg_predictMissDetails[cg_predictMiss.details++];
 	const playerState_t *start = CG_PredictedAt( cg_predicted[slot].from );
@@ -1238,7 +1242,7 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 	if ( Distance( riding, base->origin ) > ( VectorCompare( riding, predicted->origin ) ? 0.0f : 0.01f ) ) {
 		const unsigned slot = (unsigned)base->commandTime / TICK_MSEC % PREDICTED_STATES;
 		const float d = Distance( riding, base->origin );
-		int cause;
+		predictMissKind_t cause;
 
 		if ( ( ( predicted->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT )
 			|| predicted->persistant[PERS_SPAWN_COUNT] != base->persistant[PERS_SPAWN_COUNT] ) {
@@ -1282,10 +1286,10 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 	Com_sprintf( line, sizeof( line ), "predictmiss: %d ticks compared, %d with a difference in a field the server sets\n",
 		cg_predictMiss.checked, cg_predictMiss.differing );
 	CG_PredictMissLine( f, line );
-	for ( n = 0; n < MISS_CAUSES; n++ ) {
-		Com_sprintf( line, sizeof( line ), "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[n],
-			cg_predictMiss.origin[n], cg_predictMiss.origin[n] ? cg_predictMiss.originSum[n] / cg_predictMiss.origin[n] : 0.0f,
-			cg_predictMiss.originMax[n] );
+	for ( predictMissKind_t cause = MISS_TELEPORT; cause < MISS_ANIM; cause++ ) {
+		Com_sprintf( line, sizeof( line ), "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause],
+			cg_predictMiss.origin[cause], cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f,
+			cg_predictMiss.originMax[cause] );
 		CG_PredictMissLine( f, line );
 	}
 	Com_sprintf( line, sizeof( line ), "predictmiss: an animation only: %d ticks\n", cg_predictMiss.animOnly );
@@ -1346,14 +1350,13 @@ void CG_PredictMiss_f( void ) {
 		trap->Print( "predictmiss: counting from now; call it again to write predictmiss.txt\n" );
 	} else {
 		fileHandle_t f;
-		int n;
 
 		trap->Print( "predictmiss: %d ticks compared, %d with a difference in a field the server sets\n", cg_predictMiss.checked,
 			cg_predictMiss.differing );
-		for ( n = 0; n < MISS_CAUSES; n++ ) {
-			trap->Print( "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[n],
-				cg_predictMiss.origin[n], cg_predictMiss.origin[n] ? cg_predictMiss.originSum[n] / cg_predictMiss.origin[n] : 0.0f,
-				cg_predictMiss.originMax[n] );
+		for ( predictMissKind_t cause = MISS_TELEPORT; cause < MISS_ANIM; cause++ ) {
+			trap->Print( "predictmiss: position, %s: %d ticks, mean %.2f units, max %.2f\n", cg_predictMissKinds[cause],
+				cg_predictMiss.origin[cause], cg_predictMiss.origin[cause] ? cg_predictMiss.originSum[cause] / cg_predictMiss.origin[cause] : 0.0f,
+				cg_predictMiss.originMax[cause] );
 		}
 		trap->Print( "predictmiss: an animation only: %d ticks\n", cg_predictMiss.animOnly );
 		trap->Print( "predictmiss: %d frames predicted from a snapshot ahead of the drawn ones\n", cg_predictMiss.ahead );

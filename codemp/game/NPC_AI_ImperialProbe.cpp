@@ -27,14 +27,7 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_BACKINGUP,
-	LSTATE_SPINNING,
-	LSTATE_PAIN,
-	LSTATE_DROP
-};
+using enum droidLocalState_t;
 
 void ImperialProbe_Idle( void );
 
@@ -489,7 +482,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 			//self->client->ps.powerups[PW_SHOCKED] = level.time + 3000;
 			self->client->ps.electrifyTime = level.time + 3000;
 
-			self->NPC->localState = LSTATE_DROP;
+			NPC_SetLocalState( *self->NPC, LSTATE_DROP );
 		}
 	}
 	else
@@ -570,7 +563,7 @@ ImperialProbe_Wait
 */
 void ImperialProbe_Wait(void)
 {
-	if ( NPCS.NPCInfo->localState == LSTATE_DROP )
+	if ( NPC_LocalState<droidLocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROP )
 	{
 		vec3_t endPos;
 		trace_t	trace;
@@ -606,7 +599,7 @@ void NPC_BSImperialProbe_Default( void )
 	{
 		ImperialProbe_Patrol();
 	}
-	else if ( NPCS.NPCInfo->localState == LSTATE_DROP )
+	else if ( NPC_LocalState<droidLocalState_t>( *NPCS.NPCInfo ) == LSTATE_DROP )
 	{
 		ImperialProbe_Wait();
 	}

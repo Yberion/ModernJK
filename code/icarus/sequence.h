@@ -34,6 +34,9 @@ class CSequence
 
 public:
 
+	enum class sequenceFlag_t;	// defined below
+	enum class pushPop_t;
+
 	//Constructors / Destructors
 	CSequence( void );
 	~CSequence( void );
@@ -50,15 +53,15 @@ public:
 	CSequence *GetParent( void )	const	{	return m_parent;	}
 
 	//Block manipulation
-	CBlock *PopCommand( int );
-	int PushCommand( CBlock *, int );
+	CBlock *PopCommand( pushPop_t );
+	int PushCommand( CBlock *, pushPop_t );
 
 	//Flag utilties
-	void SetFlag( int );
-	void RemoveFlag( int, bool = false );
-	int  HasFlag( int );
-	int	 GetFlags( void )		const	{	return m_flags;		}
-	void SetFlags( int flags )	{	m_flags = flags;	}
+	void SetFlag( sequenceFlag_t );
+	void RemoveFlag( sequenceFlag_t, bool = false );
+	bool HasFlag( sequenceFlag_t );
+	sequenceFlag_t GetFlags( void )		const	{	return m_flags;		}
+	void SetFlags( sequenceFlag_t flags )	{	m_flags = flags;	}
 
 	//Various encapsulation utilities
 	int GetIterations( void )		const	{	return m_iterations;	}
@@ -93,7 +96,7 @@ public:
 		IGameInterface::GetGame()->Free( pRawData );
 	}
 
-	enum
+	enum class sequenceFlag_t
 	{
 		SQ_COMMON		= 0x00000000, 	//Common one-pass sequence
 		SQ_LOOP			= 0x00000001, 	//Looping sequence
@@ -104,14 +107,16 @@ public:
 		SQ_CONDITIONAL	= 0x00000020,	//Conditional statement
 		SQ_TASK			= 0x00000040,	//Task block
 	};
+	using enum sequenceFlag_t;
 
-	enum
+	enum class pushPop_t
 	{
 		POP_FRONT,
 		POP_BACK,
 		PUSH_FRONT,
 		PUSH_BACK
 	};
+	using enum pushPop_t;
 
 protected:
 
@@ -128,10 +133,11 @@ protected:
 
 	//Data information
 	block_l					m_commands;
-	int						m_flags;
+	sequenceFlag_t			m_flags;
 	int						m_iterations;
 	int						m_id;
 	int						m_numCommands;
 };
+template <> inline constexpr bool enableEnumFlags<CSequence::sequenceFlag_t> = true;
 
 #endif	//__SEQUENCE__

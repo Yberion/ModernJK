@@ -551,7 +551,7 @@ saber_styles_t PM_AnimLevelForSaberAnim( animNumber_t anim )
 	return SS_NONE;
 }
 
-int PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum )
+forcePowerLevels_t PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum )
 {
 	animNumber_t anim = ps->torsoAnim;
 	int	animTimeElapsed = PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, anim ) - ps->torsoAnimTimer;
@@ -4478,7 +4478,7 @@ void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time )
 }
 
 extern bool PM_SpinningSaberAnim( animNumber_t anim );
-extern float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS];
+extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> saberAnimSpeedMod;
 void PM_SaberStartTransAnim( saber_styles_t saberAnimLevel, animNumber_t anim, float *animSpeed, gentity_t *gent )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
@@ -4563,7 +4563,7 @@ void PM_SaberStartTransAnim( saber_styles_t saberAnimLevel, animNumber_t anim, f
 	}
 }
 /*
-void PM_SaberStartTransAnim( animNumber_t anim, int entNum, int saberOffenseLevel, float *animSpeed )
+void PM_SaberStartTransAnim( animNumber_t anim, int entNum, forcePowerLevels_t saberOffenseLevel, float *animSpeed )
 {
 	//check starts
 	if ( ( anim >= BOTH_S1_S1_T_ &&

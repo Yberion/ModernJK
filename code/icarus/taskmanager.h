@@ -31,19 +31,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TASKFLAG_NORMAL	0x00000000
 const int RUNAWAY_LIMIT	= 256;
 
-enum
+enum class taskReturn_t
 {
 	TASK_RETURN_COMPLETE,
 	TASK_RETURN_FAILED,
 };
+using enum taskReturn_t;
 
-enum
+enum class taskResult_t
 {
 	TASK_OK,
 	TASK_FAILED,
+};
+using enum taskResult_t;
+
+// what MarkTask does to a task group
+enum class taskMark_t
+{
 	TASK_START,
 	TASK_END,
 };
+using enum taskMark_t;
 
 // CTask
 
@@ -61,7 +69,7 @@ public:
 	unsigned int	GetTimeStamp( void )	const	{	return m_timeStamp;				}
 	CBlock	*GetBlock( void )		const	{	return m_block;					}
 	int		GetGUID( void)			const	{	return m_id;					}
-	int		GetID( void )			const	{	return m_block->GetBlockID();	}
+	icarusToken_t		GetID( void )			const	{	return m_block->GetBlockID();	}
 
 	void	SetTimeStamp( unsigned int	timeStamp )		{	m_timeStamp = timeStamp;	}
 	void	SetBlock( CBlock *block )			{	m_block = block;			}
@@ -99,7 +107,7 @@ public:
 
 	void Init( void );
 
-	int Add( CTask *task );
+	taskResult_t Add( CTask *task );
 
 	void SetGUID( int GUID );
 	void SetParent( CTaskGroup *group )	{	m_parent = group;	}
@@ -155,15 +163,15 @@ public:
 
 	CBlock *GetCurrentTask( void );
 
-	int Init( CSequencer *owner );
-	int	Free( void );
+	taskResult_t Init( CSequencer *owner );
+	taskResult_t	Free( void );
 
 	int	Flush( void );
 
-	int	SetCommand( CBlock *block, int type, CIcarus* icarus );
-	int Completed( int id );
+	taskResult_t	SetCommand( CBlock *block, CSequence::pushPop_t type, CIcarus* icarus );
+	taskResult_t Completed( int id );
 
-	int Update( CIcarus* icarus );
+	taskResult_t Update( CIcarus* icarus );
 	int IsRunning( void ) const { return(!m_tasks.empty()); };
 	bool IsResident( void ) const { return m_resident;};
 
@@ -171,7 +179,7 @@ public:
 	CTaskGroup *GetTaskGroup( const char *name, CIcarus* icarus);
 	CTaskGroup *GetTaskGroup( int id, CIcarus* icarus );
 
-	int MarkTask( int id, int operation, CIcarus* icarus );
+	taskResult_t MarkTask( int id, taskMark_t operation, CIcarus* icarus );
 	CBlock *RecallTask( void );
 
 	void Save();
@@ -191,35 +199,36 @@ public:
 
 protected:
 
-	int	Go( CIcarus* icarus );	//Heartbeat function called once per game frame
-	int CallbackCommand( CTask *task, int returnCode, CIcarus* icarus );
+	taskResult_t	Go( CIcarus* icarus );	//Heartbeat function called once per game frame
+	taskResult_t CallbackCommand( CTask *task, taskReturn_t returnCode, CIcarus* icarus );
 
-	inline bool Check( int targetID, CBlock *block, int memberNum ) const;
+	inline bool Check( icarusToken_t targetID, CBlock *block, int memberNum ) const;
 
 	int GetVector( int entID, CBlock *block, int &memberNum, vec3_t &value, CIcarus* icarus );
 	int GetFloat( int entID, CBlock *block, int &memberNum, float &value, CIcarus* icarus );
+	int GetToken( int entID, CBlock *block, int &memberNum, icarusToken_t &value, CIcarus* icarus );
 	int Get( int entID, CBlock *block, int &memberNum, const char **value, CIcarus* icarus );
 
-	int	PushTask( CTask *task, int flag );
-	CTask *PopTask( int flag );
+	taskResult_t	PushTask( CTask *task, CSequence::pushPop_t flag );
+	CTask *PopTask( CSequence::pushPop_t flag );
 
 	// Task functions
-	int Rotate( CTask *task, CIcarus* icarus );
-	int Remove( CTask *task , CIcarus* icarus);
-	int Camera( CTask *task, CIcarus* icarus );
-	int Print( CTask *task , CIcarus* icarus);
-	int Sound( CTask *task, CIcarus* icarus );
-	int Move( CTask *task , CIcarus* icarus);
-	int Kill( CTask *task , CIcarus* icarus);
-	int Set( CTask *task, CIcarus* icarus );
-	int Use( CTask *task , CIcarus* icarus);
-	int DeclareVariable( CTask *task , CIcarus* icarus);
-	int FreeVariable( CTask *task, CIcarus* icarus );
-	int Signal( CTask *task , CIcarus* icarus);
-	int Play( CTask *task , CIcarus* icarus);
+	taskResult_t Rotate( CTask *task, CIcarus* icarus );
+	taskResult_t Remove( CTask *task , CIcarus* icarus);
+	taskResult_t Camera( CTask *task, CIcarus* icarus );
+	taskResult_t Print( CTask *task , CIcarus* icarus);
+	taskResult_t Sound( CTask *task, CIcarus* icarus );
+	taskResult_t Move( CTask *task , CIcarus* icarus);
+	taskResult_t Kill( CTask *task , CIcarus* icarus);
+	taskResult_t Set( CTask *task, CIcarus* icarus );
+	taskResult_t Use( CTask *task , CIcarus* icarus);
+	taskResult_t DeclareVariable( CTask *task , CIcarus* icarus);
+	taskResult_t FreeVariable( CTask *task, CIcarus* icarus );
+	taskResult_t Signal( CTask *task , CIcarus* icarus);
+	taskResult_t Play( CTask *task , CIcarus* icarus);
 
-	int Wait( CTask *task, bool &completed, CIcarus* icarus );
-	int WaitSignal( CTask *task, bool &completed, CIcarus* icarus);
+	taskResult_t Wait( CTask *task, bool &completed, CIcarus* icarus );
+	taskResult_t WaitSignal( CTask *task, bool &completed, CIcarus* icarus);
 
 	int	SaveCommand( CBlock *block );
 

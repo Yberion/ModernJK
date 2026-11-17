@@ -100,7 +100,7 @@ extern void		WP_ResistForcePush( gentity_t *self, gentity_t *pusher, bool noPena
 extern void		ForceJump( gentity_t *self, usercmd_t *ucmd );
 extern void		G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 
-extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
+extern void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type );
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // External Data
@@ -787,7 +787,7 @@ void	Boba_TacticsSelect()
 	// Don't Change Tactics For A Little While
 	//------------------------------------------
 	TIMER_Set(NPC, "Boba_TacticsSelect", Q_irand(8000, 15000));
-	EBobaTacticsState	nextState = static_cast<EBobaTacticsState>( NPCInfo->localState );
+	EBobaTacticsState	nextState = NPC_LocalState<EBobaTacticsState>( *NPCInfo );
 
 
 	// Get Some Data That Will Help With The Selection Of The Next Tactic
@@ -873,9 +873,9 @@ void	Boba_TacticsSelect()
 
 	// The Next State Has Been Selected, Now Change Weapon If Necessary
 	//------------------------------------------------------------------
-	if (to_underlying( nextState )!=NPCInfo->localState)
+	if (nextState!=NPC_LocalState<EBobaTacticsState>( *NPCInfo ))
 	{
-		NPCInfo->localState = to_underlying( nextState );
+		NPC_SetLocalState( *NPCInfo, nextState );
 		switch ( nextState )
 		{
 		case BTS_FLAMETHROW:
@@ -932,7 +932,7 @@ bool	Boba_Tactics()
 		Boba_TacticsSelect();
 	}
 
-	const EBobaTacticsState tactics = static_cast<EBobaTacticsState>( NPCInfo->localState );
+	const EBobaTacticsState tactics = NPC_LocalState<EBobaTacticsState>( *NPCInfo );
 
 	// These Tactics Require Seeker & Jedi Movement
 	//----------------------------------------------

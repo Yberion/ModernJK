@@ -46,7 +46,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BOWCASTER_SPLASH_RADIUS		0
 
 //Local state enums
-enum
+enum class mark1LocalState_t
 {
 	LSTATE_NONE = 0,
 	LSTATE_ASLEEP,
@@ -57,6 +57,7 @@ enum
 	LSTATE_FIRED3,
 	LSTATE_FIRED4,
 };
+using enum mark1LocalState_t;
 
 bool NPC_CheckPlayerTeamStealth( void );
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
@@ -222,7 +223,7 @@ void Mark1Dead_FireBlaster (void)
 Mark1_die
 -------------------------
 */
-void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
+void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
 {
 	/*
 	animNumber_t	anim;
@@ -333,7 +334,7 @@ NPC_Mark1_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
 */
-void NPC_Mark1_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Mark1_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	int newBolt,i,chance;
 
@@ -446,24 +447,24 @@ void Mark1_FireBlaster(void)
 	int			bolt;
 
 	// Which muzzle to fire from?
-	if ((NPCInfo->localState <= LSTATE_FIRED0) || (NPCInfo->localState == LSTATE_FIRED4))
+	if ((NPC_LocalState<mark1LocalState_t>( *NPCInfo ) <= LSTATE_FIRED0) || (NPC_LocalState<mark1LocalState_t>( *NPCInfo ) == LSTATE_FIRED4))
 	{
-		NPCInfo->localState = LSTATE_FIRED1;
+		NPC_SetLocalState( *NPCInfo, LSTATE_FIRED1 );
 		bolt = NPC->genericBolt1;
 	}
-	else if (NPCInfo->localState == LSTATE_FIRED1)
+	else if (NPC_LocalState<mark1LocalState_t>( *NPCInfo ) == LSTATE_FIRED1)
 	{
-		NPCInfo->localState = LSTATE_FIRED2;
+		NPC_SetLocalState( *NPCInfo, LSTATE_FIRED2 );
 		bolt = NPC->genericBolt2;
 	}
-	else if (NPCInfo->localState == LSTATE_FIRED2)
+	else if (NPC_LocalState<mark1LocalState_t>( *NPCInfo ) == LSTATE_FIRED2)
 	{
-		NPCInfo->localState = LSTATE_FIRED3;
+		NPC_SetLocalState( *NPCInfo, LSTATE_FIRED3 );
 		bolt = NPC->genericBolt3;
 	}
 	else
 	{
-		NPCInfo->localState = LSTATE_FIRED4;
+		NPC_SetLocalState( *NPCInfo, LSTATE_FIRED4 );
 		bolt = NPC->genericBolt4;
 	}
 

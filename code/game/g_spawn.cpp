@@ -881,7 +881,7 @@ bool G_CallSpawn( gentity_t *ent ) {
 	}
 
 	// check item spawn functions
-	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
+	for ( item=bg_itemlist.data() + 1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			// found it
 			G_SpawnItem( ent, item );

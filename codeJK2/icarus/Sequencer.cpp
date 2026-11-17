@@ -74,7 +74,7 @@ Init
 Initializes the sequencer
 ========================
 */
-int CSequencer::Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iICARUS )
+sequencerResult_t CSequencer::Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iICARUS )
 {
 	m_ownerID		= ownerID;
 	m_owner			= iICARUS;
@@ -91,7 +91,7 @@ Free
 Releases all resources and re-inits the sequencer
 ========================
 */
-int CSequencer::Free( void )
+sequencerResult_t CSequencer::Free( void )
 {
 	sequence_l::iterator	sli;
 
@@ -125,7 +125,7 @@ Flush
 -------------------------
 */
 
-int CSequencer::Flush( CSequence *owner )
+sequencerResult_t CSequencer::Flush( CSequence *owner )
 {
 	if ( owner == nullptr )
 		return SEQ_FAILED;
@@ -327,7 +327,7 @@ Run
 Runs a script
 ========================
 */
-int CSequencer::Run( char *buffer, long size )
+sequencerResult_t CSequencer::Run( char *buffer, long size )
 {
 	bstream_t		*blockStream;
 
@@ -363,7 +363,7 @@ Parses a user triggered run command
 ========================
 */
 
-int CSequencer::ParseRun( CBlock *block )
+sequencerResult_t CSequencer::ParseRun( CBlock *block )
 {
 	CSequence	*new_sequence;
 	bstream_t	*new_stream;
@@ -429,7 +429,7 @@ Parses an if statement
 ========================
 */
 
-int CSequencer::ParseIf( CBlock *block, bstream_t *bstream )
+sequencerResult_t CSequencer::ParseIf( CBlock *block, bstream_t *bstream )
 {
 	CSequence	*sequence;
 
@@ -470,7 +470,7 @@ Parses an else statement
 ========================
 */
 
-int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
+sequencerResult_t CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 {
 	//The else is not retained
 	delete block;
@@ -519,7 +519,7 @@ Parses a loop command
 ========================
 */
 
-int CSequencer::ParseLoop( CBlock *block, bstream_t *bstream )
+sequencerResult_t CSequencer::ParseLoop( CBlock *block, bstream_t *bstream )
 {
 	CSequence		*sequence;
 	CBlockMember	*bm;
@@ -579,7 +579,7 @@ Adds a sequence that is saved until the affect is called by the parent
 ========================
 */
 
-int CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
+sequencerResult_t CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
 {
 	CSequence	*sequence = AddSequence();
 	bstream_t	new_stream;
@@ -616,7 +616,7 @@ Parses an affect command
 ========================
 */
 
-int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
+sequencerResult_t CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 {
 	CSequencer	*stream_sequencer = nullptr;
 	char		*entname = nullptr;
@@ -630,7 +630,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 	{
 		//try to parse a 'get' command that is embeded in this 'affect'
 
-		int				id;
+		icarusToken_t	id;
 		const char			*p1 = nullptr;
 		char			*name = nullptr;
 		CBlockMember	*bm = nullptr;
@@ -651,10 +651,10 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 
 			case ID_GET:
 			{
-				int		type;
+				icarusToken_t	type;
 
 				//get( TYPE, NAME )
-				type = (int) (*(float *) block->GetMemberData( 1 ));
+				type = block->GetMemberToken( 1 );
 				name = (char *) block->GetMemberData( 2 );
 
 				switch ( type ) // what type are they attempting to get
@@ -666,7 +666,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 						{
 							delete block;
 							block = nullptr;
-							return false;
+							return SEQ_OK;
 						}
 						break;
 					default:
@@ -674,7 +674,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 						m_ie->I_DPrintf( WL_ERROR, "Invalid parameter type on affect _1" );
 						delete block;
 						block = nullptr;
-						return false;
+						return SEQ_OK;
 						break;
 				}
 
@@ -686,7 +686,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 				m_ie->I_DPrintf( WL_ERROR, "Invalid parameter type on affect _2" );
 				delete block;
 				block = nullptr;
-				return false;
+				return SEQ_OK;
 				break;
 		}//end id switch
 
@@ -753,7 +753,7 @@ ParseTask
 -------------------------
 */
 
-int CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
+sequencerResult_t CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
 {
 	CSequence	*sequence;
 	CTaskGroup	*group;
@@ -806,7 +806,7 @@ Properly handles and routes commands to the sequencer
 
 //FIXME: A sequencer cannot properly affect itself
 
-int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
+sequencerResult_t CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 {
 	CBlockStream	*stream;
 	CBlock			*block;
@@ -932,7 +932,7 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 		//Error
 		default:
 
-			m_ie->I_DPrintf( WL_ERROR, "'%d' : invalid block ID", block->GetBlockID() );
+			m_ie->I_DPrintf( WL_ERROR, "'%d' : invalid block ID", to_underlying( block->GetBlockID() ) );
 
 			return SEQ_FAILED;
 			break;
@@ -1069,9 +1069,10 @@ int CSequencer::EvaluateConditional( CBlock *block )
 	CBlockMember	*bm;
 	char			tempString1[128], tempString2[128];
 	vector_t		vec;
-	int				id, i, oper, memberNum = 0;
+	icarusToken_t	id, oper;
+	int				i, memberNum = 0;
 	const char		*p1 = nullptr, *p2 = nullptr;
-	int				t1, t2;
+	icarusToken_t	t1, t2;
 
 	//
 	//	Get the first parameter
@@ -1113,11 +1114,11 @@ int CSequencer::EvaluateConditional( CBlock *block )
 
 	case ID_GET:
 	{
-			int		type;
+			icarusToken_t	type;
 			char	*name;
 
 			//get( TYPE, NAME )
-			type = (int) (*(float *) block->GetMemberData( memberNum++ ));
+			type = block->GetMemberToken( memberNum++ );
 			name = (char *) block->GetMemberData( memberNum++ );
 
 			//Get the type returned and hold onto it
@@ -1169,6 +1170,9 @@ int CSequencer::EvaluateConditional( CBlock *block )
 				}
 
 				break;
+
+			default:
+				break;
 		}
 
 		break;
@@ -1194,15 +1198,15 @@ int CSequencer::EvaluateConditional( CBlock *block )
 	case ID_TAG:
 		{
 			char	*name;
-			float	type;
+			icarusToken_t	type;
 
 			name = (char *) block->GetMemberData( memberNum++ );
-			type = *(float *) block->GetMemberData( memberNum++ );
+			type = block->GetMemberToken( memberNum++ );
 
 			t1 = TK_VECTOR;
 
 			//TODO: Emit warning
-			if ( m_ie->I_GetTag( m_ownerID, name, (int) type, vec ) == false)
+			if ( m_ie->I_GetTag( m_ownerID, name, type, vec ) == false)
 			{
 				m_ie->I_DPrintf( WL_ERROR, "Unable to find tag \"%s\"!\n", name );
 				return false;
@@ -1283,11 +1287,11 @@ int CSequencer::EvaluateConditional( CBlock *block )
 
 	case ID_GET:
 	{
-			int		type;
+			icarusToken_t	type;
 			char	*name;
 
 			//get( TYPE, NAME )
-			type = (int) (*(float *) block->GetMemberData( memberNum++ ));
+			type = block->GetMemberToken( memberNum++ );
 			name = (char *) block->GetMemberData( memberNum++ );
 
 			//Get the type returned and hold onto it
@@ -1339,6 +1343,9 @@ int CSequencer::EvaluateConditional( CBlock *block )
 				}
 
 				break;
+
+			default:
+				break;
 		}
 
 		break;
@@ -1366,15 +1373,15 @@ int CSequencer::EvaluateConditional( CBlock *block )
 
 		{
 			char	*name;
-			float	type;
+			icarusToken_t	type;
 
 			name = (char *) block->GetMemberData( memberNum++ );
-			type = *(float *) block->GetMemberData( memberNum++ );
+			type = block->GetMemberToken( memberNum++ );
 
 			t2 = TK_VECTOR;
 
 			//TODO: Emit warning
-			if ( m_ie->I_GetTag( m_ownerID, name, (int) type, vec ) == false)
+			if ( m_ie->I_GetTag( m_ownerID, name, type, vec ) == false)
 			{
 				m_ie->I_DPrintf( WL_ERROR, "Unable to find tag \"%s\"!\n", name );
 				return false;
@@ -1758,7 +1765,7 @@ void CSequencer::CheckAffect( CBlock **command )
 		{
 			//try to parse a 'get' command that is embeded in this 'affect'
 
-			int				id;
+			icarusToken_t	id;
 			const char			*p1 = nullptr;
 			char			*name = nullptr;
 			CBlockMember	*bm = nullptr;
@@ -1779,10 +1786,10 @@ void CSequencer::CheckAffect( CBlock **command )
 
 				case ID_GET:
 				{
-					int		type;
+					icarusToken_t	type;
 
 					//get( TYPE, NAME )
-					type = (int) (*(float *) block->GetMemberData( memberNum++ ));
+					type = block->GetMemberToken( memberNum++ );
 					name = (char *) block->GetMemberData( memberNum++ );
 
 					switch ( type ) // what type are they attempting to get
@@ -1831,7 +1838,7 @@ void CSequencer::CheckAffect( CBlock **command )
 		{	//there was no get, increment manually before next step
 			memberNum++;
 		}
-		int	type	= (int) (*(float *) block->GetMemberData( memberNum ));
+		icarusToken_t	type	= block->GetMemberToken( memberNum );
 		int	id		= (int) (*(float *) block->GetMemberData( memberNum+1 ));
 
 		if ( m_curSequence->HasFlag( SQ_RETAIN ) )
@@ -2023,7 +2030,7 @@ Starts communication between the task manager and this sequencer
 ========================
 */
 
-int CSequencer::Prime( CTaskManager *taskManager, CBlock *command )
+sequencerResult_t CSequencer::Prime( CTaskManager *taskManager, CBlock *command )
 {
 	Prep( &command );
 
@@ -2043,7 +2050,7 @@ Handles a completed task and returns a new task to be completed
 ========================
 */
 
-int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCode )
+sequencerResult_t CSequencer::Callback( CTaskManager *taskManager, CBlock *block, taskReturn_t returnCode )
 {
 	CBlock	*command;
 
@@ -2125,7 +2132,7 @@ Affect
 -------------------------
 */
 
-int CSequencer::Affect( int id, int type )
+sequencerResult_t CSequencer::Affect( int id, icarusToken_t type )
 {
 	CSequence	*sequence = GetSequence( id );
 
@@ -2181,7 +2188,7 @@ Pushes a commands onto the current sequence
 ========================
 */
 
-int CSequencer::PushCommand( CBlock *command, int flag )
+sequencerResult_t CSequencer::PushCommand( CBlock *command, pushPop_t flag )
 {
 	//Make sure everything is ok
 	assert( m_curSequence );
@@ -2203,7 +2210,7 @@ Pops a command off the current sequence
 ========================
 */
 
-CBlock *CSequencer::PopCommand( int flag )
+CBlock *CSequencer::PopCommand( pushPop_t flag )
 {
 	//Make sure everything is ok
 	assert( m_curSequence );
@@ -2226,7 +2233,7 @@ RemoveSequence
 
 //NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!  You've be warned! =)
 
-int CSequencer::RemoveSequence( CSequence *sequence )
+sequencerResult_t CSequencer::RemoveSequence( CSequence *sequence )
 {
 	CSequence *temp;
 
@@ -2254,7 +2261,7 @@ int CSequencer::RemoveSequence( CSequence *sequence )
 	return SEQ_OK;
 }
 
-int CSequencer::DestroySequence( CSequence *sequence )
+sequencerResult_t CSequencer::DestroySequence( CSequence *sequence )
 {
 	m_sequenceMap.erase( sequence->GetID() );
 	m_sequences.remove( sequence );

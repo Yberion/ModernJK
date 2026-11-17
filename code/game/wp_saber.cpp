@@ -40,9 +40,9 @@ static vec3_t	dmgNormal[MAX_SABER_VICTIMS];
 static vec3_t	dmgBladeVec[MAX_SABER_VICTIMS];
 static vec3_t	dmgSpot[MAX_SABER_VICTIMS];
 static float	dmgFraction[MAX_SABER_VICTIMS];
-static int		hitLoc[MAX_SABER_VICTIMS];
+static hitLocation_t		hitLoc[MAX_SABER_VICTIMS];
 static bool	hitDismember[MAX_SABER_VICTIMS];
-static int		hitDismemberLoc[MAX_SABER_VICTIMS];
+static hitLocation_t		hitDismemberLoc[MAX_SABER_VICTIMS];
 static vec3_t	saberHitLocation, saberHitNormal={0,0,1.0};
 static float	saberHitFraction;
 static float	sabersCrossed;
@@ -78,7 +78,7 @@ extern void G_BounceMissile( gentity_t *ent, trace_t *trace );
 extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
 extern void NPC_UseResponse( gentity_t *self, gentity_t *user, bool useWhenDone );
 extern void WP_FireDreadnoughtBeam( gentity_t *ent );
-extern void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE );
+extern void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc=HL_NONE );
 extern evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist = 0.0f );
 extern void Jedi_RageStop( gentity_t *self );
 extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
@@ -116,12 +116,12 @@ extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern bool PM_KnockDownAnim( animNumber_t anim );
 extern bool PM_SaberInKata( saberMoveName_t saberMove );
 extern bool PM_StabDownAnim( animNumber_t anim );
-extern int PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum = 0 );
+extern forcePowerLevels_t PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum = 0 );
 extern void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir );
 extern bool PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir );
 extern bool PM_SaberCanInterruptMove( saberMoveName_t move, animNumber_t anim );
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
-extern bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
+extern bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc );
 extern void Jedi_PlayDeflectSound( gentity_t *self );
 extern void Jedi_PlayBlockedPushSound( gentity_t *self );
 extern bool Jedi_WaitingAmbush( gentity_t *self );
@@ -134,7 +134,7 @@ extern void Boba_DoFlameThrower( gentity_t *self );
 extern void Boba_StopFlameThrower( gentity_t *self );
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
-extern int SaberDroid_PowerLevelForSaberAnim( gentity_t *self );
+extern forcePowerLevels_t SaberDroid_PowerLevelForSaberAnim( gentity_t *self );
 extern bool G_ValidEnemy( gentity_t *self, gentity_t *enemy );
 extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 extern int PM_AnimLength( int index, animNumber_t anim );
@@ -144,7 +144,7 @@ extern bool PM_LockedAnim( animNumber_t anim );
 extern bool Rosh_BeingHealed( gentity_t *self );
 extern bool G_OkayToLean( playerState_t *ps, usercmd_t *cmd, bool interruptOkay );
 
-int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, forcePowers_t atPower, int atPowerLevel, int atForceSpent);
+std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t *attacked, forcePowerLevels_t atdAbsLevel, gentity_t *attacker, forcePowers_t atPower, forcePowerLevels_t atPowerLevel, int atForceSpent);
 void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
@@ -214,7 +214,7 @@ EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerNeeded =
 	//NUM_FORCE_POWERS
 };
 
-float forceJumpStrength[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength =
 {
 	JUMP_VELOCITY,//normal jump
 	420,
@@ -222,7 +222,7 @@ float forceJumpStrength[NUM_FORCE_POWER_LEVELS] =
 	840
 };
 
-float forceJumpHeight[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight =
 {
 	32,//normal jump (+stepheight+crouchdiff = 66)
 	96,//(+stepheight+crouchdiff = 130)
@@ -230,7 +230,7 @@ float forceJumpHeight[NUM_FORCE_POWER_LEVELS] =
 	384//(+stepheight+crouchdiff = 418)
 };
 
-float forceJumpHeightMax[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeightMax =
 {
 	66,//normal jump (32+stepheight(18)+crouchdiff(24) = 74)
 	130,//(96+stepheight(18)+crouchdiff(24) = 138)
@@ -238,7 +238,7 @@ float forceJumpHeightMax[NUM_FORCE_POWER_LEVELS] =
 	418//(384+stepheight(18)+crouchdiff(24) = 426)
 };
 
-float forcePushPullRadius[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushPullRadius =
 {
 	0,//none
 	384,//256,
@@ -246,7 +246,7 @@ float forcePushPullRadius[NUM_FORCE_POWER_LEVELS] =
 	512
 };
 
-float forcePushCone[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePushCone =
 {
 	1.0f,//none
 	1.0f,
@@ -254,7 +254,7 @@ float forcePushCone[NUM_FORCE_POWER_LEVELS] =
 	0.6f
 };
 
-float forcePullCone[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePullCone =
 {
 	1.0f,//none
 	1.0f,
@@ -262,7 +262,7 @@ float forcePullCone[NUM_FORCE_POWER_LEVELS] =
 	0.8f
 };
 
-float forceSpeedValue[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue =
 {
 	1.0f,//none
 	0.75f,
@@ -270,7 +270,7 @@ float forceSpeedValue[NUM_FORCE_POWER_LEVELS] =
 	0.25f
 };
 
-float forceSpeedRangeMod[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod =
 {
 	0.0f,//none
 	30.0f,
@@ -278,7 +278,7 @@ float forceSpeedRangeMod[NUM_FORCE_POWER_LEVELS] =
 	60.0f
 };
 
-float forceSpeedFOVMod[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod =
 {
 	0.0f,//none
 	20.0f,
@@ -286,7 +286,7 @@ float forceSpeedFOVMod[NUM_FORCE_POWER_LEVELS] =
 	40.0f
 };
 
-int forceGripDamage[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceGripDamage =
 {
 	0,//none
 	0,
@@ -294,7 +294,7 @@ int forceGripDamage[NUM_FORCE_POWER_LEVELS] =
 	9
 };
 
-int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> mindTrickTime =
 {
 	0,//none
 	10000,//5000,
@@ -303,7 +303,7 @@ int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 };
 
 //NOTE: keep in synch with table below!!!
-int saberThrowDist[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> saberThrowDist =
 {
 	0,//none
 	256,
@@ -312,7 +312,7 @@ int saberThrowDist[NUM_FORCE_POWER_LEVELS] =
 };
 
 //NOTE: keep in synch with table above!!!
-int saberThrowDistSquared[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> saberThrowDistSquared =
 {
 	0,//none
 	65536,
@@ -320,7 +320,7 @@ int saberThrowDistSquared[NUM_FORCE_POWER_LEVELS] =
 	160000
 };
 
-int parryDebounce[NUM_FORCE_POWER_LEVELS] =
+EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> parryDebounce =
 {
 	500,//if don't even have defense, can't use defense!
 	300,
@@ -328,7 +328,7 @@ int parryDebounce[NUM_FORCE_POWER_LEVELS] =
 	50
 };
 
-float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS] =
+EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> saberAnimSpeedMod =
 {
 	0.0f,//if don't even have offense, can't use offense!
 	0.75f,
@@ -1321,8 +1321,8 @@ void WP_SaberClearDamageForEntNum( gentity_t *attacker, int entityNum, int saber
 	}
 }
 
-extern float damageModifier[];
-extern float hitLocHealthPercentage[];
+extern EnumArray<float, hitLocation_t, HL_MAX> damageModifier;
+extern EnumArray<float, hitLocation_t, HL_MAX> hitLocHealthPercentage;
 bool WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags,
 							 bool brokenParry, int saberNum, int bladeNum, bool thrownSaber )
 {
@@ -1674,11 +1674,11 @@ bool WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags,
 						{
 							if ( (dFlags&DAMAGE_NO_DAMAGE) )
 							{
-								gi.Printf( S_COLOR_RED"damage: fake, hitLoc %d\n", hitLoc[i] );
+								gi.Printf( S_COLOR_RED"damage: fake, hitLoc %d\n", to_underlying( hitLoc[i] ) );
 							}
 							else
 							{
-								gi.Printf( S_COLOR_RED"damage: %4.2f, hitLoc %d\n", totalDmg[i], hitLoc[i] );
+								gi.Printf( S_COLOR_RED"damage: %4.2f, hitLoc %d\n", totalDmg[i], to_underlying( hitLoc[i] ) );
 							}
 						}
 #endif
@@ -1710,7 +1710,7 @@ bool WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags,
 	return didDamage;
 }
 
-void WP_SaberDamageAdd( float trDmg, int trVictimEntityNum, vec3_t trDmgDir, vec3_t trDmgBladeVec, vec3_t trDmgNormal, vec3_t trDmgSpot, float dmg, float fraction, int trHitLoc, bool trDismember, int trDismemberLoc )
+void WP_SaberDamageAdd( float trDmg, int trVictimEntityNum, vec3_t trDmgDir, vec3_t trDmgBladeVec, vec3_t trDmgNormal, vec3_t trDmgSpot, float dmg, float fraction, hitLocation_t trHitLoc, bool trDismember, hitLocation_t trDismemberLoc )
 {
 	int curVictim = 0;
 	int i;
@@ -2083,8 +2083,8 @@ bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float
 	vec3_t		hitEntNormal[MAX_G2_COLLISIONS];
 	vec3_t		bladeDir;
 	float		hitEntStartFrac[MAX_G2_COLLISIONS] = {0};
-	int			trHitLoc[MAX_G2_COLLISIONS] = {HL_NONE};//same as 0
-	int			trDismemberLoc[MAX_G2_COLLISIONS] = {HL_NONE};//same as 0
+	hitLocation_t			trHitLoc[MAX_G2_COLLISIONS] = {HL_NONE};//same as 0
+	hitLocation_t			trDismemberLoc[MAX_G2_COLLISIONS] = {HL_NONE};//same as 0
 	bool	trDismember[MAX_G2_COLLISIONS] = {false};//same as 0
 	int			i,z;
 	int			numHitEnts = 0;
@@ -2445,7 +2445,7 @@ bool G_InCinematicSaberAnim( gentity_t *self )
 #define SABER_COLLISION_DIST 6//was 2//was 4//was 8//was 16
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
-								vec3_t bladeDir, bool noGhoul, int attackStrength,
+								vec3_t bladeDir, bool noGhoul, forcePowerLevels_t attackStrength,
 								saberType_t saberType, bool extrapolate,
 								int saberNum, int bladeNum )
 {
@@ -2948,7 +2948,7 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 extern void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs );
 extern bool ValidAnimFileIndex ( int index );
-animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t defenderSaberStyle, int topOrSide, int lockOrBreakOrSuperBreak, int winOrLose )
+animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t defenderSaberStyle, saberLockType_t topOrSide, saberLockType_t lockOrBreakOrSuperBreak, saberLockType_t winOrLose )
 {
 	std::optional<animNumber_t> baseAnim;
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )
@@ -3067,7 +3067,7 @@ animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t 
 	return *baseAnim;
 }
 
-bool G_CheckIncrementLockAnim( animNumber_t anim, int winOrLose )
+bool G_CheckIncrementLockAnim( animNumber_t anim, saberLockType_t winOrLose )
 {
 	bool increment = false;//???
 	//RULE: if you are the first style in the lock anim, you advance from LOSING position to WINNING position
@@ -4514,8 +4514,8 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 	memset( dmgNormal, 0, sizeof( dmgNormal ) );
 	memset( dmgSpot, 0, sizeof( dmgSpot ) );
 	memset( dmgFraction, 0, sizeof( dmgFraction ) );
-	memset( hitLoc, HL_NONE, sizeof( hitLoc ) );
-	memset( hitDismemberLoc, HL_NONE, sizeof( hitDismemberLoc ) );
+	std::ranges::fill( hitLoc, HL_NONE );
+	std::ranges::fill( hitDismemberLoc, HL_NONE );
 	memset( hitDismember, false, sizeof( hitDismember ) );
 	numVictims = 0;
 	VectorClear(saberHitLocation);
@@ -4572,7 +4572,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 	//FIXMEFIXMEFIXME: When in force speed (esp. lvl 3), need to interpolate this because
 	//		we animate so much faster that the arc is pretty much flat...
 
-	int entPowerLevel = 0;
+	forcePowerLevels_t entPowerLevel = FORCE_LEVEL_0;
 	if ( ent->client->NPC_class == CLASS_SABER_DROID )
 	{
 		entPowerLevel = SaberDroid_PowerLevelForSaberAnim( ent );
@@ -4586,7 +4586,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 		entPowerLevel = PM_PowerLevelForSaberAnim( &ent->client->ps, saberNum );
 	}
 
-	if ( entPowerLevel )
+	if ( entPowerLevel != FORCE_LEVEL_0 )
 	{
 		if ( ent->client->ps.forceRageRecoveryTime > level.time )
 		{
@@ -4594,7 +4594,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 		}
 		else if ( ent->client->ps.forcePowersActive & Bit( FP_RAGE ) )
 		{
-			entPowerLevel += ent->client->ps.forcePowerLevel[FP_RAGE];
+			entPowerLevel += to_underlying( ent->client->ps.forcePowerLevel[FP_RAGE] );
 		}
 	}
 
@@ -4752,7 +4752,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 					}
 					else
 					{
-						baseDamage = 2.5f * (float)entPowerLevel;
+						baseDamage = 2.5f * (float)to_underlying( entPowerLevel );
 					}
 				}
 			}
@@ -4779,7 +4779,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 					}
 					else
 					{
-						baseDamage = 2.5f * (float)entPowerLevel;
+						baseDamage = 2.5f * (float)to_underlying( entPowerLevel );
 					}
 				}
 				else// if ( !ent->s.number )
@@ -4895,7 +4895,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 	{
 		if ( (ent->client->ps.forcePowersActive&Bit( FP_RAGE )) )
 		{//add some damage if raged
-			baseDamage += ent->client->ps.forcePowerLevel[FP_RAGE] * 5.0f;
+			baseDamage += to_underlying( ent->client->ps.forcePowerLevel[FP_RAGE] ) * 5.0f;
 		}
 		else if ( ent->client->ps.forceRageRecoveryTime )
 		{//halve it if recovering
@@ -5079,7 +5079,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 
 		gentity_t *hitEnt = &g_entities[saberHitEntity];
 		gentity_t *hitOwner = nullptr;
-		int hitOwnerPowerLevel = FORCE_LEVEL_0;
+		forcePowerLevels_t hitOwnerPowerLevel = FORCE_LEVEL_0;
 
 		if ( hitEnt )
 		{
@@ -5304,9 +5304,9 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 						//base parry breaks on animation (saber attack level), not FP_SABER_OFFENSE
 						if ( entPowerLevel < FORCE_LEVEL_3
 							//&& ent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] < FORCE_LEVEL_3//if you have high saber offense, you cannot have your attack knocked away, regardless of what style you're using?
-							//&& hitOwner->client->ps.saberAnimLevel != FORCE_LEVEL_5
+							//&& hitOwner->client->ps.saberAnimLevel != SS_TAVION
 							&& activeDefense
-							&& (hitOwnerPowerLevel > FORCE_LEVEL_2||(hitOwner->client->ps.forcePowerLevel[FP_SABER_DEFENSE]>FORCE_LEVEL_2&&Q_irand(0,hitOwner->client->ps.forcePowerLevel[FP_SABER_OFFENSE]))) )
+							&& (hitOwnerPowerLevel > FORCE_LEVEL_2||(hitOwner->client->ps.forcePowerLevel[FP_SABER_DEFENSE]>FORCE_LEVEL_2&&Q_irand(0,to_underlying( hitOwner->client->ps.forcePowerLevel[FP_SABER_OFFENSE] )))) )
 						{//knockaways can make fast-attacker go into a broken parry anim if the ent is using fast or med (but not Tavion)
 							//make me parry
 							WP_SaberParry( hitOwner, ent, saberNum, bladeNum );
@@ -5406,7 +5406,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 							WP_SaberParry( hitOwner, ent, saberNum, bladeNum );
 							if ( PM_SaberInBounce( ent->client->ps.saberMove ) //FIXME: saberMove not set until pmove!
 								&& activeDefense
-								&& hitOwner->client->ps.saberAnimLevel != SS_FAST //&& hitOwner->client->ps.saberAnimLevel != FORCE_LEVEL_5
+								&& hitOwner->client->ps.saberAnimLevel != SS_FAST //&& hitOwner->client->ps.saberAnimLevel != SS_TAVION
 								&& hitOwner->client->ps.forcePowerLevel[FP_SABER_DEFENSE] > FORCE_LEVEL_2 )
 							{//attacker bounced off, and defender has ability to do knockaways, so do one unless we're using fast attacks
 								//turn the parry into a knockaway
@@ -8171,7 +8171,7 @@ void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd )
 }
 
 #define	MAX_RADIUS_ENTS			256	//NOTE: This can cause entities to be lost
-bool G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tolerance )
+bool G_CheckEnemyPresence( gentity_t *ent, direction_t dir, float radius, float tolerance )
 {
 	gentity_t	*radiusEnts[ MAX_RADIUS_ENTS ];
 	vec3_t		mins, maxs;
@@ -8788,7 +8788,7 @@ bool WP_ForceThrowable( gentity_t *ent, gentity_t *forwardEnt, gentity_t *self, 
 			}
 			if ( ent->item
 				&& ent->item->giType == IT_HOLDABLE
-				&& ent->item->giTag == INV_SECURITY_KEY )
+				&& GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
 				//&& (ent->flags&FL_DROPPED_ITEM) ???
 			{//dropped security keys can't be pushed?  But placed ones can...?  does this make any sense?
 				if ( !pull || self->s.number )
@@ -8927,8 +8927,8 @@ static bool ShouldPlayerResistForceThrow( gentity_t *player, gentity_t *attacker
 	}
 
 	forcePowers_t forcePower = (pull ? FP_PULL : FP_PUSH);
-	int attackingForceLevel = attacker->client->ps.forcePowerLevel[forcePower];
-	int defendingForceLevel = player->client->ps.forcePowerLevel[forcePower];
+	forcePowerLevels_t attackingForceLevel = attacker->client->ps.forcePowerLevel[forcePower];
+	forcePowerLevels_t defendingForceLevel = player->client->ps.forcePowerLevel[forcePower];
 
 	if ( player->client->ps.powerups[PW_FORCE_PUSH] > level.time ||
 		Q_irand( 0, Q_max(0, defendingForceLevel - attackingForceLevel)*2 + 1 ) > 0 )
@@ -9294,7 +9294,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					continue;
 				}
 //FIXMEFIXMEFIXMEFIXMEFIXME: extern a lot of this common code when I have the time!!!
-				int powerLevel;
+				forcePowerLevels_t powerLevel;
 				forcePowers_t powerUse;
 				if (pull)
 				{
@@ -9306,15 +9306,15 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					powerLevel = self->client->ps.forcePowerLevel[FP_PUSH];
 					powerUse = FP_PUSH;
 				}
-				int modPowerLevel = WP_AbsorbConversion( push_list[x], push_list[x]->client->ps.forcePowerLevel[FP_ABSORB], self, powerUse, powerLevel, forcePowerNeeded[powerUse] );
+				std::optional<forcePowerLevels_t> modPowerLevel = WP_AbsorbConversion( push_list[x], push_list[x]->client->ps.forcePowerLevel[FP_ABSORB], self, powerUse, powerLevel, forcePowerNeeded[powerUse] );
 				if (push_list[x]->client->NPC_class==CLASS_ASSASSIN_DROID ||
 					push_list[x]->client->NPC_class==CLASS_HAZARD_TROOPER)
 				{
-					modPowerLevel = 0;	// devides throw by 10
+					modPowerLevel = FORCE_LEVEL_0;	// devides throw by 10
 				}
 
 				//First, if this is the player we're push/pulling, see if he can counter it
-				if ( modPowerLevel != -1
+				if ( modPowerLevel
 					&& !noResist
 					&& InFront( self->currentOrigin, push_list[x]->client->renderInfo.eyePoint, push_list[x]->client->ps.viewangles, 0.3f ) )
 				{//absorbed and I'm in front of them
@@ -9399,7 +9399,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					}
 					if ( noResist ||
 							( !pull
-							&& modPowerLevel == -1
+							&& !modPowerLevel
 							&& self->client->ps.forcePowerLevel[FP_PUSH] > FORCE_LEVEL_2
 							&& !resistChance
 							&& push_list[x]->client->ps.forcePowerLevel[FP_PUSH] < FORCE_LEVEL_3 )
@@ -9522,17 +9522,17 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 						}
 					}
 
-					if ( modPowerLevel != -1 )
+					if ( modPowerLevel )
 					{
-						if ( !modPowerLevel )
+						if ( modPowerLevel == FORCE_LEVEL_0 )
 						{
 							knockback /= 10.0f;
 						}
-						else if ( modPowerLevel == 1 )
+						else if ( modPowerLevel == FORCE_LEVEL_1 )
 						{
 							knockback /= 6.0f;
 						}
-						else// if ( modPowerLevel == 2 )
+						else// if ( modPowerLevel == FORCE_LEVEL_2 )
 						{
 							knockback /= 2.0f;
 						}
@@ -9825,7 +9825,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 						if ( push_list[x]->s.eType == ET_ITEM
 							&& push_list[x]->item
 							&& push_list[x]->item->giType == IT_HOLDABLE
-							&& push_list[x]->item->giTag == INV_SECURITY_KEY )
+							&& GI_Inventory( *push_list[x]->item ) == INV_SECURITY_KEY )
 						{//security keys are pulled with less enthusiasm
 							if ( knockback > 100 )
 							{
@@ -9921,7 +9921,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					}
 					push_list[x]->forcePushTime = level.time + 600; // let the push effect last for 600 ms
 					push_list[x]->forcePuller = self->s.number;//remember this regardless
-					if ( push_list[x]->item && push_list[x]->item->giTag == INV_SECURITY_KEY )
+					if ( push_list[x]->item && GI_Inventory( *push_list[x]->item ) == INV_SECURITY_KEY )
 					{
 						AddSightEvent( player, push_list[x]->currentOrigin, 128, AEL_DISCOVERED );//security keys are more important
 					}
@@ -10743,7 +10743,7 @@ void ForceGrip( gentity_t *self )
 			return;
 		}
 //=CHECKABSORB===
-		if ( -1 != WP_AbsorbConversion( traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_GRIP, self->client->ps.forcePowerLevel[FP_GRIP], forcePowerNeeded[FP_GRIP]) )
+		if ( WP_AbsorbConversion( traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_GRIP, self->client->ps.forcePowerLevel[FP_GRIP], forcePowerNeeded[FP_GRIP]) )
 		{
 			//WP_ForcePowerStop( self, FP_GRIP );
 			return;
@@ -11033,7 +11033,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, flo
 			}
 			else
 			{
-				dmg = Q_irand( 1, 3 );//*self->client->ps.forcePowerLevel[FP_LIGHTNING];
+				dmg = Q_irand( 1, 3 );//*to_underlying( self->client->ps.forcePowerLevel[FP_LIGHTNING] );
 			}
 
 			if ( traceEnt->client
@@ -11069,7 +11069,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, flo
 					&& !PM_InSpecialJump( traceEnt->client->ps.torsoAnim )
 					&& (!traceEnt->s.number||(traceEnt->NPC&&traceEnt->NPC->rank>=RANK_LT_COMM)) )//the player or a tough jedi/reborn
 				{
-					if ( Q_irand( 0, traceEnt->client->ps.forcePowerLevel[FP_SABER_DEFENSE]*3 ) > 0 )//more of a chance of defending if saber defense is high
+					if ( Q_irand( 0, to_underlying( traceEnt->client->ps.forcePowerLevel[FP_SABER_DEFENSE] )*3 ) > 0 )//more of a chance of defending if saber defense is high
 					{
 						dmg = 0;
 					}
@@ -11103,24 +11103,24 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, flo
 				//has shield up
 				dmg = 0;
 			}
-			int modPowerLevel = -1;
+			std::optional<forcePowerLevels_t> modPowerLevel;
 
 			if (traceEnt->client)
 			{
 				modPowerLevel = WP_AbsorbConversion(traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_LIGHTNING, self->client->ps.forcePowerLevel[FP_LIGHTNING], 1);
 			}
 
-			if (modPowerLevel != -1)
+			if (modPowerLevel)
 			{
-				if ( !modPowerLevel )
+				if ( modPowerLevel == FORCE_LEVEL_0 )
 				{
 					dmg = 0;
 				}
-				else if ( modPowerLevel == 1 )
+				else if ( modPowerLevel == FORCE_LEVEL_1 )
 				{
 					dmg = floor((float)dmg/4.0f);
 				}
-				else if ( modPowerLevel == 2 )
+				else if ( modPowerLevel == FORCE_LEVEL_2 )
 				{
 					dmg = floor((float)dmg/2.0f);
 				}
@@ -11509,7 +11509,7 @@ bool ForceDrain2( gentity_t *self )
 		}
 //=CHECKABSORB===
 		/*
-		if ( -1 != WP_AbsorbConversion( traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN]) )
+		if ( WP_AbsorbConversion( traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN]) )
 		{
 			//WP_ForcePowerStop( self, FP_DRAIN );
 			return;
@@ -11671,8 +11671,8 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 			&& (!OnSameTeam(self, traceEnt)||self->enemy==traceEnt)//don't drain an ally unless that is actually my current enemy
 			&& self->client->ps.forceDrainTime < level.time )
 		{//an enemy or object
-			int modPowerLevel = -1;
-			int	dmg = self->client->ps.forcePowerLevel[FP_DRAIN] + 1;
+			std::optional<forcePowerLevels_t> modPowerLevel;
+			int	dmg = to_underlying( self->client->ps.forcePowerLevel[FP_DRAIN] ) + 1;
 			int dflags = (DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC);//|DAMAGE_NO_KILL);
 			if ( traceEnt->s.number == self->client->ps.forceDrainEntityNum )
 			{//grabbing hold of them does more damage/drains more, and can actually kill them
@@ -11688,17 +11688,17 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 				//Since this is drain, don't absorb any power, but nullify the affect it has
 			}
 
-			if ( modPowerLevel != -1 )
+			if ( modPowerLevel )
 			{
-				if ( !modPowerLevel )
+				if ( modPowerLevel == FORCE_LEVEL_0 )
 				{
 					dmg = 0;
 				}
-				else if ( modPowerLevel == 1 )
+				else if ( modPowerLevel == FORCE_LEVEL_1 )
 				{
 					dmg = 1;
 				}
-				else if ( modPowerLevel == 2 )
+				else if ( modPowerLevel == FORCE_LEVEL_2 )
 				{
 					dmg = 2;
 				}
@@ -11794,7 +11794,7 @@ bool WP_CheckForceDraineeStopMe( gentity_t *self, gentity_t *drainee )
 	if ( drainee->NPC
 		&& drainee->client
 		&& (drainee->client->ps.forcePowersKnown&Bit( FP_PUSH ))
-		&& level.time-(self->client->ps.forcePowerDebounce[FP_DRAIN]>self->client->ps.forcePowerLevel[FP_DRAIN]*500)//at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
+		&& level.time-self->client->forceDrainStartTime > to_underlying( self->client->ps.forcePowerLevel[FP_DRAIN] )*500//at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
 		&& !Q_irand( 0, 100-(drainee->NPC->stats.evasion*10)-(g_spskill->integer*12) ) )
 	{//a jedi who broke free
 		ForceThrow( drainee, false );
@@ -12313,7 +12313,7 @@ void ForceRage( gentity_t *self )
 
 void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 {
-	float forceJumpChargeInterval = forceJumpStrength[0] / (FORCE_JUMP_CHARGE_TIME/FRAMETIME);
+	float forceJumpChargeInterval = forceJumpStrength[FORCE_LEVEL_0] / (FORCE_JUMP_CHARGE_TIME/FRAMETIME);
 
 	if ( self->health <= 0 )
 	{
@@ -12346,7 +12346,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 	//FIXME: a simple tap should always do at least a normal height's jump?
 }
 
-int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd )
+forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd )
 {
 	float pushFwd = 0, pushRt = 0;
 	vec3_t	view, forward, right;
@@ -12563,9 +12563,9 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	self->client->ps.forceJumpCharge = 0;
 }
 
-int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, forcePowers_t atPower, int atPowerLevel, int atForceSpent)
+std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t *attacked, forcePowerLevels_t atdAbsLevel, gentity_t *attacker, forcePowers_t atPower, forcePowerLevels_t atPowerLevel, int atForceSpent)
 {
-	int getLevel = 0;
+	forcePowerLevels_t getLevel = FORCE_LEVEL_0;
 	int addTot = 0;
 
 	if (atPower != FP_LIGHTNING &&
@@ -12574,30 +12574,27 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 		atPower != FP_PUSH &&
 		atPower != FP_PULL)
 	{ //Only these powers can be absorbed
-		return -1;
+		return std::nullopt;
 	}
 
-	if (!atdAbsLevel)
+	if (atdAbsLevel == FORCE_LEVEL_0)
 	{ //looks like attacker doesn't have any absorb power
-		return -1;
+		return std::nullopt;
 	}
 
 	if (!(attacked->client->ps.forcePowersActive & Bit( FP_ABSORB )))
 	{ //absorb is not active
-		return -1;
+		return std::nullopt;
 	}
 
 	//Subtract absorb power level from the offensive force power
-	getLevel = atPowerLevel;
-	getLevel -= atdAbsLevel;
-
-	if (getLevel < 0)
+	if (atPowerLevel > atdAbsLevel)
 	{
-		getLevel = 0;
+		getLevel = FORCE_LEVEL_0 + (atPowerLevel - atdAbsLevel);
 	}
 
 	//let the attacker absorb an amount of force used in this attack based on his level of absorb
-	addTot = (atForceSpent/3)*attacked->client->ps.forcePowerLevel[FP_ABSORB];
+	addTot = (atForceSpent/3)*to_underlying( attacked->client->ps.forcePowerLevel[FP_ABSORB] );
 
 	if (addTot < 1 && atForceSpent >= 1)
 	{
@@ -12721,6 +12718,7 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		}
 		break;
 	case FP_DRAIN:
+		self->client->forceDrainStartTime = level.time;
 		if ( self->client->ps.forcePowerLevel[forcePower] > FORCE_LEVEL_1
 			&& self->client->ps.forceDrainEntityNum >= ENTITYNUM_WORLD )
 		{
@@ -12836,7 +12834,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrid
 		}
 	}
 
-	if ( self->client->ps.forcePowerLevel[forcePower] <= 0 )
+	if ( self->client->ps.forcePowerLevel[forcePower] <= FORCE_LEVEL_0 )
 	{//can't use this power
 		return false;
 	}
@@ -12870,7 +12868,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrid
 		return false;
 	}
 	/*
-	if ( !self->client->ps.forcePowerLevel[(int)(forcePower)] )
+	if ( self->client->ps.forcePowerLevel[forcePower] == FORCE_LEVEL_0 )
 	{
 		return false;
 	}
@@ -13071,11 +13069,11 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 						}
 						else if ( gripEnt->s.weapon == WP_SABER )
 						{//jedi recover faster
-							holdTime = self->client->ps.forcePowerLevel[FP_GRIP]*200;
+							holdTime = to_underlying( self->client->ps.forcePowerLevel[FP_GRIP] )*200;
 						}
 						else
 						{
-							holdTime = self->client->ps.forcePowerLevel[FP_GRIP]*500;
+							holdTime = to_underlying( self->client->ps.forcePowerLevel[FP_GRIP] )*500;
 						}
 						//stop the anims soon, keep them locked in place for a bit
 						if ( gripEnt->client->ps.torsoAnim == BOTH_CHOKE1 || gripEnt->client->ps.torsoAnim == BOTH_CHOKE3 )
@@ -13569,12 +13567,12 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 			}
 			else
 			{
-				int gripLevel = self->client->ps.forcePowerLevel[FP_GRIP];
+				std::optional<forcePowerLevels_t> gripLevel;	// what the absorb leaves of the grip: none for an object
 				if ( gripEnt->client )
 				{
 					gripLevel = WP_AbsorbConversion( gripEnt, gripEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_GRIP, self->client->ps.forcePowerLevel[FP_GRIP], forcePowerNeeded[FP_GRIP] );
 				}
-				if ( !gripLevel )
+				if ( gripLevel == FORCE_LEVEL_0 )
 				{
 					WP_ForcePowerStop( self, forcePower );
 					return;
@@ -13743,13 +13741,13 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 					{//we don't damage the empty vehicle
 						gripEnt->painDebounceTime = 0;
 						int gripDmg = forceGripDamage[self->client->ps.forcePowerLevel[FP_GRIP]];
-						if ( gripLevel != -1 )
+						if ( gripLevel )
 						{
-							if ( gripLevel == 1 )
+							if ( gripLevel == FORCE_LEVEL_1 )
 							{
 								gripDmg = floor((float)gripDmg/3.0f);
 							}
-							else //if ( gripLevel == 2 )
+							else //if ( gripLevel == FORCE_LEVEL_2 )
 							{
 								gripDmg = floor((float)gripDmg/1.5f);
 							}
@@ -13992,7 +13990,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 					&& drainEnt->client->ps.forcePowersKnown
 					&& (drainEnt->client->NPC_class==CLASS_REBORN||drainEnt->client->ps.weapon==WP_SABER)
 					&& !Jedi_CultistDestroyer(drainEnt)
-					&& level.time-(self->client->ps.forcePowerDebounce[FP_DRAIN]>self->client->ps.forcePowerLevel[FP_DRAIN]*500)//at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
+					&& level.time-self->client->forceDrainStartTime > to_underlying( self->client->ps.forcePowerLevel[FP_DRAIN] )*500//at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
 					&& !Q_irand( 0, 100-(drainEnt->NPC->stats.evasion*8)-(g_spskill->integer*15) ) )
 				{//a jedi who broke free FIXME: maybe have some minimum grip length- a reaction time?
 					WP_ForceForceThrow( drainEnt );
@@ -14005,8 +14003,8 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				else
 				{
 					/*
-					int drainLevel = WP_AbsorbConversion( drainEnt, drainEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN] );
-					if ( !drainLevel )
+					std::optional<forcePowerLevels_t> drainLevel = WP_AbsorbConversion( drainEnt, drainEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN] );
+					if ( drainLevel == FORCE_LEVEL_0 )
 					{
 						WP_ForcePowerStop( self, forcePower );
 						return;
@@ -14092,9 +14090,9 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 					if ( self->client->ps.forcePowerDebounce[FP_DRAIN] < level.time )
 					{
-						int drainLevel = WP_AbsorbConversion( drainEnt, drainEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN] );
-						if ( (drainLevel && drainLevel == -1)
-							|| Q_irand( drainLevel, 3 ) < 3 )
+						const std::optional<forcePowerLevels_t> drainLevel = WP_AbsorbConversion( drainEnt, drainEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_DRAIN, self->client->ps.forcePowerLevel[FP_DRAIN], forcePowerNeeded[FP_DRAIN] );
+						if ( !drainLevel
+							|| Q_irand( *drainLevel, FORCE_LEVEL_3 ) < FORCE_LEVEL_3 )
 						{//the drain is being absorbed
 							ForceDrainEnt( self, drainEnt );
 						}

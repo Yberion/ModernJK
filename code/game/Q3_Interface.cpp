@@ -76,7 +76,7 @@ extern void JET_FlyStop( gentity_t *self );
 extern void Rail_LockCenterOfTrack(const char* trackName);
 extern void Rail_UnLockCenterOfTrack(const char* trackName);
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex = 0 );
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false );
 
 extern int	BMS_START;
 extern int	BMS_MID;
@@ -1431,7 +1431,7 @@ void Blocked_Mover( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client -- no longer the case
 
 	// don't remove security keys or goodie keys
-	if ( (other->s.eType == ET_ITEM) && (other->item->giTag >= INV_GOODIE_KEY && other->item->giTag <= INV_SECURITY_KEY) )
+	if ( (other->s.eType == ET_ITEM) && (GI_Inventory( *other->item ) >= INV_GOODIE_KEY && GI_Inventory( *other->item ) <= INV_SECURITY_KEY) )
 	{
 		// should we be doing anything special if a key blocks it... move it somehow..?
 	}
@@ -1843,7 +1843,7 @@ Q3_GetTag
 Gets the value of a tag by the give name
 =============
 */
-/*static int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
+/*static int	Q3_GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info )
 {
 	gentity_t	*ent = &g_entities[ entID ];
 
@@ -3265,7 +3265,7 @@ void G_SetWeapon( gentity_t *self, weapon_t wp )
 		self->client->ps.stats[STAT_WEAPONS] |= Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
-		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
+		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 		//force it to change
 		CG_ChangeWeapon( wp );
 		G_AddEvent( self, EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
@@ -3337,7 +3337,7 @@ Q3_SetItem
 static void Q3_SetItem (int entID, const char *item_name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	int		inv;
+	inventory_t	inv;
 
 	if ( !self )
 	{
@@ -3351,16 +3351,22 @@ static void Q3_SetItem (int entID, const char *item_name)
 		return;
 	}
 
-	inv = GetIDForString( INVTable, item_name );
+	const int invID = GetIDForString( INVTable, item_name );
+	if ( invID == -1 )
+	{
+		Com_Error( ERR_DROP, "Couldn't find item for inventory %i", invID );
+		return;
+	}
+	inv = static_cast<inventory_t>( invID );
 
 
 	gitem_t *item = FindItemForInventory(inv);
 	RegisterItem( item );	//make sure the item is cached in case this runs at startup
 
-//		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
+//		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 //		G_AddEvent( self, EV_GENERAL_SOUND, G_SoundIndex( "sound/weapons/change.wav" ));
 
-	self->client->ps.stats[STAT_ITEMS] |= (1<<item->giTag);
+	self->client->ps.stats[STAT_ITEMS] |= Bit( GI_Inventory( *item ) );
 
 	if( (inv == INV_ELECTROBINOCULARS) || (inv == INV_LIGHTAMP_GOGGLES) )
 	{
@@ -3949,13 +3955,14 @@ static void Q3_SetMusicState( const char *dms )
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
 	const forcePowers_t power = static_cast<forcePowers_t>( forcePower );
+	const forcePowerLevels_t level = static_cast<forcePowerLevels_t>( forceLevel );
 	if ( power < FP_FIRST || power >= NUM_FORCE_POWERS )
 	{
 		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, to_underlying( FP_FIRST ), (to_underlying( NUM_FORCE_POWERS )-1) );
 		return;
 	}
 
-	if ( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
+	if ( level < FORCE_LEVEL_0 || level >= NUM_FORCE_POWER_LEVELS )
 	{
 		if ( power != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
 		{
@@ -3978,7 +3985,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	if ((forceLevel > self->client->ps.forcePowerLevel[power]) && (entID==0) && (forceLevel > 0))
+	if ((level > self->client->ps.forcePowerLevel[power]) && (entID==0) && (level > FORCE_LEVEL_0))
 	{
 		if (0)
 		{
@@ -4003,8 +4010,8 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		}
 	}
 
-	self->client->ps.forcePowerLevel[power] = forceLevel;
-	if ( forceLevel )
+	self->client->ps.forcePowerLevel[power] = level;
+	if ( level != FORCE_LEVEL_0 )
 	{
 		self->client->ps.forcePowersKnown |= Bit( power );
 	}
@@ -4014,11 +4021,11 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 	}
 }
 
-extern bool G_InventorySelectable( int index,gentity_t *other);
+extern bool G_InventorySelectable( inventory_t index,gentity_t *other);
 static void Q3_GiveSecurityKey( int entID, char *keyname )
 {
 	gentity_t	*other = &g_entities[entID];
-	int			i, original;
+	inventory_t	i, original;
 
 	if ( !other )
 	{
@@ -4041,7 +4048,7 @@ static void Q3_GiveSecurityKey( int entID, char *keyname )
 		return;
 	}
 
-	other->client->ps.stats[STAT_ITEMS] |= (1<<INV_SECURITY_KEY);
+	other->client->ps.stats[STAT_ITEMS] |= Bit( INV_SECURITY_KEY );
 
 	//give the key
 	gi.SendServerCommand( 0, "cp @SP_INGAME_YOU_TOOK_SECURITY_KEY" );
@@ -4050,7 +4057,7 @@ static void Q3_GiveSecurityKey( int entID, char *keyname )
 
 	// Set the inventory select, just in case it hasn't
 	original = cg.inventorySelect;
-	for ( i = 0 ; i < INV_MAX ; i++ )
+	for ( i = INV_ELECTROBINOCULARS ; i < INV_MAX ; i++ )
 	{
 		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
 		{
@@ -6441,7 +6448,7 @@ static void Q3_SetSaberActive( int entID, bool active )
 			{
 				gitem_t *item = FindItemForWeapon( WP_SABER );
 				RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
-				G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist) );
+				G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 				CG_ChangeWeapon( WP_SABER );
 			}
 			ent->client->ps.weapon = WP_SABER;
@@ -6505,7 +6512,7 @@ static void Q3_SetSaberBladeActive( int entID, int iSaber, int iBlade, bool bAct
 			{
 				gitem_t *item = FindItemForWeapon( WP_SABER );
 				RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
-				G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist) );
+				G_AddEvent( ent, EV_ITEM_PICKUP, (item - bg_itemlist.data()) );
 				CG_ChangeWeapon( WP_SABER );
 			}
 			ent->client->ps.weapon = WP_SABER;
@@ -6725,7 +6732,7 @@ Q3_SetVar
 */
 /*void SetVar( int taskID, int entID, const char *type_name, const char *data )
 {
-	int	vret = Q3_VariableDeclared( type_name ) ;
+	variableType_t	vret = Q3_VariableDeclared( type_name ) ;
 	float	float_data;
 	float	val = 0.0f;
 
@@ -6935,7 +6942,7 @@ void RemoveOwner (gentity_t *self)
 void Q3_DismemberLimb( int entID, char *hitLocName )
 {
 	gentity_t	*self  = &g_entities[entID];
-	int		hitLoc = GetIDForString( HLTable, hitLocName );
+	const int	hitLocID = GetIDForString( HLTable, hitLocName );
 	vec3_t	point;
 
 	if ( !self )
@@ -6956,11 +6963,13 @@ void Q3_DismemberLimb( int entID, char *hitLocName )
 		return;
 	}
 
-	if ( hitLoc <= HL_NONE || hitLoc >= HL_MAX )
+	// HLTable holds HL_FOOT_RT to HL_GENERIC6 only: -1 is the one value out of range
+	if ( hitLocID == -1 )
 	{
 		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_DismemberLimb: '%s' is not a valid hit location!\n", hitLocName );
 		return;
 	}
+	const hitLocation_t hitLoc = static_cast<hitLocation_t>( hitLocID );
 
 	switch ( hitLoc )
 	{
@@ -7008,6 +7017,8 @@ void Q3_DismemberLimb( int entID, char *hitLocName )
 	case HL_GENERIC6:
 		VectorCopy( self->currentOrigin, point );
 		break;
+	default:
+		break;
 	}
 	G_DoDismemberment( self, point, MOD_SABER, 1000, hitLoc, true );
 }
@@ -7016,7 +7027,7 @@ void Q3_DismemberLimb( int entID, char *hitLocName )
 VariableDeclared
 -------------------------
 */
-int CQuake3GameInterface::VariableDeclared( const char *name )
+CQuake3GameInterface::variableType_t CQuake3GameInterface::VariableDeclared( const char *name )
 {
 	//Check the strings
 	varString_m::iterator	vsi = m_varStrings.find( name );
@@ -7047,7 +7058,7 @@ SetVar
 
 void CQuake3GameInterface::SetVar( int taskID, int entID, const char *type_name, const char *data )
 {
-	int	vret = VariableDeclared( type_name ) ;
+	variableType_t	vret = VariableDeclared( type_name ) ;
 	float	float_data = 0.0f;
 	float	val = 0.0f;
 
@@ -7075,6 +7086,9 @@ void CQuake3GameInterface::SetVar( int taskID, int entID, const char *type_name,
 
 		case VTYPE_VECTOR:
 			SetVectorVariable( type_name, (char *) data );
+			break;
+
+		default:
 			break;
 		}
 
@@ -7176,7 +7190,7 @@ int CQuake3GameInterface::SetFloatVariable( const char *name, float value )
 	varFloat_m::iterator	vfi = m_varFloats.find( name );
 
 	if ( vfi == m_varFloats.end() )
-		return VTYPE_FLOAT;
+		return false;
 
 	(*vfi).second = value;
 
@@ -7378,7 +7392,7 @@ VariableLoadStrings
 -------------------------
 */
 
-void CQuake3GameInterface::VariableLoadStrings( int type, varString_m &fmap )
+void CQuake3GameInterface::VariableLoadStrings( icarusToken_t type, varString_m &fmap )
 {
 	int		numFloats = 0;
 	char	tempBuffer[1024];
@@ -7437,6 +7451,9 @@ void CQuake3GameInterface::VariableLoadStrings( int type, varString_m &fmap )
 		case TK_VECTOR:
 			DeclareVariable( TK_VECTOR, (const char *) &tempBuffer );
 			SetVectorVariable( (const char *) &tempBuffer, (const char *) &tempBuffer2 );
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -7652,7 +7669,7 @@ int CQuake3GameInterface::MakeValidScriptName( char **strScriptName )
 // First looks to see if a script has already been loaded, if so, return SCRIPT_ALREADYREGISTERED. If a script has
 // NOT been already cached, that script is loaded and the return is SCRIPT_REGISTERED. If a script could not
 // be found cached and could not be loaded we return SCRIPT_COULDNOTREGISTER.
-int CQuake3GameInterface::RegisterScript( const char *strFileName, void **ppBuf, int &iLength )
+CQuake3GameInterface::scriptRegistration_t CQuake3GameInterface::RegisterScript( const char *strFileName, void **ppBuf, int &iLength )
 {
 	// If the file name is invalid, leave.
 	if ( !strFileName || strFileName[0] == '\0' || !Q_stricmp( strFileName, "NULL" ) || !Q_stricmp( strFileName, "default" ) )
@@ -7802,7 +7819,7 @@ void CQuake3GameInterface::RunScript( const gentity_t *pEntity, const char *strS
 		case SCRIPT_ALREADYREGISTERED:
 			assert( pBuf );
 			assert( iLength );
-			if ( IIcarusInterface::GetIcarus()->Run( pEntity->m_iIcarusID, pBuf, iLength ) != IIcarusInterface::ICARUS_INVALID )
+			if ( IIcarusInterface::GetIcarus()->Run( pEntity->m_iIcarusID, pBuf, iLength ) )
 				DebugPrint( WL_VERBOSE, "%d Script %s executed by %s %s\n", level.time, (char *) strScriptName, pEntity->classname, pEntity->targetname );
 			return;
 	}
@@ -8219,7 +8236,7 @@ void	CQuake3GameInterface::Lerp2Angles( int taskID, int entID, vec3_t angles, fl
 }
 
 // Gets the value of a tag by the give name.
-int		CQuake3GameInterface::GetTag( int entID, const char *name, int lookup, vec3_t info )
+int		CQuake3GameInterface::GetTag( int entID, const char *name, icarusToken_t lookup, vec3_t info )
 {
 	gentity_t	*ent = &g_entities[ entID ];
 
@@ -8235,6 +8252,9 @@ int		CQuake3GameInterface::GetTag( int entID, const char *name, int lookup, vec3
 	case TYPE_ANGLES:
 		//return TAG_GetAngles( ent->targetname, name, info );
 		return TAG_GetAngles( ent->ownername, name, info );
+		break;
+
+	default:
 		break;
 	}
 
@@ -10874,7 +10894,7 @@ int		CQuake3GameInterface::GetString( int entID, const char *name, const char **
 	return true;
 }
 
-int		CQuake3GameInterface::Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType )
+int		CQuake3GameInterface::Evaluate( icarusToken_t p1Type, const char *p1, icarusToken_t p2Type, const char *p2, icarusToken_t operatorType )
 {
 	float	f1=0, f2=0;
 	vec3_t	v1, v2;
@@ -11138,7 +11158,7 @@ int		CQuake3GameInterface::Evaluate( int p1Type, const char *p1, int p2Type, con
 	return false;
 }
 
-void	CQuake3GameInterface::DeclareVariable( int type, const char *name )
+void	CQuake3GameInterface::DeclareVariable( icarusToken_t type, const char *name )
 {
 	//Cannot declare the same variable twice
 	if ( VariableDeclared( name ) != VTYPE_NONE )
@@ -11317,7 +11337,7 @@ void	CQuake3GameInterface::PrecacheScript( const char *name )
 				return;
 			}
 			Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "PrecacheScript: Failed to load %s!\n", newname );
-			assert(SCRIPT_COULDNOTREGISTER);
+			assert( 0 && "SCRIPT_COULDNOTREGISTER" );
 			return;
 		case SCRIPT_ALREADYREGISTERED:
 			return;

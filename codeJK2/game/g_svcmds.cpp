@@ -236,7 +236,7 @@ static void Svcmd_SaberColor_f()
 struct SetForceCmd {
 	const char *desc;
 	const char *cmdname;
-	const int maxlevel;
+	const forcePowerLevels_t maxlevel;
 };
 
 EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
@@ -267,11 +267,11 @@ static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 	const char *newVal = gi.argv(1);
 	if ( !VALIDSTRING( newVal ) )
 	{
-		gi.Printf( "Current %s level is %d\n", SetForceTable[forcePower].desc, g_entities[0].client->ps.forcePowerLevel[forcePower] );
-		gi.Printf( "Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, SetForceTable[forcePower].maxlevel );
+		gi.Printf( "Current %s level is %d\n", SetForceTable[forcePower].desc, to_underlying( g_entities[0].client->ps.forcePowerLevel[forcePower] ) );
+		gi.Printf( "Usage:  %s <level> (0 - %i)\n", SetForceTable[forcePower].cmdname, to_underlying( SetForceTable[forcePower].maxlevel ) );
 		return;
 	}
-	int val = atoi(newVal);
+	const forcePowerLevels_t val = static_cast<forcePowerLevels_t>( atoi(newVal) );
 	if ( val > FORCE_LEVEL_0 )
 	{
 		g_entities[0].client->ps.forcePowersKnown |= Bit( forcePower );
@@ -307,7 +307,7 @@ void Svcmd_SaberAttackCycle_f( void )
 		return;
 	}
 
-	int	saberAnimLevel;
+	forcePowerLevels_t	saberAnimLevel;
 	if ( !self->s.number )
 	{
 		saberAnimLevel = cg.saberAnimLevelPending;
@@ -367,6 +367,8 @@ void Svcmd_SaberAttackCycle_f( void )
 	case FORCE_LEVEL_5:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
+		break;
+	default:
 		break;
 	}
 	//gi.Printf("\n");

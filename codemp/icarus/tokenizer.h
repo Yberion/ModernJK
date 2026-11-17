@@ -31,6 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 
+#include "tokens.h"
+
 #define MAX_STRING_LENGTH		256
 #define MAX_IDENTIFIER_LENGTH	128
 
@@ -47,7 +49,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TKF_NODASHINIDENTIFIER			0x00000400
 #define TKF_COMMENTTOKENS				0x00000800
 
-enum
+enum class tokenizerError_t
 {
 	TKERR_NONE,
 	TKERR_UNKNOWN,
@@ -67,21 +69,9 @@ enum
 	TKERR_UNMATCHED_DIRECTIVE,
 	TKERR_USERERROR,
 };
+using enum tokenizerError_t;
 
-enum
-{
-	TK_EOF = -1,
-	TK_UNDEFINED,
-	TK_COMMENT,
-	TK_EOL,
-	TK_CHAR,
-	TK_STRING,
-	TK_INT,
-	TK_INTEGER = TK_INT,
-	TK_FLOAT,
-	TK_IDENTIFIER,
-	TK_USERDEF,
-};
+enum class directive_t;	// Tokenizer.cpp
 
 typedef struct keywordArray_s {
 	char*		m_keyword;
@@ -125,7 +115,7 @@ public:
 	static CToken* Create();
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 	CToken* GetNext();
 	void SetNext(CToken* theToken);
 	virtual int GetIntValue();
@@ -147,7 +137,7 @@ public:
 	static CCharToken* Create(byte theByte);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
 	void Init(byte theByte);
@@ -161,7 +151,7 @@ public:
 	static CStringToken* Create(const char *theString);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
 	void Init(const char *theString);
@@ -175,7 +165,7 @@ public:
 	static CIntToken* Create(long value);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 	virtual float GetFloatValue();
 	virtual int GetIntValue();
 	virtual const char *GetStringValue();
@@ -194,7 +184,7 @@ public:
 	static CFloatToken* Create(float value);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 	virtual float GetFloatValue();
 	virtual const char *GetStringValue();
 
@@ -212,7 +202,7 @@ public:
 	static CIdentifierToken* Create(const char *name);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
 	void Init(const char *name);
@@ -226,7 +216,7 @@ public:
 	static CCommentToken* Create(const char *name);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
 	void Init(const char *name);
@@ -237,15 +227,15 @@ class CUserToken : public CToken
 public:
 	CUserToken();
 	~CUserToken();
-	static CUserToken* Create(int value, const char *string);
+	static CUserToken* Create(icarusToken_t value, const char *string);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
-	void Init(int value, const char *string);
+	void Init(icarusToken_t value, const char *string);
 
-	int				m_value;
+	icarusToken_t	m_value;
 };
 
 class CUndefinedToken : public CToken
@@ -256,7 +246,7 @@ public:
 	static CUndefinedToken* Create(const char *string);
 	virtual void Delete();
 
-	virtual int GetType();
+	virtual icarusToken_t GetType();
 
 protected:
 	void Init(const char *string);
@@ -404,17 +394,17 @@ public:
 	~CTokenizer();
 	static CTokenizer* Create(unsigned dwFlags = 0);
 	virtual void Delete();
-	virtual void Error(int theError);
-	virtual void Error(int theError, const char *errString);
-	virtual void Error(const char *errString, int theError = TKERR_UNKNOWN);
+	virtual void Error(tokenizerError_t theError);
+	virtual void Error(tokenizerError_t theError, const char *errString);
+	virtual void Error(const char *errString, tokenizerError_t theError = TKERR_UNKNOWN);
 
 	CToken* GetToken(unsigned onFlags = 0, unsigned offFlags = 0);
 	CToken* GetToken(keywordArray_t* keywords, unsigned onFlags, unsigned offFlags);
 	void PutBackToken(CToken* theToken, bool commented = false, const char *addedChars = nullptr, bool bIgnoreThisTokenType = false);
-	bool RequireToken(int tokenType);
-	void ScanUntilToken(int tokenType);
+	bool RequireToken(icarusToken_t tokenType);
+	void ScanUntilToken(icarusToken_t tokenType);
 	void SkipToLineEnd();
-	CToken* GetToEndOfLine(int tokenType = TK_IDENTIFIER);
+	CToken* GetToEndOfLine(icarusToken_t tokenType = TK_IDENTIFIER);
 
 	keywordArray_t* SetKeywords(keywordArray_t* theKeywords);
 	void SetSymbols(keywordArray_t* theSymbols);
@@ -431,10 +421,10 @@ public:
 	void GetCurFilename(char** filename);
 	int GetCurLine();
 
-	const char *LookupToken(int tokenID, keywordArray_t* theTable = nullptr);
+	const char *LookupToken(icarusToken_t tokenID, keywordArray_t* theTable = nullptr);
 
 protected:
-	void SetError(int theError, const char *errString);
+	void SetError(tokenizerError_t theError, const char *errString);
 	virtual void Init(unsigned dwFlags = 0);
 	CToken* FetchToken();
 	bool AddDefineSymbol(CDirectiveSymbol* definesymbol);
@@ -454,7 +444,7 @@ protected:
 	CToken* HandleSymbol(byte theByte);
 	CToken* HandleHex(bool thesize);
 	CToken* HandleOctal(bool thesize);
-	int DirectiveFromName(const char *name);
+	directive_t DirectiveFromName(const char *name);
 
 	CParseStream*			m_curParseStream;
 	keywordArray_t*			m_keywords;

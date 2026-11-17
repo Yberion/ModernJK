@@ -32,11 +32,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //bool COM_ParseString( char **data, char **s );
 //bool COM_ParseFloat( char **data, float *f );
 
-extern gitem_t	bg_itemlist[];
+extern EnumArray<gitem_t, itemNum_t, to_underlying( ITM_NUM_ITEMS ) + 1>	bg_itemlist;
 
 struct itemParms_s
 {
-	int	itemNum;
+	itemNum_t	itemNum;
 } itemParms;
 
 
@@ -94,7 +94,7 @@ static void IT_SetDefaults()
 
 static void IT_Name(const char **holdBuf)
 {
-	int itemNum;
+	itemNum_t itemNum;
 	const char	*tokenStr;
 
 	if (COM_ParseString(holdBuf,&tokenStr))
@@ -246,7 +246,7 @@ static void IT_Name(const char **holdBuf)
 		itemNum = ITM_SECURITY_KEY_PICKUP;
 	else
 	{
-		itemNum = 0;
+		itemNum = ITM_NONE;
 		gi.Printf("WARNING: bad itemname in external item data '%s'\n", tokenStr);
 	}
 
@@ -430,55 +430,55 @@ static void IT_Tag(const char **holdBuf)
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_BATTERY_PICKUP"))
 	{
-		tag = ITM_BATTERY_PICKUP;
+		tag = to_underlying( ITM_BATTERY_PICKUP );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_SEEKER"))
 	{
-		tag = INV_SEEKER;
+		tag = to_underlying( INV_SEEKER );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_SHIELD_PICKUP"))
 	{
-		tag = ITM_SHIELD_PICKUP;
+		tag = to_underlying( ITM_SHIELD_PICKUP );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_BACTA_CANISTER"))
 	{
-		tag = INV_BACTA_CANISTER;
+		tag = to_underlying( INV_BACTA_CANISTER );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_DATAPAD_PICKUP"))
 	{
-		tag = ITM_DATAPAD_PICKUP;
+		tag = to_underlying( ITM_DATAPAD_PICKUP );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_ELECTROBINOCULARS"))
 	{
-		tag = INV_ELECTROBINOCULARS;
+		tag = to_underlying( INV_ELECTROBINOCULARS );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_SENTRY"))
 	{
-		tag = INV_SENTRY;
+		tag = to_underlying( INV_SENTRY );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_LIGHTAMP_GOGGLES"))
 	{
-		tag = INV_LIGHTAMP_GOGGLES;
+		tag = to_underlying( INV_LIGHTAMP_GOGGLES );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_GOODIE_KEY"))
 	{
-		tag = INV_GOODIE_KEY;
+		tag = to_underlying( INV_GOODIE_KEY );
 	}
 	else if (!Q_stricmp(tokenStr,"INV_SECURITY_KEY"))
 	{
-		tag = INV_SECURITY_KEY;
+		tag = to_underlying( INV_SECURITY_KEY );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_MEDPAK_PICKUP"))
 	{
-		tag = ITM_MEDPAK_PICKUP;
+		tag = to_underlying( ITM_MEDPAK_PICKUP );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_SHIELD_SM_PICKUP"))
 	{
-		tag = ITM_SHIELD_SM_PICKUP;
+		tag = to_underlying( ITM_SHIELD_SM_PICKUP );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_SHIELD_LRG_PICKUP"))
 	{
-		tag = ITM_SHIELD_LRG_PICKUP;
+		tag = to_underlying( ITM_SHIELD_LRG_PICKUP );
 	}
 	else
 	{

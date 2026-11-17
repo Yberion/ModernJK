@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
-extern void AI_GroupUpdateSquadstates( AIGroupInfo_t *group, gentity_t *member, int newSquadState );
+extern void AI_GroupUpdateSquadstates( AIGroupInfo_t *group, gentity_t *member, squadState_t newSquadState );
 extern bool AI_GroupContainsEntNum( AIGroupInfo_t *group, int entNum );
 extern void AI_GroupUpdateEnemyLastSeen( AIGroupInfo_t *group, vec3_t spot );
 extern void AI_GroupUpdateClearShotTime( AIGroupInfo_t *group );
@@ -79,12 +79,7 @@ static vec3_t	impactPos;
 EnumArray<int, team_t, TEAM_NUM_TEAMS> groupSpeechDebounceTime;//used to stop several group AI from speaking all at once
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_UNDERFIRE,
-	LSTATE_INVESTIGATE,
-};
+using enum soldierLocalState_t;
 
 void ST_AggressionAdjust( gentity_t *self, int change )
 {
@@ -132,25 +127,7 @@ void ST_ClearTimers( gentity_t *ent )
 	TIMER_Set( ent, "verifyCP", 0 );
 }
 
-enum
-{
-	SPEECH_CHASE,
-	SPEECH_CONFUSED,
-	SPEECH_COVER,
-	SPEECH_DETECTED,
-	SPEECH_GIVEUP,
-	SPEECH_LOOK,
-	SPEECH_LOST,
-	SPEECH_OUTFLANK,
-	SPEECH_ESCAPING,
-	SPEECH_SIGHT,
-	SPEECH_SOUND,
-	SPEECH_SUSPICIOUS,
-	SPEECH_YELL,
-	SPEECH_PUSHED
-};
-
-static void ST_Speech( gentity_t *self, int speechType, float failChance )
+static void ST_Speech( gentity_t *self, speechType_t speechType, float failChance )
 {
 	if ( Q_flrand(0.0f, 1.0f) < failChance )
 	{
@@ -259,7 +236,7 @@ void ST_MarkToCover( gentity_t *self )
 	{
 		return;
 	}
-	self->NPC->localState = LSTATE_UNDERFIRE;
+	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
 	TIMER_Set( self, "attackDelay", Q_irand( 500, 2500 ) );
 	ST_AggressionAdjust( self, -3 );
 	if ( self->NPC->group && self->NPC->group->numGroup > 1 )
@@ -286,9 +263,9 @@ NPC_ST_Pain
 -------------------------
 */
 
-void NPC_ST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_ST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	self->NPC->localState = LSTATE_UNDERFIRE;
+	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
 
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "hideTime", -1 );
@@ -332,28 +309,29 @@ static void ST_HoldPosition( void )
 
 void NPC_ST_SayMovementSpeech( void )
 {
-	if ( !NPCInfo->movementSpeech )
+	if ( NPCInfo->movementSpeech == SPEECH_NONE )
 	{
 		return;
 	}
+	const speechType_t speech = NPCInfo->movementSpeech;
 	if ( NPCInfo->group &&
 		NPCInfo->group->commander &&
 		NPCInfo->group->commander->client &&
 		NPCInfo->group->commander->client->NPC_class == CLASS_IMPERIAL &&
 		!Q_irand( 0, 3 ) )
 	{//imperial (commander) gives the order
-		ST_Speech( NPCInfo->group->commander, NPCInfo->movementSpeech, NPCInfo->movementSpeechChance );
+		ST_Speech( NPCInfo->group->commander, speech, NPCInfo->movementSpeechChance );
 	}
 	else
 	{//really don't want to say this unless we can actually get there...
-		ST_Speech( NPC, NPCInfo->movementSpeech, NPCInfo->movementSpeechChance );
+		ST_Speech( NPC, speech, NPCInfo->movementSpeechChance );
 	}
 
-	NPCInfo->movementSpeech = 0;
+	NPCInfo->movementSpeech = SPEECH_NONE;
 	NPCInfo->movementSpeechChance = 0.0f;
 }
 
-void NPC_ST_StoreMovementSpeech( int speech, float chance )
+void NPC_ST_StoreMovementSpeech( speechType_t speech, float chance )
 {
 	NPCInfo->movementSpeech = speech;
 	NPCInfo->movementSpeechChance = chance;
@@ -838,7 +816,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			{
 				VectorCopy( trace.endpos, NPCInfo->investigateGoal );
 				NPC_SetMoveGoal( NPC, NPCInfo->investigateGoal, 16, true );
-				NPCInfo->localState = LSTATE_INVESTIGATE;
+				NPC_SetLocalState( *NPCInfo, LSTATE_INVESTIGATE );
 			}
 		}
 		else
@@ -848,7 +826,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 			if ( id != -1 )
 			{
 				NPC_SetMoveGoal( NPC, level.combatPoints[id].origin, 16, true, id );
-				NPCInfo->localState = LSTATE_INVESTIGATE;
+				NPC_SetLocalState( *NPCInfo, LSTATE_INVESTIGATE );
 			}
 		}
 		//Say something
@@ -1033,7 +1011,7 @@ void NPC_BSST_Investigate( void )
 	//FIXME: else, look for new alerts
 
 	//See if we're searching for the noise's origin
-	if ( NPCInfo->localState == LSTATE_INVESTIGATE && (NPCInfo->goalEntity!=nullptr) )
+	if ( NPC_LocalState<soldierLocalState_t>( *NPCInfo ) == LSTATE_INVESTIGATE && (NPCInfo->goalEntity!=nullptr) )
 	{
 		//See if we're there
 		if ( NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, NPCInfo->goalEntity->currentOrigin, 32, FlyingCreature( NPC ) ) == false )
@@ -1055,7 +1033,7 @@ void NPC_BSST_Investigate( void )
 		//Otherwise we're done or have given up
 		//Say something
 		//ST_Speech( NPC, SPEECH_LOOK, 0.33f );
-		NPCInfo->localState = LSTATE_NONE;
+		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 	}
 
 	//Look around
@@ -1315,7 +1293,7 @@ static void ST_CheckMoveState( void )
 		if ( NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, NPCInfo->goalEntity->currentOrigin, 16, FlyingCreature( NPC ) ) ||
 			( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) && NPCInfo->squadState == SQUAD_SCOUT && enemyLOS && enemyDist <= 10000 ) )
 		{//either hit our navgoal or our navgoal was not a crucial (scripted) one (maybe a combat point) and we're scouting and found our enemy
-			int	newSquadState = SQUAD_STAND_AND_SHOOT;
+			squadState_t	newSquadState = SQUAD_STAND_AND_SHOOT;
 			//we got where we wanted to go, set timers based on why we were running
 			switch ( NPCInfo->squadState )
 			{
@@ -1722,7 +1700,7 @@ void ST_Commander( void )
 	bool	enemyLost = false;
 	bool	enemyProtected = false;
 	//bool	scouting = false;
-	int			squadState;
+	squadState_t	squadState;
 	float		avoidDist;
 
 	group->processed = true;
@@ -1924,7 +1902,7 @@ void ST_Commander( void )
 				//better go after him
 				cpFlags |= (CP_CLEAR|CP_COVER);
 			}
-			else if ( NPCInfo->localState == LSTATE_UNDERFIRE )
+			else if ( NPC_LocalState<soldierLocalState_t>( *NPCInfo ) == LSTATE_UNDERFIRE )
 			{//we've been shot
 				switch( group->enemy->client->ps.weapon )
 				{
@@ -2183,7 +2161,7 @@ void ST_Commander( void )
 		}
 
 		//clear the local state
-		NPCInfo->localState = LSTATE_NONE;
+		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 
 		if ( NPCInfo->scriptFlags&SCF_USE_CP_NEAREST )
 		{

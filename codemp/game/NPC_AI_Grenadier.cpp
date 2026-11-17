@@ -58,12 +58,7 @@ static bool shoot3;
 static float	enemyDist3;
 
 //Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_UNDERFIRE,
-	LSTATE_INVESTIGATE,
-};
+using enum soldierLocalState_t;
 
 void Grenadier_ClearTimers( gentity_t *ent )
 {
@@ -108,7 +103,7 @@ NPC_ST_Pain
 
 void NPC_Grenadier_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	self->NPC->localState = LSTATE_UNDERFIRE;
+	NPC_SetLocalState( *self->NPC, LSTATE_UNDERFIRE );
 
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "stand", 2000 );
@@ -365,7 +360,7 @@ static void Grenadier_CheckMoveState( void )
 		if ( NAV_HitNavGoal( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPCS.NPC ) ) ||
 			( NPCS.NPCInfo->squadState == SQUAD_SCOUT && enemyLOS3 && enemyDist3 <= 10000 ) )
 		{
-		//	int	newSquadState = SQUAD_STAND_AND_SHOOT;
+		//	squadState_t	newSquadState = SQUAD_STAND_AND_SHOOT;
 			//we got where we wanted to go, set timers based on why we were running
 			switch ( NPCS.NPCInfo->squadState )
 			{

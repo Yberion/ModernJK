@@ -319,7 +319,7 @@ int GetGItemNum (gitem_t *pItem)
 		return -1;
 	}
 
-	return pItem - bg_itemlist;
+	return pItem - bg_itemlist.data();
 }
 
 gitem_t *GetGItemPtr(int iItem)
@@ -331,7 +331,7 @@ gitem_t *GetGItemPtr(int iItem)
 
 	assert(iItem >= 0);
 	assert(iItem < bg_numItems);
-	return &bg_itemlist[iItem];
+	return &bg_itemlist[static_cast<itemNum_t>( iItem )];
 }
 //
 //

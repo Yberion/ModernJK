@@ -30,8 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_DISTANCE		1024
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
+using enum monsterLocalState_t;
 
 float enemyDist = 0;
 extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
@@ -67,7 +66,7 @@ Wampa_Idle
 */
 void Wampa_Idle( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -95,7 +94,7 @@ Wampa_Patrol
 */
 void Wampa_Patrol( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -120,7 +119,7 @@ Wampa_Move
 */
 void Wampa_Move( bool visible )
 {
-	if ( NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 
@@ -181,7 +180,7 @@ void Wampa_Move( bool visible )
 
 //---------------------------------------------------------
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, hitLocation_t hitLoc, bool force = false );
 extern int NPC_GetEntsNearBolt( gentity_t **radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 
 void Wampa_Slash( int boltIndex, bool backhand )
@@ -242,7 +241,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 			{//killed them, chance of dismembering
 				if ( !Q_irand( 0, 1 ) )
 				{//bite something off
-					int hitLoc = HL_WAIST;
+					hitLocation_t hitLoc = HL_WAIST;
 					if ( g_dismemberment->integer < 4 )
 					{
 						hitLoc = Q_irand( HL_BACK_RT, HL_HAND_LT );
@@ -420,11 +419,11 @@ void Wampa_Combat( void )
 		}
 	}
 
-	if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+	if (( advance || NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 	{
 		if ( TIMER_Done2( NPC, "takingPain", true ))
 		{
-			NPCInfo->localState = LSTATE_CLEAR;
+			NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 		}
 		else
 		{
@@ -449,7 +448,7 @@ void Wampa_Combat( void )
 NPC_Wampa_Pain
 -------------------------
 */
-void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	bool hitByWampa = false;
 	if ( self->count )
@@ -522,7 +521,7 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 
 					if ( self->NPC )
 					{
-						self->NPC->localState = LSTATE_WAITING;
+						NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 					}
 				}
 			}
@@ -785,7 +784,7 @@ void NPC_BSWampa_Default( void )
 								G_Damage( NPC->activator, NPC, NPC, vec3_origin, NPC->activator->currentOrigin, Q_irand( 25, 40 ), (DAMAGE_NO_KNOCKBACK|DAMAGE_NO_ARMOR), MOD_MELEE );
 								if ( NPC->activator->health <= 0 )
 								{//killed them, chance of dismembering
-									int hitLoc = HL_WAIST;
+									hitLocation_t hitLoc = HL_WAIST;
 									if ( g_dismemberment->integer < 4 )
 									{
 										hitLoc = Q_irand( HL_BACK_RT, HL_HAND_LT );
@@ -820,10 +819,10 @@ void NPC_BSWampa_Default( void )
 		return;
 	}
 
-	if ( NPCInfo->localState == LSTATE_WAITING
+	if ( NPC_LocalState<monsterLocalState_t>( *NPCInfo ) == LSTATE_WAITING
 		&& TIMER_Done2( NPC, "takingPain", true ) )
 	{//was not doing anything because we were taking pain, but pain is done now, so clear it...
-		NPCInfo->localState = LSTATE_CLEAR;
+		NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 	}
 
 	if ( !TIMER_Done( NPC, "rageTime" ) )

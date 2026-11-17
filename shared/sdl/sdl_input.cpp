@@ -90,11 +90,13 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 {
 	typedef struct consoleKey_s
 	{
-		enum
+		enum class consoleKeyType_t
 		{
 			QUAKE_KEY,
 			CHARACTER
-		} type;
+		};
+		using enum consoleKeyType_t;
+		consoleKeyType_t type;
 
 		union
 		{

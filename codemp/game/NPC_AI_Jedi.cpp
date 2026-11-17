@@ -97,13 +97,6 @@ bool Jedi_WaitingAmbush( gentity_t *self );
 extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bg_parryDebounce;
 
 static EnumArray<int, npcteam_t, NPCTEAM_NUM_TEAMS>	jediSpeechDebounceTime;//used to stop several jedi from speaking all at once
-//Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_UNDERFIRE,
-	LSTATE_INVESTIGATE,
-};
 
 void NPC_ShadowTrooper_Precache( void )
 {

@@ -988,7 +988,7 @@ static void G_CheckSpecialPersistentEvents( gentity_t *ent )
 		if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 		{//events were just cleared out so add me again
 			//NOTE: presumes the player did the pushing, this is not always true, but shouldn't really matter?
-			if ( ent->item && ent->item->giTag == INV_SECURITY_KEY )
+			if ( ent->item && GI_Inventory( *ent->item ) == INV_SECURITY_KEY )
 			{
 				AddSightEvent( player, ent->currentOrigin, 128, AEL_DISCOVERED );//security keys are more important
 			}

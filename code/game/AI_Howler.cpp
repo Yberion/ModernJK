@@ -30,10 +30,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_DISTANCE		128
 #define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
 
-#define LSTATE_CLEAR		0
-#define LSTATE_WAITING		1
-#define LSTATE_FLEE			2
-#define LSTATE_BERZERK		3
+enum class howlerLocalState_t
+{
+	LSTATE_CLEAR = 0,
+	LSTATE_WAITING,
+	LSTATE_FLEE,
+	LSTATE_BERZERK,
+};
+using enum howlerLocalState_t;
 
 #define HOWLER_RETREAT_DIST	300.0f
 #define HOWLER_PANIC_HEALTH	10
@@ -164,7 +168,7 @@ Howler_Patrol
 */
 static void Howler_Patrol( void )
 {
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -196,7 +200,7 @@ Howler_Move
 */
 static bool Howler_Move( bool visible )
 {
-	if ( NPCInfo->localState != LSTATE_WAITING )
+	if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) != LSTATE_WAITING )
 	{
 		NPCInfo->goalEntity = NPC->enemy;
 		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
@@ -352,7 +356,7 @@ static void Howler_Howl( void )
 //------------------------------
 static void Howler_Attack( float enemyDist, bool howl )
 {
-	int dmg = (NPCInfo->localState==LSTATE_BERZERK)?5:2;
+	int dmg = (NPC_LocalState<howlerLocalState_t>( *NPCInfo )==LSTATE_BERZERK)?5:2;
 
 	if ( !TIMER_Exists( NPC, "attacking" ))
 	{
@@ -384,7 +388,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 		}
 
 		NPC_SetAnim( NPC, SETANIM_BOTH, attackAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART );
-		if ( NPCInfo->localState == LSTATE_BERZERK )
+		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
 		{//attack again right away
 			TIMER_Set( NPC, "attacking", NPC->client->ps.legsAnimTimer );
 		}
@@ -465,7 +469,7 @@ static void Howler_Combat( void )
 			NPCInfo->goalEntity = NPC->enemy;
 			NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 
-			if ( NPCInfo->localState == LSTATE_BERZERK )
+			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
 			{
 				NPC_Howler_Move( 3 );
 			}
@@ -488,11 +492,11 @@ static void Howler_Combat( void )
 			advance = ( distance > MAX_DISTANCE ? true : false  );//MIN_DISTANCE
 		}
 
-		if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance || NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
 		{
 			if ( TIMER_Done2( NPC, "takingPain", true ))
 			{
-				NPCInfo->localState = LSTATE_CLEAR;
+				NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 			}
 			else if ( TIMER_Done( NPC, "standing" ) )
 			{
@@ -526,17 +530,17 @@ static void Howler_Combat( void )
 NPC_Howler_Pain
 -------------------------
 */
-void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	if ( !self || !self->NPC )
 	{
 		return;
 	}
 
-	if ( self->NPC->localState != LSTATE_BERZERK )//damage >= 10 )
+	if ( NPC_LocalState<howlerLocalState_t>( *self->NPC ) != LSTATE_BERZERK )//damage >= 10 )
 	{
 		self->NPC->stats.aggression += damage;
-		self->NPC->localState = LSTATE_WAITING;
+		NPC_SetLocalState( *self->NPC, LSTATE_WAITING );
 
 		TIMER_Remove( self, "attacking" );
 
@@ -571,11 +575,11 @@ void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 		{//panic!
 			if ( Q_irand( 0, 1 ) )
 			{//berzerk
-				self->NPC->localState = LSTATE_BERZERK;
+				NPC_SetLocalState( *self->NPC, LSTATE_BERZERK );
 			}
 			else
 			{//flee
-				self->NPC->localState = LSTATE_FLEE;
+				NPC_SetLocalState( *self->NPC, LSTATE_FLEE );
 				TIMER_Set( self, "flee", Q_irand( 10000, 30000 ) );
 			}
 		}
@@ -631,24 +635,24 @@ void NPC_BSHowler_Default( void )
 			NPC_UpdateAngles( false, true );
 			return;
 		}
-		if ( NPCInfo->localState == LSTATE_FLEE )
+		if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
 		{//we were fleeing, now done (either timer ran out or we cannot flee anymore
 			if ( NPC_ClearLOS( NPC->enemy ) )
 			{//if enemy is still around, go berzerk
-				NPCInfo->localState = LSTATE_BERZERK;
+				NPC_SetLocalState( *NPCInfo, LSTATE_BERZERK );
 			}
 			else
 			{//otherwise, lick our wounds?
-				NPCInfo->localState = LSTATE_CLEAR;
+				NPC_SetLocalState( *NPCInfo, LSTATE_CLEAR );
 				TIMER_Set( NPC, "standing", Q_irand( 3000, 10000 ) );
 			}
 		}
-		else if ( NPCInfo->localState == LSTATE_BERZERK )
+		else if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK )
 		{//go nuts!
 		}
 		else if ( NPCInfo->stats.aggression >= Q_irand( 75, 125 ) )
 		{//that's it, go nuts!
-			NPCInfo->localState = LSTATE_BERZERK;
+			NPC_SetLocalState( *NPCInfo, LSTATE_BERZERK );
 		}
 		else if ( !TIMER_Done( NPC, "retreating" ) )
 		{//trying to back off
@@ -765,7 +769,7 @@ void NPC_BSHowler_Default( void )
 				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
 			}
 			else if ( !TIMER_Done( NPC, "walking" )
-				|| NPCInfo->localState == LSTATE_FLEE )
+				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
 			{
 				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
 			}
@@ -773,8 +777,8 @@ void NPC_BSHowler_Default( void )
 			{
 				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_yell%d.mp3", Q_irand( 1, 5 ) ) );
 			}
-			if ( NPCInfo->localState == LSTATE_BERZERK
-				|| NPCInfo->localState == LSTATE_FLEE )
+			if ( NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_BERZERK
+				|| NPC_LocalState<howlerLocalState_t>( *NPCInfo ) == LSTATE_FLEE )
 			{
 				TIMER_Set( NPC, "speaking", Q_irand( 1000, 4000 ) );
 			}

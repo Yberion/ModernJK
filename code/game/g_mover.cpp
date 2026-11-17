@@ -956,7 +956,7 @@ Use_BinaryMover
 */
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	int	key;
+	std::optional<inventory_t>	key;
 	const char *text;
 
 	if ( ent->e_UseFunc == useF_NULL )
@@ -993,7 +993,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 			key = INV_GoodieKeyCheck( activator );
 			if (key)
 			{//activator has a goodie key, remove it
-				activator->client->ps.inventory[key]--;
+				activator->client->ps.inventory[*key]--;
 				G_Sound( activator, G_SoundIndex( "sound/movers/goodie_pass.wav" ) );
 				// once the goodie mover has been used, it no longer requires a goodie key
 				ent->spawnflags &= ~MOVER_GOODIE;
@@ -1152,7 +1152,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client -- no longer the case
 
 	// don't remove security keys or goodie keys
-	if ( (other->s.eType == ET_ITEM) && (other->item->giTag >= INV_GOODIE_KEY && other->item->giTag <= INV_SECURITY_KEY) )
+	if ( (other->s.eType == ET_ITEM) && (GI_Inventory( *other->item ) >= INV_GOODIE_KEY && GI_Inventory( *other->item ) <= INV_SECURITY_KEY) )
 	{
 		// should we be doing anything special if a key blocks it... move it somehow..?
 	}
@@ -2042,7 +2042,7 @@ void SP_path_corner( gentity_t *self ) {
 }
 
 
-void func_train_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc )
+void func_train_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
 {
 	if ( self->target3 )
 	{

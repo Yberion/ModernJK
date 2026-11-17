@@ -120,7 +120,7 @@ extern int BG_GetTime(void);
 #ifndef _JK2MP
 bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right)
 {
-	if (!(pVeh->m_ulFlags&VEH_STRAFERAM))
+	if (!(Any( pVeh->m_ulFlags & VEH_STRAFERAM )))
 	{
 		float	speed = VectorLength(pVeh->m_pParentEntity->client->ps.velocity);
 		if (speed>400.0f)
@@ -182,7 +182,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 #ifndef _JK2MP //this makes prediction unhappy, and rightfully so.
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 
-	if ( pVeh->m_ulFlags & VEH_FLYING )
+	if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
 	{
 		vec3_t vVehAngles;
 		VectorSet(vVehAngles, 0, pVeh->m_vOrientation[YAW], 0 );
@@ -197,7 +197,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 
 	// Check For A Strafe Ram
 	//------------------------
-	if (!(pVeh->m_ulFlags&VEH_STRAFERAM) && !(pVeh->m_ulFlags&VEH_FLYING))
+	if (!(Any( pVeh->m_ulFlags & VEH_STRAFERAM )) && !(Any( pVeh->m_ulFlags & VEH_FLYING )))
 	{
 		// Started A Strafe
 		//------------------
@@ -243,7 +243,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	{
 		// Start It On Each Exhaust Bolt
 		//-------------------------------
-		if (pVeh->m_ucmd.forwardmove && !(pVeh->m_ulFlags&VEH_ACCELERATORON))
+		if (pVeh->m_ucmd.forwardmove && !(Any( pVeh->m_ulFlags & VEH_ACCELERATORON )))
 		{
 			pVeh->m_ulFlags |= VEH_ACCELERATORON;
 			for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++)
@@ -254,7 +254,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 
 		// Stop It On Each Exhaust Bolt
 		//------------------------------
-		else if (!pVeh->m_ucmd.forwardmove && (pVeh->m_ulFlags&VEH_ACCELERATORON))
+		else if (!pVeh->m_ucmd.forwardmove && (Any( pVeh->m_ulFlags & VEH_ACCELERATORON )))
 		{
 			pVeh->m_ulFlags &=~VEH_ACCELERATORON;
 			for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++)
@@ -264,7 +264,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 		}
 	}
 
-	if (!(pVeh->m_ulFlags&VEH_ARMORLOW) && (pVeh->m_iArmor <= pVeh->m_pVehicleInfo->armor/3))
+	if (!(Any( pVeh->m_ulFlags & VEH_ARMORLOW )) && (pVeh->m_iArmor <= pVeh->m_pVehicleInfo->armor/3))
 	{
 		pVeh->m_ulFlags |= VEH_ARMORLOW;
 
@@ -274,7 +274,7 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	//---------------------------
 	if (pVeh->m_pVehicleInfo->iArmorGoneFX)
 	{
-		if (!(pVeh->m_ulFlags&VEH_ARMORGONE) && (pVeh->m_iArmor <= 0))
+		if (!(Any( pVeh->m_ulFlags & VEH_ARMORGONE )) && (pVeh->m_iArmor <= 0))
 		{
 			pVeh->m_ulFlags |= VEH_ARMORGONE;
 			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, true);
@@ -322,7 +322,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 	// If we're flying, make us accelerate at 40% (about half) acceleration rate, and restore the pitch
 	// to origin (straight) position (at 5% increments).
-	if ( pVeh->m_ulFlags & VEH_FLYING )
+	if ( Any( pVeh->m_ulFlags & VEH_FLYING ) )
 	{
 		speedInc = pVeh->m_pVehicleInfo->acceleration * pVeh->m_fTimeModifier * 0.4f;
 	}
@@ -421,7 +421,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	// Slide Breaking
-	if (pVeh->m_ulFlags&VEH_SLIDEBREAKING)
+	if (Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING ))
 	{
 		if (pVeh->m_ucmd.forwardmove>=0
 #ifndef _JK2MP
@@ -435,7 +435,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 	else if (
 		(curTime > pVeh->m_iTurboTime) &&
-		!(pVeh->m_ulFlags&VEH_FLYING) &&
+		!(Any( pVeh->m_ulFlags & VEH_FLYING )) &&
 		pVeh->m_ucmd.forwardmove<0 &&
 		fabs(pVeh->m_vOrientation[ROLL])>25.0f)
 	{
@@ -612,19 +612,19 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 	}
 	//parentPS = &pVeh->m_pParentEntity->client->ps;
 
-	if (pVeh->m_ulFlags & VEH_FLYING)
+	if (Any( pVeh->m_ulFlags & VEH_FLYING ))
 	{
 		pVeh->m_vOrientation[YAW] += pVeh->m_vAngularVelocity;
 	}
 	else if (
-		(pVeh->m_ulFlags & VEH_SLIDEBREAKING) ||	// No Angles Control While Out Of Control
-		(pVeh->m_ulFlags & VEH_OUTOFCONTROL) 		// No Angles Control While Out Of Control
+		(Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING )) ||	// No Angles Control While Out Of Control
+		(Any( pVeh->m_ulFlags & VEH_OUTOFCONTROL )) 		// No Angles Control While Out Of Control
 		)
 	{
 		// Any ability to change orientation?
 	}
 	else if (
-		(pVeh->m_ulFlags & VEH_STRAFERAM)			// No Angles Control While Strafe Ramming
+		(Any( pVeh->m_ulFlags & VEH_STRAFERAM ))			// No Angles Control While Strafe Ramming
 		)
 	{
 		if (pVeh->m_fStrafeTime>0)
@@ -813,9 +813,9 @@ void AnimateRiders( Vehicle_t *pVeh )
 
 /*	// Going in reverse...
 #ifdef _JK2MP
-	if ( pVeh->m_ucmd.forwardmove < 0 && !(pVeh->m_ulFlags & VEH_SLIDEBREAKING))
+	if ( pVeh->m_ucmd.forwardmove < 0 && !(Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING )))
 #else
-	if ( fSpeedPercToMax < -0.018f && !(pVeh->m_ulFlags & VEH_SLIDEBREAKING))
+	if ( fSpeedPercToMax < -0.018f && !(Any( pVeh->m_ulFlags & VEH_SLIDEBREAKING )))
 #endif
 	{
 		Anim = BOTH_VS_REV;
@@ -841,8 +841,8 @@ void AnimateRiders( Vehicle_t *pVeh )
 		bool		Flying		= false;
 		bool		Crashing	= false;
 #else
-		bool		Flying		= !!(pVeh->m_ulFlags & VEH_FLYING);
-		bool		Crashing	= !!(pVeh->m_ulFlags & VEH_CRASHING);
+		bool		Flying		= !!(Any( pVeh->m_ulFlags & VEH_FLYING ));
+		bool		Crashing	= !!(Any( pVeh->m_ulFlags & VEH_CRASHING ));
 #endif
 		bool		Right		= (pVeh->m_ucmd.rightmove>0);
 		bool		Left		= (pVeh->m_ucmd.rightmove<0);
@@ -903,15 +903,15 @@ void AnimateRiders( Vehicle_t *pVeh )
 		}
 		else if (pilotPS->weapon==WP_SABER)
 		{
-			if ( (pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VS_ATL_TO_R_S)
+			if ( (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATL_TO_R_S)
 			{
 				pVeh->m_ulFlags	&= ~VEH_SABERINLEFTHAND;
 			}
-			if (!(pVeh->m_ulFlags&VEH_SABERINLEFTHAND) && pilotPS->torsoAnim==BOTH_VS_ATR_TO_L_S)
+			if (!(Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND )) && pilotPS->torsoAnim==BOTH_VS_ATR_TO_L_S)
 			{
 				pVeh->m_ulFlags	|=  VEH_SABERINLEFTHAND;
 			}
-			WeaponPose = (pVeh->m_ulFlags&VEH_SABERINLEFTHAND)?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
+			WeaponPose = (Any( pVeh->m_ulFlags & VEH_SABERINLEFTHAND ))?(WPOSE_SABERLEFT):(WPOSE_SABERRIGHT);
 		}
 
 

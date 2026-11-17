@@ -39,7 +39,7 @@ inline CSequence::CSequence( void )
 {
 	m_numCommands	= 0;
 //	m_numChildren	= 0;
-	m_flags			= 0;
+	m_flags			= SQ_COMMON;
 	m_iterations	= 1;
 
 	m_parent		= nullptr;
@@ -204,10 +204,10 @@ void CSequence::SetParent( CSequence *parent )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( parent->m_flags & SQ_RETAIN )
+	if ( Any( parent->m_flags & SQ_RETAIN ) )
 		m_flags |= SQ_RETAIN;
 
-	if ( parent->m_flags & SQ_PENDING )
+	if ( Any( parent->m_flags & SQ_PENDING ) )
 		m_flags |= SQ_PENDING;
 }
 
@@ -217,7 +217,7 @@ PopCommand
 -------------------------
 */
 
-CBlock *CSequence::PopCommand( int type )
+CBlock *CSequence::PopCommand( pushPop_t type )
 {
 	CBlock	*command = nullptr;
 
@@ -246,6 +246,9 @@ CBlock *CSequence::PopCommand( int type )
 
 		return command;
 		break;
+
+	default:
+		break;
 	}
 
 	//Invalid flag
@@ -258,7 +261,7 @@ PushCommand
 -------------------------
 */
 
-int CSequence::PushCommand( CBlock *block, int type )
+int CSequence::PushCommand( CBlock *block, pushPop_t type )
 {
 	//Make sure everything is ok
 	assert( (type == PUSH_FRONT) || (type == PUSH_BACK) );
@@ -281,6 +284,9 @@ int CSequence::PushCommand( CBlock *block, int type )
 
 		return true;
 		break;
+
+	default:
+		break;
 	}
 
 	//Invalid flag
@@ -293,7 +299,7 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( int flag )
+void CSequence::SetFlag( sequenceFlag_t flag )
 {
 	m_flags |= flag;
 }
@@ -304,7 +310,7 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( int flag, bool children )
+void CSequence::RemoveFlag( sequenceFlag_t flag, bool children )
 {
 	m_flags &= ~flag;
 
@@ -330,9 +336,9 @@ HasFlag
 -------------------------
 */
 
-int CSequence::HasFlag( int flag )
+bool CSequence::HasFlag( sequenceFlag_t flag )
 {
-	return (m_flags & flag);
+	return Any(m_flags & flag);
 }
 
 /*
@@ -419,11 +425,11 @@ int CSequence::SaveCommand( CBlock *block )
 	//				- Block (Raw) Data.
 
 	//Save out the block ID
-	bID = block->GetBlockID();
+	bID = to_underlying( block->GetBlockID() );
 	pIcarus->BufferWrite( &bID, sizeof ( bID ) );
 
 	//Save out the block's flags
-	flags = block->GetFlags();
+	flags = to_underlying( block->GetFlags() );
 	pIcarus->BufferWrite( &flags, sizeof ( flags ) );
 
 	//Save out the number of members to read
@@ -435,7 +441,7 @@ int CSequence::SaveCommand( CBlock *block )
 		bm = block->GetMember( i );
 
 		//Save the block id
-		bID = bm->GetID();
+		bID = to_underlying( bm->GetID() );
 		pIcarus->BufferWrite( &bID, sizeof ( bID ) );
 
 		//Save out the data size
@@ -468,11 +474,11 @@ int CSequence::LoadCommand( CBlock *block, CIcarus *icarus )
 
 	//Get the block ID.
 	icarus->BufferRead( &id, sizeof( id ) );
-	block->Create( id );
+	block->Create( static_cast<icarusToken_t>( id ) );
 
 	//Read the block's flags
 	icarus->BufferRead( &flags, sizeof( flags ) );
-	block->SetFlags( flags );
+	block->SetFlags( static_cast<blockFlag_t>( flags ) );
 
 	//Get the number of block members
 	icarus->BufferRead( &numMembers, sizeof( numMembers ) );
@@ -493,7 +499,8 @@ int CSequence::LoadCommand( CBlock *block, CIcarus *icarus )
 		icarus->BufferRead( bData, bSize );
 
 		//Write out the correct type
-		switch ( bID )
+		const icarusToken_t memberID = static_cast<icarusToken_t>( bID );
+		switch ( memberID )
 		{
 		case CIcarus::TK_INT:
 			{
@@ -519,22 +526,22 @@ int CSequence::LoadCommand( CBlock *block, CIcarus *icarus )
 			break;
 
 		case CIcarus::ID_TAG:
-			block->Write( CIcarus::ID_TAG, (float) CIcarus::ID_TAG, icarus );
+			block->Write( CIcarus::ID_TAG, (float) to_underlying( CIcarus::ID_TAG ), icarus );
 			break;
 
 		case CIcarus::ID_GET:
-			block->Write( CIcarus::ID_GET, (float) CIcarus::ID_GET, icarus );
+			block->Write( CIcarus::ID_GET, (float) to_underlying( CIcarus::ID_GET ), icarus );
 			break;
 
 		case CIcarus::ID_RANDOM:
-			block->Write( CIcarus::ID_RANDOM, *(float *) bData, icarus );//(float) ID_RANDOM );
+			block->Write( CIcarus::ID_RANDOM, *(float *) bData, icarus );//(float) to_underlying( ID_RANDOM ) );
 			break;
 
 		case CIcarus::TK_EQUALS:
 		case CIcarus::TK_GREATER_THAN:
 		case CIcarus::TK_LESS_THAN:
 		case CIcarus::TK_NOT:
-			block->Write( bID, 0, icarus );
+			block->Write( memberID, 0, icarus );
 			break;
 
 		default:
@@ -600,7 +607,8 @@ int CSequence::Save()
 	}
 
 	//Save flags
-	pIcarus->BufferWrite( &m_flags, sizeof( m_flags ) );
+	int flags = to_underlying( m_flags );
+	pIcarus->BufferWrite( &flags, sizeof( flags ) );
 
 	//Save iterations
 	pIcarus->BufferWrite( &m_iterations, sizeof( m_iterations ) );
@@ -671,7 +679,9 @@ int CSequence::Load( CIcarus* icarus )
 
 
 	//Get the sequence flags
-	icarus->BufferRead( &m_flags, sizeof( m_flags ) );
+	int flags;
+	icarus->BufferRead( &flags, sizeof( flags ) );
+	m_flags = static_cast<sequenceFlag_t>( flags );
 
 	//Get the number of iterations
 	icarus->BufferRead( &m_iterations, sizeof( m_iterations ) );

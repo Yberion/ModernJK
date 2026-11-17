@@ -60,11 +60,11 @@ bool INV_GoodieKeyTake( gentity_t *target )
 	return (false);
 }
 
-int INV_GoodieKeyCheck( gentity_t *target )
+std::optional<inventory_t> INV_GoodieKeyCheck( gentity_t *target )
 {
 	if ( !target || !target->client )
 	{
-		return (false);
+		return (std::nullopt);
 	}
 
 	if ( target->client->ps.inventory[INV_GOODIE_KEY] )
@@ -73,7 +73,7 @@ int INV_GoodieKeyCheck( gentity_t *target )
 	}
 
 	//no keys
-	return (false);
+	return (std::nullopt);
 }
 
 /*

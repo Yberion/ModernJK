@@ -161,7 +161,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 						ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 					}
 
-					int hitLoc = G_GetHitLocFromTrace( &tr, MOD_CONC_ALT );
+					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_CONC_ALT );
 					bool noKnockBack = ((traceEnt->flags&FL_NO_KNOCKBACK) != 0);//will be set if they die, I want to know if it was on *before* they died
 					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 					{//hehe

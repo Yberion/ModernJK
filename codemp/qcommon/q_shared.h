@@ -374,18 +374,7 @@ enum class forcePowers_t
 using enum forcePowers_t;
 template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
-enum class forcePowerLevels_t {
-	FORCE_LEVEL_0,
-	FORCE_LEVEL_1,
-	FORCE_LEVEL_2,
-	FORCE_LEVEL_3,
-	NUM_FORCE_POWER_LEVELS
-};
-using enum forcePowerLevels_t;
-template <> inline constexpr bool enableEnumArithmetic<forcePowerLevels_t> = true;
-
-#define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
-#define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
+#include "qcommon/q_forcelevels.h"
 
 //rww - a C-ified structure version of the class which fires off callbacks and gives arguments to update ragdoll status.
 enum class sharedERagPhase
@@ -1920,13 +1909,15 @@ enum class ForceReload_e
 using enum ForceReload_e;
 
 
-enum {
+// the font of a menu's or cgame's text, the handle registered for it chosen by MenuFontToHandle
+enum class menuFont_t {
 	FONT_NONE,
 	FONT_SMALL=1,
 	FONT_MEDIUM,
 	FONT_LARGE,
 	FONT_SMALL2
 };
+using enum menuFont_t;
 
 void NET_AddrToString( char *out, size_t size, void *addr );
 

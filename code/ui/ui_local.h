@@ -151,6 +151,32 @@ typedef struct {
 	playerColor_t	*Color;
 } playerSpeciesInfo_t;
 
+// the titles of the datapad's moves database
+enum class datapadMoveTitle_t
+{
+	MD_ACROBATICS = 0,
+	MD_SINGLE_FAST,
+	MD_SINGLE_MEDIUM,
+	MD_SINGLE_STRONG,
+	MD_DUAL_SABERS,
+	MD_SABER_STAFF,
+	MD_MOVE_TITLE_MAX
+};
+using enum datapadMoveTitle_t;
+
+//Force Warnings
+enum class forceWarning_t
+{
+	FW_VERY_LIGHT = 0,
+	FW_SEMI_LIGHT,
+	FW_NEUTRAL,
+	FW_SEMI_DARK,
+	FW_VERY_DARK,
+	NUM_FORCE_WARNINGS
+};
+using enum forceWarning_t;
+template <> inline constexpr bool enableEnumArithmetic<forceWarning_t> = true;
+
 typedef struct {
 	displayContextDef_t uiDC;
 
@@ -196,13 +222,13 @@ typedef struct {
 	itemDef_t *weaponThrowButton;
 	qhandle_t litThrowableIcon;
 	qhandle_t unlitThrowableIcon;
-	short		movesTitleIndex;
+	datapadMoveTitle_t	movesTitleIndex;
 	const char	*movesBaseAnim;
 	int			moveAnimTime;
 	int			languageCount;
 	int			languageCountIndex;
 
-	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;
 }	uiInfo_t;
 
 extern uiInfo_t uiInfo;

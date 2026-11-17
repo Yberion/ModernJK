@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
 extern bool PM_SaberInParry( saberMoveName_t move );
 extern bool PM_SaberInReflect( saberMoveName_t move );
 extern bool PM_SaberInIdle( saberMoveName_t move );
@@ -441,7 +441,7 @@ G_MissileImpact
 extern void WP_SaberBlock( gentity_t *saber, vec3_t hitloc, bool missleBlock );
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 extern bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod );
-void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE )
+void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, hitLocation_t hitLoc=HL_NONE )
 {
 	// impact damage
 	if ( other->takedamage )
@@ -547,7 +547,7 @@ static void G_MissileAddAlerts( gentity_t *ent )
 }
 
 //------------------------------------------------------
-void G_MissileImpact( gentity_t *ent, trace_t *trace, int hitLoc=HL_NONE )
+void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NONE )
 {
 	gentity_t		*other;
 	vec3_t			diff;
@@ -1168,7 +1168,7 @@ void G_RunMissile( gentity_t *ent )
 {
 	vec3_t		origin, oldOrg;
 	trace_t		tr;
-	int			trHitLoc=HL_NONE;
+	hitLocation_t			trHitLoc=HL_NONE;
 
 	VectorCopy( ent->currentOrigin, oldOrg );
 

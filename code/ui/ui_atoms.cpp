@@ -153,9 +153,9 @@ static void UI_Cache_f( void )
 {
 	Menu_Cache();
 #ifndef JK2_MODE
-extern const char *lukeForceStatusSounds[];
-extern const char *kyleForceStatusSounds[];
-	for (int index = 0; index < 5; index++)
+extern EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> lukeForceStatusSounds;
+extern EnumArray<const char *, forceWarning_t, NUM_FORCE_WARNINGS> kyleForceStatusSounds;
+	for (forceWarning_t index = FW_VERY_LIGHT; index < NUM_FORCE_WARNINGS; index++)
 	{
 		DC->registerSound(lukeForceStatusSounds[index], false);
 		DC->registerSound(kyleForceStatusSounds[index], false);

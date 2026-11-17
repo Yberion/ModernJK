@@ -1143,7 +1143,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 	statsbits = 0;
 	for (i=0 ; i<MAX_INVENTORY ; i++)
 	{
-		if (to->inventory[i] != from->inventory[i])
+		if (to->inventory.data()[i] != from->inventory.data()[i])
 		{
 			statsbits |= 1<<i;
 		}
@@ -1156,7 +1156,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 		{
 			if (statsbits & (1<<i) )
 			{
-				MSG_WriteShort (msg, to->inventory[i]);
+				MSG_WriteShort (msg, to->inventory.data()[i]);
 			}
 		}
 	}
@@ -1268,7 +1268,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		bits = MSG_ReadShort (msg);
 		for (i=0 ; i<MAX_INVENTORY ; i++) {
 			if (bits & (1<<i) ) {
-				to->inventory[i] = MSG_ReadShort(msg);
+				to->inventory.data()[i] = MSG_ReadShort(msg);
 			}
 		}
 	}

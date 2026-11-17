@@ -96,7 +96,7 @@ extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ign
 extern cvar_t	*g_saberRealisticCombat;
 extern cvar_t	*d_slowmodeath;
 extern cvar_t	*g_saberNewControlScheme;
-extern int parryDebounce[];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> parryDebounce;
 
 //Locals
 static void Jedi_Aggression( gentity_t *self, int change );
@@ -1518,7 +1518,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		{
 			Jedi_Advance();
 		}
-		int	testlevel;
+		forcePowerLevels_t	testlevel;
 		if ( NPC->client->ps.forcePowerLevel[FP_PUSH] < FORCE_LEVEL_1 )
 		{//
 			testlevel = FORCE_LEVEL_1;
@@ -2082,7 +2082,7 @@ static void Jedi_FaceEntity( gentity_t *self, gentity_t *other, bool doPitch )
 */
 
 /*
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 
 Jedi will play a dodge anim, blur, and make the force speed noise.
 
@@ -2091,7 +2091,7 @@ Right now used to dodge instant-hit weapons.
 FIXME: possibly call this for saber melee evasion and/or missile evasion?
 FIXME: possibly let player do this too?
 */
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 {
 	std::optional<animNumber_t>	dodgeAnim;
 
@@ -2124,7 +2124,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 			}
 			//FIXME: check my overall skill (rank) to determine if I should be able to dodge it?
 			//check force speed power level to determine if I should be able to dodge it
-			if ( Q_irand( 0, 3 ) > self->client->ps.forcePowerLevel[FP_SPEED] )
+			if ( Q_irand( 0, 3 ) > to_underlying( self->client->ps.forcePowerLevel[FP_SPEED] ) )
 			{//more likely to fail on lower force speed level, but NPCs are generally better at it than the player
 				return false;
 			}
@@ -2141,7 +2141,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 			}
 		}
 		//check force speed power level to determine if I should be able to dodge it
-		if ( Q_irand( 1, 10 ) > self->client->ps.forcePowerLevel[FP_SPEED] )
+		if ( Q_irand( 1, 10 ) > to_underlying( self->client->ps.forcePowerLevel[FP_SPEED] ) )
 		{//more likely to fail on lower force speed level
 			return false;
 		}
@@ -2244,6 +2244,8 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 		break;
 	case HL_HEAD:
 		dodgeAnim = Q_irand( BOTH_DODGE_FL, BOTH_DODGE_BR );
+		break;
+	default:
 		break;
 	}
 
@@ -6026,7 +6028,7 @@ NPC_Jedi_Pain
 -------------------------
 */
 
-void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	//FIXME: base the actual aggression add/subtract on health?
 	//FIXME: don't do this more than once per frame?

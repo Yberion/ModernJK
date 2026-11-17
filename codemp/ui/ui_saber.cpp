@@ -607,27 +607,29 @@ void UI_GetSaberForMenu( char *saber, int saberNum )
 
 	switch ( uiInfo.movesTitleIndex )
 	{
-	case 0://MD_ACROBATICS:
+	case MD_ACROBATICS:
 		break;
-	case 1://MD_SINGLE_FAST:
-	case 2://MD_SINGLE_MEDIUM:
-	case 3://MD_SINGLE_STRONG:
+	case MD_SINGLE_FAST:
+	case MD_SINGLE_MEDIUM:
+	case MD_SINGLE_STRONG:
 		if ( saberType != SABER_SINGLE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER, MAX_QPATH);
 		}
 		break;
-	case 4://MD_DUAL_SABERS:
+	case MD_DUAL_SABERS:
 		if ( saberType != SABER_SINGLE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER, MAX_QPATH);
 		}
 		break;
-	case 5://MD_SABER_STAFF:
+	case MD_SABER_STAFF:
 		if ( saberType == SABER_SINGLE || saberType == SABER_NONE )
 		{
 			Q_strncpyz(saber, DEFAULT_SABER_STAFF, MAX_QPATH);
 		}
+		break;
+	default:
 		break;
 	}
 }
@@ -641,7 +643,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 	int	numSabers = 1;
 
 	if ( (item->flags&ITF_ISCHARACTER)//hacked sabermoves sabers in character's hand
-		&& uiInfo.movesTitleIndex == 4 /*MD_DUAL_SABERS*/ )
+		&& uiInfo.movesTitleIndex == MD_DUAL_SABERS )
 	{
 		numSabers = 2;
 	}
@@ -713,7 +715,7 @@ void UI_SaberAttachToChar( itemDef_t *item )
 		trap->G2API_RemoveGhoul2Model(&(item->ghoul2), 1);
 	}
 
-	if ( uiInfo.movesTitleIndex == 4 /*MD_DUAL_SABERS*/ )
+	if ( uiInfo.movesTitleIndex == MD_DUAL_SABERS )
 	{
 		numSabers = 2;
 	}

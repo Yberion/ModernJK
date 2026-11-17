@@ -120,7 +120,7 @@ int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHuman
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
 }
 
-int MenuFontToHandle(int iMenuFont)
+int MenuFontToHandle(menuFont_t iMenuFont)
 {
 	switch (iMenuFont)
 	{
@@ -129,20 +129,21 @@ int MenuFontToHandle(int iMenuFont)
 		case FONT_MEDIUM:	return cgDC.Assets.qhMediumFont;
 		case FONT_LARGE:	return cgDC.Assets.qhMediumFont;//cgDC.Assets.qhBigFont;
 			//fixme? Big fonr isn't registered...?
+		default:	break;
 	}
 
 	return cgDC.Assets.qhMediumFont;
 }
 
 
-int CG_Text_Width(const char *text, float scale, int iMenuFont)
+int CG_Text_Width(const char *text, float scale, menuFont_t iMenuFont)
 {
 	int iFontIndex = MenuFontToHandle(iMenuFont);
 
 	return trap->R_Font_StrLenPixels(text, iFontIndex, scale);
 }
 
-int CG_Text_Height(const char *text, float scale, int iMenuFont)
+int CG_Text_Height(const char *text, float scale, menuFont_t iMenuFont)
 {
 	int iFontIndex = MenuFontToHandle(iMenuFont);
 
@@ -150,7 +151,7 @@ int CG_Text_Height(const char *text, float scale, int iMenuFont)
 }
 
 #include "qcommon/qfiles.h"	// for STYLE_BLINK etc
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont)
+void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, menuFont_t iMenuFont)
 {
 	int iStyleOR = 0;
 	int iFontIndex = MenuFontToHandle(iMenuFont);
@@ -2492,13 +2493,14 @@ void CG_DrawVehicleArmor( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 }
 
-enum
+enum class vehDamageSide_t
 {
 	VEH_DAMAGE_FRONT=0,
 	VEH_DAMAGE_BACK,
 	VEH_DAMAGE_LEFT,
 	VEH_DAMAGE_RIGHT,
 };
+using enum vehDamageSide_t;
 
 typedef struct
 {
@@ -2507,16 +2509,16 @@ typedef struct
 	short	lightDamage;
 } veh_damage_t;
 
-veh_damage_t vehDamageData[4] =
-{
+EnumArray<veh_damage_t, vehDamageSide_t, to_underlying( VEH_DAMAGE_RIGHT ) + 1> vehDamageData =
+{{
 	{ "vehicle_front",SHIPSURF_DAMAGE_FRONT_HEAVY,SHIPSURF_DAMAGE_FRONT_LIGHT },
 	{ "vehicle_back",SHIPSURF_DAMAGE_BACK_HEAVY,SHIPSURF_DAMAGE_BACK_LIGHT },
 	{ "vehicle_left",SHIPSURF_DAMAGE_LEFT_HEAVY,SHIPSURF_DAMAGE_LEFT_LIGHT },
 	{ "vehicle_right",SHIPSURF_DAMAGE_RIGHT_HEAVY,SHIPSURF_DAMAGE_RIGHT_LIGHT },
-};
+}};
 
 // Draw health graphic for given part of vehicle
-void CG_DrawVehicleDamage(const centity_t *veh,int brokenLimbs,const menuDef_t	*menuHUD,float alpha,int index)
+void CG_DrawVehicleDamage(const centity_t *veh,int brokenLimbs,const menuDef_t	*menuHUD,float alpha,vehDamageSide_t index)
 {
 	itemDef_t		*item;
 	ct_table_t		colorI;
@@ -6507,7 +6509,7 @@ static void CG_DrawSpectator(void)
 		{
 			Com_sprintf(text, sizeof(text), "%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
 		}
-		CG_Text_Paint ( 320 - CG_Text_Width ( text, 1.0f, 3 ) / 2, 420, 1.0f, colorWhite, text, 0, 0, 0, 3 );
+		CG_Text_Paint ( 320 - CG_Text_Width ( text, 1.0f, FONT_LARGE ) / 2, 420, 1.0f, colorWhite, text, 0, 0, 0, FONT_LARGE );
 
 		trap->R_SetColor( colorTable[CT_WHITE] );
 		if ( cgs.clientinfo[cgs.duelist1].modelIcon )
@@ -6532,10 +6534,10 @@ static void CG_DrawSpectator(void)
 		if (cgs.gametype != GT_POWERDUEL)
 		{
 			Com_sprintf(text, sizeof(text), "%i/%i", cgs.clientinfo[cgs.duelist1].score, cgs.fraglimit );
-			CG_Text_Paint( 42 - CG_Text_Width( text, 1.0f, 2 ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, 1.0f, colorWhite, text, 0, 0, 0, 2 );
+			CG_Text_Paint( 42 - CG_Text_Width( text, 1.0f, FONT_MEDIUM ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, 1.0f, colorWhite, text, 0, 0, 0, FONT_MEDIUM );
 
 			Com_sprintf(text, sizeof(text), "%i/%i", cgs.clientinfo[cgs.duelist2].score, cgs.fraglimit );
-			CG_Text_Paint( SCREEN_WIDTH-size+22 - CG_Text_Width( text, 1.0f, 2 ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, 1.0f, colorWhite, text, 0, 0, 0, 2 );
+			CG_Text_Paint( SCREEN_WIDTH-size+22 - CG_Text_Width( text, 1.0f, FONT_MEDIUM ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, 1.0f, colorWhite, text, 0, 0, 0, FONT_MEDIUM );
 		}
 
 		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
@@ -6548,19 +6550,19 @@ static void CG_DrawSpectator(void)
 	}
 	else
 	{
-		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, 3 ) / 2, 420, 1.0f, colorWhite, s, 0, 0, 0, 3 );
+		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, FONT_LARGE ) / 2, 420, 1.0f, colorWhite, s, 0, 0, 0, FONT_LARGE );
 	}
 
 	if ( cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL )
 	{
 		s = CG_GetStringEdString("MP_INGAME", "WAITING_TO_PLAY");	// "waiting to play";
-		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, 3 ) / 2, 440, 1.0f, colorWhite, s, 0, 0, 0, 3 );
+		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, FONT_LARGE ) / 2, 440, 1.0f, colorWhite, s, 0, 0, 0, FONT_LARGE );
 	}
 	else //if ( cgs.gametype >= GT_TEAM )
 	{
 		//s = "press ESC and use the JOIN menu to play";
 		s = CG_GetStringEdString("MP_INGAME", "SPEC_CHOOSEJOIN");
-		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, 3 ) / 2, 440, 1.0f, colorWhite, s, 0, 0, 0, 3 );
+		CG_Text_Paint ( 320 - CG_Text_Width ( s, 1.0f, FONT_LARGE ) / 2, 440, 1.0f, colorWhite, s, 0, 0, 0, FONT_LARGE );
 	}
 }
 

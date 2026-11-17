@@ -61,7 +61,7 @@ extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void ForceThrow( gentity_t *self, bool pull );
 extern void ForceLightning( gentity_t *self );
 extern saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, hitLocation_t *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
 extern bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
@@ -85,16 +85,9 @@ extern bool PM_InRoll( playerState_t *ps );
 static void Jedi_Aggression( gentity_t *self, int change );
 bool Jedi_WaitingAmbush( gentity_t *self );
 
-extern int parryDebounce[];
+extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> parryDebounce;
 
 static EnumArray<int, team_t, TEAM_NUM_TEAMS>	jediSpeechDebounceTime;//used to stop several jedi from speaking all at once
-//Local state enums
-enum
-{
-	LSTATE_NONE = 0,
-	LSTATE_UNDERFIRE,
-	LSTATE_INVESTIGATE,
-};
 
 void NPC_ShadowTrooper_Precache( void )
 {
@@ -673,7 +666,7 @@ static void Jedi_Advance( void )
 	//TIMER_Set( NPC, "duck", 0 );
 }
 
-static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
+static void Jedi_AdjustSaberAnimLevel( gentity_t *self, forcePowerLevels_t newLevel )
 {
 	if ( !self || !self->client )
 	{
@@ -737,6 +730,8 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 			break;
 		case FORCE_LEVEL_3:
 			gi.Printf( S_COLOR_RED"%s Saber Attack Set: strong\n", self->NPC_type );
+			break;
+		default:
 			break;
 		}
 	}
@@ -850,7 +845,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		{
 			Jedi_Advance();
 		}
-		int	testlevel;
+		forcePowerLevels_t	testlevel;
 		if ( NPC->client->ps.forcePowerLevel[FP_PUSH] < FORCE_LEVEL_1 )
 		{//
 			testlevel = FORCE_LEVEL_1;
@@ -1170,7 +1165,7 @@ static void Jedi_FaceEntity( gentity_t *self, gentity_t *other, bool doPitch )
 */
 
 /*
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 
 Jedi will play a dodge anim, blur, and make the force speed noise.
 
@@ -1179,7 +1174,7 @@ Right now used to dodge instant-hit weapons.
 FIXME: possibly call this for saber melee evasion and/or missile evasion?
 FIXME: possibly let player do this too?
 */
-bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 {
 	std::optional<animNumber_t>	dodgeAnim;
 
@@ -1214,7 +1209,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 			}
 			//FIXME: check my overall skill (rank) to determine if I should be able to dodge it?
 			//check force speed power level to determine if I should be able to dodge it
-			if ( Q_irand( 0, 3 ) > self->client->ps.forcePowerLevel[FP_SPEED] )
+			if ( Q_irand( 0, 3 ) > to_underlying( self->client->ps.forcePowerLevel[FP_SPEED] ) )
 			{//more likely to fail on lower force speed level, but NPCs are generally better at it than the player
 				return false;
 			}
@@ -1228,7 +1223,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 			return false;
 		}
 		//check force speed power level to determine if I should be able to dodge it
-		if ( Q_irand( 1, 10 ) > self->client->ps.forcePowerLevel[FP_SPEED] )
+		if ( Q_irand( 1, 10 ) > to_underlying( self->client->ps.forcePowerLevel[FP_SPEED] ) )
 		{//more likely to fail on lower force speed level
 			return false;
 		}
@@ -1311,6 +1306,8 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 		break;
 	case HL_HEAD:
 		dodgeAnim = Q_irand( BOTH_DODGE_FL, BOTH_DODGE_BR );
+		break;
+	default:
 		break;
 	}
 
@@ -4481,7 +4478,7 @@ NPC_Jedi_Pain
 -------------------------
 */
 
-void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
+void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
 	//FIXME: base the actual aggression add/subtract on health?
 	//FIXME: don't do this more than once per frame?
@@ -5168,7 +5165,7 @@ static void Jedi_Attack( void )
 
 	if ( ucmd.buttons & BUTTON_ATTACK && NPC->client->playerTeam == TEAM_ENEMY )
 	{
-		if ( Q_irand( 0, NPC->client->ps.saberAnimLevel ) > 0
+		if ( Q_irand( FORCE_LEVEL_0, NPC->client->ps.saberAnimLevel ) > FORCE_LEVEL_0
 			&& Q_irand( 0, NPC->max_health+10 ) > NPC->health
 			&& !Q_irand( 0, 3 ))
 		{//the more we're hurt and the stronger the attack we're using, the more likely we are to make a anger noise when we swing
