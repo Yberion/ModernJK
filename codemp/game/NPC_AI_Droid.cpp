@@ -87,7 +87,7 @@ R2D2_TurnAnims
 void R2D2_TurnAnims ( void )
 {
 	float turndelta;
-	int		anim;
+	animNumber_t		anim;
 
 	turndelta = AngleDelta(NPCS.NPC->r.currentAngles[YAW], NPCS.NPCInfo->desiredYaw);
 
@@ -295,7 +295,7 @@ NPC_BSDroid_Pain
 void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	gentity_t *other = attacker;
-	int		anim;
+	animNumber_t		anim;
 	meansOfDeath_t		mod = gPainMOD;
 	float	pain_chance;
 

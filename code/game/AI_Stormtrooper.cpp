@@ -35,7 +35,7 @@ extern void AI_GroupUpdateEnemyLastSeen( AIGroupInfo_t *group, vec3_t spot );
 extern void AI_GroupUpdateClearShotTime( AIGroupInfo_t *group );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
 extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void NPC_CheckGetNewWeapon( void );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern int GetTime ( int lastTime );

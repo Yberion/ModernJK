@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
 extern bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask );
 extern bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 extern void Boba_FlyStart( gentity_t *self );
 extern bool Boba_Flying( gentity_t *self );
 

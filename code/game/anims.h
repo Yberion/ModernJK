@@ -24,8 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __ANIMS_H__
 // playerAnimations
 
+#include <optional>
 
-typedef enum //# animNumber_e
+enum class animNumber_t //# animNumber_e
 {
 	//=================================================
 	//HEAD ANIMS
@@ -1813,9 +1814,28 @@ typedef enum //# animNumber_e
 	//# #eol
 	MAX_ANIMATIONS,
 	MAX_TOTALANIMATIONS,
-} animNumber_t;
+	ANIM_NONE = -1	// no animation (a saber's optional animations)
+};
+using enum animNumber_t;
+template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
+
+extern stringID_table_t animTable [to_underlying( MAX_ANIMATIONS )+1];
+
+// the animation a file or a script names; none for a name that matches none
+[[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName( const char *name ) {
+	const int id = GetIDForString( animTable, name );
+	if ( id == -1 ) {
+		return std::nullopt;
+	}
+	return static_cast<animNumber_t>( id );
+}
+
+// an animation's name, for messages
+[[nodiscard]] inline const char *BG_AnimName( animNumber_t anim ) {
+	return animTable[to_underlying( anim )].name;
+}
 
 
 #endif// #ifndef __ANIMS_H__

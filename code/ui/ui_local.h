@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <string.h>
 #include <limits.h>
+#include <optional>
 
 #include "../qcommon/q_shared.h"
 #include "../rd-common/tr_types.h"
@@ -175,13 +176,13 @@ typedef struct {
 	// Used by Force Power allocation screen
 	short	forcePowerUpdated;					// Enum of which power had the point allocated
 	// Used by Weapon allocation screen
-	short	selectedWeapon1;					// 1st weapon chosen
+	std::optional<weapon_t>	selectedWeapon1;					// 1st weapon chosen
 	char 	selectedWeapon1ItemName[64];		// Item name of weapon chosen
 	ammo_t		selectedWeapon1AmmoIndex;			// Holds index to ammo
-	short	selectedWeapon2;					// 2nd weapon chosen
+	std::optional<weapon_t>	selectedWeapon2;					// 2nd weapon chosen
 	char 	selectedWeapon2ItemName[64];		// Item name of weapon chosen
 	ammo_t		selectedWeapon2AmmoIndex;			// Holds index to ammo
-	short	selectedThrowWeapon;				// throwable weapon chosen
+	std::optional<weapon_t>	selectedThrowWeapon;				// throwable weapon chosen
 	char 	selectedThrowWeaponItemName[64];	// Item name of weapon chosen
 	ammo_t	selectedThrowWeaponAmmoIndex;		// Holds index to ammo
 

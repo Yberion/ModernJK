@@ -224,7 +224,7 @@ centity_t			cg_entities[MAX_GENTITIES];
 centity_t			*cg_permanents[MAX_GENTITIES];
 int					cg_numpermanents = 0;
 
-weaponInfo_t		cg_weapons[MAX_WEAPONS];
+EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>		cg_weapons;
 itemInfo_t			cg_items[MAX_ITEMS];
 
 typedef struct {
@@ -1493,7 +1493,7 @@ static void CG_RegisterGraphics( void ) {
 
 
 	memset( cg_items, 0, sizeof( cg_items ) );
-	memset( cg_weapons, 0, sizeof( cg_weapons ) );
+	memset( &cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
@@ -1840,7 +1840,7 @@ static void CG_GameStateReceived( void ) {
 		cg.forcepowerSelect = 0;
 	}
 
-	memset( cg_weapons, 0, sizeof(cg_weapons) );
+	memset( &cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
 
 	CG_LinkCentsToGents();

@@ -236,7 +236,7 @@ void G_TestLine(vec3_t start, vec3_t end, int color, int time)
 	VectorCopy(start, te->s.origin);
 	VectorCopy(end, te->s.origin2);
 	te->s.time2 = time;
-	te->s.weapon = color;
+	ES_SetWeaponParm( te->s, color );
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
@@ -1805,7 +1805,7 @@ void CalculateSiegeGoals(void)
 	}
 }
 
-float botGlobalNavWeaponWeights[WP_NUM_WEAPONS] =
+EnumArray<float, weapon_t, WP_NUM_WEAPONS> botGlobalNavWeaponWeights =
 {
 	0,//WP_NONE,
 
@@ -1938,7 +1938,7 @@ void CalculateWeightGoals(void)
 			}
 			else if (strstr(ent->classname, "weapon_") && ent->item)
 			{
-				weight = botGlobalNavWeaponWeights[ent->item->giTag];
+				weight = botGlobalNavWeaponWeights[GI_Weapon( *ent->item )];
 			}
 			else if (ent->item && ent->item->giType == IT_AMMO)
 			{

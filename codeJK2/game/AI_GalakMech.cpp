@@ -36,7 +36,7 @@ extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t min
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void G_SoundAtSpot( vec3_t org, int soundIndex );
 extern void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *soundPath);
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 //extern void NPC_Mark1_Part_Explode(gentity_t *self,int bolt);
 
 #define MELEE_DIST_SQUARED 6400//80*80
@@ -696,7 +696,7 @@ void NPC_BSGM_Attack( void )
 				G_Damage( NPC->enemy, NPC, NPC, smackDir, NPC->currentOrigin, (g_spskill->integer+1)*Q_irand( 5, 10), DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
 				if ( NPC->client->ps.torsoAnim == BOTH_ATTACK4 )
 				{//smackdown
-					int knockAnim = BOTH_KNOCKDOWN1;
+					animNumber_t knockAnim = BOTH_KNOCKDOWN1;
 					if ( PM_CrouchAnim( NPC->enemy->client->ps.legsAnim ) )
 					{//knockdown from crouch
 						knockAnim = BOTH_KNOCKDOWN4;
@@ -726,7 +726,7 @@ void NPC_BSGM_Attack( void )
 		{//charging up
 			if ( TIMER_Done( NPC, "beamDelay" ) )
 			{//time to start the beam
-				int laserAnim;
+				animNumber_t laserAnim;
 				if ( Q_irand( 0, 1 ) )
 				{
 					laserAnim = BOTH_ATTACK2;
@@ -826,7 +826,7 @@ void NPC_BSGM_Attack( void )
 			if ( TIMER_Done( NPC, "attackDelay" ) )
 			{
 				//animate me
-				int swingAnim;
+				animNumber_t swingAnim;
 				if ( NPC->locationDamage[HL_GENERIC1] > GENERATOR_HEALTH )
 				{//generator down, use random melee
 					swingAnim = Q_irand( BOTH_ATTACK4, BOTH_ATTACK5 );//smackdown or uppercut

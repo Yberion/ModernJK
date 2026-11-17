@@ -327,7 +327,7 @@ typedef struct cgameImport_s {
 	bool		(*GetUserCmd)							( int cmdNumber, usercmd_t *ucmd );
 	void			(*OpenUIMenu)							( uiMenuCommand_t menu );
 	void			(*SetClientForceAngle)					( int time, vec3_t angle );
-	void			(*SetUserCmdValue)						( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls );
+	void			(*SetUserCmdValue)						( weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls );
 
 	// keys
 	int				(*Key_GetCatcher)						( void );

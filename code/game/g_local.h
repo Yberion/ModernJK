@@ -89,7 +89,7 @@ class animFileSet_t
 {
 public:
 	char			filename[MAX_QPATH];
-	animation_t		animations[MAX_ANIMATIONS];
+	EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS>	animations;
 	animevent_t		torsoAnimEvents[MAX_ANIM_EVENTS];
 	animevent_t		legsAnimEvents[MAX_ANIM_EVENTS];
 	unsigned char	torsoAnimEventCount;
@@ -100,7 +100,7 @@ public:
 		ojk::SavedGameHelper& saved_game) const
 	{
 		saved_game.write<int8_t>(filename);
-		saved_game.write<>(animations);
+		saved_game.write<>(animations.elems);
 		saved_game.write<>(torsoAnimEvents);
 		saved_game.write<>(legsAnimEvents);
 		saved_game.write<uint8_t>(torsoAnimEventCount);
@@ -112,7 +112,7 @@ public:
 		ojk::SavedGameHelper& saved_game)
 	{
 		saved_game.read<int8_t>(filename);
-		saved_game.read<>(animations);
+		saved_game.read<>(animations.elems);
 		saved_game.read<>(torsoAnimEvents);
 		saved_game.read<>(legsAnimEvents);
 		saved_game.read<uint8_t>(torsoAnimEventCount);
@@ -120,8 +120,6 @@ public:
 		saved_game.skip(2);
 	}
 }; // animFileSet_t
-
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 //Interest points
 
@@ -391,7 +389,7 @@ void RespawnItem( gentity_t *ent );
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, bool copytarget );
 void G_SpawnItem (gentity_t *ent, gitem_t *item);
 void FinishSpawningItem( gentity_t *ent );
-void	Add_Ammo (gentity_t *ent, int weapon, int count);
+void	Add_Ammo (gentity_t *ent, weapon_t weapon, int count);
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 
 void ClearRegisteredItems( void );

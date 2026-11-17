@@ -36,7 +36,7 @@ extern bool PM_SaberInReflect( saberMoveName_t move );
 extern bool PM_SaberInIdle( saberMoveName_t move );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInTransitionAny( saberMoveName_t move );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 
 //-------------------------------------------------------------------------
 void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir )
@@ -440,7 +440,7 @@ G_MissileImpact
 
 extern void WP_SaberBlock( gentity_t *saber, vec3_t hitloc, bool missleBlock );
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod );
+extern bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod );
 void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE )
 {
 	// impact damage

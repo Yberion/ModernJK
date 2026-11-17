@@ -46,7 +46,7 @@ extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t push
 extern float NPC_EntRangeFromBolt( gentity_t *targEnt, int boltIndex );
 extern int NPC_GetEntsNearBolt( gentity_t **radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 extern bool PM_InKnockDown( playerState_t *ps );
-extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
 
 static void Howler_Attack( float enemyDist, bool howl = false );
 /*
@@ -356,7 +356,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 
 	if ( !TIMER_Exists( NPC, "attacking" ))
 	{
-		int attackAnim = BOTH_GESTURE1;
+		animNumber_t attackAnim = BOTH_GESTURE1;
 		// Going to do an attack
 		if ( NPC->enemy && NPC->enemy->client && PM_InKnockDown( &NPC->enemy->client->ps )
 			&& enemyDist <= MIN_DISTANCE )
@@ -405,7 +405,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 	case BOTH_ATTACK1:
 	case BOTH_MELEE1:
 		if ( NPC->client->ps.legsAnimTimer > 650//more than 13 frames left
-			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 800 )//at least 16 frames into anim
+			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 800 )//at least 16 frames into anim
 		{
 			Howler_TryDamage( dmg, false, false );
 		}
@@ -413,7 +413,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 	case BOTH_ATTACK2:
 	case BOTH_MELEE2:
 		if ( NPC->client->ps.legsAnimTimer > 350//more than 7 frames left
-			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 550 )//at least 11 frames into anim
+			&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 550 )//at least 11 frames into anim
 		{
 			Howler_TryDamage( dmg, true, false );
 		}
@@ -421,7 +421,7 @@ static void Howler_Attack( float enemyDist, bool howl )
 	case BOTH_GESTURE1:
 		{
 			if ( NPC->client->ps.legsAnimTimer > 1800//more than 36 frames left
-				&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 950 )//at least 19 frames into anim
+				&& PM_AnimLength( NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim ) - NPC->client->ps.legsAnimTimer >= 950 )//at least 19 frames into anim
 			{
 				Howler_Howl();
 				if ( !NPC->count )

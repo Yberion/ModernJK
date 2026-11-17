@@ -37,7 +37,7 @@ extern bool PM_DroidMelee( class_t npc_class );
 extern int delayedShutDown;
 extern bool G_ValidEnemy( gentity_t *self, gentity_t *enemy );
 
-void ChangeWeapon( gentity_t *ent, int newWeapon );
+void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 void G_ClearEnemy (gentity_t *self)
 {
@@ -362,6 +362,8 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		case WP_RAPID_FIRE_CONC:
 			break;
 		*/
+		default:
+			break;
 		}
 
 		if ( self->client->playerTeam == TEAM_PLAYER )
@@ -604,14 +606,14 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 		//FIXME: this is a disgusting hack that is supposed to make the Imperials start with their weapon holstered- need a better way
 		if ( self->client->ps.weapon == WP_NONE && !Q_stricmpn( self->NPC_type, "imp", 3 ) && !(self->NPC->scriptFlags & SCF_FORCED_MARCH)  )
 		{
-			if ( self->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_BLASTER ) )
+			if ( self->client->ps.stats[STAT_WEAPONS] & Bit( WP_BLASTER ) )
 			{
 				ChangeWeapon( self, WP_BLASTER );
 				self->client->ps.weapon = WP_BLASTER;
 				self->client->ps.weaponstate = WEAPON_READY;
 				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER].weaponMdl, self->handRBolt, 0 );
 			}
-			else if ( self->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_BLASTER_PISTOL ) )
+			else if ( self->client->ps.stats[STAT_WEAPONS] & Bit( WP_BLASTER_PISTOL ) )
 			{
 				ChangeWeapon( self, WP_BLASTER_PISTOL );
 				self->client->ps.weapon = WP_BLASTER_PISTOL;
@@ -636,10 +638,10 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 
 /*
-int ChooseBestWeapon( void )
+weapon_t ChooseBestWeapon( void )
 {
 	int		n;
-	int		weapon;
+	weapon_t	weapon;
 
 	// check weapons in the NPC's weapon preference order
 	for ( n = 0; n < MAX_WEAPONS; n++ )
@@ -663,7 +665,7 @@ int ChooseBestWeapon( void )
 	}
 
 	// check weapons serially (mainly in case a weapon is not on the NPC's list)
-	for ( weapon = 1; weapon < WP_NUM_WEAPONS; weapon++ )
+	for ( weapon = WP_SABER; weapon < WP_NUM_WEAPONS; weapon++ )
 	{
 		if ( !HaveWeapon( weapon ) )
 		{
@@ -680,7 +682,7 @@ int ChooseBestWeapon( void )
 }
 */
 
-void ChangeWeapon( gentity_t *ent, int newWeapon )
+void ChangeWeapon( gentity_t *ent, weapon_t newWeapon )
 {
 	if ( !ent || !ent->client || !ent->NPC )
 	{
@@ -1022,7 +1024,7 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 	}
 }
 
-void NPC_ChangeWeapon( int newWeapon )
+void NPC_ChangeWeapon( weapon_t newWeapon )
 {
 	bool	changing = false;
 	if ( newWeapon != NPC->client->ps.weapon )
@@ -1190,7 +1192,7 @@ void WeaponThink( bool inCombat )
 	ucmd.buttons &= ~BUTTON_ATTACK;
 	if ( client->ps.weaponstate == WEAPON_RAISING || client->ps.weaponstate == WEAPON_DROPPING )
 	{
-		ucmd.weapon = client->ps.weapon;
+		UC_SetWeapon( ucmd, client->ps.weapon );
 		return;
 	}
 
@@ -1234,7 +1236,7 @@ void WeaponThink( bool inCombat )
 		Add_Ammo( NPC, client->ps.weapon, weaponData[client->ps.weapon].altEnergyPerShot*5 );
 	}
 
-	ucmd.weapon = client->ps.weapon;
+	UC_SetWeapon( ucmd, client->ps.weapon );
 	ShootThink();
 }
 
@@ -1242,9 +1244,9 @@ void WeaponThink( bool inCombat )
 HaveWeapon
 */
 
-bool HaveWeapon( int weapon )
+bool HaveWeapon( weapon_t weapon )
 {
-	return ( client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) );
+	return ( client->ps.stats[STAT_WEAPONS] & Bit( weapon ) );
 }
 
 bool EntIsGlass (gentity_t *check)

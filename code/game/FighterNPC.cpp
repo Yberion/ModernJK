@@ -93,8 +93,8 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
+extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 #endif
@@ -1564,12 +1564,12 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 #ifdef QAGAME //ONLY in SP or on server, not cgame
 
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
 
 // This function makes sure that the vehicle is properly animated.
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
-	int Anim = -1;
+	std::optional<animNumber_t> Anim;
 	int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
 	bool isLanding = false, isLanded = false;
 #ifdef _JK2MP
@@ -1659,13 +1659,13 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		}
 	}
 
-	if ( Anim != -1 )
+	if ( Anim )
 	{
 		#ifdef _JK2MP
 			BG_SetAnim(pVeh->m_pParentEntity->playerState, bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
 				SETANIM_BOTH, Anim, iFlags, iBlend);
 		#else
-			NPC_SetAnim( pVeh->m_pParentEntity, SETANIM_BOTH, Anim, iFlags, iBlend );
+			NPC_SetAnim( pVeh->m_pParentEntity, SETANIM_BOTH, *Anim, iFlags, iBlend );
 		#endif
 	}
 }

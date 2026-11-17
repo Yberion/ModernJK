@@ -226,7 +226,7 @@ typedef struct modelDef_s {
 	vec3_t g2maxs; //required
 	vec3_t g2scale; //optional
 	int g2skin; //optional
-	int g2anim; //optional
+	animNumber_t g2anim; //optional: FACE_TALK0, the cleared item's 0, for none
 	//JLF
 //Transition extras
 	vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;

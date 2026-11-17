@@ -1762,7 +1762,7 @@ public:
 		ProfilePrint("               Graph Profile Results                    ");
 		ProfilePrint("--------------------------------------------------------");
 		ProfilePrint("");
-		ProfilePrint("GRAPH SIZE (Bytes): (%d)  (KiloBytes): (%5.3f)  MeggaBytes(%3.3f)",
+		ProfilePrint("GRAPH SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)  MeggaBytes(%3.3f)",
 			(sizeof(*this)),
 			((float)(sizeof(*this))/1024.0f),
 			((float)(sizeof(*this))/1048576.0f)

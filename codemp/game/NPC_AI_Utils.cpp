@@ -928,6 +928,8 @@ bool AI_RefreshGroup( AIGroupInfo_t *group )
 //		case WP_ATST_SIDE:
 //			group->morale -= 20;
 //			break;
+		default:
+			break;
 		}
 	}
 	if ( group->moraleDebounce < level.time )

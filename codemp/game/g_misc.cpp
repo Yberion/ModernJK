@@ -847,7 +847,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	float time_lowest = 0;
 	forcePowers_t index_lowest = FP_UNKNOWN;
 	int hasall = 1;
-	int forceReselect = WP_NONE;
+	weapon_t forceReselect = WP_NONE;
 
 	if (trace)
 	{
@@ -918,8 +918,8 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		/*
 		if (index_lowest == FP_SABER_OFFENSE && !HasSetSaberOnly())
 		{ //you lost your saberattack holocron, so no more saber for you
-			other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
-			other->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
+			other->client->ps.stats[STAT_WEAPONS] |= Bit( WP_STUN_BATON );
+			other->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_SABER );
 
 			if (other->client->ps.weapon == WP_SABER)
 			{
@@ -943,8 +943,8 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	/*
 	if (HolocronPower( self ) == FP_SABER_OFFENSE && !HasSetSaberOnly())
 	{ //player gets a saber
-		other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_SABER);
-		other->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_STUN_BATON);
+		other->client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );
+		other->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_STUN_BATON );
 
 		if (other->client->ps.weapon == WP_STUN_BATON)
 		{
@@ -955,7 +955,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 	if (forceReselect != WP_NONE)
 	{
-		G_AddEvent(other, EV_NOAMMO, forceReselect);
+		G_AddEvent(other, EV_NOAMMO, to_underlying( forceReselect ));
 	}
 
 	//trap->Print("DON'T TOUCH ME\n");
@@ -1190,6 +1190,8 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	case WP_BLASTER:
 		WP_FireBlasterMissile( ent, ent->s.origin, dir, false );
 		break;
+	default:
+		break;
 	}
 
 	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
@@ -1202,11 +1204,11 @@ static void InitShooter_Finish( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
-void InitShooter( gentity_t *ent, int weapon ) {
+void InitShooter( gentity_t *ent, weapon_t weapon ) {
 	ent->use = Use_Shooter;
 	ent->s.weapon = weapon;
 
-	RegisterItem( BG_FindItemForWeapon( (weapon_t)weapon ) );
+	RegisterItem( BG_FindItemForWeapon( weapon ) );
 
 	G_SetMovedir( ent->s.angles, ent->movedir );
 
@@ -3594,7 +3596,6 @@ void misc_weapon_shooter_aim( gentity_t *self )
 	}
 }
 
-extern stringID_table_t WPTable[];
 
 void SP_misc_weapon_shooter( gentity_t *self )
 {
@@ -3608,11 +3609,15 @@ void SP_misc_weapon_shooter( gentity_t *self )
 	//set weapon
 	self->s.weapon = self->client->ps.weapon = WP_BLASTER;
 	if ( s && s[0] )
-	{//use a different weapon
-		self->s.weapon = self->client->ps.weapon = GetIDForString( WPTable, s );
+	{//use a different weapon, if WPTable has its name
+		const std::optional<weapon_t> named = G_WeaponFromName( s );
+		if ( named )
+		{
+			self->s.weapon = self->client->ps.weapon = *named;
+		}
 	}
 
-	RegisterItem(BG_FindItemForWeapon((weapon_t)self->s.weapon));
+	RegisterItem(BG_FindItemForWeapon(self->s.weapon));
 
 	//set where our muzzle is
 	VectorCopy( self->s.origin, self->client->renderInfo.muzzlePoint );

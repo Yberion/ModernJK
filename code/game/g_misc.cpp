@@ -942,11 +942,11 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	G_ActivateBehavior(ent,BSET_USE);
 }
 
-void InitShooter( gentity_t *ent, int weapon ) {
+void InitShooter( gentity_t *ent, weapon_t weapon ) {
 	ent->e_UseFunc = useF_Use_Shooter;
 	ent->s.weapon = weapon;
 
-	RegisterItem( FindItemForWeapon( (weapon_t) weapon ) );
+	RegisterItem( FindItemForWeapon( weapon ) );
 
 	G_SetMovedir( ent->s.angles, ent->movedir );
 
@@ -2914,9 +2914,9 @@ Drivable ATST, when used by player, they become the ATST.  When the player hits 
 
 "target" - what to use when it dies
 */
-void misc_atst_setanim( gentity_t *self, int bone, int anim )
+void misc_atst_setanim( gentity_t *self, int bone, animNumber_t anim )
 {
-	if ( bone < 0 || anim < 0 )
+	if ( bone < 0 || anim < FACE_TALK0 )
 	{
 		return;
 	}
@@ -2968,7 +2968,7 @@ void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 extern void G_DriveATST( gentity_t *ent, gentity_t *atst );
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-extern bool PM_InSlopeAnim( int anim );
+extern bool PM_InSlopeAnim( animNumber_t anim );
 void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if ( !activator || activator->s.number )
@@ -3020,7 +3020,7 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 	else
 	{//get out of ATST
-		int legsAnim = activator->client->ps.legsAnim;
+		animNumber_t legsAnim = activator->client->ps.legsAnim;
 		if ( legsAnim != BOTH_STAND1
 			&& !PM_InSlopeAnim( legsAnim )
 			&& legsAnim != BOTH_TURN_RIGHT1 && legsAnim != BOTH_TURN_LEFT1 )

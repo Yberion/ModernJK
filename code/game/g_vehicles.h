@@ -212,7 +212,7 @@ typedef struct
 	char		*model;			//what model to use - if make it an NPC's primary model, don't need this?
 	char		*skin;			//what skin to use - if make it an NPC's primary model, don't need this?
 	int			g2radius;		//render radius for the ghoul2 model
-	int			riderAnim;		//what animation the rider uses
+	animNumber_t	riderAnim;		//what animation the rider uses
 	int			radarIconHandle;//what icon to show on radar in MP
 	char		*droidNPC;		//NPC to attach to *droidunit tag (if it exists in the model)
 

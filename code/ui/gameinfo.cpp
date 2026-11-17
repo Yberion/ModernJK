@@ -29,7 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "gameinfo.h"
 #include "../game/weapons.h"
 
-weaponData_t weaponData[WP_NUM_WEAPONS];
+#if !defined( JK2_MODE ) || !defined( SP_GAME )	// Jedi Outcast's game defines its own (codeJK2/game/g_weaponLoad.cpp)
+EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
+#endif
 EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 extern void WP_LoadWeaponParms (void);

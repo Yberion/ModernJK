@@ -33,7 +33,7 @@ extern bool	missionInfo_Updated;
 
 extern void CrystalAmmoSettings(gentity_t *ent);
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InGetUp( playerState_t *ps );
@@ -140,13 +140,13 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 		switch( ammoType )
 		{
 		case AMMO_THERMAL:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_THERMAL );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_THERMAL );
 			break;
 		case AMMO_DETPACK:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_DET_PACK );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_DET_PACK );
 			break;
 		case AMMO_TRIPMINE:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_TRIP_MINE );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_TRIP_MINE );
 			break;
 
 		default:
@@ -184,7 +184,7 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 }
 
 //-------------------------------------------------------
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo (gentity_t *ent, weapon_t weapon, int count)
 {
 	Add_Ammo2(ent,weaponData[weapon].ammoIndex,count);
 }
@@ -251,7 +251,7 @@ int Pickup_Battery( gentity_t *ent, gentity_t *other )
 
 
 extern void WP_SaberInitBladeData( gentity_t *ent );
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
@@ -279,13 +279,13 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	}
 
 	// add the weapon
-	if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+	if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 	{
 		hadWeapon = true;
 	}
-	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	other->client->ps.stats[STAT_WEAPONS] |= Bit( GI_Weapon( *ent->item ) );
 
-	if ( ent->item->giTag == WP_SABER && !hadWeapon )
+	if ( GI_Weapon( *ent->item ) == WP_SABER && !hadWeapon )
 	{
 		WP_SaberInitBladeData( other );
 	}
@@ -295,17 +295,17 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 		if ( other->s.weapon == WP_NONE )
 		{//NPC with no weapon picked up a weapon, change to this weapon
 			//FIXME: clear/set the alt-fire flag based on the picked up weapon and my class?
-			other->client->ps.weapon = ent->item->giTag;
+			other->client->ps.weapon = GI_Weapon( *ent->item );
 			other->client->ps.weaponstate = WEAPON_RAISING;
-			ChangeWeapon( other, ent->item->giTag );
-			if ( ent->item->giTag == WP_SABER )
+			ChangeWeapon( other, GI_Weapon( *ent->item ) );
+			if ( GI_Weapon( *ent->item ) == WP_SABER )
 			{
 				other->client->ps.saberActive = true;
 				G_CreateG2AttachedWeaponModel( other, other->client->ps.saberModel );
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].weaponMdl );
+				G_CreateG2AttachedWeaponModel( other, weaponData[GI_Weapon( *ent->item )].weaponMdl );
 			}
 		}
 	}
@@ -313,7 +313,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	if ( quantity )
 	{
 		// Give ammo
-		Add_Ammo( other, ent->item->giTag, quantity );
+		Add_Ammo( other, GI_Weapon( *ent->item ), quantity );
 	}
 	return 5;
 }
@@ -571,7 +571,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			TIMER_Set( other, "attackDelay", 600 );
 			respawn = 0;
 		}
-		if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+		if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 		{
 			bHadWeapon = true;
 		}
@@ -705,10 +705,10 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, char *targ
 	if ( item->giType == IT_WEAPON )
 	{
 		// give weapon items zero pitch, a random yaw, and rolled onto their sides...but would be bad to do this for a bowcaster
-		if ( item->giTag != WP_BOWCASTER
-			&& item->giTag != WP_THERMAL
-			&& item->giTag != WP_TRIP_MINE
-			&& item->giTag != WP_DET_PACK )
+		if ( GI_Weapon( *item ) != WP_BOWCASTER
+			&& GI_Weapon( *item ) != WP_THERMAL
+			&& GI_Weapon( *item ) != WP_TRIP_MINE
+			&& GI_Weapon( *item ) != WP_DET_PACK )
 		{
 			VectorSet( dropped->s.angles, 0, Q_flrand(-1.0f, 1.0f) * 180, 90.0f );
 			G_SetAngles( dropped, dropped->s.angles );

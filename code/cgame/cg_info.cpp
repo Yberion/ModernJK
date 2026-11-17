@@ -432,17 +432,18 @@ static void CG_LoadBar(void)
 	CG_DrawPic(tickleft+tickwidth*cg.loadLCARSStage, ticktop, capwidth, tickheight, cgs.media.loadTickCap);
 }
 
-int CG_WeaponCheck( int weaponIndex );
+int CG_WeaponCheck( weapon_t weaponIndex );
 
 // For printing load screen icons
 const int	MAXLOADICONSPERROW = 8;		// Max icons displayed per row
-const int	MAXLOADWEAPONS = 16;
+const weapon_t	MAXLOADWEAPONS = WP_ATST_SIDE;
 const int	MAXLOAD_FORCEICONSIZE = 40;	// Size of force power icons
 const int	MAXLOAD_FORCEICONPAD = 12;	// Padding space between icons
 
-static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int rowIconCnt, int startIndex)
+static weapon_t CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int rowIconCnt, weapon_t startIndex)
 {
-	int		i,endIndex=0, printedIconCnt=0;
+	weapon_t	i,endIndex=WP_NONE;
+	int		printedIconCnt=0;
 	int		iconSize;
 	int		holdX,x,y,pad;
 	int		yOffset = 0;
@@ -460,7 +461,7 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 		color,
 		&background))
 	{
-		return(0);
+		return(WP_NONE);
 	}
 
 	cgi_R_SetColor( color );
@@ -473,7 +474,7 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 
 	for (i=startIndex;i<MAXLOADWEAPONS;i++)
 	{
-		if ( !(weaponsBits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(weaponsBits & Bit( i )))	// Does he have this weapon?
 		{
 			continue;
 		}
@@ -512,14 +513,14 @@ static int CG_DrawLoadWeaponsPrintRow( const char *itemName, int weaponsBits,int
 // Two rows print if there are too many
 static void CG_DrawLoadWeapons( int weaponBits )
 {
-	int		i,endIndex=0;
+	weapon_t	i,endIndex=WP_NONE;
 	int		iconCnt,rowIconCnt;
 
 	// count the number of weapons owned
 	iconCnt = 0;
-	for ( i = 1 ; i < MAXLOADWEAPONS ; i++ )
+	for ( i = WP_SABER ; i < MAXLOADWEAPONS ; i++ )
 	{
-		if ( weaponBits & ( 1 << i ) )
+		if ( weaponBits & Bit( i ) )
 		{
 			iconCnt++;
 		}
@@ -533,13 +534,13 @@ static void CG_DrawLoadWeapons( int weaponBits )
 	// Single line of icons
 	if (iconCnt<=MAXLOADICONSPERROW)
 	{
-		CG_DrawLoadWeaponsPrintRow("weaponicons_singlerow", weaponBits, iconCnt,0);
+		CG_DrawLoadWeaponsPrintRow("weaponicons_singlerow", weaponBits, iconCnt,WP_NONE);
 	}
 	// Two lines of icons
 	else
 	{
 		// Print top row
-		endIndex = CG_DrawLoadWeaponsPrintRow("weaponicons_row1", weaponBits, MAXLOADICONSPERROW,0);
+		endIndex = CG_DrawLoadWeaponsPrintRow("weaponicons_row1", weaponBits, MAXLOADICONSPERROW,WP_NONE);
 
 		// Print second row
 		rowIconCnt = iconCnt - MAXLOADICONSPERROW;

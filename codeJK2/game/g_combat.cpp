@@ -51,39 +51,39 @@ extern int killPlayerTimer;
 
 extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
-extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
 extern bool G_TeamEnemy( gentity_t *self );
-extern void CG_ChangeWeapon( int num );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void CG_ChangeWeapon( weapon_t num );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
-extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
+extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
 extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc );
 extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern bool G_ClearViewEntity( gentity_t *ent );
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
-extern bool PM_SpinningAnim( int anim );
-extern bool PM_RunningAnim( int anim );
+extern bool PM_SpinningAnim( animNumber_t anim );
+extern bool PM_RunningAnim( animNumber_t anim );
 extern int PM_PowerLevelForSaberAnim( playerState_t *ps );
-extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_InSpecialJump( int anim );
-extern bool PM_RollingAnim( int anim );
-extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_InSpecialJump( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
+extern bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove );
 extern bool PM_SaberInStart( saberMoveName_t move );
 extern bool PM_SaberInReturn( saberMoveName_t move );
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist );
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
-static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
+static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
+static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
 static void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOfDeath_t mod );
 static bool G_Dismemberable( gentity_t *self, int hitLoc );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
@@ -115,7 +115,7 @@ gentity_t *TossClientItems( gentity_t *self )
 {
 	gentity_t	*dropped = nullptr;
 	gitem_t		*item = nullptr;
-	int			weapon;
+	weapon_t			weapon;
 
 	if ( self->client->NPC_class == CLASS_SEEKER || self->client->NPC_class == CLASS_REMOTE )
 	{
@@ -146,7 +146,7 @@ gentity_t *TossClientItems( gentity_t *self )
 		}
 		else
 		{// find the item type for this weapon
-			item = FindItemForWeapon( (weapon_t) weapon );
+			item = FindItemForWeapon( weapon );
 		}
 		if ( item && !dropped )
 		{
@@ -759,7 +759,7 @@ void G_StartMatrixEffect( gentity_t *ent, bool falling = false, int length = 100
 		matrix->nextthink = level.time + length + 500;
 		if ( falling )
 		{//no timescale or vert bob
-			matrix->s.weapon = 1;
+			ES_SetWeaponParm( matrix->s, 1 );
 		}
 	}
 }
@@ -1413,7 +1413,7 @@ int G_GetHitLocation ( gentity_t *target, vec3_t ppoint )
 	//return HL_NONE;
 }
 
-int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc = HL_NONE )
+std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc = HL_NONE )
 {
 	if ( hitLoc == HL_NONE )
 	{
@@ -1426,7 +1426,7 @@ int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc = HL_N
 		//PAIN12 = right foot
 		break;
 	case HL_FOOT_LT:
-		return -1;
+		return std::nullopt;
 		break;
 	case HL_LEG_RT:
 		if ( !Q_irand( 0, 1 ) )
@@ -1511,7 +1511,7 @@ int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc = HL_N
 		//PAIN4 = head
 		break;
 	default:
-		return -1;
+		return std::nullopt;
 		break;
 	}
 }
@@ -1581,7 +1581,7 @@ void LimbThink( gentity_t *ent )
 				if ( ent->owner
 					&& ent->owner->client
 					&& ent->owner->client->NPC_class == CLASS_PROTOCOL
-					&& ent->count == BOTH_DISMEMBER_TORSO1 )
+					&& G_LimbAnim( *ent ) == BOTH_DISMEMBER_TORSO1 )
 				{
 					if ( ent->currentAngles[0] > 0 || ent->currentAngles[0] < -180 )
 					{
@@ -1780,7 +1780,7 @@ bool G_LimbLost( gentity_t *ent, int hitLoc )
 static bool G_Dismember( gentity_t *ent, vec3_t point,
 				 const char *limbBone, const char *rotateBone, const char *limbName,
 				 const char *limbCapName, const char *stubCapName, const char *limbTagName, const char *stubTagName,
-				 int limbAnim, float limbRollBase, float limbPitchBase,
+				 animNumber_t limbAnim, float limbRollBase, float limbPitchBase,
 				 int damage, int hitLoc )
 {
 	int newBolt;
@@ -1843,7 +1843,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	if ( limbBone && hitLoc != HL_WAIST )
 	{//play the dismember anim on the limb?
 		//FIXME: screws up origin
-		animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
+		auto &animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 		//play the proper dismember anim on the limb
 		gi.G2API_SetBoneAnim(&limb->ghoul2[limb->playerModel], 0, animations[limbAnim].firstFrame - 1,
 							animations[limbAnim].numFrames + animations[limbAnim].firstFrame - 1,
@@ -1857,7 +1857,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 		gi.G2API_StopBoneAnim( &limb->ghoul2[limb->playerModel], "pelvis" );
 		gi.G2API_StopBoneAnim( &limb->ghoul2[limb->playerModel], "upper_lumbar" );
 		//FIXME: screws up origin
-		animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
+		auto &animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 		//play the proper dismember anim on the limb
 		gi.G2API_SetBoneAnim(&limb->ghoul2[limb->playerModel], nullptr, animations[limbAnim].firstFrame,
 							animations[limbAnim].numFrames + animations[limbAnim].firstFrame,
@@ -1929,7 +1929,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 		limb->target3 = G_NewString( stubCapName );
 		//gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], stubCapName, 0 );
 	}
-	limb->count = limbAnim;
+	G_SetLimbAnim( *limb, limbAnim );
 //
 	limb->s.radius = 60;
 //4) toss the limb away
@@ -2166,7 +2166,7 @@ extern cvar_t	*g_iscensored;
 			//the direction of the cap, then the split is allowed, otherwise we
 			//hit it at the wrong angle and should not dismember...
 			const char	*limbBone = nullptr, *rotateBone = nullptr, *limbName = nullptr, *limbCapName = nullptr, *stubCapName = nullptr, *limbTagName = nullptr, *stubTagName = nullptr;
-			int		anim = -1;
+			std::optional<animNumber_t>	anim;
 			float	limbRollBase = 0, limbPitchBase = 0;
 			bool doDismemberment = false;
 
@@ -2317,16 +2317,16 @@ extern cvar_t	*g_iscensored;
 			{
 				return G_Dismember( self, point, limbBone, rotateBone, limbName,
 					limbCapName, stubCapName, limbTagName, stubTagName,
-					anim, limbRollBase, limbPitchBase, damage, hitLoc );
+					*anim, limbRollBase, limbPitchBase, damage, hitLoc );
 			}
 		}
 	}
 	return false;
 }
 
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
-	int deathAnim = -1;
+	std::optional<animNumber_t> deathAnim;
 
 	if ( PM_InRoll( &self->client->ps ) )
 	{
@@ -2354,7 +2354,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, m
 	}
 	else if ( PM_InKnockDown( &self->client->ps ) )
 	{//since these happen a lot, let's handle them case by case
-		int animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim );
+		int animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim );
 		switch ( self->client->ps.legsAnim )
 		{
 		case BOTH_KNOCKDOWN1:
@@ -2798,6 +2798,8 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, m
 				}
 			}
 			break;
+		default:
+			break;
 		}
 	}
 	else if ( PM_InOnGroundAnim( &self->client->ps ) )
@@ -2833,9 +2835,9 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, m
 	return deathAnim;
 }
 extern bool PM_FinishedCurrentLegsAnim( gentity_t *self );
-static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
+static std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
-	int deathAnim = -1;
+	std::optional<animNumber_t> deathAnim;
 	if ( hitLoc == HL_NONE )
 	{
 		hitLoc = G_GetHitLocation( self, point );//self->hitLoc
@@ -2857,7 +2859,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 	case BOTH_DEAD16:
 	case BOTH_DEADBACKWARD1:		//# First thrown backward death finished pose
 	case BOTH_DEADBACKWARD2:		//# Second thrown backward death finished pose
-		return -2;
+		return std::nullopt;
 		break;
 		/*
 		if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -2866,7 +2868,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 		}
 		else
 		{
-			deathAnim = -2;
+			deathAnim = std::nullopt;
 		}
 		break;
 	case BOTH_DEADFLOP2:
@@ -2879,7 +2881,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 	case BOTH_DEAD15:
 	case BOTH_DEADFORWARD1:		//# First thrown forward death finished pose
 	case BOTH_DEADFORWARD2:		//# Second thrown forward death finished pose
-		return -2;
+		return std::nullopt;
 		break;
 		/*
 		if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -2888,13 +2890,13 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 		}
 		else
 		{
-			deathAnim = -2;
+			deathAnim = std::nullopt;
 		}
 		break;
 		*/
 	case BOTH_DEADFLOP1:
 		//deathAnim = BOTH_DEADFLOP1;
-		return -2;
+		return std::nullopt;
 		break;
 	case BOTH_DEAD3:				//# Third Death finished pose
 	case BOTH_DEAD4:				//# Fourth Death finished pose
@@ -2944,7 +2946,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 	case BOTH_FALLDEATH1:		//# Fall forward off a high cliff and splat death - start
 	case BOTH_FALLDEATH1INAIR:	//# Fall forward off a high cliff and splat death - loop
 	case BOTH_FALLDEATH1LAND:	//# Fall forward off a high cliff and splat death - hit bottom
-		return -2;
+		return std::nullopt;
 		break;
 	case BOTH_DEATH_ROLL:		//# Death anim from a roll
 	case BOTH_DEATH_FLIP:		//# Death anim from a flip
@@ -2957,15 +2959,17 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 	case BOTH_DEATH_FALLING_UP:	//# Death anim when falling on back
 	case BOTH_DEATH_CROUCHED:	//# Death anim when crouched
 	case BOTH_RIGHTHANDCHOPPEDOFF:
-		return -2;
+		return std::nullopt;
+		break;
+	default:
 		break;
 	}
 	// Not currently playing a death animation, so try and get an appropriate one now.
-	if ( deathAnim == -1 )
+	if ( !deathAnim )
 	{
 		deathAnim = G_CheckSpecialDeathAnim( self, point, damage, mod, hitLoc );
 
-		if ( deathAnim == -1 )
+		if ( !deathAnim )
 		{//base on hitLoc
 			vec3_t fwd;
 			AngleVectors( self->currentAngles, fwd, nullptr, nullptr );
@@ -3234,7 +3238,7 @@ static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDe
 	}
 
 	// Validate.....
-	if ( deathAnim == -1 || !PM_HasAnimation( self, deathAnim ))
+	if ( !deathAnim || !PM_HasAnimation( self, *deathAnim ))
 	{
 		// I guess we'll take what we can get.....
 		deathAnim = PM_PickAnim( self, BOTH_DEATH1, BOTH_DEATH25 );
@@ -3327,14 +3331,14 @@ int G_CheckLedgeDive( gentity_t *self, float checkDist, vec3_t checkVel, bool tr
 player_die
 ==================
 */
-void NPC_SetAnim(gentity_t	*ent,int type,int anim,int priority);
+void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern bool FlyingCreature( gentity_t *ent );
 extern void G_DrivableATSTDie( gentity_t *self );
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, int dflags, int hitLoc )
 {
-	int			anim;
+	std::optional<animNumber_t>	anim;
 	int			contents;
 	bool	deathScript = false;
 	bool	lastInGroup = false;
@@ -3362,9 +3366,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			{
 				G_DoDismemberment( self, self->pos1, meansOfDeath, damage, hitLoc );
 			}
-			if ( anim >= 0 )
+			if ( anim )
 			{
-				NPC_SetAnim(self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD);
+				NPC_SetAnim(self, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD);
 			}
 		}
 		return;
@@ -3373,7 +3377,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 #ifndef FINAL_BUILD
 	if ( d_saberCombat->integer && attacker && attacker->client )
 	{
-		gi.Printf( S_COLOR_YELLOW"combatant %s died, killer anim = %s\n", self->targetname, animTable[attacker->client->ps.torsoAnim].name );
+		gi.Printf( S_COLOR_YELLOW"combatant %s died, killer anim = %s\n", self->targetname, BG_AnimName( attacker->client->ps.torsoAnim ) );
 	}
 #endif//FINAL_BUILD
 
@@ -3719,9 +3723,9 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			G_DrivableATSTDie( self );
 		}
 		anim = PM_PickAnim( self, BOTH_DEATH1, BOTH_DEATH25 );	//initialize to good data
-		if ( anim != -1 )
+		if ( anim )
 		{
-			NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		}
 	}
 	else if ( self->s.number && self->message && meansOfDeath != MOD_SNIPER )
@@ -3744,7 +3748,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			break;
 		}
 		//FIXME: verify we have this anim?
-		NPC_SetAnim( self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		if ( meansOfDeath == MOD_KNOCKOUT || meansOfDeath == MOD_MELEE )
 		{
 			G_AddEvent( self, EV_JUMP, 0 );
@@ -3778,7 +3782,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		}
 		else
 		{
-			int	deathAnim = BOTH_FALLDEATH1LAND;
+			animNumber_t	deathAnim = BOTH_FALLDEATH1LAND;
 			if ( PM_InOnGroundAnim( &self->client->ps ) )
 			{
 				if ( AngleNormalize180(self->client->renderInfo.torsoAngles[PITCH]) < 0 )
@@ -3814,7 +3818,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	else
 	{// normal death
 		anim = G_CheckSpecialDeathAnim( self, self->pos1, damage, meansOfDeath, hitLoc );
-		if ( anim == -1 )
+		if ( !anim )
 		{
 			if ( self->s.legsAnim == BOTH_RESTRAINED1 || self->s.legsAnim == BOTH_RESTRAINED1POINT )
 			{//super special case, floating in air lying down
@@ -3888,7 +3892,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 									anim = BOTH_DEATH14;
 									break;
 								}
-								if ( PM_HasAnimation( self, anim ))
+								if ( PM_HasAnimation( self, *anim ))
 								{
 									self->client->ps.gravity *= 0.8;
 									self->client->ps.friction = 0;
@@ -3899,7 +3903,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 								}
 								else
 								{
-									anim = -1;
+									anim = std::nullopt;
 								}
 							}
 						}
@@ -3938,7 +3942,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 									break;
 								}
 							}
-							if ( PM_HasAnimation( self, anim ) )
+							if ( PM_HasAnimation( self, *anim ) )
 							{
 								self->client->ps.gravity *= 0.8;
 								self->client->ps.friction = 0;
@@ -3949,7 +3953,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 							}
 							else
 							{
-								anim = -1;
+								anim = std::nullopt;
 							}
 						}
 						else
@@ -3972,7 +3976,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			specialAnim = true;
 		}
 
-		if ( anim == -1 )
+		bool keepDeathAnim = false;
+		if ( !anim )
 		{
 			if ( meansOfDeath == MOD_ELECTROCUTE
 				|| (meansOfDeath == MOD_CRUSH && self->s.eFlags&EF_FORCE_GRIPPED) )
@@ -3982,9 +3987,10 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			else
 			{
 				anim = G_PickDeathAnim( self, self->pos1, damage, meansOfDeath, hitLoc );
+				keepDeathAnim = !anim;	// already in a death anim
 			}
 		}
-		if ( anim == -1 )
+		if ( !anim && !keepDeathAnim )
 		{
 			anim = PM_PickAnim( self, BOTH_DEATH1, BOTH_DEATH25 );	//initialize to good data
 			//TEMP HACK: these spinny deaths should happen less often
@@ -4029,7 +4035,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				gi.G2API_PauseBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, cg.time );
 				gi.G2API_PauseBoneAnimIndex( &self->ghoul2[self->playerModel], self->motionBone, cg.time );
 				gi.G2API_PauseBoneAnimIndex( &self->ghoul2[self->playerModel], self->lowerLumbarBone, cg.time );
-				anim = -1;
+				anim = std::nullopt;
 			}
 
 			//not solid anymore
@@ -4096,9 +4102,9 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//FIXME: danger event so that others will run away from this area since it's obviously dangerous
 		}
 
-		if ( anim >= 0 )//can be -1 if it fails, -2 if it's already in a death anim
+		if ( anim )//empty if it fails or if it's already in a death anim
 		{
-			NPC_SetAnim(self, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+			NPC_SetAnim(self, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
 		}
 	}
 
@@ -4183,7 +4189,7 @@ bool G_CheckForStrongAttackMomentum( gentity_t *self )
 		{//our saberMove was not already interupted by some other anim (like pain)
 			if ( PM_SaberInStart( self->client->ps.saberMove ) )
 			{
-				float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.torsoAnim );
+				float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.torsoAnim );
 				if ( animLength - self->client->ps.torsoAnimTimer > 750 )
 				{//start anim is already 3/4 of a second into it, can't interrupt it now
 					return true;
@@ -4215,7 +4221,7 @@ void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t
 		if ( blasterTest && chargerTest )
 		{//lost both side guns
 			//take away that weapon
-			self->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_ATST_SIDE );
+			self->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_ATST_SIDE );
 			//switch to primary guns
 			if ( self->client->ps.weapon == WP_ATST_SIDE )
 			{
@@ -4405,7 +4411,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, vec3_t pushDir, float st
 			&& !PM_RollingAnim( self->client->ps.legsAnim )
 			&& !PM_InKnockDown( &self->client->ps ) )
 		{
-			int knockAnim = BOTH_KNOCKDOWN1;//default knockdown
+			animNumber_t knockAnim = BOTH_KNOCKDOWN1;//default knockdown
 			if ( !self->s.number && ( !g_spskill->integer || strength < 300 ) )
 			{//player only knocked down if pushed *hard*
 				return;
@@ -4662,7 +4668,7 @@ void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOf
 	{//player only
 		return;
 	}
-	int weapon = WP_NONE;
+	weapon_t weapon = WP_NONE;
 	//FIXME: need to check the MOD to find out what weapon (if *any*) actually did the killing
 	if ( inflictor && !inflictor->client && mod != MOD_SABER && inflictor->lastEnemy && inflictor->lastEnemy != self )
 	{//a missile that was reflected, ie: not owned by me originally

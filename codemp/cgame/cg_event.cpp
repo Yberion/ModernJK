@@ -615,43 +615,43 @@ static void CG_ItemPickup( int itemNum ) {
 		}
 		else if ( cg_autoSwitch.integer == 1)
 		{ //only autoselect if not explosive ("safe")
-			if (bg_itemlist[itemNum].giTag != WP_TRIP_MINE &&
-				bg_itemlist[itemNum].giTag != WP_DET_PACK &&
-				bg_itemlist[itemNum].giTag != WP_THERMAL &&
-				bg_itemlist[itemNum].giTag != WP_ROCKET_LAUNCHER &&
-				bg_itemlist[itemNum].giTag > cg.snap->ps.weapon &&
+			if (GI_Weapon( bg_itemlist[itemNum] ) != WP_TRIP_MINE &&
+				GI_Weapon( bg_itemlist[itemNum] ) != WP_DET_PACK &&
+				GI_Weapon( bg_itemlist[itemNum] ) != WP_THERMAL &&
+				GI_Weapon( bg_itemlist[itemNum] ) != WP_ROCKET_LAUNCHER &&
+				GI_Weapon( bg_itemlist[itemNum] ) > cg.snap->ps.weapon &&
 				cg.snap->ps.weapon != WP_SABER)
 			{
 				if (!cg.snap->ps.emplacedIndex)
 				{
 					cg.weaponSelectTime = cg.time;
 				}
-				cg.weaponSelect = bg_itemlist[itemNum].giTag;
+				cg.weaponSelect = GI_Weapon( bg_itemlist[itemNum] );
 			}
 		}
 		else if ( cg_autoSwitch.integer == 2)
 		{ //autoselect if better
-			if (bg_itemlist[itemNum].giTag > cg.snap->ps.weapon &&
+			if (GI_Weapon( bg_itemlist[itemNum] ) > cg.snap->ps.weapon &&
 				cg.snap->ps.weapon != WP_SABER)
 			{
 				if (!cg.snap->ps.emplacedIndex)
 				{
 					cg.weaponSelectTime = cg.time;
 				}
-				cg.weaponSelect = bg_itemlist[itemNum].giTag;
+				cg.weaponSelect = GI_Weapon( bg_itemlist[itemNum] );
 			}
 		}
 		/*
 		else if ( cg_autoswitch.integer == 3)
 		{ //autoselect if better and not using the saber as a weapon
-			if (bg_itemlist[itemNum].giTag > cg.snap->ps.weapon &&
+			if (GI_Weapon( bg_itemlist[itemNum] ) > cg.snap->ps.weapon &&
 				cg.snap->ps.weapon != WP_SABER)
 			{
 				if (!cg.snap->ps.emplacedIndex)
 				{
 					cg.weaponSelectTime = cg.time;
 				}
-				cg.weaponSelect = bg_itemlist[itemNum].giTag;
+				cg.weaponSelect = GI_Weapon( bg_itemlist[itemNum] );
 			}
 		}
 		*/
@@ -913,7 +913,7 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 	CG_PrintCTFMessage(ci, teamName, static_cast<ctfMsg_t>( es->eventParm ));
 }
 
-bool BG_InKnockDownOnly( int anim );
+bool BG_InKnockDownOnly( animNumber_t anim );
 
 void DoFall(centity_t *cent, entityState_t *es, int clientNum)
 {
@@ -930,7 +930,7 @@ void DoFall(centity_t *cent, entityState_t *es, int clientNum)
 			trap->S_StartSound (nullptr, es->number, CHAN_AUTO, trap->S_RegisterSound( "sound/movers/objects/objectHit.wav" ) );
 		}
 	}
-	else if (BG_InKnockDownOnly(es->legsAnim))
+	else if (BG_InKnockDownOnly(ES_LegsAnim( *es )))
 	{
 		if (delta > 14)
 		{
@@ -1899,7 +1899,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				break;
 			}
 
-			if (cg_entities[es->eventParm].weapon >= cg.time)
+			if (cg_entities[es->eventParm].pickupDebounceTime >= cg.time)
 			{ //rww - an unfortunately necessary hack to prevent double item pickups
 				break;
 			}
@@ -1908,7 +1908,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			//item, this time will have expired by the time that item needs to be picked up.
 			//Of course, it's quite possible this will fail miserably, so if you've got a better
 			//solution then please do use it.
-			cg_entities[es->eventParm].weapon = cg.time+500;
+			cg_entities[es->eventParm].pickupDebounceTime = cg.time+500;
 
 			if ( index < 1 || index >= bg_numItems ) {
 				break;
@@ -1997,16 +1997,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			else
 			{
-				int weap = 0;
+				weapon_t weap = WP_NONE;
 
-				if (es->eventParm && es->eventParm < WP_NUM_WEAPONS)
+				if (es->eventParm && es->eventParm < to_underlying( WP_NUM_WEAPONS ))
 				{
 					cg.snap->ps.stats[STAT_WEAPONS] &= ~(1 << es->eventParm);
 					weap = cg.snap->ps.weapon;
 				}
 				else if (es->eventParm)
 				{
-					weap = (es->eventParm-WP_NUM_WEAPONS);
+					weap = static_cast<weapon_t>( es->eventParm - to_underlying( WP_NUM_WEAPONS ) );
 				}
 				CG_OutOfAmmoChange(weap);
 			}
@@ -2015,10 +2015,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_CHANGE_WEAPON:
 		DEBUGNAME("EV_CHANGE_WEAPON");
 		{
-			int weapon = es->eventParm;
+			const weapon_t weapon = static_cast<weapon_t>( es->eventParm );
 			weaponInfo_t *weaponInfo;
 
-			assert(weapon >= 0 && weapon < MAX_WEAPONS);
+			assert(weapon >= WP_NONE && weapon < WP_NUM_WEAPONS);
 
 			weaponInfo = &cg_weapons[weapon];
 
@@ -2170,7 +2170,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				}
 				if ( client && client->infoValid )
 				{
-					int saberNum = es->weapon;
+					int saberNum = ES_WeaponParm( *es );
 					int bladeNum = es->legsAnim;
 					if ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) )
 					{//use second blade style values
@@ -2310,7 +2310,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					}
 					if ( client && client->infoValid )
 					{
-						int saberNum = es->weapon;
+						int saberNum = ES_WeaponParm( *es );
 						int bladeNum = es->legsAnim;
 						if ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) )
 						{//use second blade style values
@@ -2479,7 +2479,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DISRUPTOR_SNIPER_MISS:
 		DEBUGNAME("EV_DISRUPTOR_SNIPER_MISS");
 		ByteToDir( es->eventParm, dir );
-		if (es->weapon)
+		if (ES_WeaponParm( *es ))
 		{ //primary
 			FX_DisruptorHitWall( cent->lerpOrigin, dir );
 		}
@@ -2492,7 +2492,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DISRUPTOR_HIT:
 		DEBUGNAME("EV_DISRUPTOR_HIT");
 		ByteToDir( es->eventParm, dir );
-		if (es->weapon)
+		if (ES_WeaponParm( *es ))
 		{ //client
 			FX_DisruptorHitPlayer( cent->lerpOrigin, dir, true );
 		}
@@ -2799,11 +2799,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_SIEGE_ROUNDOVER:
 		DEBUGNAME("EV_SIEGE_ROUNDOVER");
-		CG_SiegeRoundOver(&cg_entities[cent->currentState.weapon], static_cast<team_t>( cent->currentState.eventParm ));
+		CG_SiegeRoundOver(&cg_entities[ES_WeaponParm( cent->currentState )], static_cast<team_t>( cent->currentState.eventParm ));
 		break;
 	case EV_SIEGE_OBJECTIVECOMPLETE:
 		DEBUGNAME("EV_SIEGE_OBJECTIVECOMPLETE");
-		CG_SiegeObjectiveCompleted(&cg_entities[cent->currentState.weapon], static_cast<team_t>( cent->currentState.eventParm ), cent->currentState.trickedentindex);
+		CG_SiegeObjectiveCompleted(&cg_entities[ES_WeaponParm( cent->currentState )], static_cast<team_t>( cent->currentState.eventParm ), cent->currentState.trickedentindex);
 		break;
 
 	case EV_DESTROY_GHOUL2_INSTANCE:
@@ -2989,7 +2989,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			eID = cgs.effects.mStunBatonFleshImpact;
 			break;
 		case EFFECT_EXPLOSION_DEMP2ALT:
-			FX_DEMP2_AltDetonate( cent->lerpOrigin, es->weapon );
+			FX_DEMP2_AltDetonate( cent->lerpOrigin, ES_WeaponParm( *es ) );
 			eID = cgs.effects.mAltDetonate;
 			break;
 		case EFFECT_EXPLOSION_TURRET:
@@ -3292,7 +3292,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_PLAY_ROFF:
 		DEBUGNAME("EV_PLAY_ROFF");
-		trap->ROFF_Play(es->weapon, es->eventParm, es->trickedentindex);
+		trap->ROFF_Play(ES_WeaponParm( *es ), es->eventParm, es->trickedentindex);
 		break;
 
 	case EV_GLASS_SHATTER:
@@ -3400,23 +3400,29 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_WEAPON_CHARGE:
 		DEBUGNAME("EV_WEAPON_CHARGE");
-		assert(es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS);
-		if (cg_weapons[es->eventParm].chargeSound)
 		{
-			trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cg_weapons[es->eventParm].chargeSound);
-		}
-		else if (es->eventParm == WP_DISRUPTOR)
-		{
-			trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cgs.media.disruptorZoomLoop);
+			const weapon_t weapon = static_cast<weapon_t>( es->eventParm );
+			assert(weapon > WP_NONE && weapon < WP_NUM_WEAPONS);
+			if (cg_weapons[weapon].chargeSound)
+			{
+				trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cg_weapons[weapon].chargeSound);
+			}
+			else if (weapon == WP_DISRUPTOR)
+			{
+				trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cgs.media.disruptorZoomLoop);
+			}
 		}
 		break;
 
 	case EV_WEAPON_CHARGE_ALT:
 		DEBUGNAME("EV_WEAPON_CHARGE_ALT");
-		assert(es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS);
-		if (cg_weapons[es->eventParm].altChargeSound)
 		{
-			trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cg_weapons[es->eventParm].altChargeSound);
+			const weapon_t weapon = static_cast<weapon_t>( es->eventParm );
+			assert(weapon > WP_NONE && weapon < WP_NUM_WEAPONS);
+			if (cg_weapons[weapon].altChargeSound)
+			{
+				trap->S_StartSound(nullptr, es->number, CHAN_WEAPON, cg_weapons[weapon].altChargeSound);
+			}
 		}
 		break;
 
@@ -3433,7 +3439,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_TESTLINE:
 		DEBUGNAME("EV_TESTLINE");
-		CG_TestLine(es->origin, es->origin2, es->time2, es->weapon, 1);
+		CG_TestLine(es->origin, es->origin2, es->time2, ES_WeaponParm( *es ), 1);
 		break;
 
 	default:

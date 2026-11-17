@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ACT_ACTIVE		true
 #define ACT_INACTIVE	false
 extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, bool useWhenDone );
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 /*
 =========================================================================
 
@@ -201,7 +201,7 @@ void G_PlayEffect( int fxID, const int modelIndex, const int boltIndex, const in
 	tent->s.eventParm = fxID;
 
 	tent->s.loopSound = iLoopTime;
-	tent->s.weapon = isRelative;
+	ES_SetWeaponParm( tent->s, isRelative );
 
 	tent->svFlags |=SVF_BROADCAST;
 	gi.G2API_AttachEnt(&tent->s.boltInfo, &g_entities[entNum].ghoul2[modelIndex], boltIndex, entNum, modelIndex);
@@ -1956,7 +1956,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot)
 	VectorCopy(B, tent->s.origin2 );
 	tent->s.time = duration;		// Pause
 	tent->s.time2 = color;			// Color
-	tent->s.weapon = 1;				// Dimater
+	ES_SetWeaponParm( tent->s, 1 );				// Dimater
 	tent->freeAfterEvent = deleteornot;
 	*/
 

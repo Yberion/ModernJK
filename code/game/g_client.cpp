@@ -651,11 +651,11 @@ void Player_CacheFromPrevLevel(void)
 			&ibits	//client->ps.stats[STAT_ITEMS]
 			);
 
-		for ( i = 1 ; i < 16 ; i++ )
+		for ( weapon_t w = WP_SABER ; w < WP_ATST_SIDE ; w++ )
 		{
-			if ( bits & ( 1 << i ) )
+			if ( bits & Bit( w ) )
 			{
-				RegisterItem( FindItemForWeapon( (weapon_t)i ) );
+				RegisterItem( FindItemForWeapon( w ) );
 			}
 		}
 
@@ -696,6 +696,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 
 		if (strlen(s))	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 		{//				|general info				  |-force powers |-saber 1										   |-saber 2										  |-general saber
+			int weapon;
 			int weaponstate;
 			int saberAnimLevel;
 			int saber1BladeActive[8];
@@ -708,7 +709,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&client->ps.stats[STAT_ARMOR],
 								&client->ps.stats[STAT_WEAPONS],
 								&client->ps.stats[STAT_ITEMS],
-								&client->ps.weapon,
+								&weapon,
 								&weaponstate,
 								&client->ps.batteryCharge,
 								&client->ps.viewangles[0],
@@ -762,6 +763,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&client->ps.saberLockEnemy,
 								&client->ps.saberLockTime
 					);
+			client->ps.weapon = static_cast<weapon_t>( weapon );
 			client->ps.weaponstate = static_cast<weaponstate_t>( weaponstate );
 			client->ps.saberAnimLevel = static_cast<saber_styles_t>( saberAnimLevel );
 			for (int j = 0; j < 8; j++)
@@ -953,7 +955,6 @@ bool G_ClassHasBadBones( class_t NPC_class )
 	case CLASS_ASSASSIN_DROID:
 	case CLASS_RANCOR:
 		return true;
-	
 	default:
 		break;
 	}
@@ -1115,7 +1116,6 @@ void G_BoneOrientationsForClass( class_t NPC_class, const char *boneName, Eorien
 			*oFwd = POSITIVE_Z;
 		}
 		break;
-	
 	default:
 		break;
 	}
@@ -2264,29 +2264,29 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		// give default weapons
 		//these are precached in g_items, ClearRegisteredItems()
-		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+		client->ps.stats[STAT_WEAPONS] = Bit( WP_NONE );
 		//client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
 		//ent->client->ps.inventory[INV_BACTA_CANISTER] = 1;
 
 		// give EITHER the saber or the stun baton..never both
 		if ( spawnPoint->spawnflags & 32 ) // STUN_BATON
 		{
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_STUN_BATON );
+			client->ps.stats[STAT_WEAPONS] |= Bit( WP_STUN_BATON );
 			client->ps.weapon = WP_STUN_BATON;
 		}
 		else
 		{	// give the saber because most test maps will not have the STUN BATON flag set
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//this is precached in SP_info_player_deathmatch
+			client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );	//this is precached in SP_info_player_deathmatch
 			client->ps.weapon = WP_SABER;
 		}
 		// force the base weapon up
 		client->ps.weaponstate = WEAPON_READY;
 
-		for ( i = FIRST_WEAPON; i < MAX_PLAYER_WEAPONS; i++ ) // don't give ammo for explosives
+		for ( weapon_t w = FIRST_WEAPON; w < MAX_PLAYER_WEAPONS; w++ ) // don't give ammo for explosives
 		{
-			if ( (client->ps.stats[STAT_WEAPONS]&(1<<i)) )
+			if ( (client->ps.stats[STAT_WEAPONS]&Bit( w )) )
 			{//if starting with this weapon, gimme max ammo for it
-				client->ps.ammo[weaponData[i].ammoIndex] = ammoData[weaponData[i].ammoIndex].max;
+				client->ps.ammo[weaponData[w].ammoIndex] = ammoData[weaponData[w].ammoIndex].max;
 			}
 		}
 
@@ -2390,7 +2390,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		ucmd = client->pers.lastCommand;
 		ucmd.serverTime = level.time;
 		VectorCopyM( client->pers.cmd_angles, ucmd.angles );
-		ucmd.weapon = client->ps.weapon;	// client think calls Pmove which sets the client->ps.weapon to ucmd.weapon, so ...
+		UC_SetWeapon( ucmd, client->ps.weapon );	// client think calls Pmove which sets the client->ps.weapon to ucmd.weapon, so ...
 		ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 		ClientThink( ent-g_entities, &ucmd );
 
@@ -2410,14 +2410,14 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		if ( spawnPoint->spawnflags & 64 )	//NOWEAPON
 		{//player starts with absolutely no weapons
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+			ent->client->ps.stats[STAT_WEAPONS] = Bit( WP_NONE );
 			ent->client->ps.ammo[weaponData[WP_NONE].ammoIndex] = 32000;
 			ent->client->ps.weapon = WP_NONE;
 			ent->client->ps.weaponstate = WEAPON_READY;
 			ent->client->ps.dualSabers = false;
 		}
 
-		if ( ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ) )
+		if ( ent->client->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ) )
 		{//set up so has lightsaber
 			WP_SaberInitBladeData( ent );
 			if ( (ent->weaponModel[0] <= 0 || (ent->weaponModel[1]<=0&&ent->client->ps.dualSabers)) //one or both of the saber models is not initialized
@@ -2440,10 +2440,10 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 			/*
 			// select the highest weapon number available, after any
 			// spawn given items have fired
-			client->ps.weapon = 1;
-			for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
-				if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) ) {
-					client->ps.weapon = i;
+			client->ps.weapon = WP_SABER;
+			for ( weapon_t w = WP_NUM_WEAPONS - 1 ; w > WP_NONE ; w-- ) {
+				if ( client->ps.stats[STAT_WEAPONS] & Bit( w ) ) {
+					client->ps.weapon = w;
 					break;
 				}
 			}*/
@@ -2464,7 +2464,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		G_CheckPlayerDarkSide();
 	}
 
-	if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER))
+	if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER ))
 		&& !ent->client->ps.saberStylesKnown )
 	{//um, if you have a saber, you need at least 1 style to use it with...
 		ent->client->ps.saberStylesKnown |= Bit( SS_MEDIUM );

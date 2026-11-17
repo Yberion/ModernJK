@@ -226,7 +226,7 @@ typedef struct {
 	void		(*g2_GiveMeVectorFromMatrix)(mdxaBone_t &boltMatrix, Eorientations flags, vec3_t &vec);
 
 	//Utility functions that don't immediately redirect to ghoul2 functions
-	int			(*g2hilev_SetAnim)(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const bool freeze);
+	int			(*g2hilev_SetAnim)(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNum, const bool freeze);
 
 	float		yscale;
 	float		xscale;
@@ -342,7 +342,7 @@ typedef struct modelDef_s {
 	vec3_t g2mins; //required
 	vec3_t g2maxs; //required
 	int g2skin; //optional
-	int g2anim; //optional
+	animNumber_t g2anim; //optional
 //JLF MPMOVED
 //Transition extras
 	vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;

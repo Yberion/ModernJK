@@ -649,7 +649,7 @@ void NPC_BSFollowLeader_UpdateEnemy(void)
 				NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 1000, 2000 );
 			}
 		}
-		else if ( NPC->client->ps.weapon && NPCInfo->enemyCheckDebounceTime < level.time )
+		else if ( NPC->client->ps.weapon != WP_NONE && NPCInfo->enemyCheckDebounceTime < level.time )
 		{
 			NPC_CheckEnemy( (NPCInfo->confusionTime<level.time||NPCInfo->tempBehavior!=BS_FOLLOW_LEADER), false );//don't find new enemy if this is tempbehav
 		}
@@ -714,7 +714,7 @@ bool NPC_BSFollowLeader_AttackEnemy(void)
 bool NPC_BSFollowLeader_CanAttack(void)
 {
 	 return (NPC->enemy
-		&& NPC->client->ps.weapon
+		&& NPC->client->ps.weapon != WP_NONE
 		&& !(NPCInfo->aiFlags&NPCAI_HEAL_ROSH) //Kothos twins never go after their enemy
 		);
 }
@@ -1409,7 +1409,7 @@ NPC_BSFlee
 */
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void WP_DropWeapon( gentity_t *dropper, vec3_t velocity );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern int g_crosshairEntNum;
 bool NPC_CanSurrender( void )
 {

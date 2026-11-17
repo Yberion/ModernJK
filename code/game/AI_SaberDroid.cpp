@@ -208,7 +208,7 @@ int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 		{//end of anim
 			return FORCE_LEVEL_0;
 		}
-		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
+		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
 		{//beginning of anim
 			return FORCE_LEVEL_0;
 		}
@@ -219,7 +219,7 @@ int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 		{//end of anim
 			return FORCE_LEVEL_0;
 		}
-		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
+		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 200 )
 		{//beginning of anim
 			return FORCE_LEVEL_0;
 		}
@@ -230,7 +230,7 @@ int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 		{//end of anim
 			return FORCE_LEVEL_0;
 		}
-		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 150 )
+		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 150 )
 		{//beginning of anim
 			return FORCE_LEVEL_0;
 		}
@@ -241,11 +241,13 @@ int SaberDroid_PowerLevelForSaberAnim( gentity_t *self )
 		{//end of anim
 			return FORCE_LEVEL_0;
 		}
-		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 300 )
+		else if ( PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim ) - self->client->ps.torsoAnimTimer < 300 )
 		{//beginning of anim
 			return FORCE_LEVEL_0;
 		}
 		return FORCE_LEVEL_3;
+		break;
+	default:
 		break;
 	}
 	return FORCE_LEVEL_0;
@@ -259,8 +261,8 @@ NPC_BSSaberDroid_Attack
 
 void NPC_SaberDroid_PickAttack( void )
 {
-	int attackAnim = Q_irand( 0, 3 );
-	switch ( attackAnim )
+	animNumber_t attackAnim;
+	switch ( Q_irand( 0, 3 ) )
 	{
 	case 0:
 	default:

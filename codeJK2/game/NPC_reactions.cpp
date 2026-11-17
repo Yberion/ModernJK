@@ -36,20 +36,20 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void cgi_S_StartSound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
-extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
+extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
 extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern void Jedi_Ambush( gentity_t *self );
 
-extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_SpinningAnim( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_SpinningAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
-extern bool PM_CrouchAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
-extern bool PM_InCartwheel( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
+extern bool PM_InCartwheel( animNumber_t anim );
 
 extern	cvar_t	*g_spskill;
 extern int	teamLastEnemyTime[];
@@ -215,7 +215,7 @@ NPC_ChoosePainAnimation
 
 #define	MIN_PAIN_TIME	200
 
-extern int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc );
+extern std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc );
 void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc, entity_event_t voiceEvent = EV_NONE )
 {
 	//If we've already taken pain, then don't take it again
@@ -224,7 +224,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 		return;
 	}
 
-	int		pain_anim = -1;
+	std::optional<animNumber_t>		pain_anim;
 	float	pain_chance;
 
 	if ( self->s.weapon == WP_THERMAL && self->client->fireDelay > 0 )
@@ -315,7 +315,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 					pain_anim = G_PickPainAnim( self, point, damage, hitLoc );
 				}
 
-				if ( pain_anim == -1 )
+				if ( !pain_anim )
 				{
 					pain_anim = PM_PickAnim( self, BOTH_PAIN1, BOTH_PAIN19 );
 				}
@@ -326,7 +326,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 				{
 					parts = SETANIM_LEGS;
 				}
-				NPC_SetAnim( self, parts, pain_anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				NPC_SetAnim( self, parts, *pain_anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			}
 			if ( voiceEvent != EV_NONE )
 			{
@@ -347,7 +347,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 		{
 			self->painDebounceTime = level.time + 4000;
 		}
-		self->painDebounceTime = level.time + PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t) pain_anim );
+		self->painDebounceTime = level.time + ( pain_anim ? PM_AnimLength( self->client->clientInfo.animFileIndex, *pain_anim ) : 0 );
 		self->client->fireDelay = 0;
 	}
 }

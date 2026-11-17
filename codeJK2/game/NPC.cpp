@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
-//extern void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,int type,int anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent);
+//extern void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,int type,animNumber_t anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent);
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
@@ -80,7 +80,7 @@ gclient_t		*client;
 usercmd_t		ucmd;
 visibility_t	enemyVisibility;
 
-void NPC_SetAnim(gentity_t	*ent,int type,int anim,int priority);
+void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
 void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
 extern void GM_Dying( gentity_t *self );
 
@@ -728,8 +728,8 @@ static void DeadThink ( void )
 	if ( !NPCInfo->timeOfDeath && NPC->client != nullptr && NPCInfo != nullptr )
 	{
 		//haven't finished death anim yet and were NOT given a specific amount of time to wait before removal
-		int				legsAnim	= NPC->client->ps.legsAnim;
-		animation_t		*animations	= knownAnimFileSets[NPC->client->clientInfo.animFileIndex].animations;
+		animNumber_t	legsAnim	= NPC->client->ps.legsAnim;
+		auto		&animations	= knownAnimFileSets[NPC->client->clientInfo.animFileIndex].animations;
 
 		NPC->bounceCount = -1; // This is a cheap hack for optimizing the pointcontents check below
 
@@ -1930,9 +1930,10 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 	/*if( ucmd.forwardmove || ucmd.rightmove )
 	{
-		int	i, la = -1, ta = -1;
+		animNumber_t	i;
+		std::optional<animNumber_t>	la, ta;
 
-		for(i = 0; i < MAX_ANIMATIONS; i++)
+		for(i = BOTH_1CRUFTFORGIL; i < MAX_ANIMATIONS; i++)
 		{
 			if( NPC->client->ps.legsAnim == i )
 			{
@@ -1944,15 +1945,15 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 				ta = i;
 			}
 
-			if(la != -1 && ta != -1)
+			if(la && ta)
 			{
 				break;
 			}
 		}
 
-		if(la != -1 && ta != -1)
+		if(la && ta)
 		{//FIXME: should never play same frame twice or restart an anim before finishing it
-			gi.Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", animTable[la].name, NPC->renderInfo.legsFrame, animTable[ta].name, NPC->client->renderInfo.torsoFrame);
+			gi.Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ), NPC->client->renderInfo.torsoFrame);
 		}
 	}*/
 }
@@ -2169,7 +2170,7 @@ void NPC_InitAnimTable( void )
 {
 	for ( int i = 0; i < MAX_ANIM_FILES; i++ )
 	{
-		for ( int j = 0; j < MAX_ANIMATIONS; j++ )
+		for ( animNumber_t j = BOTH_1CRUFTFORGIL; j < MAX_ANIMATIONS; j++ )
 		{
 			level.knownAnimFileSets[i].animations[j].firstFrame = 0;
 			level.knownAnimFileSets[i].animations[j].frameLerp = 100;
@@ -2195,7 +2196,7 @@ void NPC_InitGame( void )
 	*/
 }
 
-void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags)
+void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
 	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
 

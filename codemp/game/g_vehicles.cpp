@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_vehicles.h"
 
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
 
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
 extern void BG_SetLegsAnimTimer(playerState_t *ps, int time );
 extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
 void G_VehUpdateShields( gentity_t *targ );
@@ -38,11 +38,11 @@ void G_VehUpdateShields( gentity_t *targ );
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
-void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend)
+void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend)
 {
 	assert(ent->client);
 	BG_SetAnim(&ent->client->ps, bgAllAnims[ent->localAnimIndex].anims, setAnimParts, anim, setAnimFlags);
-	ent->s.legsAnim = ent->client->ps.legsAnim;
+	ES_SetLegsAnim( ent->s, ent->client->ps.legsAnim );
 }
 
 void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask )
@@ -843,20 +843,20 @@ getItOutOfMe:
 	if ( ent->client->ps.weapon == WP_NONE )
 	{//FIXME: check against this vehicle's gun from the g_vehicleInfo table
 		//remove the vehicle's weapon from me
-		//ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_EMPLACED_GUN );
+		//ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
 		//ent->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;//maybe store this ammo on the vehicle before clearing it?
 		//switch back to a normal weapon we're carrying
 
 		//FIXME: store the weapon we were using when we got on and restore that when hop off
-/*		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+/*		if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER )) )
 		{
 			CG_ChangeWeapon( WP_SABER );
 		}
 		else
 		{//go through all weapons and switch to highest held
-			for ( int checkWp = WP_NUM_WEAPONS-1; checkWp > WP_NONE; checkWp-- )
+			for ( weapon_t checkWp = WP_NUM_WEAPONS-1; checkWp > WP_NONE; checkWp-- )
 			{
-				if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<checkWp)) )
+				if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( checkWp )) )
 				{
 					CG_ChangeWeapon( checkWp );
 				}
@@ -1067,7 +1067,7 @@ void RegisterAssets( Vehicle_t *pVeh )
 {
 }
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 // Initialize the vehicle.
 bool Initialize( Vehicle_t *pVeh )
@@ -1164,7 +1164,7 @@ bool Initialize( Vehicle_t *pVeh )
 	//initialize to blaster, just since it's a basic weapon and there's no lightsaber crap...?
 	parent->client->ps.weapon = WP_BLASTER;
 	parent->client->ps.weaponstate = WEAPON_READY;
-	parent->client->ps.stats[STAT_WEAPONS] |= (1<<WP_BLASTER);
+	parent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_BLASTER );
 
 	//Initialize to landed (wings closed, gears down) animation
 	{

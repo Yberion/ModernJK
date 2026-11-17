@@ -379,8 +379,8 @@ bool	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	return Q_syscall( CG_GETUSERCMD, cmdNumber, ucmd );
 }
 
-void		cgi_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride ) {
-	Q_syscall( CG_SETUSERCMDVALUE, stateValue, PASSFLOAT(sensitivityScale), PASSFLOAT(mPitchOverride), PASSFLOAT(mYawOverride) );
+void		cgi_SetUserCmdValue( weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride ) {
+	Q_syscall( CG_SETUSERCMDVALUE, to_underlying( stateValue ), PASSFLOAT(sensitivityScale), PASSFLOAT(mPitchOverride), PASSFLOAT(mYawOverride) );
 }
 
 void		cgi_SetUserCmdAngles( float pitchOverride, float yawOverride, float rollOverride ) {

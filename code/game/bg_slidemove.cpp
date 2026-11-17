@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern bool PM_ClientImpact( trace_t *trace, bool damageSelf );
 extern bool PM_ControlledByPlayer( void );
-extern bool PM_InReboundHold( int anim );
+extern bool PM_InReboundHold( animNumber_t anim );
 extern cvar_t *g_stepSlideFix;
 
 /*
@@ -50,7 +50,7 @@ Returns true if the velocity was clipped in some way
 */
 #define	MAX_CLIP_PLANES	5
 extern bool PM_GroundSlideOkay( float zNormal );
-extern bool PM_InSpecialJump( int anim );
+extern bool PM_InSpecialJump( animNumber_t anim );
 bool	PM_SlideMove( float gravMod ) {
 	int			bumpcount, numbumps;
 	vec3_t		dir;

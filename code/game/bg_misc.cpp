@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_vehicles.h"
 
 
-extern weaponData_t weaponData[WP_NUM_WEAPONS];
+extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
 extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 
@@ -254,12 +254,12 @@ gitem_t	*FindItemForWeapon( weapon_t weapon ) {
 	int		i;
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_WEAPON && bg_itemlist[i].giTag == weapon ) {
+		if ( bg_itemlist[i].giType == IT_WEAPON && GI_Weapon( bg_itemlist[i] ) == weapon ) {
 			return &bg_itemlist[i];
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
+	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
 	return nullptr;
 }
 
@@ -348,18 +348,18 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 	case IT_WEAPON:
 		// See if we already have this weapon.
-		if ( !(ps->stats[ STAT_WEAPONS ] & ( 1 << item->giTag )))
+		if ( !(ps->stats[ STAT_WEAPONS ] & Bit( GI_Weapon( *item ) )))
 		{
 			// Don't have this weapon yet, so pick it up.
 			return true;
 		}
-		else if ( item->giTag == WP_SABER )
+		else if ( GI_Weapon( *item ) == WP_SABER )
 		{//always pick up a saber, might be a new one?
 			return true;
 		}
 
 		// Make sure that we aren't already full on ammo for this weapon
-		if ( ps->ammo[weaponData[item->giTag].ammoIndex] >= ammoData[weaponData[item->giTag].ammoIndex].max )
+		if ( ps->ammo[weaponData[GI_Weapon( *item )].ammoIndex] >= ammoData[weaponData[GI_Weapon( *item )].ammoIndex].max )
 		{
 			// full, so don't grab the item
 			return false;
@@ -375,19 +375,19 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 			switch( GI_Ammo( *item ) )
 			{
 			case AMMO_THERMAL:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) )
+				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_THERMAL ) ) )
 				{
 					return true;
 				}
 				break;
 			case AMMO_DETPACK:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_DET_PACK ) ) )
+				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_DET_PACK ) ) )
 				{
 					return true;
 				}
 				break;
 			case AMMO_TRIPMINE:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_TRIP_MINE ) ) )
+				if( !(ps->stats[STAT_WEAPONS] & Bit( WP_TRIP_MINE ) ) )
 				{
 					return true;
 				}

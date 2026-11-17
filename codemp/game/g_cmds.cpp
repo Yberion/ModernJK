@@ -285,7 +285,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all || !Q_stricmp( name, "weapons" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << (LAST_USEABLE_WEAPON+1)) - ( 1 << WP_NONE );
+		ent->client->ps.stats[STAT_WEAPONS] = Bit( LAST_USEABLE_WEAPON + 1 ) - Bit( WP_NONE );
 		if ( !give_all )
 			return;
 	}
@@ -952,9 +952,9 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.zoomLocked = false;
 	ent->client->ps.zoomLockTime = 0;
 	ent->client->ps.saberMove = LS_NONE;
-	ent->client->ps.legsAnim = 0;
+	ent->client->ps.legsAnim = FACE_TALK0;
 	ent->client->ps.legsTimer = 0;
-	ent->client->ps.torsoAnim = 0;
+	ent->client->ps.torsoAnim = FACE_TALK0;
 	ent->client->ps.torsoTimer = 0;
 	ent->client->ps.isJediMaster = false; // major exploit if you are spectating somebody and they are JM and you reconnect
 	ent->client->ps.cloakFuel = 100; // so that fuel goes away after stop following them
@@ -991,7 +991,6 @@ void Cmd_Team_f( gentity_t *ent ) {
 		case TEAM_SPECTATOR:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTSPECTEAM")) );
 			break;
-		
 		default:
 			break;
 		}
@@ -3152,7 +3151,6 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 }
 
 #ifndef FINAL_BUILD
-extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 void Cmd_DebugSetSaberMove_f(gentity_t *self)
 {
@@ -3186,14 +3184,14 @@ void Cmd_DebugSetSaberMove_f(gentity_t *self)
 		self->client->ps.saberMove = LS_MOVE_MAX-1;
 	}
 
-	Com_Printf("Anim for move: %s\n", animTable[saberMoveData[self->client->ps.saberMove].animToUse].name);
+	Com_Printf("Anim for move: %s\n", BG_AnimName( saberMoveData[self->client->ps.saberMove].animToUse ));
 }
 
 void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 {
 	int argNum = trap->Argc();
 	char arg[MAX_STRING_CHARS];
-	int i = 0;
+	animNumber_t i = FACE_TALK0;
 
 	if (argNum < 2)
 	{
@@ -3209,7 +3207,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 
 	while (i < MAX_ANIMATIONS)
 	{
-		if (!Q_stricmp(arg, animTable[i].name))
+		if (!Q_stricmp(arg, BG_AnimName( i )))
 		{
 			break;
 		}
@@ -3228,7 +3226,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 }
 #endif
 
-void StandardSetBodyAnim(gentity_t *self, int anim, int flags)
+void StandardSetBodyAnim(gentity_t *self, animNumber_t anim, int flags)
 {
 	G_SetAnim(self, nullptr, SETANIM_BOTH, anim, flags, 0);
 }

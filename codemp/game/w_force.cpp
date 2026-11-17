@@ -36,7 +36,7 @@ extern void NPC_UseResponse( gentity_t *self, gentity_t *user, bool useWhenDone 
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
 extern void Jedi_Decloak( gentity_t *self );
 
-extern bool BG_FullBodyTauntAnim( int anim );
+extern bool BG_FullBodyTauntAnim( animNumber_t anim );
 
 extern bot_state_t *botstates[MAX_CLIENTS];
 
@@ -458,7 +458,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	}
 }
 
-extern bool BG_InKnockDown( int anim ); //bg_pmove.cpp
+extern bool BG_InKnockDown( animNumber_t anim ); //bg_pmove.cpp
 
 int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forcePower)
 {
@@ -2772,6 +2772,8 @@ bool G_InGetUpAnim(playerState_t *ps)
 	case BOTH_GETUP_FROLL_L:
 	case BOTH_GETUP_FROLL_R:
 		return true;
+	default:
+		break;
 	}
 
 	switch( (ps->torsoAnim) )
@@ -2797,6 +2799,8 @@ bool G_InGetUpAnim(playerState_t *ps)
 	case BOTH_GETUP_FROLL_L:
 	case BOTH_GETUP_FROLL_R:
 		return true;
+	default:
+		break;
 	}
 
 	return false;
@@ -5405,7 +5409,7 @@ powersetcheck:
 
 bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc )
 {
-	int	dodgeAnim = -1;
+	std::optional<animNumber_t>	dodgeAnim;
 
 	if ( !self || !self->client || self->health <= 0 )
 	{
@@ -5511,11 +5515,11 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLoc
 		return false;
 	}
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{
 		//Our own happy way of forcing an anim:
 		self->client->ps.forceHandExtend = HANDEXTEND_DODGE;
-		self->client->ps.forceDodgeAnim = dodgeAnim;
+		PS_SetDodgeAnim( self->client->ps, *dodgeAnim );
 		self->client->ps.forceHandExtendTime = level.time + 300;
 
 		self->client->ps.powerups[PW_SPEEDBURST] = level.time + 100;

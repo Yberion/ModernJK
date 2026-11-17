@@ -461,7 +461,7 @@ template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 typedef struct
 {
 	const char *name;
-	int animToUse;
+	animNumber_t animToUse;
 	saberQuadrant_t	startQuad;
 	saberQuadrant_t	endQuad;
 	unsigned animSetFlags;

@@ -707,9 +707,9 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 		//hmm, shouldn't have an anim if you're a spectator, make sure
 		//it gets cleared.
-		client->ps.legsAnim = 0;
+		client->ps.legsAnim = FACE_TALK0;
 		client->ps.legsTimer = 0;
-		client->ps.torsoAnim = 0;
+		client->ps.torsoAnim = FACE_TALK0;
 		client->ps.torsoTimer = 0;
 
 		// set up for pmove
@@ -843,7 +843,7 @@ void ClientIntermissionThink( gclient_t *client ) {
 	}
 }
 
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
 void G_VehicleAttachDroidUnit( gentity_t *vehEnt )
 {
 	if ( vehEnt && vehEnt->m_pVehicle && vehEnt->m_pVehicle->m_pDroidUnit != nullptr )
@@ -926,7 +926,7 @@ Events will be passed on to the clients for presentation,
 but any server game effects are handled here
 ================
 */
-bool BG_InKnockDownOnly( int anim );
+bool BG_InKnockDownOnly( animNumber_t anim );
 
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;//, j;
@@ -1215,7 +1215,7 @@ void G_AddPushVecToUcmd( gentity_t *self, usercmd_t *ucmd )
 	}
 }
 
-bool G_StandingAnim( int anim )
+bool G_StandingAnim( animNumber_t anim )
 {//NOTE: does not check idles or special (cinematic) stands
 	switch ( anim )
 	{
@@ -1224,6 +1224,8 @@ bool G_StandingAnim( int anim )
 	case BOTH_STAND3:
 	case BOTH_STAND4:
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -1308,7 +1310,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		|| ent->client->ps.saberBlocked != BLOCKED_NONE
 		|| ent->client->ps.saberBlockTime >= level.time
 		|| ent->client->ps.weapon == WP_MELEE
-		|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
+		|| (ent->client->ps.weapon != UC_Weapon( ent->client->pers.cmd ) && ent->s.eType != ET_NPC))
 	{//FIXME: also check for turning?
 		bool brokeOut = false;
 
@@ -1324,7 +1326,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			|| ent->client->ps.saberBlocked != BLOCKED_NONE
 			|| ent->client->ps.saberBlockTime >= level.time
 			|| ent->client->ps.weapon == WP_MELEE
-			|| (ent->client->ps.weapon != ent->client->pers.cmd.weapon && ent->s.eType != ET_NPC))
+			|| (ent->client->ps.weapon != UC_Weapon( ent->client->pers.cmd ) && ent->s.eType != ET_NPC))
 		{
 			//if in an idle, break out
 			switch ( ent->client->ps.legsAnim )
@@ -1336,6 +1338,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			case BOTH_STAND5IDLE1:
 				ent->client->ps.legsTimer = 0;
 				brokeOut = true;
+				break;
+			default:
 				break;
 			}
 			switch ( ent->client->ps.torsoAnim )
@@ -1349,6 +1353,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 				ent->client->ps.weaponTime = 0;
 				ent->client->ps.saberMove = LS_READY;
 				brokeOut = true;
+				break;
+			default:
 				break;
 			}
 		}
@@ -1368,7 +1374,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 	}
 	else if ( level.time - ent->client->idleTime > 5000 )
 	{//been idle for 5 seconds
-		int	idleAnim = -1;
+		std::optional<animNumber_t>	idleAnim;
 		switch ( ent->client->ps.legsAnim )
 		{
 		case BOTH_STAND1:
@@ -1383,6 +1389,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		case BOTH_STAND5:
 			idleAnim = BOTH_STAND5IDLE1;
 			break;
+		default:
+			break;
 		}
 
 		if (idleAnim == BOTH_STAND2IDLE1 && Q_irand(1, 10) <= 5)
@@ -1390,12 +1398,12 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			idleAnim = BOTH_STAND2IDLE2;
 		}
 
-		if ( /*PM_HasAnimation( ent, idleAnim )*/idleAnim > 0 && idleAnim < MAX_ANIMATIONS )
+		if ( /*PM_HasAnimation( ent, *idleAnim )*/idleAnim && *idleAnim > FACE_TALK0 && *idleAnim < MAX_ANIMATIONS )
 		{
-			G_SetAnim(ent, ucmd, SETANIM_BOTH, idleAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
+			G_SetAnim(ent, ucmd, SETANIM_BOTH, *idleAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 
 			//don't idle again after this anim for a while
-			//ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)idleAnim ) + Q_irand( 0, 2000 );
+			//ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, *idleAnim ) + Q_irand( 0, 2000 );
 			ent->client->idleTime = level.time + ent->client->ps.legsTimer + Q_irand( 0, 2000 );
 		}
 	}
@@ -1633,7 +1641,7 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 		&& ent->client->ps.weaponTime < 1
 		&& ent->client->ps.saberLockTime < level.time )
 	{
-		int anim = -1;
+		std::optional<animNumber_t> anim;
 		switch ( taunt )
 		{
 		case TAUNT_TAUNT:
@@ -1641,12 +1649,12 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 			{
 				anim = BOTH_ENGAGETAUNT;
 			}
-			else if ( ent->client->saber[0].tauntAnim != -1 )
+			else if ( ent->client->saber[0].tauntAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[0].tauntAnim;
 			}
 			else if ( ent->client->saber[1].model[0]
-					&& ent->client->saber[1].tauntAnim != -1 )
+					&& ent->client->saber[1].tauntAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[1].tauntAnim;
 			}
@@ -1694,19 +1702,18 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					ent->client->ps.saberHolstered = 0;
 					anim = BOTH_STAFF_TAUNT;
 					break;
-				
 				default:
 					break;
 				}
 			}
 			break;
 		case TAUNT_BOW:
-			if ( ent->client->saber[0].bowAnim != -1 )
+			if ( ent->client->saber[0].bowAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[0].bowAnim;
 			}
 			else if ( ent->client->saber[1].model[0]
-					&& ent->client->saber[1].bowAnim != -1 )
+					&& ent->client->saber[1].bowAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[1].bowAnim;
 			}
@@ -1726,12 +1733,12 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 			ent->client->ps.saberHolstered = 2;
 			break;
 		case TAUNT_MEDITATE:
-			if ( ent->client->saber[0].meditateAnim != -1 )
+			if ( ent->client->saber[0].meditateAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[0].meditateAnim;
 			}
 			else if ( ent->client->saber[1].model[0]
-					&& ent->client->saber[1].meditateAnim != -1 )
+					&& ent->client->saber[1].meditateAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[1].meditateAnim;
 			}
@@ -1763,12 +1770,12 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					G_Sound( ent, CHAN_WEAPON, ent->client->saber[0].soundOn );
 				}
 				ent->client->ps.saberHolstered = 0;
-				if ( ent->client->saber[0].flourishAnim != -1 )
+				if ( ent->client->saber[0].flourishAnim != ANIM_NONE )
 				{
 					anim = ent->client->saber[0].flourishAnim;
 				}
 				else if ( ent->client->saber[1].model[0]
-					&& ent->client->saber[1].flourishAnim != -1 )
+					&& ent->client->saber[1].flourishAnim != ANIM_NONE )
 				{
 					anim = ent->client->saber[1].flourishAnim;
 				}
@@ -1793,7 +1800,6 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					case SS_STAFF:
 						anim = BOTH_SHOWOFF_STAFF;
 						break;
-					
 					default:
 						break;
 					}
@@ -1801,12 +1807,12 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 			}
 			break;
 		case TAUNT_GLOAT:
-			if ( ent->client->saber[0].gloatAnim != -1 )
+			if ( ent->client->saber[0].gloatAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[0].gloatAnim;
 			}
 			else if ( ent->client->saber[1].model[0]
-					&& ent->client->saber[1].gloatAnim != -1 )
+					&& ent->client->saber[1].gloatAnim != ANIM_NONE )
 			{
 				anim = ent->client->saber[1].gloatAnim;
 			}
@@ -1851,20 +1857,19 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 					ent->client->ps.saberHolstered = 0;
 					anim = BOTH_VICTORY_STAFF;
 					break;
-				
 				default:
 					break;
 				}
 			}
 			break;
 		}
-		if ( anim != -1 )
+		if ( anim )
 		{
 			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
 			{
 				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
-				ent->client->ps.forceDodgeAnim = anim;
-				ent->client->ps.forceHandExtendTime = level.time + BG_AnimLength(ent->localAnimIndex, (animNumber_t)anim);
+				PS_SetDodgeAnim( ent->client->ps, *anim );
+				ent->client->ps.forceHandExtendTime = level.time + BG_AnimLength(ent->localAnimIndex, *anim);
 			}
 			if ( taunt != TAUNT_MEDITATE
 				&& taunt != TAUNT_BOW )
@@ -2965,7 +2970,6 @@ void ClientThink_real( gentity_t *ent ) {
 						case SS_DESANN:
 							lockHits = 3;
 							break;
-						
 						default:
 							break;
 						}

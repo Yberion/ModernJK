@@ -41,7 +41,7 @@ extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void G_MaintainFormations(gentity_t *self);
 extern void BG_CalculateOffsetAngles( gentity_t *ent, usercmd_t *ucmd );//in bg_pangles.cpp
 extern void TryUse( gentity_t *ent );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void ScoreBoardReset(void);
 extern void WP_SaberReflectCheck( gentity_t *self, usercmd_t *ucmd  );
 extern void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd );
@@ -58,17 +58,17 @@ extern bool PM_AdjustAnglesForSpinningFlip( gentity_t *ent, usercmd_t *ucmd, boo
 extern bool PM_AdjustAnglesForBackAttack( gentity_t *ent, usercmd_t *ucmd );
 extern bool PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd );
 extern bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleClampOnly );
-extern bool PM_HasAnimation( gentity_t *ent, int animation );
-extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
-extern void PM_CmdForRoll( int anim, usercmd_t *pCmd );
-extern bool PM_CrouchAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_InCartwheel( int anim );
-extern bool PM_StandingAnim( int anim );
+extern void PM_CmdForRoll( animNumber_t anim, usercmd_t *pCmd );
+extern bool PM_CrouchAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_InCartwheel( animNumber_t anim );
+extern bool PM_StandingAnim( animNumber_t anim );
 extern bool PM_InForceGetUp( playerState_t *ps );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel );
 extern bool FlyingCreature( gentity_t *ent );
@@ -1083,7 +1083,7 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 {
 	if ( g_entities[0].inuse && g_entities[0].client )
 	{//player is around
-		int newWeap;
+		weapon_t newWeap;
 		if ( g_entities[0].client->ps.weapon > WP_DET_PACK )
 		{
 			newWeap = WP_BRYAR_PISTOL;
@@ -1098,7 +1098,7 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 			{
 				gi.G2API_RemoveGhoul2Model(ent->ghoul2, ent->weaponModel);
 			}
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << newWeap );
+			ent->client->ps.stats[STAT_WEAPONS] = Bit( newWeap );
 			ent->client->ps.ammo[weaponData[newWeap].ammoIndex] = 999;
 			ChangeWeapon( ent, newWeap );
 			ent->client->ps.weapon = newWeap;
@@ -1410,7 +1410,7 @@ bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			//pull back the view
 			if ( !ent->s.number )
 			{
-				float animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)ent->client->ps.torsoAnim );
+				float animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, ent->client->ps.torsoAnim );
 				float elapsedTime = (float)(animLength-ent->client->ps.legsAnimTimer);
 				float backDist = 0;
 				if ( elapsedTime < animLength/2.0f )
@@ -1432,7 +1432,7 @@ bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		//pull back the view
 		if ( !ent->s.number )
 		{
-			float animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)ent->client->ps.torsoAnim );
+			float animLength = PM_AnimLength( ent->client->clientInfo.animFileIndex, ent->client->ps.torsoAnim );
 			float elapsedTime = (float)(animLength-ent->client->ps.legsAnimTimer);
 			float backDist = 0;
 			if ( elapsedTime < animLength/2.0f )
@@ -1685,24 +1685,24 @@ void G_UpdateEmplacedWeaponData( gentity_t *ent )
 void ExitEmplacedWeapon( gentity_t *ent )
 {
 	// requesting to unlock from the weapon
-	int oldWeapon;
+	weapon_t oldWeapon;
 
 	// Remove this gun from our inventory
-	ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << ent->client->ps.weapon );
+	ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( ent->client->ps.weapon );
 
 	// when we lock or unlock from the the gun, we just swap weapons with it
 	oldWeapon = ent->client->ps.weapon;
 	ent->client->ps.weapon = ent->owner->s.weapon;
 	ent->owner->s.weapon = oldWeapon;
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	if ( ent->NPC )
 	{
 		ChangeWeapon( ent, ent->client->ps.weapon );
 	}
 	else
 	{
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 		CG_ChangeWeapon( ent->client->ps.weapon );
 		if (weaponData[ent->client->ps.weapon].weaponMdl[0])
 		{
@@ -1818,7 +1818,7 @@ void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 		(*ucmd)->upmove = 0;
 		(*ucmd)->buttons &= (BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 
-		(*ucmd)->weapon = ent->client->ps.weapon; //WP_EMPLACED_GUN;
+		UC_SetWeapon( **ucmd, ent->client->ps.weapon ); //WP_EMPLACED_GUN;
 
 		if ( ent->health <= 0 )
 		{
@@ -1887,6 +1887,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			case BOTH_STAND4IDLE1:
 				ent->client->ps.legsAnimTimer = 0;
 				break;
+			default:
+				break;
 			}
 			switch ( ent->client->ps.torsoAnim )
 			{
@@ -1896,6 +1898,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			case BOTH_STAND3IDLE1:
 			case BOTH_STAND4IDLE1:
 				ent->client->ps.torsoAnimTimer = 0;
+				break;
+			default:
 				break;
 			}
 		}
@@ -1907,7 +1911,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 	}
 	else if ( level.time - ent->client->idleTime > 5000 )
 	{//been idle for 5 seconds
-		int	idleAnim = -1;
+		std::optional<animNumber_t>	idleAnim;
 		switch ( ent->client->ps.legsAnim )
 		{
 		case BOTH_STAND1:
@@ -1922,12 +1926,14 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		case BOTH_STAND4:
 			idleAnim = BOTH_STAND4IDLE1;
 			break;
+		default:
+			break;
 		}
-		if ( idleAnim != -1 && PM_HasAnimation( ent, idleAnim ) )
+		if ( idleAnim && PM_HasAnimation( ent, *idleAnim ) )
 		{
-			NPC_SetAnim( ent, SETANIM_BOTH, idleAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( ent, SETANIM_BOTH, *idleAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			//don't idle again after this anim for a while
-			ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)idleAnim ) + Q_irand( 0, 2000 );
+			ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, *idleAnim ) + Q_irand( 0, 2000 );
 		}
 	}
 }
@@ -2252,7 +2258,7 @@ extern cvar_t	*g_skippingcin;
 						}
 						if ( !ent->s.number && ucmd->upmove < 0 )
 						{//player who should roll- force it
-							int	rollAnim = BOTH_ROLL_F;
+							animNumber_t	rollAnim = BOTH_ROLL_F;
 							if ( ucmd->forwardmove >= 0 )
 							{
 								rollAnim = BOTH_ROLL_F;
@@ -2292,7 +2298,7 @@ extern cvar_t	*g_skippingcin;
 						&& groundEnt->client->playerTeam != ent->client->playerTeam ) //and not on the same team
 					|| ent->client->NPC_class == CLASS_DESANN )//desann always knocks people down
 				{
-					int knockAnim = BOTH_KNOCKDOWN1;
+					animNumber_t knockAnim = BOTH_KNOCKDOWN1;
 					if ( PM_CrouchAnim( groundEnt->client->ps.legsAnim ) )
 					{//knockdown from crouch
 						knockAnim = BOTH_KNOCKDOWN4;
@@ -2607,7 +2613,7 @@ extern cvar_t	*g_skippingcin;
 	}
 	if ( client->NPC_class == CLASS_ATST && client->ps.legsAnim == BOTH_RUN1START )
 	{//HACK: when starting to move as atst, ramp up speed
-		//float animLength = PM_AnimLength( client->clientInfo.animFileIndex, (animNumber_t)client->ps.legsAnim);
+		//float animLength = PM_AnimLength( client->clientInfo.animFileIndex, client->ps.legsAnim);
 		//client->ps.speed *= ( animLength - client->ps.legsAnimTimer)/animLength;
 		if ( client->ps.legsAnimTimer > 100 )
 		{

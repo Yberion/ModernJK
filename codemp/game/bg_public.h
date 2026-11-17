@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
+#include <optional>
+
 #include "bg_weapons.h"
 #include "anims.h"
 #include "bg_vehicles.h"
@@ -189,7 +191,6 @@ enum class g2ModelParts_t {
 using enum g2ModelParts_t;
 template <> inline constexpr bool enableEnumArithmetic<g2ModelParts_t> = true;
 
-#define G2_MODEL_PART	50
 
 #define BG_NUM_TOGGLEABLE_SURFACES 31
 
@@ -283,7 +284,7 @@ using enum flagStatus_t;
 enum class gender_t { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER };
 using enum gender_t;
 
-extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
+extern EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint;
 
 extern forcePowers_t forcePowerSorted[to_underlying( NUM_FORCE_POWERS )];
 
@@ -330,8 +331,11 @@ typedef struct animation_s {
 } animation_t;
 #pragma pack(pop)
 
+// the animations of an animation file, indexed by animation
+using animSet_t = EnumArray<animation_t, animNumber_t, MAX_TOTALANIMATIONS>;
+
 extern bool			BGPAFtextLoaded;
-extern animation_t		bgHumanoidAnimations[MAX_TOTALANIMATIONS];
+extern animSet_t		bgHumanoidAnimations;
 
 #define MAX_ANIM_FILES	16
 #define MAX_ANIM_EVENTS 300
@@ -348,6 +352,19 @@ using enum footstepType_t;
 
 extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
 extern stringID_table_t footstepTypeTable[to_underlying( NUM_FOOTSTEP_TYPES ) + 1];
+extern stringID_table_t animTable[to_underlying( MAX_ANIMATIONS ) + 1];
+
+// the animation a file or a script names, none for a name the table does not have
+[[nodiscard]] inline std::optional<animNumber_t> BG_AnimFromName( const char *name ) {
+	const int anim = GetIDForString( animTable, name );
+	if ( anim == -1 ) {
+		return std::nullopt;
+	}
+	return static_cast<animNumber_t>( anim );
+}
+
+// the name of an animation: the name table lists every animation in its order
+[[nodiscard]] inline const char *BG_AnimName( animNumber_t anim ) { return animTable[to_underlying( anim )].name; }
 
 //size of Anim eventData array...
 #define MAX_RANDOM_ANIM_SOUNDS		4
@@ -408,7 +425,7 @@ typedef struct animevent_s
 
 typedef struct bgLoadedAnim_s {
 	char			filename[MAX_QPATH];
-	animation_t		*anims;
+	animSet_t		*anims;
 //	animsounds_t	torsoAnimSnds[MAX_ANIM_SOUNDS];
 //	animsounds_t	legsAnimSnds[MAX_ANIM_SOUNDS];
 //	bool		soundsCached;
@@ -556,7 +573,7 @@ typedef struct pmove_s {
 	int			stepSlideFix;
 	int			noSpecMove;
 
-	animation_t	*animations;
+	animSet_t	*animations;
 
 	float		xyspeed;
 
@@ -1115,11 +1132,36 @@ template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 [[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
 inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
 
+// A user command's weapon, a byte of the client packet: the one conversion of the field
+[[nodiscard]] inline weapon_t UC_Weapon( const usercmd_t &cmd ) { return static_cast<weapon_t>( cmd.weapon ); }
+inline void UC_SetWeapon( usercmd_t &cmd, weapon_t weapon ) { cmd.weapon = to_underlying( weapon ); }
+
+// Some events carry a number in the entity state's weapon field, a networked weapon_t (a saber's index, a client
+// number, a flag): the one conversion of the field
+[[nodiscard]] inline int ES_WeaponParm( const entityState_t &es ) { return to_underlying( es.weapon ); }
+inline void ES_SetWeaponParm( entityState_t &es, int parm ) { es.weapon = static_cast<weapon_t>( parm ); }
+
+// EV_NOAMMO's parameter for a weapon out of ammo that the player keeps: past the weapons, so that the client
+// tells it from a weapon taken away
+[[nodiscard]] inline int BG_NoAmmoEventParm( weapon_t weapon ) { return to_underlying( WP_NUM_WEAPONS ) + to_underlying( weapon ); }
+
 // An entity state's teamowner, a networked integer: the team of a player's item, a turret or a vehicle, the NPC team of an NPC
 [[nodiscard]] inline team_t ES_Team( const entityState_t &es ) { return static_cast<team_t>( es.teamowner ); }
 inline void ES_SetTeam( entityState_t &es, team_t team ) { es.teamowner = to_underlying( team ); }
 [[nodiscard]] inline npcteam_t ES_NPCTeam( const entityState_t &es ) { return static_cast<npcteam_t>( es.teamowner ); }
 inline void ES_SetNPCTeam( entityState_t &es, npcteam_t team ) { es.teamowner = to_underlying( team ); }
+
+// An entity state's legsAnim and torsoAnim, networked integers: the animations of a player or an NPC, the blade number of a
+// saber event (legsAnim), the end and start frames of an EF_G2ANIMATING entity
+[[nodiscard]] inline animNumber_t ES_LegsAnim( const entityState_t &es ) { return static_cast<animNumber_t>( es.legsAnim ); }
+[[nodiscard]] inline animNumber_t ES_TorsoAnim( const entityState_t &es ) { return static_cast<animNumber_t>( es.torsoAnim ); }
+inline void ES_SetLegsAnim( entityState_t &es, animNumber_t anim ) { es.legsAnim = to_underlying( anim ); }
+inline void ES_SetTorsoAnim( entityState_t &es, animNumber_t anim ) { es.torsoAnim = to_underlying( anim ); }
+
+// The player state's forceDodgeAnim, a networked integer: the animation of a dodge or a taunt (HANDEXTEND_DODGE,
+// HANDEXTEND_TAUNT), a code of the get-up from a knockdown, a flag of the end of a throw
+[[nodiscard]] inline animNumber_t PS_DodgeAnim( const playerState_t &ps ) { return static_cast<animNumber_t>( ps.forceDodgeAnim ); }
+inline void PS_SetDodgeAnim( playerState_t &ps, animNumber_t anim ) { ps.forceDodgeAnim = to_underlying( anim ); }
 
 enum class duelTeam_t {
 	DUELTEAM_FREE,
@@ -1246,6 +1288,7 @@ typedef struct gitem_s {
 
 // What an item's giTag holds, by its giType: the one conversion of the cell
 [[nodiscard]] inline ammo_t GI_Ammo( const gitem_t &item ) { return static_cast<ammo_t>( item.giTag ); }
+[[nodiscard]] inline weapon_t GI_Weapon( const gitem_t &item ) { return static_cast<weapon_t>( item.giTag ); }
 [[nodiscard]] inline powerup_t GI_Powerup( const gitem_t &item ) { return static_cast<powerup_t>( item.giTag ); }
 [[nodiscard]] inline holdable_t GI_Holdable( const gitem_t &item ) { return static_cast<holdable_t>( item.giTag ); }
 
@@ -1551,7 +1594,7 @@ template <> inline constexpr bool enableEnumArithmetic<saberQuadrant_t> = true;
 
 typedef struct saberMoveData_s {
 	const char *name;
-	int animToUse;
+	animNumber_t animToUse;
 	saberQuadrant_t	startQuad;
 	saberQuadrant_t	endQuad;
 	unsigned animSetFlags;
@@ -1723,14 +1766,14 @@ typedef struct saberInfo_s {
 	saberMoveName_t	jumpAtkBackMove;						// LS_INVALID - if set, player will execute this move when they jump+back+attack
 	saberMoveName_t	jumpAtkRightMove;						// LS_INVALID - if set, player will execute this move when they jump+rightattack
 	saberMoveName_t	jumpAtkLeftMove;						// LS_INVALID - if set, player will execute this move when they jump+left+attack
-	int				readyAnim;								// -1 - anim to use when standing idle
-	int				drawAnim;								// -1 - anim to use when drawing weapon
-	int				putawayAnim;							// -1 - anim to use when putting weapon away
-	int				tauntAnim;								// -1 - anim to use when hit "taunt"
-	int				bowAnim;								// -1 - anim to use when hit "bow"
-	int				meditateAnim;							// -1 - anim to use when hit "meditate"
-	int				flourishAnim;							// -1 - anim to use when hit "flourish"
-	int				gloatAnim;								// -1 - anim to use when hit "gloat"
+	animNumber_t	readyAnim;								// ANIM_NONE - anim to use when standing idle
+	animNumber_t	drawAnim;								// ANIM_NONE - anim to use when drawing weapon
+	animNumber_t	putawayAnim;							// ANIM_NONE - anim to use when putting weapon away
+	animNumber_t	tauntAnim;								// ANIM_NONE - anim to use when hit "taunt"
+	animNumber_t	bowAnim;								// ANIM_NONE - anim to use when hit "bow"
+	animNumber_t	meditateAnim;							// ANIM_NONE - anim to use when hit "meditate"
+	animNumber_t	flourishAnim;							// ANIM_NONE - anim to use when hit "flourish"
+	animNumber_t	gloatAnim;								// ANIM_NONE - anim to use when hit "gloat"
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	int				bladeStyle2Start;						// 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
@@ -1767,14 +1810,14 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
 void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, orientations_t flags, vec3_t vec);
 
-void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, int basePose, vec3_t desiredPos, bool *ikInProgress,
+void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, animNumber_t basePose, vec3_t desiredPos, bool *ikInProgress,
 					 vec3_t origin, vec3_t angles, vec3_t scale, int blendTime, bool forceHalt);
 
 void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int time, vec3_t cent_lerpOrigin,
 					   vec3_t cent_lerpAngles, matrix3_t legs, vec3_t legsAngles, bool *tYawing,
 					   bool *tPitching, bool *lYawing, float *tYawAngle, float *tPitchAngle,
-					   float *lYawAngle, int frametime, vec3_t turAngles, vec3_t modelScale, int ciLegs,
-					   int ciTorso, int *corrTime, vec3_t lookAngles, vec3_t lastHeadAngles, int lookTime,
+					   float *lYawAngle, int frametime, vec3_t turAngles, vec3_t modelScale, animNumber_t ciLegs,
+					   animNumber_t ciTorso, int *corrTime, vec3_t lookAngles, vec3_t lastHeadAngles, int lookTime,
 					   entityState_t *emplaced, int *crazySmoothFactor);
 void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles );
 
@@ -1782,36 +1825,36 @@ void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles );
 
 int BG_AnimLength( int index, animNumber_t anim );
 
-bool BG_InSpecialJump( int anim );
-bool BG_InSaberStandAnim( int anim );
-bool BG_InReboundJump( int anim );
-bool BG_InReboundHold( int anim );
-bool BG_InReboundRelease( int anim );
-bool BG_InBackFlip( int anim );
-bool BG_DirectFlippingAnim( int anim );
+bool BG_InSpecialJump( animNumber_t anim );
+bool BG_InSaberStandAnim( animNumber_t anim );
+bool BG_InReboundJump( animNumber_t anim );
+bool BG_InReboundHold( animNumber_t anim );
+bool BG_InReboundRelease( animNumber_t anim );
+bool BG_InBackFlip( animNumber_t anim );
+bool BG_DirectFlippingAnim( animNumber_t anim );
 bool BG_SaberInAttack( saberMoveName_t move );
 bool BG_SaberInSpecial( saberMoveName_t move );
 bool BG_KickMove( saberMoveName_t move );
 bool BG_SaberInIdle( saberMoveName_t move );
-bool BG_FlippingAnim( int anim );
-bool BG_SpinningSaberAnim( int anim );
-bool BG_SaberInSpecialAttack( int anim );
+bool BG_FlippingAnim( animNumber_t anim );
+bool BG_SpinningSaberAnim( animNumber_t anim );
+bool BG_SaberInSpecialAttack( animNumber_t anim );
 bool BG_SaberInKata( saberMoveName_t saberMove );
-bool BG_InKataAnim(int anim);
-bool BG_KickingAnim( int anim );
-int BG_InGrappleMove(int anim);
+bool BG_InKataAnim(animNumber_t anim);
+bool BG_KickingAnim( animNumber_t anim );
+int BG_InGrappleMove(animNumber_t anim);
 saberMoveName_t BG_BrokenParryForAttack( saberMoveName_t move );
 saberMoveName_t BG_BrokenParryForParry( saberMoveName_t move );
 saberMoveName_t BG_KnockawayForParry( saberBlockedType_t move );
-bool BG_InRoll( playerState_t *ps, int anim );
-bool BG_InDeathAnim( int anim );
-bool BG_InSaberLockOld( int anim );
-bool BG_InSaberLock( int anim );
+bool BG_InRoll( playerState_t *ps, animNumber_t anim );
+bool BG_InDeathAnim( animNumber_t anim );
+bool BG_InSaberLockOld( animNumber_t anim );
+bool BG_InSaberLock( animNumber_t anim );
 
 void BG_FixSaberMoveData( void );
 void BG_FixWeaponAttackAnim( void );
 
-void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, int weapon, int anim, float *animSpeed, int broken );
+void BG_SaberStartTransAnim( int clientNum, saber_styles_t saberAnimLevel, weapon_t weapon, animNumber_t anim, float *animSpeed, int broken );
 
 void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );
 
@@ -1829,16 +1872,17 @@ bool	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
 void	BG_InitAnimsets(void);
 void	BG_ClearAnimsets(void);
-int		BG_ParseAnimationFile(const char *filename, animation_t *animSet, bool isHumanoid);
+int		BG_ParseAnimationFile(const char *filename, animSet_t *animSet, bool isHumanoid);
 #ifndef _GAME
 int		BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int eventFileIndex );
 #endif
 
-bool BG_HasAnimation(int animIndex, int animation);
-int		BG_PickAnim( int animIndex, int minAnim, int maxAnim );
+bool BG_HasAnimation(int animIndex, animNumber_t animation);
+std::optional<animNumber_t>	BG_PickAnim( int animIndex, animNumber_t minAnim, animNumber_t maxAnim );
 
 int		BG_GetItemIndexByTag(int tag, itemType_t type);
 int		BG_GetItemIndexByTag( holdable_t item );
+int		BG_GetItemIndexByTag( weapon_t weapon );
 
 bool BG_IsItemSelectable(playerState_t *ps, holdable_t item);
 
@@ -1868,8 +1912,8 @@ void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,bool inMouth,vec3_t out_origin,vec3_t out_angles,matrix3_t out_axis );
 void BG_ClearRocketLock( playerState_t *ps );
 
-extern int WeaponReadyAnim[WP_NUM_WEAPONS];
-extern int WeaponAttackAnim[WP_NUM_WEAPONS];
+extern EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyAnim;
+extern EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponAttackAnim;
 
 extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight;
 

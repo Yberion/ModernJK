@@ -31,11 +31,11 @@ extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 #ifdef _GAME //SP or gameside MP
 	extern vec3_t playerMins;
 	extern vec3_t playerMaxs;
-	extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+	extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	extern int PM_AnimLength( int index, animNumber_t anim );
 #endif
 
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
 extern int BG_GetTime(void);
 extern bool BG_SabersOff( playerState_t *ps );
 

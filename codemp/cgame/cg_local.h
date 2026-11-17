@@ -172,6 +172,10 @@ typedef struct lerpFrame_s {
 	bool	torsoYawing;
 } lerpFrame_t;
 
+// a lerp frame's animationNumber: the animation of a player or an NPC, the frame of an EF_G2ANIMATING entity (cg_ents.cpp)
+[[nodiscard]] inline animNumber_t LF_Anim( const lerpFrame_t &lf ) { return static_cast<animNumber_t>( lf.animationNumber ); }
+inline void LF_SetAnim( lerpFrame_t &lf, animNumber_t anim ) { lf.animationNumber = to_underlying( anim ); }
+
 
 typedef struct playerEntity_s {
 	lerpFrame_t		legs, torso, flag;
@@ -232,7 +236,7 @@ typedef struct clientInfo_s {
 	int				location;		// location index for team mode
 	int				health;			// you only get this info about your teammates
 	int				armor;
-	int				curWeapon;
+	weapon_t		curWeapon;
 
 	int				handicap;
 	int				wins, losses;	// in tourney mode
@@ -308,8 +312,8 @@ typedef struct clientInfo_s {
 	sfxHandle_t		siegeSounds[MAX_CUSTOM_SIEGE_SOUNDS];
 	sfxHandle_t		duelSounds[MAX_CUSTOM_DUEL_SOUNDS];
 
-	int				legsAnim;
-	int				torsoAnim;
+	animNumber_t	legsAnim;
+	animNumber_t	torsoAnim;
 
 	float		facial_blink;		// time before next blink. If a minus value, we are in blink mode
 	float		facial_frown;		// time before next frown. If a minus value, we are in frown mode
@@ -398,7 +402,8 @@ typedef struct centity_s {
 
 	clientInfo_t	*npcClient; //dynamically allocated - always free it, and never stomp over it.
 
-	int				weapon;
+	weapon_t		weapon;
+	int				pickupDebounceTime;	// an item's pickup was played until this time (against double pickups; it was kept in weapon)
 
 	void			*ghoul2weapon; //rww - pointer to ghoul2 instance of the current 3rd person weapon
 
@@ -831,7 +836,7 @@ typedef struct cg_s {
 	int			landTime;
 
 	// input state sent to server
-	int			weaponSelect;
+	weapon_t	weaponSelect;
 
 	forcePowers_t	forceSelect;
 	std::optional<holdable_t>	itemSelect;	// none before the first selection
@@ -1367,8 +1372,8 @@ typedef struct cgMedia_s {
 	qhandle_t sizeCursor;
 
 	//weapon icons
-	qhandle_t weaponIcons[WP_NUM_WEAPONS];
-	qhandle_t weaponIcons_NA[WP_NUM_WEAPONS];
+	EnumArray<qhandle_t, weapon_t, WP_NUM_WEAPONS> weaponIcons;
+	EnumArray<qhandle_t, weapon_t, WP_NUM_WEAPONS> weaponIcons_NA;
 
 	//holdable inventory item icons
 	EnumArray<qhandle_t, holdable_t, HI_NUM_HOLDABLE> invenIcons;
@@ -1647,7 +1652,7 @@ typedef struct siegeExtended_s
 	int			health;
 	int			maxhealth;
 	int			ammo;
-	int			weapon;
+	std::optional<weapon_t>	weapon = WP_NONE;	// none when the ammo is not for the weapon held
 	int			lastUpdated;
 } siegeExtended_t;
 
@@ -1663,7 +1668,7 @@ extern	centity_t		cg_entities[MAX_GENTITIES];
 extern	centity_t		*cg_permanents[MAX_GENTITIES];
 extern	int				cg_numpermanents;
 
-extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
+extern	EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>	cg_weapons;
 extern	itemInfo_t		cg_items[MAX_ITEMS];
 extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 
@@ -1882,19 +1887,19 @@ void CG_PrevWeapon_f( void );
 void CG_Weapon_f( void );
 void CG_WeaponClean_f( void );
 
-void CG_RegisterWeapon( int weaponNum);
+void CG_RegisterWeapon( weapon_t weaponNum);
 void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent, bool alt_fire );
-void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool alt_fire, int charge);
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, bool alt_fire);
+void CG_MissileHitWall(weapon_t weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool alt_fire, int charge);
+void CG_MissileHitPlayer( weapon_t weapon, vec3_t origin, vec3_t dir, int entityNum, bool alt_fire);
 
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, team_t team, vec3_t newAngles, bool thirdPerson );
 void CG_DrawWeaponSelect( void );
 void CG_DrawIconBackground(void);
 
-void CG_OutOfAmmoChange( int oldWeapon );	// should this be in pmove?
+void CG_OutOfAmmoChange( weapon_t oldWeapon );	// should this be in pmove?
 
 //
 // cg_marks.cpp
@@ -2073,8 +2078,8 @@ void CG_CreateBBRefEnts(entityState_t *s1, vec3_t origin );
 
 void CG_InitG2Weapons(void);
 void CG_ShutDownG2Weapons(void);
-void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2);
-void *CG_G2WeaponInstance(centity_t *cent, int weapon);
+void CG_CopyG2WeaponInstance(centity_t *cent, weapon_t weaponNum, void *toGhoul2);
+void *CG_G2WeaponInstance(centity_t *cent, weapon_t weapon);
 void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent);
 
 void CG_SetSiegeTimerCvar( int msec );

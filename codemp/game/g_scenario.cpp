@@ -43,7 +43,7 @@ static struct {
 	saber_styles_t	style;			// the attacker's saber style
 	bool		counter;		// the defender attacks at the same time
 	forcePowers_t	power;
-	int				weapon;
+	weapon_t		weapon;
 	bool		alt;
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
@@ -220,15 +220,15 @@ static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 	}
 
 	if ( scn.type == SCN_WEAPON ) {
-		const int weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
+		const weapon_t weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
 
-		client->ps.stats[STAT_WEAPONS] |= ( 1 << weapon );
+		client->ps.stats[STAT_WEAPONS] |= Bit( weapon );
 		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
 		client->ps.weapon = weapon;
 		return;
 	}
 
-	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
+	client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );
 	client->ps.weapon = WP_SABER;
 	if ( attacker && scn.type == SCN_SABER ) {
 		G_SetSaber( ent, 0, scn.style == SS_STAFF ? "dual_1" : "single_1", true );
@@ -286,7 +286,7 @@ void G_ScenarioFrame( void ) {
 		gclient_t *client = g_entities[scn.client[i]].client;
 
 		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
-		client->torsoAnimExecute = client->legsAnimExecute = -1;
+		client->torsoAnimExecute = client->legsAnimExecute = ANIM_NONE;
 	}
 
 	scn.repStart = level.time;
@@ -334,7 +334,7 @@ void G_ScenarioTrace( void ) {
 
 		trap->Print( "SCN %d %4d %c cmd%+d hp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n",
 			scn.rep, level.time - scn.repStart, n ? 'D' : 'A', ps->commandTime - level.time, ent->health, to_underlying( ps->saberMove ),
-			to_underlying( ps->saberBlocked ), ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
+			to_underlying( ps->saberBlocked ), ps->weaponTime, to_underlying( ps->torsoAnim ), ps->torsoTimer, to_underlying( ps->legsAnim ), ps->legsTimer,
 			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
 	}
 }
@@ -366,7 +366,7 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 
 	memset( ucmd, 0, sizeof( *ucmd ) );
 	ucmd->serverTime = t;
-	ucmd->weapon = ent->client->ps.weapon;
+	UC_SetWeapon( *ucmd, ent->client->ps.weapon );
 	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
 	for ( i = 0; i < 3; i++ ) {
 		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
@@ -485,7 +485,7 @@ void Svcmd_Scenario_f( void ) {
 		scn.type = SCN_FORCE;
 	}
 	else if ( !Q_stricmp( type, "weapon" ) ) {
-		scn.weapon = atoi( arg );
+		scn.weapon = static_cast<weapon_t>( atoi( arg ) );
 		if ( scn.weapon <= WP_NONE || scn.weapon >= WP_NUM_WEAPONS ) {
 			trap->Print( "scenario: bad weapon number\n" );
 			return;

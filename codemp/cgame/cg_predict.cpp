@@ -671,9 +671,9 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	// if its a weapon, give them some predicted ammo so the autoswitch will work
 	if ( item->giType == IT_WEAPON ) {
-		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-		if ( !cg.predictedPlayerState.ammo[ weaponData[item->giTag].ammoIndex ] ) {
-			cg.predictedPlayerState.ammo[ weaponData[item->giTag].ammoIndex ] = 1;
+		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= Bit( GI_Weapon( *item ) );
+		if ( !cg.predictedPlayerState.ammo[ weaponData[GI_Weapon( *item )].ammoIndex ] ) {
+			cg.predictedPlayerState.ammo[ weaponData[GI_Weapon( *item )].ammoIndex ] = 1;
 		}
 	}
 }
@@ -935,7 +935,7 @@ typedef struct {
 
 static void CG_CheckShownFlicker( const playerState_t *ps ) {
 	static shown_t	shown[2];	// the last two frames, newest first
-	const shown_t	now = { ps->legsAnim | ( ps->legsFlip ? 0x10000 : 0 ), ps->torsoAnim | ( ps->torsoFlip ? 0x10000 : 0 ),
+	const shown_t	now = { to_underlying( ps->legsAnim ) | ( ps->legsFlip ? 0x10000 : 0 ), to_underlying( ps->torsoAnim ) | ( ps->torsoFlip ? 0x10000 : 0 ),
 		( ps->pm_flags & PMF_DUCKED ) ? 1 : 0, ps->commandTime };
 
 	if ( cg_showMiss.integer ) {
@@ -1002,8 +1002,8 @@ static const playerState_t *CG_PredictedAt( int commandTime ) {
 	return ( cg_predicted[slot].valid && cg_predicted[slot].ps.commandTime == commandTime ) ? &cg_predicted[slot].ps : nullptr;
 }
 
-static int CG_ShownAnim( int anim, bool flip ) {
-	return anim | ( flip ? 0x10000 : 0 );
+static int CG_ShownAnim( animNumber_t anim, bool flip ) {
+	return to_underlying( anim ) | ( flip ? 0x10000 : 0 );
 }
 
 // cg_showmiss: a difference means the server sets the animation outside the shared movement code (the idle animation, the
@@ -1321,7 +1321,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 				"pm_time %d pm_type %d legs %d torso %d weaponTime %d saberMove %d\n",
 				( m->server.commandTime - m->start.commandTime ) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
 				m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, m->start.pm_flags,
-				m->start.pm_time, to_underlying( m->start.pm_type ), m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, to_underlying( m->start.saberMove ) );
+				m->start.pm_time, to_underlying( m->start.pm_type ), to_underlying( m->start.legsAnim ), to_underlying( m->start.torsoAnim ), m->start.weaponTime, to_underlying( m->start.saberMove ) );
 		} else {
 			Com_sprintf( line, sizeof( line ), "  start: not held\n" );
 		}
@@ -1626,8 +1626,8 @@ void CG_PredictPlayerState( void ) {
 			VectorCopy( cg_entities[i].currentState.pos.trBase, cgSendPS[i]->origin );
 			VectorCopy( cg_entities[i].currentState.pos.trDelta, cgSendPS[i]->velocity );
 			cgSendPS[i]->saberLockFrame = cg_entities[i].currentState.forceFrame;
-			cgSendPS[i]->legsAnim = cg_entities[i].currentState.legsAnim;
-			cgSendPS[i]->torsoAnim = cg_entities[i].currentState.torsoAnim;
+			cgSendPS[i]->legsAnim = ES_LegsAnim( cg_entities[i].currentState );
+			cgSendPS[i]->torsoAnim = ES_TorsoAnim( cg_entities[i].currentState );
 			cgSendPS[i]->legsFlip = cg_entities[i].currentState.legsFlip;
 			cgSendPS[i]->torsoFlip = cg_entities[i].currentState.torsoFlip;
 			cgSendPS[i]->clientNum = cg_entities[i].currentState.clientNum;
@@ -1987,8 +1987,8 @@ revertES:
 		if (cg_entities[i].currentState.eType == ET_PLAYER ||
 			cg_entities[i].currentState.eType == ET_NPC)
 		{
-			cg_entities[i].currentState.torsoAnim = cgSendPS[i]->torsoAnim;
-			cg_entities[i].currentState.legsAnim = cgSendPS[i]->legsAnim;
+			ES_SetTorsoAnim( cg_entities[i].currentState, cgSendPS[i]->torsoAnim );
+			ES_SetLegsAnim( cg_entities[i].currentState, cgSendPS[i]->legsAnim );
 			cg_entities[i].currentState.forceFrame = cgSendPS[i]->saberLockFrame;
 			cg_entities[i].currentState.saberMove = cgSendPS[i]->saberMove;
 		}

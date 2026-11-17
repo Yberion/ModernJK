@@ -55,7 +55,7 @@ extern void Boba_Update();
 extern bool Boba_Flee();
 extern bool Boba_Tactics();
 extern void BubbleShield_Update();
-extern bool PM_LockedAnim( int anim );
+extern bool PM_LockedAnim( animNumber_t anim );
 
 extern cvar_t	*g_dismemberment;
 extern cvar_t	*g_saberRealisticCombat;
@@ -81,7 +81,7 @@ gclient_t		*client;
 usercmd_t		ucmd;
 visibility_t	enemyVisibility;
 
-void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
+void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
 static bState_t G_CurrentBState( gNPC_t *gNPC );
 
 extern int eventClearTime;
@@ -825,8 +825,8 @@ static void DeadThink ( void )
 	if ( !NPCInfo->timeOfDeath && NPC->client != nullptr && NPCInfo != nullptr )
 	{
 		//haven't finished death anim yet and were NOT given a specific amount of time to wait before removal
-		int				legsAnim	= NPC->client->ps.legsAnim;
-		animation_t		*animations	= knownAnimFileSets[NPC->client->clientInfo.animFileIndex].animations;
+		animNumber_t	legsAnim	= NPC->client->ps.legsAnim;
+		auto		&animations	= knownAnimFileSets[NPC->client->clientInfo.animFileIndex].animations;
 
 		NPC->bounceCount = -1; // This is a cheap hack for optimizing the pointcontents check below
 
@@ -2302,9 +2302,9 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 	/*if( ucmd.forwardmove || ucmd.rightmove )
 	{
-		int	i, la = -1, ta = -1;
+		std::optional<animNumber_t>	la, ta;
 
-		for(i = 0; i < MAX_ANIMATIONS; i++)
+		for(animNumber_t i = FACE_TALK0; i < MAX_ANIMATIONS; i++)
 		{
 			if( NPC->client->ps.legsAnim == i )
 			{
@@ -2316,15 +2316,15 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 				ta = i;
 			}
 
-			if(la != -1 && ta != -1)
+			if(la && ta)
 			{
 				break;
 			}
 		}
 
-		if(la != -1 && ta != -1)
+		if(la && ta)
 		{//FIXME: should never play same frame twice or restart an anim before finishing it
-			gi.Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", animTable[la].name, NPC->renderInfo.legsFrame, animTable[ta].name, NPC->client->renderInfo.torsoFrame);
+			gi.Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ), NPC->client->renderInfo.torsoFrame);
 		}
 	}*/
 }
@@ -2569,7 +2569,7 @@ void NPC_InitAnimTable( void )
 {
 	for ( int i = 0; i < MAX_ANIM_FILES; i++ )
 	{
-		for ( int j = 0; j < MAX_ANIMATIONS; j++ )
+		for ( animNumber_t j = FACE_TALK0; j < MAX_ANIMATIONS; j++ )
 		{
 			level.knownAnimFileSets[i].animations[j].firstFrame = 0;
 			level.knownAnimFileSets[i].animations[j].frameLerp = 100;
@@ -2597,7 +2597,7 @@ void NPC_InitGame( void )
 	*/
 }
 
-void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend)
+void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
 	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
 

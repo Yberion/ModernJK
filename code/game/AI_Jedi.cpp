@@ -56,31 +56,31 @@ extern void WP_KnockdownTurret( gentity_t *self, gentity_t *pas );
 extern void WP_DeactivateSaber( gentity_t *self, bool clearLength = false );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_SaberInStart( saberMoveName_t move );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInParry( saberMoveName_t move );
 extern bool PM_SaberInKnockaway( saberMoveName_t move );
 extern bool PM_SaberInBrokenParry( saberMoveName_t move );
 extern bool PM_SaberInDeflect( saberMoveName_t move );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
 extern bool PM_InGetUp( playerState_t *ps );
-extern bool PM_InSpecialJump( int anim );
-extern bool PM_SuperBreakWinAnim( int anim );
+extern bool PM_InSpecialJump( animNumber_t anim );
+extern bool PM_SuperBreakWinAnim( animNumber_t anim );
 extern bool PM_InOnGroundAnim ( playerState_t *ps );
-extern bool PM_DodgeAnim( int anim );
-extern bool PM_DodgeHoldAnim( int anim );
-extern bool PM_InAirKickingAnim( int anim );
-extern bool PM_KickingAnim( int anim );
-extern bool PM_StabDownAnim( int anim );
-extern bool PM_SuperBreakLoseAnim( int anim );
+extern bool PM_DodgeAnim( animNumber_t anim );
+extern bool PM_DodgeHoldAnim( animNumber_t anim );
+extern bool PM_InAirKickingAnim( animNumber_t anim );
+extern bool PM_KickingAnim( animNumber_t anim );
+extern bool PM_StabDownAnim( animNumber_t anim );
+extern bool PM_SuperBreakLoseAnim( animNumber_t anim );
 extern bool PM_SaberInKata( saberMoveName_t saberMove );
 extern bool PM_InRollIgnoreTimer( playerState_t *ps );
-extern bool PM_PainAnim( int anim );
+extern bool PM_PainAnim( animNumber_t anim );
 extern bool G_CanKickEntity( gentity_t *self, gentity_t *target );
 extern saberMoveName_t G_PickAutoKick( gentity_t *self, gentity_t *enemy, bool storeMove );
 extern saberMoveName_t G_PickAutoMultiKick( gentity_t *self, bool allowSingles, bool storeMove );
@@ -90,7 +90,7 @@ extern float NPC_EnemyRangeFromBolt( int boltIndex );
 extern bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode );
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 extern bool G_EntIsBreakable( int entityNum, gentity_t *breaker );
-extern bool PM_LockedAnim( int anim );
+extern bool PM_LockedAnim( animNumber_t anim );
 extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask);
 
 extern cvar_t	*g_saberRealisticCombat;
@@ -1226,7 +1226,6 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, saber_styles_t newLevel 
 		case SS_STRONG:
 			gi.Printf( S_COLOR_RED"%s Saber Attack Set: strong\n", self->NPC_type );
 			break;
-		
 		default:
 			break;
 		}
@@ -1588,7 +1587,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			Kyle_TryGrab();
 			return;
 		}
-		else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+		else if ( NPC->client->ps.stats[STAT_WEAPONS]&Bit( WP_SCEPTER )
 			&& !Q_irand( 0, 20 ) )
 		{
 			Tavion_StartScepterSlam();
@@ -1616,7 +1615,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 				Kyle_TryGrab();
 				return;
 			}
-			else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+			else if ( NPC->client->ps.stats[STAT_WEAPONS]&Bit( WP_SCEPTER )
 				&& !Q_irand( 0, 20 ) )
 			{
 				Tavion_StartScepterSlam();
@@ -1796,7 +1795,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			{
 				ForceThrow( NPC, true );
 			}
-			else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+			else if ( NPC->client->ps.stats[STAT_WEAPONS]&Bit( WP_SCEPTER )
 				&& !Q_irand( 0, 20 ) )
 			{
 				Tavion_StartScepterBeam();
@@ -2094,7 +2093,7 @@ FIXME: possibly let player do this too?
 */
 bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
 {
-	int	dodgeAnim = -1;
+	std::optional<animNumber_t>	dodgeAnim;
 
 	if ( !self || !self->client || self->health <= 0 )
 	{
@@ -2248,7 +2247,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 		break;
 	}
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{
 		int extraHoldTime = 0;//Q_irand( 5, 40 ) * 50;
 		/*
@@ -2266,14 +2265,14 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 					&& !PM_DodgeHoldAnim( self->client->ps.torsoAnim ) )
 				{//already in a dodge
 					//use the hold pose, don't start it all over again
-					dodgeAnim = BOTH_DODGE_HOLD_FL+(dodgeAnim-BOTH_DODGE_FL);
+					dodgeAnim = BOTH_DODGE_HOLD_FL+(*dodgeAnim-BOTH_DODGE_FL);
 					extraHoldTime = 200;
 				}
 			}
 		}
 
 		//set the dodge anim we chose
-		NPC_SetAnim( self, SETANIM_BOTH, dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );//type
+		NPC_SetAnim( self, SETANIM_BOTH, *dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );//type
 		if ( extraHoldTime && self->client->ps.torsoAnimTimer < extraHoldTime )
 		{
 			self->client->ps.torsoAnimTimer += extraHoldTime;
@@ -2348,11 +2347,11 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 	if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT || self->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
 	{//already running on a wall
 		vec3_t right, fwdAngles = {0, self->client->ps.viewangles[YAW], 0};
-		int		anim = -1;
+		std::optional<animNumber_t>		anim;
 
 		AngleVectors( fwdAngles, nullptr, right, nullptr );
 
-		float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim );
+		float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim );
 		if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT && rightdot < 0 )
 		{//I'm running on a wall to my left and the attack is on the left
 			if ( animLength - self->client->ps.legsAnimTimer > 400
@@ -2369,7 +2368,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 				anim = BOTH_WALL_RUN_RIGHT_FLIP;
 			}
 		}
-		if ( anim != -1 )
+		if ( anim )
 		{//flip off the wall!
 			//FIXME: check the direction we will flip towards for do-not-enter/walls/drops?
 			//NOTE: we presume there is still a wall there!
@@ -2390,7 +2389,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 			{
 				parts = SETANIM_BOTH;
 			}
-			NPC_SetAnim( self, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			self->client->ps.pm_flags |= (PMF_JUMPING|PMF_SLOW_MO_FALL);
 			G_AddEvent( self, EV_JUMP, 0 );
 			return EVASION_OTHER;
@@ -2408,7 +2407,8 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 
 		AngleVectors( fwdAngles, fwd, right, nullptr );
 
-		int parts = SETANIM_BOTH, anim;
+		int parts = SETANIM_BOTH;
+		animNumber_t anim;
 		float	speed, checkDist;
 		bool allowCartWheels = true;
 
@@ -2890,6 +2890,8 @@ bool Jedi_InNoAIAnim( gentity_t *self )
 	case BOTH_A7_HILT:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
@@ -2954,7 +2956,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	float rightdot;
 	float zdiff;
 	int	  duckChance = 0;
-	int	  dodgeAnim = -1;
+	std::optional<animNumber_t>	  dodgeAnim;
 	bool	saberBusy = false;
 	evasionType_t	evasionType = EVASION_NONE;
 
@@ -3428,7 +3430,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 								&& !PM_InKnockDown( &self->client->ps )
 								&& !PM_SaberInSpecialAttack( self->client->ps.torsoAnim ) )
 							{//do the butterfly!
-								int butterflyAnim;
+								animNumber_t butterflyAnim;
 								if ( self->client->NPC_class == CLASS_ALORA
 									&& !Q_irand( 0, 2 ) )
 								{
@@ -3597,10 +3599,10 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	TIMER_Set( self, "draining", -level.time );
 	WP_ForcePowerStop( self, FP_DRAIN );
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{//dodged
 		evasionType = EVASION_DODGE;
-		NPC_SetAnim( self, SETANIM_BOTH, dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, SETANIM_BOTH, *dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		self->client->ps.weaponTime = self->client->ps.torsoAnimTimer;
 		//force them to stop moving in this case
 		self->client->ps.pm_time = self->client->ps.torsoAnimTimer;
@@ -4638,7 +4640,7 @@ void NPC_EvasionSaber( void )
 	}
 }
 
-extern float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire );
+extern float WP_SpeedOfMissileForWeapon( weapon_t wp, bool alt_fire );
 static void Jedi_FaceEnemy( bool doPitch )
 {
 	vec3_t	enemy_eyes, eyes, angles;
@@ -5191,7 +5193,7 @@ static void Jedi_CombatIdle( int enemy_dist )
 	{//never taunt while raging or recovering from rage
 		return;
 	}
-	if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER) )
+	if ( NPC->client->ps.stats[STAT_WEAPONS]&Bit( WP_SCEPTER ) )
 	{//never taunt when holding scepter
 		return;
 	}
@@ -5418,7 +5420,7 @@ static bool Jedi_AttackDecide( int enemy_dist )
 
 
 extern void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir );
-extern bool PM_KickingAnim( int anim );
+extern bool PM_KickingAnim( animNumber_t anim );
 static void Jedi_CheckEnemyMovement( float enemy_dist )
 {
 	if ( !NPC->enemy || !NPC->enemy->client )

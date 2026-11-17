@@ -24,8 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __ANIMS_H__
 // playerAnimations
 
+#include <optional>
 
-typedef enum //# animNumber_e
+
+enum class animNumber_t //# animNumber_e
 {
 	//=================================================
 	//ANIMS IN WHICH UPPER AND LOWER OBJECTS ARE IN MD3
@@ -1382,7 +1384,10 @@ typedef enum //# animNumber_e
 
 	//# #eol
 	MAX_ANIMATIONS,
-} animNumber_t;
+	ANIM_NONE = -1	// no animation, where none is stored or meets a switch
+};
+using enum animNumber_t;
+template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
 
@@ -1390,7 +1395,7 @@ typedef enum //# animNumber_e
 
 #ifndef CG_PLAYERS_CPP
 
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
+extern stringID_table_t animTable [to_underlying( MAX_ANIMATIONS ) + 1];
 
 #else
 
@@ -1398,12 +1403,17 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 #endif// #ifndef CG_PLAYER_CPP
 
+// the animation of a name in animTable (an animation file, an NPC file, a script), none for a name that matches none
+std::optional<animNumber_t> BG_AnimFromName( const char *name );
+// the name of an animation in animTable (the debug prints)
+const char *BG_AnimName( animNumber_t anim );
+
 // !!!!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!!!
 class animFileSet_t
 {
 public:
 	char			filename[MAX_QPATH];
-	animation_t		animations[MAX_ANIMATIONS];
+	EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS>	animations;
 	animsounds_t	torsoAnimSnds[MAX_ANIM_SOUNDS];
 	animsounds_t	legsAnimSnds[MAX_ANIM_SOUNDS];
 	bool		soundsCached;
@@ -1413,7 +1423,7 @@ public:
 		ojk::SavedGameHelper& saved_game) const
 	{
 		saved_game.write<int8_t>(filename);
-		saved_game.write<>(animations);
+		saved_game.write<>(animations.elems);
 		saved_game.write<>(torsoAnimSnds);
 		saved_game.write<>(legsAnimSnds);
 		saved_game.write<int32_t>(soundsCached);
@@ -1423,7 +1433,7 @@ public:
 		ojk::SavedGameHelper& saved_game)
 	{
 		saved_game.read<int8_t>(filename);
-		saved_game.read<>(animations);
+		saved_game.read<>(animations.elems);
 		saved_game.read<>(torsoAnimSnds);
 		saved_game.read<>(legsAnimSnds);
 		saved_game.read<int32_t>(soundsCached);

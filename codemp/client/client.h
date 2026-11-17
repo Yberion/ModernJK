@@ -164,7 +164,7 @@ typedef struct clientActive_s {
 	EnumArray<int, joystickAxis_t, MAX_JOYSTICK_AXIS>	joystickAxis;	// set by joystick events
 
 	// cgame communicates a few values to the client system
-	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
+	weapon_t	cgameUserCmdValue;	// current weapon to add to usercmd_t
 	vec3_t		cgameViewAngleForce;
 	int			cgameViewAngleForceTime;
 	float		cgameSensitivity;
@@ -509,7 +509,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
 bool CL_GetDefaultState( int index, entityState_t *state );
 bool CL_GetServerCommand( int serverCommandNumber );
 bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
-void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel );
+void CL_SetUserCmdValue( weapon_t userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel );
 
 void CL_Disconnect_f (void);
 void CL_GetChallengePacket (void);

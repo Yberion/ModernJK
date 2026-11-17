@@ -532,7 +532,7 @@ public:
 	int				torsoAttacksCnt;				// # of times torso was hit with saber
 	int				otherAttacksCnt;				// # of times anything else on a monster was hit with saber
 	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceUsed;	// # of times each force power was used
-	int				weaponUsed[WP_NUM_WEAPONS];		// # of times each weapon was used
+	EnumArray<int, weapon_t, WP_NUM_WEAPONS>	weaponUsed;		// # of times each weapon was used
 
 
 	void sg_export(
@@ -551,7 +551,7 @@ public:
 		saved_game.write<int32_t>(torsoAttacksCnt);
 		saved_game.write<int32_t>(otherAttacksCnt);
 		saved_game.write<int32_t>(forceUsed.elems);
-		saved_game.write<int32_t>(weaponUsed);
+		saved_game.write<int32_t>(weaponUsed.elems);
 	}
 
 	void sg_import(
@@ -570,7 +570,7 @@ public:
 		saved_game.read<int32_t>(torsoAttacksCnt);
 		saved_game.read<int32_t>(otherAttacksCnt);
 		saved_game.read<int32_t>(forceUsed.elems);
-		saved_game.read<int32_t>(weaponUsed);
+		saved_game.read<int32_t>(weaponUsed.elems);
 	}
 }; // missionStats_t
 
@@ -733,7 +733,7 @@ public:
 
 	float		facial_blink;		// time before next blink. If a minus value, we are in blink mode
 	float		facial_timer;		// time before next alert, frown or smile. If a minus value, we are in anim mode
-	int			facial_anim;		// anim to show in anim mode
+	animNumber_t	facial_anim;		// anim to show in anim mode
 
 	//Client info - updated when ClientInfoChanged is called, instead of using configstrings
 	clientInfo_t	clientInfo;
@@ -1663,6 +1663,10 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(forcePuller);
 	}
 };
+
+// a limb's count holds the dismember animation it plays
+[[nodiscard]] inline animNumber_t G_LimbAnim( const gentity_t &limb ) { return static_cast<animNumber_t>( limb.count ); }
+inline void G_SetLimbAnim( gentity_t &limb, animNumber_t anim ) { limb.count = to_underlying( anim ); }
 #endif //#ifdef GAME_INCLUDE
 
 extern	gentity_t		g_entities[MAX_GENTITIES];

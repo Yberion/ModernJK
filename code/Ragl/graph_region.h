@@ -416,7 +416,7 @@ public:
 		ProfilePrint("              Region Profile Results                    ");
 		ProfilePrint("--------------------------------------------------------");
 		ProfilePrint("");
-		ProfilePrint("REGION SIZE (Bytes): (%d)  (KiloBytes): (%5.3f)", sizeof(*this), ((float)(sizeof(*this))/1024.0f));
+		ProfilePrint("REGION SIZE (Bytes): (%zu)  (KiloBytes): (%5.3f)", sizeof(*this), ((float)(sizeof(*this))/1024.0f));
 		ProfilePrint("REGION COUNT: (%d) Regions  (%d) Edges", mRegionCount, mEdges.size());
 		if (mRegionCount)
 		{

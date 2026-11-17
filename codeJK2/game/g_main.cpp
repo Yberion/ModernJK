@@ -745,7 +745,7 @@ Returns a pointer to the structure with all entry points
 and global variables
 =================
 */
-extern int PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed );
+extern std::optional<animNumber_t> PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed );
 extern "C" Q_EXPORT game_export_t* QDECL GetGameAPI( game_import_t *import ) {
 	gameinfo_import_t	gameinfo_import;
 
@@ -1152,7 +1152,7 @@ void G_PlayerGuiltDeath( void )
 		player->client->ps.stats[STAT_DEAD_YAW] = player->client->ps.viewangles[YAW]+180;
 	}
 }
-extern void NPC_SetAnim(gentity_t	*ent,int type,int anim,int priority);
+extern void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
 extern void G_MakeTeamVulnerable( void );
 int killPlayerTimer = 0;
 void G_CheckEndLevelTimers( gentity_t *ent )

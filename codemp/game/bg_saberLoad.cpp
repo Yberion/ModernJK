@@ -36,7 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 int BG_SoundIndex( const char *sound ) {
 #ifdef _GAME
@@ -451,14 +450,14 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->jumpAtkBackMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+back+attack
 	saber->jumpAtkRightMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+rightattack
 	saber->jumpAtkLeftMove		= LS_INVALID;	// LS_INVALID - if set, player will execute this move when they jump+left+attack
-	saber->readyAnim			= -1;			// -1 - anim to use when standing idle
-	saber->drawAnim				= -1;			// -1 - anim to use when drawing weapon
-	saber->putawayAnim			= -1;			// -1 - anim to use when putting weapon away
-	saber->tauntAnim			= -1;			// -1 - anim to use when hit "taunt"
-	saber->bowAnim				= -1;			// -1 - anim to use when hit "bow"
-	saber->meditateAnim			= -1;			// -1 - anim to use when hit "meditate"
-	saber->flourishAnim			= -1;			// -1 - anim to use when hit "flourish"
-	saber->gloatAnim			= -1;			// -1 - anim to use when hit "gloat"
+	saber->readyAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when standing idle
+	saber->drawAnim				= ANIM_NONE;	// ANIM_NONE - anim to use when drawing weapon
+	saber->putawayAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when putting weapon away
+	saber->tauntAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "taunt"
+	saber->bowAnim				= ANIM_NONE;	// ANIM_NONE - anim to use when hit "bow"
+	saber->meditateAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "meditate"
+	saber->flourishAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "flourish"
+	saber->gloatAnim			= ANIM_NONE;	// ANIM_NONE - anim to use when hit "gloat"
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	saber->bladeStyle2Start		= 0;			// 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
@@ -1073,78 +1072,38 @@ static void Saber_ParseJumpAtkRightMove( saberInfo_t *saber, const char **p ) {
 static void Saber_ParseJumpAtkLeftMove( saberInfo_t *saber, const char **p ) {
 	Saber_ParseMove( saber->jumpAtkLeftMove, p );
 }
-static void Saber_ParseReadyAnim( saberInfo_t *saber, const char **p ) {
+// an animation a saber file names; a name the table does not have leaves the saber's animation unchanged
+static void Saber_ParseAnim( animNumber_t &anim, const char **p ) {
 	const char *value;
-	int anim = -1;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->readyAnim = anim;
+	const std::optional<animNumber_t> named = BG_AnimFromName( value );
+	if ( named && *named >= FACE_TALK0 && *named < MAX_ANIMATIONS )
+		anim = *named;
+}
+static void Saber_ParseReadyAnim( saberInfo_t *saber, const char **p ) {
+	Saber_ParseAnim( saber->readyAnim, p );
 }
 static void Saber_ParseDrawAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->drawAnim = anim;
+	Saber_ParseAnim( saber->drawAnim, p );
 }
 static void Saber_ParsePutawayAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->putawayAnim = anim;
+	Saber_ParseAnim( saber->putawayAnim, p );
 }
 static void Saber_ParseTauntAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->tauntAnim = anim;
+	Saber_ParseAnim( saber->tauntAnim, p );
 }
 static void Saber_ParseBowAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->bowAnim = anim;
+	Saber_ParseAnim( saber->bowAnim, p );
 }
 static void Saber_ParseMeditateAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->meditateAnim = anim;
+	Saber_ParseAnim( saber->meditateAnim, p );
 }
 static void Saber_ParseFlourishAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->flourishAnim = anim;
+	Saber_ParseAnim( saber->flourishAnim, p );
 }
 static void Saber_ParseGloatAnim( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int anim = -1;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	anim = GetIDForString( animTable, value );
-	if ( anim >= 0 && anim < MAX_ANIMATIONS )
-		saber->gloatAnim = anim;
+	Saber_ParseAnim( saber->gloatAnim, p );
 }
 static void Saber_ParseNoRollStab( saberInfo_t *saber, const char **p ) {
 	int n;

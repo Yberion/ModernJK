@@ -41,7 +41,7 @@ extern saber_colors_t TranslateSaberColor( const char *name );
 extern bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern bool WP_UseFirstValidSaberStyle( gentity_t *ent, saber_styles_t *saberAnimLevel );
 
-extern void G_SetWeapon( gentity_t *self, int wp );
+extern void G_SetWeapon( gentity_t *self, weapon_t wp );
 extern stringID_table_t WPTable[];
 
 extern cvar_t	*g_char_model;
@@ -578,6 +578,8 @@ void Svcmd_SaberAttackCycle_f( void )
 	case SS_STAFF:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Staff\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
+		break;
+	default:
 		break;
 	}
 	//gi.Printf("\n");

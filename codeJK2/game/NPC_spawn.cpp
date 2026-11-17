@@ -410,194 +410,194 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 			Q_strncmp( "reborn", NPC_type, 6 ) == 0 ||
 			Q_stricmp( "desann", NPC_type ) == 0 ||
 			Q_strncmp( "shadowtrooper", NPC_type, 13 ) == 0 )
-			return ( 1 << WP_SABER);
-//			return ( 1 << WP_IMPERIAL_BLADE);
+			return Bit( WP_SABER );
+//			return Bit( WP_IMPERIAL_BLADE );
 		//NOTENOTE: Falls through if not a knife user
 
 		//FIXME: default weapon in npc config?
 		if ( Q_strncmp( "stofficer", NPC_type, 9 ) == 0 )
 		{
-			return ( 1 << WP_FLECHETTE);
+			return Bit( WP_FLECHETTE );
 		}
 		if ( Q_stricmp( "stcommander", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_REPEATER);
+			return Bit( WP_REPEATER );
 		}
 		if ( Q_stricmp( "swamptrooper", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_FLECHETTE);
+			return Bit( WP_FLECHETTE );
 		}
 		if ( Q_stricmp( "swamptrooper2", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_REPEATER);
+			return Bit( WP_REPEATER );
 		}
 		if ( Q_stricmp( "rockettrooper", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_ROCKET_LAUNCHER);
+			return Bit( WP_ROCKET_LAUNCHER );
 		}
 		if ( Q_strncmp( "shadowtrooper", NPC_type, 13 ) == 0 )
 		{
-			return ( 1 << WP_SABER);//|( 1 << WP_RAPID_CONCUSSION)?
+			return Bit( WP_SABER );//|Bit( WP_RAPID_CONCUSSION )?
 		}
 		if ( Q_stricmp( "imperial", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER_PISTOL);
+			return Bit( WP_BLASTER_PISTOL );
 		}
 		if ( Q_strncmp( "impworker", NPC_type, 9 ) == 0 )
 		{
-			return ( 1 << WP_BLASTER_PISTOL);
+			return Bit( WP_BLASTER_PISTOL );
 		}
 		if ( Q_stricmp( "stormpilot", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER_PISTOL);
+			return Bit( WP_BLASTER_PISTOL );
 		}
 		if ( Q_stricmp( "galak", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER);
+			return Bit( WP_BLASTER );
 		}
 		if ( Q_stricmp( "galak_mech", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_REPEATER);
+			return Bit( WP_REPEATER );
 		}
 		if ( Q_strncmp( "ugnaught", NPC_type, 8 ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_stricmp( "granshooter", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER);
+			return Bit( WP_BLASTER );
 		}
 		if ( Q_stricmp( "granboxer", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_MELEE);
+			return Bit( WP_MELEE );
 		}
 		if ( Q_strncmp( "gran", NPC_type, 4 ) == 0 )
 		{
-			return (( 1 << WP_THERMAL)|( 1 << WP_MELEE));
+			return (Bit( WP_THERMAL )|Bit( WP_MELEE ));
 		}
 		if ( Q_stricmp( "rodian", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_DISRUPTOR);
+			return Bit( WP_DISRUPTOR );
 		}
 		if ( Q_stricmp( "rodian2", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER);
+			return Bit( WP_BLASTER );
 		}
 
 		if (( Q_stricmp( "interrogator",NPC_type) == 0) || ( Q_stricmp( "sentry",NPC_type) == 0) || (Q_strncmp( "protocol",NPC_type,8) == 0) )
 		{
-			return WP_NONE;
+			return 0;
 		}
 
 		if ( Q_strncmp( "weequay", NPC_type, 7 ) == 0 )
 		{
-			return ( 1 << WP_BOWCASTER);//|( 1 << WP_STAFF )(FIXME: new weap?)
+			return Bit( WP_BOWCASTER );//|Bit( WP_STAFF )(FIXME: new weap?)
 		}
 		if ( Q_stricmp( "impofficer", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER);
+			return Bit( WP_BLASTER );
 		}
 		if ( Q_stricmp( "impcommander", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BLASTER);
+			return Bit( WP_BLASTER );
 		}
 		if (( Q_stricmp( "probe", NPC_type ) == 0 ) || ( Q_stricmp( "seeker", NPC_type ) == 0 ))
 		{
-			return ( 1 << WP_BOT_LASER);
+			return Bit( WP_BOT_LASER );
 		}
 		if ( Q_stricmp( "remote", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BOT_LASER );
+			return Bit( WP_BOT_LASER );
 		}
 		if ( Q_stricmp( "trandoshan", NPC_type ) == 0 )
 		{
-			return (1<<WP_REPEATER);
+			return Bit( WP_REPEATER );
 		}
 		if ( Q_stricmp( "atst", NPC_type ) == 0 )
 		{
-			return (( 1 << WP_ATST_MAIN)|( 1 << WP_ATST_SIDE));
+			return (Bit( WP_ATST_MAIN )|Bit( WP_ATST_SIDE ));
 		}
 		if ( Q_stricmp( "mark1", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BOT_LASER);
+			return Bit( WP_BOT_LASER );
 		}
 		if ( Q_stricmp( "mark2", NPC_type ) == 0 )
 		{
-			return ( 1 << WP_BOT_LASER);
+			return Bit( WP_BOT_LASER );
 		}
 		if ( Q_stricmp( "minemonster", NPC_type ) == 0 )
 		{
-			return (( 1 << WP_MELEE));
+			return (Bit( WP_MELEE ));
 		}
 		if ( Q_stricmp( "howler", NPC_type ) == 0 )
 		{
-			return (( 1 << WP_MELEE));
+			return (Bit( WP_MELEE ));
 		}
 		//Stormtroopers, etc.
-		return ( 1 << WP_BLASTER);
+		return Bit( WP_BLASTER );
 		break;
 
 	case TEAM_PLAYER:
 
 		if(spawnflags & SFB_RIFLEMAN)
-			return ( 1 << WP_REPEATER);
+			return Bit( WP_REPEATER );
 
 		if(spawnflags & SFB_PHASER)
-			return ( 1 << WP_BLASTER_PISTOL);
+			return Bit( WP_BLASTER_PISTOL );
 
 		if ( Q_strncmp( "jedi", NPC_type, 4 ) == 0 || Q_stricmp( "luke", NPC_type ) == 0 )
-			return ( 1 << WP_SABER);
+			return Bit( WP_SABER );
 
 		if ( Q_strncmp( "prisoner", NPC_type, 8 ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_strncmp( "bespincop", NPC_type, 9 ) == 0 )
 		{
-			return ( 1 << WP_BLASTER_PISTOL);
+			return Bit( WP_BLASTER_PISTOL );
 		}
 
 		if ( Q_stricmp( "MonMothma", NPC_type ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 
 		//rebel
-		return ( 1 << WP_BLASTER);
+		return Bit( WP_BLASTER );
 		break;
 
 	case TEAM_NEUTRAL:
 
 		if ( Q_stricmp( "mark1", NPC_type ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_stricmp( "mark2", NPC_type ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_strncmp( "ugnaught", NPC_type, 8 ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_stricmp( "bartender", NPC_type ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 		if ( Q_stricmp( "morgankatarn", NPC_type ) == 0 )
 		{
-			return WP_NONE;
+			return 0;
 		}
 
 		break;
 
 	// these no longer exist
 //	case TEAM_FORGE:
-//		return ( 1 << WP_MELEE);
+//		return Bit( WP_MELEE );
 //		break;
 
 //	case TEAM_STASIS:
-//		return ( 1 << WP_MELEE);
+//		return Bit( WP_MELEE );
 //		break;
 
 //	case TEAM_PARASITE:
@@ -610,10 +610,10 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 		break;
 	}
 
-	return WP_NONE;
+	return 0;
 }
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 /*
 -------------------------
@@ -623,7 +623,7 @@ NPC_SetWeapons
 
 void NPC_SetWeapons( gentity_t *ent )
 {
-	int			bestWeap = WP_NONE;
+	weapon_t	bestWeap = WP_NONE;
 	int			weapons = NPC_WeaponsForTeam( ent->client->playerTeam, ent->spawnflags, ent->NPC_type );
 
 	// these teams are gone now anyway, plus all team stuff should be read in from the config file
@@ -640,12 +640,12 @@ void NPC_SetWeapons( gentity_t *ent )
 */
 
 	ent->client->ps.stats[STAT_WEAPONS] = 0;
-	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( weapon_t curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
-		if ( (weapons & ( 1 << curWeap )) )
+		if ( (weapons & Bit( curWeap )) )
 		{
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << curWeap );
-			RegisterItem( FindItemForWeapon( (weapon_t)(curWeap) ) );	//precache the weapon
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( curWeap );
+			RegisterItem( FindItemForWeapon( curWeap ) );	//precache the weapon
 			ent->NPC->currentAmmo = ent->client->ps.ammo[weaponData[curWeap].ammoIndex] = 100;//FIXME: max ammo
 
 			if ( bestWeap == WP_SABER )

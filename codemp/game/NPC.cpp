@@ -52,7 +52,7 @@ extern bool Boba_Flying( gentity_t *self );
 //Local Variables
 npcStatic_t NPCS;
 
-void NPC_SetAnim(gentity_t	*ent,int type,int anim,int priority);
+void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
 void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
 extern void GM_Dying( gentity_t *self );
 
@@ -481,7 +481,7 @@ static void DeadThink ( void )
 	if ( !NPCInfo->timeOfDeath && NPC->client != nullptr && NPCInfo != nullptr )
 	{
 		//haven't finished death anim yet and were NOT given a specific amount of time to wait before removal
-		int				legsAnim	= NPC->client->ps.legsAnim;
+		animNumber_t	legsAnim	= NPC->client->ps.legsAnim;
 		animation_t		*animations	= knownAnimFileSets[NPC->client->clientInfo.animFileIndex].animations;
 
 		NPC->bounceCount = -1; // This is a cheap hack for optimizing the pointcontents check below
@@ -1633,7 +1633,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}
 	else if ( !NPCS.NPC->enemy )//HACK!
 	{
-        if( NPCS.NPC->s.torsoAnim == TORSO_WEAPONREADY1 || NPCS.NPC->s.torsoAnim == TORSO_WEAPONREADY3 )
+        if( ES_TorsoAnim( NPCS.NPC->s ) == TORSO_WEAPONREADY1 || ES_TorsoAnim( NPCS.NPC->s ) == TORSO_WEAPONREADY3 )
         {//we look ready for action, using one of the first 2 weapon, let's rest our weapon on our shoulder
             NPC_SetAnim(NPCS.NPC,SETANIM_TORSO,TORSO_WEAPONIDLE3,SETANIM_FLAG_NORMAL);
         }
@@ -1674,9 +1674,9 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 	/*if( ucmd.forwardmove || ucmd.rightmove )
 	{
-		int	i, la = -1, ta = -1;
+		std::optional<animNumber_t> la, ta;
 
-		for(i = 0; i < MAX_ANIMATIONS; i++)
+		for(animNumber_t i = FACE_TALK0; i < MAX_ANIMATIONS; i++)
 		{
 			if( NPC->client->ps.legsAnim == i )
 			{
@@ -1688,15 +1688,15 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 				ta = i;
 			}
 
-			if(la != -1 && ta != -1)
+			if(la && ta)
 			{
 				break;
 			}
 		}
 
-		if(la != -1 && ta != -1)
+		if(la && ta)
 		{//FIXME: should never play same frame twice or restart an anim before finishing it
-			Com_Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", animTable[la].name, NPC->renderInfo.legsFrame, animTable[ta].name, NPC->client->renderInfo.torsoFrame);
+			Com_Printf("LegsAnim: %s(%d) TorsoAnim: %s(%d)\n", BG_AnimName( *la ), NPC->renderInfo.legsFrame, BG_AnimName( *ta ), NPC->client->renderInfo.torsoFrame);
 		}
 	}*/
 }
@@ -1997,7 +1997,7 @@ void NPC_InitGame( void )
 	*/
 }
 
-void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags)
+void NPC_SetAnim(gentity_t *ent, int setAnimParts, animNumber_t anim, int setAnimFlags)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
 	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
 	G_SetAnim(ent, nullptr, setAnimParts, anim, setAnimFlags, 0);
@@ -2031,14 +2031,14 @@ void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags)
 		{
 			if (setAnimParts & SETANIM_TORSO)
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ent->s.torsoAnim != anim )
+				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ES_TorsoAnim( ent->s ) != anim )
 				{
 					PM_SetTorsoAnimTimer( ent, &ent->s.torsoAnimTimer, 0 );
 				}
 			}
 			if (setAnimParts & SETANIM_LEGS)
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ent->s.legsAnim != anim )
+				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ES_LegsAnim( ent->s ) != anim )
 				{
 					PM_SetLegsAnimTimer( ent, &ent->s.legsAnimTimer, 0 );
 				}

@@ -365,7 +365,7 @@ centity_t			cg_entities[MAX_GENTITIES];
 centity_t			*cg_permanents[MAX_GENTITIES]; //rwwRMG - added
 int					cg_numpermanents = 0;
 
-weaponInfo_t		cg_weapons[MAX_WEAPONS];
+EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>		cg_weapons;
 itemInfo_t			cg_items[MAX_ITEMS];
 
 int CG_CrosshairPlayer( void ) {
@@ -1328,7 +1328,7 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
-	memset( cg_weapons, 0, sizeof( cg_weapons ) );
+	memset( &cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
@@ -2441,7 +2441,7 @@ Ghoul2 Insert End
 	cgDC.Assets.qhBigFont = cgDC.Assets.qhMediumFont;
 
 	memset( &cgs, 0, sizeof( cgs ) );
-	memset( cg_weapons, 0, sizeof(cg_weapons) );
+	memset( &cg_weapons, 0, sizeof(cg_weapons) );
 
 	cg.clientNum = clientNum;
 
@@ -2466,22 +2466,22 @@ Ghoul2 Insert End
 	cg.forceHUDTotalFlashTime = 0;
 	cg.forceHUDNextFlashTime = 0;
 
-	i = WP_NONE+1;
-	while (i <= LAST_USEABLE_WEAPON)
+	weapon_t wp = WP_NONE+1;
+	while (wp <= LAST_USEABLE_WEAPON)
 	{
-		item = BG_FindItemForWeapon((weapon_t)i);
+		item = BG_FindItemForWeapon(wp);
 
 		if (item && item->icon && item->icon[0])
 		{
-			cgs.media.weaponIcons[i] = trap->R_RegisterShaderNoMip(item->icon);
-			cgs.media.weaponIcons_NA[i] = trap->R_RegisterShaderNoMip(va("%s_na", item->icon));
+			cgs.media.weaponIcons[wp] = trap->R_RegisterShaderNoMip(item->icon);
+			cgs.media.weaponIcons_NA[wp] = trap->R_RegisterShaderNoMip(va("%s_na", item->icon));
 		}
 		else
 		{ //make sure it is zero'd (default shader)
-			cgs.media.weaponIcons[i] = 0;
-			cgs.media.weaponIcons_NA[i] = 0;
+			cgs.media.weaponIcons[wp] = 0;
+			cgs.media.weaponIcons_NA[wp] = 0;
 		}
-		i++;
+		wp++;
 	}
 	trap->Cvar_VariableStringBuffer("com_buildscript", buf, sizeof(buf));
 	if (atoi(buf))

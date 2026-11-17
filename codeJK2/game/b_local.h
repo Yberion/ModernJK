@@ -115,11 +115,11 @@ extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, alertEventLevel
 extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, alertEventLevel_e dangerLevel, int fleeTimeMin, int fleeTimeMax );
 
 //NPC_combat
-extern int ChooseBestWeapon( void );
-extern void NPC_ChangeWeapon( int newWeapon );
+extern weapon_t ChooseBestWeapon( void );
+extern void NPC_ChangeWeapon( weapon_t newWeapon );
 extern void ShootThink( void );
 extern void WeaponThink( bool inCombat );
-extern bool HaveWeapon( int weapon );
+extern bool HaveWeapon( weapon_t weapon );
 extern bool CanShoot ( gentity_t *ent, gentity_t *shooter );
 extern void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis );
 extern gentity_t *NPC_PickEnemy (gentity_t *closestTo, team_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest);
@@ -238,7 +238,7 @@ extern bool infront(gentity_t *from, gentity_t *to);
 //MCG - End============================================================
 
 // NPC.cpp
-extern void NPC_SetAnim(gentity_t	*ent,int type,int anim,int priority);
+extern void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
 extern bool NPC_EnemyTooFar(gentity_t *enemy, float dist, bool toShoot);
 
 // ==================================================================

@@ -109,7 +109,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 			if ( moveDist > 4.0f )
 			{//moved past the threshold from last position
 				vec3_t	oRight;
-				int		strafeAnim;
+				animNumber_t		strafeAnim;
 
 				VectorCopy( p, eweb->pos4 );//update the position
 				//find out what direction he moved in
@@ -348,7 +348,7 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	int	oldWeapon = activator->s.weapon;
+	weapon_t	oldWeapon = activator->s.weapon;
 
 	if ( oldWeapon == WP_SABER )
 	{
@@ -358,7 +358,7 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 	activator->client->ps.weapon = self->s.weapon;
 	Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-	activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+	activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
 
 	// Allow us to point from one to the other
 	activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -366,7 +366,7 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 	G_RemoveWeaponModels( activator );
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	if ( activator->NPC )
 	{
 		ChangeWeapon( activator, WP_EMPLACED_GUN );
@@ -571,7 +571,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// don't allow using it again for half a second
 	if ( self->delay + 500 < level.time )
 	{
-		int	oldWeapon = activator->s.weapon;
+		weapon_t	oldWeapon = activator->s.weapon;
 
 		if ( oldWeapon == WP_SABER )
 		{
@@ -581,7 +581,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 		activator->client->ps.weapon = self->s.weapon;
 		Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-		activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+		activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
 
 		// Allow us to point from one to the other
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -589,7 +589,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 		G_RemoveWeaponModels( activator );
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		if ( activator->NPC )
 		{
 			ChangeWeapon( activator, WP_EMPLACED_GUN );
@@ -996,10 +996,10 @@ void ExitEmplacedWeapon( gentity_t *ent )
 	}
 
 	// Remove the emplaced gun from our inventory
-	ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_EMPLACED_GUN );
+	ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-extern void CG_ChangeWeapon( int num );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
+extern void CG_ChangeWeapon( weapon_t num );
 	if ( ent->health <= 0 )
 	{//when die, don't set weapon back on when ejected from emplaced/eweb
 		//empty hands
@@ -1134,7 +1134,7 @@ void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 		(*ucmd)->upmove = 0;
 		(*ucmd)->buttons &= (BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 
-		(*ucmd)->weapon = ent->client->ps.weapon; //WP_EMPLACED_GUN;
+		UC_SetWeapon( **ucmd, ent->client->ps.weapon ); //WP_EMPLACED_GUN;
 
 		if ( ent->health <= 0 )
 		{

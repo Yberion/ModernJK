@@ -74,7 +74,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 		itemInfo->models[0] = trap->R_RegisterModel( item->world_model[1] );
 	}
 	else if (item->giType == IT_WEAPON &&
-		(item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK))
+		(GI_Weapon( *item ) == WP_THERMAL || GI_Weapon( *item ) == WP_TRIP_MINE || GI_Weapon( *item ) == WP_DET_PACK))
 	{
 		itemInfo->models[0] = trap->R_RegisterModel( item->world_model[1] );
 	}
@@ -117,7 +117,7 @@ Ghoul2 Insert End
 	}
 
 	if ( item->giType == IT_WEAPON ) {
-		CG_RegisterWeapon( item->giTag );
+		CG_RegisterWeapon( GI_Weapon( *item ) );
 	}
 
 	//
@@ -154,8 +154,8 @@ CG_MapTorsoToWeaponFrame
 
 =================
 */
-static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame, int animNum ) {
-	animation_t *animations = bgHumanoidAnimations;
+static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame, animNumber_t animNum ) {
+	const animSet_t &animations = bgHumanoidAnimations;
 #ifdef WEAPON_FORCE_BUSY_HOLSTER
 	if ( cg.snap->ps.forceHandExtend != HANDEXTEND_NONE || cgWeapFrameTime > cg.time ) {
 		// the reason for the after delay is so that it doesn't snap the weapon frame to the "idle" (0) frame for a very quick moment
@@ -206,6 +206,8 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame, int animNum ) 
 			return 1 + ( frame - animations[animNum].firstFrame );
 		}
 
+		break;
+	default:
 		break;
 	}
 	return -1;
@@ -426,7 +428,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	centity_t	*nonPredictedCent;
 	refEntity_t	flash;
 
-	weaponNum = (weapon_t)cent->currentState.weapon;
+	weaponNum = cent->currentState.weapon;
 
 	if (cent->currentState.weapon == WP_EMPLACED_GUN)
 	{
@@ -1039,7 +1041,7 @@ void CG_DrawIconBackground(void)
 
 }
 
-bool CG_WeaponCheck(int weap)
+bool CG_WeaponCheck(weapon_t weap)
 {
 	if (cg.snap->ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].energyPerShot &&
 		cg.snap->ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].altEnergyPerShot)
@@ -1055,11 +1057,11 @@ bool CG_WeaponCheck(int weap)
 CG_WeaponSelectable
 ===============
 */
-static bool CG_WeaponSelectable( int i ) {
+static bool CG_WeaponSelectable( weapon_t i ) {
 	/*if ( !cg.snap->ps.ammo[weaponData[i].ammoIndex] ) {
 		return false;
 	}*/
-	if (!i)
+	if (i == WP_NONE)
 	{
 		return false;
 	}
@@ -1076,7 +1078,7 @@ static bool CG_WeaponSelectable( int i ) {
 		return false;
 	}
 
-	if ( ! (cg.predictedPlayerState.stats[ STAT_WEAPONS ] & ( 1 << i ) ) ) {
+	if ( ! (cg.predictedPlayerState.stats[ STAT_WEAPONS ] & Bit( i ) ) ) {
 		return false;
 	}
 
@@ -1089,7 +1091,7 @@ CG_DrawWeaponSelect
 ===================
 */
 void CG_DrawWeaponSelect( void ) {
-	int				i;
+	weapon_t				i;
 	int				bits;
 	int				count;
 	int				smallIconSize,bigIconSize;
@@ -1131,9 +1133,9 @@ void CG_DrawWeaponSelect( void ) {
 		count++;
 	}
 
-	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ )
+	for ( i = WP_STUN_BATON ; i < WP_NUM_WEAPONS ; i++ )
 	{
-		if ( bits & ( 1 << i ) )
+		if ( bits & Bit( i ) )
 		{
 			if ( CG_WeaponSelectable(i) ||
 				(i != WP_THERMAL && i != WP_TRIP_MINE) )
@@ -1176,7 +1178,7 @@ void CG_DrawWeaponSelect( void ) {
 	{
 		i = cg.weaponSelect - 1;
 	}
-	if (i<1)
+	if (i<WP_STUN_BATON)
 	{
 		i = LAST_USEABLE_WEAPON;
 	}
@@ -1210,14 +1212,14 @@ void CG_DrawWeaponSelect( void ) {
 		{
 			i = WP_CONCUSSION;
 		}
-		if (i<1)
+		if (i<WP_STUN_BATON)
 		{
 			//i = 13;
 			//...don't ever do this.
 			i = LAST_USEABLE_WEAPON;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & Bit( i )))	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -1289,7 +1291,7 @@ void CG_DrawWeaponSelect( void ) {
 	}
 	if (i> LAST_USEABLE_WEAPON)
 	{
-		i = 1;
+		i = WP_STUN_BATON;
 	}
 
 	// Right side ICONS
@@ -1308,10 +1310,10 @@ void CG_DrawWeaponSelect( void ) {
 		}
 		if (i>LAST_USEABLE_WEAPON)
 		{
-			i = 1;
+			i = WP_STUN_BATON;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & Bit( i )))	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -1385,7 +1387,7 @@ CG_NextWeapon_f
 */
 void CG_NextWeapon_f( void ) {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap ) {
 		return;
@@ -1407,7 +1409,7 @@ void CG_NextWeapon_f( void ) {
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
-	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ ) {
+	for ( i = 0 ; i < to_underlying( WP_NUM_WEAPONS ) ; i++ ) {
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
 		if ( cg.weaponSelect == WP_FLECHETTE )
 		{
@@ -1426,7 +1428,7 @@ void CG_NextWeapon_f( void ) {
 			cg.weaponSelect++;
 		}
 		if ( cg.weaponSelect == WP_NUM_WEAPONS ) {
-			cg.weaponSelect = 0;
+			cg.weaponSelect = WP_NONE;
 		}
 	//	if ( cg.weaponSelect == WP_STUN_BATON ) {
 	//		continue;		// never cycle to gauntlet
@@ -1435,7 +1437,7 @@ void CG_NextWeapon_f( void ) {
 			break;
 		}
 	}
-	if ( i == WP_NUM_WEAPONS ) {
+	if ( i == to_underlying( WP_NUM_WEAPONS ) ) {
 		cg.weaponSelect = original;
 	}
 	else
@@ -1451,7 +1453,7 @@ CG_PrevWeapon_f
 */
 void CG_PrevWeapon_f( void ) {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap ) {
 		return;
@@ -1473,7 +1475,7 @@ void CG_PrevWeapon_f( void ) {
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
-	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ ) {
+	for ( i = 0 ; i < to_underlying( WP_NUM_WEAPONS ) ; i++ ) {
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
 		if ( cg.weaponSelect == WP_ROCKET_LAUNCHER )
 		{
@@ -1491,7 +1493,7 @@ void CG_PrevWeapon_f( void ) {
 		{
 			cg.weaponSelect--;
 		}
-		if ( cg.weaponSelect == -1 ) {
+		if ( cg.weaponSelect < WP_NONE ) {
 			cg.weaponSelect = WP_NUM_WEAPONS-1;
 		}
 	//	if ( cg.weaponSelect == WP_STUN_BATON ) {
@@ -1501,7 +1503,7 @@ void CG_PrevWeapon_f( void ) {
 			break;
 		}
 	}
-	if ( i == WP_NUM_WEAPONS ) {
+	if ( i == to_underlying( WP_NUM_WEAPONS ) ) {
 		cg.weaponSelect = original;
 	}
 	else
@@ -1516,7 +1518,7 @@ CG_Weapon_f
 ===============
 */
 void CG_Weapon_f( void ) {
-	int		num;
+	weapon_t	num;
 
 	if ( !cg.snap ) {
 		return;
@@ -1530,13 +1532,13 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
-	num = atoi( CG_Argv( 1 ) );
+	num = static_cast<weapon_t>( atoi( CG_Argv( 1 ) ) );
 
-	if ( num < 1 || num > LAST_USEABLE_WEAPON ) {
+	if ( num < WP_STUN_BATON || num > LAST_USEABLE_WEAPON ) {
 		return;
 	}
 
-	if (num == 1 && cg.snap->ps.weapon == WP_SABER)
+	if (num == WP_STUN_BATON && cg.snap->ps.weapon == WP_SABER)
 	{
 		if (cg.predictedPlayerState.weaponTime < 1)
 	//	if (cg.snap->ps.weaponTime < 1)
@@ -1554,7 +1556,7 @@ void CG_Weapon_f( void ) {
 	}
 	else
 	{
-		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		if (cg.snap->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ))
 		{
 			num = WP_SABER;
 		}
@@ -1571,7 +1573,8 @@ void CG_Weapon_f( void ) {
 
 	if (num >= WP_THERMAL && num <= WP_DET_PACK)
 	{
-		int weap, i = 0;
+		weapon_t weap;
+		int i = 0;
 
 		if (cg.snap->ps.weapon >= WP_THERMAL &&
 			cg.snap->ps.weapon <= WP_DET_PACK)
@@ -1611,13 +1614,13 @@ void CG_Weapon_f( void ) {
 
 	cg.weaponSelectTime = cg.time;
 
-	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( num ) ) )
 	{
 		if (num == WP_SABER)
 		{ //don't have saber, try melee on the same slot
 			num = WP_MELEE;
 
-			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( num ) ) )
 			{
 				return;
 			}
@@ -1640,7 +1643,7 @@ void CG_Weapon_f( void ) {
 //Version of the above which doesn't add +2 to a weapon.  The above can't
 //triger WP_MELEE or WP_STUN_BATON.  Derogatory comments go here.
 void CG_WeaponClean_f( void ) {
-	int		num;
+	weapon_t	num;
 
 	if ( !cg.snap ) {
 		return;
@@ -1654,13 +1657,13 @@ void CG_WeaponClean_f( void ) {
 		return;
 	}
 
-	num = atoi( CG_Argv( 1 ) );
+	num = static_cast<weapon_t>( atoi( CG_Argv( 1 ) ) );
 
-	if ( num < 1 || num > LAST_USEABLE_WEAPON ) {
+	if ( num < WP_STUN_BATON || num > LAST_USEABLE_WEAPON ) {
 		return;
 	}
 
-	if (num == 1 && cg.snap->ps.weapon == WP_SABER)
+	if (num == WP_STUN_BATON && cg.snap->ps.weapon == WP_SABER)
 	{
 		if (cg.snap->ps.weaponTime < 1)
 		{
@@ -1670,7 +1673,7 @@ void CG_WeaponClean_f( void ) {
 	}
 
 	if(num == WP_STUN_BATON) {
-		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		if (cg.snap->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ))
 		{
 			num = WP_SABER;
 		}
@@ -1687,7 +1690,8 @@ void CG_WeaponClean_f( void ) {
 
 	if (num >= WP_THERMAL && num <= WP_DET_PACK)
 	{
-		int weap, i = 0;
+		weapon_t weap;
+		int i = 0;
 
 		if (cg.snap->ps.weapon >= WP_THERMAL &&
 			cg.snap->ps.weapon <= WP_DET_PACK)
@@ -1727,13 +1731,13 @@ void CG_WeaponClean_f( void ) {
 
 	cg.weaponSelectTime = cg.time;
 
-	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( num ) ) )
 	{
 		if (num == WP_SABER)
 		{ //don't have saber, try melee on the same slot
 			num = WP_MELEE;
 
-			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( num ) ) )
 			{
 				return;
 			}
@@ -1761,13 +1765,13 @@ CG_OutOfAmmoChange
 The current weapon has just run out of ammo
 ===================
 */
-void CG_OutOfAmmoChange( int oldWeapon )
+void CG_OutOfAmmoChange( weapon_t oldWeapon )
 {
-	int		i;
+	weapon_t	i;
 
 	cg.weaponSelectTime = cg.time;
 
-	for ( i = LAST_USEABLE_WEAPON ; i > 0 ; i-- )	//We don't want the emplaced or turret
+	for ( i = LAST_USEABLE_WEAPON ; i > WP_NONE ; i-- )	//We don't want the emplaced or turret
 	{
 		if ( CG_WeaponSelectable( i ) )
 		{
@@ -1978,7 +1982,7 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool altFire, int charge)
+void CG_MissileHitWall(weapon_t weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool altFire, int charge)
 {
 	int parm;
 	vec3_t up={0,0,1};
@@ -2077,6 +2081,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		FX_BlasterWeaponHitWall( origin, dir );
 		//FIXME: Give it its own hit wall effect
 		break;
+	default:
+		break;
 	}
 }
 
@@ -2086,7 +2092,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, bool altFire)
+void CG_MissileHitPlayer(weapon_t weapon, vec3_t origin, vec3_t dir, int entityNum, bool altFire)
 {
 	bool	humanoid = true;
 	vec3_t up={0,0,1};
@@ -2221,11 +2227,11 @@ bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 	vec3_t		forward, right;
 	vec3_t		gunpoint;
 	centity_t	*cent;
-	int			anim;
+	animNumber_t	anim;
 
 	if ( entityNum == cg.snap->ps.clientNum )
 	{ //I'm not exactly sure why we'd be rendering someone else's crosshair, but hey.
-		int weapontype = cg.snap->ps.weapon;
+		weapon_t weapontype = cg.snap->ps.weapon;
 		vec3_t weaponMuzzle;
 		centity_t *pEnt = &cg_entities[cg.predictedPlayerState.clientNum];
 
@@ -2304,7 +2310,7 @@ bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 	VectorCopy( cent->currentState.pos.trBase, muzzle );
 
 	AngleVectors( cent->currentState.apos.trBase, forward, nullptr, nullptr );
-	anim = cent->currentState.legsAnim;
+	anim = ES_LegsAnim( cent->currentState );
 	if ( anim == BOTH_CROUCH1WALK || anim == BOTH_CROUCH1IDLE ) {
 		muzzle[2] += CROUCH_VIEWHEIGHT;
 	} else {
@@ -2324,13 +2330,13 @@ Ghoul2 Insert Start
 */
 
 // create one instance of all the weapons we are going to use so we can just copy this info into each clients gun ghoul2 object in fast way
-static void *g2WeaponInstances[MAX_WEAPONS];
+static EnumArray<void *, weapon_t, MAX_WEAPONS> g2WeaponInstances;
 
 void CG_InitG2Weapons(void)
 {
 	int i = 0;
 	gitem_t		*item;
-	memset(g2WeaponInstances, 0, sizeof(g2WeaponInstances));
+	g2WeaponInstances = {};
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ )
 	{
 		if ( item->giType == IT_WEAPON )
@@ -2338,20 +2344,20 @@ void CG_InitG2Weapons(void)
 			assert(item->giTag < MAX_WEAPONS);
 
 			// initialise model
-			trap->G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/item->giTag], item->world_model[0], 0, 0, 0, 0, 0);
+			trap->G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/GI_Weapon( *item )], item->world_model[0], 0, 0, 0, 0, 0);
 //			trap->G2API_InitGhoul2Model(&g2WeaponInstances[i], item->world_model[0],G_ModelIndex( item->world_model[0] ) , 0, 0, 0, 0);
-			if (g2WeaponInstances[/*i*/item->giTag])
+			if (g2WeaponInstances[/*i*/GI_Weapon( *item )])
 			{
 				// indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
-				trap->G2API_SetBoltInfo(g2WeaponInstances[/*i*/item->giTag], 0, 0);
+				trap->G2API_SetBoltInfo(g2WeaponInstances[/*i*/GI_Weapon( *item )], 0, 0);
 				// now set up the gun bolt on it
-				if (item->giTag == WP_SABER)
+				if (GI_Weapon( *item ) == WP_SABER)
 				{
-					trap->G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*blade1");
+					trap->G2API_AddBolt(g2WeaponInstances[/*i*/GI_Weapon( *item )], 0, "*blade1");
 				}
 				else
 				{
-					trap->G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*flash");
+					trap->G2API_AddBolt(g2WeaponInstances[/*i*/GI_Weapon( *item )], 0, "*flash");
 				}
 				i++;
 			}
@@ -2368,14 +2374,13 @@ void CG_InitG2Weapons(void)
 // clean out any g2 models we instanciated for copying purposes
 void CG_ShutDownG2Weapons(void)
 {
-	int i;
-	for (i=0; i<MAX_WEAPONS; i++)
+	for (void *&instance : g2WeaponInstances)
 	{
-		trap->G2API_CleanGhoul2Models(&g2WeaponInstances[i]);
+		trap->G2API_CleanGhoul2Models(&instance);
 	}
 }
 
-void *CG_G2WeaponInstance(centity_t *cent, int weapon)
+void *CG_G2WeaponInstance(centity_t *cent, weapon_t weapon)
 {
 	clientInfo_t *ci = nullptr;
 
@@ -2416,10 +2421,10 @@ void *CG_G2WeaponInstance(centity_t *cent, int weapon)
 }
 
 // what ghoul2 model do we want to copy ?
-void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2)
+void CG_CopyG2WeaponInstance(centity_t *cent, weapon_t weaponNum, void *toGhoul2)
 {
 	//rww - the -1 is because there is no "weapon" for WP_NONE
-	assert(weaponNum < MAX_WEAPONS);
+	assert(weaponNum < WP_NUM_WEAPONS);
 	if (CG_G2WeaponInstance(cent, weaponNum/*-1*/))
 	{
 		if (weaponNum == WP_SABER)
@@ -2537,7 +2542,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 		PS_Team( *ps ) == TEAM_SPECTATOR)
 	{
 		cent->ghoul2weapon = cg_entities[ps->clientNum].ghoul2weapon = nullptr;
-		cent->weapon = cg_entities[ps->clientNum].weapon = 0;
+		cent->weapon = cg_entities[ps->clientNum].weapon = WP_NONE;
 		return;
 	}
 

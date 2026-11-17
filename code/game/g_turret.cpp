@@ -114,7 +114,7 @@ void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		self->s.frame = 1; // black
 	}
 
-	self->s.weapon = 0; // crosshair code uses this to mark crosshair red
+	self->s.weapon = WP_NONE; // crosshair code uses this to mark crosshair red
 
 	if ( self->s.modelindex2 )
 	{
@@ -141,14 +141,14 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 	//set info on the entity so it knows to start the anim on the client next snapshot.
 	//eweb->s.eFlags |= EF_G2ANIMATING;
 
-	if (eweb->s.torsoAnim == startFrame && eweb->s.legsAnim == endFrame)
+	if (to_underlying( eweb->s.torsoAnim ) == startFrame && to_underlying( eweb->s.legsAnim ) == endFrame)
 	{ //already playing this anim, let's flag it to restart
 		//eweb->s.torsoFlip = !eweb->s.torsoFlip;
 	}
 	else
 	{
-		eweb->s.torsoAnim = startFrame;
-		eweb->s.legsAnim = endFrame;
+		eweb->s.torsoAnim = static_cast<animNumber_t>( startFrame );
+		eweb->s.legsAnim = static_cast<animNumber_t>( endFrame );
 	}
 
 	//now set the animation on the server ghoul2 instance.

@@ -112,7 +112,7 @@ func_t	funcs[] = {
 
 struct wpnParms_s
 {
-	int	weaponNum;	// Current weapon number
+	weapon_t	weaponNum;	// Current weapon number
 	ammo_t	ammoNum;
 } wpnParms;
 
@@ -172,7 +172,7 @@ typedef struct
 } wpnParms_t;
 
 // This is used as a fallback for each new field, in case they're using base files --eez
-const int defaultDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultDamage = {
 	0,							// WP_NONE
 	0,							// WP_SABER				// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,		// WP_BLASTER_PISTOL
@@ -209,7 +209,7 @@ const int defaultDamage[] = {
 	0,							// WP_NOGHRI_STICK
 };
 
-const int defaultAltDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltDamage = {
 	0,						// WP_NONE
 	0,						// WP_SABER					// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,	// WP_BLASTER_PISTOL
@@ -246,7 +246,7 @@ const int defaultAltDamage[] = {
 	0,						// WP_NOGHRI_STICK
 };
 
-const int defaultSplashDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultSplashDamage = {
 	0,								// WP_NONE
 	0,								// WP_SABER
 	0,								// WP_BLASTER_PISTOL
@@ -283,7 +283,7 @@ const int defaultSplashDamage[] = {
 	0,								// WP_NOGHRI_STICK
 };
 
-const float defaultSplashRadius[] = {
+const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultSplashRadius = {
 	0.0f,							// WP_NONE
 	0.0f,							// WP_SABER
 	0.0f,							// WP_BLASTER_PISTOL
@@ -320,7 +320,7 @@ const float defaultSplashRadius[] = {
 	0.0f,							// WP_NOGHRI_STICK
 };
 
-const int defaultAltSplashDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltSplashDamage = {
 	0,								// WP_NONE
 	0,								// WP_SABER			// handled elsewhere
 	0,								// WP_BLASTER_PISTOL
@@ -357,7 +357,7 @@ const int defaultAltSplashDamage[] = {
 	0,								// WP_NOGHRI_STICK
 };
 
-const float defaultAltSplashRadius[] = {
+const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultAltSplashRadius = {
 	0.0f,							// WP_NONE
 	0.0f,							// WP_SABER		// handled elsewhere
 	0.0f,							// WP_BLASTER_PISTOL
@@ -458,7 +458,7 @@ void WPN_FuncSkip( const char **holdBuf)
 
 void WPN_WeaponType( const char **holdBuf)
 {
-	int weaponNum;
+	weapon_t weaponNum;
 	const char	*tokenStr;
 
 	if (COM_ParseString(holdBuf,&tokenStr))
@@ -527,7 +527,7 @@ void WPN_WeaponType( const char **holdBuf)
 		weaponNum = WP_NOGHRI_STICK;
 	else
 	{
-		weaponNum = 0;
+		weaponNum = WP_NONE;
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad weapontype in external weapon data '%s'\n", tokenStr);
 	}
 
@@ -1472,10 +1472,10 @@ void WP_LoadWeaponParms (void)
 	}
 
 	// initialise the data area
-	memset(weaponData, 0, sizeof(weaponData));
+	memset(&weaponData, 0, sizeof(weaponData));
 
 	// put in the default values, because backwards compatibility is awesome!
-	for(int i = 0; i < WP_NUM_WEAPONS; i++)
+	for(weapon_t i = WP_NONE; i < WP_NUM_WEAPONS; i++)
 	{
 		weaponData[i].damage = defaultDamage[i];
 		weaponData[i].altDamage = defaultAltDamage[i];

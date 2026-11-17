@@ -545,7 +545,7 @@ void NPC_BSFollowLeader (void)
 	vec3_t		vec;
 	float		leaderDist;
 	visibility_t	leaderVis;
-	int			curAnim;
+	animNumber_t			curAnim;
 
 	if ( !NPC->client->leader )
 	{//ok, stand guard until we find an enemy
@@ -620,7 +620,7 @@ void NPC_BSFollowLeader (void)
 				NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 1000, 2000 );
 			}
 		}
-		else if ( NPC->client->ps.weapon && NPCInfo->enemyCheckDebounceTime < level.time )
+		else if ( NPC->client->ps.weapon != WP_NONE && NPCInfo->enemyCheckDebounceTime < level.time )
 		{
 			NPC_CheckEnemy(
 				((NPCInfo->confusionTime < level.time) || (NPCInfo->tempBehavior != BS_FOLLOW_LEADER)),
@@ -628,7 +628,7 @@ void NPC_BSFollowLeader (void)
 		}
 	}
 
-	if ( NPC->enemy && NPC->client->ps.weapon )
+	if ( NPC->enemy && NPC->client->ps.weapon != WP_NONE )
 	{//If have an enemy, face him and fire
 		if ( NPC->client->ps.weapon == WP_SABER )//|| NPCInfo->confusionTime>level.time )
 		{//lightsaber user or charmed enemy
@@ -1328,7 +1328,7 @@ NPC_BSFlee
 */
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void WP_DropWeapon( gentity_t *dropper, vec3_t velocity );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern int g_crosshairEntNum;
 void NPC_Surrender( void )
 {//FIXME: say "don't shoot!" if we weren't already surrendering

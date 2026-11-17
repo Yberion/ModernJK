@@ -69,16 +69,16 @@ extern void WP_KnockdownTurret( gentity_t *self, gentity_t *pas );
 //extern void WP_SaberBlock(gentity_t *saber, vec3_t hitloc);
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_SaberInStart( saberMoveName_t move );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInParry( saberMoveName_t move );
 extern bool PM_SaberInKnockaway( saberMoveName_t move );
 extern bool PM_SaberInBrokenParry( saberMoveName_t move );
 extern bool PM_SaberInDeflect( saberMoveName_t move );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
 
@@ -1181,7 +1181,7 @@ FIXME: possibly let player do this too?
 */
 bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
 {
-	int	dodgeAnim = -1;
+	std::optional<animNumber_t>	dodgeAnim;
 
 	if ( !self || !self->client || self->health <= 0 )
 	{
@@ -1314,7 +1314,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 		break;
 	}
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{
 		/*
 		int type = SETANIM_TORSO;
@@ -1324,7 +1324,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 		}
 		*/
 		//set the dodge anim we chose
-		NPC_SetAnim( self, SETANIM_BOTH, dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );//type
+		NPC_SetAnim( self, SETANIM_BOTH, *dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );//type
 		//self->client->ps.torsoAnimTimer = Q_irand( 5, 40 ) * 50;
 		//if ( type == SETANIM_BOTH )
 		{
@@ -1375,11 +1375,11 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 	if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT || self->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
 	{//already running on a wall
 		vec3_t right, fwdAngles = {0, self->client->ps.viewangles[YAW], 0};
-		int		anim = -1;
+		std::optional<animNumber_t>		anim;
 
 		AngleVectors( fwdAngles, nullptr, right, nullptr );
 
-		float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, (animNumber_t)self->client->ps.legsAnim );
+		float animLength = PM_AnimLength( self->client->clientInfo.animFileIndex, self->client->ps.legsAnim );
 		if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT && rightdot < 0 )
 		{//I'm running on a wall to my left and the attack is on the left
 			if ( animLength - self->client->ps.legsAnimTimer > 400
@@ -1396,7 +1396,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 				anim = BOTH_WALL_RUN_RIGHT_FLIP;
 			}
 		}
-		if ( anim != -1 )
+		if ( anim )
 		{//flip off the wall!
 			//FIXME: check the direction we will flip towards for do-not-enter/walls/drops?
 			//NOTE: we presume there is still a wall there!
@@ -1417,7 +1417,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 			{
 				parts = SETANIM_BOTH;
 			}
-			NPC_SetAnim( self, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			self->client->ps.pm_flags |= (PMF_JUMPING|PMF_SLOW_MO_FALL);
 			G_AddEvent( self, EV_JUMP, 0 );
 			return EVASION_OTHER;
@@ -1435,7 +1435,8 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 
 		AngleVectors( fwdAngles, fwd, right, nullptr );
 
-		int parts = SETANIM_BOTH, anim;
+		int parts = SETANIM_BOTH;
+		animNumber_t anim;
 		float	speed, checkDist;
 
 		if ( PM_SaberInAttack( self->client->ps.saberMove )
@@ -1784,7 +1785,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	float rightdot;
 	float zdiff;
 	int	  duckChance = 0;
-	int	  dodgeAnim = -1;
+	std::optional<animNumber_t>	  dodgeAnim;
 	bool	saberBusy = false, /*evaded = false, */doDodge = false;
 	evasionType_t	evasionType = EVASION_NONE;
 
@@ -2148,7 +2149,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 						&& !PM_InKnockDown( &self->client->ps )
 						&& !PM_SaberInSpecialAttack( self->client->ps.torsoAnim ) )
 					{//do the butterfly!
-						int butterflyAnim;
+						animNumber_t butterflyAnim;
 						if ( Q_irand( 0, 1 ) )
 						{
 							butterflyAnim = BOTH_BUTTERFLY_LEFT;
@@ -2294,10 +2295,10 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	TIMER_Set( self, "gripping", -level.time );
 	WP_ForcePowerStop( self, FP_GRIP );
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{//dodged
 		evasionType = EVASION_DODGE;
-		NPC_SetAnim( self, SETANIM_BOTH, dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, SETANIM_BOTH, *dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		self->client->ps.weaponTime = self->client->ps.torsoAnimTimer;
 		//force them to stop moving in this case
 		self->client->ps.pm_time = self->client->ps.torsoAnimTimer;
@@ -3958,7 +3959,7 @@ static bool Jedi_TryJump( gentity_t *goal )
 								else
 								*/
 								{//FIXME: make this a function call
-									int jumpAnim;
+									animNumber_t jumpAnim;
 									//FIXME: this should be more intelligent, like the normal force jump anim logic
 									if ( NPCInfo->rank != RANK_CREWMAN && NPCInfo->rank <= RANK_LT_JG )
 									{//can't do acrobatics

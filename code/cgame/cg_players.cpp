@@ -132,14 +132,14 @@ static void CG_PlayerAnimEvents( int animFileIndex, bool torso, int oldFrame, in
 extern void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const int flags,
 							 const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList );
 extern void FX_BorgDeathSparkParticles( vec3_t origin, vec3_t angles, vec3_t vel, vec3_t user );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInTransitionAny( saberMoveName_t move );
-extern int PM_GetTurnAnim( gentity_t *gent, int anim );
+extern std::optional<animNumber_t> PM_GetTurnAnim( gentity_t *gent, animNumber_t anim );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_InRoll( playerState_t *ps );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
-extern bool PM_SuperBreakWinAnim( int anim );
+extern bool PM_SuperBreakWinAnim( animNumber_t anim );
 
 //Basic set of custom sounds that everyone needs
 // (keep numbers in ascending order in order for variant-capping to work)
@@ -710,16 +710,16 @@ void CG_ClearAnimEvtCache( void )
 CG_SetLerpFrameAnimation
 ===============
 */
-static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation )
+static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, animNumber_t newAnimation )
 {
 	animation_t	*anim;
 
-	if ( newAnimation < 0 || newAnimation >= MAX_ANIMATIONS )
+	if ( newAnimation < FACE_TALK0 || newAnimation >= MAX_ANIMATIONS )
 	{
 #ifdef FINAL_BUILD
-		newAnimation = 0;
+		newAnimation = FACE_TALK0;
 #else
-		CG_Error( "Bad animation number: %i for ", newAnimation, ci->name );
+		CG_Error( "Bad animation number: %i for %s", to_underlying( newAnimation ), ci->name );
 #endif
 	}
 
@@ -748,7 +748,7 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static bool CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float fpsMod, int entNum ) {
+static bool CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, animNumber_t newAnimation, float fpsMod, int entNum ) {
 	int			f, animFrameTime;
 	animation_t	*anim;
 	bool	newFrame = false;
@@ -877,7 +877,7 @@ static bool CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 CG_ClearLerpFrame
 ===============
 */
-static void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationNumber )
+static void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, animNumber_t animationNumber )
 {
 	lf->frameTime = lf->oldFrameTime = cg.time;
 	CG_SetLerpFrameAnimation( ci, lf, animationNumber );
@@ -899,8 +899,8 @@ CG_PlayerAnimation
 static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float *legsBackLerp,
 						int *torsoOld, int *torso, float *torsoBackLerp ) {
 	clientInfo_t	*ci;
-	int				legsAnim;
-	int				legsTurnAnim = -1;
+	animNumber_t				legsAnim;
+	std::optional<animNumber_t>	legsTurnAnim;
 	bool		newLegsFrame = false;
 	bool		newTorsoFrame = false;
 
@@ -915,9 +915,9 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		legsTurnAnim = PM_GetTurnAnim( cent->gent, legsAnim );
 	}
 
-	if ( legsTurnAnim != -1 )
+	if ( legsTurnAnim )
 	{
-		newLegsFrame = CG_RunLerpFrame( ci, &cent->pe.legs, legsTurnAnim, cent->gent->client->renderInfo.legsFpsMod, cent->gent->s.number );
+		newLegsFrame = CG_RunLerpFrame( ci, &cent->pe.legs, *legsTurnAnim, cent->gent->client->renderInfo.legsFpsMod, cent->gent->s.number );
 		//This line doesn't seem to serve any useful purpose, rather it
 		//breaks things since any task waiting for a lower anim to complete
 		//never will finish if this happens!!!
@@ -956,8 +956,8 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 }
 
 
-extern int PM_LegsAnimForFrame( gentity_t *ent, int legsFrame );
-extern int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
+extern std::optional<animNumber_t> PM_LegsAnimForFrame( gentity_t *ent, int legsFrame );
+extern std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
 static void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 {
 	//FIXME: pass in event, switch off the type
@@ -1187,7 +1187,7 @@ static void CG_PlayerAnimEvents( int animFileIndex, bool torso, int oldFrame, in
 	}
 	if ( abs(oldFrame-frame) > 1 )
 	{//given a range, see if keyFrame falls in that range
-		int oldAnim, anim;
+		std::optional<animNumber_t> oldAnim, anim;
 		if ( torso )
 		{
 			//more precise, slower
@@ -1209,13 +1209,16 @@ static void CG_PlayerAnimEvents( int animFileIndex, bool torso, int oldFrame, in
 		else
 		{//still in same anim, check for looping anim
 			inSameAnim = true;
-			animation_t *animation = &level.knownAnimFileSets[animFileIndex].animations[anim];
-			animBackward = (animation->frameLerp<0);
-			if ( animation->loopFrames != -1 )
-			{//a looping anim!
-				loopAnim = true;
-				firstFrame = animation->firstFrame;
-				lastFrame = animation->firstFrame+animation->numFrames;
+			if ( anim )
+			{
+				animation_t *animation = &level.knownAnimFileSets[animFileIndex].animations[*anim];
+				animBackward = (animation->frameLerp<0);
+				if ( animation->loopFrames != -1 )
+				{//a looping anim!
+					loopAnim = true;
+					firstFrame = animation->firstFrame;
+					lastFrame = animation->firstFrame+animation->numFrames;
+				}
 			}
 		}
 	}
@@ -1939,7 +1942,7 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 	CG_PlayerLegsYawFromMovement( cent, cent->gent->client->ps.velocity, &ATSTLegsYaw, cent->lerpAngles[YAW], -60, 60, true );
 
 	float legAngleDiff = AngleNormalize180(ATSTLegsYaw) - AngleNormalize180(cent->pe.legs.yawAngle);
-	int legsAnim = cent->currentState.legsAnim;
+	animNumber_t legsAnim = cent->currentState.legsAnim;
 	bool moving = !VectorCompare(cent->gent->client->ps.velocity, vec3_origin);
 	if ( moving || legsAnim == BOTH_TURN_LEFT1 || legsAnim == BOTH_TURN_RIGHT1 || fabs(legAngleDiff) > 45 )
 	{//moving or turning or beyond the turn allowance
@@ -1968,7 +1971,7 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 			{
 				cent->pe.legs.yawAngle += legAngleDiff + 50;
 			}
-			float animLength = PM_AnimLength( cent->gent->client->clientInfo.animFileIndex, (animNumber_t)legsAnim );
+			float animLength = PM_AnimLength( cent->gent->client->clientInfo.animFileIndex, legsAnim );
 			legAngleDiff *= ( animLength - cent->gent->client->ps.legsAnimTimer)/animLength;
 			VectorSet( trailingLegsAngles, 0, cent->pe.legs.yawAngle+legAngleDiff+add, 0 );
 			if ( !cent->gent->client->ps.legsAnimTimer )
@@ -2014,8 +2017,8 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 
 extern bool G_ClassHasBadBones( class_t NPC_class );
 extern void G_BoneOrientationsForClass( class_t NPC_class, const char *boneName, Eorientations *oUp, Eorientations *oRt, Eorientations *oFwd );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
 static CGhoul2Info_v	dummyGhoul2;
 static int				dummyRootBone;
 static int				dummyHipsBolt;
@@ -2474,7 +2477,7 @@ Handles seperate torso motion
 
 ===============
 */
-extern int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim );
+extern std::optional<animNumber_t> PM_TurnAnimForLegsAnim( gentity_t *gent, animNumber_t anim );
 extern float PM_GetTimeScaleMod( gentity_t *gent );
 static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t angles )
 {
@@ -2683,17 +2686,17 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t angles )
 				}
 				else if ( VectorCompare( vec3_origin, cent->gent->client->ps.velocity ) )
 				{//FIXME: because of LegsYawFromMovement, we play the turnAnims when we stop running, which looks really bad.
-					int turnAnim = PM_TurnAnimForLegsAnim( cent->gent, cent->gent->client->ps.legsAnim );
-					if ( turnAnim != -1 && cent->gent->health > 0 )
+					const std::optional<animNumber_t> turnAnim = PM_TurnAnimForLegsAnim( cent->gent, cent->gent->client->ps.legsAnim );
+					if ( turnAnim && cent->gent->health > 0 )
 					{
-						animation_t *animations = level.knownAnimFileSets[cent->gent->client->clientInfo.animFileIndex].animations;
+						auto &animations = level.knownAnimFileSets[cent->gent->client->clientInfo.animFileIndex].animations;
 
-						if ( !animatingHips || ( animations[turnAnim].firstFrame != startFrame ) )// only set the anim if we aren't going to do the same animation again
+						if ( !animatingHips || ( animations[*turnAnim].firstFrame != startFrame ) )// only set the anim if we aren't going to do the same animation again
 						{
-							float animSpeed = 50.0f / animations[turnAnim].frameLerp * PM_GetTimeScaleMod( cent->gent );
+							float animSpeed = 50.0f / animations[*turnAnim].frameLerp * PM_GetTimeScaleMod( cent->gent );
 
 							gi.G2API_SetBoneAnimIndex( &cent->gent->ghoul2[cent->gent->playerModel], cent->gent->hipsBone,
-								animations[turnAnim].firstFrame, animations[turnAnim].firstFrame+animations[turnAnim].numFrames,
+								animations[*turnAnim].firstFrame, animations[*turnAnim].firstFrame+animations[*turnAnim].numFrames,
 								BONE_ANIM_OVERRIDE_LOOP/*|BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND*/, animSpeed, cg.time, -1, 100 );
 						}
 					}
@@ -5089,11 +5092,11 @@ static void CG_G2SetHeadBlink( centity_t *cent, bool bStart )
 CG_G2SetHeadAnims
 -------------------------
 */
-static void CG_G2SetHeadAnim( centity_t *cent, int anim )
+static void CG_G2SetHeadAnim( centity_t *cent, animNumber_t anim )
 {
 	gentity_t	*gent = cent->gent;
 	const int blendTime = 50;
-	const animation_t *animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
+	const auto &animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
 //	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
@@ -5146,7 +5149,7 @@ static bool CG_G2PlayerHeadAnims( centity_t *cent )
 		return false;
 	}
 
-	int anim = -1;
+	std::optional<animNumber_t> anim;
 
 	if ( cent->gent->health <= 0 )
 	{//Dead people close their eyes and don't make faces!
@@ -5225,9 +5228,9 @@ static bool CG_G2PlayerHeadAnims( centity_t *cent )
 			}
 		}//talking
 	}//dead
-	if (anim != -1)
+	if (anim)
 	{
-		CG_G2SetHeadAnim( cent, anim );
+		CG_G2SetHeadAnim( cent, *anim );
 		return true;
 	}
 	return false;
@@ -6868,7 +6871,7 @@ void CG_Player( centity_t *cent ) {
 
 	G_RagDoll(cent->gent, cent->lerpAngles);
 
-	if ( cent->currentState.weapon )
+	if ( cent->currentState.weapon != WP_NONE )
 	{
 		wData = &weaponData[cent->currentState.weapon];
 	}
@@ -7727,10 +7730,11 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 
 					if ( cent->gent->m_pVehicle->m_Muzzles[i].m_bFired )
 					{
-						const char *effect = &weaponData[ cent->gent->m_pVehicle->m_pVehicleInfo->weapMuzzle[i] ].mMuzzleEffect[0];
-						if ( effect )
+						// the muzzle effect of the vehicle's weapon (weapMuzzle is an index of g_vehWeaponInfo, as in multiplayer)
+						const int muzzleFX = g_vehWeaponInfo[cent->gent->m_pVehicle->m_pVehicleInfo->weapMuzzle[i]].iMuzzleFX;
+						if ( muzzleFX )
 						{
-							theFxScheduler.PlayEffect( effect, cent->gent->m_pVehicle->m_Muzzles[i].m_vMuzzlePos, cent->gent->m_pVehicle->m_Muzzles[i].m_vMuzzleDir );
+							CG_PlayEffectID( muzzleFX, cent->gent->m_pVehicle->m_Muzzles[i].m_vMuzzlePos, cent->gent->m_pVehicle->m_Muzzles[i].m_vMuzzleDir );
 						}
 						cent->gent->m_pVehicle->m_Muzzles[i].m_bFired = false;
 					}
@@ -7917,7 +7921,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		//CG_RunLerpFrame( ci, &cent->pe.torso, cent->gent->client->ps.torsoAnim, cent->gent->client->renderInfo.torsoFpsMod, cent->gent->s.number );
 		if ( cent->gent && cent->gent->client && cent->gent->client->ps.weapon == WP_SABER )
 		{
-extern bool PM_KickingAnim( int anim );
+extern bool PM_KickingAnim( animNumber_t anim );
 			if ( !PM_KickingAnim( cent->gent->client->ps.torsoAnim )
 				|| cent->gent->client->ps.torsoAnim == BOTH_A7_KICK_S )
 			{//not kicking (unless it's the spinning kick)

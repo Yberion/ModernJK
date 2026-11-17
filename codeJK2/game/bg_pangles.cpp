@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "wp_saber.h"
 
-extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove );
 extern bool PM_InForceGetUp( playerState_t *ps );
 extern bool PM_InKnockDown( playerState_t *ps );
 

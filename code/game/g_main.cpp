@@ -839,7 +839,7 @@ Returns a pointer to the structure with all entry points
 and global variables
 =================
 */
-extern int PM_ValidateAnimRange( const int startFrame, const int endFrame, const float animSpeed );
+extern std::optional<animNumber_t> PM_ValidateAnimRange( const int startFrame, const int endFrame, const float animSpeed );
 extern "C" Q_EXPORT game_export_t* QDECL GetGameAPI( game_import_t *import ) {
 	gameinfo_import_t	gameinfo_import;
 
@@ -1229,7 +1229,7 @@ void G_PlayerGuiltDeath( void )
 		player->client->ps.stats[STAT_DEAD_YAW] = player->client->ps.viewangles[YAW]+180;
 	}
 }
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
 extern void G_MakeTeamVulnerable( void );
 int killPlayerTimer = 0;
 static void G_CheckEndLevelTimers( gentity_t *ent )
@@ -1369,7 +1369,7 @@ static void G_BodyDragUpdate(gentity_t *ent, gentity_t *dragger)
 //we want to see which way the pelvis is facing to get a relatively oriented base settling frame
 //this is to avoid the arms stretching in opposite directions on the body trying to reach the base
 //pose if the pelvis is flipped opposite of the base pose or something -rww
-static int G_RagAnimForPositioning(gentity_t *ent)
+static animNumber_t G_RagAnimForPositioning(gentity_t *ent)
 {
 	vec3_t dir;
 	mdxaBone_t matrix;
@@ -1416,7 +1416,7 @@ bool G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 	vec3_t G2Angles;
 	vec3_t usedOrg;
 	bool inSomething = false;
-	int ragAnim;
+	animNumber_t ragAnim;
 	//int ragVar = gi.Cvar_VariableIntegerValue("broadsword");
 	int ragVar = g_broadsword->integer;
 

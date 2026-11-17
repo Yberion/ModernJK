@@ -296,7 +296,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 		self->s.frame = 1; // black
 	}
 
-	self->s.weapon = 0; // crosshair code uses this to mark crosshair red
+	self->s.weapon = WP_NONE; // crosshair code uses this to mark crosshair red
 
 	if ( self->s.modelindex2 )
 	{

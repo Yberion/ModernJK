@@ -1272,7 +1272,7 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	int		i;
 
 	// copy the state that the cgame is currently sending
-	cmd->weapon = cl.cgameUserCmdValue;
+	cmd->weapon = to_underlying( cl.cgameUserCmdValue );
 	cmd->forcesel = to_underlying( cl.cgameForceSelection );
 	cmd->invensel = cl.cgameInvenSelection;
 

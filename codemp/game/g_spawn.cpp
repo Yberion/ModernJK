@@ -1422,7 +1422,7 @@ void SP_worldspawn( void )
 	//when the first client connnects.
 	if (!BGPAFtextLoaded)
 	{
-		BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", bgHumanoidAnimations, true);
+		BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", &bgHumanoidAnimations, true);
 	}
 
 	if (!precachedKyle)

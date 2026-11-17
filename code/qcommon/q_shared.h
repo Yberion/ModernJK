@@ -987,6 +987,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
 enum class saberMoveName_t;	// wp_saber.h
+enum class animNumber_t;	// anims.h of each single-player game (code/game, codeJK2/game), each its own
 typedef struct saberInfo_s
 {
 	char		*name;						//entry in sabers.cfg, if any
@@ -1034,6 +1035,7 @@ typedef struct saberInfo_s
 	saberMoveName_t	jumpAtkBackMove;		//LS_INVALID - if set, player will execute this move when they jump+back+attack
 	saberMoveName_t	jumpAtkRightMove;		//LS_INVALID - if set, player will execute this move when they jump+rightattack
 	saberMoveName_t	jumpAtkLeftMove;		//LS_INVALID - if set, player will execute this move when they jump+left+attack
+#if defined( JK2_MODE ) && defined( SP_GAME )
 	int	readyAnim;				//-1 - anim to use when standing idle
 	int	drawAnim;				//-1 - anim to use when drawing weapon
 	int	putawayAnim;			//-1 - anim to use when putting weapon away
@@ -1042,6 +1044,16 @@ typedef struct saberInfo_s
 	int	meditateAnim;			//-1 - anim to use when hit "meditate"
 	int	flourishAnim;			//-1 - anim to use when hit "flourish"
 	int	gloatAnim;				//-1 - anim to use when hit "gloat"
+#else
+	animNumber_t	readyAnim;				//-1 - anim to use when standing idle
+	animNumber_t	drawAnim;				//-1 - anim to use when drawing weapon
+	animNumber_t	putawayAnim;			//-1 - anim to use when putting weapon away
+	animNumber_t	tauntAnim;				//-1 - anim to use when hit "taunt"
+	animNumber_t	bowAnim;				//-1 - anim to use when hit "bow"
+	animNumber_t	meditateAnim;			//-1 - anim to use when hit "meditate"
+	animNumber_t	flourishAnim;			//-1 - anim to use when hit "flourish"
+	animNumber_t	gloatAnim;				//-1 - anim to use when hit "gloat"
+#endif
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	int			bladeStyle2Start;			//0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
@@ -1576,6 +1588,7 @@ enum class persEnum_t;	// bg_public.h
 enum class statIndex_t;	// statindex.h
 enum class powerup_t;	// bg_public.h
 enum class ammo_t;	// weapons.h
+enum class weapon_t;	// weapons.h
 enum class weaponstate_t;	// bg_public.h
 enum class saberBlockedType_t;	// g_shared.h
 enum class pmtype_t;	// bg_public.h
@@ -1605,9 +1618,9 @@ public:
 									// changed by spawns, rotating objects, and teleporters
 
 	int			groundEntityNum;// ENTITYNUM_NONE = in air
-	int			legsAnim;		//
+	animNumber_t	legsAnim;		//
 	int			legsAnimTimer;	// don't change low priority animations on legs until this runs out
-	int			torsoAnim;		//
+	animNumber_t	torsoAnim;		//
 	int			torsoAnimTimer;	// don't change low priority animations on torso until this runs out
 	int			movementDir;	// a number 0 to 7 that represents the relative angle
 								// of movement to the view angle (axial and diagonals)
@@ -1625,7 +1638,7 @@ public:
 	int			externalEventTime;
 
 	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
-	int			weapon;			// copied to entityState_t->weapon
+	weapon_t	weapon;			// copied to entityState_t->weapon
 	weaponstate_t	weaponstate;
 
 	int			batteryCharge;
@@ -2431,10 +2444,10 @@ typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!
 
 	// for players
 	int		powerups;		// bit flags
-	int		weapon;			// determines weapon and flash model, etc
-	int		legsAnim;		//
+	weapon_t	weapon;			// determines weapon and flash model, etc
+	animNumber_t		legsAnim;		//
 	int		legsAnimTimer;	// don't change low priority animations on legs until this runs out
-	int		torsoAnim;		//
+	animNumber_t	torsoAnim;		//
 	int		torsoAnimTimer;	// don't change low priority animations on torso until this runs out
 
 	int		scale;			//Scale players

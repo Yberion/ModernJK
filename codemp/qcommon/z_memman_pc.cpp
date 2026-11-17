@@ -501,12 +501,10 @@ static void Z_MemRecoverTest_f(void)
 	// needs to be in _DEBUG only, not good for final game!
 	// fixme: findmeste: Remove this sometime
 	//
-	int iTotalMalloc = 0;
 	while (1)
 	{
 		int iThisMalloc = 5* (1024 * 1024);
 		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, false);	// and lose, just to consume memory
-		iTotalMalloc += iThisMalloc;
 
 		if (gbMemFreeupOccured)
 			break;

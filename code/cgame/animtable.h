@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // moved it from the original header file for PCH reasons...
 //
 
-stringID_table_t animTable [MAX_ANIMATIONS+1] =
+stringID_table_t animTable [to_underlying( MAX_ANIMATIONS )+1] =
 {
 	//=================================================
 	//HEAD ANIMS

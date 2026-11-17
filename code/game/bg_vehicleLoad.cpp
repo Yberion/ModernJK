@@ -87,7 +87,6 @@ extern sfxHandle_t	trap_S_RegisterSound( const char *sample);		// returns buzz i
 #include "../namespace_end.h"
 #endif
 
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 // These buffers are filled in with the same contents and then just read from in
 // a few places. We only need one copy on Xbox.
@@ -257,11 +256,8 @@ static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmN
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
 		*(vehicleType_t *)(b+vehWeaponField->ofs) = vehType;
 		break;
-	case VF_ANIM:
-		{
-			int anim = GetIDForString( animTable, value );
-			*(int *)(b+vehWeaponField->ofs) = anim;
-		}
+	case VF_ANIM:	// an unknown name stores ANIM_NONE, as GetIDForString's -1 did
+		*(animNumber_t *)(b+vehWeaponField->ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );
 		break;
 	case VF_WEAPON:	// take string, resolve into index into VehWeaponParms
 		//*(int *)(b+vehWeaponField->ofs) = VEH_VehWeaponIndexForName( value );
@@ -942,11 +938,8 @@ static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, c
 		vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
 		*(vehicleType_t *)(b+vehField->ofs) = vehType;
 		break;
-	case VF_ANIM:
-		{
-			int anim = GetIDForString( animTable, value );
-			*(int *)(b+vehField->ofs) = anim;
-		}
+	case VF_ANIM:	// an unknown name stores ANIM_NONE, as GetIDForString's -1 did
+		*(animNumber_t *)(b+vehField->ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );
 		break;
 	case VF_WEAPON:	// take string, resolve into index into VehWeaponParms
 		*(int *)(b+vehField->ofs) = VEH_VehWeaponIndexForName( value );

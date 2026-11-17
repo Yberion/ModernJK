@@ -44,7 +44,6 @@ USER INTERFACE MAIN
 
 #include "../game/bg_public.h"
 #include "../game/anims.h"
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 #include "../qcommon/stringed_ingame.h"
 #include "../qcommon/q_shared.h"
@@ -117,11 +116,11 @@ static void		UI_AffectForcePowerLevel ( const char *forceName );
 static void		UI_ShowForceLevelDesc ( const char *forceName );
 static void		UI_ResetForceLevels ( void );
 static void		UI_ClearWeapons ( void );
-static void		UI_GiveWeapon ( const int weaponIndex );
-static void		UI_EquipWeapon ( const int weaponIndex );
+static void		UI_GiveWeapon ( const weapon_t weaponIndex );
+static void		UI_EquipWeapon ( const weapon_t weaponIndex );
 static void		UI_LoadMissionSelectMenu( const char *cvarName );
-static void		UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
-static void		UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
+static void		UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
+static void		UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
 static void		UI_RemoveWeaponSelection ( const int weaponIndex );
 static void		UI_RemoveThrowWeaponSelection ( void );
 static void		UI_HighLightWeaponSelection ( const int selectionslot );
@@ -471,7 +470,6 @@ static cvarTable_t cvarTable[] =
 };
 
 #define FP_UPDATED_NONE -1
-#define NOWEAPON -1
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
@@ -940,7 +938,7 @@ static bool UI_RunMenuScript ( const char **args )
 			if (s_savedata[s_savegame.currentLine].currentSaveFileName)	// A line was chosen
 			{
 #ifndef FINAL_BUILD
-				ui.Printf( va("%s\n","Attempting to delete game"));
+				ui.Printf( "%s\n", "Attempting to delete game" );
 #endif
 
 				ui.Cmd_ExecuteText( EXEC_NOW, va("wipe %s\n", s_savedata[s_savegame.currentLine].currentSaveFileName));
@@ -1369,13 +1367,13 @@ static bool UI_RunMenuScript ( const char **args )
 		{
 			const char *weaponIndex;
 			String_Parse(args, &weaponIndex);
-			UI_GiveWeapon(atoi(weaponIndex));
+			UI_GiveWeapon(static_cast<weapon_t>( atoi(weaponIndex) ));
 		}
 		else if (Q_stricmp(name, "equipweapon") == 0)
 		{
 			const char *weaponIndex;
 			String_Parse(args, &weaponIndex);
-			UI_EquipWeapon(atoi(weaponIndex));
+			UI_EquipWeapon(static_cast<weapon_t>( atoi(weaponIndex) ));
 		}
 		else if (Q_stricmp(name, "addweaponselection") == 0)
 		{
@@ -1424,7 +1422,7 @@ static bool UI_RunMenuScript ( const char **args )
 			const char *soundfile = nullptr;
 			String_Parse(args, &soundfile);
 
-			UI_AddWeaponSelection(atoi(weaponIndex),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName, backgroundName, soundfile);
+			UI_AddWeaponSelection(static_cast<weapon_t>( atoi(weaponIndex) ),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName, backgroundName, soundfile);
 		}
 		else if (Q_stricmp(name, "addthrowweaponselection") == 0)
 		{
@@ -1473,7 +1471,7 @@ static bool UI_RunMenuScript ( const char **args )
 			const char *soundfile;
 			String_Parse(args, &soundfile);
 
-			UI_AddThrowWeaponSelection(atoi(weaponIndex),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName,backgroundName, soundfile);
+			UI_AddThrowWeaponSelection(static_cast<weapon_t>( atoi(weaponIndex) ),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName,backgroundName, soundfile);
 		}
 		else if (Q_stricmp(name, "removeweaponselection") == 0)
 		{
@@ -2099,7 +2097,7 @@ class ui_animFileSet_t
 {
 public:
 	char			filename[MAX_QPATH];
-	animation_t		animations[MAX_ANIMATIONS];
+	EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS>	animations;
 }; // ui_animFileSet_t
 static ui_animFileSet_t	ui_knownAnimFileSets[MAX_ANIM_FILES];
 
@@ -2109,12 +2107,10 @@ bool UI_ParseAnimationFile( const char *af_filename )
 {
 	const char		*text_p;
 	int			len;
-	int			i;
 	const char		*token;
 	float		fps;
 	char		text[80000];
-	int			animNum;
-	animation_t	*animations = ui_knownAnimFileSets[ui_numKnownAnimFileSets].animations;
+	auto	&animations = ui_knownAnimFileSets[ui_numKnownAnimFileSets].animations;
 
 	len = re.GetAnimationCFG(af_filename, text, sizeof(text));
 	if ( len <= 0 )
@@ -2133,7 +2129,7 @@ bool UI_ParseAnimationFile( const char *af_filename )
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(i = 0; i < MAX_ANIMATIONS; i++)
+	for(animNumber_t i = FACE_TALK0; i < MAX_ANIMATIONS; i++)
 	{
 		animations[i].firstFrame = 0;
 		animations[i].numFrames = 0;
@@ -2153,8 +2149,8 @@ bool UI_ParseAnimationFile( const char *af_filename )
 			break;
 		}
 
-		animNum = GetIDForString(animTable, token);
-		if(animNum == -1)
+		const std::optional<animNumber_t> animNum = BG_AnimFromName( token );
+		if(!animNum)
 		{
 //#ifndef FINAL_BUILD
 #ifdef _DEBUG
@@ -2175,21 +2171,21 @@ bool UI_ParseAnimationFile( const char *af_filename )
 		{
 			break;
 		}
-		animations[animNum].firstFrame = atoi( token );
+		animations[*animNum].firstFrame = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
 		{
 			break;
 		}
-		animations[animNum].numFrames = atoi( token );
+		animations[*animNum].numFrames = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
 		{
 			break;
 		}
-		animations[animNum].loopFrames = atoi( token );
+		animations[*animNum].loopFrames = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
@@ -2203,14 +2199,14 @@ bool UI_ParseAnimationFile( const char *af_filename )
 		}
 		if ( fps < 0 )
 		{//backwards
-			animations[animNum].frameLerp = floor(1000.0f / fps);
+			animations[*animNum].frameLerp = floor(1000.0f / fps);
 		}
 		else
 		{
-			animations[animNum].frameLerp = ceil(1000.0f / fps);
+			animations[*animNum].frameLerp = ceil(1000.0f / fps);
 		}
 
-//		animations[animNum].initialLerp = ceil(1000.0f / fabs(fps));
+//		animations[*animNum].initialLerp = ceil(1000.0f / fabs(fps));
 	}
 	COM_EndParseSession();
 
@@ -2268,10 +2264,15 @@ bool UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 	return true;
 }
 
-int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const bool freeze)
+int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNum, const bool freeze)
 {
 	int animIndex,blendTime;
 	char *GLAName;
+
+	if ( animNum == ANIM_NONE )
+	{	// a model item no model_g2anim gave an animation to
+		return 0;
+	}
 
 	GLAName = re.G2API_GetGLAName(ghlInfo);
 
@@ -2767,9 +2768,9 @@ void _UI_Init( bool inGameLoad )
 	Cvar_Set("ui_missionfailed","0"); // reset
 
 	uiInfo.forcePowerUpdated = FP_UPDATED_NONE;
-	uiInfo.selectedWeapon1 = NOWEAPON;
-	uiInfo.selectedWeapon2 = NOWEAPON;
-	uiInfo.selectedThrowWeapon = NOWEAPON;
+	uiInfo.selectedWeapon1 = std::nullopt;
+	uiInfo.selectedWeapon2 = std::nullopt;
+	uiInfo.selectedThrowWeapon = std::nullopt;
 
 	uiInfo.uiDC.Assets.nullSound = trap_S_RegisterSound("sound/null", false);
 
@@ -4898,11 +4899,11 @@ static void	UI_RecordWeapons( void )
 
 	int wpns = 0;
 	// always add blaster and saber
-	wpns |= (1<<WP_SABER);
-	wpns |= (1<<WP_BLASTER_PISTOL);
-	wpns |= (1<< uiInfo.selectedWeapon1);
-	wpns |= (1<< uiInfo.selectedWeapon2);
-	wpns |= (1<< uiInfo.selectedThrowWeapon);
+	wpns |= Bit( WP_SABER );
+	wpns |= Bit( WP_BLASTER_PISTOL );
+	if ( uiInfo.selectedWeapon1 ) wpns |= Bit( *uiInfo.selectedWeapon1 );
+	if ( uiInfo.selectedWeapon2 ) wpns |= Bit( *uiInfo.selectedWeapon2 );
+	if ( uiInfo.selectedThrowWeapon ) wpns |= Bit( *uiInfo.selectedThrowWeapon );
 	s2 = va("%i", wpns );
 
 	Cvar_Set( "demo_playerwpns", s2 );
@@ -5535,9 +5536,9 @@ static void UI_WeaponAllocBeginButton(bool activeFlag)
 static void UI_WeaponsSelectionsComplete( void )
 {
 	// We need two weapons and one throwable
-	if (( uiInfo.selectedWeapon1 != NOWEAPON ) &&
-		( uiInfo.selectedWeapon2 != NOWEAPON ) &&
-		( uiInfo.selectedThrowWeapon != NOWEAPON ))
+	if (( uiInfo.selectedWeapon1.has_value() ) &&
+		( uiInfo.selectedWeapon2.has_value() ) &&
+		( uiInfo.selectedThrowWeapon.has_value() ))
 	{
 		UI_WeaponAllocBeginButton(true);	// Turn it on
 	}
@@ -5580,9 +5581,9 @@ static void	UI_WeaponHelpActive( void )
 static void UI_InitWeaponSelect( void )
 {
 	UI_WeaponAllocBeginButton(false);
-	uiInfo.selectedWeapon1 = NOWEAPON;
-	uiInfo.selectedWeapon2 = NOWEAPON;
-	uiInfo.selectedThrowWeapon = NOWEAPON;
+	uiInfo.selectedWeapon1 = std::nullopt;
+	uiInfo.selectedWeapon2 = std::nullopt;
+	uiInfo.selectedThrowWeapon = std::nullopt;
 }
 
 static void UI_ClearWeapons ( void )
@@ -5608,7 +5609,7 @@ static void UI_ClearWeapons ( void )
 
 }
 
-static void UI_GiveWeapon ( const int weaponIndex )
+static void UI_GiveWeapon ( const weapon_t weaponIndex )
 {
 	// Get player state
 	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
@@ -5624,12 +5625,12 @@ static void UI_GiveWeapon ( const int weaponIndex )
 
 		if (weaponIndex<WP_NUM_WEAPONS)
 		{
-			pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+			pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
 		}
 	}
 }
 
-static void UI_EquipWeapon ( const int weaponIndex )
+static void UI_EquipWeapon ( const weapon_t weaponIndex )
 {
 	// Get player state
 	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
@@ -5679,7 +5680,7 @@ static void	UI_LoadMissionSelectMenu( const char *cvarName )
 }
 
 // Update the player weapons with the chosen weapon
-static void	UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
+static void	UI_AddWeaponSelection ( const weapon_t weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
 {
 	itemDef_s  *item, *iconItem,*litIconItem;
 	menuDef_t	*menu;
@@ -5709,7 +5710,7 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoInde
 	}
 
 	// See if either slot is empty
-	if ( uiInfo.selectedWeapon1 == NOWEAPON )
+	if ( !uiInfo.selectedWeapon1 )
 	{
 		chosenItemName = "chosenweapon1_icon";
 		chosenButtonName = "chosenweapon1_button";
@@ -5725,7 +5726,7 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoInde
 		uiInfo.weapon1ItemButton = uiInfo.runScriptItem;
 		uiInfo.weapon1ItemButton->descText = "@MENUS_CLICKREMOVE";
 	}
-	else if ( uiInfo.selectedWeapon2 == NOWEAPON )
+	else if ( !uiInfo.selectedWeapon2 )
 	{
 		chosenItemName = "chosenweapon2_icon";
 		chosenButtonName = "chosenweapon2_button";
@@ -5784,9 +5785,9 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoInde
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+				pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
 			}
 
 			// Give them ammo too
@@ -5814,7 +5815,7 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	itemDef_s  *item;
 	menuDef_t	*menu;
 	const char *chosenItemName, *chosenButtonName,*background;
-	int		weaponIndex;
+	std::optional<weapon_t>	weaponIndex;
 	ammo_t	ammoIndex;
 
 	menu = Menu_GetFocused();	// Get current menu
@@ -5890,9 +5891,9 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~( 1 << weaponIndex );
+				pState->stats[ STAT_WEAPONS ]  &= ~Bit( *weaponIndex );
 			}
 
 			// Remove ammo too
@@ -5910,13 +5911,13 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	// Now do a little clean up
 	if ( weaponSelectionIndex == 1 )
 	{
-		uiInfo.selectedWeapon1 = NOWEAPON;
+		uiInfo.selectedWeapon1 = std::nullopt;
 		memset(uiInfo.selectedWeapon1ItemName,0,sizeof(uiInfo.selectedWeapon1ItemName));
 		uiInfo.selectedWeapon1AmmoIndex = AMMO_NONE;
 	}
 	else if ( weaponSelectionIndex == 2 )
 	{
-		uiInfo.selectedWeapon2 = NOWEAPON;
+		uiInfo.selectedWeapon2 = std::nullopt;
 		memset(uiInfo.selectedWeapon2ItemName,0,sizeof(uiInfo.selectedWeapon2ItemName));
 		uiInfo.selectedWeapon2AmmoIndex = AMMO_NONE;
 	}
@@ -5992,7 +5993,7 @@ static void	UI_HighLightWeaponSelection ( const int selectionslot )
 }
 
 // Update the player throwable weapons (okay it's a bad description) with the chosen weapon
-static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
+static void	UI_AddThrowWeaponSelection ( const weapon_t weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
 {
 	itemDef_s  *item, *iconItem,*litIconItem;
 	menuDef_t	*menu;
@@ -6010,7 +6011,7 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t amm
 	const char *chosenItemName, *chosenButtonName;
 
 	// Has a throw weapon already been chosen?
-	if (uiInfo.selectedThrowWeapon!=NOWEAPON)
+	if (uiInfo.selectedThrowWeapon.has_value())
 	{
 		// Clicked on the selected throwable weapon
 		if (uiInfo.selectedThrowWeapon==weaponIndex)
@@ -6076,9 +6077,9 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t amm
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
+			if ((weaponIndex>WP_NONE) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+				pState->stats[ STAT_WEAPONS ] |= Bit( weaponIndex );
 			}
 
 			// Give them ammo too
@@ -6109,7 +6110,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 	menu = Menu_GetFocused();	// Get current menu
 
 	// Weapon not chosen
-	if ( uiInfo.selectedThrowWeapon == NOWEAPON )
+	if ( !uiInfo.selectedThrowWeapon )
 	{
 		return;
 	}
@@ -6155,9 +6156,9 @@ static void UI_RemoveThrowWeaponSelection ( void )
 		{
 			playerState_t*	pState = cl->gentity->client;
 
-			if ((uiInfo.selectedThrowWeapon>0) && (uiInfo.selectedThrowWeapon<WP_NUM_WEAPONS))
+			if ((uiInfo.selectedThrowWeapon>WP_NONE) && (uiInfo.selectedThrowWeapon<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~( 1 << uiInfo.selectedThrowWeapon );
+				pState->stats[ STAT_WEAPONS ]  &= ~Bit( *uiInfo.selectedThrowWeapon );
 			}
 
 			// Remove ammo too
@@ -6170,7 +6171,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 	}
 
 	// Now do a little clean up
-	uiInfo.selectedThrowWeapon = NOWEAPON;
+	uiInfo.selectedThrowWeapon = std::nullopt;
 	memset(uiInfo.selectedThrowWeaponItemName,0,sizeof(uiInfo.selectedThrowWeaponItemName));
 	uiInfo.selectedThrowWeaponAmmoIndex = AMMO_NONE;
 

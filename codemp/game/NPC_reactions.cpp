@@ -36,14 +36,14 @@ extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern void Jedi_Ambush( gentity_t *self );
 extern bool NPC_SomeoneLookingAtMe(gentity_t *ent);
 
-extern bool BG_SaberInSpecialAttack( int anim );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_SpinningAnim( int anim );
+extern bool BG_SaberInSpecialAttack( animNumber_t anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_SpinningAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
-extern bool BG_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
-extern bool PM_InCartwheel( int anim );
-extern bool BG_CrouchAnim( int anim );
+extern bool BG_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
+extern bool PM_InCartwheel( animNumber_t anim );
+extern bool BG_CrouchAnim( animNumber_t anim );
 
 extern int	teamLastEnemyTime[];
 extern int killPlayerTimer;
@@ -217,10 +217,10 @@ NPC_ChoosePainAnimation
 
 #define	MIN_PAIN_TIME	200
 
-extern int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, hitLocation_t hitLoc );
+extern std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage, hitLocation_t hitLoc );
 void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc, entity_event_t voiceEvent )
 {
-	int		pain_anim = -1;
+	std::optional<animNumber_t>		pain_anim;
 	float	pain_chance;
 
 	//If we've already taken pain, then don't take it again
@@ -325,7 +325,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 				}
 				*/
 
-				if ( pain_anim == -1 )
+				if ( !pain_anim )
 				{
 					pain_anim = BG_PickAnim( self->localAnimIndex, BOTH_PAIN1, BOTH_PAIN18 );
 				}
@@ -337,9 +337,9 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 					parts = SETANIM_LEGS;
 				}
 
-				if (pain_anim != -1)
+				if (pain_anim)
 				{
-					NPC_SetAnim( self, parts, pain_anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+					NPC_SetAnim( self, parts, *pain_anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 				}
 			}
 			if ( voiceEvent != EV_NONE )
@@ -363,7 +363,9 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 			self->painDebounceTime = level.time + 4000;
 		}
 		*/
-		animLength = bgAllAnims[self->localAnimIndex].anims[pain_anim].numFrames * Q_fabs((float)(bgHumanoidAnimations[pain_anim].frameLerp));
+		// the pain animation's length in the NPC's own animation set; none when no pain animation was chosen (gripped or
+		// drained, or none found), as in single player
+		animLength = pain_anim ? BG_AnimLength( self->localAnimIndex, *pain_anim ) : 0;
 
 		self->painDebounceTime = level.time + animLength;
 		self->client->ps.weaponTime = 0;

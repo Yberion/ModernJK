@@ -265,7 +265,7 @@ static int CL_GetCurrentCmdNumber( void ) {
 	return cl.cmdNumber;
 }
 
-static void _CL_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls ) {
+static void _CL_SetUserCmdValue( weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls ) {
 	cl_bUseFighterPitch = fighterControls;
 	CL_SetUserCmdValue( stateValue, sensitivityScale, mPitchOverride, mYawOverride, mSensitivityOverride, fpSel, invenSel );
 }

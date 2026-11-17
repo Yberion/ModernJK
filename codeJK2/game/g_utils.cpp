@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ACT_ACTIVE		true
 #define ACT_INACTIVE	false
 extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, bool useWhenDone );
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 /*
 =========================================================================
 
@@ -1440,7 +1440,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot)
 	VectorCopy(B, tent->s.origin2 );
 	tent->s.time = duration;		// Pause
 	tent->s.time2 = color;			// Color
-	tent->s.weapon = 1;				// Dimater
+	ES_SetWeaponParm( tent->s, 1 );				// Dimater
 	tent->freeAfterEvent = deleteornot;
 	*/
 

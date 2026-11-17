@@ -54,15 +54,15 @@ extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDeb
 extern	bool	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern bool WP_SaberLose( gentity_t *self, vec3_t throwDir );
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
-extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
 extern saberMoveName_t PM_SaberAnimTransitionMove( saberMoveName_t curmove, saberMoveName_t newmove );
 extern saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad );
 extern bool PM_SaberInTransition( saberMoveName_t move );
 extern bool PM_SaberInTransitionAny( saberMoveName_t move );
 extern bool PM_SaberInBounce( saberMoveName_t move );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
-extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove );
 extern saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
 extern saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saberMoveName_t curmove );
 extern saberMoveName_t PM_BrokenParryForParry( saberMoveName_t move );
@@ -77,14 +77,14 @@ extern bool PM_SaberInReturn( saberMoveName_t move );
 extern bool PM_SaberKataDone( saberMoveName_t curmove, saberMoveName_t newmove );
 extern bool PM_SaberInSpecial( saberMoveName_t move );
 extern bool PM_InDeathAnim ( void );
-extern bool PM_StandingAnim( int anim );
+extern bool PM_StandingAnim( animNumber_t anim );
 extern bool PM_KickMove( saberMoveName_t move );
-extern bool PM_KickingAnim( int anim );
-extern bool PM_InAirKickingAnim( int anim );
-extern bool PM_SuperBreakLoseAnim( int anim );
-extern bool PM_SuperBreakWinAnim( int anim );
-extern bool PM_InCartwheel( int anim );
-extern bool PM_InButterfly( int anim );
+extern bool PM_KickingAnim( animNumber_t anim );
+extern bool PM_InAirKickingAnim( animNumber_t anim );
+extern bool PM_SuperBreakLoseAnim( animNumber_t anim );
+extern bool PM_SuperBreakWinAnim( animNumber_t anim );
+extern bool PM_InCartwheel( animNumber_t anim );
+extern bool PM_InButterfly( animNumber_t anim );
 extern bool PM_CanRollFromSoulCal( playerState_t *ps );
 extern saberMoveName_t PM_SaberFlipOverAttackMove( void );
 extern bool PM_CheckFlipOverAttackMove( bool checkEnemy );
@@ -97,19 +97,19 @@ extern bool PM_CheckDualJumpAttackMove( void );
 extern saberMoveName_t PM_SaberLungeAttackMove( bool fallbackToNormalLunge );
 extern bool PM_CheckLungeAttackMove( void );
 extern bool PM_InSecondaryStyle( void );
-extern bool PM_KnockDownAnimExtended( int anim );
+extern bool PM_KnockDownAnimExtended( animNumber_t anim );
 extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern float G_ForceWallJumpStrength( void );
-extern bool G_CheckRollSafety( gentity_t *self, int anim, float testDist );
+extern bool G_CheckRollSafety( gentity_t *self, animNumber_t anim, float testDist );
 extern saberMoveName_t PM_CheckDualSpinProtect( void );
 extern saberMoveName_t PM_CheckPullAttack( void );
 extern bool JET_Flying( gentity_t *self );
 extern void JET_FlyStart( gentity_t *self );
 extern void JET_FlyStop( gentity_t *self );
-extern bool PM_LockedAnim( int anim );
+extern bool PM_LockedAnim( animNumber_t anim );
 extern bool G_TryingKataAttack( gentity_t *self, usercmd_t *cmd );
 extern bool G_TryingCartwheel( gentity_t *self, usercmd_t *cmd );
 extern bool G_TryingSpecial( gentity_t *self, usercmd_t *cmd );
@@ -123,15 +123,15 @@ bool PM_InKnockDown( playerState_t *ps );
 bool PM_InKnockDownOnGround( playerState_t *ps );
 bool PM_InGetUp( playerState_t *ps );
 bool PM_InRoll( playerState_t *ps );
-bool PM_SpinningSaberAnim( int anim );
+bool PM_SpinningSaberAnim( animNumber_t anim );
 bool PM_GettingUpFromKnockDown( float standheight, float crouchheight );
-bool PM_SpinningAnim( int anim );
-bool PM_FlippingAnim( int anim );
-bool PM_PainAnim( int anim );
-bool PM_RollingAnim( int anim );
-bool PM_SwimmingAnim( int anim );
-bool PM_InReboundJump( int anim );
-bool PM_ForceJumpingAnim( int anim );
+bool PM_SpinningAnim( animNumber_t anim );
+bool PM_FlippingAnim( animNumber_t anim );
+bool PM_PainAnim( animNumber_t anim );
+bool PM_RollingAnim( animNumber_t anim );
+bool PM_SwimmingAnim( animNumber_t anim );
+bool PM_InReboundJump( animNumber_t anim );
+bool PM_ForceJumpingAnim( animNumber_t anim );
 void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd );
 
 extern int parryDebounce[];
@@ -182,12 +182,12 @@ int	c_pmove = 0;
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 extern void PM_TorsoAnimation( void );
-extern int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
+extern std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_InDeathAnim ( void );
 extern bool PM_InOnGroundAnim ( playerState_t *ps );
-extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
-extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
+extern	EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>	cg_weapons;
+extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
 
 extern void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trace );
 
@@ -240,7 +240,7 @@ bool PM_PredictJumpSafe( vec3_t jumpHorizDir, float jumpHorizSpeed, float jumpVe
 }
 
 
-void PM_GrabWallForJump( int anim )
+void PM_GrabWallForJump( animNumber_t anim )
 {//NOTE!!! assumes an appropriate anim is being passed in!!!
 	PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_RESTART|SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 	PM_AddEvent( EV_JUMP );//make sound for grab
@@ -386,7 +386,7 @@ bool PM_CheckGrabWall( trace_t *trace )
 
 		//grab it!
 		//Pick the proper anim
-		int anim = BOTH_FORCEWALLREBOUND_FORWARD;
+		animNumber_t anim = BOTH_FORCEWALLREBOUND_FORWARD;
 		vec3_t	facingAngles, wallDir, fwdDir, rtDir;
 		VectorSubtract( trace->endpos, pm->gent->lastOrigin, wallDir );
 		wallDir[2] = 0;
@@ -833,7 +833,7 @@ PM_CheckJump
 =============
 */
 #define METROID_JUMP 1
-bool PM_InReboundJump( int anim )
+bool PM_InReboundJump( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -843,11 +843,13 @@ bool PM_InReboundJump( int anim )
 	case BOTH_FORCEWALLREBOUND_RIGHT:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InReboundHold( int anim )
+bool PM_InReboundHold( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -857,11 +859,13 @@ bool PM_InReboundHold( int anim )
 	case BOTH_FORCEWALLHOLD_RIGHT:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InReboundRelease( int anim )
+bool PM_InReboundRelease( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -871,11 +875,13 @@ bool PM_InReboundRelease( int anim )
 	case BOTH_FORCEWALLRELEASE_RIGHT:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InBackFlip( int anim )
+bool PM_InBackFlip( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -885,11 +891,13 @@ bool PM_InBackFlip( int anim )
 	case BOTH_ALORA_FLIP_B:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InSpecialJump( int anim )
+bool PM_InSpecialJump( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -929,6 +937,8 @@ bool PM_InSpecialJump( int anim )
 	case BOTH_FLIP_LAND:
 	case BOTH_A7_SOULCAL:
 		return true;
+	default:
+		break;
 	}
 	if ( PM_InReboundJump( anim ) )
 	{
@@ -1006,7 +1016,7 @@ bool PM_ForceJumpingUp( gentity_t *gent )
 
 static void PM_JumpForDir( void )
 {
-	int anim = BOTH_JUMP1;
+	animNumber_t anim = BOTH_JUMP1;
 	if ( pm->cmd.forwardmove > 0 )
 	{
 		anim = BOTH_JUMP1;
@@ -1275,7 +1285,7 @@ static bool PM_CheckJump( void )
 								&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_FLIPS) )//okay to do flips with this saber
 								)
 							{//FIXME: this could end up playing twice if the jump is very long...
-								int anim = BOTH_FORCEINAIR1;
+								animNumber_t anim = BOTH_FORCEINAIR1;
 								int	parts = SETANIM_BOTH;
 
 								if ( pm->cmd.forwardmove > 0 )
@@ -1318,7 +1328,7 @@ static bool PM_CheckJump( void )
 							else if ( pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 )
 							{//FIXME: really want to know how far off ground we are, probably...
 								vec3_t facingFwd, facingRight, facingAngles = {0, pm->ps->viewangles[YAW], 0};
-								int	anim = -1;
+								std::optional<animNumber_t>	anim;
 								AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 								float dotR = DotProduct( facingRight, pm->ps->velocity );
 								float dotF = DotProduct( facingFwd, pm->ps->velocity );
@@ -1344,7 +1354,7 @@ static bool PM_CheckJump( void )
 										anim = BOTH_FORCEJUMPBACK1;
 									}
 								}
-								if ( anim != -1 )
+								if ( anim )
 								{
 									int parts = SETANIM_BOTH;
 									if ( pm->ps->weaponTime )
@@ -1352,7 +1362,7 @@ static bool PM_CheckJump( void )
 										parts = SETANIM_LEGS;
 									}
 
-									PM_SetAnim( pm, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+									PM_SetAnim( pm, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 								}
 							}
 						}
@@ -1360,8 +1370,8 @@ static bool PM_CheckJump( void )
 						{
 							if ( !pm->ps->legsAnimTimer )
 							{//not in the middle of a legsAnim
-								int anim = pm->ps->legsAnim;
-								int newAnim = -1;
+								animNumber_t anim = pm->ps->legsAnim;
+								std::optional<animNumber_t> newAnim;
 								switch ( anim )
 								{
 								case BOTH_FORCEJUMP1:
@@ -1376,8 +1386,10 @@ static bool PM_CheckJump( void )
 								case BOTH_FORCEJUMPRIGHT1:
 									newAnim = BOTH_FORCELANDRIGHT1;//BOTH_FORCEINAIRRIGHT1;
 									break;
+								default:
+									break;
 								}
-								if ( newAnim != -1 )
+								if ( newAnim )
 								{
 									int parts = SETANIM_BOTH;
 									if ( pm->ps->weaponTime )
@@ -1385,7 +1397,7 @@ static bool PM_CheckJump( void )
 										parts = SETANIM_LEGS;
 									}
 
-									PM_SetAnim( pm, parts, newAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+									PM_SetAnim( pm, parts, *newAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 								}
 							}
 						}
@@ -1492,7 +1504,7 @@ static bool PM_CheckJump( void )
 		else if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
 		{//on the ground
 			//check for left-wall and right-wall special jumps
-			int anim = -1;
+			std::optional<animNumber_t> anim;
 			float	vertPush = 0;
 			int		forcePowerCostOverride = 0;
 
@@ -1746,7 +1758,7 @@ static bool PM_CheckJump( void )
 				}
 			}
 
-			if ( anim != -1 && PM_HasAnimation( pm->gent, anim ) )
+			if ( anim && PM_HasAnimation( pm->gent, *anim ) )
 			{
 				vec3_t fwd, right, traceto, mins = {pm->mins[0],pm->mins[1],0}, maxs = {pm->maxs[0],pm->maxs[1],24}, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 				trace_t	trace;
@@ -1756,7 +1768,7 @@ static bool PM_CheckJump( void )
 				AngleVectors( fwdAngles, fwd, right, nullptr );
 
 				//trace-check for a wall, if necc.
-				switch ( anim )
+				switch ( *anim )
 				{
 				case BOTH_WALL_FLIP_LEFT:
 					if ( g_debugMelee->integer )
@@ -1796,6 +1808,8 @@ static bool PM_CheckJump( void )
 					}
 					doTrace = true;
 					VectorMA( pm->ps->origin, 32, fwd, traceto );//was 16
+					break;
+				default:
 					break;
 				}
 
@@ -2020,7 +2034,7 @@ static bool PM_CheckJump( void )
 							{
 								parts = SETANIM_BOTH;
 							}
-							PM_SetAnim( pm, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+							PM_SetAnim( pm, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 							if ( /*anim == BOTH_BUTTERFLY_LEFT
 								|| anim == BOTH_BUTTERFLY_RIGHT
 								||*/ anim == BOTH_FJSS_TR_BL
@@ -2047,13 +2061,13 @@ static bool PM_CheckJump( void )
 		}
 		else
 		{//in the air
-			int legsAnim = pm->ps->legsAnim;
+			animNumber_t legsAnim = pm->ps->legsAnim;
 
 			if ( legsAnim == BOTH_WALL_RUN_LEFT || legsAnim == BOTH_WALL_RUN_RIGHT )
 			{//running on a wall
 				vec3_t right, traceto, mins = {pm->mins[0],pm->mins[0],0}, maxs = {pm->maxs[0],pm->maxs[0],24}, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 				trace_t	trace;
-				int		anim = -1;
+				std::optional<animNumber_t>		anim;
 
 				AngleVectors( fwdAngles, nullptr, right, nullptr );
 
@@ -2081,7 +2095,7 @@ static bool PM_CheckJump( void )
 						}
 					}
 				}
-				if ( anim != -1 )
+				if ( anim )
 				{
 					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, G2_NOCOLLIDE, 0 );
 					if ( trace.fraction < 1.0f )
@@ -2098,7 +2112,7 @@ static bool PM_CheckJump( void )
 							pm->ps->velocity[1] *= 0.5f;
 							VectorMA( pm->ps->velocity, -150, right, pm->ps->velocity );
 						}
-						PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+						PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 						pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
 						pm->cmd.upmove = 0;
 					}
@@ -2112,7 +2126,7 @@ static bool PM_CheckJump( void )
 			{//want to jump off wall
 				vec3_t fwd, traceto, mins = {pm->mins[0],pm->mins[0],0}, maxs = {pm->maxs[0],pm->maxs[0],24}, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 				trace_t	trace;
-				int		anim = -1;
+				std::optional<animNumber_t>		anim;
 
 				AngleVectors( fwdAngles, fwd, nullptr, nullptr );
 
@@ -2122,7 +2136,7 @@ static bool PM_CheckJump( void )
 					VectorMA( pm->ps->origin, 16, fwd, traceto );
 					anim = BOTH_FORCEWALLRUNFLIP_END;
 				}
-				if ( anim != -1 )
+				if ( anim )
 				{
 					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, G2_NOCOLLIDE, 0 );
 					if ( trace.fraction < 1.0f )
@@ -2136,7 +2150,7 @@ static bool PM_CheckJump( void )
 						{//not attacking, set anim on both
 							parts = SETANIM_BOTH;
 						}
-						PM_SetAnim( pm, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+						PM_SetAnim( pm, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 						//FIXME: do damage to traceEnt, like above?
 						pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
 						pm->cmd.upmove = 0;
@@ -2182,7 +2196,7 @@ static bool PM_CheckJump( void )
 				&& (pm->ps->legsAnim == BOTH_JUMP1 || pm->ps->legsAnim == BOTH_INAIR1 )//not in a flip or spin or anything
 			{//run up wall, flip backwards
 				//FIXME: have to be moving... make sure it's opposite the wall... or at least forward?
-				int wallWalkAnim = BOTH_WALL_FLIP_BACK1;
+				animNumber_t wallWalkAnim = BOTH_WALL_FLIP_BACK1;
 				int parts = SETANIM_LEGS;
 				int contents = CONTENTS_SOLID;
 				bool kick = true;
@@ -2300,7 +2314,7 @@ static bool PM_CheckJump( void )
 					vec3_t checkDir, traceto, mins = {pm->mins[0],pm->mins[1],0}, maxs = {pm->maxs[0],pm->maxs[1],24}, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 					trace_t	trace;
 					vec3_t	idealNormal;
-					int		anim = -1;
+					std::optional<animNumber_t>		anim;
 
 					if ( pm->cmd.rightmove )
 					{
@@ -2327,7 +2341,7 @@ static bool PM_CheckJump( void )
 						AngleVectors( fwdAngles, checkDir, nullptr, nullptr );
 						VectorScale( checkDir, -1, checkDir );
 					}
-					if ( anim != -1 )
+					if ( anim )
 					{//trace in the dir we're pushing in and see if there's a vertical wall there
 						VectorMA( pm->ps->origin, 16, checkDir, traceto );//was 8
 						pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );//FIXME: clip brushes too?
@@ -2342,7 +2356,7 @@ static bool PM_CheckJump( void )
 							if ( dot < 1.0f )
 							{//can't be heading *away* from the wall!
 								//grab it!
-								PM_GrabWallForJump( anim );
+								PM_GrabWallForJump( *anim );
 							}
 						}
 					}
@@ -2391,7 +2405,7 @@ static bool PM_CheckJump( void )
 				&& PM_InAnimForSaberMove( pm->ps->torsoAnim, pm->ps->saberMove ) )
 			{//not in an anim we shouldn't interrupt
 				//see if it's not too late to start a special jump-attack
-				float animLength = PM_AnimLength( g_entities[pm->ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)pm->ps->torsoAnim );
+				float animLength = PM_AnimLength( g_entities[pm->ps->clientNum].client->clientInfo.animFileIndex, pm->ps->torsoAnim );
 				if ( animLength - pm->ps->torsoAnimTimer < 500 )
 				{//just started the saberMove
 					//check for special-case jump attacks
@@ -3585,9 +3599,9 @@ static float PM_CrashLandDelta( vec3_t prev_vel, int waterlevel )
 	return delta;
 }
 
-int PM_GetLandingAnim( void )
+std::optional<animNumber_t> PM_GetLandingAnim( void )
 {
-	int anim = pm->ps->legsAnim;
+	animNumber_t anim = pm->ps->legsAnim;
 
 	//special cases:
 	if ( anim == BOTH_FLIP_ATTACK7
@@ -3620,12 +3634,14 @@ int PM_GetLandingAnim( void )
 		case BOTH_A7_KICK_L_AIR:
 			return BOTH_FORCELANDLEFT1;
 			break;
+		default:
+			break;
 		}
 	}
 
 	if ( PM_SpinningAnim( anim ) || PM_SaberInSpecialAttack( anim ) )
 	{
-		return -1;
+		return std::nullopt;
 	}
 	switch ( anim )
 	{
@@ -3739,8 +3755,7 @@ int PM_GetLandingAnim( void )
 	case BOTH_A3_SPECIAL:
 	case BOTH_PULL_IMPALE_STAB:
 	case BOTH_PULL_IMPALE_SWING:
-		anim = -1;
-		break;
+		return std::nullopt;
 	case BOTH_FORCELONGLEAP_START:
 	case BOTH_FORCELONGLEAP_ATTACK:
 		return BOTH_FORCELONGLEAP_LAND;
@@ -3749,7 +3764,7 @@ int PM_GetLandingAnim( void )
 	case BOTH_WALL_RUN_RIGHT://#
 		if ( pm->ps->legsAnimTimer > 500 )
 		{//only land at end of anim
-			return -1;
+			return std::nullopt;
 		}
 		//NOTE: falls through on purpose!
 	default:
@@ -3771,7 +3786,7 @@ int PM_GetLandingAnim( void )
 	return anim;
 }
 
-void G_StartRoll( gentity_t *ent, int anim )
+void G_StartRoll( gentity_t *ent, animNumber_t anim )
 {
 	NPC_SetAnim(ent,SETANIM_BOTH,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS);
 	ent->client->ps.weaponTime = ent->client->ps.torsoAnimTimer - 200;//just to make sure it's cleared when roll is done
@@ -3846,7 +3861,7 @@ static bool PM_TryRoll( void )
 		maxs = { pm->maxs[0], pm->maxs[1], (float)pm->gent->client->crouchheight },
 		fwdAngles = { 0, pm->ps->viewangles[YAW], 0 };
 	trace_t	trace;
-	int		anim = -1;
+	std::optional<animNumber_t>		anim;
 	AngleVectors( fwdAngles, fwd, right, nullptr );
 	//FIXME: trace ahead for clearance to roll
 	if ( pm->cmd.forwardmove )
@@ -3875,7 +3890,7 @@ static bool PM_TryRoll( void )
 	else
 	{//???
 	}
-	if ( anim != -1 )
+	if ( anim )
 	{
 		bool roll = false;
 		int		clipmask = CONTENTS_SOLID;
@@ -3936,7 +3951,7 @@ static bool PM_TryRoll( void )
 		}
 		if ( roll )
 		{
-			G_StartRoll( pm->gent, anim );
+			G_StartRoll( pm->gent, *anim );
 			return true;
 		}
 	}
@@ -4096,10 +4111,10 @@ static void PM_CrashLand( void )
 		if ( PM_InAirKickingAnim( pm->ps->legsAnim )
 			&& pm->ps->torsoAnim == pm->ps->legsAnim )
 		{
-			int anim = PM_GetLandingAnim();
-			if ( anim != -1 )
+			const std::optional<animNumber_t> anim = PM_GetLandingAnim();
+			if ( anim )
 			{//interrupting a kick clears everything
-				PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+				PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 				pm->ps->saberMove = LS_READY;
 				pm->ps->weaponTime = 0;
 				if ( !g_allowBunnyhopping->integer ) {
@@ -4113,17 +4128,17 @@ static void PM_CrashLand( void )
 			&& pm->gent->client
 			&& pm->gent->client->NPC_class == CLASS_ROCKETTROOPER )
 		{//rockettroopers are simpler
-			int anim = PM_GetLandingAnim();
-			if ( anim != -1 )
+			const std::optional<animNumber_t> anim = PM_GetLandingAnim();
+			if ( anim )
 			{
 				if ( pm->gent->NPC
 					&& pm->gent->NPC->rank < RANK_LT )
 				{//special case: ground-based rocket troopers *always* play land anim on whole body
-					PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+					PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 				}
 				else
 				{
-					PM_SetAnim( pm, SETANIM_LEGS, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+					PM_SetAnim( pm, SETANIM_LEGS, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 				}
 			}
 		}
@@ -4141,8 +4156,8 @@ static void PM_CrashLand( void )
 				}
 				else
 				{
-					int anim = PM_GetLandingAnim();
-					if ( anim != -1 )
+					const std::optional<animNumber_t> anim = PM_GetLandingAnim();
+					if ( anim )
 					{
 						if ( PM_FlippingAnim( pm->ps->torsoAnim )
 							|| PM_SpinningAnim( pm->ps->torsoAnim )
@@ -4156,28 +4171,28 @@ static void PM_CrashLand( void )
 							{
 								G_SoundOnEnt( pm->gent, CHAN_AUTO, "sound/player/slide.wav" );
 							}
-							PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+							PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 						}
 						else if ( anim == BOTH_FLIP_LAND
 							|| (pm->ps->torsoAnim == BOTH_FLIP_LAND) )
 						{
-							PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+							PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 						}
 						else if ( PM_InAirKickingAnim( pm->ps->legsAnim )
 							&& pm->ps->torsoAnim == pm->ps->legsAnim )
 						{//interrupting a kick clears everything
-							PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+							PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 							pm->ps->saberMove = LS_READY;
 							pm->ps->weaponTime = 0;
 						}
 						else if ( PM_ForceJumpingAnim( pm->ps->legsAnim )
 							&& pm->ps->torsoAnim == pm->ps->legsAnim )
 						{//special case: if land during one of these, set the torso, too, if it's not doing something else
-							PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+							PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 						}
 						else
 						{
-							PM_SetAnim( pm, SETANIM_LEGS, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
+							PM_SetAnim( pm, SETANIM_LEGS, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100 );	// Only blend over 100ms
 						}
 					}
 				}
@@ -4464,7 +4479,7 @@ static void PM_FallToDeath( void )
 	pm->ps->friction = 1;
 }
 
-int PM_ForceJumpAnimForJumpAnim( int anim )
+animNumber_t PM_ForceJumpAnimForJumpAnim( animNumber_t anim )
 {
 	switch( anim )
 	{
@@ -4503,6 +4518,8 @@ int PM_ForceJumpAnimForJumpAnim( int anim )
 		break;
 	case BOTH_LANDRIGHT1:		//# Landing right(from in air loop)
 		anim = BOTH_FORCELANDRIGHT1;		//# Landing right(from in air loop)
+		break;
+	default:
 		break;
 	}
 	return anim;
@@ -5035,7 +5052,7 @@ static void PM_GroundTraceMissed( void ) {
 									else
 									{
 										vec3_t	moveDir, lookAngles, lookDir, lookRight;
-										int		anim = BOTH_INAIR1;
+										animNumber_t		anim = BOTH_INAIR1;
 
 										VectorCopy( pm->ps->velocity, moveDir );
 										moveDir[2] = 0;
@@ -5858,7 +5875,7 @@ static void PM_CheckDuck (void)
 
 
 //===================================================================
-bool PM_SaberLockAnim( int anim )
+bool PM_SaberLockAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -5867,11 +5884,13 @@ bool PM_SaberLockAnim( int anim )
 	case BOTH_CWCIRCLELOCK:	//#
 	case BOTH_CCWCIRCLELOCK:	//#
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_ForceAnim( int anim )
+bool PM_ForceAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -5909,11 +5928,13 @@ bool PM_ForceAnim( int anim )
 	case BOTH_FORCE_PROTECT_FAST:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InSaberAnim( int anim )
+bool PM_InSaberAnim( animNumber_t anim )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_H1_S1_BR )
 	{
@@ -5946,6 +5967,8 @@ bool PM_InForceGetUp( playerState_t *ps )
 		{
 			return true;
 		}
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -6006,6 +6029,8 @@ bool PM_InGetUpNoRoll( playerState_t *ps )
 		{
 			return true;
 		}
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -6082,6 +6107,8 @@ bool PM_InKnockDownNoGetup( playerState_t *ps )
 		}
 		*/
 		break;
+	default:
+		break;
 	}
 	return false;
 }
@@ -6096,7 +6123,7 @@ bool PM_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_KNOCKDOWN4:
 	case BOTH_KNOCKDOWN5:
 	case BOTH_RELEASED:
-		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer > 300 )
+		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->legsAnimTimer > 300 )
 		{//at end of fall down anim
 			return true;
 		}
@@ -6116,7 +6143,7 @@ bool PM_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B4:
 	case BOTH_FORCE_GETUP_B5:
 	case BOTH_FORCE_GETUP_B6:
-		if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer < 500 )
+		if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->legsAnimTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
@@ -6129,7 +6156,7 @@ bool PM_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_GETUP_FROLL_F:
 	case BOTH_GETUP_FROLL_L:
 	case BOTH_GETUP_FROLL_R:
-		if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer < 500 )
+		if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->legsAnimTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
@@ -6153,6 +6180,8 @@ bool PM_InKnockDownOnGround( playerState_t *ps )
 		}
 		*/
 		break;
+	default:
+		break;
 	}
 	return false;
 }
@@ -6161,7 +6190,7 @@ bool PM_CrouchGetup( float crouchheight )
 {
 	pm->maxs[2] = crouchheight;
 	pm->ps->viewheight = crouchheight + STANDARD_VIEWHEIGHT_OFFSET;
-	int	anim = -1;
+	std::optional<animNumber_t>	anim;
 	switch ( pm->ps->legsAnim )
 	{
 	case BOTH_KNOCKDOWN1:
@@ -6176,8 +6205,10 @@ bool PM_CrouchGetup( float crouchheight )
 	case BOTH_LK_DL_ST_T_SB_1_L:
 		anim = BOTH_GETUP_CROUCH_F1;
 		break;
+	default:
+		break;
 	}
-	if ( anim == -1 )
+	if ( !anim )
 	{//WTF? stay down?
 		pm->ps->legsAnimTimer = 100;//hold this anim for another 10th of a second
 		return false;
@@ -6192,7 +6223,7 @@ bool PM_CrouchGetup( float crouchheight )
 		{//need to be able to override this anim
 			pm->ps->legsAnimTimer = 0;
 		}
-		PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS );
+		PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS );
 		pm->ps->saberMove = pm->ps->saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
 		pm->ps->saberBlocked = BLOCKED_NONE;
 		return true;
@@ -6220,7 +6251,7 @@ bool PM_CheckRollGetup( void )
 				&& (PM_GoingToAttackDown( &pm->gent->enemy->client->ps )||!Q_irand(0,2))//he's attacking downward! (or we just feel like doing it this time)
 				&& ((pm->gent->client&&pm->gent->client->NPC_class==CLASS_ALORA)||Q_irand( 0, to_underlying( RANK_CAPTAIN ) ) < to_underlying( pm->gent->NPC->rank )) ) )//higher rank I am, more likely I am to roll away!
 		{//roll away!
-			int anim;
+			animNumber_t anim;
 			bool forceGetUp = false;
 			if ( pm->cmd.forwardmove > 0 )
 			{
@@ -6378,7 +6409,7 @@ bool PM_CheckRollGetup( void )
 extern int G_MinGetUpTime( gentity_t *ent );
 bool PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 {
-	int legsAnim = pm->ps->legsAnim;
+	animNumber_t legsAnim = pm->ps->legsAnim;
 	if ( legsAnim == BOTH_KNOCKDOWN1
 		||legsAnim == BOTH_KNOCKDOWN2
 		||legsAnim == BOTH_KNOCKDOWN3
@@ -6422,7 +6453,7 @@ bool PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid )
 				{//stand up
-					int	anim = BOTH_GETUP1;
+					animNumber_t	anim = BOTH_GETUP1;
 					bool forceGetUp = false;
 					pm->maxs[2] = standheight;
 					pm->ps->viewheight = standheight + STANDARD_VIEWHEIGHT_OFFSET;
@@ -6487,8 +6518,10 @@ bool PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 							anim = BOTH_GETUP5;
 						}
 						break;
+					default:
+						break;
 					}
-					//Com_Printf( "getupanim = %s\n", animTable[anim].name );
+					//Com_Printf( "getupanim = %s\n", BG_AnimName( anim ) );
 					if ( forceGetUp )
 					{
 						if ( pm->gent && pm->gent->client && pm->gent->client->playerTeam == TEAM_ENEMY
@@ -6600,7 +6633,7 @@ void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->torsoAnimTimer < 350 )
+		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->torsoAnimTimer < 350 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -6618,7 +6651,7 @@ void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->torsoAnimTimer < 200 )
+		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->torsoAnimTimer < 200 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -6636,7 +6669,7 @@ void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->torsoAnimTimer < 150 )
+		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim ) - ps->torsoAnimTimer < 150 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -6674,6 +6707,8 @@ void PM_CmdForRoll( playerState_t *ps, usercmd_t *pCmd )
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
 		break;
+	default:
+		break;
 	}
 
 	pCmd->upmove = 0;
@@ -6696,6 +6731,8 @@ bool PM_InRollIgnoreTimer( playerState_t *ps )
 	case BOTH_GETUP_FROLL_L:
 	case BOTH_GETUP_FROLL_R:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
@@ -6710,7 +6747,7 @@ bool PM_InRoll( playerState_t *ps )
 	return false;
 }
 
-bool PM_CrouchAnim( int anim )
+bool PM_CrouchAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6735,11 +6772,13 @@ bool PM_CrouchAnim( int anim )
 	case BOTH_KNEES2TO1:			//# Transition of KNEES2 to KNEES1
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_PainAnim( int anim )
+bool PM_PainAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6763,12 +6802,14 @@ bool PM_PainAnim( int anim )
 		case BOTH_PAIN18:			//#
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
 
-bool PM_DodgeHoldAnim( int anim )
+bool PM_DodgeHoldAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6780,11 +6821,13 @@ bool PM_DodgeHoldAnim( int anim )
 	case BOTH_DODGE_HOLD_R:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_DodgeAnim( int anim )
+bool PM_DodgeAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6803,7 +6846,7 @@ bool PM_DodgeAnim( int anim )
 	//return false;
 }
 
-bool PM_ForceJumpingAnim( int anim )
+bool PM_ForceJumpingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6821,11 +6864,13 @@ bool PM_ForceJumpingAnim( int anim )
 		case BOTH_FORCELANDRIGHT1:		//# Landing right(from in air loop)
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_JumpingAnim( int anim )
+bool PM_JumpingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6855,7 +6900,7 @@ bool PM_JumpingAnim( int anim )
 	//return false;
 }
 
-bool PM_LandingAnim( int anim )
+bool PM_LandingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6870,11 +6915,13 @@ bool PM_LandingAnim( int anim )
 		case BOTH_FORCELANDRIGHT1:	//# Landing right(from in air loop)
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_FlippingAnim( int anim )
+bool PM_FlippingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6920,11 +6967,13 @@ bool PM_FlippingAnim( int anim )
 	case BOTH_A7_SOULCAL:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_WalkingAnim( int anim )
+bool PM_WalkingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6941,11 +6990,13 @@ bool PM_WalkingAnim( int anim )
 	case BOTH_WALKBACK_DUAL:		//# Walk backwards with dual
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_RunningAnim( int anim )
+bool PM_RunningAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6963,11 +7014,13 @@ bool PM_RunningAnim( int anim )
 	case BOTH_RUNSTRAFE_RIGHT1:	//# Sidestep right: should loop
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_RollingAnim( int anim )
+bool PM_RollingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6985,11 +7038,13 @@ bool PM_RollingAnim( int anim )
 	case BOTH_GETUP_FROLL_R:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_SwimmingAnim( int anim )
+bool PM_SwimmingAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -6998,11 +7053,13 @@ bool PM_SwimmingAnim( int anim )
 	case BOTH_SWIMBACKWARD:		//# Swim backward loop
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_LeapingSaberAnim( int anim )
+bool PM_LeapingSaberAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -7015,11 +7072,13 @@ bool PM_LeapingSaberAnim( int anim )
 	case BOTH_T7_BL_TR:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_SpinningSaberAnim( int anim )
+bool PM_SpinningSaberAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -7123,11 +7182,13 @@ bool PM_SpinningSaberAnim( int anim )
 	case BOTH_JUMPFLIPSTABDOWN:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_SpinningAnim( int anim )
+bool PM_SpinningAnim( animNumber_t anim )
 {
 	/*
 	switch ( anim )
@@ -7326,7 +7387,7 @@ void PM_FootSlopeTrace( float *pDiff, float *pInterval )
 	}
 }
 
-bool PM_InSlopeAnim( int anim )
+bool PM_InSlopeAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -7402,11 +7463,13 @@ bool PM_InSlopeAnim( int anim )
 	case LEGS_S7_RUP5:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_SaberStanceAnim( int anim )
+bool PM_SaberStanceAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -7418,11 +7481,13 @@ bool PM_SaberStanceAnim( int anim )
 	case BOTH_SABERDUAL_STANCE://dual saber style
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_SaberDrawPutawayAnim( int anim )
+bool PM_SaberDrawPutawayAnim( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -7433,6 +7498,8 @@ bool PM_SaberDrawPutawayAnim( int anim )
 	case BOTH_S1_S6:
 	case BOTH_S6_S1:
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -7466,7 +7533,7 @@ bool PM_AdjustStandAnimForSlope( void )
 	PM_FootSlopeTrace( &diff, &interval );
 
 	//step 4: based on difference, choose one of the left/right slope-match intervals
-	int		destAnim;
+	animNumber_t		destAnim;
 	if ( diff >= interval*5 )
 	{
 		destAnim = LEGS_LEFTUP5;
@@ -7512,7 +7579,7 @@ bool PM_AdjustStandAnimForSlope( void )
 		return false;
 	}
 
-	int legsAnim = pm->ps->legsAnim;
+	animNumber_t legsAnim = pm->ps->legsAnim;
 	if ( pm->gent->client->NPC_class != CLASS_ATST )
 	{
 		//adjust for current legs anim
@@ -7826,7 +7893,7 @@ void PM_JetPackAnim( void )
 	if ( !PM_ForceJumpingAnim( pm->ps->legsAnim ) )//haven't started forcejump yet
 	{
 		vec3_t facingFwd, facingRight, facingAngles = {0, pm->ps->viewangles[YAW], 0};
-		int anim = BOTH_FORCEJUMP1;
+		animNumber_t anim = BOTH_FORCEJUMP1;
 		AngleVectors( facingAngles, facingFwd, facingRight, nullptr );
 		float dotR = DotProduct( facingRight, pm->ps->velocity );
 		float dotF = DotProduct( facingFwd, pm->ps->velocity );
@@ -7865,8 +7932,8 @@ void PM_JetPackAnim( void )
 	{
 		if ( !pm->ps->legsAnimTimer )
 		{//not in the middle of a legsAnim
-			int anim = pm->ps->legsAnim;
-			int newAnim = -1;
+			animNumber_t anim = pm->ps->legsAnim;
+			std::optional<animNumber_t> newAnim;
 			switch ( anim )
 			{
 			case BOTH_FORCEJUMP1:
@@ -7881,8 +7948,10 @@ void PM_JetPackAnim( void )
 			case BOTH_FORCEJUMPRIGHT1:
 				newAnim = BOTH_FORCELANDRIGHT1;//BOTH_FORCEINAIRRIGHT1;
 				break;
+			default:
+				break;
 			}
-			if ( newAnim != -1 )
+			if ( newAnim )
 			{
 				int parts = SETANIM_BOTH;
 				if ( pm->ps->weaponTime )
@@ -7890,7 +7959,7 @@ void PM_JetPackAnim( void )
 					parts = SETANIM_LEGS;
 				}
 
-				PM_SetAnim( pm, parts, newAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+				PM_SetAnim( pm, parts, *newAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			}
 		}
 	}
@@ -7898,7 +7967,7 @@ void PM_JetPackAnim( void )
 }
 void PM_SwimFloatAnim( void )
 {
-	int legsAnim = pm->ps->legsAnim;
+	animNumber_t legsAnim = pm->ps->legsAnim;
 	//FIXME: no start or stop anims
 	if ( pm->cmd.forwardmove || pm->cmd.rightmove || pm->cmd.upmove )
 	{
@@ -7931,7 +8000,8 @@ PM_Footsteps
 static void PM_Footsteps( void )
 {
 	float		bobmove;
-	int			old, oldAnim;
+	int			old;
+	animNumber_t			oldAnim;
 	bool	footstep = false;
 	bool	validNPC = false;
 	bool	flipping = false;
@@ -8019,7 +8089,7 @@ static void PM_Footsteps( void )
 				//the get off ladder transition anim!
 				if ( pm->ps->velocity[2]  )
 				{//going up or down it
-					int	anim;
+					animNumber_t	anim;
 					if ( pm->ps->velocity[2] > 0 )
 					{
 						anim = BOTH_LADDER_UP1;
@@ -8234,7 +8304,7 @@ static void PM_Footsteps( void )
 			{
 				if ( !PM_AdjustStandAnimForSlope() )
 				{
-					int legsAnim;
+					animNumber_t legsAnim;
 					if ( (pm->ps->torsoAnim == BOTH_SPINATTACK6
 							|| pm->ps->torsoAnim == BOTH_SPINATTACK7
 							|| PM_SaberInAttack( pm->ps->saberMove )
@@ -8878,7 +8948,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 PM_BeginWeaponChange
 ===============
 */
-static void PM_BeginWeaponChange( int weapon ) {
+static void PM_BeginWeaponChange( weapon_t weapon ) {
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->pers.enterTime >= level.time - 500 )
 	{//just entered map
@@ -8892,7 +8962,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 		return;
 	}
 
-	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+	if ( !( pm->ps->stats[STAT_WEAPONS] & Bit( weapon ) ) ) {
 		return;
 	}
 
@@ -8961,22 +9031,22 @@ PM_FinishWeaponChange
 ===============
 */
 static void PM_FinishWeaponChange( void ) {
-	int		weapon;
+	weapon_t		weapon;
 	bool	trueSwitch = true;
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->pers.enterTime >= level.time - 500 )
 	{//just entered map
-		if ( pm->cmd.weapon == WP_NONE && pm->ps->weapon != pm->cmd.weapon )
+		if ( UC_Weapon( pm->cmd ) == WP_NONE && pm->ps->weapon != UC_Weapon( pm->cmd ) )
 		{//don't switch to weapon none if just entered map
 			return;
 		}
 	}
-	weapon = pm->cmd.weapon;
+	weapon = UC_Weapon( pm->cmd );
 	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		weapon = WP_NONE;
 	}
 
-	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+	if ( !( pm->ps->stats[STAT_WEAPONS] & Bit( weapon ) ) ) {
 		weapon = WP_NONE;
 	}
 
@@ -9083,12 +9153,12 @@ static void PM_FinishWeaponChange( void ) {
 	}
 }
 
-int PM_ReadyPoseForSaberAnimLevel( void )
+std::optional<animNumber_t> PM_ReadyPoseForSaberAnimLevel( void )
 {
-	int anim = BOTH_STAND2;
+	animNumber_t anim = BOTH_STAND2;
  	if (PM_RidingVehicle())
 	{
-		return -1;
+		return std::nullopt;
 	}
 	switch ( pm->ps->saberAnimLevel )
 	{
@@ -9170,7 +9240,7 @@ void PM_SetJumped( float height, bool force )
 void PM_SetSaberMove(saberMoveName_t newMove)
 {
 	unsigned int setflags;
-	int	anim;
+	std::optional<animNumber_t>	anim;
 	int parts = SETANIM_TORSO;
 	bool manualBlocking = false;
 
@@ -9227,12 +9297,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 				anim = BOTH_P1_S1_T_;
 			}
 		}
-		else if ( pm->ps->saber[0].readyAnim != -1 )
+		else if ( pm->ps->saber[0].readyAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[0].readyAnim;
 		}
 		else if ( pm->ps->dualSabers
-			&& pm->ps->saber[1].readyAnim != -1 )
+			&& pm->ps->saber[1].readyAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[1].readyAnim;
 		}
@@ -9265,12 +9335,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 			pm->ps->saberMove = newMove;
 			return;
 		}
-		if ( pm->ps->saber[0].drawAnim != -1 )
+		if ( pm->ps->saber[0].drawAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[0].drawAnim;
 		}
 		else if ( pm->ps->dualSabers
-			&& pm->ps->saber[1].drawAnim != -1 )
+			&& pm->ps->saber[1].drawAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[1].drawAnim;
 		}
@@ -9291,12 +9361,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 	}
 	else if ( newMove == LS_PUTAWAY )
 	{
-		if ( pm->ps->saber[0].putawayAnim != -1 )
+		if ( pm->ps->saber[0].putawayAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[0].putawayAnim;
 		}
 		else if ( pm->ps->dualSabers
-			&& pm->ps->saber[1].putawayAnim != -1 )
+			&& pm->ps->saber[1].putawayAnim != ANIM_NONE )
 		{
 			anim = pm->ps->saber[1].putawayAnim;
 		}
@@ -9333,11 +9403,11 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		//FIXME: get hand-made bounces and deflections?
 		if ( newMove >= LS_V1_BR && newMove <= LS_REFLECT_LL )
 		{//there aren't 1-7, just 1, 6 and 7, so just set it
-			anim = BOTH_P7_S7_T_ + (anim-BOTH_P1_S1_T_);//shift it up to the proper set
+			anim = BOTH_P7_S7_T_ + (*anim-BOTH_P1_S1_T_);//shift it up to the proper set
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
+			*anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	else if ( (pm->ps->saberAnimLevel == SS_DUAL
@@ -9350,7 +9420,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		//FIXME: only do the dual FB & LR attacks when on ground?
 		if ( newMove >= LS_V1_BR && newMove <= LS_REFLECT_LL )
 		{//there aren't 1-7, just 1, 6 and 7, so just set it
-			anim = BOTH_P6_S6_T_ + (anim-BOTH_P1_S1_T_);//shift it up to the proper set
+			anim = BOTH_P6_S6_T_ + (*anim-BOTH_P1_S1_T_);//shift it up to the proper set
 		}
 		else if ( ( newMove == LS_A_R2L || newMove == LS_S_R2L
 					|| newMove == LS_A_L2R  || newMove == LS_S_L2R )
@@ -9376,7 +9446,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		}
 		else
 		{//add the appropriate animLevel
-			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
+			*anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	/*
@@ -9394,7 +9464,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		}
 		else
 		{//increment the anim to the next level of saber anims
-			anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
+			*anim += (pm->ps->saberAnimLevel-SS_FAST) * SABER_ANIM_GROUP_SIZE;
 		}
 	}
 	else if ( newMove == LS_KICK_F_AIR
@@ -9444,6 +9514,8 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		case BOTH_RUNBACK_STAFF:
 			anim = pm->ps->legsAnim;
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -9484,7 +9556,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 			{
 				parts = SETANIM_BOTH;
 			}
-			else if ( PM_SpinningSaberAnim( anim ) )
+			else if ( PM_SpinningSaberAnim( *anim ) )
 			{//spins must be played on entire body
 				parts = SETANIM_BOTH;
 			}
@@ -9520,9 +9592,9 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 			setflags &= ~SETANIM_FLAG_RESTART;
 		}
 	}
-	if (anim!=-1)
+	if (anim)
 	{
-		PM_SetAnim( pm, parts, anim, setflags, saberMoveData[newMove].blendTime );
+		PM_SetAnim( pm, parts, *anim, setflags, saberMoveData[newMove].blendTime );
 	}
 
 	if ( pm->ps->torsoAnim == anim )
@@ -9530,11 +9602,11 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 	//special check for *starting* a saber swing
 		if ( pm->gent && pm->ps->SaberLength() > 1 )
 		{
-			if ( PM_SaberInAttack( newMove ) || PM_SaberInSpecialAttack( anim ) )
+			if ( PM_SaberInAttack( newMove ) || PM_SaberInSpecialAttack( *anim ) )
 			{//playing an attack
 				if ( pm->ps->saberMove != newMove )
 				{//wasn't playing that attack before
-					if ( PM_SaberInSpecialAttack( anim ) )
+					if ( PM_SaberInSpecialAttack( *anim ) )
 					{
 						WP_SaberSwingSound( pm->gent, 0, SWING_FAST );
 						if ( !PM_InCartwheel( pm->ps->torsoAnim ) )
@@ -9559,13 +9631,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 						case SS_FAST:
 							WP_SaberSwingSound( pm->gent, 0, SWING_FAST );
 							break;
-						
 						default:
 							break;
 						}
 					}
 				}
-				else if ( (setflags&SETANIM_FLAG_RESTART) && PM_SaberInSpecialAttack( anim ) )
+				else if ( (setflags&SETANIM_FLAG_RESTART) && PM_SaberInSpecialAttack( *anim ) )
 				{//sigh, if restarted a special, then set the weaponTime *again*
 					if ( !PM_InCartwheel( pm->ps->torsoAnim ) )
 					{//can still attack during a cartwheel/arial
@@ -9912,15 +9983,15 @@ void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs )
 	}
 }
 
-int PM_SaberLockWinAnim( saberLockResult_t result, int breakType )
+std::optional<animNumber_t> PM_SaberLockWinAnim( saberLockResult_t result, int breakType )
 {
-	int winAnim = -1;
+	std::optional<animNumber_t> winAnim;
 	switch ( pm->ps->torsoAnim )
 	{
 /*
 	default:
 #ifndef FINAL_BUILD
-		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, pm->ps->torsoAnim, animTable[pm->ps->torsoAnim].name );
+		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, to_underlying( pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim ) );
 #endif
 */
 	case BOTH_BF2LOCK:
@@ -9989,9 +10060,9 @@ int PM_SaberLockWinAnim( saberLockResult_t result, int breakType )
 		//must be using new system:
 		break;
 	}
-	if ( winAnim != -1 )
+	if ( winAnim )
 	{
-		PM_SetAnim( pm, SETANIM_BOTH, winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		PM_SetAnim( pm, SETANIM_BOTH, *winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 		pm->ps->saberBlocked = BLOCKED_NONE;
 		pm->ps->weaponstate = WEAPON_FIRING;
@@ -10004,15 +10075,15 @@ int PM_SaberLockWinAnim( saberLockResult_t result, int breakType )
 	return winAnim;
 }
 
-int PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, int breakType )
+std::optional<animNumber_t> PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, int breakType )
 {
-	int loseAnim = -1;
+	std::optional<animNumber_t> loseAnim;
 	switch ( genemy->client->ps.torsoAnim )
 	{
 /*
 	default:
 #ifndef FINAL_BUILD
-		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, genemy->client->ps.torsoAnim, animTable[genemy->client->ps.torsoAnim].name );
+		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, to_underlying( genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim ) );
 #endif
 */
 	case BOTH_BF2LOCK:
@@ -10119,10 +10190,12 @@ int PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, int break
 			}
 		}
 		break;
+	default:
+		break;
 	}
-	if ( loseAnim != -1 )
+	if ( loseAnim )
 	{
-		NPC_SetAnim( genemy, SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( genemy, SETANIM_BOTH, *loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		genemy->client->ps.weaponTime = genemy->client->ps.torsoAnimTimer;// + 250;
 		genemy->client->ps.saberBlocked = BLOCKED_NONE;
 		genemy->client->ps.weaponstate = WEAPON_READY;
@@ -10130,9 +10203,9 @@ int PM_SaberLockLoseAnim( gentity_t *genemy, saberLockResult_t result, int break
 	return loseAnim;
 }
 
-int PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int winOrLose )
+std::optional<animNumber_t> PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int winOrLose )
 {
-	int baseAnim = duelist->client->ps.torsoAnim;
+	animNumber_t baseAnim = duelist->client->ps.torsoAnim;
 	switch ( baseAnim )
 	{
 	case BOTH_LK_S_S_S_L_2:		//lock if I'm using single vs. a single and other intitiated
@@ -10153,6 +10226,8 @@ int PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int
 	case BOTH_LK_ST_ST_T_L_2:	//lock if I'm using staff vs. a staff and other initiated
 		baseAnim = BOTH_LK_ST_ST_T_L_1;
 		break;
+	default:
+		break;
 	}
 	//what kind of break?
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_BREAK )
@@ -10165,7 +10240,7 @@ int PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int
 	}
 	else
 	{//WTF?  Not a valid result
-		return -1;
+		return std::nullopt;
 	}
 	//win or lose?
 	if ( winOrLose == SABERLOCK_WIN )
@@ -10206,7 +10281,8 @@ int PM_SaberLockResultAnim( gentity_t *duelist, int lockOrBreakOrSuperBreak, int
 
 void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t result, int victoryStrength )
 {
-	int	winAnim = -1, loseAnim = -1;
+	std::optional<animNumber_t>	loseAnim;
+	std::optional<animNumber_t>	winAnim;
 	int breakType = SABERLOCK_BREAK;
 	bool singleVsSingle = true;
 
@@ -10233,7 +10309,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 		breakType = SABERLOCK_BREAK;
 	}
 	winAnim = PM_SaberLockWinAnim( result, breakType );
-	if ( winAnim != -1 )
+	if ( winAnim )
 	{//a single vs. single break
 		if ( genemy && genemy->client )
 		{
@@ -10254,8 +10330,8 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 
 	if ( d_saberCombat->integer )
 	{
-		Com_Printf( "%s won saber lock, anim = %s!\n", gent->NPC_type, animTable[winAnim].name );
-		Com_Printf( "%s lost saber lock, anim = %s!\n", genemy->NPC_type, animTable[loseAnim].name );
+		Com_Printf( "%s won saber lock, anim = %s!\n", gent->NPC_type, BG_AnimName( *winAnim ) );
+		Com_Printf( "%s lost saber lock, anim = %s!\n", genemy->NPC_type, BG_AnimName( *loseAnim ) );
 	}
 
 	pm->ps->saberLockTime = genemy->client->ps.saberLockTime = 0;
@@ -10300,17 +10376,17 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 				if ( !singleVsSingle )
 				{//all others have their own super breaks
 					//so it doesn't try to set some other anim below
-					winAnim = -1;
+					winAnim = std::nullopt;
 				}
 				else if ( winAnim == BOTH_LK_S_S_S_SB_1_W
 					|| winAnim == BOTH_LK_S_S_T_SB_1_W )
 				{//doing a superbreak on single-vs-single, don't do the old superbreaks this time
 					//so it doesn't try to set some other anim below
-					winAnim = -1;
+					winAnim = std::nullopt;
 				}
 				else
 				{//JK2-style
-					switch ( winAnim )
+					switch ( *winAnim )
 					{
 					case BOTH_A3_T__B_:
 						winAnim = BOTH_D1_TL___;
@@ -10328,6 +10404,8 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 						winMove = LS_A_BR2TL;
 						//FIXME: mod throwDir?
 						break;
+					default:
+						break;
 					}
 					if ( winAnim != BOTH_CCWCIRCLEBREAK )
 					{
@@ -10343,7 +10421,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 								G_DoDismemberment( genemy, genemy->client->renderInfo.handRPoint, MOD_SABER, 1000, HL_HAND_RT, true );
 								G_Damage( genemy, gent, gent, throwDir, genemy->client->renderInfo.handRPoint, genemy->health+10, DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR|DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_SABER, HL_NONE );
 
-								PM_SetAnim( pm, SETANIM_BOTH, winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+								PM_SetAnim( pm, SETANIM_BOTH, *winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 								pm->ps->weaponTime = pm->ps->torsoAnimTimer + 500;
 								pm->ps->saberMove = winMove;
 								pm->ps->saberBlocked = BLOCKED_NONE;
@@ -10382,9 +10460,9 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 							|| !Q_irand( 0, 1 ) )
 						{//if it's a two-handed saber, it has a 50% chance of resisting a disarming
 							WP_SaberLose( genemy, throwDir );
-							if ( winAnim != -1 )
+							if ( winAnim )
 							{
-								PM_SetAnim( pm, SETANIM_BOTH, winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+								PM_SetAnim( pm, SETANIM_BOTH, *winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 								pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 								pm->ps->saberMove = winMove;
 								pm->ps->saberBlocked = BLOCKED_NONE;
@@ -10448,7 +10526,7 @@ int G_SaberLockStrength( gentity_t *gent )
 	return strength;
 }
 
-bool PM_InSaberLockOld( int anim )
+bool PM_InSaberLockOld( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -10457,11 +10535,13 @@ bool PM_InSaberLockOld( int anim )
 	case BOTH_CWCIRCLELOCK:
 	case BOTH_CCWCIRCLELOCK:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_InSaberLock( int anim )
+bool PM_InSaberLock( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -10499,7 +10579,7 @@ bool PM_InSaberLock( int anim )
 }
 
 extern bool ValidAnimFileIndex ( int index );
-extern bool G_CheckIncrementLockAnim( int anim, int winOrLose );
+extern bool G_CheckIncrementLockAnim( animNumber_t anim, int winOrLose );
 bool PM_SaberLocked( void )
 {
 	//FIXME: maybe kick out of saberlock?
@@ -11183,7 +11263,7 @@ bool PM_CheckUpsideDownAttack( void )
 	//JKA
 	case BOTH_FORCEWALLRUNFLIP_END:
 		{
-			float animLength = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, (animNumber_t)pm->ps->legsAnim );
+			float animLength = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, pm->ps->legsAnim );
 			float elapsedTime = (float)(animLength-pm->ps->legsAnimTimer);
 			float midPoint = animLength/2.0f;
 			if ( elapsedTime < midPoint-100.0f
@@ -11197,6 +11277,8 @@ bool PM_CheckUpsideDownAttack( void )
 		pm->ps->pm_flags |= PMF_SLOW_MO_FALL;
 		PM_SetSaberMove( LS_UPSIDE_DOWN_ATTACK );
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -11920,7 +12002,7 @@ void PM_WeaponLightsaber(void)
 {
 	int			addTime;
 	bool	delayed_fire = false, animLevelOverridden = false;
-	int			anim=-1;
+	std::optional<animNumber_t>			anim;
 	saberMoveName_t	curmove, newmove=LS_NONE;
 
 	if ( pm->gent
@@ -11955,7 +12037,7 @@ void PM_WeaponLightsaber(void)
 		}
 	}
 
-	if ( pm->ps->stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+	if ( pm->ps->stats[STAT_WEAPONS]&Bit( WP_SCEPTER )
 		&& !pm->ps->dualSabers
 		&& pm->gent
 		&& pm->gent->weaponModel[1] )
@@ -12159,9 +12241,9 @@ void PM_WeaponLightsaber(void)
 			}
 			if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
 			{
-				if ( pm->ps->weapon != pm->cmd.weapon )
+				if ( pm->ps->weapon != UC_Weapon( pm->cmd ) )
 				{
-					PM_BeginWeaponChange( pm->cmd.weapon );
+					PM_BeginWeaponChange( UC_Weapon( pm->cmd ) );
 				}
 			}
 			else if ( pm->ps->weapon == WP_SABER
@@ -12219,8 +12301,8 @@ void PM_WeaponLightsaber(void)
 	// check for weapon change
 	// can't change if weapon is firing, but can change again if lowering or raising
 	if ( (pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING) && pm->ps->weaponstate != WEAPON_CHARGING_ALT && pm->ps->weaponstate != WEAPON_CHARGING) {
-		if ( pm->ps->weapon != pm->cmd.weapon ) {
-			PM_BeginWeaponChange( pm->cmd.weapon );
+		if ( pm->ps->weapon != UC_Weapon( pm->cmd ) ) {
+			PM_BeginWeaponChange( UC_Weapon( pm->cmd ) );
 		}
 	}
 
@@ -12317,10 +12399,10 @@ void PM_WeaponLightsaber(void)
 				PM_SetAnim(pm,SETANIM_TORSO,pm->ps->legsAnim,SETANIM_FLAG_NORMAL);
 				break;
 			default:
-				int anim = PM_ReadyPoseForSaberAnimLevel();
-				if (anim!=-1)
+				const std::optional<animNumber_t> anim = PM_ReadyPoseForSaberAnimLevel();
+				if (anim)
 				{
-					PM_SetAnim(pm,SETANIM_TORSO,anim,SETANIM_FLAG_NORMAL);
+					PM_SetAnim(pm,SETANIM_TORSO,*anim,SETANIM_FLAG_NORMAL);
 				}
 				break;
 			}
@@ -12431,7 +12513,6 @@ void PM_WeaponLightsaber(void)
 			case SS_STAFF:
 				PM_SetSaberMove( LS_STAFF_SOULCAL );
 				break;
-			
 			default:
 				break;
 			}
@@ -12629,7 +12710,7 @@ void PM_WeaponLightsaber(void)
 			}
 
 			//FIXME: diagonal dirs use the figure-eight attacks from ready pose?
-			if ( anim == -1 )
+			if ( !anim )
 			{
 				//FIXME: take FP_SABER_OFFENSE into account here somehow?
 				if ( PM_SaberInTransition( curmove ) )
@@ -12695,7 +12776,7 @@ void PM_WeaponLightsaber(void)
 				}
 			}
 
-			if (anim == -1)
+			if (!anim)
 			{//not side-stepping, pick neutral anim
 				if ( !G_TryingSpecial(pm->gent,&pm->cmd)/*(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/ )
 				{//but only if not trying one of the special attacks!
@@ -12723,6 +12804,8 @@ void PM_WeaponLightsaber(void)
 								newmove = LS_A_R2L;
 							}
 							break;
+						default:
+							break;
 						}
 					}
 					else
@@ -12746,7 +12829,7 @@ void PM_WeaponLightsaber(void)
 
 			}
 
-			if ( anim == -1)
+			if ( !anim)
 			{
 				switch ( pm->ps->legsAnim )
 				{
@@ -12996,6 +13079,8 @@ static bool PM_DoChargedWeapons( void )
 		}
 		break;
 
+	default:
+		break;
 	} // end switch
 
 	// set up the appropriate weapon state based on the button that's down.
@@ -13287,8 +13372,8 @@ void PM_WeaponWampa( void )
 	// check for weapon change
 	// can't change if weapon is firing, but can change again if lowering or raising
 	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
-		if ( pm->ps->weapon != pm->cmd.weapon ) {
-			PM_BeginWeaponChange( pm->cmd.weapon );
+		if ( pm->ps->weapon != UC_Weapon( pm->cmd ) ) {
+			PM_BeginWeaponChange( UC_Weapon( pm->cmd ) );
 		}
 	}
 
@@ -13441,8 +13526,8 @@ static void PM_Weapon( void )
 	// check for weapon change
 	// can't change if weapon is firing, but can change again if lowering or raising
 	if ( (pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING)  && pm->ps->weaponstate != WEAPON_CHARGING_ALT && pm->ps->weaponstate != WEAPON_CHARGING) {
-		if ( pm->ps->weapon != pm->cmd.weapon && (!pm->ps->viewEntity || pm->ps->viewEntity >= ENTITYNUM_WORLD) && !PM_DoChargedWeapons()) {
-			PM_BeginWeaponChange( pm->cmd.weapon );
+		if ( pm->ps->weapon != UC_Weapon( pm->cmd ) && (!pm->ps->viewEntity || pm->ps->viewEntity >= ENTITYNUM_WORLD) && !PM_DoChargedWeapons()) {
+			PM_BeginWeaponChange( UC_Weapon( pm->cmd ) );
 		}
 	}
 
@@ -13679,7 +13764,7 @@ static void PM_Weapon( void )
 					}
 					else
 					{
-						int anim = -1;
+						std::optional<animNumber_t> anim;
 						if ( (pm->ps->clientNum < MAX_CLIENTS ||PM_ControlledByPlayer())
 							&& g_debugMelee->integer )
 						{
@@ -13703,15 +13788,15 @@ static void PM_Weapon( void )
 						{
 							anim = PM_PickAnim( pm->gent, BOTH_MELEE1, BOTH_MELEE2 );
 						}
-						if ( anim != -1 )
+						if ( anim )
 						{
 							if ( VectorCompare( pm->ps->velocity, vec3_origin ) && pm->cmd.upmove >= 0 )
 							{
-								PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+								PM_SetAnim( pm, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
 							}
 							else
 							{
-								PM_SetAnim( pm, SETANIM_TORSO, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+								PM_SetAnim( pm, SETANIM_TORSO, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
 							}
 						}
 					}
@@ -13726,7 +13811,7 @@ static void PM_Weapon( void )
 				}
 				else
 				{//melee
-					int anim = PM_PickAnim( pm->gent, BOTH_TUSKENATTACK1, BOTH_TUSKENATTACK3 );	// Rifle
+					animNumber_t anim = PM_PickAnim( pm->gent, BOTH_TUSKENATTACK1, BOTH_TUSKENATTACK3 );	// Rifle
 					if ( VectorCompare( pm->ps->velocity, vec3_origin ) && pm->cmd.upmove >= 0 )
 					{
 						PM_SetAnim( pm, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
@@ -13742,7 +13827,7 @@ static void PM_Weapon( void )
 
 				if ( pm->gent && pm->gent->client )
 				{
-					int anim;
+					animNumber_t anim;
 					int flags = (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART);
 					if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) )
 					{//player
@@ -13792,7 +13877,7 @@ static void PM_Weapon( void )
 
 				if ( pm->gent && pm->gent->client )
 				{
-					int anim;
+					animNumber_t anim;
 					if ( pm->cmd.buttons & BUTTON_ATTACK )
 					{
 						anim = BOTH_ATTACK3;
@@ -14010,6 +14095,8 @@ static void PM_Weapon( void )
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer-500;
 				}
 			}
+			break;
+		default:
 			break;
 		}
 	}
@@ -14603,7 +14690,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 	}
 }
 
-bool PM_WeaponOkOnVehicle( int weapon )
+bool PM_WeaponOkOnVehicle( weapon_t weapon )
 {
 	//FIXME: check g_vehicleInfo for our vehicle?
 	switch ( weapon )
@@ -14613,6 +14700,8 @@ bool PM_WeaponOkOnVehicle( int weapon )
 	case WP_BLASTER:
 	case WP_THERMAL:
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -14649,6 +14738,8 @@ void PM_CheckInVehicleSaberAttackAnim( void )
 		break;
 	case BOTH_VT_ATL_S:
 		saberMove = LS_TAUNTAUN_ATTACK_LEFT;
+		break;
+	default:
 		break;
 	}
 	if ( saberMove != LS_INVALID )
@@ -15008,7 +15099,7 @@ void Pmove( pmove_t *pmove )
 		pVeh = pm->gent->m_pVehicle;
 
 		// Using vehicle weapon...
-		//if ( pm->cmd.weapon == WP_NONE )
+		//if ( UC_Weapon( pm->cmd ) == WP_NONE )
 		{
 			//PM_Weapon();
 			//PM_AddEvent( EV_FIRE_WEAPON );
@@ -15028,7 +15119,7 @@ void Pmove( pmove_t *pmove )
 		 || pm->ps->weapon == WP_THERMAL//using thermal
 		 || pm->ps->weaponstate == WEAPON_DROPPING//changing weapon - dropping
 		 || pm->ps->weaponstate == WEAPON_RAISING//changing weapon - raising
-		 || (pm->cmd.weapon != pm->ps->weapon && PM_WeaponOkOnVehicle( pm->cmd.weapon )) )//FIXME: make this a vehicle call to see if this new weapon is valid for this vehicle
+		 || (UC_Weapon( pm->cmd ) != pm->ps->weapon && PM_WeaponOkOnVehicle( UC_Weapon( pm->cmd ) )) )//FIXME: make this a vehicle call to see if this new weapon is valid for this vehicle
 		{//either weilding a weapon we can fire with normal weapon logic, or trying to change to a valid weapon
 			// call normal weapons code... should we override the normal fire anims with vehicle fire anims in here or in a subsequent call to VehicleWeapons or something?
 			//Maybe break PM_Weapon into PM_Weapon and PM_WeaponAnimate (then call our own PM_VehicleWeaponAnimate)?

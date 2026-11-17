@@ -115,7 +115,7 @@ static void CG_ParseTeamInfo( void ) {
 		cgs.clientinfo[client].location		= atoi( CG_Argv( i*TEAMINFO_OFFSET + 3 ) );
 		cgs.clientinfo[client].health		= atoi( CG_Argv( i*TEAMINFO_OFFSET + 4 ) );
 		cgs.clientinfo[client].armor		= atoi( CG_Argv( i*TEAMINFO_OFFSET + 5 ) );
-		cgs.clientinfo[client].curWeapon	= atoi( CG_Argv( i*TEAMINFO_OFFSET + 6 ) );
+		cgs.clientinfo[client].curWeapon	= static_cast<weapon_t>( atoi( CG_Argv( i*TEAMINFO_OFFSET + 6 ) ) );
 		cgs.clientinfo[client].powerups		= atoi( CG_Argv( i*TEAMINFO_OFFSET + 7 ) );
 	}
 }
@@ -163,7 +163,7 @@ void CG_ParseServerinfo( void ) {
 			i++, item++, itemInfo++ )
 		{// register all weapons that aren't disabled
 			if ( item->giType == IT_WEAPON )
-				CG_RegisterWeapon( item->giTag );
+				CG_RegisterWeapon( GI_Weapon( *item ) );
 		}
 	}
 
@@ -1029,7 +1029,7 @@ void CG_KillCEntityInstances(void)
 		cent->trickAlpha = 0;
 		cent->trickAlphaTime = 0;
 		VectorClear(cent->turAngles);
-		cent->weapon = 0;
+		cent->weapon = WP_NONE;
 		cent->teamPowerEffectTime = 0;
 		cent->teamPowerType = 0;
 		cent->numLoopingSounds = 0;
@@ -1184,7 +1184,7 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 	buf[b] = 0;
 }
 
-static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
+static void CG_BodyQueueCopy(centity_t *cent, int clientNum, weapon_t knownWeapon)
 {
 	centity_t		*source;
 	animation_t		*anim;
@@ -1249,15 +1249,15 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 		int eFrame;
 		bool fallBack = false;
 
-		//anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.torsoAnim ];
-		if (!BG_InDeathAnim(source->currentState.torsoAnim))
+		//anim = &(*bgAllAnims[cent->localAnimIndex].anims)[ ES_TorsoAnim( cent->currentState ) ];
+		if (!BG_InDeathAnim(ES_TorsoAnim( source->currentState )))
 		{ //then just snap the corpse into a default
-			anim = &bgAllAnims[source->localAnimIndex].anims[ BOTH_DEAD1 ];
+			anim = &(*bgAllAnims[source->localAnimIndex].anims)[ BOTH_DEAD1 ];
 			fallBack = true;
 		}
 		else
 		{
-			anim = &bgAllAnims[source->localAnimIndex].anims[ source->currentState.torsoAnim ];
+			anim = &(*bgAllAnims[source->localAnimIndex].anims)[ ES_TorsoAnim( source->currentState ) ];
 		}
 		animSpeed = 50.0f / anim->frameLerp;
 
@@ -1436,13 +1436,13 @@ static void CG_RestoreClientGhoul_f( void ) {
 
 	if ( IRCG ) {
 		int bodyIndex = 0;
-		int weaponIndex = 0;
+		weapon_t weaponIndex = WP_NONE;
 		int side = 0;
 		centity_t *body;
 
 		assert( argNum >= 3 );
 		bodyIndex = atoi( CG_Argv( 2 ) );
-		weaponIndex = atoi( CG_Argv( 3 ) );
+		weaponIndex = static_cast<weapon_t>( atoi( CG_Argv( 3 ) ) );
 		side = atoi( CG_Argv( 4 ) );
 
 		body = &cg_entities[bodyIndex];
@@ -1468,7 +1468,7 @@ static void CG_RestoreClientGhoul_f( void ) {
 	//clear all the decals as well
 	trap->G2API_ClearSkinGore( clent->ghoul2 );
 
-	clent->weapon = 0;
+	clent->weapon = WP_NONE;
 	clent->ghoul2weapon = nullptr; //force a weapon reinit
 }
 

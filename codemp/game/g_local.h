@@ -617,8 +617,8 @@ struct gclient_s {
 
 	saber_styles_t	saberCycleQueue;
 
-	int			legsAnimExecute;
-	int			torsoAnimExecute;
+	animNumber_t	legsAnimExecute;
+	animNumber_t	torsoAnimExecute;
 	bool	legsLastFlip;
 	bool	torsoLastFlip;
 
@@ -1112,7 +1112,7 @@ void	G_FreeFakeClient(gclient_t **cl);
 void	G_CreateFakeClient(int entNum, gclient_t **cl);
 void	G_CleanAllFakeClients(void);
 
-void	G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, int anim, int setAnimFlags, int blendTime);
+void	G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, animNumber_t anim, int setAnimFlags, int blendTime);
 gentity_t *G_PickTarget (char *targetname);
 void	GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator);
 void	G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string );
@@ -1179,7 +1179,7 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed);
 void TossClientItems( gentity_t *self );
 void TossClientCubes( gentity_t *self );
 void ExplodeDeath( gentity_t *self );
-void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, int deathAnim, bool postDeath);
+void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, animNumber_t deathAnim, bool postDeath);
 extern int gGAvoidDismember;
 
 
@@ -1451,11 +1451,11 @@ void ForceTelepathy(gentity_t *self);
 bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLocation_t hitLoc );
 
 // g_log.cpp
-void QDECL G_LogWeaponPickup(int client, int weaponid);
-void QDECL G_LogWeaponFire(int client, int weaponid);
+void QDECL G_LogWeaponPickup(int client, weapon_t weaponid);
+void QDECL G_LogWeaponFire(int client, weapon_t weaponid);
 void QDECL G_LogWeaponDamage(int client, meansOfDeath_t mod, int amount);
 void QDECL G_LogWeaponKill(int client, meansOfDeath_t mod);
-void QDECL G_LogWeaponDeath(int client, int weaponid);
+void QDECL G_LogWeaponDeath(int client, weapon_t weaponid);
 void QDECL G_LogWeaponFrag(int attacker, int deadguy);
 void QDECL G_LogWeaponPowerup(int client, powerup_t powerupid);
 void QDECL G_LogWeaponItem(int client, holdable_t itemid);
@@ -1482,6 +1482,9 @@ void		TIMER_Remove( gentity_t *ent, const char *identifier );
 
 float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV );
 float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV );
+
+// NPC_stats.cpp
+std::optional<weapon_t> G_WeaponFromName( const char *name );
 
 
 extern void G_SetEnemy (gentity_t *self, gentity_t *enemy);
@@ -1541,7 +1544,7 @@ typedef struct gameStats_s {
 	EnumArray<int, entity_event_t, EV_NUM_ENTITY_EVENTS>	events;	// events and temporary entities added by the game (G_AddEvent, G_TempEntity)
 	EnumArray<int, meansOfDeath_t, MOD_MAX>	modDamage;	// health taken from clients, by cause
 	EnumArray<int, meansOfDeath_t, MOD_MAX>	modKills;	// client deaths, by cause
-	int		shots[WP_NUM_WEAPONS][2];	// FireWeapon by weapon, primary and alternate
+	EnumArray<int[2], weapon_t, WP_NUM_WEAPONS>	shots;	// FireWeapon by weapon, primary and alternate
 	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
 	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
 } gameStats_t;

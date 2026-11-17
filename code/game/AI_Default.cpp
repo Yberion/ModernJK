@@ -68,13 +68,13 @@ void NPC_StandIdle( void )
 	if ( TIMER_Done( NPC, "idleAnim" ) == false )
 		return;
 
-	int anim = NPC->client->ps.legsAnim;
+	animNumber_t anim = NPC->client->ps.legsAnim;
 
 	if ( anim != BOTH_STAND1 && anim != BOTH_STAND2 )
 		return;
 
 	//FIXME: Account for STAND1 or STAND2 here and set the base anim accordingly
-	int	baseSeq = ( anim == BOTH_STAND1 ) ? BOTH_STAND1_RANDOM1 : BOTH_STAND2_RANDOM1;
+	animNumber_t	baseSeq = ( anim == BOTH_STAND1 ) ? BOTH_STAND1_RANDOM1 : BOTH_STAND2_RANDOM1;
 
 	//Must have at least one random idle animation
 	//NOTENOTE: This relies on proper ordering of animations, which SHOULD be okay
@@ -95,7 +95,7 @@ void NPC_StandIdle( void )
 	//Start that animation going
 	NPC_SetAnim( NPC, SETANIM_BOTH, baseSeq + newIdle, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
-	int newTime = PM_AnimLength( NPC->client->clientInfo.animFileIndex, (animNumber_t) (baseSeq + newIdle) );
+	int newTime = PM_AnimLength( NPC->client->clientInfo.animFileIndex, baseSeq + newIdle );
 
 	//Don't do this again for a random amount of time
 	TIMER_Set( NPC, "idleAnim", newTime + Q_irand( 2000, 10000 ) );
@@ -252,7 +252,7 @@ void NPC_BSHuntAndKill( void )
 	vec3_t		vec;
 	float		enemyDist;
 	visibility_t	oEVis;
-	int			curAnim;
+	animNumber_t			curAnim;
 
 	NPC_CheckEnemy( (NPCInfo->tempBehavior != BS_HUNT_AND_KILL), false );//don't find new enemy if this is tempbehav
 

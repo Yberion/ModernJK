@@ -342,7 +342,7 @@ bool NPC_TryJump(gentity_t *goal,	float max_xy_dist, float max_z_diff)
 
 void	 NPC_JumpAnimation()
 {
-	int	jumpAnim = BOTH_JUMP1;
+	animNumber_t	jumpAnim = BOTH_JUMP1;
 
 	if ( NPC->client->NPC_class == CLASS_BOBAFETT
 		|| (NPC->client->NPC_class == CLASS_REBORN && NPC->s.weapon != WP_SABER)

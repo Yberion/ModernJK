@@ -53,7 +53,7 @@ extern int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *ta
 extern void InitMover( gentity_t *ent );
 extern void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
 //extern void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void NPC_BSSearchStart( int homeWp, bState_t bState );
 extern void InitMoverTrData( gentity_t *ent );
@@ -64,14 +64,14 @@ extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 //extern void FX_BorgTeleport( vec3_t org );
 static void Q3_SetWeapon (int entID, const char *wp_name);
 static void Q3_SetItem (int entID, const char *item_name);
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 extern int	TAG_GetOrigin2( const char *owner, const char *name, vec3_t origin );
 extern void G_TeamRetaliation ( gentity_t *targ, gentity_t *attacker, bool stopIcarus );
 extern void G_PlayDoorLoopSound( gentity_t *ent );
 extern void G_PlayDoorSound( gentity_t *ent, int type );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern void NPC_ClearLookTarget( gentity_t *self );
-bool PM_HasAnimation( gentity_t *ent, int animation );
+bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
 extern int	BMS_START;
 extern int	BMS_MID;
 extern int	BMS_END;
@@ -130,7 +130,7 @@ stringID_table_t BSETTable[] =
 
 stringID_table_t WPTable[] =
 {
-	{"NULL", WP_NONE},
+	{"NULL", to_underlying( WP_NONE )},
 	ENUM2STRING(WP_NONE),
 	// Player weapons
 	ENUM2STRING(WP_SABER),				 // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
@@ -664,9 +664,9 @@ static char *Q3_GetAnimLower( gentity_t *ent )
 		return nullptr;
 	}
 
-	int anim = ent->client->ps.legsAnim;
+	animNumber_t anim = ent->client->ps.legsAnim;
 
-	return (char *) GetStringForID( animTable, anim );
+	return (char *) GetStringForID( animTable, to_underlying( anim ) );
 }
 
 /*
@@ -682,9 +682,9 @@ static char *Q3_GetAnimUpper( gentity_t *ent )
 		return nullptr;
 	}
 
-	int anim = ent->client->ps.torsoAnim;
+	animNumber_t anim = ent->client->ps.torsoAnim;
 
-	return (char *) GetStringForID( animTable, anim );
+	return (char *) GetStringForID( animTable, to_underlying( anim ) );
 }
 
 /*
@@ -2009,7 +2009,7 @@ SetLowerAnim
   Argument		: int animID
 ============
 */
-static void SetLowerAnim( int entID, int animID)
+static void SetLowerAnim( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -2038,7 +2038,7 @@ SetUpperAnim
   Argument		: int animID
 ============
 */
-static void SetUpperAnim ( int entID, int animID)
+static void SetUpperAnim ( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -2068,22 +2068,20 @@ Sets the upper animation of an entity
 */
 static bool Q3_SetAnimUpper( int entID, const char *anim_name )
 {
-	int			animID = 0;
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	animID = GetIDForString( animTable, anim_name );
-
-	if( animID == -1 )
+	if( !animID )
 	{
 		Q3_DebugPrint( WL_WARNING, "Q3_SetAnimUpper: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
-	if ( !PM_HasAnimation( &g_entities[entID], animID ) )
+	if ( !PM_HasAnimation( &g_entities[entID], *animID ) )
 	{
 		return false;
 	}
 
-	SetUpperAnim( entID, animID );
+	SetUpperAnim( entID, *animID );
 	return true;
 }
 
@@ -2097,24 +2095,22 @@ Sets the lower animation of an entity
 */
 static bool Q3_SetAnimLower( int entID, const char *anim_name )
 {
-	int			animID = 0;
-
 	//FIXME: Setting duck anim does not actually duck!
 
-	animID = GetIDForString( animTable, anim_name );
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	if( animID == -1 )
+	if( !animID )
 	{
 		Q3_DebugPrint( WL_WARNING, "Q3_SetAnimLower: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
-	if ( !PM_HasAnimation( &g_entities[entID], animID ) )
+	if ( !PM_HasAnimation( &g_entities[entID], *animID ) )
 	{
 		return false;
 	}
 
-	SetLowerAnim( entID, animID );
+	SetLowerAnim( entID, *animID );
 	return true;
 }
 
@@ -3314,7 +3310,7 @@ extern void WP_SaberInitBladeData( gentity_t *ent );
 static void Q3_SetWeapon (int entID, const char *wp_name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	int		wp;
+	weapon_t	wp;
 	bool	hadWeapon = false;
 
 	if ( !self )
@@ -3346,7 +3342,13 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 		return;
 	}
 
-	wp = GetIDForString( WPTable, wp_name );
+	const int id = GetIDForString( WPTable, wp_name );
+	if ( id == -1 )
+	{
+		Q3_DebugPrint( WL_WARNING, "Q3_SetWeapon: unknown weapon '%s'\n", wp_name );
+		return;
+	}
+	wp = static_cast<weapon_t>( id );
 	if(wp == WP_NONE)
 	{//no weapon
 		self->client->ps.weapon = WP_NONE;
@@ -3358,16 +3360,16 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 		return;
 	}
 
-	gitem_t *item = FindItemForWeapon( (weapon_t) wp);
+	gitem_t *item = FindItemForWeapon( wp);
 	RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
 
-	if ( self->client->ps.stats[STAT_WEAPONS]&( 1 << wp ) )
+	if ( self->client->ps.stats[STAT_WEAPONS]&Bit( wp ) )
 	{
 		hadWeapon = true;
 	}
 	if ( self->NPC )
 	{//Should NPCs have only 1 weapon at a time?
-		self->client->ps.stats[STAT_WEAPONS] = ( 1 << wp );
+		self->client->ps.stats[STAT_WEAPONS] = Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = 999;
 
 		ChangeWeapon( self, wp );
@@ -3377,7 +3379,7 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 	}
 	else
 	{
-		self->client->ps.stats[STAT_WEAPONS] |= ( 1 << wp );
+		self->client->ps.stats[STAT_WEAPONS] |= Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
 		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
@@ -8790,7 +8792,7 @@ static int Q3_GetString( int entID, int type, const char *name, const char **val
 		}
 		else
 		{
-			*value = (char *)GetStringForID( WPTable, ent->client->ps.weapon );
+			*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
 		}
 		break;
 
@@ -8802,7 +8804,7 @@ static int Q3_GetString( int entID, int type, const char *name, const char **val
 		}
 		else
 		{
-		//	*value = (char *)GetStringForID( WPTable, ent->client->ps.weapon );
+		//	*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
 		}
 		break;
 	case SET_MUSIC_STATE:

@@ -25,6 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 
+// Jedi Outcast's weapons, by its own weapon_t (code/ui/gameinfo.cpp defines Jedi Academy's for the other targets)
+EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
+
 typedef struct {
 	const char	*name;
 	void	(*func)(centity_t *cent, const struct weaponInfo_s *weapon );
@@ -99,7 +102,7 @@ func_t	funcs[] = {
 
 struct wpnParms_s
 {
-	int	weaponNum;	// Current weapon number
+	weapon_t	weaponNum;	// Current weapon number
 	ammo_t	ammoNum;
 } wpnParms;
 
@@ -159,7 +162,7 @@ typedef struct
 } wpnParms_t;
 
 // This is used as a fallback for each new field, in case they're using base files --eez
-const int defaultDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultDamage = {
 	0,							// WP_NONE
 	0,							// WP_SABER										// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,		// WP_BRYAR_PISTOL
@@ -185,7 +188,7 @@ const int defaultDamage[] = {
 	BRYAR_PISTOL_DAMAGE			// WP_BLASTER_PISTOL
 };
 
-const int defaultAltDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltDamage = {
 	0,							// WP_NONE
 	0,							// WP_SABER										// handled elsewhere
 	BRYAR_PISTOL_DAMAGE,		// WP_BRYAR_PISTOL
@@ -211,7 +214,7 @@ const int defaultAltDamage[] = {
 	BRYAR_PISTOL_DAMAGE			// WP_BLASTER_PISTOL
 };
 
-const int defaultSplashDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultSplashDamage = {
 	0,									// WP_NONE
 	0,									// WP_SABER
 	0,									// WP_BRYAR_PISTOL
@@ -237,7 +240,7 @@ const int defaultSplashDamage[] = {
 	0									// WP_BLASTER_PISTOL
 };
 
-const float defaultSplashRadius[] = {
+const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultSplashRadius = {
 	0,									// WP_NONE
 	0,									// WP_SABER
 	0,									// WP_BRYAR_PISTOL
@@ -263,7 +266,7 @@ const float defaultSplashRadius[] = {
 	0									// WP_BLASTER_PISTOL
 };
 
-const int defaultAltSplashDamage[] = {
+const EnumArray<int, weapon_t, WP_NUM_WEAPONS> defaultAltSplashDamage = {
 	0,									// WP_NONE
 	0,									// WP_SABER										// handled elsewhere
 	0,									// WP_BRYAR_PISTOL
@@ -289,7 +292,7 @@ const int defaultAltSplashDamage[] = {
 	0									// WP_BLASTER_PISTOL
 };
 
-const float defaultAltSplashRadius[] = {
+const EnumArray<float, weapon_t, WP_NUM_WEAPONS> defaultAltSplashRadius = {
 	0,							// WP_NONE
 	0,							// WP_SABER										// handled elsewhere
 	0,							// WP_BRYAR_PISTOL
@@ -377,7 +380,7 @@ void WPN_FuncSkip( const char **holdBuf)
 
 void WPN_WeaponType( const char **holdBuf)
 {
-	int weaponNum;
+	weapon_t weaponNum;
 	const char	*tokenStr;
 
 	if (COM_ParseString(holdBuf,&tokenStr))
@@ -434,7 +437,7 @@ void WPN_WeaponType( const char **holdBuf)
 		weaponNum = WP_BLASTER_PISTOL;
 	else
 	{
-		weaponNum = 0;
+		weaponNum = WP_NONE;
 		gi.Printf(S_COLOR_YELLOW"WARNING: bad weapontype in external weapon data '%s'\n", tokenStr);
 	}
 
@@ -1377,10 +1380,10 @@ void WP_LoadWeaponParms (void)
 	gi.FS_ReadFile("ext_data/weapons.dat",(void **) &buffer);
 
 	// initialise the data area
-	memset(weaponData, 0, sizeof(weaponData));
+	memset(&weaponData, 0, sizeof(weaponData));
 
 	// put in the default values, because backwards compatibility is awesome!
-	for(int i = 0; i < WP_NUM_WEAPONS; i++)
+	for(weapon_t i = WP_NONE; i < WP_NUM_WEAPONS; i++)
 	{
 		weaponData[i].damage = defaultDamage[i];
 		weaponData[i].altDamage = defaultAltDamage[i];

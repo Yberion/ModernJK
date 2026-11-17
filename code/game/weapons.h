@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../qcommon/q_shared.h"
 
-typedef enum //# weapon_e
+enum class weapon_t //# weapon_e
 {
 	WP_NONE,
 
@@ -81,7 +81,9 @@ typedef enum //# weapon_e
 
 	//# #eol
 	WP_NUM_WEAPONS
-} weapon_t;
+};
+using enum weapon_t;
+template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
 #define FIRST_WEAPON		WP_SABER		// this is the first weapon for next and prev weapon switching
 #define MAX_PLAYER_WEAPONS	WP_STUN_BATON	// this is the max you can switch to and get with the give all. - FIXME: it's actually this one *minus* one... why?

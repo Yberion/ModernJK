@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool	missionInfo_Updated;
 
 extern void CrystalAmmoSettings(gentity_t *ent);
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InGetUp( playerState_t *ps );
 extern void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName );
@@ -146,13 +146,13 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 		switch( ammoType )
 		{
 		case AMMO_THERMAL:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_THERMAL );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_THERMAL );
 			break;
 		case AMMO_DETPACK:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_DET_PACK );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_DET_PACK );
 			break;
 		case AMMO_TRIPMINE:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_TRIP_MINE );
+			ent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_TRIP_MINE );
 			break;
 
 		default:
@@ -190,7 +190,7 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count)
 }
 
 //-------------------------------------------------------
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo (gentity_t *ent, weapon_t weapon, int count)
 {
 	Add_Ammo2(ent,weaponData[weapon].ammoIndex,count);
 }
@@ -448,7 +448,7 @@ bool Pickup_Saber( gentity_t *self, bool hadSaber, gentity_t *pickUpSaber )
 	return foundIt;
 }
 
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
@@ -476,13 +476,13 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	}
 
 	// add the weapon
-	if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+	if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 	{
 		hadWeapon = true;
 	}
-	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	other->client->ps.stats[STAT_WEAPONS] |= Bit( GI_Weapon( *ent->item ) );
 
-	if ( ent->item->giTag == WP_SABER && (!hadWeapon || ent->NPC_type != nullptr) )
+	if ( GI_Weapon( *ent->item ) == WP_SABER && (!hadWeapon || ent->NPC_type != nullptr) )
 	{//didn't have a saber or it is specifying a certain kind of saber to use
 		if ( !Pickup_Saber( other, hadWeapon, ent ) )
 		{
@@ -493,24 +493,24 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	if ( other->s.number )
 	{//NPC
 		if ( other->s.weapon == WP_NONE
-			|| ent->item->giTag == WP_SABER )
+			|| GI_Weapon( *ent->item ) == WP_SABER )
 		{//NPC with no weapon picked up a weapon, change to this weapon
 			//FIXME: clear/set the alt-fire flag based on the picked up weapon and my class?
-			other->client->ps.weapon = ent->item->giTag;
+			other->client->ps.weapon = GI_Weapon( *ent->item );
 			other->client->ps.weaponstate = WEAPON_RAISING;
-			ChangeWeapon( other, ent->item->giTag );
-			if ( ent->item->giTag == WP_SABER )
+			ChangeWeapon( other, GI_Weapon( *ent->item ) );
+			if ( GI_Weapon( *ent->item ) == WP_SABER )
 			{
 				other->client->ps.SaberActivate();
 				WP_SaberAddG2SaberModels( other );
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].weaponMdl, other->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( other, weaponData[GI_Weapon( *ent->item )].weaponMdl, other->handRBolt, 0 );
 			}
 		}
 	}
-	if ( ent->item->giTag == WP_SABER )
+	if ( GI_Weapon( *ent->item ) == WP_SABER )
 	{//picked up a saber
 		if ( other->s.weapon != WP_SABER )
 		{//player picking up saber
@@ -534,7 +534,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	if ( quantity )
 	{
 		// Give ammo
-		Add_Ammo( other, ent->item->giTag, quantity );
+		Add_Ammo( other, GI_Weapon( *ent->item ), quantity );
 	}
 	return 5;
 }
@@ -810,7 +810,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	if ( ent->item->giType == IT_WEAPON
-		&& ent->item->giTag == WP_SABER )
+		&& GI_Weapon( *ent->item ) == WP_SABER )
 	{//a saber
 		if ( ent->delay > level.time )
 		{//just picked it up, don't pick up again right away
@@ -842,7 +842,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			TIMER_Set( other, "attackDelay", 600 );
 			respawn = 0;
 		}
-		if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+		if ( other->client->ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *ent->item ) ) )
 		{
 			bHadWeapon = true;
 		}
@@ -900,7 +900,7 @@ extern void CG_ItemPickup( int itemNum, bool bHadItem );
 	G_UseTargets (ent, other);
 
 	if ( ent->item->giType == IT_WEAPON
-		&& ent->item->giTag == WP_SABER )
+		&& GI_Weapon( *ent->item ) == WP_SABER )
 	{//a saber that was picked up
 		if ( ent->count < 0 )
 		{//infinite supply
@@ -991,10 +991,10 @@ gentity_t *LaunchItem( gitem_t *item, const vec3_t origin, const vec3_t velocity
 	if ( item->giType == IT_WEAPON )
 	{
 		// give weapon items zero pitch, a random yaw, and rolled onto their sides...but would be bad to do this for a bowcaster
-		if ( item->giTag != WP_BOWCASTER
-			&& item->giTag != WP_THERMAL
-			&& item->giTag != WP_TRIP_MINE
-			&& item->giTag != WP_DET_PACK )
+		if ( GI_Weapon( *item ) != WP_BOWCASTER
+			&& GI_Weapon( *item ) != WP_THERMAL
+			&& GI_Weapon( *item ) != WP_TRIP_MINE
+			&& GI_Weapon( *item ) != WP_DET_PACK )
 		{
 			VectorSet( dropped->s.angles, 0, Q_flrand(-1.0f, 1.0f) * 180, 90.0f );
 			G_SetAngles( dropped, dropped->s.angles );
@@ -1139,7 +1139,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	VectorSet( ent->s.modelScale, 1.0f, 1.0f, 1.0f );
 
 	if ( ent->item->giType == IT_WEAPON
-		&& ent->item->giTag == WP_SABER
+		&& GI_Weapon( *ent->item ) == WP_SABER
 		&& ent->NPC_type
 		&& ent->NPC_type[0] )
 	{
@@ -1390,7 +1390,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 
 	if ( ent->item
 		&& ent->item->giType == IT_WEAPON
-		&& ent->item->giTag == WP_SABER )
+		&& GI_Weapon( *ent->item ) == WP_SABER )
 	{//weapon_saber item
 		if ( !ent->count )
 		{//can only pick up once
@@ -1415,7 +1415,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 
 	if ( ent->item
 		&& ent->item->giType == IT_WEAPON
-		&& ent->item->giTag == WP_SABER
+		&& GI_Weapon( *ent->item ) == WP_SABER
 		&& (ent->flags&FL_DROPPED_ITEM) )
 	{
 		droppedSaber = true;
@@ -1517,7 +1517,7 @@ void G_RunItem( gentity_t *ent ) {
 		else if ( (ent->flags&FL_DROPPED_ITEM)
 			&& ent->item
 			&& ent->item->giType == IT_WEAPON
-			&& ent->item->giTag == WP_SABER )
+			&& GI_Weapon( *ent->item ) == WP_SABER )
 		{//a dropped saber item, check below, just in case
 			int ignore = ENTITYNUM_NONE;
 			if ( ent->clipmask )

@@ -35,7 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.h"
 #include "game/anims.h"
 #include "ghoul2/G2.h"
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 extern void UI_UpdateCharacterSkin( void );
 
 EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> HolocronIcons = {
@@ -5279,7 +5278,7 @@ void Item_Model_Paint(itemDef_t *item)
 			{
 			case BOTH_FORCEWALLREBOUND_FORWARD:
 			case BOTH_FORCEJUMP1:
-				ItemParse_model_g2anim_go( item, animTable[BOTH_FORCEINAIR1].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCEINAIR1 ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				if ( !uiInfo.moveAnimTime )
 				{
@@ -5288,35 +5287,35 @@ void Item_Model_Paint(itemDef_t *item)
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_FORCEINAIR1:
-				ItemParse_model_g2anim_go( item, animTable[BOTH_FORCELAND1].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCELAND1 ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_FORCEWALLRUNFLIP_START:
-				ItemParse_model_g2anim_go( item, animTable[BOTH_FORCEWALLRUNFLIP_END].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCEWALLRUNFLIP_END ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_FORCELONGLEAP_START:
-				ItemParse_model_g2anim_go( item, animTable[BOTH_FORCELONGLEAP_LAND].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCELONGLEAP_LAND ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_KNOCKDOWN3://on front - into force getup
 				trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveJumpSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, animTable[BOTH_FORCE_GETUP_F1].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_FORCE_GETUP_F1 ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_KNOCKDOWN2://on back - kick forward getup
 				trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveJumpSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, animTable[BOTH_GETUP_BROLL_F].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_GETUP_BROLL_F ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
 			case BOTH_KNOCKDOWN1://on back - roll-away
 				trap->S_StartLocalSound( uiInfo.uiDC.Assets.moveRollSound, CHAN_LOCAL );
-				ItemParse_model_g2anim_go( item, animTable[BOTH_GETUP_BROLL_R].name );
+				ItemParse_model_g2anim_go( item, BG_AnimName( BOTH_GETUP_BROLL_R ) );
 				ItemParse_asset_model_go( item, modelPath, &uiInfo.moveAnimTime );
 				uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 				break;
@@ -6832,6 +6831,7 @@ void Item_ValidateTypeData(itemDef_t *item)
 		{
 			item->typeData.model = (modelDef_t *)UI_Alloc(sizeof(modelDef_t));
 			memset(item->typeData.model, 0, sizeof(modelDef_t));
+			item->typeData.model->g2anim = ANIM_NONE;	// until a model_g2anim names one
 			break;
 		}
 		case ITEM_TYPE_TEXTSCROLL:
@@ -7080,7 +7080,7 @@ void UI_CleanupGhoul2(void)
 }
 
 // asset_model <string>
-int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHumanoid);
+int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHumanoid);
 
 /*
 ===============
@@ -7112,7 +7112,7 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLen
 			UI_InsertG2Pointer(item->ghoul2); //remember it so we can free it when the ui shuts down.
 			item->flags |= ITF_G2VALID;
 
-			if (modelPtr->g2anim)
+			if (modelPtr->g2anim != ANIM_NONE)
 			{ //does the menu request this model be playing an animation?
 //					DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim);
 
@@ -7135,7 +7135,7 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLen
 						animIndex = UI_ParseAnimationFile(GLAName, nullptr, false);
 						if (animIndex != -1)
 						{ //We parsed out the animation info for whatever model this is
-							animation_t *anim = &bgAllAnims[animIndex].anims[modelPtr->g2anim];
+							animation_t *anim = &(*bgAllAnims[animIndex].anims)[modelPtr->g2anim];
 
 							int sFrame = anim->firstFrame;
 							int eFrame = anim->firstFrame + anim->numFrames;
@@ -7350,7 +7350,7 @@ bool ItemParse_model_g2skin( itemDef_t *item, int handle ) {
 bool ItemParse_model_g2anim( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	pc_token_t token;
-	int i = 0;
+	animNumber_t i = FACE_TALK0;
 
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -7366,7 +7366,7 @@ bool ItemParse_model_g2anim( itemDef_t *item, int handle ) {
 
 	while (i < MAX_ANIMATIONS)
 	{
-		if (!Q_stricmp(token.string, animTable[i].name))
+		if (!Q_stricmp(token.string, BG_AnimName( i )))
 		{ //found it
 			modelPtr->g2anim = i;
 			return true;
@@ -7409,7 +7409,6 @@ bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
 {
 	modelDef_t *modelPtr;
-	int i = 0;
 
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -7419,14 +7418,10 @@ bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
 		return true;
 	}
 
-	while (i < MAX_ANIMATIONS)
-	{
-		if (!Q_stricmp(animName, animTable[i].name))
-		{ //found it
-			modelPtr->g2anim = animTable[i].id;
-			return true;
-		}
-		i++;
+	if (const std::optional<animNumber_t> anim = BG_AnimFromName( animName ))
+	{ //found it
+		modelPtr->g2anim = *anim;
+		return true;
 	}
 
 	Com_Printf("Could not find '%s' in the anim table\n", animName);

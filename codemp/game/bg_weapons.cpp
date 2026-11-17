@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_local.h"
 
 // Muzzle point table...
-vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
-{//	Fwd,	right,	up.
+EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint =
+{{//	Fwd,	right,	up.
 	{0,		0,		0	},	// WP_NONE,
 	{0	,	8,		0	},	// WP_STUN_BATON,
 	{0	,	8,		0	},	// WP_MELEE,
@@ -46,10 +46,10 @@ vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
 	{12,	0,		-4	},	// WP_DET_PACK,
 	{12,	6,		-6	},	// WP_CONCUSSION
 	{12,	6,		-6	},	// WP_BRYAR_OLD,
-};
+}};
 
-weaponData_t weaponData[WP_NUM_WEAPONS] =
-{
+EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData =
+{{
 	{	// WP_NONE
 //		"No Weapon",			//	char	classname[32];		// Spawning name
 		AMMO_NONE,				//	int		ammoIndex;			// Index to proper ammo slot
@@ -373,7 +373,7 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 		0,						//	int		maxCharge;			// stop subtracting once charged for this many ms
 		0						//	int		altMaxCharge;		// above for secondary
 	}
-};
+}};
 
 EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData =
 {

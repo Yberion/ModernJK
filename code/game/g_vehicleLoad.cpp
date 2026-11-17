@@ -312,9 +312,8 @@ static void G_ParseVehicleParms( vehicleInfo_t *vehicle, const char **holdBuf )
 					vehType = (vehicleType_t)GetIDForString( VehicleTable, value );
 					*(vehicleType_t *)(b+vehFields[i].ofs) = vehType;
 					break;
-				case VF_ANIM:
-					int anim = GetIDForString( animTable, value );
-					*(int *)(b+vehFields[i].ofs) = anim;
+				case VF_ANIM:	// an unknown name stores ANIM_NONE, as GetIDForString's -1 did
+					*(animNumber_t *)(b+vehFields[i].ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );
 					break;
 				}
 				break;

@@ -289,8 +289,8 @@ typedef struct bot_state_s
 	int					doAttack;
 	int					doAltAttack;
 
-	int					forceWeaponSelect;
-	int					virtualWeapon;
+	weapon_t			forceWeaponSelect;
+	weapon_t			virtualWeapon;
 
 	int					plantTime;
 	int					plantDecided;
@@ -313,7 +313,7 @@ typedef struct bot_state_s
 
 	int					deathActivitiesDone;
 
-	float				botWeaponWeights[WP_NUM_WEAPONS];
+	EnumArray<float, weapon_t, WP_NUM_WEAPONS>	botWeaponWeights;
 
 	bot_ctf_state_t		ctfState;
 

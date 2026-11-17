@@ -1081,6 +1081,7 @@ enum class persEnum_t;	// bg_public.h
 enum class statIndex_t;	// bg_public.h
 enum class powerup_t;	// bg_public.h
 enum class ammo_t;	// bg_weapons.h
+enum class weapon_t;	// bg_weapons.h
 enum class team_t;	// bg_public.h
 enum class weaponstate_t;	// bg_public.h
 enum class forceHandAnims_t;	// bg_public.h
@@ -1088,6 +1089,7 @@ enum class pmtype_t;	// bg_public.h
 enum class entity_event_t;	// bg_public.h
 enum class entityType_t;	// bg_public.h
 enum class saberMoveName_t;	// bg_public.h
+enum class animNumber_t;	// anims.h
 
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
@@ -1117,10 +1119,10 @@ typedef struct playerState_s {
 	int			groundEntityNum;// ENTITYNUM_NONE = in air
 
 	int			legsTimer;		// don't change low priority animations until this runs out
-	int			legsAnim;
+	animNumber_t	legsAnim;
 
 	int			torsoTimer;		// don't change low priority animations until this runs out
-	int			torsoAnim;
+	animNumber_t	torsoAnim;
 
 	bool	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
 	bool	torsoFlip;
@@ -1142,7 +1144,7 @@ typedef struct playerState_s {
 	int			externalEventTime;
 
 	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
-	int			weapon;			// copied to entityState_t->weapon
+	weapon_t	weapon;			// copied to entityState_t->weapon
 	weaponstate_t	weaponstate;
 
 	vec3_t		viewangles;		// for fixed views
@@ -1232,7 +1234,7 @@ typedef struct playerState_s {
 
 	int			electrifyTime;
 
-	int			saberAttackSequence;
+	animNumber_t	saberAttackSequence;
 	int			saberIdleWound;
 	int			saberAttackWound;
 	int			saberBlockTime;
@@ -1667,7 +1669,7 @@ typedef struct entityState_s {
 
 	// for players
 	int		powerups;		// bit flags
-	int		weapon;			// determines weapon and flash model, etc
+	weapon_t	weapon;			// determines weapon and flash model, etc
 	int		legsAnim;
 	int		torsoAnim;
 

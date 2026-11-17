@@ -171,14 +171,14 @@ void BotStraightTPOrderCheck(gentity_t *ent, bot_teamplay_state_t ordernum, bot_
 	}
 }
 
-void BotSelectWeapon(int client, int weapon)
+void BotSelectWeapon(int client, weapon_t weapon)
 {
 	if (weapon <= WP_NONE)
 	{
 //		assert(0);
 		return;
 	}
-	trap->EA_SelectWeapon(client, weapon);
+	trap->EA_SelectWeapon(client, to_underlying( weapon ));
 }
 
 void BotReportStatus(bot_state_t *bs)
@@ -592,16 +592,17 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	if (bi->actionflags & ACTION_FOLLOWME) ucmd->buttons |= BUTTON_FOLLOWME;
 #endif //0
 
-	if (bi->weapon == WP_NONE)
+	weapon_t weapon = static_cast<weapon_t>( bi->weapon );	// the botlib keeps the weapon as a number
+	if (weapon == WP_NONE)
 	{
 #ifdef _DEBUG
 //		Com_Printf("WARNING: Bot tried to use WP_NONE!\n");
 #endif
-		bi->weapon = WP_BRYAR_PISTOL;
+		weapon = WP_BRYAR_PISTOL;
 	}
 
 	//
-	ucmd->weapon = bi->weapon;
+	UC_SetWeapon( *ucmd, weapon );
 	//set the view angles
 	//NOTE: the ucmd->angles are the angles WITHOUT the delta angles
 	ucmd->angles[PITCH] = ANGLE2SHORT(bi->viewangles[PITCH]);
@@ -2437,7 +2438,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			ent->inuse &&
 			ent->damage &&
 			/*(ent->s.weapon == WP_THERMAL || ent->s.weapon == WP_FLECHETTE)*/
-			ent->s.weapon &&
+			ent->s.weapon != WP_NONE &&
 			ent->splashDamage) ||
 			(ent &&
 			ent->genericValue5 == 1000 &&
@@ -2455,7 +2456,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			{
 				factor = 0.5;
 
-				if (ent->s.weapon && glen <= 256 && bs->settings.skill > 2)
+				if (ent->s.weapon != WP_NONE && glen <= 256 && bs->settings.skill > 2)
 				{ //it's a projectile so push it away
 					bs->doForcePush = level.time + 700;
 					//trap->Print("PUSH PROJECTILE\n");
@@ -2511,7 +2512,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			}
 		}
 
-		if (ent && !ent->client && ent->inuse && ent->damage && ent->s.weapon && ent->r.ownerNum < MAX_CLIENTS && ent->r.ownerNum >= 0)
+		if (ent && !ent->client && ent->inuse && ent->damage && ent->s.weapon != WP_NONE && ent->r.ownerNum < MAX_CLIENTS && ent->r.ownerNum >= 0)
 		{ //if we're in danger of a projectile belonging to someone and don't have an enemy, set the enemy to them
 			gentity_t *projOwner = &g_entities[ent->r.ownerNum];
 
@@ -3553,7 +3554,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 
 	if (as->item->giType == IT_WEAPON)
 	{
-		if (bs->cur_ps.stats[STAT_WEAPONS] & (1 << as->item->giTag))
+		if (bs->cur_ps.stats[STAT_WEAPONS] & Bit( GI_Weapon( *as->item ) ))
 		{
 			return 1;
 		}
@@ -4815,7 +4816,7 @@ void BotAimOffsetGoalAngles(bot_state_t *bs)
 //do we want to alt fire with this weapon?
 int ShouldSecondaryFire(bot_state_t *bs)
 {
-	int weap;
+	weapon_t weap;
 	int dif;
 	float rTime;
 
@@ -5083,14 +5084,14 @@ int BotFallbackNavigation(bot_state_t *bs)
 
 int BotTryAnotherWeapon(bot_state_t *bs)
 { //out of ammo, resort to the first weapon we come across that has ammo
-	int i;
+	weapon_t i;
 
-	i = 1;
+	i = WP_STUN_BATON;
 
 	while (i < WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
+			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
 		{
 			bs->virtualWeapon = i;
 			BotSelectWeapon(bs->client, i);
@@ -5102,12 +5103,12 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 		i++;
 	}
 
-	if (bs->cur_ps.weapon != 1 && bs->virtualWeapon != 1)
+	if (bs->cur_ps.weapon != WP_STUN_BATON && bs->virtualWeapon != WP_STUN_BATON)
 	{ //should always have this.. shouldn't we?
-		bs->virtualWeapon = 1;
-		BotSelectWeapon(bs->client, 1);
-		//bs->cur_ps.weapon = 1;
-		//level.clients[bs->client].ps.weapon = 1;
+		bs->virtualWeapon = WP_STUN_BATON;
+		BotSelectWeapon(bs->client, WP_STUN_BATON);
+		//bs->cur_ps.weapon = WP_STUN_BATON;
+		//level.clients[bs->client].ps.weapon = WP_STUN_BATON;
 		return 1;
 	}
 
@@ -5115,7 +5116,7 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 }
 
 //is this weapon available to us?
-bool BotWeaponSelectable(bot_state_t *bs, int weapon)
+bool BotWeaponSelectable(bot_state_t *bs, weapon_t weapon)
 {
 	if (weapon == WP_NONE)
 	{
@@ -5123,7 +5124,7 @@ bool BotWeaponSelectable(bot_state_t *bs, int weapon)
 	}
 
 	if (bs->cur_ps.ammo[weaponData[weapon].ammoIndex] >= weaponData[weapon].energyPerShot &&
-		(bs->cur_ps.stats[STAT_WEAPONS] & (1 << weapon)))
+		(bs->cur_ps.stats[STAT_WEAPONS] & Bit( weapon )))
 	{
 		return true;
 	}
@@ -5134,17 +5135,17 @@ bool BotWeaponSelectable(bot_state_t *bs, int weapon)
 //select the best weapon we can
 int BotSelectIdealWeapon(bot_state_t *bs)
 {
-	int i;
+	weapon_t i;
 	int bestweight = -1;
-	int bestweapon = 0;
+	weapon_t bestweapon = WP_NONE;
 
-	i = 0;
+	i = WP_NONE;
 
 	while (i < WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
 			bs->botWeaponWeights[i] > bestweight &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
+			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
 		{
 			if (i == WP_THERMAL)
 			{ //special case..
@@ -5166,7 +5167,7 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 
 	if ( bs->currentEnemy && bs->frame_Enemy_Len < 300 &&
 		(bestweapon == WP_BRYAR_PISTOL || bestweapon == WP_BLASTER || bestweapon == WP_BOWCASTER) &&
-		(bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_SABER)) )
+		(bs->cur_ps.stats[STAT_WEAPONS] & Bit( WP_SABER )) )
 	{
 		bestweapon = WP_SABER;
 		bestweight = 1;
@@ -5208,7 +5209,7 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 		}
 	}
 
-	//assert(bs->cur_ps.weapon > 0 && bestweapon > 0);
+	//assert(bs->cur_ps.weapon > WP_NONE && bestweapon > WP_NONE);
 
 	if (bestweight != -1 && bs->cur_ps.weapon != bestweapon && bs->virtualWeapon != bestweapon)
 	{
@@ -5219,24 +5220,24 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 		return 1;
 	}
 
-	//assert(bs->cur_ps.weapon > 0);
+	//assert(bs->cur_ps.weapon > WP_NONE);
 
 	return 0;
 }
 
 //check/select the chosen weapon
-int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
+int BotSelectChoiceWeapon(bot_state_t *bs, weapon_t weapon, int doselection)
 { //if !doselection then bot will only check if he has the specified weapon and return 1 (yes) or 0 (no)
-	int i;
+	weapon_t i;
 	int hasit = 0;
 
-	i = 0;
+	i = WP_NONE;
 
 	while (i < WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot &&
 			i == weapon &&
-			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
+			(bs->cur_ps.stats[STAT_WEAPONS] & Bit( i )))
 		{
 			hasit = 1;
 			break;
@@ -5265,12 +5266,12 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 //override our standard weapon choice with a melee weapon
 int BotSelectMelee(bot_state_t *bs)
 {
-	if (bs->cur_ps.weapon != 1 && bs->virtualWeapon != 1)
+	if (bs->cur_ps.weapon != WP_STUN_BATON && bs->virtualWeapon != WP_STUN_BATON)
 	{
-		bs->virtualWeapon = 1;
-		BotSelectWeapon(bs->client, 1);
-		//bs->cur_ps.weapon = 1;
-		//level.clients[bs->client].ps.weapon = 1;
+		bs->virtualWeapon = WP_STUN_BATON;
+		BotSelectWeapon(bs->client, WP_STUN_BATON);
+		//bs->cur_ps.weapon = WP_STUN_BATON;
+		//level.clients[bs->client].ps.weapon = WP_STUN_BATON;
 		return 1;
 	}
 
@@ -5864,7 +5865,7 @@ int BotSurfaceNear(bot_state_t *bs)
 }
 
 //could we block projectiles from the weapon potentially with a light saber?
-int BotWeaponBlockable(int weapon)
+int BotWeaponBlockable(weapon_t weapon)
 {
 	switch (weapon)
 	{
@@ -6357,9 +6358,9 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	else
 	{
 		if (bs->currentEnemy && bs->lastVisibleEnemyIndex == bs->currentEnemy->s.number &&
-			bs->frame_Enemy_Vis && bs->forceWeaponSelect /*&& bs->plantContinue < level.time*/)
+			bs->frame_Enemy_Vis && bs->forceWeaponSelect != WP_NONE /*&& bs->plantContinue < level.time*/)
 		{
-			bs->forceWeaponSelect = 0;
+			bs->forceWeaponSelect = WP_NONE;
 		}
 
 		if (bs->plantContinue > level.time)
@@ -6368,12 +6369,12 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			bs->destinationGrabTime = 0;
 		}
 
-		if (!bs->forceWeaponSelect && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
+		if (bs->forceWeaponSelect == WP_NONE && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
 		{
 			bs->forceWeaponSelect = WP_DET_PACK;
 		}
 
-		if (bs->forceWeaponSelect)
+		if (bs->forceWeaponSelect != WP_NONE)
 		{
 			selResult = BotSelectChoiceWeapon(bs, bs->forceWeaponSelect, 1);
 		}
@@ -7152,7 +7153,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				detSelect = 0;
 			}
 
-			if (bs->plantDecided > level.time && bs->forceWeaponSelect &&
+			if (bs->plantDecided > level.time && bs->forceWeaponSelect != WP_NONE &&
 				bs->cur_ps.weapon == bs->forceWeaponSelect)
 			{
 				bs->doAttack = 1;
@@ -7165,26 +7166,27 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			{
 				if (BotSurfaceNear(bs))
 				{
+					weapon_t mineWeapon;
 					if (!mineSelect)
 					{ //if no mines use detpacks, otherwise use mines
-						mineSelect = WP_DET_PACK;
+						mineWeapon = WP_DET_PACK;
 					}
 					else
 					{
-						mineSelect = WP_TRIP_MINE;
+						mineWeapon = WP_TRIP_MINE;
 					}
 
-					detSelect = BotSelectChoiceWeapon(bs, mineSelect, 1);
+					detSelect = BotSelectChoiceWeapon(bs, mineWeapon, 1);
 
 					if (detSelect && detSelect != 2)
 					{ //We have it and it is now our weapon
 						bs->plantDecided = level.time + 1000;
-						bs->forceWeaponSelect = mineSelect;
+						bs->forceWeaponSelect = mineWeapon;
 						return;
 					}
 					else if (detSelect == 2)
 					{
-						bs->forceWeaponSelect = mineSelect;
+						bs->forceWeaponSelect = mineWeapon;
 						return;
 					}
 				}
@@ -7193,7 +7195,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else if (bs->plantContinue < level.time)
 	{
-		bs->forceWeaponSelect = 0;
+		bs->forceWeaponSelect = WP_NONE;
 	}
 
 	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)

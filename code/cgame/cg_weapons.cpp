@@ -45,7 +45,7 @@ CG_RegisterWeapon
 The server says this item is used on this level
 =================
 */
-void CG_RegisterWeapon( int weaponNum ) {
+void CG_RegisterWeapon( weapon_t weaponNum ) {
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
 	char			path[MAX_QPATH];
@@ -55,7 +55,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	weaponInfo = &cg_weapons[weaponNum];
 
 	// error checking
-	if ( weaponNum == 0 ) {
+	if ( weaponNum == WP_NONE ) {
 		return;
 	}
 
@@ -69,7 +69,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	// find the weapon in the item list
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
-		if ( item->giType == IT_WEAPON && item->giTag == weaponNum ) {
+		if ( item->giType == IT_WEAPON && GI_Weapon( *item ) == weaponNum ) {
 			weaponInfo->item = item;
 			break;
 		}
@@ -618,6 +618,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_TIE_FIGHTER:
 		theFxScheduler.RegisterEffect( "ships/imp_blastershot" );
 		break;
+	default:
+		break;
 	}
 }
 
@@ -655,7 +657,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 
 	if ( item->giType == IT_WEAPON )
 	{
-		CG_RegisterWeapon( item->giTag );
+		CG_RegisterWeapon( GI_Weapon( *item ) );
 	}
 
 	// some ammo types are actually the weapon, like in the case of explosives
@@ -750,14 +752,14 @@ the weapon hand animation has 3 anims,
 =================
 */
 extern bool ValidAnimFileIndex ( int index );
-int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, int animNum, int weaponNum, int firing )
+int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, animNumber_t animNum, weapon_t weaponNum, int firing )
 {
 	// we should use the animNum to map a weapon frame instead of relying on the torso frame
 	if ( !ValidAnimFileIndex( ci->animFileIndex ) )
 	{
 		return 0;
 	}
-	animation_t *animations = level.knownAnimFileSets[ci->animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[ci->animFileIndex].animations;
 	int ret=0;
 
 	switch( animNum )
@@ -968,7 +970,7 @@ CG_AddViewWeapon
 Add the weapon, and flash for the player's view
 ==============
 */
-extern int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
+extern std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame );
 extern float CG_ForceSpeedFOV( void );
 
 void CG_AddViewWeapon( playerState_t *ps )
@@ -1149,7 +1151,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 	{
 		// get clientinfo for animation map
 		const clientInfo_t	*ci = &cent->gent->client->clientInfo;
-		int torsoAnim = cent->gent->client->ps.torsoAnim;//pe.torso.animationNumber;
+		animNumber_t torsoAnim = cent->gent->client->ps.torsoAnim;//pe.torso.animationNumber;
 		float currentFrame;
 		int startFrame,endFrame,flags;
 		float animSpeed;
@@ -1384,7 +1386,7 @@ WEAPON SELECTION
 CG_WeaponCheck
 ===================
 */
-int CG_WeaponCheck( int weaponIndex )
+int CG_WeaponCheck( weapon_t weaponIndex )
 {
 	int				value;
 
@@ -1444,8 +1446,9 @@ Allows user to cycle through the various weapons currently owned and view the de
 */
 void CG_DrawDataPadWeaponSelect( void )
 {
-	int				i;
-	int				weaponBitFlag,weaponCount,weaponSelectI;
+	weapon_t		i;
+	int				weaponBitFlag,weaponCount;
+	weapon_t				weaponSelectI;
 	int				holdX;
 	int				sideLeftIconCnt,sideRightIconCnt;
 	int				holdCount,iconCnt;
@@ -1459,9 +1462,9 @@ void CG_DrawDataPadWeaponSelect( void )
 
 	// count the number of weapons owned
 	weaponCount = 0;
-	for ( i = 1 ; i < 16 ; i++ )
+	for ( i = WP_SABER ; i < WP_ATST_SIDE ; i++ )
 	{
-		if ( weaponBitFlag & ( 1 << i ) )
+		if ( weaponBitFlag & Bit( i ) )
 		{
 			weaponCount++;
 		}
@@ -1497,9 +1500,9 @@ void CG_DrawDataPadWeaponSelect( void )
 	{
 		cg.DataPadWeaponSelect = FIRST_WEAPON;
 	}
-	else if (cg.DataPadWeaponSelect>13)
+	else if (cg.DataPadWeaponSelect>WP_CONCUSSION)
 	{
-		cg.DataPadWeaponSelect = 13;
+		cg.DataPadWeaponSelect = WP_CONCUSSION;
 	}
 
 	// What weapon does the player currently have selected
@@ -1511,9 +1514,9 @@ void CG_DrawDataPadWeaponSelect( void )
 	{
 		weaponSelectI = cg.DataPadWeaponSelect - 1;
 	}
-	if (weaponSelectI<1)
+	if (weaponSelectI<WP_SABER)
 	{
-		weaponSelectI = 13;
+		weaponSelectI = WP_CONCUSSION;
 	}
 
 	const int smallIconSize = 40;
@@ -1541,12 +1544,12 @@ void CG_DrawDataPadWeaponSelect( void )
 			weaponSelectI = WP_CONCUSSION;
 		}
 
-		if (weaponSelectI<1)
+		if (weaponSelectI<WP_SABER)
 		{
-			weaponSelectI = 13;
+			weaponSelectI = WP_CONCUSSION;
 		}
 
-		if ( !(weaponBitFlag & ( 1 << weaponSelectI )))	// Does he have this weapon?
+		if ( !(weaponBitFlag & Bit( weaponSelectI )))	// Does he have this weapon?
 		{
 			if ( weaponSelectI == WP_CONCUSSION )
 			{
@@ -1612,9 +1615,9 @@ void CG_DrawDataPadWeaponSelect( void )
 		weaponSelectI = cg.DataPadWeaponSelect + 1;
 	}
 
-	if (weaponSelectI> 13)
+	if (weaponSelectI>WP_CONCUSSION)
 	{
-		weaponSelectI = 1;
+		weaponSelectI = WP_SABER;
 	}
 
 	// Right side ICONS
@@ -1631,12 +1634,12 @@ void CG_DrawDataPadWeaponSelect( void )
 		{
 			weaponSelectI = WP_CONCUSSION;
 		}
-		if (weaponSelectI>13)
+		if (weaponSelectI>WP_CONCUSSION)
 		{
-			weaponSelectI = 1;
+			weaponSelectI = WP_SABER;
 		}
 
-		if ( !(weaponBitFlag & ( 1 << weaponSelectI )))	// Does he have this weapon?
+		if ( !(weaponBitFlag & Bit( weaponSelectI )))	// Does he have this weapon?
 		{
 			if ( weaponSelectI == WP_CONCUSSION )
 			{
@@ -1655,7 +1658,7 @@ void CG_DrawDataPadWeaponSelect( void )
 			weaponInfo = &cg_weapons[weaponSelectI];
 
 			// Draw graphic to show weapon has ammo or no ammo
-			if (!CG_WeaponCheck(i))
+			if (!CG_WeaponCheck(weaponSelectI))
 			{
 				CG_DrawPic( holdX, graphicYPos, smallIconSize, smallIconSize, weaponInfo->weaponIconNoAmmo );
 			}
@@ -1675,7 +1678,7 @@ void CG_DrawDataPadWeaponSelect( void )
 	}
 
 	// Print the weapon description
-	cgi_SP_GetStringTextString( va("SP_INGAME_%s",weaponDesc[cg.DataPadWeaponSelect-1]), text, sizeof(text) );
+	cgi_SP_GetStringTextString( va("SP_INGAME_%s",weaponDesc[cg.DataPadWeaponSelect - FIRST_WEAPON]), text, sizeof(text) );
 
 	if (text[0])
 	{
@@ -1775,7 +1778,7 @@ extern bool G_IsRidingTurboVehicle( gentity_t *ent );
 
 void CG_DrawWeaponSelect( void )
 {
-	int		i;
+	weapon_t	i;
 	int		bits;
 	int		count;
 	int		smallIconSize,bigIconSize;
@@ -1810,9 +1813,9 @@ void CG_DrawWeaponSelect( void )
 	// count the number of weapons owned
 	count = 0;
 	isOnVeh = (G_IsRidingVehicle(cg_entities[0].gent)!=nullptr);
- 	for ( i = 1 ; i < MAX_PLAYER_WEAPONS ; i++ )
+ 	for ( i = WP_SABER ; i < MAX_PLAYER_WEAPONS ; i++ )
 	{
-		if ((bits & ( 1 << i ))  &&
+		if ((bits & Bit( i ))  &&
 			(!isOnVeh || i==WP_NONE || i==WP_SABER || i==WP_BLASTER))
 		{
 			count++;
@@ -1852,7 +1855,7 @@ void CG_DrawWeaponSelect( void )
 	{
 		i = cg.weaponSelect - 1;
 	}
-	if (i<1)
+	if (i<WP_SABER)
 	{
 		i = MAX_PLAYER_WEAPONS;
 	}
@@ -1890,12 +1893,12 @@ void CG_DrawWeaponSelect( void )
 		{
 			i = WP_CONCUSSION;
 		}
-		if (i<1)
+		if (i<WP_SABER)
 		{
 			i = MAX_PLAYER_WEAPONS;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & Bit( i )))	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -1972,7 +1975,7 @@ void CG_DrawWeaponSelect( void )
 	}
 	if (i> MAX_PLAYER_WEAPONS)
 	{
-		i = 1;
+		i = WP_SABER;
 	}
 
 	// Right side ICONS
@@ -1993,10 +1996,10 @@ void CG_DrawWeaponSelect( void )
 		}
 		if (i>MAX_PLAYER_WEAPONS)
 		{
-			i = 1;
+			i = WP_SABER;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & Bit( i )))	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -2069,14 +2072,14 @@ void CG_DrawWeaponSelect( void )
 CG_WeaponSelectable
 ===============
 */
-bool CG_WeaponSelectable( int i, int original, bool dpMode )
+bool CG_WeaponSelectable( weapon_t i, weapon_t original, bool dpMode )
 {
 	int	usage_for_weap;
 
 	if (i > MAX_PLAYER_WEAPONS)
 	{
 #ifndef FINAL_BUILD
-		Com_Printf("CG_WeaponSelectable() passed illegal index of %d!\n",i);
+		Com_Printf("CG_WeaponSelectable() passed illegal index of %d!\n", to_underlying( i ));
 #endif
 		return false;
 	}
@@ -2116,7 +2119,7 @@ bool CG_WeaponSelectable( int i, int original, bool dpMode )
 		}
 	}
 
-	if (!(cg.snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i )))
+	if (!(cg.snap->ps.stats[ STAT_WEAPONS ] & Bit( i )))
 	{
 		// Don't have this weapon to start with.
 		return false;
@@ -2176,7 +2179,7 @@ CG_NextWeapon_f
 */
 void CG_NextWeapon_f( void ) {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap ) {
 		return;
@@ -2218,13 +2221,13 @@ void CG_NextWeapon_f( void ) {
 
 	original = cg.weaponSelect;
 
-	int firstWeapon = FIRST_WEAPON;
+	weapon_t firstWeapon = FIRST_WEAPON;
 	if (G_IsRidingVehicle(&g_entities[cg.snap->ps.viewEntity]))
 	{
-		firstWeapon = 0;	// include WP_NONE here
+		firstWeapon = WP_NONE;	// include WP_NONE here
 	}
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ )
+	for ( i = 0 ; i <= to_underlying( MAX_PLAYER_WEAPONS ) ; i++ )
 	{
 
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2267,7 +2270,7 @@ CG_DPNextWeapon_f
 */
 void CG_DPNextWeapon_f( void ) {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap ) {
 		return;
@@ -2280,7 +2283,7 @@ void CG_DPNextWeapon_f( void ) {
 
 	original = cg.DataPadWeaponSelect;
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ )
+	for ( i = 0 ; i <= to_underlying( MAX_PLAYER_WEAPONS ) ; i++ )
 	{
 
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2322,7 +2325,7 @@ CG_DPPrevWeapon_f
 void CG_DPPrevWeapon_f( void )
 {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap )
 	{
@@ -2338,7 +2341,7 @@ void CG_DPPrevWeapon_f( void )
 
 	original = cg.DataPadWeaponSelect;
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ )
+	for ( i = 0 ; i <= to_underlying( MAX_PLAYER_WEAPONS ) ; i++ )
 	{
 
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2380,7 +2383,7 @@ CG_PrevWeapon_f
 */
 void CG_PrevWeapon_f( void ) {
 	int		i;
-	int		original;
+	weapon_t	original;
 
 	if ( !cg.snap ) {
 		return;
@@ -2422,13 +2425,13 @@ void CG_PrevWeapon_f( void ) {
 
 	original = cg.weaponSelect;
 
-	int firstWeapon = FIRST_WEAPON;
+	weapon_t firstWeapon = FIRST_WEAPON;
 	if (G_IsRidingVehicle(&g_entities[cg.snap->ps.viewEntity]))
 	{
-		firstWeapon = 0;	// include WP_NONE here
+		firstWeapon = WP_NONE;	// include WP_NONE here
 	}
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ ) {
+	for ( i = 0 ; i <= to_underlying( MAX_PLAYER_WEAPONS ) ; i++ ) {
 
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
 		if ( cg.weaponSelect == WP_ROCKET_LAUNCHER )
@@ -2465,11 +2468,11 @@ void CG_PrevWeapon_f( void ) {
 }
 
 /*
-void CG_ChangeWeapon( int num )
+void CG_ChangeWeapon( weapon_t num )
 
   Meant to be called from the normal game, so checks the game-side weapon inventory data
 */
-void CG_ChangeWeapon( int num )
+void CG_ChangeWeapon( weapon_t num )
 {
 	gentity_t	*player = &g_entities[0];
 
@@ -2484,7 +2487,7 @@ void CG_ChangeWeapon( int num )
 		return;
 	}
 
-	if ( player->client != nullptr && !(player->client->ps.stats[STAT_WEAPONS] & ( 1 << num )) )
+	if ( player->client != nullptr && !(player->client->ps.stats[STAT_WEAPONS] & Bit( num )) )
 	{
 		return;		// don't have the weapon
 	}
@@ -2519,7 +2522,7 @@ CG_Weapon_f
 */
 void CG_Weapon_f( void )
 {
-	int		num;
+	weapon_t	num;
 
 	if ( cg.weaponSelectTime + 200 > cg.time )
 	{
@@ -2564,7 +2567,7 @@ void CG_Weapon_f( void )
 		}
 	}
 
-	num = atoi( CG_Argv( 1 ) );
+	num = static_cast<weapon_t>( atoi( CG_Argv( 1 ) ) );
 
 	if ( num < WP_NONE || num >= WP_NUM_WEAPONS ) {
 		return;
@@ -2572,9 +2575,9 @@ void CG_Weapon_f( void )
 
 	if ( num == WP_SABER )
 	{//lightsaber
-		if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+		if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( num ) ) )
 		{//don't have saber, try stun baton
-			if ( ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << WP_STUN_BATON ) ) )
+			if ( ( cg.snap->ps.stats[STAT_WEAPONS] & Bit( WP_STUN_BATON ) ) )
 			{
 				num = WP_STUN_BATON;
 			}
@@ -2618,7 +2621,8 @@ void CG_Weapon_f( void )
 	}
 	else if ( num >= WP_THERMAL && num <= WP_DET_PACK ) // these weapons cycle
 	{
-		int weap, i = 0;
+		weapon_t weap;
+		int i = 0;
 
 		if ( cg.snap->ps.weapon >= WP_THERMAL && cg.snap->ps.weapon <= WP_DET_PACK )
 		{
@@ -2671,8 +2675,8 @@ The current weapon has just run out of ammo
 ===================
 */
 void CG_OutOfAmmoChange( void ) {
-	int		i;
-	int		original;
+	weapon_t	i;
+	weapon_t	original;
 
 	if ( cg.weaponSelectTime + 200 > cg.time )
 		return;
@@ -2685,7 +2689,7 @@ void CG_OutOfAmmoChange( void ) {
 
 	original = cg.weaponSelect;
 
-	for ( i = WP_ROCKET_LAUNCHER; i > 0 ; i-- )
+	for ( i = WP_ROCKET_LAUNCHER; i > WP_NONE ; i-- )
 	{
 		// We don't want the emplaced, melee, or explosive devices here
 		if ( original != i && CG_WeaponSelectable( i, original, false ) )
@@ -2842,7 +2846,7 @@ CG_BounceEffect
 Caused by an EV_BOUNCE | EV_BOUNCE_HALF event
 =================
 */
-void CG_BounceEffect( centity_t *cent, int weapon, vec3_t origin, vec3_t normal )
+void CG_BounceEffect( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t normal )
 {
 	switch( weapon )
 	{
@@ -2873,7 +2877,7 @@ void CG_BounceEffect( centity_t *cent, int weapon, vec3_t origin, vec3_t normal 
 }
 
 //----------------------------------------------------------------------
-void CG_MissileStick( centity_t *cent, int weapon, vec3_t position )
+void CG_MissileStick( centity_t *cent, weapon_t weapon, vec3_t position )
 //----------------------------------------------------------------------
 {
 	sfxHandle_t snd = 0;
@@ -2890,6 +2894,8 @@ void CG_MissileStick( centity_t *cent, int weapon, vec3_t position )
 
 	case WP_TRIP_MINE:
 		snd = cgs.media.tripMineStickSound;
+		break;
+	default:
 		break;
 	}
 
@@ -2917,7 +2923,7 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, bool altFire )
+void CG_MissileHitWall( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t dir, bool altFire )
 {
 	int parm;
 
@@ -3034,6 +3040,8 @@ void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, 
 	case WP_NOGHRI_STICK:
 		FX_NoghriShotWeaponHitWall( origin, dir );
 		break;
+	default:
+		break;
 	}
 }
 
@@ -3043,7 +3051,7 @@ CG_MissileHitPlayer
 -------------------------
 */
 
-void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, bool altFire )
+void CG_MissileHitPlayer( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t dir, bool altFire )
 {
 	gentity_t *other = nullptr;
 	bool	humanoid = true;
@@ -3173,6 +3181,8 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 
 	case WP_NOGHRI_STICK:
 		FX_NoghriShotWeaponHitPlayer( other, origin, dir, humanoid );
+		break;
+	default:
 		break;
 	}
 }

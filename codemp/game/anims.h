@@ -22,10 +22,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "qcommon/q_enum.h"
+
 // playerAnimations
 
 
-typedef enum //# animNumber_e
+enum class animNumber_t //# animNumber_e
 {
 	//=================================================
 	//HEAD ANIMS
@@ -1810,6 +1812,9 @@ typedef enum //# animNumber_e
 	//# #eol
 	MAX_ANIMATIONS,
 	MAX_TOTALANIMATIONS,
-} animNumber_t;
+	ANIM_NONE = -1,	// no animation, where one is stored
+};
+using enum animNumber_t;
+template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)

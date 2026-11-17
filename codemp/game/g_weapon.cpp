@@ -191,7 +191,7 @@ void laserTrapExplode( gentity_t *self );
 void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 
 //We should really organize weapon data into tables or parse from the ext data so we have accurate info for this,
-float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire )
+float WP_SpeedOfMissileForWeapon( weapon_t wp, bool alt_fire )
 {
 	return 500;
 }
@@ -636,7 +636,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 					te->s.angles[1] = 1;
 				}
 				te->s.eventParm = 0;
-				te->s.weapon = 0;//saberNum
+				ES_SetWeaponParm( te->s, 0 );//saberNum
 				te->s.legsAnim = 0;//bladeNum
 
 				return;
@@ -677,7 +677,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			if (traceEnt->client)
 			{
-				tent->s.weapon = 1;
+				ES_SetWeaponParm( tent->s, 1 );
 			}
 		}
 		else
@@ -685,7 +685,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 			 // Hmmm, maybe don't make any marks on things that could break
 			tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_MISS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
-			tent->s.weapon = 1;
+			ES_SetWeaponParm( tent->s, 1 );
 		}
 	}
 }
@@ -854,7 +854,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 					te->s.angles[1] = 1;
 				}
 				te->s.eventParm = 0;
-				te->s.weapon = 0;//saberNum
+				ES_SetWeaponParm( te->s, 0 );//saberNum
 				te->s.legsAnim = 0;//bladeNum
 
 				return;
@@ -920,8 +920,8 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			{
 				vec3_t preAng = { 0 };
 				int preHealth = traceEnt->health;
-				int preLegs = 0;
-				int preTorso = 0;
+				animNumber_t preLegs = FACE_TALK0;
+				animNumber_t preTorso = FACE_TALK0;
 
 				if (traceEnt->client)
 				{
@@ -952,7 +952,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 				tent->s.eventParm = DirToByte( tr.plane.normal );
 				if (traceEnt->client)
 				{
-					tent->s.weapon = 1;
+					ES_SetWeaponParm( tent->s, 1 );
 				}
 			}
 		}
@@ -1405,7 +1405,7 @@ void DEMP2_AltDetonate( gentity_t *ent )
 
 	if (efEnt)
 	{
-		efEnt->s.weapon = ent->count*2;
+		ES_SetWeaponParm( efEnt->s, ent->count*2 );
 	}
 
 	ent->genericValue5 = level.time;
@@ -2735,7 +2735,7 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 		self->s.groundEntityNum = other->s.number;
 	}
 	else if (other && other->s.number < ENTITYNUM_WORLD &&
-		(other->client || !other->s.weapon))
+		(other->client || other->s.weapon == WP_NONE))
 	{ //hit another entity that is not stickable, "bounce" off
 		vec3_t vNor, tN;
 
@@ -2815,7 +2815,7 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 	G_Sound(self, CHAN_WEAPON, G_SoundIndex("sound/weapons/detpack/stick.wav"));
 
 	tent = G_TempEntity( self->r.currentOrigin, EV_MISSILE_MISS );
-	tent->s.weapon = 0;
+	tent->s.weapon = WP_NONE;
 	tent->parent = self;
 	tent->r.ownerNum = self->s.number;
 
@@ -3599,7 +3599,7 @@ first person perspective.
 */
 void CalcMuzzlePoint ( gentity_t *ent, const vec3_t inForward, const vec3_t inRight, const vec3_t inUp, vec3_t muzzlePoint )
 {
-	int weapontype;
+	weapon_t weapontype;
 	vec3_t muzzleOffPoint;
 
 	weapontype = ent->s.weapon;
@@ -4447,7 +4447,7 @@ FireWeapon
 int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
 
 void FireWeapon( gentity_t *ent, bool altFire ) {
-	if ( ent->s.weapon >= 0 && ent->s.weapon < WP_NUM_WEAPONS ) {
+	if ( ent->s.weapon >= WP_NONE && ent->s.weapon < WP_NUM_WEAPONS ) {
 		g_stats.shots[ent->s.weapon][altFire ? 1 : 0]++;
 	}
 	// track shots taken for accuracy tracking. melee weapons are not tracked.
@@ -4702,7 +4702,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 {
 	vec3_t fwd1, fwd2;
 	float dot;
-	int oldWeapon;
+	weapon_t oldWeapon;
 	gentity_t *activator = other;
 	float zoffset = 50;
 	vec3_t anglesToOwner;
@@ -4789,7 +4789,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 	// swap the users weapon with the emplaced gun
 	activator->client->ps.weapon = self->s.weapon;
 	activator->client->ps.weaponstate = WEAPON_READY;
-	activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+	activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
 
 	activator->client->ps.emplacedIndex = self->s.number;
 
@@ -4838,7 +4838,7 @@ void emplaced_gun_pain( gentity_t *self, gentity_t *attacker, int damage )
 void emplaced_gun_update(gentity_t *self)
 {
 	vec3_t	smokeOrg, puffAngle;
-	int oldWeap;
+	weapon_t oldWeap;
 	float ownLen = 0;
 
 	if (self->health < 1 && !self->genericValue5)
@@ -4915,7 +4915,7 @@ void emplaced_gun_update(gentity_t *self)
 	if ((self->activator && self->activator->client) &&
 		(!self->activator->inuse || self->activator->client->ps.emplacedIndex != self->s.number || self->genericValue4 || ownLen > 64))
 	{ //get the user off of me then
-		self->activator->client->ps.stats[STAT_WEAPONS] &= ~(1<<WP_EMPLACED_GUN);
+		self->activator->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
 
 		oldWeap = self->activator->client->ps.weapon;
 		self->activator->client->ps.weapon = self->s.weapon;

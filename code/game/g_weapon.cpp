@@ -45,8 +45,8 @@ int g_rocketLockTime = 0;
 int	g_rocketSlackTime = 0;
 
 // Weapon Helper Functions
-float weaponSpeed[WP_NUM_WEAPONS][2] =
-{
+EnumArray<float[2], weapon_t, WP_NUM_WEAPONS> weaponSpeed =
+{{
 	{ 0,0 },//WP_NONE,
 	{ 0,0 },//WP_SABER,				 // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
 	{ BRYAR_PISTOL_VEL,BRYAR_PISTOL_VEL },//WP_BLASTER_PISTOL,
@@ -76,9 +76,9 @@ float weaponSpeed[WP_NUM_WEAPONS][2] =
 	{ 0,0 },//WP_TUSKEN_STAFF,
 	{ 0,0 },//WP_SCEPTER,
 	{ 0,0 },//WP_NOGHRI_STICK,
-};
+}};
 
-float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire )
+float WP_SpeedOfMissileForWeapon( weapon_t wp, bool alt_fire )
 {
 	if ( alt_fire )
 	{
@@ -335,7 +335,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
+bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -408,6 +408,8 @@ bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
 		case WP_ATST_MAIN:
 		case WP_ATST_SIDE:
 			return true;
+			break;
+		default:
 			break;
 		}
 	}
@@ -542,14 +544,16 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t forwardVec, vec3_t right, vec
 		VectorCopy(org,muzzlePoint);
 
 		break;
+	default:
+		break;
 	}
 
 	AddLeanOfs(ent, muzzlePoint);
 }
 
 // Muzzle point table...
-vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
-{//	Fwd,	right,	up.
+EnumArray<vec3_t, weapon_t, WP_NUM_WEAPONS> WP_MuzzlePoint =
+{{//	Fwd,	right,	up.
 	{0,		0,		0	},	// WP_NONE,
 	{8	,	16,		0	},	// WP_SABER,
 	{12,	6,		-6	},	// WP_BLASTER_PISTOL,
@@ -569,7 +573,7 @@ vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
 	{0,		0,		0	},	// WP_ATST_SIDE,
 	{0	,	8,		0	},	// WP_STUN_BATON,
 	{12,	6,		-6	},	// WP_BRYAR_PISTOL,
-};
+}};
 
 void WP_RocketLock( gentity_t *ent, float lockDist )
 {
@@ -1661,7 +1665,7 @@ void misc_weapon_shooter_aim( gentity_t *self )
 	}
 }
 
-extern stringID_table_t WPTable[];
+extern std::optional<weapon_t> G_WeaponFromName( const char *name );
 void SP_misc_weapon_shooter( gentity_t *self )
 {
 	//alloc a client just for the weapon code to use
@@ -1670,8 +1674,12 @@ void SP_misc_weapon_shooter( gentity_t *self )
 	//set weapon
 	self->s.weapon = self->client->ps.weapon = WP_BLASTER;
 	if ( self->paintarget )
-	{//use a different weapon
-		self->s.weapon = self->client->ps.weapon = GetIDForString( WPTable, self->paintarget );
+	{//use a different weapon, if WPTable has its name
+		const std::optional<weapon_t> named = G_WeaponFromName( self->paintarget );
+		if ( named )
+		{
+			self->s.weapon = self->client->ps.weapon = *named;
+		}
 	}
 
 	//set where our muzzle is

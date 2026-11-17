@@ -199,7 +199,7 @@ typedef struct vehicleInfo_s {
 	char		*model;			//what model to use - if make it an NPC's primary model, don't need this?
 	char		*skin;			//what skin to use - if make it an NPC's primary model, don't need this?
 	int			g2radius;		//render radius for the ghoul2 model
-	int			riderAnim;		//what animation the rider uses
+	animNumber_t	riderAnim;		//what animation the rider uses
 	int			radarIconHandle;//what icon to show on radar in MP
 	int			dmgIndicFrameHandle;//what image to use for the frame of the damage indicator
 	int			dmgIndicShieldHandle;//what image to use for the shield of the damage indicator

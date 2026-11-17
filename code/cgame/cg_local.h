@@ -125,7 +125,7 @@ typedef struct {
 	float		pitchAngle;
 	bool	pitching;
 
-	int			animationNumber;
+	animNumber_t	animationNumber;
 	animation_t	*animation;
 	int			animationTime;		// time when the first frame of the animation will be exact
 } lerpFrame_t;
@@ -358,7 +358,7 @@ typedef struct {
 	int			landTime;
 
 	// input state sent to server
-	int			weaponSelect;
+	weapon_t	weaponSelect;
 	saber_styles_t	saberAnimLevelPending;
 
 	// auto rotating items
@@ -439,7 +439,7 @@ typedef struct {
 	bool	iconHUDActive;
 
 	int			DataPadInventorySelect;		// Current inventory item chosen on Data Pad
-	int			DataPadWeaponSelect;		// Current weapon item chosen on Data Pad
+	weapon_t	DataPadWeaponSelect;		// Current weapon item chosen on Data Pad
 	int			DataPadforcepowerSelect;	// Current force power chosen on Data Pad
 
 	bool	messageLitActive;			// Flag to show of message lite is active
@@ -561,7 +561,7 @@ extern	centity_t		cg_entities[MAX_GENTITIES];
 extern	centity_t		*cg_permanents[MAX_GENTITIES];
 extern	int				cg_numpermanents;
 
-extern	weaponInfo_t	cg_weapons[MAX_WEAPONS];
+extern	EnumArray<weaponInfo_t, weapon_t, MAX_WEAPONS>	cg_weapons;
 extern	itemInfo_t		cg_items[MAX_ITEMS];
 extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 
@@ -825,7 +825,7 @@ void CG_DPPrevForcePower_f( void );
 int CG_DataPadUpdatedPowerSlot( void );
 
 
-void CG_RegisterWeapon( int weaponNum );
+void CG_RegisterWeapon( weapon_t weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 void CG_RegisterItemSounds( int itemNum );
 
@@ -1091,7 +1091,7 @@ int			cgi_GetCurrentCmdNumber( void );
 bool	cgi_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 
 // used for the weapon select and zoom
-void		cgi_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride );
+void		cgi_SetUserCmdValue( weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride );
 void		cgi_SetUserCmdAngles( float pitchOverride, float yawOverride, float rollOverride );
 
 void		cgi_S_UpdateAmbientSet( const char *name, vec3_t origin );
@@ -1166,11 +1166,11 @@ void FX_NoghriShotProjectileThink( centity_t *cent, const struct weaponInfo_s *w
 void FX_NoghriShotWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_NoghriShotWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, bool humanoid );
 
-void CG_BounceEffect( centity_t *cent, int weapon, vec3_t origin, vec3_t normal );
-void CG_MissileStick( centity_t *cent, int weapon, vec3_t origin );
+void CG_BounceEffect( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t normal );
+void CG_MissileStick( centity_t *cent, weapon_t weapon, vec3_t origin );
 
-void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, bool altFire );
-void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, bool altFire );
+void CG_MissileHitPlayer( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t dir, bool altFire );
+void CG_MissileHitWall( centity_t *cent, weapon_t weapon, vec3_t origin, vec3_t dir, bool altFire );
 
 void CG_DrawTargetBeam( vec3_t start, vec3_t end, vec3_t norm, const char *beamFx, const char *impactFx );
 

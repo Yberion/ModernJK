@@ -60,7 +60,7 @@ typedef struct
 extern	pml_t		pml;
 #ifdef _CGAME
 extern	const playerState_t	*pm_startPs;
-extern	int			pm_startLegsAnim, pm_startTorsoAnim;
+extern	animNumber_t	pm_startLegsAnim, pm_startTorsoAnim;
 #endif
 
 // movement parameters
@@ -87,18 +87,18 @@ bool PM_SaberInParry( saberMoveName_t move );
 bool PM_SaberInKnockaway( saberMoveName_t move );
 bool PM_SaberInReflect( saberMoveName_t move );
 bool PM_SaberInStart( saberMoveName_t move );
-bool PM_InSaberAnim( int anim );
+bool PM_InSaberAnim( animNumber_t anim );
 bool PM_InKnockDown( playerState_t *ps );
-bool PM_PainAnim( int anim );
-bool PM_JumpingAnim( int anim );
-bool PM_LandingAnim( int anim );
-bool PM_SpinningAnim( int anim );
-bool PM_InOnGroundAnim ( int anim );
-bool PM_InRollComplete( playerState_t *ps, int anim );
+bool PM_PainAnim( animNumber_t anim );
+bool PM_JumpingAnim( animNumber_t anim );
+bool PM_LandingAnim( animNumber_t anim );
+bool PM_SpinningAnim( animNumber_t anim );
+bool PM_InOnGroundAnim ( animNumber_t anim );
+bool PM_InRollComplete( playerState_t *ps, animNumber_t anim );
 
 int PM_AnimLength( int index, animNumber_t anim );
 
-int PM_GetSaberStance(void);
+animNumber_t PM_GetSaberStance(void);
 float PM_GroundDistance(void);
 bool PM_SomeoneInFront(trace_t *tr);
 saberMoveName_t PM_SaberFlipOverAttackMove(void);
@@ -111,14 +111,14 @@ void PM_AddEvent( entity_event_t newEvent );
 bool	PM_SlideMove( bool gravity );
 void		PM_StepSlideMove( bool gravity );
 
-void PM_StartTorsoAnim( int anim );
-void PM_ContinueLegsAnim( int anim );
-void PM_ForceLegsAnim( int anim );
+void PM_StartTorsoAnim( animNumber_t anim );
+void PM_ContinueLegsAnim( animNumber_t anim );
+void PM_ForceLegsAnim( animNumber_t anim );
 
-void PM_BeginWeaponChange( int weapon );
+void PM_BeginWeaponChange( weapon_t weapon );
 void PM_FinishWeaponChange( void );
 
-void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags);
+void PM_SetAnim(int setAnimParts,animNumber_t anim,int setAnimFlags);
 
 void PM_WeaponLightsaber(void);
 void PM_SetSaberMove(saberMoveName_t newMove);

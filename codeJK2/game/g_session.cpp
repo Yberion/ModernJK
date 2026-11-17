@@ -47,7 +47,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*s2;
 	const char	*var;
-	int		i;
+	weapon_t	i;
 
 	s = va("%i", to_underlying( client->sess.sessionTeam ) );
 	var = va( "session%td", client - level.clients );
@@ -92,7 +92,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 
 	s2 = "";
-	for (i=0;i< WP_NUM_WEAPONS; i++)
+	for (i=WP_NONE;i< WP_NUM_WEAPONS; i++)
 	{
 		s2 = va("%s %i",s2, client->sess.missionStats.weaponUsed[i]);
 	}
@@ -112,7 +112,7 @@ Called on a reconnect
 void G_ReadSessionData( gclient_t *client ) {
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
-	int		i;
+	weapon_t	i;
 
 	var = va( "session%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -156,7 +156,7 @@ void G_ReadSessionData( gclient_t *client ) {
 
 	forcePowers_t fp = FP_FIRST;
 	var = strtok( s, " " );
-	while( var != nullptr )
+	while( var != nullptr && fp < NUM_FORCE_POWERS )
 	{
       /* While there are tokens in "s" */
 	  client->sess.missionStats.forceUsed[fp++] = atoi(var);
@@ -168,9 +168,9 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "sessionweapons%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	i=0;
+	i=WP_NONE;
 	var = strtok( s, " " );
-	while( var != nullptr )
+	while( var != nullptr && i < WP_NUM_WEAPONS )
 	{
       /* While there are tokens in "s" */
 	  client->sess.missionStats.weaponUsed[i++] = atoi(var);

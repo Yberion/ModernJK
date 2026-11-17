@@ -1083,7 +1083,7 @@ static void CG_OffsetFirstPersonView( bool firstPersonSaber ) {
 
 	if ( g_entities[0].client && PM_InKnockDown( &g_entities[0].client->ps ) )
 	{
-		float perc, animLen = (float)PM_AnimLength( g_entities[0].client->clientInfo.animFileIndex, (animNumber_t)g_entities[0].client->ps.legsAnim );
+		float perc, animLen = (float)PM_AnimLength( g_entities[0].client->clientInfo.animFileIndex, g_entities[0].client->ps.legsAnim );
 		if ( PM_InGetUp( &g_entities[0].client->ps ) || PM_InForceGetUp( &g_entities[0].client->ps ) )
 		{//start righting the view
 			perc = (float)g_entities[0].client->ps.legsAnimTimer/animLen*2;

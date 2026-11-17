@@ -1560,7 +1560,7 @@ bool NPC_IsTrooper(gentity_t* actor)
 	return (
 		actor &&
 		actor->NPC &&
-		actor->s.weapon &&
+		actor->s.weapon != WP_NONE &&
 		!!(actor->NPC->scriptFlags&SCF_NO_GROUPS)// &&
 //		 !(actor->NPC->scriptFlags&SCF_CHASE_ENEMIES)
 		 );

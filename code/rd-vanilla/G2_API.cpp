@@ -80,18 +80,18 @@ public:
 		char mess[1000];
 		int total=0;
 		sprintf(mess,"****** %s Error Report Begin******\n",mName.c_str());
-		Com_DPrintf(mess);
+		Com_DPrintf("%s", mess);
 
 		std::map<std::string,int>::iterator i;
 		for (i=mErrors.begin();i!=mErrors.end();++i)
 		{
 			total+=(*i).second;
 			sprintf(mess,"%s (hits %d)\n",(*i).first.c_str(),(*i).second);
-			Com_DPrintf(mess);
+			Com_DPrintf("%s", mess);
 		}
 
-		sprintf(mess,"****** %s Error Report End   %d errors of %ld kinds******\n",mName.c_str(),total,mErrors.size());
-		Com_DPrintf(mess);
+		sprintf(mess,"****** %s Error Report End   %d errors of %zu kinds******\n",mName.c_str(),total,mErrors.size());
+		Com_DPrintf("%s", mess);
 	}
 	int AnimTest(CGhoul2Info_v &ghoul2,const char *m,const char *, int line)
 	{
@@ -128,14 +128,12 @@ public:
 
 		int numFramesInFile=ghlInfo->aHeader->numFrames;
 
-		int numActiveBones=0;
 		for (i=0;i<ghlInfo->mBlist.size();i++)
 		{
 			if (ghlInfo->mBlist[i].boneNumber!=-1) // slot used?
 			{
 				if (ghlInfo->mBlist[i].flags&BONE_ANIM_TOTAL) // anim on this?
 				{
-					numActiveBones++;
 					bool loop=!!(ghlInfo->mBlist[i].flags&BONE_ANIM_OVERRIDE_LOOP);
 					bool not_loop=!!(ghlInfo->mBlist[i].flags&BONE_ANIM_OVERRIDE);
 
@@ -256,7 +254,7 @@ public:
 			if (1)
 			{
 				sprintf(mess,"%s (hit # %d)\n",full.c_str(),(*f).second);
-				Com_DPrintf(mess);
+				Com_DPrintf("%s", mess);
 			}
 		}
 		return ret;
@@ -564,8 +562,8 @@ public:
 		{
 #if G2API_DEBUG
 			char mess[1000];
-			sprintf(mess,"************************\nLeaked %ld ghoul2info slots\n", MAX_G2_MODELS - mFreeIndecies.size());
-			Com_DPrintf(mess);
+			sprintf(mess,"************************\nLeaked %zu ghoul2info slots\n", MAX_G2_MODELS - mFreeIndecies.size());
+			Com_DPrintf("%s", mess);
 #endif
 			int i;
 			for (i=0;i<MAX_G2_MODELS;i++)
@@ -579,12 +577,12 @@ public:
 				if (j==mFreeIndecies.end())
 				{
 #if G2API_DEBUG
-					sprintf(mess,"Leaked Info idx=%d id=%d sz=%ld\n", i, mIds[i], mInfos[i].size());
-					Com_DPrintf(mess);
+					sprintf(mess,"Leaked Info idx=%d id=%d sz=%zu\n", i, mIds[i], mInfos[i].size());
+					Com_DPrintf("%s", mess);
 					if (mInfos[i].size())
 					{
 						sprintf(mess,"%s\n", mInfos[i][0].mFileName);
-						Com_DPrintf(mess);
+						Com_DPrintf("%s", mess);
 					}
 #endif
 					DeleteLow(i);

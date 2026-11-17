@@ -43,7 +43,6 @@ extern bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum )
 #define TURN_ON				0x00000000
 #define TURN_OFF			0x00000100
 
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 const char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1",
@@ -563,7 +562,7 @@ retryModel:
 			Com_Printf( "Model does not use supported animation config.\n");
 			return false;
 		}
-		else if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", bgHumanoidAnimations, true) == -1)
+		else if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", &bgHumanoidAnimations, true) == -1)
 		{
 			Com_Printf( "Failed to load animation file models/players/_humanoid/animation.cfg\n" );
 			return false;
@@ -1805,7 +1804,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 					}
 				}
 
-				cg_entities[clientNum].weapon = 0;
+				cg_entities[clientNum].weapon = WP_NONE;
 				cg_entities[clientNum].ghoul2weapon = nullptr; //force a refresh
 			}
 			j++;
@@ -1893,7 +1892,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 		animation_t *anim;
 		centity_t *cent = &cg_entities[clientNum];
 
-		anim = &bgHumanoidAnimations[ (cg_entities[clientNum].currentState.legsAnim) ];
+		anim = &bgHumanoidAnimations[ ES_LegsAnim( cg_entities[clientNum].currentState ) ];
 
 		if (anim)
 		{
@@ -1918,7 +1917,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 			cg_entities[clientNum].currentState.legsAnim = 0;
 		}
 
-		anim = &bgHumanoidAnimations[ (cg_entities[clientNum].currentState.torsoAnim) ];
+		anim = &bgHumanoidAnimations[ ES_TorsoAnim( cg_entities[clientNum].currentState ) ];
 
 		if (anim)
 		{
@@ -2529,7 +2528,7 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, bool torso, int
 	}
 	if ( Q_fabs((float)(oldFrame-frame)) > 1 )
 	{//given a range, see if keyFrame falls in that range
-		int oldAnim, anim;
+		animNumber_t oldAnim, anim;
 		if ( torso )
 		{
 			/*
@@ -2541,8 +2540,8 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, bool torso, int
 			else
 			*/
 			{//less precise, but faster
-				oldAnim = cg_entities[entNum].currentState.torsoAnim;
-				anim = cg_entities[entNum].nextState.torsoAnim;
+				oldAnim = ES_TorsoAnim( cg_entities[entNum].currentState );
+				anim = ES_TorsoAnim( cg_entities[entNum].nextState );
 			}
 		}
 		else
@@ -2556,8 +2555,8 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, bool torso, int
 			else
 			*/
 			{//less precise, but faster
-				oldAnim = cg_entities[entNum].currentState.legsAnim;
-				anim = cg_entities[entNum].nextState.legsAnim;
+				oldAnim = ES_LegsAnim( cg_entities[entNum].currentState );
+				anim = ES_LegsAnim( cg_entities[entNum].nextState );
 			}
 		}
 		if ( anim != oldAnim )
@@ -2570,7 +2569,7 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, bool torso, int
 			animation_t *animation;
 
 			inSameAnim = true;
-			animation = &bgAllAnims[animFileIndex].anims[anim];
+			animation = &(*bgAllAnims[animFileIndex].anims)[anim];
 			animBackward = (animation->frameLerp<0);
 			if ( animation->loopFrames != -1 )
 			{//a looping anim!
@@ -2774,7 +2773,7 @@ static bool CG_FirstAnimFrame(lerpFrame_t *lf, bool torsoOnly, float speedScale)
 
 bool CG_InRoll( centity_t *cent )
 {
-	switch ( (cent->currentState.legsAnim) )
+	switch ( ES_LegsAnim( cent->currentState ) )
 	{
 	case BOTH_GETUP_BROLL_B:
 	case BOTH_GETUP_BROLL_F:
@@ -2793,19 +2792,23 @@ bool CG_InRoll( centity_t *cent )
 			return true;
 		}
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
 bool CG_InRollAnim( centity_t *cent )
 {
-	switch ( (cent->currentState.legsAnim) )
+	switch ( ES_LegsAnim( cent->currentState ) )
 	{
 	case BOTH_ROLL_F:
 	case BOTH_ROLL_B:
 	case BOTH_ROLL_R:
 	case BOTH_ROLL_L:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
@@ -2815,13 +2818,13 @@ bool CG_InRollAnim( centity_t *cent )
 CG_SetLerpFrameAnimation
 ===============
 */
-bool BG_SaberStanceAnim( int anim );
-bool PM_RunningAnim( int anim );
-static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float animSpeedMult, bool torsoOnly, bool flipState) {
+bool BG_SaberStanceAnim( animNumber_t anim );
+bool PM_RunningAnim( animNumber_t anim );
+static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, animNumber_t newAnimation, float animSpeedMult, bool torsoOnly, bool flipState) {
 	animation_t	*anim;
 	float animSpeed;
 	int	  flags=BONE_ANIM_OVERRIDE_FREEZE;
-	int oldAnim = -1;
+	animNumber_t oldAnim;
 	int blendTime = 100;
 	float oldSpeed = lf->animationSpeed;
 
@@ -2830,15 +2833,15 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		ci->brokenLimbs = cent->currentState.brokenLimbs;
 	}
 
-	oldAnim = lf->animationNumber;
+	oldAnim = LF_Anim( *lf );
 
-	lf->animationNumber = newAnimation;
+	LF_SetAnim( *lf, newAnimation );
 
-	if ( newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS ) {
-		trap->Error( ERR_DROP, "Bad animation number: %i", newAnimation );
+	if ( newAnimation < FACE_TALK0 || newAnimation >= MAX_TOTALANIMATIONS ) {
+		trap->Error( ERR_DROP, "Bad animation number: %i", to_underlying( newAnimation ) );
 	}
 
-	anim = &bgAllAnims[cent->localAnimIndex].anims[ newAnimation ];
+	anim = &(*bgAllAnims[cent->localAnimIndex].anims)[ newAnimation ];
 
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + abs(anim->frameLerp);
@@ -2853,11 +2856,11 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 	if ( cg_debugAnim.integer && (cg_debugAnim.integer < 0 || cg_debugAnim.integer == cent->currentState.clientNum) ) {
 		if (lf == &cent->pe.legs)
 		{
-			trap->Print( "%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation));
+			trap->Print( "%d: %d TORSO Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying( newAnimation ), GetStringForID(animTable, to_underlying( newAnimation )));
 		}
 		else
 		{
-			trap->Print( "%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, newAnimation, GetStringForID(animTable, newAnimation));
+			trap->Print( "%d: %d LEGS Anim: %i, '%s'\n", cg.time, cent->currentState.clientNum, to_underlying( newAnimation ), GetStringForID(animTable, to_underlying( newAnimation )));
 		}
 	}
 
@@ -2897,7 +2900,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		{
 			flags &= ~BONE_ANIM_BLEND;
 		}
-		else if ( oldAnim != -1 &&
+		else if ( oldAnim != ANIM_NONE &&
 			BG_InDeathAnim(oldAnim))
 		{
 			flags &= ~BONE_ANIM_BLEND;
@@ -2909,7 +2912,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			{
 				blendTime = 200;
 			}
-			else if ( oldAnim != -1 &&
+			else if ( oldAnim != ANIM_NONE &&
 				(BG_FlippingAnim(oldAnim)) )
 			{
 				blendTime = 200;
@@ -3014,7 +3017,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			}
 		}
 
-		if (cent->localAnimIndex <= 1 && (cent->currentState.torsoAnim) == newAnimation && !cent->noLumbar)
+		if (cent->localAnimIndex <= 1 && (ES_TorsoAnim( cent->currentState )) == newAnimation && !cent->noLumbar)
 		{ //make sure we're humanoid before we access the motion bone
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 		}
@@ -3030,7 +3033,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			int armFlags = 0;
 			float armAnimSpeed;
 
-			armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_DEAD21 ];
+			armAnim = &(*bgAllAnims[cent->localAnimIndex].anims)[ BOTH_DEAD21 ];
 			ci->brokenLimbs = cent->currentState.brokenLimbs;
 
 			armFirstFrame = armAnim->firstFrame;
@@ -3059,7 +3062,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				cent->currentState.weapon != WP_SABER ||
 				BG_SaberStanceAnim(newAnimation) ||
 				PM_RunningAnim(newAnimation)) &&
-				cent->currentState.torsoAnim == newAnimation &&
+				ES_TorsoAnim( cent->currentState ) == newAnimation &&
 				(!ci->saber[1].model[0] || cent->currentState.weapon != WP_SABER))
 			{
 				int armFirstFrame;
@@ -3072,7 +3075,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 					cent->currentState.weapon == WP_SABER ||
 					cent->currentState.weapon == WP_BRYAR_PISTOL)
 				{ //don't affect this arm if holding a gun, just make the other arm support it
-					armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_ATTACK2 ];
+					armAnim = &(*bgAllAnims[cent->localAnimIndex].anims)[ BOTH_ATTACK2 ];
 
 					//armFirstFrame = armAnim->firstFrame;
 					armFirstFrame = armAnim->firstFrame+armAnim->numFrames;
@@ -3100,7 +3103,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 					(newAnimation == TORSO_WEAPONREADY2 || newAnimation == BOTH_ATTACK2 || cent->currentState.weapon < WP_BRYAR_PISTOL))
 				{
 					//Now set the left arm to "support" the right one
-					armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_STAND2 ];
+					armAnim = &(*bgAllAnims[cent->localAnimIndex].anims)[ BOTH_STAND2 ];
 					armFirstFrame = armAnim->firstFrame;
 					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
 					armAnimSpeed = 50.0f / armAnim->frameLerp;
@@ -3118,7 +3121,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 					trap->G2API_SetBoneAnim(cent->ghoul2, 0, supportBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				}
 			}
-			else if (cent->currentState.torsoAnim == newAnimation)
+			else if (ES_TorsoAnim( cent->currentState ) == newAnimation)
 			{ //otherwise, keep it set to the same as the torso
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, supportBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
@@ -3234,7 +3237,7 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, bool flipState, int newAnimation, float speedScale, bool torsoOnly)
+static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, bool flipState, animNumber_t newAnimation, float speedScale, bool torsoOnly)
 {
 	// debugging tool to get no animations
 	if ( cg_animSpeed.integer == 0 ) {
@@ -3262,7 +3265,7 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 	{
 		lf->lastForcedFrame = -1;
 
-		if ( (newAnimation != lf->animationNumber || cent->currentState.brokenLimbs != ci->brokenLimbs || lf->lastFlip != flipState || !lf->animation) || (CG_FirstAnimFrame(lf, torsoOnly, speedScale)) )
+		if ( (newAnimation != LF_Anim( *lf ) || cent->currentState.brokenLimbs != ci->brokenLimbs || lf->lastFlip != flipState || !lf->animation) || (CG_FirstAnimFrame(lf, torsoOnly, speedScale)) )
 		{
 			CG_SetLerpFrameAnimation( cent, ci, lf, newAnimation, speedScale, torsoOnly, flipState);
 		}
@@ -3292,7 +3295,7 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 CG_ClearLerpFrame
 ===============
 */
-static void CG_ClearLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, int animationNumber, bool torsoOnly) {
+static void CG_ClearLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, animNumber_t animationNumber, bool torsoOnly) {
 	lf->frameTime = lf->oldFrameTime = cg.time;
 	CG_SetLerpFrameAnimation( cent, ci, lf, animationNumber, 1, torsoOnly, false );
 
@@ -3312,7 +3315,7 @@ static void CG_ClearLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *l
 CG_PlayerAnimation
 ===============
 */
-bool PM_WalkingAnim( int anim );
+bool PM_WalkingAnim( animNumber_t anim );
 
 static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float *legsBackLerp,
 						int *torsoOld, int *torso, float *torsoBackLerp ) {
@@ -3327,8 +3330,8 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		return;
 	}
 
-	if (!PM_RunningAnim(cent->currentState.legsAnim) &&
-		!PM_WalkingAnim(cent->currentState.legsAnim))
+	if (!PM_RunningAnim(ES_LegsAnim( cent->currentState )) &&
+		!PM_WalkingAnim(ES_LegsAnim( cent->currentState )))
 	{ //if legs are not in a walking/running anim then just animate at standard speed
 		speedScale = 1.0f;
 	}
@@ -3355,7 +3358,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		ci = &cgs.clientinfo[ clientNum ];
 	}
 
-	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, speedScale, false);
+	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, ES_LegsAnim( cent->currentState ), speedScale, false);
 
 	if (!(cent->currentState.forcePowersActive & Bit( FP_RAGE )))
 	{ //don't affect torso anim speed unless raged
@@ -3373,7 +3376,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	// If this is not a vehicle, you may lerm the frame (since vehicles never have a torso anim). -AReis
 	if ( cent->currentState.NPC_class != CLASS_VEHICLE )
 	{
-		CG_RunLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoFlip, cent->currentState.torsoAnim, speedScale, true );
+		CG_RunLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoFlip, ES_TorsoAnim( cent->currentState ), speedScale, true );
 
 		*torsoOld = cent->pe.torso.oldFrame;
 		*torso = cent->pe.torso.frame;
@@ -3507,7 +3510,7 @@ static const char *cg_effectorStringTable[] =
 //we want to see which way the pelvis is facing to get a relatively oriented base settling frame
 //this is to avoid the arms stretching in opposite directions on the body trying to reach the base
 //pose if the pelvis is flipped opposite of the base pose or something -rww
-static int CG_RagAnimForPositioning(centity_t *cent)
+static animNumber_t CG_RagAnimForPositioning(centity_t *cent)
 {
 	int bolt;
 	vec3_t dir;
@@ -3537,7 +3540,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 {
 	vec3_t usedOrg;
 	bool inSomething = false;
-	int ragAnim;//BOTH_DEAD1; //BOTH_DEATH1;
+	animNumber_t ragAnim;//BOTH_DEAD1; //BOTH_DEATH1;
 
 	if (!broadsword.integer)
 	{
@@ -3585,8 +3588,8 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 
 		if (!inSomething)
 		{
-			int anim = (cent->currentState.legsAnim);
-			int dur = (bgAllAnims[cent->localAnimIndex].anims[anim].numFrames-1) * Q_fabs((float)(bgAllAnims[cent->localAnimIndex].anims[anim].frameLerp));
+			animNumber_t anim = ES_LegsAnim( cent->currentState );
+			int dur = ((*bgAllAnims[cent->localAnimIndex].anims)[anim].numFrames-1) * Q_fabs((float)((*bgAllAnims[cent->localAnimIndex].anims)[anim].frameLerp));
 			int i = 0;
 			int boltChecks[5];
 			vec3_t boltPoints[5];
@@ -3695,15 +3698,15 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 		}
 
 		//these will be used as "base" frames for the ragoll settling.
-		tParms.startFrame = bgAllAnims[cent->localAnimIndex].anims[ragAnim].firstFrame;// + bgAllAnims[cent->localAnimIndex].anims[ragAnim].numFrames;
-		tParms.endFrame = bgAllAnims[cent->localAnimIndex].anims[ragAnim].firstFrame + bgAllAnims[cent->localAnimIndex].anims[ragAnim].numFrames;
+		tParms.startFrame = (*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].firstFrame;// + (*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].numFrames;
+		tParms.endFrame = (*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].firstFrame + (*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].numFrames;
 #if 0
 		{
 			float animSpeed = 0;
 			int blendTime = 600;
 			int flags = 0;//BONE_ANIM_OVERRIDE_FREEZE;
 
-			if (bgAllAnims[cent->localAnimIndex].anims[ragAnim].loopFrames != -1)
+			if ((*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].loopFrames != -1)
 			{
 				flags = BONE_ANIM_OVERRIDE_LOOP;
 			}
@@ -3715,7 +3718,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 			}
 			*/
 
-			animSpeed = 50.0f / bgAllAnims[cent->localAnimIndex].anims[ragAnim].frameLerp;
+			animSpeed = 50.0f / (*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].frameLerp;
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", tParms.startFrame, tParms.endFrame, flags, animSpeed,cg.time, -1, blendTime);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", tParms.startFrame, tParms.endFrame, flags, animSpeed, cg.time, -1, blendTime);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", tParms.startFrame, tParms.endFrame, flags, animSpeed, cg.time, -1, blendTime);
@@ -3730,7 +3733,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 			if (trap->G2API_GetBoneAnim(cent->ghoul2, "model_root", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0))
 			{ //lock the anim on the current frame.
 				int blendTime = 500;
-				animation_t *curAnim = &bgAllAnims[cent->localAnimIndex].anims[cent->currentState.legsAnim];
+				animation_t *curAnim = &(*bgAllAnims[cent->localAnimIndex].anims)[ES_LegsAnim( cent->currentState )];
 
 				if (currentFrame >= (curAnim->firstFrame + curAnim->numFrames-1))
 				{ //this is sort of silly but it works for now.
@@ -4061,10 +4064,10 @@ static void CG_G2SetHeadBlink( centity_t *cent, bool bStart )
 CG_G2SetHeadAnims
 -------------------------
 */
-static void CG_G2SetHeadAnim( centity_t *cent, int anim )
+static void CG_G2SetHeadAnim( centity_t *cent, animNumber_t anim )
 {
 	const int blendTime = 50;
-	const animation_t *animations = bgAllAnims[cent->localAnimIndex].anims;
+	const animSet_t &animations = *bgAllAnims[cent->localAnimIndex].anims;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
 //	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
@@ -4110,7 +4113,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, int anim )
 bool CG_G2PlayerHeadAnims( centity_t *cent )
 {
 	clientInfo_t *ci = nullptr;
-	int anim = -1;
+	std::optional<animNumber_t> anim;
 	int voiceVolume = 0;
 
 	if(cent->localAnimIndex > 1)
@@ -4205,7 +4208,7 @@ bool CG_G2PlayerHeadAnims( centity_t *cent )
 				}
 			}
 
-			if (anim != -1)	//we we are auxing, see if we should override with a frown
+			if (anim)	//we we are auxing, see if we should override with a frown
 			{
 				if (ci->facial_frown < 0)// are we frowning ?
 				{	// yes,
@@ -4231,9 +4234,9 @@ bool CG_G2PlayerHeadAnims( centity_t *cent )
 
 		}//talking
 	}//dead
-	if (anim != -1)
+	if (anim)
 	{
-		CG_G2SetHeadAnim( cent, anim );
+		CG_G2SetHeadAnim( cent, *anim );
 		return true;
 	}
 	return false;
@@ -4319,13 +4322,13 @@ static void CG_G2PlayerAngles( centity_t *cent, matrix3_t legs, vec3_t legsAngle
 				BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, boltOrg);
 
 				BG_IK_MoveArm(cent->ghoul2, ci->bolt_lhand, cg.time, &cent->currentState,
-					cent->currentState.torsoAnim/*BOTH_DEAD1*/, boltOrg, &cent->ikStatus, cent->lerpOrigin, cent->lerpAngles, cent->modelScale, 500, false);
+					ES_TorsoAnim( cent->currentState )/*BOTH_DEAD1*/, boltOrg, &cent->ikStatus, cent->lerpOrigin, cent->lerpAngles, cent->modelScale, 500, false);
 			}
 		}
 		else if (cent->ikStatus)
 		{ //make sure we aren't IKing if we don't have anyone to hold onto us.
 			BG_IK_MoveArm(cent->ghoul2, ci->bolt_lhand, cg.time, &cent->currentState,
-				cent->currentState.torsoAnim/*BOTH_DEAD1*/, vec3_origin, &cent->ikStatus, cent->lerpOrigin, cent->lerpAngles, cent->modelScale, 500, true);
+				ES_TorsoAnim( cent->currentState )/*BOTH_DEAD1*/, vec3_origin, &cent->ikStatus, cent->lerpOrigin, cent->lerpAngles, cent->modelScale, 500, true);
 		}
 	}
 	else if ( cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
@@ -6035,7 +6038,7 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 #define SABER_TRAIL_TIME	40.0f
 #define FX_USE_ALPHA		0x08000000
 
-bool BG_SuperBreakWinAnim( int anim );
+bool BG_SuperBreakWinAnim( animNumber_t anim );
 
 void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, int saberNum, int bladeNum, vec3_t origin, vec3_t angles, bool fromSaber, bool dontDraw)
 {
@@ -6309,7 +6312,7 @@ CheckTrail:
 	trailDur = (saberTrail->duration/5.0f);
 	if (!trailDur)
 	{ //hmm.. ok, default
-		if ( BG_SuperBreakWinAnim(cent->currentState.torsoAnim) )
+		if ( BG_SuperBreakWinAnim(ES_TorsoAnim( cent->currentState )) )
 		{
 			trailDur = 150;
 		}
@@ -6325,7 +6328,7 @@ CheckTrail:
 	{
 		if (!dontDraw)
 		{
-			if ( (BG_SuperBreakWinAnim(cent->currentState.torsoAnim) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & Bit( PW_SPEED ) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one
+			if ( (BG_SuperBreakWinAnim(ES_TorsoAnim( cent->currentState )) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & Bit( PW_SPEED ) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one
 			{
 	#if 0
 				if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4)
@@ -6484,7 +6487,7 @@ CheckTrail:
 							trap->R_SetRefractionProperties(1.0f, 0.0f, true, true); //don't need to do this every frame.. but..
 
 							if (BG_SaberInAttack(cent->currentState.saberMove)
-								||BG_SuperBreakWinAnim(cent->currentState.torsoAnim))
+								||BG_SuperBreakWinAnim(ES_TorsoAnim( cent->currentState )))
 							{ //in attack, strong trail
 								fx.mKillTime = 300;
 							}
@@ -7679,7 +7682,7 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 		CG_RegisterClientModelname(ci, ci->modelName, ci->skinName, ci->teamName, cent->currentState.number);
 	}
 
-	anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.legsAnim ];
+	anim = &(*bgAllAnims[cent->localAnimIndex].anims)[ ES_LegsAnim( cent->currentState ) ];
 
 	if (anim)
 	{
@@ -7703,7 +7706,7 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 		cent->currentState.legsAnim = 0;
 	}
 
-	anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.torsoAnim ];
+	anim = &(*bgAllAnims[cent->localAnimIndex].anims)[ ES_TorsoAnim( cent->currentState ) ];
 
 	if (anim)
 	{
@@ -8823,7 +8826,7 @@ void CG_Player( centity_t *cent ) {
 	if (!g2HasWeapon)
 	{ //force a redup of the weapon instance onto the client instance
 		cent->ghoul2weapon = nullptr;
-		cent->weapon = 0;
+		cent->weapon = WP_NONE;
 	}
 
 	if (cent->torsoBolt && !(cent->currentState.eFlags & EF_DEAD))
@@ -8952,7 +8955,7 @@ void CG_Player( centity_t *cent ) {
 		if (ci->team == TEAM_SPECTATOR)
 		{
 			cent->ghoul2weapon = nullptr;
-			cent->weapon = 0;
+			cent->weapon = WP_NONE;
 		}
 		else
 		{
@@ -9431,7 +9434,7 @@ void CG_Player( centity_t *cent ) {
 
 		AngleVectors( fAng, fxDir, nullptr, nullptr );
 
-		if ( cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD
+		if ( ES_TorsoAnim( cent->currentState ) == BOTH_FORCE_2HANDEDLIGHTNING_HOLD
 			&& Q_irand( 0, 1 ) )
 		{//alternate back and forth between left and right
 			mdxaBone_t 	rHandMatrix;
@@ -11222,8 +11225,8 @@ void CG_ResetPlayerEntity( centity_t *cent )
 	if (cent->currentState.eType != ET_NPC ||
 		!(cent->currentState.eFlags & EF_DEAD))
 	{
-		CG_ClearLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsAnim, false);
-		CG_ClearLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoAnim, true);
+		CG_ClearLerpFrame( cent, ci, &cent->pe.legs, ES_LegsAnim( cent->currentState ), false);
+		CG_ClearLerpFrame( cent, ci, &cent->pe.torso, ES_TorsoAnim( cent->currentState ), true);
 
 		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
 		BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
@@ -11251,7 +11254,7 @@ void CG_ResetPlayerEntity( centity_t *cent )
 		if ((cent->ghoul2 == nullptr) && ci->ghoul2Model && trap->G2_HaveWeGhoul2Models(ci->ghoul2Model))
 		{
 			trap->G2API_DuplicateGhoul2Instance(ci->ghoul2Model, &cent->ghoul2);
-			cent->weapon = 0;
+			cent->weapon = WP_NONE;
 			cent->ghoul2weapon = nullptr;
 
 			//Attach the instance to this entity num so we can make use of client-server

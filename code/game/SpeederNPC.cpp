@@ -87,7 +87,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MOD_EXPLOSIVE MOD_SUICIDE
 #else
 #define bgEntity_t gentity_t
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
 #endif
 
 extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
@@ -96,8 +96,8 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
+extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 #endif
 
@@ -651,7 +651,7 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 
 #ifdef QAGAME
 
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 // This function makes sure that the vehicle is properly animated.
@@ -664,7 +664,7 @@ void AnimateVehicle( Vehicle_t *pVeh )
 //rest of file is shared
 
 #ifndef	_JK2MP
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 #endif
 
 

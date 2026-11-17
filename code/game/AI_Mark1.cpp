@@ -225,7 +225,7 @@ Mark1_die
 void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	/*
-	int	anim;
+	animNumber_t	anim;
 
 	// Is he dead already?
 	anim = self->client->ps.legsAnim;

@@ -4034,10 +4034,10 @@ void			NAV::ShowStats()
 	mGraph.ProfilePrint("--------------------------------------------------------");
 	mGraph.ProfilePrint("");
 	mGraph.ProfilePrint("MEMORY CONSUMPTION (In Bytes)");
-	mGraph.ProfilePrint("Cells  : (%d)", (sizeof(mCells)));
-	mGraph.ProfilePrint("Path   : (%d)", (sizeof(mPathUsers)+sizeof(mPathUserIndex)));
-	mGraph.ProfilePrint("Steer  : (%d)", (sizeof(mSteerUsers)+sizeof(mSteerUserIndex)));
-	mGraph.ProfilePrint("Alerts : (%d)", (sizeof(mEntityAlertList)));
+	mGraph.ProfilePrint("Cells  : (%zu)", (sizeof(mCells)));
+	mGraph.ProfilePrint("Path   : (%zu)", (sizeof(mPathUsers)+sizeof(mPathUserIndex)));
+	mGraph.ProfilePrint("Steer  : (%zu)", (sizeof(mSteerUsers)+sizeof(mSteerUserIndex)));
+	mGraph.ProfilePrint("Alerts : (%zu)", (sizeof(mEntityAlertList)));
 	float totalBytes = (
 		sizeof(mCells)+
 		sizeof(mGraph)+

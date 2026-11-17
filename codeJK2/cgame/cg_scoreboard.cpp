@@ -200,9 +200,9 @@ w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);
 w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);
 	cgi_R_Font_DrawString(x, y, text, colorTable[CT_LTGOLD1], cgs.media.qhFontSmall, -1, 0.8f);
 
-	int wpn=0,i;
-	int max_wpn = cg_entities[0].gent->client->sess.missionStats.weaponUsed[0];
-	for (i = 1; i<WP_NUM_WEAPONS; i++)
+	weapon_t wpn=WP_NONE,i;
+	int max_wpn = cg_entities[0].gent->client->sess.missionStats.weaponUsed[WP_NONE];
+	for (i = WP_SABER; i<WP_NUM_WEAPONS; i++)
 	{
 		if (cg_entities[0].gent->client->sess.missionStats.weaponUsed[i] > max_wpn)
 		{
@@ -211,9 +211,9 @@ w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.8f);
 		}
 	}
 
-	if ( wpn )
+	if ( wpn != WP_NONE )
 	{
-		gitem_t	*wItem= FindItemForWeapon( (weapon_t)wpn);
+		gitem_t	*wItem= FindItemForWeapon( wpn);
 		cgi_SP_GetStringTextString( va("INGAME_%s",wItem->classname ), text, sizeof( text ));
 	//	cgi_R_Font_DrawString(x+w, y, va("%d",wpn), colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 0.8f);
 		cgi_R_Font_DrawString(x+w, y, text, colorTable[CT_WHITE], cgs.media.qhFontSmall, -1, 0.8f);

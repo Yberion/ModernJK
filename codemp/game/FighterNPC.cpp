@@ -34,13 +34,13 @@ extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 	extern vmCvar_t	cg_thirdPersonAlpha;
 	extern vec3_t playerMins;
 	extern vec3_t playerMaxs;
-	extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+	extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	extern int PM_AnimLength( int index, animNumber_t anim );
 	extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
 #endif
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
 extern int BG_GetTime(void);
 
 //this stuff has got to be predicted, so..
@@ -1685,7 +1685,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 // This function makes sure that the vehicle is properly animated.
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
-	int Anim = -1;
+	std::optional<animNumber_t> Anim;
 	int iFlags = SETANIM_FLAG_NORMAL;
 	bool isLanding = false, isLanded = false;
 	playerState_t *parentPS = pVeh->m_pParentEntity->playerState;
@@ -1756,9 +1756,9 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		}
 	}
 
-	if ( Anim != -1 )
+	if ( Anim )
 	{
-		BG_SetAnim(pVeh->m_pParentEntity->playerState, bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims, SETANIM_BOTH, Anim, iFlags);
+		BG_SetAnim(pVeh->m_pParentEntity->playerState, bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims, SETANIM_BOTH, *Anim, iFlags);
 	}
 }
 

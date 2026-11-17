@@ -845,7 +845,7 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 		default:
 			#ifndef FINAL_BUILD
 			assert(0);	// duh....what state are they asking for?
-			Com_Printf( S_COLOR_RED "Music_GetFileNameForState( %d ) unhandled case!\n",eMusicState );
+			Com_Printf( S_COLOR_RED "Music_GetFileNameForState( %d ) unhandled case!\n",to_underlying( eMusicState ) );
 			#endif
 			break;
 	}
@@ -1033,7 +1033,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 						{
 							#ifndef FINAL_BUILD
 							assert(0);
-							Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type %d\n",eMusicState);
+							Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): No code to transition from music type %d\n",to_underlying( eMusicState ));
 							#endif
 							return false;
 						}
@@ -1044,7 +1044,7 @@ bool Music_AllowedToTransition( float			fPlayingTimeElapsed,
 				{
 					#ifndef FINAL_BUILD
 					assert(0);
-					Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point %d, max = %d (music: \"%s\")\n",iExitPoint, pMusicFile->MusicExitPoints.size()-1, pMusicFile->sFileNameBase.c_str() );
+					Com_Printf( S_COLOR_RED "Music_AllowedToTransition(): Illegal exit point %d, max = %zu (music: \"%s\")\n",iExitPoint, pMusicFile->MusicExitPoints.size()-1, pMusicFile->sFileNameBase.c_str() );
 					#endif
 					return false;
 				}

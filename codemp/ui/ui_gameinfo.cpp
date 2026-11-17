@@ -93,7 +93,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 #ifndef FINAL_BUILD
 			if (trap->Cvar_VariableValue("com_buildScript"))
 			{
-				char *botFile = Info_ValueForKey(info, "personality");
+				const char *botFile = Info_ValueForKey(info, "personality");
 				if (botFile && botFile[0])
 				{
 					int fh = 0;

@@ -459,7 +459,7 @@ Ghoul2 Insert Start
 
 const weaponData_t  *wData = nullptr;
 
-			if ( cc->currentState.weapon )
+			if ( cc->currentState.weapon != WP_NONE )
 			{
 				wData = &weaponData[cc->currentState.weapon];
 			}
@@ -974,7 +974,7 @@ Ghoul2 Insert End
 //	if ( item->giType == IT_WEAPON ) {
 //		weaponInfo_t	*wi;
 //
-//		wi = &cg_weapons[item->giTag];
+//		wi = &cg_weapons[GI_Weapon( *item )];
 //		cent->lerpOrigin[0] -=
 //			wi->weaponMidpoint[0] * ent.axis[0][0] +
 //			wi->weaponMidpoint[1] * ent.axis[1][0] +
@@ -1021,7 +1021,7 @@ Ghoul2 Insert End
 	if ( cent->gent->spawnflags & 16 )
 	{	//VectorClear( spinAngles );
 		if ( item->giType == IT_WEAPON
-			&& item->giTag == WP_SABER )
+			&& GI_Weapon( *item ) == WP_SABER )
 		{
 			if ( cent->gent->random )
 			{//pitch specified
@@ -1069,7 +1069,7 @@ Ghoul2 Insert End
 	}
 
 	if ( item->giType == IT_WEAPON
-		&& item->giTag == WP_SABER
+		&& GI_Weapon( *item ) == WP_SABER
 		&& (!cent->gent || !(cent->gent->spawnflags&64/*ITMSF_NOGLOW*/)) )
 	{
 		// saber pickup item needs to be more visible
@@ -1113,7 +1113,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
-		s1->weapon = 0;
+		s1->weapon = WP_NONE;
 	}
 	weapon = &cg_weapons[s1->weapon];
 	wData = &weaponData[s1->weapon];
@@ -2079,7 +2079,7 @@ extern cvar_t	*g_saberRealisticCombat;
 			}
 			if ( owner->weaponModel[0] > 0 )
 			{//the corpse hasn't dropped their weapon
-				if ( cent->gent->count == BOTH_DISMEMBER_RARM || cent->gent->count == BOTH_DISMEMBER_TORSO1 )//&& ent->s.weapon == WP_SABER && ent->weaponModel[0] != -1 )
+				if ( G_LimbAnim( *cent->gent ) == BOTH_DISMEMBER_RARM || G_LimbAnim( *cent->gent ) == BOTH_DISMEMBER_TORSO1 )//&& ent->s.weapon == WP_SABER && ent->weaponModel[0] != -1 )
 				{//FIXME: is this first check needed with this lower one?
 					gi.G2API_RemoveGhoul2Model( owner->ghoul2, owner->weaponModel[0] );
 					owner->weaponModel[0] = -1;

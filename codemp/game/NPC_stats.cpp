@@ -148,6 +148,17 @@ stringID_table_t BSETTable[] =
 extern stringID_table_t WPTable[];
 extern stringID_table_t FPTable[];
 
+// A weapon's name in the NPC files, the scripts and the map entities, none for a name WPTable does not have
+std::optional<weapon_t> G_WeaponFromName( const char *name )
+{
+	const int id = GetIDForString( WPTable, name );
+	if ( id == -1 )
+	{
+		return std::nullopt;
+	}
+	return static_cast<weapon_t>( id );
+}
+
 EnumArray<const char *, npcteam_t, NPCTEAM_NUM_TEAMS>	TeamNames =
 {
 	"",
@@ -541,13 +552,13 @@ extern int NPC_WeaponsForTeam( npcteam_t team, int spawnflags, const char *NPC_t
 void NPC_PrecacheWeapons( npcteam_t playerTeam, int spawnflags, const char *NPCtype )
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
-	int curWeap;
+	weapon_t curWeap;
 
 	for ( curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
-		if (weapons & (1 << curWeap))
+		if (weapons & Bit( curWeap ))
 		{
-			RegisterItem(BG_FindItemForWeapon((weapon_t)curWeap));
+			RegisterItem(BG_FindItemForWeapon(curWeap));
 		}
 	}
 
@@ -816,18 +827,18 @@ void NPC_Precache ( gentity_t *spawner )
 
 		if (!Q_stricmp(token, "weapon"))
 		{
-			int curWeap;
+			std::optional<weapon_t> curWeap;
 
 			if (COM_ParseString(&p, &value))
 			{
 				continue;
 			}
 
-			curWeap = GetIDForString( WPTable, value );
+			curWeap = G_WeaponFromName( value );
 
 			if (curWeap > WP_NONE && curWeap < WP_NUM_WEAPONS)
 			{
-				RegisterItem(BG_FindItemForWeapon((weapon_t)curWeap));
+				RegisterItem(BG_FindItemForWeapon(*curWeap));
 			}
 			continue;
 		}
@@ -2546,18 +2557,18 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 			//starting weapon
 			if ( !Q_stricmp( token, "weapon" ) )
 			{
-				int weap;
+				std::optional<weapon_t> weap;
 
 				if ( COM_ParseString( &p, &value ) )
 				{
 					continue;
 				}
 				//FIXME: need to precache the weapon, too?  (in above func)
-				weap = GetIDForString( WPTable, value );
+				weap = G_WeaponFromName( value );
 				if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )///*WP_BLASTER_PISTOL*/WP_SABER ) //?!
 				{
-					NPC->client->ps.weapon = weap;
-					NPC->client->ps.stats[STAT_WEAPONS] |= ( 1 << NPC->client->ps.weapon );
+					NPC->client->ps.weapon = *weap;
+					NPC->client->ps.stats[STAT_WEAPONS] |= Bit( NPC->client->ps.weapon );
 					if ( weap > WP_NONE )
 					{
 					//	RegisterItem( FindItemForWeapon( (weapon_t)(NPC->client->ps.weapon) ) );	//precache the weapon

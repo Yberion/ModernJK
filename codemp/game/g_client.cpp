@@ -426,7 +426,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		return;
 	}
 
-	if (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+	if (other->client->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ))
 	{
 		return;
 	}
@@ -437,7 +437,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	}
 
 	self->enemy = other;
-	other->client->ps.stats[STAT_WEAPONS] = (1 << WP_SABER);
+	other->client->ps.stats[STAT_WEAPONS] = Bit( WP_SABER );
 	other->client->ps.weapon = WP_SABER;
 	other->s.weapon = WP_SABER;
 	other->client->ps.zoomMode = 0;
@@ -1111,7 +1111,7 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 	}
 	body->s.event = 0;
 
-	body->s.weapon = ent->s.bolt2;
+	body->s.weapon = static_cast<weapon_t>( ent->s.bolt2 );
 
 	if (body->s.weapon == WP_SABER && ent->client->ps.saberInFlight)
 	{
@@ -1124,7 +1124,7 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 	{
 		islight = 1;
 	}
-	trap->SendServerCommand(-1, va("ircg %i %i %i %i", ent->s.number, body->s.number, body->s.weapon, islight));
+	trap->SendServerCommand(-1, va("ircg %i %i %i %i", ent->s.number, body->s.number, to_underlying( body->s.weapon ), islight));
 
 	body->r.svFlags = ent->r.svFlags | SVF_BROADCAST;
 	VectorCopy (ent->r.mins, body->r.mins);
@@ -1132,7 +1132,8 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 	VectorCopy (ent->r.absmin, body->r.absmin);
 	VectorCopy (ent->r.absmax, body->r.absmax);
 
-	body->s.torsoAnim = body->s.legsAnim = ent->client->ps.legsAnim;
+	ES_SetTorsoAnim( body->s, ent->client->ps.legsAnim );
+	ES_SetLegsAnim( body->s, ent->client->ps.legsAnim );
 
 	body->s.customRGBA[0] = ent->client->ps.customRGBA[0];
 	body->s.customRGBA[1] = ent->client->ps.customRGBA[1];
@@ -1787,7 +1788,7 @@ void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *ski
 
 	if (!BGPAFtextLoaded)
 	{
-		if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", bgHumanoidAnimations, true) == -1)
+		if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", &bgHumanoidAnimations, true) == -1)
 		{
 			Com_Printf( "Failed to load humanoid animation file\n");
 			return;
@@ -2358,7 +2359,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 		if ( ent->ghoul2 && ent->client )
 			ent->client->renderInfo.lastG2 = nullptr; //update the renderinfo bolts next update.
 
-		client->torsoAnimExecute = client->legsAnimExecute = -1;
+		client->torsoAnimExecute = client->legsAnimExecute = ANIM_NONE;
 		client->torsoLastFlip = client->legsLastFlip = false;
 	}
 
@@ -2765,7 +2766,7 @@ static bool AllForceDisabled(int force)
 //Convenient interface to set all my limb breakage stuff up -rww
 void G_BreakArm(gentity_t *ent, brokenLimb_t arm)
 {
-	int anim = -1;
+	std::optional<animNumber_t> anim;
 
 	assert(ent && ent->client);
 
@@ -2809,12 +2810,12 @@ void G_BreakArm(gentity_t *ent, brokenLimb_t arm)
 		anim = BOTH_PAIN3;
 	}
 
-	if (anim == -1)
+	if (!anim)
 	{
 		return;
 	}
 
-	G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
+	G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 
 	//This could be combined into a single event. But I guess limbs don't break often enough to
 	//worry about it.
@@ -2824,13 +2825,13 @@ void G_BreakArm(gentity_t *ent, brokenLimb_t arm)
 }
 
 //Update the ghoul2 instance anims based on the playerstate values
-bool BG_SaberStanceAnim( int anim );
-bool PM_RunningAnim( int anim );
+bool BG_SaberStanceAnim( animNumber_t anim );
+bool PM_RunningAnim( animNumber_t anim );
 void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 {
-	static int f;
-	static int torsoAnim;
-	static int legsAnim;
+	static animNumber_t f;
+	static animNumber_t torsoAnim;
+	static animNumber_t legsAnim;
 	static int firstFrame, lastFrame;
 	static int aFlags;
 	static float animSpeed, lAnimSpeedScale;
@@ -2848,18 +2849,18 @@ void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 	}
 
 	if (self->localAnimIndex > 1 &&
-		bgAllAnims[self->localAnimIndex].anims[legsAnim].firstFrame == 0 &&
-		bgAllAnims[self->localAnimIndex].anims[legsAnim].numFrames == 0)
+		(*bgAllAnims[self->localAnimIndex].anims)[legsAnim].firstFrame == 0 &&
+		(*bgAllAnims[self->localAnimIndex].anims)[legsAnim].numFrames == 0)
 	{ //We'll allow this for non-humanoids.
 		goto tryTorso;
 	}
 
 	if (self->client->legsAnimExecute != legsAnim || self->client->legsLastFlip != self->client->ps.legsFlip)
 	{
-		animSpeed = 50.0f / bgAllAnims[self->localAnimIndex].anims[legsAnim].frameLerp;
+		animSpeed = 50.0f / (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].frameLerp;
 		lAnimSpeedScale = (animSpeed *= animSpeedScale);
 
-		if (bgAllAnims[self->localAnimIndex].anims[legsAnim].loopFrames != -1)
+		if ((*bgAllAnims[self->localAnimIndex].anims)[legsAnim].loopFrames != -1)
 		{
 			aFlags = BONE_ANIM_OVERRIDE_LOOP;
 		}
@@ -2870,13 +2871,13 @@ void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 
 		if (animSpeed < 0)
 		{
-			lastFrame = bgAllAnims[self->localAnimIndex].anims[legsAnim].firstFrame;
-			firstFrame = bgAllAnims[self->localAnimIndex].anims[legsAnim].firstFrame + bgAllAnims[self->localAnimIndex].anims[legsAnim].numFrames;
+			lastFrame = (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].firstFrame;
+			firstFrame = (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].firstFrame + (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].numFrames;
 		}
 		else
 		{
-			firstFrame = bgAllAnims[self->localAnimIndex].anims[legsAnim].firstFrame;
-			lastFrame = bgAllAnims[self->localAnimIndex].anims[legsAnim].firstFrame + bgAllAnims[self->localAnimIndex].anims[legsAnim].numFrames;
+			firstFrame = (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].firstFrame;
+			lastFrame = (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].firstFrame + (*bgAllAnims[self->localAnimIndex].anims)[legsAnim].numFrames;
 		}
 
 		aFlags |= BONE_ANIM_BLEND; //since client defaults to blend. Not sure if this will make much difference if any on server position, but it's here just for the sake of matching them.
@@ -2888,8 +2889,8 @@ void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 
 tryTorso:
 	if (self->localAnimIndex > 1 &&
-		bgAllAnims[self->localAnimIndex].anims[torsoAnim].firstFrame == 0 &&
-		bgAllAnims[self->localAnimIndex].anims[torsoAnim].numFrames == 0)
+		(*bgAllAnims[self->localAnimIndex].anims)[torsoAnim].firstFrame == 0 &&
+		(*bgAllAnims[self->localAnimIndex].anims)[torsoAnim].numFrames == 0)
 
 	{ //If this fails as well just return.
 		return;
@@ -2910,10 +2911,10 @@ tryTorso:
 
 		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale, self->client->ps.brokenLimbs);
 
-		animSpeed = 50.0f / bgAllAnims[self->localAnimIndex].anims[f].frameLerp;
+		animSpeed = 50.0f / (*bgAllAnims[self->localAnimIndex].anims)[f].frameLerp;
 		lAnimSpeedScale = (animSpeed *= animSpeedScale);
 
-		if (bgAllAnims[self->localAnimIndex].anims[f].loopFrames != -1)
+		if ((*bgAllAnims[self->localAnimIndex].anims)[f].loopFrames != -1)
 		{
 			aFlags = BONE_ANIM_OVERRIDE_LOOP;
 		}
@@ -2926,13 +2927,13 @@ tryTorso:
 
 		if (animSpeed < 0)
 		{
-			lastFrame = bgAllAnims[self->localAnimIndex].anims[f].firstFrame;
-			firstFrame = bgAllAnims[self->localAnimIndex].anims[f].firstFrame + bgAllAnims[self->localAnimIndex].anims[f].numFrames;
+			lastFrame = (*bgAllAnims[self->localAnimIndex].anims)[f].firstFrame;
+			firstFrame = (*bgAllAnims[self->localAnimIndex].anims)[f].firstFrame + (*bgAllAnims[self->localAnimIndex].anims)[f].numFrames;
 		}
 		else
 		{
-			firstFrame = bgAllAnims[self->localAnimIndex].anims[f].firstFrame;
-			lastFrame = bgAllAnims[self->localAnimIndex].anims[f].firstFrame + bgAllAnims[self->localAnimIndex].anims[f].numFrames;
+			firstFrame = (*bgAllAnims[self->localAnimIndex].anims)[f].firstFrame;
+			lastFrame = (*bgAllAnims[self->localAnimIndex].anims)[f].firstFrame + (*bgAllAnims[self->localAnimIndex].anims)[f].numFrames;
 		}
 
 		trap->G2API_SetBoneAnim(self->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, /*firstFrame why was it this before?*/-1, 150);
@@ -2963,7 +2964,7 @@ tryTorso:
 			int armFlags = 0;
 			float armAnimSpeed;
 
-			armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_DEAD21 ];
+			armAnim = &(*bgAllAnims[self->localAnimIndex].anims)[ BOTH_DEAD21 ];
 			self->client->brokenLimbs = self->client->ps.brokenLimbs;
 
 			armFirstFrame = armAnim->firstFrame;
@@ -2999,7 +3000,7 @@ tryTorso:
 					self->client->ps.weapon == WP_SABER ||
 					self->client->ps.weapon == WP_BRYAR_PISTOL)
 				{ //don't affect this arm if holding a gun, just make the other arm support it
-					armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_ATTACK2 ];
+					armAnim = &(*bgAllAnims[self->localAnimIndex].anims)[ BOTH_ATTACK2 ];
 
 					//armFirstFrame = armAnim->firstFrame;
 					armFirstFrame = armAnim->firstFrame+armAnim->numFrames;
@@ -3019,7 +3020,7 @@ tryTorso:
 					(self->client->ps.torsoAnim == TORSO_WEAPONREADY2 || self->client->ps.torsoAnim == BOTH_ATTACK2 || self->client->ps.weapon < WP_BRYAR_PISTOL))
 				{
 					//Now set the left arm to "support" the right one
-					armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_STAND2 ];
+					armAnim = &(*bgAllAnims[self->localAnimIndex].anims)[ BOTH_STAND2 ];
 					armFirstFrame = armAnim->firstFrame;
 					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
 					armAnimSpeed = 50.0f / armAnim->frameLerp;
@@ -3373,7 +3374,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 	//give default weapons
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+	client->ps.stats[STAT_WEAPONS] = Bit( WP_NONE );
 
 	if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
 	{
@@ -3438,26 +3439,26 @@ void ClientSpawn(gentity_t *ent) {
 			client->ps.trueJedi = true;
 			//make sure they only use the saber
 			client->ps.weapon = WP_SABER;
-			client->ps.stats[STAT_WEAPONS] = (1 << WP_SABER);
+			client->ps.stats[STAT_WEAPONS] = Bit( WP_SABER );
 		}
 		else
 		{//no force powers set
 			client->ps.trueNonJedi = true;
 			client->ps.trueJedi = false;
-			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
+			if (!wDisable || !(wDisable & Bit( WP_BRYAR_PISTOL )))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_BRYAR_PISTOL );
 			}
-			if (!wDisable || !(wDisable & (1 << WP_BLASTER)))
+			if (!wDisable || !(wDisable & Bit( WP_BLASTER )))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_BLASTER );
 			}
-			if (!wDisable || !(wDisable & (1 << WP_BOWCASTER)))
+			if (!wDisable || !(wDisable & Bit( WP_BOWCASTER )))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_BOWCASTER );
 			}
-			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
+			client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_SABER );
+			client->ps.stats[STAT_WEAPONS] |= Bit( WP_MELEE );
 			client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
 			client->ps.weapon = WP_BRYAR_PISTOL;
 		}
@@ -3469,43 +3470,43 @@ void ClientSpawn(gentity_t *ent) {
 		if (level.gametype == GT_HOLOCRON)
 		{
 			//always get free saber level 1 in holocron
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
+			client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 		}
 		else
 		{
 			if (client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] != FORCE_LEVEL_0)
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 			}
 			else
 			{ //if you don't have saber attack rank then you don't get a saber
-				client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_MELEE );
 			}
 		}
 
 		if (level.gametype != GT_SIEGE)
 		{
-			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
+			if (!wDisable || !(wDisable & Bit( WP_BRYAR_PISTOL )))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_BRYAR_PISTOL );
 			}
 			else if (level.gametype == GT_JEDIMASTER)
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				client->ps.stats[STAT_WEAPONS] |= Bit( WP_BRYAR_PISTOL );
 			}
 		}
 
 		if (level.gametype == GT_JEDIMASTER)
 		{
-			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
+			client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_SABER );
+			client->ps.stats[STAT_WEAPONS] |= Bit( WP_MELEE );
 		}
 
-		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		if (client->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ))
 		{
 			client->ps.weapon = WP_SABER;
 		}
-		else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
+		else if (client->ps.stats[STAT_WEAPONS] & Bit( WP_BRYAR_PISTOL ))
 		{
 			client->ps.weapon = WP_BRYAR_PISTOL;
 		}
@@ -3523,15 +3524,15 @@ void ClientSpawn(gentity_t *ent) {
 	if (level.gametype == GT_SIEGE && client->siegeClass != -1 &&
 		client->sess.sessionTeam != TEAM_SPECTATOR)
 	{ //well then, we will use a custom weaponset for our class
-		int m = 0;
+		weapon_t m = WP_NONE;
 
 		client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].weapons;
 
-		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		if (client->ps.stats[STAT_WEAPONS] & Bit( WP_SABER ))
 		{
 			client->ps.weapon = WP_SABER;
 		}
-		else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
+		else if (client->ps.stats[STAT_WEAPONS] & Bit( WP_BRYAR_PISTOL ))
 		{
 			client->ps.weapon = WP_BRYAR_PISTOL;
 		}
@@ -3543,7 +3544,7 @@ void ClientSpawn(gentity_t *ent) {
 
 		while (m < WP_NUM_WEAPONS)
 		{
-			if (client->ps.stats[STAT_WEAPONS] & (1 << m))
+			if (client->ps.stats[STAT_WEAPONS] & Bit( m ))
 			{
 				if (client->ps.weapon != WP_SABER)
 				{ //try to find the highest ranking weapon we have
@@ -3633,7 +3634,7 @@ void ClientSpawn(gentity_t *ent) {
 //	client->ps.ammo[AMMO_METAL_BOLTS] = ammoData[AMMO_METAL_BOLTS].max;
 //	client->ps.ammo[AMMO_ROCKETS] = ammoData[AMMO_ROCKETS].max;
 /*
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_BRYAR_PISTOL);
+	client->ps.stats[STAT_WEAPONS] = Bit( WP_BRYAR_PISTOL );
 	if ( level.gametype == GT_TEAM ) {
 		client->ps.ammo[WP_BRYAR_PISTOL] = 50;
 	} else {

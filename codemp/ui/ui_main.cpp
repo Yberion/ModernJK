@@ -245,15 +245,15 @@ static int g_UIGloballySelectedSiegeClass = -1;
 //This function doesn't need to be sync'd with the BG_ version in bg_panimate.cpp unless some sort of fundamental change
 //is made. Just make sure the variables/functions accessed in ui_shared.cpp exist in both modules.
 bool	UIPAFtextLoaded = false;
-animation_t	uiHumanoidAnimations[MAX_TOTALANIMATIONS]; //humanoid animations are the only ones that are statically allocated.
+animSet_t	uiHumanoidAnimations; //humanoid animations are the only ones that are statically allocated.
 
 bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
 int uiNumAllAnims = 1; //start off at 0, because 0 will always be assigned to humanoid.
 
-animation_t *UI_AnimsetAlloc(void)
+animSet_t *UI_AnimsetAlloc(void)
 {
 	assert (uiNumAllAnims < MAX_ANIM_FILES);
-	bgAllAnims[uiNumAllAnims].anims = (animation_t *) BG_Alloc(sizeof(animation_t)*MAX_TOTALANIMATIONS);
+	bgAllAnims[uiNumAllAnims].anims = (animSet_t *) BG_Alloc(sizeof(animSet_t));
 
 	return bgAllAnims[uiNumAllAnims].anims;
 }
@@ -268,7 +268,7 @@ models/players/visor/animation.cfg, etc
 ======================
 */
 static char UIPAFtext[60000];
-int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHumanoid)
+int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHumanoid)
 {
 	char		*text_p;
 	int			len;
@@ -279,7 +279,6 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 	int			nextIndex = uiNumAllAnims;
 
 	fileHandle_t	f;
-	int				animNum;
 
 	if (!isHumanoid)
 	{
@@ -299,7 +298,7 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 		{
 			if (strstr(filename, "players/_humanoid/"))
 			{ //then use the static humanoid set.
-				animset = uiHumanoidAnimations;
+				animset = &uiHumanoidAnimations;
 				isHumanoid = true;
 				nextIndex = 0;
 			}
@@ -349,13 +348,13 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(i = 0; i < MAX_ANIMATIONS; i++)
+	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
 	{
-		animset[i].firstFrame = 0;
-		animset[i].numFrames = 0;
-		animset[i].loopFrames = -1;
-		animset[i].frameLerp = 100;
-//		animset[i].initialLerp = 100;
+		(*animset)[anim].firstFrame = 0;
+		(*animset)[anim].numFrames = 0;
+		(*animset)[anim].loopFrames = -1;
+		(*animset)[anim].frameLerp = 100;
+//		(*animset)[anim].initialLerp = 100;
 	}
 
 	COM_BeginParseSession ("UI_ParseAnimationFile");
@@ -370,8 +369,8 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 			break;
 		}
 
-		animNum = GetIDForString(animTable, token);
-		if(animNum == -1)
+		const std::optional<animNumber_t> animNum = BG_AnimFromName( token );
+		if( !animNum )
 		{
 //#ifndef FINAL_BUILD
 #ifdef _DEBUG
@@ -385,21 +384,21 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 		{
 			break;
 		}
-		animset[animNum].firstFrame = atoi( token );
+		(*animset)[*animNum].firstFrame = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
 		if ( !token )
 		{
 			break;
 		}
-		animset[animNum].numFrames = atoi( token );
+		(*animset)[*animNum].numFrames = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
 		if ( !token )
 		{
 			break;
 		}
-		animset[animNum].loopFrames = atoi( token );
+		(*animset)[*animNum].loopFrames = atoi( token );
 
 		token = COM_Parse( (const char **)(&text_p) );
 		if ( !token )
@@ -413,26 +412,26 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHum
 		}
 		if ( fps < 0 )
 		{//backwards
-			animset[animNum].frameLerp = Q_floor(1000.0f / fps);
+			(*animset)[*animNum].frameLerp = Q_floor(1000.0f / fps);
 		}
 		else
 		{
-			animset[animNum].frameLerp = Q_ceil(1000.0f / fps);
+			(*animset)[*animNum].frameLerp = Q_ceil(1000.0f / fps);
 		}
 
-//		animset[animNum].initialLerp = ceil(1000.0f / fabs(fps));
+//		(*animset)[*animNum].initialLerp = ceil(1000.0f / fabs(fps));
 	}
 
 #ifdef _DEBUG
 	//Check the array, and print the ones that have nothing in them.
 	/*
-	for(i = 0; i < MAX_ANIMATIONS; i++)
+	for(animNumber_t anim = FACE_TALK0; anim < MAX_ANIMATIONS; anim++)
 	{
-		if (animTable[i].name != nullptr)		// This animation reference exists.
+		if (BG_AnimName( anim ) != nullptr)		// This animation reference exists.
 		{
-			if (animset[i].firstFrame <= 0 && animset[i].numFrames <=0)
+			if ((*animset)[anim].firstFrame <= 0 && (*animset)[anim].numFrames <=0)
 			{	// This is an empty animation reference.
-				Com_Printf("***ANIMTABLE reference #%d (%s) is empty!\n", i, animTable[i].name);
+				Com_Printf("***ANIMTABLE reference #%d (%s) is empty!\n", to_underlying( anim ), BG_AnimName( anim ));
 			}
 		}
 	}
@@ -1589,7 +1588,6 @@ static const char* UI_GetGameTypeName(gametype_t gtEnum)
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 	case GT_CTY:
 		return UI_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
-	
 	default:
 		break;
 	}
@@ -1873,7 +1871,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 
 bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 {
-	int i = 0;
+	weapon_t i = WP_NONE;
 	int wDisable = 0;
 
 	if ( gametype == GT_JEDIMASTER )
@@ -1892,7 +1890,7 @@ bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 
 	while (i < WP_NUM_WEAPONS)
 	{
-		if (!(wDisable & (1 << i)) &&
+		if (!(wDisable & Bit( i )) &&
 			i != WP_SABER && i != WP_NONE)
 		{
 			return false;
@@ -5681,7 +5679,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	char shader[MAX_QPATH];
 
 	//let's clear the things out first
-	while (i < WP_NUM_WEAPONS)
+	while (i < to_underlying( WP_NUM_WEAPONS ))
 	{
 		trap->Cvar_Set(va("ui_class_weapon%i", i), "gfx/2d/select");
 		i++;
@@ -5711,14 +5709,14 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 
 	//set cvars for which weaps we have
-	i = 0;
+	weapon_t wp = WP_NONE;
 	trap->Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
-	while (i < WP_NUM_WEAPONS)
+	while (wp < WP_NUM_WEAPONS)
 	{
 
-		if (scl->weapons & (1<<i))
+		if (scl->weapons & Bit( wp ))
 		{
-			if (i == WP_SABER)
+			if (wp == WP_SABER)
 			{ //we want to see what kind of saber they have, and set the cvar based on that
 				char saberType[1024];
 
@@ -5754,7 +5752,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 			}
 			else
 			{
-				gitem_t *item = BG_FindItemForWeapon( (weapon_t)i );
+				gitem_t *item = BG_FindItemForWeapon( wp );
 				trap->Cvar_Set(va("ui_class_weapon%i", count), item->icon);
 				trap->Cvar_Set(va("ui_class_weapondesc%i", count), item->description);
 				count++;
@@ -5762,7 +5760,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 			}
 		}
 
-		i++;
+		wp++;
 	}
 
 	//now for inventory items
@@ -6593,7 +6591,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "weaponDisable") == 0)
 		{
-			int	weaponDisable,i;
+			int	weaponDisable;
 			const char *cvarString;
 
 			if (uiInfo.gameTypes[ui_netGametype.integer].gtEnum == GT_DUEL ||
@@ -6611,11 +6609,11 @@ static void UI_RunMenuScript(char **args)
 			// It was set to something, so might as well make sure it got all flags set.
 			if (weaponDisable)
 			{
-				for (i=0;i<WP_NUM_WEAPONS;i++)
+				for (weapon_t wp = WP_NONE; wp < WP_NUM_WEAPONS; wp++)
 				{
-					if (i!=WP_SABER)
+					if (wp!=WP_SABER)
 					{
-						weaponDisable |= (1<<i);
+						weaponDisable |= Bit( wp );
 					}
 				}
 
@@ -8047,7 +8045,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of weapons
 		case FEEDER_SIEGE_CLASS_WEAPONS:
 			//count them up
-			for (i=0;i< WP_NUM_WEAPONS;i++)
+			for (i=0;i< to_underlying( WP_NUM_WEAPONS );i++)
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 				if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8311,7 +8309,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 							bool saberOnly = true;
 							int restrictedForce = 0;	// fdisable, a mask of force powers
 							bool allForceDisabled = false;
-							int wDisable, i = 0;
+							int wDisable;
+							weapon_t i = WP_NONE;
 
 							//check force
 							restrictedForce = atoi(Info_ValueForKey(info, "fdisable"));
@@ -8330,7 +8329,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 
 							while ( i < WP_NUM_WEAPONS )
 							{
-								if ( !(wDisable & (1 << i)) && i != WP_SABER && i != WP_NONE )
+								if ( !(wDisable & Bit( i )) && i != WP_SABER && i != WP_NONE )
 								{
 									saberOnly = false;
 								}
@@ -8682,7 +8681,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	{
 		validCnt = 0;
 		//count them up
-		for (i=0;i< WP_NUM_WEAPONS;i++)
+		for (i=0;i< to_underlying( WP_NUM_WEAPONS );i++)
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 			if (Q_stricmp(info,"gfx/2d/select")!=0)

@@ -82,12 +82,12 @@ void G_SiegeRegisterWeaponsAndHoldables(team_t team)
 
 			if (scl)
 			{
-				int j = 0;
+				weapon_t j = WP_NONE;
 				while (j < WP_NUM_WEAPONS)
 				{
-					if (scl->weapons & (1 << j))
+					if (scl->weapons & Bit( j ))
 					{ //we use this weapon so register it.
-						RegisterItem(BG_FindItemForWeapon((weapon_t)j));
+						RegisterItem(BG_FindItemForWeapon(j));
 					}
 					j++;
 				}
@@ -558,7 +558,7 @@ void SiegeBroadcast_OBJECTIVECOMPLETE(team_t team, int client, int objective)
 	te = G_TempEntity( nomatter, EV_SIEGE_OBJECTIVECOMPLETE );
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = to_underlying( team );
-	te->s.weapon = client;
+	ES_SetWeaponParm( te->s, client );
 	te->s.trickedentindex = objective;
 }
 
@@ -572,7 +572,7 @@ void SiegeBroadcast_ROUNDOVER(team_t winningteam, int winningclient)
 	te = G_TempEntity( nomatter, EV_SIEGE_ROUNDOVER );
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = to_underlying( winningteam );
-	te->s.weapon = winningclient;
+	ES_SetWeaponParm( te->s, winningclient );
 }
 
 void BroadcastObjectiveCompletion(team_t team, int objective, int final, int client)

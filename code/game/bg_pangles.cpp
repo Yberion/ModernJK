@@ -36,14 +36,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ghoul2/ghoul2_gore.h"
 
 extern void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt );
-extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove );
 extern bool PM_InForceGetUp( playerState_t *ps );
 extern bool PM_InKnockDown( playerState_t *ps );
-extern bool PM_InReboundJump( int anim );
-extern bool PM_StabDownAnim( int anim );
-extern bool PM_DodgeAnim( int anim );
-extern bool PM_DodgeHoldAnim( int anim );
-extern bool PM_InReboundHold( int anim );
+extern bool PM_InReboundJump( animNumber_t anim );
+extern bool PM_StabDownAnim( animNumber_t anim );
+extern bool PM_DodgeAnim( animNumber_t anim );
+extern bool PM_DodgeHoldAnim( animNumber_t anim );
+extern bool PM_InReboundHold( animNumber_t anim );
 extern bool PM_InKnockDownNoGetup( playerState_t *ps );
 extern bool PM_InGetUpNoRoll( playerState_t *ps );
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
@@ -59,7 +59,7 @@ extern cvar_t	*g_debugMelee;
 
 
 void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone, const char *firstBone, const char *secondBone,
-				   int time, entityState_t *ent, int animFileIndex, int basePose,
+				   int time, entityState_t *ent, int animFileIndex, animNumber_t basePose,
 				   vec3_t desiredPos, bool *ikInProgress, vec3_t origin,
 				   vec3_t angles, vec3_t scale, int blendTime, bool forceHalt )
 {
@@ -1212,7 +1212,7 @@ bool PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd )
 		&& ent->client->ps.torsoAnimTimer )
 	{//lock our angles
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
-		float elapsedTime = PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)ent->client->ps.torsoAnim ) - ent->client->ps.torsoAnimTimer;
+		float elapsedTime = PM_AnimLength( ent->client->clientInfo.animFileIndex, ent->client->ps.torsoAnim ) - ent->client->ps.torsoAnimTimer;
 		//FIXME: scale forwardmove by dist from enemy - none if right next to him (so we don't slide off!)
 		if ( ent->enemy )
 		{
@@ -1252,6 +1252,8 @@ bool PM_AdjustAnglesForStabDown( gentity_t *ent, usercmd_t *ucmd )
 				//FIXME: speed!
 				ucmd->forwardmove = 127;
 			}
+			break;
+		default:
 			break;
 		}
 		VectorClear( ent->client->ps.moveDir );
@@ -1596,7 +1598,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 				if ( G_OkayToLean( ps, cmd, true )
 					&& (cmd->rightmove || (cmd->forwardmove && g_debugMelee->integer ) ) )//pushing a direction
 				{
-					int anim = -1;
+					std::optional<animNumber_t> anim;
 					if ( cmd->rightmove > 0 )
 					{//lean right
 						if ( cmd->forwardmove > 0 )
@@ -1702,14 +1704,14 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 							}
 						}
 					}
-					if ( anim != -1 )
+					if ( anim )
 					{
 						int extraHoldTime = 0;
 						if ( PM_DodgeAnim( ps->torsoAnim )
 							&& !PM_DodgeHoldAnim( ps->torsoAnim ) )
 						{//already in a dodge
 							//use the hold pose, don't start it all over again
-							anim = BOTH_DODGE_HOLD_FL+(anim-BOTH_DODGE_FL);
+							anim = BOTH_DODGE_HOLD_FL+(*anim-BOTH_DODGE_FL);
 							extraHoldTime = 200;
 						}
 						if ( anim == pm->ps->torsoAnim )
@@ -1721,7 +1723,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 						}
 						else
 						{
-							NPC_SetAnim( gent, SETANIM_TORSO, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+							NPC_SetAnim( gent, SETANIM_TORSO, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 						}
 						if ( extraHoldTime && ps->torsoAnimTimer < extraHoldTime )
 						{
@@ -1730,12 +1732,12 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 						if ( ps->groundEntityNum != ENTITYNUM_NONE
 							&& !cmd->upmove )
 						{
-							NPC_SetAnim( gent, SETANIM_LEGS, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+							NPC_SetAnim( gent, SETANIM_LEGS, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 							ps->legsAnimTimer = ps->torsoAnimTimer;
 						}
 						else
 						{
-							NPC_SetAnim( gent, SETANIM_LEGS, anim, SETANIM_FLAG_NORMAL );
+							NPC_SetAnim( gent, SETANIM_LEGS, *anim, SETANIM_FLAG_NORMAL );
 						}
 						ps->weaponTime = ps->torsoAnimTimer;
 						ps->leanStopDebounceTime = ceil((float)ps->torsoAnimTimer/50.0f);//20;

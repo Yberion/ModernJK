@@ -48,22 +48,22 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 extern bool ValidAnimFileIndex ( int index );
 extern bool PM_ControlledByPlayer( void );
 extern bool PM_DroidMelee( class_t npc_class );
-extern bool PM_PainAnim( int anim );
-extern bool PM_JumpingAnim( int anim );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
-extern bool PM_SwimmingAnim( int anim );
+extern bool PM_PainAnim( animNumber_t anim );
+extern bool PM_JumpingAnim( animNumber_t anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
+extern bool PM_SwimmingAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InRoll( playerState_t *ps );
-extern bool PM_DodgeAnim( int anim );
-extern bool PM_InSlopeAnim( int anim );
-extern bool PM_ForceAnim( int anim );
+extern bool PM_DodgeAnim( animNumber_t anim );
+extern bool PM_InSlopeAnim( animNumber_t anim );
+extern bool PM_ForceAnim( animNumber_t anim );
 extern bool PM_InKnockDownOnGround( playerState_t *ps );
-extern bool PM_InSpecialJump( int anim );
-extern bool PM_RunningAnim( int anim );
-extern bool PM_WalkingAnim( int anim );
-extern bool PM_SwimmingAnim( int anim );
-extern bool PM_JumpingAnim( int anim );
+extern bool PM_InSpecialJump( animNumber_t anim );
+extern bool PM_RunningAnim( animNumber_t anim );
+extern bool PM_WalkingAnim( animNumber_t anim );
+extern bool PM_SwimmingAnim( animNumber_t anim );
+extern bool PM_JumpingAnim( animNumber_t anim );
 
 int PM_AnimLength( int index, animNumber_t anim );
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
@@ -429,7 +429,7 @@ bool PM_VelocityForBlockedMove( playerState_t *ps, vec3_t throwDir )
 	return true;
 }
 
-int PM_AnimLevelForSaberAnim( int anim )
+int PM_AnimLevelForSaberAnim( animNumber_t anim )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
 	{
@@ -456,7 +456,7 @@ int PM_AnimLevelForSaberAnim( int anim )
 
 int PM_PowerLevelForSaberAnim( playerState_t *ps )
 {
-	int anim = ps->torsoAnim;
+	animNumber_t anim = ps->torsoAnim;
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
 	{
 		return FORCE_LEVEL_1;
@@ -506,17 +506,19 @@ int PM_PowerLevelForSaberAnim( playerState_t *ps )
 		{//end of anim
 			return FORCE_LEVEL_0;
 		}
-		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)anim ) - ps->torsoAnimTimer < 300 )
+		else if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, anim ) - ps->torsoAnimTimer < 300 )
 		{//beginning of anim
 			return FORCE_LEVEL_0;
 		}
 		return FORCE_LEVEL_3;
 		break;
+	default:
+		break;
 	}
 	return FORCE_LEVEL_0;
 }
 
-bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove )
+bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove )
 {
 	switch ( anim )
 	{//special case anims
@@ -532,6 +534,8 @@ bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove )
 	case BOTH_JUMPFLIPSLASHDOWN1://#
 	case BOTH_JUMPFLIPSTABDOWN://#
 		return true;
+	default:
+		break;
 	}
 	int animLevel = PM_AnimLevelForSaberAnim( anim );
 	if ( animLevel <= 0 )
@@ -591,7 +595,7 @@ bool PM_SaberInIdle( saberMoveName_t move )
 	}
 	return false;
 }
-bool PM_SaberInSpecialAttack( int anim )
+bool PM_SaberInSpecialAttack( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -607,6 +611,8 @@ bool PM_SaberInSpecialAttack( int anim )
 	case BOTH_JUMPFLIPSLASHDOWN1://#
 	case BOTH_JUMPFLIPSTABDOWN://#
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
@@ -1874,19 +1880,19 @@ PM_LegsAnimForFrame
 Returns animNumber for current frame
 -------------------------
 */
-int PM_LegsAnimForFrame( gentity_t *ent, int legsFrame )
+std::optional<animNumber_t> PM_LegsAnimForFrame( gentity_t *ent, int legsFrame )
 {
 	//Must be a valid client
 	if ( ent->client == nullptr )
-		return -1;
+		return std::nullopt;
 
 	//Must have a file index entry
 	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
-		return -1;
+		return std::nullopt;
 
-	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 
-	for ( int animation = 0; animation < FACE_TALK1; animation++ )
+	for ( animNumber_t animation = BOTH_1CRUFTFORGIL; animation < FACE_TALK1; animation++ )
 	{
 		if ( animation >= TORSO_DROPWEAP1 && animation < LEGS_WALKBACK1 )
 		{//not a possible legs anim
@@ -1908,14 +1914,14 @@ int PM_LegsAnimForFrame( gentity_t *ent, int legsFrame )
 
 	//Not in ANY torsoAnim?  SHOULD NEVER HAPPEN
 //	assert(0);
-	return -1;
+	return std::nullopt;
 }
 
-int PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed )
+std::optional<animNumber_t> PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed )
 {//given a startframe and endframe, see if that lines up with any known animation
-	animation_t *animations = level.knownAnimFileSets[0].animations;
+	auto &animations = level.knownAnimFileSets[0].animations;
 
-	for ( int anim = 0; anim < MAX_ANIMATIONS; anim++ )
+	for ( animNumber_t anim = BOTH_1CRUFTFORGIL; anim < MAX_ANIMATIONS; anim++ )
 	{
 		if ( animSpeed < 0 )
 		{//playing backwards
@@ -1923,7 +1929,7 @@ int PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed )
 			 {
 				if ( animations[anim].numFrames + animations[anim].firstFrame == startFrame )
 				{
-					//Com_Printf( "valid reverse anim: %s\n", animTable[anim].name );
+					//Com_Printf( "valid reverse anim: %s\n", BG_AnimName( anim ) );
 					return anim;
 				}
 			 }
@@ -1934,7 +1940,7 @@ int PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed )
 			{//This anim starts on this frame
 				if ( animations[anim].firstFrame + animations[anim].numFrames == endFrame )
 				{//This anim ends on this frame
-					//Com_Printf( "valid forward anim: %s\n", animTable[anim].name );
+					//Com_Printf( "valid forward anim: %s\n", BG_AnimName( anim ) );
 					return anim;
 				}
 			}
@@ -1944,7 +1950,7 @@ int PM_ValidateAnimRange( int startFrame, int endFrame, float animSpeed )
 
 	//Not in ANY anim?  SHOULD NEVER HAPPEN
 	Com_Printf( "invalid anim range %d to %d, speed %4.2f\n", startFrame, endFrame, animSpeed );
-	return -1;
+	return std::nullopt;
 }
 /*
 -------------------------
@@ -1952,19 +1958,19 @@ PM_TorsoAnimForFrame
 Returns animNumber for current frame
 -------------------------
 */
-int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame )
+std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame )
 {
 	//Must be a valid client
 	if ( ent->client == nullptr )
-		return -1;
+		return std::nullopt;
 
 	//Must have a file index entry
 	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
-		return -1;
+		return std::nullopt;
 
-	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 
-	for ( int animation = 0; animation < LEGS_WALKBACK1; animation++ )
+	for ( animNumber_t animation = BOTH_1CRUFTFORGIL; animation < LEGS_WALKBACK1; animation++ )
 	{
 		if ( animations[animation].firstFrame > torsoFrame )
 		{//This anim starts after this frame
@@ -1981,7 +1987,7 @@ int PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame )
 
 	//Not in ANY torsoAnim?  SHOULD NEVER HAPPEN
 //	assert(0);
-	return -1;
+	return std::nullopt;
 }
 
 bool PM_FinishedCurrentLegsAnim( gentity_t *self )
@@ -1997,8 +2003,8 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junk, &animSpeed, nullptr );
 	curFrame = floor( currentFrame );
 
-	int				legsAnim	= self->client->ps.legsAnim;
-	animation_t		*animations	= level.knownAnimFileSets[self->client->clientInfo.animFileIndex].animations;
+	animNumber_t				legsAnim	= self->client->ps.legsAnim;
+	auto		&animations	= level.knownAnimFileSets[self->client->clientInfo.animFileIndex].animations;
 
 	if ( curFrame >= animations[legsAnim].firstFrame + (animations[legsAnim].numFrames - 2) )
 	{
@@ -2008,20 +2014,35 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 	return false;
 }
 
+std::optional<animNumber_t> BG_AnimFromName( const char *name )
+{
+	const int anim = GetIDForString( animTable, name );
+	if ( anim == -1 )
+	{
+		return std::nullopt;
+	}
+	return static_cast<animNumber_t>( anim );
+}
+
+const char *BG_AnimName( animNumber_t anim )
+{
+	return animTable[to_underlying( anim )].name;
+}
+
 /*
 -------------------------
 PM_HasAnimation
 -------------------------
 */
 
-bool PM_HasAnimation( gentity_t *ent, int animation )
+bool PM_HasAnimation( gentity_t *ent, animNumber_t animation )
 {
 	//Must be a valid client
 	if ( !ent || ent->client == nullptr )
 		return false;
 
 	//must be a valid anim number
-	if ( animation < 0 || animation >= MAX_ANIMATIONS )
+	if ( animation < BOTH_1CRUFTFORGIL || animation >= MAX_ANIMATIONS )
 	{
 		return false;
 	}
@@ -2029,7 +2050,7 @@ bool PM_HasAnimation( gentity_t *ent, int animation )
 	if( ValidAnimFileIndex( ent->client->clientInfo.animFileIndex ) == false )
 		return false;
 
-	animation_t *animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[ent->client->clientInfo.animFileIndex].animations;
 
 	//No frames, no anim
 	if ( animations[animation].numFrames == 0 )
@@ -2039,9 +2060,9 @@ bool PM_HasAnimation( gentity_t *ent, int animation )
 	return true;
 }
 
-int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim )
+animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim )
 {
-	int anim;
+	animNumber_t anim;
 	int count = 0;
 
 	if ( !self )
@@ -2066,7 +2087,7 @@ PM_AnimLength
 */
 
 int PM_AnimLength( int index, animNumber_t anim ) {
-	if ( !ValidAnimFileIndex( index ) || (int)anim < 0 || anim >= MAX_ANIMATIONS ) {
+	if ( !ValidAnimFileIndex( index ) || anim < BOTH_1CRUFTFORGIL || anim >= MAX_ANIMATIONS ) {
 		return 0;
 	}
 
@@ -2137,9 +2158,9 @@ void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time )
 	}
 }
 
-extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
 extern float saberAnimSpeedMod[NUM_FORCE_POWER_LEVELS];
-void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gentity_t *gent )
+void PM_SaberStartTransAnim( int saberAnimLevel, animNumber_t anim, float *animSpeed, gentity_t *gent )
 {
 	if ( g_saberAnimSpeed->value != 1.0f )
 	{
@@ -2177,7 +2198,7 @@ void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gen
 	}
 }
 /*
-void PM_SaberStartTransAnim( int anim, int entNum, int saberOffenseLevel, float *animSpeed )
+void PM_SaberStartTransAnim( animNumber_t anim, int entNum, int saberOffenseLevel, float *animSpeed )
 {
 	//check starts
 	if ( ( anim >= BOTH_S1_S1_T_ &&
@@ -2248,8 +2269,8 @@ PM_SetAnimFinal
 -------------------------
 */
 #define G2_DEBUG_TIMING (0)
-void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
-					 int setAnimParts,int anim,int setAnimFlags,
+void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
+					 int setAnimParts,animNumber_t anim,int setAnimFlags,
 					 int *torsoAnimTimer,int *legsAnimTimer,
 					 gentity_t *gent,int blendTime)		// default blendTime=350
 {
@@ -2257,15 +2278,15 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 	{
 		return;
 	}
-	if ( anim < 0 || anim >= MAX_ANIMATIONS )
+	if ( anim < BOTH_1CRUFTFORGIL || anim >= MAX_ANIMATIONS )
 	{
 		assert( 0&&"anim out of range!!!" );
 #ifndef FINAL_BUILD
-		G_Error( "%s tried to play invalid anim %d", gent->NPC_type, anim );
+		G_Error( "%s tried to play invalid anim %d", gent->NPC_type, to_underlying( anim ) );
 #endif
 		return;
 	}
-	animation_t *animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
 	float		timeScaleMod = PM_GetTimeScaleMod( gent );
 	float		animSpeed, oldAnimSpeed;
 	int			actualTime = (cg.time?cg.time:level.time);
@@ -2289,7 +2310,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 		{
 			if ( Q3_DebugLevelShown( WL_VERBOSE ) )
 			{
-				//gi.Printf(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim %s does not exist in this model (%s)!\n", animTable[anim].name, ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.torsoModelName : "unknown") );
+				//gi.Printf(S_COLOR_RED"SET_ANIM_UPPER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ), ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.torsoModelName : "unknown") );
 			}
 			goto setAnimLegs;
 		}
@@ -2327,7 +2348,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 
 				if ( cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2) )
 				{
-					Com_Printf("Time=%d: %s TORSO anim %d %s\n", actualTime, gent->targetname, anim, animTable[anim].name );
+					Com_Printf("Time=%d: %s TORSO anim %d %s\n", actualTime, gent->targetname, to_underlying( anim ), BG_AnimName( anim ) );
 				}
 
 
@@ -2491,7 +2512,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 		}
 /*
 #ifdef _DEBUG
-		gi.Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", animTable[anim].name, gent->targetname );
+		gi.Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
 #endif
 */
 		if ((gent->client) && (setAnimFlags & SETANIM_FLAG_HOLD))
@@ -2537,7 +2558,7 @@ setAnimLegs:
 		{
 			if ( Q3_DebugLevelShown( WL_VERBOSE ) )
 			{
-				//gi.Printf(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim %s does not exist in this model (%s)!\n", animTable[anim].name, ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.legsModelName : "unknown") );
+				//gi.Printf(S_COLOR_RED"SET_ANIM_LOWER ERROR: anim %s does not exist in this model (%s)!\n", BG_AnimName( anim ), ((gent!=nullptr&&gent->client!=nullptr) ? gent->client->renderInfo.legsModelName : "unknown") );
 			}
 			goto setAnimDone;
 		}
@@ -2573,7 +2594,7 @@ setAnimLegs:
 
 			if ( cg_debugAnim.integer == 3 || (!gent->s.number && cg_debugAnim.integer == 1) || (gent->s.number && cg_debugAnim.integer == 2) )
 			{
-				Com_Printf("Time=%d: %s LEGS anim %d %s\n", actualTime, gent->targetname, anim, animTable[anim].name );
+				Com_Printf("Time=%d: %s LEGS anim %d %s\n", actualTime, gent->targetname, to_underlying( anim ), BG_AnimName( anim ) );
 			}
 
 			int	animFlags = BONE_ANIM_OVERRIDE_FREEZE;
@@ -2707,7 +2728,7 @@ setAnimLegs:
 
 /*
 #ifdef _DEBUG
-		gi.Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", animTable[anim].name, gent->targetname );
+		gi.Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
 #endif
 */
 		if ((gent->client) && (setAnimFlags & SETANIM_FLAG_HOLD))
@@ -2743,7 +2764,7 @@ setAnimDone:
 	return;
 }
 
-void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime)
+void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NPC and Players
 	// rename PM_SetAnimFinal to PM_SetAnim and have both NPC and Players call PM_SetAnim
 
@@ -2791,9 +2812,9 @@ PM_TorsoAnimLightsaber
 // only does idle-ish anims.  Anything that has a timer associated, such as attacks and blocks,
 // are set by PM_WeaponLightsaber()
 
-extern bool PM_LandingAnim( int anim );
-extern bool PM_JumpingAnim( int anim );
-bool PM_InCartwheel( int anim );
+extern bool PM_LandingAnim( animNumber_t anim );
+extern bool PM_JumpingAnim( animNumber_t anim );
+bool PM_InCartwheel( animNumber_t anim );
 void PM_TorsoAnimLightsaber()
 {
 	// *********************************************************
@@ -3044,7 +3065,7 @@ PM_TorsoAnimation
 
 void PM_TorsoAnimation( void )
 {//FIXME: Write a much smarter and more appropriate anim picking routine logic...
-//	int	oldAnim;
+//	animNumber_t	oldAnim;
 	if ( PM_InKnockDown( pm->ps ) || PM_InRoll( pm->ps ))
 	{//in knockdown
 		return;
@@ -3232,7 +3253,7 @@ void PM_TorsoAnimation( void )
 		}
 		else if ( pm->ps->weapon == WP_NONE )
 		{
-			int legsAnim = pm->ps->legsAnim;
+			animNumber_t legsAnim = pm->ps->legsAnim;
 			/*
 			if ( PM_RollingAnim( legsAnim ) ||
 				PM_FlippingAnim( legsAnim ) ||
@@ -3727,11 +3748,11 @@ void PM_TorsoAnimation( void )
 // Anim checking utils
 //=========================================================================
 
-int PM_GetTurnAnim( gentity_t *gent, int anim )
+std::optional<animNumber_t> PM_GetTurnAnim( gentity_t *gent, animNumber_t anim )
 {
 	if ( !gent )
 	{
-		return -1;
+		return std::nullopt;
 	}
 
 	switch( anim )
@@ -3766,7 +3787,7 @@ int PM_GetTurnAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_ATTACK1:			//# Attack with generic 1-handed weapon
@@ -3790,20 +3811,20 @@ int PM_GetTurnAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	default:
-		return -1;
+		return std::nullopt;
 		break;
 	}
 }
 
-int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
+std::optional<animNumber_t> PM_TurnAnimForLegsAnim( gentity_t *gent, animNumber_t anim )
 {
 	if ( !gent )
 	{
-		return -1;
+		return std::nullopt;
 	}
 
 	switch( anim )
@@ -3816,7 +3837,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_STAND2:			//# Standing idle with a weapon
@@ -3830,7 +3851,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_STAND3:			//# Standing hands behind back: at ease: etc.
@@ -3841,7 +3862,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_STAND4:			//# two handed: gun down: relaxed stand
@@ -3852,7 +3873,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_STAND5:			//# standing idle, no weapon, hand down, back straight
@@ -3863,7 +3884,7 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	case BOTH_CROUCH1:			//# Transition from standing to crouch
@@ -3883,11 +3904,11 @@ int PM_TurnAnimForLegsAnim( gentity_t *gent, int anim )
 		}
 		else
 		{
-			return -1;
+			return std::nullopt;
 		}
 		break;
 	default:
-		return -1;
+		return std::nullopt;
 		break;
 	}
 }
@@ -3955,17 +3976,19 @@ bool PM_InOnGroundAnim ( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B4:
 	case BOTH_FORCE_GETUP_B5:
 	case BOTH_FORCE_GETUP_B6:
-		if ( ps->legsAnimTimer > PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim )-400 )
+		if ( ps->legsAnimTimer > PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, ps->legsAnim )-400 )
 		{//still pretty much horizontal at this point
 			return true;
 		}
+		break;
+	default:
 		break;
 	}
 
 	return false;
 }
 
-bool PM_InSpecialDeathAnim( int anim )
+bool PM_InSpecialDeathAnim( animNumber_t anim )
 {
 	switch( pm->ps->legsAnim )
 	{
@@ -4091,7 +4114,7 @@ bool PM_InDeathAnim ( void )
 	}
 }
 
-bool PM_InCartwheel( int anim )
+bool PM_InCartwheel( animNumber_t anim )
 {
 	switch ( anim )
 	{
@@ -4102,11 +4125,13 @@ bool PM_InCartwheel( int anim )
 	case BOTH_CARTWHEEL_RIGHT:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool PM_StandingAnim( int anim )
+bool PM_StandingAnim( animNumber_t anim )
 {//NOTE: does not check idles or special (cinematic) stands
 	switch ( anim )
 	{
@@ -4115,6 +4140,8 @@ bool PM_StandingAnim( int anim )
 	case BOTH_STAND3:
 	case BOTH_STAND4:
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;

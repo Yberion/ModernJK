@@ -228,7 +228,7 @@ void CG_Respawn( void ) {
 	SetWeaponSelectTime();
 
 	// select the weapon the server says we are using
-	if (cg.snap->ps.weapon)
+	if (cg.snap->ps.weapon != WP_NONE)
 		cg.weaponSelect = cg.snap->ps.weapon;
 }
 

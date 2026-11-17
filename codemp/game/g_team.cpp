@@ -301,7 +301,6 @@ void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 		if( teamgame.blueStatus != status ) {
 			teamgame.blueStatus = status;
 			modified = true;
-		
 			default:
 				break;
 			}
@@ -613,7 +612,6 @@ void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 			if( teamgame.redStatus != FLAG_ATBASE ) {
 				if (teamgame.redTakenTime > level.time - 10000)
 					return;
-			
 			default:
 				break;
 			}
@@ -1251,7 +1249,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 				Com_sprintf( entry, sizeof(entry),
 					" %i %i %i %i %i %i",
 					i, player->client->pers.teamState.location, h, a,
-					player->client->ps.weapon, player->s.powerups );
+					to_underlying( player->client->ps.weapon ), player->s.powerups );
 			}
 			j = strlen(entry);
 			if (stringlength + j >= std::ssize(string))

@@ -287,7 +287,7 @@ hitLocation_t G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 }
 
 /*
-int G_PickPainAnim( gentity_t *self, vec3_t point, int damage )
+std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, vec3_t point, int damage )
 {
 	switch( G_GetHitLocation( self, point ) )
 	{
@@ -296,7 +296,7 @@ int G_PickPainAnim( gentity_t *self, vec3_t point, int damage )
 		//PAIN12 = right foot
 		break;
 	case HL_FOOT_LT:
-		return -1;
+		return std::nullopt;
 		break;
 	case HL_LEG_RT:
 		if ( !Q_irand( 0, 1 ) )
@@ -381,7 +381,7 @@ int G_PickPainAnim( gentity_t *self, vec3_t point, int damage )
 		//PAIN4 = head
 		break;
 	default:
-		return -1;
+		return std::nullopt;
 		break;
 	}
 }
@@ -492,7 +492,7 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	vec3_t vel;
 	gitem_t *item;
 	gentity_t *launched;
-	int weapon = self->s.weapon;
+	weapon_t weapon = self->s.weapon;
 	int ammoSub;
 
 	if (level.gametype == GT_SIEGE)
@@ -512,9 +512,9 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	}
 
 	// find the item type for this weapon
-	item = BG_FindItemForWeapon( (weapon_t)weapon );
+	item = BG_FindItemForWeapon( weapon );
 
-	ammoSub = (self->client->ps.ammo[weaponData[weapon].ammoIndex] - bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity);
+	ammoSub = (self->client->ps.ammo[weaponData[weapon].ammoIndex] - bg_itemlist[BG_GetItemIndexByTag(weapon)].quantity);
 
 	if (ammoSub < 0)
 	{
@@ -536,9 +536,9 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	launched->s.generic1 = self->s.number;
 	launched->s.powerups = level.time + 1500;
 
-	launched->count = bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
+	launched->count = bg_itemlist[BG_GetItemIndexByTag(weapon)].quantity;
 
-	self->client->ps.ammo[weaponData[weapon].ammoIndex] -= bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
+	self->client->ps.ammo[weaponData[weapon].ammoIndex] -= bg_itemlist[BG_GetItemIndexByTag(weapon)].quantity;
 
 	if (self->client->ps.ammo[weaponData[weapon].ammoIndex] < 0)
 	{
@@ -549,14 +549,14 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	if ((self->client->ps.ammo[weaponData[weapon].ammoIndex] < 1 && weapon != WP_DET_PACK) ||
 		(weapon != WP_THERMAL && weapon != WP_DET_PACK && weapon != WP_TRIP_MINE))
 	{
-		int i = 0;
-		int weap = -1;
+		weapon_t i = WP_NONE;
+		std::optional<weapon_t> weap;
 
-		self->client->ps.stats[STAT_WEAPONS] &= ~(1 << weapon);
+		self->client->ps.stats[STAT_WEAPONS] &= ~Bit( weapon );
 
 		while (i < WP_NUM_WEAPONS)
 		{
-			if ((self->client->ps.stats[STAT_WEAPONS] & (1 << i)) && i != WP_NONE)
+			if ((self->client->ps.stats[STAT_WEAPONS] & Bit( i )) && i != WP_NONE)
 			{ //this one's good
 				weap = i;
 				break;
@@ -564,18 +564,18 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 			i++;
 		}
 
-		if (weap != -1)
+		if (weap)
 		{
-			self->s.weapon = weap;
-			self->client->ps.weapon = weap;
+			self->s.weapon = *weap;
+			self->client->ps.weapon = *weap;
 		}
 		else
 		{
-			self->s.weapon = 0;
-			self->client->ps.weapon = 0;
+			self->s.weapon = WP_NONE;
+			self->client->ps.weapon = WP_NONE;
 		}
 
-		G_AddEvent(self, EV_NOAMMO, weapon);
+		G_AddEvent(self, EV_NOAMMO, to_underlying( weapon ));
 	}
 }
 
@@ -588,7 +588,7 @@ Toss the weapon and powerups for the killed player
 */
 void TossClientItems( gentity_t *self ) {
 	gitem_t		*item;
-	int			weapon;
+	weapon_t			weapon;
 	float		angle;
 	gentity_t	*drop;
 
@@ -606,14 +606,14 @@ void TossClientItems( gentity_t *self ) {
 	// their weapon change hasn't completed yet and they are still holding the MG.
 	if ( weapon == WP_BRYAR_PISTOL) {
 		if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
-			weapon = self->client->pers.cmd.weapon;
+			weapon = UC_Weapon( self->client->pers.cmd );
 		}
-		if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+		if ( !( self->client->ps.stats[STAT_WEAPONS] & Bit( weapon ) ) ) {
 			weapon = WP_NONE;
 		}
 	}
 
-	self->s.bolt2 = weapon;
+	self->s.bolt2 = to_underlying( weapon );
 
 	if ( weapon > WP_BRYAR_PISTOL &&
 		weapon != WP_EMPLACED_GUN &&
@@ -622,7 +622,7 @@ void TossClientItems( gentity_t *self ) {
 		gentity_t *te;
 
 		// find the item type for this weapon
-		item = BG_FindItemForWeapon( (weapon_t)weapon );
+		item = BG_FindItemForWeapon( weapon );
 
 		// tell all clients to remove the weapon model on this guy until he respawns
 		te = G_TempEntity( vec3_origin, EV_DESTROY_WEAPON_MODEL );
@@ -891,13 +891,15 @@ bool G_InKnockDown( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B5:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
+static std::optional<animNumber_t> G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
-	int deathAnim = -1;
+	std::optional<animNumber_t> deathAnim;
 
 	if ( BG_InRoll( &self->client->ps, self->client->ps.legsAnim ) )
 	{
@@ -909,7 +911,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, m
 	}
 	else if ( G_InKnockDown( &self->client->ps ) )
 	{//since these happen a lot, let's handle them case by case
-		int animLength = bgAllAnims[self->localAnimIndex].anims[self->client->ps.legsAnim].numFrames * Q_fabs((float)(bgHumanoidAnimations[self->client->ps.legsAnim].frameLerp));
+		int animLength = BG_AnimLength( self->localAnimIndex, self->client->ps.legsAnim );
 		switch ( self->client->ps.legsAnim )
 		{
 		case BOTH_KNOCKDOWN1:
@@ -1381,24 +1383,27 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, m
 				}
 			}
 			break;
+		default:
+			break;
 		}
 	}
 
 	return deathAnim;
 }
 
-int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
+std::optional<animNumber_t> G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
-	int deathAnim = -1;
+	std::optional<animNumber_t> deathAnim;	// none: not chosen yet
+	bool inDeathPose = false;	// in a death pose already: no animation chosen by the hit location
 	int max_health;
-	int legAnim = 0;
+	animNumber_t legAnim;
 	vec3_t objVelocity;
 
 	if (!self || !self->client)
 	{
 		if (!self || self->s.eType != ET_NPC)
 		{ //g2animent
-			return 0;
+			return std::nullopt;
 		}
 	}
 
@@ -1436,7 +1441,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 	}
 	else
 	{
-		legAnim = self->s.legsAnim;
+		legAnim = ES_LegsAnim( self->s );
 	}
 
 	if (gGAvoidDismember)
@@ -1461,7 +1466,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 	case BOTH_DEAD16:
 	case BOTH_DEADBACKWARD1:		//# First thrown backward death finished pose
 	case BOTH_DEADBACKWARD2:		//# Second thrown backward death finished pose
-		deathAnim = -2;
+		inDeathPose = true;
 		break;
 		/*
 		if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -1470,7 +1475,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 		}
 		else
 		{
-			deathAnim = -2;
+			inDeathPose = true;
 		}
 		break;
 	case BOTH_DEADFLOP2:
@@ -1483,7 +1488,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 	case BOTH_DEAD15:
 	case BOTH_DEADFORWARD1:		//# First thrown forward death finished pose
 	case BOTH_DEADFORWARD2:		//# Second thrown forward death finished pose
-		deathAnim = -2;
+		inDeathPose = true;
 		break;
 		/*
 		if ( PM_FinishedCurrentLegsAnim( self ) )
@@ -1492,12 +1497,12 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 		}
 		else
 		{
-			deathAnim = -2;
+			inDeathPose = true;
 		}
 		break;
 		*/
 	case BOTH_DEADFLOP1:
-		deathAnim = -2;
+		inDeathPose = true;
 		//deathAnim = BOTH_DEADFLOP1;
 		break;
 	case BOTH_DEAD3:				//# Third Death finished pose
@@ -1535,17 +1540,19 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 	case BOTH_FALLDEATH1:		//# Fall forward off a high cliff and splat death - start
 	case BOTH_FALLDEATH1INAIR:	//# Fall forward off a high cliff and splat death - loop
 	case BOTH_FALLDEATH1LAND:	//# Fall forward off a high cliff and splat death - hit bottom
-		deathAnim = -2;
+		inDeathPose = true;
+		break;
+	default:
 		break;
 	}
-	if ( deathAnim == -1 )
+	if ( !deathAnim && !inDeathPose )
 	{
 		if (self->client)
 		{
 			deathAnim = G_CheckSpecialDeathAnim( self, point, damage, mod, hitLoc );
 		}
 
-		if (deathAnim == -1)
+		if (!deathAnim)
 		{
 			//death anims
 			switch( hitLoc )
@@ -1750,7 +1757,7 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t m
 	}
 
 	// Validate.....
-	if ( deathAnim == -1 || !BG_HasAnimation( self->localAnimIndex, deathAnim ))
+	if ( !deathAnim || !BG_HasAnimation( self->localAnimIndex, *deathAnim ))
 	{
 		// I guess we'll take what we can get.....
 		deathAnim = BG_PickAnim( self->localAnimIndex, BOTH_DEATH1, BOTH_DEATH25 );
@@ -2077,7 +2084,6 @@ void G_AddPowerDuelLoserScore(duelTeam_t team, int score)
 player_die
 ==================
 */
-extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
@@ -2093,7 +2099,7 @@ extern void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
 extern void saberBackToOwner(gentity_t *saberent);
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath ) {
 	gentity_t	*ent;
-	int			anim;
+	std::optional<animNumber_t>	anim;
 	int			killer;
 	int			i;
 	const char	*killerName, *obit;
@@ -2491,7 +2497,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//also - if MOD_SABER, list the animation and saber style
 			if ( meansOfDeath == MOD_SABER )
 			{
-				G_LogPrintf("killer saber style: %d, killer saber anim %s\n", to_underlying( attacker->client->ps.fd.saberAnimLevel ), animTable[(attacker->client->ps.torsoAnim)].name );
+				G_LogPrintf("killer saber style: %d, killer saber anim %s\n", to_underlying( attacker->client->ps.fd.saberAnimLevel ), BG_AnimName( attacker->client->ps.torsoAnim ) );
 			}
 		}
 	}
@@ -2774,7 +2780,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 		anim = G_PickDeathAnim(self, self->pos1, damage, meansOfDeath, HL_NONE);
 
-		if (anim >= 1)
+		if (anim)
 		{ //Some droids don't have death anims
 			// for the no-blood option, we need to prevent the health
 			// from going to gib level
@@ -2782,14 +2788,14 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				self->health = GIB_HEALTH+1;
 			}
 
-			self->client->respawnTime = level.time + 1000;//((self->client->animations[anim].numFrames*40)/(50.0f / self->client->animations[anim].frameLerp))+300;
+			self->client->respawnTime = level.time + 1000;//((self->client->animations[*anim].numFrames*40)/(50.0f / self->client->animations[*anim].frameLerp))+300;
 
 			sPMType = self->client->ps.pm_type;
 			self->client->ps.pm_type = PM_NORMAL; //don't want pm type interfering with our setanim calls.
 
 			if (self->inuse)
 			{ //not disconnecting
-				G_SetAnim(self, nullptr, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 0);
+				G_SetAnim(self, nullptr, SETANIM_BOTH, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 0);
 			}
 
 			self->client->ps.pm_type = sPMType;
@@ -2797,7 +2803,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
 				G_UpdateClientAnims(self, 1.0f);
-				G_CheckForDismemberment(self, attacker, self->pos1, damage, anim, false);
+				G_CheckForDismemberment(self, attacker, self->pos1, damage, *anim, false);
 			}
 		}
 		else if (self->NPC && self->client && self->client->NPC_class != CLASS_MARK1 &&
@@ -2807,8 +2813,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			self->nextthink = level.time;
 		}
 
-		//self->client->ps.legsAnim = anim;
-		//self->client->ps.torsoAnim = anim;
+		//self->client->ps.legsAnim = *anim;
+		//self->client->ps.torsoAnim = *anim;
 //		self->client->ps.pm_flags |= PMF_UPDATE_ANIM;		// Make sure the pmove sets up the GHOUL2 anims.
 
 		//rww - do this on respawn, not death
@@ -3283,7 +3289,7 @@ void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, g2ModelParts_t limbTy
 		te = G_TempEntity( boltPoint, EV_SABER_HIT );
 		te->s.otherEntityNum = self->s.number;
 		te->s.otherEntityNum2 = ENTITYNUM_NONE;
-		te->s.weapon = 0;//saberNum
+		ES_SetWeaponParm( te->s, 0 );//saberNum
 		te->s.legsAnim = 0;//bladeNum
 
 		VectorCopy(boltPoint, te->s.origin);
@@ -3345,7 +3351,7 @@ void LimbThink( gentity_t *ent )
 
 extern bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
 
-void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath )
+void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, animNumber_t deathAnim, bool postDeath )
 {
 	vec3_t	newPoint, dir, vel;
 	gentity_t *limb;
@@ -4153,7 +4159,7 @@ bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc,
 	return dismember;
 }
 
-void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, int deathAnim, bool postDeath)
+void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, animNumber_t deathAnim, bool postDeath)
 {
 	int hitLoc = -1, hitLocUse = -1;
 	vec3_t boltPoint;

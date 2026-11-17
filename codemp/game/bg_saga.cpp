@@ -87,14 +87,14 @@ stringID_table_t StanceTable[] =
 //Weapon and force power tables are also used in NPC parsing code and some other places.
 stringID_table_t WPTable[] =
 {
-	{"NULL",WP_NONE},
+	{"NULL",to_underlying( WP_NONE )},
 	ENUM2STRING(WP_NONE),
 	// Player weapons
 	ENUM2STRING(WP_STUN_BATON),
 	ENUM2STRING(WP_MELEE),
 	ENUM2STRING(WP_SABER),
 	ENUM2STRING(WP_BRYAR_PISTOL),
-	{"WP_BLASTER_PISTOL", WP_BRYAR_PISTOL},
+	{"WP_BLASTER_PISTOL", to_underlying( WP_BRYAR_PISTOL )},
 	ENUM2STRING(WP_BLASTER),
 	ENUM2STRING(WP_DISRUPTOR),
 	ENUM2STRING(WP_BOWCASTER),
@@ -899,12 +899,12 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 		Com_Error(ERR_DROP, "Siege class without weapons entry");
 	}
 
-	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & (1 << WP_SABER)))
+	if (!(bgSiegeClasses[bgNumSiegeClasses].weapons & Bit( WP_SABER )))
 	{ //make sure it has melee if there's no saber
-		bgSiegeClasses[bgNumSiegeClasses].weapons |= (1 << WP_MELEE);
+		bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( WP_MELEE );
 
 		//always give them this too if they are not a saber user
-		//bgSiegeClasses[bgNumSiegeClasses].weapons |= (1 << WP_BRYAR_PISTOL);
+		//bgSiegeClasses[bgNumSiegeClasses].weapons |= Bit( WP_BRYAR_PISTOL );
 	}
 
 	//Parse forcepowers

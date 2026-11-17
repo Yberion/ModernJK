@@ -310,11 +310,11 @@ extern void CG_ParseAnimationSndFile( const char *filename, int animFileIndex );
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
 #ifdef CONVENIENT_ANIMATION_FILE_DEBUG_THING
-void SpewDebugStuffToFile(animation_t *bgGlobalAnimations)
+void SpewDebugStuffToFile(const EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &bgGlobalAnimations)
 {
 	char BGPAFtext[40000];
 	fileHandle_t f;
-	int i = 0;
+	animNumber_t i = BOTH_1CRUFTFORGIL;
 
 	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, FS_WRITE);
 
@@ -327,7 +327,7 @@ void SpewDebugStuffToFile(animation_t *bgGlobalAnimations)
 
 	while (i < MAX_ANIMATIONS)
 	{
-		strcat(BGPAFtext, va("%i %i\n", i, bgGlobalAnimations[i].frameLerp));
+		strcat(BGPAFtext, va("%i %i\n", to_underlying( i ), bgGlobalAnimations[i].frameLerp));
 		i++;
 	}
 
@@ -349,13 +349,13 @@ bool G_ParseAnimationFile( const char *af_filename )
 {
 	const char		*text_p;
 	int			len;
-	int			i;
+	animNumber_t	i;
 	const char		*token;
 	float		fps;
 	//int			skip;
 	char		text[40000];
-	int			animNum;
-	animation_t	*animations = level.knownAnimFileSets[level.numKnownAnimFileSets].animations;
+	std::optional<animNumber_t>	animNum;
+	auto	&animations = level.knownAnimFileSets[level.numKnownAnimFileSets].animations;
 
 	len = gi.RE_GetAnimationCFG(af_filename, nullptr, 0);
 	if (len <= 0)
@@ -380,7 +380,7 @@ bool G_ParseAnimationFile( const char *af_filename )
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-	for(i = 0; i < MAX_ANIMATIONS; i++)
+	for(i = BOTH_1CRUFTFORGIL; i < MAX_ANIMATIONS; i++)
 	{
 		animations[i].firstFrame = 0;
 		animations[i].numFrames = 0;
@@ -400,8 +400,8 @@ bool G_ParseAnimationFile( const char *af_filename )
 			break;
 		}
 
-		animNum = GetIDForString(animTable, token);
-		if(animNum == -1)
+		animNum = BG_AnimFromName(token);
+		if(!animNum)
 		{
 //#ifndef FINAL_BUILD
 #ifdef _DEBUG
@@ -415,21 +415,21 @@ bool G_ParseAnimationFile( const char *af_filename )
 		{
 			break;
 		}
-		animations[animNum].firstFrame = atoi( token );
+		animations[*animNum].firstFrame = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
 		{
 			break;
 		}
-		animations[animNum].numFrames = atoi( token );
+		animations[*animNum].numFrames = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
 		{
 			break;
 		}
-		animations[animNum].loopFrames = atoi( token );
+		animations[*animNum].loopFrames = atoi( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token )
@@ -443,14 +443,14 @@ bool G_ParseAnimationFile( const char *af_filename )
 		}
 		if ( fps < 0 )
 		{//backwards
-			animations[animNum].frameLerp = floor(1000.0f / fps);
+			animations[*animNum].frameLerp = floor(1000.0f / fps);
 		}
 		else
 		{
-			animations[animNum].frameLerp = ceil(1000.0f / fps);
+			animations[*animNum].frameLerp = ceil(1000.0f / fps);
 		}
 
-		animations[animNum].initialLerp = ceil(1000.0f / fabs(fps));
+		animations[*animNum].initialLerp = ceil(1000.0f / fabs(fps));
 	}
 	COM_EndParseSession();
 
@@ -673,11 +673,11 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;
-	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( weapon_t curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
-		if ( (weapons & ( 1 << curWeap )) )
+		if ( (weapons & Bit( curWeap )) )
 		{
-			item = FindItemForWeapon( ((weapon_t)(curWeap)) );	//precache the weapon
+			item = FindItemForWeapon( curWeap );	//precache the weapon
 			CG_RegisterItemSounds( (item-bg_itemlist) );
 			CG_RegisterItemVisuals( (item-bg_itemlist) );
 			//precache the in-hand/in-world ghoul2 weapon model

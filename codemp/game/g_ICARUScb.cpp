@@ -34,7 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 bool BG_SabersOff( playerState_t *ps );
-extern stringID_table_t WPTable[];
 extern stringID_table_t BSTable[];
 
 
@@ -65,7 +64,6 @@ enum
 
 #include "icarus/interpreter.h"
 
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 stringID_table_t setTable[] =
 {
@@ -355,7 +353,7 @@ Q3_GetAnimLower
 */
 static char *Q3_GetAnimLower( gentity_t *ent )
 {
-	int anim = 0;
+	animNumber_t anim = FACE_TALK0;
 
 	if ( ent->client == nullptr )
 	{
@@ -365,7 +363,7 @@ static char *Q3_GetAnimLower( gentity_t *ent )
 
 	anim = ent->client->ps.legsAnim;
 
-	return (char *)animTable[anim].name;
+	return (char *)BG_AnimName( anim );
 }
 
 /*
@@ -375,7 +373,7 @@ Q3_GetAnimUpper
 */
 static char *Q3_GetAnimUpper( gentity_t *ent )
 {
-	int anim = 0;
+	animNumber_t anim = FACE_TALK0;
 
 	if ( ent->client == nullptr )
 	{
@@ -385,7 +383,7 @@ static char *Q3_GetAnimUpper( gentity_t *ent )
 
 	anim = ent->client->ps.torsoAnim;
 
-	return (char *)animTable[anim].name;
+	return (char *)BG_AnimName( anim );
 }
 
 /*
@@ -2349,10 +2347,10 @@ SetLowerAnim
   Description	:
   Return type	: static void
   Argument		:  int entID
-  Argument		: int animID
+  Argument		: animNumber_t animID
 ============
 */
-static void SetLowerAnim( int entID, int animID)
+static void SetLowerAnim( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -2377,10 +2375,10 @@ SetUpperAnim
   Description	:
   Return type	: static void
   Argument		:  int entID
-  Argument		: int animID
+  Argument		: animNumber_t animID
 ============
 */
-static void SetUpperAnim ( int entID, int animID)
+static void SetUpperAnim ( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -2408,24 +2406,22 @@ Sets the upper animation of an entity
 */
 static bool Q3_SetAnimUpper( int entID, const char *anim_name )
 {
-	int			animID = 0;
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	animID = GetIDForString( animTable, anim_name );
-
-	if( animID == -1 )
+	if( !animID )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetAnimUpper: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
 	/*
-	if ( !PM_HasAnimation( SV_GentityNum(entID), animID ) )
+	if ( !PM_HasAnimation( SV_GentityNum(entID), *animID ) )
 	{
 		return false;
 	}
 	*/
 
-	SetUpperAnim( entID, animID );
+	SetUpperAnim( entID, *animID );
 	return true;
 }
 
@@ -2438,26 +2434,24 @@ Sets the lower animation of an entity
 */
 static bool Q3_SetAnimLower( int entID, const char *anim_name )
 {
-	int			animID = 0;
-
 	//FIXME: Setting duck anim does not actually duck!
 
-	animID = GetIDForString( animTable, anim_name );
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	if( animID == -1 )
+	if( !animID )
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetAnimLower: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
 	/*
-	if ( !PM_HasAnimation( SV_GentityNum(entID), animID ) )
+	if ( !PM_HasAnimation( SV_GentityNum(entID), *animID ) )
 	{
 		return false;
 	}
 	*/
 
-	SetLowerAnim( entID, animID );
+	SetLowerAnim( entID, *animID );
 	return true;
 }
 
@@ -3354,14 +3348,19 @@ Q3_SetWeapon
   Argument		: const char *wp_name
 ============
 */
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 static void Q3_SetWeapon (int entID, const char *wp_name)
 {
 	gentity_t	*ent  = &g_entities[entID];
-	int		wp = GetIDForString( WPTable, wp_name );
+	const std::optional<weapon_t>	named = G_WeaponFromName( wp_name );
 
-	ent->client->ps.stats[STAT_WEAPONS] = (1<<wp);
-	ChangeWeapon( ent, wp );
+	if ( !named )
+	{
+		G_DebugPrint( WL_WARNING, "Q3_SetWeapon: unknown weapon '%s'\n", wp_name );
+		return;
+	}
+	ent->client->ps.stats[STAT_WEAPONS] = Bit( *named );
+	ChangeWeapon( ent, *named );
 }
 
 /*

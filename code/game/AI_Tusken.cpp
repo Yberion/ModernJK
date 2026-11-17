@@ -498,6 +498,8 @@ bool G_TuskenAttackAnimDamage( gentity_t *self )
 			case BOTH_TUSKENATTACK2: return (percentComplete>0.3 && percentComplete<0.7);
 			case BOTH_TUSKENATTACK3: return (percentComplete>0.1 && percentComplete<0.5);
 			case BOTH_TUSKENLUNGE1:  return (percentComplete>0.3 && percentComplete<0.5);
+			default:
+				break;
 			}
 		}
 	}

@@ -35,7 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 // These buffers are filled in with the same contents and then just read from in
 // a few places. We only need one copy on Xbox.
@@ -185,10 +184,7 @@ static bool BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, const char *parmN
 		*(vehicleType_t *)(b+vehWeaponField->ofs) = vehType;
 		break;
 	case VF_ANIM:
-		{
-			int anim = GetIDForString( animTable, value );
-			*(int *)(b+vehWeaponField->ofs) = anim;
-		}
+		*(animNumber_t *)(b+vehWeaponField->ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );	// an unknown name stores none
 		break;
 	case VF_WEAPON:	// take string, resolve into index into VehWeaponParms
 		//*(int *)(b+vehWeaponField->ofs) = VEH_VehWeaponIndexForName( value );
@@ -821,10 +817,7 @@ static bool BG_ParseVehicleParm( vehicleInfo_t *vehicle, const char *parmName, c
 		*(vehicleType_t *)(b+vehField->ofs) = vehType;
 		break;
 	case VF_ANIM:
-		{
-			int anim = GetIDForString( animTable, value );
-			*(int *)(b+vehField->ofs) = anim;
-		}
+		*(animNumber_t *)(b+vehField->ofs) = BG_AnimFromName( value ).value_or( ANIM_NONE );	// an unknown name stores none
 		break;
 	case VF_WEAPON:	// take string, resolve into index into VehWeaponParms
 		*(int *)(b+vehField->ofs) = VEH_VehWeaponIndexForName( value );

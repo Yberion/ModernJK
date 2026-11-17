@@ -149,7 +149,7 @@ void Rancor_Move( bool visible )
 
 //---------------------------------------------------------
 extern void G_Knockdown( gentity_t *victim );
-extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath );
+extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, g2ModelParts_t limbType, float limbRollBase, float limbPitchBase, animNumber_t deathAnim, bool postDeath );
 extern float NPC_EntRangeFromBolt( gentity_t *targEnt, int boltIndex );
 extern int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
 
@@ -563,6 +563,8 @@ void Rancor_Attack( float distance, bool doCharge )
 				G_AddEvent( NPCS.NPC->activator, EV_JUMP, NPCS.NPC->activator->health );
 			}
 			break;
+		default:
+			break;
 		}
 	}
 	else if ( TIMER_Done2( NPCS.NPC, "attack_dmg2", true ) )
@@ -604,6 +606,8 @@ void Rancor_Attack( float distance, bool doCharge )
 				NPCS.NPC->count = 2;
 				TIMER_Set( NPCS.NPC, "clearGrabbed", 2600 );
 			}
+			break;
+		default:
 			break;
 		}
 	}

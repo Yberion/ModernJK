@@ -56,7 +56,7 @@ extern bool		G_ClearViewEntity( gentity_t *ent );
 extern void			G_SetViewEntity( gentity_t *self, gentity_t *viewEntity );
 extern bool G_ControlledByPlayer( gentity_t *self );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 extern void G_AngerAlert( gentity_t *self );
 extern void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward );
 extern int G_CheckLedgeDive( gentity_t *self, float checkDist, vec3_t checkVel, bool tryOpposite, bool tryPerp );
@@ -67,12 +67,12 @@ extern void NPC_UseResponse( gentity_t *self, gentity_t *user, bool useWhenDone 
 extern void WP_FireDreadnoughtBeam( gentity_t *ent );
 extern void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE );
 extern evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist = 0.0f );
-extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
+extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumber_t maxAnim );
 extern void NPC_SetPainEvent( gentity_t *self );
-extern bool PM_SwimmingAnim( int anim );
-extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
-extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_SaberInSpecialAttack( int anim );
+extern bool PM_SwimmingAnim( animNumber_t anim );
+extern bool PM_InAnimForSaberMove( animNumber_t anim, saberMoveName_t saberMove );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
+extern bool PM_SaberInSpecialAttack( animNumber_t anim );
 extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInTransition( saberMoveName_t move );
 extern bool PM_SaberInStart( saberMoveName_t move );
@@ -81,16 +81,16 @@ extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInParry( saberMoveName_t move );
 extern bool PM_SaberInKnockaway( saberMoveName_t move );
 extern bool PM_SaberInBrokenParry( saberMoveName_t move );
-extern bool PM_SpinningSaberAnim( int anim );
+extern bool PM_SpinningSaberAnim( animNumber_t anim );
 extern saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
 extern saberMoveName_t PM_BrokenParryForAttack( saberMoveName_t move );
 extern saberMoveName_t PM_KnockawayForParry( saberBlockedType_t move );
-extern bool PM_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
-extern bool PM_CrouchAnim( int anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
+extern bool PM_CrouchAnim( animNumber_t anim );
 extern bool PM_SaberInIdle( saberMoveName_t move );
 extern bool PM_SaberInReflect( saberMoveName_t move );
-extern bool PM_InSpecialJump( int anim );
+extern bool PM_InSpecialJump( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern int PM_PowerLevelForSaberAnim( playerState_t *ps );
 extern void PM_VelocityForSaberMove( playerState_t *ps, vec3_t throwDir );
@@ -1864,7 +1864,8 @@ extern bool ValidAnimFileIndex ( int index );
 bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
 {
 	animation_t *anim;
-	int		attAnim, defAnim, advance = 0;
+	int		advance = 0;
+	animNumber_t		attAnim, defAnim;
 	float	attStart = 0.5f;
 	float	idealDist = 48.0f;
 	//MATCH ANIMS
@@ -1930,7 +1931,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 #ifndef FINAL_BUILD
 		if ( d_saberCombat->integer )
 		{
-			Com_Printf( "%s starting saber lock, anim = %s, %d frames to go!\n", attacker->NPC_type, animTable[attAnim].name, anim->numFrames-advance );
+			Com_Printf( "%s starting saber lock, anim = %s, %d frames to go!\n", attacker->NPC_type, BG_AnimName( attAnim ), anim->numFrames-advance );
 		}
 #endif
 	}
@@ -1941,7 +1942,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 #ifndef FINAL_BUILD
 		if ( d_saberCombat->integer )
 		{
-			Com_Printf( "%s starting saber lock, anim = %s, %d frames to go!\n", defender->NPC_type, animTable[defAnim].name, advance );
+			Com_Printf( "%s starting saber lock, anim = %s, %d frames to go!\n", defender->NPC_type, BG_AnimName( defAnim ), advance );
 		}
 #endif
 	}
@@ -2494,7 +2495,7 @@ bool WP_BrokenParryKnockDown( gentity_t *victim )
 		|| victim->client->ps.saberMove == LS_H1_B_
 		|| victim->client->ps.saberMove == LS_H1_BL )
 	{//knock their asses down!
-		int knockAnim = BOTH_KNOCKDOWN1;
+		animNumber_t knockAnim = BOTH_KNOCKDOWN1;
 		if ( PM_CrouchAnim( victim->client->ps.legsAnim ) )
 		{
 			knockAnim = BOTH_KNOCKDOWN4;
@@ -3132,7 +3133,7 @@ void WP_SaberDamageTrace( gentity_t *ent )
 #ifndef FINAL_BUILD
 							if ( d_saberCombat->integer )
 							{
-								gi.Printf( S_COLOR_RED"%s knockaway %s's attack, new move = %s, anim = %s\n", hitOwner->NPC_type, ent->NPC_type, saberMoveData[ent->client->ps.saberBounceMove].name, animTable[saberMoveData[ent->client->ps.saberBounceMove].animToUse].name );
+								gi.Printf( S_COLOR_RED"%s knockaway %s's attack, new move = %s, anim = %s\n", hitOwner->NPC_type, ent->NPC_type, saberMoveData[ent->client->ps.saberBounceMove].name, BG_AnimName( saberMoveData[ent->client->ps.saberBounceMove].animToUse ) );
 							}
 #endif
 						}
@@ -4597,7 +4598,6 @@ saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock )
 	case BLOCKED_TOP:
 		return BLOCKED_TOP_PROJ;
 		break;
-	
 	default:
 		break;
 	}
@@ -5329,15 +5329,15 @@ void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd )
 //OTHER JEDI POWERS=========================================================================
 //OTHER JEDI POWERS=========================================================================
 extern gentity_t *TossClientItems( gentity_t *self );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 void WP_DropWeapon( gentity_t *dropper, vec3_t velocity )
 {
 	if ( !dropper || !dropper->client )
 	{
 		return;
 	}
-	int	replaceWeap = WP_NONE;
-	int oldWeap = dropper->s.weapon;
+	weapon_t	replaceWeap = WP_NONE;
+	weapon_t oldWeap = dropper->s.weapon;
 	gentity_t *weapon = TossClientItems( dropper );
 	if ( oldWeap == WP_THERMAL && dropper->NPC )
 	{//Hmm, maybe all NPCs should go into melee?  Not too many, though, or they mob you and look silly
@@ -5349,7 +5349,7 @@ void WP_DropWeapon( gentity_t *dropper, vec3_t velocity )
 		dropper->weaponModel = -1;
 	}
 	//FIXME: does this work on the player?
-	dropper->client->ps.stats[STAT_WEAPONS] |= ( 1 << replaceWeap );
+	dropper->client->ps.stats[STAT_WEAPONS] |= Bit( replaceWeap );
 	if ( !dropper->s.number )
 	{
 		if ( oldWeap == WP_THERMAL )
@@ -5358,19 +5358,19 @@ void WP_DropWeapon( gentity_t *dropper, vec3_t velocity )
 		}
 		else
 		{
-			dropper->client->ps.stats[STAT_WEAPONS] &= ~( 1 << oldWeap );
+			dropper->client->ps.stats[STAT_WEAPONS] &= ~Bit( oldWeap );
 		}
 		CG_ChangeWeapon( replaceWeap );
 	}
 	else
 	{
-		dropper->client->ps.stats[STAT_WEAPONS] &= ~( 1 << oldWeap );
+		dropper->client->ps.stats[STAT_WEAPONS] &= ~Bit( oldWeap );
 	}
 	ChangeWeapon( dropper, replaceWeap );
 	dropper->s.weapon = replaceWeap;
 	if ( dropper->NPC )
 	{
-		dropper->NPC->last_ucmd.weapon = replaceWeap;
+		UC_SetWeapon( dropper->NPC->last_ucmd, replaceWeap );
 	}
 	if ( weapon != nullptr && velocity && !VectorCompare( velocity, vec3_origin ) )
 	{//weapon should have a direction to it's throw
@@ -5508,7 +5508,7 @@ void WP_ForceKnockdown( gentity_t *self, gentity_t *pusher, bool pull, bool stro
 			&& !PM_RollingAnim( self->client->ps.legsAnim )
 			&& !PM_InKnockDown( &self->client->ps ) )
 		{
-			int knockAnim = BOTH_KNOCKDOWN1;//default knockdown
+			animNumber_t knockAnim = BOTH_KNOCKDOWN1;//default knockdown
 			if ( pusher->client->NPC_class == CLASS_DESANN && self->client->NPC_class != CLASS_LUKE )
 			{//desann always knocks down, unless you're Luke
 				strongKnockdown = true;
@@ -5598,7 +5598,8 @@ void ForceThrow( gentity_t *self, bool pull )
 	vec3_t		center, ent_org, size, forward, right, end, dir, fwdangles = {0};
 	float		dot1, cone;
 	trace_t		tr;
-	int			anim, hold, soundIndex, cost, actualCost;
+	int			hold, soundIndex, cost, actualCost;
+	animNumber_t			anim;
 
 	if ( self->health <= 0 )
 	{
@@ -7040,7 +7041,7 @@ void ForceGrip( gentity_t *self )
 		G_AddVoiceEvent( traceEnt, Q_irand(EV_PUSHED1, EV_PUSHED3), 2000 );
 		if ( self->client->ps.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_2 || traceEnt->s.weapon == WP_SABER )
 		{//if we pick up & carry, drop their weap
-			if ( traceEnt->s.weapon )
+			if ( traceEnt->s.weapon != WP_NONE )
 			{
 				if ( traceEnt->s.weapon != WP_SABER )
 				{
@@ -7522,7 +7523,7 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 
 	float forceJumpChargeInterval = forceJumpStrength[self->client->ps.forcePowerLevel[FP_LEVITATION]]/(FORCE_JUMP_CHARGE_TIME/FRAMETIME);
 
-	int anim;
+	animNumber_t anim;
 	vec3_t	jumpVel;
 
 	switch( WP_GetVelocityForForceJump( self, jumpVel, ucmd ) )
@@ -7920,7 +7921,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		}
 		if ( self->client->ps.torsoAnim == BOTH_FORCEGRIP_HOLD )
 		{
-			NPC_SetAnim( self, BOTH_FORCEGRIP_RELEASE, BOTH_FORCELIGHTNING_RELEASE, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, to_underlying( BOTH_FORCEGRIP_RELEASE ), BOTH_FORCELIGHTNING_RELEASE, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		}
 		break;
 	case FP_LIGHTNING:
@@ -8245,7 +8246,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				}
 				if ( gripEnt->client && gripEnt->health > 0 )
 				{
-					int anim = BOTH_CHOKE3; //left-handed choke
+					animNumber_t anim = BOTH_CHOKE3; //left-handed choke
 					if ( gripEnt->client->ps.weapon == WP_NONE || gripEnt->client->ps.weapon == WP_MELEE )
 					{
 						anim = BOTH_CHOKE1; //two-handed choke

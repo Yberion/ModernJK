@@ -496,7 +496,7 @@ static void G_PrintCentralStats( void ) {
 	static const EnumArray<const char *, saber_styles_t, SS_NUM_SABER_STYLES> styles = { "none", "fast", "medium", "strong", "desann", "tavion", "dual", "staff" };
 	const gameStats_t *s = &g_stats;
 	char line[4096];
-	int i;
+	weapon_t i;
 
 	Q_strncpyz( line, "event statistics:", sizeof( line ) );
 	for ( entity_event_t ev = EV_NONE + 1; ev < EV_NUM_ENTITY_EVENTS; ev++ ) {
@@ -513,9 +513,9 @@ static void G_PrintCentralStats( void ) {
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "shot statistics (primary and alternate fire, by weapon number):", sizeof( line ) );
-	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
+	for ( i = WP_NONE; i < WP_NUM_WEAPONS; i++ ) {
 		if ( s->shots[i][0] || s->shots[i][1] ) {
-			Q_strcat( line, sizeof( line ), va( " w%d %d %d", i, s->shots[i][0], s->shots[i][1] ) );
+			Q_strcat( line, sizeof( line ), va( " w%d %d %d", to_underlying( i ), s->shots[i][0], s->shots[i][1] ) );
 		}
 	}
 	trap->Print( "%s\n", line );

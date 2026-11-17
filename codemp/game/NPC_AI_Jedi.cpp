@@ -71,19 +71,19 @@ extern void WP_DeactivateSaber( gentity_t *self, bool clearLength ); //clearLeng
 extern void WP_ActivateSaber( gentity_t *self );
 
 extern bool PM_SaberInStart( saberMoveName_t move );
-extern bool BG_SaberInSpecialAttack( int anim );
+extern bool BG_SaberInSpecialAttack( animNumber_t anim );
 extern bool BG_SaberInAttack( saberMoveName_t move );
 extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInParry( saberMoveName_t move );
 extern bool PM_SaberInKnockaway( saberMoveName_t move );
 extern bool PM_SaberInBrokenParry( saberMoveName_t move );
 extern bool PM_SaberInDeflect( saberMoveName_t move );
-extern bool BG_SpinningSaberAnim( int anim );
-extern bool BG_FlippingAnim( int anim );
-extern bool PM_RollingAnim( int anim );
+extern bool BG_SpinningSaberAnim( animNumber_t anim );
+extern bool BG_FlippingAnim( animNumber_t anim );
+extern bool PM_RollingAnim( animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
-extern bool BG_InRoll( playerState_t *ps, int anim );
-extern bool BG_CrouchAnim( int anim );
+extern bool BG_InRoll( playerState_t *ps, animNumber_t anim );
+extern bool BG_CrouchAnim( animNumber_t anim );
 
 extern bool NPC_SomeoneLookingAtMe(gentity_t *ent);
 
@@ -209,8 +209,8 @@ void Boba_Precache( void )
 }
 
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
-void Boba_ChangeWeapon( int wp )
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
+void Boba_ChangeWeapon( weapon_t wp )
 {
 	if ( NPCS.NPC->s.weapon == wp )
 	{
@@ -1393,7 +1393,6 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, saber_styles_t newLevel 
 		case SS_STRONG:
 			Com_Printf( S_COLOR_RED"%s Saber Attack Set: strong\n", self->NPC_type );
 			break;
-		
 		default:
 			break;
 		}
@@ -1971,14 +1970,14 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 	if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT || self->client->ps.legsAnim == BOTH_WALL_RUN_RIGHT )
 	{//already running on a wall
 		vec3_t right, fwdAngles;
-		int		anim = -1;
+		std::optional<animNumber_t>		anim;
 		float animLength;
 
 		VectorSet(fwdAngles, 0, self->client->ps.viewangles[YAW], 0);
 
 		AngleVectors( fwdAngles, nullptr, right, nullptr );
 
-		animLength = BG_AnimLength( self->localAnimIndex, (animNumber_t)self->client->ps.legsAnim );
+		animLength = BG_AnimLength( self->localAnimIndex, self->client->ps.legsAnim );
 		if ( self->client->ps.legsAnim == BOTH_WALL_RUN_LEFT && rightdot < 0 )
 		{//I'm running on a wall to my left and the attack is on the left
 			if ( animLength - self->client->ps.legsTimer > 400
@@ -1995,7 +1994,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 				anim = BOTH_WALL_RUN_RIGHT_FLIP;
 			}
 		}
-		if ( anim != -1 )
+		if ( anim )
 		{//flip off the wall!
 			int parts;
 			//FIXME: check the direction we will flip towards for do-not-enter/walls/drops?
@@ -2017,7 +2016,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 			{
 				parts = SETANIM_BOTH;
 			}
-			NPC_SetAnim( self, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			NPC_SetAnim( self, parts, *anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			//self->client->ps.pm_flags |= (PMF_JUMPING|PMF_SLOW_MO_FALL);
 			//rwwFIXMEFIXME: Add these pm flags?
 			G_AddEvent( self, EV_JUMP, 0 );
@@ -2033,7 +2032,8 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 	{
 		vec3_t fwd, right, traceto, mins, maxs, fwdAngles;
 		trace_t	trace;
-		int parts, anim;
+		int parts;
+		animNumber_t anim;
 		float	speed, checkDist;
 		bool allowCartWheels = true;
 		bool allowWallFlips = true;
@@ -2460,7 +2460,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	float rightdot;
 	float zdiff;
 	int	  duckChance = 0;
-	int	  dodgeAnim = -1;
+	std::optional<animNumber_t>	  dodgeAnim;
 	bool	saberBusy = false, doDodge = false;
 	evasionType_t	evasionType = EVASION_NONE;
 
@@ -2880,7 +2880,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 							&& !PM_InKnockDown( &self->client->ps )
 							&& !BG_SaberInSpecialAttack( self->client->ps.torsoAnim ) )
 						{//do the butterfly!
-							int butterflyAnim;
+							animNumber_t butterflyAnim;
 							if ( Q_irand( 0, 1 ) )
 							{
 								butterflyAnim = BOTH_BUTTERFLY_LEFT;
@@ -3034,10 +3034,10 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	TIMER_Set( self, "draining", -level.time );
 	WP_ForcePowerStop( self, FP_DRAIN );
 
-	if ( dodgeAnim != -1 )
+	if ( dodgeAnim )
 	{//dodged
 		evasionType = EVASION_DODGE;
-		NPC_SetAnim( self, SETANIM_BOTH, dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( self, SETANIM_BOTH, *dodgeAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		self->client->ps.weaponTime = self->client->ps.torsoTimer;
 		//force them to stop moving in this case
 		self->client->ps.pm_time = self->client->ps.torsoTimer;
@@ -3743,7 +3743,7 @@ static void Jedi_SetEnemyInfo( vec3_t enemy_dest, vec3_t enemy_dir, float *enemy
 	}
 }
 
-extern float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire );
+extern float WP_SpeedOfMissileForWeapon( weapon_t wp, bool alt_fire );
 static void Jedi_FaceEnemy( bool doPitch )
 {
 	vec3_t	enemy_eyes, eyes, angles;
@@ -4789,7 +4789,7 @@ static bool Jedi_TryJump( gentity_t *goal )
 								else
 								*/
 								{//FIXME: make this a function call
-									int jumpAnim;
+									animNumber_t jumpAnim;
 									//FIXME: this should be more intelligent, like the normal force jump anim logic
 									if ( NPCS.NPC->client->NPC_class == CLASS_BOBAFETT
 										||( NPCS.NPCInfo->rank != RANK_CREWMAN && NPCS.NPCInfo->rank <= RANK_LT_JG ) )

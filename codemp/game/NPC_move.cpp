@@ -408,7 +408,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 	int	startTime = GetTime(0);
 #endif//	AI_TIMERS
 	//If taking full body pain, don't move
-	if ( PM_InKnockDown( &NPCS.NPC->client->ps ) || ( ( NPCS.NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPCS.NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
+	if ( PM_InKnockDown( &NPCS.NPC->client->ps ) || ( ( ES_LegsAnim( NPCS.NPC->s ) >= BOTH_PAIN1 ) && ( ES_LegsAnim( NPCS.NPC->s ) <= BOTH_PAIN18 ) ) )
 	{
 		return true;
 	}

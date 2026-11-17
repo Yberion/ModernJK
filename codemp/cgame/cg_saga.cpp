@@ -1060,7 +1060,7 @@ void CG_ParseSiegeExtendedDataEntry(const char *conStr)
 	}
 	else
 	{ //not valid? Oh well, just invalidate the weapon too then so we don't display ammo
-		cg_siegeExtendedData[clNum].weapon = -1;
+		cg_siegeExtendedData[clNum].weapon = std::nullopt;
 	}
 
 	cg_siegeExtendedData[clNum].lastUpdated = cg.time;

@@ -21,6 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 //NPC_stats.cpp
+#include <optional>
+
 #include "b_local.h"
 #include "b_public.h"
 #include "anims.h"
@@ -39,6 +41,7 @@ extern bool NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern stringID_table_t WPTable[];
+extern std::optional<weapon_t> G_WeaponFromName( const char *name );
 
 #define		MAX_MODELS_PER_LEVEL	60
 
@@ -363,11 +366,11 @@ extern void CG_RegisterNPCCustomSounds( clientInfo_t *ci );
 //#define CONVENIENT_ANIMATION_FILE_DEBUG_THING
 
 #ifdef CONVENIENT_ANIMATION_FILE_DEBUG_THING
-void SpewDebugStuffToFile(animation_t *bgGlobalAnimations)
+void SpewDebugStuffToFile(EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &bgGlobalAnimations)
 {
 	char BGPAFtext[40000];
 	fileHandle_t f;
-	int i = 0;
+	animNumber_t i = FACE_TALK0;
 
 	gi.FS_FOpenFile("file_of_debug_stuff_SP.txt", &f, FS_WRITE);
 
@@ -380,7 +383,7 @@ void SpewDebugStuffToFile(animation_t *bgGlobalAnimations)
 
 	while (i < MAX_ANIMATIONS)
 	{
-		strcat(BGPAFtext, va("%i %i\n", i, bgGlobalAnimations[i].frameLerp));
+		strcat(BGPAFtext, va("%i %i\n", to_underlying( i ), bgGlobalAnimations[i].frameLerp));
 		i++;
 	}
 
@@ -413,10 +416,10 @@ int CG_CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEv
 ParseAnimationEvtBlock
 ======================
 */
-static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, const char* aeb_filename, animevent_t *animEvents, animation_t *animations, unsigned char &lastAnimEvent, const char **text_p, bool bIsFrameSkipped)
+static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, const char* aeb_filename, animevent_t *animEvents, EnumArray<animation_t, animNumber_t, MAX_ANIMATIONS> &animations, unsigned char &lastAnimEvent, const char **text_p, bool bIsFrameSkipped)
 {
 	const char		*token;
-	int				num, n, animNum, keyFrame, lowestVal, highestVal, curAnimEvent = 0;
+	int				num, n, keyFrame, lowestVal, highestVal, curAnimEvent = 0;
 	animEventType_t	eventType;
 	char			stringData[MAX_QPATH];
 
@@ -454,8 +457,8 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 		//	just need offsets.
 		//This way when animation numbers change, this table won't have to be updated,
 		//	at least not much.
-		animNum = GetIDForString(animTable, token);
-		if(animNum == -1)
+		const std::optional<animNumber_t> animNum = BG_AnimFromName( token );
+		if(!animNum)
 		{//Unrecognized ANIM ENUM name,
 			Com_Printf(S_COLOR_YELLOW"WARNING: Unknown ANIM %s in file %s\n", token, aeb_filename );
 			//skip this entry
@@ -463,7 +466,7 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			continue;
 		}
 
-		if ( animations[animNum].numFrames == 0 )
+		if ( animations[*animNum].numFrames == 0 )
 		{//we don't use this anim
 #ifndef FINAL_BUILD
 			Com_Printf(S_COLOR_YELLOW"WARNING: %s: anim %s not used by this model\n", aeb_filename, token);
@@ -491,20 +494,20 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 
 		keyFrame = atoi( token );
 		if ( bIsFrameSkipped &&
-			(animations[animNum].numFrames>2) // important, else frame 1 gets divided down and becomes frame 0. Carcass & Assimilate also work this way
+			(animations[*animNum].numFrames>2) // important, else frame 1 gets divided down and becomes frame 0. Carcass & Assimilate also work this way
 			)
 		{
 			keyFrame /= 2;	// if we ever use any other value in frame-skipping we'll have to figure out some way of reading it, since it's not stored anywhere
 		}
-		if(keyFrame >= animations[animNum].numFrames)
+		if(keyFrame >= animations[*animNum].numFrames)
 		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: Event out of range on %s in %s\n", GetStringForID(animTable,animNum), aeb_filename );
-			assert(keyFrame < animations[animNum].numFrames);
-			keyFrame = animations[animNum].numFrames-1;	//clamp it
+			Com_Printf(S_COLOR_YELLOW"WARNING: Event out of range on %s in %s\n", BG_AnimName( *animNum ), aeb_filename );
+			assert(keyFrame < animations[*animNum].numFrames);
+			keyFrame = animations[*animNum].numFrames-1;	//clamp it
 		}
 
 		//set our start frame
-		keyFrame += animations[animNum].firstFrame;
+		keyFrame += animations[*animNum].firstFrame;
 
 		//see if this frame already has an event of this type on it, if so, overwrite it
 		curAnimEvent = CG_CheckAnimFrameForEventType( animEvents, keyFrame, eventType, modelIndex );
@@ -833,7 +836,7 @@ void G_ParseAnimationEvtFile(int glaIndex, const char* eventsDirectory, int file
 	animFileSet_t&	afileset		= level.knownAnimFileSets[fileIndex];
 	animevent_t	*legsAnimEvents		= afileset.legsAnimEvents;
 	animevent_t	*torsoAnimEvents	= afileset.torsoAnimEvents;
-	animation_t	*animations			= afileset.animations;
+	auto	&animations			= afileset.animations;
 
 
 	if (modelSpecific)
@@ -884,8 +887,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 	const char		*token		= nullptr;
 	float			fps			= 0;
 	const char*		text_p		= text;
-	int				animNum		= 0;
-	animation_t*	animations	= level.knownAnimFileSets[fileIndex].animations;
+	auto&	animations	= level.knownAnimFileSets[fileIndex].animations;
 	char			skeletonPath[MAX_QPATH];
 
 
@@ -926,8 +928,8 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 
 		// Get The Anim Number Converted From The First Token
 		//----------------------------------------------------
-		animNum = GetIDForString(animTable, token);
-		if(animNum == -1)
+		const std::optional<animNumber_t> animNum = BG_AnimFromName( token );
+		if(!animNum)
 		{
 #ifndef FINAL_BUILD
 			if (strcmp(token,"ROOT"))
@@ -945,7 +947,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 
 		// GLAIndex
 		//----------
-		animations[animNum].glaIndex = glaIndex;	// Passed Into This Func
+		animations[*animNum].glaIndex = glaIndex;	// Passed Into This Func
 
 		// First Frame
 		//-------------
@@ -955,7 +957,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 			break;
 		}
 		assert(atoi(token) >= 0 && atoi(token) < 65536);
-		animations[animNum].firstFrame = atoi( token );
+		animations[*animNum].firstFrame = atoi( token );
 
 		// Num Frames
 		//------------
@@ -965,7 +967,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 			break;
 		}
 		assert(atoi(token) >= 0 && atoi(token) < 65536);
-		animations[animNum].numFrames = atoi( token );
+		animations[*animNum].numFrames = atoi( token );
 
 		// Loop Frames
 		//-------------
@@ -975,7 +977,7 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 			break;
 		}
 		assert(atoi(token) >= -1 && atoi(token) < 128);
-		animations[animNum].loopFrames = atoi( token );
+		animations[*animNum].loopFrames = atoi( token );
 
 		// FPS
 		//-----
@@ -997,20 +999,20 @@ bool G_ParseAnimationFile(int glaIndex, const char *skeletonName, int fileIndex)
 		{//backwards
 			lerp = floor(1000.0f / fps);
 			assert(lerp > -32767 && lerp < 32767);
-			animations[animNum].frameLerp = lerp;
-			assert(animations[animNum].frameLerp <= 1);
+			animations[*animNum].frameLerp = lerp;
+			assert(animations[*animNum].frameLerp <= 1);
 		}
 		else
 		{
 			lerp = ceil(1000.0f / fps);
 			assert(lerp > -32767 && lerp < 32767);
-			animations[animNum].frameLerp = lerp;
-			assert(animations[animNum].frameLerp >= 1);
+			animations[*animNum].frameLerp = lerp;
+			assert(animations[*animNum].frameLerp >= 1);
 		}
 
 /*		lerp = ceil(1000.0f / Q_fabsf(fps));
 		assert(lerp > -32767 && lerp < 32767);
-		animations[animNum].initialLerp = lerp;
+		animations[*animNum].initialLerp = lerp;
 */
 	}
 	COM_EndParseSession();
@@ -1072,7 +1074,7 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 		level.knownAnimFileSets[fileIndex].torsoAnimEventCount = 0;
 		level.knownAnimFileSets[fileIndex].legsAnimEventCount = 0;
 
-		animation_t*	animations		= level.knownAnimFileSets[fileIndex].animations;
+		auto&	animations		= level.knownAnimFileSets[fileIndex].animations;
 		animevent_t*	legsAnimEvents	= level.knownAnimFileSets[fileIndex].legsAnimEvents;
 		animevent_t*	torsoAnimEvents	= level.knownAnimFileSets[fileIndex].torsoAnimEvents;
 
@@ -1080,7 +1082,7 @@ int		G_ParseAnimFileSet(const char *skeletonName, const char *modelName=nullptr)
 
 		// Initialize The Frames Information
 		//-----------------------------------
-		for(i=0; i<MAX_ANIMATIONS; i++)
+		for(animNumber_t i=FACE_TALK0; i<MAX_ANIMATIONS; i++)
 		{
 			animations[i].firstFrame	= 0;
 			animations[i].numFrames		= 0;
@@ -1369,11 +1371,11 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, const char *NPCtype
 {
 	int weapons = NPC_WeaponsForTeam( playerTeam, spawnflags, NPCtype );
 	gitem_t	*item;
-	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
+	for ( weapon_t curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
-		if ( (weapons & ( 1 << curWeap )) )
+		if ( (weapons & Bit( curWeap )) )
 		{
-			item = FindItemForWeapon( ((weapon_t)(curWeap)) );	//precache the weapon
+			item = FindItemForWeapon( curWeap );	//precache the weapon
 			CG_RegisterItemSounds( (item-bg_itemlist) );
 			CG_RegisterItemVisuals( (item-bg_itemlist) );
 			//precache the in-hand/in-world ghoul2 weapon model
@@ -1816,12 +1818,12 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			{
 				continue;
 			}
-			int weap = GetIDForString( WPTable, value );
+			const std::optional<weapon_t> weap = G_WeaponFromName( value );
 			if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )
 			{
 				if ( weap > WP_NONE )
 				{
-					RegisterItem( FindItemForWeapon( (weapon_t)(weap) ) );	//precache the weapon
+					RegisterItem( FindItemForWeapon( *weap ) );	//precache the weapon
 				}
 			}
 			continue;
@@ -3520,15 +3522,15 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				//FIXME: need to precache the weapon, too?  (in above func)
-				int weap = GetIDForString( WPTable, value );
+				const std::optional<weapon_t> weap = G_WeaponFromName( value );
 				if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )
 				{
-					NPC->client->ps.weapon = weap;
-					NPC->client->ps.stats[STAT_WEAPONS] |= ( 1 << weap );
+					NPC->client->ps.weapon = *weap;
+					NPC->client->ps.stats[STAT_WEAPONS] |= Bit( *weap );
 					if ( weap > WP_NONE )
 					{
-						RegisterItem( FindItemForWeapon( (weapon_t)(weap) ) );	//precache the weapon
-						NPC->client->ps.ammo[weaponData[weap].ammoIndex] = ammoData[weaponData[weap].ammoIndex].max;
+						RegisterItem( FindItemForWeapon( *weap ) );	//precache the weapon
+						NPC->client->ps.ammo[weaponData[*weap].ammoIndex] = ammoData[weaponData[*weap].ammoIndex].max;
 					}
 				}
 				continue;

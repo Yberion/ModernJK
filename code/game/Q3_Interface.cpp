@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	is not directly portable from engine to engine.
 //
 //	-- jweier
+#include <optional>
+
 #include "g_local.h"
 #include "g_functions.h"
 #include "Q3_Interface.h"
@@ -46,7 +48,7 @@ extern	cvar_t	*com_buildScript;
 
 extern void InitMover( gentity_t *ent );
 extern void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time );
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern const char *G_GetLocationForEnt( gentity_t *ent );
 extern void NPC_BSSearchStart( int homeWp, bState_t bState );
 extern void InitMoverTrData( gentity_t *ent );
@@ -56,7 +58,7 @@ extern cvar_t *g_timescale;
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 static void Q3_SetWeapon (int entID, const char *wp_name);
 static void Q3_SetItem (int entID, const char *item_name);
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 extern int	TAG_GetOrigin2( const char *owner, const char *name, vec3_t origin );
 extern void G_TeamRetaliation ( gentity_t *targ, gentity_t *attacker, bool stopIcarus );
 extern void G_PlayDoorLoopSound( gentity_t *ent );
@@ -65,7 +67,7 @@ extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern void NPC_ClearLookTarget( gentity_t *self );
 extern void WP_SaberSetColor( gentity_t *ent, int saberNum, int bladeNum, char *colorName );
 extern void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName );
-extern bool PM_HasAnimation( gentity_t *ent, int animation );
+extern bool PM_HasAnimation( gentity_t *ent, animNumber_t animation );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
 extern vehicleType_t TranslateVehicleName( char *name );
 extern void WP_SetSaberOrigin( gentity_t *self, vec3_t newOrg );
@@ -128,7 +130,7 @@ stringID_table_t BSETTable[] =
 
 stringID_table_t WPTable[] =
 {
-	{ "NULL", WP_NONE },
+	{ "NULL", to_underlying( WP_NONE ) },
 	ENUM2STRING(WP_NONE),
 	// Player weapons
 	ENUM2STRING(WP_SABER),				 // NOTE: lots of code assumes this is the first weapon (... which is crap) so be careful -Ste.
@@ -163,6 +165,17 @@ stringID_table_t WPTable[] =
 	ENUM2STRING(WP_NOGHRI_STICK),
 	{ "", 0 }
 };
+
+// A weapon's name in the NPC files and the scripts, none for a name WPTable does not have
+std::optional<weapon_t> G_WeaponFromName( const char *name )
+{
+	const int id = GetIDForString( WPTable, name );
+	if ( id == -1 )
+	{
+		return std::nullopt;
+	}
+	return static_cast<weapon_t>( id );
+}
 
 stringID_table_t INVTable[] =
 {
@@ -692,9 +705,9 @@ static char *Q3_GetAnimLower( gentity_t *ent )
 		return nullptr;
 	}
 
-	int anim = ent->client->ps.legsAnim;
+	animNumber_t anim = ent->client->ps.legsAnim;
 
-	return (char *) GetStringForID( animTable, anim );
+	return (char *) GetStringForID( animTable, to_underlying( anim ) );
 }
 
 /*
@@ -710,9 +723,9 @@ static char *Q3_GetAnimUpper( gentity_t *ent )
 		return nullptr;
 	}
 
-	int anim = ent->client->ps.torsoAnim;
+	animNumber_t anim = ent->client->ps.torsoAnim;
 
-	return (char *) GetStringForID( animTable, anim );
+	return (char *) GetStringForID( animTable, to_underlying( anim ) );
 }
 
 /*
@@ -1937,7 +1950,7 @@ SetLowerAnim
   Argument		: int animID
 ============
 */
-static void SetLowerAnim( int entID, int animID)
+static void SetLowerAnim( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -1966,7 +1979,7 @@ SetUpperAnim
   Argument		: int animID
 ============
 */
-static void SetUpperAnim ( int entID, int animID)
+static void SetUpperAnim ( int entID, animNumber_t animID)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -1996,22 +2009,20 @@ Sets the upper animation of an entity
 */
 static bool Q3_SetAnimUpper( int entID, const char *anim_name )
 {
-	int			animID = 0;
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	animID = GetIDForString( animTable, anim_name );
-
-	if( animID == -1 )
+	if( !animID )
 	{
 		Quake3Game()->DebugPrint( IGameInterface::WL_WARNING, "Q3_SetAnimUpper: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
-	if ( !PM_HasAnimation( &g_entities[entID], animID ) )
+	if ( !PM_HasAnimation( &g_entities[entID], *animID ) )
 	{
 		return false;
 	}
 
-	SetUpperAnim( entID, animID );
+	SetUpperAnim( entID, *animID );
 	return true;
 }
 
@@ -2025,24 +2036,22 @@ Sets the lower animation of an entity
 */
 static bool Q3_SetAnimLower( int entID, const char *anim_name )
 {
-	int			animID = 0;
-
 	//FIXME: Setting duck anim does not actually duck!
 
-	animID = GetIDForString( animTable, anim_name );
+	const std::optional<animNumber_t> animID = BG_AnimFromName( anim_name );
 
-	if( animID == -1 )
+	if( !animID )
 	{
 		Quake3Game()->DebugPrint( IGameInterface::WL_WARNING, "Q3_SetAnimLower: unknown animation sequence '%s'\n", anim_name );
 		return false;
 	}
 
-	if ( !PM_HasAnimation( &g_entities[entID], animID ) )
+	if ( !PM_HasAnimation( &g_entities[entID], *animID ) )
 	{
 		return false;
 	}
 
-	SetLowerAnim( entID, animID );
+	SetLowerAnim( entID, *animID );
 	return true;
 }
 
@@ -3208,7 +3217,7 @@ Q3_SetWeapon
 ============
 */
 extern gentity_t *TossClientItems( gentity_t *self );
-void G_SetWeapon( gentity_t *self, int wp )
+void G_SetWeapon( gentity_t *self, weapon_t wp )
 {
 	bool	hadWeapon = false;
 
@@ -3234,16 +3243,16 @@ void G_SetWeapon( gentity_t *self, int wp )
 		return;
 	}
 
-	gitem_t *item = FindItemForWeapon( (weapon_t) wp);
+	gitem_t *item = FindItemForWeapon( wp);
 	RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
 
-	if ( self->client->ps.stats[STAT_WEAPONS]&( 1 << wp ) )
+	if ( self->client->ps.stats[STAT_WEAPONS]&Bit( wp ) )
 	{
 		hadWeapon = true;
 	}
 	if ( self->NPC )
 	{//Should NPCs have only 1 weapon at a time?
-		self->client->ps.stats[STAT_WEAPONS] = ( 1 << wp );
+		self->client->ps.stats[STAT_WEAPONS] = Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = 999;
 
 		ChangeWeapon( self, wp );
@@ -3253,7 +3262,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	}
 	else
 	{
-		self->client->ps.stats[STAT_WEAPONS] |= ( 1 << wp );
+		self->client->ps.stats[STAT_WEAPONS] |= Bit( wp );
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
 		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
@@ -3280,7 +3289,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 static void Q3_SetWeapon (int entID, const char *wp_name)
 {
 	gentity_t	*self  = &g_entities[entID];
-	int		wp = GetIDForString( WPTable, wp_name );
+	const std::optional<weapon_t>	named = G_WeaponFromName( wp_name );
 
 	if ( !self )
 	{
@@ -3307,7 +3316,13 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 		return;
 	}
 
-	G_SetWeapon( self, wp );
+	if ( !named )
+	{
+		Quake3Game()->DebugPrint( IGameInterface::WL_WARNING, "Q3_SetWeapon: unknown weapon '%s'\n", wp_name );
+		return;
+	}
+
+	G_SetWeapon( self, *named );
 }
 
 /*
@@ -6416,7 +6431,7 @@ static void Q3_SetSaberActive( int entID, bool active )
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER )) )
 		{//change to it right now
 			if ( ent->NPC )
 			{
@@ -6480,7 +6495,7 @@ static void Q3_SetSaberBladeActive( int entID, int iSaber, int iBlade, bool bAct
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER )) )
 		{//change to it right now
 			if ( ent->NPC )
 			{
@@ -10761,7 +10776,7 @@ int		CQuake3GameInterface::GetString( int entID, const char *name, const char **
 		}
 		else
 		{
-			*value = (char *)GetStringForID( WPTable, ent->client->ps.weapon );
+			*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
 		}
 		break;
 
@@ -10773,7 +10788,7 @@ int		CQuake3GameInterface::GetString( int entID, const char *name, const char **
 		}
 		else
 		{
-		//	*value = (char *)GetStringForID( WPTable, ent->client->ps.weapon );
+		//	*value = (char *)GetStringForID( WPTable, to_underlying( ent->client->ps.weapon ) );
 		}
 		break;
 	case SET_MUSIC_STATE:
@@ -11389,10 +11404,10 @@ void	CQuake3GameInterface::PrecacheFromSet( const char *setname, const char *fil
 			break;
 		case SET_WEAPON:
 			{
-				const int wp = GetIDForString( WPTable, filename );
-				if (wp > 0)
+				const std::optional<weapon_t> wp = G_WeaponFromName( filename );
+				if (wp > WP_NONE)
 				{
-					gitem_t *item = FindItemForWeapon( (weapon_t) wp);
+					gitem_t *item = FindItemForWeapon( *wp);
 					RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
 				}
 			}

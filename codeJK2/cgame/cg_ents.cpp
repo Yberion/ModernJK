@@ -481,7 +481,7 @@ Ghoul2 Insert Start
 
 const weaponData_t  *wData = nullptr;
 
-			if ( cc->currentState.weapon )
+			if ( cc->currentState.weapon != WP_NONE )
 			{
 				wData = &weaponData[cc->currentState.weapon];
 			}
@@ -931,7 +931,7 @@ Ghoul2 Insert End
 //	if ( item->giType == IT_WEAPON ) {
 //		weaponInfo_t	*wi;
 //
-//		wi = &cg_weapons[item->giTag];
+//		wi = &cg_weapons[GI_Weapon( *item )];
 //		cent->lerpOrigin[0] -=
 //			wi->weaponMidpoint[0] * ent.axis[0][0] +
 //			wi->weaponMidpoint[1] * ent.axis[1][0] +
@@ -995,7 +995,7 @@ Ghoul2 Insert End
 	// add to refresh list
 	cgi_R_AddRefEntityToScene(&ent);
 
-	if ( item->giType == IT_WEAPON && item->giTag == WP_SABER )
+	if ( item->giType == IT_WEAPON && GI_Weapon( *item ) == WP_SABER )
 	{
 		// saber pickup item needs to be more visible
 		float	wv;
@@ -1038,7 +1038,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	s1 = &cent->currentState;
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
-		s1->weapon = 0;
+		s1->weapon = WP_NONE;
 	}
 	weapon = &cg_weapons[s1->weapon];
 	wData = &weaponData[s1->weapon];
@@ -1911,7 +1911,7 @@ extern cvar_t	*g_saberRealisticCombat;
 			}
 			if ( owner->weaponModel >= 0 )
 			{//the corpse hasn't dropped their weapon
-				if ( cent->gent->count == BOTH_DISMEMBER_RARM || cent->gent->count == BOTH_DISMEMBER_TORSO1 )//&& ent->s.weapon == WP_SABER && ent->weaponModel != -1 )
+				if ( G_LimbAnim( *cent->gent ) == BOTH_DISMEMBER_RARM || G_LimbAnim( *cent->gent ) == BOTH_DISMEMBER_TORSO1 )//&& ent->s.weapon == WP_SABER && ent->weaponModel != -1 )
 				{//FIXME: is this first check needed with this lower one?
 					gi.G2API_RemoveGhoul2Model( owner->ghoul2, owner->weaponModel );
 					owner->weaponModel = -1;
@@ -1942,7 +1942,7 @@ void CG_MatrixEffect ( centity_t *cent )
 	float totalElapsedTime = (float)(cg.time - cent->currentState.time);
 	float elapsedTime = totalElapsedTime;
 	if ( totalElapsedTime > cent->currentState.eventParm //MATRIX_EFFECT_TIME
-		|| (cent->currentState.weapon&&g_entities[cent->currentState.otherEntityNum].client&&g_entities[cent->currentState.otherEntityNum].client->ps.groundEntityNum!=ENTITYNUM_NONE)
+		|| (ES_WeaponParm( cent->currentState )&&g_entities[cent->currentState.otherEntityNum].client&&g_entities[cent->currentState.otherEntityNum].client->ps.groundEntityNum!=ENTITYNUM_NONE)
 		|| cg.missionStatusShow )
 	{//time is up or this is a falling spin and they hit the ground or mission end screen is up
 		cg.overrides.active &= ~(/*CG_OVERRIDE_3RD_PERSON_ENT|*/CG_OVERRIDE_3RD_PERSON_RNG|CG_OVERRIDE_3RD_PERSON_ANG|CG_OVERRIDE_3RD_PERSON_POF);
@@ -1973,7 +1973,7 @@ void CG_MatrixEffect ( centity_t *cent )
 	cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_ANG;
 	cg.overrides.thirdPersonAngle = 360.0f*elapsedTime/MATRIX_EFFECT_TIME;
 
-	if ( !cent->currentState.weapon )
+	if ( !ES_WeaponParm( cent->currentState ) )
 	{//go ahead and do all the slowdown and vert bob stuff
 		//slowdown
 		float timescale = (elapsedTime/MATRIX_EFFECT_TIME);

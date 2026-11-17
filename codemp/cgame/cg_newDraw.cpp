@@ -87,7 +87,7 @@ float CG_GetValue(int ownerDraw) {
 		return ps->stats[STAT_ARMOR];
 		break;
 	case CG_PLAYER_AMMO_VALUE:
-		if ( cent->currentState.weapon )
+		if ( cent->currentState.weapon != WP_NONE )
 		{
 			return ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
 		}

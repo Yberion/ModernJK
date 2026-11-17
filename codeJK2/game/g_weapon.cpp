@@ -253,7 +253,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
+bool W_AccuracyLoggableWeapon( weapon_t weapon, bool alt_fire, meansOfDeath_t mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -322,6 +322,8 @@ bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
 		case WP_ATST_MAIN:
 		case WP_ATST_SIDE:
 			return true;
+			break;
+		default:
 			break;
 		}
 	}
@@ -453,6 +455,8 @@ void CalcMuzzlePoint( gentity_t *const ent, vec3_t wpFwd, vec3_t right, vec3_t w
 
 		VectorCopy(org,muzzlePoint);
 
+		break;
+	default:
 		break;
 	}
 
@@ -783,7 +787,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// don't allow using it again for half a second
 	if ( self->delay + 500 < level.time )
 	{
-		int	oldWeapon = activator->s.weapon;
+		weapon_t	oldWeapon = activator->s.weapon;
 
 		if ( oldWeapon == WP_SABER )
 		{
@@ -793,7 +797,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 		activator->client->ps.weapon = self->s.weapon;
 		Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-		activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+		activator->client->ps.stats[STAT_WEAPONS] |= Bit( WP_EMPLACED_GUN );
 
 		// Allow us to point from one to the other
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -806,7 +810,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 			activator->weaponModel = -1;
 		}
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 		if ( activator->NPC )
 		{
 			if ( activator->weaponModel >= 0 )

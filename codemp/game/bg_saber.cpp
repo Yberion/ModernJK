@@ -415,7 +415,6 @@ saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad )
 	case Q_BL:
 		return LS_A_BL2TR;
 		break;
-	
 	default:
 		break;
 	}
@@ -591,7 +590,7 @@ saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveNa
 	return retmove;
 }
 
-extern bool BG_InKnockDown( int anim );
+extern bool BG_InKnockDown( animNumber_t anim );
 saberMoveName_t PM_CheckStabDown( void )
 {
 	vec3_t faceFwd, facingAngles;
@@ -640,7 +639,7 @@ saberMoveName_t PM_CheckStabDown( void )
 
 	if ( ent &&
 		(ent->s.eType == ET_PLAYER || ent->s.eType == ET_NPC) &&
-		BG_InKnockDown( ent->s.legsAnim ) )
+		BG_InKnockDown( ES_LegsAnim( ent->s ) ) )
 	{//guy is on the ground below me, do a top-down attack
 		if ( pm->ps->fd.saberAnimLevel == SS_DUAL )
 		{
@@ -851,15 +850,15 @@ void PM_SetAnimFrame( playerState_t *gent, int frame, bool torso, bool legs )
 	gent->saberLockFrame = frame;
 }
 
-int PM_SaberLockWinAnim( bool victory, bool superBreak )
+std::optional<animNumber_t> PM_SaberLockWinAnim( bool victory, bool superBreak )
 {
-	int winAnim = -1;
+	std::optional<animNumber_t> winAnim;
 	switch ( pm->ps->torsoAnim )
 	{
 /*
 	default:
 #ifndef FINAL_BUILD
-		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, pm->ps->torsoAnim, animTable[pm->ps->torsoAnim].name );
+		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", pm->gent->NPC_type, to_underlying( pm->ps->torsoAnim ), BG_AnimName( pm->ps->torsoAnim ) );
 #endif
 */
 	case BOTH_BF2LOCK:
@@ -928,9 +927,9 @@ int PM_SaberLockWinAnim( bool victory, bool superBreak )
 		//must be using new system:
 		break;
 	}
-	if ( winAnim != -1 )
+	if ( winAnim )
 	{
-		PM_SetAnim( SETANIM_BOTH, winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		PM_SetAnim( SETANIM_BOTH, *winAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		pm->ps->weaponTime = pm->ps->torsoTimer;
 		pm->ps->saberBlocked = BLOCKED_NONE;
 		pm->ps->weaponstate = WEAPON_FIRING;
@@ -948,21 +947,21 @@ int PM_SaberLockWinAnim( bool victory, bool superBreak )
 // Need to avoid nesting namespaces!
 #ifdef _GAME //including game headers on cgame is FORBIDDEN ^_^
 	#include "g_local.h"
-	extern void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags);
+	extern void NPC_SetAnim(gentity_t *ent, int setAnimParts, animNumber_t anim, int setAnimFlags);
 	extern gentity_t g_entities[];
 #elif defined(_CGAME)
 	#include "cgame/cg_local.h" //ahahahahhahahaha@$!$!
 #endif
 
-int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
+std::optional<animNumber_t> PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
 {
-	int loseAnim = -1;
+	std::optional<animNumber_t> loseAnim;
 	switch ( genemy->torsoAnim )
 	{
 /*
 	default:
 #ifndef FINAL_BUILD
-		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, genemy->client->ps.torsoAnim, animTable[genemy->client->ps.torsoAnim].name );
+		Com_Printf( S_COLOR_RED"ERROR-PM_SaberLockBreak: %s not in saberlock anim, anim = (%d)%s\n", genemy->NPC_type, to_underlying( genemy->client->ps.torsoAnim ), BG_AnimName( genemy->client->ps.torsoAnim ) );
 #endif
 */
 	case BOTH_BF2LOCK:
@@ -1069,11 +1068,13 @@ int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
 			}
 		}
 		break;
+	default:
+		break;
 	}
-	if ( loseAnim != -1 )
+	if ( loseAnim )
 	{
 #ifdef _GAME
-		NPC_SetAnim( &g_entities[genemy->clientNum], SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		NPC_SetAnim( &g_entities[genemy->clientNum], SETANIM_BOTH, *loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		genemy->weaponTime = genemy->torsoTimer;// + 250;
 #endif
 		genemy->saberBlocked = BLOCKED_NONE;
@@ -1082,9 +1083,9 @@ int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
 	return loseAnim;
 }
 
-int PM_SaberLockResultAnim( playerState_t *duelist, bool superBreak, bool won )
+std::optional<animNumber_t> PM_SaberLockResultAnim( playerState_t *duelist, bool superBreak, bool won )
 {
-	int baseAnim = duelist->torsoAnim;
+	animNumber_t baseAnim = duelist->torsoAnim;
 	switch ( baseAnim )
 	{
 	case BOTH_LK_S_S_S_L_2:		//lock if I'm using single vs. a single and other intitiated
@@ -1105,6 +1106,8 @@ int PM_SaberLockResultAnim( playerState_t *duelist, bool superBreak, bool won )
 	case BOTH_LK_ST_ST_T_L_2:	//lock if I'm using staff vs. a staff and other initiated
 		baseAnim = BOTH_LK_ST_ST_T_L_1;
 		break;
+	default:
+		break;
 	}
 	//what kind of break?
 	if ( !superBreak )
@@ -1117,7 +1120,7 @@ int PM_SaberLockResultAnim( playerState_t *duelist, bool superBreak, bool won )
 	}
 	else
 	{//WTF?  Not a valid result
-		return -1;
+		return std::nullopt;
 	}
 	//win or lose?
 	if ( won )
@@ -1195,7 +1198,7 @@ void PM_SaberLockBreak( playerState_t *genemy, bool victory, int strength )
 	bool superBreak = (strength+pm->ps->saberLockHits > Q_irand(2,4));
 
 	//a single vs. single break
-	if ( PM_SaberLockWinAnim( victory, superBreak ) != -1 )
+	if ( PM_SaberLockWinAnim( victory, superBreak ) )
 		PM_SaberLockLoseAnim( genemy, victory, superBreak );
 
 	//must be a saberlock that's not between single and single...
@@ -1289,7 +1292,7 @@ void PM_SaberLockBreak( playerState_t *genemy, bool victory, int strength )
 	}
 }
 
-bool BG_CheckIncrementLockAnim( int anim, saberLockType_t winOrLose )
+bool BG_CheckIncrementLockAnim( animNumber_t anim, saberLockType_t winOrLose )
 {
 	bool increment = false;//???
 	//RULE: if you are the first style in the lock anim, you advance from LOSING position to WINNING position
@@ -1410,7 +1413,7 @@ void PM_SaberLocked( void )
 
 			pm->ps->saberLockAdvance = false;
 
-			anim = &pm->animations[pm->ps->torsoAnim];
+			anim = &(*pm->animations)[pm->ps->torsoAnim];
 
 			currentFrame = pm->ps->saberLockFrame;
 
@@ -1487,7 +1490,7 @@ void PM_SaberLocked( void )
 				PM_AddEvent( EV_JUMP );
 			}
 			//advance/decrement enemy frame number
-			anim = &pm->animations[(genemy->torsoAnim)];
+			anim = &(*pm->animations)[(genemy->torsoAnim)];
 
 			if ( BG_InSaberLockOld( genemy->torsoAnim ) )
 			{
@@ -2149,7 +2152,7 @@ saberMoveName_t PM_CheckPullAttack( void )
 						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_B, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
 					}
 					//hold the anim until I'm with done pull anim
-					targEnt->client->ps.legsAnimTimer = targEnt->client->ps.torsoAnimTimer = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, (animNumber_t)saberMoveData[pullAttackMove].animToUse );
+					targEnt->client->ps.legsAnimTimer = targEnt->client->ps.torsoAnimTimer = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, saberMoveData[pullAttackMove].animToUse );
 					//set pullAttackTime
 					pm->gent->client->ps.pullAttackTime = targEnt->client->ps.pullAttackTime = level.time+targEnt->client->ps.legsAnimTimer;
 					//make us know about each other
@@ -2641,8 +2644,8 @@ saberMoveName_t PM_KickMoveForConditions(void)
 	return kickMove;
 }
 
-bool BG_InSlopeAnim( int anim );
-bool PM_RunningAnim( int anim );
+bool BG_InSlopeAnim( animNumber_t anim );
+bool PM_RunningAnim( animNumber_t anim );
 
 bool PM_SaberMoveOkayForKata( void )
 {
@@ -2779,16 +2782,16 @@ While this is a little different than the Quake 3 code, there is no clean way of
 */
 // Ultimate goal is to set the sabermove to the proper next location
 // Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
-bool PM_WalkingAnim( int anim );
-bool PM_SwimmingAnim( int anim );
+bool PM_WalkingAnim( animNumber_t anim );
+bool PM_SwimmingAnim( animNumber_t anim );
 saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
-bool BG_SuperBreakLoseAnim( int anim );
-bool BG_SuperBreakWinAnim( int anim );
+bool BG_SuperBreakLoseAnim( animNumber_t anim );
+bool BG_SuperBreakWinAnim( animNumber_t anim );
 void PM_WeaponLightsaber(void)
 {
 	int			addTime;
 	bool	delayed_fire = false;
-	int			anim=-1;
+	std::optional<animNumber_t>			anim;
 	saberMoveName_t	curmove, newmove=LS_NONE;
 
 	bool checkOnlyWeap = false;
@@ -3284,8 +3287,8 @@ weapChecks:
 		//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
 		if (pm->ps->weaponTime <= 0 && pm->ps->torsoTimer <= 0)
 		{
-			if ( pm->ps->weapon != pm->cmd.weapon ) {
-				PM_BeginWeaponChange( pm->cmd.weapon );
+			if ( pm->ps->weapon != UC_Weapon( pm->cmd ) ) {
+				PM_BeginWeaponChange( UC_Weapon( pm->cmd ) );
 			}
 		}
 	}
@@ -3350,7 +3353,6 @@ weapChecks:
 			case SS_STAFF:
 				PM_SetSaberMove( LS_STAFF_SOULCAL );
 				break;
-			
 			default:
 				break;
 			}
@@ -3618,7 +3620,6 @@ weapChecks:
 					newmove = LS_A_BL2TR;
 					break;
 				//shouldn't be a parry that ends at L, R or B
-				
 				default:
 					break;
 				}
@@ -3630,7 +3631,7 @@ weapChecks:
 			}
 
 			//FIXME: diagonal dirs use the figure-eight attacks from ready pose?
-			if ( anim == -1 )
+			if ( !anim )
 			{
 				//FIXME: take FP_SABER_OFFENSE into account here somehow?
 				if ( PM_SaberInTransition( curmove ) )
@@ -3680,7 +3681,7 @@ weapChecks:
 				}
 			}
 
-			if (anim == -1)
+			if (!anim)
 			{//not side-stepping, pick neutral anim
 				// Add randomness for prototype?
 				newmove = saberMoveData[curmove].chain_attack;
@@ -3694,7 +3695,7 @@ weapChecks:
 
 			}
 
-			if ( anim == -1)
+			if ( !anim)
 			{
 				switch ( pm->ps->legsAnim )
 				{
@@ -3720,7 +3721,7 @@ weapChecks:
 					break;
 				}
 
-//				if (PM_RunningAnim(anim) && !pm->cmd.forwardmove && !pm->cmd.rightmove)
+//				if (PM_RunningAnim(*anim) && !pm->cmd.forwardmove && !pm->cmd.rightmove)
 //				{ //semi-hacky (if not moving on x-y and still playing the running anim, force the player out of it)
 //					anim = PM_GetSaberStance();
 //				}
@@ -3731,7 +3732,7 @@ weapChecks:
 
 			if ( both && pm->ps->torsoAnim == anim )
 			{
-				PM_SetAnim(SETANIM_LEGS,anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
+				PM_SetAnim(SETANIM_LEGS,*anim,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
 			}
 
 			//don't fire again until anim is done
@@ -3758,7 +3759,7 @@ weapChecks:
 void PM_SetSaberMove(saberMoveName_t newMove)
 {
 	unsigned int setflags = saberMoveData[newMove].animSetFlags;
-	int	anim = saberMoveData[newMove].animToUse;
+	animNumber_t	anim = saberMoveData[newMove].animToUse;
 	int parts = SETANIM_TORSO;
 
 	if ( newMove == LS_READY || newMove == LS_A_FLIP_STAB || newMove == LS_A_FLIP_SLASH )
@@ -3780,12 +3781,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 		saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
 		if ( saber1
-			&& saber1->drawAnim != -1 )
+			&& saber1->drawAnim != ANIM_NONE )
 		{
 			anim = saber1->drawAnim;
 		}
 		else if ( saber2
-			&& saber2->drawAnim != -1 )
+			&& saber2->drawAnim != ANIM_NONE )
 		{
 			anim = saber2->drawAnim;
 		}
@@ -3803,12 +3804,12 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 		saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
 		if ( saber1
-			&& saber1->putawayAnim != -1 )
+			&& saber1->putawayAnim != ANIM_NONE )
 		{
 			anim = saber1->putawayAnim;
 		}
 		else if ( saber2
-			&& saber2->putawayAnim != -1 )
+			&& saber2->putawayAnim != ANIM_NONE )
 		{
 			anim = saber2->putawayAnim;
 		}

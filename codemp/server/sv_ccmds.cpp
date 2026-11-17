@@ -1358,7 +1358,7 @@ static void SV_ForceToggle_f( void ) {
 	}
 }
 
-const char *weaponToggleNamePrints[WP_NUM_WEAPONS] = {
+EnumArray<const char *, weapon_t, WP_NUM_WEAPONS> weaponToggleNamePrints = {
 	"NO WEAPON",
 	"STUN BATON",
 	"MELEE",
@@ -1382,7 +1382,7 @@ const char *weaponToggleNamePrints[WP_NUM_WEAPONS] = {
 
 static void SV_WeaponToggle_f( void ) {
 	int bits = 0;
-	int i, val;
+	weapon_t i, val;
 	const char *s;
 	const char *cvarStr = nullptr;
 
@@ -1402,9 +1402,9 @@ static void SV_WeaponToggle_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-		for ( i = 0; i<WP_NUM_WEAPONS; i++ ) {
-			if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, weaponToggleNamePrints[i] );
-			else							Com_Printf( "%2d [ ] %s\n", i, weaponToggleNamePrints[i] );
+		for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+			if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
+			else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 		}
 		Com_Printf ("Example usage: weapontoggle 3(toggles SABER)\n");
 		return;
@@ -1413,24 +1413,24 @@ static void SV_WeaponToggle_f( void ) {
 	s = Cmd_Argv(1);
 
 	if( Q_isanumber( s ) ) {
-		val = atoi(s);
-		if( val >= 0 && val < WP_NUM_WEAPONS) {
-			bits ^= (1 << val);
+		val = static_cast<weapon_t>( atoi(s) );
+		if( val >= WP_NONE && val < WP_NUM_WEAPONS) {
+			bits ^= Bit( val );
 			Cvar_SetValue(cvarStr, bits);
-			Com_Printf( "%s %s^7\n", weaponToggleNamePrints[val], (bits & (1 << val)) ? "^2Enabled" : "^1Disabled" );
+			Com_Printf( "%s %s^7\n", weaponToggleNamePrints[val], (bits & Bit( val )) ? "^2Enabled" : "^1Disabled" );
 		}
 		else {
-			for ( i = 0; i<WP_NUM_WEAPONS; i++ ) {
-				if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, weaponToggleNamePrints[i] );
-				else							Com_Printf( "%2d [ ] %s\n", i, weaponToggleNamePrints[i] );
+			for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+				if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
+				else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 			}
 			Com_Printf ("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)\n");
 		}
 	}
 	else {
-		for ( i = 0; i<WP_NUM_WEAPONS; i++ ) {
-			if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, weaponToggleNamePrints[i] );
-			else							Com_Printf( "%2d [ ] %s\n", i, weaponToggleNamePrints[i] );
+		for ( i = WP_NONE; i<WP_NUM_WEAPONS; i++ ) {
+			if ( (bits & Bit( i )) )		Com_Printf( "%2d [X] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
+			else							Com_Printf( "%2d [ ] %s\n", to_underlying( i ), weaponToggleNamePrints[i] );
 		}
 		Com_Printf ("Specified a weapon that does not exist.\nExample usage: weapontoggle 3\n(toggles SABER)\n");
 	}

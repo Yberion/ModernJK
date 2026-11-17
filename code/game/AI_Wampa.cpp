@@ -336,6 +336,8 @@ void Wampa_Attack( float distance, bool doCharge )
 		case BOTH_ATTACK3:
 			Wampa_Slash( NPC->handLBolt, true );
 			break;
+		default:
+			break;
 		}
 	}
 	else if ( TIMER_Done2( NPC, "attack_dmg2", true ) )
@@ -347,6 +349,8 @@ void Wampa_Attack( float distance, bool doCharge )
 			break;
 		case BOTH_ATTACK2:
 			Wampa_Slash( NPC->handLBolt, false );
+			break;
+		default:
 			break;
 		}
 	}
@@ -721,7 +725,7 @@ void NPC_BSWampa_Default( void )
 		{
 			if ( NPC->client->ps.legsAnim == BOTH_HOLD_DROP )
 			{
-				if ( NPC->client->ps.legsAnimTimer < PM_AnimLength(NPC->client->clientInfo.animFileIndex, (animNumber_t)NPC->client->ps.legsAnim)-500 )
+				if ( NPC->client->ps.legsAnimTimer < PM_AnimLength(NPC->client->clientInfo.animFileIndex, NPC->client->ps.legsAnim)-500 )
 				{//at least half a second into the anim
 					if ( Wampa_CheckDropVictim( NPC, false ) )
 					{

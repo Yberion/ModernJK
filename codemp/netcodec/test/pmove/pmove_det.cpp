@@ -197,7 +197,7 @@ int G_EffectIndex(const char *name) { (void)name; return 0; }
 bool G_CanBeEnemy(gentity_t *self, gentity_t *enemy) { (void)self; (void)enemy; return false; }
 void Client_CheckImpactBBrush(gentity_t *self, gentity_t *other) { (void)self; (void)other; }
 void G_SetSharedVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
-void NPC_SetAnim(gentity_t *ent, int type, int anim, int priority) { (void)ent; (void)type; (void)anim; (void)priority; }
+void NPC_SetAnim(gentity_t *ent, int type, animNumber_t anim, int priority) { (void)ent; (void)type; (void)anim; (void)priority; }
 bool TryGrapple(gentity_t *ent) { (void)ent; return false; }
 void WP_GetVehicleCamPos(gentity_t *ent, gentity_t *pilot, vec3_t camPos) { (void)ent; (void)pilot; (void)camPos; }
 #define HARNESS_ENTITIES g_entities
@@ -260,7 +260,7 @@ static uint32_t Bits(float f) {
 	return b;
 }
 
-static animation_t anims[MAX_TOTALANIMATIONS];
+static animSet_t anims;
 
 // frame times of the scenarios, in ms: 125 fps, 333 fps, 60 fps, and random from 3 to 20
 static int FrameMsec(int scenario, int i) {
@@ -293,7 +293,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 	ps.basespeed = 250;
 	ps.groundEntityNum = ENTITYNUM_NONE;
 	ps.stats[STAT_HEALTH] = ps.stats[STAT_MAX_HEALTH] = 100;
-	ps.stats[STAT_WEAPONS] = 1 << WP_BRYAR_PISTOL;
+	ps.stats[STAT_WEAPONS] = Bit( WP_BRYAR_PISTOL );
 	ps.weapon = WP_BRYAR_PISTOL;
 	ps.weaponstate = WEAPON_READY;
 	ps.viewheight = DEFAULT_VIEWHEIGHT;
@@ -314,7 +314,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 	pm.tracemask = MASK_PLAYERSOLID;
 	pm.trace = World_Trace;
 	pm.pointcontents = World_Contents;
-	pm.animations = anims;
+	pm.animations = &anims;
 	pm.gametype = GT_FFA;
 	pm.stepSlideFix = 1;
 	pm.baseEnt = (bgEntity_t *)HARNESS_ENTITIES;
@@ -357,20 +357,20 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 }
 
 int main(int argc, char **argv) {
-	int commands = 20000, a, s, i;
+	int commands = 20000, a, s;
 	FILE *dump = nullptr;
 	for (a = 1; a < argc; a++) {
 		if (strncmp(argv[a], "--dump=", 7) == 0) dump = fopen(argv[a] + 7, "w");
 		else commands = atoi(argv[a]);
 	}
 	imports.Cvar_Register = CvarRegisterTrap;
-	for (i = 0; i < MAX_TOTALANIMATIONS; i++) {
-		anims[i].firstFrame = 0;
-		anims[i].numFrames = 10;
-		anims[i].frameLerp = 50;
-		anims[i].loopFrames = -1;
+	for (animation_t &anim : anims) {
+		anim.firstFrame = 0;
+		anim.numFrames = 10;
+		anim.frameLerp = 50;
+		anim.loopFrames = -1;
 	}
-	bgAllAnims[0].anims = anims;
+	bgAllAnims[0].anims = &anims;
 	BuildWorld();
 	printf("pmove determinism (%s build), %d commands per run\n",
 #if defined(_GAME)

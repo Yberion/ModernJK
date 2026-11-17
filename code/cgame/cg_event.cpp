@@ -112,8 +112,8 @@ void CG_ItemPickup( int itemNum, bool bHadItem ) {
 	// see if it should be the grabbed weapon
 	if ( bg_itemlist[itemNum].giType == IT_WEAPON )
 	{
-		const int nCurWpn = cg.predicted_player_state.weapon;
-		const int nNewWpn = bg_itemlist[itemNum].giTag;
+		const weapon_t nCurWpn = cg.predicted_player_state.weapon;
+		const weapon_t nNewWpn = GI_Weapon( bg_itemlist[itemNum] );
 
 		if ( nCurWpn == WP_SABER || bHadItem)
 		{//never switch away from the saber!
@@ -814,7 +814,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	// Ghoul2 Insert Start
 			if (es->boltInfo != 0)
 			{
-				const bool isRelative = !!es->weapon;
+				const bool isRelative = !!ES_WeaponParm( *es );
 				theFxScheduler.PlayEffect( s, cent->lerpOrigin, axis, es->boltInfo, -1, portalEnt, es->loopSound, isRelative );	//loopSound 0 = not looping, 1 for infinite, else duration
 			}
 			else
@@ -1090,7 +1090,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_DEBUG_LINE:
 		DEBUGNAME("EV_DEBUG_LINE");
-		CG_TestLine(position, es->origin2, es->time, (unsigned int)(es->time2), es->weapon);
+		CG_TestLine(position, es->origin2, es->time, (unsigned int)(es->time2), ES_WeaponParm( *es ));
 		break;
 
 	default:

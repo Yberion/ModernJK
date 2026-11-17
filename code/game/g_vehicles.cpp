@@ -61,7 +61,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _JK2MP
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
 #else
 extern gentity_t *NPC_Spawn_Do( gentity_t *pEnt, bool fullSpawnNow );
 extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask);
@@ -70,7 +70,7 @@ extern bool G_SetG2PlayerModelInfo( gentity_t *pEnt, const char *modelName, cons
 extern void G_RemovePlayerModel( gentity_t *pEnt );
 extern void G_ChangePlayerModel( gentity_t *pEnt, const char *newModel );
 extern void G_RemoveWeaponModels( gentity_t *pEnt );
-extern void CG_ChangeWeapon( int num );
+extern void CG_ChangeWeapon( weapon_t num );
 extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
@@ -80,9 +80,9 @@ extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
 extern cvar_t *in_joystick;
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int iBlend);
+extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 #endif
 
@@ -103,7 +103,7 @@ extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
-void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, int iBlend)
+void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend)
 {
 #ifdef _JK2MP
 	assert(ent->client);
@@ -418,10 +418,10 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 		//G_SetG2PlayerModel( pEnt, pEnt->NPC_type, nullptr, nullptr, nullptr );
 
 		//FIXME: reset/4 their weapon
-		pEnt->client->ps.stats[STAT_WEAPONS] &= ~(( 1 << WP_ATST_MAIN )|( 1 << WP_ATST_SIDE ));
+		pEnt->client->ps.stats[STAT_WEAPONS] &= ~(Bit( WP_ATST_MAIN )|Bit( WP_ATST_SIDE ));
 		pEnt->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = 0;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = 0;
-		if ( pEnt->client->ps.stats[STAT_WEAPONS] & (1<<WP_BLASTER) )
+		if ( pEnt->client->ps.stats[STAT_WEAPONS] & Bit( WP_BLASTER ) )
 		{
 			CG_ChangeWeapon( WP_BLASTER );
 			//camera
@@ -476,7 +476,7 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 		item = FindItemForWeapon( WP_ATST_SIDE );	//precache the weapon
 		CG_RegisterItemSounds( (item-bg_itemlist) );
 		CG_RegisterItemVisuals( (item-bg_itemlist) );
-		pEnt->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ATST_MAIN )|( 1 << WP_ATST_SIDE );
+		pEnt->client->ps.stats[STAT_WEAPONS] |= Bit( WP_ATST_MAIN )|Bit( WP_ATST_SIDE );
 		pEnt->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = ammoData[weaponData[WP_ATST_MAIN].ammoIndex].max;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = ammoData[weaponData[WP_ATST_SIDE].ammoIndex].max;
 		CG_ChangeWeapon( WP_ATST_MAIN );
@@ -806,7 +806,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 #ifndef _JK2MP //rwwFIXMEFIXMEFIXME
 		if (ent->s.number<MAX_CLIENTS)
 		{// Riding means you get WP_NONE
-			ent->client->ps.stats[ STAT_WEAPONS ] |= (1<<WP_NONE);
+			ent->client->ps.stats[ STAT_WEAPONS ] |= Bit( WP_NONE );
 		}
 		if ( (ent->client->ps.weapon != WP_SABER
 			&& ent->client->ps.weapon != WP_BLASTER) || !(pVeh->m_pVehicleInfo->type == VH_ANIMAL || pVeh->m_pVehicleInfo->type == VH_SPEEDER))
@@ -1261,20 +1261,20 @@ getItOutOfMe:
 	if ( ent->client->ps.weapon == WP_NONE )
 	{//FIXME: check against this vehicle's gun from the g_vehicleInfo table
 		//remove the vehicle's weapon from me
-		//ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_EMPLACED_GUN );
+		//ent->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_EMPLACED_GUN );
 		//ent->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;//maybe store this ammo on the vehicle before clearing it?
 		//switch back to a normal weapon we're carrying
 
 		//FIXME: store the weapon we were using when we got on and restore that when hop off
-/*		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+/*		if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( WP_SABER )) )
 		{
 			CG_ChangeWeapon( WP_SABER );
 		}
 		else
 		{//go through all weapons and switch to highest held
-			for ( int checkWp = WP_NUM_WEAPONS-1; checkWp > WP_NONE; checkWp-- )
+			for ( weapon_t checkWp = WP_NUM_WEAPONS-1; checkWp > WP_NONE; checkWp-- )
 			{
-				if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<checkWp)) )
+				if ( (ent->client->ps.stats[STAT_WEAPONS]&Bit( checkWp )) )
 				{
 					CG_ChangeWeapon( checkWp );
 				}
@@ -1529,7 +1529,7 @@ void RegisterAssets( Vehicle_t *pVeh )
 {
 }
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 // Initialize the vehicle.
 bool Initialize( Vehicle_t *pVeh )
@@ -1632,7 +1632,7 @@ bool Initialize( Vehicle_t *pVeh )
 	//initialize to blaster, just since it's a basic weapon and there's no lightsaber crap...?
 	parent->client->ps.weapon = WP_BLASTER;
 	parent->client->ps.weaponstate = WEAPON_READY;
-	parent->client->ps.stats[STAT_WEAPONS] |= (1<<WP_BLASTER);
+	parent->client->ps.stats[STAT_WEAPONS] |= Bit( WP_BLASTER );
 
 	//Initialize to landed (wings closed, gears down) animation
 	{

@@ -115,7 +115,7 @@ EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS + 1> showPowersName =
 //Called from UI shared code. For now we'll just redirect to the normal anim load function.
 
 
-int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHumanoid)
+int UI_ParseAnimationFile(const char *filename, animSet_t *animset, bool isHumanoid)
 {
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
 }
@@ -789,7 +789,7 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 {
 	itemDef_t		*focusItem;
 
-	if (!cent->currentState.weapon ) // We don't have a weapon right now
+	if (cent->currentState.weapon == WP_NONE ) // We don't have a weapon right now
 	{
 		return;
 	}
@@ -863,7 +863,6 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 				);
 		}
 		break;
-	
 	default:
 		break;
 	}
@@ -891,7 +890,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		return;
 	}
 
-	if (!cent->currentState.weapon ) // We don't have a weapon right now
+	if (cent->currentState.weapon == WP_NONE ) // We don't have a weapon right now
 	{
 		return;
 	}
@@ -1162,7 +1161,7 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 	char		num[7] = { 0 };
 	int			weapX = 16;
 
-	if ( !cent->currentState.weapon ) // We don't have a weapon right now
+	if ( cent->currentState.weapon == WP_NONE ) // We don't have a weapon right now
 	{
 		return;
 	}
@@ -1216,7 +1215,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 	int			currValue = 0;
 	char		num[16] = { 0 };
 
-	if ( !cent->currentState.weapon ) // We don't have a weapon right now
+	if ( cent->currentState.weapon == WP_NONE ) // We don't have a weapon right now
 	{
 		return;
 	}

@@ -1078,9 +1078,9 @@ static void CG_General( centity_t *cent ) {
 				return;
 			}
 
-			if (clEnt && (!BG_InDeathAnim(clEnt->currentState.torsoAnim) || !BG_InDeathAnim(clEnt->pe.torso.animationNumber)))
+			if (clEnt && (!BG_InDeathAnim(ES_TorsoAnim( clEnt->currentState )) || !BG_InDeathAnim(LF_Anim( clEnt->pe.torso ))))
 			{ //don't make it unless we're in an actual death anim already
-				if (clEnt->currentState.torsoAnim != BOTH_RIGHTHANDCHOPPEDOFF)
+				if (ES_TorsoAnim( clEnt->currentState ) != BOTH_RIGHTHANDCHOPPEDOFF)
 				{ //exception
 					return;
 				}
@@ -2088,7 +2088,7 @@ Ghoul2 Insert End
 	if (!(cent->currentState.eFlags & EF_DROPPEDWEAPON))
 	{
 		if ( item->giType == IT_WEAPON ) {
-			wi = &cg_weapons[item->giTag];
+			wi = &cg_weapons[GI_Weapon( *item )];
 			cent->lerpOrigin[0] -=
 				wi->weaponMidpoint[0] * ent.axis[0][0] +
 				wi->weaponMidpoint[1] * ent.axis[1][0] +
@@ -2107,9 +2107,9 @@ Ghoul2 Insert End
 	}
 	else
 	{
-		wi = &cg_weapons[item->giTag];
+		wi = &cg_weapons[GI_Weapon( *item )];
 
-		switch(item->giTag)
+		switch(GI_Weapon( *item ))
 		{
 		case WP_BLASTER:
 			cent->lerpOrigin[2] -= 12;
@@ -2442,7 +2442,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	s1 = &cent->currentState;
 	if ( s1->weapon > WP_NUM_WEAPONS && s1->weapon != G2_MODEL_PART ) {
-		s1->weapon = 0;
+		s1->weapon = WP_NONE;
 	}
 
 	if (cent->ghoul2 && s1->weapon == G2_MODEL_PART)

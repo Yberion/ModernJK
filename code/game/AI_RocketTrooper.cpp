@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "b_local.h"
-extern bool PM_FlippingAnim( int anim );
+extern bool PM_FlippingAnim( animNumber_t anim );
 extern void NPC_BSST_Patrol( void );
 
 extern void RT_FlyStart( gentity_t *self );

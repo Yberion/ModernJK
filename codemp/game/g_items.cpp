@@ -65,15 +65,15 @@ extern gentity_t *droppedBlueFlag;
 #define MAX_SENTRY_DISTANCE			256
 
 // For more than four players, adjust the respawn times, up to 1/4.
-int adjustRespawnTime(float preRespawnTime, itemType_t itemType, int itemTag)
+int adjustRespawnTime(float preRespawnTime, const gitem_t &item)
 {
 	float respawnTime = preRespawnTime;
 
-	if (itemType == IT_WEAPON)
+	if (item.giType == IT_WEAPON)
 	{
-		if (itemTag == WP_THERMAL ||
-			itemTag == WP_TRIP_MINE ||
-			itemTag == WP_DET_PACK)
+		if (GI_Weapon( item ) == WP_THERMAL ||
+			GI_Weapon( item ) == WP_TRIP_MINE ||
+			GI_Weapon( item ) == WP_DET_PACK)
 		{ //special case for these, use ammo respawn rate
 			respawnTime = RESPAWN_AMMO;
 		}
@@ -1837,7 +1837,7 @@ void EWebThink(gentity_t *self)
 				owner->client->ps.viewangles[YAW] = yaw;
 			}
 			owner->client->ps.weapon = WP_EMPLACED_GUN;
-			owner->client->ps.stats[STAT_WEAPONS] = WP_EMPLACED_GUN;
+			owner->client->ps.stats[STAT_WEAPONS] = Bit( WP_EMPLACED_GUN );
 
 			if (self->genericValue8 < level.time)
 			{ //make sure the anim timer is done
@@ -2138,7 +2138,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	G_LogWeaponItem(other->s.number, GI_Holdable( *ent->item ));
 
-	return adjustRespawnTime(RESPAWN_HOLDABLE, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(RESPAWN_HOLDABLE, *ent->item);
 }
 
 
@@ -2181,15 +2181,15 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 			Add_Ammo(other, AMMO_POWERCELL, 100);
 			Add_Ammo(other, AMMO_METAL_BOLTS, 100);
 			Add_Ammo(other, AMMO_ROCKETS, 5);
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_DET_PACK))
+			if (other->client->ps.stats[STAT_WEAPONS] & Bit( WP_DET_PACK ))
 			{
 				Add_Ammo(other, AMMO_DETPACK, 2);
 			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_THERMAL))
+			if (other->client->ps.stats[STAT_WEAPONS] & Bit( WP_THERMAL ))
 			{
 				Add_Ammo(other, AMMO_THERMAL, 2);
 			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
+			if (other->client->ps.stats[STAT_WEAPONS] & Bit( WP_TRIP_MINE ))
 			{
 				Add_Ammo(other, AMMO_TRIPMINE, 2);
 			}
@@ -2207,7 +2207,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 		Add_Ammo (other, GI_Ammo( *ent->item ), quantity);
 	}
 
-	return adjustRespawnTime(RESPAWN_AMMO, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(RESPAWN_AMMO, *ent->item);
 }
 
 //======================================================================
@@ -2232,8 +2232,9 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			// New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
 
 			// drop the quantity if the already have over the minimum
-			if ( other->client->ps.ammo[ GI_Ammo( *ent->item ) ] < quantity*0.5 ) {
-				quantity = quantity - other->client->ps.ammo[ GI_Ammo( *ent->item ) ];
+			const ammo_t ammoType = weaponData[GI_Weapon( *ent->item )].ammoIndex;
+			if ( other->client->ps.ammo[ ammoType ] < quantity*0.5 ) {
+				quantity = quantity - other->client->ps.ammo[ ammoType ];
 			} else {
 				quantity = quantity*0.5;		// only add half the value.
 			}
@@ -2251,20 +2252,20 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	}
 
 	// add the weapon
-	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	other->client->ps.stats[STAT_WEAPONS] |= Bit( GI_Weapon( *ent->item ) );
 
 	//Add_Ammo( other, ent->item->giTag, quantity );
-	Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
+	Add_Ammo( other, weaponData[GI_Weapon( *ent->item )].ammoIndex, quantity );
 
-	G_LogWeaponPickup(other->s.number, ent->item->giTag);
+	G_LogWeaponPickup(other->s.number, GI_Weapon( *ent->item ));
 
 	// team deathmatch has slow weapon respawns
 	if ( level.gametype == GT_TEAM )
 	{
-		return adjustRespawnTime(RESPAWN_TEAM_WEAPON, ent->item->giType, ent->item->giTag);
+		return adjustRespawnTime(RESPAWN_TEAM_WEAPON, *ent->item);
 	}
 
-	return adjustRespawnTime(g_weaponRespawn.integer, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(g_weaponRespawn.integer, *ent->item);
 }
 
 
@@ -2298,7 +2299,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 		return RESPAWN_MEGAHEALTH;
 	}
 
-	return adjustRespawnTime(RESPAWN_HEALTH, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(RESPAWN_HEALTH, *ent->item);
 }
 
 //======================================================================
@@ -2311,7 +2312,7 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other )
 		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * ent->item->giTag;
 	}
 
-	return adjustRespawnTime(RESPAWN_ARMOR, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(RESPAWN_ARMOR, *ent->item);
 }
 
 //======================================================================
@@ -2529,7 +2530,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Ammo(ent, other);
 		if (GI_Ammo( *ent->item ) == AMMO_THERMAL || GI_Ammo( *ent->item ) == AMMO_TRIPMINE || GI_Ammo( *ent->item ) == AMMO_DETPACK)
 		{
-			int weapForAmmo = 0;
+			weapon_t weapForAmmo = WP_NONE;
 
 			if (GI_Ammo( *ent->item ) == AMMO_THERMAL)
 			{
@@ -2546,7 +2547,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 			if (other && other->client && other->client->ps.ammo[weaponData[weapForAmmo].ammoIndex] > 0 )
 			{
-				other->client->ps.stats[STAT_WEAPONS] |= (1 << weapForAmmo);
+				other->client->ps.stats[STAT_WEAPONS] |= Bit( weapForAmmo );
 			}
 		}
 //		predict = false;
@@ -2748,15 +2749,15 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	vectoangles(velocity, dropped->s.angles);
 	dropped->s.angles[PITCH] = 0;
 
-	if (item->giTag == WP_TRIP_MINE ||
-		item->giTag == WP_DET_PACK)
+	if (GI_Weapon( *item ) == WP_TRIP_MINE ||
+		GI_Weapon( *item ) == WP_DET_PACK)
 	{
 		dropped->s.angles[PITCH] = -90;
 	}
 
-	if (item->giTag != WP_BOWCASTER &&
-		item->giTag != WP_DET_PACK &&
-		item->giTag != WP_THERMAL)
+	if (GI_Weapon( *item ) != WP_BOWCASTER &&
+		GI_Weapon( *item ) != WP_DET_PACK &&
+		GI_Weapon( *item ) != WP_THERMAL)
 	{
 		dropped->s.angles[ROLL] = -90;
 	}
@@ -3125,7 +3126,7 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 
 	if (item->giType == IT_WEAPON &&
 		wDisable &&
-		(wDisable & (1 << item->giTag)))
+		(wDisable & Bit( GI_Weapon( *item ) )))
 	{
 		if (level.gametype != GT_JEDIMASTER)
 		{

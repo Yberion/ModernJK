@@ -176,8 +176,8 @@ void Pmove( pmove_t *pmove );
 #define SETANIM_FLAG_RESTART	4//Allow restarting the anim if playing the same one (weapon fires)
 #define SETANIM_FLAG_HOLDLESS	8//Set the new timer
 
-void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime=100);
-void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,int type,int anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=100);
+void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime=100);
+void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,int type,animNumber_t anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=100);
 void PM_SetSaberMove(saberMoveName_t newMove);
 
 //===================================================================================
@@ -209,6 +209,15 @@ using enum persEnum_t;
 // The player's team is kept in a cell of the networked persistant array, whose cells are integers
 [[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
 inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
+
+// A user command's weapon, a byte of the client packet: the one conversion of the field
+[[nodiscard]] inline weapon_t UC_Weapon( const usercmd_t &cmd ) { return static_cast<weapon_t>( cmd.weapon ); }
+inline void UC_SetWeapon( usercmd_t &cmd, weapon_t weapon ) { cmd.weapon = to_underlying( weapon ); }
+
+// Some events carry a number in the entity state's weapon field, a weapon_t (a debug line's width, a flag):
+// the one conversion of the field
+[[nodiscard]] inline int ES_WeaponParm( const entityState_t &es ) { return to_underlying( es.weapon ); }
+inline void ES_SetWeaponParm( entityState_t &es, int parm ) { es.weapon = static_cast<weapon_t>( parm ); }
 
 
 // entityState_t->eFlags
@@ -611,6 +620,7 @@ typedef struct gitem_s {
 
 // What an item's giTag holds, by its giType: the one conversion of the cell
 [[nodiscard]] inline ammo_t GI_Ammo( const gitem_t &item ) { return static_cast<ammo_t>( item.giTag ); }
+[[nodiscard]] inline weapon_t GI_Weapon( const gitem_t &item ) { return static_cast<weapon_t>( item.giTag ); }
 
 // included in both the game dll and the client
 extern	gitem_t	bg_itemlist[];
@@ -630,7 +640,7 @@ typedef struct ginfoitem_s
 
 //==============================================================================
 
-extern weaponData_t weaponData[WP_NUM_WEAPONS];
+extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
 
 //==============================================================================
 extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;

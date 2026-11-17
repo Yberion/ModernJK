@@ -69,7 +69,7 @@ typedef struct lerpFrame_s {
 	float		pitchAngle;
 	bool	pitching;
 
-	int			animationNumber;
+	animNumber_t	animationNumber;
 	animation_t	*animation;
 	int			animationTime;		// time when the first frame of the animation will be exact
 } lerpFrame_t;
@@ -87,7 +87,7 @@ typedef struct playerInfo_s {
 //	qhandle_t		headModel;
 //	qhandle_t		headSkin;
 
-	animation_t		animations[MAX_TOTALANIMATIONS];
+	animSet_t		animations;
 
 	qhandle_t		weaponModel;
 	qhandle_t		barrelModel;
@@ -99,18 +99,18 @@ typedef struct playerInfo_s {
 	vec3_t			viewAngles;
 	vec3_t			moveAngles;
 	weapon_t		currentWeapon;
-	int				legsAnim;
-	int				torsoAnim;
+	animNumber_t	legsAnim;
+	animNumber_t	torsoAnim;
 
 	// animation vars
 	weapon_t		weapon;
 	weapon_t		lastWeapon;
 	weapon_t		pendingWeapon;
 	int				weaponTimer;
-	int				pendingLegsAnim;
+	animNumber_t	pendingLegsAnim;
 	int				torsoAnimationTimer;
 
-	int				pendingTorsoAnim;
+	animNumber_t	pendingTorsoAnim;
 	int				legsAnimationTimer;
 
 	bool		chat;
@@ -120,7 +120,7 @@ typedef struct playerInfo_s {
 	float			barrelAngle;
 	int				barrelTime;
 
-	int				realWeapon;
+	weapon_t		realWeapon;
 } playerInfo_t;
 
 // new ui stuff

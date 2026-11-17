@@ -33,7 +33,7 @@ CG_RegisterWeapon
 The server says this item is used on this level
 =================
 */
-void CG_RegisterWeapon( int weaponNum) {
+void CG_RegisterWeapon( weapon_t weaponNum) {
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
 	char			path[MAX_QPATH];
@@ -57,13 +57,13 @@ void CG_RegisterWeapon( int weaponNum) {
 	weaponInfo->registered = true;
 
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
-		if ( item->giType == IT_WEAPON && item->giTag == weaponNum ) {
+		if ( item->giType == IT_WEAPON && GI_Weapon( *item ) == weaponNum ) {
 			weaponInfo->item = item;
 			break;
 		}
 	}
 	if ( !item->classname ) {
-		trap->Error( ERR_DROP, "Couldn't find weapon %i", weaponNum );
+		trap->Error( ERR_DROP, "Couldn't find weapon %i", to_underlying( weaponNum ) );
 	}
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
@@ -82,7 +82,7 @@ void CG_RegisterWeapon( int weaponNum) {
 	weaponInfo->ammoIcon = trap->R_RegisterShader( item->icon );
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
-		if ( ammo->giType == IT_AMMO && ammo->giTag == weaponNum ) {
+		if ( ammo->giType == IT_AMMO && GI_Ammo( *ammo ) == weaponData[weaponNum].ammoIndex ) {
 			break;
 		}
 	}

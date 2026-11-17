@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_enum.h"
 
-typedef enum {
+enum class weapon_t {
 	WP_NONE,
 
 	WP_STUN_BATON,
@@ -59,8 +59,12 @@ typedef enum {
 //	WP_RAILGUN,				//
 //	WP_GRAPPLING_HOOK,
 
-	WP_NUM_WEAPONS
-} weapon_t;
+	WP_NUM_WEAPONS,
+
+	G2_MODEL_PART = 50	// not a weapon: a severed limb thrown as a missile (its entity's weapon)
+};
+using enum weapon_t;
+template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
 //anything > this will be considered not player useable
 #define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
@@ -116,7 +120,7 @@ typedef struct  ammoData_s
 } ammoData_t;
 
 
-extern weaponData_t weaponData[WP_NUM_WEAPONS];
+extern EnumArray<weaponData_t, weapon_t, WP_NUM_WEAPONS> weaponData;
 extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 

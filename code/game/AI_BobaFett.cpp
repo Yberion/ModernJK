@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 void		Boba_Precache( void );
 void		Boba_DustFallNear(const vec3_t origin, int dustcount);
-void		Boba_ChangeWeapon(int wp);
+void		Boba_ChangeWeapon(weapon_t wp);
 bool	Boba_StopKnockdown(gentity_t *self, gentity_t *pusher, const vec3_t pushDir, bool forceKnockdown = false);
 
 // Flight Related Functions (also used by Rocket Trooper)
@@ -95,7 +95,7 @@ bool		Boba_Flee();		// If returns true, Jedi and Seeker AI not used
 ////////////////////////////////////////////////////////////////////////////////////////
 extern void		G_SoundAtSpot( vec3_t org, int soundIndex, bool broadcast );
 extern void		G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
-extern void		ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void		ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void		WP_ResistForcePush( gentity_t *self, gentity_t *pusher, bool noPenalty );
 extern void		ForceJump( gentity_t *self, usercmd_t *ucmd );
 extern void		G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
@@ -156,7 +156,7 @@ void	Boba_Printf(const char * format, ...)
 
 	// Print It To Debug Output Console
 	//----------------------------------
-	gi.Printf(buf);
+	gi.Printf("%s", buf);
 }
 #else
 void	Boba_Printf(const char * format, ...)
@@ -282,7 +282,7 @@ void	Boba_DustFallNear(const vec3_t origin, int dustcount)
 ////////////////////////////////////////////////////////////////////////////////////////
 // This is just a super silly wrapper around NPC_Change Weapon
 ////////////////////////////////////////////////////////////////////////////////////////
-void Boba_ChangeWeapon( int wp )
+void Boba_ChangeWeapon( weapon_t wp )
 {
 	if ( NPC->s.weapon == wp )
 	{
@@ -711,6 +711,8 @@ void	Boba_Fire()
 				ucmd.buttons |=  BUTTON_ALT_ATTACK;
 			}
 			break;
+		default:
+			break;
 		}
 	}
 }
@@ -754,6 +756,8 @@ void Boba_FireDecide( void )
 	case WP_BLASTER:
 		// TODO: Add Conditions Here
 		Boba_Fire();
+		break;
+	default:
 		break;
 	}
 }

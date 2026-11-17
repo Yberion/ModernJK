@@ -811,7 +811,7 @@ void Rancor_Attack( float distance, bool doCharge, bool aimAtBlockedEntity )
 			}
 			else if ( (NPC->spawnflags&SPF_RANCOR_MUTANT) )
 			{//breath attack
-				int breathAnim = BOTH_ATTACK4;
+				animNumber_t breathAnim = BOTH_ATTACK4;
 				gentity_t *checkEnt = nullptr;
 				vec3_t	center;
 				if ( NPC->enemy && NPC->enemy->inuse )
@@ -882,7 +882,7 @@ void Rancor_Attack( float distance, bool doCharge, bool aimAtBlockedEntity )
 		else if ( (NPC->spawnflags&SPF_RANCOR_MUTANT)
 			|| distance >= NPC->maxs[0]+(MIN_DISTANCE*NPC->s.modelScale[0])-64.0f )
 		{//try to grab
-			int grabAnim = BOTH_ATTACK2;
+			animNumber_t grabAnim = BOTH_ATTACK2;
 			gentity_t *checkEnt = nullptr;
 			vec3_t	center;
 			if ( (!aimAtBlockedEntity||!NPCInfo->blockedEntity) && NPC->enemy && NPC->enemy->inuse )
@@ -1019,6 +1019,8 @@ void Rancor_Attack( float distance, bool doCharge, bool aimAtBlockedEntity )
 				G_AddEvent( NPC->activator, EV_JUMP, NPC->activator->health );
 			}
 			break;
+		default:
+			break;
 		}
 	}
 	else if ( TIMER_Done2( NPC, "attack_dmg2", true ) )
@@ -1053,6 +1055,8 @@ void Rancor_Attack( float distance, bool doCharge, bool aimAtBlockedEntity )
 				NPC->count = 2;
 				TIMER_Set( NPC, "clearGrabbed", 2600 );
 			}
+			break;
+		default:
 			break;
 		}
 	}

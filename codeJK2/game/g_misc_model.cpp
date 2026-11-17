@@ -155,10 +155,10 @@ extern bool G_ParseAnimFileSet( const char *filename, const char *animCFG, int *
 int temp_animFileIndex;
 void set_MiscAnim( gentity_t *ent)
 {
-	animation_t *animations = level.knownAnimFileSets[temp_animFileIndex].animations;
+	auto &animations = level.knownAnimFileSets[temp_animFileIndex].animations;
 	if (ent->playerModel & 1)
 	{
-		int anim = BOTH_STAND3;
+		animNumber_t anim = BOTH_STAND3;
 		float animSpeed = 50.0f / animations[anim].frameLerp;
 
 		// yes, its the same animation, so work out where we are in the leg anim, and blend us
@@ -168,7 +168,7 @@ void set_MiscAnim( gentity_t *ent)
 	}
 	else
 	{
-		int anim = BOTH_PAIN3;
+		animNumber_t anim = BOTH_PAIN3;
 		float animSpeed = 50.0f / animations[anim].frameLerp;
 		gi.G2API_SetBoneAnim(&ent->ghoul2[0], "model_root", animations[anim].firstFrame,
 						(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
@@ -258,8 +258,8 @@ void SP_misc_model_ghoul( gentity_t *ent )
 
 	gi.linkentity (ent);
 
-	animation_t *animations = level.knownAnimFileSets[temp_animFileIndex].animations;
-	int anim = BOTH_STAND3;
+	auto &animations = level.knownAnimFileSets[temp_animFileIndex].animations;
+	animNumber_t anim = BOTH_STAND3;
 	float animSpeed = 50.0f / animations[anim].frameLerp;
 	gi.G2API_SetBoneAnim(&ent->ghoul2[0], "model_root", animations[anim].firstFrame,
 					(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
@@ -309,7 +309,7 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 		{
 			it_ent->spawnflags |= 16;// VERTICAL
 
-			switch( gun->giTag )
+			switch( GI_Weapon( *gun ) )
 			{
 			case WP_BLASTER:
 				it_ent->count = 15;
@@ -319,6 +319,8 @@ void GunRackAddItem( gitem_t *gun, vec3_t org, vec3_t angs, float ffwd, float fr
 				break;
 			case WP_ROCKET_LAUNCHER:
 				it_ent->count = 4;
+				break;
+			default:
 				break;
 			}
 		}

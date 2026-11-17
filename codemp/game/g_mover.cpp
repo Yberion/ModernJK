@@ -250,7 +250,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 		return true;
 	}
 
-	if (check->takedamage && !check->client && check->s.weapon && check->r.ownerNum < MAX_CLIENTS &&
+	if (check->takedamage && !check->client && check->s.weapon != WP_NONE && check->r.ownerNum < MAX_CLIENTS &&
 		check->health < 500)
 	{
 		if (check->health > 0)

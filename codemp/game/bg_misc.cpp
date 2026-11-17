@@ -245,7 +245,7 @@ EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight = //0 == neu
 		//NUM_FORCE_POWERS
 };
 
-int WeaponReadyAnim[WP_NUM_WEAPONS] =
+EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyAnim =
 {
 	TORSO_DROPWEAP1,//WP_NONE,
 
@@ -271,7 +271,7 @@ int WeaponReadyAnim[WP_NUM_WEAPONS] =
 	TORSO_WEAPONREADY1//WP_TURRET,
 };
 
-int WeaponReadyLegsAnim[WP_NUM_WEAPONS] =
+EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponReadyLegsAnim =
 {
 	BOTH_STAND1,//WP_NONE,
 
@@ -297,7 +297,7 @@ int WeaponReadyLegsAnim[WP_NUM_WEAPONS] =
 	BOTH_STAND1//WP_TURRET,
 };
 
-int WeaponAttackAnim[WP_NUM_WEAPONS] =
+EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponAttackAnim =
 {
 	BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
 
@@ -333,10 +333,10 @@ void BG_FixWeaponAttackAnim(void) {
 #elif defined(UI_BUILD)
 	const bool doFix = true; // no chance of prediction error from UI code
 #endif
-	int *move;
+	animNumber_t *move;
 
-	for (move = WeaponAttackAnim; move - WeaponAttackAnim < std::ssize(WeaponAttackAnim); move++) {
-		const weapon_t wpIndex = (weapon_t)(move - WeaponAttackAnim);
+	for (weapon_t wpIndex = WP_NONE; wpIndex < WP_NUM_WEAPONS; wpIndex++) {
+		move = &WeaponAttackAnim[wpIndex];
 		if (wpIndex == WP_CONCUSSION) {
 			*move = doFix ? BOTH_ATTACK3 : BOTH_ATTACK2;
 		} else if (wpIndex == WP_BRYAR_OLD) {
@@ -1084,7 +1084,7 @@ Don't place this
 /* pickup *///	"Stun Baton",
 		100,
 		IT_WEAPON,
-		WP_STUN_BATON,
+		to_underlying( WP_STUN_BATON ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1103,7 +1103,7 @@ Don't place this
 /* pickup *///	"Stun Baton",
 		100,
 		IT_WEAPON,
-		WP_MELEE,
+		to_underlying( WP_MELEE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_MELEE_DESC"					// description
@@ -1122,7 +1122,7 @@ Don't place this
 /* pickup *///	"Lightsaber",
 		100,
 		IT_WEAPON,
-		WP_SABER,
+		to_underlying( WP_SABER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_AN_ELEGANT_WEAPON_FOR"				// description
@@ -1142,7 +1142,7 @@ Don't place this
 /* pickup *///	"Bryar Pistol",
 		100,
 		IT_WEAPON,
-		WP_BRYAR_PISTOL,
+		to_underlying( WP_BRYAR_PISTOL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_BLASTER_PISTOL_DESC"					// description
@@ -1160,7 +1160,7 @@ Don't place this
 /* pickup *///	"Concussion Rifle",
 		50,
 		IT_WEAPON,
-		WP_CONCUSSION,
+		to_underlying( WP_CONCUSSION ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_CONC_RIFLE_DESC"					// description
@@ -1179,7 +1179,7 @@ Don't place this
 /* pickup *///	"Bryar Pistol",
 		100,
 		IT_WEAPON,
-		WP_BRYAR_OLD,
+		to_underlying( WP_BRYAR_OLD ),
 /* precache */ "",
 /* sounds */ "",
 		"@SP_INGAME_BLASTER_PISTOL"					// description
@@ -1197,7 +1197,7 @@ Don't place this
 /* pickup *///	"E11 Blaster Rifle",
 		100,
 		IT_WEAPON,
-		WP_BLASTER,
+		to_underlying( WP_BLASTER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_PRIMARY_WEAPON_OF"				// description
@@ -1215,7 +1215,7 @@ Don't place this
 /* pickup *///	"Tenloss Disruptor Rifle",
 		100,
 		IT_WEAPON,
-		WP_DISRUPTOR,
+		to_underlying( WP_DISRUPTOR ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_NEFARIOUS_WEAPON"					// description
@@ -1233,7 +1233,7 @@ Don't place this
 /* pickup *///	"Wookiee Bowcaster",
 		100,
 		IT_WEAPON,
-		WP_BOWCASTER,
+		to_underlying( WP_BOWCASTER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_ARCHAIC_LOOKING"					// description
@@ -1251,7 +1251,7 @@ Don't place this
 /* pickup *///	"Imperial Heavy Repeater",
 		100,
 		IT_WEAPON,
-		WP_REPEATER,
+		to_underlying( WP_REPEATER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THIS_DESTRUCTIVE_PROJECTILE"					// description
@@ -1270,7 +1270,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"DEMP2",
 		100,
 		IT_WEAPON,
-		WP_DEMP2,
+		to_underlying( WP_DEMP2 ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_COMMONLY_REFERRED_TO"					// description
@@ -1288,7 +1288,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Golan Arms Flechette",
 		100,
 		IT_WEAPON,
-		WP_FLECHETTE,
+		to_underlying( WP_FLECHETTE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_WIDELY_USED_BY_THE_CORPORATE"					// description
@@ -1306,7 +1306,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Merr-Sonn Missile System",
 		3,
 		IT_WEAPON,
-		WP_ROCKET_LAUNCHER,
+		to_underlying( WP_ROCKET_LAUNCHER ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_PLX_2M_IS_AN_EXTREMELY"					// description
@@ -1377,7 +1377,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Thermal Detonator",
 		4,
 		IT_WEAPON,
-		WP_THERMAL,
+		to_underlying( WP_THERMAL ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_THE_THERMAL_DETONATOR"					// description
@@ -1395,7 +1395,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Trip Mine",
 		3,
 		IT_WEAPON,
-		WP_TRIP_MINE,
+		to_underlying( WP_TRIP_MINE ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_TRIP_MINES_CONSIST_OF"					// description
@@ -1412,7 +1412,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Det Pack",
 		3,
 		IT_WEAPON,
-		WP_DET_PACK,
+		to_underlying( WP_DET_PACK ),
 /* precache */ "",
 /* sounds */ "",
 		"@MENUS_A_DETONATION_PACK_IS"					// description
@@ -1430,7 +1430,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Emplaced Gun",
 		50,
 		IT_WEAPON,
-		WP_EMPLACED_GUN,
+		to_underlying( WP_EMPLACED_GUN ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1448,7 +1448,7 @@ NOTENOTE This weapon is not yet complete.  Don't place it.
 /* pickup *///	"Turret Gun",
 		50,
 		IT_WEAPON,
-		WP_TURRET,
+		to_underlying( WP_TURRET ),
 /* precache */ "",
 /* sounds */ "",
 		""					// description
@@ -1828,12 +1828,12 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_WEAPON && it->giTag == weapon ) {
+		if ( it->giType == IT_WEAPON && GI_Weapon( *it ) == weapon ) {
 			return it;
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
+	Com_Error( ERR_DROP, "Couldn't find item for weapon %i", to_underlying( weapon ));
 	return nullptr;
 }
 
@@ -1977,6 +1977,11 @@ int BG_GetItemIndexByTag( holdable_t item )
 	return BG_GetItemIndexByTag( to_underlying( item ), IT_HOLDABLE );
 }
 
+int BG_GetItemIndexByTag( weapon_t weapon )
+{
+	return BG_GetItemIndexByTag( to_underlying( weapon ), IT_WEAPON );
+}
+
 //yeah..
 bool BG_IsItemSelectable(playerState_t *ps, holdable_t item)
 {
@@ -2074,7 +2079,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{//force powers and saber only
 			if ( item->giType != IT_TEAM //not a flag
 				&& item->giType != IT_ARMOR//not shields
-				&& (item->giType != IT_WEAPON || item->giTag != WP_SABER)//not a saber
+				&& (item->giType != IT_WEAPON || GI_Weapon( *item ) != WP_SABER)//not a saber
 				&& (item->giType != IT_HOLDABLE || GI_Holdable( *item ) != HI_SEEKER)//not a seeker
 				&& (item->giType != IT_POWERUP || GI_Powerup( *item ) == PW_YSALAMIRI) )//not a force pick-up
 			{
@@ -2085,7 +2090,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{//can't pick up force powerups
 			if ( (item->giType == IT_POWERUP && GI_Powerup( *item ) != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
 				|| (item->giType == IT_HOLDABLE && GI_Holdable( *item ) == HI_SEEKER)//if holdable, cannot pick up seeker
-				|| (item->giType == IT_WEAPON && item->giTag == WP_SABER ) )//or if it's a saber
+				|| (item->giType == IT_WEAPON && GI_Weapon( *item ) == WP_SABER ) )//or if it's a saber
 			{
 				return false;
 			}
@@ -2110,14 +2115,14 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{
 			return false;
 		}
-		if (!(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & (1 << item->giTag)) &&
-			item->giTag != WP_THERMAL && item->giTag != WP_TRIP_MINE && item->giTag != WP_DET_PACK)
+		if (!(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & Bit( GI_Weapon( *item ) )) &&
+			GI_Weapon( *item ) != WP_THERMAL && GI_Weapon( *item ) != WP_TRIP_MINE && GI_Weapon( *item ) != WP_DET_PACK)
 		{ //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
 			return false;
 		}
-		if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
+		if (GI_Weapon( *item ) == WP_THERMAL || GI_Weapon( *item ) == WP_TRIP_MINE || GI_Weapon( *item ) == WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
-			const ammo_t ammoIndex = weaponData[item->giTag].ammoIndex;
+			const ammo_t ammoIndex = weaponData[GI_Weapon( *item )].ammoIndex;
 			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max)
 			{ //don't need it
 				return false;
@@ -2202,7 +2207,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
             Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
         default:
 #ifndef NDEBUG // bk0001204
-          Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
+          Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", to_underlying( item->giType ) );
 #endif
          break;
 	}
@@ -2870,8 +2875,8 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	s->activeForcePass = ps->activeForcePass;
 
 	s->angles2[YAW] = ps->movementDir;
-	s->legsAnim = ps->legsAnim;
-	s->torsoAnim = ps->torsoAnim;
+	ES_SetLegsAnim( *s, ps->legsAnim );
+	ES_SetTorsoAnim( *s, ps->torsoAnim );
 
 	s->legsFlip = ps->legsFlip;
 	s->torsoFlip = ps->torsoFlip;
@@ -3023,8 +3028,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->activeForcePass = ps->activeForcePass;
 
 	s->angles2[YAW] = ps->movementDir;
-	s->legsAnim = ps->legsAnim;
-	s->torsoAnim = ps->torsoAnim;
+	ES_SetLegsAnim( *s, ps->legsAnim );
+	ES_SetTorsoAnim( *s, ps->torsoAnim );
 
 	s->legsFlip = ps->legsFlip;
 	s->torsoFlip = ps->torsoFlip;
