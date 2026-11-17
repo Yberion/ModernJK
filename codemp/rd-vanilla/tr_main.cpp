@@ -1167,7 +1167,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 		// no shader should ever have this sort type
 		if ( shader->sort == (float)SS_BAD ) {
-			Com_Error (ERR_DROP, "Shader '%s'with sort == to_underlying( SS_BAD )", shader->name );
+			Com_Error (ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface

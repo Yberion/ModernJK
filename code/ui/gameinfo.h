@@ -37,7 +37,7 @@ typedef struct {
 	void		(*Cvar_Create)( const char *var_name, const char *var_value, int flags );
 	int			(*FS_ReadFile)( const char *name, void **buf );
 	void		(*FS_FreeFile)( void *buf );
-	void		(*Printf)( const char *fmt, ... );
+	void		(*Printf)( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 } gameinfo_import_t;
 
 

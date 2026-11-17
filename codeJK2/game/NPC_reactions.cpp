@@ -566,7 +566,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				G_Sound( player, G_SoundIndex( "sound/weapons/key_pkup.wav" ) );
 				//FIXME: need some event to pass to cgame for sound/graphic/message?
 			}
-			gi.SendServerCommand( 0, text );
+			gi.SendServerCommand( 0, "%s", text );
 		}
 	}
 

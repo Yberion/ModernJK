@@ -37,10 +37,10 @@ typedef struct {
 	//============== general Quake services ==================
 
 	// print message on the local console
-	void		(*Printf)( const char *fmt, ... );
+	void		(*Printf)( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 
 	// abort the game
-	NORETURN_PTR void	(*Error)( int level, const char *fmt, ... );
+	NORETURN_PTR void	(*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// console variable interaction
 	void		(*Cvar_Set)( const char *name, const char *value );

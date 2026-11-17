@@ -372,6 +372,7 @@ enum class Dissolve_e
 
 };
 using enum Dissolve_e;
+template <> inline constexpr bool enableEnumArithmetic<Dissolve_e> = true;
 
 typedef struct
 {
@@ -924,7 +925,7 @@ bool RE_InitDissolve(bool bForceCircularExtroWipe)
 #else
 			// final (& random) version...
 			//
-			Dissolve.eDissolveType = static_cast<Dissolve_e>( Q_irand( 0, to_underlying( eDISSOLVE_RAND_LIMIT ) - 1 ) );
+			Dissolve.eDissolveType = Q_irand( eDISSOLVE_RT_TO_LT, eDISSOLVE_RAND_LIMIT - 1 );
 #endif
 
 			if (bForceCircularExtroWipe)

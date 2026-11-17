@@ -1811,7 +1811,7 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 	char			arg[MAX_TOKEN_CHARS] = {0};
 
 	if ( trap->Argc() != 3 ) {
-		trap->SendServerCommand( ent-g_entities, va( "print \"Usage: gc <player id> <order 0-%d>\n\"", numgc_orders - 1 ) );
+		trap->SendServerCommand( ent-g_entities, va( "print \"Usage: gc <player id> <order 0-%zu>\n\"", numgc_orders - 1 ) );
 		return;
 	}
 
@@ -2576,7 +2576,7 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 
 	if (forcedUse == HI_NONE)
 	{
-		forcedUse = static_cast<holdable_t>( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag );
+		forcedUse = GI_Holdable( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]] );
 	}
 
 	if (!BG_IsItemSelectable(ps, forcedUse))

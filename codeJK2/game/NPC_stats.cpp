@@ -240,7 +240,7 @@ static saber_colors_t TranslateSaberColor( const char *name )
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return static_cast<saber_colors_t>( Q_irand( to_underlying( SABER_ORANGE ), to_underlying( SABER_PURPLE ) ) );
+		return Q_irand( SABER_ORANGE, SABER_PURPLE );
 	}
 	return SABER_BLUE;
 }
@@ -368,7 +368,7 @@ bool G_ParseAnimationFile( const char *af_filename )
 	}
 	if ( len >= (int)sizeof(text) - 1 )
 	{
-		G_Error( "G_ParseAnimationFile: File %s too long\n (%d > %d)", af_filename, len, sizeof( text ) - 1);
+		G_Error( "G_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof( text ) - 1);
 		return false;
 	}
 	len = gi.RE_GetAnimationCFG(af_filename, text, sizeof(text));

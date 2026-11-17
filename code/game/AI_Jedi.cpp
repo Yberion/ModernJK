@@ -1240,7 +1240,7 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 		if ( TIMER_Done( NPC, "saberLevelDebounce" ) && !Q_irand( 0, 10 ) )
 		{
 			//Jedi_AdjustSaberAnimLevel( NPC, (NPC->client->ps.saberAnimLevel-1) );//drop
-			Jedi_AdjustSaberAnimLevel( NPC, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ));//random
+			Jedi_AdjustSaberAnimLevel( NPC, Q_irand( SS_FAST, SS_STRONG ));//random
 			TIMER_Set( NPC, "saberLevelDebounce", Q_irand( 3000, 10000 ) );
 		}
 	}
@@ -1301,7 +1301,7 @@ static bool Jedi_DecideKick( void )
 
 void Kyle_GrabEnemy( void )
 {
-	WP_SabersCheckLock2( NPC, NPC->enemy, static_cast<sabersLockMode_t>( Q_irand( to_underlying( LOCK_KYLE_GRAB1 ), to_underlying( LOCK_KYLE_GRAB2 ) ) ) );//LOCK_KYLE_GRAB3
+	WP_SabersCheckLock2( NPC, NPC->enemy, Q_irand( LOCK_KYLE_GRAB1, LOCK_KYLE_GRAB2 ) );//LOCK_KYLE_GRAB3
 	TIMER_Set( NPC, "grabEnemyDebounce", NPC->client->ps.torsoAnimTimer + Q_irand( 4000, 20000 ) );
 }
 
@@ -6046,7 +6046,7 @@ void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, con
 		}
 		if ( !Q_irand( 0, 3 ) )
 		{//ouch... maybe switch up which saber power level we're using
-			Jedi_AdjustSaberAnimLevel( self, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );
+			Jedi_AdjustSaberAnimLevel( self, Q_irand( SS_FAST, SS_STRONG ) );
 		}
 		if ( !Q_irand( 0, 1 ) )//damage > 20 || self->health < 40 ||
 		{

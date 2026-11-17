@@ -2123,7 +2123,7 @@ bool UI_ParseAnimationFile( const char *af_filename )
 	}
 	if ( len >= (int)(sizeof( text ) - 1) )
 	{
-		Com_Error( ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %d)", af_filename, len, sizeof( text ) - 1);
+		Com_Error( ERR_FATAL, "UI_ParseAnimationFile: File %s too long\n (%d > %zu)", af_filename, len, sizeof( text ) - 1);
 		return false;
 	}
 
@@ -2458,8 +2458,8 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 	dirlist = (char *)malloc(DIR_LIST_SIZE);
 	if ( !dirlist )
 	{
-		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %u bytes of memory for player model "
-			"directory list. Using stack allocated buffer of %u bytes instead.",
+		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %zu bytes of memory for player model "
+			"directory list. Using stack allocated buffer of %zu bytes instead.",
 			DIR_LIST_SIZE, sizeof(stackDirList));
 
 		dirlist = stackDirList;
@@ -2936,12 +2936,12 @@ void UI_LoadMenus(const char *menuFile, bool reset)
 
 	if (len<1)
 	{
-		Com_Printf( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
+		Com_Printf( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 		len = ui.FS_ReadFile("ui/menus.txt",(void **) &buffer);
 
 		if (len<1)
 		{
-			Com_Error( ERR_FATAL, "%s", va("default menu file not found: ui/menus.txt, unable to continue!\n", menuFile ));
+			Com_Error( ERR_FATAL, "default menu file not found: ui/menus.txt, unable to continue!\n" );
 			return;
 		}
 	}

@@ -1174,7 +1174,7 @@ bool SG_WriteSavegame(const char *psPathlessBaseName, bool qbAutosave)
 
 	if(!saved_game.create( "current" ))
 	{
-		Com_Printf (GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to create savegame\n");
+		Com_Printf ("%s", GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to create savegame\n");
 		SG_WipeSavegame( "current" );
 		sv_testsave->integer = iPrevTestSave;
 		return false;
@@ -1223,7 +1223,7 @@ bool SG_WriteSavegame(const char *psPathlessBaseName, bool qbAutosave)
 
 	if (is_write_failed)
 	{
-		Com_Printf (GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to write savegame!\n");
+		Com_Printf ("%s", GetString_FailedToOpenSaveGame("current",false));//S_COLOR_RED "Failed to write savegame!\n");
 		SG_WipeSavegame( "current" );
 		sv_testsave->integer = iPrevTestSave;
 		return false;
@@ -1275,7 +1275,7 @@ bool SG_ReadSavegame(
 	{
 		//S_COLOR_RED "Failed to open savegame \"%s\"\n", psPathlessBaseName);
 		::Com_Printf(
-			::GetString_FailedToOpenSaveGame(
+			"%s", ::GetString_FailedToOpenSaveGame(
 				psPathlessBaseName,
 				true));
 

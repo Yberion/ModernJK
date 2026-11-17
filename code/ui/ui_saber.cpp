@@ -469,7 +469,7 @@ saber_colors_t TranslateSaberColor( const char *name )
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
-		return static_cast<saber_colors_t>( Q_irand( to_underlying( SABER_ORANGE ), to_underlying( SABER_PURPLE ) ) );
+		return Q_irand( SABER_ORANGE, SABER_PURPLE );
 	}
 	return SABER_BLUE;
 }

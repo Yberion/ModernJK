@@ -694,7 +694,7 @@ void ParseAnimationSndBlock(const char *asb_filename, animsounds_t *animSounds, 
 		}
 		else
 		{
-			animSounds->soundIndex[0] = G_SoundIndex( va( soundString ) );//cgi_S_RegisterSound
+			animSounds->soundIndex[0] = G_SoundIndex( soundString );//cgi_S_RegisterSound
 #ifndef FINAL_BUILD
 			if ( !animSounds->soundIndex[0] )
 			{//couldn't register it - file not found
@@ -6051,7 +6051,7 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->pe.torso.pitching = false;
 
 	if ( cg_debugPosition.integer ) {
-		CG_Printf("%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
+		CG_Printf("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
 }
 

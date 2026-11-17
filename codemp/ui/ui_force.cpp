@@ -35,8 +35,8 @@ FORCE INTERFACE
 
 int uiForceSide = FORCE_LIGHTSIDE;
 int uiJediNonJedi = -1;
-int uiForceRank = to_underlying( FORCE_MASTERY_JEDI_KNIGHT );
-int uiMaxRank = MAX_FORCE_RANK;
+forceMasteries_t uiForceRank = FORCE_MASTERY_JEDI_KNIGHT;
+forceMasteries_t uiMaxRank = FORCE_MASTERY_JEDI_MASTER;
 int uiMaxPoints = 20;
 int	uiForceUsed = 0;
 int uiForceAvailable=0;
@@ -68,25 +68,25 @@ bool uiForcePowersDisabled[NUM_FORCE_POWERS] = {
 	false//FP_SABERTHROW,
 };
 
-int uiForcePowersRank[NUM_FORCE_POWERS] = {
-	0,//FP_HEAL = 0,//instant
-	1,//FP_LEVITATION,//hold/duration, this one defaults to 1 (gives a free point)
-	0,//FP_SPEED,//duration
-	0,//FP_PUSH,//hold/duration
-	0,//FP_PULL,//hold/duration
-	0,//FP_TELEPATHY,//instant
-	0,//FP_GRIP,//hold/duration
-	0,//FP_LIGHTNING,//hold/duration
-	0,//FP_RAGE,//duration
-	0,//FP_PROTECT,
-	0,//FP_ABSORB,
-	0,//FP_TEAM_HEAL,
-	0,//FP_TEAM_FORCE,
-	0,//FP_DRAIN,
-	0,//FP_SEE,
-	1,//FP_SABER_OFFENSE, //default to 1 point in attack
-	1,//FP_SABER_DEFENSE, //defualt to 1 point in defense
-	0//FP_SABERTHROW,
+forcePowerLevels_t uiForcePowersRank[NUM_FORCE_POWERS] = {
+	FORCE_LEVEL_0,//FP_HEAL = 0,//instant
+	FORCE_LEVEL_1,//FP_LEVITATION,//hold/duration, this one defaults to 1 (gives a free point)
+	FORCE_LEVEL_0,//FP_SPEED,//duration
+	FORCE_LEVEL_0,//FP_PUSH,//hold/duration
+	FORCE_LEVEL_0,//FP_PULL,//hold/duration
+	FORCE_LEVEL_0,//FP_TELEPATHY,//instant
+	FORCE_LEVEL_0,//FP_GRIP,//hold/duration
+	FORCE_LEVEL_0,//FP_LIGHTNING,//hold/duration
+	FORCE_LEVEL_0,//FP_RAGE,//duration
+	FORCE_LEVEL_0,//FP_PROTECT,
+	FORCE_LEVEL_0,//FP_ABSORB,
+	FORCE_LEVEL_0,//FP_TEAM_HEAL,
+	FORCE_LEVEL_0,//FP_TEAM_FORCE,
+	FORCE_LEVEL_0,//FP_DRAIN,
+	FORCE_LEVEL_0,//FP_SEE,
+	FORCE_LEVEL_1,//FP_SABER_OFFENSE, //default to 1 point in attack
+	FORCE_LEVEL_1,//FP_SABER_DEFENSE, //defualt to 1 point in defense
+	FORCE_LEVEL_0//FP_SABERTHROW,
 };
 
 int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
@@ -144,9 +144,9 @@ void UI_InitForceShaders(void)
 }
 
 // Draw the stars spent on the current force power
-void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle, int forceindex, int val, int min, int max)
+void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle, int forceindex, forcePowerLevels_t val, forcePowerLevels_t min, forcePowerLevels_t max)
 {
-	int	i,pad = 4;
+	int	pad = 4;
 	int	xPos,width = 16;
 	int starcolor;
 
@@ -159,9 +159,9 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 	{
 		xPos = rect->x;
 
-		for (i=to_underlying( FORCE_LEVEL_1 );i<=max;i++)
+		for (forcePowerLevels_t i=FORCE_LEVEL_1;i<=max;i++)
 		{
-			starcolor = bgForcePowerCost[forceindex][static_cast<forcePowerLevels_t>( i )];
+			starcolor = bgForcePowerCost[forceindex][i];
 
 			if (uiForcePowersDisabled[forceindex])
 			{
@@ -192,13 +192,13 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 void UI_UpdateClientForcePowers(const char *teamArg)
 {
 	trap->Cvar_Set( "forcepowers", va("%i-%i-%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i%i",
-		uiForceRank, uiForceSide, uiForcePowersRank[0], uiForcePowersRank[1],
-		uiForcePowersRank[2], uiForcePowersRank[3], uiForcePowersRank[4],
-		uiForcePowersRank[5], uiForcePowersRank[6], uiForcePowersRank[7],
-		uiForcePowersRank[8], uiForcePowersRank[9], uiForcePowersRank[10],
-		uiForcePowersRank[11], uiForcePowersRank[12], uiForcePowersRank[13],
-		uiForcePowersRank[14], uiForcePowersRank[15], uiForcePowersRank[16],
-		uiForcePowersRank[17]) );
+		to_underlying( uiForceRank ), uiForceSide, to_underlying( uiForcePowersRank[0] ), to_underlying( uiForcePowersRank[1] ),
+		to_underlying( uiForcePowersRank[2] ), to_underlying( uiForcePowersRank[3] ), to_underlying( uiForcePowersRank[4] ),
+		to_underlying( uiForcePowersRank[5] ), to_underlying( uiForcePowersRank[6] ), to_underlying( uiForcePowersRank[7] ),
+		to_underlying( uiForcePowersRank[8] ), to_underlying( uiForcePowersRank[9] ), to_underlying( uiForcePowersRank[10] ),
+		to_underlying( uiForcePowersRank[11] ), to_underlying( uiForcePowersRank[12] ), to_underlying( uiForcePowersRank[13] ),
+		to_underlying( uiForcePowersRank[14] ), to_underlying( uiForcePowersRank[15] ), to_underlying( uiForcePowersRank[16] ),
+		to_underlying( uiForcePowersRank[17] )) );
 
 	if (gTouchedForce)
 	{
@@ -257,12 +257,12 @@ void UI_SaveForceTemplate()
 		return;
 	}
 
-	Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", uiForceRank, uiForceSide);
+	Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", to_underlying( uiForceRank ), uiForceSide);
 	strPlace = strlen(fcfString);
 
 	while (forcePlace < NUM_FORCE_POWERS)
 	{
-		Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", uiForcePowersRank[forcePlace]);
+		Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", to_underlying( uiForcePowersRank[forcePlace] ));
 		//Just use the force digit even if multiple digits. Shouldn't be longer than 1.
 		fcfString[strPlace] = forceStringValue[0];
 		strPlace++;
@@ -307,19 +307,19 @@ void UI_SaveForceTemplate()
 extern bool UI_TrueJediEnabled( void );
 void UpdateForceUsed()
 {
-	int curpower, currank;
+	int curpower;
 	menuDef_t *menu;
 
 	// Currently we don't make a distinction between those that wish to play Jedi of lower than maximum skill.
 	uiForceRank = uiMaxRank;
 
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
+	uiForceAvailable = forceMasteryPoints[uiForceRank];
 
 	// Make sure that we have one freebie in jump.
-	if (uiForcePowersRank[FP_LEVITATION]<1)
+	if (uiForcePowersRank[FP_LEVITATION]<FORCE_LEVEL_1)
 	{
-		uiForcePowersRank[FP_LEVITATION]=1;
+		uiForcePowersRank[FP_LEVITATION]=FORCE_LEVEL_1;
 	}
 
 	if ( UI_TrueJediEnabled() )
@@ -333,17 +333,17 @@ void UpdateForceUsed()
 			{//if any force power is set, we must be a jedi
 				if ( x == FP_LEVITATION || x == FP_SABER_OFFENSE )
 				{
-					if ( uiForcePowersRank[x] > 1 )
+					if ( uiForcePowersRank[x] > FORCE_LEVEL_1 )
 					{
 						uiJediNonJedi = FORCE_JEDI;
 						break;
 					}
-					else if ( uiForcePowersRank[x] > 0 )
+					else if ( uiForcePowersRank[x] > FORCE_LEVEL_0 )
 					{
 						clear = true;
 					}
 				}
-				else if ( uiForcePowersRank[x] > 0 )
+				else if ( uiForcePowersRank[x] > FORCE_LEVEL_0 )
 				{
 					uiJediNonJedi = FORCE_JEDI;
 					break;
@@ -352,9 +352,9 @@ void UpdateForceUsed()
 			}
 			if ( uiJediNonJedi == FORCE_JEDI )
 			{
-				if ( uiForcePowersRank[FP_SABER_OFFENSE] < 1 )
+				if ( uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1 )
 				{
-					uiForcePowersRank[FP_SABER_OFFENSE]=1;
+					uiForcePowersRank[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
 					update = true;
 				}
 			}
@@ -363,7 +363,7 @@ void UpdateForceUsed()
 				x = 0;
 				while ( x < NUM_FORCE_POWERS )
 				{//clear all force
-					uiForcePowersRank[x] = 0;
+					uiForcePowersRank[x] = FORCE_LEVEL_0;
 					x++;
 				}
 				update = true;
@@ -371,7 +371,7 @@ void UpdateForceUsed()
 			if ( update )
 			{
 				team_t myTeam;
-				myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
+				myTeam = UI_CvarTeam( "ui_myteam" );
 				if ( myTeam != TEAM_SPECTATOR )
 				{
 					UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
@@ -391,13 +391,13 @@ void UpdateForceUsed()
 		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 0;
 		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 0;
 		// Make sure that we have one freebie in saber if applicable.
-		if (uiForcePowersRank[FP_SABER_OFFENSE]<1)
+		if (uiForcePowersRank[FP_SABER_OFFENSE]<FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_OFFENSE]=1;
+			uiForcePowersRank[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
 		}
-		if (uiForcePowersRank[FP_SABER_DEFENSE]<1)
+		if (uiForcePowersRank[FP_SABER_DEFENSE]<FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_DEFENSE]=1;
+			uiForcePowersRank[FP_SABER_DEFENSE]=FORCE_LEVEL_1;
 		}
 		if (menu)
 		{
@@ -413,10 +413,10 @@ void UpdateForceUsed()
 		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 1;
 		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 1;
 		// Also, check if there is no saberattack.  If there isn't, there had better not be any defense or throw!
-		if (uiForcePowersRank[FP_SABER_OFFENSE]<1)
+		if (uiForcePowersRank[FP_SABER_OFFENSE]<FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_DEFENSE]=0;
-			uiForcePowersRank[FP_SABERTHROW]=0;
+			uiForcePowersRank[FP_SABER_DEFENSE]=FORCE_LEVEL_0;
+			uiForcePowersRank[FP_SABERTHROW]=FORCE_LEVEL_0;
 			if (menu)
 			{
 				Menu_ShowItemByName(menu, "setfp_saberdefend", false);
@@ -442,24 +442,24 @@ void UpdateForceUsed()
 	// Make sure that we're still legal.
 	for (curpower=0;curpower<NUM_FORCE_POWERS;curpower++)
 	{	// Make sure that our ranks are within legal limits.
-		if (uiForcePowersRank[curpower]<0)
-			uiForcePowersRank[curpower]=0;
-		else if (uiForcePowersRank[curpower]>=to_underlying( NUM_FORCE_POWER_LEVELS ))
-			uiForcePowersRank[curpower]=(to_underlying( NUM_FORCE_POWER_LEVELS )-1);
+		if (uiForcePowersRank[curpower]<FORCE_LEVEL_0)
+			uiForcePowersRank[curpower]=FORCE_LEVEL_0;
+		else if (uiForcePowersRank[curpower]>=NUM_FORCE_POWER_LEVELS)
+			uiForcePowersRank[curpower]=(NUM_FORCE_POWER_LEVELS-1);
 
-		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=uiForcePowersRank[curpower];currank++)
+		for (forcePowerLevels_t currank=FORCE_LEVEL_1;currank<=uiForcePowersRank[curpower];currank++)
 		{	// Check on this force power
-			if (uiForcePowersRank[curpower]>0)
+			if (uiForcePowersRank[curpower]>FORCE_LEVEL_0)
 			{	// Do not charge the player for the one freebie in jump, or if there is one in saber.
-				if  (	(curpower == FP_LEVITATION && currank == to_underlying( FORCE_LEVEL_1 )) ||
-						(curpower == FP_SABER_OFFENSE && currank == to_underlying( FORCE_LEVEL_1 ) && ui_freeSaber.integer) ||
-						(curpower == FP_SABER_DEFENSE && currank == to_underlying( FORCE_LEVEL_1 ) && ui_freeSaber.integer) )
+				if  (	(curpower == FP_LEVITATION && currank == FORCE_LEVEL_1) ||
+						(curpower == FP_SABER_OFFENSE && currank == FORCE_LEVEL_1 && ui_freeSaber.integer) ||
+						(curpower == FP_SABER_DEFENSE && currank == FORCE_LEVEL_1 && ui_freeSaber.integer) )
 				{
 					// Do nothing (written this way for clarity)
 				}
 				else
 				{	// Check if we can accrue the cost of this power.
-					if (bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
+					if (bgForcePowerCost[curpower][currank] > uiForceAvailable)
 					{	// We can't afford this power.  Break to the next one.
 						// Remove this power from the player's roster.
 						uiForcePowersRank[curpower] = currank-1;
@@ -467,8 +467,8 @@ void UpdateForceUsed()
 					}
 					else
 					{	// Sure we can afford it.
-						uiForceUsed += bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )];
-						uiForceAvailable -= bgForcePowerCost[curpower][static_cast<forcePowerLevels_t>( currank )];
+						uiForceUsed += bgForcePowerCost[curpower][currank];
+						uiForceAvailable -= bgForcePowerCost[curpower][currank];
 					}
 				}
 			}
@@ -491,18 +491,18 @@ void UI_ReadLegalForce(void)
 	char info[MAX_INFO_VALUE];
 	int c = 0;
 	int iBuf = 0;
-	int forcePowerRank = 0;
-	int currank = 0;
+	forcePowerLevels_t forcePowerRank = FORCE_LEVEL_0;
+	forcePowerLevels_t currank = FORCE_LEVEL_0;
 	int forceTeam = 0;
 	bool updateForceLater = false;
 
 	//First, stick them into a string.
-	Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", uiForceRank, uiForceSide);
+	Com_sprintf(fcfString, sizeof(fcfString), "%i-%i-", to_underlying( uiForceRank ), uiForceSide);
 	strPlace = strlen(fcfString);
 
 	while (forcePlace < NUM_FORCE_POWERS)
 	{
-		Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", uiForcePowersRank[forcePlace]);
+		Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", to_underlying( uiForcePowersRank[forcePlace] ));
 		//Just use the force digit even if multiple digits. Shouldn't be longer than 1.
 		fcfString[strPlace] = forceStringValue[0];
 		strPlace++;
@@ -516,7 +516,7 @@ void UI_ReadLegalForce(void)
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
+		switch(UI_CvarTeam( "ui_myteam" ))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;
@@ -547,15 +547,15 @@ void UI_ReadLegalForce(void)
 	c = 0;
 	i++;
 
-	iBuf = atoi(singleBuf);
+	const forceMasteries_t rank = static_cast<forceMasteries_t>( atoi(singleBuf) );
 
-	if (iBuf > uiMaxRank || iBuf < 0)
+	if (rank > uiMaxRank || rank < FORCE_MASTERY_UNINITIATED)
 	{ //this force config uses a rank level higher than our currently restricted level.. so we can't use it
 	  //FIXME: Print a message indicating this to the user
 	//	return;
 	}
 
-	uiForceRank = iBuf;
+	uiForceRank = rank;
 
 	while (fcfString[i] && fcfString[i] != '-')
 	{
@@ -579,11 +579,11 @@ void UI_ReadLegalForce(void)
 	//clear out the existing powers
 	while (c < NUM_FORCE_POWERS)
 	{
-		uiForcePowersRank[c] = 0;
+		uiForcePowersRank[c] = FORCE_LEVEL_0;
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
+	uiForceAvailable = forceMasteryPoints[uiForceRank];
 	gTouchedForce = true;
 
 	for (c=0;fcfString[i]&&c<NUM_FORCE_POWERS;c++,i++)
@@ -597,9 +597,9 @@ void UI_ReadLegalForce(void)
 			iBuf = 0;
 		}
 
-		forcePowerRank = iBuf;
+		forcePowerRank = static_cast<forcePowerLevels_t>( iBuf );
 
-		if (forcePowerRank > to_underlying( FORCE_LEVEL_3 ) || forcePowerRank < 0)
+		if (forcePowerRank > FORCE_LEVEL_3 || forcePowerRank < FORCE_LEVEL_0)
 		{ //err..  not correct
 			continue;  // skip this power
 		}
@@ -610,31 +610,31 @@ void UI_ReadLegalForce(void)
 		}
 
 		// Accrue cost for each assigned rank for this power.
-		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=forcePowerRank;currank++)
+		for (currank=FORCE_LEVEL_1;currank<=forcePowerRank;currank++)
 		{
-			if (bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
+			if (bgForcePowerCost[c][currank] > uiForceAvailable)
 			{	// Break out, we can't afford any more power.
 				break;
 			}
 			// Pay for this rank of this power.
-			uiForceUsed += bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
-			uiForceAvailable -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
+			uiForceUsed += bgForcePowerCost[c][currank];
+			uiForceAvailable -= bgForcePowerCost[c][currank];
 
 			uiForcePowersRank[c]++;
 		}
 	}
 
-	if (uiForcePowersRank[FP_LEVITATION] < 1)
+	if (uiForcePowersRank[FP_LEVITATION] < FORCE_LEVEL_1)
 	{
-		uiForcePowersRank[FP_LEVITATION]=1;
+		uiForcePowersRank[FP_LEVITATION]=FORCE_LEVEL_1;
 	}
-	if (uiForcePowersRank[FP_SABER_OFFENSE] < 1 && ui_freeSaber.integer)
+	if (uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1 && ui_freeSaber.integer)
 	{
-		uiForcePowersRank[FP_SABER_OFFENSE]=1;
+		uiForcePowersRank[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
 	}
-	if (uiForcePowersRank[FP_SABER_DEFENSE] < 1 && ui_freeSaber.integer)
+	if (uiForcePowersRank[FP_SABER_DEFENSE] < FORCE_LEVEL_1 && ui_freeSaber.integer)
 	{
-		uiForcePowersRank[FP_SABER_DEFENSE]=1;
+		uiForcePowersRank[FP_SABER_DEFENSE]=FORCE_LEVEL_1;
 	}
 
 	UpdateForceUsed();
@@ -672,7 +672,7 @@ void UI_UpdateForcePowers()
 				uiForceSide = 0;
 				goto validitycheck;
 			}
-			uiForceRank = atoi(readBuf);
+			uiForceRank = static_cast<forceMasteries_t>( atoi(readBuf) );
 			i_r = 0;
 
 			if (uiForceRank > uiMaxRank)
@@ -705,26 +705,26 @@ void UI_UpdateForcePowers()
 			{
 				readBuf[0] = forcePowers[i];
 				readBuf[1] = '\0';
-				uiForcePowersRank[i_f] = atoi(readBuf);
+				uiForcePowersRank[i_f] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
 
 				if (i_f == FP_LEVITATION &&
-					uiForcePowersRank[i_f] < 1)
+					uiForcePowersRank[i_f] < FORCE_LEVEL_1)
 				{
-					uiForcePowersRank[i_f] = 1;
+					uiForcePowersRank[i_f] = FORCE_LEVEL_1;
 				}
 
 				if (i_f == FP_SABER_OFFENSE &&
-					uiForcePowersRank[i_f] < 1 &&
+					uiForcePowersRank[i_f] < FORCE_LEVEL_1 &&
 					ui_freeSaber.integer)
 				{
-					uiForcePowersRank[i_f] = 1;
+					uiForcePowersRank[i_f] = FORCE_LEVEL_1;
 				}
 
 				if (i_f == FP_SABER_DEFENSE &&
-					uiForcePowersRank[i_f] < 1 &&
+					uiForcePowersRank[i_f] < FORCE_LEVEL_1 &&
 					ui_freeSaber.integer)
 				{
-					uiForcePowersRank[i_f] = 1;
+					uiForcePowersRank[i_f] = FORCE_LEVEL_1;
 				}
 
 				i_f++;
@@ -745,25 +745,25 @@ validitycheck:
 	if (!uiForceSide)
 	{
 		uiForceSide = 1;
-		uiForceRank = 1;
+		uiForceRank = FORCE_MASTERY_INITIATE;
 		i = 0;
 		while (i < NUM_FORCE_POWERS)
 		{
 			if (i == FP_LEVITATION)
 			{
-				uiForcePowersRank[i] = 1;
+				uiForcePowersRank[i] = FORCE_LEVEL_1;
 			}
 			else if (i == FP_SABER_OFFENSE && ui_freeSaber.integer)
 			{
-				uiForcePowersRank[i] = 1;
+				uiForcePowersRank[i] = FORCE_LEVEL_1;
 			}
 			else if (i == FP_SABER_DEFENSE && ui_freeSaber.integer)
 			{
-				uiForcePowersRank[i] = 1;
+				uiForcePowersRank[i] = FORCE_LEVEL_1;
 			}
 			else
 			{
-				uiForcePowersRank[i] = 0;
+				uiForcePowersRank[i] = FORCE_LEVEL_0;
 			}
 
 			i++;
@@ -826,7 +826,7 @@ bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
+		switch(UI_CvarTeam( "ui_myteam" ))
 		{
 		case TEAM_RED:
 			return false;
@@ -872,7 +872,7 @@ bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min
 		{
 			if (uiForcePowerDarkLight[x] && uiForceSide != uiForcePowerDarkLight[x])
 			{
-				uiForcePowersRank[x] = 0;
+				uiForcePowersRank[x] = FORCE_LEVEL_0;
 			}
 			x++;
 		}
@@ -927,10 +927,10 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 		// Resetting power ranks based on if light or dark side is chosen
 		if ( !num )
 		{//not a jedi?
-			team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
+			team_t myTeam = UI_CvarTeam( "ui_myteam" );
 			while ( x < NUM_FORCE_POWERS )
 			{//clear all force powers
-				uiForcePowersRank[x] = 0;
+				uiForcePowersRank[x] = FORCE_LEVEL_0;
 				x++;
 			}
 			if ( myTeam != TEAM_SPECTATOR )
@@ -944,13 +944,13 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 		}
 		else if ( num )
 		{//a jedi, set the minimums, hopefuly they know to set the rest!
-			if ( uiForcePowersRank[FP_LEVITATION] < to_underlying( FORCE_LEVEL_1 ) )
+			if ( uiForcePowersRank[FP_LEVITATION] < FORCE_LEVEL_1 )
 			{//force jump 1 minimum
-				uiForcePowersRank[FP_LEVITATION] = to_underlying( FORCE_LEVEL_1 );
+				uiForcePowersRank[FP_LEVITATION] = FORCE_LEVEL_1;
 			}
-			if ( uiForcePowersRank[FP_SABER_OFFENSE] < to_underlying( FORCE_LEVEL_1 ) )
+			if ( uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1 )
 			{//saber attack 1, minimum
-				uiForcePowersRank[FP_SABER_OFFENSE] = to_underlying( FORCE_LEVEL_1 );
+				uiForcePowersRank[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
 			}
 		}
 
@@ -962,11 +962,11 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 	return false;
 }
 
-bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type)
+bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, forceMasteries_t num, forceMasteries_t min, forceMasteries_t max, int type)
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
-  	int i = num;
+  	forceMasteries_t i = num;
 
 	if (key == A_MOUSE2)
 	{
@@ -990,7 +990,7 @@ bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int 
 
 	uiMaxRank = num;
 
-	trap->Cvar_Set( "g_maxForceRank", va("%i", num));
+	trap->Cvar_Set( "g_maxForceRank", va("%i", to_underlying( num )));
 
 	// The update force used will remove overallocated powers automatically.
 	UpdateForceUsed();
@@ -1004,13 +1004,14 @@ bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int 
 
 
 // This function will either raise or lower a power by one rank.
-bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type)
+bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, forcePowerLevels_t num, forcePowerLevels_t min, forcePowerLevels_t max, int type)
 {
 	bool raising;
 
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER || key == A_BACKSPACE)
 	{
-		int forcepower, rank;
+		int forcepower;
+		forcePowerLevels_t rank;
 
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		forcepower = (type-UI_FORCE_RANK)-1;
@@ -1028,7 +1029,7 @@ bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, in
 		}
 		else if (forcepower == FP_SABER_DEFENSE || forcepower == FP_SABERTHROW)
 		{	// Saberdefend and saberthrow can't be bought if there is no saberattack
-			if (uiForcePowersRank[FP_SABER_OFFENSE] < 1)
+			if (uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
 			{
 				return true;
 			}
@@ -1067,22 +1068,22 @@ bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, in
 		if (raising)
 		{	// Check if we can accrue the cost of this power.
 			rank = uiForcePowersRank[forcepower]+1;
-			if (bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )] > uiForceAvailable)
+			if (bgForcePowerCost[forcepower][rank] > uiForceAvailable)
 			{	// We can't afford this power.  Abandon ship.
 				return true;
 			}
 			else
 			{	// Sure we can afford it.
-				uiForceUsed += bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
-				uiForceAvailable -= bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
+				uiForceUsed += bgForcePowerCost[forcepower][rank];
+				uiForceAvailable -= bgForcePowerCost[forcepower][rank];
 				uiForcePowersRank[forcepower]=rank;
 			}
 		}
 		else
 		{	// Lower the point.
 			rank = uiForcePowersRank[forcepower];
-			uiForceUsed -= bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
-			uiForceAvailable += bgForcePowerCost[forcepower][static_cast<forcePowerLevels_t>( rank )];
+			uiForceUsed -= bgForcePowerCost[forcepower][rank];
+			uiForceAvailable += bgForcePowerCost[forcepower][rank];
 			uiForcePowersRank[forcepower]--;
 		}
 
@@ -1096,28 +1097,28 @@ bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, in
 }
 
 
-int gCustRank = 0;
+forceMasteries_t gCustRank = FORCE_MASTERY_UNINITIATED;
 int gCustSide = 0;
 
-int gCustPowersRank[NUM_FORCE_POWERS] = {
-	0,//FP_HEAL = 0,//instant
-	1,//FP_LEVITATION,//hold/duration, this one defaults to 1 (gives a free point)
-	0,//FP_SPEED,//duration
-	0,//FP_PUSH,//hold/duration
-	0,//FP_PULL,//hold/duration
-	0,//FP_TELEPATHY,//instant
-	0,//FP_GRIP,//hold/duration
-	0,//FP_LIGHTNING,//hold/duration
-	0,//FP_RAGE,//duration
-	0,//FP_PROTECT,
-	0,//FP_ABSORB,
-	0,//FP_TEAM_HEAL,
-	0,//FP_TEAM_FORCE,
-	0,//FP_DRAIN,
-	0,//FP_SEE,
-	0,//FP_SABER_OFFENSE,
-	0,//FP_SABER_DEFENSE,
-	0//FP_SABERTHROW,
+forcePowerLevels_t gCustPowersRank[NUM_FORCE_POWERS] = {
+	FORCE_LEVEL_0,//FP_HEAL = 0,//instant
+	FORCE_LEVEL_1,//FP_LEVITATION,//hold/duration, this one defaults to 1 (gives a free point)
+	FORCE_LEVEL_0,//FP_SPEED,//duration
+	FORCE_LEVEL_0,//FP_PUSH,//hold/duration
+	FORCE_LEVEL_0,//FP_PULL,//hold/duration
+	FORCE_LEVEL_0,//FP_TELEPATHY,//instant
+	FORCE_LEVEL_0,//FP_GRIP,//hold/duration
+	FORCE_LEVEL_0,//FP_LIGHTNING,//hold/duration
+	FORCE_LEVEL_0,//FP_RAGE,//duration
+	FORCE_LEVEL_0,//FP_PROTECT,
+	FORCE_LEVEL_0,//FP_ABSORB,
+	FORCE_LEVEL_0,//FP_TEAM_HEAL,
+	FORCE_LEVEL_0,//FP_TEAM_FORCE,
+	FORCE_LEVEL_0,//FP_DRAIN,
+	FORCE_LEVEL_0,//FP_SEE,
+	FORCE_LEVEL_0,//FP_SABER_OFFENSE,
+	FORCE_LEVEL_0,//FP_SABER_DEFENSE,
+	FORCE_LEVEL_0//FP_SABERTHROW,
 };
 
 /*
@@ -1131,7 +1132,8 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 	int len = 0;
 	int i = 0;
 	int c = 0;
-	int iBuf = 0, forcePowerRank, currank;
+	int iBuf = 0;
+	forcePowerLevels_t forcePowerRank, currank;
 	char fcfBuffer[8192];
 	char singleBuf[64];
 	char info[MAX_INFO_VALUE];
@@ -1159,7 +1161,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		while (i < NUM_FORCE_POWERS)
 		{
 			uiForcePowersRank[i] = gCustPowersRank[i];
-			uiForceUsed += uiForcePowersRank[i];
+			uiForceUsed += to_underlying( uiForcePowersRank[i] );
 			i++;
 		}
 		uiForceRank = gCustRank;
@@ -1217,7 +1219,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
+		switch(UI_CvarTeam( "ui_myteam" ))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;
@@ -1245,15 +1247,15 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 	c = 0;
 	i++;
 
-	iBuf = atoi(singleBuf);
+	const forceMasteries_t rank = static_cast<forceMasteries_t>( atoi(singleBuf) );
 
-	if (iBuf > uiMaxRank || iBuf < 0)
+	if (rank > uiMaxRank || rank < FORCE_MASTERY_UNINITIATED)
 	{ //this force config uses a rank level higher than our currently restricted level.. so we can't use it
 	  //FIXME: Print a message indicating this to the user
 		return;
 	}
 
-	uiForceRank = iBuf;
+	uiForceRank = rank;
 
 	while (fcfBuffer[i] && fcfBuffer[i] != '-')
 	{
@@ -1280,27 +1282,27 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		/*
 		if (c==FP_LEVITATION)
 		{
-			uiForcePowersRank[c]=1;
+			uiForcePowersRank[c]=FORCE_LEVEL_1;
 		}
 		else if (c==FP_SABER_OFFENSE && ui_freeSaber.integer)
 		{
-			uiForcePowersRank[c]=1;
+			uiForcePowersRank[c]=FORCE_LEVEL_1;
 		}
 		else if (c==FP_SABER_DEFENSE && ui_freeSaber.integer)
 		{
-			uiForcePowersRank[c]=1;
+			uiForcePowersRank[c]=FORCE_LEVEL_1;
 		}
 		else
 		{
-			uiForcePowersRank[c] = 0;
+			uiForcePowersRank[c] = FORCE_LEVEL_0;
 		}
 		*/
 		//rww - don't need to do these checks. Just trust whatever the saber config says.
-		uiForcePowersRank[c] = 0;
+		uiForcePowersRank[c] = FORCE_LEVEL_0;
 		c++;
 	}
 	uiForceUsed = 0;
-	uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
+	uiForceAvailable = forceMasteryPoints[uiForceRank];
 	gTouchedForce = true;
 
 	for (c=0;fcfBuffer[i]&&c<NUM_FORCE_POWERS;c++,i++)
@@ -1314,9 +1316,9 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 			iBuf = 0;
 		}
 
-		forcePowerRank = iBuf;
+		forcePowerRank = static_cast<forcePowerLevels_t>( iBuf );
 
-		if (forcePowerRank > to_underlying( FORCE_LEVEL_3 ) || forcePowerRank < 0)
+		if (forcePowerRank > FORCE_LEVEL_3 || forcePowerRank < FORCE_LEVEL_0)
 		{ //err..  not correct
 			continue;  // skip this power
 		}
@@ -1327,31 +1329,31 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 		}
 
 		// Accrue cost for each assigned rank for this power.
-		for (currank=to_underlying( FORCE_LEVEL_1 );currank<=forcePowerRank;currank++)
+		for (currank=FORCE_LEVEL_1;currank<=forcePowerRank;currank++)
 		{
-			if (bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )] > uiForceAvailable)
+			if (bgForcePowerCost[c][currank] > uiForceAvailable)
 			{	// Break out, we can't afford any more power.
 				break;
 			}
 			// Pay for this rank of this power.
-			uiForceUsed += bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
-			uiForceAvailable -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( currank )];
+			uiForceUsed += bgForcePowerCost[c][currank];
+			uiForceAvailable -= bgForcePowerCost[c][currank];
 
 			uiForcePowersRank[c]++;
 		}
 	}
 
-	if (uiForcePowersRank[FP_LEVITATION] < 1)
+	if (uiForcePowersRank[FP_LEVITATION] < FORCE_LEVEL_1)
 	{
-		uiForcePowersRank[FP_LEVITATION]=1;
+		uiForcePowersRank[FP_LEVITATION]=FORCE_LEVEL_1;
 	}
-	if (uiForcePowersRank[FP_SABER_OFFENSE] < 1 && ui_freeSaber.integer)
+	if (uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1 && ui_freeSaber.integer)
 	{
-		uiForcePowersRank[FP_SABER_OFFENSE]=1;
+		uiForcePowersRank[FP_SABER_OFFENSE]=FORCE_LEVEL_1;
 	}
-	if (uiForcePowersRank[FP_SABER_DEFENSE] < 1 && ui_freeSaber.integer)
+	if (uiForcePowersRank[FP_SABER_DEFENSE] < FORCE_LEVEL_1 && ui_freeSaber.integer)
 	{
-		uiForcePowersRank[FP_SABER_DEFENSE]=1;
+		uiForcePowersRank[FP_SABER_DEFENSE]=FORCE_LEVEL_1;
 	}
 
 	UpdateForceUsed();

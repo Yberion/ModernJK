@@ -250,7 +250,7 @@ gitem_t	*FindItemForAmmo( ammo_t ammo )
 
 	for ( i = 1 ; i < bg_numItems ; i++ )
 	{
-		if ( bg_itemlist[i].giType == IT_AMMO && bg_itemlist[i].giTag == to_underlying( ammo ) )
+		if ( bg_itemlist[i].giType == IT_AMMO && GI_Ammo( bg_itemlist[i] ) == ammo )
 		{
 			return &bg_itemlist[i];
 		}
@@ -316,10 +316,10 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 
 	case IT_AMMO:
 
-		if (item->giTag != to_underlying( AMMO_FORCE ))
+		if (GI_Ammo( *item ) != AMMO_FORCE)
 		{
 			// since the ammo is the weapon in this case, picking up ammo should actually give you the weapon
-			switch( static_cast<ammo_t>( item->giTag ) )
+			switch( GI_Ammo( *item ) )
 			{
 			case AMMO_THERMAL:
 				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) )
@@ -344,14 +344,14 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 				break;
 			}
 
-			if ( ps->ammo[ static_cast<ammo_t>( item->giTag ) ] >= ammoData[static_cast<ammo_t>( item->giTag )].max )	// checkme
+			if ( ps->ammo[ GI_Ammo( *item ) ] >= ammoData[GI_Ammo( *item )].max )	// checkme
 			{
 				return false;		// can't hold any more
 			}
 		}
 		else
 		{
-			if (ps->forcePower >= ammoData[static_cast<ammo_t>( item->giTag )].max*2)
+			if (ps->forcePower >= ammoData[GI_Ammo( *item )].max*2)
 			{
 				return false;		// can't hold any more
 			}

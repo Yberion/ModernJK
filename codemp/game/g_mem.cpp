@@ -51,7 +51,7 @@ void *G_Alloc( int size ) {
 	char	*p;
 
 	if ( size <= 0 ) {
-		trap->Error( ERR_DROP, "G_Alloc: zero-size allocation\n", size );
+		trap->Error( ERR_DROP, "G_Alloc: zero-size allocation\n" );
 		return nullptr;
 	}
 

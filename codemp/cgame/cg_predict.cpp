@@ -633,17 +633,17 @@ static void CG_TouchItem( centity_t *cent ) {
 	// Make sure the item type is also a flag too
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
 		if (PS_Team( cg.predictedPlayerState ) == TEAM_RED &&
-			item->giType == IT_TEAM && item->giTag == to_underlying( PW_REDFLAG ))
+			item->giType == IT_TEAM && GI_Powerup( *item ) == PW_REDFLAG)
 			return;
 		if (PS_Team( cg.predictedPlayerState ) == TEAM_BLUE &&
-			item->giType == IT_TEAM && item->giTag == to_underlying( PW_BLUEFLAG ))
+			item->giType == IT_TEAM && GI_Powerup( *item ) == PW_BLUEFLAG)
 			return;
 	}
 
 	if (item->giType == IT_POWERUP &&
-		(item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ) || item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_DARK )))
+		(GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT || GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_DARK))
 	{
-		if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
+		if (GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT)
 		{
 			if (cg.predictedPlayerState.fd.forceSide != FORCE_LIGHTSIDE)
 			{

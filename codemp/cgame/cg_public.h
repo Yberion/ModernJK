@@ -194,8 +194,8 @@ typedef struct ragCallbackTraceLine_s {
 
 typedef struct cgameImport_s {
 	// common
-	void			(*Print)								( const char *msg, ... );
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
+	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	void			(*SnapVector)							( float *v );
 	int				(*MemoryRemaining)						( void );
 	void			(*RegisterSharedMemory)					( char *memory );

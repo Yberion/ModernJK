@@ -1090,6 +1090,7 @@ void SaveRegisteredItems( void );
 //
 // g_utils.cpp
 //
+team_t	G_TeamFromKey( const char *key );
 int		G_ModelIndex( const char *name );
 int		G_SoundIndex( const char *name );
 int		G_SoundSetIndex(const char *name);
@@ -1348,8 +1349,8 @@ void SetLeader(team_t team, int client);
 void CheckTeamLeader( team_t team );
 void G_RunThink (gentity_t *ent);
 void AddTournamentQueue(gclient_t *client);
-void QDECL G_LogPrintf( const char *fmt, ... );
-void QDECL G_SecurityLogPrintf( const char *fmt, ... );
+void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL G_SecurityLogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void SendScoreboardMessageToAllClients( void );
 const char *G_GetStringEdString(const char *refSection, const char *refName);
 

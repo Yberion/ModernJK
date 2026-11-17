@@ -928,32 +928,34 @@ bool	Boba_Tactics()
 		Boba_TacticsSelect();
 	}
 
+	const EBobaTacticsState tactics = static_cast<EBobaTacticsState>( NPCInfo->localState );
+
 	// These Tactics Require Seeker & Jedi Movement
 	//----------------------------------------------
-	if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_NONE ||
-		 static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_RIFLE ||
-		 static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_MISSILE)
+	if (tactics == BTS_NONE ||
+		 tactics == BTS_RIFLE ||
+		 tactics == BTS_MISSILE)
 	{
 		return false;
 	}
 
 	// Flame Thrower - Locked In Place
 	//---------------------------------
-	if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_FLAMETHROW)
+	if (tactics == BTS_FLAMETHROW)
 	{
 		Boba_DoFlameThrower( NPC );
 	}
 
 	// Sniper - Move Around, And Take Shots
 	//--------------------------------------
-	else if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_SNIPER)
+	else if (tactics == BTS_SNIPER)
 	{
 		Boba_DoSniper( NPC );
 	}
 
 	// Ambush Wait
 	//------------
-	else if (static_cast<EBobaTacticsState>( NPCInfo->localState ) == BTS_AMBUSHWAIT)
+	else if (tactics == BTS_AMBUSHWAIT)
 	{
 		Boba_DoAmbushWait( NPC );
 	}

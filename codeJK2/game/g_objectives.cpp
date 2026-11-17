@@ -43,14 +43,13 @@ OBJ_SetPendingObjectives
 */
 void OBJ_SetPendingObjectives(gentity_t *ent)
 {
-	int i;
-
-	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
+	for (objectiveNumber_t o = KEJIM_POST_OBJ1; o < MAX_OBJECTIVES; o++)
 	{
-		if ((ent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_PENDING) &&
-			(ent->client->sess.mission_objectives[i].display))
+		objectives_t &objective = ent->client->sess.mission_objectives[o];
+		if ((objective.status == OBJECTIVE_STAT_PENDING) &&
+			(objective.display))
 		{
-			ent->client->sess.mission_objectives[i].status = OBJECTIVE_STAT_FAILED;
+			objective.status = OBJECTIVE_STAT_FAILED;
 		}
 	}
 }
@@ -67,7 +66,7 @@ void OBJ_SaveMissionObjectives( gclient_t *client )
 
 	saved_game.write_chunk(
 		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives);
+		client->sess.mission_objectives.elems);
 }
 
 
@@ -97,7 +96,7 @@ void OBJ_LoadMissionObjectives( gclient_t *client )
 
 	saved_game.read_chunk(
 		INT_ID('O', 'B', 'J', 'T'),
-		client->sess.mission_objectives);
+		client->sess.mission_objectives.elems);
 }
 
 

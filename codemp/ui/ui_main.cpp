@@ -538,6 +538,18 @@ const char *UI_TeamName(team_t team) {
 	return "FREE";
 }
 
+team_t UI_CvarTeam( const char *name ) {
+	return static_cast<team_t>( (int)trap->Cvar_VariableValue( name ) );
+}
+
+siegePlayerClassFlags_t UI_CvarSiegeClass( void ) {
+	return static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue( "ui_siege_class" ) );
+}
+
+gametype_t UI_CvarGametype( void ) {
+	return static_cast<gametype_t>( (int)trap->Cvar_VariableValue( "g_gametype" ) );
+}
+
 // returns either string or nullptr for OOR...
 //
 static const char *GetCRDelineatedString( const char *psStripFileRef, const char *psStripStringRef, int iIndex)
@@ -993,7 +1005,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			// trap->Cvar_Set( "cl_paused", "1" );
 			// No chatin non-siege games.
 
-			if (trap->Cvar_VariableValue( "g_gametype" ) < (float)GT_TEAM)
+			if (UI_CvarGametype() < GT_TEAM)
 			{
 				return;
 			}
@@ -1147,7 +1159,7 @@ bool Asset_Parse(int handle) {
 		{
 			if (!PC_String_Parse(handle, &uiInfo.uiDC.Assets.cursorStr))
 			{
-				Com_Printf(S_COLOR_YELLOW,"Bad 1st parameter for keyword 'cursor'");
+				Com_Printf(S_COLOR_YELLOW "Bad 1st parameter for keyword 'cursor'\n");
 				return false;
 			}
 			uiInfo.uiDC.Assets.cursor = trap->R_RegisterShaderNoMip( uiInfo.uiDC.Assets.cursorStr);
@@ -1733,13 +1745,13 @@ static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int te
 		i = min;
 	}
 
-	Com_sprintf(s, sizeof(s), "%i\0", val);
+	Com_sprintf(s, sizeof(s), "%i", val);
 	Text_Paint(rect->x, rect->y, scale, color, s,0, 0, textStyle, iMenuFont);
 }
 
-static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, forceMasteries_t val, forceMasteries_t min, forceMasteries_t max, int iMenuFont)
 {
-	int i;
+	forceMasteries_t i;
 	char *s;
 
 	i = val;
@@ -1752,7 +1764,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 		i = max;
 	}
 
-	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[static_cast<forceMasteries_t>( i )]);
+	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
 	Text_Paint(rect->x, rect->y, scale, color, s, 0, 0, textStyle, iMenuFont);
 }
 
@@ -1791,7 +1803,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
+		switch(UI_CvarTeam( "ui_myteam" ))
 		{
 		case TEAM_RED:
 			uiForceSide = FORCE_DARKSIDE;
@@ -2110,17 +2122,17 @@ static void UI_SetForceDisabled(int force)
 
 				if (i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE)
 				{
-					uiForcePowersRank[i] = 0;
+					uiForcePowersRank[i] = FORCE_LEVEL_0;
 				}
 				else
 				{
 					if (i == FP_LEVITATION)
 					{
-						uiForcePowersRank[i] = 1;
+						uiForcePowersRank[i] = FORCE_LEVEL_1;
 					}
 					else
 					{
-						uiForcePowersRank[i] = 3;
+						uiForcePowersRank[i] = FORCE_LEVEL_3;
 					}
 				}
 			}
@@ -2174,7 +2186,7 @@ void UpdateForceStatus()
 	// Currently we don't make a distinction between those that wish to play Jedi of lower than maximum skill.
 /*	if (ui_forcePowerDisable.integer)
 	{
-		uiForceRank = 0;
+		uiForceRank = FORCE_MASTERY_UNINITIATED;
 		uiForceAvailable = 0;
 		uiForceUsed = 0;
 	}
@@ -2182,7 +2194,7 @@ void UpdateForceStatus()
 	{
 		uiForceRank = uiMaxRank;
 		uiForceUsed = 0;
-		uiForceAvailable = forceMasteryPoints[static_cast<forceMasteries_t>( uiForceRank )];
+		uiForceAvailable = forceMasteryPoints[uiForceRank];
 	}
 */
 	menu = Menus_FindByName("ingame_player");
@@ -2224,7 +2236,7 @@ void UpdateForceStatus()
 		}
 
 		//Moved this to happen after it's done with force power disabling stuff
-		if (uiForcePowersRank[FP_SABER_OFFENSE] > 0 || ui_freeSaber.integer)
+		if (uiForcePowersRank[FP_SABER_OFFENSE] > FORCE_LEVEL_0 || ui_freeSaber.integer)
 		{	// Show lightsaber stuff.
 			Menu_ShowItemByName(menu, "nosaber", false);
 			Menu_ShowItemByName(menu, "yessaber", true);
@@ -2236,7 +2248,7 @@ void UpdateForceStatus()
 		}
 
 		// The leftmost button should be "apply" unless you are in spectator, where you can join any team.
-		if (static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ) != TEAM_SPECTATOR)
+		if (UI_CvarTeam( "ui_myteam" ) != TEAM_SPECTATOR)
 		{
 			Menu_ShowItemByName(menu, "playerapply", true);
 			Menu_ShowItemByName(menu, "playerforcejoin", false);
@@ -2292,7 +2304,7 @@ void UpdateForceStatus()
 	{// Take the current team and force a skin color based on it.
 		char	info[MAX_INFO_STRING];
 
-		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
+		switch(UI_CvarTeam( "ui_myteam" ))
 		{
 		case TEAM_RED:
 			uiSkinColor = TEAM_RED;
@@ -2645,12 +2657,14 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		}
 		break;
     case UI_FORCE_RANK:
-		i = uiForceRank;
-		if (i < 1 || i > MAX_FORCE_RANK) {
-			i = 1;
-		}
+		{
+			forceMasteries_t rank = uiForceRank;
+			if (rank < FORCE_MASTERY_INITIATE || rank > FORCE_MASTERY_JEDI_MASTER) {
+				rank = FORCE_MASTERY_INITIATE;
+			}
 
-		s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[static_cast<forceMasteries_t>( i )]);
+			s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[rank]);
+		}
 		break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -2672,14 +2686,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 	case UI_FORCE_RANK_SABERTHROW:
 		findex = (ownerDraw - UI_FORCE_RANK)-1;
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-		i = uiForcePowersRank[findex];
-
-		if (i < 0 || i > to_underlying( NUM_FORCE_POWER_LEVELS )-1)
-		{
-			i = 0;
-		}
-
-		s = va("%i", uiForcePowersRank[findex]);
+		s = va("%i", to_underlying( uiForcePowersRank[findex] ));
 		break;
     case UI_CLANNAME:
 		s = UI_Cvar_VariableString("ui_teamName");
@@ -2998,7 +3005,8 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 {
 	rectDef_t rect;
 	int findex;
-	int drawRank = 0, iUse = 0;
+	forcePowerLevels_t drawRank = FORCE_LEVEL_0;
+	int iUse = 0;
 
 	rect.x = x + text_x;
 	rect.y = y + text_y;
@@ -3020,13 +3028,13 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawJediNonJedi(&rect, scale, color, textStyle, uiJediNonJedi, 0, 1, iMenuFont);
       break;
     case UI_FORCE_POINTS:
-      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[static_cast<forceMasteries_t>( MAX_FORCE_RANK )], ownerDraw,iMenuFont);
+      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[FORCE_MASTERY_JEDI_MASTER], ownerDraw,iMenuFont);
       break;
 	case UI_FORCE_MASTERY_SET:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, FORCE_MASTERY_UNINITIATED, FORCE_MASTERY_JEDI_MASTER, iMenuFont);
       break;
     case UI_FORCE_RANK:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, FORCE_MASTERY_UNINITIATED, FORCE_MASTERY_JEDI_MASTER, iMenuFont);
       break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -3077,7 +3085,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		}
 */		drawRank = uiForcePowersRank[findex];
 
-		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, 0, to_underlying( NUM_FORCE_POWER_LEVELS )-1);
+		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS-1);
 		break;
     case UI_EFFECTS:
       break;
@@ -3267,17 +3275,17 @@ static bool UI_OwnerDrawVisible(int flags) {
 
 	while (flags) {
 		if (flags & UI_SHOW_FFA) {
-			if (trap->Cvar_VariableValue("g_gametype") != (float)GT_FFA &&
-				trap->Cvar_VariableValue("g_gametype") != (float)GT_HOLOCRON &&
-				trap->Cvar_VariableValue("g_gametype") != (float)GT_JEDIMASTER) {
+			if (UI_CvarGametype() != GT_FFA &&
+				UI_CvarGametype() != GT_HOLOCRON &&
+				UI_CvarGametype() != GT_JEDIMASTER) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_FFA;
 		}
 		if (flags & UI_SHOW_NOTFFA) {
-			if (trap->Cvar_VariableValue("g_gametype") == (float)GT_FFA ||
-				trap->Cvar_VariableValue("g_gametype") == (float)GT_HOLOCRON ||
-				trap->Cvar_VariableValue("g_gametype") != (float)GT_JEDIMASTER) {
+			if (UI_CvarGametype() == GT_FFA ||
+				UI_CvarGametype() == GT_HOLOCRON ||
+				UI_CvarGametype() == GT_JEDIMASTER) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NOTFFA;
@@ -4183,7 +4191,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int 
       return UI_JediNonJedi_HandleKey(flags, special, key, uiJediNonJedi, 0, 1, ownerDraw);
       break;
 	case UI_FORCE_MASTERY_SET:
-      return UI_ForceMaxRank_HandleKey(flags, special, key, uiForceRank, 1, MAX_FORCE_RANK, ownerDraw);
+      return UI_ForceMaxRank_HandleKey(flags, special, key, uiForceRank, FORCE_MASTERY_INITIATE, FORCE_MASTERY_JEDI_MASTER, ownerDraw);
       break;
     case UI_FORCE_RANK:
 		break;
@@ -4228,7 +4236,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int 
 	case UI_FORCE_RANK_SABERTHROW:
 		findex = (ownerDraw - UI_FORCE_RANK)-1;
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], 0, to_underlying( NUM_FORCE_POWER_LEVELS )-1, ownerDraw);
+		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS-1, ownerDraw);
 		break;
     case UI_EFFECTS:
       break;
@@ -4945,7 +4953,7 @@ void UI_GetVideoSetup ( void )
 // but it already had one on it.
 static void UI_SetBotButton ( void )
 {
-	int gameType = trap->Cvar_VariableValue( "g_gametype" );
+	const gametype_t gameType = UI_CvarGametype();
 	int server;
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -4954,7 +4962,7 @@ static void UI_SetBotButton ( void )
 	server = trap->Cvar_VariableValue( "sv_running" );
 
 	// If in siege or a client, don't show add bot button
-	if ((gameType == to_underlying( GT_SIEGE )) || (server==0))	// If it's not siege, don't worry about it
+	if ((gameType == GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
 	{
 		menu = Menu_GetFocused();	// Get current menu (either video or ingame video, I would assume)
 
@@ -5120,7 +5128,7 @@ void UI_SetSiegeObjectiveGraphicPos(menuDef_t *menu,const char *itemName,const c
 void UI_FindCurrentSiegeTeamClass( void )
 {
 	menuDef_t *menu;
-	team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
+	team_t myTeam = UI_CvarTeam( "ui_myteam" );
 	const char *itemname;
 	itemDef_t *item;
 	siegePlayerClassFlags_t	baseClass;
@@ -5158,7 +5166,7 @@ void UI_FindCurrentSiegeTeamClass( void )
 	}
 
 
-	baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
+	baseClass = UI_CvarSiegeClass();
 
 	// Find correct class button and activate it.
 	switch ( baseClass ) {
@@ -5678,11 +5686,9 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 		i++;
 	}
 	//now for inventory items
-	i = 0;
-	while (i < to_underlying( HI_NUM_HOLDABLE ))
+	for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
 	{
-		trap->Cvar_Set(va("ui_class_item%i", i), "gfx/2d/select");
-		i++;
+		trap->Cvar_Set(va("ui_class_item%i", to_underlying( h )), "gfx/2d/select");
 	}
 	//now for force powers
 	i = 0;
@@ -5944,8 +5950,8 @@ static void UI_RunMenuScript(char **args)
 				trap->Cvar_Set("g_warmup", "120");
 			}
 
-			if (trap->Cvar_VariableValue( "g_gametype" ) == (float)GT_DUEL ||
-				trap->Cvar_VariableValue( "g_gametype" ) == (float)GT_POWERDUEL)
+			if (UI_CvarGametype() == GT_DUEL ||
+				UI_CvarGametype() == GT_POWERDUEL)
 			{ //always set fraglimit 1 when starting a duel game
 				trap->Cvar_Set("fraglimit", "1");
 				trap->Cvar_Set("timelimit", "0");
@@ -6016,7 +6022,7 @@ static void UI_RunMenuScript(char **args)
 			UI_LoadArenas();
 			UI_MapCountByGameType(false);
 			Menu_SetFeederSelection(nullptr, FEEDER_ALLMAPS, gUISelectedMap, "createserver");
-			uiForceRank = trap->Cvar_VariableValue("g_maxForceRank");
+			uiForceRank = static_cast<forceMasteries_t>( (int)trap->Cvar_VariableValue("g_maxForceRank") );
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig();
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -6183,7 +6189,7 @@ static void UI_RunMenuScript(char **args)
 				trap->Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader \"%s\"\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
-			if (trap->Cvar_VariableValue("g_gametype") >= (float)GT_TEAM) {
+			if (UI_CvarGametype() >= GT_TEAM) {
 				trap->Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			} else {
 				trap->Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
@@ -6336,7 +6342,7 @@ static void UI_RunMenuScript(char **args)
 				}
 				else if ( Q_stricmp( "same", teamArg ) == 0 )
 				{//stay on current team
-					team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
+					team_t myTeam = UI_CvarTeam( "ui_myteam" );
 					if ( myTeam != TEAM_SPECTATOR )
 					{
 						UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
@@ -6358,8 +6364,8 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "setsiegeclassandteam") == 0)
 		{
-			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
-			team_t oldteam = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_startsiegeteam") );
+			team_t team = UI_CvarTeam( "ui_holdteam" );
+			team_t oldteam = UI_CvarTeam( "ui_startsiegeteam" );
 			bool	goTeam = true;
 			char	newclassString[512];
 			char	startclassString[512];
@@ -6787,7 +6793,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "updatesiegeobjgraphics") == 0)
 		{
-			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
+			team_t team = UI_CvarTeam( "ui_team" );
 			trap->Cvar_Set("ui_holdteam", va("%d", to_underlying( team )));
 
 			UI_UpdateSiegeObjectiveGraphics();
@@ -6858,15 +6864,15 @@ static void UI_RunMenuScript(char **args)
 			siegePlayerClassFlags_t baseClass;
 			team_t team;
 
-			team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
-			baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
+			team = UI_CvarTeam( "ui_holdteam" );
+			baseClass = UI_CvarSiegeClass();
 
 			UI_UpdateCvarsForClass(team, baseClass, 0);
 		}
 		// Save current team and class
 		else if (Q_stricmp(name, "setteamclassicons") == 0)
 		{
-			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
+			team_t team = UI_CvarTeam( "ui_holdteam" );
 			char	classString[512];
 
 			trap->Cvar_VariableStringBuffer( "ui_mySiegeClass", classString, sizeof(classString) );
@@ -8024,8 +8030,8 @@ static int UI_FeederCount(float feederID)
 			return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
 
 		case FEEDER_SIEGE_BASE_CLASS:
-			team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
-			baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
+			team = UI_CvarTeam( "ui_team" );
+			baseClass = UI_CvarSiegeClass();
 
 			if ((team == SIEGETEAM_TEAM1) ||
 				(team == SIEGETEAM_TEAM2))
@@ -8055,9 +8061,9 @@ static int UI_FeederCount(float feederID)
 		// Get the count of inventory
 		case FEEDER_SIEGE_CLASS_INVENTORY:
 			//count them up
-			for (i=0;i< to_underlying( HI_NUM_HOLDABLE );i++)
+			for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
 			{
-				trap->Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
+				trap->Cvar_VariableStringBuffer( va("ui_class_item%i", to_underlying( h )), info, sizeof(info) );
 				// A hack so health and ammo dispenser icons don't show up.
 				if ((Q_stricmp(info,"gfx/2d/select")!=0) &&
 					(Q_stricmp(info,"gfx/hud/i_icon_healthdisp")!=0) &&
@@ -8656,8 +8662,8 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		siegePlayerClassFlags_t baseClass;
 		team_t team;
 
-		team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
-		baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
+		team = UI_CvarTeam( "ui_team" );
+		baseClass = UI_CvarSiegeClass();
 
 		if ((team == SIEGETEAM_TEAM1) ||
 			(team == SIEGETEAM_TEAM2))
@@ -8693,9 +8699,9 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 	{
 		validCnt = 0;
 		//count them up
-		for (i=0;i< to_underlying( HI_NUM_HOLDABLE );i++)
+		for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
 		{
-			trap->Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
+			trap->Cvar_VariableStringBuffer( va("ui_class_item%i", to_underlying( h )), info, sizeof(info) );
 			// A hack so health and ammo dispenser icons don't show up.
 			if ((Q_stricmp(info,"gfx/2d/select")!=0)
 				&& (Q_stricmp(info,"gfx/hud/i_icon_healthdisp")!=0) &&
@@ -9059,8 +9065,8 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		siegePlayerClassFlags_t baseClass;
 		team_t team;
 
-		team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
-		baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
+		team = UI_CvarTeam( "ui_team" );
+		baseClass = UI_CvarSiegeClass();
 
 		UI_UpdateCvarsForClass(team, baseClass, index);
 	}
@@ -9374,7 +9380,7 @@ nextSearch:
 			uiInfo.forceConfigSide[uiInfo.forceConfigCount] = false; //dark side config
 		}
 
-		Com_sprintf( uiInfo.forceConfigNames[uiInfo.forceConfigCount], sizeof(uiInfo.forceConfigNames[uiInfo.forceConfigCount]), configname);
+		Com_sprintf( uiInfo.forceConfigNames[uiInfo.forceConfigCount], sizeof(uiInfo.forceConfigNames[uiInfo.forceConfigCount]), "%s", configname);
 		uiInfo.forceConfigCount++;
 	}
 
@@ -9519,7 +9525,7 @@ static void UI_BuildQ3Model_List( void )
 					continue;
 				}
 
-				Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), va("%s%s", dirptr, skinname));
+				Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s%s", dirptr, skinname);
 				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = 0;//trap->R_RegisterShaderNoMip(fpath);
 				//rww - we are now registering them as they are drawn like the TA feeder, so as to decrease UI load time.
 			}
@@ -9649,8 +9655,8 @@ static void UI_BuildPlayerModel_List( bool inGameLoad )
 	dirlist = (char *)malloc(DIR_LIST_SIZE);
 	if ( !dirlist )
 	{
-		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %u bytes of memory for player model "
-			"directory list. Using stack allocated buffer of %u bytes instead.",
+		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %zu bytes of memory for player model "
+			"directory list. Using stack allocated buffer of %zu bytes instead.",
 			DIR_LIST_SIZE, sizeof(stackDirList));
 
 		dirlist = stackDirList;
@@ -10047,7 +10053,7 @@ void UI_Refresh( int realtime )
 	{
 		FPMessageTime = realtime + 3000;
 
-		if (!parsedFPMessage[0] /*&& uiMaxRank > ui_rankChange.integer*/)
+		if (!parsedFPMessage[0] /*&& uiMaxRank > static_cast<forceMasteries_t>( ui_rankChange.integer )*/)
 		{
 			const char *printMessage = UI_GetStringEdString("MP_INGAME", "SET_NEW_RANK");
 
@@ -10072,19 +10078,19 @@ void UI_Refresh( int realtime )
 			parsedFPMessage[p] = '\0';
 		}
 
-		//if (uiMaxRank > ui_rankChange.integer)
+		//if (uiMaxRank > static_cast<forceMasteries_t>( ui_rankChange.integer ))
 		{
-			uiMaxRank = ui_rankChange.integer;
+			uiMaxRank = static_cast<forceMasteries_t>( ui_rankChange.integer );
 			uiForceRank = uiMaxRank;
 
 			/*
 			while (x < NUM_FORCE_POWERS)
 			{
 				//For now just go ahead and clear force powers upon rank change
-				uiForcePowersRank[x] = 0;
+				uiForcePowersRank[x] = FORCE_LEVEL_0;
 				x++;
 			}
-			uiForcePowersRank[FP_LEVITATION] = 1;
+			uiForcePowersRank[FP_LEVITATION] = FORCE_LEVEL_1;
 			uiForceUsed = 0;
 			*/
 
@@ -10092,13 +10098,13 @@ void UI_Refresh( int realtime )
 			UI_ReadLegalForce();
 		}
 
-		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_OFFENSE] < 1)
+		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_OFFENSE] = 1;
+			uiForcePowersRank[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
 		}
-		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_DEFENSE] < 1)
+		if (ui_freeSaber.integer && uiForcePowersRank[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
 		{
-			uiForcePowersRank[FP_SABER_DEFENSE] = 1;
+			uiForcePowersRank[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
 		}
 		trap->Cvar_Set("ui_rankChange", "0");
 

@@ -38,6 +38,7 @@ const	int	MAX_SET_NAME_LENGTH	= 64;
 
 enum class set_e
 {
+	AS_SET_UNKNOWN = -1,	// a name that matches no set
 	AS_SET_GENERAL,		//General sets
 	AS_SET_LOCAL,		//Local sets (regional)
 	AS_SET_BMODEL,		//Brush model sets (doors, plats, etc.)
@@ -49,6 +50,7 @@ template <> inline constexpr bool enableEnumArithmetic<set_e> = true;
 
 enum class setKeyword_e
 {
+	SET_KEYWORD_UNKNOWN = -1,	// a word that matches no keyword
 	SET_KEYWORD_TIMEBETWEENWAVES,
 	SET_KEYWORD_SUBWAVES,
 	SET_KEYWORD_LOOPEDWAVE,

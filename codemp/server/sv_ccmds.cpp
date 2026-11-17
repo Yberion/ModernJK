@@ -1528,7 +1528,7 @@ void SV_StopRecordDemo( client_t *cl ) {
 	int		len;
 
 	if ( !cl->demo.demorecording ) {
-		Com_Printf( "Client %d is not recording a demo.\n", cl - svs.clients );
+		Com_Printf( "Client %td is not recording a demo.\n", cl - svs.clients );
 		return;
 	}
 
@@ -1540,7 +1540,7 @@ void SV_StopRecordDemo( client_t *cl ) {
 	FS_FCloseFile (cl->demo.demofile);
 	cl->demo.demofile = 0;
 	cl->demo.demorecording = false;
-	Com_Printf ("Stopped demo for client %d.\n", cl - svs.clients);
+	Com_Printf ("Stopped demo for client %td.\n", cl - svs.clients);
 }
 
 // stops all recording demos
@@ -1658,7 +1658,7 @@ void SV_AutoRecordDemo( client_t *cl ) {
 	strftime( folderTreeDate, sizeof( folderTreeDate ), "%Y/%m/%d", timeinfo );
 	Q_strncpyz( demoPlayerName, cl->name, sizeof( demoPlayerName ) );
 	Q_CleanStr( demoPlayerName );
-	Com_sprintf( demoFileName, sizeof( demoFileName ), "%d %s %s %s",
+	Com_sprintf( demoFileName, sizeof( demoFileName ), "%td %s %s %s",
 			cl - svs.clients, demoPlayerName, Cvar_VariableString( "mapname" ), date );
 	Com_sprintf( demoFolderName, sizeof( demoFolderName ), "%s %s", Cvar_VariableString( "mapname" ), folderDate );
 	// sanitize filename

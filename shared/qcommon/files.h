@@ -140,7 +140,7 @@ const char *FS_GetCurrentGameDir(bool emptybase=false);
 bool FS_LoadMachOBundle( const char *name );
 #endif
 
-void 	QDECL FS_Printf( fileHandle_t f, const char *fmt, ... );
+void 	QDECL FS_Printf( fileHandle_t f, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 // like fprintf
 
 int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );

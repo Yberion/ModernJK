@@ -6269,7 +6269,7 @@ rest:
 #define BOWCASTER_CHARGE_UNIT	200.0f	// bowcaster charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
 #define BRYAR_CHARGE_UNIT		200.0f	// bryar charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
 
-int PM_ItemUsable(playerState_t *ps, int forcedUse)
+int PM_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 {
 	vec3_t fwd, fwdorg, dest, pos;
 	vec3_t yawonly;
@@ -6292,17 +6292,17 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 		return 0;
 	}
 
-	if (!forcedUse)
+	if (forcedUse == HI_NONE)
 	{
-		forcedUse = bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag;
+		forcedUse = GI_Holdable( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]] );
 	}
 
-	if (!BG_IsItemSelectable(ps, static_cast<holdable_t>( forcedUse )))
+	if (!BG_IsItemSelectable(ps, forcedUse))
 	{
 		return 0;
 	}
 
-	switch ( static_cast<holdable_t>( forcedUse ) )
+	switch ( forcedUse )
 	{
 	case HI_MEDPAC:
 	case HI_MEDPAC_BIG:
@@ -7083,7 +7083,7 @@ static void PM_Weapon( void )
 				return;
 			}
 
-			if (!PM_ItemUsable(pm->ps, 0))
+			if (!PM_ItemUsable(pm->ps, HI_NONE))
 			{
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 				return;
@@ -7092,12 +7092,12 @@ static void PM_Weapon( void )
 			{
 				if (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag))
 				{
-					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_BINOCULARS ) &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_JETPACK ) &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_HEALTHDISP ) &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_AMMODISP ) &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_CLOAK ) &&
-						bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_EWEB ))
+					if (GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_BINOCULARS &&
+						GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_JETPACK &&
+						GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_HEALTHDISP &&
+						GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_AMMODISP &&
+						GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_CLOAK &&
+						GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_EWEB)
 					{ //never use up the binoculars or jetpack or dispensers or cloak or ...
 						pm->ps->stats[STAT_HOLDABLE_ITEMS] -= (1 << bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag);
 					}
@@ -7110,12 +7110,12 @@ static void PM_Weapon( void )
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 
-				if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_BINOCULARS ) &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_JETPACK ) &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_HEALTHDISP ) &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_AMMODISP ) &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_CLOAK ) &&
-					bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag != to_underlying( HI_EWEB ))
+				if (GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_BINOCULARS &&
+					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_JETPACK &&
+					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_HEALTHDISP &&
+					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_AMMODISP &&
+					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_CLOAK &&
+					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_EWEB)
 				{
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
 					BG_CycleInven(pm->ps, 1);

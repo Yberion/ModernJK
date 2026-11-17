@@ -50,7 +50,7 @@ struct SFxHelper
 	void	AdjustTime( int time );
 
 	// These functions are wrapped and used by the fx system in case it makes things a bit more portable
-	void	Print( const char *msg, ... );
+	void	Print( const char *msg, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// File handling
 	int		OpenFile( const char *path, fileHandle_t *fh, int mode );

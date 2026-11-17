@@ -69,7 +69,7 @@ extern float NPC_GetPainChance( gentity_t *self, int damage );
 //
 // NPC_misc.cpp
 //
-extern void Debug_Printf( vmCvar_t *cv, int level, const char *fmt, ... );
+extern void Debug_Printf( vmCvar_t *cv, int level, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
 extern void Debug_NPCPrintf( gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ... );
 
 //MCG - Begin============================================================

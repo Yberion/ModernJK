@@ -43,7 +43,10 @@ void NPC_Interrogator_Precache(gentity_t *self)
 {
 	G_SoundIndex( "sound/chars/interrogator/misc/torture_droid_lp" );
 	G_SoundIndex("sound/chars/mark1/misc/anger.wav");
-	G_SoundIndex( "sound/chars/probe/misc/talk");
+	for ( int i = 1; i < 4; i++ )
+	{
+		G_SoundIndex( va( "sound/chars/probe/misc/probetalk%d", i ) );
+	}
 	G_SoundIndex( "sound/chars/interrogator/misc/torture_droid_inject" );
 	G_SoundIndex( "sound/chars/interrogator/misc/int_droid_explo" );
 	G_EffectIndex( "explosions/droidexplosion1" );
@@ -414,7 +417,7 @@ void Interrogator_Attack( void )
 	{
 		if (TIMER_Done(NPCS.NPC,"angerNoise"))
 		{
-			G_SoundOnEnt( NPCS.NPC, CHAN_AUTO, va("sound/chars/probe/misc/talk.wav",	Q_irand(1, 3)) );
+			G_SoundOnEnt( NPCS.NPC, CHAN_AUTO, va("sound/chars/probe/misc/probetalk%d", Q_irand(1, 3)) );
 
 			TIMER_Set( NPCS.NPC, "patrolNoise", Q_irand( 4000, 10000 ) );
 		}

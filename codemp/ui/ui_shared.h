@@ -461,8 +461,8 @@ typedef struct displayContextDef_s {
 	void			(*getBindingBuf)					( int keynum, char *buf, int buflen );
 	void			(*setBinding)						( int keynum, const char *binding );
 	void			(*executeText)						( cbufExec_t exec_when, const char *text );
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
-	void			(*Print)							( const char *msg, ... );
+	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	void			(*Print)							( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 	void			(*Pause)							( bool b );
 	int				(*ownerDrawWidth)					( int ownerDraw, float scale );
 	sfxHandle_t		(*registerSound)					( const char *name );

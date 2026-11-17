@@ -224,7 +224,7 @@ void BeamOut (gentity_t *self)
 	self->nextthink = level.time + 1500;
 	self->think = Disappear;
 	self->client->squadname = nullptr;
-	self->s.teamowner = to_underlying( self->client->playerTeam = NPCTEAM_FREE );
+	ES_SetNPCTeam( self->s, self->client->playerTeam = NPCTEAM_FREE );
 	//self->r.svFlags |= SVF_BEAMING; //this appears unused in SP as well
 }
 

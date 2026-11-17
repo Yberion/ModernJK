@@ -3251,7 +3251,7 @@ bool ItemParse_asset_model( itemDef_t *item )
 	}
 	else
 	{
-		Com_sprintf( modelPath, sizeof( modelPath ), temp);
+		Com_sprintf( modelPath, sizeof( modelPath ), "%s", temp);
 	}
 	return (ItemParse_asset_model_go( item, modelPath ));
 }

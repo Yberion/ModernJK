@@ -53,4 +53,12 @@ float Q_crandom( int *seed );
 
 #if defined(__cplusplus)
 } // extern "C"
+
+#include <type_traits>
+
+// an enumerator from min to max, both included: the draw of Q_irand on their values
+template <typename E> requires std::is_enum_v<E>
+[[nodiscard]] E Q_irand( E min, E max ) {
+	return static_cast<E>( Q_irand( static_cast<std::underlying_type_t<E>>( min ), static_cast<std::underlying_type_t<E>>( max ) ) );
+}
 #endif

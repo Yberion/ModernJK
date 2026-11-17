@@ -206,7 +206,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 		quantity = ent->item->quantity;
 	}
 
-	Add_Ammo2 (other, static_cast<ammo_t>( ent->item->giTag ), quantity);
+	Add_Ammo2 (other, GI_Ammo( *ent->item ), quantity);
 
 	return 30;
 }
@@ -979,7 +979,7 @@ gentity_t *LaunchItem( gitem_t *item, const vec3_t origin, const vec3_t velocity
 			dropped->nextthink = level.time + 30000;
 		}
 
-		if ( dropped->item->giType == IT_AMMO && dropped->item->giTag == to_underlying( AMMO_FORCE ) )
+		if ( dropped->item->giType == IT_AMMO && GI_Ammo( *dropped->item ) == AMMO_FORCE )
 		{
 			dropped->nextthink = -1;
 			dropped->e_ThinkFunc = thinkF_NULL;

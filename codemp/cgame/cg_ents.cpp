@@ -1976,14 +1976,14 @@ Ghoul2 Insert End
 
 		ent.origin[2] += 16;
 
-		if (item->giType != IT_POWERUP || item->giTag != to_underlying( PW_FORCE_BOON ))
+		if (item->giType != IT_POWERUP || GI_Powerup( *item ) != PW_FORCE_BOON)
 		{
 			ent.renderfx |= RF_FORCE_ENT_ALPHA;
 		}
 
 		if ( es->eFlags & EF_ITEMPLACEHOLDER )
 		{
-			if (item->giType == IT_POWERUP && item->giTag == to_underlying( PW_FORCE_BOON ))
+			if (item->giType == IT_POWERUP && GI_Powerup( *item ) == PW_FORCE_BOON)
 			{
 				return;
 			}
@@ -2005,7 +2005,7 @@ Ghoul2 Insert End
 
 			ent.shaderRGBA[3] = 200;
 
-			if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
+			if (GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT)
 			{
 				ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
 			}
@@ -2035,15 +2035,15 @@ Ghoul2 Insert End
 	{
 		if (item->giType == IT_HOLDABLE)
 		{
-			if (item->giTag == to_underlying( HI_SEEKER ))
+			if (GI_Holdable( *item ) == HI_SEEKER)
 			{
 				cent->lerpOrigin[2] += 5;
 			}
-			if (item->giTag == to_underlying( HI_SHIELD ))
+			if (GI_Holdable( *item ) == HI_SHIELD)
 			{
 				cent->lerpOrigin[2] += 2;
 			}
-			if (item->giTag == to_underlying( HI_BINOCULARS ))
+			if (GI_Holdable( *item ) == HI_BINOCULARS)
 			{
 				cent->lerpOrigin[2] += 2;
 			}
@@ -2173,7 +2173,7 @@ Ghoul2 Insert End
 
 		ent.shaderRGBA[3] = 200;
 
-		if (item->giTag == to_underlying( PW_FORCE_ENLIGHTENED_LIGHT ))
+		if (GI_Powerup( *item ) == PW_FORCE_ENLIGHTENED_LIGHT)
 		{
 			ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
 		}
@@ -2224,7 +2224,7 @@ Ghoul2 Insert End
 			a=1;
 
 		ent.shaderRGBA[3] = a;
-		if (item->giType != IT_POWERUP || item->giTag != to_underlying( PW_FORCE_BOON ))
+		if (item->giType != IT_POWERUP || GI_Powerup( *item ) != PW_FORCE_BOON)
 		{ //boon model uses a different blending mode for the sprite inside and doesn't look proper with this method
 			ent.renderfx |= RF_FORCE_ENT_ALPHA;
 		}
@@ -2274,7 +2274,7 @@ Ghoul2 Insert End
 	else
 	{	// add to refresh list  -- normal item
 		if (item->giType == IT_TEAM &&
-			(item->giTag == to_underlying( PW_REDFLAG ) || item->giTag == to_underlying( PW_BLUEFLAG )))
+			(GI_Powerup( *item ) == PW_REDFLAG || GI_Powerup( *item ) == PW_BLUEFLAG))
 		{
 			ent.modelScale[0] = 0.7f;
 			ent.modelScale[1] = 0.7f;

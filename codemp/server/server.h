@@ -144,6 +144,11 @@ typedef struct {
 	int			botReliableAcknowledge; // for bots, need to maintain a separate reliableAcknowledge to record server messages into the demo file
 } demoInfo_t;
 
+// Why a message sends the commands not yet acknowledged (see s_commands in sv_netcodec.cpp), for svnetstats' count of
+// the repeats by cause (plan step 14: commands were repeated without loss at short intervals); the first that applies,
+// in this order.
+enum class CommandsDue { kNo, kNotInGame, kLost, kNew, kTimeout, kNewAndTimeout };
+
 // message codec statistics of one client since its connection or the last svnetstats (sv_netcodec.cpp)
 typedef struct {
 	int			messages;
@@ -155,7 +160,7 @@ typedef struct {
 	int			cut;			// snapshots too large, sent with only the entities nearest to the player
 	int			commands;		// server commands sent, counting each time one is sent
 	int			repeats;		// of them, commands sent before
-	int			repeatsBy[5];	// the repeats by why the message sent them (CommandsDue in sv_netcodec.cpp): not in the
+	EnumArray<int, CommandsDue, 6>	repeatsBy;	// the repeats by why the message sent them (kNo unused): not in the
 								// game or a bot, the carrier lost, a new command, twice the ping passed, both of the last two
 	int			baseAge[6];		// snapshots coded against a base 1, 2, 3, 4, 5 to 8, 9 or more messages back
 	int			packets;		// client packets received
@@ -375,7 +380,7 @@ bool SVC_RateLimitAddress( const netadr_t *from, int burst, int period, int now 
 void SVC_LoadWhitelist( void );
 void SVC_WhitelistAdr( const netadr_t *adr );
 void SV_FinalMessage (const char *message);
-void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...);
+void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 
 void SV_AddOperatorCommands (void);

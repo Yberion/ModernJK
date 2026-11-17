@@ -673,11 +673,11 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 	int			i;
 
 	if ( !g_cheats->integer ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"Cheats are not enabled on this server.\n\"" );
 		return;
 	}
 	if ( gi.argc() != 5 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: setviewpos x y z yaw\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: setviewpos x y z yaw\n\"" );
 		return;
 	}
 
@@ -707,14 +707,15 @@ void Cmd_SetObjective_f( gentity_t *ent )
 
 	if ( gi.argc() == 2 ) {
 		objectiveI = atoi(gi.argv(1));
+		const objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
 		gi.Printf("objective #%d  display status=%d, status=%d\n",objectiveI,
-			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display,
-			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status
+			objective.display,
+			objective.status
 			);
 		return;
 	}
 	if ( gi.argc() != 4 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: setobjective <objective #>  <display status> <status>\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: setobjective <objective #>  <display status> <status>\n\"" );
 		return;
 	}
 
@@ -727,8 +728,9 @@ void Cmd_SetObjective_f( gentity_t *ent )
 	displayStatus = atoi(gi.argv(2));
 	status = atoi(gi.argv(3));
 
-	ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display = (displayStatus != 0);
-	ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status = status;
+	objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
+	objective.display = (displayStatus != 0);
+	objective.status = status;
 	G_CheckPlayerDarkSide();
 }
 
@@ -742,13 +744,14 @@ void Cmd_ViewObjective_f( gentity_t *ent )
 	int objectiveI;
 
 	if ( gi.argc() != 2 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: viewobjective <objective #>\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: viewobjective <objective #>\n\"" );
 		return;
 	}
 
 	objectiveI = atoi(gi.argv(1));
+	const objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
 
-	gi.SendServerCommand( ent-g_entities, va("print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].display,ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )].status));
+	gi.SendServerCommand( ent-g_entities, "print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,objective.display,objective.status );
 }
 
 
@@ -1480,8 +1483,8 @@ void ClientCommand( int clientNum ) {
 		}
 		if ( gi.argc() < 2 )
 		{
-			gi.SendServerCommand( ent-g_entities, va("print \"usage: addsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, "print \"usage: addsaberstyle <saber style>\n\"" );
+			gi.SendServerCommand( ent-g_entities, "print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\"" );
 			return;
 		}
 
@@ -1500,8 +1503,8 @@ void ClientCommand( int clientNum ) {
 		}
 		if ( gi.argc() < 2 )
 		{
-			gi.SendServerCommand( ent-g_entities, va("print \"usage: setsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, "print \"usage: setsaberstyle <saber style>\n\"" );
+			gi.SendServerCommand( ent-g_entities, "print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\"" );
 			return;
 		}
 
@@ -1562,8 +1565,8 @@ void ClientCommand( int clientNum ) {
 		}
 		if ( gi.argc() < 3 )
 		{
-			gi.SendServerCommand( ent-g_entities, va("print \"usage: drive <NPC_targetname> <vehicle name>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Vehicles will be in vehicles.cfg, try using 'speeder' for now\n\""));
+			gi.SendServerCommand( ent-g_entities, "print \"usage: drive <NPC_targetname> <vehicle name>\n\"" );
+			gi.SendServerCommand( ent-g_entities, "print \"Vehicles will be in vehicles.cfg, try using 'speeder' for now\n\"" );
 			return;
 		}
 		gentity_t *found = G_Find( nullptr, FOFS(targetname), gi.argv(1) );
@@ -1623,6 +1626,6 @@ void ClientCommand( int clientNum ) {
 	}
 	else
 	{
-		gi.SendServerCommand( clientNum, va("print \"Unknown command %s\n\"", cmd ) );
+		gi.SendServerCommand( clientNum, "print \"Unknown command %s\n\"", cmd  );
 	}
 }

@@ -78,7 +78,7 @@ typedef struct {
 	int			get, send;
 } loopback_t;
 
-static loopback_t	*loopbacks = nullptr;
+static EnumArray<loopback_t, netsrc_t, 2>	*loopbacks = nullptr;
 
 
 /*
@@ -90,7 +90,7 @@ Netchan_Init
 void Netchan_Init( int port ) {
 	if (!loopbacks)
 	{
-		loopbacks = (loopback_t*) Z_Malloc(sizeof(loopback_t) * 2, TAG_NEWDEL, true);
+		loopbacks = (EnumArray<loopback_t, netsrc_t, 2> *) Z_Malloc(sizeof(*loopbacks), TAG_NEWDEL, true);
 	}
 
 	port &= 0xffff;
@@ -319,8 +319,7 @@ bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		if ( fragmentStart != chan->fragmentLength ) {
 			if ( showdrop->integer || showpackets->integer ) {
 				Com_Printf( "%s:Dropped a message fragment\n"
-				, NET_AdrToString( chan->remoteAddress )
-				, sequence);
+				, NET_AdrToString( chan->remoteAddress ) );
 			}
 			// we can still keep the part that we have so far,
 			// so we don't need to clear chan->fragmentLength
@@ -442,7 +441,7 @@ bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[to_underlying( sock )];
+	loop = &(*loopbacks)[sock];
 
 	//If read and write positions are the same, nothing left to read.
 	if (loop->get == loop->send)
@@ -488,7 +487,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 	int		i;
 	loopback_t	*loop;
 
-	loop = &loopbacks[to_underlying( sock == NS_CLIENT ? NS_SERVER : NS_CLIENT )];
+	loop = &(*loopbacks)[sock == NS_CLIENT ? NS_SERVER : NS_CLIENT];
 
 	//Make sure there is enough free space in the buffer.
 #ifdef _DEBUG

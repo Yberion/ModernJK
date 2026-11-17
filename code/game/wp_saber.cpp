@@ -896,7 +896,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				//FIXME: CLASS_CULTIST instead of this Q_stricmpn?
 				else if ( !Q_stricmpn( "cultist", ent->NPC_type, 7 ) )
 				{//should already be set in the .npc file
-					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
+					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
 				}
 				else if ( ent->NPC && ent->client->playerTeam == TEAM_ENEMY && (ent->NPC->rank == RANK_CIVILIAN || ent->NPC->rank == RANK_LT_JG) )
 				{//grunt and fencer always uses quick attacks
@@ -908,7 +908,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				}
 				else if ( ent->client->playerTeam == TEAM_ENEMY && ent->client->NPC_class == CLASS_SHADOWTROOPER )
 				{//shadowtroopers
-					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
+					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
 				}
 				else if ( ent->NPC && ent->client->playerTeam == TEAM_ENEMY && ent->NPC->rank == RANK_LT )
 				{//boss always starts with strong attacks
@@ -920,7 +920,7 @@ int WP_SaberInitBladeData( gentity_t *ent )
 				}
 				else
 				{//?
-					ent->client->ps.saberAnimLevel = static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) );
+					ent->client->ps.saberAnimLevel = Q_irand( SS_FAST, SS_STRONG );
 				}
 			}
 		}
@@ -3197,7 +3197,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	{
 		if ( lockMode == LOCK_RANDOM )
 		{
-			lockMode = (sabersLockMode_t)Q_irand( (int)LOCK_FIRST, (int)(LOCK_RANDOM)-1 );
+			lockMode = Q_irand( LOCK_FIRST, LOCK_RANDOM - 1 );
 		}
 		//FIXME: attStart% and idealDist will change per saber lock anim pairing... do we need a big table like in bg_panimate.cpp?
 		if ( attacker->client->ps.saberAnimLevel >= SS_FAST

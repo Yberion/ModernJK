@@ -257,7 +257,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 			{//killed them, chance of dismembering
 				if ( !Q_irand( 0, 1 ) )
 				{//bite something off
-					g2ModelParts_t hitLoc = static_cast<g2ModelParts_t>( Q_irand( to_underlying( G2_MODELPART_HEAD ), to_underlying( G2_MODELPART_RLEG ) ) );
+					g2ModelParts_t hitLoc = Q_irand( G2_MODELPART_HEAD, G2_MODELPART_RLEG );
 					if ( hitLoc == G2_MODELPART_HEAD )
 					{
 						NPC_SetAnim( radiusEnt, SETANIM_BOTH, BOTH_DEATH17, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );

@@ -208,19 +208,19 @@ AS_GetSetNameIDForString
 -------------------------
 */
 
-static int AS_GetSetNameIDForString( const char *name )
+static set_e AS_GetSetNameIDForString( const char *name )
 {
 	//Make sure it's valid
 	if ( name == nullptr || name[0] == '\0' )
-		return -1;
+		return AS_SET_UNKNOWN;
 
 	for ( set_e i = AS_SET_GENERAL; i < NUM_AS_SETS; i++ )
 	{
 		if ( Q_stricmp( name, setNames[i] ) == 0 )
-			return to_underlying( i );
+			return i;
 	}
 
-	return -1;
+	return AS_SET_UNKNOWN;
 }
 
 /*
@@ -229,19 +229,19 @@ AS_GetKeywordIDForString
 -------------------------
 */
 
-static int AS_GetKeywordIDForString( const char *name )
+static setKeyword_e AS_GetKeywordIDForString( const char *name )
 {
 	//Make sure it's valid
 	if ( name == nullptr || name[0] == '\0' )
-		return -1;
+		return SET_KEYWORD_UNKNOWN;
 
 	for ( setKeyword_e i = SET_KEYWORD_TIMEBETWEENWAVES; i < NUM_AS_KEYWORDS; i++ )
 	{
 		if ( Q_stricmp( name, keywordNames[i] ) == 0 )
-			return to_underlying( i );
+			return i;
 	}
 
-	return -1;
+	return SET_KEYWORD_UNKNOWN;
 }
 
 /*
@@ -441,7 +441,7 @@ AS_GetGeneralSet
 
 static void AS_GetGeneralSet( ambientSet_t &set )
 {
-	int		keywordID;
+	setKeyword_e	keywordID;
 
 	//The other parameters of the set come in a specific order
 	while ( parsePos <= parseSize )
@@ -453,7 +453,7 @@ static void AS_GetGeneralSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( static_cast<setKeyword_e>( keywordID ) )
+		switch ( keywordID )
 		{
 		case SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
@@ -474,7 +474,7 @@ static void AS_GetGeneralSet( ambientSet_t &set )
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == -1 )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -500,7 +500,7 @@ AS_GetLocalSet
 
 static void AS_GetLocalSet( ambientSet_t &set )
 {
-	int		keywordID;
+	setKeyword_e	keywordID;
 
 	//The other parameters of the set come in a specific order
 	while ( parsePos <= parseSize )
@@ -512,7 +512,7 @@ static void AS_GetLocalSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( static_cast<setKeyword_e>( keywordID ) )
+		switch ( keywordID )
 		{
 		case SET_KEYWORD_TIMEBETWEENWAVES:
 			AS_GetTimeBetweenWaves( set );
@@ -537,7 +537,7 @@ static void AS_GetLocalSet( ambientSet_t &set )
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == -1 )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -563,7 +563,7 @@ AS_GetBModelSet
 
 static void AS_GetBModelSet( ambientSet_t &set )
 {
-	int		keywordID;
+	setKeyword_e	keywordID;
 
 	//The other parameters of the set come in a specific order
 	while ( parsePos <= parseSize )
@@ -575,7 +575,7 @@ static void AS_GetBModelSet( ambientSet_t &set )
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
 		//Find and parse the keyword info
-		switch ( static_cast<setKeyword_e>( keywordID ) )
+		switch ( keywordID )
 		{
 		case SET_KEYWORD_SUBWAVES:
 			AS_GetSubWaves( set );
@@ -584,7 +584,7 @@ static void AS_GetBModelSet( ambientSet_t &set )
 		default:
 
 			//Check to see if we've finished this group
-			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == -1 )
+			if ( AS_GetSetNameIDForString( (const char *) &tempBuffer ) == AS_SET_UNKNOWN )
 			{
 				//Ignore comments
 				if ( tempBuffer[0] == ';' )
@@ -671,7 +671,7 @@ Parses the directory information out of the beginning of the file
 static void AS_ParseHeader( void )
 {
 	char	typeBuffer[128];
-	int		keywordID;
+	setKeyword_e	keywordID;
 
 	while ( parsePos <= parseSize )
 	{
@@ -679,7 +679,7 @@ static void AS_ParseHeader( void )
 
 		keywordID = AS_GetKeywordIDForString( (const char *) &tempBuffer );
 
-		switch ( static_cast<setKeyword_e>( keywordID ) )
+		switch ( keywordID )
 		{
 		case SET_KEYWORD_TYPE:
 			sscanf( parseBuffer+parsePos, "%s %s", tempBuffer, typeBuffer );

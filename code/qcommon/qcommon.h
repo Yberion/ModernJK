@@ -136,7 +136,7 @@ static inline void NET_Init( void ) {}
 static inline void NET_Shutdown( void ) {}
 
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
-void		NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...);
+void		NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 
 bool	NET_CompareAdr (netadr_t a, netadr_t b);
 bool	NET_CompareBaseAdr (netadr_t a, netadr_t b);
@@ -479,9 +479,9 @@ void		Info_Print( const char *s );
 
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
-void 		QDECL Com_Printf( const char *fmt, ... );
-void 		QDECL Com_DPrintf( const char *fmt, ... );
-void 		NORETURN QDECL Com_Error( int code, const char *fmt, ... );
+void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		NORETURN QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		NORETURN Com_Quit_f( void );
 int			Com_EventLoop( void );
 int			Com_Milliseconds( void );	// will be journaled properly

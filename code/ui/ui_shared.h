@@ -192,7 +192,7 @@ typedef struct {
 	bool	(*ownerDrawVisible) (int flags);
 	int			(*ownerDrawWidth)(int ownerDraw, float scale);
 	void		(*Pause)(bool b);
-	void		(*Print)(const char *msg, ...);
+	void		(*Print)(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
 	int			(*registerFont) (const char *pFontname);
 	qhandle_t	(*registerModel) (const char *p);
 	qhandle_t	(*registerShaderNoMip) (const char *p);

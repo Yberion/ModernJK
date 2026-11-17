@@ -150,16 +150,17 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	if ( (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] )
 		Q_strncpyz( forcePowers, botstates[ent->s.number]->forceinfo, sizeof( forcePowers ) );
 
+	const forceMasteries_t maxRank = static_cast<forceMasteries_t>( g_maxForceRank.integer );
 	if ( g_forceBasedTeams.integer ) {
 		if ( ent->client->sess.sessionTeam == TEAM_RED )
-			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), g_maxForceRank.integer, HasSetSaberOnly(), FORCE_DARKSIDE, level.gametype, g_forcePowerDisable.integer ));
+			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), maxRank, HasSetSaberOnly(), FORCE_DARKSIDE, level.gametype, g_forcePowerDisable.integer ));
 		else if ( ent->client->sess.sessionTeam == TEAM_BLUE )
-			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), g_maxForceRank.integer, HasSetSaberOnly(), FORCE_LIGHTSIDE, level.gametype, g_forcePowerDisable.integer ));
+			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), maxRank, HasSetSaberOnly(), FORCE_LIGHTSIDE, level.gametype, g_forcePowerDisable.integer ));
 		else
-			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), g_maxForceRank.integer, HasSetSaberOnly(), 0, level.gametype, g_forcePowerDisable.integer ));
+			warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), maxRank, HasSetSaberOnly(), 0, level.gametype, g_forcePowerDisable.integer ));
 	}
 	else
-		warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), g_maxForceRank.integer, HasSetSaberOnly(), 0, level.gametype, g_forcePowerDisable.integer ));
+		warnClient = !(BG_LegalizedForcePowers( forcePowers, sizeof (forcePowers), maxRank, HasSetSaberOnly(), 0, level.gametype, g_forcePowerDisable.integer ));
 
 	//rww - parse through the string manually and eat out all the appropriate data
 	i = 0;
@@ -2426,7 +2427,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 						//set the new values
 						traceEnt->client->playerTeam = newPlayerTeam;
 						traceEnt->client->enemyTeam = newEnemyTeam;
-						traceEnt->s.teamowner = to_underlying( newPlayerTeam );
+						ES_SetNPCTeam( traceEnt->s, newPlayerTeam );
 						//FIXME: need a *charmed* timer on this...?  Or do TEAM_PLAYERS assume that "confusion" means they should switch to team_enemy when done?
 						traceEnt->NPC->charmedTime = level.time + mindTrickTime[self->client->ps.fd.forcePowerLevel[FP_TELEPATHY]];
 					}

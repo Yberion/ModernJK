@@ -1119,7 +1119,7 @@ void finish_spawning_turretG2( gentity_t *base )
 	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
 		base->teamnodmg == TEAM_FREE)
 	{
-		base->teamnodmg = static_cast<team_t>( atoi(base->team) );
+		base->teamnodmg = G_TeamFromKey( base->team );
 	}
 	base->team = nullptr;
 

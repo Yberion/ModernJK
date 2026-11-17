@@ -328,6 +328,13 @@ public:
 };
 const CWayEdge&	GetEdge(int Handle);
 
+namespace NAV
+{
+	////////////////////////////////////////////////////////////////////////////////////
+	// How Big Is The Given Ent
+	////////////////////////////////////////////////////////////////////////////////////
+	CWayEdge::EWayEdgeFlags	ClassifyEntSize(gentity_t* ent);
+}
 
 struct	SNodeSort
 {
@@ -488,7 +495,7 @@ class		CGraphUser : public TGraph::user
 {
 private:
 	gentity_t*			mActor;
-	int					mActorSize;
+	CWayEdge::EWayEdgeFlags	mActorSize;
 
 	CVec3				mDangerSpot;
 	float				mDangerSpotRadiusSq;
@@ -511,7 +518,7 @@ public:
 	void	ClearActor()
 	{
 		mActor = nullptr;
-		mActorSize = 0;
+		mActorSize = CWayEdge::WE_NONE;
 		mDangerSpotRadiusSq = 0;
 	}
 
@@ -565,7 +572,7 @@ public:
 
 		// If The Actor Is Too Big, This Is Not A Valid Edge For Him
 		//-----------------------------------------------------------
-		if (mActor && to_underlying( Edge.Size() ) < mActorSize &&
+		if (mActor && Edge.Size() < mActorSize &&
  			(EndPoint!=-1) /*&&									// Don't count the last edge on the path as invalid because of size
 			(!EndPoint || (EndPoint!=Edge.mNodeA && EndPoint!=Edge.mNodeB))*/)
 		{
@@ -683,7 +690,7 @@ public:
 
 			// If The Actor Is Too Big, Bias This Edge For Him
 			//-------------------------------------------------
-			if (to_underlying( Edge.Size() ) < mActorSize)
+			if (Edge.Size() < mActorSize)
 			{
 				//DangerBias += NAV::BIAS_TOOSMALL;
 			}
@@ -1158,7 +1165,7 @@ bool			NAV::GoTo(gentity_t* actor, const vec3_t& position, float MaxDangerLevel)
 ////////////////////////////////////////////////////////////////////////////////////////
 void	stupid_print(const char* data)
 {
-	gi.Printf(data);
+	gi.Printf("%s", data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1196,7 +1203,7 @@ bool			NAV::LoadFromFile(const char *filename, int checksum)
 
 	if (SAVE_LOAD)
 	{
-		hfile	navFile(va("maps/%s.navNEW"));
+		hfile	navFile(va("maps/%s.navNEW", filename));
 		if (!navFile.open_read(NAV_VERSION, checksum))
 		{
 			return false;
@@ -1224,7 +1231,6 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 	bool		CanGo			= false;
 	bool		HitCharacter	= false;
 	int			EntHit			= ENTITYNUM_NONE;
-	int			i				= (int)(at.Size());
 
 	a.mPoint.ToStr(mLocStringA);
 	b.mPoint.ToStr(mLocStringB);
@@ -1247,7 +1253,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 	{
 		if (IsDebugEdge)
 		{
-			gi.Printf("Nav(%s)<->(%s): Size Too Big\n", aName, bName, i);
+			gi.Printf("Nav(%s)<->(%s): Size Too Big\n", aName, bName);
 		}
 		CanGo = false;
 		return CanGo;
@@ -2142,7 +2148,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 	//========================
 	if (SAVE_LOAD)
 	{
-		hfile	navFile(va("maps/%s.navNEW"));
+		hfile	navFile(va("maps/%s.navNEW", filename));
 		if (!navFile.open_write(NAV_VERSION, checksum))
 		{
 			return false;
@@ -2334,7 +2340,7 @@ void			NAV::SpawnedPoint(gentity_t* ent, NAV::EPointType type)
 		if (!MoveTrace(Start, Stop, Mins, Maxs, 0, true, false))
 		{
 			assert("ERROR: Nav in solid!"==0);
-			gi.Printf( S_COLOR_RED"ERROR: Nav(%d) in solid: %s@%s\n", type, pointName, mLocStringA);
+			gi.Printf( S_COLOR_RED"ERROR: Nav(%d) in solid: %s@%s\n", to_underlying( type ), pointName, mLocStringA);
 			delayedShutDown = level.time + 100;
 			return;
 		}
@@ -3802,7 +3808,7 @@ void			NAV::GetNodePosition(TNodeHandle NodeHandle, vec3_t& position)
 ////////////////////////////////////////////////////////////////////////////////////////
 // Call This function to get the size classification for a given entity
 ////////////////////////////////////////////////////////////////////////////////////////
-unsigned int		NAV::ClassifyEntSize(gentity_t* ent)
+CWayEdge::EWayEdgeFlags	NAV::ClassifyEntSize(gentity_t* ent)
 {
 	if (ent)
 	{
@@ -3813,11 +3819,11 @@ unsigned int		NAV::ClassifyEntSize(gentity_t* ent)
 
 		if ((radius > SC_MEDIUM_RADIUS) || height > (SC_MEDIUM_HEIGHT))
 		{
-			return to_underlying( CWayEdge::WE_SIZE_LARGE );
+			return CWayEdge::WE_SIZE_LARGE;
 		}
-		return to_underlying( CWayEdge::WE_SIZE_MEDIUM );
+		return CWayEdge::WE_SIZE_MEDIUM;
 	}
-	return 0;
+	return CWayEdge::WE_NONE;
 }
 
 

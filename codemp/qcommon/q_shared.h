@@ -580,7 +580,7 @@ char	*COM_Parse( const char **data_p );
 char	*COM_ParseExt( const char **data_p, bool allowLineBreak );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... );
-void	COM_ParseWarning( const char *format, ... );
+void	COM_ParseWarning( const char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 bool COM_ParseString( const char **data, const char **s );
 bool COM_ParseInt( const char **data, int *i );
 bool COM_ParseFloat( const char **data, float *f );
@@ -619,7 +619,7 @@ void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 int Com_HexStrToInt( const char *str );
 
-int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
+int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, const char *sep );
@@ -659,7 +659,7 @@ typedef struct qint64_s {
 
 int FloatAsInt( float f );
 
-char	* QDECL va(const char *format, ...);
+char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -679,11 +679,11 @@ bool Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.cpp and bg_*.c can link
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
-	extern NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
-	extern void (*Com_Printf)( const char *msg, ... );
+	extern NORETURN_PTR void (*Com_Error)( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+	extern void (*Com_Printf)( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 #else
-	void NORETURN QDECL Com_Error( int level, const char *error, ... );
-	void QDECL Com_Printf( const char *msg, ... );
+	void NORETURN QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+	void QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 #endif
 
 
@@ -1051,8 +1051,6 @@ using enum itemUseFail_t;
 #define FORCE_LIGHTSIDE			1
 #define FORCE_DARKSIDE			2
 
-#define MAX_FORCE_RANK			7
-
 #define FALL_FADE_TIME			3000
 
 //#define _ONEBIT_COMBO
@@ -1078,6 +1076,7 @@ enum class persEnum_t;	// bg_public.h
 enum class statIndex_t;	// bg_public.h
 enum class powerup_t;	// bg_public.h
 enum class ammo_t;	// bg_weapons.h
+enum class team_t;	// bg_public.h
 enum class weaponstate_t;	// bg_public.h
 enum class forceHandAnims_t;	// bg_public.h
 enum class pmtype_t;	// bg_public.h
@@ -1351,7 +1350,7 @@ typedef struct playerState_s {
 typedef struct siegePers_s
 {
 	bool	beatingTime;
-	int			lastTeam;
+	team_t		lastTeam;
 	int			lastTime;
 } siegePers_t;
 

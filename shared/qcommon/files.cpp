@@ -3286,7 +3286,7 @@ void FS_Shutdown( bool closemfp, bool keepModuleFiles ) {
 			{
 				DWORD error = GetLastError();
 				Com_DPrintf("FS_Shutdown: failed to delete '%s'. "
-							"Win32 error code: 0x08x",
+							"Win32 error code: 0x%08lx\n",
 							fs_temporaryFileNames[i],
 							error);
 			}
@@ -4323,7 +4323,7 @@ bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFi
 
 						error = GetLastError();
 						Com_DPrintf("FS_WriteToTemporaryFile failed for '%s'. "
-									"Win32 error code: 0x%08x\n",
+									"Win32 error code: 0x%08lx\n",
 									fs_temporaryFileNames[fs_temporaryFileWriteIdx],
 									error);
 
@@ -4357,7 +4357,7 @@ bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFi
 				{
 					error = GetLastError();
 					Com_DPrintf("FS_WriteToTemporaryFile failed to write '%s'. "
-								"Win32 error code: 0x%08x\n",
+								"Win32 error code: 0x%08lx\n",
 								tempFileName, error);
 				}
 			}
@@ -4365,7 +4365,7 @@ bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFi
 			{
 				error = GetLastError();
 				Com_DPrintf("FS_WriteToTemporaryFile failed to create '%s'. "
-							"Win32 error code: 0x%08x\n",
+							"Win32 error code: 0x%08lx\n",
 							tempFileName, error);
 			}
 		}
@@ -4373,14 +4373,14 @@ bool FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFi
 		{
 			error = GetLastError();
 			Com_DPrintf("FS_WriteToTemporaryFile failed to generate temporary file name. "
-						"Win32 error code: 0x%08x\n", error);
+						"Win32 error code: 0x%08lx\n", error);
 		}
 	}
 	else
 	{
 		error = GetLastError();
 		Com_DPrintf("FS_WriteToTemporaryFile failed to get temporary file folder. "
-						"Win32 error code: 0x%08x\n", error);
+						"Win32 error code: 0x%08lx\n", error);
 	}
 #endif
 

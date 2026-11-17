@@ -30,13 +30,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int uiForceSide;
 extern int uiJediNonJedi;
-extern int uiForceRank;
-extern int uiMaxRank;
+extern forceMasteries_t uiForceRank;
+extern forceMasteries_t uiMaxRank;
 extern int uiForceUsed;
 extern int uiForceAvailable;
 extern bool gTouchedForce;
 extern bool uiForcePowersDisabled[NUM_FORCE_POWERS];
-extern int uiForcePowersRank[NUM_FORCE_POWERS];
+extern forcePowerLevels_t uiForcePowersRank[NUM_FORCE_POWERS];
 extern int uiForcePowerDarkLight[NUM_FORCE_POWERS];
 extern EnumArray<int, saber_colors_t, NUM_SABER_COLORS> uiSaberColorShaders;
 // Dots above or equal to a given rank carry a certain color.
@@ -44,13 +44,13 @@ extern EnumArray<int, saber_colors_t, NUM_SABER_COLORS> uiSaberColorShaders;
 void UI_InitForceShaders(void);
 void UI_ReadLegalForce(void);
 void UI_DrawTotalForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle);
-void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle, int findex, int val, int min, int max) ;
+void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle, int findex, forcePowerLevels_t val, forcePowerLevels_t min, forcePowerLevels_t max) ;
 void UI_UpdateClientForcePowers(const char *teamArg);
 void UI_SaveForceTemplate();
 void UI_UpdateForcePowers();
 bool UI_SkinColor_HandleKey(int flags, float *special, int key, team_t num, team_t min, team_t max, int type);
 bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
 bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
-bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
-bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
+bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, forceMasteries_t num, forceMasteries_t min, forceMasteries_t max, int type);
+bool UI_ForcePowerRank_HandleKey(int flags, float *special, int key, forcePowerLevels_t num, forcePowerLevels_t min, forcePowerLevels_t max, int type);
 extern void UI_ForceConfigHandle( int oldindex, int newindex );

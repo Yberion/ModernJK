@@ -39,7 +39,7 @@ bool MP3_IsValid( const char *psLocalFilename, void *pvData, int iDataLen, bool 
 
 	if (psError)
 	{
-		Com_Printf(va(S_COLOR_RED"%s(%s)\n",psError, psLocalFilename));
+		Com_Printf(S_COLOR_RED"%s(%s)\n",psError, psLocalFilename);
 	}
 
 	return (!psError);
@@ -65,7 +65,7 @@ int MP3_GetUnpackedSize( const char *psLocalFilename, void *pvData, int iDataLen
 
 		if (psError)
 		{
-			Com_Printf(va(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename));
+			Com_Printf(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename);
 			return 0;
 		}
 	}
@@ -86,7 +86,7 @@ int MP3_UnpackRawPCM( const char *psLocalFilename, void *pvData, int iDataLen, b
 
 	if (psError)
 	{
-		Com_Printf(va(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename));
+		Com_Printf(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename);
 		return 0;
 	}
 
@@ -105,7 +105,7 @@ bool MP3Stream_InitPlayingTimeFields( LP_MP3STREAM lpMP3Stream, const char *psLo
 	char *psError = C_MP3_GetHeaderData(pvData, iDataLen, &iRate, &iWidth, &iChannels, bStereoDesired );
 	if (psError)
 	{
-		Com_Printf(va(S_COLOR_RED"MP3Stream_InitPlayingTimeFields(): %s\n(File: %s)\n",psError, psLocalFilename));
+		Com_Printf(S_COLOR_RED"MP3Stream_InitPlayingTimeFields(): %s\n(File: %s)\n",psError, psLocalFilename);
 	}
 	else
 	{
@@ -161,7 +161,7 @@ bool MP3_FakeUpWAVInfo( const char *psLocalFilename, void *pvData, int iDataLen,
 	char *psError = C_MP3_GetHeaderData(pvData, iDataLen, &rate, &width, &channels, bStereoDesired );
 	if (psError)
 	{
-		Com_Printf(va(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename));
+		Com_Printf(S_COLOR_RED"%s\n(File: %s)\n",psError, psLocalFilename);
 	}
 
 	// and some stuff needs calculating...
@@ -243,7 +243,7 @@ bool MP3_ReadSpecialTagInfo(byte *pbLoadedFile, int iLoadedFileLen,
 cvar_t* cv_MP3overhead = nullptr;
 void MP3_InitCvars(void)
 {
-	cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%d", sizeof(MP3STREAM) + FUZZY_AMOUNT), CVAR_ARCHIVE );
+	cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%zu", sizeof(MP3STREAM) + FUZZY_AMOUNT), CVAR_ARCHIVE );
 }
 
 
@@ -301,7 +301,7 @@ bool MP3Stream_InitFromFile( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, const
 			// This should never happen, since any errors or problems with the MP3 file would have stopped us getting
 			//	to this whole function, but just in case...
 			//
-			Com_Printf(va(S_COLOR_YELLOW"File \"%s\": %s\n",psSrcDataFilename,psError));
+			Com_Printf(S_COLOR_YELLOW"File \"%s\": %s\n",psSrcDataFilename,psError);
 
 			// This will leave iSrcDatalen bytes on the hunk stack (since you can't dealloc that), but MP3 files are
 			//	usually small, and like I say, it should never happen.

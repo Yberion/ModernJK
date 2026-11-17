@@ -29,6 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "vmachine.h"
 
+#include <inttypes.h>
+
 intptr_t CL_UISystemCalls( intptr_t *args );
 
 //prototypes
@@ -373,7 +375,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 	switch( static_cast<uiImport_t>( args[0] ) )
 	{
 	case UI_ERROR:
-		Com_Error( ERR_DROP, "%s", VMA(1) );
+		Com_Error( ERR_DROP, "%s", (const char *)VMA(1) );
 		return 0;
 
 	case UI_CVAR_REGISTER:
@@ -499,7 +501,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 
 
 	default:
-		Com_Error( ERR_DROP, "Bad UI system trap: %i", args[0] );
+		Com_Error( ERR_DROP, "Bad UI system trap: %" PRIdPTR, args[0] );
 
 	}
 

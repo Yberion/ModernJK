@@ -267,7 +267,7 @@ const char *String_Alloc(const char *p) {
 	}
 
 	//Increase STRING_POOL_SIZE.
-	Com_Printf( S_COLOR_RED, "String pool has been exhausted.\n" );
+	Com_Printf( S_COLOR_RED "String pool has been exhausted.\n" );
 	return nullptr;
 }
 

@@ -1855,6 +1855,7 @@ enum class sabersLockMode_t
 	LOCK_RANDOM
 };
 using enum sabersLockMode_t;
+template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
 #define LOCK_IDEAL_DIST_TOP 32.0f
 #define LOCK_IDEAL_DIST_CIRCLE 48.0f
@@ -1869,7 +1870,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	//MATCH ANIMS
 	if ( lockMode == LOCK_RANDOM )
 	{
-		lockMode = (sabersLockMode_t)Q_irand( (int)LOCK_FIRST, (int)(LOCK_RANDOM)-1 );
+		lockMode = Q_irand( LOCK_FIRST, LOCK_RANDOM - 1 );
 	}
 	switch ( lockMode )
 	{

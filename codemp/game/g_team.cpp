@@ -329,13 +329,13 @@ void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 }
 
 void Team_CheckDroppedItem( gentity_t *dropped ) {
-	if( dropped->item->giTag == to_underlying( PW_REDFLAG ) ) {
+	if( GI_Powerup( *dropped->item ) == PW_REDFLAG ) {
 		Team_SetFlagStatus( TEAM_RED, FLAG_DROPPED );
 	}
-	else if( dropped->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
+	else if( GI_Powerup( *dropped->item ) == PW_BLUEFLAG ) {
 		Team_SetFlagStatus( TEAM_BLUE, FLAG_DROPPED );
 	}
-	else if( dropped->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
+	else if( GI_Powerup( *dropped->item ) == PW_NEUTRALFLAG ) {
 		Team_SetFlagStatus( TEAM_FREE, FLAG_DROPPED );
 	}
 }
@@ -661,13 +661,13 @@ void Team_ReturnFlag( team_t team ) {
 }
 
 void Team_FreeEntity( gentity_t *ent ) {
-	if( ent->item->giTag == to_underlying( PW_REDFLAG ) ) {
+	if( GI_Powerup( *ent->item ) == PW_REDFLAG ) {
 		Team_ReturnFlag( TEAM_RED );
 	}
-	else if( ent->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
+	else if( GI_Powerup( *ent->item ) == PW_BLUEFLAG ) {
 		Team_ReturnFlag( TEAM_BLUE );
 	}
-	else if( ent->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
+	else if( GI_Powerup( *ent->item ) == PW_NEUTRALFLAG ) {
 		Team_ReturnFlag( TEAM_FREE );
 	}
 }
@@ -684,13 +684,13 @@ Flags are unique in that if they are dropped, the base flag must be respawned wh
 void Team_DroppedFlagThink(gentity_t *ent) {
 	team_t		team = TEAM_FREE;
 
-	if( ent->item->giTag == to_underlying( PW_REDFLAG ) ) {
+	if( GI_Powerup( *ent->item ) == PW_REDFLAG ) {
 		team = TEAM_RED;
 	}
-	else if( ent->item->giTag == to_underlying( PW_BLUEFLAG ) ) {
+	else if( GI_Powerup( *ent->item ) == PW_BLUEFLAG ) {
 		team = TEAM_BLUE;
 	}
-	else if( ent->item->giTag == to_underlying( PW_NEUTRALFLAG ) ) {
+	else if( GI_Powerup( *ent->item ) == PW_NEUTRALFLAG ) {
 		team = TEAM_FREE;
 	}
 

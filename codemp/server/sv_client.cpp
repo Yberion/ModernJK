@@ -283,7 +283,7 @@ void SV_DirectConnect( const netadr_t *from ) {
 		}
 		else {
 			const char *SV_GetStringEdString(const char *refSection, const char *refName);
-			NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SV_GetStringEdString("MP_SVGAME","SERVER_IS_FULL")));
+			NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", SV_GetStringEdString("MP_SVGAME","SERVER_IS_FULL"));
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
@@ -611,7 +611,7 @@ static void SV_StopDownload_f( client_t *cl ) {
 		return;
 
 	if (*cl->downloadName)
-		Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", cl - svs.clients, cl->downloadName );
+		Com_DPrintf( "clientDownload: %td : file \"%s\" aborted\n", cl - svs.clients, cl->downloadName );
 
 	SV_CloseDownload( cl );
 }
@@ -648,11 +648,11 @@ static void SV_NextDownload_f( client_t *cl )
 		return;
 
 	if (block == cl->downloadClientBlock) {
-		Com_DPrintf( "clientDownload: %d : client acknowledge of block %d\n", cl - svs.clients, block );
+		Com_DPrintf( "clientDownload: %td : client acknowledge of block %d\n", cl - svs.clients, block );
 
 		// Find out if we are done.  A zero-length block indicates EOF
 		if (cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] == 0) {
-			Com_Printf( "clientDownload: %d : file \"%s\" completed\n", cl - svs.clients, cl->downloadName );
+			Com_Printf( "clientDownload: %td : file \"%s\" completed\n", cl - svs.clients, cl->downloadName );
 			SV_CloseDownload( cl );
 			return;
 		}

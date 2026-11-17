@@ -3518,7 +3518,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	/*
 	client->ps.stats[STAT_HOLDABLE_ITEMS] |= Bit( HI_BINOCULARS );
-	client->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_BINOCULARS ), IT_HOLDABLE);
+	client->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_BINOCULARS );
 	*/
 
 	if (level.gametype == GT_SIEGE && client->siegeClass != -1 &&
@@ -3790,18 +3790,18 @@ void ClientSpawn(gentity_t *ent) {
 	{ //Imperial (team1) team is allied with "enemy" NPCs in this mode
 		if (client->sess.sessionTeam == SIEGETEAM_TEAM1)
 		{
-			ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_ENEMY );
+			ES_SetNPCTeam( ent->s, client->playerTeam = NPCTEAM_ENEMY );
 			client->enemyTeam = NPCTEAM_PLAYER;
 		}
 		else
 		{
-			ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_PLAYER );
+			ES_SetNPCTeam( ent->s, client->playerTeam = NPCTEAM_PLAYER );
 			client->enemyTeam = NPCTEAM_ENEMY;
 		}
 	}
 	else
 	{
-		ent->s.teamowner = to_underlying( client->playerTeam = NPCTEAM_PLAYER );
+		ES_SetNPCTeam( ent->s, client->playerTeam = NPCTEAM_PLAYER );
 		client->enemyTeam = NPCTEAM_ENEMY;
 	}
 

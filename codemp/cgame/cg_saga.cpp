@@ -66,11 +66,11 @@ void CG_PrecacheSiegeObjectiveAssetsForTeam(team_t myTeam)
 
 	if (myTeam == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -444,11 +444,11 @@ static char QINLINE *CG_SiegeObjectiveBuffer(team_t team, int objective)
 
 	if (team == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -611,11 +611,11 @@ void CG_SiegeRoundOver(centity_t *ent, team_t won)
 
 	if (myTeam == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -648,7 +648,7 @@ void CG_SiegeRoundOver(centity_t *ent, team_t won)
 
 		if (BG_SiegeGetPairedValue(cgParseObjectives, teamstr, appstring))
 		{
-			Com_sprintf(soundstr, sizeof(soundstr), appstring);
+			Com_sprintf(soundstr, sizeof(soundstr), "%s", appstring);
 		}
 		/*
 		else
@@ -680,11 +680,11 @@ void CG_SiegeGetObjectiveDescription(team_t team, int objective, char *buffer)
 
 	if (team == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -705,11 +705,11 @@ int CG_SiegeGetObjectiveFinal(team_t team, int objective )
 
 	if (team == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -746,11 +746,11 @@ void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 
 	if (team == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (useTeam != SIEGETEAM_TEAM1 && useTeam != SIEGETEAM_TEAM2)
@@ -923,11 +923,11 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 
 	if (won == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, cgParseObjectives))
@@ -964,7 +964,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 
 			if (BG_SiegeGetPairedValue(foundobjective, teamstr, appstring))
 			{
-				Com_sprintf(soundstr, sizeof(soundstr), appstring);
+				Com_sprintf(soundstr, sizeof(soundstr), "%s", appstring);
 			}
 			/*
 			else

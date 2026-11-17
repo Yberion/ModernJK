@@ -68,7 +68,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo->registered = true;
 
 	if (item->giType == IT_TEAM &&
-		(item->giTag == to_underlying( PW_REDFLAG ) || item->giTag == to_underlying( PW_BLUEFLAG )) &&
+		(GI_Powerup( *item ) == PW_REDFLAG || GI_Powerup( *item ) == PW_BLUEFLAG) &&
 		cgs.gametype == GT_CTY)
 	{ //in CTY the flag model is different
 		itemInfo->models[0] = trap->R_RegisterModel( item->world_model[1] );

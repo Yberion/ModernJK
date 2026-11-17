@@ -749,7 +749,7 @@ static void G_SpewEntList(void)
 				}
 
 				str = va("TEMPENT %4i: EV %i\n", ent->s.number, ent->s.eType-ET_EVENTS);
-				Com_Printf(str);
+				Com_Printf("%s", str);
 #ifdef _DEBUG
 				if (fh)
 				{
@@ -767,7 +767,7 @@ static void G_SpewEntList(void)
 				strcpy(className, "Unknown");
 			}
 			str = va("ENT %4i: Classname %s\n", ent->s.number, className);
-			Com_Printf(str);
+			Com_Printf("%s", str);
 #ifdef _DEBUG
 			if (fh)
 			{
@@ -780,7 +780,7 @@ static void G_SpewEntList(void)
 	}
 
 	str = va("TempEnt count: %i\nTempEnt ST: %i\nNPC count: %i\nProjectile count: %i\n", numTempEnt, numTempEntST, numNPC, numProjectile);
-	Com_Printf(str);
+	Com_Printf("%s", str);
 #ifdef _DEBUG
 	if (fh)
 	{
@@ -1751,8 +1751,8 @@ void TryUse( gentity_t *ent )
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] > 0 &&
 		bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giType == IT_HOLDABLE)
 	{
-		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == to_underlying( HI_HEALTHDISP ) ||
-			bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == to_underlying( HI_AMMODISP ))
+		if (GI_Holdable( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]] ) == HI_HEALTHDISP ||
+			GI_Holdable( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]] ) == HI_AMMODISP)
 		{ //has a dispenser item selected
             if (target && target->client && target->health > 0 && OnSameTeam(ent, target) &&
 				G_CanUseDispOn(target, bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag))
@@ -1952,6 +1952,11 @@ G_SetOrigin
 Sets the pos trajectory for a fixed position
 ================
 */
+// the team that a map entity's "team" key gives by its number
+team_t G_TeamFromKey( const char *key ) {
+	return static_cast<team_t>( atoi( key ) );
+}
+
 void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->s.pos.trBase );
 	ent->s.pos.trType = TR_STATIONARY;

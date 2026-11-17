@@ -151,10 +151,6 @@ namespace NAV
 	void			WayEdgesNowClear(gentity_t* ent);
 
 
-	////////////////////////////////////////////////////////////////////////////////////
-	// How Big Is The Given Ent
-	////////////////////////////////////////////////////////////////////////////////////
-	unsigned int	ClassifyEntSize(gentity_t* ent);
 	void			RegisterDangerSense(gentity_t* actor, int alertEventIndex);
 	void			DecayDangerSenses();
 

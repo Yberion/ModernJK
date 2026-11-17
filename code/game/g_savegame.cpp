@@ -828,8 +828,8 @@ static void EvaluateFields(
 			else
 			{
 				::G_Error(
-					::va("EvaluateFields(): variable-sized chunk '%s' without handler!",
-						::SG_GetChidText(ulChid)));
+					"EvaluateFields(): variable-sized chunk '%s' without handler!",
+						::SG_GetChidText(ulChid));
 			}
 		}
 	}

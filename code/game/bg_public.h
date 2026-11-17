@@ -688,6 +688,9 @@ typedef struct gitem_s {
 	vec3_t		maxs;			// Bbox
 } gitem_t;
 
+// What an item's giTag holds, by its giType: the one conversion of the cell
+[[nodiscard]] inline ammo_t GI_Ammo( const gitem_t &item ) { return static_cast<ammo_t>( item.giTag ); }
+
 // included in both the game dll and the client
 extern	gitem_t	bg_itemlist[];
 extern	const int		bg_numItems;

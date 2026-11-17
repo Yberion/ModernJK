@@ -473,6 +473,7 @@ enum class forceMasteries_t {
 	NUM_FORCE_MASTERY_LEVELS
 };
 using enum forceMasteries_t;
+template <> inline constexpr bool enableEnumArithmetic<forceMasteries_t> = true;
 
 extern const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels;
 extern const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints;
@@ -1103,6 +1104,12 @@ template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 [[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
 inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
 
+// An entity state's teamowner, a networked integer: the team of a player's item, a turret or a vehicle, the NPC team of an NPC
+[[nodiscard]] inline team_t ES_Team( const entityState_t &es ) { return static_cast<team_t>( es.teamowner ); }
+inline void ES_SetTeam( entityState_t &es, team_t team ) { es.teamowner = to_underlying( team ); }
+[[nodiscard]] inline npcteam_t ES_NPCTeam( const entityState_t &es ) { return static_cast<npcteam_t>( es.teamowner ); }
+inline void ES_SetNPCTeam( entityState_t &es, npcteam_t team ) { es.teamowner = to_underlying( team ); }
+
 enum class duelTeam_t {
 	DUELTEAM_FREE,
 	DUELTEAM_LONE,
@@ -1223,6 +1230,11 @@ typedef struct gitem_s {
 	const char	*sounds;		// string of all sounds this item will use
 	const char	*description;
 } gitem_t;
+
+// What an item's giTag holds, by its giType: the one conversion of the cell
+[[nodiscard]] inline ammo_t GI_Ammo( const gitem_t &item ) { return static_cast<ammo_t>( item.giTag ); }
+[[nodiscard]] inline powerup_t GI_Powerup( const gitem_t &item ) { return static_cast<powerup_t>( item.giTag ); }
+[[nodiscard]] inline holdable_t GI_Holdable( const gitem_t &item ) { return static_cast<holdable_t>( item.giTag ); }
 
 // included in both the game dll and the client
 
@@ -1728,7 +1740,7 @@ typedef struct saberInfo_s {
 
 bgEntity_t *PM_BGEntForNum( int num );
 bool BG_KnockDownable(playerState_t *ps);
-bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, bool freeSaber, int teamForce, gametype_t gametype, int fpDisabled);
+bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries_t maxRank, bool freeSaber, int teamForce, gametype_t gametype, int fpDisabled);
 
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
@@ -1805,6 +1817,7 @@ bool BG_HasAnimation(int animIndex, int animation);
 int		BG_PickAnim( int animIndex, int minAnim, int maxAnim );
 
 int		BG_GetItemIndexByTag(int tag, itemType_t type);
+int		BG_GetItemIndexByTag( holdable_t item );
 
 bool BG_IsItemSelectable(playerState_t *ps, holdable_t item);
 

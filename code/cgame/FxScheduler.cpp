@@ -234,7 +234,7 @@ int CFxScheduler::ScheduleLoopedEffect( int id, int boltInfo, bool isPortal, int
 	if(i==MAX_LOOPED_FX)
 	{//bad
 		assert(i!=MAX_LOOPED_FX);
-		theFxHelper.Print( "CFxScheduler::AddLoopedEffect- No Free Slots available for %d\n", mEffectTemplates[id].mEffectName);
+		theFxHelper.Print( "CFxScheduler::AddLoopedEffect- No Free Slots available for %s\n", mEffectTemplates[id].mEffectName);
 		return -1;
 	}
 	mLoopedEffectArray[i].mId = id;

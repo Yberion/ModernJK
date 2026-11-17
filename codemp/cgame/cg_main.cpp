@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_main.cpp -- initialization and primary entry point for cgame
 #include "cg_local.h"
 
+#include <memory>
+
 #include "ui/ui_shared.h"
 
 NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
@@ -2335,7 +2337,7 @@ Ghoul2 Insert Start
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff in the active snap shots
 void CG_Init_CG(void)
 {
-	memset( &cg, 0, sizeof(cg));
+	std::construct_at( &cg );	// value-initialised in place: zero as the memset was, the optionals empty, no temporary of this large structure
 }
 
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff
@@ -2501,11 +2503,11 @@ Ghoul2 Insert End
 		{
 			if (bg_itemlist[i].icon)
 			{
-				cgs.media.invenIcons[static_cast<holdable_t>( bg_itemlist[i].giTag )] = trap->R_RegisterShaderNoMip(bg_itemlist[i].icon);
+				cgs.media.invenIcons[GI_Holdable( bg_itemlist[i] )] = trap->R_RegisterShaderNoMip(bg_itemlist[i].icon);
 			}
 			else
 			{
-				cgs.media.invenIcons[static_cast<holdable_t>( bg_itemlist[i].giTag )] = 0;
+				cgs.media.invenIcons[GI_Holdable( bg_itemlist[i] )] = 0;
 			}
 		}
 
@@ -2814,13 +2816,13 @@ void CG_NextInventory_f(void)
 
 	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( *cg.itemSelect ), IT_HOLDABLE);
+		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
 	}
 	BG_CycleInven(&cg.snap->ps, 1);
 
 	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
+		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]] );
 		cg.invenSelectTime = cg.time;
 	}
 }
@@ -2844,13 +2846,13 @@ void CG_PrevInventory_f(void)
 
 	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( *cg.itemSelect ), IT_HOLDABLE);
+		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( *cg.itemSelect );
 	}
 	BG_CycleInven(&cg.snap->ps, -1);
 
 	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
+		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]] );
 		cg.invenSelectTime = cg.time;
 	}
 }

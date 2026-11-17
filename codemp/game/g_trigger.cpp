@@ -668,7 +668,7 @@ void SP_trigger_multiple( gentity_t *ent )
 
 	if ( ent->team && ent->team[0] )
 	{
-		ent->alliedTeam = static_cast<team_t>( atoi(ent->team) );
+		ent->alliedTeam = G_TeamFromKey( ent->team );
 		ent->team = nullptr;
 	}
 
@@ -741,7 +741,7 @@ void SP_trigger_once( gentity_t *ent )
 
 	if ( ent->team && ent->team[0] )
 	{
-		ent->alliedTeam = static_cast<team_t>( atoi(ent->team) );
+		ent->alliedTeam = G_TeamFromKey( ent->team );
 		ent->team = nullptr;
 	}
 
@@ -1322,7 +1322,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	if (level.gametype == GT_SIEGE && self->team && self->team[0])
 	{
-		team_t team = static_cast<team_t>( atoi(self->team) );
+		team_t team = G_TeamFromKey( self->team );
 
 		if (other->inuse && other->s.number < MAX_CLIENTS && other->client &&
 			other->client->sess.sessionTeam != team)
@@ -1330,7 +1330,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 			return;
 		}
 		else if (other->inuse && other->client && other->s.eType == ET_NPC &&
-			other->s.NPC_class == CLASS_VEHICLE && static_cast<team_t>( other->s.teamowner ) != team)
+			other->s.NPC_class == CLASS_VEHICLE && ES_Team( other->s ) != team)
 		{ //vehicle owned by team don't hurt
 			return;
 		}

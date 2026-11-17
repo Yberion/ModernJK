@@ -83,6 +83,7 @@ enum class sabersLockMode_t
 	LOCK_FORCE_DRAIN
 };
 using enum sabersLockMode_t;
+template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
 enum
 {

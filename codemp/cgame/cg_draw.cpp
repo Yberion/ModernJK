@@ -1414,7 +1414,7 @@ void CG_DrawHUD(centity_t	*cent)
 			{	// We are the leader!
 				if (cgs.scores2 <= 0)
 				{	// Nobody to be ahead of yet.
-					Com_sprintf(scoreBiasStr, sizeof(scoreBiasStr), "");
+					scoreBiasStr[0] = '\0';
 				}
 				else
 				{
@@ -1708,7 +1708,7 @@ void CG_DrawInvenSelect( void )
 
 	if (!cg.itemSelect)
 	{
-		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
+		cg.itemSelect = GI_Holdable( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]] );
 	}
 	const holdable_t itemSelect = *cg.itemSelect;
 
@@ -1814,7 +1814,7 @@ void CG_DrawInvenSelect( void )
 		/*CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
 			NUM_FONT_SMALL,false);*/
 
-		itemNdex = BG_GetItemIndexByTag(to_underlying( itemSelect ), IT_HOLDABLE);
+		itemNdex = BG_GetItemIndexByTag( itemSelect );
 		if (bg_itemlist[itemNdex].classname)
 		{
 			vec4_t	textColor = { .312f, .75f, .621f, 1.0f };
@@ -4792,7 +4792,7 @@ void CG_DrawHealthBar(centity_t *cent, float chX, float chY, float chW, float ch
 		aColor[2] = 0.0f;
 		aColor[3] = 0.4f;
 	}
-	else if (static_cast<team_t>( cent->currentState.teamowner ) == PS_Team( cg.predictedPlayerState ))
+	else if (ES_Team( cent->currentState ) == PS_Team( cg.predictedPlayerState ))
 	{ //owned by my team
 		aColor[0] = 0.0f;
 		aColor[1] = 1.0f;
@@ -5133,7 +5133,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 							ecolor[2] = 0.0f;//B
 						}
 					}
-					else if ( static_cast<npcteam_t>( crossEnt->currentState.teamowner ) != plTeam )
+					else if ( ES_NPCTeam( crossEnt->currentState ) != plTeam )
 					{// on enemy team
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 0.0f;//G
@@ -5146,8 +5146,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 						ecolor[2] = 0.0f;//B
 					}
 				}
-				else if ( static_cast<team_t>( crossEnt->currentState.teamowner ) == TEAM_RED
-					|| static_cast<team_t>( crossEnt->currentState.teamowner ) == TEAM_BLUE )
+				else if ( ES_Team( crossEnt->currentState ) == TEAM_RED
+					|| ES_Team( crossEnt->currentState ) == TEAM_BLUE )
 				{
 					if (cgs.gametype < GT_TEAM)
 					{ //not teamplay, just neutral then
@@ -5155,7 +5155,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 						ecolor[1] = 1.0f;//G
 						ecolor[2] = 0.0f;//B
 					}
-					else if ( static_cast<team_t>( crossEnt->currentState.teamowner ) != cgs.clientinfo[cg.snap->ps.clientNum].team )
+					else if ( ES_Team( crossEnt->currentState ) != cgs.clientinfo[cg.snap->ps.clientNum].team )
 					{ //on the enemy team
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 0.0f;//G
@@ -5169,14 +5169,14 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					}
 				}
 				else if (crossEnt->currentState.owner == cg.snap->ps.clientNum ||
-					(cgs.gametype >= GT_TEAM && static_cast<team_t>( crossEnt->currentState.teamowner ) == cgs.clientinfo[cg.snap->ps.clientNum].team))
+					(cgs.gametype >= GT_TEAM && ES_Team( crossEnt->currentState ) == cgs.clientinfo[cg.snap->ps.clientNum].team))
 				{
 					ecolor[0] = 0.0f;//R
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
 				else if (crossEnt->currentState.teamowner == 16 ||
-					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner && static_cast<team_t>( crossEnt->currentState.teamowner ) != cgs.clientinfo[cg.snap->ps.clientNum].team))
+					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner && ES_Team( crossEnt->currentState ) != cgs.clientinfo[cg.snap->ps.clientNum].team))
 				{
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
@@ -5199,7 +5199,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
-                else if (PS_Team( cg.predictedPlayerState ) != static_cast<team_t>( crossEnt->currentState.teamowner ))
+                else if (PS_Team( cg.predictedPlayerState ) != ES_Team( crossEnt->currentState ))
 				{ //not my team
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
@@ -5220,7 +5220,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					ecolor[1] = 1.0f;
 					ecolor[2] = 0.0f;
 				}
-				else if (static_cast<team_t>( crossEnt->currentState.teamowner ) == PS_Team( cg.predictedPlayerState ))
+				else if (ES_Team( crossEnt->currentState ) == PS_Team( cg.predictedPlayerState ))
 				{ //owned by my team
 					ecolor[0] = 0.0f;
 					ecolor[1] = 1.0f;
@@ -5549,7 +5549,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 			isEnemy = true;
 			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
 		}
-		else if ( static_cast<team_t>( cent->currentState.teamowner ) != PS_Team( cg.predictedPlayerState ) )
+		else if ( ES_Team( cent->currentState ) != PS_Team( cg.predictedPlayerState ) )
 		{// on enemy team
 			isEnemy = true;
 			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );

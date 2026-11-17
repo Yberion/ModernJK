@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_mp3.h"
 #include "snd_ambient.h"
 
+#include <inttypes.h>
+
 #include <string>
 
 /*
@@ -114,7 +116,7 @@ void DumpChunks(void)
 		memcpy (str, data_p, 4);
 		data_p += 4;
 		iff_chunk_len = GetLittleLong();
-		Com_Printf ("0x%x : %s (%d)\n", (intptr_t)(data_p - 4), str, iff_chunk_len);
+		Com_Printf ("0x%" PRIxPTR " : %s (%d)\n", (uintptr_t)(data_p - 4), str, iff_chunk_len);
 		data_p += (iff_chunk_len + 1) & ~1;
 	} while (data_p < iff_end);
 }
@@ -314,7 +316,7 @@ std::string strErrors;
 
 void R_CheckMP3s( const char *psDir )
 {
-//	Com_Printf(va("Scanning Dir: %s\n",psDir));
+//	Com_Printf("Scanning Dir: %s\n",psDir);
 	Com_Printf(".");	// stops useful info scrolling off screen
 
 	char	**sysFiles, **dirFiles;
@@ -557,7 +559,7 @@ void S_MP3_CalcVols_f( void )
 		strcpy(sStartDir,Cmd_Argv(i));
 	}
 
-	Com_Printf(va("Starting Scan for Updates in Dir: %s\n",sStartDir));
+	Com_Printf("Starting Scan for Updates in Dir: %s\n",sStartDir);
 	R_CheckMP3s( sStartDir );
 
 	Com_Printf("\n%d files found/scanned, %d files updated      ( %d errors total)\n",iFilesFound,iFilesUpdated,iErrors);

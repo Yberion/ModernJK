@@ -2833,7 +2833,7 @@ void SP_func_breakable( gentity_t *self )
 	if ( self->team && self->team[0] && level.gametype == GT_SIEGE &&
 		self->teamnodmg == TEAM_FREE)
 	{
-		self->teamnodmg = static_cast<team_t>( atoi(self->team) );
+		self->teamnodmg = G_TeamFromKey( self->team );
 	}
 	self->team = nullptr;
 	if (!self->model) {

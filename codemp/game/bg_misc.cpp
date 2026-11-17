@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bg_misc.cpp -- both games misc functions, all completely stateless
 
+#include <algorithm>
 #include <iterator>
 
 #include "qcommon/q_shared.h"
@@ -415,7 +416,7 @@ fpDisabled is actually only expected (needed) from the server, because the ui di
 force power selection anyway when force powers are disabled on the server.
 ================
 */
-bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, bool freeSaber, int teamForce, gametype_t gametype, int fpDisabled)
+bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries_t maxRank, bool freeSaber, int teamForce, gametype_t gametype, int fpDisabled)
 {
 	char powerBuf[128];
 	char readBuf[128];
@@ -425,10 +426,10 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	int c = 0;
 	int allowedPoints = 0;
 	int usedPoints = 0;
-	int countDown = 0;
+	forcePowerLevels_t countDown = FORCE_LEVEL_0;
 
 	int final_Side;
-	int final_Powers[NUM_FORCE_POWERS] = {0};
+	forcePowerLevels_t final_Powers[NUM_FORCE_POWERS] = {};
 
 	if ( powerLen >= 128 )
 	{ //This should not happen. If it does, this is obviously a bogus string.
@@ -440,7 +441,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 		Q_strncpyz( powerBuf, powerOut, sizeof( powerBuf ) ); //copy it as the original
 
 	//first of all, print the max rank into the string as the rank
-	Q_strncpyz( powerOut, va( "%i-", maxRank ), powerOutSize );
+	Q_strncpyz( powerOut, va( "%i-", to_underlying( maxRank ) ), powerOutSize );
 
 	while (i < std::ssize( powerBuf ) && powerBuf[i] && powerBuf[i] != '-')
 	{
@@ -483,30 +484,30 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	{
 		readBuf[0] = powerBuf[i];
 		readBuf[1] = 0;
-		final_Powers[c] = atoi(readBuf);
+		final_Powers[c] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
 		c++;
 		i++;
 	}
 
 	//final_Powers now contains all the stuff from the string
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
-	allowedPoints = forceMasteryPoints[static_cast<forceMasteries_t>( maxRank )];
+	allowedPoints = forceMasteryPoints[maxRank];
 
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{ //if this power doesn't match the side we're on, then 0 it now.
-		if (final_Powers[i] &&
+		if (final_Powers[i] != FORCE_LEVEL_0 &&
 			forcePowerDarkLight[i] &&
 			forcePowerDarkLight[i] != final_Side)
 		{
-			final_Powers[i] = 0;
+			final_Powers[i] = FORCE_LEVEL_0;
 			//This is only likely to happen with g_forceBasedTeams. Let it slide.
 		}
 
-		if ( final_Powers[i] &&
+		if ( final_Powers[i] != FORCE_LEVEL_0 &&
 			(fpDisabled & (1 << i)) )
 		{ //if this power is disabled on the server via said server option, then we don't get it.
-			final_Powers[i] = 0;
+			final_Powers[i] = FORCE_LEVEL_0;
 		}
 
 		i++;
@@ -514,26 +515,26 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 
 	if (gametype < GT_TEAM)
 	{ //don't bother with team powers then
-		final_Powers[FP_TEAM_HEAL] = 0;
-		final_Powers[FP_TEAM_FORCE] = 0;
+		final_Powers[FP_TEAM_HEAL] = FORCE_LEVEL_0;
+		final_Powers[FP_TEAM_FORCE] = FORCE_LEVEL_0;
 	}
 
 	usedPoints = 0;
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
-		countDown = Com_Clampi( 0, to_underlying( NUM_FORCE_POWER_LEVELS ), final_Powers[i] );
+		countDown = std::clamp( final_Powers[i], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS );
 
-		while (countDown > 0)
+		while (countDown > FORCE_LEVEL_0)
 		{
-			usedPoints += bgForcePowerCost[i][static_cast<forcePowerLevels_t>( countDown )]; //[fp index][fp level]
+			usedPoints += bgForcePowerCost[i][countDown]; //[fp index][fp level]
 			//if this is jump, or we have a free saber and it's offense or defense, take the level back down on level 1
-			if ( countDown == 1 &&
+			if ( countDown == FORCE_LEVEL_1 &&
 				((i == FP_LEVITATION) ||
 				 (i == FP_SABER_OFFENSE && freeSaber) ||
 				 (i == FP_SABER_DEFENSE && freeSaber)) )
 			{
-				usedPoints -= bgForcePowerCost[i][static_cast<forcePowerLevels_t>( countDown )];
+				usedPoints -= bgForcePowerCost[i][countDown];
 			}
 			countDown--;
 		}
@@ -544,12 +545,12 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	if (usedPoints > allowedPoints)
 	{ //Time to do the fancy stuff. (meaning, slowly cut parts off while taking a guess at what is most or least important in the config)
 		int attemptedCycles = 0;
-		int powerCycle = 2;
-		int minPow = 0;
+		forcePowerLevels_t powerCycle = FORCE_LEVEL_2;
+		forcePowerLevels_t minPow = FORCE_LEVEL_0;
 
 		if (freeSaber)
 		{
-			minPow = 1;
+			minPow = FORCE_LEVEL_1;
 		}
 
 		maintainsValidity = false;
@@ -560,25 +561,25 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 
 			while (c < NUM_FORCE_POWERS && usedPoints > allowedPoints)
 			{
-				if (final_Powers[c] && final_Powers[c] < powerCycle)
+				if (final_Powers[c] != FORCE_LEVEL_0 && final_Powers[c] < powerCycle)
 				{ //kill in order of lowest powers, because the higher powers are probably more important
 					if (c == FP_SABER_OFFENSE &&
-						(final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > 0))
+						(final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > FORCE_LEVEL_0))
 					{ //if we're on saber attack, only suck it down if we have no def or throw either
 						int whichOne = FP_SABERTHROW; //first try throw
 
-						if (!final_Powers[whichOne])
+						if (final_Powers[whichOne] == FORCE_LEVEL_0)
 						{
 							whichOne = FP_SABER_DEFENSE; //if no throw, drain defense
 						}
 
-						while (final_Powers[whichOne] > 0 && usedPoints > allowedPoints)
+						while (final_Powers[whichOne] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
 						{
-							if ( final_Powers[whichOne] > 1 ||
+							if ( final_Powers[whichOne] > FORCE_LEVEL_1 ||
 								( (whichOne != FP_SABER_OFFENSE || !freeSaber) &&
 								  (whichOne != FP_SABER_DEFENSE || !freeSaber) ) )
 							{ //don't take attack or defend down on level 1 still, if it's free
-								usedPoints -= bgForcePowerCost[whichOne][static_cast<forcePowerLevels_t>( final_Powers[whichOne] )];
+								usedPoints -= bgForcePowerCost[whichOne][final_Powers[whichOne]];
 								final_Powers[whichOne]--;
 							}
 							else
@@ -589,14 +590,14 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 					}
 					else
 					{
-						while (final_Powers[c] > 0 && usedPoints > allowedPoints)
+						while (final_Powers[c] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
 						{
-							if ( final_Powers[c] > 1 ||
+							if ( final_Powers[c] > FORCE_LEVEL_1 ||
 								((c != FP_LEVITATION) &&
 								(c != FP_SABER_OFFENSE || !freeSaber) &&
 								(c != FP_SABER_DEFENSE || !freeSaber)) )
 							{
-								usedPoints -= bgForcePowerCost[c][static_cast<forcePowerLevels_t>( final_Powers[c] )];
+								usedPoints -= bgForcePowerCost[c][final_Powers[c]];
 								final_Powers[c]--;
 							}
 							else
@@ -625,12 +626,12 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 
 			while (i < NUM_FORCE_POWERS)
 			{
-				final_Powers[i] = 0;
+				final_Powers[i] = FORCE_LEVEL_0;
 				if (i == FP_LEVITATION ||
 					(i == FP_SABER_OFFENSE && freeSaber) ||
 					(i == FP_SABER_DEFENSE && freeSaber))
 				{
-					final_Powers[i] = 1;
+					final_Powers[i] = FORCE_LEVEL_1;
 				}
 				i++;
 			}
@@ -640,19 +641,19 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 
 	if (freeSaber)
 	{
-		if (final_Powers[FP_SABER_OFFENSE] < 1)
-			final_Powers[FP_SABER_OFFENSE] = 1;
-		if (final_Powers[FP_SABER_DEFENSE] < 1)
-			final_Powers[FP_SABER_DEFENSE] = 1;
+		if (final_Powers[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
+			final_Powers[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
+		if (final_Powers[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
+			final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
 	}
-	if (final_Powers[FP_LEVITATION] < 1)
-		final_Powers[FP_LEVITATION] = 1;
+	if (final_Powers[FP_LEVITATION] < FORCE_LEVEL_1)
+		final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
 
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
-		if (final_Powers[i] > to_underlying( FORCE_LEVEL_3 ))
-			final_Powers[i] = to_underlying( FORCE_LEVEL_3 );
+		if (final_Powers[i] > FORCE_LEVEL_3)
+			final_Powers[i] = FORCE_LEVEL_3;
 		i++;
 	}
 
@@ -661,17 +662,17 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	  //things work for the case of all powers disabled.
 	  //If jump is disabled, down-cap it to level 1. Otherwise don't do a thing.
 		if (fpDisabled & (1 << FP_LEVITATION))
-			final_Powers[FP_LEVITATION] = 1;
+			final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
 		if (fpDisabled & (1 << FP_SABER_OFFENSE))
-			final_Powers[FP_SABER_OFFENSE] = 3;
+			final_Powers[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
 		if (fpDisabled & (1 << FP_SABER_DEFENSE))
-			final_Powers[FP_SABER_DEFENSE] = 3;
+			final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
 	}
 
-	if (final_Powers[FP_SABER_OFFENSE] < 1)
+	if (final_Powers[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
 	{
-		final_Powers[FP_SABER_DEFENSE] = 0;
-		final_Powers[FP_SABERTHROW] = 0;
+		final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_0;
+		final_Powers[FP_SABERTHROW] = FORCE_LEVEL_0;
 	}
 
 	//We finally have all the force powers legalized and stored locally.
@@ -683,7 +684,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, b
 	c = 0;
 	while (c < NUM_FORCE_POWERS)
 	{
-		Q_strncpyz(readBuf, va( "%i", final_Powers[c] ), sizeof( readBuf ) );
+		Q_strncpyz(readBuf, va( "%i", to_underlying( final_Powers[c] ) ), sizeof( readBuf ) );
 		powerOut[i] = readBuf[0];
 		c++;
 		i++;
@@ -1801,7 +1802,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
 		if ( (bg_itemlist[i].giType == IT_POWERUP ||
 					bg_itemlist[i].giType == IT_TEAM) &&
-			bg_itemlist[i].giTag == to_underlying( pw ) ) {
+			GI_Powerup( bg_itemlist[i] ) == pw ) {
 			return &bg_itemlist[i];
 		}
 	}
@@ -1819,7 +1820,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == to_underlying( pw ) ) {
+		if ( bg_itemlist[i].giType == IT_HOLDABLE && GI_Holdable( bg_itemlist[i] ) == pw ) {
 			return &bg_itemlist[i];
 		}
 	}
@@ -1859,7 +1860,7 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-		if ( it->giType == IT_AMMO && it->giTag == to_underlying( ammo ) ) {
+		if ( it->giType == IT_AMMO && GI_Ammo( *it ) == ammo ) {
 			return it;
 		}
 	}
@@ -1985,6 +1986,11 @@ int BG_GetItemIndexByTag(int tag, itemType_t type)
 	return 0;
 }
 
+int BG_GetItemIndexByTag( holdable_t item )
+{
+	return BG_GetItemIndexByTag( to_underlying( item ), IT_HOLDABLE );
+}
+
 //yeah..
 bool BG_IsItemSelectable(playerState_t *ps, holdable_t item)
 {
@@ -2002,7 +2008,7 @@ void BG_CycleInven(playerState_t *ps, int direction)
 	int dontFreeze = 0;
 	holdable_t original;
 
-	i = static_cast<holdable_t>( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag );
+	i = GI_Holdable( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]] );
 	original = i;
 
 	if (direction == 1)
@@ -2028,7 +2034,7 @@ void BG_CycleInven(playerState_t *ps, int direction)
 		{ //we have it, select it.
 			if (BG_IsItemSelectable(ps, i))
 			{
-				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( i ), IT_HOLDABLE);
+				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( i );
 				break;
 			}
 		}
@@ -2083,16 +2089,16 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 			if ( item->giType != IT_TEAM //not a flag
 				&& item->giType != IT_ARMOR//not shields
 				&& (item->giType != IT_WEAPON || item->giTag != WP_SABER)//not a saber
-				&& (item->giType != IT_HOLDABLE || item->giTag != to_underlying( HI_SEEKER ))//not a seeker
-				&& (item->giType != IT_POWERUP || item->giTag == to_underlying( PW_YSALAMIRI )) )//not a force pick-up
+				&& (item->giType != IT_HOLDABLE || GI_Holdable( *item ) != HI_SEEKER)//not a seeker
+				&& (item->giType != IT_POWERUP || GI_Powerup( *item ) == PW_YSALAMIRI) )//not a force pick-up
 			{
 				return false;
 			}
 		}
 		else if ( ps->trueNonJedi )
 		{//can't pick up force powerups
-			if ( (item->giType == IT_POWERUP && item->giTag != to_underlying( PW_YSALAMIRI )) //if a powerup, can only can pick up ysalamiri
-				|| (item->giType == IT_HOLDABLE && item->giTag == to_underlying( HI_SEEKER ))//if holdable, cannot pick up seeker
+			if ( (item->giType == IT_POWERUP && GI_Powerup( *item ) != PW_YSALAMIRI) //if a powerup, can only can pick up ysalamiri
+				|| (item->giType == IT_HOLDABLE && GI_Holdable( *item ) == HI_SEEKER)//if holdable, cannot pick up seeker
 				|| (item->giType == IT_WEAPON && item->giTag == WP_SABER ) )//or if it's a saber
 			{
 				return false;
@@ -2138,7 +2144,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{ //special case for "all ammo" packs
 			return true;
 		}
-		if ( ps->ammo[static_cast<ammo_t>( item->giTag )] >= ammoData[static_cast<ammo_t>( item->giTag )].max) {
+		if ( ps->ammo[GI_Ammo( *item )] >= ammoData[GI_Ammo( *item )].max) {
 			return false;		// can't hold any more
 		}
 		return true;
@@ -2172,7 +2178,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	case IT_POWERUP:
 		if (ps && (ps->powerups[PW_YSALAMIRI]))
 		{
-			if (item->giTag != to_underlying( PW_YSALAMIRI ))
+			if (GI_Powerup( *item ) != PW_YSALAMIRI)
 			{
 				return false;
 			}
@@ -2185,14 +2191,14 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
 			if (PS_Team( *ps ) == TEAM_RED) {
-				if (item->giTag == to_underlying( PW_BLUEFLAG ) ||
-					(item->giTag == to_underlying( PW_REDFLAG ) && ent->modelindex2) ||
-					(item->giTag == to_underlying( PW_REDFLAG ) && ps->powerups[PW_BLUEFLAG]) )
+				if (GI_Powerup( *item ) == PW_BLUEFLAG ||
+					(GI_Powerup( *item ) == PW_REDFLAG && ent->modelindex2) ||
+					(GI_Powerup( *item ) == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]) )
 					return true;
 			} else if (PS_Team( *ps ) == TEAM_BLUE) {
-				if (item->giTag == to_underlying( PW_REDFLAG ) ||
-					(item->giTag == to_underlying( PW_BLUEFLAG ) && ent->modelindex2) ||
-					(item->giTag == to_underlying( PW_BLUEFLAG ) && ps->powerups[PW_REDFLAG]) )
+				if (GI_Powerup( *item ) == PW_REDFLAG ||
+					(GI_Powerup( *item ) == PW_BLUEFLAG && ent->modelindex2) ||
+					(GI_Powerup( *item ) == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]) )
 					return true;
 			}
 		}

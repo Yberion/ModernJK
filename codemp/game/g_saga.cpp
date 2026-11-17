@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 static char		team1[512];
 static char		team2[512];
 
-siegePers_t	g_siegePersistant = {false, 0, 0};
+siegePers_t	g_siegePersistant = {false, {}, 0};
 
 int			imperial_goals_required = 0;
 int			imperial_goals_completed = 0;
@@ -160,7 +160,7 @@ void InitSiegeMode(void)
 
 	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
-	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
+	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege", mapname.string);
 
 	if ( !levelname[0] )
 	{
@@ -667,7 +667,7 @@ void SiegeTeamSwitch(team_t winTeam, int winTime)
 	else
 	{ //go into "beat their time" mode
 		g_siegePersistant.beatingTime = true;
-        g_siegePersistant.lastTeam = to_underlying( winTeam );
+        g_siegePersistant.lastTeam = winTeam;
 		g_siegePersistant.lastTime = winTime;
 
 		trap->SiegePersSet(&g_siegePersistant);
@@ -698,11 +698,11 @@ void SiegeRoundComplete(team_t winningteam, int winningclient)
 	//Can be a script or whatever the designer wants.
    	if (winningteam == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	trap->SetConfigstring(CS_SIEGE_STATE, va("3|%i", level.time)); //ended
@@ -1105,11 +1105,11 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	if (ent->side == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, gParseObjectives))
@@ -1281,11 +1281,11 @@ void decompTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	//Find out if this objective counts toward the final objective count
    	if (ent->side == SIEGETEAM_TEAM1)
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team1);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team1);
 	}
 	else
 	{
-		Com_sprintf(teamstr, sizeof(teamstr), team2);
+		Com_sprintf(teamstr, sizeof(teamstr), "%s", team2);
 	}
 
 	if (BG_SiegeGetValueGroup(siege_info, teamstr, gParseObjectives))

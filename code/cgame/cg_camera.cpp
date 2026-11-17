@@ -1460,7 +1460,7 @@ void CGCam_NotetrackProcessFov(const char *addlArg)
 
 	if (!addlArg || !addlArg[0])
 	{
-		Com_Printf("camera roff 'fov' notetrack missing fov argument\n", addlArg);
+		Com_Printf("camera roff 'fov' notetrack missing fov argument\n");
 		return;
 	}
 	if (isdigit(addlArg[a]))
@@ -1499,7 +1499,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 
 	if (!addlArg || !addlArg[0])
 	{
-		Com_Printf("camera roff 'fovzoom' notetrack missing arguments\n", addlArg);
+		Com_Printf("camera roff 'fovzoom' notetrack missing arguments\n");
 		return;
 	}
 	//
@@ -1558,7 +1558,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 		}
 		else
 		{
-			Com_Printf("camera roff 'fovzoom' notetrack missing 'time' argument\n", addlArg);
+			Com_Printf("camera roff 'fovzoom' notetrack missing 'time' argument\n");
 			return;
 		}
 #ifndef FINAL_BUILD
@@ -1586,7 +1586,7 @@ void CGCam_NotetrackProcessFovZoom(const char *addlArg)
 	}
 	else
 	{
-		Com_Printf("camera roff 'fovzoom' notetrack missing 'end fov' argument\n", addlArg);
+		Com_Printf("camera roff 'fovzoom' notetrack missing 'end fov' argument\n");
 		return;
 	}
 }
@@ -1598,7 +1598,7 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 
 	if (!addlArg || !addlArg[0])
 	{
-		Com_Printf("camera roff 'fovaccel' notetrack missing arguments\n", addlArg);
+		Com_Printf("camera roff 'fovaccel' notetrack missing arguments\n");
 		return;
 	}
 	//
@@ -1674,24 +1674,24 @@ void CGCam_NotetrackProcessFovAccel(const char *addlArg)
 			}
 			else
 			{
-				Com_Printf("camera roff 'fovaccel' notetrack missing 'time' argument\n", addlArg);
+				Com_Printf("camera roff 'fovaccel' notetrack missing 'time' argument\n");
 				return;
 			}
 			if (cg_roffdebug.integer)
 			{
-				Com_Printf("notetrack: 'fovaccel %2.2f %3.5f %3.5f %d' on frame %d\n", beginFOV, fovDelta, fovDelta2, fovTime, client_camera.roff_frame);
+				Com_Printf("notetrack: 'fovaccel %2.2f %3.5f %3.5f %f' on frame %d\n", beginFOV, fovDelta, fovDelta2, fovTime, client_camera.roff_frame);
 			}
 			CGCam_ZoomAccel(beginFOV, fovDelta, fovDelta2, fovTime);
 		}
 		else
 		{
-			Com_Printf("camera roff 'fovaccel' notetrack missing 'delta2' argument\n", addlArg);
+			Com_Printf("camera roff 'fovaccel' notetrack missing 'delta2' argument\n");
 			return;
 		}
 	}
 	else
 	{
-		Com_Printf("camera roff 'fovaccel' notetrack missing 'delta' argument\n", addlArg);
+		Com_Printf("camera roff 'fovaccel' notetrack missing 'delta' argument\n");
 		return;
 	}
 }
@@ -1779,7 +1779,7 @@ static void CG_RoffNotetrackCallback(const char *notetrack)
 			CGCam_NotetrackProcessFov(addlArg);
 			return;
 		}
-		Com_Printf("camera roff 'fov' notetrack missing fov argument\n", addlArg);
+		Com_Printf("camera roff 'fov' notetrack missing fov argument\n");
 	}
 	else if (strcmp(type, "fovzoom") == 0)
 	{
@@ -1788,7 +1788,7 @@ static void CG_RoffNotetrackCallback(const char *notetrack)
 			CGCam_NotetrackProcessFovZoom(addlArg);
 			return;
 		}
-		Com_Printf("camera roff 'fovzoom' notetrack missing 'begin fov' argument\n", addlArg);
+		Com_Printf("camera roff 'fovzoom' notetrack missing 'begin fov' argument\n");
 	}
 	else if (strcmp(type, "fovaccel") == 0)
 	{
@@ -1797,7 +1797,7 @@ static void CG_RoffNotetrackCallback(const char *notetrack)
 			CGCam_NotetrackProcessFovAccel(addlArg);
 			return;
 		}
-		Com_Printf("camera roff 'fovaccel' notetrack missing 'begin fov' argument\n", addlArg);
+		Com_Printf("camera roff 'fovaccel' notetrack missing 'begin fov' argument\n");
 	}
 }
 

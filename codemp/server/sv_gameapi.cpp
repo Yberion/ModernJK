@@ -285,7 +285,7 @@ int GVM_BG_GetItemIndexByTag( int tag, int type ) {
 // game syscalls
 //
 
-siegePers_t sv_siegePersData = {false, 0, 0};
+siegePers_t sv_siegePersData = {false, {}, 0};
 
 extern float g_svCullDist;
 int CM_ModelContents( clipHandle_t model, int subBSPIndex );

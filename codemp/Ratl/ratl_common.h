@@ -270,7 +270,7 @@ namespace str
 
 	void	to_upper(char *dest);
 	void	to_lower(char *dest);
-	void	printf(char *dest,const char *formatS, ...);
+	void	printf(char *dest,const char *formatS, ...) __attribute__ ((format (printf, 2, 3)));
 }
 
 
@@ -326,7 +326,7 @@ public:
 	void	save(hfile& file);
 	void	load(hfile& file);
 
-	void	ProfilePrint(const char * format, ...);
+	void	ProfilePrint(const char * format, ...) __attribute__ ((format (printf, 2, 3)));
 
 public:
 	static	void*	OutputPrint;

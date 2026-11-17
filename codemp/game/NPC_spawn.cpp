@@ -1596,7 +1596,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 				if ( g_entities[n].s.eType != ET_NPC && g_entities[n].client)
 				{
 					VectorCopy(g_entities[n].s.origin, newent->s.origin);
-					newent->s.teamowner = to_underlying( newent->client->playerTeam = g_entities[n].client->playerTeam );
+					ES_SetNPCTeam( newent->s, newent->client->playerTeam = g_entities[n].client->playerTeam );
 					break;
 				}
 			}
@@ -1698,11 +1698,11 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 	newent->teamnodmg = ent->teamnodmg;
 	if ( ent->team && ent->team[0] )
 	{//specified team directly?
-		newent->client->sess.sessionTeam = (team_t)atoi(ent->team);
+		newent->client->sess.sessionTeam = G_TeamFromKey( ent->team );
 	}
-	else if ( static_cast<team_t>( newent->s.teamowner ) != TEAM_FREE )
+	else if ( ES_Team( newent->s ) != TEAM_FREE )
 	{
-		newent->client->sess.sessionTeam = (team_t)newent->s.teamowner;
+		newent->client->sess.sessionTeam = ES_Team( newent->s );
 	}
 	else if ( newent->alliedTeam != TEAM_FREE )
 	{

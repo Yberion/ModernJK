@@ -492,7 +492,7 @@ bool Z_IsFromZone(const void *pvAddress, memtag_t eTag)
 #if 1	//debugging double free
 	if (pMemory->iMagic == INT_ID('F','R','E','E'))
 	{
-		Com_Printf("Z_IsFromZone(%x): Ptr has been freed already!(%9s)\n",pvAddress,pvAddress);
+		Com_Printf("Z_IsFromZone(%p): Ptr has been freed already!(%9s)\n",pvAddress,(const char *)pvAddress);
 		return false;
 	}
 #endif
@@ -560,7 +560,7 @@ int Z_Free(void *pvAddress)
 	if (!TheZone.Stats.iCount)
 	{
 		//Com_Error(ERR_FATAL, "Z_Free(): Zone has been cleard already!");
-		Com_Printf("Z_Free(%x): Zone has been cleard already!\n",pvAddress);
+		Com_Printf("Z_Free(%p): Zone has been cleard already!\n",pvAddress);
 		return -1;
 	}
 
@@ -569,7 +569,7 @@ int Z_Free(void *pvAddress)
 #if 1	//debugging double free
 	if (pMemory->iMagic == INT_ID('F','R','E','E'))
 	{
-		Com_Error(ERR_FATAL, "Z_Free(%s): Block already-freed, or not allocated through Z_Malloc!",pvAddress);
+		Com_Error(ERR_FATAL, "Z_Free(%p): Block already-freed, or not allocated through Z_Malloc!",pvAddress);
 		return -1;
 	}
 #endif

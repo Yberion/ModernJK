@@ -50,16 +50,16 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	int		i;
 
 	s = va("%i", to_underlying( client->sess.sessionTeam ) );
-	var = va( "session%i", client - level.clients );
+	var = va( "session%td", client - level.clients );
 	gi.cvar_set( var, s );
 
 	s2 = "";
 	// Throw all status info into a string
-	for (i=0;i< to_underlying( MAX_OBJECTIVES ); i++)
+	for (objectiveNumber_t o = KEJIM_POST_OBJ1; o < MAX_OBJECTIVES; o++)
 	{
-		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[i].display,	client->sess.mission_objectives[i].status);
+		s2 = va("%s %i %i",	s2, client->sess.mission_objectives[o].display,	client->sess.mission_objectives[o].status);
 	}
-	var = va( "sessionobj%i", client - level.clients );
+	var = va( "sessionobj%td", client - level.clients );
 	gi.cvar_set( var, s2 );
 
 	// Throw all mission stats in to a string
@@ -78,7 +78,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 			client->sess.missionStats.otherAttacksCnt
 			);
 
-	var = va( "missionstats%i", client - level.clients );
+	var = va( "missionstats%td", client - level.clients );
 	gi.cvar_set( var, s2 );
 
 
@@ -87,7 +87,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	{
 		s2 = va("%s %i",s2, client->sess.missionStats.forceUsed[i]);
 	}
-	var = va( "sessionpowers%i", client - level.clients );
+	var = va( "sessionpowers%td", client - level.clients );
 	gi.cvar_set( var, s2 );
 
 
@@ -96,7 +96,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	{
 		s2 = va("%s %i",s2, client->sess.missionStats.weaponUsed[i]);
 	}
-	var = va( "sessionweapons%i", client - level.clients );
+	var = va( "sessionweapons%td", client - level.clients );
 	gi.cvar_set( var, s2 );
 
 
@@ -114,27 +114,27 @@ void G_ReadSessionData( gclient_t *client ) {
 	const char	*var;
 	int		i;
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	int tmp;
 	sscanf( s, "%i", &tmp );
 	client->sess.sessionTeam = (team_t)tmp;
 
-	var = va( "sessionobj%i", client - level.clients );
+	var = va( "sessionobj%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	var = s;
 	var++;
-	for (i=0;i< to_underlying( MAX_OBJECTIVES ); i++)
+	for (objectiveNumber_t o = KEJIM_POST_OBJ1; o < MAX_OBJECTIVES; o++)
 	{
 		sscanf( var, "%i %i",
-			&client->sess.mission_objectives[i].display,
-			&client->sess.mission_objectives[i].status);
+			&client->sess.mission_objectives[o].display,
+			&client->sess.mission_objectives[o].status);
 			var+=4;
 	}
 
-	var = va( "missionstats%i", client - level.clients );
+	var = va( "missionstats%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i",
 		&client->sess.missionStats.secretsFound,
@@ -151,7 +151,7 @@ void G_ReadSessionData( gclient_t *client ) {
 		&client->sess.missionStats.otherAttacksCnt);
 
 
-	var = va( "sessionpowers%i", client - level.clients );
+	var = va( "sessionpowers%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	i=0;
@@ -165,7 +165,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	}
 	assert (i==NUM_FORCE_POWERS);
 
-	var = va( "sessionweapons%i", client - level.clients );
+	var = va( "sessionweapons%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	i=0;

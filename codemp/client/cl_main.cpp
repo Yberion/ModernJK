@@ -455,7 +455,7 @@ void CL_PlayDemo_f( void ) {
 	if (!clc.demofile) {
 		if (!Q_stricmp(arg, "(null)"))
 		{
-			Com_Error( ERR_DROP, SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
+			Com_Error( ERR_DROP, "%s", SE_GetString("CON_TEXT_NO_DEMO_SELECTED") );
 		}
 		else
 		{
@@ -1519,7 +1519,7 @@ void CL_CheckForResend( void ) {
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
 		Com_sprintf(data, sizeof(data), "getchallenge %d", clc.challenge);
 
-		NET_OutOfBandPrint(NS_CLIENT, &clc.serverAddress, data);
+		NET_OutOfBandPrint(NS_CLIENT, &clc.serverAddress, "%s", data);
 		break;
 
 	case CA_CHALLENGING:
@@ -2026,7 +2026,7 @@ void CL_CheckTimeout( void ) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			const char *psTimedOut = SE_GetString("MP_SVGAME_SERVER_CONNECTION_TIMED_OUT");
 			Com_Printf ("\n%s\n",psTimedOut);
-			Com_Error(ERR_DROP, psTimedOut);
+			Com_Error(ERR_DROP, "%s", psTimedOut);
 			//CL_Disconnect( true );
 			return;
 		}

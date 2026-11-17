@@ -141,14 +141,14 @@ typedef struct {
 	//============== general Quake services ==================
 
 	// print message on the local console
-	void	(*Printf)( const char *fmt, ... );
+	void	(*Printf)( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 
 	// Write a camera ref_tag to cameras.map
 	void	(*WriteCam)( const char *text );
 	void	(*FlushCamFile)();
 
 	// abort the game
-	NORETURN_PTR void	(*Error)( int level, const char *fmt, ... );
+	NORETURN_PTR void	(*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// get current time for profiling reasons
 	// this should NOT be used for any game related tasks,
@@ -189,7 +189,7 @@ typedef struct {
 
 	// reliably sends a command string to be interpreted by the given
 	// client.  If clientNum is -1, it will be sent to all clients
-	void	(*SendServerCommand)( int clientNum, const char *fmt, ... );
+	void	(*SendServerCommand)( int clientNum, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// config strings hold all the index strings, and various other information
 	// that is reliably communicated to all clients

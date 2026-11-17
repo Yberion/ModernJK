@@ -694,11 +694,11 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 	int			i;
 
 	if ( !g_cheats->integer ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"Cheats are not enabled on this server.\n\"" );
 		return;
 	}
 	if ( gi.argc() != 5 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: setviewpos x y z yaw\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: setviewpos x y z yaw\n\"" );
 		return;
 	}
 
@@ -725,14 +725,15 @@ void Cmd_SetObjective_f( gentity_t *ent )
 
 	if ( gi.argc() == 2 ) {
 		objectiveI = atoi(gi.argv(1));
+		const objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
 		gi.Printf("objective #%d  display status=%d, status=%d\n",objectiveI,
-			ent->client->sess.mission_objectives[objectiveI].display,
-			ent->client->sess.mission_objectives[objectiveI].status
+			objective.display,
+			objective.status
 			);
 		return;
 	}
 	if ( gi.argc() != 4 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: setobjective <objective #>  <display status> <status>\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: setobjective <objective #>  <display status> <status>\n\"" );
 		return;
 	}
 
@@ -745,8 +746,9 @@ void Cmd_SetObjective_f( gentity_t *ent )
 	displayStatus = atoi(gi.argv(2));
 	status = atoi(gi.argv(3));
 
-	ent->client->sess.mission_objectives[objectiveI].display = displayStatus;
-	ent->client->sess.mission_objectives[objectiveI].status = status;
+	objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
+	objective.display = displayStatus;
+	objective.status = status;
 }
 
 /*
@@ -759,13 +761,14 @@ void Cmd_ViewObjective_f( gentity_t *ent )
 	int objectiveI;
 
 	if ( gi.argc() != 2 ) {
-		gi.SendServerCommand( ent-g_entities, va("print \"usage: viewobjective <objective #>\n\""));
+		gi.SendServerCommand( ent-g_entities, "print \"usage: viewobjective <objective #>\n\"" );
 		return;
 	}
 
 	objectiveI = atoi(gi.argv(1));
+	const objectives_t &objective = ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveI )];
 
-	gi.SendServerCommand( ent-g_entities, va("print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,ent->client->sess.mission_objectives[objectiveI].display,ent->client->sess.mission_objectives[objectiveI].status));
+	gi.SendServerCommand( ent-g_entities, "print \"Objective %d   Display Status(1=show): %d  Status:%d\n\"",objectiveI,objective.display,objective.status );
 }
 
 
@@ -1131,6 +1134,6 @@ void ClientCommand( int clientNum ) {
 	}
 	else
 	{
-		gi.SendServerCommand( clientNum, va("print \"Unknown command %s\n\"", cmd ) );
+		gi.SendServerCommand( clientNum, "print \"Unknown command %s\n\"", cmd  );
 	}
 }

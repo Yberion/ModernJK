@@ -468,7 +468,7 @@ static void Svcmd_Control_f(void)
 	{
 		if ( !G_ClearViewEntity( &g_entities[0] ) )
 		{
-			gi.Printf( S_COLOR_RED "control <NPC_targetname>\n", cmd2 );
+			gi.Printf( S_COLOR_RED "control <NPC_targetname>\n" );
 		}
 	}
 	else

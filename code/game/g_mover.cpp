@@ -1004,7 +1004,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 				ent->fly_sound_debounce_time = level.time + 5000;
 				text = "cp @SP_INGAME_NEED_KEY_TO_OPEN";
 				//FIXME: temp message, only on certain difficulties?, graphic instead of text?
-				gi.SendServerCommand( 0, text );
+				gi.SendServerCommand( 0, "%s", text );
 				return;
 			}
 		}

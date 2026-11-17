@@ -756,7 +756,7 @@ bool turret_base_spawn_top( gentity_t *base )
 	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
 		base->teamnodmg == TEAM_FREE)
 	{
-		base->teamnodmg = static_cast<team_t>( atoi(base->team) );
+		base->teamnodmg = G_TeamFromKey( base->team );
 	}
 	base->team = nullptr;
 	top->teamnodmg = base->teamnodmg;
@@ -803,7 +803,7 @@ bool turret_base_spawn_top( gentity_t *base )
 	//even if we don't want to show health, let's at least light the crosshair up properly over ourself
 	if ( !top->s.teamowner )
 	{
-		top->s.teamowner = to_underlying( top->alliedTeam );
+		ES_SetTeam( top->s, top->alliedTeam );
 	}
 
 	base->alliedTeam = top->alliedTeam;

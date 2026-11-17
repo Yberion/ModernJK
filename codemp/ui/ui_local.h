@@ -411,6 +411,16 @@ bool UI_SaberModelForSaber( const char *saberName, char *saberModel );
 bool UI_SaberTypeForSaber( const char *saberName, char *saberType );
 
 
+//
+// ui_main.cpp: the cvars that hold an enumeration, read as it
+//
+
+enum class siegePlayerClassFlags_t;	// game/bg_saga.h
+team_t UI_CvarTeam( const char *name );
+siegePlayerClassFlags_t UI_CvarSiegeClass( void );
+gametype_t UI_CvarGametype( void );
+
+
 // new ui
 
 extern uiImport_t *trap;

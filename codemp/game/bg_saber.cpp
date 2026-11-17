@@ -3170,8 +3170,8 @@ void PM_WeaponLightsaber(void)
 							while ( newQuad == saberMoveData[pm->ps->saberMove].startQuad )
 							{//player is still in same attack quad, don't repeat that attack because it looks bad,
 								//FIXME: try to pick one that might look cool?
-								//newQuad = static_cast<saberQuadrant_t>( Q_irand( to_underlying( Q_BR ), to_underlying( Q_BL ) ) );
-								newQuad = static_cast<saberQuadrant_t>( PM_irand_timesync( to_underlying( Q_BR ), to_underlying( Q_BL ) ) );
+								//newQuad = Q_irand( Q_BR, Q_BL );
+								newQuad = Q_BR + PM_irand_timesync( 0, Q_BL - Q_BR );
 								//FIXME: sanity check, just in case?
 							}//else player is switching up anyway, take the new attack dir
 							bounceMove = transitionMove[saberMoveData[pm->ps->saberMove].startQuad][newQuad];

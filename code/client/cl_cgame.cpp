@@ -820,10 +820,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 #endif
 	switch( static_cast<cgameImport_t>( args[0] ) ) {
 	case CG_PRINT:
-		Com_Printf( "%s", VMA(1) );
+		Com_Printf( "%s", (const char *)VMA(1) );
 		return 0;
 	case CG_ERROR:
-		Com_Error( ERR_DROP, S_COLOR_RED"%s", VMA(1) );
+		Com_Error( ERR_DROP, S_COLOR_RED"%s", (const char *)VMA(1) );
 		return 0;
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -1375,7 +1375,7 @@ Ghoul2 Insert End
 			}
 			else
 			{
-				Com_sprintf( (char *) VMA(2), args[3], "??%s", VMA(1) );
+				Com_sprintf( (char *) VMA(2), args[3], "??%s", (const char *)VMA(1) );
 			}
 		}
 		return strlen(text);

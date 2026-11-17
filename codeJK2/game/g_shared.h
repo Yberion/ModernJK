@@ -547,6 +547,7 @@ public:
 	}
 }; // objectives_t
 #define MAX_MISSION_OBJ 80
+enum class objectiveNumber_t;	// objectives.h
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class missionStats_t
@@ -623,7 +624,7 @@ class clientSession_t
 public:
 	int				missionObjectivesShown;	// Number of times mission objectives have been updated
 	team_t			sessionTeam;
-	objectives_t	mission_objectives[MAX_MISSION_OBJ];
+	EnumArray<objectives_t, objectiveNumber_t, MAX_MISSION_OBJ>	mission_objectives;
 	missionStats_t	missionStats;			// Various totals while on a mission
 
 
@@ -632,7 +633,7 @@ public:
 	{
 		saved_game.write<int32_t>(missionObjectivesShown);
 		saved_game.write<int32_t>(sessionTeam);
-		saved_game.write<>(mission_objectives);
+		saved_game.write<>(mission_objectives.elems);
 		saved_game.write<>(missionStats);
 	}
 
@@ -641,7 +642,7 @@ public:
 	{
 		saved_game.read<int32_t>(missionObjectivesShown);
 		saved_game.read<int32_t>(sessionTeam);
-		saved_game.read<>(mission_objectives);
+		saved_game.read<>(mission_objectives.elems);
 		saved_game.read<>(missionStats);
 	}
 }; // clientSession_t

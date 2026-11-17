@@ -82,7 +82,7 @@ void G_WriteClientSessionData( gclient_t *client )
 	Q_strcat( s, sizeof( s ), va( "%s ", siegeClass ) );
 	Q_strcat( s, sizeof( s ), va( "%s", IP ) );
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%td", client - level.clients );
 
 	trap->Cvar_Set( var, s );
 }
@@ -100,7 +100,7 @@ void G_ReadSessionData( gclient_t *client )
 	const char		*var;
 	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0, tempSaberLevel=0, tempSiegeDesiredTeam=0;
 
-	var = va( "session%i", client - level.clients );
+	var = va( "session%td", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s",

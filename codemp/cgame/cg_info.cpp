@@ -272,13 +272,13 @@ void CG_DrawInformation( void ) {
 	{
 		valueNOFP = atoi( Info_ValueForKey( info, "g_forcePowerDisable" ) );
 
-		value = atoi( Info_ValueForKey( info, "g_maxForceRank" ) );
-		if ( value && !valueNOFP && (value < to_underlying( NUM_FORCE_MASTERY_LEVELS )) ) {
+		const forceMasteries_t maxRank = static_cast<forceMasteries_t>( atoi( Info_ValueForKey( info, "g_maxForceRank" ) ) );
+		if ( maxRank != FORCE_MASTERY_UNINITIATED && !valueNOFP && maxRank < NUM_FORCE_MASTERY_LEVELS ) {
 			char fmStr[1024];
 
 			trap->SE_GetStringTextString("MP_INGAME_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-			CG_DrawProportionalString( 320, y, va( "%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[static_cast<forceMasteries_t>( value )]) ), UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
+			CG_DrawProportionalString( 320, y, va( "%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[maxRank]) ), UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
 		}
 		else if (!valueNOFP)

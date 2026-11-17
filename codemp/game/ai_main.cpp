@@ -3571,7 +3571,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	}
 	else if (as->item->giType == IT_POWERUP)
 	{
-		if (bs->cur_ps.powerups[static_cast<powerup_t>( as->item->giTag )])
+		if (bs->cur_ps.powerups[GI_Powerup( *as->item )])
 		{
 			return 1;
 		}
@@ -3580,7 +3580,7 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	}
 	else if (as->item->giType == IT_AMMO)
 	{
-		if (bs->cur_ps.ammo[static_cast<ammo_t>( as->item->giTag )] > 10) //hack
+		if (bs->cur_ps.ammo[GI_Ammo( *as->item )] > 10) //hack
 		{
 			return 1;
 		}
@@ -5795,7 +5795,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 	{
 		if (g_entities[bs->client].health <= 75)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_MEDPAC ), IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_MEDPAC );
 			goto wantuseitem;
 		}
 	}
@@ -5803,7 +5803,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 	{
 		if (g_entities[bs->client].health <= 50)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_MEDPAC_BIG ), IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_MEDPAC_BIG );
 			goto wantuseitem;
 		}
 	}
@@ -5811,7 +5811,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SEEKER ), IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SEEKER );
 			goto wantuseitem;
 		}
 	}
@@ -5819,7 +5819,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 	{
 		if (bs->currentEnemy && bs->frame_Enemy_Vis)
 		{
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SENTRY_GUN ), IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SENTRY_GUN );
 			goto wantuseitem;
 		}
 	}
@@ -5828,7 +5828,7 @@ int BotUseInventoryItem(bot_state_t *bs)
 		if (bs->currentEnemy && bs->frame_Enemy_Vis && bs->runningToEscapeThreat)
 		{ //this will (hopefully) result in the bot placing the shield down while facing
 		  //the enemy and running away
-			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( HI_SHIELD ), IT_HOLDABLE);
+			bs->cur_ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag( HI_SHIELD );
 			goto wantuseitem;
 		}
 	}

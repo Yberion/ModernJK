@@ -167,7 +167,7 @@ void		NET_Restart_f( void );
 void		NET_Config( bool enableNetworking );
 
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, const netadr_t *to);
-void		NET_OutOfBandPrint( netsrc_t net_socket, const netadr_t *adr, const char *format, ...);
+void		NET_OutOfBandPrint( netsrc_t net_socket, const netadr_t *adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 void		NET_OutOfBandData( netsrc_t sock, const netadr_t *adr, byte *format, int len );
 
 bool	NET_CompareAdr (const netadr_t *a, const netadr_t *b);
@@ -599,10 +599,10 @@ void		Info_Print( const char *s );
 
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
-void 		QDECL Com_Printf( const char *fmt, ... );
-void 		QDECL Com_DPrintf( const char *fmt, ... );
-void		QDECL Com_OPrintf( const char *fmt, ...); // Outputs to the VC / Windows Debug window (only in debug compile)
-void 		NORETURN QDECL Com_Error( int code, const char *fmt, ... );
+void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void		QDECL Com_OPrintf( const char *fmt, ...) __attribute__ ((format (printf, 1, 2))); // Outputs to the VC / Windows Debug window (only in debug compile)
+void 		NORETURN QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		NORETURN Com_Quit_f( void );
 int			Com_EventLoop( void );
 int			Com_Milliseconds( void );	// will be journaled properly

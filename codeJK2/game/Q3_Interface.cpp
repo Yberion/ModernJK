@@ -728,7 +728,7 @@ static void Q3_SetObjective(const char *ObjEnum, int status)
 	client = &level.clients[0];
 
 	objectiveID = GetIDForString( objectiveTable, ObjEnum );
-	objective = &client->sess.mission_objectives[objectiveID];
+	objective = &client->sess.mission_objectives[static_cast<objectiveNumber_t>( objectiveID )];
 
 
 	switch (status)
@@ -829,7 +829,7 @@ Q3_ObjectiveClearAll
 static void Q3_ObjectiveClearAll(void)
 {
 	client = &level.clients[0];
-	memset(client->sess.mission_objectives,0,sizeof(client->sess.mission_objectives));
+	client->sess.mission_objectives = {};
 }
 
 /*
@@ -3261,7 +3261,7 @@ void Q3_SetViewEntity(int entID, const char *name)
 
 	if ( entID != 0 )
 	{//only valid on player
-		Q3_DebugPrint( WL_ERROR, "Q3_SetViewEntity: only valid on player\n", entID);
+		Q3_DebugPrint( WL_ERROR, "Q3_SetViewEntity: only valid on player\n");
 		return;
 	}
 
@@ -6955,7 +6955,7 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 		break;
 
 	case SET_DEFEND_TARGET:
-		Q3_DebugPrint( WL_WARNING, "Q3_SetDefendTarget unimplemented\n", entID );
+		Q3_DebugPrint( WL_WARNING, "Q3_SetDefendTarget unimplemented\n" );
 		//Q3_SetEnemy( entID, (char *) data);
 		break;
 

@@ -257,6 +257,8 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-comment")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
+		# a class enum given to a printf-like function's %i or %d, which -Wformat accepts
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat-pedantic")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char")
 	endif()
 else()

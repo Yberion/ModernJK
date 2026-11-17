@@ -1407,7 +1407,7 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 		if ( TIMER_Done( NPCS.NPC, "saberLevelDebounce" ) && !Q_irand( 0, 10 ) )
 		{
 			//Jedi_AdjustSaberAnimLevel( NPC, (NPC->client->ps.fd.saberAnimLevel-1) );//drop
-			Jedi_AdjustSaberAnimLevel( NPCS.NPC, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );//random
+			Jedi_AdjustSaberAnimLevel( NPCS.NPC, Q_irand( SS_FAST, SS_STRONG ) );//random
 			TIMER_Set( NPCS.NPC, "saberLevelDebounce", Q_irand( 3000, 10000 ) );
 		}
 	}
@@ -5353,7 +5353,7 @@ void NPC_Jedi_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		}
 		if ( !Q_irand( 0, 3 ) )
 		{//ouch... maybe switch up which saber power level we're using
-			Jedi_AdjustSaberAnimLevel( self, static_cast<saber_styles_t>( Q_irand( to_underlying( SS_FAST ), to_underlying( SS_STRONG ) ) ) );
+			Jedi_AdjustSaberAnimLevel( self, Q_irand( SS_FAST, SS_STRONG ) );
 		}
 		if ( !Q_irand( 0, 1 ) )//damage > 20 || self->health < 40 ||
 		{

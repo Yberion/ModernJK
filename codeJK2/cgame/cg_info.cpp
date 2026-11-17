@@ -52,7 +52,7 @@ int obj_graphics[4];
 MissionPrint_Line
 ====================
 */
-static void MissionPrint_Line(const ct_table_t color, const int objectIndex, int &missionYcnt)
+static void MissionPrint_Line(const ct_table_t color, const objectiveNumber_t objectIndex, int &missionYcnt)
 {
 	char *str,*strBegin;
 	int y,pixelLen,charLen;
@@ -62,7 +62,7 @@ static void MissionPrint_Line(const ct_table_t color, const int objectIndex, int
 
 	int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f) * (cgi_Language_IsAsian() ? 1.2f : 1.0f );
 
-	cgi_SP_GetStringText( PACKAGE_OBJECTIVES<<8|objectIndex , finalText, sizeof(finalText) );
+	cgi_SP_GetStringText( PACKAGE_OBJECTIVES<<8|to_underlying( objectIndex ) , finalText, sizeof(finalText) );
 
 	pixelLen = cgi_R_Font_StrLenPixels(finalText, cgs.media.qhFontMedium, 1.0f);
 
@@ -153,21 +153,21 @@ static void MissionPrint_Line(const ct_table_t color, const int objectIndex, int
 	}
 
 	// Special case hack
-	if (objectIndex == to_underlying( DOOM_COMM_OBJ4 ))
+	if (objectIndex == DOOM_COMM_OBJ4)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode");
 		CG_DrawPic( 320 - (128/2), y+8, 128, 32, graphic );
 		obj_graphics[0] = true;
 	}
-	else if (objectIndex == to_underlying( KEJIM_POST_OBJ3 ))
+	else if (objectIndex == KEJIM_POST_OBJ3)
 	{
 		y = missionYpos + (iYPixelsPerLine * missionYcnt);
 		graphic = cgi_R_RegisterShaderNoMip("textures/system/securitycode_red");
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[1] = true;
 	}
-	else if (objectIndex == to_underlying( KEJIM_POST_OBJ4 ))
+	else if (objectIndex == KEJIM_POST_OBJ4)
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -178,7 +178,7 @@ static void MissionPrint_Line(const ct_table_t color, const int objectIndex, int
 		CG_DrawPic( 320 - (32/2), y+8, 32, 32, graphic );
 		obj_graphics[2] = true;
 	}
-	else if (objectIndex == to_underlying( KEJIM_POST_OBJ5 ))
+	else if (objectIndex == KEJIM_POST_OBJ5)
 	{
 		y =missionYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -202,7 +202,7 @@ MissionInformation_Draw
 */
 void MissionInformation_Draw( centity_t *cent )
 {
-	int		i,totalY;
+	int		totalY;
 	int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f) * (cgi_Language_IsAsian() ? 1.2f : 1.0f );
 
 	missionInfo_Updated = false;		// This will stop the text from flashing
@@ -219,9 +219,9 @@ void MissionInformation_Draw( centity_t *cent )
 
 	// Print active objectives
 	cgi_R_SetColor(colorTable[CT_BLUE3]);
-	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
+	for (objectiveNumber_t o = KEJIM_POST_OBJ1; o < MAX_OBJECTIVES; o++)
 	{
-		if (cent->gent->client->sess.mission_objectives[i].display)
+		if (cent->gent->client->sess.mission_objectives[o].display)
 		{
 			totalY = missionYpos + (iYPixelsPerLine * (missionYcnt))+(iYPixelsPerLine/2);
 			if (obj_graphics[0])
@@ -243,11 +243,11 @@ void MissionInformation_Draw( centity_t *cent )
 
 			//	OBJECTIVE_STAT_PENDING
 			CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageObjCircle);	// Circle in front
-			if (cent->gent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_SUCCEEDED)
+			if (cent->gent->client->sess.mission_objectives[o].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
 				CG_DrawPic( 88,   totalY,   16,  16, cgs.media.messageLitOn);	// Center Dot
 			}
-			MissionPrint_Line(CT_BLUE3, i, missionYcnt );
+			MissionPrint_Line(CT_BLUE3, o, missionYcnt );
 		}
 	}
 

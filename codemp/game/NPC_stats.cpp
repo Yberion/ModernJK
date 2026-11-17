@@ -1779,7 +1779,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					NPC->client->ps.iModelScale = n; //so the client knows
 					if (n >= 1024)
 					{
-						Com_Printf("WARNING: MP does not support scaling up to or over 1024%\n");
+						Com_Printf("WARNING: MP does not support scaling up to or over 1024%%\n");
 						n = 1023;
 					}
 
@@ -2136,7 +2136,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 				Com_sprintf(tk, sizeof(tk), "NPC%s", token);
-				NPC->s.teamowner = to_underlying( NPC->client->playerTeam = static_cast<npcteam_t>( GetIDForString( TeamTable, tk ) ) );//TranslateTeamName(value);
+				ES_SetNPCTeam( NPC->s, NPC->client->playerTeam = static_cast<npcteam_t>( GetIDForString( TeamTable, tk ) ) );//TranslateTeamName(value);
 				continue;
 			}
 

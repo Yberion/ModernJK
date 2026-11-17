@@ -67,8 +67,8 @@ enum class lanServerState_t {
 using enum lanServerState_t;
 
 typedef struct uiImport_s {
-	void			(*Print)								( const char *msg, ... );
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
+	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	int				(*Milliseconds)							( void );
 	int				(*RealTime)								( qtime_t *qtime );
 	int				(*MemoryRemaining)						( void );

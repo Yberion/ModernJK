@@ -1201,7 +1201,7 @@ int CTaskManager::Print( CTask *task )
 
 	(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 
-	(m_owner->GetInterface())->I_CenterPrint( sVal );
+	(m_owner->GetInterface())->I_CenterPrint( "%s", sVal );
 
 	Completed( task->GetGUID() );
 

@@ -511,7 +511,7 @@ retryModel:
 	}
 	else
 	{ //fallback to the default skin
-		ci->torsoSkin = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", modelName, skinName));
+		ci->torsoSkin = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", modelName));
 	}
 	Com_sprintf( afilename, sizeof( afilename ), "models/players/%s/model.glm", modelName );
 	handle = trap->G2API_InitGhoul2Model(&ci->ghoul2Model, afilename, 0, ci->torsoSkin, 0, 0, 0);
@@ -11303,7 +11303,7 @@ void CG_ResetPlayerEntity( centity_t *cent )
 
 
 	if ( cg_debugPosition.integer ) {
-		trap->Print("%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
+		trap->Print("%i ResetPlayerEntity yaw=%f\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
 }
 

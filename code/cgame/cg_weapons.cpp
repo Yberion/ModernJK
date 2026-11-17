@@ -119,7 +119,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
-		if ( ammo->giType == IT_AMMO && ammo->giTag == to_underlying( weaponData[weaponNum].ammoIndex )) {
+		if ( ammo->giType == IT_AMMO && GI_Ammo( *ammo ) == weaponData[weaponNum].ammoIndex) {
 			break;
 		}
 	}
@@ -661,7 +661,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	// some ammo types are actually the weapon, like in the case of explosives
 	if ( item->giType == IT_AMMO )
 	{
-		switch( static_cast<ammo_t>( item->giTag ) )
+		switch( GI_Ammo( *item ) )
 		{
 		case AMMO_THERMAL:
 			CG_RegisterWeapon( WP_THERMAL );
