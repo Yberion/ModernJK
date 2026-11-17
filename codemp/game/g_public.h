@@ -385,7 +385,7 @@ typedef struct T_G_ICARUS_GETSETIDFORSTRING_s {
 typedef struct gameImport_s {
 	// misc
 	void		(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void (*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	int			(*Milliseconds)							( void );
 	void		(*PrecisionTimerStart)					( void **timer );
 	int			(*PrecisionTimerEnd)					( void *timer );

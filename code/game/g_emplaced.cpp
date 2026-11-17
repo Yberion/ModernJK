@@ -168,7 +168,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	will run usescript, painscript and deathscript
 */
 //----------------------------------------------------------
-void eweb_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc )
+void eweb_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	if ( self->health <= 0 )
 	{
@@ -186,7 +186,7 @@ void eweb_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, cons
 	}
 }
 //----------------------------------------------------------
-void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	vec3_t org;
 
@@ -663,7 +663,7 @@ extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 }
 
 //----------------------------------------------------------
-void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc )
+void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	if ( self->health <= 0 )
 	{
@@ -689,7 +689,7 @@ void emplaced_blow( gentity_t *ent )
 }
 
 //----------------------------------------------------------
-void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	vec3_t org;
 

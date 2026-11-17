@@ -995,7 +995,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 		return;
 	}
 
-	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive&(1<<FP_LIGHTNING) )
+	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive&Bit( FP_LIGHTNING ) )
 	{//doing the electrocuting
 		vec3_t temp;//tAng, fxDir,
 		//VectorSet( tAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0 );
@@ -1015,7 +1015,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 		}
 	}
 
-	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive&(1<<FP_DRAIN) )
+	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive&Bit( FP_DRAIN ) )
 	{//doing the draining
 		vec3_t temp;//tAng, fxDir,
 		//VectorSet( tAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0 );
@@ -1064,7 +1064,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 
 	// drop gun lower at higher fov
 	float actualFOV;
-	if ( (cg.snap->ps.forcePowersActive&(1<<FP_SPEED)) && player->client->ps.forcePowerDuration[FP_SPEED] )//cg.renderingThirdPerson &&
+	if ( (cg.snap->ps.forcePowersActive&Bit( FP_SPEED )) && player->client->ps.forcePowerDuration[FP_SPEED] )//cg.renderingThirdPerson &&
 	{
 		actualFOV = CG_ForceSpeedFOV();
 	}

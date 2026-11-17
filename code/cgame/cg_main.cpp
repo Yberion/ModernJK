@@ -84,7 +84,7 @@ const char *inv_names[] =
 "SECURITY KEY",
 };
 
-int	force_icons[NUM_FORCE_POWERS];
+EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	force_icons;
 
 
 void CG_DrawDataPadHUD( centity_t *cent );
@@ -1517,11 +1517,11 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	//precache force power icons here
-/*	i = 0;
-	while (i < NUM_FORCE_POWERS)
+/*	forcePowers_t fp = FP_FIRST;
+	while (fp < NUM_FORCE_POWERS)
 	{
-		cgs.media.forcePowerIcons[i] = cgi_R_RegisterShaderNoMip(HolocronIcons[i]);
-		i++;
+		cgs.media.forcePowerIcons[fp] = cgi_R_RegisterShaderNoMip(HolocronIcons[fp]);
+		fp++;
 	}
 */
 	cgs.media.rageRecShader = cgi_R_RegisterShaderNoMip("gfx/mp/f_icon_ragerec");
@@ -1837,7 +1837,7 @@ static void CG_GameStateReceived( void ) {
 	{
 		CG_Init_CG();
 		cg.weaponSelect = WP_NONE;
-		cg.forcepowerSelect = FP_HEAL;
+		cg.forcepowerSelect = 0;
 	}
 
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
@@ -2119,7 +2119,7 @@ void CG_Init( int serverCommandSequence ) {
 	cgs.media.loadTick		= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
 
-	const char	*force_icon_files[NUM_FORCE_POWERS] =
+	EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS>	force_icon_files =
 	{//icons matching enums forcePowers_t
 		"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
 		"gfx/mp/f_icon_levitation",		//FP_LEVITATION,
@@ -2140,7 +2140,7 @@ void CG_Init( int serverCommandSequence ) {
 	};
 
 	// Precache inventory icons
-	for ( int i=0;i<NUM_FORCE_POWERS;i++)
+	for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 	{
 		if (force_icon_files[i])
 		{
@@ -3654,7 +3654,7 @@ void SetForcePowerTime(void)
 	}
 }
 
-int showPowers[MAX_SHOWPOWERS] =
+forcePowers_t showPowers[MAX_SHOWPOWERS] =
 {
 	FP_ABSORB,
 	FP_HEAL,
@@ -3691,7 +3691,7 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 };
 
 // Keep these with groups light side, core, and dark side
-int showDataPadPowers[MAX_DPSHOWPOWERS] =
+forcePowers_t showDataPadPowers[MAX_DPSHOWPOWERS] =
 {
 	// Light side
 	FP_ABSORB,
@@ -3716,6 +3716,27 @@ int showDataPadPowers[MAX_DPSHOWPOWERS] =
 	FP_GRIP,
 };
 
+// the power a cg_updatedDataPadForcePower cvar names: the game writes the power + 1, 0 for none
+static forcePowers_t CG_DataPadUpdatedPower( const vmCvar_t &cvar )
+{
+	return static_cast<forcePowers_t>( cvar.integer - 1 );
+}
+
+// the datapad's slot that shows the power a script gave last (cg_updatedDataPadForcePower1), the first slot if none does
+int CG_DataPadUpdatedPowerSlot( void )
+{
+	const forcePowers_t power = CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 );
+
+	for ( int i = 0; i < MAX_DPSHOWPOWERS; i++ )
+	{
+		if ( showDataPadPowers[i] == power )
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
 /*
 ===============
 ForcePower_Valid
@@ -3727,7 +3748,7 @@ bool ForcePower_Valid(int index)
 
 	assert (MAX_SHOWPOWERS == ( sizeof(showPowers)/sizeof(showPowers[0]) ));
 	assert (index < MAX_SHOWPOWERS );	//is this a valid index?
-	if (player->client->ps.forcePowersKnown & (1 << showPowers[index]) &&
+	if (player->client->ps.forcePowersKnown & Bit( showPowers[index] ) &&
 		player->client->ps.forcePowerLevel[showPowers[index]])	// Does he have the force power?
 	{
 		return true;
@@ -3988,7 +4009,7 @@ bool ForcePowerDataPad_Valid(int index)
 	gentity_t	*player = &g_entities[0];
 
 	assert (index < MAX_DPSHOWPOWERS);
-	if (player->client->ps.forcePowersKnown & (1 << showDataPadPowers[index]) &&
+	if (player->client->ps.forcePowersKnown & Bit( showDataPadPowers[index] ) &&
 		player->client->ps.forcePowerLevel[showDataPadPowers[index]])	// Does he have the force power?
 	{
 		return true;
@@ -4068,7 +4089,7 @@ void CG_DPPrevForcePower_f( void )
 	cg.DataPadforcepowerSelect = original;
 }
 
-const char *forcepowerDesc[NUM_FORCE_POWERS] =
+const char *forcepowerDesc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_ABSORB_DESC",
 "FORCE_HEAL_DESC",
@@ -4091,7 +4112,7 @@ const char *forcepowerDesc[NUM_FORCE_POWERS] =
 };
 
 
-const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl1Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_ABSORB_LVL1_DESC",
 "FORCE_HEAL_LVL1_DESC",
@@ -4113,7 +4134,7 @@ const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 "FORCE_GRIP_LVL1_DESC",
 };
 
-const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl2Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_ABSORB_LVL2_DESC",
 "FORCE_HEAL_LVL2_DESC",
@@ -4135,7 +4156,7 @@ const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 "FORCE_GRIP_LVL2_DESC",
 };
 
-const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl3Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_ABSORB_LVL3_DESC",
 "FORCE_HEAL_LVL3_DESC",
@@ -4254,9 +4275,9 @@ void CG_DrawDataPadForceSelect( void )
 		}
 
 		// A new force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[i]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[i]))
 		{
 			CG_DrawPic( holdX, graphicYPos, smallIconSize, smallIconSize, cgs.media.DPForcePowerOverlay );
 		}
@@ -4275,9 +4296,9 @@ void CG_DrawDataPadForceSelect( void )
 		CG_DrawPic( centerXPos-(bigIconSize/2), (graphicYPos-((bigIconSize-smallIconSize)/2)), bigIconSize, bigIconSize, force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]] );
 
 		// New force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[cg.DataPadforcepowerSelect]))
 		{
 			CG_DrawPic( centerXPos-(bigIconSize/2), (graphicYPos-((bigIconSize-smallIconSize)/2)), bigIconSize, bigIconSize, cgs.media.DPForcePowerOverlay );
 		}
@@ -4314,9 +4335,9 @@ void CG_DrawDataPadForceSelect( void )
 		}
 
 		// A new force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[i]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[i]))
 		{
 			CG_DrawPic( holdX, graphicYPos, smallIconSize, smallIconSize, cgs.media.DPForcePowerOverlay );
 		}

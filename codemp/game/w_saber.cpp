@@ -34,16 +34,16 @@ extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 int saberSpinSound = 0;
 
 //would be cleaner if these were renamed to BG_ and proto'd in a header.
-bool PM_SaberInTransition( int move );
-bool PM_SaberInDeflect( int move );
-bool PM_SaberInBrokenParry( int move );
-bool PM_SaberInBounce( int move );
-bool BG_SaberInReturn( int move );
+bool PM_SaberInTransition( saberMoveName_t move );
+bool PM_SaberInDeflect( saberMoveName_t move );
+bool PM_SaberInBrokenParry( saberMoveName_t move );
+bool PM_SaberInBounce( saberMoveName_t move );
+bool BG_SaberInReturn( saberMoveName_t move );
 bool BG_InKnockDownOnGround( playerState_t *ps );
 bool BG_StabDownAnim( int anim );
 bool BG_SabersOff( playerState_t *ps );
-bool BG_SaberInTransitionAny( int move );
-bool BG_SaberInAttackPure( int move );
+bool BG_SaberInTransitionAny( saberMoveName_t move );
+bool BG_SaberInAttackPure( saberMoveName_t move );
 bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum );
 
@@ -1870,7 +1870,7 @@ bool WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 	return false;
 }
 
-static QINLINE int G_GetParryForBlock( saberBlockedType_t block )
+static QINLINE saberMoveName_t G_GetParryForBlock( saberBlockedType_t block )
 {
 	switch (block)
 	{
@@ -1911,8 +1911,8 @@ static QINLINE int G_GetParryForBlock( saberBlockedType_t block )
 	return LS_NONE;
 }
 
-int PM_SaberBounceForAttack( int move );
-int PM_SaberDeflectionForQuad( saberQuadrant_t quad );
+saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
+saberMoveName_t PM_SaberDeflectionForQuad( saberQuadrant_t quad );
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, float saberHitFraction )
@@ -1997,7 +1997,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 		{
 			//bounce straight back
 #ifndef FINAL_BUILD
-			int attMove = attacker->client->ps.saberMove;
+			saberMoveName_t attMove = attacker->client->ps.saberMove;
 #endif
 			attacker->client->ps.saberMove = PM_SaberBounceForAttack( attacker->client->ps.saberMove );
 #ifndef FINAL_BUILD
@@ -2052,7 +2052,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 			if ( newQuad == defQuad )
 			{//bounce straight back
 #ifndef FINAL_BUILD
-				int attMove = attacker->client->ps.saberMove;
+				saberMoveName_t attMove = attacker->client->ps.saberMove;
 #endif
 				attacker->client->ps.saberMove = PM_SaberBounceForAttack( attacker->client->ps.saberMove );
 #ifndef FINAL_BUILD
@@ -2071,7 +2071,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 			else
 			{
 #ifndef FINAL_BUILD
-				int attMove = attacker->client->ps.saberMove;
+				saberMoveName_t attMove = attacker->client->ps.saberMove;
 #endif
 				attacker->client->ps.saberMove = PM_SaberDeflectionForQuad( newQuad );
 #ifndef FINAL_BUILD
@@ -2190,7 +2190,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 	}
 }
 
-int G_KnockawayForParry( int move )
+saberMoveName_t G_KnockawayForParry( saberMoveName_t move )
 {
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
@@ -2394,7 +2394,7 @@ static QINLINE bool G_G2TraceCollide(trace_t *tr, vec3_t lastValidStart, vec3_t 
 	return false;
 }
 
-static QINLINE bool G_SaberInBackAttack(int move)
+static QINLINE bool G_SaberInBackAttack(saberMoveName_t move)
 {
 	switch (move)
 	{
@@ -2402,6 +2402,8 @@ static QINLINE bool G_SaberInBackAttack(int move)
 	case LS_A_BACK_CR:
 	case LS_A_BACKSTAB:
 		return true;
+	default:
+		break;
 	}
 
 	return false;
@@ -4131,7 +4133,7 @@ static QINLINE bool CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeN
 			/*
 			if ( dmg > 0.1f )
 			{
-				if ( (self->client->ps.forcePowersActive&(1<<FP_RAGE)) )
+				if ( (self->client->ps.forcePowersActive&Bit( FP_RAGE )) )
 				{//add some damage if raged
 					dmg += self->client->ps.forcePowerLevel[FP_RAGE] * 5.0f;
 				}
@@ -5239,7 +5241,7 @@ blockStuff:
 				}
 				else if (PM_SaberInParry(G_GetParryForBlock(otherOwner->client->ps.saberBlocked)) && !didOffense && tryDeflectAgain)
 				{ //We want to try deflecting again because the other is in the parry and we haven't made any new moves
-					int preMove = otherOwner->client->ps.saberMove;
+					saberMoveName_t preMove = otherOwner->client->ps.saberMove;
 
 					otherOwner->client->ps.saberMove = G_GetParryForBlock(otherOwner->client->ps.saberBlocked);
 					WP_GetSaberDeflectionAngle(self, otherOwner, tr.fraction);
@@ -5451,7 +5453,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 	}
 }
 
-bool BG_SaberInTransitionAny( int move );
+bool BG_SaberInTransitionAny( saberMoveName_t move );
 
 bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 bool InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
@@ -5490,19 +5492,19 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	{
 		doFullRoutine = false;
 	}
-	else if ( self->client->ps.fd.forcePowersActive&(1<<FP_LIGHTNING) )
+	else if ( self->client->ps.fd.forcePowersActive&Bit( FP_LIGHTNING ) )
 	{//can't block while zapping
 		doFullRoutine = false;
 	}
-	else if ( self->client->ps.fd.forcePowersActive&(1<<FP_DRAIN) )
+	else if ( self->client->ps.fd.forcePowersActive&Bit( FP_DRAIN ) )
 	{//can't block while draining
 		doFullRoutine = false;
 	}
-	else if ( self->client->ps.fd.forcePowersActive&(1<<FP_PUSH) )
+	else if ( self->client->ps.fd.forcePowersActive&Bit( FP_PUSH ) )
 	{//can't block while shoving
 		doFullRoutine = false;
 	}
-	else if ( self->client->ps.fd.forcePowersActive&(1<<FP_GRIP) )
+	else if ( self->client->ps.fd.forcePowersActive&Bit( FP_GRIP ) )
 	{//can't block while gripping (FIXME: or should it break the grip?  Pain should break the grip, I think...)
 		doFullRoutine = false;
 	}
@@ -6862,7 +6864,7 @@ bool saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOwner,
 	return false;
 }
 
-bool BG_InExtraDefenseSaberMove( int move );
+bool BG_InExtraDefenseSaberMove( saberMoveName_t move );
 
 //Called upon an enemy actually slashing into a thrown saber
 bool saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage)
@@ -8123,8 +8125,8 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if ( self && self->inuse && self->client && self->s.number < MAX_CLIENTS )
 	{ // a saber swing starts when the player enters an attack move (gamestats)
-		static int lastSaberMove[MAX_CLIENTS];
-		const int move = self->client->ps.saberMove;
+		static saberMoveName_t lastSaberMove[MAX_CLIENTS];
+		const saberMoveName_t move = self->client->ps.saberMove;
 		if ( move != lastSaberMove[self->s.number] && BG_SaberInAttack( move ) ) {
 			g_stats.saberSwings++;
 		}
@@ -8479,7 +8481,7 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 		}
 	}
 nextStep:
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE))
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_RAGE ))
 	{
 		animSpeedScale = 2;
 	}
@@ -9298,7 +9300,7 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, bool missileBlock )
 	}
 }
 
-int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, bool projectile, int attackStr)
+int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, meansOfDeath_t mod, bool projectile, int attackStr)
 {
 	bool thrownSaber = false;
 	float blockFactor = 0;

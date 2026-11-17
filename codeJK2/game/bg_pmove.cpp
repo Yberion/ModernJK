@@ -39,41 +39,41 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include <float.h>
 
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern	bool	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void WP_SaberInitBladeData( gentity_t *ent );
 extern bool WP_SaberLose( gentity_t *self, vec3_t throwDir );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
 extern bool PM_HasAnimation( gentity_t *ent, int animation );
-extern int PM_SaberAnimTransitionAnim( int curmove, int newmove );
+extern saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveName_t newmove );
 extern saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad );
-extern bool PM_SaberInTransition( int move );
-extern bool PM_SaberInTransitionAny( int move );
-extern bool PM_SaberInBounce( int move );
+extern bool PM_SaberInTransition( saberMoveName_t move );
+extern bool PM_SaberInTransitionAny( saberMoveName_t move );
+extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SaberInAttack( int move );
-extern bool PM_InAnimForSaberMove( int anim, int saberMove );
-extern int PM_SaberBounceForAttack( int move );
-extern int PM_SaberAttackForMovement( int forwardmove, int rightmove, int move );
-extern int PM_BrokenParryForParry( int move );
-extern int PM_KnockawayForParry( saberBlockedType_t move );
-extern bool PM_SaberInParry( int move );
-extern bool PM_SaberInKnockaway( int move );
-extern bool PM_SaberInBrokenParry( int move );
-extern bool PM_SaberInReflect( int move );
-extern bool PM_SaberInIdle( int move );
-extern bool PM_SaberInStart( int move );
-extern bool PM_SaberKataDone( int curmove, int newmove );
-extern bool PM_SaberInSpecial( int move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
+extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
+extern saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saberMoveName_t move );
+extern saberMoveName_t PM_BrokenParryForParry( saberMoveName_t move );
+extern saberMoveName_t PM_KnockawayForParry( saberBlockedType_t move );
+extern bool PM_SaberInParry( saberMoveName_t move );
+extern bool PM_SaberInKnockaway( saberMoveName_t move );
+extern bool PM_SaberInBrokenParry( saberMoveName_t move );
+extern bool PM_SaberInReflect( saberMoveName_t move );
+extern bool PM_SaberInIdle( saberMoveName_t move );
+extern bool PM_SaberInStart( saberMoveName_t move );
+extern bool PM_SaberKataDone( saberMoveName_t curmove, saberMoveName_t newmove );
+extern bool PM_SaberInSpecial( saberMoveName_t move );
 extern bool PM_InDeathAnim ( void );
 extern bool PM_StandingAnim( int anim );
-extern int PM_SaberFlipOverAttackMove( void );
-extern int PM_SaberJumpAttackMove( void );
+extern saberMoveName_t PM_SaberFlipOverAttackMove( void );
+extern saberMoveName_t PM_SaberJumpAttackMove( void );
 
 bool PM_InKnockDown( playerState_t *ps );
 bool PM_InKnockDownOnGround( playerState_t *ps );
@@ -151,7 +151,7 @@ PM_AddEvent
 
 ===============
 */
-void PM_AddEvent( int newEvent )
+void PM_AddEvent( entity_event_t newEvent )
 {
 	AddEventToPlayerstate( newEvent, 0, pm->ps );
 }
@@ -506,7 +506,7 @@ bool PM_ForceJumpingUp( gentity_t *gent )
 		}
 	}
 
-	if ( !(gent->client->ps.forcePowersActive&(1<<FP_LEVITATION)) && gent->client->ps.forceJumpCharge )
+	if ( !(gent->client->ps.forcePowersActive&Bit( FP_LEVITATION )) && gent->client->ps.forceJumpCharge )
 	{//already jumped and let go
 		return false;
 	}
@@ -645,10 +645,10 @@ static bool PM_CheckJump( void )
 					//FIXME: constantly drain force power at a rate by which the usage for maximum height would use up the full cost of force jump
 					if ( curHeight > forceJumpHeight[0] )
 					{//passed normal jump height  *2?
-						if ( !(pm->ps->forcePowersActive&(1<<FP_LEVITATION)) )//haven't started forcejump yet
+						if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )//haven't started forcejump yet
 						{
 							//start force jump
-							pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+							pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 							if ( pm->gent )
 							{
 								G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
@@ -2162,9 +2162,9 @@ PM_FootstepForSurface
 Returns an event number apropriate for the groundsurface
 ================
 */
-static int PM_FootstepForSurface( void ) {
+static entity_event_t PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) {
-		return 0;
+		return EV_NONE;
 	}
 	if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
 		return EV_FOOTSTEP_METAL;
@@ -2590,7 +2590,7 @@ static void PM_CrashLand( void )
 		{//not crouching
 			if ( delta > 10
 				|| pm->ps->pm_flags & PMF_BACKWARDS_JUMP
-				|| (pm->ps->forcePowersActive&(1<<FP_LEVITATION))
+				|| (pm->ps->forcePowersActive&Bit( FP_LEVITATION ))
 				|| forceLanding ) //EV_FALL_SHORT or jumping back or force-land
 			{// decide which landing animation to use
 				int anim = PM_GetLandingAnim();
@@ -2874,7 +2874,7 @@ static void PM_GroundTraceMissed( void ) {
 			{
 				if ( (level.time - pm->gent->client->respawnTime > 2000)//been in the world for at least 2 seconds
 					&& (!pm->gent->NPC->timeOfDeath || level.time - pm->gent->NPC->timeOfDeath < 1000) && pm->gent->e_ThinkFunc != thinkF_NPC_RemoveBody //Have to do this now because timeOfDeath is used by thinkF_NPC_RemoveBody to debounce removal checks
-					&& !(pm->gent->client->ps.forcePowersActive&(1<<FP_LEVITATION)) )
+					&& !(pm->gent->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
 				{
 					if ( !FlyingCreature( pm->gent )
 						&& g_gravity->value > 0 )
@@ -3081,7 +3081,7 @@ static void PM_GroundTraceMissed( void ) {
 									anim = BOTH_INAIR1;
 								}
 							}
-							if ( pm->ps->forcePowersActive & ( 1 << FP_LEVITATION ) )
+							if ( pm->ps->forcePowersActive & Bit( FP_LEVITATION ) )
 							{
 								anim = PM_ForceJumpAnimForJumpAnim( anim );
 							}
@@ -3089,7 +3089,7 @@ static void PM_GroundTraceMissed( void ) {
 						}
 						pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 					}
-					else if ( !(pm->ps->forcePowersActive&(1<<FP_LEVITATION)) )
+					else if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )
 					{
 						if ( pm->cmd.forwardmove >= 0 )
 						{
@@ -5713,7 +5713,7 @@ static void PM_FinishWeaponChange( void ) {
 	}
 }
 
-void PM_SetSaberMove(short newMove)
+void PM_SetSaberMove(saberMoveName_t newMove)
 {
 	unsigned int setflags = saberMoveData[newMove].animSetFlags;
 	int	anim = saberMoveData[newMove].animToUse;
@@ -5917,7 +5917,7 @@ void PM_Use( void )
 
 	if ( ! (pm->cmd.buttons & BUTTON_USE ) )
 	{
-		pm->useEvent = 0;
+		pm->useEvent = EV_NONE;
 		pm->ps->useTime = 0;
 		return;
 	}
@@ -5926,13 +5926,13 @@ void PM_Use( void )
 	pm->ps->useTime = USE_DELAY;
 }
 
-extern int PM_AttackForEnemyPos( bool allowFB );
-int PM_NPCSaberAttackFromQuad( saberQuadrant_t quad )
+extern saberMoveName_t PM_AttackForEnemyPos( bool allowFB );
+saberMoveName_t PM_NPCSaberAttackFromQuad( saberQuadrant_t quad )
 {
 	//FIXME: this should be an AI decision
 	// It should be based on the enemy's current LS_ move, saberAnimLevel,
 	// the jedi's difficulty level, rank and FP_OFFENSE skill...
-	int autoMove = LS_NONE;
+	saberMoveName_t autoMove = LS_NONE;
 	if ( pm->gent && ((pm->gent->NPC && pm->gent->NPC->rank != RANK_ENSIGN && pm->gent->NPC->rank != RANK_CIVILIAN ) || (pm->gent->client && pm->gent->client->NPC_class == CLASS_TAVION)) )
 	{
 		autoMove = PM_AttackForEnemyPos( true );
@@ -5943,7 +5943,7 @@ int PM_NPCSaberAttackFromQuad( saberQuadrant_t quad )
 	}
 	else
 	{//pick another one
-		int newmove = LS_NONE;
+		saberMoveName_t newmove = LS_NONE;
 		switch( quad )
 		{
 		case Q_T://blocked top
@@ -6357,7 +6357,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 					||(genemy->s.number&&genemy->health<=50) )//boss character with less than 50 health left
 				{//possibly knock saber out of hand OR cut hand off!
 					vec3_t throwDir = {0,0,350};
-					int		winMove = pm->ps->saberMove;
+					saberMoveName_t	winMove = pm->ps->saberMove;
 					switch ( winAnim )
 					{
 					case BOTH_A3_T__B_:
@@ -6705,7 +6705,8 @@ void PM_WeaponLightsaber(void)
 {
 	int			addTime;
 	bool	delayed_fire = false;
-	int			anim=-1, curmove, newmove=LS_NONE;
+	int			anim=-1;
+	saberMoveName_t	curmove, newmove=LS_NONE;
 
 	if ( !pm->ps->clientNum
 		&& cg.saberAnimLevelPending > FORCE_LEVEL_0
@@ -6900,7 +6901,7 @@ void PM_WeaponLightsaber(void)
 			case BLOCKED_PARRY_BROKEN:
 				//whatever parry we were is in now broken, play the appropriate knocked-away anim
 				{
-					int nextMove;
+					saberMoveName_t nextMove;
 					if ( PM_SaberInBrokenParry( pm->ps->saberBounceMove ) )
 					{//already have one...?
 						nextMove = pm->ps->saberBounceMove;
@@ -6929,7 +6930,7 @@ void PM_WeaponLightsaber(void)
 				}
 				else if ( PM_SaberInBounce( pm->ps->saberMove ) || !PM_SaberInAttack( pm->ps->saberMove ) )
 				{//already in the bounce, go into an attack or transition to ready.. should never get here since can't be blocked in a bounce!
-					int nextMove;
+					saberMoveName_t nextMove;
 
 					if ( pm->cmd.buttons & BUTTON_ATTACK )
 					{//transition to a new attack
@@ -6976,7 +6977,7 @@ void PM_WeaponLightsaber(void)
 				}
 				else
 				{//start the bounce move
-					int bounceMove;
+					saberMoveName_t bounceMove;
 					if ( pm->ps->saberBounceMove != LS_NONE )
 					{
 						bounceMove = pm->ps->saberBounceMove;
@@ -7528,11 +7529,11 @@ void PM_WeaponLightsaber(void)
 				{
 					if ( !MatrixMode )
 					{//Special test for Matrix Mode (tm)
-						if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&(1<<FP_SPEED) )
+						if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 						{//player always fires at normal speed
 							addTime *= g_timescale->value;
 						}
-						else if ( g_entities[pm->ps->clientNum].client && pm->ps->forcePowersActive&(1<<FP_SPEED) )
+						else if ( g_entities[pm->ps->clientNum].client && pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 						{
 							addTime *= g_timescale->value;
 						}
@@ -7552,12 +7553,12 @@ void PM_WeaponLightsaber(void)
 				{
 					if ( !MatrixMode )
 					{//Special test for Matrix Mode (tm)
-						if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&(1<<FP_SPEED) )
+						if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 						{//player always fires at normal speed
 							addTime *= g_timescale->value;
 						}
 						else if ( g_entities[pm->ps->clientNum].client
-							&& pm->ps->forcePowersActive&(1<<FP_SPEED) )
+							&& pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 						{
 							addTime *= g_timescale->value;
 						}
@@ -8334,12 +8335,12 @@ static void PM_Weapon( void )
 		{
 			if ( !MatrixMode )
 			{//Special test for Matrix Mode (tm)
-				if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&(1<<FP_SPEED) )
+				if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 				{//player always fires at normal speed
 					addTime *= g_timescale->value;
 				}
 				else if ( g_entities[pm->ps->clientNum].client
-					&& pm->ps->forcePowersActive&(1<<FP_SPEED) )
+					&& pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 				{
 					addTime *= g_timescale->value;
 				}
@@ -8426,6 +8427,8 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			break;
 		case FP_LIGHTNING:
 			ucmd->buttons |= BUTTON_FORCE_LIGHTNING;
+			break;
+		default:
 			break;
 		}
 	}
@@ -8526,12 +8529,12 @@ void PM_SetSpecialMoveValues (void )
 		{
 			if ( !MatrixMode )
 			{
-				if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&(1<<FP_SPEED) )
+				if ( pm->ps->clientNum == 0 && !player_locked && pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 				{
 					pml.frametime *= (1.0f/g_timescale->value);
 				}
 				else if ( g_entities[pm->ps->clientNum].client
-					&& pm->ps->forcePowersActive&(1<<FP_SPEED) )
+					&& pm->ps->forcePowersActive&Bit( FP_SPEED ) )
 				{
 					pml.frametime *= (1.0f/g_timescale->value);
 				}

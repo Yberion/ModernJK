@@ -116,13 +116,13 @@ void CGCam_Enable( void )
 			}
 		}
 
-		for ( int i = 0; i < NUM_FORCE_POWERS; i++ )
+		for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 		{//deactivate any active force powers
 			g_entities[0].client->ps.forcePowerDuration[i] = 0;
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
-			if ( g_entities[0].client->ps.forcePowerDuration[i] || (g_entities[0].client->ps.forcePowersActive&( 1 << i )) )
+			if ( g_entities[0].client->ps.forcePowerDuration[i] || (g_entities[0].client->ps.forcePowersActive&Bit( i )) )
 			{
-				WP_ForcePowerStop( &g_entities[0], (forcePowers_t)i );
+				WP_ForcePowerStop( &g_entities[0], i );
 			}
 		}
 	}

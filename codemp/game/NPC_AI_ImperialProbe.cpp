@@ -442,7 +442,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	float	pain_chance;
 	gentity_t *other = attacker;
-	int mod = gPainMOD;
+	meansOfDeath_t mod = gPainMOD;
 
 	VectorCopy( self->NPC->lastPathAngles, self->s.angles );
 

@@ -231,7 +231,7 @@ void WP_Explode( gentity_t *self )
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
 //-----------------------------------------------------------------------------
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc )
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
 //-----------------------------------------------------------------------------
 {
 	self->enemy = attacker;
@@ -253,7 +253,7 @@ bool WP_MissileTargetHint(gentity_t* shooter, vec3_t start, vec3_t out)
 	return false;
 }
 
-int G_GetHitLocFromTrace( trace_t *trace, int mod )
+int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 {
 	int hitLoc = HL_NONE;
 	for (int i=0; i < MAX_G2_COLLISIONS; i++)
@@ -335,7 +335,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
+bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -373,6 +373,8 @@ bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
 			{
 				return true;
 			}
+			break;
+		default:
 			break;
 		}
 	}

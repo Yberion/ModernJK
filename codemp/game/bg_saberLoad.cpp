@@ -898,8 +898,8 @@ static void Saber_ParseForceRestrict( saberInfo_t *saber, const char **p ) {
 		return;
 
 	fp = GetIDForString( FPTable, value );
-	if ( fp >= FP_FIRST && fp < NUM_FORCE_POWERS )
-		saber->forceRestrictions |= (1<<fp);
+	if ( fp != -1 )
+		saber->forceRestrictions |= Bit( static_cast<forcePowers_t>( fp ) );
 }
 static void Saber_ParseLockBonus( saberInfo_t *saber, const char **p ) {
 	int n;
@@ -1043,68 +1043,35 @@ static void Saber_ParseBoltToWrist( saberInfo_t *saber, const char **p ) {
 	if ( n )
 		saber->saberFlags |= SFL_BOLT_TO_WRIST;
 }
-static void Saber_ParseKataMove( saberInfo_t *saber, const char **p ) {
+// a move a saber file names; the name table holds moves only, so GetIDForString's -1 for an unknown name is LS_INVALID
+static void Saber_ParseMove( saberMoveName_t &move, const char **p ) {
 	const char *value;
-	int saberMove = LS_INVALID;
 	if ( COM_ParseString( p, &value ) )
 		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->kataMove = saberMove; //LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
+	const int saberMove = GetIDForString( saberMoveTable, value );
+	if ( saberMove >= to_underlying( LS_INVALID ) && saberMove < to_underlying( LS_MOVE_MAX ) )
+		move = static_cast<saberMoveName_t>( saberMove );
+}
+static void Saber_ParseKataMove( saberInfo_t *saber, const char **p ) {
+	Saber_ParseMove( saber->kataMove, p ); //LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
 }
 static void Saber_ParseLungeAtkMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->lungeAtkMove = saberMove;
+	Saber_ParseMove( saber->lungeAtkMove, p );
 }
 static void Saber_ParseJumpAtkUpMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->jumpAtkUpMove = saberMove;
+	Saber_ParseMove( saber->jumpAtkUpMove, p );
 }
 static void Saber_ParseJumpAtkFwdMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->jumpAtkFwdMove = saberMove;
+	Saber_ParseMove( saber->jumpAtkFwdMove, p );
 }
 static void Saber_ParseJumpAtkBackMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->jumpAtkBackMove = saberMove;
+	Saber_ParseMove( saber->jumpAtkBackMove, p );
 }
 static void Saber_ParseJumpAtkRightMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->jumpAtkRightMove = saberMove;
+	Saber_ParseMove( saber->jumpAtkRightMove, p );
 }
 static void Saber_ParseJumpAtkLeftMove( saberInfo_t *saber, const char **p ) {
-	const char *value;
-	int saberMove = LS_INVALID;
-	if ( COM_ParseString( p, &value ) )
-		return;
-	saberMove = GetIDForString( saberMoveTable, value );
-	if ( saberMove >= LS_INVALID && saberMove < LS_MOVE_MAX )
-		saber->jumpAtkLeftMove = saberMove;
+	Saber_ParseMove( saber->jumpAtkLeftMove, p );
 }
 static void Saber_ParseReadyAnim( saberInfo_t *saber, const char **p ) {
 	const char *value;

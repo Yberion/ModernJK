@@ -48,7 +48,7 @@ void QDECL Com_OPrintf( const char *msg, ... )
 	ri.OPrintf("%s", text);
 }
 
-void QDECL Com_Error( int level, const char *error, ... )
+void QDECL Com_Error( errorParm_t level, const char *error, ... )
 {
 	va_list         argptr;
 	char            text[1024];

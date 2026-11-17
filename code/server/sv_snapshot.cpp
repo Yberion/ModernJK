@@ -372,7 +372,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 #ifndef JK2_MODE
 	if ( !portal )
 	{//not if this if through a portal...???  James said to do this...
-		if ( (frame->ps.forcePowersActive&(1<<FP_SEE)) )
+		if ( (frame->ps.forcePowersActive&Bit( FP_SEE )) )
 		{
 			sightOn = true;
 		}

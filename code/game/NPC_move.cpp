@@ -558,7 +558,7 @@ bool NPC_TryJump()
 		NPC->client->ps.forceJumpZStart		 = NPC->currentOrigin[2];
 		NPC->client->ps.pm_flags			|= PMF_JUMPING;
 		NPC->client->ps.weaponTime			 = NPC->client->ps.torsoAnimTimer;
-		NPC->client->ps.forcePowersActive	|= ( 1 << FP_LEVITATION );
+		NPC->client->ps.forcePowersActive	|= Bit( FP_LEVITATION );
 		ucmd.forwardmove					 = 0;
 		NPCInfo->jumpTime					 = 1;
 

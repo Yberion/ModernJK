@@ -398,7 +398,7 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 
 int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 {
-	int forcePower = ent->item->giTag;
+	const forcePowers_t forcePower = static_cast<forcePowers_t>( ent->item->giTag );
 	int forceLevel = ent->count;
 	// check if out of range
 	if( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
@@ -408,7 +408,7 @@ int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 	}
 
 	// don't pick up if already known AND your level is higher than pickup level
-	if ( ( other->client->ps.forcePowersKnown & ( 1 << forcePower )) )
+	if ( ( other->client->ps.forcePowersKnown & Bit( forcePower )) )
 	{
 		//don't pickup if item is lower than current level
 		if( other->client->ps.forcePowerLevel[forcePower] >= forceLevel )
@@ -418,11 +418,11 @@ int Pickup_Holocron( gentity_t *ent, gentity_t *other )
 	}
 
 	other->client->ps.forcePowerLevel[forcePower] = forceLevel;
-	other->client->ps.forcePowersKnown |= ( 1 << forcePower );
+	other->client->ps.forcePowersKnown |= Bit( forcePower );
 
 	missionInfo_Updated = true;	// Activate flashing text
-	gi.cvar_set("cg_updatedDataPadForcePower1", va("%d",forcePower+1)); // The +1 is offset in the print routine.
-	cg_updatedDataPadForcePower1.integer = forcePower+1;
+	gi.cvar_set("cg_updatedDataPadForcePower1", va("%d",to_underlying( forcePower )+1)); // The +1 is offset in the print routine.
+	cg_updatedDataPadForcePower1.integer = to_underlying( forcePower )+1;
 	gi.cvar_set("cg_updatedDataPadForcePower2", "0"); // The +1 is offset in the print routine.
 	cg_updatedDataPadForcePower2.integer = 0;
 	gi.cvar_set("cg_updatedDataPadForcePower3", "0"); // The +1 is offset in the print routine.

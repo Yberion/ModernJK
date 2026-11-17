@@ -443,7 +443,7 @@ void ImperialProbe_AttackDecision( void )
 NPC_BSDroid_Pain
 -------------------------
 */
-void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	float	pain_chance;
 

@@ -147,7 +147,7 @@ typedef struct nodeobject_s
 typedef struct boteventtracker_s
 {
 	int			eventSequence;
-	int			events[MAX_PS_EVENTS];
+	entity_event_t	events[MAX_PS_EVENTS];
 	float		eventTime;
 } boteventtracker_t;
 

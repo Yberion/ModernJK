@@ -1292,7 +1292,7 @@ static void SV_ConTell_f(void) {
 	SV_SendServerCommand(cl, "chat \"" SVTELL_PREFIX S_COLOR_MAGENTA "%s" S_COLOR_WHITE "\"\n", text);
 }
 
-const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
+EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceToggleNamePrints = {
 	"HEAL",
 	"JUMP",
 	"SPEED",
@@ -1315,7 +1315,6 @@ const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
 
 static void SV_ForceToggle_f( void ) {
 	int bits = Cvar_VariableIntegerValue("g_forcePowerDisable");
-	int i, val;
 	const char *s;
 
 	// make sure server is running
@@ -1325,9 +1324,9 @@ static void SV_ForceToggle_f( void ) {
 	}
 
 	if ( Cmd_Argc() != 2 ) {
-		for ( i = 0; i<NUM_FORCE_POWERS; i++ ) {
-			if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, forceToggleNamePrints[i] );
-			else							Com_Printf( "%2d [ ] %s\n", i, forceToggleNamePrints[i] );
+		for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+			if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
+			else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 		}
 		Com_Printf( "Example usage: forcetoggle 3(toggles PUSH)\n" );
 		return;
@@ -1336,24 +1335,24 @@ static void SV_ForceToggle_f( void ) {
 	s = Cmd_Argv(1);
 
 	if( Q_isanumber( s ) ) {
-		val = atoi(s);
-		if( val >= 0 && val < NUM_FORCE_POWERS) {
-			bits ^= (1 << val);
+		const forcePowers_t val = static_cast<forcePowers_t>( atoi(s) );
+		if( val >= FP_FIRST && val < NUM_FORCE_POWERS) {
+			bits ^= Bit( val );
 			Cvar_SetValue("g_forcePowerDisable", bits);
-			Com_Printf( "%s %s^7\n", forceToggleNamePrints[val], (bits & (1<<val)) ? "^2Enabled" : "^1Disabled" );
+			Com_Printf( "%s %s^7\n", forceToggleNamePrints[val], (bits & Bit( val )) ? "^2Enabled" : "^1Disabled" );
 		}
 		else {
-			for ( i = 0; i<NUM_FORCE_POWERS; i++ ) {
-				if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, forceToggleNamePrints[i] );
-				else							Com_Printf( "%2d [ ] %s\n", i, forceToggleNamePrints[i] );
+			for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+				if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
+				else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 			}
 			Com_Printf ("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)\n");
 		}
 	}
 	else {
-		for ( i = 0; i<NUM_FORCE_POWERS; i++ ) {
-			if ( (bits & (1 << i)) )		Com_Printf( "%2d [X] %s\n", i, forceToggleNamePrints[i] );
-			else							Com_Printf( "%2d [ ] %s\n", i, forceToggleNamePrints[i] );
+		for ( forcePowers_t fp = FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+			if ( (bits & Bit( fp )) )		Com_Printf( "%2d [X] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
+			else							Com_Printf( "%2d [ ] %s\n", to_underlying( fp ), forceToggleNamePrints[fp] );
 		}
 		Com_Printf ("Specified a power that does not exist.\nExample usage: forcetoggle 3\n(toggles PUSH)\n");
 	}

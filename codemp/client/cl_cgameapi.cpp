@@ -82,6 +82,11 @@ void CGVM_KeyEvent( int key, bool down ) {
 	cge->KeyEvent( key, down );
 }
 
+// a key's event: the module's KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
+void CGVM_KeyEvent( fakeAscii_t key, bool down ) {
+	CGVM_KeyEvent( to_underlying( key ), down );
+}
+
 void CGVM_MouseEvent( int x, int y ) {
 	VMSwap v( cgvm );
 
@@ -260,7 +265,7 @@ static int CL_GetCurrentCmdNumber( void ) {
 	return cl.cmdNumber;
 }
 
-static void _CL_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel, bool fighterControls ) {
+static void _CL_SetUserCmdValue( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls ) {
 	cl_bUseFighterPitch = fighterControls;
 	CL_SetUserCmdValue( stateValue, sensitivityScale, mPitchOverride, mYawOverride, mSensitivityOverride, fpSel, invenSel );
 }

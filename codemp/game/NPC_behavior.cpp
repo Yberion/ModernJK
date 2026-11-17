@@ -1333,7 +1333,7 @@ void NPC_BSFaceLeader (void)
 NPC_BSFlee
 -------------------------
 */
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void WP_DropWeapon( gentity_t *dropper, vec3_t velocity );
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 void NPC_Surrender( void )

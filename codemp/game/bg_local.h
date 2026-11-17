@@ -80,13 +80,13 @@ extern	float	pm_flightfriction;
 
 extern	int		c_pmove;
 
-extern EnumArray<int[NUM_FORCE_POWERS], forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
+extern EnumArray<EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
 
 //PM anim utility functions:
-bool PM_SaberInParry( int move );
-bool PM_SaberInKnockaway( int move );
-bool PM_SaberInReflect( int move );
-bool PM_SaberInStart( int move );
+bool PM_SaberInParry( saberMoveName_t move );
+bool PM_SaberInKnockaway( saberMoveName_t move );
+bool PM_SaberInReflect( saberMoveName_t move );
+bool PM_SaberInStart( saberMoveName_t move );
 bool PM_InSaberAnim( int anim );
 bool PM_InKnockDown( playerState_t *ps );
 bool PM_PainAnim( int anim );
@@ -106,7 +106,7 @@ saberMoveName_t PM_SaberJumpAttackMove( void );
 
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
 void PM_AddTouchEnt( int entityNum );
-void PM_AddEvent( int newEvent );
+void PM_AddEvent( entity_event_t newEvent );
 
 bool	PM_SlideMove( bool gravity );
 void		PM_StepSlideMove( bool gravity );
@@ -121,7 +121,7 @@ void PM_FinishWeaponChange( void );
 void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags);
 
 void PM_WeaponLightsaber(void);
-void PM_SetSaberMove(short newMove);
+void PM_SetSaberMove(saberMoveName_t newMove);
 
 void PM_SetForceJumpZStart(float value);
 

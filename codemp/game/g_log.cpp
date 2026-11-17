@@ -40,8 +40,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef LOGGING_WEAPONS
 int G_WeaponLogPickups[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogFired[MAX_CLIENTS][WP_NUM_WEAPONS];
-int G_WeaponLogDamage[MAX_CLIENTS][MOD_MAX];
-int G_WeaponLogKills[MAX_CLIENTS][MOD_MAX];
+EnumArray<int, meansOfDeath_t, MOD_MAX> G_WeaponLogDamage[MAX_CLIENTS];
+EnumArray<int, meansOfDeath_t, MOD_MAX> G_WeaponLogKills[MAX_CLIENTS];
 int G_WeaponLogDeaths[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogFrags[MAX_CLIENTS][MAX_CLIENTS];
 int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS];
@@ -51,7 +51,7 @@ EnumArray<int, powerup_t, PW_NUM_POWERUPS> G_WeaponLogPowerups[MAX_CLIENTS];
 EnumArray<int, holdable_t, HI_NUM_HOLDABLE> G_WeaponLogItems[MAX_CLIENTS];
 
 // MOD-weapon mapping array.
-int weaponFromMOD[MOD_MAX] =
+EnumArray<int, meansOfDeath_t, MOD_MAX> weaponFromMOD =
 {
 	WP_NONE,				//MOD_UNKNOWN,
 	WP_STUN_BATON,			//MOD_STUN_BATON,
@@ -81,6 +81,9 @@ int weaponFromMOD[MOD_MAX] =
 	WP_TRIP_MINE,			//MOD_TRIP_MINE_SPLASH,
 	WP_TRIP_MINE,			//MOD_TIMED_MINE_SPLASH,
 	WP_DET_PACK,			//MOD_DET_PACK_SPLASH,
+	WP_NONE,				//MOD_VEHICLE,
+	WP_CONCUSSION,			//MOD_CONC,
+	WP_CONCUSSION,			//MOD_CONC_ALT,
 	WP_NONE,				//MOD_FORCE_DARK,
 	WP_NONE,				//MOD_SENTRY,
 	WP_NONE,				//MOD_WATER,
@@ -114,7 +117,7 @@ const char *weaponNameFromIndex[WP_NUM_WEAPONS] =
 	"Turret"
 };
 
-extern const char	*modNames[];
+extern EnumArray<const char *, meansOfDeath_t, MOD_MAX> modNames;
 
 #endif //LOGGING_WEAPONS
 
@@ -168,7 +171,7 @@ void QDECL G_LogWeaponFire(int client, int weaponid)
 #endif //_LOGGING_WEAPONS
 }
 
-void QDECL G_LogWeaponDamage(int client, int mod, int amount)
+void QDECL G_LogWeaponDamage(int client, meansOfDeath_t mod, int amount)
 {
 #ifdef LOGGING_WEAPONS
 	if (client>=MAX_CLIENTS)
@@ -178,7 +181,7 @@ void QDECL G_LogWeaponDamage(int client, int mod, int amount)
 #endif //_LOGGING_WEAPONS
 }
 
-void QDECL G_LogWeaponKill(int client, int mod)
+void QDECL G_LogWeaponKill(int client, meansOfDeath_t mod)
 {
 #ifdef LOGGING_WEAPONS
 	if (client>=MAX_CLIENTS)
@@ -259,8 +262,8 @@ void G_LogWeaponOutput(void)
 	int totalpickups[WP_NUM_WEAPONS];
 	int totaltime[WP_NUM_WEAPONS];
 	int totaldeaths[WP_NUM_WEAPONS];
-	int totaldamageMOD[MOD_MAX];
-	int totalkillsMOD[MOD_MAX];
+	EnumArray<int, meansOfDeath_t, MOD_MAX> totaldamageMOD;
+	EnumArray<int, meansOfDeath_t, MOD_MAX> totalkillsMOD;
 	int totaldamage[WP_NUM_WEAPONS];
 	int totalkills[WP_NUM_WEAPONS];
 	int totalshots[WP_NUM_WEAPONS];
@@ -279,8 +282,8 @@ void G_LogWeaponOutput(void)
 	memset(totalpickups, 0, sizeof(totalpickups));
 	memset(totaltime, 0, sizeof(totaltime));
 	memset(totaldeaths, 0, sizeof(totaldeaths));
-	memset(totaldamageMOD, 0, sizeof(totaldamageMOD));
-	memset(totalkillsMOD, 0, sizeof(totalkillsMOD));
+	totaldamageMOD = {};
+	totalkillsMOD = {};
 	memset(totaldamage, 0, sizeof(totaldamage));
 	memset(totalkills, 0, sizeof(totalkills));
 	memset(totalshots, 0, sizeof(totalshots));
@@ -297,22 +300,22 @@ void G_LogWeaponOutput(void)
 				totalshots[j] += G_WeaponLogFired[i][j];
 			}
 
-			for (j=0;j<MOD_MAX;j++)
+			for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 			{
-				totaldamageMOD[j] += G_WeaponLogDamage[i][j];
-				totalkillsMOD[j] += G_WeaponLogKills[i][j];
+				totaldamageMOD[mod] += G_WeaponLogDamage[i][mod];
+				totalkillsMOD[mod] += G_WeaponLogKills[i][mod];
 			}
 		}
 	}
 
 	// Now total the weapon data from the MOD data.
-	for (j=0; j<MOD_MAX; j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
-		if (j <= MOD_SENTRY)
+		if (mod <= MOD_SENTRY)
 		{
-			curwp = weaponFromMOD[j];
-			totaldamage[curwp] += totaldamageMOD[j];
-			totalkills[curwp] += totalkillsMOD[j];
+			curwp = weaponFromMOD[mod];
+			totaldamage[curwp] += totaldamageMOD[mod];
+			totalkills[curwp] += totalkillsMOD[mod];
 		}
 	}
 
@@ -339,10 +342,10 @@ void G_LogWeaponOutput(void)
 	}
 
 	G_LogPrintf(  "\n****Combat Data By Damage Type:\n" );
-	for (j=0; j<MOD_MAX; j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
 		G_LogPrintf("%25s:  Damage: %6d,  Kills: %5d\n",
-				modNames[j], totaldamageMOD[j], totalkillsMOD[j]);
+				modNames[mod], totaldamageMOD[mod], totalkillsMOD[mod]);
 	}
 
 	G_LogPrintf("\n");
@@ -610,12 +613,12 @@ void G_LogWeaponOutput(void)
 
 			// We must grab the totals from the damage types for the player and map them to the weapons.
 			memset(percharacter, 0, sizeof(percharacter));
-			for (j=0; j<MOD_MAX; j++)
+			for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 			{
-				if (j <= MOD_SENTRY)
+				if (mod <= MOD_SENTRY)
 				{
-					curwp = weaponFromMOD[j];
-					percharacter[curwp] += G_WeaponLogDamage[i][j];
+					curwp = weaponFromMOD[mod];
+					percharacter[curwp] += G_WeaponLogDamage[i][mod];
 				}
 			}
 
@@ -679,12 +682,12 @@ void G_LogWeaponOutput(void)
 
 			// We must grab the totals from the damage types for the player and map them to the weapons.
 			memset(percharacter, 0, sizeof(percharacter));
-			for (j=0; j<MOD_MAX; j++)
+			for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 			{
-				if (j <= MOD_SENTRY)
+				if (mod <= MOD_SENTRY)
 				{
-					curwp = weaponFromMOD[j];
-					percharacter[curwp] += G_WeaponLogKills[i][j];
+					curwp = weaponFromMOD[mod];
+					percharacter[curwp] += G_WeaponLogKills[i][mod];
 				}
 			}
 
@@ -731,9 +734,9 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "Player");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-	for (j=0; j<MOD_MAX; j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
-		Com_sprintf(string, sizeof(string), "\t%s", modNames[j]);
+		Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
 		trap->FS_Write(string, strlen(string), weaponfile);
 	}
 	Com_sprintf(string, sizeof(string), "\n");
@@ -754,9 +757,9 @@ void G_LogWeaponOutput(void)
 			}
 			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
-			for (j=0;j<MOD_MAX;j++)
+			for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDamage[i][j]);
+				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogDamage[i][mod]);
 				trap->FS_Write(string, strlen(string), weaponfile);
 			}
 
@@ -769,9 +772,9 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-	for (j=0;j<MOD_MAX;j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
-		Com_sprintf(string, sizeof(string), "\t%d", totaldamageMOD[j]);
+		Com_sprintf(string, sizeof(string), "\t%d", totaldamageMOD[mod]);
 		trap->FS_Write(string, strlen(string), weaponfile);
 	}
 
@@ -787,9 +790,9 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "Player");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-	for (j=0; j<MOD_MAX; j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
-		Com_sprintf(string, sizeof(string), "\t%s", modNames[j]);
+		Com_sprintf(string, sizeof(string), "\t%s", modNames[mod]);
 		trap->FS_Write(string, strlen(string), weaponfile);
 	}
 	Com_sprintf(string, sizeof(string), "\n");
@@ -810,9 +813,9 @@ void G_LogWeaponOutput(void)
 			}
 			trap->FS_Write(nameptr, strlen(nameptr), weaponfile);
 
-			for (j=0;j<MOD_MAX;j++)
+			for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 			{
-				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogKills[i][j]);
+				Com_sprintf(string, sizeof(string), "\t%d", G_WeaponLogKills[i][mod]);
 				trap->FS_Write(string, strlen(string), weaponfile);
 			}
 
@@ -825,9 +828,9 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n***TOTAL:");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-	for (j=0;j<MOD_MAX;j++)
+	for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 	{
-		Com_sprintf(string, sizeof(string), "\t%d", totalkillsMOD[j]);
+		Com_sprintf(string, sizeof(string), "\t%d", totalkillsMOD[mod]);
 		trap->FS_Write(string, strlen(string), weaponfile);
 	}
 
@@ -1009,7 +1012,7 @@ bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 bool CalculateTactician(gentity_t *ent, int *kills)
 {
 #ifdef LOGGING_WEAPONS
-	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0;
+	int			nBestPlayer = -1, nKills = 0, nMostKills = 0;
 	int			person = 0, weapon = 0;
 	gentity_t	*player = nullptr;
 	int			wasPickedUpBySomeone[WP_NUM_WEAPONS];
@@ -1062,10 +1065,10 @@ bool CalculateTactician(gentity_t *ent, int *kills)
 		for (weapon=0; weapon<WP_NUM_WEAPONS; weapon++)
 			killsWithWeapon[weapon] = 0;					// CLEAR
 
-		for (i=0; i<MOD_MAX; i++)
+		for (meansOfDeath_t mod=MOD_UNKNOWN; mod<MOD_MAX; mod++)
 		{
-			weapon = weaponFromMOD[i];									// Select Weapon
-			killsWithWeapon[weapon] += G_WeaponLogKills[person][i];		// Store Num Kills With Weapon
+			weapon = weaponFromMOD[mod];									// Select Weapon
+			killsWithWeapon[weapon] += G_WeaponLogKills[person][mod];		// Store Num Kills With Weapon
 		}
 
 		weapon=WP_STUN_BATON;		// Start At Stun Baton
@@ -1640,7 +1643,7 @@ int GetWorstEnemyForClient(int nClient)
 
 int GetFavoriteWeaponForClient(int nClient)
 {
-	int i = 0, nMostKills = 0, fav=0, weapon=WP_STUN_BATON;
+	int nMostKills = 0, fav=0, weapon=WP_STUN_BATON;
 	int	killsWithWeapon[WP_NUM_WEAPONS];
 
 
@@ -1650,13 +1653,13 @@ int GetFavoriteWeaponForClient(int nClient)
 	for (weapon=0; weapon<WP_NUM_WEAPONS; weapon++)
 		killsWithWeapon[weapon] = 0;					// CLEAR
 
-	for (i=MOD_STUN_BATON; i<=MOD_FORCE_DARK; i++)
+	for (meansOfDeath_t mod=MOD_STUN_BATON; mod<=MOD_FORCE_DARK; mod++)
 	{
-		weapon = weaponFromMOD[i];									// Select Weapon
+		weapon = weaponFromMOD[mod];									// Select Weapon
 
 		if (weapon != WP_NONE)
 		{
-			killsWithWeapon[weapon] += G_WeaponLogKills[nClient][i];	// Store Num Kills With Weapon
+			killsWithWeapon[weapon] += G_WeaponLogKills[nClient][mod];	// Store Num Kills With Weapon
 		}
 	}
 
@@ -1688,14 +1691,8 @@ void QDECL G_ClearClientLog(int client)
 	{
 		G_WeaponLogFired[client][i] = 0;
 	}
-	for (i = 0; i < MOD_MAX; i++)
-	{
-		G_WeaponLogDamage[client][i] = 0;
-	}
-	for (i = 0; i < MOD_MAX; i++)
-	{
-		G_WeaponLogKills[client][i] = 0;
-	}
+	G_WeaponLogDamage[client] = {};
+	G_WeaponLogKills[client] = {};
 	for (i = 0; i < WP_NUM_WEAPONS; i++)
 	{
 		G_WeaponLogDeaths[client][i] = 0;

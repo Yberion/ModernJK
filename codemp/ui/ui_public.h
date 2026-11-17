@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_API_VERSION 3
 #define UI_LEGACY_API_VERSION 7
 
+enum class fakeAscii_t;		// keycodes.h
+
 typedef struct uiClientState_s {
 	connstate_t		connState;
 	int				connectPacketCount;
@@ -68,7 +70,7 @@ using enum lanServerState_t;
 
 typedef struct uiImport_s {
 	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void (*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	int				(*Milliseconds)							( void );
 	int				(*RealTime)								( qtime_t *qtime );
 	int				(*MemoryRemaining)						( void );
@@ -100,10 +102,10 @@ typedef struct uiImport_s {
 	void			(*UpdateScreen)							( void );
 
 	void			(*Key_ClearStates)						( void );
-	void			(*Key_GetBindingBuf)					( int keynum, char *buf, int buflen );
-	bool		(*Key_IsDown)							( int keynum );
-	void			(*Key_KeynumToStringBuf)				( int keynum, char *buf, int buflen );
-	void			(*Key_SetBinding)						( int keynum, const char *binding );
+	void			(*Key_GetBindingBuf)					( fakeAscii_t keynum, char *buf, int buflen );
+	bool		(*Key_IsDown)							( fakeAscii_t keynum );
+	void			(*Key_KeynumToStringBuf)				( fakeAscii_t keynum, char *buf, int buflen );
+	void			(*Key_SetBinding)						( fakeAscii_t keynum, const char *binding );
 	int				(*Key_GetCatcher)						( void );
 	bool		(*Key_GetOverstrikeMode)				( void );
 	void			(*Key_SetCatcher)						( int catcher );

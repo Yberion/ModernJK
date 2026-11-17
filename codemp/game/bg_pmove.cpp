@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_WEAPON_CHARGE_TIME 5000
 
 #ifdef _GAME
-	extern void G_CheapWeaponFire(int entNum, int ev);
+	extern void G_CheapWeaponFire(int entNum, entity_event_t ev);
 	extern bool TryGrapple(gentity_t *ent); //g_cmds.cpp
 #endif // _GAME
 
@@ -93,7 +93,7 @@ float forceSpeedLevels[4] =
 	1.75
 };
 
-EnumArray<int[NUM_FORCE_POWERS], forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded =
+EnumArray<EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded =
 {{
 	{ //nothing should be usable at rank 0..
 		999,//FP_HEAL,//instant
@@ -886,11 +886,11 @@ PM_AddEvent
 
 ===============
 */
-void PM_AddEvent( int newEvent ) {
+void PM_AddEvent( entity_event_t newEvent ) {
 	BG_AddPredictableEventToPlayerstate( newEvent, 0, pm->ps );
 }
 
-void PM_AddEventWithParm( int newEvent, int parm )
+void PM_AddEventWithParm( entity_event_t newEvent, int parm )
 {
 	BG_AddPredictableEventToPlayerstate( newEvent, parm, pm->ps );
 }
@@ -1241,7 +1241,7 @@ static void PM_SetMovementDir( void ) {
 
 bool PM_ForceJumpingUp(void)
 {
-	if ( !(pm->ps->fd.forcePowersActive&(1<<FP_LEVITATION)) && pm->ps->fd.forceJumpCharge )
+	if ( !(pm->ps->fd.forcePowersActive&Bit( FP_LEVITATION )) && pm->ps->fd.forceJumpCharge )
 	{//already jumped and let go
 		return false;
 	}
@@ -1481,7 +1481,7 @@ bool PM_AdjustAngleForWallRunUp( playerState_t *ps, usercmd_t *ucmd, bool doMove
 				PM_SetAnim(SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_ALT, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
 				pm->ps->pm_flags |= PMF_JUMP_HELD;
 				//ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
-				//ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+				//ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 				//G_AddEvent( ent, EV_JUMP, 0 );
 				PM_AddEvent(EV_JUMP);
 				ucmd->upmove = 0;
@@ -1564,7 +1564,7 @@ bool PM_AdjustAngleForWallRunUp( playerState_t *ps, usercmd_t *ucmd, bool doMove
 			//ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
 
 			//FIXME do I need this in mp?
-			//ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+			//ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 			PM_AddEvent(EV_JUMP);
 			ucmd->upmove = 0;
 			//return true;
@@ -1699,7 +1699,7 @@ bool PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, bool doMove 
 			ps->pm_flags |= PMF_JUMP_HELD;//PMF_JUMPING|PMF_JUMP_HELD;
 			//G_SoundOnEnt( ent, CHAN_BODY, "sound/weapons/force/jump.wav" );
 			ps->fd.forceJumpSound = 1; //this is a stupid thing, i should fix it.
-			//ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+			//ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 			if (ps->origin[2] < ps->fd.forceJumpZStart)
 			{
 				ps->fd.forceJumpZStart = ps->origin[2];
@@ -1816,10 +1816,10 @@ static bool PM_CheckJump( void )
 
 	if (pm->ps->groundEntityNum != ENTITYNUM_NONE || pm->ps->origin[2] < pm->ps->fd.forceJumpZStart)
 	{
-		pm->ps->fd.forcePowersActive &= ~(1<<FP_LEVITATION);
+		pm->ps->fd.forcePowersActive &= ~Bit( FP_LEVITATION );
 	}
 
-	if (pm->ps->fd.forcePowersActive & (1 << FP_LEVITATION))
+	if (pm->ps->fd.forcePowersActive & Bit( FP_LEVITATION ))
 	{ //Force jump is already active.. continue draining power appropriately until we land.
 		if (pm->ps->fd.forcePowerDebounce[FP_LEVITATION] < pm->cmd.serverTime)
 		{
@@ -1910,10 +1910,10 @@ static bool PM_CheckJump( void )
 				{//can still go up
 					if ( curHeight > forceJumpHeight[FORCE_LEVEL_0] )
 					{//passed normal jump height  *2?
-						if ( !(pm->ps->fd.forcePowersActive&(1<<FP_LEVITATION)) )//haven't started forcejump yet
+						if ( !(pm->ps->fd.forcePowersActive&Bit( FP_LEVITATION )) )//haven't started forcejump yet
 						{
 							//start force jump
-							pm->ps->fd.forcePowersActive |= (1<<FP_LEVITATION);
+							pm->ps->fd.forcePowersActive |= Bit( FP_LEVITATION );
 							pm->ps->fd.forceJumpSound = 1;
 							//play flip
 							if ((pm->cmd.forwardmove || pm->cmd.rightmove) && //pushing in a dir
@@ -2292,7 +2292,7 @@ static bool PM_CheckJump( void )
 						if ( vertPush )
 						{
 							pm->ps->velocity[2] = vertPush;
-							pm->ps->fd.forcePowersActive |= (1 << FP_LEVITATION);
+							pm->ps->fd.forcePowersActive |= Bit( FP_LEVITATION );
 						}
 						//animate me
 						parts = SETANIM_LEGS;
@@ -4572,7 +4572,7 @@ void PM_Use( void )
 
 	if ( ! (pm->cmd.buttons & BUTTON_USE ) )
 	{
-		pm->useEvent = 0;
+		pm->useEvent = EV_NONE;
 		pm->ps->useTime = 0;
 		return;
 	}
@@ -5511,7 +5511,7 @@ static void PM_Footsteps( void ) {
 						}
 						else
 						{
-							if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
+							if (pm->ps->fd.forcePowersActive & Bit( FP_SPEED ))
 							{
 								desiredAnim = BOTH_RUN1;
 							}
@@ -6663,7 +6663,7 @@ PM_Weapon
 Generates weapon events and modifes the weapon counter
 ==============
 */
-extern int PM_KickMoveForConditions(void);
+extern saberMoveName_t PM_KickMoveForConditions(void);
 static void PM_Weapon( void )
 {
 	int		addTime;
@@ -6811,11 +6811,11 @@ static void PM_Weapon( void )
 			desiredAnim = BOTH_FORCEPULL;
 			break;
 		case HANDEXTEND_FORCE_HOLD:
-			if ( (pm->ps->fd.forcePowersActive&(1<<FP_GRIP)) )
+			if ( (pm->ps->fd.forcePowersActive&Bit( FP_GRIP )) )
 			{//gripping
 				desiredAnim = BOTH_FORCEGRIP_HOLD;
 			}
-			else if ( (pm->ps->fd.forcePowersActive&(1<<FP_LIGHTNING)) )
+			else if ( (pm->ps->fd.forcePowersActive&Bit( FP_LIGHTNING )) )
 			{//lightning
 				if ( pm->ps->weapon == WP_MELEE
 					&& pm->ps->activeForcePass > to_underlying( FORCE_LEVEL_2 ) )
@@ -6827,7 +6827,7 @@ static void PM_Weapon( void )
 					desiredAnim = BOTH_FORCELIGHTNING_HOLD;
 				}
 			}
-			else if ( (pm->ps->fd.forcePowersActive&(1<<FP_DRAIN)) )
+			else if ( (pm->ps->fd.forcePowersActive&Bit( FP_DRAIN )) )
 			{//draining
 				desiredAnim = BOTH_FORCEGRIP_HOLD;
 			}
@@ -7108,7 +7108,7 @@ static void PM_Weapon( void )
 				}
 
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
-				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
+				PM_AddEvent( BG_UseItemEvent( GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) ) );
 
 				if (GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_BINOCULARS &&
 					GI_Holdable( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]] ) != HI_JETPACK &&
@@ -7526,13 +7526,13 @@ static void PM_Weapon( void )
 				if (!BG_KickingAnim(pm->ps->torsoAnim) &&
 					!BG_KickingAnim(pm->ps->legsAnim))
 				{
-					int kickMove = PM_KickMoveForConditions();
+					saberMoveName_t kickMove = PM_KickMoveForConditions();
 					if (kickMove == LS_HILT_BASH)
 					{ //yeah.. no hilt to bash with!
 						kickMove = LS_KICK_F;
 					}
 
-					if (kickMove != -1)
+					if (kickMove != LS_INVALID)
 					{
 						if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 						{//if in air, convert kick to an in-air kick
@@ -7560,18 +7560,18 @@ static void PM_Weapon( void )
 									kickMove = LS_KICK_L_AIR;
 									break;
 								default: //oh well, can't do any other kick move while in-air
-									kickMove = -1;
+									kickMove = LS_INVALID;
 									break;
 								}
 							}
 							else
 							{ //off ground, but too close to ground
-								kickMove = -1;
+								kickMove = LS_INVALID;
 							}
 						}
 					}
 
-					if (kickMove != -1)
+					if (kickMove != LS_INVALID)
 					{
 						int kickAnim = saberMoveData[kickMove].animToUse;
 
@@ -7691,7 +7691,7 @@ static void PM_Weapon( void )
 	}
 	*/
 
-	if (pm->ps->fd.forcePowersActive & (1 << FP_RAGE))
+	if (pm->ps->fd.forcePowersActive & Bit( FP_RAGE ))
 	{
 		addTime *= 0.75;
 	}
@@ -8352,7 +8352,7 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 	pCmd->upmove = 0;
 }
 
-bool PM_SaberInTransition( int move );
+bool PM_SaberInTransition( saberMoveName_t move );
 
 void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 {
@@ -8391,16 +8391,16 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 		ps->speed *= 0.75f;
 	}
 
-	if (ps->fd.forcePowersActive & (1 << FP_GRIP))
+	if (ps->fd.forcePowersActive & Bit( FP_GRIP ))
 	{
 		ps->speed *= 0.4f;
 	}
 
-	if (ps->fd.forcePowersActive & (1 << FP_SPEED))
+	if (ps->fd.forcePowersActive & Bit( FP_SPEED ))
 	{
 		ps->speed *= 1.7f;
 	}
-	else if (ps->fd.forcePowersActive & (1 << FP_RAGE))
+	else if (ps->fd.forcePowersActive & Bit( FP_RAGE ))
 	{
 		ps->speed *= 1.3f;
 	}
@@ -8416,9 +8416,9 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	}
 
 	if ( ps->fd.forceGripCripple && PS_Team( *pm->ps ) != TEAM_SPECTATOR ) {
-		if ( ps->fd.forcePowersActive & (1 << FP_RAGE) )
+		if ( ps->fd.forcePowersActive & Bit( FP_RAGE ) )
 			ps->speed *= 0.9f;
-		else if ( ps->fd.forcePowersActive & (1 << FP_SPEED) )
+		else if ( ps->fd.forcePowersActive & Bit( FP_SPEED ) )
 			ps->speed *= 0.8f;
 		else
 			ps->speed *= 0.2f;
@@ -11090,7 +11090,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_SetWaterLevel();
 	if (pm->cmd.forcesel != (byte)-1 && (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
 	{
-		pm->ps->fd.forcePowerSelected = pm->cmd.forcesel;
+		pm->ps->fd.forcePowerSelected = static_cast<forcePowers_t>( pm->cmd.forcesel );
 	}
 	if (pm->cmd.invensel != (byte)-1 && (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
 	{

@@ -342,7 +342,7 @@ void CL_WritePacket( void );
 void IN_CenterView (void);
 
 float CL_KeyState (kbutton_t *key);
-const char *Key_KeynumToString( int keynum/*, bool bTranslate*/ ); //note: translate is only called for menu display not configs
+const char *Key_KeynumToString( fakeAscii_t keynum/*, bool bTranslate*/ ); //note: translate is only called for menu display not configs
 
 //
 // cl_parse.c

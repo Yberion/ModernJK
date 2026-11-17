@@ -1752,7 +1752,7 @@ bool CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velocity, float
 	{
 		return false;
 	}
-	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive & (1 << FP_SPEED) )
+	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive & Bit( FP_SPEED ) )
 	{//using force speed
 		//scale up the turning speed
 		turnRate /= cg_timescale.value;
@@ -3547,7 +3547,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// FORCE speed does blur trails
 	//------------------------------------------------------
-	if ( gent->client->ps.forcePowersActive & (1 << FP_SPEED)
+	if ( gent->client->ps.forcePowersActive & Bit( FP_SPEED )
 		&& (gent->s.number || cg.renderingThirdPerson) ) // looks dumb doing this with first peron mode on
 	{
 		localEntity_t	*ex;
@@ -3711,7 +3711,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, int anim )
 	const animation_t *animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
-//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&(1<<FP_SPEED))?(1.0/cg_timescale.value):1.0;
+//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (cg_timescale.value)?(1.0/cg_timescale.value):1.0;
 	float animSpeed = 50.0f / animations[anim].frameLerp * timeScaleMod;
 
@@ -5488,7 +5488,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				CG_ForcePushBodyBlur( cent, ent.origin, tempAngles );
 			}
 
-			if ( cent->gent->client->ps.powerups[PW_FORCE_PUSH] > cg.time || (cent->gent->client->ps.forcePowersActive & (1<<FP_GRIP)) )
+			if ( cent->gent->client->ps.powerups[PW_FORCE_PUSH] > cg.time || (cent->gent->client->ps.forcePowersActive & Bit( FP_GRIP )) )
 			{//doing the pushing/gripping
 				CG_ForcePushBlur( cent->gent->client->renderInfo.handLPoint );
 			}
@@ -5503,7 +5503,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				CG_ForceElectrocution( cent, ent.origin, tempAngles );
 			}
 
-			if ( cent->gent->client->ps.forcePowersActive&(1<<FP_LIGHTNING) )
+			if ( cent->gent->client->ps.forcePowersActive&Bit( FP_LIGHTNING ) )
 			{//doing the electrocuting
 				vec3_t tAng, fxDir;
 				VectorCopy( cent->lerpAngles, tAng );
@@ -5536,7 +5536,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		//CG_RunLerpFrame( ci, &cent->pe.torso, cent->gent->client->ps.torsoAnim, cent->gent->client->renderInfo.torsoFpsMod, cent->gent->s.number );
 		if ( cent->gent && cent->gent->client && cent->gent->client->ps.weapon == WP_SABER )
 		{
-			if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&(1<<FP_SPEED)) )
+			if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&Bit( FP_SPEED )) )
 			{
 				int wait = floor( (float)FRAMETIME/2.0f );
 				//sanity check

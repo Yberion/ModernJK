@@ -225,12 +225,13 @@ using enum WL_e;
 extern float forceSpeedLevels[4];
 
 // print levels from renderer (FIXME: set up for game / cgame?)
-typedef enum {
+enum class printParm_t {
 	PRINT_ALL,
 	PRINT_DEVELOPER,		// only print when "developer 1"
 	PRINT_WARNING,
 	PRINT_ERROR
-} printParm_t;
+};
+using enum printParm_t;
 
 
 #ifdef ERR_FATAL
@@ -238,13 +239,14 @@ typedef enum {
 #endif
 
 // parameters to the main Error routine
-typedef enum {
+enum class errorParm_t {
 	ERR_FATAL,					// exit the entire game with a popup window
 	ERR_DROP,					// print to console and disconnect from game
 	ERR_SERVERDISCONNECT,		// don't kill server
 	ERR_DISCONNECT,				// client disconnected from the server
 	ERR_NEED_CD					// pop up the need-cd dialog
-} errorParm_t;
+};
+using enum errorParm_t;
 
 
 // font rendering values used by ui and cgame
@@ -345,8 +347,9 @@ enum class saber_colors_t
 };
 using enum saber_colors_t;
 
-typedef enum
+enum class forcePowers_t
 {
+	FP_UNKNOWN = -1,// no power selected yet (fd.forcePowerSelected)
 	FP_FIRST = 0,//marker
 	FP_HEAL = 0,//instant
 	FP_LEVITATION,//hold/duration
@@ -367,7 +370,9 @@ typedef enum
 	FP_SABER_DEFENSE,
 	FP_SABERTHROW,
 	NUM_FORCE_POWERS
-} forcePowers_t;
+};
+using enum forcePowers_t;
+template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 enum class forcePowerLevels_t {
 	FORCE_LEVEL_0,
@@ -679,10 +684,10 @@ bool Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.cpp and bg_*.c can link
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
-	extern NORETURN_PTR void (*Com_Error)( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+	extern NORETURN_PTR void (*Com_Error)( errorParm_t level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
 	extern void (*Com_Printf)( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 #else
-	void NORETURN QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+	void NORETURN QDECL Com_Error( errorParm_t level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
 	void QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 #endif
 
@@ -971,17 +976,17 @@ template <> inline constexpr bool enableEnumArithmetic<trackchan_t> = true;
 
 enum class saber_styles_t;	// bg_public.h
 typedef struct forcedata_s {
-	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
 	int			forcePowersKnown;
 	int			forcePowersActive;
-	int			forcePowerSelected;
+	forcePowers_t	forcePowerSelected;
 	int			forceButtonNeedRelease;
-	int			forcePowerDuration[NUM_FORCE_POWERS];
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDuration;
 	int			forcePower;
 	int			forcePowerMax;
 	int			forcePowerRegenDebounceTime;
-	forcePowerLevels_t	forcePowerLevel[NUM_FORCE_POWERS];		//so we know the max forceJump power you have
-	forcePowerLevels_t	forcePowerBaseLevel[NUM_FORCE_POWERS];
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerBaseLevel;
 	int			forceUsingAdded;
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
@@ -1080,6 +1085,9 @@ enum class team_t;	// bg_public.h
 enum class weaponstate_t;	// bg_public.h
 enum class forceHandAnims_t;	// bg_public.h
 enum class pmtype_t;	// bg_public.h
+enum class entity_event_t;	// bg_public.h
+enum class entityType_t;	// bg_public.h
+enum class saberMoveName_t;	// bg_public.h
 
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
@@ -1126,7 +1134,7 @@ typedef struct playerState_s {
 	int			eFlags2;		// copied to entityState_t->eFlags2, EF2_??? used much less frequently
 
 	int			eventSequence;	// pmove generated events
-	int			events[MAX_PS_EVENTS];
+	entity_event_t	events[MAX_PS_EVENTS];
 	int			eventParms[MAX_PS_EVENTS];
 
 	int			externalEvent;	// events set on player from another source
@@ -1173,7 +1181,7 @@ typedef struct playerState_s {
 
 	bool	saberInFlight;
 
-	int			saberMove;
+	saberMoveName_t	saberMove;
 	saberBlockType_t	saberBlocking;
 	saberBlockedType_t	saberBlocked;
 
@@ -1217,7 +1225,7 @@ typedef struct playerState_s {
 
 	bool	hasDetPackPlanted; //better than taking up an eFlag isn't it?
 
-	float		holocronsCarried[NUM_FORCE_POWERS];
+	EnumArray<float, forcePowers_t, NUM_FORCE_POWERS>	holocronsCarried;
 	int			holocronCantTouch;
 	float		holocronCantTouchTime; //for keeping track of the last holocron that just popped out of me (if any)
 	int			holocronBits;
@@ -1582,7 +1590,7 @@ typedef struct trajectory_s {
 enum class class_t;	// teams.h
 typedef struct entityState_s {
 	int		number;			// entity index
-	int		eType;			// entityType_t
+	entityType_t	eType;
 	int		eFlags;
 	int		eFlags2;		// EF2_??? used much less frequently
 
@@ -1639,7 +1647,7 @@ typedef struct entityState_s {
 
 	bool	saberInFlight;
 	int			saberEntityNum;
-	int			saberMove;
+	saberMoveName_t	saberMove;
 	int			forcePowersActive;
 	int			saberHolstered;//sent in only only 2 bits - should be 0, 1 or 2
 

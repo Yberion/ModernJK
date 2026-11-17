@@ -421,7 +421,7 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
 		return true;
 
 	case IT_HEALTH:
-		if ((ps->forcePowersActive & (1 << FP_RAGE)))
+		if ((ps->forcePowersActive & Bit( FP_RAGE )))
 		{//ragers can't use health
 			return false;
 		}
@@ -588,7 +588,7 @@ AddEventToPlayerstate
 Handles the sequence numbers
 ===============
 */
-void AddEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
+void AddEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps ) {
 	ps->events[ps->eventSequence & (MAX_PS_EVENTS-1)] = newEvent;
 	ps->eventParms[ps->eventSequence & (MAX_PS_EVENTS-1)] = eventParm;
 	ps->eventSequence++;
@@ -601,7 +601,7 @@ CurrentPlayerstateEvent
 
 ===============
 */
-int	CurrentPlayerstateEvent( playerState_t *ps ) {
+entity_event_t	CurrentPlayerstateEvent( playerState_t *ps ) {
 	return ps->events[ (ps->eventSequence-1) & (MAX_PS_EVENTS-1) ];
 }
 
@@ -677,7 +677,7 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s )
 		int		seq;
 
 		seq = (ps->eventSequence-1) & (MAX_PS_EVENTS-1);
-		s->event = ps->events[ seq ] | ( ( ps->eventSequence & 3 ) << 8 );
+		s->event = BG_PackEvent( ps->events[ seq ], ( ps->eventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
 	}
 

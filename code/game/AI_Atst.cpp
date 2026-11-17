@@ -84,7 +84,7 @@ Called by NPC's and player in an ATST
 -------------------------
 */
 
-void G_ATSTCheckPain( gentity_t *self, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void G_ATSTCheckPain( gentity_t *self, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	int newBolt;
 
@@ -133,7 +133,7 @@ void G_ATSTCheckPain( gentity_t *self, gentity_t *other, const vec3_t point, int
 NPC_ATST_Pain
 -------------------------
 */
-void NPC_ATST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void NPC_ATST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	G_ATSTCheckPain( self, other, point, damage, mod, hitLoc );
 	NPC_Pain( self, inflictor, other, point, damage, mod );

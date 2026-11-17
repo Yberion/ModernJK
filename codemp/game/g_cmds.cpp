@@ -3171,7 +3171,14 @@ void Cmd_DebugSetSaberMove_f(gentity_t *self)
 		return;
 	}
 
-	self->client->ps.saberMove = atoi(arg);
+	const int move = atoi( arg );
+
+	if ( move < to_underlying( LS_NONE ) )
+	{	// no move has a negative number
+		return;
+	}
+
+	self->client->ps.saberMove = static_cast<saberMoveName_t>( move );
 	self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
 
 	if (self->client->ps.saberMove >= LS_MOVE_MAX)

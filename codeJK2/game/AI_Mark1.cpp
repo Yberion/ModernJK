@@ -221,7 +221,7 @@ void Mark1Dead_FireBlaster (void)
 Mark1_die
 -------------------------
 */
-void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	/*
 	int	anim;
@@ -332,7 +332,7 @@ NPC_Mark1_Pain
 - look at what was hit and see if it should be removed from the model.
 -------------------------
 */
-void NPC_Mark1_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Mark1_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	int newBolt,i,chance;
 

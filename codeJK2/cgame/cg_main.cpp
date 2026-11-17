@@ -84,7 +84,7 @@ const char *inv_names[] =
 "SECURITY KEY",
 };
 
-int	force_icons[NUM_FORCE_POWERS];
+EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	force_icons;
 
 
 int cgi_UI_GetMenuInfo(const char *menuFile,int *x,int *y);
@@ -1586,7 +1586,7 @@ Ghoul2 Insert End
 	CG_LinkCentsToGents();
 
 	cg.weaponSelect = WP_BRYAR_PISTOL;
-	cg.forcepowerSelect = FP_HEAL;
+	cg.forcepowerSelect = 0;
 
 	if (gbUseTheseValuesFromLoadSave)
 	{
@@ -1744,7 +1744,7 @@ void CG_Init( int serverCommandSequence ) {
 	cgs.media.loadTick		= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick" );
 	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
 
-	static const char	*force_icon_files[NUM_FORCE_POWERS] =
+	static const EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS>	force_icon_files =
 	{
 		"gfx/hud/f_icon_heal",
 		"gfx/hud/f_icon_levitation",
@@ -1760,7 +1760,7 @@ void CG_Init( int serverCommandSequence ) {
 	};
 
 	// Precache inventory icons
-	for ( int i=0;i<NUM_FORCE_POWERS;i++)
+	for ( forcePowers_t i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 	{
 		if (force_icon_files[i])
 		{
@@ -3164,7 +3164,7 @@ void SetForcePowerTime(void)
 	}
 }
 
-int showPowers[MAX_SHOWPOWERS] =
+forcePowers_t showPowers[MAX_SHOWPOWERS] =
 {
 	FP_HEAL,
 	FP_SPEED,
@@ -3185,7 +3185,7 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 	"LIGHTNING2",
 };
 
-int showDataPadPowers[MAX_DPSHOWPOWERS] =
+forcePowers_t showDataPadPowers[MAX_DPSHOWPOWERS] =
 {
 	FP_HEAL,
 	FP_LEVITATION,
@@ -3199,6 +3199,12 @@ int showDataPadPowers[MAX_DPSHOWPOWERS] =
 	FP_SABER_DEFENSE,
 	FP_SABER_OFFENSE,
 };
+
+// the power a cg_updatedDataPadForcePower cvar names: the game writes the power + 1, 0 for none
+static forcePowers_t CG_DataPadUpdatedPower( const vmCvar_t &cvar )
+{
+	return static_cast<forcePowers_t>( cvar.integer - 1 );
+}
 
 /*char *showDataPadPowersName[MAX_DPSHOWPOWERS] =
 {
@@ -3227,7 +3233,7 @@ bool ForcePower_Valid(int index)
 
 	assert (MAX_SHOWPOWERS == ( sizeof(showPowers)/sizeof(showPowers[0]) ));
 	assert (index < MAX_SHOWPOWERS );	//is this a valid index?
-	if (player->client->ps.forcePowersKnown & (1 << showPowers[index]) &&
+	if (player->client->ps.forcePowersKnown & Bit( showPowers[index] ) &&
 		player->client->ps.forcePowerLevel[showPowers[index]])	// Does he have the force power?
 	{
 		return true;
@@ -3488,7 +3494,7 @@ bool ForcePowerDataPad_Valid(int index)
 	gentity_t	*player = &g_entities[0];
 
 	assert (index < MAX_DPSHOWPOWERS);
-	if (player->client->ps.forcePowersKnown & (1 << showDataPadPowers[index]) &&
+	if (player->client->ps.forcePowersKnown & Bit( showDataPadPowers[index] ) &&
 		player->client->ps.forcePowerLevel[showDataPadPowers[index]])	// Does he have the force power?
 	{
 		return true;
@@ -3568,7 +3574,7 @@ void CG_DPPrevForcePower_f( void )
 	cg.DataPadforcepowerSelect = original;
 }
 
-const char *forcepowerDesc[NUM_FORCE_POWERS] =
+const char *forcepowerDesc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_HEAL_DESC",
 "FORCE_JUMP_DESC",
@@ -3583,7 +3589,7 @@ const char *forcepowerDesc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_DESC",
 };
 
-const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl1Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_HEAL_LVL1_DESC",
 "FORCE_JUMP_LVL1_DESC",
@@ -3598,7 +3604,7 @@ const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_LVL1_DESC",
 };
 
-const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl2Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_HEAL_LVL2_DESC",
 "FORCE_JUMP_LVL2_DESC",
@@ -3613,7 +3619,7 @@ const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_OFFENSE_LVL2_DESC",
 };
 
-const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
+const char *forcepowerLvl3Desc[MAX_DPSHOWPOWERS] =
 {
 "FORCE_HEAL_LVL3_DESC",
 "FORCE_JUMP_LVL3_DESC",
@@ -3724,9 +3730,9 @@ void CG_DrawDataPadForceSelect( void )
 		}
 
 		// A new force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[i]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[i]))
 		{
 			CG_DrawPic( holdX, y, smallIconSize, smallIconSize, cgs.media.DPForcePowerOverlay );
 		}
@@ -3744,9 +3750,9 @@ void CG_DrawDataPadForceSelect( void )
 		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2)), bigIconSize, bigIconSize, force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]] ); //only cache the icon for display
 
 		// New force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[cg.DataPadforcepowerSelect]))
 		{
 			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2)), bigIconSize, bigIconSize, cgs.media.DPForcePowerOverlay );
 		}
@@ -3781,9 +3787,9 @@ void CG_DrawDataPadForceSelect( void )
 		}
 
 		// A new force power
-		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[i]) ||
-			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[i]))
+		if ((CG_DataPadUpdatedPower( cg_updatedDataPadForcePower1 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower2 ) == showDataPadPowers[i]) ||
+			(CG_DataPadUpdatedPower( cg_updatedDataPadForcePower3 ) == showDataPadPowers[i]))
 		{
 			CG_DrawPic( holdX, y, smallIconSize, smallIconSize, cgs.media.DPForcePowerOverlay ); //only cache the icon for display
 		}
@@ -3796,11 +3802,11 @@ void CG_DrawDataPadForceSelect( void )
 
 	cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
 
-	if (player->client->ps.forcePowerLevel[cg.DataPadforcepowerSelect]==1)
+	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==1)
 	{
 		cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}
-	else if (player->client->ps.forcePowerLevel[cg.DataPadforcepowerSelect]==2)
+	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==2)
 	{
 		cgi_SP_GetStringTextString( va("INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
 	}

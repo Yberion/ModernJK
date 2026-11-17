@@ -17,10 +17,10 @@ void QDECL Com_Printf(const char *fmt, ...) {
 	(void)fmt;
 }
 
-void NORETURN QDECL Com_Error(int code, const char *fmt, ...) {
+void NORETURN QDECL Com_Error(errorParm_t code, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
-	fprintf(stderr, "legacy Com_Error %d: ", code);
+	fprintf(stderr, "legacy Com_Error %d: ", to_underlying(code));
 	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
 	va_end(ap);

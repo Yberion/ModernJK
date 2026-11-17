@@ -262,17 +262,17 @@ void MissionInformation_Draw( centity_t *cent )
 /*
 
 //-------------------------------------------------------
-static void CG_DrawForceCount( const int force, int x, float *y, const int pad,bool *hasForcePowers )
+static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const int pad,bool *hasForcePowers )
 {
 	char	s[MAX_STRING_CHARS];
 	int		val, textColor;
 	char	text[1024]={0};
 
-	gi.Cvar_VariableStringBuffer( va("playerfplvl%d", force ),s, sizeof(s) );
+	gi.Cvar_VariableStringBuffer( va("playerfplvl%d", to_underlying( force ) ),s, sizeof(s) );
 
 	sscanf( s, "%d",&val );
 
-	if ((val<1) || (val> NUM_FORCE_POWERS))
+	if ((val<1) || (val> to_underlying( NUM_FORCE_POWERS )))
 	{
 		return;
 	}

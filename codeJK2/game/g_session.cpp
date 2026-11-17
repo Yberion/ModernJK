@@ -83,9 +83,9 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 
 	s2 = "";
-	for (i=0;i< NUM_FORCE_POWERS; i++)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		s2 = va("%s %i",s2, client->sess.missionStats.forceUsed[i]);
+		s2 = va("%s %i",s2, client->sess.missionStats.forceUsed[fp]);
 	}
 	var = va( "sessionpowers%td", client - level.clients );
 	gi.cvar_set( var, s2 );
@@ -154,16 +154,16 @@ void G_ReadSessionData( gclient_t *client ) {
 	var = va( "sessionpowers%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	i=0;
+	forcePowers_t fp = FP_FIRST;
 	var = strtok( s, " " );
 	while( var != nullptr )
 	{
       /* While there are tokens in "s" */
-	  client->sess.missionStats.forceUsed[i++] = atoi(var);
+	  client->sess.missionStats.forceUsed[fp++] = atoi(var);
       /* Get next token: */
       var = strtok( nullptr, " " );
 	}
-	assert (i==NUM_FORCE_POWERS);
+	assert (fp==NUM_FORCE_POWERS);
 
 	var = va( "sessionweapons%td", client - level.clients );
 	gi.Cvar_VariableStringBuffer( var, s, sizeof(s) );

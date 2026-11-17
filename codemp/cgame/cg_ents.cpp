@@ -660,7 +660,7 @@ void ScaleModelAxis(refEntity_t	*ent)
 Ghoul2 Insert End
 */
 
-const char *forceHolocronModels[NUM_FORCE_POWERS] = {
+EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceHolocronModels = {
 	"models/map_objects/mp/lt_heal.md3",		//FP_HEAL,
 	"models/map_objects/mp/force_jump.md3",		//FP_LEVITATION,
 	"models/map_objects/mp/force_speed.md3",	//FP_SPEED,
@@ -860,6 +860,11 @@ CG_General
 void CG_G2ServerBoneAngles(centity_t *cent);
 
 extern bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
+
+// a holocron's power, sent as its modelindex - 128 (SP_misc_holocron)
+static forcePowers_t CG_HolocronPower( const entityState_t &es ) {
+	return static_cast<forcePowers_t>( es.modelindex + 128 );
+}
 
 static void CG_General( centity_t *cent ) {
 	refEntity_t			ent;
@@ -1314,7 +1319,7 @@ static void CG_General( centity_t *cent ) {
 	}
 
 	if (cent->currentState.number >= MAX_CLIENTS &&
-		cent->currentState.activeForcePass == NUM_FORCE_POWERS+1&&
+		cent->currentState.activeForcePass == to_underlying( NUM_FORCE_POWERS )+1&&
 		cent->currentState.NPC_class != CLASS_VEHICLE )
 	{
 		vec3_t				empAngles;
@@ -1438,7 +1443,7 @@ Ghoul2 Insert End
 	if (s1->eType == ET_HOLOCRON && s1->modelindex < -100)
 	{ //special render, it's a holocron
 		//Using actual models now:
-		ent.hModel = trap->R_RegisterModel(forceHolocronModels[s1->modelindex+128]);
+		ent.hModel = trap->R_RegisterModel(forceHolocronModels[CG_HolocronPower( *s1 )]);
 
 		//Rotate them
 		VectorCopy( cg.autoAngles, cent->lerpAngles );
@@ -1703,9 +1708,9 @@ Ghoul2 Insert End
 		}
 		else
 		{ //neutral
-			if ((s1->modelindex+128) == FP_SABER_OFFENSE ||
-				(s1->modelindex+128) == FP_SABER_DEFENSE ||
-				(s1->modelindex+128) == FP_SABERTHROW)
+			if (CG_HolocronPower( *s1 ) == FP_SABER_OFFENSE ||
+				CG_HolocronPower( *s1 ) == FP_SABER_DEFENSE ||
+				CG_HolocronPower( *s1 ) == FP_SABERTHROW)
 			{ //saber power
 				ent.shaderRGBA[0] = 0;
 				ent.shaderRGBA[1] = wv*255;
@@ -1767,9 +1772,9 @@ Ghoul2 Insert End
 		}
 		else
 		{ //neutral
-			if ((s1->modelindex+128) == FP_SABER_OFFENSE ||
-				(s1->modelindex+128) == FP_SABER_DEFENSE ||
-				(s1->modelindex+128) == FP_SABERTHROW)
+			if (CG_HolocronPower( *s1 ) == FP_SABER_OFFENSE ||
+				CG_HolocronPower( *s1 ) == FP_SABER_DEFENSE ||
+				CG_HolocronPower( *s1 ) == FP_SABERTHROW)
 			{ //saber power
 				fxSArgs.sAlpha *= 1.5;
 				fxSArgs.eAlpha *= 1.5;
@@ -1803,7 +1808,7 @@ Ghoul2 Insert End
 			VectorMA( ent.origin, 6.6f, ent.axis[0], beamOrg );// forward
 			beamID = cgs.effects.tripmineLaserFX;
 
-			if (cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))
+			if (cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE ))
 			{
 				i = to_underlying( cg.snap->ps.fd.forcePowerLevel[FP_SEE] );
 
@@ -3352,7 +3357,7 @@ Ghoul2 Insert End
 */
 	switch ( cent->currentState.eType ) {
 	default:
-		trap->Error( ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType );
+		trap->Error( ERR_DROP, "Bad entity type: %i\n", to_underlying( cent->currentState.eType ) );
 		break;
 
 	case ET_FX:

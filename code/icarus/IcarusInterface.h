@@ -77,7 +77,8 @@ protected:
 
 public:
 	//For system-wide prints
-	enum e_DebugPrintLevel { WL_ERROR = 1, WL_WARNING, WL_VERBOSE, WL_DEBUG };
+	enum class e_DebugPrintLevel { WL_ERROR = 1, WL_WARNING, WL_VERBOSE, WL_DEBUG };
+	using enum e_DebugPrintLevel;
 
 	// How many flavors are needed.
 	static int s_IcarusFlavorsNeeded;
@@ -102,8 +103,8 @@ public:
 	virtual int		GetFlavor() = 0;
 
 	virtual int		LoadFile( const char *name, void **buf ) = 0;
-	virtual void	CenterPrint( const char *format, ... ) = 0;
-	virtual void	DebugPrint( e_DebugPrintLevel, const char *, ... ) = 0;
+	virtual void	CenterPrint( const char *format, ... ) __attribute__ ((format (printf, 2, 3))) = 0;
+	virtual void	DebugPrint( e_DebugPrintLevel, const char *, ... ) __attribute__ ((format (printf, 3, 4))) = 0;
 	virtual unsigned int GetTime( void ) = 0;							//Gets the current time
 	virtual int 	PlayIcarusSound( int taskID, int gameID, const char *name, const char *channel ) = 0;
 	virtual void	Lerp2Pos( int taskID, int gameID, float origin[3], float angles[3], float duration ) = 0;

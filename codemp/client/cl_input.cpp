@@ -102,7 +102,7 @@ void IN_UseGivenForce(void)
 		return;
 	}
 
-	switch(forceNum) {
+	switch ( static_cast<forcePowers_t>( forceNum ) ) {
 	case FP_DRAIN:
 		IN_Button11Down();
 		IN_Button11Up();
@@ -1273,7 +1273,7 @@ void CL_FinishMove( usercmd_t *cmd ) {
 
 	// copy the state that the cgame is currently sending
 	cmd->weapon = cl.cgameUserCmdValue;
-	cmd->forcesel = cl.cgameForceSelection;
+	cmd->forcesel = to_underlying( cl.cgameForceSelection );
 	cmd->invensel = cl.cgameInvenSelection;
 
 	if (cl.gcmdSendValue)

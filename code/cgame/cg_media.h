@@ -253,7 +253,7 @@ typedef struct {
 
 	//new stuff for Jedi Academy
 	//force power icons
-//	qhandle_t	forcePowerIcons[NUM_FORCE_POWERS];
+//	EnumArray<qhandle_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerIcons;
 	qhandle_t	rageRecShader;
 	qhandle_t	playerShieldDamage;
 	qhandle_t	forceSightBubble;

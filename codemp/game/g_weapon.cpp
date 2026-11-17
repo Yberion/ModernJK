@@ -188,7 +188,7 @@ void touch_NULL( gentity_t *ent, gentity_t *other, trace_t *trace )
 }
 
 void laserTrapExplode( gentity_t *self );
-void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 
 //We should really organize weapon data into tables or parse from the ext data so we have accurate info for this,
 float WP_SpeedOfMissileForWeapon( int wp, bool alt_fire )
@@ -319,7 +319,7 @@ GENERIC
 */
 
 //---------------------------------------------------------
-void WP_FireTurretMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, int mod, gentity_t *ignore )
+void WP_FireTurretMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, meansOfDeath_t mod, gentity_t *ignore )
 //---------------------------------------------------------
 {
 	gentity_t *missile;
@@ -399,7 +399,7 @@ void WP_Explode( gentity_t *self )
 //Currently only the seeker drone uses this, but it might be useful for other things as well.
 
 //---------------------------------------------------------
-void WP_FireGenericBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, int mod )
+void WP_FireGenericBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, meansOfDeath_t mod )
 //---------------------------------------------------------
 {
 	gentity_t *missile;
@@ -1623,7 +1623,7 @@ static void WP_TraceSetStart( gentity_t *ent, vec3_t start, vec3_t mins, vec3_t 
 	}
 }
 
-void WP_ExplosiveDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void WP_ExplosiveDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	laserTrapExplode(self);
 }
@@ -1897,7 +1897,7 @@ void rocketThink( gentity_t *ent )
 }
 
 extern void G_ExplodeMissile( gentity_t *ent );
-void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	self->die = nullptr;
 	self->r.contents = 0;
@@ -2363,7 +2363,7 @@ void laserTrapExplode( gentity_t *self )
 	self->nextthink = level.time;
 }
 
-void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 {
 	self->enemy = attacker;
 	self->think = laserTrapExplode;
@@ -2858,7 +2858,7 @@ void DetPackPain(gentity_t *self, gentity_t *attacker, int damage)
 	self->takedamage = false;
 }
 
-void DetPackDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void DetPackDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	self->think = DetPackBlow;
 	self->nextthink = level.time + Q_irand(50, 100);
@@ -4794,7 +4794,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace )
 	activator->client->ps.emplacedIndex = self->s.number;
 
 	self->s.emplacedOwner = activator->s.number;
-	self->s.activeForcePass = NUM_FORCE_POWERS+1;
+	self->s.activeForcePass = to_underlying( NUM_FORCE_POWERS )+1;
 
 	// the gun will track which weapon we used to have
 	self->s.weapon = oldWeapon;
@@ -4937,7 +4937,7 @@ void emplaced_gun_update(gentity_t *self)
 }
 
 //----------------------------------------------------------
-void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod )
 { //set us up to flash and then explode
 	if (self->genericValue4)
 	{

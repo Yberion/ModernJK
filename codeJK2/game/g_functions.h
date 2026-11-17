@@ -483,7 +483,7 @@ extern void misc_use				( gentity_t *self, gentity_t *other, gentity_t *activato
 extern void pas_use					( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void item_spawn_use			( gentity_t *self, gentity_t *other, gentity_t *activator );
 
-//	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage,int mod,int hitLoc);
+//	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage,meansOfDeath_t mod,int hitLoc);
 enum class painFunc_t
 {
 	painF_NULL = 0,
@@ -517,31 +517,31 @@ using enum painFunc_t;
 
 // PAIN functions...
 //
-extern void funcBBrushPain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void misc_model_breakable_pain	(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void station_pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void func_usable_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_ATST_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_ST_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Jedi_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Droid_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Probe_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_MineMonster_Pain		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Howler_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Seeker_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Remote_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void emplaced_gun_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Mark1_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_GM_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Sentry_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void NPC_Mark2_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void PlayerPain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-extern void GasBurst					( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc=HL_NONE );
-extern void CrystalCratePain			( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc=HL_NONE);
-extern void TurretPain					( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc=HL_NONE );
+extern void funcBBrushPain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void misc_model_breakable_pain	(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void station_pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void func_usable_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_ATST_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_ST_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Jedi_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Droid_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Probe_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_MineMonster_Pain		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Howler_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Seeker_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Remote_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void emplaced_gun_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Mark1_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_GM_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Sentry_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void NPC_Mark2_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void PlayerPain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+extern void GasBurst					( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc=HL_NONE );
+extern void CrystalCratePain			( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc=HL_NONE);
+extern void TurretPain					( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc=HL_NONE );
 
-//	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+//	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 enum class dieFunc_t
 {
 	dieF_NULL = 0,
@@ -573,27 +573,27 @@ using enum dieFunc_t;
 
 // DIE functions...
 //
-extern void funcBBrushDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void misc_model_breakable_die	(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void misc_model_cargo_die		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void func_train_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void player_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void ExplodeDeath_Wait			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void ExplodeDeath				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void func_usable_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void turret_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void funcGlassDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void laserTrapDelayedExplode		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void emplaced_gun_die			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void WP_ExplosiveDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void ion_cannon_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void maglock_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void camera_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void Mark1_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void Interrogator_die			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void misc_atst_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void misc_panel_turret_die		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
-extern void thermal_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void funcBBrushDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void misc_model_breakable_die	(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void misc_model_cargo_die		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void func_train_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void player_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void ExplodeDeath_Wait			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void ExplodeDeath				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void func_usable_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void turret_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void funcGlassDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void laserTrapDelayedExplode		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void emplaced_gun_die			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void WP_ExplosiveDie				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void ion_cannon_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void maglock_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void camera_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void Mark1_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void Interrogator_die			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void misc_atst_die				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void misc_panel_turret_die		(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
+extern void thermal_die					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
 
 
 void GEntity_ThinkFunc(gentity_t *self);
@@ -602,8 +602,8 @@ void GEntity_ReachedFunc(gentity_t *self);	// movers call this when hitting endp
 void GEntity_BlockedFunc(gentity_t *self, gentity_t *other);
 void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace);
 void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator);
-void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
-void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags=0,int hitLoc=HL_NONE);
+void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc=HL_NONE);
+void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags=0,int hitLoc=HL_NONE);
 
 // external functions that I now refer to...
 

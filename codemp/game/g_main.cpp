@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.h"
 #include "qcommon/game_version.h"
 
-NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
+NORETURN_PTR void (*Com_Error)( errorParm_t level, const char *error, ... );
 void (*Com_Printf)( const char *msg, ... );
 
 level_locals_t	level;
@@ -3093,8 +3093,8 @@ void G_RunFrame( int levelTime ) {
 				if ( ent->client ) {
 					ent->client->ps.externalEvent = 0;
 					// predicted events should never be set to zero
-					//ent->client->ps.events[0] = 0;
-					//ent->client->ps.events[1] = 0;
+					//ent->client->ps.events[0] = EV_NONE;
+					//ent->client->ps.events[1] = EV_NONE;
 				}
 			}
 			if ( ent->freeAfterEvent ) {
@@ -3103,7 +3103,7 @@ void G_RunFrame( int levelTime ) {
 				{ //don't trigger the event again..
 					ent->s.event = 0;
 					ent->s.eventParm = 0;
-					ent->s.eType = 0;
+					ent->s.eType = ET_GENERAL;
 					ent->eventTime = 0;
 				}
 				else

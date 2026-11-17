@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/ui_shared.h"
 
-NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
+NORETURN_PTR void (*Com_Error)( errorParm_t level, const char *error, ... );
 void (*Com_Printf)( const char *msg, ... );
 
 // display context for new ui stuff
@@ -74,7 +74,7 @@ void CG_DoCameraShake( vec3_t origin, float intensity, int radius, int time );
 //do we have any force powers that we would normally need to cycle to?
 bool CG_NoUseableForce(void)
 {
-	int i = FP_HEAL;
+	forcePowers_t i = FP_HEAL;
 	while (i < NUM_FORCE_POWERS)
 	{
 		if (i != FP_SABERTHROW &&
@@ -82,7 +82,7 @@ bool CG_NoUseableForce(void)
 			i != FP_SABER_DEFENSE &&
 			i != FP_LEVITATION)
 		{ //valid selectable power
-			if (cg.predictedPlayerState.fd.forcePowersKnown & (1 << i))
+			if (cg.predictedPlayerState.fd.forcePowersKnown & Bit( i ))
 			{ //we have it
 				return false;
 			}
@@ -1034,7 +1034,7 @@ static void CG_RegisterEffects( void )
 
 //===================================================================================
 
-extern const char *forceHolocronModels[];
+extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceHolocronModels;
 int CG_HandleAppendedSkin(char *modelName);
 void CG_CacheG2AnimInfo(char *modelName);
 /*
@@ -1209,12 +1209,12 @@ static void CG_RegisterGraphics( void ) {
 
 	if (cgs.gametype == GT_HOLOCRON || com_buildScript.integer)
 	{
-		for ( i=0; i < NUM_FORCE_POWERS; i++ )
+		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 		{
-			if (forceHolocronModels[i] &&
-				forceHolocronModels[i][0])
+			if (forceHolocronModels[fp] &&
+				forceHolocronModels[fp][0])
 			{
-				trap->R_RegisterModel(forceHolocronModels[i]);
+				trap->R_RegisterModel(forceHolocronModels[fp]);
 			}
 		}
 	}
@@ -1908,7 +1908,7 @@ bool CG_Load_Menu(const char **p)
 }
 
 
-static bool CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
+static bool CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fakeAscii_t key) {
 	return false;
 }
 
@@ -2451,7 +2451,7 @@ Ghoul2 Insert End
 	cg.loadLCARSStage		= 0;
 
 	cg.itemSelect.reset();
-	cg.forceSelect = -1;
+	cg.forceSelect = FP_UNKNOWN;
 
 	// load a few needed things before we do any screen updates
 	cgs.media.charsetShader		= trap->R_RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
@@ -2515,13 +2515,13 @@ Ghoul2 Insert End
 	}
 
 	//rww - precache force power icons here
-	i = 0;
+	forcePowers_t fp = FP_FIRST;
 
-	while (i < NUM_FORCE_POWERS)
+	while (fp < NUM_FORCE_POWERS)
 	{
-		cgs.media.forcePowerIcons[i] = trap->R_RegisterShaderNoMip(HolocronIcons[i]);
+		cgs.media.forcePowerIcons[fp] = trap->R_RegisterShaderNoMip(HolocronIcons[fp]);
 
-		i++;
+		fp++;
 	}
 	cgs.media.rageRecShader = trap->R_RegisterShaderNoMip("gfx/mp/f_icon_ragerec");
 
@@ -2736,14 +2736,14 @@ void CG_NextForcePower_f( void )
 	}
 
 //	BG_CycleForce(&cg.snap->ps, 1);
-	if (cg.forceSelect != -1)
+	if (cg.forceSelect != FP_UNKNOWN)
 	{
 		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, 1);
 
-	if (cg.snap->ps.fd.forcePowersKnown & (1 << cg.snap->ps.fd.forcePowerSelected))
+	if (cg.snap->ps.fd.forcePowersKnown & Bit( cg.snap->ps.fd.forcePowerSelected ))
 	{
 		cg.forceSelect = cg.snap->ps.fd.forcePowerSelected;
 		cg.forceSelectTime = cg.time;
@@ -2783,14 +2783,14 @@ void CG_PrevForcePower_f( void )
 	}
 
 //	BG_CycleForce(&cg.snap->ps, -1);
-	if (cg.forceSelect != -1)
+	if (cg.forceSelect != FP_UNKNOWN)
 	{
 		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, -1);
 
-	if (cg.snap->ps.fd.forcePowersKnown & (1 << cg.snap->ps.fd.forcePowerSelected))
+	if (cg.snap->ps.fd.forcePowersKnown & Bit( cg.snap->ps.fd.forcePowerSelected ))
 	{
 		cg.forceSelect = cg.snap->ps.fd.forcePowerSelected;
 		cg.forceSelectTime = cg.time;

@@ -224,7 +224,7 @@ void Mark1Dead_FireBlaster (void)
 Mark1_die
 -------------------------
 */
-void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,hitLocation_t hitLoc )
+void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
 {
 	/*
 	int	anim;

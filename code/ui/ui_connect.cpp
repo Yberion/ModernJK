@@ -118,7 +118,7 @@ void UI_UpdateConnectionMessageString( char *string ) {
 UI_KeyConnect
 ===================
 */
-void UI_KeyConnect( int key )
+void UI_KeyConnect( fakeAscii_t key )
 {
 	if ( key == A_ESCAPE )
 	{

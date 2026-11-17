@@ -1384,7 +1384,8 @@ static void SV_UserMove( client_t *cl, const eng::ClientPacket &packet, bool del
 	if ( sv_legacyFixes->integer ) {
 		for ( i = 0 ; i < cmdCount ; i++ ) {
 			// block "charge jump" and other nonsense
-			if ( cmds[i].forcesel == FP_LEVITATION || cmds[i].forcesel >= NUM_FORCE_POWERS ) {
+			const forcePowers_t forcesel = static_cast<forcePowers_t>( cmds[i].forcesel );
+			if ( forcesel == FP_LEVITATION || forcesel >= NUM_FORCE_POWERS ) {
 				cmds[i].forcesel = 0xFFu;
 			}
 

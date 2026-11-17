@@ -197,7 +197,7 @@ enum
 
 #define FORCE_JUMP_CHARGE_TIME 1000.0f	//Force jump reaches maximum power in one second
 
-#define FORCE_POWERS_ROSH_FROM_TWINS ((1<<FP_SPEED)|(1<<FP_GRIP)|(1<<FP_RAGE)|(1<<FP_SABERTHROW))
+#define FORCE_POWERS_ROSH_FROM_TWINS (Bit( FP_SPEED )|Bit( FP_GRIP )|Bit( FP_RAGE )|Bit( FP_SABERTHROW ))
 
 extern void WP_InitForcePowers( gentity_t *ent );
 extern int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );
@@ -207,7 +207,7 @@ extern void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum = -1 
 extern bool WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, bool setColors = true );
 extern bool WP_BreakSaber( gentity_t *ent, const char *surfName, saberType_t saberType = SABER_NONE );
 extern void ForceThrow( gentity_t *self, bool pull, bool fake = false );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod, saberType_t saberType = SABER_NONE );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod, saberType_t saberType = SABER_NONE );
 extern bool G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tolerance = 0.75f );
 extern void WP_SaberFreeStrings( saberInfo_t &saber );
 extern bool G_EnoughPowerForSpecialMove( int forcePower, int cost, bool kataMove = false );
@@ -247,7 +247,7 @@ using enum swingType_t;
 #undef LS_NONE
 #endif
 
-typedef enum {
+enum class saberMoveName_t {
 	// Invalid, or saber not armed
 	LS_INVALID	= -1,
 	LS_NONE		= 0,
@@ -438,7 +438,9 @@ typedef enum {
 	LS_REFLECT_LL,
 
 	LS_MOVE_MAX//
-} saberMoveName_t;
+};
+using enum saberMoveName_t;
+template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 void PM_SetSaberMove(saberMoveName_t newMove);
 
@@ -470,6 +472,6 @@ typedef struct
 	int trailLength;
 } saberMoveData_t;
 
-extern saberMoveData_t	saberMoveData[LS_MOVE_MAX];
+extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
 
 #endif	// __WP_SABER_H

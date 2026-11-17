@@ -1021,7 +1021,7 @@ enum
 	TAUNT_GLOAT
 };
 
-extern void G_SpeechEvent( gentity_t *self, int event );
+extern void G_SpeechEvent( gentity_t *self, entity_event_t event );
 void G_TauntSound( gentity_t *ent, int taunt )
 {
 	switch ( taunt )

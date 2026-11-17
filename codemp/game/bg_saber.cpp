@@ -142,7 +142,7 @@ bool BG_EnoughForcePowerForMove( int cost )
 #define AFLAG_FINISH (SETANIM_FLAG_HOLD)
 
 //FIXME: add the alternate anims for each style?
-saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
+EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData = {{//							NB:randomized
 	// name			anim(do all styles?)startQ	endQ	setanimflag		blend,	blocking	chain_idle		chain_attack	trailLen
 	{"None",		BOTH_STAND1,		Q_R,	Q_R,	AFLAG_IDLE,		350,	BLK_NO,		LS_NONE,		LS_NONE,		0	},	// LS_NONE		= 0,
 
@@ -343,7 +343,7 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	{"Reflect UL",	BOTH_P1_S1_TR,		Q_R,	Q_TL,	AFLAG_ACTIVE,	50,		BLK_WIDE,	LS_R_BL2TR,		LS_A_TR2BL,		300	},	// LS_PARRY_UL,
 	{"Reflect LR",	BOTH_P1_S1_BR,		Q_R,	Q_BL,	AFLAG_ACTIVE,	50,		BLK_WIDE,	LS_R_TR2BL,		LS_A_BL2TR,		300	},	// LS_PARRY_LR
 	{"Reflect LL",	BOTH_P1_S1_BL,		Q_R,	Q_BR,	AFLAG_ACTIVE,	50,		BLK_WIDE,	LS_R_TL2BR,		LS_A_BR2TL,		300	},	// LS_PARRY_LL,
-};
+}};
 
 void BG_FixSaberMoveData(void) {
 #if defined(_GAME)
@@ -355,7 +355,7 @@ void BG_FixSaberMoveData(void) {
 #endif
 	saberMoveData_t *move;
 
-	for (move = saberMoveData; move - saberMoveData < std::ssize(saberMoveData); move++) {
+	for (move = saberMoveData.begin(); move != saberMoveData.end(); move++) {
 		if (!strcmp(move->name, "BParry LR")) {
 			move->animToUse = doFix ? BOTH_H1_S1_BR : BOTH_H1_S1_BL;
 		}
@@ -377,7 +377,7 @@ void BG_FixSaberMoveData(void) {
 	}
 }
 
-EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove =
+EnumArray<EnumArray<saberMoveName_t, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove =
 { {
 	{	LS_NONE,		LS_T1_BR__R,	LS_T1_BR_TR,	LS_T1_BR_T_,	LS_T1_BR_TL,	LS_T1_BR__L,	LS_T1_BR_BL,	LS_NONE		},
 	{	LS_T1__R_BR,	LS_NONE,		LS_T1__R_TR,	LS_T1__R_T_,	LS_T1__R_TL,	LS_T1__R__L,	LS_T1__R_BL,	LS_NONE		},
@@ -422,11 +422,11 @@ saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad )
 	return LS_NONE;
 }
 
-bool PM_SaberKataDone(int curmove, int newmove);
+bool PM_SaberKataDone(saberMoveName_t curmove, saberMoveName_t newmove);
 
-int PM_SaberAnimTransitionAnim( int curmove, int newmove )
+saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveName_t newmove )
 {
-	int retmove = newmove;
+	saberMoveName_t retmove = newmove;
 	if ( curmove == LS_READY )
 	{//just standing there
 		switch ( newmove )
@@ -440,6 +440,8 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 		case LS_A_T2B:
 			//transition is the start
 			retmove = LS_S_TL2BR + (newmove-LS_A_TL2BR);
+			break;
+		default:
 			break;
 		}
 	}
@@ -460,7 +462,9 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 			case LS_A_TR2BL:
 			case LS_A_T2B:
 				//transition is the return
-				retmove = LS_R_TL2BR + (newmove-LS_A_TL2BR);
+				retmove = LS_R_TL2BR + (curmove-LS_A_TL2BR);
+				break;
+			default:
 				break;
 			}
 			break;
@@ -568,10 +572,14 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 					retmove = transitionMove[saberMoveData[curmove].endQuad][saberMoveData[newmove].startQuad];
 					break;
 				//NB: transitioning from transitions is fine
+				default:
+					break;
 				}
 			}
 			break;
 		//transitioning to any other anim is not supported
+		default:
+			break;
 		}
 	}
 
@@ -700,7 +708,7 @@ saberQuadrant_t PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
 }
 
 //===================================================================
-bool PM_SaberInBounce( int move )
+bool PM_SaberInBounce( saberMoveName_t move )
 {
 	if ( move >= LS_B1_BR && move <= LS_B1_BL )
 	{
@@ -713,7 +721,7 @@ bool PM_SaberInBounce( int move )
 	return false;
 }
 
-bool PM_SaberInTransition( int move );
+bool PM_SaberInTransition( saberMoveName_t move );
 
 EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> saberMoveTransitionAngle =
 {{
@@ -735,16 +743,16 @@ EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_Q
 	{	45,			90,			135,		180,		135,		90,			45,			0			},
 }};
 
-int PM_SaberAttackChainAngle( int move1, int move2 )
+int PM_SaberAttackChainAngle( saberMoveName_t move1, saberMoveName_t move2 )
 {
-	if ( move1 == -1 || move2 == -1 )
+	if ( move1 == LS_INVALID || move2 == LS_INVALID )
 	{
 		return -1;
 	}
 	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
 }
 
-bool PM_SaberKataDone(int curmove, int newmove)
+bool PM_SaberKataDone(saberMoveName_t curmove, saberMoveName_t newmove)
 {
 	if (pm->ps->m_iVehicleNum)
 	{ //never continue kata on vehicle
@@ -1520,7 +1528,7 @@ void PM_SaberLocked( void )
 	}
 }
 
-bool PM_SaberInBrokenParry( int move )
+bool PM_SaberInBrokenParry( saberMoveName_t move )
 {
 	if ( move >= LS_V1_BR && move <= LS_V1_B_ )
 	{
@@ -1534,7 +1542,7 @@ bool PM_SaberInBrokenParry( int move )
 }
 
 
-int PM_BrokenParryForParry( int move )
+saberMoveName_t PM_BrokenParryForParry( saberMoveName_t move )
 {
 	switch ( move )
 	{
@@ -1555,6 +1563,8 @@ int PM_BrokenParryForParry( int move )
 		break;
 	case LS_READY:
 		return LS_H1_B_;
+		break;
+	default:
 		break;
 	}
 	return LS_NONE;
@@ -1609,7 +1619,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	{
 		if ( saber1->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber1->jumpAtkFwdMove;
+			return saber1->jumpAtkFwdMove;
 		}
 	}
 	if ( saber2
@@ -1617,7 +1627,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	{
 		if ( saber2->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber2->jumpAtkFwdMove;
+			return saber2->jumpAtkFwdMove;
 		}
 	}
 	//no overrides, cancelled?
@@ -1703,7 +1713,7 @@ saberMoveName_t PM_SaberBackflipAttackMove( void )
 	{
 		if ( saber1->jumpAtkBackMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber1->jumpAtkBackMove;
+			return saber1->jumpAtkBackMove;
 		}
 	}
 	if ( saber2
@@ -1711,7 +1721,7 @@ saberMoveName_t PM_SaberBackflipAttackMove( void )
 	{
 		if ( saber2->jumpAtkBackMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber2->jumpAtkBackMove;
+			return saber2->jumpAtkBackMove;
 		}
 	}
 	//no overrides, cancelled?
@@ -1784,7 +1794,7 @@ saberMoveName_t PM_SaberLungeAttackMove( bool noSpecials )
 	{
 		if ( saber1->lungeAtkMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber1->lungeAtkMove;
+			return saber1->lungeAtkMove;
 		}
 	}
 	if ( saber2
@@ -1792,7 +1802,7 @@ saberMoveName_t PM_SaberLungeAttackMove( bool noSpecials )
 	{
 		if ( saber2->lungeAtkMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber2->lungeAtkMove;
+			return saber2->lungeAtkMove;
 		}
 	}
 	//no overrides, cancelled?
@@ -1839,7 +1849,7 @@ saberMoveName_t PM_SaberJumpAttackMove2( void )
 	{
 		if ( saber1->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber1->jumpAtkFwdMove;
+			return saber1->jumpAtkFwdMove;
 		}
 	}
 	if ( saber2
@@ -1847,7 +1857,7 @@ saberMoveName_t PM_SaberJumpAttackMove2( void )
 	{
 		if ( saber2->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber2->jumpAtkFwdMove;
+			return saber2->jumpAtkFwdMove;
 		}
 	}
 	//no overrides, cancelled?
@@ -1896,7 +1906,7 @@ saberMoveName_t PM_SaberJumpAttackMove( void )
 	{
 		if ( saber1->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber1->jumpAtkFwdMove;
+			return saber1->jumpAtkFwdMove;
 		}
 	}
 	if ( saber2
@@ -1904,7 +1914,7 @@ saberMoveName_t PM_SaberJumpAttackMove( void )
 	{
 		if ( saber2->jumpAtkFwdMove != LS_NONE )
 		{
-			return (saberMoveName_t)saber2->jumpAtkFwdMove;
+			return saber2->jumpAtkFwdMove;
 		}
 	}
 	//no overrides, cancelled?
@@ -1970,7 +1980,7 @@ float PM_WalkableGroundDistance(void)
 	return VectorLength(down);
 }
 
-bool BG_SaberInTransitionAny( int move );
+bool BG_SaberInTransitionAny( saberMoveName_t move );
 static bool PM_CanDoDualDoubleAttacks(void)
 {
 	if ( pm->ps->weapon == WP_SABER )
@@ -2054,7 +2064,7 @@ static bool PM_CheckEnemyPresence( direction_t dir, float radius )
 #define SABER_ALT_ATTACK_POWER_LR	10//30?
 #define SABER_ALT_ATTACK_POWER_FB	25//30/50?
 
-extern bool PM_SaberInReturn( int move ); //bg_panimate.cpp
+extern bool PM_SaberInReturn( saberMoveName_t move ); //bg_panimate.cpp
 saberMoveName_t PM_CheckPullAttack( void )
 {
 #if 0 //disabling these for MP, they aren't useful
@@ -2071,7 +2081,7 @@ saberMoveName_t PM_CheckPullAttack( void )
 		//&& pm->ps->fd.forcePowerLevel[FP_PULL]
 		//rwwFIXMEFIXME: rick has the damn msg.cpp file checked out exclusively so I can't update the bloody psf to send this for prediction
 		&& pm->ps->powerups[PW_DISINT_4] > pm->cmd.serverTime
-		&& !(pm->ps->fd.forcePowersActive & (1<<FP_GRIP))
+		&& !(pm->ps->fd.forcePowersActive & Bit( FP_GRIP ))
 		&& pm->ps->powerups[PW_PULL] > pm->cmd.serverTime
 		//&& pm->cmd.forwardmove<0//pulling back
 		&& (pm->cmd.buttons&BUTTON_ATTACK)//attacking
@@ -2197,12 +2207,12 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{
 			if ( saber1->jumpAtkRightMove != LS_NONE )
 			{//actually overriding
-				overrideJumpRightAttackMove = (saberMoveName_t)saber1->jumpAtkRightMove;
+				overrideJumpRightAttackMove = saber1->jumpAtkRightMove;
 			}
 			else if ( saber2
 				&& saber2->jumpAtkRightMove > LS_NONE )
 			{//would be cancelling it, but check the second saber, too
-				overrideJumpRightAttackMove = (saberMoveName_t)saber2->jumpAtkRightMove;
+				overrideJumpRightAttackMove = saber2->jumpAtkRightMove;
 			}
 			else
 			{//nope, just cancel it
@@ -2212,7 +2222,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		else if ( saber2
 			&& saber2->jumpAtkRightMove != LS_INVALID )
 		{//first saber not overridden, check second
-			overrideJumpRightAttackMove = (saberMoveName_t)saber2->jumpAtkRightMove;
+			overrideJumpRightAttackMove = saber2->jumpAtkRightMove;
 		}
 
 		if ( saber1
@@ -2220,12 +2230,12 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{
 			if ( saber1->jumpAtkLeftMove != LS_NONE )
 			{//actually overriding
-				overrideJumpLeftAttackMove = (saberMoveName_t)saber1->jumpAtkLeftMove;
+				overrideJumpLeftAttackMove = saber1->jumpAtkLeftMove;
 			}
 			else if ( saber2
 				&& saber2->jumpAtkLeftMove > LS_NONE )
 			{//would be cancelling it, but check the second saber, too
-				overrideJumpLeftAttackMove = (saberMoveName_t)saber2->jumpAtkLeftMove;
+				overrideJumpLeftAttackMove = saber2->jumpAtkLeftMove;
 			}
 			else
 			{//nope, just cancel it
@@ -2235,7 +2245,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		else if ( saber2
 			&& saber2->jumpAtkLeftMove != LS_INVALID )
 		{//first saber not overridden, check second
-			overrideJumpLeftAttackMove = (saberMoveName_t)saber1->jumpAtkLeftMove;
+			overrideJumpLeftAttackMove = saber1->jumpAtkLeftMove;
 		}
 
 		if ( saber1
@@ -2558,9 +2568,9 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 	return newmove;
 }
 
-int PM_KickMoveForConditions(void)
+saberMoveName_t PM_KickMoveForConditions(void)
 {
-	int kickMove = -1;
+	saberMoveName_t kickMove = LS_INVALID;
 
 	//FIXME: only if FP_SABER_OFFENSE >= 3
 	if ( pm->cmd.rightmove )
@@ -2771,14 +2781,15 @@ While this is a little different than the Quake 3 code, there is no clean way of
 // Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
 bool PM_WalkingAnim( int anim );
 bool PM_SwimmingAnim( int anim );
-int PM_SaberBounceForAttack( int move );
+saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
 bool BG_SuperBreakLoseAnim( int anim );
 bool BG_SuperBreakWinAnim( int anim );
 void PM_WeaponLightsaber(void)
 {
 	int			addTime;
 	bool	delayed_fire = false;
-	int			anim=-1, curmove, newmove=LS_NONE;
+	int			anim=-1;
+	saberMoveName_t	curmove, newmove=LS_NONE;
 
 	bool checkOnlyWeap = false;
 
@@ -2980,8 +2991,8 @@ void PM_WeaponLightsaber(void)
 				if ( (pm->cmd.forwardmove||pm->cmd.rightmove)//trying to kick in a specific direction
 					&& PM_CheckAltKickAttack() )//trying to do a kick
 				{//allow them to do the kick now!
-					int kickMove = PM_KickMoveForConditions();
-					if (kickMove != -1)
+					saberMoveName_t kickMove = PM_KickMoveForConditions();
+					if (kickMove != LS_INVALID)
 					{
 						pm->ps->weaponTime = 0;
 						PM_SetSaberMove( kickMove );
@@ -3131,7 +3142,7 @@ void PM_WeaponLightsaber(void)
 			case BLOCKED_PARRY_BROKEN:
 				//whatever parry we were is in now broken, play the appropriate knocked-away anim
 				{
-					int nextMove;
+					saberMoveName_t nextMove;
 
 					if ( PM_SaberInBrokenParry( pm->ps->saberMove ) )
 					{//already have one...?
@@ -3160,7 +3171,7 @@ void PM_WeaponLightsaber(void)
 				}
 				else
 				{
-					int bounceMove;
+					saberMoveName_t bounceMove;
 
 					if ( PM_SaberInBounce( pm->ps->saberMove ) || !BG_SaberInAttack( pm->ps->saberMove ) )
 					{
@@ -3194,7 +3205,7 @@ void PM_WeaponLightsaber(void)
 					}
 					else
 					{//start the bounce
-						bounceMove = PM_SaberBounceForAttack( (saberMoveName_t)pm->ps->saberMove );
+						bounceMove = PM_SaberBounceForAttack( pm->ps->saberMove );
 					}
 
 					PM_SetSaberMove( bounceMove );
@@ -3289,7 +3300,7 @@ weapChecks:
 		{
 			if ( saber1->kataMove != LS_NONE )
 			{
-				overrideMove = (saberMoveName_t)saber1->kataMove;
+				overrideMove = saber1->kataMove;
 			}
 		}
 		if ( overrideMove == LS_INVALID )
@@ -3299,7 +3310,7 @@ weapChecks:
 			{
 				if ( saber2->kataMove != LS_NONE )
 				{
-					overrideMove = (saberMoveName_t)saber2->kataMove;
+					overrideMove = saber2->kataMove;
 				}
 			}
 		}
@@ -3440,7 +3451,7 @@ weapChecks:
 	if (pm->ps->fd.saberAnimLevel == SS_STAFF &&
 		(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 	{ //ok, try a kick I guess.
-		int kickMove = -1;
+		saberMoveName_t kickMove = LS_INVALID;
 
 		if ( !BG_KickingAnim(pm->ps->torsoAnim) &&
 			!BG_KickingAnim(pm->ps->legsAnim) &&
@@ -3454,7 +3465,7 @@ weapChecks:
 			kickMove = PM_KickMoveForConditions();
 		}
 
-		if (kickMove != -1)
+		if (kickMove != LS_INVALID)
 		{
 			if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 			{//if in air, convert kick to an in-air kick
@@ -3482,7 +3493,7 @@ weapChecks:
 						kickMove = LS_KICK_L_AIR;
 						break;
 					default: //oh well, can't do any other kick move while in-air
-						kickMove = -1;
+						kickMove = LS_INVALID;
 						break;
 					}
 				}
@@ -3490,12 +3501,12 @@ weapChecks:
 				{//leave it as a normal kick unless we're too high up
 					if ( gDist > 128.0f || pm->ps->velocity[2] >= 0 )
 					{ //off ground, but too close to ground
-						kickMove = -1;
+						kickMove = LS_INVALID;
 					}
 				}
 			}
 
-			if (kickMove != -1)
+			if (kickMove != LS_INVALID)
 			{
 				PM_SetSaberMove( kickMove );
 				return;
@@ -3642,7 +3653,7 @@ weapChecks:
 						newmove = saberMoveData[curmove].chain_idle;
 					}
 					else */
-					newmove = PM_SaberAttackForMovement( (saberMoveName_t)curmove );
+					newmove = PM_SaberAttackForMovement( curmove );
 					if ( (PM_SaberInBounce( curmove )||PM_SaberInBrokenParry( curmove ))
 						&& saberMoveData[newmove].startQuad == saberMoveData[curmove].endQuad )
 					{//this attack would be a repeat of the last (which was blocked), so don't actually use it, use the default chain attack for this bounce
@@ -3744,7 +3755,7 @@ weapChecks:
 	pm->ps->weaponTime = addTime;
 }
 
-void PM_SetSaberMove(short newMove)
+void PM_SetSaberMove(saberMoveName_t newMove)
 {
 	unsigned int setflags = saberMoveData[newMove].animSetFlags;
 	int	anim = saberMoveData[newMove].animToUse;

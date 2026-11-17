@@ -850,7 +850,7 @@ Ghoul2 Insert End
 	}
 
 	//draw force sight shell around it, too
-	if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
 		&& CG_PlayerCanSeeCent( cent ) )
 	{//so player can see dark missiles/explosives
@@ -1061,7 +1061,7 @@ Ghoul2 Insert End
 	// add to refresh list
 	cgi_R_AddRefEntityToScene(&ent);
 
-	if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
 		&& CG_PlayerCanSeeCent( cent ) )
 	{
@@ -1267,7 +1267,7 @@ Ghoul2 Insert End
 	// add to refresh list, possibly with quad glow
 	CG_AddRefEntityWithPowerups( &ent, s1->powerups, nullptr );
 
-	if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
 		&& CG_PlayerCanSeeCent( cent ) )
 	{//so player can see dark missiles/explosives
@@ -1397,7 +1397,7 @@ Ghoul2 Insert End
 	// add to refresh list
 	CG_AddRefEntWithTransportEffect( cent, &ent );
 
-	if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
 		&& (s1->eFlags&EF_FORCE_VISIBLE) )
 	{//so player can see func_breakables
@@ -2386,7 +2386,7 @@ Ghoul2 Insert End
 
 	switch ( cent->currentState.eType ) {
 	default:
-		CG_Error( "Bad entity type: %i\n", cent->currentState.eType );
+		CG_Error( "Bad entity type: %i\n", to_underlying( cent->currentState.eType ) );
 		break;
 	case ET_INVISIBLE:
 	case ET_PUSH_TRIGGER:

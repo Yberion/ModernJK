@@ -408,7 +408,7 @@ void JMSaberThink(gentity_t *ent)
 
 void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 //	gentity_t *te;
 
 	if (!other || !other->client || other->health < 1)
@@ -469,7 +469,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 	while (i < NUM_FORCE_POWERS)
 	{
-		other->client->ps.fd.forcePowersKnown |= (1 << i);
+		other->client->ps.fd.forcePowersKnown |= Bit( i );
 		other->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_3;
 
 		i++;
@@ -2604,7 +2604,7 @@ void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin);
 void ClientBegin( int clientNum, bool allowTeamReset ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	int			flags, i;
+	int			flags;
 	char		userinfo[MAX_INFO_VALUE];
 	const char	*modelname;
 	int			spawnCount;
@@ -2678,15 +2678,15 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 	flags = client->ps.eFlags;
 	spawnCount = client->ps.persistant[PERS_SPAWN_COUNT];
 
-	i = 0;
+	forcePowers_t fp = FP_FIRST;
 
-	while (i < NUM_FORCE_POWERS)
+	while (fp < NUM_FORCE_POWERS)
 	{
-		if (ent->client->ps.fd.forcePowersActive & (1 << i))
+		if (ent->client->ps.fd.forcePowersActive & Bit( fp ))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, fp);
 		}
-		i++;
+		fp++;
 	}
 
 	for ( trackchan_t ch = TRACK_CHANNEL_1; ch < NUM_TRACK_CHANNELS; ch++ )
@@ -2697,7 +2697,6 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 			G_MuteSound(sound, CHAN_VOICE);
 		}
 	}
-	i = 0;
 
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
@@ -2745,13 +2744,13 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 
 static bool AllForceDisabled(int force)
 {
-	int i;
+	forcePowers_t i;
 
 	if (force)
 	{
-		for (i=0;i<NUM_FORCE_POWERS;i++)
+		for (i=FP_FIRST;i<NUM_FORCE_POWERS;i++)
 		{
-			if (!(force & (1<<i)))
+			if (!(force & Bit( i )))
 			{
 				return false;
 			}
@@ -3903,15 +3902,15 @@ void ClientDisconnect( int clientNum ) {
 		return;
 	}
 
-	i = 0;
+	forcePowers_t fp = FP_FIRST;
 
-	while (i < NUM_FORCE_POWERS)
+	while (fp < NUM_FORCE_POWERS)
 	{
-		if (ent->client->ps.fd.forcePowersActive & (1 << i))
+		if (ent->client->ps.fd.forcePowersActive & Bit( fp ))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, fp);
 		}
-		i++;
+		fp++;
 	}
 
 	for ( trackchan_t ch = TRACK_CHANNEL_1; ch < NUM_TRACK_CHANNELS; ch++ )

@@ -183,7 +183,7 @@ CL_SetUserCmdValue
 extern float cl_mPitchOverride;
 extern float cl_mYawOverride;
 extern float cl_mSensitivityOverride;
-void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel ) {
+void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel ) {
 	cl.cgameUserCmdValue = userCmdValue;
 	cl.cgameSensitivity = sensitivityScale;
 	cl_mPitchOverride = mPitchOverride;

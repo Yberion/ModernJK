@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 void finish_spawning_turretG2( gentity_t *base );
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
+void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator );
 
 
@@ -251,7 +251,7 @@ void TurretG2Pain( gentity_t *self, gentity_t *attacker, int damage )
 }
 
 //------------------------------------------------------------------------------------------------------------
-void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0,-1 }, pos;

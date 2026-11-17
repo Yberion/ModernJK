@@ -500,7 +500,7 @@ void RT_Flying_MaintainHeight( void )
 			float enemyZHeight = NPC->enemy->currentOrigin[2];
 			if ( NPC->enemy->client
 				&& NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE
-				&& (NPC->enemy->client->ps.forcePowersActive&(1<<FP_LEVITATION)) )
+				&& (NPC->enemy->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
 			{//so we don't go up when they force jump up at us
 				enemyZHeight = NPC->enemy->client->ps.forceJumpZStart;
 			}
@@ -527,7 +527,7 @@ void RT_Flying_MaintainHeight( void )
 			float enemyZHeight = NPC->enemy->currentOrigin[2];
 			if ( NPC->enemy->client
 				&& NPC->enemy->client->ps.groundEntityNum == ENTITYNUM_NONE
-				&& (NPC->enemy->client->ps.forcePowersActive&(1<<FP_LEVITATION)) )
+				&& (NPC->enemy->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
 			{//so we don't go up when they force jump up at us
 				enemyZHeight = NPC->enemy->client->ps.forceJumpZStart;
 			}

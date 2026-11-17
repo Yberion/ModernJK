@@ -280,7 +280,7 @@ void SG_Shutdown();
 #ifdef JK2_MODE
 extern void SCR_UnprecacheScreenshot();
 #endif
-void NORETURN QDECL Com_Error( int code, const char *fmt, ... ) {
+void NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) {
 	va_list		argptr;
 	static int	lastErrorTime;
 	static int	errorCount;
@@ -896,7 +896,7 @@ int Com_EventLoop( void ) {
         case SE_NONE:
             break;
 		case SE_KEY:
-			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+			CL_KeyEvent( static_cast<fakeAscii_t>( ev.evValue ), ev.evValue2, ev.evTime );
 			break;
 		case SE_CHAR:
 			CL_CharEvent( ev.evValue );
@@ -1029,7 +1029,7 @@ Com_ErrorString
 Error string for the given error code (from Com_Error).
 =================
 */
-static const char *Com_ErrorString ( int code )
+static const char *Com_ErrorString ( errorParm_t code )
 {
 	switch ( code )
 	{
@@ -1051,7 +1051,7 @@ Handles freeing up of resources when Com_Error is called.
 =================
 */
 void SG_WipeSavegame(const char *name);	// pretty sucky, but that's how SoF did it...<g>
-static void Com_CatchError ( int code )
+static void Com_CatchError ( errorParm_t code )
 {
 	if ( code == ERR_DISCONNECT ) {
 		SV_Shutdown( "Server disconnected" );
@@ -1208,7 +1208,7 @@ void Com_Init( char *commandLine ) {
 		//	Cvar_Set( "g_dismemberment", "0");	//just in case it was archived
 		//}
 	}
-	catch ( int code )
+	catch ( errorParm_t code )
 	{
 		Com_CatchError (code);
 		Sys_Error ("Error during initialization %s", Com_ErrorString (code));
@@ -1568,7 +1568,7 @@ void Com_Frame( void ) {
 
 		com_frameNumber++;
 	}
-	catch ( int code )
+	catch ( errorParm_t code )
 	{
 		Com_CatchError (code);
 		Com_Printf ("%s\n", Com_ErrorString (code));

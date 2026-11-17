@@ -125,7 +125,9 @@ using enum evasionType_t;
 // Ideally this will be replaced with an external file or more sophisticated move-picker
 // once the game gets out of prototype stage.
 
-typedef enum {
+enum class saberMoveName_t {
+	// no move found: the -1 the code returned and tested for, named as in Jedi Academy
+	LS_INVALID	= -1,
 	// Invalid, or saber not armed
 	LS_NONE		= 0,
 
@@ -271,7 +273,9 @@ typedef enum {
 	LS_REFLECT_LL,
 
 	LS_MOVE_MAX//
-} saberMoveName_t;
+};
+using enum saberMoveName_t;
+template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 enum class saberQuadrant_t {
 	Q_BR,
@@ -301,6 +305,6 @@ typedef struct
 	int trailLength;
 } saberMoveData_t;
 
-extern saberMoveData_t	saberMoveData[LS_MOVE_MAX];
+extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
 
 #endif	// __WP_SABER_H

@@ -252,7 +252,7 @@ void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *soundPath
 	}
 }
 
-void G_SpeechEvent( gentity_t *self, int event )
+void G_SpeechEvent( gentity_t *self, entity_event_t event )
 {
 	//update entity pos, too
 	cgi_S_UpdateEntityPosition( self->s.number, self->currentOrigin );
@@ -386,6 +386,8 @@ void G_SpeechEvent( gentity_t *self, int event )
 		break;
 	case EV_PUSHFAIL:
 		CG_TryPlayCustomSound( nullptr, self->s.number, CHAN_VOICE, "*pushfail.wav", CS_JEDI );
+		break;
+	default:
 		break;
 	}
 }
@@ -850,12 +852,12 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event ) {
+gentity_t *G_TempEntity( vec3_t origin, entity_event_t event ) {
 	gentity_t		*e;
 	vec3_t		snapped;
 
 	e = G_Spawn();
-	e->s.eType = ET_EVENTS + event;
+	e->s.eType = BG_EventEntityType( BG_PackEvent( event ) );
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
@@ -942,10 +944,10 @@ G_AddEvent
 Adds an event+parm and twiddles the event counter
 ===============
 */
-void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
+void G_AddEvent( gentity_t *ent, entity_event_t event, int eventParm ) {
 	int		bits;
 
-	if ( !event ) {
+	if ( event == EV_NONE ) {
 		gi.Printf( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
 		return;
 	}
@@ -953,7 +955,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 #if 0 // FIXME: allow multiple events on an entity
 	// if the entity has an event that hasn't expired yet, don't overwrite
 	// it unless it is identical (repeated footsteps / muzzleflashes / etc )
-	if ( ent->s.event && ent->s.event != event ) {
+	if ( ent->s.event && ent->s.event != BG_PackEvent( event ) ) {
 		gentity_t	*temp;
 
 		// generate a temp entity that references the original entity
@@ -976,7 +978,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 #if 0
 		bits = ent->client->ps.externalEvent & EV_EVENT_BITS;
 		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-		ent->client->ps.externalEvent = event | bits;
+		ent->client->ps.externalEvent = BG_PackEvent( event, bits );
 		ent->client->ps.externalEventParm = eventParm;
 		ent->client->ps.externalEventTime = level.time;
 #endif
@@ -995,7 +997,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 	} else {
 		bits = ent->s.event & EV_EVENT_BITS;
 		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-		ent->s.event = event | bits;
+		ent->s.event = BG_PackEvent( event, bits );
 		ent->s.eventParm = eventParm;
 	}
 	ent->eventTime = level.time;

@@ -759,16 +759,16 @@ void Player_RestoreFromPrevLevel(gentity_t *ent)
 			// the new JK2 stuff - force powers, etc...
 			//
 			gi.Cvar_VariableStringBuffer( "playerfplvl", s, sizeof(s) );
-			i=0;
+			forcePowers_t fp = FP_FIRST;
 			var = strtok( s, " " );
 			while( var != nullptr )
 			{
 			  /* While there are tokens in "s" */
-			  client->ps.forcePowerLevel[i++] = atoi(var);
+			  client->ps.forcePowerLevel[fp++] = atoi(var);
 			  /* Get next token: */
 			  var = strtok( nullptr, " " );
 			}
-			assert (i==NUM_FORCE_POWERS);
+			assert (fp==NUM_FORCE_POWERS);
 
 			client->ps.forcePowerMax = FORCE_POWER_MAX;
 			client->ps.forceGripEntityNum = ENTITYNUM_NONE;

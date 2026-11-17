@@ -819,7 +819,7 @@ typedef struct cg_s {
 	vec3_t		predictedError;
 
 	int			eventSequence;
-	int			predictableEvents[MAX_PREDICTED_EVENTS];
+	entity_event_t	predictableEvents[MAX_PREDICTED_EVENTS];
 
 	float		stepChange;				// for stair up smoothing
 	int			stepTime;
@@ -833,7 +833,7 @@ typedef struct cg_s {
 	// input state sent to server
 	int			weaponSelect;
 
-	int			forceSelect;
+	forcePowers_t	forceSelect;
 	std::optional<holdable_t>	itemSelect;	// none before the first selection
 
 	// auto rotating items
@@ -1374,7 +1374,7 @@ typedef struct cgMedia_s {
 	EnumArray<qhandle_t, holdable_t, HI_NUM_HOLDABLE> invenIcons;
 
 	//force power icons
-	qhandle_t forcePowerIcons[NUM_FORCE_POWERS];
+	EnumArray<qhandle_t, forcePowers_t, NUM_FORCE_POWERS> forcePowerIcons;
 
 	qhandle_t rageRecShader;
 
@@ -2010,7 +2010,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum);
 //===============================================
 
 void		BG_CycleInven(playerState_t *ps, int direction);
-int			BG_ProperForceIndex(int power);
+int			BG_ProperForceIndex(forcePowers_t power);
 void		BG_CycleForce(playerState_t *ps, int direction);
 
 const char *CG_GetStringEdString(const char *refSection, const char *refName);

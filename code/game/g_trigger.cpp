@@ -1626,7 +1626,7 @@ void trigger_visible_check_player_visibility( gentity_t *self )
 	if ( self->spawnflags & TRIGGERVISIBLE_FORCESIGHT )
 	{
 		// If their force sight is not on, leave...
-		if ( !( player->client->ps.forcePowersActive & (1 << FP_SEE) ) )
+		if ( !( player->client->ps.forcePowersActive & Bit( FP_SEE ) ) )
 		{
 			return;
 		}

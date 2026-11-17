@@ -282,8 +282,15 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_HUD),
 
 //FIXME: add BOTH_ attributes here too
-	{"",	SET_},
+	{"",	to_underlying( SET_ )},
 };
+
+// the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
+static setType_t Q3_SetTypeFromName( const char *name )
+{
+	const int id = GetIDForString( setTable, name );
+	return id == -1 ? SET_UNKNOWN : static_cast<setType_t>( id );
+}
 
 void Q3_TaskIDClear( int *taskID )
 {
@@ -1207,14 +1214,13 @@ Q3_GetFloat
 int Q3_GetFloat( int entID, int type, const char *name, float *value )
 {
 	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
 
 	if ( !ent )
 	{
 		return 0;
 	}
 
-	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -1591,13 +1597,12 @@ Q3_GetVector
 int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 {
 	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
 	if ( !ent )
 	{
 		return 0;
 	}
 
-	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -1620,7 +1625,7 @@ int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 	case SET_PARM15:
 	case SET_PARM16:
 		if ( Q_ScanFloats( ent->parms->parm[toGet - SET_PARM1], value, 3 ) != 3 ) {
-			G_DebugPrint( WL_WARNING, "Q3_GetVector: failed sscanf on SET_PARM%d (%s)\n", toGet, name );
+			G_DebugPrint( WL_WARNING, "Q3_GetVector: failed sscanf on SET_PARM%d (%s)\n", toGet - SET_PARM1 + 1, name );
 			VectorClear( value );
 		}
 		break;
@@ -1663,13 +1668,12 @@ Q3_GetString
 int Q3_GetString( int entID, int type, const char *name, const char **value )
 {
 	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
 	if ( !ent )
 	{
 		return 0;
 	}
 
-	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 
 	switch ( toGet )
 	{
@@ -3965,16 +3969,17 @@ static void Q3_SetMusicState( const char *dms )
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
 	gentity_t	*self  = &g_entities[entID];
+	const forcePowers_t power = static_cast<forcePowers_t>( forcePower );
 
-	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
+	if ( power < FP_FIRST || power >= NUM_FORCE_POWERS )
 	{
-		G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
+		G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, to_underlying( FP_FIRST ), (to_underlying( NUM_FORCE_POWERS )-1) );
 		return;
 	}
 
 	if ( forceLevel < 0 || forceLevel >= to_underlying( NUM_FORCE_POWER_LEVELS ) )
 	{
-		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
+		if ( power != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
 		{
 			G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 			return;
@@ -3993,14 +3998,14 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	self->client->ps.fd.forcePowerLevel[forcePower] = static_cast<forcePowerLevels_t>( forceLevel );
+	self->client->ps.fd.forcePowerLevel[power] = static_cast<forcePowerLevels_t>( forceLevel );
 	if ( forceLevel )
 	{
-		self->client->ps.fd.forcePowersKnown |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersKnown |= Bit( power );
 	}
 	else
 	{
-		self->client->ps.fd.forcePowersKnown &= ~( 1 << forcePower );
+		self->client->ps.fd.forcePowersKnown &= ~Bit( power );
 	}
 }
 /*
@@ -5400,7 +5405,7 @@ Q3_Face
 ?
 ============
 */
-static void Q3_Face( int entID,int expression, float holdtime)
+static void Q3_Face( int entID,setType_t expression, float holdtime)
 {
 	G_DebugPrint( WL_WARNING, "Q3_Face: NOT SUPPORTED IN MP\n");
 }
@@ -5471,7 +5476,7 @@ Q3_SetBehaviorSet
 ?
 ============
 */
-static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
+static bool Q3_SetBehaviorSet( int entID, setType_t toSet, const char *scriptname)
 {
 	gentity_t	*ent  = &g_entities[entID];
 	bSet_t		bSet = BSET_INVALID;
@@ -5528,6 +5533,8 @@ static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 		break;
 	case SET_MINDTRICKSCRIPT:
 		bSet = BSET_MINDTRICK;
+		break;
+	default:
 		break;
 	}
 
@@ -5876,11 +5883,12 @@ bool Q3_Set( int taskID, int entID, const char *type_name, const char *data )
 {
 	gentity_t	*ent = &g_entities[entID];
 	float		float_data;
-	int			int_data, toSet;
+	int			int_data;
+	setType_t	toSet;
 	vec3_t		vector_data;
 
 	//Set this for callbacks
-	toSet = GetIDForString( setTable, type_name );
+	toSet = Q3_SetTypeFromName( type_name );
 
 	//TODO: Throw in a showscript command that will list each command and what they're doing...
 	//		maybe as simple as printing that line of the script to the console preceeded by the person's name?

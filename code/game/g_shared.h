@@ -531,7 +531,7 @@ public:
 	int				armAttacksCnt;					// # of times arm were hit with saber
 	int				torsoAttacksCnt;				// # of times torso was hit with saber
 	int				otherAttacksCnt;				// # of times anything else on a monster was hit with saber
-	int				forceUsed[NUM_FORCE_POWERS];	// # of times each force power was used
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceUsed;	// # of times each force power was used
 	int				weaponUsed[WP_NUM_WEAPONS];		// # of times each weapon was used
 
 
@@ -550,7 +550,7 @@ public:
 		saved_game.write<int32_t>(armAttacksCnt);
 		saved_game.write<int32_t>(torsoAttacksCnt);
 		saved_game.write<int32_t>(otherAttacksCnt);
-		saved_game.write<int32_t>(forceUsed);
+		saved_game.write<int32_t>(forceUsed.elems);
 		saved_game.write<int32_t>(weaponUsed);
 	}
 
@@ -569,7 +569,7 @@ public:
 		saved_game.read<int32_t>(armAttacksCnt);
 		saved_game.read<int32_t>(torsoAttacksCnt);
 		saved_game.read<int32_t>(otherAttacksCnt);
-		saved_game.read<int32_t>(forceUsed);
+		saved_game.read<int32_t>(forceUsed.elems);
 		saved_game.read<int32_t>(weaponUsed);
 	}
 }; // missionStats_t
@@ -1097,8 +1097,8 @@ Ghoul2 Insert End
 	//explosives, breakable brushes
 	int			splashDamage;	// quad will increase this without increasing radius
 	int			splashRadius;
-	int			methodOfDeath;
-	int			splashMethodOfDeath;
+	meansOfDeath_t	methodOfDeath;
+	meansOfDeath_t	splashMethodOfDeath;
 	//int			hitLoc;//where you were last hit
 	int			locationDamage[HL_MAX];		// Damage accumulated on different body locations
 

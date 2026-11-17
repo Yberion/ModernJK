@@ -223,7 +223,7 @@ CG_CheckPlayerstateEvents
 */
 void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	int			i;
-	int			event;
+	entity_event_t			event;
 	centity_t	*cent;
 
 	if ( ps->externalEvent && ps->externalEvent != ops->externalEvent ) {
@@ -243,7 +243,7 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 			|| (i > ops->eventSequence - MAX_PS_EVENTS && ps->events[i & (MAX_PS_EVENTS-1)] != ops->events[i & (MAX_PS_EVENTS-1)]) ) {
 
 			event = ps->events[ i & (MAX_PS_EVENTS-1) ];
-			cent->currentState.event = event;
+			cent->currentState.event = BG_PackEvent( event );
 			cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
 //JLF ADDED to hopefully mark events as player event
 			cent->playerState = ps;
@@ -263,7 +263,7 @@ CG_CheckChangedPredictableEvents
 */
 void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	int i;
-	int event;
+	entity_event_t event;
 	centity_t	*cent;
 
 	cent = &cg_entities[ps->clientNum];
@@ -278,7 +278,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 			if ( ps->events[i & (MAX_PS_EVENTS-1)] != cg.predictableEvents[i & (MAX_PREDICTED_EVENTS-1) ] ) {
 
 				event = ps->events[ i & (MAX_PS_EVENTS-1) ];
-				cent->currentState.event = event;
+				cent->currentState.event = BG_PackEvent( event );
 				cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
 				CG_EntityEvent( cent, cent->lerpOrigin );
 

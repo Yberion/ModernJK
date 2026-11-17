@@ -234,7 +234,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	if ( ent->client->NPC_class == CLASS_BOBAFETT )
 	{//set some stuff, precache
 		Boba_Precache();
-		ent->client->ps.fd.forcePowersKnown |= ( 1 << FP_LEVITATION );
+		ent->client->ps.fd.forcePowersKnown |= Bit( FP_LEVITATION );
 		ent->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
 		ent->client->ps.fd.forcePower = 100;
 		ent->NPC->scriptFlags |= (SCF_ALT_FIRE|SCF_NO_GROUPS);

@@ -34,11 +34,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
-extern bool PM_SaberInParry( int move );
-extern bool PM_SaberInReflect( int move );
-extern bool PM_SaberInIdle( int move );
-extern bool PM_SaberInAttack( int move );
-extern bool PM_SaberInTransitionAny( int move );
+extern bool PM_SaberInParry( saberMoveName_t move );
+extern bool PM_SaberInReflect( saberMoveName_t move );
+extern bool PM_SaberInIdle( saberMoveName_t move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
+extern bool PM_SaberInTransitionAny( saberMoveName_t move );
 extern bool PM_SaberInSpecialAttack( int anim );
 
 //-------------------------------------------------------------------------
@@ -497,7 +497,7 @@ void G_SpawnNoghriGasCloud( gentity_t *ent )
 }
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod );
+extern bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod );
 void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3_t normal, int hitLoc=HL_NONE )
 {
 	// impact damage
@@ -832,7 +832,7 @@ extern bool WP_DoingMoronicForcedAnimationForForcePowers(gentity_t *ent);
 					blockChance = 1;
 					break;
 				}
-				if ( blockChance && (other->owner->client->ps.forcePowersActive&(1<<FP_SPEED)) )
+				if ( blockChance && (other->owner->client->ps.forcePowersActive&Bit( FP_SPEED )) )
 				{//in in force speed, better chance of deflecting the shot
 					blockChance += other->owner->client->ps.forcePowerLevel[FP_SPEED]*2;
 				}

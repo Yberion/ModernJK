@@ -39,12 +39,12 @@ extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *so
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 extern void NPC_BSNoClip ( void );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void NPC_ApplyRoff (void);
 extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
 extern void NPC_CheckPlayerAim ( void );
 extern void NPC_CheckAllClear ( void );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 extern void Mark1_dying( gentity_t *self );

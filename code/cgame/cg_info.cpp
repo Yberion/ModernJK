@@ -320,17 +320,17 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 /*
 
 //-------------------------------------------------------
-static void CG_DrawForceCount( const int force, int x, float *y, const int pad,bool *hasForcePowers )
+static void CG_DrawForceCount( const forcePowers_t force, int x, float *y, const int pad,bool *hasForcePowers )
 {
 	char	s[MAX_STRING_CHARS];
 	int		val, textColor;
 	char	text[1024]={0};
 
-	gi.Cvar_VariableStringBuffer( va("playerfplvl%d", force ),s, sizeof(s) );
+	gi.Cvar_VariableStringBuffer( va("playerfplvl%d", to_underlying( force ) ),s, sizeof(s) );
 
 	sscanf( s, "%d",&val );
 
-	if ((val<1) || (val> NUM_FORCE_POWERS))
+	if ((val<1) || (val> to_underlying( NUM_FORCE_POWERS )))
 	{
 		return;
 	}
@@ -603,7 +603,7 @@ static int CG_DrawLoadForcePrintRow( const char *itemName, int forceBits,int row
 	return (endIndex);
 }
 
-int			loadForcePowerLevel[NUM_FORCE_POWERS];
+EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	loadForcePowerLevel;
 
 /*
 ===============
@@ -612,7 +612,7 @@ ForcePowerDataPad_Valid
 */
 bool CG_ForcePower_Valid(int forceKnownBits, int index)
 {
-	if ((forceKnownBits & (1 << showPowers[index])) &&
+	if ((forceKnownBits & Bit( showPowers[index] )) &&
 		loadForcePowerLevel[showPowers[index]])	// Does he have the force power?
 	{
 		return true;
@@ -665,7 +665,7 @@ static void CG_DrawLoadForcePowers( int forceBits )
 static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 {
 	char	s[MAX_STRING_CHARS];
-	int		iDummy,i;
+	int		iDummy;
 	float	fDummy;
 	const char	*var;
 
@@ -696,12 +696,12 @@ static void CG_GetLoadScreenInfo(int *weaponBits,int *forceBits)
 	// the new JK2 stuff - force powers, etc...
 	//
 	gi.Cvar_VariableStringBuffer( "playerfplvl", s, sizeof(s) );
-	i=0;
+	forcePowers_t fp = FP_FIRST;
 	var = strtok( s, " " );
 	while( var != nullptr )
 	{
 		/* While there are tokens in "s" */
-		loadForcePowerLevel[i++] = atoi(var);
+		loadForcePowerLevel[fp++] = atoi(var);
 		/* Get next token: */
 		var = strtok( nullptr, " " );
 	}

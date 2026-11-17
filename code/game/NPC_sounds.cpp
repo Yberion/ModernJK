@@ -42,8 +42,8 @@ void NPC_AngerSound (void)
 }
 */
 
-extern void G_SpeechEvent( gentity_t *self, int event );
-void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime )
+extern void G_SpeechEvent( gentity_t *self, entity_event_t event );
+void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime )
 {
 	if ( !self->NPC )
 	{

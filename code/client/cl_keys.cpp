@@ -45,8 +45,8 @@ keyGlobals_t	kg;
 // do NOT blithely change any of the key names (3rd field) here, since they have to match the key binds
 //	in the CFG files, they're also prepended with "KEYNAME_" when looking up StripEd references
 //
-keyname_t keynames[MAX_KEYS] =
-{
+EnumArray<keyname_t, fakeAscii_t, MAX_KEYS> keynames =
+{{
 	{ 0x00, 0x00, nullptr, A_NULL, false									},
 	{ 0x01, 0x01, "SHIFT", A_SHIFT, false 								},
 	{ 0x02, 0x02, "CTRL", A_CTRL, false   								},
@@ -376,8 +376,12 @@ keyname_t keynames[MAX_KEYS] =
 	{ 0x13d, 0x13d, "AUX29", A_AUX29, false								},
 	{ 0x13e, 0x13e, "AUX30", A_AUX30, false								},
 	{ 0x13f, 0x13f, "AUX31", A_AUX31, false								}
-};
-static const size_t numKeynames = ARRAY_LEN( keynames );
+}};
+
+// the key whose state and binding a key shares (a lower-case letter's upper-case one), which the table writes as a character
+static fakeAscii_t Key_Upper( fakeAscii_t keynum ) {
+	return static_cast<fakeAscii_t>( keynames[keynum].upper );
+}
 
 
 
@@ -514,7 +518,7 @@ in-game talk, and menu fields
 Key events are used for non-printable characters, others are gotten from char events.
 =================
 */
-void Field_KeyDownEvent( field_t *edit, int key ) {
+void Field_KeyDownEvent( field_t *edit, fakeAscii_t key ) {
 	int		len;
 
 	// shift-insert is paste
@@ -663,7 +667,7 @@ Console_Key
 Handles history and console scrollback
 ====================
 */
-void Console_Key (int key) {
+void Console_Key (fakeAscii_t key) {
 	// ctrl-L clears screen
 	if ( keynames[ key ].lower == 'l' && kg.keys[A_CTRL].down ) {
 		Cbuf_AddText ("clear\n");
@@ -790,11 +794,11 @@ void Key_SetOverstrikeMode( bool state ) {
 Key_IsDown
 ===================
 */
-bool Key_IsDown( int keynum ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS )
+bool Key_IsDown( fakeAscii_t keynum ) {
+	if ( keynum < A_NULL || keynum >= MAX_KEYS )
 		return false;
 
-	return kg.keys[keynames[keynum].upper].down;
+	return kg.keys[Key_Upper( keynum )].down;
 }
 
 /*
@@ -809,16 +813,16 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-int Key_StringToKeynum( const char *str ) {
+std::optional<fakeAscii_t> Key_StringToKeynum( const char *str ) {
 	if ( !VALIDSTRING( str ) )
-		return -1;
+		return std::nullopt;
 
 	// If single char bind, presume ascii char bind
 	if ( !str[1] )
-		return keynames[(unsigned char)str[0]].upper;
+		return Key_Upper( static_cast<fakeAscii_t>( (unsigned char)str[0] ) );
 
 	// scan for a text match
-	for ( int i=0; i<MAX_KEYS; i++ ) {
+	for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 		if ( keynames[i].name && !Q_stricmp( str, keynames[i].name ) )
 			return keynames[i].keynum;
 	}
@@ -828,27 +832,25 @@ int Key_StringToKeynum( const char *str ) {
 		int n = Com_HexStrToInt( str );
 
 		if ( n >= 0 )
-			return n;
+			return static_cast<fakeAscii_t>( n );
 	}
 
-	return -1;
+	return std::nullopt;
 }
 
 static char tinyString[16];
-static const char *Key_KeynumValid( int keynum ) {
-	if ( keynum == -1 )
-		return "<KEY NOT FOUND>";
-	if ( keynum < 0 || keynum >= MAX_KEYS )
+static const char *Key_KeynumValid( fakeAscii_t keynum ) {
+	if ( keynum < A_NULL || keynum >= MAX_KEYS )
 		return "<OUT OF RANGE>";
 	return nullptr;
 }
 
-static const char *Key_KeyToName( int keynum )
+static const char *Key_KeyToName( fakeAscii_t keynum )
 {
 	return keynames[keynum].name;
 }
 
-static const char *Key_KeyToAscii( int keynum ) {
+static const char *Key_KeyToAscii( fakeAscii_t keynum ) {
 	if ( !keynames[keynum].lower )
 		return nullptr;
 
@@ -861,9 +863,10 @@ static const char *Key_KeyToAscii( int keynum ) {
 	return tinyString;
 }
 
-static const char *Key_KeyToHex( int keynum ) {
-	int i = keynum >> 4;
-	int j = keynum & 15;
+static const char *Key_KeyToHex( fakeAscii_t keynum ) {
+	const int number = to_underlying( keynum );
+	int i = number >> 4;
+	int j = number & 15;
 
 	tinyString[0] = '0';
 	tinyString[1] = 'x';
@@ -875,11 +878,11 @@ static const char *Key_KeyToHex( int keynum ) {
 }
 
 // Returns the ascii code of the keynum
-const char *Key_KeynumToAscii( int keynum ) {
+const char *Key_KeynumToAscii( fakeAscii_t keynum ) {
 	const char *name = Key_KeynumValid(keynum);
 
 	// check for printable ascii
-	if ( !name && keynum > 0 && keynum < 256 )
+	if ( !name && keynum > A_NULL && keynum < A_JOY0 )
 		name = Key_KeyToAscii( keynum );
 
 	// Check for name (for JOYx and AUXx buttons)
@@ -902,7 +905,7 @@ given keynum.
 ===================
 */
 // Returns a console/config file friendly name for the key
-const char *Key_KeynumToString( int keynum ) {
+const char *Key_KeynumToString( fakeAscii_t keynum ) {
 	const char *name;
 
 	name = Key_KeynumValid( keynum );
@@ -912,7 +915,7 @@ const char *Key_KeynumToString( int keynum ) {
 		name = Key_KeyToName( keynum );
 
 	// check for printable ascii
-	if ( !name && keynum > 0 && keynum < 256)
+	if ( !name && keynum > A_NULL && keynum < A_JOY0)
 		name = Key_KeyToAscii( keynum );
 
 	// Fallback to hex number
@@ -927,19 +930,19 @@ const char *Key_KeynumToString( int keynum ) {
 Key_SetBinding
 ===================
 */
-void Key_SetBinding( int keynum, const char *binding ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS )
+void Key_SetBinding( fakeAscii_t keynum, const char *binding ) {
+	if ( keynum < A_NULL || keynum >= MAX_KEYS )
 		return;
 
 	// free old bindings
-	if ( kg.keys[keynames[keynum].upper].binding ) {
-		Z_Free( kg.keys[keynames[keynum].upper].binding );
-		kg.keys[keynames[keynum].upper].binding = nullptr;
+	if ( kg.keys[Key_Upper( keynum )].binding ) {
+		Z_Free( kg.keys[Key_Upper( keynum )].binding );
+		kg.keys[Key_Upper( keynum )].binding = nullptr;
 	}
 
 	// allocate memory for new binding
 	if ( binding )
-		kg.keys[keynames[keynum].upper].binding = CopyString( binding );
+		kg.keys[Key_Upper( keynum )].binding = CopyString( binding );
 
 	// consider this like modifying an archived cvar, so the
 	// file write will be triggered at the next oportunity
@@ -951,8 +954,8 @@ void Key_SetBinding( int keynum, const char *binding ) {
 Key_GetBinding
 ===================
 */
-const char *Key_GetBinding( int keynum ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS )
+const char *Key_GetBinding( fakeAscii_t keynum ) {
+	if ( keynum < A_NULL || keynum >= MAX_KEYS )
 		return "";
 
 	return kg.keys[keynum].binding;
@@ -963,15 +966,15 @@ const char *Key_GetBinding( int keynum ) {
 Key_GetKey
 ===================
 */
-int Key_GetKey( const char *binding ) {
+std::optional<fakeAscii_t> Key_GetKey( const char *binding ) {
 	if ( binding ) {
-		for ( int i=0; i<MAX_KEYS; i++ ) {
+		for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 			if ( kg.keys[i].binding && !Q_stricmp( binding, kg.keys[i].binding ) )
 				return i;
 		}
 	}
 
-	return -1;
+	return std::nullopt;
 }
 
 /*
@@ -985,13 +988,13 @@ void Key_Unbind_f( void ) {
 		return;
 	}
 
-	int b = Key_StringToKeynum( Cmd_Argv( 1 ) );
-	if ( b == -1 ) {
+	const std::optional<fakeAscii_t> b = Key_StringToKeynum( Cmd_Argv( 1 ) );
+	if ( !b ) {
 		Com_Printf( "\"%s\" isn't a valid key\n", Cmd_Argv( 1 ) );
 		return;
 	}
 
-	Key_SetBinding( b, "" );
+	Key_SetBinding( *b, "" );
 }
 
 /*
@@ -1000,7 +1003,7 @@ Key_Unbindall_f
 ===================
 */
 void Key_Unbindall_f( void ) {
-	for ( int i=0; i<MAX_KEYS; i++ ) {
+	for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].binding )
 			Key_SetBinding( i, "" );
 	}
@@ -1019,21 +1022,21 @@ void Key_Bind_f( void ) {
 		return;
 	}
 
-	int b = Key_StringToKeynum( Cmd_Argv( 1 ) );
-	if ( b == -1 ) {
+	const std::optional<fakeAscii_t> b = Key_StringToKeynum( Cmd_Argv( 1 ) );
+	if ( !b ) {
 		Com_Printf( "\"%s\" isn't a valid key\n", Cmd_Argv( 1 ) );
 		return;
 	}
 
 	if ( c == 2 ) {
-		if ( kg.keys[b].binding && kg.keys[b].binding[0] )
-			Com_Printf( S_COLOR_GREY "Bind " S_COLOR_WHITE "%s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n", Key_KeynumToString( b ), kg.keys[b].binding );
+		if ( kg.keys[*b].binding && kg.keys[*b].binding[0] )
+			Com_Printf( S_COLOR_GREY "Bind " S_COLOR_WHITE "%s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n", Key_KeynumToString( *b ), kg.keys[*b].binding );
 		else
-			Com_Printf( "\"%s\" is not bound\n", Key_KeynumToString( b ) );
+			Com_Printf( "\"%s\" is not bound\n", Key_KeynumToString( *b ) );
 		return;
 	}
 
-	Key_SetBinding( b, Cmd_ArgsFrom( 2 ) );
+	Key_SetBinding( *b, Cmd_ArgsFrom( 2 ) );
 }
 
 /*
@@ -1045,7 +1048,7 @@ Writes lines containing "bind key value"
 */
 void Key_WriteBindings( fileHandle_t f ) {
 	FS_Printf( f, "unbindall\n" );
-	for ( size_t i=0; i<MAX_KEYS; i++ ) {
+	for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].binding && kg.keys[i].binding[0] ) {
 			const char *name = Key_KeynumToString( i );
 
@@ -1065,7 +1068,7 @@ Key_Bindlist_f
 ============
 */
 void Key_Bindlist_f( void ) {
-	for ( size_t i=0; i<MAX_KEYS; i++ ) {
+	for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].binding && kg.keys[i].binding[0] )
 			Com_Printf( S_COLOR_GREY "Key " S_COLOR_WHITE "%s (%s) = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE "\n", Key_KeynumToAscii( i ), Key_KeynumToString( i ), kg.keys[i].binding );
 	}
@@ -1077,9 +1080,9 @@ Key_KeynameCompletion
 ============
 */
 void Key_KeynameCompletion( callbackFunc_t callback ) {
-	for ( size_t i=0; i<numKeynames; i++ ) {
-		if ( keynames[i].name )
-			callback( keynames[i].name );
+	for ( const keyname_t &keyname : keynames ) {
+		if ( keyname.name )
+			callback( keyname.name );
 	}
 }
 
@@ -1162,16 +1165,16 @@ CL_ParseBinding
 Execute the commands in the bind string
 ===================
 */
-void CL_ParseBinding( int key, bool down, unsigned time )
+void CL_ParseBinding( fakeAscii_t key, bool down, unsigned time )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 	bool allCommands, allowUpCmds;
 
 	if( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == 0 )
 		return;
-	if( !kg.keys[keynames[key].upper].binding || !kg.keys[keynames[key].upper].binding[0] )
+	if( !kg.keys[Key_Upper( key )].binding || !kg.keys[Key_Upper( key )].binding[0] )
 		return;
-	Q_strncpyz( buf, kg.keys[keynames[key].upper].binding, sizeof( buf ) );
+	Q_strncpyz( buf, kg.keys[Key_Upper( key )].binding, sizeof( buf ) );
 
 	// run all bind commands if console, ui, etc aren't reading keys
 	allCommands = ( Key_GetCatcher( ) == 0 );
@@ -1194,7 +1197,7 @@ void CL_ParseBinding( int key, bool down, unsigned time )
 			if ( allCommands || ( allowUpCmds && !down ) ) {
 				char cmd[1024];
 				Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d\n",
-					( down ) ? '+' : '-', p + 1, key, time );
+					( down ) ? '+' : '-', p + 1, to_underlying( key ), time );
 				Cbuf_AddText( cmd );
 			}
 		}
@@ -1219,11 +1222,11 @@ CL_KeyDownEvent
 Called by CL_KeyEvent to handle a keypress
 ===================
 */
-void CL_KeyDownEvent( int key, unsigned time )
+void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 {
-	kg.keys[keynames[key].upper].down = true;
-	kg.keys[keynames[key].upper].repeats++;
-	if( kg.keys[keynames[key].upper].repeats == 1 ) {
+	kg.keys[Key_Upper( key )].down = true;
+	kg.keys[Key_Upper( key )].repeats++;
+	if( kg.keys[Key_Upper( key )].repeats == 1 ) {
 		kg.keyDownCount++;
 		kg.anykeydown = true;
 	}
@@ -1291,10 +1294,10 @@ CL_KeyUpEvent
 Called by CL_KeyEvent to handle a keyrelease
 ===================
 */
-void CL_KeyUpEvent( int key, unsigned time )
+void CL_KeyUpEvent( fakeAscii_t key, unsigned time )
 {
-	kg.keys[keynames[key].upper].repeats = 0;
-	kg.keys[keynames[key].upper].down = false;
+	kg.keys[Key_Upper( key )].repeats = 0;
+	kg.keys[Key_Upper( key )].down = false;
 	kg.keyDownCount--;
 
 	if (kg.keyDownCount <= 0) {
@@ -1325,7 +1328,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent (int key, bool down, unsigned time) {
+void CL_KeyEvent (fakeAscii_t key, bool down, unsigned time) {
 	if( down )
 		CL_KeyDownEvent( key, time );
 	else
@@ -1359,7 +1362,7 @@ void Key_ClearStates( void ) {
 	kg.anykeydown = false;
 	kg.keyDownCount = 0;
 
-	for ( int i=0; i<MAX_KEYS; i++ ) {
+	for ( fakeAscii_t i=A_NULL; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].down )
 			CL_KeyEvent( i, false, 0 );
 		kg.keys[i].down = false;

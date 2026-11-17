@@ -273,7 +273,7 @@ Both client and server can use this, and it will
 do the appropriate things.
 =============
 */
-void NORETURN QDECL Com_Error( int code, const char *fmt, ... ) {
+void NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) {
 	va_list		argptr;
 	static int	lastErrorTime;
 	static int	errorCount;
@@ -930,7 +930,7 @@ int Com_EventLoop( void ) {
         case SE_NONE:
             break;
 		case SE_KEY:
-			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+			CL_KeyEvent( static_cast<fakeAscii_t>( ev.evValue ), ev.evValue2, ev.evTime );
 			break;
 		case SE_CHAR:
 			CL_CharEvent( ev.evValue );
@@ -1087,7 +1087,7 @@ Com_ErrorString
 Error string for the given error code (from Com_Error).
 =================
 */
-static const char *Com_ErrorString ( int code )
+static const char *Com_ErrorString ( errorParm_t code )
 {
 	switch ( code )
 	{
@@ -1113,7 +1113,7 @@ Com_CatchError
 Handles freeing up of resources when Com_Error is called.
 =================
 */
-static void Com_CatchError ( int code )
+static void Com_CatchError ( errorParm_t code )
 {
 	if ( code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT ) {
 		SV_Shutdown( "Server disconnected" );
@@ -1321,7 +1321,7 @@ void Com_Init( char *commandLine ) {
 		com_fullyInitialized = true;
 		Com_Printf ("--- Common Initialization Complete ---\n");
 	}
-	catch ( int code )
+	catch ( errorParm_t code )
 	{
 		Com_CatchError (code);
 		Sys_Error ("Error during initialization: %s", Com_ErrorString (code));
@@ -1694,7 +1694,7 @@ void Com_Frame( void ) {
 
 		com_frameNumber++;
 	}
-	catch (int code) {
+	catch (errorParm_t code) {
 		Com_CatchError (code);
 		Com_Printf ("%s\n", Com_ErrorString (code));
 		return;

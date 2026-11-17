@@ -748,7 +748,7 @@ static void G_SpewEntList(void)
 					numTempEntST++;
 				}
 
-				str = va("TEMPENT %4i: EV %i\n", ent->s.number, ent->s.eType-ET_EVENTS);
+				str = va("TEMPENT %4i: EV %i\n", ent->s.number, BG_EventEntityEvent( ent->s.eType ));
 				Com_Printf("%s", str);
 #ifdef _DEBUG
 				if (fh)
@@ -1055,13 +1055,13 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event ) {
+gentity_t *G_TempEntity( vec3_t origin, entity_event_t event ) {
 	gentity_t		*e;
 	vec3_t		snapped;
 
 	e = G_Spawn();
-	e->s.eType = ET_EVENTS + event;
-	if ( event > 0 && event < EV_NUM_ENTITY_EVENTS ) {
+	e->s.eType = BG_EventEntityType( BG_PackEvent( event ) );
+	if ( event > EV_NONE && event < EV_NUM_ENTITY_EVENTS ) {
 		g_stats.events[event]++;
 	}
 
@@ -1091,13 +1091,13 @@ G_SoundTempEntity
 Special event entity that keeps sound trackers in mind
 =================
 */
-gentity_t *G_SoundTempEntity( vec3_t origin, int event ) {
+gentity_t *G_SoundTempEntity( vec3_t origin, entity_event_t event ) {
 	gentity_t		*e;
 	vec3_t		snapped;
 
 	e = G_Spawn();
 
-	e->s.eType = ET_EVENTS + event;
+	e->s.eType = BG_EventEntityType( BG_PackEvent( event ) );
 	e->inuse = true;
 
 	e->classname = "tempEntity";
@@ -1210,7 +1210,7 @@ client side: jumppads and item pickups
 Adds an event+parm and twiddles the event counter
 ===============
 */
-void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm ) {
+void G_AddPredictableEvent( gentity_t *ent, entity_event_t event, int eventParm ) {
 	if ( !ent->client ) {
 		return;
 	}
@@ -1225,15 +1225,15 @@ G_AddEvent
 Adds an event+parm and twiddles the event counter
 ===============
 */
-void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
+void G_AddEvent( gentity_t *ent, entity_event_t event, int eventParm ) {
 	int		bits;
 
-	if ( !event ) {
+	if ( event == EV_NONE ) {
 		trap->Print( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
 		return;
 	}
 
-	if ( event > 0 && event < EV_NUM_ENTITY_EVENTS ) {
+	if ( event > EV_NONE && event < EV_NUM_ENTITY_EVENTS ) {
 		g_stats.events[event]++;
 	}
 
@@ -1241,13 +1241,13 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 	if ( ent->client ) {
 		bits = ent->client->ps.externalEvent & EV_EVENT_BITS;
 		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-		ent->client->ps.externalEvent = event | bits;
+		ent->client->ps.externalEvent = BG_PackEvent( event, bits );
 		ent->client->ps.externalEventParm = eventParm;
 		ent->client->ps.externalEventTime = level.time;
 	} else {
 		bits = ent->s.event & EV_EVENT_BITS;
 		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-		ent->s.event = event | bits;
+		ent->s.event = BG_PackEvent( event, bits );
 		ent->s.eventParm = eventParm;
 	}
 	ent->eventTime = level.time;
@@ -1868,7 +1868,7 @@ tryJetPack:
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
 			ItemUse_UseDisp(ent, HI_AMMODISP);
-			G_AddEvent(ent, EV_USE_ITEM0+(int)HI_AMMODISP, 0);
+			G_AddEvent(ent, BG_UseItemEvent( HI_AMMODISP ), 0);
 			return;
 		}
 	}
@@ -2084,7 +2084,7 @@ void G_ROFF_NotetrackCallback( gentity_t *cent, const char *notetrack)
 	}
 }
 
-void G_SpeechEvent( gentity_t *self, int event )
+void G_SpeechEvent( gentity_t *self, entity_event_t event )
 {
 	G_AddEvent(self, event, 0);
 }

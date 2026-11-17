@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_ClearLookTarget( gentity_t *self );
@@ -372,7 +372,7 @@ G_SetEnemy
 void G_AimSet( gentity_t *self, int aim );
 void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 {
-	int	event = 0;
+	entity_event_t	event = EV_NONE;
 
 	//Must be valid
 	if ( enemy == nullptr )
@@ -463,7 +463,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 				}
 			}
 
-			if ( event )
+			if ( event != EV_NONE )
 			{//yell
 				G_AddVoiceEvent( self, event, 2000 );
 			}
@@ -536,7 +536,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 	//Otherwise, just picking up another enemy
 
-	if ( event )
+	if ( event != EV_NONE )
 	{
 		G_AddVoiceEvent( self, event, 2000 );
 	}

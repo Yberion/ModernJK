@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "w_saber.h"
 
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void NPC_AimAdjust( int change );
 extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
@@ -258,7 +258,7 @@ void NPC_GM_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	vec3_t point;
 	gentity_t *inflictor = attacker;
 	hitLocation_t hitLoc = HL_FOOT_RT;
-	int mod = gPainMOD;
+	meansOfDeath_t mod = gPainMOD;
 
 	VectorCopy(gPainPoint, point);
 
@@ -306,7 +306,7 @@ void NPC_GM_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		{
 			if ( self->delay < level.time )
 			{
-				int speech;
+				entity_event_t speech;
 				switch( self->count )
 				{
 				default:
@@ -964,7 +964,7 @@ void NPC_BSGM_Attack( void )
 		{
 			if ( NPCS.NPCInfo->enemyCheckDebounceTime < 8 )
 			{
-				int speech = -1;
+				entity_event_t speech = EV_NONE;
 				switch( NPCS.NPCInfo->enemyCheckDebounceTime )
 				{
 				case 0:
@@ -983,7 +983,7 @@ void NPC_BSGM_Attack( void )
 					break;
 				}
 				NPCS.NPCInfo->enemyCheckDebounceTime++;
-				if ( speech != -1 )
+				if ( speech != EV_NONE )
 				{
 					G_AddVoiceEvent( NPCS.NPC, speech, Q_irand( 3000, 5000 ) );
 					TIMER_Set( NPCS.NPC, "talkDebounce", Q_irand( 5000, 7000 ) );

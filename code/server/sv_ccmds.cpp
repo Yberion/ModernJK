@@ -210,9 +210,9 @@ void SV_Player_EndOfLevelSave(void)
 		// the new JK2 stuff - force powers, etc...
 		//
 		s2 = "";
-		for (i=0;i< NUM_FORCE_POWERS; i++)
+		for (forcePowers_t fp=FP_FIRST;fp< NUM_FORCE_POWERS; fp++)
 		{
-			s2 = va("%s %i",s2, pState->forcePowerLevel[i]);
+			s2 = va("%s %i",s2, pState->forcePowerLevel[fp]);
 		}
 		Cvar_Set( "playerfplvl", s2 );
 	}

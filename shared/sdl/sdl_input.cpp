@@ -73,7 +73,7 @@ static void IN_PrintKey( const SDL_Keysym *keysym, fakeAscii_t key, bool down )
 	if( keysym->mod & KMOD_MODE )     Com_Printf( " KMOD_MODE" );
 	if( keysym->mod & KMOD_RESERVED ) Com_Printf( " KMOD_RESERVED" );
 
-	Com_Printf( " Q:0x%02x(%s)\n", key, Key_KeynumToString( key ) );
+	Com_Printf( " Q:0x%02x(%s)\n", to_underlying( key ), Key_KeynumToString( key ) );
 }
 
 #define MAX_CONSOLE_KEYS 16
@@ -138,10 +138,10 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 			else
 			{
 				c->type = consoleKey_t::QUAKE_KEY;
-				c->u.key = (fakeAscii_t)Key_StringToKeynum( token );
+				c->u.key = Key_StringToKeynum( token ).value_or( A_NULL );
 
 				// 0 isn't a key
-				if( c->u.key <= 0 )
+				if( c->u.key <= A_NULL )
 					continue;
 			}
 
@@ -150,7 +150,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 	}
 
 	// If the character is the same as the key, prefer the character
-	if( key == character )
+	if( to_underlying( key ) == character )
 		key = A_NULL;
 
 	for( i = 0; i < numConsoleKeys; i++ )
@@ -160,7 +160,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 		switch( c->type )
 		{
 			case consoleKey_t::QUAKE_KEY:
-				if( key && c->u.key == key )
+				if( key != A_NULL && c->u.key == key )
 					return true;
 				break;
 
@@ -278,13 +278,15 @@ IN_TranslateSDLToJKKey
 */
 static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
 	fakeAscii_t key = A_NULL;
+	// SDL's keycode of a character key is the character, which the key numbers follow
+	const fakeAscii_t sym = static_cast<fakeAscii_t>( keysym->sym );
 
-	if ( keysym->sym >= A_LOW_A && keysym->sym <= A_LOW_Z )
-		key = (fakeAscii_t)(A_CAP_A + (keysym->sym - A_LOW_A));
-	else if ( keysym->sym >= A_LOW_AGRAVE && keysym->sym <= A_LOW_THORN && keysym->sym != A_DIVIDE )
-		key = (fakeAscii_t)(A_CAP_AGRAVE + (keysym->sym - A_LOW_AGRAVE));
+	if ( sym >= A_LOW_A && sym <= A_LOW_Z )
+		key = A_CAP_A + ( sym - A_LOW_A );
+	else if ( sym >= A_LOW_AGRAVE && sym <= A_LOW_THORN && sym != A_DIVIDE )
+		key = A_CAP_AGRAVE + ( sym - A_LOW_AGRAVE );
 	else if ( keysym->sym >= SDLK_SPACE && keysym->sym < SDLK_DELETE )
-		key = (fakeAscii_t)keysym->sym;
+		key = sym;
 	else
 	{
 		IN_TranslateNumpad( keysym, &key );
@@ -503,8 +505,13 @@ static void IN_DeactivateMouse( void )
 	}
 }
 
+// a key's event for the engine's queue
+static void IN_QueKey( fakeAscii_t key, bool down ) {
+	Sys_QueEvent( 0, SE_KEY, to_underlying( key ), down, 0, nullptr );
+}
+
 // We translate axes movement into keypresses
-static int joy_keys[16] = {
+static fakeAscii_t joy_keys[16] = {
 	A_CURSOR_LEFT, A_CURSOR_RIGHT,
 	A_CURSOR_UP, A_CURSOR_DOWN,
 	A_JOY16, A_JOY17,
@@ -517,7 +524,7 @@ static int joy_keys[16] = {
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static int hat_keys[16] = {
+static fakeAscii_t hat_keys[16] = {
 	A_JOY28, A_JOY29,
 	A_JOY30, A_JOY31,
 	A_JOY24, A_JOY25,
@@ -832,12 +839,12 @@ static void IN_ProcessEvents( void )
 			case SDL_KEYDOWN:
 				key = IN_TranslateSDLToJKKey( &e.key.keysym, true );
 				if ( key != A_NULL )
-					Sys_QueEvent( 0, SE_KEY, key, true, 0, nullptr );
+					IN_QueKey( key, true );
 
 				if ( key == A_BACKSPACE )
 					Sys_QueEvent( 0, SE_CHAR, CTRL('h'), false, 0, nullptr);
 				else if ( kg.keys[A_CTRL].down && key >= A_CAP_A && key <= A_CAP_Z )
-					Sys_QueEvent( 0, SE_CHAR, CTRL(tolower(key)), false, 0, nullptr );
+					Sys_QueEvent( 0, SE_CHAR, CTRL(tolower(to_underlying(key))), false, 0, nullptr );
 
 				lastKeyDown = key;
 				break;
@@ -845,7 +852,7 @@ static void IN_ProcessEvents( void )
 			case SDL_KEYUP:
 				key = IN_TranslateSDLToJKKey( &e.key.keysym, false );
 				if( key != A_NULL )
-					Sys_QueEvent( 0, SE_KEY, key, false, 0, nullptr );
+					IN_QueKey( key, false );
 
 				lastKeyDown = A_NULL;
 				break;
@@ -863,8 +870,8 @@ static void IN_ProcessEvents( void )
 						{
 							if( IN_IsConsoleKey( A_NULL, utf32 ) && !cl_consoleUseScanCode->integer )
 							{
-								Sys_QueEvent( 0, SE_KEY, A_CONSOLE, true, 0, nullptr );
-								Sys_QueEvent( 0, SE_KEY, A_CONSOLE, false, 0, nullptr );
+								IN_QueKey( A_CONSOLE, true );
+								IN_QueKey( A_CONSOLE, false );
 							}
 							else
 							{
@@ -888,7 +895,7 @@ static void IN_ProcessEvents( void )
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 				{
-					unsigned short b;
+					fakeAscii_t b;
 					switch( e.button.button )
 					{
 						case SDL_BUTTON_LEFT:	b = A_MOUSE1;     break;
@@ -898,21 +905,21 @@ static void IN_ProcessEvents( void )
 						case SDL_BUTTON_X2:		b = A_MOUSE5;     break;
 						default: b = A_AUX0 + ( e.button.button - 6 ) % 32; break;
 					}
-					Sys_QueEvent( 0, SE_KEY, b,
-						( e.type == SDL_MOUSEBUTTONDOWN ? true : false ), 0, nullptr );
+					IN_QueKey( b,
+						( e.type == SDL_MOUSEBUTTONDOWN ? true : false ) );
 				}
 				break;
 
 			case SDL_MOUSEWHEEL:
 				if( e.wheel.y > 0 )
 				{
-					Sys_QueEvent( 0, SE_KEY, A_MWHEELUP, true, 0, nullptr );
-					Sys_QueEvent( 0, SE_KEY, A_MWHEELUP, false, 0, nullptr );
+					IN_QueKey( A_MWHEELUP, true );
+					IN_QueKey( A_MWHEELUP, false );
 				}
 				else if( e.wheel.y < 0 )
 				{
-					Sys_QueEvent( 0, SE_KEY, A_MWHEELDOWN, true, 0, nullptr );
-					Sys_QueEvent( 0, SE_KEY, A_MWHEELDOWN, false, 0, nullptr );
+					IN_QueKey( A_MWHEELDOWN, true );
+					IN_QueKey( A_MWHEELDOWN, false );
 				}
 				break;
 
@@ -1002,7 +1009,7 @@ static void IN_JoyMove( void )
 			bool pressed = (SDL_JoystickGetButton(stick, i) != 0);
 			if (pressed != stick_state.buttons[i])
 			{
-				Sys_QueEvent( 0, SE_KEY, A_JOY1 + i, pressed, 0, nullptr );
+				IN_QueKey( A_JOY1 + i, pressed );
 				stick_state.buttons[i] = pressed;
 			}
 		}
@@ -1027,32 +1034,32 @@ static void IN_JoyMove( void )
 				// release event
 				switch( ((Uint8 *)&stick_state.oldhats)[i] ) {
 					case SDL_HAT_UP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], false );
 						break;
 					case SDL_HAT_RIGHT:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 1], false );
 						break;
 					case SDL_HAT_DOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], false );
 						break;
 					case SDL_HAT_LEFT:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 3], false );
 						break;
 					case SDL_HAT_RIGHTUP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], false, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], false );
+						IN_QueKey( hat_keys[4*i + 1], false );
 						break;
 					case SDL_HAT_RIGHTDOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], false, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], false );
+						IN_QueKey( hat_keys[4*i + 1], false );
 						break;
 					case SDL_HAT_LEFTUP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], false, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], false );
+						IN_QueKey( hat_keys[4*i + 3], false );
 						break;
 					case SDL_HAT_LEFTDOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], false, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], false, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], false );
+						IN_QueKey( hat_keys[4*i + 3], false );
 						break;
 					default:
 						break;
@@ -1060,32 +1067,32 @@ static void IN_JoyMove( void )
 				// press event
 				switch( ((Uint8 *)&hats)[i] ) {
 					case SDL_HAT_UP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], true );
 						break;
 					case SDL_HAT_RIGHT:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 1], true );
 						break;
 					case SDL_HAT_DOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], true );
 						break;
 					case SDL_HAT_LEFT:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 3], true );
 						break;
 					case SDL_HAT_RIGHTUP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], true, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], true );
+						IN_QueKey( hat_keys[4*i + 1], true );
 						break;
 					case SDL_HAT_RIGHTDOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], true, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 1], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], true );
+						IN_QueKey( hat_keys[4*i + 1], true );
 						break;
 					case SDL_HAT_LEFTUP:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 0], true, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 0], true );
+						IN_QueKey( hat_keys[4*i + 3], true );
 						break;
 					case SDL_HAT_LEFTDOWN:
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 2], true, 0, nullptr );
-						Sys_QueEvent( 0, SE_KEY, hat_keys[4*i + 3], true, 0, nullptr );
+						IN_QueKey( hat_keys[4*i + 2], true );
+						IN_QueKey( hat_keys[4*i + 3], true );
 						break;
 					default:
 						break;
@@ -1139,11 +1146,11 @@ static void IN_JoyMove( void )
 	{
 		for( i = 0; i < 16; i++ ) {
 			if( ( axes & ( 1 << i ) ) && !( stick_state.oldaxes & ( 1 << i ) ) ) {
-				Sys_QueEvent( 0, SE_KEY, joy_keys[i], true, 0, nullptr );
+				IN_QueKey( joy_keys[i], true );
 			}
 
 			if( !( axes & ( 1 << i ) ) && ( stick_state.oldaxes & ( 1 << i ) ) ) {
-				Sys_QueEvent( 0, SE_KEY, joy_keys[i], false, 0, nullptr );
+				IN_QueKey( joy_keys[i], false );
 			}
 		}
 	}

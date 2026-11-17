@@ -107,7 +107,7 @@ typedef struct scrollInfo_s {
 	int nextScrollTime;
 	int nextAdjustTime;
 	int adjustValue;
-	int scrollKey;
+	fakeAscii_t scrollKey;
 	float xStart;
 	float yStart;
 	itemDef_t *item;
@@ -5566,23 +5566,23 @@ static const char *g_bindCommands[] = {
 
 #define g_bindCount ARRAY_LEN(g_bindCommands)
 
-static int g_bindKeys[g_bindCount][2];
+static std::optional<fakeAscii_t> g_bindKeys[g_bindCount][2];
 
 /*
 =================
 Controls_GetKeyAssignment
 =================
 */
-static void Controls_GetKeyAssignment( const char *command, int *twokeys )
+static void Controls_GetKeyAssignment( const char *command, std::optional<fakeAscii_t> *twokeys )
 {
 	int		count;
-	int		j;
+	fakeAscii_t	j;
 	char	b[256];
 
-	twokeys[0] = twokeys[1] = -1;
+	twokeys[0] = twokeys[1] = std::nullopt;
 	count = 0;
 
-	for ( j=0; j<MAX_KEYS; j++ ) {
+	for ( j=A_NULL; j<MAX_KEYS; j++ ) {
 		DC->getBindingBuf( j, b, sizeof( b ) );
 		if ( *b && !Q_stricmp( b, command ) ) {
 			twokeys[count] = j;
@@ -6890,7 +6890,7 @@ BindingFromName
 */
 void BindingFromName( const char *cvar ) {
 	size_t	i;
-	int		b1, b2;
+	std::optional<fakeAscii_t>	b1, b2;
 	char	sOR[32];
 
 	// iterate each command, set its default binding
@@ -6898,15 +6898,15 @@ void BindingFromName( const char *cvar ) {
 		if ( !Q_stricmp(cvar, g_bindCommands[i] ) ) {
 			b2 = g_bindKeys[i][1];
 			b1 = g_bindKeys[i][0];
-			if ( b1 == -1 )
+			if ( !b1 )
 				break;
 
-			if ( b2 != -1 ) {
+			if ( b2 ) {
 				char keyname[2][32];
 
-				DC->keynumToStringBuf( b1, keyname[0], sizeof( keyname[0] ) );
+				DC->keynumToStringBuf( *b1, keyname[0], sizeof( keyname[0] ) );
 // do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[0]);
-				DC->keynumToStringBuf( b2, keyname[1], sizeof( keyname[1] ) );
+				DC->keynumToStringBuf( *b2, keyname[1], sizeof( keyname[1] ) );
 // do NOT do this or it corrupts asian text!!!					Q_strupr(keyname[1]);
 
 #ifdef JK2_MODE
@@ -6918,7 +6918,7 @@ void BindingFromName( const char *cvar ) {
 				Com_sprintf( g_nameBind, sizeof( g_nameBind ), "%s %s %s", keyname[0], sOR, keyname[1] );
 			}
 			else {
-				DC->keynumToStringBuf( b1, g_nameBind, sizeof( g_nameBind ) );
+				DC->keynumToStringBuf( *b1, g_nameBind, sizeof( g_nameBind ) );
 // do NOT do this or it corrupts asian text!!!					Q_strupr(g_nameBind);
 			}
 			return;
@@ -8751,7 +8751,7 @@ static bool Rect_ContainsPoint(rectDef_t *rect, float x, float y)
 	return false;
 }
 
-bool Item_TextScroll_HandleKey ( itemDef_t *item, int key, bool down, bool force)
+bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bool force)
 {
 	textScrollDef_t *scrollPtr = (textScrollDef_t*)item->typeData;
 	int				max;
@@ -9493,11 +9493,11 @@ void Controls_SetConfig( void )
 
 	// iterate each command, get its numeric binding
 	for ( i=0; i<g_bindCount; i++ ) {
-		if ( g_bindKeys[i][0] != -1 ) {
-			DC->setBinding( g_bindKeys[i][0], g_bindCommands[i] );
+		if ( g_bindKeys[i][0] ) {
+			DC->setBinding( *g_bindKeys[i][0], g_bindCommands[i] );
 
-			if ( g_bindKeys[i][1] != -1 )
-				DC->setBinding( g_bindKeys[i][1], g_bindCommands[i] );
+			if ( g_bindKeys[i][1] )
+				DC->setBinding( *g_bindKeys[i][1], g_bindCommands[i] );
 		}
 	}
 }
@@ -9507,8 +9507,8 @@ void Controls_SetDefaults( void )
 	size_t	i;
 
 	for ( i=0; i<g_bindCount; i++ ) {
-		g_bindKeys[i][0] = -1;
-		g_bindKeys[i][1] = -1;
+		g_bindKeys[i][0] = std::nullopt;
+		g_bindKeys[i][1] = std::nullopt;
 	}
 }
 
@@ -9534,7 +9534,7 @@ void Item_Bind_Ungrey(itemDef_t *item)
 Item_Bind_HandleKey
 =================
 */
-bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down)
+bool Item_Bind_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool down)
 {
 	int			id;
 	int			i;
@@ -9589,12 +9589,12 @@ bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down)
 			return false;
 		}
 
-		if (key & K_CHAR_FLAG)
+		if (!key)
 		{
 			return true;
 		}
 
-		switch (key)
+		switch (*key)
 		{
 			case A_ESCAPE:
 				g_waitingForKey = false;
@@ -9605,14 +9605,14 @@ bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down)
 				id = BindingIDFromName(item->cvar);
 				if ( id != -1 )
 				{
-					if ( g_bindKeys[id][0] != -1 )
-						DC->setBinding( g_bindKeys[id][0], "" );
+					if ( g_bindKeys[id][0] )
+						DC->setBinding( *g_bindKeys[id][0], "" );
 
-					if ( g_bindKeys[id][1] != -1 )
-						DC->setBinding( g_bindKeys[id][1], "" );
+					if ( g_bindKeys[id][1] )
+						DC->setBinding( *g_bindKeys[id][1], "" );
 
-					g_bindKeys[id][0] = -1;
-					g_bindKeys[id][1] = -1;
+					g_bindKeys[id][0] = std::nullopt;
+					g_bindKeys[id][1] = std::nullopt;
 				}
 				Controls_SetConfig();
 				g_waitingForKey = false;
@@ -9620,23 +9620,25 @@ bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down)
 				Item_Bind_Ungrey(item);
 				return true;
 				break;
-			case '`':
+			case A_LEFT_SINGLE_QUOTE:
 				return true;
+			default:
+				break;
 		}
 	}
 
 	// Is the same key being bound to something else?
-	if ( key != -1 ) {
+	if ( key ) {
 		size_t	b;
 
 		for ( b=0; b<g_bindCount; b++ )
 		{
 			if ( g_bindKeys[b][1] == key )
-				g_bindKeys[b][1] = -1;
+				g_bindKeys[b][1] = std::nullopt;
 
 			if ( g_bindKeys[b][0] == key ) {
 				g_bindKeys[b][0] = g_bindKeys[b][1];
-				g_bindKeys[b][1] = -1;
+				g_bindKeys[b][1] = std::nullopt;
 			}
 		}
 	}
@@ -9644,25 +9646,25 @@ bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down)
 	id = BindingIDFromName( item->cvar );
 
 	if ( id != -1 ) {
-		if ( key == -1 ) {
-			if ( g_bindKeys[id][0] != -1 ) {
-				DC->setBinding( g_bindKeys[id][0], "" );
-				g_bindKeys[id][0] = -1;
+		if ( !key ) {
+			if ( g_bindKeys[id][0] ) {
+				DC->setBinding( *g_bindKeys[id][0], "" );
+				g_bindKeys[id][0] = std::nullopt;
 			}
-			if ( g_bindKeys[id][1] != -1 ) {
-				DC->setBinding( g_bindKeys[id][1], "" );
-				g_bindKeys[id][1] = -1;
+			if ( g_bindKeys[id][1] ) {
+				DC->setBinding( *g_bindKeys[id][1], "" );
+				g_bindKeys[id][1] = std::nullopt;
 			}
 		}
-		else if ( g_bindKeys[id][0] == -1 )
+		else if ( !g_bindKeys[id][0] )
 			g_bindKeys[id][0] = key;
-		else if ( g_bindKeys[id][0] != key && g_bindKeys[id][1] == -1 )
+		else if ( g_bindKeys[id][0] != key && !g_bindKeys[id][1] )
 			g_bindKeys[id][1] = key;
 		else {
-			DC->setBinding( g_bindKeys[id][0], "" );
-			DC->setBinding( g_bindKeys[id][1], "" );
+			DC->setBinding( *g_bindKeys[id][0], "" );
+			DC->setBinding( *g_bindKeys[id][1], "" );
 			g_bindKeys[id][0] = key;
-			g_bindKeys[id][1] = -1;
+			g_bindKeys[id][1] = std::nullopt;
 		}
 	}
 
@@ -9756,12 +9758,13 @@ itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu)
 Item_TextField_HandleKey
 =================
 */
-bool Item_TextField_HandleKey(itemDef_t *item, int key)
+bool Item_TextField_HandleKey(itemDef_t *item, int event)
 {
 	char buff[1024];
 	int len;
 	itemDef_t *newItem = nullptr;
 	editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
+	const std::optional<fakeAscii_t> key = KeyEvent_Key( event );	// none for a character
 
 	if (item->cvar)
 	{
@@ -9774,12 +9777,12 @@ bool Item_TextField_HandleKey(itemDef_t *item, int key)
 			len = editPtr->maxChars;
 		}
 
-		if ( key & K_CHAR_FLAG )
+		if ( event & K_CHAR_FLAG )
 		{
-			key &= ~K_CHAR_FLAG;
+			const int ch = event & ~K_CHAR_FLAG;
 
 
-			if (key == 'h' - 'a' + 1 )
+			if (ch == 'h' - 'a' + 1 )
 			{	// ctrl-h is backspace
 				if ( item->cursorPos > 0 )
 				{
@@ -9797,14 +9800,14 @@ bool Item_TextField_HandleKey(itemDef_t *item, int key)
 			//
 			// ignore any non printable chars
 			//
-			if ( key < 32 || !item->cvar)
+			if ( ch < 32 || !item->cvar)
 			{
 			    return true;
 		    }
 
 			if (item->type == ITEM_TYPE_NUMERICFIELD)
 			{
-				if (key < '0' || key > '9')
+				if (ch < '0' || ch > '9')
 				{
 					return false;
 				}
@@ -9826,7 +9829,7 @@ bool Item_TextField_HandleKey(itemDef_t *item, int key)
 				}
 			}
 
-			buff[item->cursorPos] = key;
+			buff[item->cursorPos] = ch;
 
 			DC->setCVar(item->cvar, buff);
 
@@ -10185,7 +10188,7 @@ void Item_StopCapture(itemDef_t *item)
 Item_ListBox_HandleKey
 =================
 */
-bool Item_ListBox_HandleKey(itemDef_t *item, int key, bool down, bool force)
+bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool force)
 {
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int count = DC->feederCount(item->special);
@@ -10657,7 +10660,7 @@ static void Scroll_Slider_ThumbFunc(void *p)
 Item_StartCapture
 =================
 */
-void Item_StartCapture(itemDef_t *item, int key)
+void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 {
 	int flags;
 	switch (item->type)
@@ -10742,7 +10745,7 @@ void Item_StartCapture(itemDef_t *item, int key)
 Item_YesNo_HandleKey
 =================
 */
-bool Item_YesNo_HandleKey(itemDef_t *item, int key)
+bool Item_YesNo_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
   if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar)
 	{
@@ -10821,7 +10824,7 @@ int Item_Multi_CountSettings(itemDef_t *item)
 Item_OwnerDraw_HandleKey
 =================
 */
-bool Item_OwnerDraw_HandleKey(itemDef_t *item, int key)
+bool Item_OwnerDraw_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
   if (item && DC->ownerDrawHandleKey)
   {
@@ -10835,7 +10838,7 @@ bool Item_OwnerDraw_HandleKey(itemDef_t *item, int key)
 Item_Text_HandleKey
 =================
 */
-bool Item_Text_HandleKey(itemDef_t *item, int key)
+bool Item_Text_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
 	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_AUTOWRAPPED)
 
@@ -10872,7 +10875,7 @@ bool Item_Text_HandleKey(itemDef_t *item, int key)
 Item_Multi_HandleKey
 =================
 */
-bool Item_Multi_HandleKey(itemDef_t *item, int key)
+bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if (multiPtr)
@@ -10964,7 +10967,7 @@ bool Item_Multi_HandleKey(itemDef_t *item, int key)
 Item_Slider_HandleKey
 =================
 */
-bool Item_Slider_HandleKey(itemDef_t *item, int key, bool down)
+bool Item_Slider_HandleKey(itemDef_t *item, fakeAscii_t key, bool down)
 {
 	//DC->Print("slider handle key\n");
 //JLF MPMOVED
@@ -11021,7 +11024,7 @@ bool Item_Slider_HandleKey(itemDef_t *item, int key, bool down)
 Item_HandleKey
 =================
 */
-bool Item_HandleKey(itemDef_t *item, int key, bool down)
+bool Item_HandleKey(itemDef_t *item, std::optional<fakeAscii_t> key, bool down)
 {
 
 	if (itemCapture)
@@ -11035,11 +11038,12 @@ bool Item_HandleKey(itemDef_t *item, int key, bool down)
 	{
 		if (down && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3))
 		{
-			Item_StartCapture(item, key);
+			Item_StartCapture(item, *key);
 		}
 	}
 
-	if (!down)
+	// no item type here reads a character
+	if (!down || !key)
 	{
 		return false;
 	}
@@ -11057,36 +11061,36 @@ bool Item_HandleKey(itemDef_t *item, int key, bool down)
 			break;
 		case ITEM_TYPE_EDITFIELD:
 		case ITEM_TYPE_NUMERICFIELD:
-			//return Item_TextField_HandleKey(item, key);
+			//return Item_TextField_HandleKey(item, to_underlying( *key ));
 			return false;
 			break;
 		case ITEM_TYPE_COMBO:
 			return false;
 			break;
 		case ITEM_TYPE_LISTBOX:
-			return Item_ListBox_HandleKey(item, key, down, false);
+			return Item_ListBox_HandleKey(item, *key, down, false);
 			break;
 		case ITEM_TYPE_TEXTSCROLL:
-			return Item_TextScroll_HandleKey(item, key, down, false);
+			return Item_TextScroll_HandleKey(item, *key, down, false);
 			break;
 		case ITEM_TYPE_YESNO:
-			return Item_YesNo_HandleKey(item, key);
+			return Item_YesNo_HandleKey(item, *key);
 			break;
 		case ITEM_TYPE_MULTI:
-			return Item_Multi_HandleKey(item, key);
+			return Item_Multi_HandleKey(item, *key);
 			break;
 		case ITEM_TYPE_OWNERDRAW:
-			return Item_OwnerDraw_HandleKey(item, key);
+			return Item_OwnerDraw_HandleKey(item, *key);
 			break;
 		case ITEM_TYPE_BIND:
 			return Item_Bind_HandleKey(item, key, down);
 			break;
 		case ITEM_TYPE_SLIDER:
-			return Item_Slider_HandleKey(item, key, down);
+			return Item_Slider_HandleKey(item, *key, down);
 			break;
 //JLF MPMOVED
 		case ITEM_TYPE_TEXT:
-			return Item_Text_HandleKey(item, key);
+			return Item_Text_HandleKey(item, *key);
 			break;
 		default:
 			return false;
@@ -11169,11 +11173,12 @@ void Item_Action(itemDef_t *item)
 Menu_HandleKey
 =================
 */
-void Menu_HandleKey(menuDef_t *menu, int key, bool down)
+void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 {
 	int i;
 	itemDef_t *item = nullptr;
 	bool inHandler = false;
+	std::optional<fakeAscii_t> key = KeyEvent_Key( event );
 
 	if (inHandler)
 	{
@@ -11190,7 +11195,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, bool down)
 
 	if (g_editingField && down)
 	{
-		if (!Item_TextField_HandleKey(g_editItem, key))
+		if (!Item_TextField_HandleKey(g_editItem, event))
 		{
 			g_editingField = false;
 			g_editItem = nullptr;
@@ -11223,7 +11228,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, bool down)
 		if (!inHandleKey && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3))
 		{
 			inHandleKey = true;
-			Menus_HandleOOBClick(menu, key, down);
+			Menus_HandleOOBClick(menu, event, down);
 			inHandleKey = false;
 			inHandler = false;
 			return;
@@ -11262,17 +11267,16 @@ void Menu_HandleKey(menuDef_t *menu, int key, bool down)
 
 	}
 
-	if (!down)
+	if (!down || !key)	// a character has no default handling
 	{
 		inHandler = false;
 		return;
 	}
 
 	// Special Data Pad key handling (gotta love the datapad)
-	if (!(key & K_CHAR_FLAG) )
-	{	//only check keys not chars
+	{
 		char	b[256];
-		DC->getBindingBuf( key, b, 256 );
+		DC->getBindingBuf( *key, b, 256 );
 		if (Q_stricmp(b,"datapad") == 0)	// They hit the datapad key again.
 		{
 			if (( Q_stricmp(menu->window.name,"datapadMissionMenu") == 0) ||
@@ -11285,7 +11289,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, bool down)
 		}
 	}
 	// default handling
-	switch ( key )
+	switch ( *key )
 	{
 		case A_F11:
 			if (DC->getCVarValue("developer"))
@@ -11451,6 +11455,8 @@ void Menu_HandleKey(menuDef_t *menu, int key, bool down)
 						Item_Action(item);
 				}
 			}
+			break;
+		default:
 			break;
 	}
 	inHandler = false;

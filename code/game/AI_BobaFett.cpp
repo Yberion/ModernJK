@@ -52,7 +52,7 @@ void		Boba_FlyStop( gentity_t *self );
 
 // Called From NPC_Pain()
 //-----------------------------
-void		Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, int mod);
+void		Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, meansOfDeath_t mod);
 
 
 // Local: Flame Thrower Weapon
@@ -386,7 +386,7 @@ bool	Boba_CanSeeEnemy( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, int mod)
+void	Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, meansOfDeath_t mod)
 {
 	if (mod==MOD_SABER && !(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{

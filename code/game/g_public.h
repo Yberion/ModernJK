@@ -158,7 +158,7 @@ typedef struct {
 	void	(*FlushCamFile)();
 
 	// abort the game
-	NORETURN_PTR void	(*Error)( int, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void	(*Error)( errorParm_t, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// get current time for profiling reasons
 	// this should NOT be used for any game related tasks,

@@ -808,6 +808,12 @@ count	Set to type of holocron (based on force power value)
 	"models/chunks/rock/rock_big.md3"//FP_SABERTHROW
 };*/
 
+// a holocron's power, kept in its count (the map's "count" key, kept in range by SP_misc_holocron)
+static forcePowers_t HolocronPower( const gentity_t *holocron )
+{
+	return static_cast<forcePowers_t>( holocron->count );
+}
+
 void HolocronRespawn(gentity_t *self)
 {
 	self->s.modelindex = (self->count - 128);
@@ -836,10 +842,10 @@ void HolocronPopOut(gentity_t *self)
 
 void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 	int othercarrying = 0;
 	float time_lowest = 0;
-	int index_lowest = -1;
+	forcePowers_t index_lowest = FP_UNKNOWN;
 	int hasall = 1;
 	int forceReselect = WP_NONE;
 
@@ -863,7 +869,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		return;
 	}
 
-	if (other->client->ps.holocronsCarried[self->count])
+	if (other->client->ps.holocronsCarried[HolocronPower( self )])
 	{
 		return;
 	}
@@ -879,13 +885,13 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		{
 			othercarrying++;
 
-			if (index_lowest == -1 || other->client->ps.holocronsCarried[i] < time_lowest)
+			if (index_lowest == FP_UNKNOWN || other->client->ps.holocronsCarried[i] < time_lowest)
 			{
 				index_lowest = i;
 				time_lowest = other->client->ps.holocronsCarried[i];
 			}
 		}
-		else if (i != self->count)
+		else if (i != HolocronPower( self ))
 		{
 			hasall = 0;
 		}
@@ -897,15 +903,15 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		//trap->Print("You deserve a pat on the back.\n");
 	}
 
-	if (!(other->client->ps.fd.forcePowersActive & (1 << other->client->ps.fd.forcePowerSelected)))
+	if (!(other->client->ps.fd.forcePowersActive & Bit( other->client->ps.fd.forcePowerSelected )))
 	{ //If the player isn't using his currently selected force power, select this one
-		if (self->count != FP_SABER_OFFENSE && self->count != FP_SABER_DEFENSE && self->count != FP_SABERTHROW && self->count != FP_LEVITATION)
+		if (HolocronPower( self ) != FP_SABER_OFFENSE && HolocronPower( self ) != FP_SABER_DEFENSE && HolocronPower( self ) != FP_SABERTHROW && HolocronPower( self ) != FP_LEVITATION)
 		{
-			other->client->ps.fd.forcePowerSelected = self->count;
+			other->client->ps.fd.forcePowerSelected = HolocronPower( self );
 		}
 	}
 
-	if (g_maxHolocronCarry.integer && othercarrying >= g_maxHolocronCarry.integer)
+	if (g_maxHolocronCarry.integer > 0 && othercarrying >= g_maxHolocronCarry.integer)
 	{ //make the oldest holocron carried by the player pop out to make room for this one
 		other->client->ps.holocronsCarried[index_lowest] = 0;
 
@@ -927,7 +933,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	//G_Sound(other, CHAN_AUTO, G_SoundIndex("sound/weapons/w_pkup.wav"));
 	G_AddEvent( other, EV_ITEM_PICKUP, self->s.number );
 
-	other->client->ps.holocronsCarried[self->count] = level.time;
+	other->client->ps.holocronsCarried[HolocronPower( self )] = level.time;
 	self->s.modelindex = 0;
 	self->enemy = other;
 
@@ -935,7 +941,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	self->pos2[1] = level.time + HOLOCRON_RESPAWN_TIME;
 
 	/*
-	if (self->count == FP_SABER_OFFENSE && !HasSetSaberOnly())
+	if (HolocronPower( self ) == FP_SABER_OFFENSE && !HasSetSaberOnly())
 	{ //player gets a saber
 		other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_SABER);
 		other->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_STUN_BATON);
@@ -967,7 +973,7 @@ void HolocronThink(gentity_t *ent)
 			VectorCopy(ent->enemy->client->ps.origin, ent->r.currentOrigin);
 			//copy to person carrying's origin before popping out of them
 			HolocronPopOut(ent);
-			ent->enemy->client->ps.holocronsCarried[ent->count] = 0;
+			ent->enemy->client->ps.holocronsCarried[HolocronPower( ent )] = 0;
 			ent->enemy = nullptr;
 
 			goto justthink;
@@ -980,7 +986,7 @@ void HolocronThink(gentity_t *ent)
 
 	if (ent->enemy && ent->enemy->client)
 	{
-		if (!ent->enemy->client->ps.holocronsCarried[ent->count])
+		if (!ent->enemy->client->ps.holocronsCarried[HolocronPower( ent )])
 		{
 			ent->enemy->client->ps.holocronCantTouch = ent->s.number;
 			ent->enemy->client->ps.holocronCantTouchTime = level.time + 5000;
@@ -1000,8 +1006,8 @@ void HolocronThink(gentity_t *ent)
 		{
 			if (ent->enemy->inuse && ent->enemy->client)
 			{
-				ent->enemy->client->ps.holocronBits &= ~(1 << ent->count);
-				ent->enemy->client->ps.holocronsCarried[ent->count] = 0;
+				ent->enemy->client->ps.holocronBits &= ~Bit( HolocronPower( ent ) );
+				ent->enemy->client->ps.holocronsCarried[HolocronPower( ent )] = 0;
 			}
 			ent->enemy = nullptr;
 			HolocronRespawn(ent);
@@ -1054,9 +1060,9 @@ void SP_misc_holocron(gentity_t *ent)
 
 	if (HasSetSaberOnly())
 	{
-		if (ent->count == FP_SABER_OFFENSE ||
-			ent->count == FP_SABER_DEFENSE ||
-			ent->count == FP_SABERTHROW)
+		if (HolocronPower( ent ) == FP_SABER_OFFENSE ||
+			HolocronPower( ent ) == FP_SABER_DEFENSE ||
+			HolocronPower( ent ) == FP_SABERTHROW)
 		{ //having saber holocrons in saber only mode is pointless
 			G_FreeEntity(ent);
 			return;
@@ -1093,13 +1099,13 @@ void SP_misc_holocron(gentity_t *ent)
 		ent->count = 0;
 	}
 
-	if (ent->count >= NUM_FORCE_POWERS)
+	if (ent->count >= to_underlying( NUM_FORCE_POWERS ))
 	{
-		ent->count = NUM_FORCE_POWERS-1;
+		ent->count = to_underlying( NUM_FORCE_POWERS )-1;
 	}
 /*
 	if (g_forcePowerDisable.integer &&
-		(g_forcePowerDisable.integer & (1 << ent->count)))
+		(g_forcePowerDisable.integer & Bit( HolocronPower( ent ) )))
 	{
 		G_FreeEntity(ent);
 		return;
@@ -1122,11 +1128,11 @@ void SP_misc_holocron(gentity_t *ent)
 
 	ent->s.trickedentindex4 = ent->count;
 
-	if (forcePowerDarkLight[ent->count] == FORCE_DARKSIDE)
+	if (forcePowerDarkLight[HolocronPower( ent )] == FORCE_DARKSIDE)
 	{
 		ent->s.trickedentindex3 = 1;
 	}
-	else if (forcePowerDarkLight[ent->count] == FORCE_LIGHTSIDE)
+	else if (forcePowerDarkLight[HolocronPower( ent )] == FORCE_LIGHTSIDE)
 	{
 		ent->s.trickedentindex3 = 2;
 	}
@@ -2124,7 +2130,7 @@ killMe:
 	self->nextthink = level.time;
 }
 
-void DmgBoxAbsorb_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void DmgBoxAbsorb_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod )
 {
 	self->health = 1;
 }
@@ -2773,7 +2779,7 @@ NOTE: place these half-way in the door to make it flush with the door's surface.
 "target"	thing to use when destoryed (not doors - it automatically unlocks the door it was angled at)
 "health"	default is 10
 */
-void maglock_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void maglock_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	//unlock our door if we're the last lock pointed at the door
 	if ( self->activator )

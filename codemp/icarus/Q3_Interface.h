@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //NOTENOTE: The enums and tables in this file will obviously bitch if they are included multiple times, don't do that
 
-typedef enum //# setType_e
+enum class setType_t //# setType_e
 {
 	//# #sep Parm strings
 	SET_PARM1 = 0,//## %s="" # Set entity parm1
@@ -272,8 +272,11 @@ typedef enum //# setType_e
 	SET_LEAN,//## %t="LEAN_TYPES" # Lean left, right or stop leaning
 
 	//# #eol
-	SET_
-} setType_t;
+	SET_,
+	SET_UNKNOWN = -1	// a name that matches no set field (GetIDForString's -1)
+};
+using enum setType_t;
+template <> inline constexpr bool enableEnumArithmetic<setType_t> = true;
 
 #ifdef __cplusplus
 

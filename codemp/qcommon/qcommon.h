@@ -602,7 +602,7 @@ void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void		QDECL Com_OPrintf( const char *fmt, ...) __attribute__ ((format (printf, 1, 2))); // Outputs to the VC / Windows Debug window (only in debug compile)
-void 		NORETURN QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+void 		NORETURN QDECL Com_Error( errorParm_t code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		NORETURN Com_Quit_f( void );
 int			Com_EventLoop( void );
 int			Com_Milliseconds( void );	// will be journaled properly
@@ -780,7 +780,8 @@ void CL_Frame( int msec );
 int CL_NextCommandMsec( void );
 bool CL_InputTick( void );
 bool CL_GameCommand( void );
-void CL_KeyEvent (int key, bool down, unsigned time);
+enum class fakeAscii_t;
+void CL_KeyEvent (fakeAscii_t key, bool down, unsigned time);
 
 void CL_CharEvent( int key );
 // char events are for field typing, not game control

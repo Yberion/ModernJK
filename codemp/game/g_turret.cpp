@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 bool turret_base_spawn_top( gentity_t *base );
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
+void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 
 //------------------------------------------------------------------------------------------------------------
 void TurretPain( gentity_t *self, gentity_t *attacker, int damage )
@@ -69,7 +69,7 @@ void TurretBasePain( gentity_t *self, gentity_t *attacker, int damage )
 }
 
 //------------------------------------------------------------------------------------------------------------
-void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0, 1 }, pos;
@@ -130,7 +130,7 @@ void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 }
 
 //------------------------------------------------------------------------------------------------------------
-void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 //------------------------------------------------------------------------------------------------------------
 {
 	if (self->target_ent && self->target_ent->health > 0)

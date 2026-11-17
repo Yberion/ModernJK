@@ -1610,7 +1610,7 @@ void SiegeItemPain(gentity_t *self, gentity_t *attacker, int damage)
 	self->s.time2 = level.time;
 }
 
-void SiegeItemDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void SiegeItemDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 {
 	self->takedamage = false; //don't die more than once
 

@@ -452,16 +452,16 @@ typedef struct displayContextDef_s {
 	void			(*setOverstrikeMode)				( bool b );
 	bool		(*getOverstrikeMode)				( void );
 	void			(*startLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
-	bool		(*ownerDrawHandleKey)				( int ownerDraw, int flags, float *special, int key );
+	bool		(*ownerDrawHandleKey)				( int ownerDraw, int flags, float *special, fakeAscii_t key );
 	int				(*feederCount)						( float feederID );
 	const char *	(*feederItemText)					( float feederID, int index, int column, qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3 );
 	qhandle_t		(*feederItemImage)					( float feederID, int index );
 	bool		(*feederSelection)					( float feederID, int index, itemDef_t *item );
-	void			(*keynumToStringBuf)				( int keynum, char *buf, int buflen );
-	void			(*getBindingBuf)					( int keynum, char *buf, int buflen );
-	void			(*setBinding)						( int keynum, const char *binding );
+	void			(*keynumToStringBuf)				( fakeAscii_t keynum, char *buf, int buflen );
+	void			(*getBindingBuf)					( fakeAscii_t keynum, char *buf, int buflen );
+	void			(*setBinding)						( fakeAscii_t keynum, const char *binding );
 	void			(*executeText)						( cbufExec_t exec_when, const char *text );
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void (*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	void			(*Print)							( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 	void			(*Pause)							( bool b );
 	int				(*ownerDrawWidth)					( int ownerDraw, float scale );
@@ -563,4 +563,4 @@ void Controls_SetDefaults( void );
 Ghoul2 Insert End
 */
 
-extern const char *HolocronIcons[NUM_FORCE_POWERS];
+extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> HolocronIcons;

@@ -296,7 +296,7 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	gentity_t *other = attacker;
 	int		anim;
-	int		mod = gPainMOD;
+	meansOfDeath_t		mod = gPainMOD;
 	float	pain_chance;
 
 	VectorCopy( self->NPC->lastPathAngles, self->s.angles );

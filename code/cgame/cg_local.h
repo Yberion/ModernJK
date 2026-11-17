@@ -520,9 +520,9 @@ Ghoul2 Insert End
 
 
 #define MAX_SHOWPOWERS 12
-extern int showPowers[MAX_SHOWPOWERS];
+extern forcePowers_t showPowers[MAX_SHOWPOWERS];
 extern const char *showPowersName[MAX_SHOWPOWERS];
-extern int force_icons[NUM_FORCE_POWERS];
+extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> force_icons;
 #define MAX_DPSHOWPOWERS 16
 
 //==============================================================================
@@ -822,6 +822,7 @@ void CG_DPNextInventory_f( void );
 void CG_DPPrevInventory_f( void );
 void CG_DPNextForcePower_f( void );
 void CG_DPPrevForcePower_f( void );
+int CG_DataPadUpdatedPowerSlot( void );
 
 
 void CG_RegisterWeapon( int weaponNum );

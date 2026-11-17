@@ -177,8 +177,8 @@ const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoi
 	100		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bgForcePowerCost[NUM_FORCE_POWERS] = //0 == neutral
-{
+EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePowers_t, NUM_FORCE_POWERS> bgForcePowerCost = //0 == neutral
+{{
 	{	0,	2,	4,	6	},	// Heal			// FP_HEAL
 	{	0,	0,	2,	6	},	// Jump			//FP_LEVITATION,//hold/duration
 	{	0,	2,	4,	6	},	// Speed		//FP_SPEED,//duration
@@ -198,9 +198,9 @@ EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bgForcePowerCost[NUM_
 	{	0,	1,	5,	8	},	// Saber Defend	//FP_SABER_DEFENSE,
 	{	0,	4,	6,	8	}	// Saber Throw	//FP_SABERTHROW,
 	//NUM_FORCE_POWERS
-};
+}};
 
-int forcePowerSorted[NUM_FORCE_POWERS] =
+forcePowers_t forcePowerSorted[to_underlying( NUM_FORCE_POWERS )] =
 { //rww - always use this order when drawing force powers for any reason
 	FP_TELEPATHY,
 	FP_HEAL,
@@ -222,7 +222,7 @@ int forcePowerSorted[NUM_FORCE_POWERS] =
 	FP_SABERTHROW
 };
 
-int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
+EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight = //0 == neutral
 { //nothing should be usable at rank 0..
 	FORCE_LIGHTSIDE,//FP_HEAL,//instant
 	0,//FP_LEVITATION,//hold/duration
@@ -429,7 +429,7 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	forcePowerLevels_t countDown = FORCE_LEVEL_0;
 
 	int final_Side;
-	forcePowerLevels_t final_Powers[NUM_FORCE_POWERS] = {};
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS> final_Powers = {};
 
 	if ( powerLen >= 128 )
 	{ //This should not happen. If it does, this is obviously a bogus string.
@@ -478,14 +478,14 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 	//Now we have established a valid rank, and a valid side.
 	//Read the force powers in, and cut them down based on the various rules supplied.
-	c = 0;
+	forcePowers_t readPower = FP_FIRST;
 	while (i < std::ssize( powerBuf ) && powerBuf[i] && powerBuf[i] != '\n' && powerBuf[i] != '\r'
-		&& powerBuf[i] >= '0' && powerBuf[i] <= '3' && c < NUM_FORCE_POWERS)
+		&& powerBuf[i] >= '0' && powerBuf[i] <= '3' && readPower < NUM_FORCE_POWERS)
 	{
 		readBuf[0] = powerBuf[i];
 		readBuf[1] = 0;
-		final_Powers[c] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
-		c++;
+		final_Powers[readPower] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
+		readPower++;
 		i++;
 	}
 
@@ -493,24 +493,21 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
 	allowedPoints = forceMasteryPoints[maxRank];
 
-	i = 0;
-	while (i < NUM_FORCE_POWERS)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{ //if this power doesn't match the side we're on, then 0 it now.
-		if (final_Powers[i] != FORCE_LEVEL_0 &&
-			forcePowerDarkLight[i] &&
-			forcePowerDarkLight[i] != final_Side)
+		if (final_Powers[fp] != FORCE_LEVEL_0 &&
+			forcePowerDarkLight[fp] &&
+			forcePowerDarkLight[fp] != final_Side)
 		{
-			final_Powers[i] = FORCE_LEVEL_0;
+			final_Powers[fp] = FORCE_LEVEL_0;
 			//This is only likely to happen with g_forceBasedTeams. Let it slide.
 		}
 
-		if ( final_Powers[i] != FORCE_LEVEL_0 &&
-			(fpDisabled & (1 << i)) )
+		if ( final_Powers[fp] != FORCE_LEVEL_0 &&
+			(fpDisabled & Bit( fp )) )
 		{ //if this power is disabled on the server via said server option, then we don't get it.
-			final_Powers[i] = FORCE_LEVEL_0;
+			final_Powers[fp] = FORCE_LEVEL_0;
 		}
-
-		i++;
 	}
 
 	if (gametype < GT_TEAM)
@@ -520,26 +517,23 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	}
 
 	usedPoints = 0;
-	i = 0;
-	while (i < NUM_FORCE_POWERS)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		countDown = std::clamp( final_Powers[i], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS );
+		countDown = std::clamp( final_Powers[fp], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS );
 
 		while (countDown > FORCE_LEVEL_0)
 		{
-			usedPoints += bgForcePowerCost[i][countDown]; //[fp index][fp level]
+			usedPoints += bgForcePowerCost[fp][countDown]; //[fp index][fp level]
 			//if this is jump, or we have a free saber and it's offense or defense, take the level back down on level 1
 			if ( countDown == FORCE_LEVEL_1 &&
-				((i == FP_LEVITATION) ||
-				 (i == FP_SABER_OFFENSE && freeSaber) ||
-				 (i == FP_SABER_DEFENSE && freeSaber)) )
+				((fp == FP_LEVITATION) ||
+				 (fp == FP_SABER_OFFENSE && freeSaber) ||
+				 (fp == FP_SABER_DEFENSE && freeSaber)) )
 			{
-				usedPoints -= bgForcePowerCost[i][countDown];
+				usedPoints -= bgForcePowerCost[fp][countDown];
 			}
 			countDown--;
 		}
-
-		i++;
 	}
 
 	if (usedPoints > allowedPoints)
@@ -557,16 +551,16 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 		while (usedPoints > allowedPoints)
 		{
-			c = 0;
+			forcePowers_t fp = FP_FIRST;
 
-			while (c < NUM_FORCE_POWERS && usedPoints > allowedPoints)
+			while (fp < NUM_FORCE_POWERS && usedPoints > allowedPoints)
 			{
-				if (final_Powers[c] != FORCE_LEVEL_0 && final_Powers[c] < powerCycle)
+				if (final_Powers[fp] != FORCE_LEVEL_0 && final_Powers[fp] < powerCycle)
 				{ //kill in order of lowest powers, because the higher powers are probably more important
-					if (c == FP_SABER_OFFENSE &&
+					if (fp == FP_SABER_OFFENSE &&
 						(final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > FORCE_LEVEL_0))
 					{ //if we're on saber attack, only suck it down if we have no def or throw either
-						int whichOne = FP_SABERTHROW; //first try throw
+						forcePowers_t whichOne = FP_SABERTHROW; //first try throw
 
 						if (final_Powers[whichOne] == FORCE_LEVEL_0)
 						{
@@ -590,15 +584,15 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 					}
 					else
 					{
-						while (final_Powers[c] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
+						while (final_Powers[fp] > FORCE_LEVEL_0 && usedPoints > allowedPoints)
 						{
-							if ( final_Powers[c] > FORCE_LEVEL_1 ||
-								((c != FP_LEVITATION) &&
-								(c != FP_SABER_OFFENSE || !freeSaber) &&
-								(c != FP_SABER_DEFENSE || !freeSaber)) )
+							if ( final_Powers[fp] > FORCE_LEVEL_1 ||
+								((fp != FP_LEVITATION) &&
+								(fp != FP_SABER_OFFENSE || !freeSaber) &&
+								(fp != FP_SABER_DEFENSE || !freeSaber)) )
 							{
-								usedPoints -= bgForcePowerCost[c][final_Powers[c]];
-								final_Powers[c]--;
+								usedPoints -= bgForcePowerCost[fp][final_Powers[fp]];
+								final_Powers[fp]--;
 							}
 							else
 							{
@@ -608,13 +602,13 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 					}
 				}
 
-				c++;
+				fp++;
 			}
 
 			powerCycle++;
 			attemptedCycles++;
 
-			if (attemptedCycles > NUM_FORCE_POWERS)
+			if (attemptedCycles > to_underlying( NUM_FORCE_POWERS ))
 			{ //I think this should be impossible. But just in case.
 				break;
 			}
@@ -622,18 +616,15 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 
 		if (usedPoints > allowedPoints)
 		{ //Still? Fine then.. we will kill all of your powers, except the freebies.
-			i = 0;
-
-			while (i < NUM_FORCE_POWERS)
+			for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 			{
-				final_Powers[i] = FORCE_LEVEL_0;
-				if (i == FP_LEVITATION ||
-					(i == FP_SABER_OFFENSE && freeSaber) ||
-					(i == FP_SABER_DEFENSE && freeSaber))
+				final_Powers[fp] = FORCE_LEVEL_0;
+				if (fp == FP_LEVITATION ||
+					(fp == FP_SABER_OFFENSE && freeSaber) ||
+					(fp == FP_SABER_DEFENSE && freeSaber))
 				{
-					final_Powers[i] = FORCE_LEVEL_1;
+					final_Powers[fp] = FORCE_LEVEL_1;
 				}
-				i++;
 			}
 			usedPoints = 0;
 		}
@@ -649,23 +640,21 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	if (final_Powers[FP_LEVITATION] < FORCE_LEVEL_1)
 		final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
 
-	i = 0;
-	while (i < NUM_FORCE_POWERS)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		if (final_Powers[i] > FORCE_LEVEL_3)
-			final_Powers[i] = FORCE_LEVEL_3;
-		i++;
+		if (final_Powers[fp] > FORCE_LEVEL_3)
+			final_Powers[fp] = FORCE_LEVEL_3;
 	}
 
 	if (fpDisabled)
 	{ //If we specifically have attack or def disabled, force them up to level 3. It's the way
 	  //things work for the case of all powers disabled.
 	  //If jump is disabled, down-cap it to level 1. Otherwise don't do a thing.
-		if (fpDisabled & (1 << FP_LEVITATION))
+		if (fpDisabled & Bit( FP_LEVITATION ))
 			final_Powers[FP_LEVITATION] = FORCE_LEVEL_1;
-		if (fpDisabled & (1 << FP_SABER_OFFENSE))
+		if (fpDisabled & Bit( FP_SABER_OFFENSE ))
 			final_Powers[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
-		if (fpDisabled & (1 << FP_SABER_DEFENSE))
+		if (fpDisabled & Bit( FP_SABER_DEFENSE ))
 			final_Powers[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
 	}
 
@@ -681,12 +670,10 @@ bool BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, forceMasteries
 	Q_strcat(powerOut, powerOutSize, va("%i-", final_Side));
 
 	i = strlen(powerOut);
-	c = 0;
-	while (c < NUM_FORCE_POWERS)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		Q_strncpyz(readBuf, va( "%i", to_underlying( final_Powers[c] ) ), sizeof( readBuf ) );
+		Q_strncpyz(readBuf, va( "%i", to_underlying( final_Powers[fp] ) ), sizeof( readBuf ) );
 		powerOut[i] = readBuf[0];
-		c++;
 		i++;
 	}
 	powerOut[i] = 0;
@@ -1912,10 +1899,10 @@ bool	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) 
 	return true;
 }
 
-int BG_ProperForceIndex( int power ) {
+int BG_ProperForceIndex( forcePowers_t power ) {
 	int i;
 
-	for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
+	for ( i=0; i<std::ssize( forcePowerSorted ); i++ ) {
 		if ( forcePowerSorted[i] == power )
 			return i;
 	}
@@ -1924,28 +1911,27 @@ int BG_ProperForceIndex( int power ) {
 }
 
 void BG_CycleForce( playerState_t *ps, int direction ) {
-	int i, x, presel;
-	int foundnext = -1;
-
-	presel = x = i = ps->fd.forcePowerSelected;
+	int x, presel;
+	forcePowers_t i;
+	std::optional<forcePowers_t> foundnext;
 
 	// no valid force powers
-	if ( x >= NUM_FORCE_POWERS || x == -1 )
+	if ( ps->fd.forcePowerSelected >= NUM_FORCE_POWERS || ps->fd.forcePowerSelected == FP_UNKNOWN )
 		return;
 
-	presel = x = BG_ProperForceIndex( x );
+	presel = x = BG_ProperForceIndex( ps->fd.forcePowerSelected );
 
 	// get the next/prev power and handle overflow
 	if ( direction == 1 )	x++;
 	else					x--;
-	if ( x >= NUM_FORCE_POWERS )	x = 0;
-	if ( x < 0 )					x = NUM_FORCE_POWERS-1;
+	if ( x >= to_underlying( NUM_FORCE_POWERS ) )	x = 0;
+	if ( x < 0 )					x = to_underlying( NUM_FORCE_POWERS )-1;
 
 	i = forcePowerSorted[x]; //the "sorted" value of this power
 
 	while ( x != presel ) {
 		// loop around to the current force power
-		if ( ps->fd.forcePowersKnown & (1 << i) && i != (signed)ps->fd.forcePowerSelected ) {
+		if ( ps->fd.forcePowersKnown & Bit( i ) && i != ps->fd.forcePowerSelected ) {
 			// we have this power
 			if ( i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_SABERTHROW ) {
 				// it's selectable
@@ -1957,15 +1943,15 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 		// get the next/prev power and handle overflow
 		if ( direction == 1 )	x++;
 		else					x--;
-		if ( x >= NUM_FORCE_POWERS )	x = 0;
-		if ( x < 0 )					x = NUM_FORCE_POWERS-1;
+		if ( x >= to_underlying( NUM_FORCE_POWERS ) )	x = 0;
+		if ( x < 0 )					x = to_underlying( NUM_FORCE_POWERS )-1;
 
 		i = forcePowerSorted[x]; //set to the sorted value again
 	}
 
 	// if we found one, select it
-	if ( foundnext != -1 )
-		ps->fd.forcePowerSelected = foundnext;
+	if ( foundnext )
+		ps->fd.forcePowerSelected = *foundnext;
 }
 
 int BG_GetItemIndexByTag(int tag, itemType_t type)
@@ -2158,7 +2144,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 	case IT_HEALTH:
 		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
-		if ((ps->fd.forcePowersActive & (1 << FP_RAGE)))
+		if ((ps->fd.forcePowersActive & Bit( FP_RAGE )))
 		{
 			return false;
 		}
@@ -2347,7 +2333,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 	}
 }
 
-const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
+EnumArray<const char *, entity_event_t, EV_NUM_ENTITY_EVENTS> eventnames = {
 	"EV_NONE",
 
 	"EV_CLIENTJOIN",
@@ -2505,7 +2491,82 @@ const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
 	"EV_STOPLOOPINGSOUND",
 	"EV_STARTLOOPINGSOUND",
 	"EV_TAUNT",
-//fixme, added a bunch that aren't here!
+	"EV_ANGER1",
+	"EV_ANGER2",
+	"EV_ANGER3",
+	"EV_VICTORY1",
+	"EV_VICTORY2",
+	"EV_VICTORY3",
+	"EV_CONFUSE1",
+	"EV_CONFUSE2",
+	"EV_CONFUSE3",
+	"EV_PUSHED1",
+	"EV_PUSHED2",
+	"EV_PUSHED3",
+	"EV_CHOKE1",
+	"EV_CHOKE2",
+	"EV_CHOKE3",
+	"EV_FFWARN",
+	"EV_FFTURN",
+	"EV_CHASE1",
+	"EV_CHASE2",
+	"EV_CHASE3",
+	"EV_COVER1",
+	"EV_COVER2",
+	"EV_COVER3",
+	"EV_COVER4",
+	"EV_COVER5",
+	"EV_DETECTED1",
+	"EV_DETECTED2",
+	"EV_DETECTED3",
+	"EV_DETECTED4",
+	"EV_DETECTED5",
+	"EV_LOST1",
+	"EV_OUTFLANK1",
+	"EV_OUTFLANK2",
+	"EV_ESCAPING1",
+	"EV_ESCAPING2",
+	"EV_ESCAPING3",
+	"EV_GIVEUP1",
+	"EV_GIVEUP2",
+	"EV_GIVEUP3",
+	"EV_GIVEUP4",
+	"EV_LOOK1",
+	"EV_LOOK2",
+	"EV_SIGHT1",
+	"EV_SIGHT2",
+	"EV_SIGHT3",
+	"EV_SOUND1",
+	"EV_SOUND2",
+	"EV_SOUND3",
+	"EV_SUSPICIOUS1",
+	"EV_SUSPICIOUS2",
+	"EV_SUSPICIOUS3",
+	"EV_SUSPICIOUS4",
+	"EV_SUSPICIOUS5",
+	"EV_COMBAT1",
+	"EV_COMBAT2",
+	"EV_COMBAT3",
+	"EV_JDETECTED1",
+	"EV_JDETECTED2",
+	"EV_JDETECTED3",
+	"EV_TAUNT1",
+	"EV_TAUNT2",
+	"EV_TAUNT3",
+	"EV_JCHASE1",
+	"EV_JCHASE2",
+	"EV_JCHASE3",
+	"EV_JLOST1",
+	"EV_JLOST2",
+	"EV_JLOST3",
+	"EV_DEFLECT1",
+	"EV_DEFLECT2",
+	"EV_DEFLECT3",
+	"EV_GLOAT1",
+	"EV_GLOAT2",
+	"EV_GLOAT3",
+	"EV_PUSHFAIL",
+	"EV_SIEGESPEC",
 };
 
 /*
@@ -2516,7 +2577,7 @@ Handles the sequence numbers
 ===============
 */
 
-void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
+void BG_AddPredictableEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps ) {
 
 #ifdef _DEBUG
 	{
@@ -2573,7 +2634,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	// give the player the velocity from the jumppad
 	VectorCopy( jumppad->origin2, ps->velocity );
 	// fix: no more force draining after bouncing the jumppad
-	ps->fd.forcePowersActive &= ~(1<<FP_LEVITATION);
+	ps->fd.forcePowersActive &= ~Bit( FP_LEVITATION );
 }
 
 /*
@@ -2859,7 +2920,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
 		}
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
-		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+		s->event = BG_PackEvent( ps->events[ seq ], ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
 		ps->entityEventSequence++;
 	}
@@ -3012,7 +3073,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
 		}
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
-		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+		s->event = BG_PackEvent( ps->events[ seq ], ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
 		ps->entityEventSequence++;
 	}

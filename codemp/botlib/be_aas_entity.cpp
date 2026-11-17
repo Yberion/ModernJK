@@ -50,13 +50,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MASK_SOLID		CONTENTS_PLAYERCLIP
 
-//FIXME: these might change
+// the game's entity types (entityType_t, game/bg_public.h), which the botlib does not include
 enum {
-	ET_GENERAL,
-	ET_PLAYER,
-	ET_ITEM,
-	ET_MISSILE,
-	ET_MOVER
+	ET_GENERAL = 0,
+	ET_PLAYER = 1,
+	ET_ITEM = 2,
+	ET_MISSILE = 3,
+	ET_MOVER = 6
 };
 
 //===========================================================================

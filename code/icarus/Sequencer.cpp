@@ -765,7 +765,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream, CIcarus* icarus 
 		}
 		if(ent < 0)
 		{	// a valid entity name was not returned from the get command
-			game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n");
+			game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
 		}
 
 	} // end if(!ent)
@@ -1907,7 +1907,7 @@ void CSequencer::CheckAffect( CBlock **command , CIcarus* icarus)
 			}
 			if(ent < 0)
 			{	// a valid entity name was not returned from the get command
-				game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n");
+				game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
 			}
 
 		} // end if(!ent)
@@ -2036,7 +2036,7 @@ void CSequencer::CheckDo( CBlock **command , CIcarus* icarus)
 		if ( sequence == nullptr )
 		{
 			//TODO: Give name/number of entity trying to execute, too
-			game->DebugPrint(IGameInterface::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n", groupName );
+			game->DebugPrint(IGameInterface::WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n" );
 			*command = nullptr;
 			return;
 		}

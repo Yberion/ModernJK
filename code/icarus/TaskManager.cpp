@@ -1200,7 +1200,7 @@ int CTaskManager::Print( CTask *task , CIcarus* icarus)
 
 	icarus->GetGame()->DebugPrint(IGameInterface::WL_DEBUG, "%4d print(\"%s\"); [%d]", m_ownerID, sVal, task->GetTimeStamp() );
 
-	icarus->GetGame()->CenterPrint( sVal );
+	icarus->GetGame()->CenterPrint( "%s", sVal );
 
 	Completed( task->GetGUID() );
 

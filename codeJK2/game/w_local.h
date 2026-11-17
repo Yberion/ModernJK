@@ -41,7 +41,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 void WP_Stick( gentity_t *missile, trace_t *trace, float fudge_distance = 0.0f );
 void WP_Explode( gentity_t *self );
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc );
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc );
 
 
 // Functions from the wp_ files
@@ -55,7 +55,7 @@ void WP_FireBowcaster( gentity_t *ent, bool alt_fire );
 void WP_FireBryarPistol( gentity_t *ent, bool alt_fire );
 void WP_FireDEMP2( gentity_t *ent, bool alt_fire );
 void WP_FireDetPack( gentity_t *ent, bool alt_fire );
-int G_GetHitLocFromTrace( trace_t *trace, int mod );
+int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod );
 void WP_FireDisruptor( gentity_t *ent, bool alt_fire );
 void WP_EmplacedFire( gentity_t *ent );
 void WP_FireFlechette( gentity_t *ent, bool alt_fire );
@@ -67,7 +67,7 @@ void rocketThink( gentity_t *ent );
 void WP_FireRocket( gentity_t *ent, bool alt_fire );
 void WP_FireStunBaton( gentity_t *ent, bool alt_fire );
 void thermalDetonatorExplode( gentity_t *ent );
-void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod, int dFlags, int hitLoc );
+void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc );
 bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
 				float minSpeed = 0, float maxSpeed = 0, float idealSpeed = 0, bool mustHit = false );

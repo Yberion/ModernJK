@@ -457,7 +457,7 @@ static void CG_CalcIdealThirdPersonViewLocation(void)
 	{
 		VectorMA(cameraIdealTarget, -(cg_thirdPersonRange.value), camerafwd, cameraIdealLoc);
 	}
-	if ( cg.renderingThirdPerson && (cg.snap->ps.forcePowersActive&(1<<FP_SPEED)) && player->client->ps.forcePowerDuration[FP_SPEED] )
+	if ( cg.renderingThirdPerson && (cg.snap->ps.forcePowersActive&Bit( FP_SPEED )) && player->client->ps.forcePowerDuration[FP_SPEED] )
 	{
 		float timeLeft = player->client->ps.forcePowerDuration[FP_SPEED] - cg.time;
 		float length = FORCE_SPEED_DURATION*forceSpeedValue[player->client->ps.forcePowerLevel[FP_SPEED]];
@@ -1376,7 +1376,7 @@ static bool	CG_CalcFov( void ) {
 			}
 		}
 	}
-	else if ( (!cg.zoomMode || cg.zoomMode > 2) && (cg.snap->ps.forcePowersActive&(1<<FP_SPEED)) && player->client->ps.forcePowerDuration[FP_SPEED] )//cg.renderingThirdPerson &&
+	else if ( (!cg.zoomMode || cg.zoomMode > 2) && (cg.snap->ps.forcePowersActive&Bit( FP_SPEED )) && player->client->ps.forcePowerDuration[FP_SPEED] )//cg.renderingThirdPerson &&
 	{
 		fov_x = CG_ForceSpeedFOV();
 	} else {
@@ -1858,12 +1858,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 
 	// let the client system know what our weapon and zoom settings are
 	//FIXME: should really send forcePowersActive over network onto cg.snap->ps...
-	float speed = cg.refdef.fov_y / 75.0 * ((cg_entities[0].gent->client->ps.forcePowersActive&(1<<FP_SPEED))?1.0f:Q_min(cg_timescale.value, 1.0f));
+	float speed = cg.refdef.fov_y / 75.0 * ((cg_entities[0].gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?1.0f:Q_min(cg_timescale.value, 1.0f));
 
 //FIXME: junk code, BUG:168
 
 static bool wasForceSpeed=false;
-bool isForceSpeed=cg_entities[0].gent->client->ps.forcePowersActive&(1<<FP_SPEED)?true:false;
+bool isForceSpeed=cg_entities[0].gent->client->ps.forcePowersActive&Bit( FP_SPEED )?true:false;
 if (isForceSpeed&&!wasForceSpeed)
 {
 	CGCam_Smooth(0.75f,5000);

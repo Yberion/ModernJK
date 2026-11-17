@@ -24,9 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __KEYCODES_H__
 #define __KEYCODES_H__
 
+#include <optional>
+
+#include "qcommon/q_enum.h"
+
 // these are the key numbers that should be passed to KeyEvent
 
-typedef enum
+enum class fakeAscii_t
 {
 	A_NULL = 0,
 	A_SHIFT,
@@ -359,12 +363,23 @@ typedef enum
 	A_AUX31,
 
 	MAX_KEYS
-} fakeAscii_t;
+};
+using enum fakeAscii_t;
+template <>
+inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
 
 
 // The menu code needs to get both key and char events, but
 // to avoid duplicating the paths, the char events are just
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
 #define	K_CHAR_FLAG		1024
+
+// the key of such an event, none for a character
+[[nodiscard]] inline std::optional<fakeAscii_t> KeyEvent_Key( int event ) {
+	if ( event & K_CHAR_FLAG ) {
+		return std::nullopt;
+	}
+	return static_cast<fakeAscii_t>( event );
+}
 
 #endif

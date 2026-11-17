@@ -2050,10 +2050,10 @@ extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 */
 }
 
-void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
-void Key_GetBindingBuf( int keynum, char *buf, int buflen );
+void Key_KeynumToStringBuf( fakeAscii_t keynum, char *buf, int buflen );
+void Key_GetBindingBuf( fakeAscii_t keynum, char *buf, int buflen );
 
-static bool UI_Crosshair_HandleKey(int flags, float *special, int key)
+static bool UI_Crosshair_HandleKey(int flags, float *special, fakeAscii_t key)
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
@@ -2076,7 +2076,7 @@ static bool UI_Crosshair_HandleKey(int flags, float *special, int key)
 }
 
 
-static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key)
+static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fakeAscii_t key)
 {
 
 	switch (ownerDraw)
@@ -4056,7 +4056,7 @@ void _UI_KeyEvent( int key, bool down )
 		if (menu)
 		{
 			//DemoEnd();
-			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !(menu->window.flags & WINDOW_IGNORE_ESCAPE))
+			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !(menu->window.flags & WINDOW_IGNORE_ESCAPE))
 			{
 				Menus_CloseAll();
 			}
@@ -4072,6 +4072,12 @@ void _UI_KeyEvent( int key, bool down )
 			Cvar_Set( "cl_paused", "0" );
 		}
 	}
+}
+
+// a key's event: _UI_KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
+void _UI_KeyEvent( fakeAscii_t key, bool down )
+{
+	_UI_KeyEvent( to_underlying( key ), down );
 }
 
 /*
@@ -4471,7 +4477,7 @@ static void UI_UpdateFightingStyleChoices ( void )
 
 typedef struct {
 	const char	*title;
-	short	powerEnum;
+	forcePowers_t	powerEnum;
 } powerEnum_t;
 
 static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
@@ -4867,10 +4873,9 @@ static void	UI_RecordForceLevels( void )
 	}
 
 	const char *s2 = "";
-	int i;
-	for (i=0;i< NUM_FORCE_POWERS; i++)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		s2 = va("%s %i",s2, uiInfo.forcePowerLevel[i]);
+		s2 = va("%s %i",s2, uiInfo.forcePowerLevel[fp]);
 	}
 	Cvar_Set( "demo_playerfplvl", s2 );
 
@@ -5059,7 +5064,7 @@ static void UI_DecrementCurrentForcePower ( void )
 			// Turn off power if level is 0
 			if (pState->forcePowerLevel[powerEnums[uiInfo.forcePowerUpdated].powerEnum]<1)
 			{
-				pState->forcePowersKnown &= ~( 1 << powerEnums[uiInfo.forcePowerUpdated].powerEnum );
+				pState->forcePowersKnown &= ~Bit( powerEnums[uiInfo.forcePowerUpdated].powerEnum );
 			}
 		}
 		else
@@ -5161,7 +5166,7 @@ static void UI_AffectForcePowerLevel ( const char *forceName )
 	if( pState )
 	{
 		pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum]++;	// Increment it
-		pState->forcePowersKnown |= ( 1 << powerEnums[forcePowerI].powerEnum );
+		pState->forcePowersKnown |= Bit( powerEnums[forcePowerI].powerEnum );
 		forcelevel = pState->forcePowerLevel[powerEnums[forcePowerI].powerEnum];
 	}
 	else

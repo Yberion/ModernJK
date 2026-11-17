@@ -45,12 +45,12 @@ USER INTERFACE MAIN
 #include "game/bg_saga.h"
 #include "ui_shared.h"
 
-NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
+NORETURN_PTR void (*Com_Error)( errorParm_t level, const char *error, ... );
 void (*Com_Printf)( const char *msg, ... );
 
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
-const char *forcepowerDesc[NUM_FORCE_POWERS] =
+EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forcepowerDesc =
 {
 	"@MENUS_OF_EFFECT_JEDI_ONLY_NEFFECT",
 	"@MENUS_DURATION_IMMEDIATE_NAREA",
@@ -1906,13 +1906,12 @@ bool UI_HasSetSaberOnly( const char *info, const gametype_t gametype )
 
 static bool UI_AllForceDisabled(int force)
 {
-	int i;
 
 	if (force)
 	{
-		for (i=0;i<NUM_FORCE_POWERS;i++)
+		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 		{
-			if (!(force & (1<<i)))
+			if (!(force & Bit( fp )))
 			{
 				return false;
 			}
@@ -2110,13 +2109,13 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, bool
 
 static void UI_SetForceDisabled(int force)
 {
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 
 	if (force)
 	{
 		while (i < NUM_FORCE_POWERS)
 		{
-			if (force & (1 << i))
+			if (force & Bit( i ))
 			{
 				uiForcePowersDisabled[i] = true;
 
@@ -2145,7 +2144,7 @@ static void UI_SetForceDisabled(int force)
 	}
 	else
 	{
-		i = 0;
+		i = FP_FIRST;
 
 		while (i < NUM_FORCE_POWERS)
 		{
@@ -2594,7 +2593,8 @@ static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int 
 }
 
 static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
-	int i, h, value, findex, iUse = 0;
+	int i, h, value, iUse = 0;
+	forcePowers_t findex;
 	const char *text;
 	const char *s = nullptr;
 
@@ -2684,7 +2684,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 	case UI_FORCE_RANK_SABERATTACK:
 	case UI_FORCE_RANK_SABERDEFEND:
 	case UI_FORCE_RANK_SABERTHROW:
-		findex = (ownerDraw - UI_FORCE_RANK)-1;
+		findex = UI_ForceRankPower( ownerDraw );
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		s = va("%i", to_underlying( uiForcePowersRank[findex] ));
 		break;
@@ -3004,7 +3004,7 @@ UI_OwnerDraw
 static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int iMenuFont)
 {
 	rectDef_t rect;
-	int findex;
+	forcePowers_t findex;
 	forcePowerLevels_t drawRank = FORCE_LEVEL_0;
 	int iUse = 0;
 
@@ -3069,7 +3069,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		}
 */
 
-		findex = (ownerDraw - UI_FORCE_RANK)-1;
+		findex = UI_ForceRankPower( ownerDraw );
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		if (uiForcePowerDarkLight[findex] && uiForceSide != uiForcePowerDarkLight[findex])
 		{
@@ -3357,7 +3357,7 @@ static bool UI_OwnerDrawVisible(int flags) {
 	return vis;
 }
 
-static bool UI_Handicap_HandleKey(int flags, float *special, int key) {
+static bool UI_Handicap_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int h;
 		h = Com_Clamp( 5, 100, trap->Cvar_VariableValue("handicap") );
@@ -3380,7 +3380,7 @@ static bool UI_Handicap_HandleKey(int flags, float *special, int key) {
 extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Main_HandleKey(int key)
+static bool UI_Chat_Main_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3430,7 +3430,7 @@ static bool UI_Chat_Main_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Attack_HandleKey(int key)
+static bool UI_Chat_Attack_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3468,7 +3468,7 @@ static bool UI_Chat_Attack_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Defend_HandleKey(int key)
+static bool UI_Chat_Defend_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3510,7 +3510,7 @@ static bool UI_Chat_Defend_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Request_HandleKey(int key)
+static bool UI_Chat_Request_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3560,7 +3560,7 @@ static bool UI_Chat_Request_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Reply_HandleKey(int key)
+static bool UI_Chat_Reply_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3606,7 +3606,7 @@ static bool UI_Chat_Reply_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Spot_HandleKey(int key)
+static bool UI_Chat_Spot_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3652,7 +3652,7 @@ static bool UI_Chat_Spot_HandleKey(int key)
 }
 
 // For hot keys on the chat main menu.
-static bool UI_Chat_Tactical_HandleKey(int key)
+static bool UI_Chat_Tactical_HandleKey(fakeAscii_t key)
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -3701,7 +3701,7 @@ static bool UI_Chat_Tactical_HandleKey(int key)
 	return (true);
 }
 
-static bool UI_GameType_HandleKey(int flags, float *special, int key, bool resetMap) {
+static bool UI_GameType_HandleKey(int flags, float *special, fakeAscii_t key, bool resetMap) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int oldCount = UI_MapCountByGameType(true);
 		int value = ui_gametype.integer;
@@ -3759,7 +3759,7 @@ static bool UI_InSoloMenu( void )
 	return (false);
 }
 
-static bool UI_NetGameType_HandleKey(int flags, float *special, int key)
+static bool UI_NetGameType_HandleKey(int flags, float *special, fakeAscii_t key)
 {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
 	{
@@ -3810,7 +3810,7 @@ static bool UI_NetGameType_HandleKey(int flags, float *special, int key)
 	return false;
 }
 
-static bool UI_AutoSwitch_HandleKey(int flags, float *special, int key) {
+static bool UI_AutoSwitch_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int switchVal = trap->Cvar_VariableValue("cg_autoswitch");
 
@@ -3835,7 +3835,7 @@ static bool UI_AutoSwitch_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_JoinGameType_HandleKey(int flags, float *special, int key) {
+static bool UI_JoinGameType_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int value = ui_joinGametype.integer;
 
@@ -3859,7 +3859,7 @@ static bool UI_JoinGameType_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_Skill_HandleKey(int flags, float *special, int key) {
+static bool UI_Skill_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int i = trap->Cvar_VariableValue( "g_spSkill" );
 
@@ -3882,7 +3882,7 @@ static bool UI_Skill_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_TeamName_HandleKey(int flags, float *special, int key, bool blue) {
+static bool UI_TeamName_HandleKey(int flags, float *special, fakeAscii_t key, bool blue) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int i;
 		i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
@@ -3906,7 +3906,7 @@ static bool UI_TeamName_HandleKey(int flags, float *special, int key, bool blue)
 	return false;
 }
 
-static bool UI_TeamMember_HandleKey(int flags, float *special, int key, bool blue, int num) {
+static bool UI_TeamMember_HandleKey(int flags, float *special, fakeAscii_t key, bool blue, int num) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		// 0 - None
 		// 1 - Human
@@ -3959,7 +3959,7 @@ static bool UI_TeamMember_HandleKey(int flags, float *special, int key, bool blu
 	return false;
 }
 
-static bool UI_NetSource_HandleKey(int flags, float *special, int key) {
+static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int value = ui_netSource.integer;
 
@@ -4006,7 +4006,7 @@ static bool UI_NetSource_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_NetFilter_HandleKey(int flags, float *special, int key) {
+static bool UI_NetFilter_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int value = ui_serverFilterType.integer;
 
@@ -4031,7 +4031,7 @@ static bool UI_NetFilter_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_OpponentName_HandleKey(int flags, float *special, int key) {
+static bool UI_OpponentName_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		if (key == A_MOUSE2) {
 			UI_PriorOpponent();
@@ -4043,7 +4043,7 @@ static bool UI_OpponentName_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_BotName_HandleKey(int flags, float *special, int key) {
+static bool UI_BotName_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 //		int game = trap->Cvar_VariableValue("g_gametype");
 		int value = uiInfo.botIndex;
@@ -4075,7 +4075,7 @@ static bool UI_BotName_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_BotSkill_HandleKey(int flags, float *special, int key) {
+static bool UI_BotSkill_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		if (key == A_MOUSE2) {
 			uiInfo.skillIndex--;
@@ -4092,7 +4092,7 @@ static bool UI_BotSkill_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_RedBlue_HandleKey(int flags, float *special, int key) {
+static bool UI_RedBlue_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		uiInfo.redBlue ^= 1;
 		return true;
@@ -4100,7 +4100,7 @@ static bool UI_RedBlue_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_Crosshair_HandleKey(int flags, float *special, int key) {
+static bool UI_Crosshair_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		if (key == A_MOUSE2) {
 			uiInfo.currentCrosshair--;
@@ -4119,7 +4119,7 @@ static bool UI_Crosshair_HandleKey(int flags, float *special, int key) {
 	return false;
 }
 
-static bool UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
+static bool UI_SelectedPlayer_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
 		int selected;
 
@@ -4152,7 +4152,7 @@ static bool UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
 }
 
 /*
-static bool UI_VoiceChat_HandleKey(int flags, float *special, int key)
+static bool UI_VoiceChat_HandleKey(int flags, float *special, fakeAscii_t key)
 {
 
 	bool ret = false;
@@ -4174,8 +4174,9 @@ static bool UI_VoiceChat_HandleKey(int flags, float *special, int key)
 }
 */
 
-static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
-	int findex, iUse = 0;
+static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, fakeAscii_t key) {
+	forcePowers_t findex;
+	int iUse = 0;
 
   switch (ownerDraw) {
     case UI_HANDICAP:
@@ -4234,7 +4235,7 @@ static bool UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int 
 	case UI_FORCE_RANK_SABERATTACK:
 	case UI_FORCE_RANK_SABERDEFEND:
 	case UI_FORCE_RANK_SABERTHROW:
-		findex = (ownerDraw - UI_FORCE_RANK)-1;
+		findex = UI_ForceRankPower( ownerDraw );
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		return UI_ForcePowerRank_HandleKey(flags, special, key, uiForcePowersRank[findex], FORCE_LEVEL_0, NUM_FORCE_POWER_LEVELS-1, ownerDraw);
 		break;
@@ -5692,7 +5693,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 	//now for force powers
 	i = 0;
-	while (i < NUM_FORCE_POWERS)
+	while (i < to_underlying( NUM_FORCE_POWERS ))
 	{
 		trap->Cvar_Set(va("ui_class_power%i", i), "gfx/2d/select");
 		i++;
@@ -5783,25 +5784,25 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 
 	//now for force powers
-	i = 0;
+	forcePowers_t fp = FP_FIRST;
 	count = 0;
 
-	while (i < NUM_FORCE_POWERS)
+	while (fp < NUM_FORCE_POWERS)
 	{
-		trap->Cvar_Set(va("ui_class_powerlevel%i", i), "0");	// Zero this out to start.
-		if (i<9)
+		trap->Cvar_Set(va("ui_class_powerlevel%i", to_underlying( fp )), "0");	// Zero this out to start.
+		if (to_underlying( fp )<9)
 		{
-			trap->Cvar_Set(va("ui_class_powerlevelslot%i", i), "0");	// Zero this out to start.
+			trap->Cvar_Set(va("ui_class_powerlevelslot%i", to_underlying( fp )), "0");	// Zero this out to start.
 		}
 
-		if (scl->forcePowerLevels[i] != FORCE_LEVEL_0)
+		if (scl->forcePowerLevels[fp] != FORCE_LEVEL_0)
 		{
-			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",to_underlying( scl->forcePowerLevels[i] )));
-			trap->Cvar_Set(va("ui_class_power%i", count), HolocronIcons[i]);
+			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",to_underlying( scl->forcePowerLevels[fp] )));
+			trap->Cvar_Set(va("ui_class_power%i", count), HolocronIcons[fp]);
 			count++;
 		}
 
-		i++;
+		fp++;
 	}
 
 	//now health and armor
@@ -6506,19 +6507,19 @@ static void UI_RunMenuScript(char **args)
 		else if (Q_stricmp(name, "setui_dualforcepower") == 0)
 		{
 			int forcePowerDisable = trap->Cvar_VariableValue("g_forcePowerDisable");
-			int	i, forceBitFlag=0;
+			int	forceBitFlag=0;
 
 			// Turn off all powers but a few
-			for (i=0;i<NUM_FORCE_POWERS;i++)
+			for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 			{
-				if ((i != FP_LEVITATION) &&
-					(i != FP_PUSH) &&
-					(i != FP_PULL) &&
-					(i != FP_SABERTHROW) &&
-					(i != FP_SABER_DEFENSE) &&
-					(i != FP_SABER_OFFENSE))
+				if ((fp != FP_LEVITATION) &&
+					(fp != FP_PUSH) &&
+					(fp != FP_PULL) &&
+					(fp != FP_SABERTHROW) &&
+					(fp != FP_SABER_DEFENSE) &&
+					(fp != FP_SABER_OFFENSE))
 				{
-					forceBitFlag |= (1<<i);
+					forceBitFlag |= Bit( fp );
 				}
 			}
 
@@ -6537,7 +6538,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "dualForcePowers") == 0)
 		{
-			int	dualforcePower,i, forcePowerDisable=0;
+			int	dualforcePower, forcePowerDisable=0;
 			dualforcePower = trap->Cvar_VariableValue("ui_dualforcepower");
 
 			if (dualforcePower==0)	// All force powers
@@ -6547,9 +6548,9 @@ static void UI_RunMenuScript(char **args)
 			else if (dualforcePower==1)	// Remove All force powers
 			{
 				// It was set to something, so might as well make sure it got all flags set.
-				for (i=0;i<NUM_FORCE_POWERS;i++)
+				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 				{
-					forcePowerDisable |= (1<<i);
+					forcePowerDisable |= Bit( fp );
 				}
 			}
 			else if (dualforcePower==2)	// Limited force powers
@@ -6557,16 +6558,16 @@ static void UI_RunMenuScript(char **args)
 				forcePowerDisable = 0;
 
 				// Turn off all powers but a few
-				for (i=0;i<NUM_FORCE_POWERS;i++)
+				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 				{
-					if ((i != FP_LEVITATION) &&
-						(i != FP_PUSH) &&
-						(i != FP_PULL) &&
-						(i != FP_SABERTHROW) &&
-						(i != FP_SABER_DEFENSE) &&
-						(i != FP_SABER_OFFENSE))
+					if ((fp != FP_LEVITATION) &&
+						(fp != FP_PUSH) &&
+						(fp != FP_PULL) &&
+						(fp != FP_SABERTHROW) &&
+						(fp != FP_SABER_DEFENSE) &&
+						(fp != FP_SABER_OFFENSE))
 					{
-						forcePowerDisable |= (1<<i);
+						forcePowerDisable |= Bit( fp );
 					}
 				}
 			}
@@ -6575,16 +6576,16 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "forcePowersDisable") == 0)
 		{
-			int	forcePowerDisable,i;
+			int	forcePowerDisable;
 
 			forcePowerDisable = trap->Cvar_VariableValue("g_forcePowerDisable");
 
 			// It was set to something, so might as well make sure it got all flags set.
 			if (forcePowerDisable)
 			{
-				for (i=0;i<NUM_FORCE_POWERS;i++)
+				for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 				{
-					forcePowerDisable |= (1<<i);
+					forcePowerDisable |= Bit( fp );
 				}
 
 				trap->Cvar_Set("g_forcePowerDisable", va("%i",forcePowerDisable));
@@ -6928,17 +6929,16 @@ static void UI_RunMenuScript(char **args)
 				item = (itemDef_t *) Menu_FindItemByName((menuDef_t *) menu, "base_class_force_feed");
 				if (item)
 				{
-					int i;
 					char info[MAX_STRING_CHARS];
 
 					trap->Cvar_VariableStringBuffer( va("ui_class_power%i", item->cursorPos), info, sizeof(info) );
 
 					//count them up
-					for (i=0;i< NUM_FORCE_POWERS;i++)
+					for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 					{
-						if (!strcmp(HolocronIcons[i],info))
+						if (!strcmp(HolocronIcons[fp],info))
 						{
-							trap->Cvar_Set( "ui_itemforceinvdesc", forcepowerDesc[i] );
+							trap->Cvar_Set( "ui_itemforceinvdesc", forcepowerDesc[fp] );
 						}
 					}
 				}
@@ -8077,7 +8077,7 @@ static int UI_FeederCount(float feederID)
 		// Get the count of force powers
 		case FEEDER_SIEGE_CLASS_FORCE:
 			//count them up
-			for (i=0;i< NUM_FORCE_POWERS;i++)
+			for (i=0;i< to_underlying( NUM_FORCE_POWERS );i++)
 			{
 				trap->Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 				if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -8741,7 +8741,7 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		}
 
 		//count them up
-		for (i=0;i< NUM_FORCE_POWERS;i++)
+		for (i=0;i< to_underlying( NUM_FORCE_POWERS );i++)
 		{
 			trap->Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 			if (Q_stricmp(info,"gfx/2d/select")!=0)
@@ -9082,17 +9082,16 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 	}
 	else if (feederID == FEEDER_SIEGE_CLASS_FORCE)
 	{
-		int i;
 //		int validCnt = 0;
 
 		trap->Cvar_VariableStringBuffer( va("ui_class_power%i", index), info, sizeof(info) );
 
 		//count them up
-		for (i=0;i< NUM_FORCE_POWERS;i++)
+		for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 		{
-			if (!strcmp(HolocronIcons[i],info))
+			if (!strcmp(HolocronIcons[fp],info))
 			{
-				trap->Cvar_Set( "ui_itemforceinvdesc", forcepowerDesc[i] );
+				trap->Cvar_Set( "ui_itemforceinvdesc", forcepowerDesc[fp] );
 			}
 		}
 	}
@@ -10161,7 +10160,7 @@ void UI_KeyEvent( int key, bool down ) {
 	if (Menu_Count() > 0) {
 		menuDef_t *menu = Menu_GetFocused();
 		if (menu) {
-			if (key == A_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
+			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
 				Menus_CloseAll();
 			} else {
 				Menu_HandleKey(menu, key, down );

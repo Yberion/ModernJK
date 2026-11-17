@@ -74,7 +74,7 @@ extern bool PM_AdjustAnglesForHeldByMonster( gentity_t *ent, gentity_t *monster,
 extern bool PM_HasAnimation( gentity_t *ent, int animation );
 extern bool PM_LeapingSaberAnim( int anim );
 extern bool PM_SpinningSaberAnim( int anim );
-extern bool PM_SaberInAttack( int move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
 extern bool PM_KickingAnim( int anim );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_InKnockDown( playerState_t *ps );
@@ -625,9 +625,9 @@ void P_WorldEffects( gentity_t *ent ) {
 		gi.WE_IsOutsideCausingPain(ent->currentOrigin) &&
 		TIMER_Done(ent, "AcidPainDebounce"))
 	{
-		if (ent->NPC && ent->client && (ent->client->ps.forcePowersKnown&(1<< FP_PROTECT)))
+		if (ent->NPC && ent->client && (ent->client->ps.forcePowersKnown&Bit( FP_PROTECT )))
 		{
-			if (!(ent->client->ps.forcePowersActive & (1<<FP_PROTECT)))
+			if (!(ent->client->ps.forcePowersActive & Bit( FP_PROTECT )))
 			{
 				WP_ForcePowerStart( ent, FP_PROTECT, 0 );
 			}
@@ -1763,7 +1763,7 @@ extern void WP_SabersDamageTrace( gentity_t *ent, bool noEffects = false );
 extern void WP_SaberUpdateOldBladeData( gentity_t *ent );
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;
-	int		event;
+	entity_event_t		event;
 	gclient_t *client;
 	//int		damage;
 #ifndef FINAL_BUILD
@@ -1823,7 +1823,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	//by the way, if you have your saber in hand and it's on, do the damage trace
 	if ( client->ps.weapon == WP_SABER )
 	{
-		if ( g_timescale->value >= 1.0f || !(client->ps.forcePowersActive&(1<<FP_SPEED)) )
+		if ( g_timescale->value >= 1.0f || !(client->ps.forcePowersActive&Bit( FP_SPEED )) )
 		{
 			int wait = FRAMETIME/2;
 			//sanity check
@@ -1836,7 +1836,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				WP_SabersDamageTrace( ent );
 				WP_SaberUpdateOldBladeData( ent );
 				/*
-				if ( g_timescale->value&&client->ps.clientNum==0&&!player_locked&&!MatrixMode&&client->ps.forcePowersActive&(1<<FP_SPEED) )
+				if ( g_timescale->value&&client->ps.clientNum==0&&!player_locked&&!MatrixMode&&client->ps.forcePowersActive&Bit( FP_SPEED ) )
 				{
 					wait = floor( (float)wait*g_timescale->value );
 				}
@@ -2537,7 +2537,7 @@ bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		}
 	}
 	//check force drain
-	if ( (ent->client->ps.forcePowersActive&(1<<FP_DRAIN)) )
+	if ( (ent->client->ps.forcePowersActive&Bit( FP_DRAIN )) )
 	{//draining
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 		ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);
@@ -5427,7 +5427,7 @@ extern cvar_t	*g_skippingcin;
 			int		seq;
 
 			seq = (ent->client->ps.eventSequence-1) & (MAX_PS_EVENTS-1);
-			ent->s.event = ent->client->ps.events[ seq ] | ( ( ent->client->ps.eventSequence & 3 ) << 8 );
+			ent->s.event = BG_PackEvent( ent->client->ps.events[ seq ], ( ent->client->ps.eventSequence & 3 ) << 8 );
 			ent->s.eventParm = ent->client->ps.eventParms[ seq ];
 		}
 	}
@@ -5463,7 +5463,7 @@ extern cvar_t	*g_skippingcin;
 	// execute client events
 	ClientEvents( ent, oldEventSequence );
 
-	if ( pm.useEvent )
+	if ( pm.useEvent != EV_NONE )
 	{
 		//TODO: Use
 		TryUse( ent );

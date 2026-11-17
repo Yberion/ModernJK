@@ -503,7 +503,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		other->client->ps.saberBlockTime < level.time &&
 		!isKnockedSaber &&
-		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, true, 0))
+		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, MOD_UNKNOWN, true, 0))
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
 		vec3_t fwd;
 		gentity_t *te;
@@ -579,7 +579,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			forcePowerLevels_t otherDefLevel = otherOwner->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
 
 			//in this case, deflect it even if we can't actually block it because it hit our saber
-			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, true, 0);
+			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, MOD_UNKNOWN, true, 0);
 			if (otherOwner->client && otherOwner->client->ps.weaponTime <= 0)
 			{
 				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, true);

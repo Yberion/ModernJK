@@ -65,7 +65,7 @@ bool CL_GameCommand( void ) {
 	return false;
 }
 
-void CL_KeyEvent (int key, bool down, unsigned time) {
+void CL_KeyEvent (fakeAscii_t key, bool down, unsigned time) {
 }
 
 bool UI_GameCommand( void ) {

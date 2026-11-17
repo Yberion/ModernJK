@@ -28,6 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ui/ui_public.h"
 
 void _UI_KeyEvent( int key, bool down );
+void _UI_KeyEvent( fakeAscii_t key, bool down );
 void UI_SetActiveMenu( const char* menuname,const char *menuID );
 void UI_UpdateConnectionMessageString( char *string );
 bool UI_ConsoleCommand( void ) ;

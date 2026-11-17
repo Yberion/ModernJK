@@ -522,7 +522,7 @@ void SP_misc_portal_camera(gentity_t *ent) {
 extern bool G_ClearViewEntity( gentity_t *ent );
 extern void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity );
 extern void SP_fx_runner( gentity_t *ent );
-void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	if ( player && player->client && player->client->ps.viewEntity == self->s.number )
 	{
@@ -1003,7 +1003,7 @@ void misc_dlight_think ( gentity_t *ent )
 }
 
 
-void station_pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc )
+void station_pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 //	self->s.modelindex = G_ModelIndex("/models/mapobjects/stasis/plugin2_in.md3");
 //	self->s.eFlags &= ~ EF_ANIM_ALLFAST;
@@ -1709,7 +1709,7 @@ NOTE: place these half-way in the door to make it flush with the door's surface.
 "target"	thing to use when destoryed (not doors - it automatically unlocks the door it was angled at)
 "health"	default is 10
 */
-void maglock_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod, int dFlags, int hitLoc )
+void maglock_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc )
 {
 	//unlock our door if we're the last lock pointed at the door
 	if ( self->activator )
@@ -2428,7 +2428,7 @@ void gas_random_jet( gentity_t *self )
 }
 
 //------------------------------------------------------------
-void GasBurst( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc )
+void GasBurst( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
 	vec3_t pt;
 
@@ -2500,7 +2500,7 @@ NON_SOLID - can only be shot
 */
 
 //------------------------------------------------------------
-void CrystalCratePain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod, int hitLoc )
+void CrystalCratePain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
 	vec3_t pt;
 
@@ -2599,7 +2599,7 @@ void misc_atst_setanim( gentity_t *self, int bone, int anim )
 		}
 	}
 }
-void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {//ATST was destroyed while you weren't in it
 	//can't be used anymore
 	self->e_UseFunc = useF_NULL;

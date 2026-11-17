@@ -2591,8 +2591,9 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 
 			//force powers
 			fp = GetIDForString( FPTable, token );
-			if ( fp >= FP_FIRST && fp < NUM_FORCE_POWERS )
+			if ( fp != -1 )
 			{
+				const forcePowers_t power = static_cast<forcePowers_t>( fp );
 				if ( COM_ParseInt( &p, &n ) )
 				{
 					SkipRestOfLine( &p );
@@ -2610,13 +2611,13 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				if ( n )
 				{//set
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << fp );
+					NPC->client->ps.fd.forcePowersKnown |= Bit( power );
 				}
 				else
 				{//clear
-					NPC->client->ps.fd.forcePowersKnown &= ~( 1 << fp );
+					NPC->client->ps.fd.forcePowersKnown &= ~Bit( power );
 				}
-				NPC->client->ps.fd.forcePowerLevel[fp] = static_cast<forcePowerLevels_t>( n );
+				NPC->client->ps.fd.forcePowerLevel[power] = static_cast<forcePowerLevels_t>( n );
 				continue;
 			}
 

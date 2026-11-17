@@ -271,7 +271,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	}
 	else if ( ent->client->NPC_class == CLASS_BOBAFETT )
 	{//set some stuff, precache
-		ent->client->ps.forcePowersKnown |= ( 1 << FP_LEVITATION );
+		ent->client->ps.forcePowersKnown |= Bit( FP_LEVITATION );
 		ent->client->ps.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
 		ent->client->ps.forcePower	= 100;
 		ent->NPC->scriptFlags		|= (SCF_NAV_CAN_FLY|SCF_FLY_WITH_JET|SCF_NAV_CAN_JUMP);
@@ -279,7 +279,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	}
 	else if ( ent->client->NPC_class == CLASS_ROCKETTROOPER )
 	{//set some stuff, precache
-		ent->client->ps.forcePowersKnown |= ( 1 << FP_LEVITATION );
+		ent->client->ps.forcePowersKnown |= Bit( FP_LEVITATION );
 		ent->client->ps.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
 		ent->client->ps.forcePower = 100;
 		ent->NPC->scriptFlags |= (SCF_NAV_CAN_FLY|SCF_FLY_WITH_JET|SCF_NAV_CAN_JUMP);//no groups, no combat points!

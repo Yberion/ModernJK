@@ -133,8 +133,8 @@ extern void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex,
 							 const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList );
 extern void FX_BorgDeathSparkParticles( vec3_t origin, vec3_t angles, vec3_t vel, vec3_t user );
 extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SaberInAttack( int move );
-extern bool PM_SaberInTransitionAny( int move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
+extern bool PM_SaberInTransitionAny( saberMoveName_t move );
 extern int PM_GetTurnAnim( gentity_t *gent, int anim );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern bool PM_InRoll( playerState_t *ps );
@@ -1897,7 +1897,7 @@ static bool CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velocity
 	{
 		return false;
 	}
-	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive & (1 << FP_SPEED) )
+	if ( cent->gent && cent->gent->client && cent->gent->client->ps.forcePowersActive & Bit( FP_SPEED ) )
 	{//using force speed
 		//scale up the turning speed
 		turnRate /= cg_timescale.value;
@@ -4073,7 +4073,7 @@ static void CG_ForcePushRefraction( vec3_t org, centity_t *cent )
 	}
 
 	//scale from 1.0f to 0.1f then hold at 0.1 for the rest of the duration
-	if (cent->gent->client->ps.forcePowersActive & ( 1 << FP_PULL ) )
+	if (cent->gent->client->ps.forcePowersActive & Bit( FP_PULL ) )
 	{
 		scale = (float)(REFRACT_EFFECT_DURATION-tDif)*0.003f;
 	}
@@ -4692,7 +4692,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	if (( powerups & Bit( PW_UNCLOAKING )))
 	{//in the middle of cloaking
-		if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+		if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 			&& cg.snap->ps.clientNum != cent->currentState.number
 			&& CG_PlayerCanSeeCent( cent ))
 		{//just draw him
@@ -4726,7 +4726,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	}
 	else if (( powerups & Bit( PW_CLOAKED )))
 	{//fully cloaked
-		if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+		if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 			&& cg.snap->ps.clientNum != cent->currentState.number
 			&& CG_PlayerCanSeeCent( cent ))
 		{//just draw him
@@ -4790,7 +4790,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	// FORCE speed does blur trails
 	//------------------------------------------------------
 	if ( cg_speedTrail.integer
-		&& (gent->client->ps.forcePowersActive & (1 << FP_SPEED) //in force speed
+		&& (gent->client->ps.forcePowersActive & Bit( FP_SPEED ) //in force speed
 		|| cent->gent->client->ps.legsAnim == BOTH_FORCELONGLEAP_START//or force long jump - FIXME: only 1st half of that anim?
 		|| cent->gent->client->ps.legsAnim == BOTH_FORCELONGLEAP_ATTACK )//or force long jump attack
 		&& (gent->s.number || cg.renderingThirdPerson) ) // looks dumb doing this with first peron mode on
@@ -4913,7 +4913,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	//new Jedi Academy force powers
 	//Rage effect
-	if ((cent->gent->client->ps.forcePowersActive & (1 << FP_RAGE)) &&
+	if ((cent->gent->client->ps.forcePowersActive & Bit( FP_RAGE )) &&
 		(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum))
 	{
 		//ent->renderfx &= ~RF_FORCE_ENT_ALPHA;
@@ -4939,8 +4939,8 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	//FIXME: Tavion possessed effect?  White?
 	//For now, these two are using the old shield shader. This is just so that you
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
-	if ( (cent->gent->client->ps.forcePowersActive & (1 << FP_PROTECT))
-		&& (cent->gent->client->ps.forcePowersActive & (1 << FP_ABSORB)) )
+	if ( (cent->gent->client->ps.forcePowersActive & Bit( FP_PROTECT ))
+		&& (cent->gent->client->ps.forcePowersActive & Bit( FP_ABSORB )) )
 	{//using both at once, save ourselves some rendering
 		//protect+absorb is represented by cyan..
 		ent->shaderRGBA[0] = 0;
@@ -4962,7 +4962,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 		cgi_R_AddRefEntityToScene( ent );
 	}
-	else if ( cent->gent->client->ps.forcePowersActive & (1 << FP_PROTECT) )
+	else if ( cent->gent->client->ps.forcePowersActive & Bit( FP_PROTECT ) )
 	{ //protect is represented by green..
 		ent->shaderRGBA[0] = 0;
 		ent->shaderRGBA[1] = 255;
@@ -4982,7 +4982,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 		cgi_R_AddRefEntityToScene( ent );
 	}
-	else if ( cent->gent->client->ps.forcePowersActive & (1 << FP_ABSORB))
+	else if ( cent->gent->client->ps.forcePowersActive & Bit( FP_ABSORB ))
 	{ //absorb is represented by blue..
 		ent->shaderRGBA[0] = 0;
 		ent->shaderRGBA[1] = 0;
@@ -5003,7 +5003,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 		cgi_R_AddRefEntityToScene( ent );
 	}
 
-	if ((cg.snap->ps.forcePowersActive & (1 << FP_SEE))
+	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
 		&& (cent->currentState.eFlags&EF_FORCE_VISIBLE
 			|| ((cent->gent->health > 0 || cent->gent->message )
@@ -5016,7 +5016,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	}
 
 	//temp stuff for drain
-	if ( ( (cent->gent->client->ps.eFlags&EF_FORCE_DRAINED) || cent->gent->client->ps.forcePowersActive&(1<<FP_DRAIN) ) &&
+	if ( ( (cent->gent->client->ps.eFlags&EF_FORCE_DRAINED) || cent->gent->client->ps.forcePowersActive&Bit( FP_DRAIN ) ) &&
 		(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum))
 	{//draining or being drained
 		ent->renderfx |= RF_RGB_TINT;
@@ -5096,7 +5096,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, int anim )
 	const animation_t *animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
-//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&(1<<FP_SPEED))?(1.0/cg_timescale.value):1.0;
+//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (cg_timescale.value)?(1.0/cg_timescale.value):1.0;
 	float animSpeed = 50.0f / animations[anim].frameLerp * timeScaleMod;
 
@@ -7800,7 +7800,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 
 			//This is now being done via an effect and the animevents.cfg
 			//if ( cent->gent->client->ps.powerups[PW_FORCE_PUSH] > cg.time ||
-			if ( (cent->gent->client->ps.forcePowersActive & (1<<FP_GRIP)) )
+			if ( (cent->gent->client->ps.forcePowersActive & Bit( FP_GRIP )) )
 			{//doing the gripping
 				//FIXME: effect?
 				CG_ForcePushBlur( cent->gent->client->renderInfo.handLPoint, true );
@@ -7823,7 +7823,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				CG_ForceElectrocution( cent, ent.origin, tempAngles, cgs.media.drainShader, true );
 			}
 
-			if ( cent->gent->client->ps.forcePowersActive&(1<<FP_LIGHTNING) )
+			if ( cent->gent->client->ps.forcePowersActive&Bit( FP_LIGHTNING ) )
 			{//doing the electrocuting
 				//FIXME: if the target is absorbing or blocking lightning w/saber, draw a beam from my hand to his (hand?chest?saber?)
 				vec3_t tAng, fxDir;
@@ -7856,7 +7856,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				theFxScheduler.PlayEffect( cgs.effects.forceDrain, cent->gent->client->renderInfo.handLPoint, fxDir );//theFxScheduler.RegisterEffect( "force/dr1" )
 			}
 
-			if ( cent->gent->client->ps.forcePowersActive&(1<<FP_DRAIN)
+			if ( cent->gent->client->ps.forcePowersActive&Bit( FP_DRAIN )
 				&& cent->gent->client->ps.forceDrainEntityNum >= ENTITYNUM_WORLD )
 			{//doing the draining and not on a single person
 				vec3_t tAng, fxDir;
@@ -7906,7 +7906,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		}
 		else
 		{
-			cent->gent->client->ps.forcePowersActive &= ~( 1 << FP_PULL );
+			cent->gent->client->ps.forcePowersActive &= ~Bit( FP_PULL );
 		}
 
 		//bolted effects
@@ -7921,7 +7921,7 @@ extern bool PM_KickingAnim( int anim );
 			if ( !PM_KickingAnim( cent->gent->client->ps.torsoAnim )
 				|| cent->gent->client->ps.torsoAnim == BOTH_A7_KICK_S )
 			{//not kicking (unless it's the spinning kick)
-				if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&(1<<FP_SPEED)) )
+				if ( cg_timescale.value < 1.0f && (cent->gent->client->ps.forcePowersActive&Bit( FP_SPEED )) )
 				{
 					int wait = floor( (float)FRAMETIME/2.0f );
 					//sanity check

@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ghoul2/ghoul2_gore.h"
 
 extern void CG_SetClientViewAngles( vec3_t angles, bool overrideViewEnt );
-extern bool PM_InAnimForSaberMove( int anim, int saberMove );
+extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
 extern bool PM_InForceGetUp( playerState_t *ps );
 extern bool PM_InKnockDown( playerState_t *ps );
 extern bool PM_InReboundJump( int anim );
@@ -868,7 +868,7 @@ bool PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 				NPC_SetAnim( ent, SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_ALT, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 				ent->client->ps.pm_flags |= PMF_JUMP_HELD;
 				ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
-				ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+				ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 				G_AddEvent( ent, EV_JUMP, 0 );
 				ucmd->upmove = 0;
 				return false;
@@ -950,7 +950,7 @@ bool PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 			NPC_SetAnim( ent, SETANIM_BOTH, BOTH_FORCEWALLRUNFLIP_END, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			ent->client->ps.pm_flags |= PMF_JUMP_HELD;
 			ent->client->ps.pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
-			ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+			ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 			G_AddEvent( ent, EV_JUMP, 0 );
 			ucmd->upmove = 0;
 			//return true;
@@ -1074,7 +1074,7 @@ bool PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 			ent->client->ps.velocity[2] = G_ForceWallJumpStrength();
 			ent->client->ps.pm_flags |= PMF_JUMPING|PMF_JUMP_HELD;
 			G_SoundOnEnt( ent, CHAN_BODY, "sound/weapons/force/jump.wav" );
-			ent->client->ps.forcePowersActive |= (1<<FP_LEVITATION);
+			ent->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 			WP_ForcePowerDrain( ent, FP_LEVITATION, 10 );
 			if ( PM_InReboundHold( ent->client->ps.legsAnim ) )
 			{//if was in hold pose, release now
@@ -1350,7 +1350,7 @@ bool G_OkayToLean( playerState_t *ps, usercmd_t *cmd, bool interruptOkay )
 				&& !ps->torsoAnimTimer) //not in any held torso anim
 			)
 		&& !(cmd->buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_LIGHTNING|BUTTON_USE_FORCE|BUTTON_FORCE_DRAIN|BUTTON_FORCEGRIP))//not trying to attack
-		//&& (ps->forcePowersActive&(1<<FP_SPEED))
+		//&& (ps->forcePowersActive&Bit( FP_SPEED ))
 		&& VectorCompare( ps->velocity, vec3_origin )//not moving
 		&& !cg_usingInFrontOf )//use button wouldn't be used for anything else
 	{

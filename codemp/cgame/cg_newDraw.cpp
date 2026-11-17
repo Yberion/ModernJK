@@ -842,7 +842,7 @@ void CG_KeyEvent(int key, bool down) {
 		return;
 	}
 
-	//if (key == trap->Key_GetKey("teamMenu") || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
+	//if ((KeyEvent_Key( key ) && KeyEvent_Key( key ) == trap->Key_GetKey("teamMenu")) || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
 	// if we see this then we should always be visible
 	//  CG_EventHandling(CGAME_EVENT_NONE);
 	//  trap->Key_SetCatcher(0);
@@ -855,7 +855,7 @@ void CG_KeyEvent(int key, bool down) {
 	if (cgs.capturedItem) {
 		cgs.capturedItem = nullptr;
 	}	else {
-		if (key == A_MOUSE2 && down) {
+		if (KeyEvent_Key( key ) == A_MOUSE2 && down) {
 			cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY);
 		}
 	}

@@ -775,7 +775,7 @@ CL_RefPrintf
 DLL glue
 ================
 */
-void QDECL SV_RefPrintf( int print_level, const char *fmt, ...) {
+void QDECL SV_RefPrintf( printParm_t print_level, const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 
@@ -789,6 +789,8 @@ void QDECL SV_RefPrintf( int print_level, const char *fmt, ...) {
 		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
 	} else if ( print_level == PRINT_DEVELOPER ) {
 		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
+	} else if ( print_level == PRINT_ERROR ) {
+		Com_Printf (S_COLOR_RED "%s", msg);		// red
 	}
 }
 

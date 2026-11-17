@@ -2192,7 +2192,7 @@ CL_RefPrintf
 DLL glue
 ================
 */
-void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
+void QDECL CL_RefPrintf( printParm_t print_level, const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 
@@ -2206,6 +2206,8 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
 		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
 	} else if ( print_level == PRINT_DEVELOPER ) {
 		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
+	} else if ( print_level == PRINT_ERROR ) {
+		Com_Printf (S_COLOR_RED "%s", msg);		// red
 	}
 }
 
@@ -3994,7 +3996,7 @@ void CL_UpdateCursorPosition( int dx, int dy ) {
 	cls.cursorY = Com_Clampi( 0, SCREEN_HEIGHT, cls.cursorY + dy );
 }
 
-void CL_CursorButton( int key ) {
+void CL_CursorButton( fakeAscii_t key ) {
 	int i;
 	if ( key == A_MOUSE1 ) {
 		for ( i = 0; i < menuButtonsActive; i++ ) {

@@ -2521,7 +2521,7 @@ void funcBBrushDieGo (gentity_t *self)
 	//G_FreeEntity( self );
 }
 
-void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	self->takedamage = false;//stop chain reaction runaway loops
 
@@ -2896,7 +2896,7 @@ GLASS
 
 ===============================================================================
 */
-void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	gentity_t *te;
 	vec3_t dif;
@@ -2926,7 +2926,7 @@ void GlassDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int da
 	G_FreeEntity(self);
 }
 
-void GlassDie_Old(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void GlassDie_Old(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	gentity_t *te;
 	vec3_t dif;
@@ -3134,7 +3134,7 @@ void func_usable_pain(gentity_t *self, gentity_t *attacker, int damage)
 	GlobalUse(self, attacker, attacker);
 }
 
-void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod)
 {
 	self->takedamage = false;
 	GlobalUse(self, inflictor, attacker);

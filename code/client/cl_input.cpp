@@ -82,7 +82,7 @@ static void IN_UseGivenForce(void)
 		return;
 	}
 
-	switch(forceNum) {
+	switch ( static_cast<forcePowers_t>( forceNum ) ) {
 #ifndef JK2_MODE
 	case FP_DRAIN:
 		genCmdNum = GENCMD_FORCE_DRAIN;

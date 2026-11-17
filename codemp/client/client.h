@@ -169,7 +169,7 @@ typedef struct clientActive_s {
 	int			cgameViewAngleForceTime;
 	float		cgameSensitivity;
 
-	int			cgameForceSelection;
+	forcePowers_t	cgameForceSelection;
 	int			cgameInvenSelection;
 
 	bool	gcmdSendValue;
@@ -509,7 +509,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
 bool CL_GetDefaultState( int index, entityState_t *state );
 bool CL_GetServerCommand( int serverCommandNumber );
 bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
-void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel );
+void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel );
 
 void CL_Disconnect_f (void);
 void CL_GetChallengePacket (void);
@@ -535,7 +535,7 @@ bool CL_CheckPaused(void);
 
 void CL_DrawEngineMenus( void );
 void CL_UpdateCursorPosition( int dx, int dy );
-void CL_CursorButton( int key );
+void CL_CursorButton( fakeAscii_t key );
 
 //
 // cl_input
@@ -557,7 +557,7 @@ void CL_WritePacket( void );
 
 float CL_KeyState (kbutton_t *key, unsigned span);
 bool CL_PendingCmd( usercmd_t *cmd );
-const char *Key_KeynumToString( int keynum/*, bool bTranslate */ ); //note: translate is only called for menu display not configs
+const char *Key_KeynumToString( fakeAscii_t keynum/*, bool bTranslate */ ); //note: translate is only called for menu display not configs
 
 //
 // cl_parse.c

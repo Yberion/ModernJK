@@ -40,7 +40,7 @@ extern bool CG_InFighter( void );
 extern bool CG_InATST( void );
 extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;
-extern const char *showPowersName[];
+extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS + 1> showPowersName;
 
 extern int cg_siegeDeathTime;
 extern int cg_siegeDeathDelay;
@@ -124,7 +124,7 @@ CG_Obituary
 =============
 */
 static void CG_Obituary( entityState_t *ent ) {
-	int			mod;
+	meansOfDeath_t	mod;
 	int			target, attacker;
 	const char		*message;
 	const char	*targetInfo;
@@ -137,7 +137,7 @@ static void CG_Obituary( entityState_t *ent ) {
 
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
-	mod = ent->eventParm;
+	mod = static_cast<meansOfDeath_t>( ent->eventParm );
 
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		trap->Error( ERR_DROP, "CG_Obituary: target out of range" );
@@ -520,24 +520,25 @@ CG_UseItem
 */
 static void CG_UseItem( centity_t *cent ) {
 	clientInfo_t *ci;
-	int			itemNum, clientNum;
+	holdable_t	item;
+	int			clientNum;
 	entityState_t *es;
 
 	es = &cent->currentState;
 
-	itemNum = (es->event & ~EV_EVENT_BITS) - EV_USE_ITEM0;
-	if ( itemNum < 0 || itemNum > to_underlying( HI_NUM_HOLDABLE ) ) {
-		itemNum = 0;
+	item = BG_UsedItem( BG_UnpackEvent( es->event ) );
+	if ( item < HI_NONE || item > HI_NUM_HOLDABLE ) {
+		item = HI_NONE;
 	}
 
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum ) {
-		if ( !itemNum ) {
+		if ( item == HI_NONE ) {
 			//CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		}
 	}
 
-	switch ( static_cast<holdable_t>( itemNum ) ) {
+	switch ( item ) {
 	default:
 	case HI_NONE:
 		//trap->S_StartSound (nullptr, es->number, CHAN_BODY, cgs.media.useNothingSound );
@@ -580,8 +581,8 @@ static void CG_UseItem( centity_t *cent ) {
 		break; //Do something?
 	}
 
-	if (cg.snap && cg.snap->ps.clientNum == cent->currentState.number && itemNum != to_underlying( HI_BINOCULARS ) &&
-		itemNum != to_underlying( HI_JETPACK ) && itemNum != to_underlying( HI_HEALTHDISP ) && itemNum != to_underlying( HI_AMMODISP ) && itemNum != to_underlying( HI_CLOAK ) && itemNum != to_underlying( HI_EWEB ))
+	if (cg.snap && cg.snap->ps.clientNum == cent->currentState.number && item != HI_BINOCULARS &&
+		item != HI_JETPACK && item != HI_HEALTHDISP && item != HI_AMMODISP && item != HI_CLOAK && item != HI_EWEB)
 	{ //if not using binoculars/jetpack/dispensers/cloak, we just used that item up, so switch
 		BG_CycleInven(&cg.snap->ps, 1);
 		cg.itemSelect.reset(); //update the client-side selection display
@@ -1298,7 +1299,7 @@ also called by CG_CheckPlayerstateEvents
 extern void CG_ChatBox_AddString(char *chatStr); //cg_draw.cpp
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
-	int				event;
+	entity_event_t	event;
 	vec3_t			dir;
 	const char		*s;
 	int				clientNum;
@@ -1307,13 +1308,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	centity_t		*cl_ent;
 
 	es = &cent->currentState;
-	event = es->event & ~EV_EVENT_BITS;
+	event = BG_UnpackEvent( es->event );
 
 	if ( cg_debugEvents.integer ) {
-		trap->Print( "ent:%3i  event:%3i ", es->number, event );
+		trap->Print( "ent:%3i  event:%3i ", es->number, to_underlying( event ) );
 	}
 
-	if ( !event ) {
+	if ( event == EV_NONE ) {
 		DEBUGNAME("ZEROEVENT");
 		return;
 	}
@@ -1863,26 +1864,26 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 			if (index < 1 && cg_entities[es->eventParm].currentState.isJediMaster)
 			{ //a holocron most likely
-				index = cg_entities[es->eventParm].currentState.trickedentindex4;
+				const forcePowers_t power = static_cast<forcePowers_t>( cg_entities[es->eventParm].currentState.trickedentindex4 );
 				trap->S_StartSound (nullptr, es->number, CHAN_AUTO,	cgs.media.holocronPickup );
 
-				if (es->number == cg.snap->ps.clientNum && showPowersName[index])
+				if (es->number == cg.snap->ps.clientNum && showPowersName[power])
 				{
 					const char *strText = CG_GetStringEdString("MP_INGAME", "PICKUPLINE");
 
-					//Com_Printf("%s %s\n", strText, showPowersName[index]);
-					CG_CenterPrint( va("%s %s\n", strText, CG_GetStringEdString("SP_INGAME",showPowersName[index])), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+					//Com_Printf("%s %s\n", strText, showPowersName[power]);
+					CG_CenterPrint( va("%s %s\n", strText, CG_GetStringEdString("SP_INGAME",showPowersName[power])), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 				}
 
 				//Show the player their force selection bar in case picking the holocron up changed the current selection
-				if (index != FP_SABER_OFFENSE && index != FP_SABER_DEFENSE && index != FP_SABERTHROW &&
-					index != FP_LEVITATION &&
+				if (power != FP_SABER_OFFENSE && power != FP_SABER_DEFENSE && power != FP_SABERTHROW &&
+					power != FP_LEVITATION &&
 					es->number == cg.snap->ps.clientNum &&
-					(index == cg.snap->ps.fd.forcePowerSelected || !(cg.snap->ps.fd.forcePowersActive & (1 << cg.snap->ps.fd.forcePowerSelected))))
+					(power == cg.snap->ps.fd.forcePowerSelected || !(cg.snap->ps.fd.forcePowersActive & Bit( cg.snap->ps.fd.forcePowerSelected ))))
 				{
-					if (cg.forceSelect != index)
+					if (cg.forceSelect != power)
 					{
-						cg.forceSelect = index;
+						cg.forceSelect = power;
 						newindex = true;
 					}
 				}
@@ -3437,7 +3438,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	default:
 		DEBUGNAME("UNKNOWN");
-		trap->Error( ERR_DROP, "Unknown event: %i", event );
+		trap->Error( ERR_DROP, "Unknown event: %i", to_underlying( event ) );
 		break;
 	}
 
@@ -3463,14 +3464,14 @@ void CG_CheckEvents( centity_t *cent ) {
 
 		cent->previousEvent = 1;
 
-		cent->currentState.event = cent->currentState.eType - ET_EVENTS;
+		cent->currentState.event = BG_EventEntityEvent( cent->currentState.eType );
 	} else {
 		// check for events riding with another entity
 		if ( cent->currentState.event == cent->previousEvent ) {
 			return;
 		}
 		cent->previousEvent = cent->currentState.event;
-		if ( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 ) {
+		if ( BG_UnpackEvent( cent->currentState.event ) == EV_NONE ) {
 			return;
 		}
 	}

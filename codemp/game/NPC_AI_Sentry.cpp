@@ -98,7 +98,7 @@ NPC_Sentry_Pain
 */
 void NPC_Sentry_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	int mod = gPainMOD;
+	meansOfDeath_t mod = gPainMOD;
 
 	NPC_Pain( self, attacker, damage );
 

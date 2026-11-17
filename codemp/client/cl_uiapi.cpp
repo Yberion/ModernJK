@@ -59,6 +59,11 @@ void UIVM_KeyEvent( int key, bool down ) {
 	uie->KeyEvent( key, down );
 }
 
+// a key's event: the module's KeyEvent takes a key, or a character with K_CHAR_FLAG, in one int
+void UIVM_KeyEvent( fakeAscii_t key, bool down ) {
+	UIVM_KeyEvent( to_underlying( key ), down );
+}
+
 void UIVM_MouseEvent( int dx, int dy ) {
 	VMSwap v( uivm );
 
@@ -159,7 +164,7 @@ static int GetConfigString(int index, char *buf, int size)
 	return true;
 }
 
-static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+static void Key_GetBindingBuf( fakeAscii_t keynum, char *buf, int buflen ) {
 	const char	*value;
 
 	value = Key_GetBinding( keynum );
@@ -171,7 +176,7 @@ static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 	}
 }
 
-static void Key_KeynumToStringBuf( int keynum, char *buf, int buflen )
+static void Key_KeynumToStringBuf( fakeAscii_t keynum, char *buf, int buflen )
 {
 	const char *psKeyName = Key_KeynumToString( keynum/*, true */);
 

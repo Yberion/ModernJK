@@ -156,12 +156,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 			client->saber[i].blade[j].trail.lastTime = 0;
 		}
 	}
-	for ( i = 0; i < NUM_FORCE_POWERS; i++ ) {
-		if ( client->ps.fd.forcePowersActive & ( 1 << i ) ) {
-			WP_ForcePowerStop( ent, (forcePowers_t)i );
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ ) {
+		if ( client->ps.fd.forcePowersActive & Bit( fp ) ) {
+			WP_ForcePowerStop( ent, fp );
 		}
-		client->ps.fd.forcePowerDuration[i] = 0;
-		client->ps.fd.forcePowerDebounce[i] = 0;
+		client->ps.fd.forcePowerDuration[fp] = 0;
+		client->ps.fd.forcePowerDebounce[fp] = 0;
 	}
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
 	client->ps.stats[STAT_ARMOR] = 0;
@@ -212,10 +212,10 @@ static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 
 	client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
 	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
-	client->ps.fd.forcePowersKnown |= ( 1 << FP_SABER_OFFENSE ) | ( 1 << FP_SABER_DEFENSE );
+	client->ps.fd.forcePowersKnown |= Bit( FP_SABER_OFFENSE ) | Bit( FP_SABER_DEFENSE );
 	if ( scn.type == SCN_FORCE && attacker ) {
 		client->ps.fd.forcePowerLevel[scn.power] = FORCE_LEVEL_3;
-		client->ps.fd.forcePowersKnown |= ( 1 << scn.power );
+		client->ps.fd.forcePowersKnown |= Bit( scn.power );
 		client->ps.fd.forceSide = ( scn.power == FP_PROTECT || scn.power == FP_ABSORB ) ? FORCE_LIGHTSIDE : FORCE_DARKSIDE;
 	}
 
@@ -333,19 +333,19 @@ void G_ScenarioTrace( void ) {
 		const bladeInfo_t *blade = &ent->client->saber[0].blade[0];
 
 		trap->Print( "SCN %d %4d %c cmd%+d hp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n",
-			scn.rep, level.time - scn.repStart, n ? 'D' : 'A', ps->commandTime - level.time, ent->health, ps->saberMove,
+			scn.rep, level.time - scn.repStart, n ? 'D' : 'A', ps->commandTime - level.time, ent->health, to_underlying( ps->saberMove ),
 			to_underlying( ps->saberBlocked ), ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
 			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
 	}
 }
 
 // every health loss of a client during the traced repetitions: the tick, the inflictor's position and the point hit
-void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod ) {
+void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, meansOfDeath_t mod ) {
 	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
 		return;
 	}
 	trap->Print( "SCN %d %4d dmg tick%+d targ%d take%d mod%d surf%d@%+d inf%d p%.1f,%.1f,%.1f io%.1f,%.1f,%.1f\n", scn.rep,
-		level.time - scn.repStart, level.tickTime - level.time, targ->s.number, take, mod, targ->client->g2LastSurfaceHit,
+		level.time - scn.repStart, level.tickTime - level.time, targ->s.number, take, to_underlying( mod ), targ->client->g2LastSurfaceHit,
 		targ->client->g2LastSurfaceTime - level.time, inflictor ? inflictor->s.number : -1,
 		point ? point[0] : 0.0f, point ? point[1] : 0.0f, point ? point[2] : 0.0f,
 		inflictor ? inflictor->r.currentOrigin[0] : 0.0f, inflictor ? inflictor->r.currentOrigin[1] : 0.0f,
@@ -400,7 +400,7 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
 			break;
 		default:	// powers used on oneself: switched on once, held until the next reset
-			ucmd->forcesel = scn.power;
+			ucmd->forcesel = to_underlying( scn.power );
 			ent->client->ps.fd.forcePowerSelected = scn.power;
 			if ( phase < 50 ) ucmd->buttons = BUTTON_FORCEPOWER;
 			break;

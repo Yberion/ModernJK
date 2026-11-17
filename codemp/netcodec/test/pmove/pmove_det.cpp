@@ -158,14 +158,14 @@ static int World_Contents(const vec3_t point, int passEntityNum) {
 
 static int harnessTime;
 
-static NORETURN void QDECL HarnessError(int code, const char *fmt, ...) {
+static NORETURN void QDECL HarnessError(errorParm_t code, const char *fmt, ...) {
 	(void)code;
 	fprintf(stderr, "Com_Error: %s\n", fmt);
 	exit(2);
 }
 static void QDECL HarnessPrintf(const char *fmt, ...) { (void)fmt; }
 // function pointers in the modules (q_shared.h)
-NORETURN_PTR void (*Com_Error)(int level, const char *error, ...) = HarnessError;
+NORETURN_PTR void (*Com_Error)(errorParm_t level, const char *error, ...) = HarnessError;
 void (*Com_Printf)(const char *msg, ...) = HarnessPrintf;
 
 // debug builds register a cvar from BG_AddPredictableEventToPlayerstate (bg_misc.cpp)
@@ -181,9 +181,9 @@ level_locals_t level;
 gentity_t g_entities[MAX_GENTITIES];
 vmCvar_t bg_fighterAltControl, g_fixRunWalkAnims, g_fixSaberMoveData, g_fixWeaponAttackAnim;
 bool FighterIsLanded(Vehicle_t *pVeh, playerState_t *parentPS) { (void)pVeh; (void)parentPS; return false; }
-void G_AddEvent(gentity_t *ent, int event, int eventParm) { (void)ent; (void)event; (void)eventParm; }
-void G_CheapWeaponFire(int entNum, int ev) { (void)entNum; (void)ev; }
-void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod) {
+void G_AddEvent(gentity_t *ent, entity_event_t event, int eventParm) { (void)ent; (void)event; (void)eventParm; }
+void G_CheapWeaponFire(int entNum, entity_event_t ev) { (void)entNum; (void)ev; }
+void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod) {
 	(void)targ; (void)inflictor; (void)attacker; (void)dir; (void)point; (void)damage; (void)dflags; (void)mod;
 }
 void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, bool force) {

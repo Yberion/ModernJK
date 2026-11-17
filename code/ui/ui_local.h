@@ -201,7 +201,7 @@ typedef struct {
 	int			languageCount;
 	int			languageCountIndex;
 
-	int			forcePowerLevel[NUM_FORCE_POWERS];
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;
 }	uiInfo_t;
 
 extern uiInfo_t uiInfo;
@@ -229,7 +229,7 @@ void			trap_GetGlconfig( glconfig_t *glconfig );
 void			trap_Key_ClearStates( void );
 int				trap_Key_GetCatcher( void );
 bool		trap_Key_GetOverstrikeMode( void );
-void			trap_Key_SetBinding( int keynum, const char *binding );
+void			trap_Key_SetBinding( fakeAscii_t keynum, const char *binding );
 void			trap_Key_SetCatcher( int catcher );
 void			trap_Key_SetOverstrikeMode( bool state );
 void			trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );

@@ -195,7 +195,7 @@ void Howler_Combat( void )
 NPC_Howler_Pain
 -------------------------
 */
-void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Howler_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	if ( damage >= 10 )
 	{

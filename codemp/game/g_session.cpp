@@ -76,7 +76,7 @@ void G_WriteClientSessionData( gclient_t *client )
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.teamLeader ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.setForce ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", to_underlying( client->sess.saberLevel ) ) );
-	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.selectedFP ) );
+	Q_strcat( s, sizeof( s ), va( "%i ", to_underlying( client->sess.selectedFP ) ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", to_underlying( client->sess.duelTeam ) ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", to_underlying( client->sess.siegeDesiredTeam ) ) );
 	Q_strcat( s, sizeof( s ), va( "%s ", siegeClass ) );
@@ -98,7 +98,7 @@ void G_ReadSessionData( gclient_t *client )
 {
 	char			s[MAX_CVAR_VALUE_STRING] = {0};
 	const char		*var;
-	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0, tempSaberLevel=0, tempSiegeDesiredTeam=0;
+	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempDuelTeam=0, tempSaberLevel=0, tempSelectedFP=0, tempSiegeDesiredTeam=0;
 
 	var = va( "session%td", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -113,7 +113,7 @@ void G_ReadSessionData( gclient_t *client )
 		&tempTeamLeader, //&client->sess.teamLeader,
 		&client->sess.setForce,
 		&tempSaberLevel, //&client->sess.saberLevel,
-		&client->sess.selectedFP,
+		&tempSelectedFP, //&client->sess.selectedFP,
 		&tempDuelTeam, //&client->sess.duelTeam,
 		&tempSiegeDesiredTeam, //&client->sess.siegeDesiredTeam,
 		client->sess.siegeClass,
@@ -125,6 +125,7 @@ void G_ReadSessionData( gclient_t *client )
 	client->sess.teamLeader		= tempTeamLeader;
 	client->sess.duelTeam		= static_cast<duelTeam_t>( tempDuelTeam );
 	client->sess.saberLevel		= static_cast<saber_styles_t>( tempSaberLevel );
+	client->sess.selectedFP		= static_cast<forcePowers_t>( tempSelectedFP );
 	client->sess.siegeDesiredTeam	= static_cast<team_t>( tempSiegeDesiredTeam );
 
 	// convert back to spaces from unused chars, as session data is written that way.

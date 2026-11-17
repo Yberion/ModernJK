@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_shared.h"
 //NOTENOTE: The enums and tables in this file will obviously bitch if they are included multiple times, don't do that
 
-typedef enum //# setType_e
+enum class setType_t //# setType_e
 {
 	//# #sep Parm strings
 	SET_PARM1 = 0,//## %s="" # Set entity parm1
@@ -330,8 +330,11 @@ typedef enum //# setType_e
 	SET_LEAN,//## %t="LEAN_TYPES" # Lean left, right or stop leaning
 
 	//# #eol
-	SET_
-} setType_t;
+	SET_,
+	SET_UNKNOWN = -1	// a name that matches no set field (GetIDForString's -1)
+};
+using enum setType_t;
+template <> inline constexpr bool enableEnumArithmetic<setType_t> = true;
 
 
 // this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
@@ -662,8 +665,8 @@ public:
 
 	//General
 	int		LoadFile( const char *name, void **buf ) OVERRIDE;
-	void	CenterPrint( const char *format, ... ) OVERRIDE;
-	void	DebugPrint( e_DebugPrintLevel, const char *, ... ) OVERRIDE;
+	__attribute__ ((format (printf, 2, 3))) void	CenterPrint( const char *format, ... ) OVERRIDE;
+	__attribute__ ((format (printf, 3, 4))) void	DebugPrint( e_DebugPrintLevel, const char *, ... ) OVERRIDE;
 	unsigned int GetTime( void ) OVERRIDE;							//Gets the current time
 	//DWORD	GetTimeScale(void );
 	int 	PlayIcarusSound( int taskID, int entID, const char *name, const char *channel ) OVERRIDE;

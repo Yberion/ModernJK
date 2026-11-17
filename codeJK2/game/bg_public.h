@@ -144,7 +144,7 @@ typedef struct {
 	int			numtouch;
 	int			touchents[MAXTOUCH];
 
-	int			useEvent;
+	entity_event_t	useEvent;
 
 	vec3_t		mins, maxs;			// bounding box size
 
@@ -178,7 +178,7 @@ void Pmove( pmove_t *pmove );
 
 void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blendTime=100);
 void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,int type,int anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=100);
-void PM_SetSaberMove(short newMove);
+void PM_SetSaberMove(saberMoveName_t newMove);
 
 //===================================================================================
 
@@ -280,7 +280,7 @@ template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 #define	EV_EVENT_BIT2		0x00000200
 #define	EV_EVENT_BITS		(EV_EVENT_BIT1|EV_EVENT_BIT2)
 
-typedef enum {
+enum class entity_event_t {
 	EV_NONE,
 
 	EV_FOOTSTEP,
@@ -448,7 +448,14 @@ typedef enum {
 	EV_DEBUG_LINE,
 
 	EV_NUM_ENTITY_EVENTS
-} entity_event_t;
+};
+using enum entity_event_t;
+template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
+
+// The fields that carry an event with the two sequence bits above (an entity state's event, a player state's
+// externalEvent, an event entity's eType past ET_EVENTS) are integers: an event goes in and comes out through these
+[[nodiscard]] inline int BG_PackEvent( entity_event_t event, int sequenceBits = 0 ) { return to_underlying( event ) | sequenceBits; }
+[[nodiscard]] inline entity_event_t BG_UnpackEvent( int packed ) { return static_cast<entity_event_t>( packed & ~EV_EVENT_BITS ); }
 
 class animation_t
 {
@@ -511,7 +518,7 @@ typedef struct animsounds_s
 } animsounds_t;
 
 // means of death
-typedef enum {
+enum class meansOfDeath_t {
 
 	MOD_UNKNOWN,
 
@@ -561,7 +568,8 @@ typedef enum {
 
 	NUM_MODS,
 
-} meansOfDeath_t;
+};
+using enum meansOfDeath_t;
 
 
 //---------------------------------------------------------
@@ -657,7 +665,7 @@ Ghoul2 Insert End
 //
 // entityState_t->eType
 //
-typedef enum {
+enum class entityType_t {
 	ET_GENERAL,
 	ET_PLAYER,
 	ET_ITEM,
@@ -675,15 +683,21 @@ typedef enum {
 	ET_EVENTS				// any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum
-} entityType_t;
+};
+using enum entityType_t;
+
+// An event entity's eType is ET_EVENTS plus its event as an event field holds it (BG_PackEvent): written and
+// read through these only
+[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( ET_EVENTS ) + packedEvent ); }
+[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( ET_EVENTS ); }
 
 
 
 void	EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void	EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
-void AddEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
-int	CurrentPlayerstateEvent( playerState_t *ps );
+void AddEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps );
+entity_event_t	CurrentPlayerstateEvent( playerState_t *ps );
 
 void PlayerStateToEntityState( playerState_t *ps, entityState_t *s );
 

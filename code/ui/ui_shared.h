@@ -180,14 +180,14 @@ typedef struct {
 	int			(*feederCount)(float feederID);
 	void		(*feederSelection)(float feederID, int index, struct itemDef_s *item);
 	void		(*fillRect) ( float x, float y, float w, float h, const vec4_t color);
-	void		(*getBindingBuf)( int keynum, char *buf, int buflen );
+	void		(*getBindingBuf)( fakeAscii_t keynum, char *buf, int buflen );
 	void		(*getCVarString)(const char *cvar, char *buffer, int bufsize);
 	float		(*getCVarValue)(const char *cvar);
 	bool	(*getOverstrikeMode)();
 	float		(*getValue) (int ownerDraw);
-	void		(*keynumToStringBuf)( int keynum, char *buf, int buflen );
+	void		(*keynumToStringBuf)( fakeAscii_t keynum, char *buf, int buflen );
 	void		(*modelBounds) (qhandle_t model, vec3_t min, vec3_t max);
-	bool	(*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
+	bool	(*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, fakeAscii_t key);
 	void		(*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, int iFontIndex);
 	bool	(*ownerDrawVisible) (int flags);
 	int			(*ownerDrawWidth)(int ownerDraw, float scale);
@@ -200,7 +200,7 @@ typedef struct {
 	void		(*renderScene) ( const refdef_t *fd );
 	bool	(*runScript)(const char **p);
 	bool	(*deferScript)(const char **p);
-	void		(*setBinding)( int keynum, const char *binding );
+	void		(*setBinding)( fakeAscii_t keynum, const char *binding );
 	void		(*setColor) (const vec4_t v);
 	void		(*setCVar)(const char *cvar, const char *value);
 	void		(*setOverstrikeMode)(bool b);

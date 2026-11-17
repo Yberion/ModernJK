@@ -80,7 +80,7 @@ typedef struct siegeClass_s {
 	char		saber1[SABER_NAME_LENGTH], saber2[SABER_NAME_LENGTH];
 	int			saberStance;
 	int			weapons;
-	forcePowerLevels_t	forcePowerLevels[NUM_FORCE_POWERS];
+	EnumArray<forcePowerLevels_t, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevels;
 	int			classflags;
 	int			maxhealth;
 	int			starthealth;

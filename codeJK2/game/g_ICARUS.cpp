@@ -41,8 +41,6 @@ extern	void	Q3_DebugPrint( WL_e level, const char *format, ... );
 
 int			ICARUS_entFilter = -1;
 
-extern	stringID_table_t setTable[];
-
 /*
 =============
 ICARUS_GetScript
@@ -412,7 +410,7 @@ void ICARUS_InterrogateScript( const char *filename )
 
 	const char	*sVal1, *sVal2;
 	char		temp[1024];
-	int			setID;
+	setType_t	setID;
 
 	//Now iterate through all blocks of the script, searching for keywords
 	while ( stream.BlockAvailable() )
@@ -476,7 +474,7 @@ void ICARUS_InterrogateScript( const char *filename )
 				sVal2 = (const char *) block.GetMemberData( 1 );
 
 				//Get the id for this set identifier
-				setID = GetIDForString( setTable, sVal1 );
+				setID = Q3_SetTypeFromName( sVal1 );
 
 				//Check against valid types
 				switch ( setID )

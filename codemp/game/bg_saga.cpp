@@ -606,17 +606,16 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 	}
 
 	//First clear out the powers, or in the allPowers case, give us all level 3.
-	while (i < NUM_FORCE_POWERS)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
 		if (allPowers)
 		{
-			siegeClass->forcePowerLevels[i] = FORCE_LEVEL_3;
+			siegeClass->forcePowerLevels[fp] = FORCE_LEVEL_3;
 		}
 		else
 		{
-			siegeClass->forcePowerLevels[i] = FORCE_LEVEL_0;
+			siegeClass->forcePowerLevels[fp] = FORCE_LEVEL_0;
 		}
-		i++;
 	}
 
 	if (allPowers || noPowers)
@@ -680,7 +679,7 @@ void BG_SiegeTranslateForcePowers(char *buf, siegeClass_t *siegeClass)
 				{
 					if (!Q_stricmp(checkPower, FPTable[k].name))
 					{ //found it, add the weapon into the weapons value
-						siegeClass->forcePowerLevels[k] = static_cast<forcePowerLevels_t>( parsedLevel );
+						siegeClass->forcePowerLevels[static_cast<forcePowers_t>( FPTable[k].id )] = static_cast<forcePowerLevels_t>( parsedLevel );
 						break;
 					}
 					k++;
@@ -774,7 +773,6 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 {
 	fileHandle_t f;
 	int len;
-	int i;
 	char classInfo[4096];
 	char parseBuf[4096];
 
@@ -916,11 +914,11 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 	}
 	else
 	{ //fine, clear out the powers.
-		i = 0;
-		while (i < NUM_FORCE_POWERS)
+		forcePowers_t fp = FP_FIRST;
+		while (fp < NUM_FORCE_POWERS)
 		{
-			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[i] = FORCE_LEVEL_0;
-			i++;
+			bgSiegeClasses[bgNumSiegeClasses].forcePowerLevels[fp] = FORCE_LEVEL_0;
+			fp++;
 		}
 	}
 

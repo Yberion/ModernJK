@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 
 extern bool G_StandardHumanoid( const char *modelName );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void NPC_AimAdjust( int change );
 extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
@@ -255,7 +255,7 @@ NPC_GM_Pain
 */
 
 extern void NPC_SetPainEvent( gentity_t *self );
-void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc )
+void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	if ( self->client->ps.powerups[PW_GALAK_SHIELD] == 0 )
 	{//shield is currently down
@@ -295,7 +295,7 @@ void NPC_GM_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, ve
 		{
 			if ( self->delay < level.time )
 			{
-				int speech;
+				entity_event_t speech;
 				switch( self->count )
 				{
 				default:
@@ -930,7 +930,7 @@ void NPC_BSGM_Attack( void )
 		{
 			if ( NPCInfo->enemyCheckDebounceTime < 8 )
 			{
-				int speech = -1;
+				entity_event_t speech = EV_NONE;
 				switch( NPCInfo->enemyCheckDebounceTime )
 				{
 				case 0:
@@ -949,7 +949,7 @@ void NPC_BSGM_Attack( void )
 					break;
 				}
 				NPCInfo->enemyCheckDebounceTime++;
-				if ( speech != -1 )
+				if ( speech != EV_NONE )
 				{
 					G_AddVoiceEvent( NPC, speech, Q_irand( 3000, 5000 ) );
 					TIMER_Set( NPC, "talkDebounce", Q_irand( 5000, 7000 ) );

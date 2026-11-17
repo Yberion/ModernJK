@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void Jedi_Cloak( gentity_t *self );
 extern void Jedi_Decloak( gentity_t *self );
 
-bool PM_SaberInTransition( int move );
-bool PM_SaberInStart( int move );
-bool PM_SaberInReturn( int move );
+bool PM_SaberInTransition( saberMoveName_t move );
+bool PM_SaberInStart( saberMoveName_t move );
+bool PM_SaberInReturn( saberMoveName_t move );
 bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, saber_styles_t saberAnimLevel );
 bool saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
 
@@ -876,7 +876,7 @@ void G_VehicleAttachDroidUnit( gentity_t *vehEnt )
 
 //called gameside only from pmove code (convenience)
 extern bool BG_SabersOff( playerState_t *ps );
-void G_CheapWeaponFire(int entNum, int ev)
+void G_CheapWeaponFire(int entNum, entity_event_t ev)
 {
 	gentity_t *ent = &g_entities[entNum];
 
@@ -913,6 +913,8 @@ void G_CheapWeaponFire(int entNum, int ev)
 			ent->client->ps.eFlags &= ~EF_INVULNERABLE;
 			ent->client->invulnerableTimer = 0;
 			break;
+		default:
+			break;
 	}
 }
 
@@ -928,7 +930,7 @@ bool BG_InKnockDownOnly( int anim );
 
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	int		i;//, j;
-	int		event;
+	entity_event_t		event;
 	gclient_t *client;
 	int		damage;
 	vec3_t	dir;
@@ -1086,19 +1088,19 @@ void SendPendingPredictableEvents( playerState_t *ps ) {
 		// create a temporary entity for this event which is sent to everyone
 		// except the client who generated the event
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
-		event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+		event = BG_PackEvent( ps->events[ seq ], ( ps->entityEventSequence & 3 ) << 8 );
 		// set external event to zero before calling BG_PlayerStateToEntityState
 		extEvent = ps->externalEvent;
 		ps->externalEvent = 0;
 		// create temporary entity for event
-		t = G_TempEntity( ps->origin, event );
-		if ( event > 0 && event < EV_NUM_ENTITY_EVENTS ) {
-			g_stats.events[event]--;	// a copy of a Pmove event, whose number depends on the commands per frame: not counted
+		t = G_TempEntity( ps->origin, ps->events[ seq ] );
+		if ( ps->events[ seq ] > EV_NONE && ps->events[ seq ] < EV_NUM_ENTITY_EVENTS ) {
+			g_stats.events[ps->events[ seq ]]--;	// a copy of a Pmove event, whose number depends on the commands per frame: not counted
 		}
 		number = t->s.number;
 		BG_PlayerStateToEntityState( ps, &t->s, true );
 		t->s.number = number;
-		t->s.eType = ET_EVENTS + event;
+		t->s.eType = BG_EventEntityType( event );
 		t->s.eFlags |= EF_PLAYER_EVENT;
 		t->s.otherEntityNum = ps->clientNum;
 		// send to everyone except the client who generated the event
@@ -1142,7 +1144,7 @@ void G_UpdateClientBroadcasts( gentity_t *self ) {
 		}
 
 		if ( !( level.gametype == GT_JEDIMASTER && self->client->ps.isJediMaster )
-			&& !( other->client->ps.fd.forcePowersActive & (1 << FP_SEE) ) ) {
+			&& !( other->client->ps.fd.forcePowersActive & Bit( FP_SEE ) ) ) {
 			// neither test below applies: the distance and the angles (two arc tangents per pair of clients, at every
 			// command) would serve nothing
 			continue;
@@ -1162,7 +1164,7 @@ void G_UpdateClientBroadcasts( gentity_t *self ) {
 		}
 
 		// broadcast this client to everyone using force sight if we are in distance/field of view
-		if ( (other->client->ps.fd.forcePowersActive & (1 << FP_SEE)) ) {
+		if ( (other->client->ps.fd.forcePowersActive & Bit( FP_SEE )) ) {
 			if ( dist < maxForceSightDistance
 				&& InFieldOfVision( other->client->ps.viewangles, maxForceSightFOV, angles ) )
 			{
@@ -2942,7 +2944,7 @@ void ClientThink_real( gentity_t *ent ) {
 					int lockHits = 0;
 					ent->client->ps.saberLockHitIncrementTime = level.time;//so we don't register an attack key press more than once per server frame
 					//NOTE: FP_SABER_OFFENSE level already taken into account in PM_SaberLocked
-					if ( (ent->client->ps.fd.forcePowersActive&(1<<FP_RAGE)) )
+					if ( (ent->client->ps.fd.forcePowersActive&Bit( FP_RAGE )) )
 					{//raging: push harder
 						lockHits = 1+to_underlying( ent->client->ps.fd.forcePowerLevel[FP_RAGE] );
 					}
@@ -3056,7 +3058,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	{
-		const int oldSaberMove = ent->client->ps.saberMove;
+		const saberMoveName_t oldSaberMove = ent->client->ps.saberMove;
 
 		Pmove (&pmove);
 		G_StatsSaberMove( ent, oldSaberMove );
@@ -3181,7 +3183,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_SEEKER) )
 			{
 				ItemUse_Seeker(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SEEKER, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_SEEKER ), 0);
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SEEKER );
 			}
 			break;
@@ -3190,7 +3192,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_SHIELD) )
 			{
 				ItemUse_Shield(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SHIELD, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_SHIELD ), 0);
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SHIELD );
 			}
 			break;
@@ -3199,7 +3201,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC) )
 			{
 				ItemUse_MedPack(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_MEDPAC, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_MEDPAC ), 0);
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_MEDPAC );
 			}
 			break;
@@ -3208,7 +3210,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_MEDPAC_BIG) )
 			{
 				ItemUse_MedPack_Big(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_MEDPAC_BIG, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_MEDPAC_BIG ), 0);
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_MEDPAC_BIG );
 			}
 			break;
@@ -3219,11 +3221,11 @@ void ClientThink_real( gentity_t *ent ) {
 				ItemUse_Binoculars(ent);
 				if (ent->client->ps.zoomMode == 0)
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 1);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 1);
 				}
 				else
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 2);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 2);
 				}
 			}
 			break;
@@ -3234,11 +3236,11 @@ void ClientThink_real( gentity_t *ent ) {
 				ItemUse_Binoculars(ent);
 				if (ent->client->ps.zoomMode == 0)
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 1);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 1);
 				}
 				else
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 2);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 2);
 				}
 			}
 			break;
@@ -3247,7 +3249,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_SENTRY_GUN) )
 			{
 				ItemUse_Sentry(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_SENTRY_GUN, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_SENTRY_GUN ), 0);
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~Bit( HI_SENTRY_GUN );
 			}
 			break;
@@ -3256,15 +3258,15 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_JETPACK) )
 			{
 				ItemUse_Jetpack(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_JETPACK, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_JETPACK ), 0);
 				/*
 				if (ent->client->ps.zoomMode == 0)
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 1);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 1);
 				}
 				else
 				{
-					G_AddEvent(ent, EV_USE_ITEM0+(int)HI_BINOCULARS, 2);
+					G_AddEvent(ent, BG_UseItemEvent( HI_BINOCULARS ), 2);
 				}
 				*/
 			}
@@ -3274,7 +3276,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_HEALTHDISP) )
 			{
 				//ItemUse_UseDisp(ent, HI_HEALTHDISP);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_HEALTHDISP, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_HEALTHDISP ), 0);
 			}
 			break;
 		case GENCMD_USE_AMMODISP:
@@ -3282,7 +3284,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_AMMODISP) )
 			{
 				//ItemUse_UseDisp(ent, HI_AMMODISP);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_AMMODISP, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_AMMODISP ), 0);
 			}
 			break;
 		case GENCMD_USE_EWEB:
@@ -3290,7 +3292,7 @@ void ClientThink_real( gentity_t *ent ) {
 				G_ItemUsable(&ent->client->ps, HI_EWEB) )
 			{
 				ItemUse_UseEWeb(ent);
-				G_AddEvent(ent, EV_USE_ITEM0+(int)HI_EWEB, 0);
+				G_AddEvent(ent, BG_UseItemEvent( HI_EWEB ), 0);
 			}
 			break;
 		case GENCMD_USE_CLOAK:
@@ -3368,7 +3370,7 @@ void ClientThink_real( gentity_t *ent ) {
 	// execute client events
 	ClientEvents( ent, oldEventSequence );
 
-	if ( pmove.useEvent )
+	if ( pmove.useEvent != EV_NONE )
 	{
 		//TODO: Use
 //		TryUse( ent );

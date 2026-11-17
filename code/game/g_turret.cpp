@@ -29,7 +29,7 @@ extern	cvar_t	*g_spskill;
 
 void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 void finish_spawning_turret( gentity_t *base );
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
+void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 //special routine for tracking angles between client and server -rww
 void turret_SetBoneAngles(gentity_t *ent, const char *bone, const vec3_t angles);
 
@@ -44,7 +44,7 @@ void turret_SetBoneAngles(gentity_t *ent, const char *bone, const vec3_t angles)
 #define name3 "models/map_objects/wedge/laser_cannon_model.glm"
 
 //------------------------------------------------------------------------------------------------------------
-void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod, int hitLoc )
+void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t dir;
@@ -68,7 +68,7 @@ void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, con
 }
 
 //------------------------------------------------------------------------------------------------------------
-void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc )
+void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0,-1 }, pos;
@@ -1976,7 +1976,7 @@ void ion_cannon_think( gentity_t *self )
 }
 
 //----------------------------------------------------------------------------------------------
-void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 //----------------------------------------------------------------------------------------------
 {
 	vec3_t org;
@@ -2193,7 +2193,7 @@ void spotlight_think( gentity_t *ent )
 			G_UseTargets2( ent, &g_entities[0], ent->target2 );
 
 #ifndef FINAL_BUILD
-			if ( g_developer->integer == PRINT_DEVELOPER )
+			if ( g_developer->integer == to_underlying( PRINT_DEVELOPER ) )
 			{
 				Com_Printf( S_COLOR_MAGENTA "Spotlight hit player at time: %d!!!\n", level.time );
 			}
@@ -2325,7 +2325,7 @@ void panel_turret_shoot( gentity_t *self, vec3_t org, vec3_t dir)
 }
 
 //-----------------------------------------
-void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod, int dFlags, int hitLoc )
+void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc )
 {
 	if ( self->target3 )
 	{

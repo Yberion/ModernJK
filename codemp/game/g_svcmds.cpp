@@ -367,7 +367,7 @@ void	Svcmd_EntityList_f (void) {
 			trap->Print("ET_FX               ");
 			break;
 		default:
-			trap->Print("%-3i                ", check->s.eType);
+			trap->Print("%-3i                ", to_underlying( check->s.eType ));
 			break;
 		}
 
@@ -470,14 +470,14 @@ void Svcmd_Say_f( void ) {
 
 // gamestats: the combat statistics since the last call (g_stats), then reset; the ratios per saber swing are what must not
 // change with the server frame rate (plan step 14)
-extern const char *modNames[];
-extern const char *eventnames[EV_NUM_ENTITY_EVENTS];
-extern bool PM_SaberInBounce( int move );
+extern EnumArray<const char *, meansOfDeath_t, MOD_MAX> modNames;
+extern EnumArray<const char *, entity_event_t, EV_NUM_ENTITY_EVENTS> eventnames;
+extern bool PM_SaberInBounce( saberMoveName_t move );
 
 // gamestats: a client's saber move after its Pmove: attacks started, and moves sent into a bounce or a deflection (an
 // attack cancelled by a block), by the client's saber style
-void G_StatsSaberMove( gentity_t *ent, int oldSaberMove ) {
-	const int move = ent->client->ps.saberMove;
+void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove ) {
+	const saberMoveName_t move = ent->client->ps.saberMove;
 	const saber_styles_t style = ent->client->ps.fd.saberAnimLevel;
 
 	if ( ent->s.number >= MAX_CLIENTS || move == oldSaberMove || style < SS_NONE || style >= SS_NUM_SABER_STYLES ) {
@@ -499,16 +499,16 @@ static void G_PrintCentralStats( void ) {
 	int i;
 
 	Q_strncpyz( line, "event statistics:", sizeof( line ) );
-	for ( i = 1; i < EV_NUM_ENTITY_EVENTS; i++ ) {
-		if ( s->events[i] ) {
-			Q_strcat( line, sizeof( line ), va( " %s %d", eventnames[i], s->events[i] ) );
+	for ( entity_event_t ev = EV_NONE + 1; ev < EV_NUM_ENTITY_EVENTS; ev++ ) {
+		if ( s->events[ev] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d", eventnames[ev], s->events[ev] ) );
 		}
 	}
 	trap->Print( "%s\n", line );
 	Q_strncpyz( line, "damage statistics (health taken from clients and deaths, by cause):", sizeof( line ) );
-	for ( i = 0; i < MOD_MAX; i++ ) {
-		if ( s->modDamage[i] || s->modKills[i] ) {
-			Q_strcat( line, sizeof( line ), va( " %s %d %d", modNames[i], s->modDamage[i], s->modKills[i] ) );
+	for ( meansOfDeath_t mod = MOD_UNKNOWN; mod < MOD_MAX; mod++ ) {
+		if ( s->modDamage[mod] || s->modKills[mod] ) {
+			Q_strcat( line, sizeof( line ), va( " %s %d %d", modNames[mod], s->modDamage[mod], s->modKills[mod] ) );
 		}
 	}
 	trap->Print( "%s\n", line );

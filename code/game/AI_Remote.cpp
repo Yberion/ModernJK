@@ -51,7 +51,7 @@ void NPC_Remote_Precache(void)
 NPC_Remote_Pain
 -------------------------
 */
-void NPC_Remote_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Remote_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	SaveNPCGlobals();
 	SetNPCGlobals( self );

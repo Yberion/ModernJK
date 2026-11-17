@@ -382,7 +382,7 @@ void	G_SetMovedir ( vec3_t angles, vec3_t movedir);
 
 void	G_InitGentity( gentity_t *e );
 gentity_t	*G_Spawn (void);
-gentity_t *G_TempEntity( vec3_t origin, int event );
+gentity_t *G_TempEntity( vec3_t origin, entity_event_t event );
 void	G_Sound( gentity_t *ent, int soundIndex );
 void	G_FreeEntity( gentity_t *e );
 
@@ -395,7 +395,7 @@ char	*vtos( const vec3_t v );
 
 float vectoyaw( const vec3_t vec );
 
-void G_AddEvent( gentity_t *ent, int event, int eventParm );
+void G_AddEvent( gentity_t *ent, entity_event_t event, int eventParm );
 void G_SetOrigin( gentity_t *ent, const vec3_t origin );
 void G_SetAngles( gentity_t *ent, const vec3_t angles );
 
@@ -405,10 +405,10 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot);
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod, int hitLoc=HL_NONE );
-void G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod);
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, int hitLoc=HL_NONE );
+void G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, meansOfDeath_t mod);
 gentity_t *TossClientItems( gentity_t *self );
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc );
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc );
 void ExplodeDeath( gentity_t *self );
 void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator);
 void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
@@ -472,7 +472,7 @@ void respawn (gentity_t *ent);
 void InitClientPersistant (gclient_t *client);
 void InitClientResp (gclient_t *client);
 bool ClientSpawn( gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded );
-void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod, int dFlags, int hitLoc);
+void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, int hitLoc);
 void AddScore( gentity_t *ent, int score );
 bool SpotWouldTelefrag( gentity_t *spot, team_t checkteam );
 

@@ -693,7 +693,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		}
 		if(!ent)
 		{	// a valid entity name was not returned from the get command
-			m_ie->I_DPrintf( WL_WARNING, "'%s' : invalid affect() target\n");
+			m_ie->I_DPrintf( WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
 		}
 
 	} // end if(!ent)
@@ -1814,7 +1814,7 @@ void CSequencer::CheckAffect( CBlock **command )
 			}
 			if(!ent)
 			{	// a valid entity name was not returned from the get command
-				m_ie->I_DPrintf( WL_WARNING, "'%s' : invalid affect() target\n");
+				m_ie->I_DPrintf( WL_WARNING, "'%s' : invalid affect() target\n", p1 ? p1 : "");
 			}
 
 		} // end if(!ent)
@@ -1929,7 +1929,7 @@ void CSequencer::CheckDo( CBlock **command )
 		if ( sequence == nullptr )
 		{
 			//TODO: Give name/number of entity trying to execute, too
-			m_ie->I_DPrintf( WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n", groupName );
+			m_ie->I_DPrintf( WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n" );
 			*command = nullptr;
 			return;
 		}

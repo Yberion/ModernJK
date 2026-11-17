@@ -71,7 +71,9 @@ const EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> mindTrickTime =
 };
 
 void WP_InitForcePowers( gentity_t *ent ) {
-	int i, i_r, lastFPKnown = -1;
+	int i, i_r;
+	forcePowers_t fp;
+	std::optional<forcePowers_t> lastFPKnown;
 	bool warnClient = false, warnClientLimit = false, didEvent = false;
 	char userinfo[MAX_INFO_STRING], forcePowers[DEFAULT_FORCEPOWERS_LEN+1], readBuf[DEFAULT_FORCEPOWERS_LEN+1];
 
@@ -107,22 +109,22 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	if ( ent->s.eType == ET_NPC )
 		return;
 
-	for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
-		ent->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_0;
-		ent->client->ps.fd.forcePowersKnown &= ~(1<<i);
+	for ( fp=FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+		ent->client->ps.fd.forcePowerLevel[fp] = FORCE_LEVEL_0;
+		ent->client->ps.fd.forcePowersKnown &= ~Bit( fp );
 	}
 
-	ent->client->ps.fd.forcePowerSelected = -1;
+	ent->client->ps.fd.forcePowerSelected = FP_UNKNOWN;
 	ent->client->ps.fd.forceSide = 0;
 
 	// if in siege, then use the powers for this class, and skip all this nonsense.
 	if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 ) {
-		for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
-			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
-			if ( ent->client->ps.fd.forcePowerLevel[i] == FORCE_LEVEL_0 )
-				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
+		for ( fp=FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+			ent->client->ps.fd.forcePowerLevel[fp] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[fp];
+			if ( ent->client->ps.fd.forcePowerLevel[fp] == FORCE_LEVEL_0 )
+				ent->client->ps.fd.forcePowersKnown &= ~Bit( fp );
 			else
-				ent->client->ps.fd.forcePowersKnown |= (1 << i);
+				ent->client->ps.fd.forcePowersKnown |= Bit( fp );
 		}
 
 		// bring up the class selection menu
@@ -189,61 +191,61 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	if ( level.gametype != GT_SIEGE && (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] ) {
 		// hmm..I'm going to cheat here.
 		int oldI = i;
-		i_r = 0;
-		while ( forcePowers[i] && forcePowers[i] != '\n' && i_r < NUM_FORCE_POWERS ) {
+		fp = FP_FIRST;
+		while ( forcePowers[i] && forcePowers[i] != '\n' && fp < NUM_FORCE_POWERS ) {
 			if ( ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE ) {
-				if ( i_r == FP_ABSORB )
+				if ( fp == FP_ABSORB )
 					forcePowers[i] = '3';
 				if ( botstates[ent->s.number]->settings.skill >= 4 ) {
 					// cheat and give them more stuff
-					if ( i_r == FP_HEAL )
+					if ( fp == FP_HEAL )
 						forcePowers[i] = '3';
-					else if ( i_r == FP_PROTECT )
+					else if ( fp == FP_PROTECT )
 						forcePowers[i] = '3';
 				}
 			}
 			else if ( ent->client->ps.fd.forceSide == FORCE_DARKSIDE ) {
 				if ( botstates[ent->s.number]->settings.skill >= 4 ) {
-					if ( i_r == FP_GRIP )
+					if ( fp == FP_GRIP )
 						forcePowers[i] = '3';
-					else if ( i_r == FP_LIGHTNING )
+					else if ( fp == FP_LIGHTNING )
 						forcePowers[i] = '3';
-					else if ( i_r == FP_RAGE )
+					else if ( fp == FP_RAGE )
 						forcePowers[i] = '3';
-					else if ( i_r == FP_DRAIN )
+					else if ( fp == FP_DRAIN )
 						forcePowers[i] = '3';
 				}
 			}
 
-			if ( i_r == FP_PUSH )
+			if ( fp == FP_PUSH )
 				forcePowers[i] = '3';
-			else if ( i_r == FP_PULL )
+			else if ( fp == FP_PULL )
 				forcePowers[i] = '3';
 
 			i++;
-			i_r++;
+			fp++;
 		}
 		i = oldI;
 	}
 
-	i_r = 0;
+	fp = FP_FIRST;
 	while (forcePowers[i] && forcePowers[i] != '\n' &&
-		i_r < NUM_FORCE_POWERS)
+		fp < NUM_FORCE_POWERS)
 	{
 		readBuf[0] = forcePowers[i];
 		readBuf[1] = 0;
 
-		ent->client->ps.fd.forcePowerLevel[i_r] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
-		if (ent->client->ps.fd.forcePowerLevel[i_r] != FORCE_LEVEL_0)
+		ent->client->ps.fd.forcePowerLevel[fp] = static_cast<forcePowerLevels_t>( atoi(readBuf) );
+		if (ent->client->ps.fd.forcePowerLevel[fp] != FORCE_LEVEL_0)
 		{
-			ent->client->ps.fd.forcePowersKnown |= (1 << i_r);
+			ent->client->ps.fd.forcePowersKnown |= Bit( fp );
 		}
 		else
 		{
-			ent->client->ps.fd.forcePowersKnown &= ~(1 << i_r);
+			ent->client->ps.fd.forcePowersKnown &= ~Bit( fp );
 		}
 		i++;
-		i_r++;
+		fp++;
 	}
 	//THE POWERS
 
@@ -314,41 +316,43 @@ void WP_InitForcePowers( gentity_t *ent ) {
 			trap->SendServerCommand( ent-g_entities, va( "print \"The server has one or more force powers that you have chosen disabled.\nYou will not be able to use the disable force power(s) while playing on this server.\n\"" ) );
 	}
 
-	for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
-		if ( (ent->client->ps.fd.forcePowersKnown & (1 << i)) && (ent->client->ps.fd.forcePowerLevel[i] == FORCE_LEVEL_0) )
-			ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
-		else if ( i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_SABERTHROW )
-			lastFPKnown = i;
+	for ( fp=FP_FIRST; fp<NUM_FORCE_POWERS; fp++ ) {
+		if ( (ent->client->ps.fd.forcePowersKnown & Bit( fp )) && (ent->client->ps.fd.forcePowerLevel[fp] == FORCE_LEVEL_0) )
+			ent->client->ps.fd.forcePowersKnown &= ~Bit( fp );
+		else if ( fp != FP_LEVITATION && fp != FP_SABER_OFFENSE && fp != FP_SABER_DEFENSE && fp != FP_SABERTHROW )
+			lastFPKnown = fp;
 	}
 
-	if ( ent->client->ps.fd.forcePowersKnown & ent->client->sess.selectedFP )
+	if ( ent->client->sess.selectedFP >= FP_FIRST && ent->client->sess.selectedFP < NUM_FORCE_POWERS
+		&& (ent->client->ps.fd.forcePowersKnown & Bit( ent->client->sess.selectedFP )) )
 		ent->client->ps.fd.forcePowerSelected = ent->client->sess.selectedFP;
 
-	if ( !(ent->client->ps.fd.forcePowersKnown & (1 << ent->client->ps.fd.forcePowerSelected)) ) {
-		if ( lastFPKnown != -1 )
-			ent->client->ps.fd.forcePowerSelected = lastFPKnown;
+	// no power selected yet: the original code tested 1 << -1, a bit that no power has
+	if ( ent->client->ps.fd.forcePowerSelected == FP_UNKNOWN || !(ent->client->ps.fd.forcePowersKnown & Bit( ent->client->ps.fd.forcePowerSelected )) ) {
+		if ( lastFPKnown )
+			ent->client->ps.fd.forcePowerSelected = *lastFPKnown;
 		else
-			ent->client->ps.fd.forcePowerSelected = 0;
+			ent->client->ps.fd.forcePowerSelected = FP_HEAL;
 	}
 
-	for ( /*i=0*/; i<NUM_FORCE_POWERS; i++ )
-		ent->client->ps.fd.forcePowerBaseLevel[i] = ent->client->ps.fd.forcePowerLevel[i];
+	for ( /*fp=FP_FIRST*/; fp<NUM_FORCE_POWERS; fp++ )
+		ent->client->ps.fd.forcePowerBaseLevel[fp] = ent->client->ps.fd.forcePowerLevel[fp];
 	ent->client->ps.fd.forceUsingAdded = 0;
 }
 
 void WP_SpawnInitForcePowers( gentity_t *ent )
 {
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 
 	ent->client->ps.saberAttackChainCount = 0;
 
-	i = 0;
+	i = FP_FIRST;
 
 	while (i < NUM_FORCE_POWERS)
 	{
-		if (ent->client->ps.fd.forcePowersActive & (1 << i))
+		if (ent->client->ps.fd.forcePowersActive & Bit( i ))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, i);
 		}
 
 		i++;
@@ -366,7 +370,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 	ent->client->ps.holocronBits = 0;
 
-	i = 0;
+	i = FP_FIRST;
 	while (i < NUM_FORCE_POWERS)
 	{
 		ent->client->ps.holocronsCarried[i] = 0;
@@ -375,7 +379,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 	if (level.gametype == GT_HOLOCRON)
 	{
-		i = 0;
+		i = FP_FIRST;
 		while (i < NUM_FORCE_POWERS)
 		{
 			ent->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_0;
@@ -395,7 +399,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 		}
 	}
 
-	i = 0;
+	i = FP_FIRST;
 
 	while (i < NUM_FORCE_POWERS)
 	{
@@ -420,13 +424,13 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	ent->client->ps.fd.forceDrainEntNum = ENTITYNUM_NONE;
 	ent->client->ps.fd.forceDrainTime = 0;
 
-	i = 0;
+	i = FP_FIRST;
 	while (i < NUM_FORCE_POWERS)
 	{
-		if ((ent->client->ps.fd.forcePowersKnown & (1 << i)) &&
+		if ((ent->client->ps.fd.forcePowersKnown & Bit( i )) &&
 			(ent->client->ps.fd.forcePowerLevel[i] == FORCE_LEVEL_0))
 		{ //make sure all known powers are cleared if we have level 0 in them
-			ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
+			ent->client->ps.fd.forcePowersKnown &= ~Bit( i );
 		}
 
 		i++;
@@ -435,7 +439,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	if (level.gametype == GT_SIEGE &&
 		ent->client->siegeClass != -1)
 	{ //Then use the powers for this class.
-		i = 0;
+		i = FP_FIRST;
 
 		while (i < NUM_FORCE_POWERS)
 		{
@@ -443,11 +447,11 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 			if ( ent->client->ps.fd.forcePowerLevel[i] == FORCE_LEVEL_0 )
 			{
-				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
+				ent->client->ps.fd.forcePowersKnown &= ~Bit( i );
 			}
 			else
 			{
-				ent->client->ps.fd.forcePowersKnown |= (1 << i);
+				ent->client->ps.fd.forcePowersKnown |= Bit( i );
 			}
 			i++;
 		}
@@ -482,7 +486,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 	if (forcePower == FP_GRIP)
 	{
 		if (other && other->client &&
-			(other->client->ps.fd.forcePowersActive & (1<<FP_ABSORB)))
+			(other->client->ps.fd.forcePowersActive & Bit( FP_ABSORB )))
 		{ //don't allow gripping to begin with if they are absorbing
 			//play sound indicating that attack was absorbed
 			if (other->client->forcePowerSoundDebounce < level.time)
@@ -538,7 +542,7 @@ bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int over
 	int	drain = overrideAmt ? overrideAmt :
 				forcePowerNeeded[self->client->ps.fd.forcePowerLevel[forcePower]][forcePower];
 
-	if (self->client->ps.fd.forcePowersActive & (1 << forcePower))
+	if (self->client->ps.fd.forcePowersActive & Bit( forcePower ))
 	{ //we're probably going to deactivate it..
 		return true;
 	}
@@ -564,7 +568,7 @@ bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int over
 
 bool WP_ForcePowerInUse( gentity_t *self, forcePowers_t forcePower )
 {
-	if ( (self->client->ps.fd.forcePowersActive & ( 1 << forcePower )) )
+	if ( (self->client->ps.fd.forcePowersActive & Bit( forcePower )) )
 	{//already using this power
 		return true;
 	}
@@ -603,12 +607,12 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		return false;
 	}
 
-	if ( !(self->client->ps.fd.forcePowersKnown & ( 1 << forcePower )) )
+	if ( !(self->client->ps.fd.forcePowersKnown & Bit( forcePower )) )
 	{//don't know this power
 		return false;
 	}
 
-	if ( (self->client->ps.fd.forcePowersActive & ( 1 << forcePower )) )
+	if ( (self->client->ps.fd.forcePowersActive & Bit( forcePower )) )
 	{//already using this power
 		if (forcePower != FP_LEVITATION)
 		{
@@ -671,7 +675,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		if ( (self->client->saber[0].saberFlags&SFL_TWO_HANDED)
 			|| self->client->saber[0].model[0] )
 		{//this saber requires the use of two hands OR our other hand is using an active saber too
-			if ( (self->client->saber[0].forceRestrictions&(1<<forcePower)) )
+			if ( (self->client->saber[0].forceRestrictions&Bit( forcePower )) )
 			{//this power is verboten when using this saber
 				return false;
 			}
@@ -695,7 +699,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 					break;
 				}
 			}
-			if ( (self->client->saber[1].forceRestrictions&(1<<forcePower)) )
+			if ( (self->client->saber[1].forceRestrictions&Bit( forcePower )) )
 			{//this power is verboten when using this saber
 				return false;
 			}
@@ -705,7 +709,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 }
 
 // the level an attack keeps once the target's absorb took its share, or none when the attack is not absorbed
-std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t *attacked, forcePowerLevels_t atdAbsLevel, gentity_t *attacker, int atPower, forcePowerLevels_t atPowerLevel, int atForceSpent)
+std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t *attacked, forcePowerLevels_t atdAbsLevel, gentity_t *attacker, forcePowers_t atPower, forcePowerLevels_t atPowerLevel, int atForceSpent)
 {
 	forcePowerLevels_t getLevel = FORCE_LEVEL_0;
 	int addTot = 0;
@@ -725,7 +729,7 @@ std::optional<forcePowerLevels_t> WP_AbsorbConversion(gentity_t *attacked, force
 		return std::nullopt;
 	}
 
-	if (!(attacked->client->ps.fd.forcePowersActive & (1 << FP_ABSORB)))
+	if (!(attacked->client->ps.fd.forcePowersActive & Bit( FP_ABSORB )))
 	{ //absorb is not active
 		return std::nullopt;
 	}
@@ -805,17 +809,17 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 	}
 	//hearable and hearDist are merely for the benefit of bots, and not related to if a sound is actually played.
 	//If duration is set, the force power will assume to be timer-based.
-	switch( (int)forcePower )
+	switch( forcePower )
 	{
 	case FP_HEAL:
 		hearable = true;
 		hearDist = 256;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_LEVITATION:
 		hearable = true;
 		hearDist = 256;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_SPEED:
 		hearable = true;
@@ -842,7 +846,7 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 			duration = overrideAmt;
 		}
 
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_PUSH:
 		hearable = true;
@@ -872,12 +876,12 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 			break;
 		}
 
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_GRIP:
 		hearable = true;
 		hearDist = 256;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		self->client->ps.powerups[PW_DISINT_4] = level.time + 60000;
 		break;
 	case FP_LIGHTNING:
@@ -885,7 +889,7 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		hearDist = 512;
 		duration = overrideAmt;
 		overrideAmt = 0;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		self->client->ps.activeForcePass = to_underlying( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] );
 		break;
 	case FP_RAGE:
@@ -908,36 +912,36 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 			break;
 		}
 
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_PROTECT:
 		hearable = true;
 		hearDist = 256;
 		duration = 20000;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_ABSORB:
 		hearable = true;
 		hearDist = 256;
 		duration = 20000;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_TEAM_HEAL:
 		hearable = true;
 		hearDist = 256;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_TEAM_FORCE:
 		hearable = true;
 		hearDist = 256;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_DRAIN:
 		hearable = true;
 		hearDist = 256;
 		duration = overrideAmt;
 		overrideAmt = 0;
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		//self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN];
 		break;
 	case FP_SEE:
@@ -960,7 +964,7 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 			break;
 		}
 
-		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.fd.forcePowersActive |= Bit( forcePower );
 		break;
 	case FP_SABER_OFFENSE:
 		break;
@@ -989,11 +993,11 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 
 	self->client->ps.fd.forcePowerDebounce[forcePower] = 0;
 
-	if ((int)forcePower == FP_SPEED && overrideAmt)
+	if (forcePower == FP_SPEED && overrideAmt)
 	{
 		BG_ForcePowerDrain( &self->client->ps, forcePower, overrideAmt*0.025 );
 	}
-	else if ((int)forcePower != FP_GRIP && (int)forcePower != FP_DRAIN)
+	else if (forcePower != FP_GRIP && forcePower != FP_DRAIN)
 	{ //grip and drain drain as damage is done
 		BG_ForcePowerDrain( &self->client->ps, forcePower, overrideAmt );
 	}
@@ -1367,7 +1371,7 @@ void ForceSpeed( gentity_t *self, int forceDuration )
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_SPEED)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_SPEED )) )
 	{
 		WP_ForcePowerStop( self, FP_SPEED );
 		return;
@@ -1402,7 +1406,7 @@ void ForceSeeing( gentity_t *self )
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_SEE)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_SEE )) )
 	{
 		WP_ForcePowerStop( self, FP_SEE );
 		return;
@@ -1429,7 +1433,7 @@ void ForceProtect( gentity_t *self )
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_PROTECT )) )
 	{
 		WP_ForcePowerStop( self, FP_PROTECT );
 		return;
@@ -1441,11 +1445,11 @@ void ForceProtect( gentity_t *self )
 	}
 
 	// Make sure to turn off Force Rage and Force Absorb.
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_RAGE ) )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
 	}
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_ABSORB) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_ABSORB ) )
 	{
 		WP_ForcePowerStop( self, FP_ABSORB );
 	}
@@ -1465,7 +1469,7 @@ void ForceAbsorb( gentity_t *self )
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_ABSORB)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_ABSORB )) )
 	{
 		WP_ForcePowerStop( self, FP_ABSORB );
 		return;
@@ -1477,11 +1481,11 @@ void ForceAbsorb( gentity_t *self )
 	}
 
 	// Make sure to turn off Force Rage and Force Protection.
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_RAGE) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_RAGE ) )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
 	}
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_PROTECT ) )
 	{
 		WP_ForcePowerStop( self, FP_PROTECT );
 	}
@@ -1501,7 +1505,7 @@ void ForceRage( gentity_t *self )
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_RAGE)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_RAGE )) )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
 		return;
@@ -1523,11 +1527,11 @@ void ForceRage( gentity_t *self )
 	}
 
 	// Make sure to turn off Force Protection and Force Absorb.
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_PROTECT ) )
 	{
 		WP_ForcePowerStop( self, FP_PROTECT );
 	}
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_ABSORB) )
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_ABSORB ) )
 	{
 		WP_ForcePowerStop( self, FP_ABSORB );
 	}
@@ -2485,7 +2489,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 	self->client->ps.saberBlocked = BLOCKED_NONE;
 	self->client->ps.weaponTime = 1000;
 	/*
-	if ( self->client->ps.fd.forcePowersActive&(1<<FP_SPEED) )
+	if ( self->client->ps.fd.forcePowersActive&Bit( FP_SPEED ) )
 	{
 		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
 	}
@@ -2525,7 +2529,7 @@ void ForceTelepathy(gentity_t *self)
 	}
 
 	if (self->client->ps.forceAllowDeactivateTime < level.time &&
-		(self->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)) )
+		(self->client->ps.fd.forcePowersActive & Bit( FP_TELEPATHY )) )
 	{
 		WP_ForcePowerStop( self, FP_TELEPATHY );
 		return;
@@ -2675,7 +2679,7 @@ void GEntity_UseFunc( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 bool CanCounterThrow(gentity_t *self, gentity_t *thrower, bool pull)
 {
-	int powerUse = 0;
+	forcePowers_t powerUse = FP_HEAL;
 
 	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE)
 	{
@@ -2730,7 +2734,7 @@ bool CanCounterThrow(gentity_t *self, gentity_t *thrower, bool pull)
 		powerUse = FP_PUSH;
 	}
 
-	if ( !WP_ForcePowerUsable( self, (forcePowers_t)powerUse ) )
+	if ( !WP_ForcePowerUsable( self, powerUse ) )
 	{
 		return 0;
 	}
@@ -2850,7 +2854,7 @@ void ForceThrow( gentity_t *self, bool pull )
 	vec3_t		pushDir;
 	vec3_t		thispush_org;
 	vec3_t		tfrom, tto, fwd, a;
-	int			powerUse = 0;
+	forcePowers_t	powerUse = FP_HEAL;
 
 	visionArc = 0;
 
@@ -2886,7 +2890,7 @@ void ForceThrow( gentity_t *self, bool pull )
 		powerUse = FP_PUSH;
 	}
 
-	if ( !WP_ForcePowerUsable( self, (forcePowers_t)powerUse ) )
+	if ( !WP_ForcePowerUsable( self, powerUse ) )
 	{
 		return;
 	}
@@ -2905,7 +2909,7 @@ void ForceThrow( gentity_t *self, bool pull )
 		return;
 	}
 
-	WP_ForcePowerStart( self, (forcePowers_t)powerUse, 0 );
+	WP_ForcePowerStart( self, powerUse, 0 );
 
 	//make sure this plays and that you cannot press fire for about 1 second after this
 	if ( pull )
@@ -3067,7 +3071,7 @@ void ForceThrow( gentity_t *self, bool pull )
 				vectoangles(a, a);
 
 				if (ent->client && !InFieldOfVision(self->client->ps.viewangles, visionArc, a) &&
-					ForcePowerUsableOn(self, ent, (forcePowers_t)powerUse))
+					ForcePowerUsableOn(self, ent, powerUse))
 				{ //only bother with arc rules if the victim is a client
 					entityList[e] = ENTITYNUM_NONE;
 				}
@@ -3589,9 +3593,9 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 {
 	int wasActive = self->client->ps.fd.forcePowersActive;
 
-	self->client->ps.fd.forcePowersActive &= ~( 1 << forcePower );
+	self->client->ps.fd.forcePowersActive &= ~Bit( forcePower );
 
-	switch( (int)forcePower )
+	switch( forcePower )
 	{
 	case FP_HEAL:
 		self->client->ps.fd.forceHealAmount = 0;
@@ -3600,7 +3604,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	case FP_LEVITATION:
 		break;
 	case FP_SPEED:
-		if (wasActive & (1 << FP_SPEED))
+		if (wasActive & Bit( FP_SPEED ))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_2 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
@@ -3610,7 +3614,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	case FP_PULL:
 		break;
 	case FP_TELEPATHY:
-		if (wasActive & (1 << FP_TELEPATHY))
+		if (wasActive & Bit( FP_TELEPATHY ))
 		{
 			G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/weapons/force/distractstop.wav") );
 		}
@@ -3620,7 +3624,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		self->client->ps.fd.forceMindtrickTargetIndex4 = 0;
 		break;
 	case FP_SEE:
-		if (wasActive & (1 << FP_SEE))
+		if (wasActive & Bit( FP_SEE ))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_5 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
@@ -3633,7 +3637,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 			g_entities[self->client->ps.fd.forceGripEntityNum].inuse &&
 			(level.time - g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.fd.forceGripStarted) > 500)
 		{ //if we had our throat crushed in for more than half a second, gasp for air when we're let go
-			if (wasActive & (1 << FP_GRIP))
+			if (wasActive & Bit( FP_GRIP ))
 			{
 				G_EntitySound( &g_entities[self->client->ps.fd.forceGripEntityNum], CHAN_VOICE, G_SoundIndex("*gasp.wav") );
 			}
@@ -3673,19 +3677,19 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		break;
 	case FP_RAGE:
 		self->client->ps.fd.forceRageRecoveryTime = level.time + 10000;
-		if (wasActive & (1 << FP_RAGE))
+		if (wasActive & Bit( FP_RAGE ))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_ABSORB:
-		if (wasActive & (1 << FP_ABSORB))
+		if (wasActive & Bit( FP_ABSORB ))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
 		break;
 	case FP_PROTECT:
-		if (wasActive & (1 << FP_PROTECT))
+		if (wasActive & Bit( FP_PROTECT ))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_3 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 		}
@@ -3817,7 +3821,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 			gripEnt->client->ps.forceHandExtend = HANDEXTEND_CHOKE;
 			gripEnt->client->ps.forceHandExtendTime = level.time + 2000;
 
-			if (gripEnt->client->ps.fd.forcePowersActive & (1 << FP_GRIP))
+			if (gripEnt->client->ps.fd.forcePowersActive & Bit( FP_GRIP ))
 			{ //choking, so don't let him keep gripping himself
 				WP_ForcePowerStop(gripEnt, FP_GRIP);
 			}
@@ -3903,7 +3907,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 			gripEnt->client->ps.forceHandExtend = HANDEXTEND_CHOKE;
 			gripEnt->client->ps.forceHandExtendTime = level.time + 2000;
 
-			if (gripEnt->client->ps.fd.forcePowersActive & (1 << FP_GRIP))
+			if (gripEnt->client->ps.fd.forcePowersActive & Bit( FP_GRIP ))
 			{ //choking, so don't let him keep gripping himself
 				WP_ForcePowerStop(gripEnt, FP_GRIP);
 			}
@@ -3997,7 +4001,7 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 			gentity_t *ent = &g_entities[i];
 
 			if ( !ent || !ent->client || !ent->inuse || ent->health < 1 ||
-				(ent->client->ps.fd.forcePowersActive & (1 << FP_SEE)) )
+				(ent->client->ps.fd.forcePowersActive & Bit( FP_SEE )) )
 			{
 				RemoveTrickedEnt(&self->client->ps.fd, i);
 			}
@@ -4038,7 +4042,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 {
 //	extern usercmd_t	ucmd;
 
-	switch( (int)forcePower )
+	switch( forcePower )
 	{
 	case FP_HEAL:
 		if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_1)
@@ -4328,7 +4332,7 @@ int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepow
 
 		if (self->client->ps.fd.forceGripEntityNum != ENTITYNUM_NONE)
 		{
-			if (!(self->client->ps.fd.forcePowersActive & (1 << FP_GRIP)))
+			if (!(self->client->ps.fd.forcePowersActive & Bit( FP_GRIP )))
 			{
 				WP_ForcePowerStart( self, FP_GRIP, 0 );
 				BG_ForcePowerDrain( &self->client->ps, FP_GRIP, GRIP_DRAIN_AMOUNT );
@@ -4638,7 +4642,7 @@ void SeekerDroneUpdate(gentity_t *self)
 
 void HolocronUpdate(gentity_t *self)
 { //keep holocron status updated in holocron mode
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 	forcePowerLevels_t noHRank = FORCE_LEVEL_0;
 
 	if (noHRank < FORCE_LEVEL_0)
@@ -4656,26 +4660,26 @@ void HolocronUpdate(gentity_t *self)
 	{
 		if (self->client->ps.holocronsCarried[i])
 		{ //carrying it, make sure we have the power
-			self->client->ps.holocronBits |= (1 << i);
-			self->client->ps.fd.forcePowersKnown |= (1 << i);
+			self->client->ps.holocronBits |= Bit( i );
+			self->client->ps.fd.forcePowersKnown |= Bit( i );
 			self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_3;
 		}
 		else
 		{ //otherwise, make sure the power is cleared from us
 			self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_0;
-			if (self->client->ps.holocronBits & (1 << i))
+			if (self->client->ps.holocronBits & Bit( i ))
 			{
-				self->client->ps.holocronBits -= (1 << i);
+				self->client->ps.holocronBits -= Bit( i );
 			}
 
-			if ((self->client->ps.fd.forcePowersKnown & (1 << i)) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
+			if ((self->client->ps.fd.forcePowersKnown & Bit( i )) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
 			{
-				self->client->ps.fd.forcePowersKnown -= (1 << i);
+				self->client->ps.fd.forcePowersKnown -= Bit( i );
 			}
 
-			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
+			if ((self->client->ps.fd.forcePowersActive & Bit( i )) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4691,7 +4695,7 @@ void HolocronUpdate(gentity_t *self)
 			}
 			else if (i == FP_SABER_OFFENSE)
 			{
-				self->client->ps.fd.forcePowersKnown |= (1 << i);
+				self->client->ps.fd.forcePowersKnown |= Bit( i );
 
 				if (noHRank >= FORCE_LEVEL_1)
 				{
@@ -4740,7 +4744,7 @@ void HolocronUpdate(gentity_t *self)
 
 void JediMasterUpdate(gentity_t *self)
 { //keep jedi master status updated for JM gametype
-	int i = 0;
+	forcePowers_t i = FP_FIRST;
 
 	trap->Cvar_Update(&g_maxHolocronCarry);
 
@@ -4748,7 +4752,7 @@ void JediMasterUpdate(gentity_t *self)
 	{
 		if (self->client->ps.isJediMaster)
 		{
-			self->client->ps.fd.forcePowersKnown |= (1 << i);
+			self->client->ps.fd.forcePowersKnown |= Bit( i );
 			self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_3;
 
 			if (i == FP_TEAM_HEAL || i == FP_TEAM_FORCE ||
@@ -4756,7 +4760,7 @@ void JediMasterUpdate(gentity_t *self)
 			{ //team powers are useless in JM, absorb is too because no one else has powers to absorb. Drain is just
 			  //relatively useless in comparison, because its main intent is not to heal, but rather to cripple others
 			  //by draining their force at the same time. And no one needs force in JM except the JM himself.
-				self->client->ps.fd.forcePowersKnown &= ~(1 << i);
+				self->client->ps.fd.forcePowersKnown &= ~Bit( i );
 				self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_0;
 			}
 
@@ -4769,14 +4773,14 @@ void JediMasterUpdate(gentity_t *self)
 		}
 		else
 		{
-			if ((self->client->ps.fd.forcePowersKnown & (1 << i)) && i != FP_LEVITATION)
+			if ((self->client->ps.fd.forcePowersKnown & Bit( i )) && i != FP_LEVITATION)
 			{
-				self->client->ps.fd.forcePowersKnown -= (1 << i);
+				self->client->ps.fd.forcePowersKnown -= Bit( i );
 			}
 
-			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
+			if ((self->client->ps.fd.forcePowersActive & Bit( i )) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4795,10 +4799,10 @@ void JediMasterUpdate(gentity_t *self)
 
 bool WP_HasForcePowers( const playerState_t *ps )
 {
-	int i;
+	forcePowers_t i;
 	if ( ps )
 	{
-		for ( i = 0; i < NUM_FORCE_POWERS; i++ )
+		for ( i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 		{
 			if ( i == FP_LEVITATION )
 			{
@@ -4876,7 +4880,8 @@ bool G_SpecialRollGetup(gentity_t *self)
 
 void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 {
-	int			i, holo, holoregen;
+	forcePowers_t	i, holo;
+	int			holoregen;
 	int			prepower = 0;
 	//see if any force powers are running
 	if ( !self )
@@ -4898,9 +4903,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		return;
 	}
 
-	for ( i = 0; i < NUM_FORCE_POWERS; i++ )
+	for ( i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 	{ // gamestats: the time each power is held; this runs on the 20 Hz instants of the tick, once per 50 ms (plan step 14)
-		if ( self->client->ps.fd.forcePowersActive & ( 1 << i ) )
+		if ( self->client->ps.fd.forcePowersActive & Bit( i ) )
 		{
 			g_stats.forceActiveMsec[i] += 50;
 		}
@@ -4924,9 +4929,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if (level.gametype != GT_SIEGE)
 	{
-		if (!(self->client->ps.fd.forcePowersKnown & (1 << FP_LEVITATION)))
+		if (!(self->client->ps.fd.forcePowersKnown & Bit( FP_LEVITATION )))
 		{
-			self->client->ps.fd.forcePowersKnown |= (1 << FP_LEVITATION);
+			self->client->ps.fd.forcePowersKnown |= Bit( FP_LEVITATION );
 		}
 
 		if (self->client->ps.fd.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1)
@@ -4935,9 +4940,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		}
 	}
 
-	if (self->client->ps.fd.forcePowerSelected < 0 || self->client->ps.fd.forcePowerSelected >= NUM_FORCE_POWERS)
+	if (self->client->ps.fd.forcePowerSelected < FP_FIRST || self->client->ps.fd.forcePowerSelected >= NUM_FORCE_POWERS)
 	{ //bad
-		self->client->ps.fd.forcePowerSelected = 0;
+		self->client->ps.fd.forcePowerSelected = FP_HEAL;
 	}
 
 	if ( ((self->client->sess.selectedFP != self->client->ps.fd.forcePowerSelected) ||
@@ -4964,7 +4969,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
 		self->client->ps.forceHandExtendTime >= level.time)
 	{
-		self->client->ps.saberMove = 0;
+		self->client->ps.saberMove = LS_NONE;
 		self->client->ps.saberBlocking = BLK_NO;
 		self->client->ps.saberBlocked = BLOCKED_NONE;
 		self->client->ps.weaponTime = 0;
@@ -5060,13 +5065,13 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	if (self && self->client && (BG_HasYsalamiri(level.gametype, &self->client->ps) ||
 		self->client->ps.fd.forceDeactivateAll || self->client->tempSpectate >= level.time))
 	{ //has ysalamiri.. or we want to forcefully stop all his active powers
-		i = 0;
+		i = FP_FIRST;
 
 		while (i < NUM_FORCE_POWERS)
 		{
-			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
+			if ((self->client->ps.fd.forcePowersActive & Bit( i )) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, i);
 			}
 
 			i++;
@@ -5088,27 +5093,27 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	else
 	{ //otherwise just do a check through them all to see if they need to be stopped for any reason.
-		i = 0;
+		i = FP_FIRST;
 
 		while (i < NUM_FORCE_POWERS)
 		{
-			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION &&
-				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, (forcePowers_t)i))
+			if ((self->client->ps.fd.forcePowersActive & Bit( i )) && i != FP_LEVITATION &&
+				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, i))
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, i);
 			}
 
 			i++;
 		}
 	}
 
-	i = 0;
+	i = FP_FIRST;
 
 	if (self->client->ps.powerups[PW_FORCE_ENLIGHTENED_LIGHT] || self->client->ps.powerups[PW_FORCE_ENLIGHTENED_DARK])
 	{ //enlightenment
 		if (!self->client->ps.fd.forceUsingAdded)
 		{
-			i = 0;
+			i = FP_FIRST;
 
 			while (i < NUM_FORCE_POWERS)
 			{
@@ -5118,7 +5123,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 					self->client->ps.fd.forceSide == forcePowerDarkLight[i])
 				{
 					self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_3;
-					self->client->ps.fd.forcePowersKnown |= (1 << i);
+					self->client->ps.fd.forcePowersKnown |= Bit( i );
 				}
 
 				i++;
@@ -5129,18 +5134,18 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	else if (self->client->ps.fd.forceUsingAdded)
 	{ //we don't have enlightenment but we're still using enlightened powers, so clear them back to how they should be.
-		i = 0;
+		i = FP_FIRST;
 
 		while (i < NUM_FORCE_POWERS)
 		{
 			self->client->ps.fd.forcePowerLevel[i] = self->client->ps.fd.forcePowerBaseLevel[i];
 			if ( self->client->ps.fd.forcePowerLevel[i] == FORCE_LEVEL_0 )
 			{
-				if (self->client->ps.fd.forcePowersActive & (1 << i))
+				if (self->client->ps.fd.forcePowersActive & Bit( i ))
 				{
-					WP_ForcePowerStop(self, (forcePowers_t)i);
+					WP_ForcePowerStop(self, i);
 				}
-				self->client->ps.fd.forcePowersKnown &= ~(1 << i);
+				self->client->ps.fd.forcePowersKnown &= ~Bit( i );
 			}
 
 			i++;
@@ -5149,9 +5154,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.fd.forceUsingAdded = 0;
 	}
 
-	i = 0;
+	i = FP_FIRST;
 
-	if (!(self->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)))
+	if (!(self->client->ps.fd.forcePowersActive & Bit( FP_TELEPATHY )))
 	{ //clear the mindtrick index values
 		self->client->ps.fd.forceMindtrickTargetIndex = 0;
 		self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
@@ -5194,18 +5199,18 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		}
 	}
 
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_SPEED))
+	if (self->client->ps.fd.forcePowersActive & Bit( FP_SPEED ))
 	{
 		self->client->ps.powerups[PW_SPEED] = level.time + 100;
 	}
 
 	if ( self->health <= 0 )
 	{//if dead, deactivate any active force powers
-		for ( i = 0; i < NUM_FORCE_POWERS; i++ )
+		for ( i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 		{
-			if ( self->client->ps.fd.forcePowerDuration[i] || (self->client->ps.fd.forcePowersActive&( 1 << i )) )
+			if ( self->client->ps.fd.forcePowerDuration[i] || (self->client->ps.fd.forcePowersActive&Bit( i )) )
 			{
-				WP_ForcePowerStop( self, (forcePowers_t)i );
+				WP_ForcePowerStop( self, i );
 				self->client->ps.fd.forcePowerDuration[i] = 0;
 			}
 		}
@@ -5252,7 +5257,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	else
 	{ //see if we're using it generically.. if not, stop.
-		if (self->client->ps.fd.forcePowersActive & (1 << FP_GRIP))
+		if (self->client->ps.fd.forcePowersActive & Bit( FP_GRIP ))
 		{
 			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_GRIP)
 			{
@@ -5267,7 +5272,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	else
 	{ //see if we're using it generically.. if not, stop.
-		if (self->client->ps.fd.forcePowersActive & (1 << FP_LIGHTNING))
+		if (self->client->ps.fd.forcePowersActive & Bit( FP_LIGHTNING ))
 		{
 			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LIGHTNING)
 			{
@@ -5282,7 +5287,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	else
 	{ //see if we're using it generically.. if not, stop.
-		if (self->client->ps.fd.forcePowersActive & (1 << FP_DRAIN))
+		if (self->client->ps.fd.forcePowersActive & Bit( FP_DRAIN ))
 		{
 			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_DRAIN)
 			{
@@ -5292,43 +5297,43 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 
 	if ( (ucmd->buttons & BUTTON_FORCEPOWER) &&
-		BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, (forcePowers_t)self->client->ps.fd.forcePowerSelected))
+		BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, self->client->ps.fd.forcePowerSelected))
 	{
 		if (self->client->ps.fd.forcePowerSelected == FP_LEVITATION)
 			ForceJumpCharge( self, ucmd );
 		else
-			WP_DoSpecificPower( self, ucmd, (forcePowers_t)self->client->ps.fd.forcePowerSelected );
+			WP_DoSpecificPower( self, ucmd, self->client->ps.fd.forcePowerSelected );
 	}
 	else
 	{
 		self->client->ps.fd.forceButtonNeedRelease = 0;
 	}
 
-	for ( i = 0; i < NUM_FORCE_POWERS; i++ )
+	for ( i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )
 	{
 		if ( self->client->ps.fd.forcePowerDuration[i] )
 		{
 			if ( self->client->ps.fd.forcePowerDuration[i] < level.time )
 			{
-				if ( (self->client->ps.fd.forcePowersActive&( 1 << i )) )
+				if ( (self->client->ps.fd.forcePowersActive&Bit( i )) )
 				{//turn it off
-					WP_ForcePowerStop( self, (forcePowers_t)i );
+					WP_ForcePowerStop( self, i );
 				}
 				self->client->ps.fd.forcePowerDuration[i] = 0;
 			}
 		}
-		if ( (self->client->ps.fd.forcePowersActive&( 1 << i )) )
+		if ( (self->client->ps.fd.forcePowersActive&Bit( i )) )
 		{
-			WP_ForcePowerRun( self, (forcePowers_t)i, ucmd );
+			WP_ForcePowerRun( self, i, ucmd );
 		}
 	}
 
-	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_DRAIN)) )
+	if ( !(self->client->ps.fd.forcePowersActive & Bit( FP_DRAIN )) )
 		self->client->force.drainDebounce = level.time;
-	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_LIGHTNING)) )
+	if ( !(self->client->ps.fd.forcePowersActive & Bit( FP_LIGHTNING )) )
 		self->client->force.lightningDebounce = level.time;
 
-	if ( (!self->client->ps.fd.forcePowersActive || self->client->ps.fd.forcePowersActive == (1 << FP_DRAIN)) &&
+	if ( (!self->client->ps.fd.forcePowersActive || self->client->ps.fd.forcePowersActive == Bit( FP_DRAIN )) &&
 			!self->client->ps.saberInFlight && (self->client->ps.weapon != WP_SABER || !BG_SaberInSpecial(self->client->ps.saberMove)) )
 	{//when not using the force, regenerate at 1 point per half second
 		while ( self->client->ps.fd.forcePowerRegenDebounceTime < level.time )
@@ -5345,7 +5350,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			else
 			{ //regenerate based on the number of holocrons carried
 				holoregen = 0;
-				holo = 0;
+				holo = FP_FIRST;
 				while (holo < NUM_FORCE_POWERS)
 				{
 					if (self->client->ps.holocronsCarried[holo])
@@ -5414,7 +5419,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLoc
 
 	if (g_forceDodge.integer != 2)
 	{
-		if (!(self->client->ps.fd.forcePowersActive & (1 << FP_SEE)))
+		if (!(self->client->ps.fd.forcePowersActive & Bit( FP_SEE )))
 		{
 			return false;
 		}

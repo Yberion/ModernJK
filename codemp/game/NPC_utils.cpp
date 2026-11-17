@@ -250,7 +250,7 @@ bool NPC_UpdateAngles ( bool doPitch, bool doYaw )
 		yawSpeed = NPCS.NPCInfo->stats.yawSpeed;
 	}
 
-	if ( NPCS.NPC->s.weapon == WP_SABER && NPCS.NPC->client->ps.fd.forcePowersActive&(1<<FP_SPEED) )
+	if ( NPCS.NPC->s.weapon == WP_SABER && NPCS.NPC->client->ps.fd.forcePowersActive&Bit( FP_SPEED ) )
 	{
 		char buf[128];
 		float tFVal = 0;
@@ -1696,7 +1696,7 @@ bool NPC_CheckLookTarget( gentity_t *self )
 NPC_CheckCharmed
 -------------------------
 */
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 void NPC_CheckCharmed( void )
 {
 

@@ -237,7 +237,7 @@ bool BG_DirectFlippingAnim( int anim )
 	return false;
 }
 
-bool BG_SaberInAttackPure( int move )
+bool BG_SaberInAttackPure( saberMoveName_t move )
 {
 	if ( move >= LS_A_TL2BR && move <= LS_A_T2B )
 	{
@@ -245,7 +245,7 @@ bool BG_SaberInAttackPure( int move )
 	}
 	return false;
 }
-bool BG_SaberInAttack( int move )
+bool BG_SaberInAttack( saberMoveName_t move )
 {
 	if ( move >= LS_A_TL2BR && move <= LS_A_T2B )
 	{
@@ -306,11 +306,13 @@ bool BG_SaberInAttack( int move )
 	case LS_HILT_BASH:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool BG_SaberInKata( int saberMove )
+bool BG_SaberInKata( saberMoveName_t saberMove )
 {
 	switch ( saberMove )
 	{
@@ -320,6 +322,8 @@ bool BG_SaberInKata( int saberMove )
 	case LS_DUAL_SPIN_PROTECT:
 	case LS_STAFF_SOULCAL:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
@@ -338,7 +342,7 @@ bool BG_InKataAnim(int anim)
 	return false;
 }
 
-bool BG_SaberInSpecial( int move )
+bool BG_SaberInSpecial( saberMoveName_t move )
 {
 	switch( move )
 	{
@@ -394,11 +398,13 @@ bool BG_SaberInSpecial( int move )
 	case LS_DUAL_LR:
 	case LS_HILT_BASH:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool BG_KickMove( int move )
+bool BG_KickMove( saberMoveName_t move )
 {
 	switch( move )
 	{
@@ -415,11 +421,13 @@ bool BG_KickMove( int move )
 	case LS_KICK_L_AIR:
 	case LS_HILT_BASH:
 		return true;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool BG_SaberInIdle( int move )
+bool BG_SaberInIdle( saberMoveName_t move )
 {
 	switch ( move )
 	{
@@ -429,11 +437,13 @@ bool BG_SaberInIdle( int move )
 	case LS_PUTAWAY:
 		return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
 
-bool BG_InExtraDefenseSaberMove( int move )
+bool BG_InExtraDefenseSaberMove( saberMoveName_t move )
 {
 	switch ( move )
 	{
@@ -446,6 +456,8 @@ bool BG_InExtraDefenseSaberMove( int move )
 	case LS_A3_SPECIAL:
 	case LS_JUMPATTACK_DUAL:
 		return true;
+		break;
+	default:
 		break;
 	}
 	return false;
@@ -710,7 +722,7 @@ int BG_InGrappleMove(int anim)
 	return 0;
 }
 
-int BG_BrokenParryForAttack( int move )
+saberMoveName_t BG_BrokenParryForAttack( saberMoveName_t move )
 {
 	//Our attack was knocked away by a knockaway parry
 	//FIXME: need actual anims for this
@@ -748,7 +760,7 @@ int BG_BrokenParryForAttack( int move )
 	return LS_NONE;
 }
 
-int BG_BrokenParryForParry( int move )
+saberMoveName_t BG_BrokenParryForParry( saberMoveName_t move )
 {
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
@@ -780,11 +792,13 @@ int BG_BrokenParryForParry( int move )
 	case LS_READY:
 		return LS_H1_B_;//???
 		break;
+	default:
+		break;
 	}
 	return LS_NONE;
 }
 
-int BG_KnockawayForParry( saberBlockedType_t move )
+saberMoveName_t BG_KnockawayForParry( saberBlockedType_t move )
 {
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
@@ -1107,7 +1121,7 @@ bool BG_StabDownAnim( int anim )
 	return false;
 }
 
-int PM_SaberBounceForAttack( int move )
+saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move )
 {
 	switch ( saberMoveData[move].startQuad )
 	{
@@ -1140,7 +1154,7 @@ int PM_SaberBounceForAttack( int move )
 	return LS_NONE;
 }
 
-int PM_SaberDeflectionForQuad( saberQuadrant_t quad )
+saberMoveName_t PM_SaberDeflectionForQuad( saberQuadrant_t quad )
 {
 	switch ( quad )
 	{
@@ -1175,7 +1189,7 @@ int PM_SaberDeflectionForQuad( saberQuadrant_t quad )
 	return LS_NONE;
 }
 
-bool PM_SaberInDeflect( int move )
+bool PM_SaberInDeflect( saberMoveName_t move )
 {
 	if ( move >= LS_D1_BR && move <= LS_D1_B_ )
 	{
@@ -1184,7 +1198,7 @@ bool PM_SaberInDeflect( int move )
 	return false;
 }
 
-bool PM_SaberInParry( int move )
+bool PM_SaberInParry( saberMoveName_t move )
 {
 	if ( move >= LS_PARRY_UP && move <= LS_PARRY_LL )
 	{
@@ -1193,7 +1207,7 @@ bool PM_SaberInParry( int move )
 	return false;
 }
 
-bool PM_SaberInKnockaway( int move )
+bool PM_SaberInKnockaway( saberMoveName_t move )
 {
 	if ( move >= LS_K1_T_ && move <= LS_K1_BL )
 	{
@@ -1202,7 +1216,7 @@ bool PM_SaberInKnockaway( int move )
 	return false;
 }
 
-bool PM_SaberInReflect( int move )
+bool PM_SaberInReflect( saberMoveName_t move )
 {
 	if ( move >= LS_REFLECT_UP && move <= LS_REFLECT_LL )
 	{
@@ -1211,7 +1225,7 @@ bool PM_SaberInReflect( int move )
 	return false;
 }
 
-bool PM_SaberInStart( int move )
+bool PM_SaberInStart( saberMoveName_t move )
 {
 	if ( move >= LS_S_TL2BR && move <= LS_S_T2B )
 	{
@@ -1220,7 +1234,7 @@ bool PM_SaberInStart( int move )
 	return false;
 }
 
-bool PM_SaberInReturn( int move )
+bool PM_SaberInReturn( saberMoveName_t move )
 {
 	if ( move >= LS_R_TL2BR && move <= LS_R_T2B )
 	{
@@ -1229,7 +1243,7 @@ bool PM_SaberInReturn( int move )
 	return false;
 }
 
-bool BG_SaberInReturn( int move )
+bool BG_SaberInReturn( saberMoveName_t move )
 {
 	return PM_SaberInReturn( move );
 }
@@ -1630,7 +1644,7 @@ void PM_DebugLegsAnim(int anim)
 	}
 }
 
-bool PM_SaberInTransition( int move )
+bool PM_SaberInTransition( saberMoveName_t move )
 {
 	if ( move >= LS_T1_BR__R && move <= LS_T1_BL__L )
 	{
@@ -1639,7 +1653,7 @@ bool PM_SaberInTransition( int move )
 	return false;
 }
 
-bool BG_SaberInTransitionAny( int move )
+bool BG_SaberInTransitionAny( saberMoveName_t move )
 {
 	if ( PM_SaberInStart( move ) )
 	{
@@ -2836,7 +2850,7 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 				ps->torsoTimer = ((animations[anim].numFrames ) * Q_fabs((float)(animations[anim].frameLerp)));
 			}
 
-			if (ps->fd.forcePowersActive & (1 << FP_RAGE))
+			if (ps->fd.forcePowersActive & Bit( FP_RAGE ))
 			{
 				ps->torsoTimer /= 1.7;
 			}
@@ -2887,11 +2901,11 @@ setAnimLegs:
 			if (PM_RunningAnim(anim) ||
 				PM_WalkingAnim(anim)) //these guys are ok, they don't actually reference pm
 			{
-				if (ps->fd.forcePowersActive & (1 << FP_RAGE))
+				if (ps->fd.forcePowersActive & Bit( FP_RAGE ))
 				{
 					ps->legsTimer /= 1.3;
 				}
-				else if (ps->fd.forcePowersActive & (1 << FP_SPEED))
+				else if (ps->fd.forcePowersActive & Bit( FP_SPEED ))
 				{
 					ps->legsTimer /= 1.7;
 				}

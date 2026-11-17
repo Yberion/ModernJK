@@ -241,7 +241,7 @@ void MineMonster_Combat( void )
 NPC_MineMonster_Pain
 -------------------------
 */
-void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void NPC_MineMonster_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	G_AddEvent( self, EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
 

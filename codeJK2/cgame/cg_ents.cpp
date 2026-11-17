@@ -2112,7 +2112,7 @@ Ghoul2 Insert End
 
 	switch ( cent->currentState.eType ) {
 	default:
-		CG_Error( "Bad entity type: %i\n", cent->currentState.eType );
+		CG_Error( "Bad entity type: %i\n", to_underlying( cent->currentState.eType ) );
 		break;
 	case ET_INVISIBLE:
 	case ET_PUSH_TRIGGER:

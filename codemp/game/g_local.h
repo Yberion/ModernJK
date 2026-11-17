@@ -39,7 +39,7 @@ typedef struct gclient_s gclient_t;
 //npc stuff
 #include "b_public.h"
 
-extern int gPainMOD;
+extern meansOfDeath_t gPainMOD;
 extern int gPainHitLoc;
 extern vec3_t gPainPoint;
 
@@ -342,7 +342,7 @@ struct gentity_s {
 	void		(*touch)(gentity_t *self, gentity_t *other, trace_t *trace);
 	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage);
-	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 
 	int			pain_debounce_time;
 	int			fly_sound_debounce_time;	// wind tunnel
@@ -357,8 +357,8 @@ struct gentity_s {
 	int			dflags;
 	int			splashDamage;	// quad will increase this without increasing radius
 	int			splashRadius;
-	int			methodOfDeath;
-	int			splashMethodOfDeath;
+	meansOfDeath_t	methodOfDeath;
+	meansOfDeath_t	splashMethodOfDeath;
 
 	int			locationDamage[to_underlying( HL_MAX )];		// Damage accumulated on different body locations
 
@@ -474,7 +474,7 @@ typedef struct clientSession_s {
 	spectatorState_t	spectatorState;
 	int			spectatorClient;	// for chasecam and follow mode
 	int			wins, losses;		// tournament stats
-	int			selectedFP;			// check against this, if doesn't match value in playerstate then update userinfo
+	forcePowers_t	selectedFP;			// check against this, if doesn't match value in playerstate then update userinfo
 	saber_styles_t	saberLevel;			// similar to above method, but for current saber attack level
 	int			setForce;			// set to true once player is given the chance to set force powers
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
@@ -655,7 +655,7 @@ struct gclient_s {
 	//
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
-	int			lasthurt_mod;		// type of damage the client did
+	meansOfDeath_t	lasthurt_mod;	// type of damage the client did
 
 	// timers
 	int			respawnTime;		// can respawn when time > this, force after g_forcerespwan
@@ -1122,7 +1122,7 @@ void	G_SetAngles( gentity_t *ent, vec3_t angles );
 
 void	G_InitGentity( gentity_t *e );
 gentity_t	*G_Spawn (void);
-gentity_t *G_TempEntity( vec3_t origin, int event );
+gentity_t *G_TempEntity( vec3_t origin, entity_event_t event );
 gentity_t	*G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang);
 gentity_t	*G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang);
 gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int duration, bool global);
@@ -1153,8 +1153,8 @@ extern void G_RunObject			( gentity_t *ent );
 float	*tv (float x, float y, float z);
 char	*vtos( const vec3_t v );
 
-void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
-void G_AddEvent( gentity_t *ent, int event, int eventParm );
+void G_AddPredictableEvent( gentity_t *ent, entity_event_t event, int eventParm );
+void G_AddEvent( gentity_t *ent, entity_event_t event, int eventParm );
 void G_SetOrigin( gentity_t *ent, vec3_t origin );
 bool G_CheckInSolid (gentity_t *self, bool fix);
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
@@ -1172,9 +1172,9 @@ Ghoul2 Insert End
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
-bool G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
+void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod);
+bool G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, meansOfDeath_t mod);
+void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 void TossClientWeapon(gentity_t *self, vec3_t direction, float speed);
 void TossClientItems( gentity_t *self );
 void TossClientCubes( gentity_t *self );
@@ -1278,8 +1278,8 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
 //
 // g_weapon.cpp
 //
-void WP_FireTurretMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, int mod, gentity_t *ignore );
-void WP_FireGenericBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, int mod );
+void WP_FireTurretMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, meansOfDeath_t mod, gentity_t *ignore );
+void WP_FireGenericBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, meansOfDeath_t mod );
 bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, const vec3_t inForward, const vec3_t inRight, const vec3_t inUp, vec3_t muzzlePoint );
 bool CheckGauntletAttack( gentity_t *ent );
@@ -1298,7 +1298,7 @@ void ClientRespawn (gentity_t *ent);
 void BeginIntermission (void);
 void InitBodyQue (void);
 void ClientSpawn( gentity_t *ent );
-void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
 bool SpotWouldTelefrag( gentity_t *spot );
@@ -1431,7 +1431,7 @@ gentity_t *G_PreDefSound(vec3_t org, pdSounds_t pdSound);
 bool HasSetSaberOnly(void);
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd );
-int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, bool projectile, int attackStr);
+int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, meansOfDeath_t mod, bool projectile, int attackStr);
 void WP_SaberInitBladeData( gentity_t *ent );
 void WP_InitForcePowers( gentity_t *ent );
 void WP_SpawnInitForcePowers( gentity_t *ent );
@@ -1453,8 +1453,8 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, hitLoc
 // g_log.cpp
 void QDECL G_LogWeaponPickup(int client, int weaponid);
 void QDECL G_LogWeaponFire(int client, int weaponid);
-void QDECL G_LogWeaponDamage(int client, int mod, int amount);
-void QDECL G_LogWeaponKill(int client, int mod);
+void QDECL G_LogWeaponDamage(int client, meansOfDeath_t mod, int amount);
+void QDECL G_LogWeaponKill(int client, meansOfDeath_t mod);
 void QDECL G_LogWeaponDeath(int client, int weaponid);
 void QDECL G_LogWeaponFrag(int attacker, int deadguy);
 void QDECL G_LogWeaponPowerup(int client, powerup_t powerupid);
@@ -1535,25 +1535,25 @@ typedef struct gameStats_s {
 	int		forceDamage;		// health taken by the dark force powers
 	int		deaths;
 	int		saberHitEffects;	// hit effects (blood or sparks, and their sound) of sabers on clients
-	int		forceStarts[NUM_FORCE_POWERS];		// times each force power was started (WP_ForcePowerStart)
-	int		forceTimerEvents[NUM_FORCE_POWERS];	// periodic events of the held powers: grip, protect and absorb drains, rage health losses, lightning and drain shots
-	int		forceActiveMsec[NUM_FORCE_POWERS];	// time each power was held, 50 ms per 20 Hz instant it was active
-	int		events[EV_NUM_ENTITY_EVENTS];	// events and temporary entities added by the game (G_AddEvent, G_TempEntity)
-	int		modDamage[MOD_MAX];	// health taken from clients, by cause
-	int		modKills[MOD_MAX];	// client deaths, by cause
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceStarts;		// times each force power was started (WP_ForcePowerStart)
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceTimerEvents;	// periodic events of the held powers: grip, protect and absorb drains, rage health losses, lightning and drain shots
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forceActiveMsec;	// time each power was held, 50 ms per 20 Hz instant it was active
+	EnumArray<int, entity_event_t, EV_NUM_ENTITY_EVENTS>	events;	// events and temporary entities added by the game (G_AddEvent, G_TempEntity)
+	EnumArray<int, meansOfDeath_t, MOD_MAX>	modDamage;	// health taken from clients, by cause
+	EnumArray<int, meansOfDeath_t, MOD_MAX>	modKills;	// client deaths, by cause
 	int		shots[WP_NUM_WEAPONS][2];	// FireWeapon by weapon, primary and alternate
 	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleAttacks;	// saber attack moves started by clients, by style
 	EnumArray<int, saber_styles_t, SS_NUM_SABER_STYLES>	styleBounces;	// saber moves of clients sent into a bounce or deflection, by style
 } gameStats_t;
 extern	gameStats_t		g_stats;
-void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );
+void G_StatsSaberMove( gentity_t *ent, saberMoveName_t oldSaberMove );
 
 // g_scenario.cpp: scripted bot scenarios for the measurements of plan step 14
 bool G_ScenarioControls( int clientNum );
 bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
 void G_ScenarioFrame( void );
 void G_ScenarioTrace( void );
-void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod );
+void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, meansOfDeath_t mod );
 void Svcmd_Scenario_f( void );
 
 #define	FOFS(x) offsetof(gentity_t, x)

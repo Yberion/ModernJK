@@ -50,7 +50,7 @@ gentity_t *g_lastClientDamaged;
 extern int killPlayerTimer;
 
 extern void NPC_TempLookTarget ( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern bool PM_HasAnimation( gentity_t *ent, int animation );
 extern bool G_TeamEnemy( gentity_t *self );
 extern void CG_ChangeWeapon( int num );
@@ -62,7 +62,7 @@ extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time 
 extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
 extern bool PM_InOnGroundAnim ( playerState_t *ps );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
-extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc );
+extern void G_ATSTCheckPain( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc );
 extern bool Jedi_WaitingAmbush( gentity_t *self );
 extern bool G_ClearViewEntity( gentity_t *ent );
 extern bool PM_CrouchAnim( int anim );
@@ -76,15 +76,15 @@ extern bool PM_SpinningSaberAnim( int anim );
 extern bool PM_FlippingAnim( int anim );
 extern bool PM_InSpecialJump( int anim );
 extern bool PM_RollingAnim( int anim );
-extern bool PM_InAnimForSaberMove( int anim, int saberMove );
-extern bool PM_SaberInStart( int move );
-extern bool PM_SaberInReturn( int move );
+extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern bool PM_SaberInStart( saberMoveName_t move );
+extern bool PM_SaberInReturn( saberMoveName_t move );
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist );
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc );
-static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc );
-static void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod );
+static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
+static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc );
+static void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOfDeath_t mod );
 static bool G_Dismemberable( gentity_t *self, int hitLoc );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 /*
@@ -270,7 +270,7 @@ void G_DropKey( gentity_t *self )
 	self->message = nullptr;
 }
 
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 {
 	if(self->target)
 		G_UseTargets(self, attacker);
@@ -322,17 +322,17 @@ void ExplodeDeath( gentity_t *self )
 				attacker, MOD_UNKNOWN );
 	}
 
-	ObjectDie( self, self, self, 20, 0 );
+	ObjectDie( self, self, self, 20, MOD_UNKNOWN );
 }
 
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc )
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
 {
 	self->e_DieFunc = dieF_NULL;
 	self->nextthink = level.time + Q_irand(100, 500);
 	self->e_ThinkFunc = thinkF_ExplodeDeath;
 }
 
-void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc )
+void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
 {
 	self->currentOrigin[2] += 16; // me bad for hacking this.  should either do it in the effect file or make a custom explode death??
 	ExplodeDeath( self );
@@ -666,7 +666,7 @@ void DeathFX( gentity_t *ent )
 
 }
 
-void G_SetMissionStatusText( gentity_t *attacker, int mod )
+void G_SetMissionStatusText( gentity_t *attacker, meansOfDeath_t mod )
 {
 	if ( statusTextIndex >= 0 )
 	{
@@ -807,7 +807,7 @@ bool G_JediInRoom( vec3_t from )
 	return false;
 }
 
-bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod )
+bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod )
 {
 	bool dismember = false;
 
@@ -2146,7 +2146,7 @@ static bool G_Dismemberable2( gentity_t *self, int hitLoc )
 }
 
 extern bool G_StandardHumanoid( const char *modelName );
-bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false )
+bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false )
 {
 extern cvar_t	*g_iscensored;
 	// dismemberment -- FIXME: should have a check for how long npc has been dead so people can't
@@ -2324,7 +2324,7 @@ extern cvar_t	*g_iscensored;
 	return false;
 }
 
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
+static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
 	int deathAnim = -1;
 
@@ -2833,7 +2833,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 	return deathAnim;
 }
 extern bool PM_FinishedCurrentLegsAnim( gentity_t *self );
-static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hitLoc )
+static int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
 	int deathAnim = -1;
 	if ( hitLoc == HL_NONE )
@@ -3332,7 +3332,7 @@ extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern bool FlyingCreature( gentity_t *ent );
 extern void G_DrivableATSTDie( gentity_t *self );
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath, int dflags, int hitLoc )
+void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, int dflags, int hitLoc )
 {
 	int			anim;
 	int			contents;
@@ -4205,7 +4205,7 @@ bool G_CheckForStrongAttackMomentum( gentity_t *self )
 	return false;
 }
 
-void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod, int hitLoc )
+void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
 	if ( self->client->NPC_class == CLASS_ATST )
 	{//different kind of pain checking altogether
@@ -4442,7 +4442,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, vec3_t pushDir, float st
 	}
 }
 
-void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, int dflags, int mod )
+void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, int dflags, meansOfDeath_t mod )
 {
 	if ( !targ || !attacker )
 	{
@@ -4656,7 +4656,7 @@ float damageModifier[HL_MAX] =
 	1.0f,	//HL_GENERIC6,
 };
 
-void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod )
+void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, meansOfDeath_t mod )
 {
 	if ( !self || !self->client || self->s.number )
 	{//player only
@@ -4731,6 +4731,8 @@ void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod
 				weapon = WP_MELEE;
 			}
 			break;
+		default:
+			break;
 		}
 	}
 	if ( weapon != WP_NONE )
@@ -4739,7 +4741,7 @@ void G_TrackWeaponUsage( gentity_t *self, gentity_t *inflictor, int add, int mod
 	}
 }
 
-bool G_NonLocationSpecificDamage( int meansOfDeath )
+bool G_NonLocationSpecificDamage( meansOfDeath_t meansOfDeath )
 {
 	if ( meansOfDeath == MOD_EXPLOSIVE
 		|| meansOfDeath == MOD_REPEATER_ALT
@@ -4786,7 +4788,7 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod, int hitLoc )
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, int hitLoc )
 {
 	gclient_t	*client;
 	int			take;
@@ -5449,7 +5451,7 @@ G_RadiusDamage
 ============
 */
 void G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-					 gentity_t *ignore, int mod) {
+					 gentity_t *ignore, meansOfDeath_t mod) {
 	float		points, dist;
 	gentity_t	*ent;
 	gentity_t	*entityList[MAX_GENTITIES];

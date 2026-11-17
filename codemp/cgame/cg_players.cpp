@@ -3332,11 +3332,11 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	{ //if legs are not in a walking/running anim then just animate at standard speed
 		speedScale = 1.0f;
 	}
-	else if (cent->currentState.forcePowersActive & (1 << FP_RAGE))
+	else if (cent->currentState.forcePowersActive & Bit( FP_RAGE ))
 	{
 		speedScale = 1.3f;
 	}
-	else if (cent->currentState.forcePowersActive & (1 << FP_SPEED))
+	else if (cent->currentState.forcePowersActive & Bit( FP_SPEED ))
 	{
 		speedScale = 1.7f;
 	}
@@ -3357,7 +3357,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, speedScale, false);
 
-	if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
+	if (!(cent->currentState.forcePowersActive & Bit( FP_RAGE )))
 	{ //don't affect torso anim speed unless raged
 		speedScale = 1.0f;
 	}
@@ -4067,7 +4067,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, int anim )
 	const animation_t *animations = bgAllAnims[cent->localAnimIndex].anims;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
-//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&(1<<FP_SPEED))?(1.0/cg_timescale.value):1.0;
+//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (timescale.value)?(1.0/timescale.value):1.0;
 	float animSpeed = 50.0f / animations[anim].frameLerp * timeScaleMod;
 	int	firstFrame;
@@ -6545,7 +6545,7 @@ int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int tric
 	int checkIn;
 	int sub = 0;
 
-	if (cg_entities[client].currentState.forcePowersActive & (1 << FP_SEE))
+	if (cg_entities[client].currentState.forcePowersActive & Bit( FP_SEE ))
 	{
 		return 0;
 	}
@@ -6800,7 +6800,7 @@ void CG_AddRandomLightning(vec3_t start, vec3_t end)
 	CG_AddLightningBeam(inOrg, outOrg);
 }
 
-extern const char *forceHolocronModels[];
+extern EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> forceHolocronModels;
 
 bool CG_ThereIsAMaster(void)
 {
@@ -8514,7 +8514,7 @@ void CG_Player( centity_t *cent ) {
 			smoothFactor = 0.2f;
 		}
 		else if ( (cent->currentState.powerups & Bit( PW_SPEED )) ||
-			(cent->currentState.forcePowersActive & (1 << FP_RAGE)) )
+			(cent->currentState.forcePowersActive & Bit( FP_RAGE )) )
 		{ //we're moving fast so don't smooth as much
 			smoothFactor = 0.6f;
 		}
@@ -9549,7 +9549,7 @@ void CG_Player( centity_t *cent ) {
 		efOrg[1] = lHandMatrix.matrix[1][3];
 		efOrg[2] = lHandMatrix.matrix[2][3];
 
-		if ( (cent->currentState.forcePowersActive & (1 << FP_GRIP)) &&
+		if ( (cent->currentState.forcePowersActive & Bit( FP_GRIP )) &&
 			(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum) )
 		{
 			vec3_t boltDir;
@@ -9644,7 +9644,7 @@ void CG_Player( centity_t *cent ) {
 			}
 			*/
 		}
-		else if (!(cent->currentState.forcePowersActive & (1 << FP_GRIP)))
+		else if (!(cent->currentState.forcePowersActive & Bit( FP_GRIP )))
 		{
 			//use refractive effect
 			CG_ForcePushBlur( efOrg, cent );
@@ -9773,13 +9773,13 @@ void CG_Player( centity_t *cent ) {
 
 	if (cgs.gametype == GT_HOLOCRON && cent->currentState.time2 && (cg.renderingThirdPerson || cg.snap->ps.clientNum != cent->currentState.number))
 	{
-		int i = 0;
+		forcePowers_t i = FP_FIRST;
 		int renderedHolos = 0;
 		refEntity_t		holoRef;
 
 		while (i < NUM_FORCE_POWERS && renderedHolos < 3)
 		{
-			if (cent->currentState.time2 & (1 << i))
+			if (cent->currentState.time2 & Bit( i ))
 			{
 				memset( &holoRef, 0, sizeof(holoRef) );
 
@@ -10559,7 +10559,7 @@ stillDoSaber:
 		//goto endOfCall;
 	}
 
-	if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) && cg.snap->ps.clientNum != cent->currentState.number)
+	if ((cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE )) && cg.snap->ps.clientNum != cent->currentState.number)
 	{
 		legs.shaderRGBA[0] = 255;
 		legs.shaderRGBA[1] = 255;
@@ -10694,7 +10694,7 @@ stillDoSaber:
 
 	if (cent->uncloaking > cg.time)
 	{//in the middle of cloaking
-		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))
+		if ((cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE ))
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
 			trap->R_AddRefEntityToScene( &legs );
@@ -10727,7 +10727,7 @@ stillDoSaber:
 	}
 	else if (( cent->currentState.powerups & Bit( PW_CLOAKED )))
 	{//fully cloaked
-		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))
+		if ((cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE ))
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
 			trap->R_AddRefEntityToScene( &legs );
@@ -10863,7 +10863,7 @@ stillDoSaber:
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent, &legs );
 
-	if ((cent->currentState.forcePowersActive & (1 << FP_RAGE)) &&
+	if ((cent->currentState.forcePowersActive & Bit( FP_RAGE )) &&
 		(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum))
 	{
 		//legs.customShader = cgs.media.rageShader;
@@ -10931,7 +10931,7 @@ stillDoSaber:
 	}
 	//For now, these two are using the old shield shader. This is just so that you
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
-	if (cent->currentState.forcePowersActive & (1 << FP_PROTECT))
+	if (cent->currentState.forcePowersActive & Bit( FP_PROTECT ))
 	{ //aborb is represented by green..
 		refEntity_t prot;
 
@@ -10958,11 +10958,11 @@ stillDoSaber:
 
 		trap->R_AddRefEntityToScene( &prot );
 	}
-	//if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
+	//if (cent->currentState.forcePowersActive & Bit( FP_ABSORB ))
 	//Showing only when the power has been active (absorbed something) recently now, instead of always.
 	//AND
 	//always show if it is you with the absorb on
-	if ((cent->currentState.number == cg.predictedPlayerState.clientNum && (cg.predictedPlayerState.fd.forcePowersActive & (1<<FP_ABSORB))) ||
+	if ((cent->currentState.number == cg.predictedPlayerState.clientNum && (cg.predictedPlayerState.fd.forcePowersActive & Bit( FP_ABSORB ))) ||
 		(cent->teamPowerEffectTime > cg.time && cent->teamPowerType == 3))
 	{ //aborb is represented by blue..
 		legs.shaderRGBA[0] = 0;
@@ -10993,7 +10993,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_NODEPTH;
 	}
 
-	if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) && cg.snap->ps.clientNum != cent->currentState.number && cg_auraShell.integer)
+	if ((cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE )) && cg.snap->ps.clientNum != cent->currentState.number && cg_auraShell.integer)
 	{
 		if (cgs.gametype == GT_SIEGE)
 		{	// A team game

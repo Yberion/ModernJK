@@ -394,39 +394,39 @@ static void IT_Tag(const char **holdBuf)
 		tag = to_underlying( AMMO_DETPACK );
 	else if (!Q_stricmp(tokenStr,"FP_HEAL"))
 	{
-		tag = FP_HEAL;
+		tag = to_underlying( FP_HEAL );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_LEVITATION"))
 	{
-		tag = FP_LEVITATION;
+		tag = to_underlying( FP_LEVITATION );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_SPEED"))
 	{
-		tag = FP_SPEED;
+		tag = to_underlying( FP_SPEED );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_PUSH"))
 	{
-		tag = FP_PUSH;
+		tag = to_underlying( FP_PUSH );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_PULL"))
 	{
-		tag = FP_PULL;
+		tag = to_underlying( FP_PULL );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_TELEPATHY"))
 	{
-		tag = FP_TELEPATHY;
+		tag = to_underlying( FP_TELEPATHY );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_GRIP"))
 	{
-		tag = FP_GRIP;
+		tag = to_underlying( FP_GRIP );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_LIGHTNING"))
 	{
-		tag = FP_LIGHTNING;
+		tag = to_underlying( FP_LIGHTNING );
 	}
 	else if (!Q_stricmp(tokenStr,"FP_SABERTHROW"))
 	{
-		tag = FP_SABERTHROW;
+		tag = to_underlying( FP_SABERTHROW );
 	}
 	else if (!Q_stricmp(tokenStr,"ITM_BATTERY_PICKUP"))
 	{

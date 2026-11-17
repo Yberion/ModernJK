@@ -1312,6 +1312,8 @@ playerState_t communication
 
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,offsetof(playerState_t, x),sizeof(((playerState_t *)0)->x)
+// a cell of an array indexed by a force power, named as ext_data/MP/psf_overrides.txt names it
+#define	PSF_FP(x, fp) #x "[" #fp "]",offsetof(playerState_t, x.elems[to_underlying( fp )]),sizeof(((playerState_t *)0)->x.elems[0])
 
 //rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
 //(for the sake of being consistent)
@@ -1377,8 +1379,8 @@ netField_t	playerStateFields[] =
 { PSF(saberCanThrow), 1 },
 { PSF(viewangles[2]), 0 },
 { PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
+{ PSF_FP(fd.forcePowerLevel, FP_LEVITATION), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
+{ PSF_FP(fd.forcePowerDebounce, FP_LEVITATION), 32 },
 { PSF(fd.forcePowerSelected), 8 },
 { PSF(torsoFlip), 1 },
 { PSF(externalEvent), 10 },
@@ -1447,7 +1449,7 @@ netField_t	playerStateFields[] =
 { PSF(saberLockFrame), 16 },
 //{ PSF(vehTurnaroundIndex), GENTITYNUM_BITS },//only used by vehicle?
 //{ PSF(vehSurfaces), 16 }, //only used by vehicle? allow up to 16 surfaces in the flag I guess
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
+{ PSF_FP(fd.forcePowerLevel, FP_SEE), 2 }, //needed for knowing when to display players through walls
 { PSF(saberLockEnemy), GENTITYNUM_BITS },
 { PSF(fd.forceGripCripple), 1 }, //should only be 0 or 1 ever
 { PSF(emplacedIndex), GENTITYNUM_BITS },
@@ -1526,7 +1528,7 @@ netField_t	pilotPlayerStateFields[] =
 { PSF(jetpackFuel), 8 },
 { PSF(cloakFuel), 8 },
 { PSF(saberCanThrow), 1 },
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
+{ PSF_FP(fd.forcePowerDebounce, FP_LEVITATION), 32 },
 { PSF(torsoFlip), 1 },
 { PSF(legsFlip), 1 },
 { PSF(fd.forcePowersActive), 32 },
@@ -1538,7 +1540,7 @@ netField_t	pilotPlayerStateFields[] =
 { PSF(fd.forceMindtrickTargetIndex3), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
 { PSF(fd.forceMindtrickTargetIndex4), 16 }, //NOTE: Not just an index, used as a (1 << val) bitflag for up to 16 clients
 { PSF(fd.sentryDeployed), 1 },
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
+{ PSF_FP(fd.forcePowerLevel, FP_SEE), 2 }, //needed for knowing when to display players through walls
 { PSF(holocronBits), 32 },
 { PSF(fd.forcePower), 8 },
 
@@ -1566,7 +1568,7 @@ netField_t	pilotPlayerStateFields[] =
 { PSF(customRGBA[2]), 8 }, //0-255
 { PSF(gravity), 16 },
 { PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
+{ PSF_FP(fd.forcePowerLevel, FP_LEVITATION), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
 { PSF(fd.forcePowerSelected), 8 },
 { PSF(damageYaw), 8 },
 { PSF(damageCount), 8 },
@@ -1790,8 +1792,8 @@ netField_t	playerStateFields[] =
 { PSF(saberCanThrow), 1 },
 { PSF(viewangles[2]), 0 },
 { PSF(fd.forcePowersKnown), 32 },
-{ PSF(fd.forcePowerLevel[FP_LEVITATION]), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
-{ PSF(fd.forcePowerDebounce[FP_LEVITATION]), 32 },
+{ PSF_FP(fd.forcePowerLevel, FP_LEVITATION), 2 }, //unfortunately we need this for fall damage calculation (client needs to know the distance for the fall noise)
+{ PSF_FP(fd.forcePowerDebounce, FP_LEVITATION), 32 },
 { PSF(fd.forcePowerSelected), 8 },
 { PSF(torsoFlip), 1 },
 { PSF(externalEvent), 10 },
@@ -1860,7 +1862,7 @@ netField_t	playerStateFields[] =
 { PSF(saberLockFrame), 16 },
 { PSF(vehTurnaroundIndex), GENTITYNUM_BITS },
 { PSF(vehSurfaces), 16 }, //allow up to 16 surfaces in the flag I guess
-{ PSF(fd.forcePowerLevel[FP_SEE]), 2 }, //needed for knowing when to display players through walls
+{ PSF_FP(fd.forcePowerLevel, FP_SEE), 2 }, //needed for knowing when to display players through walls
 { PSF(saberLockEnemy), GENTITYNUM_BITS },
 { PSF(fd.forceGripCripple), 1 }, //should only be 0 or 1 ever
 { PSF(emplacedIndex), GENTITYNUM_BITS },

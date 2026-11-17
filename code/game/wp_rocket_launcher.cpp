@@ -251,7 +251,7 @@ void WP_FireRocket( gentity_t *ent, bool alt_fire )
 					&& missile->enemy->inuse )//&& DistanceSquared( missile->currentOrigin, missile->enemy->currentOrigin ) < 262144 && InFOV( missile->currentOrigin, missile->enemy->currentOrigin, missile->enemy->client->ps.viewangles, 45, 45 ) )
 				{
 					if ( missile->enemy->client
-						&& (missile->enemy->client->ps.forcePowersKnown&(1<<FP_PUSH))
+						&& (missile->enemy->client->ps.forcePowersKnown&Bit( FP_PUSH ))
 						&& missile->enemy->client->ps.forcePowerLevel[FP_PUSH] > FORCE_LEVEL_0 )
 					{//have force push, don't flee from homing rockets
 					}

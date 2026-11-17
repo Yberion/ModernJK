@@ -31,7 +31,7 @@ extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
 extern bool G_EntIsRemovableUsable( int entNum );
 extern bool G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 //For debug graphics
 extern void CG_Line( vec3_t start, vec3_t end, vec3_t color, float alpha );
 extern void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );

@@ -23,9 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <optional>
+
 #define	CGAME_API_VERSION		2
 
 enum class uiMenuCommand_t;		// ui_public.h
+enum class fakeAscii_t;			// ui/keycodes.h
 
 #define	CMD_BACKUP			256		// 2.56 s of commands at one per tick (plan step 14)
 #define	CMD_MASK			(CMD_BACKUP - 1)
@@ -195,7 +198,7 @@ typedef struct ragCallbackTraceLine_s {
 typedef struct cgameImport_s {
 	// common
 	void			(*Print)								( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-	NORETURN_PTR void (*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void (*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 	void			(*SnapVector)							( float *v );
 	int				(*MemoryRemaining)						( void );
 	void			(*RegisterSharedMemory)					( char *memory );
@@ -324,12 +327,12 @@ typedef struct cgameImport_s {
 	bool		(*GetUserCmd)							( int cmdNumber, usercmd_t *ucmd );
 	void			(*OpenUIMenu)							( uiMenuCommand_t menu );
 	void			(*SetClientForceAngle)					( int time, vec3_t angle );
-	void			(*SetUserCmdValue)						( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel, bool fighterControls );
+	void			(*SetUserCmdValue)						( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls );
 
 	// keys
 	int				(*Key_GetCatcher)						( void );
-	int				(*Key_GetKey)							( const char *binding );
-	bool		(*Key_IsDown)							( int keynum );
+	std::optional<fakeAscii_t>	(*Key_GetKey)							( const char *binding );
+	bool		(*Key_IsDown)							( fakeAscii_t keynum );
 	void			(*Key_SetCatcher)						( int catcher );
 
 	// preprocessor (botlib_export->PC_***)

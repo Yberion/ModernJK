@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../../code/qcommon/tri_coll_test.h"
 
 extern void CG_DrawAlert( vec3_t origin, float rating );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void G_StartMatrixEffect( gentity_t *ent, bool falling = false, int length = 1000 );
 extern cvar_t	*g_saberRealisticCombat;
@@ -61,21 +61,21 @@ extern gitem_t	*FindItemForAmmo( ammo_t ammo );
 extern void ForceThrow( gentity_t *self, bool pull );
 extern void ForceLightning( gentity_t *self );
 extern saberBlockedType_t WP_MissileBlockForBlock( saberBlockedType_t saberBlock );
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod );
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
 extern bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
 extern void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 extern void WP_KnockdownTurret( gentity_t *self, gentity_t *pas );
 //extern void WP_SaberBlock(gentity_t *saber, vec3_t hitloc);
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern bool PM_SaberInStart( int move );
+extern bool PM_SaberInStart( saberMoveName_t move );
 extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SaberInAttack( int move );
-extern bool PM_SaberInBounce( int move );
-extern bool PM_SaberInParry( int move );
-extern bool PM_SaberInKnockaway( int move );
-extern bool PM_SaberInBrokenParry( int move );
-extern bool PM_SaberInDeflect( int move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
+extern bool PM_SaberInBounce( saberMoveName_t move );
+extern bool PM_SaberInParry( saberMoveName_t move );
+extern bool PM_SaberInKnockaway( saberMoveName_t move );
+extern bool PM_SaberInBrokenParry( saberMoveName_t move );
+extern bool PM_SaberInDeflect( saberMoveName_t move );
 extern bool PM_SpinningSaberAnim( int anim );
 extern bool PM_FlippingAnim( int anim );
 extern bool PM_RollingAnim( int anim );
@@ -337,7 +337,7 @@ static bool Jedi_BattleTaunt( void )
 		&& NPCInfo->blockedSpeechDebounceTime < level.time
 		&& jediSpeechDebounceTime[NPC->client->playerTeam] < level.time )
 	{
-		int event = -1;
+		entity_event_t event = EV_NONE;
 		if ( NPC->client->playerTeam == TEAM_PLAYER
 			&& NPC->enemy && NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_JEDI )
 		{//a jedi fighting a jedi - training
@@ -350,7 +350,7 @@ static bool Jedi_BattleTaunt( void )
 		{//reborn or a jedi fighting an enemy
 			event = Q_irand( EV_TAUNT1, EV_TAUNT3 );
 		}
-		if ( event != -1 )
+		if ( event != EV_NONE )
 		{
 			G_AddVoiceEvent( NPC, event, 3000 );
 			jediSpeechDebounceTime[NPC->client->playerTeam] = NPCInfo->blockedSpeechDebounceTime = level.time + 6000;
@@ -761,7 +761,7 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 
 static void Jedi_CombatDistance( int enemy_dist )
 {//FIXME: for many of these checks, what we really want is horizontal distance to enemy
-	if ( NPC->client->ps.forcePowersActive&(1<<FP_GRIP) &&
+	if ( NPC->client->ps.forcePowersActive&Bit( FP_GRIP ) &&
 		NPC->client->ps.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_1 )
 	{//when gripping, don't move
 		return;
@@ -787,7 +787,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		if ( NPC->client->ps.weapon == WP_SABER //using saber
 			&& NPC->client->ps.saberEntityState == SES_LEAVING  //not returning yet
 			&& NPC->client->ps.forcePowerLevel[FP_SABERTHROW] > FORCE_LEVEL_1 //2nd or 3rd level lightsaber
-			&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
+			&& !(NPC->client->ps.forcePowersActive&Bit( FP_SPEED ))
 			&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 		{//hold it out there
 			ucmd.buttons |= BUTTON_ALT_ATTACK;
@@ -931,7 +931,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			}
 			if ( NPCInfo->rank >= RANK_LT_JG
 				&& !Q_irand( 0, 5 )
-				&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
+				&& !(NPC->client->ps.forcePowersActive&Bit( FP_SPEED ))
 				&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 			{//throw saber
 				ucmd.buttons |= BUTTON_ALT_ATTACK;
@@ -959,7 +959,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		}
 		else
 		{
-			if ( NPC->enemy && NPC->enemy->client && (NPC->enemy->client->ps.forcePowersActive&(1<<FP_GRIP)) )
+			if ( NPC->enemy && NPC->enemy->client && (NPC->enemy->client->ps.forcePowersActive&Bit( FP_GRIP )) )
 			{//They're choking someone, probably an ally, run at them and do some sort of attack
 				if ( NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
 				{//they're on the ground, so advance
@@ -1029,14 +1029,14 @@ static void Jedi_CombatDistance( int enemy_dist )
 						TIMER_Set( NPC, "attackDelay", 3000 );
 					}
 					else if ( WP_ForcePowerAvailable( NPC, FP_SABERTHROW, 0 )
-						&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
+						&& !(NPC->client->ps.forcePowersActive&Bit( FP_SPEED ))
 						&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 					{//throw saber
 						ucmd.buttons |= BUTTON_ALT_ATTACK;
 					}
 				}
 				else if ( NPCInfo->rank >= RANK_LT_JG
-					&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
+					&& !(NPC->client->ps.forcePowersActive&Bit( FP_SPEED ))
 					&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 				{//throw saber
 					ucmd.buttons |= BUTTON_ALT_ATTACK;
@@ -1337,7 +1337,7 @@ bool Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hi
 			self->client->ps.pm_time = self->client->ps.torsoAnimTimer + Q_irand( 100, 1000 );
 			self->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 			//do force speed effect
-			self->client->ps.forcePowersActive |= (1 << FP_SPEED);
+			self->client->ps.forcePowersActive |= Bit( FP_SPEED );
 			self->client->ps.forcePowerDuration[FP_SPEED] = level.time + self->client->ps.torsoAnimTimer;
 			//sound
 			G_Sound( self, G_SoundIndex( "sound/weapons/force/speed.wav" ) );
@@ -2633,7 +2633,7 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 		evasionChance = 90;
 	}
 
-	if ( (NPC->enemy->client->ps.forcePowersActive&(1<<FP_LIGHTNING) ) )
+	if ( (NPC->enemy->client->ps.forcePowersActive&Bit( FP_LIGHTNING ) ) )
 	{//enemy is shooting lightning
 		enemy_attacking = true;
 		shooting_lightning = true;
@@ -2990,7 +2990,7 @@ static void Jedi_FaceEnemy( bool doPitch )
 	if ( NPC->enemy == nullptr )
 		return;
 
-	if ( NPC->client->ps.forcePowersActive & (1<<FP_GRIP) &&
+	if ( NPC->client->ps.forcePowersActive & Bit( FP_GRIP ) &&
 		NPC->client->ps.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_1 )
 	{//don't update?
 		NPCInfo->desiredPitch = NPC->client->ps.viewangles[PITCH];
@@ -3481,7 +3481,7 @@ static void Jedi_CombatIdle( int enemy_dist )
 	}
 }
 
-extern bool PM_SaberInParry( int move );
+extern bool PM_SaberInParry( saberMoveName_t move );
 static bool Jedi_AttackDecide( int enemy_dist )
 {
 	if ( NPC->enemy->client
@@ -3975,7 +3975,7 @@ static bool Jedi_TryJump( gentity_t *goal )
 								NPC->client->ps.pm_flags |= PMF_JUMPING;
 
 								NPC->client->ps.weaponTime = NPC->client->ps.torsoAnimTimer;
-								NPC->client->ps.forcePowersActive |= ( 1 << FP_LEVITATION );
+								NPC->client->ps.forcePowersActive |= Bit( FP_LEVITATION );
 								G_SoundOnEnt( NPC, CHAN_BODY, "sound/weapons/force/jump.wav" );
 
 								TIMER_Set( NPC, "forceJumpChasing", Q_irand( 2000, 3000 ) );
@@ -4296,7 +4296,7 @@ static void Jedi_Combat( void )
 		return;
 	}
 
-	if ( !(NPC->client->ps.forcePowersActive&(1<<FP_GRIP)) || NPC->client->ps.forcePowerLevel[FP_GRIP] < FORCE_LEVEL_2 )
+	if ( !(NPC->client->ps.forcePowersActive&Bit( FP_GRIP )) || NPC->client->ps.forcePowerLevel[FP_GRIP] < FORCE_LEVEL_2 )
 	{//not gripping
 		//If we can't get straight at him
 		if ( !Jedi_ClearPathToSpot( enemy_dest, NPC->enemy->s.number ) )
@@ -4430,7 +4430,7 @@ static void Jedi_Combat( void )
 	//apply strafing/walking timers, etc.
 	Jedi_TimersApply();
 
-	if ( !NPC->client->ps.saberInFlight && (!(NPC->client->ps.forcePowersActive&(1<<FP_GRIP))||NPC->client->ps.forcePowerLevel[FP_GRIP] < FORCE_LEVEL_2) )
+	if ( !NPC->client->ps.saberInFlight && (!(NPC->client->ps.forcePowersActive&Bit( FP_GRIP ))||NPC->client->ps.forcePowerLevel[FP_GRIP] < FORCE_LEVEL_2) )
 	{//not throwing saber or using force grip
 		//see if we can attack
 		if ( !Jedi_AttackDecide( enemy_dist ) )
@@ -4480,7 +4480,7 @@ NPC_Jedi_Pain
 -------------------------
 */
 
-void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Jedi_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	//FIXME: base the actual aggression add/subtract on health?
 	//FIXME: don't do this more than once per frame?
@@ -5181,8 +5181,8 @@ static void Jedi_Attack( void )
 		if ( NPC->enemy
 			&& !NPC->enemy->s.number
 			&& NPC->enemy->client
-			&& (NPC->enemy->client->ps.forcePowersActive & (1<<FP_SPEED))
-			&& !(NPC->client->ps.forcePowersActive & (1<<FP_SPEED)) )
+			&& (NPC->enemy->client->ps.forcePowersActive & Bit( FP_SPEED ))
+			&& !(NPC->client->ps.forcePowersActive & Bit( FP_SPEED )) )
 		{
 			int chance = 0;
 			switch ( g_spskill->integer )

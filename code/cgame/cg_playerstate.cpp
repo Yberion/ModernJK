@@ -241,7 +241,7 @@ CG_CheckPlayerstateEvents
 */
 void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	int			i;
-	int			event;
+	entity_event_t			event;
 	centity_t	*cent;
 
 #if 0
@@ -259,7 +259,7 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 			event = ps->events[ i & (MAX_PS_EVENTS-1) ];
 
 			cent = &cg_entities[ ps->clientNum ];
-			cent->currentState.event = event;
+			cent->currentState.event = BG_PackEvent( event );
 			cent->currentState.eventParm = ps->eventParms[ i & (MAX_PS_EVENTS-1) ];
 			CG_EntityEvent( cent, cent->lerpOrigin );
 		}

@@ -74,7 +74,7 @@ extern void JET_FlyStop( gentity_t *self );
 extern void Rail_LockCenterOfTrack(const char* trackName);
 extern void Rail_UnLockCenterOfTrack(const char* trackName);
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex = 0 );
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
 
 extern int	BMS_START;
 extern int	BMS_MID;
@@ -490,8 +490,15 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_SABER_ORIGIN),
 	ENUM2STRING(SET_SKIN),
 
-	{ "",	SET_ }
+	{ "",	to_underlying( SET_ ) }
 };
+
+// the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
+static setType_t Q3_SetTypeFromName( const char *name )
+{
+	const int id = GetIDForString( setTable, name );
+	return id == -1 ? SET_UNKNOWN : static_cast<setType_t>( id );
+}
 
 bool COM_ParseString( char **data, char **s );
 
@@ -3160,7 +3167,7 @@ void Q3_SetViewEntity(int entID, const char *name)
 
 	if ( entID != 0 )
 	{//only valid on player
-		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetViewEntity: only valid on player\n", entID);
+		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetViewEntity: only valid on player\n");
 		return;
 	}
 
@@ -3926,15 +3933,16 @@ static void Q3_SetMusicState( const char *dms )
 
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
-	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
+	const forcePowers_t power = static_cast<forcePowers_t>( forcePower );
+	if ( power < FP_FIRST || power >= NUM_FORCE_POWERS )
 	{
-		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
+		Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, to_underlying( FP_FIRST ), (to_underlying( NUM_FORCE_POWERS )-1) );
 		return;
 	}
 
 	if ( forceLevel < 0 || forceLevel >= NUM_FORCE_POWER_LEVELS )
 	{
-		if ( forcePower != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
+		if ( power != FP_SABER_OFFENSE || forceLevel >= to_underlying( SS_NUM_SABER_STYLES ) )
 		{
 			Quake3Game()->DebugPrint( IGameInterface::WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 			return;
@@ -3955,7 +3963,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	if ((forceLevel > self->client->ps.forcePowerLevel[forcePower]) && (entID==0) && (forceLevel > 0))
+	if ((forceLevel > self->client->ps.forcePowerLevel[power]) && (entID==0) && (forceLevel > 0))
 	{
 		if (0)
 		{
@@ -3980,14 +3988,14 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		}
 	}
 
-	self->client->ps.forcePowerLevel[forcePower] = forceLevel;
+	self->client->ps.forcePowerLevel[power] = forceLevel;
 	if ( forceLevel )
 	{
-		self->client->ps.forcePowersKnown |= ( 1 << forcePower );
+		self->client->ps.forcePowersKnown |= Bit( power );
 	}
 	else
 	{
-		self->client->ps.forcePowersKnown &= ~( 1 << forcePower );
+		self->client->ps.forcePowersKnown &= ~Bit( power );
 	}
 }
 
@@ -4219,7 +4227,7 @@ Q3_SetBehaviorSet
 ?
 ============
 */
-static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
+static bool Q3_SetBehaviorSet( int entID, setType_t toSet, const char *scriptname)
 {
 	gentity_t	*ent  = &g_entities[entID];
 	bSet_t		bSet = BSET_INVALID;
@@ -4276,6 +4284,8 @@ static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 		break;
 	case SET_MINDTRICKSCRIPT:
 		bSet = BSET_MINDTRICK;
+		break;
+	default:
 		break;
 	}
 
@@ -5982,7 +5992,7 @@ Q3_Face
 ?
 ============
 */
-static void Q3_Face( int entID,int expression, float holdtime)
+static void Q3_Face( int entID,setType_t expression, float holdtime)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -6049,6 +6059,8 @@ static void Q3_Face( int entID,int expression, float holdtime)
 	case SET_FACENORMAL:
 		ent->client->facial_timer = level.time + Q_flrand(6000.0, 10000.0);
 		ent->client->facial_blink = level.time + Q_flrand(3000.0, 5000.0);
+		break;
+	default:
 		break;
 	}
 
@@ -6155,7 +6167,7 @@ void Q3_SetBroadcast( int entID, bool broadcast )
 	}
 }
 
-void Q3_SetForcePower( int entID, int forcePower, bool powerOn )
+void Q3_SetForcePower( int entID, forcePowers_t forcePower, bool powerOn )
 {
 	gentity_t *ent = &g_entities[entID];
 	if ( !ent )
@@ -6170,11 +6182,11 @@ void Q3_SetForcePower( int entID, int forcePower, bool powerOn )
 	}
 	if ( powerOn )
 	{
-		ent->client->ps.forcePowersForced |= (1<<forcePower);
+		ent->client->ps.forcePowersForced |= Bit( forcePower );
 	}
 	else
 	{
-		ent->client->ps.forcePowersForced &= ~(1<<forcePower);
+		ent->client->ps.forcePowersForced &= ~Bit( forcePower );
 	}
 }
 
@@ -7787,7 +7799,7 @@ void CQuake3GameInterface::Svcmd( void )
 
 	if ( Q_stricmp( cmd, "log" ) == 0 )
 	{
-		g_ICARUSDebug->integer = WL_DEBUG;
+		g_ICARUSDebug->integer = to_underlying( WL_DEBUG );
 		if ( VALIDSTRING( gi.argv( 2 ) ) )
 		{
 			gentity_t	*ent = G_Find( nullptr, FOFS( script_targetname ), gi.argv(2) );
@@ -7856,7 +7868,7 @@ void	CQuake3GameInterface::CenterPrint( const char *format, ... )
 void	CQuake3GameInterface::DebugPrint( e_DebugPrintLevel level, const char *format, ... )
 {
 	//Don't print messages they don't want to see
-	if ( g_ICARUSDebug->integer < level )
+	if ( g_ICARUSDebug->integer < to_underlying( level ) )
 		return;
 
 	va_list		argptr;
@@ -8221,7 +8233,8 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 {
 	gentity_t	*ent = &g_entities[entID];
 	float		float_data;
-	int			int_data, toSet;
+	int			int_data;
+	setType_t	toSet;
 	vec3_t		vector_data;
 
 	// eezstreet: Add support for cvars getting modified thru ICARUS script
@@ -8232,7 +8245,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 	}
 
 	//Set this for callbacks
-	toSet = GetIDForString( setTable, type_name );
+	toSet = Q3_SetTypeFromName( type_name );
 
 	//TODO: Throw in a showscript command that will list each command and what they're doing...
 	//		maybe as simple as printing that line of the script to the console preceeded by the person's name?
@@ -8662,7 +8675,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case SET_DEFEND_TARGET:
-		DebugPrint( WL_WARNING, "SetDefendTarget unimplemented\n", entID );
+		DebugPrint( WL_WARNING, "SetDefendTarget unimplemented\n" );
 		//Q3_SetEnemy( entID, (char *) data);
 		break;
 
@@ -9024,7 +9037,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 		break;
 
 	case SET_CENTERTEXT:
-		CenterPrint( (char *)data );
+		CenterPrint( "%s", data );
 		break;
 
 	case SET_CAPTIONTEXTCOLOR:
@@ -9867,7 +9880,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 		return true;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -10270,7 +10283,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_FORCED_MARCH, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SET_FORCED_MARCH);
+		*value = (ent->NPC->scriptFlags&SCF_FORCED_MARCH);
 		break;
 	case SET_UNDYING://## %t="BOOL_TYPES" # Can take damage down to 1 but not die
 		*value = (ent->flags&FL_UNDYING);
@@ -10504,7 +10517,7 @@ int		CQuake3GameInterface::GetVector( int entID, const char *name, vec3_t value 
 		return false;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -10574,7 +10587,7 @@ int		CQuake3GameInterface::GetString( int entID, const char *name, const char **
 		return true;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 
 	switch ( toGet )
 	{
@@ -11321,7 +11334,7 @@ void	CQuake3GameInterface::PrecacheFromSet( const char *setname, const char *fil
 	//JW NOTENOTE: This will not catch special case get() inlines! (There's not really a good way to do that)
 
 	// Get the id for this set identifier then check against valid types.
-	switch ( GetIDForString( setTable, setname ) )
+	switch ( Q3_SetTypeFromName( setname ) )
 	{
 		case SET_SPAWNSCRIPT:
 		case SET_USESCRIPT:

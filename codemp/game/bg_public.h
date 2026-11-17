@@ -285,7 +285,7 @@ using enum gender_t;
 
 extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 
-extern int forcePowerSorted[NUM_FORCE_POWERS];
+extern forcePowers_t forcePowerSorted[to_underlying( NUM_FORCE_POWERS )];
 
 enum class saberLockType_t
 {
@@ -478,7 +478,7 @@ template <> inline constexpr bool enableEnumArithmetic<forceMasteries_t> = true;
 extern const EnumArray<const char *, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryLevels;
 extern const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMasteryPoints;
 
-extern EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> bgForcePowerCost[NUM_FORCE_POWERS];
+extern EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePowers_t, NUM_FORCE_POWERS> bgForcePowerCost;
 
 // pmove->pm_flags
 #define	PMF_DUCKED			1
@@ -543,7 +543,7 @@ typedef struct pmove_s {
 	int			numtouch;
 	int			touchents[MAXTOUCH];
 
-	int			useEvent;
+	entity_event_t	useEvent;
 
 	vec3_t		mins, maxs;			// bounding box size
 
@@ -824,7 +824,7 @@ enum class pdSounds_t
 };
 using enum pdSounds_t;
 
-typedef enum {
+enum class entity_event_t {
 	EV_NONE,
 
 	EV_CLIENTJOIN,
@@ -1069,7 +1069,18 @@ typedef enum {
 	EV_SIEGESPEC,
 
 	EV_NUM_ENTITY_EVENTS
-} entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
+};
+using enum entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
+template <> inline constexpr bool enableEnumArithmetic<entity_event_t> = true;
+
+// The fields that carry an event with the two sequence bits above (an entity state's event, a player state's
+// externalEvent, an event entity's eType past ET_EVENTS) are integers: an event goes in and comes out through these
+[[nodiscard]] inline int BG_PackEvent( entity_event_t event, int sequenceBits = 0 ) { return to_underlying( event ) | sequenceBits; }
+[[nodiscard]] inline entity_event_t BG_UnpackEvent( int packed ) { return static_cast<entity_event_t>( packed & ~EV_EVENT_BITS ); }
+
+// The event of a holdable item's use is EV_USE_ITEM0 plus the item
+[[nodiscard]] inline entity_event_t BG_UseItemEvent( holdable_t item ) { return EV_USE_ITEM0 + to_underlying( item ); }
+[[nodiscard]] inline holdable_t BG_UsedItem( entity_event_t event ) { return static_cast<holdable_t>( event - EV_USE_ITEM0 ); }
 
 
 enum class global_team_sound_t {
@@ -1139,7 +1150,7 @@ enum class teamtask_t {
 using enum teamtask_t;
 
 // means of death
-typedef enum {
+enum class meansOfDeath_t {
 	MOD_UNKNOWN,
 	MOD_STUN_BATON,
 	MOD_MELEE,
@@ -1190,7 +1201,9 @@ typedef enum {
 	//or suiciding, and so you would actually be giving him a point) -Rich
 	// I put it back in for now, if it becomes a problem we'll work around it later (it shouldn't though)...
 	MOD_MAX
-} meansOfDeath_t;
+};
+using enum meansOfDeath_t;
+template <> inline constexpr bool enableEnumArithmetic<meansOfDeath_t> = true;
 
 
 //---------------------------------------------------------
@@ -1284,7 +1297,7 @@ bool	BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 //
 // entityState_t->eType
 //
-typedef enum {
+enum class entityType_t {
 	ET_GENERAL,
 	ET_PLAYER,
 	ET_ITEM,
@@ -1307,7 +1320,13 @@ typedef enum {
 	ET_EVENTS				// any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum
-} entityType_t;
+};
+using enum entityType_t;
+
+// An event entity's eType is ET_EVENTS plus its event as an event field holds it (BG_PackEvent): written and
+// read through these only
+[[nodiscard]] inline entityType_t BG_EventEntityType( int packedEvent ) { return static_cast<entityType_t>( to_underlying( ET_EVENTS ) + packedEvent ); }
+[[nodiscard]] inline int BG_EventEntityEvent( entityType_t eType ) { return to_underlying( eType ) - to_underlying( ET_EVENTS ); }
 
 // Okay, here lies the much-dreaded Pat-created FSM movement chart...  Heretic II strikes again!
 // Why am I inflicting this on you?  Well, it's better than hardcoded states.
@@ -1320,7 +1339,7 @@ typedef enum {
 #undef LS_NONE
 #endif
 
-typedef enum {
+enum class saberMoveName_t {
 	//totally invalid
 	LS_INVALID	= -1,
 	// Invalid, or saber not armed
@@ -1512,7 +1531,9 @@ typedef enum {
 	LS_REFLECT_LL,
 
 	LS_MOVE_MAX//
-} saberMoveName_t;
+};
+using enum saberMoveName_t;
+template <> inline constexpr bool enableEnumArithmetic<saberMoveName_t> = true;
 
 enum class saberQuadrant_t {
 	Q_BR,
@@ -1540,7 +1561,7 @@ typedef struct saberMoveData_s {
 	saberMoveName_t chain_attack;		// What move to call if the attack button (and nothing else) is pressed
 	int trailLength;					// milliseconds
 } saberMoveData_t;
-extern saberMoveData_t	saberMoveData[LS_MOVE_MAX];
+extern EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData;
 
 
 enum class saberType_t {
@@ -1695,13 +1716,13 @@ typedef struct saberInfo_s {
 	float			animSpeedScale;							// 1.0 - plays normal attack animations faster/slower
 
 	//done in both cgame and game (BG code)
-	int				kataMove;								// LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
-	int				lungeAtkMove;							// LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
-	int				jumpAtkUpMove;							// LS_INVALID - if set, player will execute this move when they jump+attack
-	int				jumpAtkFwdMove;							// LS_INVALID - if set, player will execute this move when they jump+fwd+attack
-	int				jumpAtkBackMove;						// LS_INVALID - if set, player will execute this move when they jump+back+attack
-	int				jumpAtkRightMove;						// LS_INVALID - if set, player will execute this move when they jump+rightattack
-	int				jumpAtkLeftMove;						// LS_INVALID - if set, player will execute this move when they jump+left+attack
+	saberMoveName_t	kataMove;								// LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
+	saberMoveName_t	lungeAtkMove;							// LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
+	saberMoveName_t	jumpAtkUpMove;							// LS_INVALID - if set, player will execute this move when they jump+attack
+	saberMoveName_t	jumpAtkFwdMove;							// LS_INVALID - if set, player will execute this move when they jump+fwd+attack
+	saberMoveName_t	jumpAtkBackMove;						// LS_INVALID - if set, player will execute this move when they jump+back+attack
+	saberMoveName_t	jumpAtkRightMove;						// LS_INVALID - if set, player will execute this move when they jump+rightattack
+	saberMoveName_t	jumpAtkLeftMove;						// LS_INVALID - if set, player will execute this move when they jump+left+attack
 	int				readyAnim;								// -1 - anim to use when standing idle
 	int				drawAnim;								// -1 - anim to use when drawing weapon
 	int				putawayAnim;							// -1 - anim to use when putting weapon away
@@ -1768,20 +1789,20 @@ bool BG_InReboundHold( int anim );
 bool BG_InReboundRelease( int anim );
 bool BG_InBackFlip( int anim );
 bool BG_DirectFlippingAnim( int anim );
-bool BG_SaberInAttack( int move );
-bool BG_SaberInSpecial( int move );
-bool BG_KickMove( int move );
-bool BG_SaberInIdle( int move );
+bool BG_SaberInAttack( saberMoveName_t move );
+bool BG_SaberInSpecial( saberMoveName_t move );
+bool BG_KickMove( saberMoveName_t move );
+bool BG_SaberInIdle( saberMoveName_t move );
 bool BG_FlippingAnim( int anim );
 bool BG_SpinningSaberAnim( int anim );
 bool BG_SaberInSpecialAttack( int anim );
-bool BG_SaberInKata( int saberMove );
+bool BG_SaberInKata( saberMoveName_t saberMove );
 bool BG_InKataAnim(int anim);
 bool BG_KickingAnim( int anim );
 int BG_InGrappleMove(int anim);
-int BG_BrokenParryForAttack( int move );
-int BG_BrokenParryForParry( int move );
-int BG_KnockawayForParry( saberBlockedType_t move );
+saberMoveName_t BG_BrokenParryForAttack( saberMoveName_t move );
+saberMoveName_t BG_BrokenParryForParry( saberMoveName_t move );
+saberMoveName_t BG_KnockawayForParry( saberBlockedType_t move );
 bool BG_InRoll( playerState_t *ps, int anim );
 bool BG_InDeathAnim( int anim );
 bool BG_InSaberLockOld( int anim );
@@ -1797,7 +1818,7 @@ void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overri
 void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
-void	BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
+void	BG_AddPredictableEventToPlayerstate( entity_event_t newEvent, int eventParm, playerState_t *ps );
 
 void	BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
 
@@ -1850,7 +1871,7 @@ void BG_ClearRocketLock( playerState_t *ps );
 extern int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim[WP_NUM_WEAPONS];
 
-extern int forcePowerDarkLight[NUM_FORCE_POWERS];
+extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight;
 
 
 #define ARENAS_PER_TIER		4

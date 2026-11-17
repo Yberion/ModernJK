@@ -89,7 +89,7 @@ const char *ammoTicName[MAX_HUD_TICS] =
 "ammo_tic4",
 };
 
-const char *showPowersName[] =
+EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS + 1> showPowersName =
 {
 	"HEAL2",//FP_HEAL
 	"JUMP2",//FP_LEVITATION
@@ -1506,9 +1506,9 @@ void CG_DrawHUD(centity_t	*cent)
 	}
 }
 
-#define MAX_SHOWPOWERS NUM_FORCE_POWERS
+#define MAX_SHOWPOWERS to_underlying( NUM_FORCE_POWERS )
 
-bool ForcePower_Valid(int i)
+bool ForcePower_Valid(forcePowers_t i)
 {
 	if (i == FP_LEVITATION ||
 		i == FP_SABER_OFFENSE ||
@@ -1518,7 +1518,7 @@ bool ForcePower_Valid(int i)
 		return false;
 	}
 
-	if (cg.snap->ps.fd.forcePowersKnown & (1 << i))
+	if (cg.snap->ps.fd.forcePowersKnown & Bit( i ))
 	{
 		return true;
 	}
@@ -1561,9 +1561,9 @@ void CG_DrawForceSelect( void )
 	// count the number of powers owned
 	count = 0;
 
-	for (i=0;i < NUM_FORCE_POWERS;++i)
+	for ( forcePowers_t fp = FP_FIRST; fp < NUM_FORCE_POWERS; fp++ )
 	{
-		if (ForcePower_Valid(i))
+		if (ForcePower_Valid(fp))
 		{
 			count++;
 		}
@@ -5738,9 +5738,9 @@ static void CG_DrawHolocronIcons(void)
 		return;
 	}
 
-	while (i < NUM_FORCE_POWERS)
+	while (i < to_underlying( NUM_FORCE_POWERS ))
 	{
-		if (cg.snap->ps.holocronBits & (1 << forcePowerSorted[i]))
+		if (cg.snap->ps.holocronBits & Bit( forcePowerSorted[i] ))
 		{
 			CG_DrawPic( startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]);
 			starty += (icon_size+2); //+2 for spacing
@@ -5755,7 +5755,7 @@ static void CG_DrawHolocronIcons(void)
 	}
 }
 
-static bool CG_IsDurationPower(int power)
+static bool CG_IsDurationPower(forcePowers_t power)
 {
 	if (power == FP_HEAL ||
 		power == FP_SPEED ||
@@ -5795,9 +5795,9 @@ static void CG_DrawActivePowers(void)
 
 	trap->R_SetColor( nullptr );
 
-	while (i < NUM_FORCE_POWERS)
+	while (i < to_underlying( NUM_FORCE_POWERS ))
 	{
-		if ((cg.snap->ps.fd.forcePowersActive & (1 << forcePowerSorted[i])) &&
+		if ((cg.snap->ps.fd.forcePowersActive & Bit( forcePowerSorted[i] )) &&
 			CG_IsDurationPower(forcePowerSorted[i]))
 		{
 			CG_DrawPic( startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]);
@@ -7592,7 +7592,7 @@ static void CG_Draw2DScreenTints( void )
 	vec4_t			hcolor;
 	if (cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR)
 	{
-		if (cg.snap->ps.fd.forcePowersActive & (1 << FP_RAGE))
+		if (cg.snap->ps.fd.forcePowersActive & Bit( FP_RAGE ))
 		{
 			if (!cgRageTime)
 			{
@@ -7758,7 +7758,7 @@ static void CG_Draw2DScreenTints( void )
 			}
 		}
 
-		if (cg.snap->ps.fd.forcePowersActive & (1 << FP_ABSORB))
+		if (cg.snap->ps.fd.forcePowersActive & Bit( FP_ABSORB ))
 		{
 			if (!cgAbsorbTime)
 			{
@@ -7827,7 +7827,7 @@ static void CG_Draw2DScreenTints( void )
 			}
 		}
 
-		if (cg.snap->ps.fd.forcePowersActive & (1 << FP_PROTECT))
+		if (cg.snap->ps.fd.forcePowersActive & Bit( FP_PROTECT ))
 		{
 			if (!cgProtectTime)
 			{
@@ -8505,7 +8505,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg );
 	}
 
-	if ( cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE) )
+	if ( cg.snap->ps.fd.forcePowersActive & Bit( FP_SEE ) )
 		cg.refdef.rdflags |= RDF_ForceSightOn;
 
 	cg.refdef.rdflags |= RDF_DRAWSKYBOX;

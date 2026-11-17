@@ -804,7 +804,7 @@ Com_Error
 -------------------------
 */
 
-void Com_Error ( int level, const char *error, ... ) {
+void Com_Error ( errorParm_t level, const char *error, ... ) {
 	va_list		argptr;
 	char		text[1024];
 

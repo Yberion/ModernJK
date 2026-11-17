@@ -40,7 +40,7 @@ void BotDamageNotification(gclient_t *bot, gentity_t *attacker);
 
 void ThrowSaberToAttacker(gentity_t *self, gentity_t *attacker);
 
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath )
 {
 	if(self->target)
 	{
@@ -426,7 +426,7 @@ void ExplodeDeath( gentity_t *self )
 				attacker, nullptr, MOD_UNKNOWN );
 	}
 
-	ObjectDie( self, self, self, 20, 0 );
+	ObjectDie( self, self, self, 20, MOD_UNKNOWN );
 }
 
 
@@ -698,7 +698,7 @@ void BodyRid(gentity_t *ent)
 body_die
 ==================
 */
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath ) {
 	// NOTENOTE No gibbing right now, this is star wars.
 	bool doDisint = false;
 
@@ -767,7 +767,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-const char	*modNames[MOD_MAX] = {
+EnumArray<const char *, meansOfDeath_t, MOD_MAX> modNames = {
 	"MOD_UNKNOWN",
 	"MOD_STUN_BATON",
 	"MOD_MELEE",
@@ -809,7 +809,8 @@ const char	*modNames[MOD_MAX] = {
 	"MOD_FALLING",
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
-	"MOD_TRIGGER_HURT"
+	"MOD_TRIGGER_HURT",
+	"MOD_TEAM_CHANGE"
 };
 
 
@@ -894,7 +895,7 @@ bool G_InKnockDown( playerState_t *ps )
 	return false;
 }
 
-static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, hitLocation_t hitLoc )
+static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	int deathAnim = -1;
 
@@ -1386,7 +1387,7 @@ static int G_CheckSpecialDeathAnim( gentity_t *self, vec3_t point, int damage, i
 	return deathAnim;
 }
 
-int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, hitLocation_t hitLoc )
+int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
 {//FIXME: play dead flop anims on body if in an appropriate _DEAD anim when this func is called
 	int deathAnim = -1;
 	int max_health;
@@ -2090,7 +2091,7 @@ extern bool g_endPDuel;
 extern bool g_noPDuelCheck;
 extern void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
 extern void saberBackToOwner(gentity_t *saberent);
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath ) {
 	gentity_t	*ent;
 	int			anim;
 	int			killer;
@@ -2112,7 +2113,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 
 	g_stats.deaths++;
-	if ( meansOfDeath >= 0 && meansOfDeath < MOD_MAX ) {
+	if ( meansOfDeath >= MOD_UNKNOWN && meansOfDeath < MOD_MAX ) {
 		g_stats.modKills[meansOfDeath]++;
 	}
 
@@ -2457,14 +2458,14 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		killerName = "<world>";
 	}
 
-	if ( meansOfDeath < 0 || meansOfDeath >= std::ssize( modNames ) ) {
+	if ( meansOfDeath < MOD_UNKNOWN || meansOfDeath >= MOD_MAX ) {
 		obit = "<bad obituary>";
 	} else {
 		obit = modNames[ meansOfDeath ];
 	}
 
 	// log the victim and attacker's names with the method of death
-	Com_sprintf( buf, sizeof( buf ), "Kill: %i %i %i: %s killed ", killer, self->s.number, meansOfDeath, killerName );
+	Com_sprintf( buf, sizeof( buf ), "Kill: %i %i %i: %s killed ", killer, self->s.number, to_underlying( meansOfDeath ), killerName );
 	if ( self->s.eType == ET_NPC ) {
 		// check for named NPCs
 		if ( self->targetname )
@@ -2506,7 +2507,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	if (self->s.eType != ET_NPC && !g_noPDuelCheck)
 	{
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
-		ent->s.eventParm = meansOfDeath;
+		ent->s.eventParm = to_underlying( meansOfDeath );
 		ent->s.otherEntityNum = self->s.number;
 		ent->s.otherEntityNum2 = killer;
 		ent->r.svFlags = SVF_BROADCAST;	// send to everyone
@@ -3692,7 +3693,7 @@ int gGAvoidDismember = 0;
 
 void UpdateClientRenderBolts(gentity_t *self, vec3_t renderOrigin, vec3_t renderAngles);
 
-bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod )
+bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod )
 {
 	bool dismember = false;
 	int actualTime;
@@ -4280,7 +4281,7 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 	G_Dismember(ent, enemy, boltPoint, static_cast<g2ModelParts_t>( hitLocUse ), 90, 0, deathAnim, postDeath);
 }
 
-void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int dflags, int *damage)
+void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, meansOfDeath_t mod, int dflags, int *damage)
 {
 	int hitLoc = -1;
 
@@ -4424,11 +4425,11 @@ dflags		these flags are used to control how G_Damage works
 */
 extern bool gSiegeRoundBegun;
 
-int gPainMOD = 0;
+meansOfDeath_t gPainMOD = MOD_UNKNOWN;
 int gPainHitLoc = -1;
 vec3_t gPainPoint;
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod ) {
 	gclient_t	*client;
 	int			take, asave, max, subamt = 0, knockback;
 	float		famt = 0, hamt = 0, shieldAbsorbed = 0;
@@ -4568,7 +4569,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	if ( !(dflags & DAMAGE_NO_PROTECTION) )
 	{//rage overridden by no_protection
-		if (targ && targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_RAGE)))
+		if (targ && targ->client && (targ->client->ps.fd.forcePowersActive & Bit( FP_RAGE )))
 		{
 			damage *= 0.5;
 		}
@@ -4772,6 +4773,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			case MOD_TIMED_MINE_SPLASH:
 			case MOD_DET_PACK_SPLASH:
 				damage *= 0.75;
+				break;
+			default:
 				break;
 			}
 		}
@@ -5250,7 +5253,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	if ( !(dflags & DAMAGE_NO_PROTECTION) )
 	{//protect overridden by no_protection
-		if (take && targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_PROTECT)))
+		if (take && targ->client && (targ->client->ps.fd.forcePowersActive & Bit( FP_PROTECT )))
 		{
 			if (targ->client->ps.fd.forcePower)
 			{
@@ -5386,13 +5389,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 		if ( !(dflags & DAMAGE_NO_PROTECTION) )
 		{//rage overridden by no_protection
-			if (targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_RAGE)) && (inflictor->client || attacker->client))
+			if (targ->client && (targ->client->ps.fd.forcePowersActive & Bit( FP_RAGE )) && (inflictor->client || attacker->client))
 			{
 				take /= (to_underlying( targ->client->ps.fd.forcePowerLevel[FP_RAGE] )+1);
 			}
 		}
 		targ->health = targ->health - take;
-		if ( targ->client && mod >= 0 && mod < MOD_MAX ) {
+		if ( targ->client && mod >= MOD_UNKNOWN && mod < MOD_MAX ) {
 			g_stats.modDamage[mod] += take;
 			G_ScenarioDamageTrace( targ, inflictor, point, take, mod );
 		}
@@ -5414,7 +5417,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 		if ( !(dflags & DAMAGE_NO_PROTECTION) )
 		{//rage overridden by no_protection
-			if (targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_RAGE)) && (inflictor->client || attacker->client))
+			if (targ->client && (targ->client->ps.fd.forcePowersActive & Bit( FP_RAGE )) && (inflictor->client || attacker->client))
 			{
 				if (targ->health <= 0)
 				{
@@ -5624,7 +5627,7 @@ G_RadiusDamage
 ============
 */
 bool G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-					 gentity_t *ignore, gentity_t *missile, int mod) {
+					 gentity_t *ignore, gentity_t *missile, meansOfDeath_t mod) {
 	float		points, dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];

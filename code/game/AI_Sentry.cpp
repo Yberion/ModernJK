@@ -96,7 +96,7 @@ void sentry_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 NPC_Sentry_Pain
 -------------------------
 */
-void NPC_Sentry_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Sentry_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	NPC_Pain( self, inflictor, other, point, damage, mod );
 

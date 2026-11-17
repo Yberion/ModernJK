@@ -1985,15 +1985,7 @@ void CG_DrawDataPadHUD( centity_t *cent )
 		// from a script.
 		if (cg_updatedDataPadForcePower1.integer)
 		{
-			cg.DataPadforcepowerSelect = cg_updatedDataPadForcePower1.integer - 1; // Not pretty, I know
-			if (cg.DataPadforcepowerSelect >= MAX_DPSHOWPOWERS)
-			{	//duh
-				cg.DataPadforcepowerSelect = MAX_DPSHOWPOWERS-1;
-			}
-			else if (cg.DataPadforcepowerSelect<0)
-			{
-				cg.DataPadforcepowerSelect=0;
-			}
+			cg.DataPadforcepowerSelect = CG_DataPadUpdatedPowerSlot();
 		}
 //		CG_ClearDataPadCvars();
 	}
@@ -3220,9 +3212,9 @@ static void CG_DrawActivePowers(void)
 	/*
 	//draw icon for duration powers so we know what powers are active cuttently
 	int i = 0;
-	while (i < NUM_FORCE_POWERS)
+	while (i < to_underlying( NUM_FORCE_POWERS ))
 	{
-		if ((cg.snap->ps.forcePowersActive & (1 << forcePowerSorted[i])) &&
+		if ((cg.snap->ps.forcePowersActive & Bit( forcePowerSorted[i] )) &&
 			CG_IsDurationPower(forcePowerSorted[i]))
 		{
 			CG_DrawPic( startx, starty, endx, endy, cgs.media.forcePowerIcons[forcePowerSorted[i]]);
@@ -3566,7 +3558,7 @@ static void CG_Draw2DScreenTints( void )
 	float	rageTime, rageRecTime, absorbTime, protectTime;
 	vec4_t	hcolor;
 	//force effects
-	if (cg.snap->ps.forcePowersActive & (1 << FP_RAGE))
+	if (cg.snap->ps.forcePowersActive & Bit( FP_RAGE ))
 	{
 		if (!cgRageTime)
 		{
@@ -3732,7 +3724,7 @@ static void CG_Draw2DScreenTints( void )
 		}
 	}
 
-	if (cg.snap->ps.forcePowersActive & (1 << FP_ABSORB))
+	if (cg.snap->ps.forcePowersActive & Bit( FP_ABSORB ))
 	{
 		if (!cgAbsorbTime)
 		{
@@ -3801,7 +3793,7 @@ static void CG_Draw2DScreenTints( void )
 		}
 	}
 
-	if (cg.snap->ps.forcePowersActive & (1 << FP_PROTECT))
+	if (cg.snap->ps.forcePowersActive & Bit( FP_PROTECT ))
 	{
 		if (!cgProtectTime)
 		{
@@ -3974,7 +3966,7 @@ static void CG_Draw2D( void )
 		return;
 	}
 
-	if ( (cg.snap->ps.forcePowersActive&(1<<FP_SEE)) )
+	if ( (cg.snap->ps.forcePowersActive&Bit( FP_SEE )) )
 	{//force sight is on
 		//indicate this with sight cone thingy
 		CG_DrawPic( 0, 0, 640, 480, cgi_R_RegisterShader( "gfx/2d/jsense" ));
@@ -4277,7 +4269,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		cgi_R_LAGoggles();
 	}
 
-	if ( (cg.snap->ps.forcePowersActive&(1<<FP_SEE)) )
+	if ( (cg.snap->ps.forcePowersActive&Bit( FP_SEE )) )
 	{
 		cg.refdef.rdflags |= RDF_ForceSightOn;
 	}

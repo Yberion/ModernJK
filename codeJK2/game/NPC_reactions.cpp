@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 
 extern bool G_CheckForStrongAttackMomentum( gentity_t *self );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern void cgi_S_StartSound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
@@ -66,7 +66,7 @@ NPC_CheckAttacker
 -------------------------
 */
 
-static void NPC_CheckAttacker( gentity_t *other, int mod )
+static void NPC_CheckAttacker( gentity_t *other, meansOfDeath_t mod )
 {
 	//FIXME: I don't see anything in here that would stop teammates from taking a teammate
 	//			as an enemy.  Ideally, there would be code before this to prevent that from
@@ -216,7 +216,7 @@ NPC_ChoosePainAnimation
 #define	MIN_PAIN_TIME	200
 
 extern int G_PickPainAnim( gentity_t *self, vec3_t point, int damage, int hitLoc );
-void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, int mod, int hitLoc, int voiceEvent = -1 )
+void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc, entity_event_t voiceEvent = EV_NONE )
 {
 	//If we've already taken pain, then don't take it again
 	if ( level.time < self->painDebounceTime && mod != MOD_ELECTROCUTE && mod != MOD_MELEE )
@@ -328,7 +328,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 				}
 				NPC_SetAnim( self, parts, pain_anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 			}
-			if ( voiceEvent != -1 )
+			if ( voiceEvent != EV_NONE )
 			{
 				G_AddVoiceEvent( self, voiceEvent, Q_irand( 2000, 4000 ) );
 			}
@@ -357,10 +357,10 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 NPC_Pain
 ===============
 */
-void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, int mod, int hitLoc )
+void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t point, int damage, meansOfDeath_t mod, int hitLoc )
 {
 	team_t otherTeam = TEAM_FREE;
-	int		voiceEvent = -1;
+	entity_event_t		voiceEvent = EV_NONE;
 
 	if ( self->NPC == nullptr )
 		return;
@@ -661,7 +661,7 @@ void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int m
 
 void NPC_Respond( gentity_t *self, int userNum )
 {
-	int event = -1;
+	entity_event_t event = EV_NONE;
 	/*
 
 	if ( Q_irand( 0, 1 ) )
@@ -897,7 +897,7 @@ void NPC_Respond( gentity_t *self, int userNum )
 		break;
 	}
 
-	if ( event != -1 )
+	if ( event != EV_NONE )
 	{
 		//hack here because we reuse some "combat" and "extra" sounds
 		bool addFlag = (self->NPC->scriptFlags & SCF_NO_COMBAT_TALK);

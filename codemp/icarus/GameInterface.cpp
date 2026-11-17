@@ -423,13 +423,15 @@ void ICARUS_SoundPrecache(const char *filename)
 	GVM_ICARUS_SoundIndex();
 }
 
-int ICARUS_GetIDForString( const char *string )
+// the set field a script names, through the game module's table; SET_UNKNOWN for a name that matches none
+setType_t ICARUS_GetIDForString( const char *string )
 {
 	T_G_ICARUS_GETSETIDFORSTRING *sharedMem = (T_G_ICARUS_GETSETIDFORSTRING *)sv.mSharedMemory;
 
 	strcpy(sharedMem->string, string);
 
-	return GVM_ICARUS_GetSetIDForString();
+	const int id = GVM_ICARUS_GetSetIDForString();
+	return id == -1 ? SET_UNKNOWN : static_cast<setType_t>( id );
 }
 
 /*
@@ -484,7 +486,7 @@ void ICARUS_InterrogateScript( const char *filename )
 
 	const char	*sVal1, *sVal2;
 	char		temp[1024];
-	int			setID;
+	setType_t	setID;
 
 	//Now iterate through all blocks of the script, searching for keywords
 	while ( stream.BlockAvailable() )

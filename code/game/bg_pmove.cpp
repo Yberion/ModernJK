@@ -46,39 +46,39 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_vehicles.h"
 #include <float.h>
 
-extern bool G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, bool force = false );
+extern bool G_DoDismemberment( gentity_t *self, vec3_t point, meansOfDeath_t mod, int damage, int hitLoc, bool force = false );
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
-extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern	bool	Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern bool WP_SaberLose( gentity_t *self, vec3_t throwDir );
 extern int Jedi_ReCalcParryTime( gentity_t *self, evasionType_t evasionType );
 extern bool PM_HasAnimation( gentity_t *ent, int animation );
 extern saberMoveName_t PM_SaberAnimTransitionMove( saberMoveName_t curmove, saberMoveName_t newmove );
 extern saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad );
-extern bool PM_SaberInTransition( int move );
-extern bool PM_SaberInTransitionAny( int move );
-extern bool PM_SaberInBounce( int move );
+extern bool PM_SaberInTransition( saberMoveName_t move );
+extern bool PM_SaberInTransitionAny( saberMoveName_t move );
+extern bool PM_SaberInBounce( saberMoveName_t move );
 extern bool PM_SaberInSpecialAttack( int anim );
-extern bool PM_SaberInAttack( int move );
-extern bool PM_InAnimForSaberMove( int anim, int saberMove );
-extern saberMoveName_t PM_SaberBounceForAttack( int move );
-extern saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int curmove );
-extern saberMoveName_t PM_BrokenParryForParry( int move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
+extern bool PM_InAnimForSaberMove( int anim, saberMoveName_t saberMove );
+extern saberMoveName_t PM_SaberBounceForAttack( saberMoveName_t move );
+extern saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saberMoveName_t curmove );
+extern saberMoveName_t PM_BrokenParryForParry( saberMoveName_t move );
 extern saberMoveName_t PM_KnockawayForParry( saberBlockedType_t move );
-extern bool PM_SaberInParry( int move );
-extern bool PM_SaberInKnockaway( int move );
-extern bool PM_SaberInBrokenParry( int move );
-extern bool PM_SaberInReflect( int move );
-extern bool PM_SaberInIdle( int move );
-extern bool PM_SaberInStart( int move );
-extern bool PM_SaberInReturn( int move );
-extern bool PM_SaberKataDone( int curmove, int newmove );
-extern bool PM_SaberInSpecial( int move );
+extern bool PM_SaberInParry( saberMoveName_t move );
+extern bool PM_SaberInKnockaway( saberMoveName_t move );
+extern bool PM_SaberInBrokenParry( saberMoveName_t move );
+extern bool PM_SaberInReflect( saberMoveName_t move );
+extern bool PM_SaberInIdle( saberMoveName_t move );
+extern bool PM_SaberInStart( saberMoveName_t move );
+extern bool PM_SaberInReturn( saberMoveName_t move );
+extern bool PM_SaberKataDone( saberMoveName_t curmove, saberMoveName_t newmove );
+extern bool PM_SaberInSpecial( saberMoveName_t move );
 extern bool PM_InDeathAnim ( void );
 extern bool PM_StandingAnim( int anim );
-extern bool PM_KickMove( int move );
+extern bool PM_KickMove( saberMoveName_t move );
 extern bool PM_KickingAnim( int anim );
 extern bool PM_InAirKickingAnim( int anim );
 extern bool PM_SuperBreakLoseAnim( int anim );
@@ -229,7 +229,7 @@ PM_AddEvent
 
 ===============
 */
-void PM_AddEvent( int newEvent )
+void PM_AddEvent( entity_event_t newEvent )
 {
 	AddEventToPlayerstate( newEvent, 0, pm->ps );
 }
@@ -970,7 +970,7 @@ bool PM_ForceJumpingUp( gentity_t *gent )
 		}
 	}
 
-	if ( !(gent->client->ps.forcePowersActive&(1<<FP_LEVITATION)) && gent->client->ps.forceJumpCharge )
+	if ( !(gent->client->ps.forcePowersActive&Bit( FP_LEVITATION )) && gent->client->ps.forceJumpCharge )
 	{//already jumped and let go
 		return false;
 	}
@@ -1142,7 +1142,7 @@ static bool PM_CheckJump( void )
 					pm->ps->velocity[2] = oldZVel;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
 					pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
-					pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+					pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 					return true;
 				}
 				else
@@ -1150,7 +1150,7 @@ static bool PM_CheckJump( void )
 					if ( pm->ps->legsAnim == BOTH_FORCELONGLEAP_START
 						|| pm->ps->legsAnim == BOTH_FORCELONGLEAP_ATTACK )
 					{//still in start anim, but it's run out
-						pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+						pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 						if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 						{//still in air?
 							//hold it for another 50ms
@@ -1178,7 +1178,7 @@ static bool PM_CheckJump( void )
 				&& pm->cmd.upmove > 0 //trying to jump
 				&& pm->ps->forcePowerLevel[FP_LEVITATION] >= FORCE_LEVEL_3 //force jump 3 or better
 				&& pm->ps->forcePower >= FORCE_LONGJUMP_POWER //this costs 20 force to do
-				&& (pm->ps->forcePowersActive&(1<<FP_SPEED)) //force-speed is on
+				&& (pm->ps->forcePowersActive&Bit( FP_SPEED )) //force-speed is on
 				&& pm->cmd.forwardmove > 0 //pushing forward
 				&& !pm->cmd.rightmove //not strafing
 				&& pm->ps->groundEntityNum != ENTITYNUM_NONE//not in mid-air
@@ -1201,14 +1201,14 @@ static bool PM_CheckJump( void )
 				pm->ps->pm_flags |= PMF_JUMP_HELD;
 				pm->ps->pm_flags |= PMF_JUMPING|PMF_SLOW_MO_FALL;
 				//start force jump
-				pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+				pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 				pm->cmd.upmove = 0;
 				// keep track of force jump stat
 				if(pm->ps->clientNum == 0)
 				{
 					if( pm->gent && pm->gent->client )
 					{
-						pm->gent->client->sess.missionStats.forceUsed[(int)FP_LEVITATION]++;
+						pm->gent->client->sess.missionStats.forceUsed[FP_LEVITATION]++;
 					}
 				}
 				G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
@@ -1241,17 +1241,17 @@ static bool PM_CheckJump( void )
 					//FIXME: constantly drain force power at a rate by which the usage for maximum height would use up the full cost of force jump
 					if ( curHeight > forceJumpHeight[0] )
 					{//passed normal jump height  *2?
-						if ( !(pm->ps->forcePowersActive&(1<<FP_LEVITATION)) )//haven't started forcejump yet
+						if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )//haven't started forcejump yet
 						{
 							//start force jump
-   							pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+   							pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 							if ( pm->gent )
 							{
 								G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
 								// keep track of force jump stat
 								if(pm->ps->clientNum == 0 && pm->gent->client)
 								{
-									pm->gent->client->sess.missionStats.forceUsed[(int)FP_LEVITATION]++;
+									pm->gent->client->sess.missionStats.forceUsed[FP_LEVITATION]++;
 								}
 							}
 							//play flip
@@ -1689,12 +1689,12 @@ static bool PM_CheckJump( void )
 					{
 						if ( pm->ps->saber[0].jumpAtkUpMove != LS_NONE )
 						{//actually overriding
-							overrideJumpAttackUpMove = (saberMoveName_t)pm->ps->saber[0].jumpAtkUpMove;
+							overrideJumpAttackUpMove = pm->ps->saber[0].jumpAtkUpMove;
 						}
 						else if ( pm->ps->dualSabers
 							&& pm->ps->saber[1].jumpAtkUpMove > LS_NONE )
 						{//would be cancelling it, but check the second saber, too
-							overrideJumpAttackUpMove = (saberMoveName_t)pm->ps->saber[1].jumpAtkUpMove;
+							overrideJumpAttackUpMove = pm->ps->saber[1].jumpAtkUpMove;
 						}
 						else
 						{//nope, just cancel it
@@ -1704,7 +1704,7 @@ static bool PM_CheckJump( void )
 					else if ( pm->ps->dualSabers
 						&& pm->ps->saber[1].jumpAtkUpMove != LS_INVALID )
 					{//first saber not overridden, check second
-						overrideJumpAttackUpMove = (saberMoveName_t)pm->ps->saber[0].jumpAtkUpMove;
+						overrideJumpAttackUpMove = pm->ps->saber[0].jumpAtkUpMove;
 					}
 					if ( overrideJumpAttackUpMove != LS_INVALID )
 					{//do this move instead
@@ -3126,7 +3126,7 @@ static void PM_WalkMove( void ) {
 		if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer())//player
 			&& cg.renderingThirdPerson//in third person
 			&& ((pm->cmd.buttons&BUTTON_USE)||pm->ps->leanStopDebounceTime)//holding use or leaning
-			//&& (pm->ps->forcePowersActive&(1<<FP_SPEED))
+			//&& (pm->ps->forcePowersActive&Bit( FP_SPEED ))
 			&& pm->ps->groundEntityNum != ENTITYNUM_NONE//on ground
 			&& !cg_usingInFrontOf )//nothing to use
 		{//holding use stops you from moving
@@ -4131,7 +4131,7 @@ static void PM_CrashLand( void )
 		{//not crouching
 			if ( delta > 10
 				|| pm->ps->pm_flags & PMF_BACKWARDS_JUMP
-				|| (pm->ps->forcePowersActive&(1<<FP_LEVITATION))
+				|| (pm->ps->forcePowersActive&Bit( FP_LEVITATION ))
 				|| forceLanding ) //EV_FALL_SHORT or jumping back or force-land
 			{// decide which landing animation to use
 				if ( pm->gent
@@ -4797,7 +4797,7 @@ static void PM_GroundTraceMissed( void ) {
 					{
 						if ( (level.time - pm->gent->client->respawnTime > 2000)//been in the world for at least 2 seconds
 							&& (!pm->gent->NPC->timeOfDeath || level.time - pm->gent->NPC->timeOfDeath < 1000) && pm->gent->e_ThinkFunc != thinkF_NPC_RemoveBody //Have to do this now because timeOfDeath is used by thinkF_NPC_RemoveBody to debounce removal checks
-							&& !(pm->gent->client->ps.forcePowersActive&(1<<FP_LEVITATION)) )
+							&& !(pm->gent->client->ps.forcePowersActive&Bit( FP_LEVITATION )) )
 						{
 							if ( !FlyingCreature( pm->gent )
 								&& g_gravity->value > 0 )
@@ -5070,7 +5070,7 @@ static void PM_GroundTraceMissed( void ) {
 												anim = BOTH_INAIR1;
 											}
 										}
-										if ( pm->ps->forcePowersActive & ( 1 << FP_LEVITATION ) )
+										if ( pm->ps->forcePowersActive & Bit( FP_LEVITATION ) )
 										{
 											anim = PM_ForceJumpAnimForJumpAnim( anim );
 										}
@@ -5079,7 +5079,7 @@ static void PM_GroundTraceMissed( void ) {
 								}
 								pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 							}
-							else if ( !(pm->ps->forcePowersActive&(1<<FP_LEVITATION)) )
+							else if ( !(pm->ps->forcePowersActive&Bit( FP_LEVITATION )) )
 							{
 								if ( pm->cmd.forwardmove >= 0 )
 								{
@@ -7970,7 +7970,7 @@ static void PM_Footsteps( void )
 		//PM_SetAnim( pm, SETANIM_LEGS, BOTH_HUGGEE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		return;
 	}
-	if ( (pm->ps->forcePowersActive&(1<<FP_DRAIN))
+	if ( (pm->ps->forcePowersActive&Bit( FP_DRAIN ))
 		&& pm->ps->forceDrainEntityNum < ENTITYNUM_WORLD )
 	{//draining
 		//PM_SetAnim( pm, SETANIM_LEGS, BOTH_HUGGER1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -9157,7 +9157,7 @@ void PM_SetJumped( float height, bool force )
 		pm->ps->jumpZStart = pm->ps->origin[2];
 		pm->ps->pm_flags |= PMF_SLOW_MO_FALL;
 		//start force jump
-		pm->ps->forcePowersActive |= (1<<FP_LEVITATION);
+		pm->ps->forcePowersActive |= Bit( FP_LEVITATION );
 		G_SoundOnEnt( pm->gent, CHAN_BODY, "sound/weapons/force/jump.wav" );
 	}
 	else
@@ -9697,7 +9697,7 @@ void PM_Use( void )
 
 	if ( ! (pm->cmd.buttons & BUTTON_USE ) )
 	{
-		pm->useEvent = 0;
+		pm->useEvent = EV_NONE;
 		pm->ps->useTime = 0;
 		return;
 	}
@@ -10296,7 +10296,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 			if ( Q_irand( FORCE_LEVEL_1, FORCE_LEVEL_2 ) < pm->ps->forcePowerLevel[FP_SABER_OFFENSE] )
 			{
 				vec3_t throwDir = {0,0,350};
-				int		winMove = pm->ps->saberMove;
+				saberMoveName_t	winMove = pm->ps->saberMove;
 				if ( !singleVsSingle )
 				{//all others have their own super breaks
 					//so it doesn't try to set some other anim below
@@ -10364,7 +10364,7 @@ void PM_SaberLockBreak( gentity_t *gent, gentity_t *genemy, saberLockResult_t re
 					{//defender gets a bonus for using a 2-handed saber or 2 sabers
 						victoryStrength -= 2;
 					}
-					if ( pm->ps->forcePowersActive&(1<<FP_RAGE) )
+					if ( pm->ps->forcePowersActive&Bit( FP_RAGE ) )
 					{
 						victoryStrength += gent->client->ps.forcePowerLevel[FP_RAGE];
 					}
@@ -10409,7 +10409,7 @@ int G_SaberLockStrength( gentity_t *gent )
 	{
 		strength += 1 + gent->client->ps.saber[1].lockBonus;
 	}
-	if ( gent->client->ps.forcePowersActive&(1<<FP_RAGE) )
+	if ( gent->client->ps.forcePowersActive&Bit( FP_RAGE ) )
 	{
 		strength += gent->client->ps.forcePowerLevel[FP_RAGE];
 	}
@@ -11657,11 +11657,11 @@ bool PM_SaberBlocking( void )
 					saberMoveName_t nextMove;
 					if ( PM_SaberInBrokenParry( pm->ps->saberBounceMove ) )
 					{//already have one...?
-						nextMove = (saberMoveName_t)pm->ps->saberBounceMove;
+						nextMove = pm->ps->saberBounceMove;
 					}
 					else
 					{
-						nextMove = PM_BrokenParryForParry( (saberMoveName_t)pm->ps->saberMove );
+						nextMove = PM_BrokenParryForParry( pm->ps->saberMove );
 					}
 					if ( nextMove != LS_NONE )
 					{
@@ -11683,7 +11683,7 @@ bool PM_SaberBlocking( void )
 				}
 				else if ( PM_SaberInBounce( pm->ps->saberMove ) || !PM_SaberInAttack( pm->ps->saberMove ) )
 				{//already in the bounce, go into an attack or transition to ready.. should never get here since can't be blocked in a bounce!
-					int nextMove;
+					saberMoveName_t nextMove;
 
 					if ( pm->cmd.buttons & BUTTON_ATTACK )
 					{//transition to a new attack
@@ -11717,15 +11717,15 @@ bool PM_SaberBlocking( void )
 							}
 							else if ( saberMoveData[pm->ps->saberMove].startQuad < Q_T )
 							{
-								nextMove = LS_R_TL2BR+(saberMoveName_t)(saberMoveData[pm->ps->saberMove].startQuad-Q_BR);
+								nextMove = LS_R_TL2BR+(saberMoveData[pm->ps->saberMove].startQuad-Q_BR);
 							}
 							else// if ( saberMoveData[pm->ps->saberMove].startQuad > Q_T )
 							{
-								nextMove = LS_R_BR2TL+(saberMoveName_t)(saberMoveData[pm->ps->saberMove].startQuad-Q_TL);
+								nextMove = LS_R_BR2TL+(saberMoveData[pm->ps->saberMove].startQuad-Q_TL);
 							}
 						}
 					}
-					PM_SetSaberMove( (saberMoveName_t)nextMove );
+					PM_SetSaberMove( nextMove );
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
 				else
@@ -11733,11 +11733,11 @@ bool PM_SaberBlocking( void )
 					saberMoveName_t bounceMove;
 					if ( pm->ps->saberBounceMove != LS_NONE )
 					{
-						bounceMove = (saberMoveName_t)pm->ps->saberBounceMove;
+						bounceMove = pm->ps->saberBounceMove;
 					}
 					else
 					{
-						bounceMove = PM_SaberBounceForAttack( (saberMoveName_t)pm->ps->saberMove );
+						bounceMove = PM_SaberBounceForAttack( pm->ps->saberMove );
 					}
 					PM_SetSaberMove( bounceMove );
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
@@ -11753,7 +11753,7 @@ bool PM_SaberBlocking( void )
 			case BLOCKED_UPPER_RIGHT:
 				if ( pm->ps->saberBounceMove != LS_NONE )
 				{
-					PM_SetSaberMove( (saberMoveName_t)pm->ps->saberBounceMove );
+					PM_SetSaberMove( pm->ps->saberBounceMove );
 					//pm->ps->saberBounceMove = LS_NONE;
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
@@ -11778,7 +11778,7 @@ bool PM_SaberBlocking( void )
 			case BLOCKED_UPPER_LEFT:
 				if ( pm->ps->saberBounceMove != LS_NONE )
 				{
-					PM_SetSaberMove( (saberMoveName_t)pm->ps->saberBounceMove );
+					PM_SetSaberMove( pm->ps->saberBounceMove );
 					//pm->ps->saberBounceMove = LS_NONE;
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
@@ -11803,7 +11803,7 @@ bool PM_SaberBlocking( void )
 			case BLOCKED_LOWER_RIGHT:
 				if ( pm->ps->saberBounceMove != LS_NONE )
 				{
-					PM_SetSaberMove( (saberMoveName_t)pm->ps->saberBounceMove );
+					PM_SetSaberMove( pm->ps->saberBounceMove );
 					//pm->ps->saberBounceMove = LS_NONE;
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
@@ -11828,7 +11828,7 @@ bool PM_SaberBlocking( void )
 			case BLOCKED_LOWER_LEFT:
 				if ( pm->ps->saberBounceMove != LS_NONE )
 				{
-					PM_SetSaberMove( (saberMoveName_t)pm->ps->saberBounceMove );
+					PM_SetSaberMove( pm->ps->saberBounceMove );
 					//pm->ps->saberBounceMove = LS_NONE;
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
@@ -11853,7 +11853,7 @@ bool PM_SaberBlocking( void )
 			case BLOCKED_TOP:
 				if ( pm->ps->saberBounceMove != LS_NONE )
 				{
-					PM_SetSaberMove( (saberMoveName_t)pm->ps->saberBounceMove );
+					PM_SetSaberMove( pm->ps->saberBounceMove );
 					//pm->ps->saberBounceMove = LS_NONE;
 					pm->ps->weaponTime = pm->ps->torsoAnimTimer;
 				}
@@ -11921,7 +11921,7 @@ void PM_WeaponLightsaber(void)
 	int			addTime;
 	bool	delayed_fire = false, animLevelOverridden = false;
 	int			anim=-1;
-	int			curmove, newmove=LS_NONE;
+	saberMoveName_t	curmove, newmove=LS_NONE;
 
 	if ( pm->gent
 		&& pm->gent->client
@@ -12134,7 +12134,7 @@ void PM_WeaponLightsaber(void)
 		&& (pm->ps->saberMove == LS_READY||pm->ps->saberMove == LS_NONE))//ready for another one
 	{//something is forcing us to set a specific next saberMove
 		//FIXME: if this is a NPC kick, re-verify it before executing it!
-		PM_SetSaberMove( (saberMoveName_t)pm->ps->saberMoveNext );
+		PM_SetSaberMove( pm->ps->saberMoveNext );
 		pm->ps->saberMoveNext = LS_NONE;//clear it now that we played it
 		return;
 	}
@@ -12252,7 +12252,7 @@ void PM_WeaponLightsaber(void)
 				&&(pm->cmd.buttons&BUTTON_ATTACK) )
 			{
 				/*
-				if ( PM_CheckDualSpinProtect() )
+				if ( PM_CheckDualSpinProtect() != LS_NONE )
 				{//check to see if we're going to do the special dual push protect move
 					PM_SetSaberMove( LS_DUAL_SPIN_PROTECT );
 					pm->ps->weaponstate = WEAPON_FIRING;
@@ -12378,7 +12378,7 @@ void PM_WeaponLightsaber(void)
 		{
 			if ( pm->ps->saber[0].kataMove != LS_NONE )
 			{
-				overrideMove = (saberMoveName_t)pm->ps->saber[0].kataMove;
+				overrideMove = pm->ps->saber[0].kataMove;
 			}
 		}
 		if ( overrideMove == LS_INVALID )
@@ -12389,7 +12389,7 @@ void PM_WeaponLightsaber(void)
 				{
 					if ( pm->ps->saber[1].kataMove != LS_NONE )
 					{
-						overrideMove = (saberMoveName_t)pm->ps->saber[1].kataMove;
+						overrideMove = pm->ps->saber[1].kataMove;
 					}
 				}
 			}
@@ -12487,7 +12487,7 @@ void PM_WeaponLightsaber(void)
 		// Start with the current move, and cross index it with the current control states.
 		if ( pm->ps->saberMove > LS_NONE && pm->ps->saberMove < LS_MOVE_MAX )
 		{
-			curmove = (saberMoveName_t)pm->ps->saberMove;
+			curmove = pm->ps->saberMove;
 		}
 		else
 		{
@@ -12686,7 +12686,7 @@ void PM_WeaponLightsaber(void)
 					if ( !PM_InCartwheel( pm->ps->legsAnim ) )
 					{//don't do transitions when cartwheeling - could make you spin!
 						//Now get the proper transition move
-						newmove = PM_SaberAnimTransitionMove( (saberMoveName_t)curmove, (saberMoveName_t)newmove );
+						newmove = PM_SaberAnimTransitionMove( curmove, newmove );
 						if ( PM_HasAnimation( pm->gent, saberMoveData[newmove].animToUse ) )
 						{
 							anim = saberMoveData[newmove].animToUse;
@@ -12779,7 +12779,7 @@ void PM_WeaponLightsaber(void)
 				pm->ps->SaberActivate();
 			}
 
-			PM_SetSaberMove( (saberMoveName_t)newmove );
+			PM_SetSaberMove( newmove );
 
 			if ( both && pm->ps->legsAnim != pm->ps->torsoAnim )
 			{
@@ -12831,11 +12831,11 @@ void PM_WeaponLightsaber(void)
 				{
 					if ( !MatrixMode )
 					{//Special test for Matrix Mode (tm)
-						if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+						if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 						{//player always fires at normal speed
 							addTime *= g_timescale->value;
 						}
-						else if ( g_entities[pm->ps->clientNum].client && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+						else if ( g_entities[pm->ps->clientNum].client && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 						{
 							addTime *= g_timescale->value;
 						}
@@ -12855,12 +12855,12 @@ void PM_WeaponLightsaber(void)
 				{
 					if ( !MatrixMode )
 					{//Special test for Matrix Mode (tm)
-						if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+						if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 						{//player always fires at normal speed
 							addTime *= g_timescale->value;
 						}
 						else if ( g_entities[pm->ps->clientNum].client
-							&& (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+							&& (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 						{
 							addTime *= g_timescale->value;
 						}
@@ -12870,7 +12870,7 @@ void PM_WeaponLightsaber(void)
 		}
 	}
 
-	if (pm->ps->forcePowersActive & (1 << FP_RAGE))
+	if (pm->ps->forcePowersActive & Bit( FP_RAGE ))
 	{
 		addTime *= 0.75;
 	}
@@ -13344,7 +13344,7 @@ static void PM_Weapon( void )
 	{//being drained
 		return;
 	}
-	if ( (pm->ps->forcePowersActive&(1<<FP_DRAIN))
+	if ( (pm->ps->forcePowersActive&Bit( FP_DRAIN ))
 		&& pm->ps->forceDrainEntityNum < ENTITYNUM_WORLD )
 	{//draining
 		return;
@@ -14029,12 +14029,12 @@ static void PM_Weapon( void )
 		{
 			if ( !MatrixMode )
 			{//Special test for Matrix Mode (tm)
-				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{//player always fires at normal speed
 					addTime *= g_timescale->value;
 				}
 				else if ( g_entities[pm->ps->clientNum].client
-					&& (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+					&& (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{
 					addTime *= g_timescale->value;
 				}
@@ -14195,12 +14195,12 @@ static void PM_VehicleWeapon( void )
 		{
 			if ( !MatrixMode )
 			{//Special test for Matrix Mode (tm)
-				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{//player always fires at normal speed
 					addTime *= g_timescale->value;
 				}
 				else if ( g_entities[pm->ps->clientNum].client
-					&& (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+					&& (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{
 					addTime *= g_timescale->value;
 				}
@@ -14261,6 +14261,8 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			case FP_SEE:		//duration - detect/see hidden enemies
 				ForceSeeing( ent );
 				break;
+			default:
+				break;
 			}
 		}
 		//these stay are okay to call every frame button is down
@@ -14279,9 +14281,9 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			// FIXME! Failing at WP_ForcePowerUsable(). -AReis
 			ucmd->buttons |= BUTTON_FORCE_DRAIN;
 			break;
-//		default:
-//			Com_Printf( "Use Force: Unhandled force: %d\n", showPowers[cg.forcepowerSelect]);
-//			break;
+		default:
+//			Com_Printf( "Use Force: Unhandled force: %d\n", to_underlying( showPowers[cg.forcepowerSelect] ));
+			break;
 		}
 		ent->client->ps.pm_flags |= PMF_USEFORCE_HELD;
 	}
@@ -14394,12 +14396,12 @@ void PM_SetSpecialMoveValues (void )
 		{
 			if ( !MatrixMode )
 			{
-				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+				if ( pm->ps->clientNum == 0 && !player_locked && (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{
 					pml.frametime *= (1.0f/g_timescale->value);
 				}
 				else if ( g_entities[pm->ps->clientNum].client
-					&& (pm->ps->forcePowersActive&(1<<FP_SPEED)||pm->ps->forcePowersActive&(1<<FP_RAGE)) )
+					&& (pm->ps->forcePowersActive&Bit( FP_SPEED )||pm->ps->forcePowersActive&Bit( FP_RAGE )) )
 				{
 					pml.frametime *= (1.0f/g_timescale->value);
 				}

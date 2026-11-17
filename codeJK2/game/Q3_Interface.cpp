@@ -404,8 +404,15 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_HUD),
 
 //FIXME: add BOTH_ attributes here too
-	{"",	SET_},
+	{"",	to_underlying( SET_ )},
 };
+
+// the set field a script names; SET_UNKNOWN for a name that matches none (a variable's name, then)
+setType_t Q3_SetTypeFromName( const char *name )
+{
+	const int id = GetIDForString( setTable, name );
+	return id == -1 ? SET_UNKNOWN : static_cast<setType_t>( id );
+}
 
 bool COM_ParseString( char **data, char **s );
 
@@ -4033,9 +4040,10 @@ static void Q3_SetMusicState( const char *dms )
 
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
-	if ( forcePower < FP_FIRST || forcePower >= NUM_FORCE_POWERS )
+	const forcePowers_t power = static_cast<forcePowers_t>( forcePower );
+	if ( power < FP_FIRST || power >= NUM_FORCE_POWERS )
 	{
-		Q3_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, FP_FIRST, (NUM_FORCE_POWERS-1) );
+		Q3_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force Power index %d out of range (%d-%d)\n", forcePower, to_underlying( FP_FIRST ), (to_underlying( NUM_FORCE_POWERS )-1) );
 		return;
 	}
 
@@ -4059,7 +4067,7 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		return;
 	}
 
-	if ((forceLevel > self->client->ps.forcePowerLevel[forcePower]) && (entID==0) && (forceLevel > 0))
+	if ((forceLevel > self->client->ps.forcePowerLevel[power]) && (entID==0) && (forceLevel > 0))
 	{
 		if (!cg_updatedDataPadForcePower1.integer)
 		{
@@ -4081,14 +4089,14 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 		}
 	}
 
-	self->client->ps.forcePowerLevel[forcePower] = forceLevel;
+	self->client->ps.forcePowerLevel[power] = forceLevel;
 	if ( forceLevel )
 	{
-		self->client->ps.forcePowersKnown |= ( 1 << forcePower );
+		self->client->ps.forcePowersKnown |= Bit( power );
 	}
 	else
 	{
-		self->client->ps.forcePowersKnown &= ~( 1 << forcePower );
+		self->client->ps.forcePowersKnown &= ~Bit( power );
 	}
 }
 /*
@@ -4267,7 +4275,7 @@ Q3_SetBehaviorSet
 ?
 ============
 */
-static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
+static bool Q3_SetBehaviorSet( int entID, setType_t toSet, const char *scriptname)
 {
 	gentity_t	*ent  = &g_entities[entID];
 	bSet_t		bSet = BSET_INVALID;
@@ -4324,6 +4332,8 @@ static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 		break;
 	case SET_MINDTRICKSCRIPT:
 		bSet = BSET_MINDTRICK;
+		break;
+	default:
 		break;
 	}
 
@@ -5892,7 +5902,7 @@ Q3_Face
 ?
 ============
 */
-static void Q3_Face( int entID,int expression, float holdtime)
+static void Q3_Face( int entID,setType_t expression, float holdtime)
 {
 	gentity_t	*ent  = &g_entities[entID];
 
@@ -5950,6 +5960,8 @@ static void Q3_Face( int entID,int expression, float holdtime)
 		ent->client->facial_aux = level.time + Q_flrand(6000.0, 10000.0);
 		ent->client->facial_blink = level.time + Q_flrand(3000.0, 5000.0);
 		ent->client->facial_frown = level.time + holdtime + Q_flrand(6000.0, 10000.0);
+		break;
+	default:
 		break;
 	}
 
@@ -6526,7 +6538,8 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 {
 	gentity_t	*ent = &g_entities[entID];
 	float		float_data;
-	int			int_data, toSet;
+	int			int_data;
+	setType_t	toSet;
 	vec3_t		vector_data;
 
 	// eezstreet: Add support for cvars getting modified thru ICARUS script
@@ -6537,7 +6550,7 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 	}
 
 	//Set this for callbacks
-	toSet = GetIDForString( setTable, type_name );
+	toSet = Q3_SetTypeFromName( type_name );
 
 	//TODO: Throw in a showscript command that will list each command and what they're doing...
 	//		maybe as simple as printing that line of the script to the console preceeded by the person's name?
@@ -7905,7 +7918,7 @@ static int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		return true;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -8304,7 +8317,7 @@ static int Q3_GetFloat( int entID, int type, const char *name, float *value )
 			Q3_DebugPrint( WL_WARNING, "Q3_GetFloat: SET_FORCED_MARCH, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SET_FORCED_MARCH);
+		*value = (ent->NPC->scriptFlags&SCF_FORCED_MARCH);
 		break;
 	case SET_UNDYING://## %t="BOOL_TYPES" # Can take damage down to 1 but not die
 		*value = (ent->flags&FL_UNDYING);
@@ -8525,7 +8538,7 @@ static int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 		return false;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
 
 	//NOTENOTE: return true if the value was correctly obtained
@@ -8606,7 +8619,7 @@ static int Q3_GetString( int entID, int type, const char *name, const char **val
 		return true;
 	}
 
-	int toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
+	setType_t toGet = Q3_SetTypeFromName( name );	//FIXME: May want to make a "getTable" as well
 
 	switch ( toGet )
 	{
@@ -9115,6 +9128,12 @@ static void Q3_CameraPath( const char *name )
 	CGCam_StartRoff( G_NewString( name ) );
 }
 
+// whether g_ICARUSDebug shows the messages of this level
+bool Q3_DebugLevelShown( WL_e level )
+{
+	return g_ICARUSDebug->integer >= to_underlying( level );
+}
+
 /*
 -------------------------
 Q3_DebugPrint
@@ -9123,7 +9142,7 @@ Q3_DebugPrint
 void Q3_DebugPrint( WL_e level, const char *format, ... )
 {
 	//Don't print messages they don't want to see
-	if ( g_ICARUSDebug->integer < to_underlying( level ) )
+	if ( !Q3_DebugLevelShown( level ) )
 		return;
 
 	va_list		argptr;

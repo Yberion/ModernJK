@@ -154,7 +154,7 @@ Each line links to its section.
 | change | before | now |
 |---|---|---|
 | [23. Server](#23-server-fixes) | an idle Linux server used a tenth of a core; a clock change could freeze it; work repeated for nothing at every tick | it sleeps; a clock that only moves forward; about a third less time per tick |
-| [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step; the rocket launcher's homing lock took cloaked players and refused pulled ones; an idle animation went on through a deflected shot | fixed |
+| [24. Game](#24-game-fixes) | three random choices differed between compilers; a zoomed animation restarted at every step; the rocket launcher's homing lock took cloaked players and refused pulled ones; an idle animation went on through a deflected shot; the selected force power lost after a map change; the single player's absorb gave back the wrong amount; a character typed in a menu's field also moved the focus; logs with "(null)" | fixed |
 | [25. Client](#25-client-fixes-outside-the-netcode) | shots louder at a high frame rate, menu cursor too fast, keypad binds, servers hidden from the browser; images decoded by another library on Windows and on Linux; the pk3 archives read through libraries of 2010 and 2013, the system's on Linux; every texture compressed by the graphics driver as it loads | fixed; one image decoder everywhere, more than twice as fast; one reader of the archives everywhere, 1.8 times as fast; a player's model loaded in 20 ms instead of 71 |
 
 **Reference**: [26. Settings and commands](#26-settings-and-commands), [27. Build, tests and repository](#27-build-tests-and-repository), [28. Name: ModernJK](#28-name-modernjk), [29. Compatibility](#29-compatibility), [30. C++20, 64-bit Windows, Linux and macOS](#30-c20-64-bit-windows-linux-and-macos), [31. Not changed yet](#31-not-changed-yet).
@@ -862,25 +862,17 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 
 ### 23. Server fixes
 
-**Before.**
+**Before and now.**
 
-- A dedicated server spends the last millisecond before each frame in a busy loop: up to a tenth of a core at 100 Hz, even when empty.
-- Small vector operations (a dot product, a copy, a subtraction) are functions called from every loop of the collision and model code: the dot product alone is 11.5 % of a server tick with 16 bots.
-- At every server frame, for every client, the game searches the nearest navigation node, which only NPCs use.
-- At every command of every client, the game computes a distance and two arc tangents to every other client, used only in the Jedi Master game type or against a client with force sight on.
-- Every call about a player's model (a bone, a bolt, a collision) looks the model up again by its file name, and reads a setting by its name.
-- The server builds a snapshot for every bot at every tick, and sends it to no one.
-- On Linux the engine reads the wall clock. When the system's time is set back (a time synchronisation, a date set by hand), the server runs no frame and sends nothing until the clock catches up; beyond 30 s every client times out. When it is set forward, up to 5 s of frames run at once.
-
-**Now.**
-
-- Outside Windows the server sleeps that millisecond, and a packet that arrives still wakes it at once.
-- On Linux the engine reads a clock that only moves forward.
-- The small vector operations are inline, for the server and the client.
-- The navigation node is searched 20 times a second, as on a 20 Hz server.
-- The distance and the angles are computed only when a test needs them.
-- The model lookup is cheaper, on the server and on the client; the setting is found once.
-- A bot's snapshot is built only when the bot is recorded in a demo.
+| fix | before | now |
+|---|---|---|
+| The wait before a frame | A dedicated server spends the last millisecond before each frame in a busy loop: up to a tenth of a core at 100 Hz, even when empty. | Outside Windows the server sleeps that millisecond, and a packet that arrives still wakes it at once. |
+| Linux's clock | On Linux the engine reads the wall clock. When the system's time is set back (a time synchronisation, a date set by hand), the server runs no frame and sends nothing until the clock catches up; beyond 30 s every client times out. When it is set forward, up to 5 s of frames run at once. | On Linux the engine reads a clock that only moves forward. |
+| Small vector operations | Small vector operations (a dot product, a copy, a subtraction) are functions called from every loop of the collision and model code: the dot product alone is 11.5 % of a server tick with 16 bots. | The small vector operations are inline, for the server and the client. |
+| The nearest navigation node | At every server frame, for every client, the game searches the nearest navigation node, which only NPCs use. | The navigation node is searched 20 times a second, as on a 20 Hz server. |
+| Distances between clients | At every command of every client, the game computes a distance and two arc tangents to every other client, used only in the Jedi Master game type or against a client with force sight on. | The distance and the angles are computed only when a test needs them. |
+| A player's model | Every call about a player's model (a bone, a bolt, a collision) looks the model up again by its file name, and reads a setting by its name. | The model lookup is cheaper, on the server and on the client; the setting is found once. |
+| Bots' snapshots | The server builds a snapshot for every bot at every tick, and sends it to no one. | A bot's snapshot is built only when the bot is recorded in a demo. |
 
 **Why.** Found while measuring and profiling the server at 100 Hz.
 
@@ -902,23 +894,25 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 
 ### 24. Game fixes
 
-**Before.**
+**Before and now.**
 
-- The saber's random choices in the movement code (chain ends, lock breaks, flip and jump attacks) draw their numbers by overwriting the command's time, so the rest of that movement step reads a random time: footstep and slope timers, weapon charge, saber lock and hand extension times, zoom.
-- Three places draw two random numbers in one expression, in an order the language leaves to the compiler: the bouncing flechettes of the alternate fire (their speed and their lifetime), an NPC's victory voice and the Galak mech's aim. A server built with MSVC gives other flechettes than one built with clang or GCC.
-- Zoomed with the disruptor, the torso animation is left and taken again at every movement step.
-- The homing lock of the rocket launcher's alternate fire (and of the vehicles' missiles) is meant to refuse a cloaked target, but tests the wrong bits: a cloaked player can be locked, while a player who makes or undergoes a force pull cannot be for about 0.6 s. In single player, a target whose armour just took a hit cannot be locked for 0.5 s, a cloaked one can.
-- A player in an idle animation (after 5 s without action) whose saber deflects a shot without a block (fired from too close to be seen coming) keeps playing the idle animation while the shot bounces off.
+| fix | before | now |
+|---|---|---|
+| The saber's random choices in the movement code (chain ends, lock breaks, flip and jump attacks) | They draw their numbers by overwriting the command's time, so the rest of that movement step reads a random time: footstep and slope timers, weapon charge, saber lock and hand extension times, zoom. | They draw from a seed of their own; the command's time stays intact. The numbers are the same, and the client and the server still agree. |
+| Two random draws in one expression | Three places do it, in an order the language leaves to the compiler: the bouncing flechettes of the alternate fire (their speed and their lifetime), an NPC's victory voice and the Galak mech's aim. A server built with MSVC gives other flechettes than one built with clang or GCC. | The draws are made one after the other, in the left-to-right order. |
+| The disruptor's zoom | The torso animation is left and taken again at every movement step. | The zoomed animation is kept. |
+| The rocket launcher's homing lock (alternate fire, vehicles' missiles) | Meant to refuse a cloaked target, it tests the wrong bits: a cloaked player can be locked, while a player who makes or undergoes a force pull cannot be for about 0.6 s. In single player, a target whose armour just took a hit cannot be locked for 0.5 s, a cloaked one can. | A cloaked target is never locked; a force pull or a hit on the armour no longer matters. |
+| A shot deflected during an idle animation | A player in an idle animation (after 5 s without action) whose saber deflects a shot without a block (fired from too close to be seen coming) keeps playing the idle animation while the shot bounces off. | The deflection cuts the idle animation, as any other action does, and the 5 s count starts again. |
+| The selected force power after a map change | After a map change or a `map_restart`, a player whose selected power was Heal finds another one selected (the last power known): the server tests the saved power's number as a mask of powers, so Heal never passes and Pull passes only for a player who knows Speed. | The saved power is selected again whenever the player knows it. |
+| Single player: Absorb | Absorbing a force power gives back a share of the cost of the power whose number is the attack's level. With Absorb 3, a level 2 push gives back 48 points though it cost the attacker 15, a level 1 push 9, a level 3 push 15, a level 2 grip 48. | A share of the attacking power's own cost: with Absorb 3, 15 points for a push or a pull at any level, 1 for a grip or a drain. |
+| Single player: the datapad | When a script gives a force power, the datapad opens on the slot numbered as the power (Push opens on Mind Trick). | It opens on the power given. |
+| A menu's text field | A character whose code is also a key's (« ª » on a Spanish keyboard, « « ») is inserted, then moves the focus to the previous or the next field as that key would; in multiplayer a « Ť » typed with the cursor outside the field ends the editing. | The character is inserted and the focus stays in the field. |
+| Single player: a script's forced march | A script reading whether an NPC is in a forced march (`get` of `SET_FORCED_MARCH`) reads other flags (crouched, no response) instead. | It reads the forced march. |
+| Single player: the renderer's errors | An error (an unknown `rgbGen` in a shader) never reaches the console. | It is printed in red, as a warning is printed in yellow. |
+| Multiplayer logs | A siege team change is logged "killed … by (null)"; with `g_statLog`, the concussion rifle's kills and damage are counted under "No Weapon"; `gamestats` prints "(null)" for the NPCs' voice events. | The team change is logged by its name, the concussion rifle counts for itself, every event has its name. |
+| A script's `affect()` on an entity that does not exist | The warning prints a name read from random memory (three trees). | It names the entity the script asked for. |
 
-**Now.**
-
-- The saber's choices draw from a seed of their own; the command's time stays intact. The numbers are the same, and the client and the server still agree.
-- The draws are made one after the other, in the left-to-right order.
-- The zoomed animation is kept.
-- A cloaked target is never locked; a force pull or a hit on the armour no longer matters.
-- The deflection cuts the idle animation, as any other action does, and the 5 s count starts again.
-
-**Why.** Each of the first three made two machines, or the client and the server, compute something different. The lock did the opposite of what its code says, and the idle test compared a block type with the time, so it never held (both found on 16 November 2026, plan step 18).
+**Why.** Each of the first three made two machines, or the client and the server, compute something different. The lock did the opposite of what its code says, and the idle test compared a block type with the time, so it never held (both found on 16 November 2026, plan step 18). The others were found on 17 November 2026 while typing the enumerations (plan step 18): a number used as a mask or as the index of the wrong table, a character read as a key, tables shorter than their enumeration, a format without its argument.
 
 **Gain.** The flechette's alternate fire was the one scripted fight of 40 that differed between a clang and an MSVC server; all 40 now agree. No animation difference while zoomed (section 6).
 
@@ -935,6 +929,16 @@ The files keep the `.dm_26` extension for now. As in OpenJK, server demos still 
 - `G_CheckClientIdle` (`game/g_active.cpp`): `ps.saberBlocking >= level.time` (a block type, 0 to 2, against the time) replaced by `ps.saberBlockTime >= level.time`, true for 150 to 250 ms after a deflection (defence 2 and 1; never in defence 3).
 - The calls of printf-like functions are checked by the compiler (17 November 2026, plan step 18): the multiplayer UI's warnings about a menu's `cursor` keyword and about the full string pool printed only their colour code, the effects' "no free slots" message printed the effect's name as a number, the NPC scale warning lost its `%`; a message whose argument held a `%` (a file name, an error, a command) was formatted twice. Each prints its text now.
 - The Interrogator droid's patrol talk named a sound file the game does not have, so the droid was silent; it plays the probe droid's three talk sounds now (`AI_Interrogator.cpp`, `NPC_AI_Interrogator.cpp`; 17 November 2026).
+- Found while typing the enumerations and fixed after a decision (17 November 2026, plan step 18):
+  - `WP_InitForcePowers` (`game/w_force.cpp`): `forcePowersKnown & sess.selectedFP` is `forcePowersKnown & Bit( sess.selectedFP )`, the saved power tested in range first;
+  - the single player's absorb (`code/game/wp_saber.cpp`, six calls of `WP_AbsorbConversion`) took `forcePowerNeeded[level of the attack]`, a line from multiplayer, whose table is indexed by level and power, while the single player's is indexed by power only: `forcePowerNeeded[attacking power]` now;
+  - the single player's datapad (`code/cgame/cg_draw.cpp`) put the power's number in the slot index: `CG_DataPadUpdatedPowerSlot` (`cg_main.cpp`) finds the slot that shows the power (Jedi Outcast's slots are in the powers' order, so it had no such problem);
+  - `Item_TextField_HandleKey` (`ui/ui_shared.cpp`, multiplayer and single player) tested a character, its flag removed, against the keys after inserting it: the key of the event is an empty optional for a character now (`KeyEvent_Key`);
+  - ICARUS's `GetFloat` of `SET_FORCED_MARCH` (`Q3_Interface.cpp` of the single-player games) tested `scriptFlags & SET_FORCED_MARCH`, the field's number as a mask: `SCF_FORCED_MARCH` now;
+  - `CL_RefPrintf` (both clients) and `SV_RefPrintf` (multiplayer) printed `PRINT_ALL`, `PRINT_WARNING` and `PRINT_DEVELOPER` only; `PRINT_ERROR`, which the single-player renderer uses for shaders, is printed in red;
+  - `modNames` (`game/g_combat.cpp`) had no name for `MOD_TEAM_CHANGE`; `weaponFromMOD` (`game/g_log.cpp`) lacked the cells of `MOD_VEHICLE`, `MOD_CONC` and `MOD_CONC_ALT`, so every cell after them was three off; `eventnames` (`game/bg_misc.cpp`) stopped at `EV_TAUNT`, 76 events before the end;
+  - the `affect()` warning of ICARUS's sequencer (`Sequencer.cpp` of the three trees) had a `%s` without its argument (found when the format attribute was given to `IGameInterface::DebugPrint` and `I_DPrintf`); two script texts were given as formats (`CenterPrint`), so a `%` in them was read as a conversion;
+  - without a visible effect: a negative `g_maxHolocronCarry` made picking up a holocron write before `holocronsCarried` (over `hasDetPackPlanted`), and is a limit no more; the saber's return to ready from an attack (`PM_SaberAnimTransitionAnim`, three trees) was computed from `newmove`, there `LS_READY`, where the attack left (`curmove`) is meant, on a path no caller takes; `debugSetSaberMove` refuses a negative move (debug builds); the botlib's entity types (`be_aas_entity.cpp`) had Quake 3's `ET_MOVER` (4, the game's force field), now the game's 6; the scripts' "failed sscanf on `SET_PARM%d`" message named the parm one below.
 - The legs of a player pushing against a wall: section 9. `g_randFix`: section 12.
 
 </details>

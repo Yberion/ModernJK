@@ -98,7 +98,7 @@ Key_KeynumToStringBuf
 // only ever called by binding-display code, therefore returns non-technical "friendly" names
 //	in any language that don't necessarily match those in the config file...
 //
-void Key_KeynumToStringBuf( int keynum, char *buf, int buflen )
+void Key_KeynumToStringBuf( fakeAscii_t keynum, char *buf, int buflen )
 {
 	const char *psKeyName = Key_KeynumToString( keynum/*, true */);
 
@@ -114,7 +114,7 @@ void Key_KeynumToStringBuf( int keynum, char *buf, int buflen )
 Key_GetBindingBuf
 ====================
 */
-void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+void Key_GetBindingBuf( fakeAscii_t keynum, char *buf, int buflen ) {
 	const char	*value;
 
 	value = Key_GetBinding( keynum );
@@ -484,11 +484,11 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 	  return 0;
 
 	case UI_KEY_SETBINDING:
-		Key_SetBinding( args[1], (const char *) VMA(2) );
+		Key_SetBinding( static_cast<fakeAscii_t>( args[1] ), (const char *) VMA(2) );
 		return 0;
 
 	case UI_KEY_KEYNUMTOSTRINGBUF:
-		Key_KeynumToStringBuf( args[1],(char *) VMA(2), args[3] );
+		Key_KeynumToStringBuf( static_cast<fakeAscii_t>( args[1] ),(char *) VMA(2), args[3] );
 		return 0;
 
 	case UI_CIN_SETEXTENTS:
@@ -496,7 +496,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 	  return 0;
 
 	case UI_KEY_GETBINDINGBUF:
-		Key_GetBindingBuf( args[1], (char *) VMA(2), args[3] );
+		Key_GetBindingBuf( static_cast<fakeAscii_t>( args[1] ), (char *) VMA(2), args[3] );
 		return 0;
 
 

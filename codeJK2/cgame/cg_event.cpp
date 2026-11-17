@@ -257,20 +257,20 @@ An entity has an event value
 #define	DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
-	int				event;
+	entity_event_t	event;
 	vec3_t			axis[3];
 	const char		*s, *s2;
 	int				clientNum;
 	//clientInfo_t	*ci;
 
 	es = &cent->currentState;
-	event = es->event & ~EV_EVENT_BITS;
+	event = BG_UnpackEvent( es->event );
 
 	if ( cg_debugEvents.integer ) {
-		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
+		CG_Printf( "ent:%3i  event:%3i ", es->number, to_underlying( event ) );
 	}
 
-	if ( !event ) {
+	if ( event == EV_NONE ) {
 		DEBUGNAME("ZEROEVENT");
 		return;
 	}
@@ -1037,7 +1037,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	default:
 		DEBUGNAME("UNKNOWN");
-		CG_Error( "Unknown event: %i", event );
+		CG_Error( "Unknown event: %i", to_underlying( event ) );
 		break;
 	}
 
@@ -1058,14 +1058,14 @@ void CG_CheckEvents( centity_t *cent ) {
 		}
 		cent->previousEvent = 1;
 
-		cent->currentState.event = cent->currentState.eType - ET_EVENTS;
+		cent->currentState.event = BG_EventEntityEvent( cent->currentState.eType );
 	} else {
 		// check for events riding with another entity
 		if ( cent->currentState.event == cent->previousEvent ) {
 			return;
 		}
 		cent->previousEvent = cent->currentState.event;
-		if ( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 ) {
+		if ( BG_UnpackEvent( cent->currentState.event ) == EV_NONE ) {
 			return;
 		}
 	}

@@ -36,18 +36,18 @@ typedef struct keyGlobals_s {
 	bool	key_overstrikeMode;
 	int			keyDownCount;
 
-	qkey_t		keys[MAX_KEYS];
+	EnumArray<qkey_t, fakeAscii_t, MAX_KEYS> keys;
 } keyGlobals_t;
 
 typedef struct keyname_s {
 	word		upper, lower;
 	const char	*name;
-	int			keynum;
+	fakeAscii_t	keynum;
 	bool		menukey;
 } keyname_t;
 
 extern keyGlobals_t	kg;
-extern keyname_t	keynames[MAX_KEYS];
+extern EnumArray<keyname_t, fakeAscii_t, MAX_KEYS> keynames;
 
 // console
 extern field_t		g_consoleField;
@@ -60,16 +60,16 @@ extern field_t		chatField;
 extern bool		chat_team;
 extern int			chat_playerNum;
 
-void	Field_KeyDownEvent	( field_t *edit, int key );
+void	Field_KeyDownEvent	( field_t *edit, fakeAscii_t key );
 void	Field_CharEvent		( field_t *edit, int ch );
 void	Field_Draw			( field_t *edit, int x, int y, bool showCursor, bool noColorEscape );
 void	Field_BigDraw		( field_t *edit, int x, int y, bool showCursor, bool noColorEscape );
 
-void		Key_SetBinding			( int keynum, const char *binding );
-const char *	Key_GetBinding			( int keynum );
-bool	Key_IsDown				( int keynum );
-int			Key_StringToKeynum		( const char *str );
+void		Key_SetBinding			( fakeAscii_t keynum, const char *binding );
+const char *	Key_GetBinding			( fakeAscii_t keynum );
+bool	Key_IsDown				( fakeAscii_t keynum );
+std::optional<fakeAscii_t>	Key_StringToKeynum		( const char *str );
 bool	Key_GetOverstrikeMode	( void );
 void		Key_SetOverstrikeMode	( bool state );
 void		Key_ClearStates			( void );
-int			Key_GetKey				( const char *binding );
+std::optional<fakeAscii_t>	Key_GetKey				( const char *binding );

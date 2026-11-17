@@ -122,7 +122,7 @@ void WP_FireBlaster( gentity_t *ent, bool alt_fire )
 	if ( ent->client && ent->client->NPC_class == CLASS_VEHICLE )
 	{//no inherent aim screw up
 	}
-	else if ( !(ent->client->ps.forcePowersActive&(1<<FP_SEE))
+	else if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
 		|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?

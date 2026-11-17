@@ -218,19 +218,21 @@ using enum cbufExec_t;
 #define MAX_LIGHT_STYLES		64
 
 // print levels from renderer (FIXME: set up for game / cgame?)
-typedef enum {
+enum class printParm_t {
 	PRINT_ALL,
 	PRINT_DEVELOPER,		// only print when "developer 1"
 	PRINT_WARNING,
 	PRINT_ERROR
-} printParm_t;
+};
+using enum printParm_t;
 
 // parameters to the main Error routine
-typedef enum {
+enum class errorParm_t {
 	ERR_FATAL,					// exit the entire game with a popup window
 	ERR_DROP,					// print to console and disconnect from game
 	ERR_DISCONNECT,				// don't kill server
-} errorParm_t;
+};
+using enum errorParm_t;
 
 // font rendering values used by ui and cgame
 #define PROP_GAP_WIDTH			2 // 3
@@ -406,7 +408,7 @@ bool Info_Validate( const char *s );
 void Info_NextPair( const char **s, char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
 // this is only here so the functions in q_shared.cpp and bg_*.c can link
-void	NORETURN QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+void	NORETURN QDECL Com_Error( errorParm_t level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 
@@ -726,7 +728,7 @@ typedef struct {
 	int			dataCount;
 } gameState_t;
 
-typedef enum
+enum class forcePowers_t
 {
 	FP_FIRST = 0,//marker
 	FP_HEAL = 0,//instant
@@ -751,7 +753,9 @@ typedef enum
 #endif // !JK2_MODE
 
 	NUM_FORCE_POWERS
-} forcePowers_t;
+};
+using enum forcePowers_t;
+template <> inline constexpr bool enableEnumArithmetic<forcePowers_t> = true;
 
 enum class saberType_t
 {
@@ -982,6 +986,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 #define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
+enum class saberMoveName_t;	// wp_saber.h
 typedef struct saberInfo_s
 {
 	char		*name;						//entry in sabers.cfg, if any
@@ -1022,13 +1027,13 @@ typedef struct saberInfo_s
 	float		animSpeedScale;				//1.0 - plays normal attack animations faster/slower
 
 	//done in both cgame and game (BG code)
-	int	kataMove;				//LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
-	int	lungeAtkMove;			//LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
-	int	jumpAtkUpMove;			//LS_INVALID - if set, player will execute this move when they jump+attack
-	int	jumpAtkFwdMove;			//LS_INVALID - if set, player will execute this move when they jump+fwd+attack
-	int	jumpAtkBackMove;		//LS_INVALID - if set, player will execute this move when they jump+back+attack
-	int	jumpAtkRightMove;		//LS_INVALID - if set, player will execute this move when they jump+rightattack
-	int	jumpAtkLeftMove;		//LS_INVALID - if set, player will execute this move when they jump+left+attack
+	saberMoveName_t	kataMove;				//LS_INVALID - if set, player will execute this move when they press both attack buttons at the same time
+	saberMoveName_t	lungeAtkMove;			//LS_INVALID - if set, player will execute this move when they crouch+fwd+attack
+	saberMoveName_t	jumpAtkUpMove;			//LS_INVALID - if set, player will execute this move when they jump+attack
+	saberMoveName_t	jumpAtkFwdMove;			//LS_INVALID - if set, player will execute this move when they jump+fwd+attack
+	saberMoveName_t	jumpAtkBackMove;		//LS_INVALID - if set, player will execute this move when they jump+back+attack
+	saberMoveName_t	jumpAtkRightMove;		//LS_INVALID - if set, player will execute this move when they jump+rightattack
+	saberMoveName_t	jumpAtkLeftMove;		//LS_INVALID - if set, player will execute this move when they jump+left+attack
 	int	readyAnim;				//-1 - anim to use when standing idle
 	int	drawAnim;				//-1 - anim to use when drawing weapon
 	int	putawayAnim;			//-1 - anim to use when putting weapon away
@@ -1574,6 +1579,8 @@ enum class ammo_t;	// weapons.h
 enum class weaponstate_t;	// bg_public.h
 enum class saberBlockedType_t;	// g_shared.h
 enum class pmtype_t;	// bg_public.h
+enum class entity_event_t;	// bg_public.h
+enum class entityType_t;	// bg_public.h
 
 template<typename TSaberInfo>
 class PlayerStateBase
@@ -1610,7 +1617,7 @@ public:
 	int			eFlags;			// copied to entityState_t->eFlags
 
 	int			eventSequence;	// pmove generated events
-	int			events[MAX_PS_EVENTS];
+	entity_event_t	events[MAX_PS_EVENTS];
 	int			eventParms[MAX_PS_EVENTS];
 
 	int			externalEvent;	// events set on player from another source
@@ -1804,13 +1811,13 @@ public:
 				};
 #endif // !JK2_MODE
 
-	short		saberMove;
+	saberMoveName_t	saberMove;
 
 #ifndef JK2_MODE
-	short		saberMoveNext;
+	saberMoveName_t	saberMoveNext;
 #endif // !JK2_MODE
 
-	short		saberBounceMove;
+	saberMoveName_t	saberBounceMove;
 	saberBlockType_t	saberBlocking;
 	saberBlockedType_t	saberBlocked;
 	short		leanStopDebounceTime;
@@ -1844,8 +1851,8 @@ public:
 #endif
 
 	int			forcePowersKnown;
-	int			forcePowerDuration[NUM_FORCE_POWERS];	//for effects that have a duration
-	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDuration;	//for effects that have a duration
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerDebounce;	//for effects that must have an interval
 	int			forcePower;
 	int			forcePowerMax;
 	int			forcePowerRegenDebounceTime;
@@ -1855,7 +1862,7 @@ public:
 	int			forcePowerRegenAmount;				//default is 1
 #endif // !JK2_MODE
 
-	int			forcePowerLevel[NUM_FORCE_POWERS];		//so we know the max forceJump power you have
+	EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	forcePowerLevel;		//so we know the max forceJump power you have
 	float		forceJumpZStart;					//So when you land, you don't get hurt as much
 	float		forceJumpCharge;					//you're current forceJump charge-up level, increases the longer you hold the force jump button down
 	int			forceGripEntityNum;					//what entity I'm gripping
@@ -2021,8 +2028,8 @@ public:
 #endif // JK2_MODE
 
 		saved_game.write<int32_t>(forcePowersKnown);
-		saved_game.write<int32_t>(forcePowerDuration);
-		saved_game.write<int32_t>(forcePowerDebounce);
+		saved_game.write<int32_t>(forcePowerDuration.elems);
+		saved_game.write<int32_t>(forcePowerDebounce.elems);
 		saved_game.write<int32_t>(forcePower);
 		saved_game.write<int32_t>(forcePowerMax);
 		saved_game.write<int32_t>(forcePowerRegenDebounceTime);
@@ -2032,7 +2039,7 @@ public:
 		saved_game.write<int32_t>(forcePowerRegenAmount);
 #endif // !JK2_MODE
 
-		saved_game.write<int32_t>(forcePowerLevel);
+		saved_game.write<int32_t>(forcePowerLevel.elems);
 		saved_game.write<float>(forceJumpZStart);
 		saved_game.write<float>(forceJumpCharge);
 		saved_game.write<int32_t>(forceGripEntityNum);
@@ -2190,8 +2197,8 @@ public:
 #endif // JK2_MODE
 
 		saved_game.read<int32_t>(forcePowersKnown);
-		saved_game.read<int32_t>(forcePowerDuration);
-		saved_game.read<int32_t>(forcePowerDebounce);
+		saved_game.read<int32_t>(forcePowerDuration.elems);
+		saved_game.read<int32_t>(forcePowerDebounce.elems);
 		saved_game.read<int32_t>(forcePower);
 		saved_game.read<int32_t>(forcePowerMax);
 		saved_game.read<int32_t>(forcePowerRegenDebounceTime);
@@ -2201,7 +2208,7 @@ public:
 		saved_game.read<int32_t>(forcePowerRegenAmount);
 #endif // !JK2_MODE
 
-		saved_game.read<int32_t>(forcePowerLevel);
+		saved_game.read<int32_t>(forcePowerLevel.elems);
 		saved_game.read<float>(forceJumpZStart);
 		saved_game.read<float>(forceJumpCharge);
 		saved_game.read<int32_t>(forceGripEntityNum);
@@ -2388,7 +2395,7 @@ typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 
 typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!!!!
 	int		number;			// entity index
-	int		eType;			// entityType_t
+	entityType_t	eType;
 	int		eFlags;
 
 	trajectory_t	pos;	// for calculating position

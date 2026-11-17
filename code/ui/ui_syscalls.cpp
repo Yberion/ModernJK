@@ -86,7 +86,7 @@ sfxHandle_t	trap_S_RegisterSound( const char *sample, bool compressed )
 	return S_RegisterSound(sample);
 }
 
-void trap_Key_SetBinding( int keynum, const char *binding )
+void trap_Key_SetBinding( fakeAscii_t keynum, const char *binding )
 {
 	Key_SetBinding( keynum, binding);
 }

@@ -283,7 +283,7 @@ void Droid_Spin( void )
 NPC_BSDroid_Pain
 -------------------------
 */
-void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc )
+void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	int		anim;
 	float	pain_chance;

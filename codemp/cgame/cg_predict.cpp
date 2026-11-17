@@ -827,7 +827,7 @@ static QINLINE void CG_EntityStateToPlayerState( entityState_t *s, playerState_t
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
 		}
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
-		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+		s->event = BG_PackEvent( ps->events[ seq ], ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
 		ps->entityEventSequence++;
 	}
@@ -1042,7 +1042,7 @@ static void CG_CarryUnsentFields( playerState_t *base ) {
 		|| ( ( own->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT ) ) {
 		return;
 	}
-	memcpy( base->fd.forcePowerDebounce, own->fd.forcePowerDebounce, sizeof( base->fd.forcePowerDebounce ) );
+	base->fd.forcePowerDebounce = own->fd.forcePowerDebounce;
 	base->zoomLockTime = own->zoomLockTime;
 	base->useTime = own->useTime;
 	base->rocketLastValidTime = own->rocketLastValidTime;
@@ -1321,7 +1321,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 				"pm_time %d pm_type %d legs %d torso %d weaponTime %d saberMove %d\n",
 				( m->server.commandTime - m->start.commandTime ) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
 				m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, m->start.pm_flags,
-				m->start.pm_time, to_underlying( m->start.pm_type ), m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, m->start.saberMove );
+				m->start.pm_time, to_underlying( m->start.pm_type ), m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, to_underlying( m->start.saberMove ) );
 		} else {
 			Com_sprintf( line, sizeof( line ), "  start: not held\n" );
 		}

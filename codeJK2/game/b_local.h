@@ -67,7 +67,7 @@ extern cvar_t		*d_saberCombat;
 extern void NPC_Think ( gentity_t *self);
 
 //NPC_reactions.cpp
-extern void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod ,int hitLoc);
+extern void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod ,int hitLoc);
 extern void NPC_Touch( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern float NPC_GetPainChance( gentity_t *self, int damage );
@@ -221,7 +221,7 @@ extern void CalcMuzzlePoint ( gentity_t *const ent, vec3_t forward, vec3_t right
 
 //g_combat
 extern void ExplodeDeath( gentity_t *self );
-extern void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc );
+extern void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc );
 extern void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator);
 extern float IdealDistance ( gentity_t *self );
 

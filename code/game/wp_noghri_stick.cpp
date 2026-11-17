@@ -33,7 +33,7 @@ void WP_FireNoghriStick( gentity_t *ent )
 
 	vectoangles( forwardVec, angs );
 
-	if ( !(ent->client->ps.forcePowersActive&(1<<FP_SEE))
+	if ( !(ent->client->ps.forcePowersActive&Bit( FP_SEE ))
 		|| ent->client->ps.forcePowerLevel[FP_SEE] < FORCE_LEVEL_2 )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?

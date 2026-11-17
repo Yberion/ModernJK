@@ -31,8 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //---------------------
 //	Tenloss Disruptor
 //---------------------
-extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod );
-int G_GetHitLocFromTrace( trace_t *trace, int mod )
+extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, meansOfDeath_t mod );
+int G_GetHitLocFromTrace( trace_t *trace, meansOfDeath_t mod )
 {
 	int hitLoc = HL_NONE;
 	for (int i=0; i < MAX_G2_COLLISIONS; i++)

@@ -1403,7 +1403,7 @@ void WPConstantRoutine(bot_state_t *bs)
 			heightDif = 0;
 		}
 
-		if (heightDif > 40 && (bs->cur_ps.fd.forcePowersKnown & (1 << FP_LEVITATION)) && (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION]]-100) || bs->cur_ps.groundEntityNum == ENTITYNUM_NONE))
+		if (heightDif > 40 && (bs->cur_ps.fd.forcePowersKnown & Bit( FP_LEVITATION )) && (bs->cur_ps.fd.forceJumpCharge < (forceJumpStrength[bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION]]-100) || bs->cur_ps.groundEntityNum == ENTITYNUM_NONE))
 		{ //alright, let's jump
 			bs->forceJumpChargeTime = level.time + 1000;
 			if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE && bs->jumpPrep < (level.time-300))
@@ -1418,7 +1418,7 @@ void WPConstantRoutine(bot_state_t *bs)
 				bs->wpSeenTime = level.time + 600;
 			}
 		}
-		else if (heightDif > 64 && !(bs->cur_ps.fd.forcePowersKnown & (1 << FP_LEVITATION)))
+		else if (heightDif > 64 && !(bs->cur_ps.fd.forcePowersKnown & Bit( FP_LEVITATION )))
 		{ //this point needs force jump to reach and we don't have it
 			//Kill the current point and turn around
 			bs->wpCurrent = nullptr;
@@ -2364,7 +2364,7 @@ jmPass:
 		return 2; //don't want to keep going between two points...
 	}
 
-	if (bs->cur_ps.fd.forcePowersActive & (1 << FP_RAGE))
+	if (bs->cur_ps.fd.forcePowersActive & Bit( FP_RAGE ))
 	{ //don't run while raging
 		return 0;
 	}
@@ -6204,7 +6204,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		vectoangles(a_fo, a_fo);
 
 		//do this above all things
-		if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_PUSH)) && (bs->doForcePush > level.time || bs->cur_ps.fd.forceGripBeingGripped > level.time) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] /*&& InFieldOfVision(bs->viewangles, 50, a_fo)*/)
+		if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PUSH )) && (bs->doForcePush > level.time || bs->cur_ps.fd.forceGripBeingGripped > level.time) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] /*&& InFieldOfVision(bs->viewangles, 50, a_fo)*/)
 		{
 			level.clients[bs->client].ps.fd.forcePowerSelected = FP_PUSH;
 			useTheForce = 1;
@@ -6213,31 +6213,31 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		else if (bs->cur_ps.fd.forceSide == FORCE_DARKSIDE)
 		{ //try dark side powers
 		  //in order of priority top to bottom
-			if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_GRIP)) && (bs->cur_ps.fd.forcePowersActive & (1 << FP_GRIP)) && InFieldOfVision(bs->viewangles, 50, a_fo))
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_GRIP )) && (bs->cur_ps.fd.forcePowersActive & Bit( FP_GRIP )) && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{ //already gripping someone, so hold it
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_GRIP;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_LIGHTNING)) && bs->frame_Enemy_Len < FORCE_LIGHTNING_RADIUS && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_LIGHTNING )) && bs->frame_Enemy_Len < FORCE_LIGHTNING_RADIUS && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_LIGHTNING;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_GRIP)) && bs->frame_Enemy_Len < MAX_GRIP_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_GRIP]][FP_GRIP] && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_GRIP )) && bs->frame_Enemy_Len < MAX_GRIP_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_GRIP]][FP_GRIP] && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_GRIP;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_RAGE)) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_RAGE]][FP_RAGE])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_RAGE )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_RAGE]][FP_RAGE])
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_RAGE;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_DRAIN)) && bs->frame_Enemy_Len < MAX_DRAIN_DISTANCE && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo) && bs->currentEnemy->client->ps.fd.forcePower > 10 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_DRAIN )) && bs->frame_Enemy_Len < MAX_DRAIN_DISTANCE && level.clients[bs->client].ps.fd.forcePower > 50 && InFieldOfVision(bs->viewangles, 50, a_fo) && bs->currentEnemy->client->ps.fd.forcePower > 10 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_DRAIN;
 				useTheForce = 1;
@@ -6246,33 +6246,33 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 		else if (bs->cur_ps.fd.forceSide == FORCE_LIGHTSIDE)
 		{ //try light side powers
-			if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_ABSORB)) && bs->cur_ps.fd.forceGripCripple &&
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && bs->cur_ps.fd.forceGripCripple &&
 				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
 			{ //absorb to get out
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_ABSORB)) && bs->cur_ps.electrifyTime >= level.time &&
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && bs->cur_ps.electrifyTime >= level.time &&
 				 level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
 			{ //absorb lightning
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_TELEPATHY)) && bs->frame_Enemy_Len < MAX_TRICK_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TELEPATHY]][FP_TELEPATHY] && InFieldOfVision(bs->viewangles, 50, a_fo) && !(bs->currentEnemy->client->ps.fd.forcePowersActive & (1 << FP_SEE)))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_TELEPATHY )) && bs->frame_Enemy_Len < MAX_TRICK_DISTANCE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TELEPATHY]][FP_TELEPATHY] && InFieldOfVision(bs->viewangles, 50, a_fo) && !(bs->currentEnemy->client->ps.fd.forcePowersActive & Bit( FP_SEE )))
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_TELEPATHY;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_ABSORB)) && g_entities[bs->client].health < 75 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_DARKSIDE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_ABSORB )) && g_entities[bs->client].health < 75 && bs->currentEnemy->client->ps.fd.forceSide == FORCE_DARKSIDE && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_ABSORB]][FP_ABSORB])
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_ABSORB;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_PROTECT)) && g_entities[bs->client].health < 35 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PROTECT]][FP_PROTECT])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PROTECT )) && g_entities[bs->client].health < 35 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PROTECT]][FP_PROTECT])
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PROTECT;
 				useTheForce = 1;
@@ -6282,25 +6282,25 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (!useTheForce)
 		{ //try neutral powers
-			if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_PUSH)) && bs->cur_ps.fd.forceGripBeingGripped > level.time && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] && InFieldOfVision(bs->viewangles, 50, a_fo))
+			if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PUSH )) && bs->cur_ps.fd.forceGripBeingGripped > level.time && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH] && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PUSH;
 				useTheForce = 1;
 				forceHostile = 1;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_SPEED)) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SPEED]][FP_SPEED])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_SPEED )) && g_entities[bs->client].health < 25 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SPEED]][FP_SPEED])
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_SPEED;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_SEE)) && BotMindTricked(bs->client, bs->currentEnemy->s.number) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SEE]][FP_SEE])
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_SEE )) && BotMindTricked(bs->client, bs->currentEnemy->s.number) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_SEE]][FP_SEE])
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_SEE;
 				useTheForce = 1;
 				forceHostile = 0;
 			}
-			else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_PULL)) && bs->frame_Enemy_Len < 256 && level.clients[bs->client].ps.fd.forcePower > 75 && InFieldOfVision(bs->viewangles, 50, a_fo))
+			else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_PULL )) && bs->frame_Enemy_Len < 256 && level.clients[bs->client].ps.fd.forcePower > 75 && InFieldOfVision(bs->viewangles, 50, a_fo))
 			{
 				level.clients[bs->client].ps.fd.forcePowerSelected = FP_PULL;
 				useTheForce = 1;
@@ -6311,13 +6311,13 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (!useTheForce)
 	{ //try powers that we don't care if we have an enemy for
-		if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_HEAL)) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && bs->cur_ps.fd.forcePowerLevel[FP_HEAL] > FORCE_LEVEL_1)
+		if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && bs->cur_ps.fd.forcePowerLevel[FP_HEAL] > FORCE_LEVEL_1)
 		{
 			level.clients[bs->client].ps.fd.forcePowerSelected = FP_HEAL;
 			useTheForce = 1;
 			forceHostile = 0;
 		}
-		else if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_HEAL)) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && !bs->currentEnemy && bs->isCamping > level.time)
+		else if ((bs->cur_ps.fd.forcePowersKnown & Bit( FP_HEAL )) && g_entities[bs->client].health < 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_HEAL]][FP_HEAL] && !bs->currentEnemy && bs->isCamping > level.time)
 		{ //only meditate and heal if we're camping
 			level.clients[bs->client].ps.fd.forcePowerSelected = FP_HEAL;
 			useTheForce = 1;
@@ -6328,7 +6328,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	if (useTheForce && forceHostile)
 	{
 		if (bs->currentEnemy && bs->currentEnemy->client &&
-			!ForcePowerUsableOn(&g_entities[bs->client], bs->currentEnemy, (forcePowers_t)level.clients[bs->client].ps.fd.forcePowerSelected))
+			!ForcePowerUsableOn(&g_entities[bs->client], bs->currentEnemy, level.clients[bs->client].ps.fd.forcePowerSelected))
 		{
 			useTheForce = 0;
 			forceHostile = 0;
@@ -7038,7 +7038,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				}
 			}
 			else if (bs->saberThrowTime < level.time && !bs->cur_ps.saberInFlight &&
-				(bs->cur_ps.fd.forcePowersKnown & (1 << FP_SABERTHROW)) &&
+				(bs->cur_ps.fd.forcePowersKnown & Bit( FP_SABERTHROW )) &&
 				InFieldOfVision(bs->viewangles, 30, a_fo) &&
 				bs->frame_Enemy_Len < BOT_SABER_THROW_RANGE &&
 				bs->cur_ps.fd.saberAnimLevel != SS_STAFF)

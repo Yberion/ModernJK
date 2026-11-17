@@ -40,7 +40,7 @@ typedef struct {
 	void		(*Printf)( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 
 	// abort the game
-	NORETURN_PTR void	(*Error)( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	NORETURN_PTR void	(*Error)( errorParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 
 	// console variable interaction
 	void		(*Cvar_Set)( const char *name, const char *value );
@@ -131,10 +131,10 @@ typedef struct {
 	// =========== data shared with the client system =============
 
 	// keyboard and key binding interaction
-	void		(*Key_KeynumToStringBuf)( int keynum, char *buf, int buflen );
-	void		(*Key_GetBindingBuf)( int keynum, char *buf, int buflen );
-	void		(*Key_SetBinding)( int keynum, const char *binding );
-	bool	(*Key_IsDown)( int keynum );
+	void		(*Key_KeynumToStringBuf)( fakeAscii_t keynum, char *buf, int buflen );
+	void		(*Key_GetBindingBuf)( fakeAscii_t keynum, char *buf, int buflen );
+	void		(*Key_SetBinding)( fakeAscii_t keynum, const char *binding );
+	bool	(*Key_IsDown)( fakeAscii_t keynum );
 	bool	(*Key_GetOverstrikeMode)( void );
 	void		(*Key_SetOverstrikeMode)( bool state );
 	void		(*Key_ClearStates)( void );

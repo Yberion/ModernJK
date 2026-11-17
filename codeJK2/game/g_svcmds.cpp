@@ -88,7 +88,7 @@ void	Svcmd_EntityList_f (void) {
 			gi.Printf( "ET_CLOUD            " );
 			break;
 		default:
-			gi.Printf( "%-3i                ", check->s.eType );
+			gi.Printf( "%-3i                ", to_underlying( check->s.eType ) );
 			break;
 		}
 
@@ -239,7 +239,7 @@ struct SetForceCmd {
 	const int maxlevel;
 };
 
-SetForceCmd SetForceTable[] = {
+EnumArray<SetForceCmd, forcePowers_t, NUM_FORCE_POWERS> SetForceTable = {{
 	{ "forceHeal",			"setForceHeal",			FORCE_LEVEL_3	},
 	{ "forceJump",			"setForceJump",			FORCE_LEVEL_3	},
 	{ "forceSpeed",			"setForceSpeed",		FORCE_LEVEL_3	},
@@ -251,9 +251,9 @@ SetForceCmd SetForceTable[] = {
 	{ "saberThrow",			"setSaberThrow",		FORCE_LEVEL_3	},
 	{ "saberDefense",		"setSaberDefense",		FORCE_LEVEL_3	},
 	{ "saberOffense",		"setSaberOffense",		FORCE_LEVEL_5	},
-};
+}};
 
-static void Svcmd_ForceSetLevel_f( int forcePower )
+static void Svcmd_ForceSetLevel_f( forcePowers_t forcePower )
 {
 	if ( !g_entities[0].client )
 	{
@@ -274,11 +274,11 @@ static void Svcmd_ForceSetLevel_f( int forcePower )
 	int val = atoi(newVal);
 	if ( val > FORCE_LEVEL_0 )
 	{
-		g_entities[0].client->ps.forcePowersKnown |= ( 1 << forcePower );
+		g_entities[0].client->ps.forcePowersKnown |= Bit( forcePower );
 	}
 	else
 	{
-		g_entities[0].client->ps.forcePowersKnown &= ~( 1 << forcePower );
+		g_entities[0].client->ps.forcePowersKnown &= ~Bit( forcePower );
 	}
 	g_entities[0].client->ps.forcePowerLevel[forcePower] = val;
 	if ( g_entities[0].client->ps.forcePowerLevel[forcePower] < FORCE_LEVEL_0 )
@@ -291,9 +291,9 @@ static void Svcmd_ForceSetLevel_f( int forcePower )
 	}
 }
 
-extern bool PM_SaberInStart( int move );
-extern bool PM_SaberInTransition( int move );
-extern bool PM_SaberInAttack( int move );
+extern bool PM_SaberInStart( saberMoveName_t move );
+extern bool PM_SaberInTransition( saberMoveName_t move );
+extern bool PM_SaberInAttack( saberMoveName_t move );
 void Svcmd_SaberAttackCycle_f( void )
 {
 	if ( !g_entities[0].client )
@@ -373,7 +373,7 @@ void Svcmd_SaberAttackCycle_f( void )
 #endif
 }
 
-template <int32_t power>
+template <forcePowers_t power>
 static void Svcmd_ForceSetLevel_f(void)
 {
 	Svcmd_ForceSetLevel_f(power);
@@ -381,7 +381,7 @@ static void Svcmd_ForceSetLevel_f(void)
 
 static void Svcmd_SetForceAll_f(void)
 {
-	for ( int i = FP_HEAL; i <= FP_SABER_OFFENSE; i++ )
+	for ( forcePowers_t i = FP_HEAL; i <= FP_SABER_OFFENSE; i++ )
 	{
 		Svcmd_ForceSetLevel_f( i );
 	}

@@ -175,7 +175,7 @@ void WP_Explode( gentity_t *self )
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
 //-----------------------------------------------------------------------------
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath,int dFlags,int hitLoc )
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,int hitLoc )
 //-----------------------------------------------------------------------------
 {
 	self->enemy = attacker;
@@ -253,7 +253,7 @@ void ViewHeightFix(const gentity_t *const ent)
 	}
 }
 
-bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
+bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, meansOfDeath_t mod )
 {
 	if ( mod != MOD_UNKNOWN )
 	{
@@ -289,6 +289,8 @@ bool W_AccuracyLoggableWeapon( int weapon, bool alt_fire, int mod )
 			{
 				return true;
 			}
+			break;
+		default:
 			break;
 		}
 	}
@@ -883,7 +885,7 @@ extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 }
 
 //----------------------------------------------------------
-void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, int mod,int hitLoc )
+void emplaced_gun_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod,int hitLoc )
 {
 	if ( self->health <= 0 )
 	{
@@ -909,7 +911,7 @@ void emplaced_blow( gentity_t *ent )
 }
 
 //----------------------------------------------------------
-void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod,int dFlags,int hitLoc )
+void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,int hitLoc )
 {
 	vec3_t org;
 
