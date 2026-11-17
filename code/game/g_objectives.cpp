@@ -41,14 +41,12 @@ OBJ_SetPendingObjectives
 */
 void OBJ_SetPendingObjectives(gentity_t *ent)
 {
-	int i;
-
-	for (i=0;i<to_underlying( MAX_OBJECTIVES );++i)
+	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
 	{
-		if ((ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status == OBJECTIVE_STAT_PENDING) &&
-			(ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display))
+		objectives_t &objective = ent->client->sess.mission_objectives[o];
+		if ((objective.status == OBJECTIVE_STAT_PENDING) && (objective.display))
 		{
-			ent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status = OBJECTIVE_STAT_FAILED;
+			objective.status = OBJECTIVE_STAT_FAILED;
 		}
 	}
 }

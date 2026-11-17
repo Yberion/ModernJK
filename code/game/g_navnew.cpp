@@ -96,12 +96,12 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
 	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
-		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, (EG2_Collision)0, 0 );
+		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
@@ -201,7 +201,7 @@ bool NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP, (EG2_Collision)0, 0 );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
 
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )

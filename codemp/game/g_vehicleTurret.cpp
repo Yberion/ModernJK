@@ -274,7 +274,7 @@ static bool VEH_TurretFindEnemies( Vehicle_t *pVeh,
 			continue;
 		}
 		if ( parent->client
-			&& parent->client->sess.sessionTeam )
+			&& parent->client->sess.sessionTeam != TEAM_FREE )
 		{
 			if ( target->client )
 			{

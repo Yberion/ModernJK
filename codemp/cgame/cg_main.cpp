@@ -578,7 +578,7 @@ called during a precache command
 void CG_PrecacheNPCSounds(const char *str);
 void CG_ParseSiegeObjectiveStatus(const char *str);
 extern int cg_beatingSiegeTime;
-extern int cg_siegeWinTeam;
+extern team_t cg_siegeWinTeam;
 static void CG_RegisterSounds( void ) {
 	int		i;
 	char	items[MAX_ITEMS+1];
@@ -959,7 +959,7 @@ static void CG_RegisterSounds( void ) {
 
 	if (soundName[0])
 	{
-		cg_siegeWinTeam = atoi(soundName);
+		cg_siegeWinTeam = static_cast<team_t>( atoi(soundName) );
 	}
 
 	if (cgs.gametype == GT_SIEGE)
@@ -1968,7 +1968,7 @@ void CG_SetScoreSelection(void *p) {
 }
 
 // FIXME: might need to cache this info
-static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex) {
+static clientInfo_t * CG_InfoFromScoreIndex(int index, std::optional<team_t> team, int *scoreIndex) {
 	int i, count;
 	if ( cgs.gametype >= GT_TEAM ) {
 		count = 0;
@@ -1991,7 +1991,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	gitem_t *item;
 	int scoreIndex = 0;
 	clientInfo_t *info = nullptr;
-	int team = -1;
+	std::optional<team_t> team;
 	score_t *sp = nullptr;
 
 	*handle1 = *handle2 = *handle3 = -1;
@@ -2028,7 +2028,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 				}
 			break;
 			case 1:
-				if (team == -1) {
+				if (!team) {
 					return "";
 				} else {
 					*handle1 = CG_StatusHandle(info->teamTask);
@@ -2038,7 +2038,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 				if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
 					return "Ready";
 				}
-				if (team == -1) {
+				if (!team) {
 					if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) {
 						return va("%i/%i", info->wins, info->losses);
 					} else if (info->infoValid && info->team == TEAM_SPECTATOR ) {
@@ -2080,7 +2080,7 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 static bool CG_FeederSelection(float feederID, int index, itemDef_t *item) {
 	if ( cgs.gametype >= GT_TEAM ) {
 		int i, count;
-		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
+		team_t team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
 		count = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			if (cg.scores[i].team == team) {
@@ -2448,7 +2448,7 @@ Ghoul2 Insert End
 
 	cg.loadLCARSStage		= 0;
 
-	cg.itemSelect = -1;
+	cg.itemSelect.reset();
 	cg.forceSelect = -1;
 
 	// load a few needed things before we do any screen updates
@@ -2501,11 +2501,11 @@ Ghoul2 Insert End
 		{
 			if (bg_itemlist[i].icon)
 			{
-				cgs.media.invenIcons[bg_itemlist[i].giTag] = trap->R_RegisterShaderNoMip(bg_itemlist[i].icon);
+				cgs.media.invenIcons[static_cast<holdable_t>( bg_itemlist[i].giTag )] = trap->R_RegisterShaderNoMip(bg_itemlist[i].icon);
 			}
 			else
 			{
-				cgs.media.invenIcons[bg_itemlist[i].giTag] = 0;
+				cgs.media.invenIcons[static_cast<holdable_t>( bg_itemlist[i].giTag )] = 0;
 			}
 		}
 
@@ -2812,15 +2812,15 @@ void CG_NextInventory_f(void)
 		return;
 	}
 
-	if (cg.itemSelect != -1)
+	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE);
+		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( *cg.itemSelect ), IT_HOLDABLE);
 	}
 	BG_CycleInven(&cg.snap->ps, 1);
 
 	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
 		cg.invenSelectTime = cg.time;
 	}
 }
@@ -2842,15 +2842,15 @@ void CG_PrevInventory_f(void)
 		return;
 	}
 
-	if (cg.itemSelect != -1)
+	if (cg.itemSelect)
 	{
-		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE);
+		cg.snap->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( *cg.itemSelect ), IT_HOLDABLE);
 	}
 	BG_CycleInven(&cg.snap->ps, -1);
 
 	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM])
 	{
-		cg.itemSelect = bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
 		cg.invenSelectTime = cg.time;
 	}
 }

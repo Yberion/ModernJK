@@ -251,7 +251,7 @@ void G_StopEffect(const char *name, const int modelIndex, const int boltIndex, c
 
 //===Bypass network for sounds on specific channels====================
 
-extern void cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
+extern void cgi_S_StartSound( const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 #include "../cgame/cg_media.h"	//access to cgs
 extern bool CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
 extern cvar_t *g_timescale;
@@ -1251,7 +1251,7 @@ bool G_CheckInSolidTeleport (const vec3_t& teleportPos, gentity_t *self)
 	VectorCopy(self->mins, mins);
 	mins[2] = 0;
 
-	gi.trace(&trace, teleportPos, mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0);
+	gi.trace(&trace, teleportPos, mins, self->maxs, end, self->s.number, self->clipmask, G2_NOCOLLIDE, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
 		return true;
@@ -1270,7 +1270,7 @@ bool G_CheckInSolid (gentity_t *self, bool fix)
 	VectorCopy(self->mins, mins);
 	mins[2] = 0;
 
-	gi.trace(&trace, self->currentOrigin, mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0);
+	gi.trace(&trace, self->currentOrigin, mins, self->maxs, end, self->s.number, self->clipmask, G2_NOCOLLIDE, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
 		return true;
@@ -1461,7 +1461,7 @@ static void DebugTraceForNPC(gentity_t *ent)
 	VectorMA( src, 4096, vf, dest );
 
 	//Trace ahead to find a valid target
-	gi.trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, (EG2_Collision)0, 0 );
+	gi.trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, G2_NOCOLLIDE, 0 );
 
 	if (trace.fraction < 0.99f)
 	{
@@ -1509,7 +1509,7 @@ static bool G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 		return false;
 	}
 
-	if( self->noDamageTeam )
+	if( self->noDamageTeam != TEAM_FREE )
 	{
 		if ( other->client->playerTeam != self->noDamageTeam )
 		{
@@ -1732,7 +1732,7 @@ bool CanUseInfrontOf(gentity_t *ent)
 	if ( target->client
 		&& target->client->ps.pm_type < PM_DEAD
 		&& target->NPC!=nullptr
-		&& target->client->playerTeam
+		&& target->client->playerTeam != TEAM_FREE
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE)
 		&& G_ValidActivateBehavior (target, BSET_USE))
@@ -1829,7 +1829,7 @@ void TryUse( gentity_t *ent )
 	else if ( target->client
 		&& target->client->ps.pm_type < PM_DEAD
 		&& target->NPC!=nullptr
-		&& target->client->playerTeam
+		&& target->client->playerTeam != TEAM_FREE
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
 	{
@@ -1936,7 +1936,7 @@ bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, con
 {
 	static	trace_t	tr;
 
-	gi.trace( &tr, start, mins, maxs, end, ignore, clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &tr, start, mins, maxs, end, ignore, clipmask, G2_NOCOLLIDE, 0 );
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
@@ -1972,7 +1972,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 	{
 		VectorCopy( start, end );
 		end[i] += mins[i];
-		gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, (EG2_Collision)0, 0 );
+		gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, G2_NOCOLLIDE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			return false;
@@ -1981,7 +1981,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		{
 			VectorCopy( start, end );
 			end[i] += maxs[i]-(mins[i]*tr.fraction);
-			gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, (EG2_Collision)0, 0 );
+			gi.trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, G2_NOCOLLIDE, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
 				return false;
@@ -1994,7 +1994,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		}
 	}
 	//expanded it, now see if it's all clear
-	gi.trace( &tr, start, mins, maxs, start, ignore, clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &tr, start, mins, maxs, start, ignore, clipmask, G2_NOCOLLIDE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
 		return false;

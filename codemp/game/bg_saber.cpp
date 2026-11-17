@@ -715,8 +715,8 @@ bool PM_SaberInBounce( int move )
 
 bool PM_SaberInTransition( int move );
 
-int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_QUADS )] =
-{
+EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> saberMoveTransitionAngle =
+{{
 //		Q_BR,Q_BR,	Q_BR,Q_R,	Q_BR,Q_TR,	Q_BR,Q_T,	Q_BR,Q_TL,	Q_BR,Q_L,	Q_BR,Q_BL,	Q_BR,Q_B,
 	{	0,			45,			90,			135,		180,		215,		270,		45			},
 //		Q_R,Q_BR,	Q_R,Q_R,	Q_R,Q_TR,	Q_R,Q_T,	Q_R,Q_TL,	Q_R,Q_L,	Q_R,Q_BL,	Q_R,Q_B,
@@ -733,7 +733,7 @@ int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_
 	{	270,		215,		180,		135,		90,			45,			0,			45			},
 //		Q_B,Q_BR,	Q_B,Q_R,	Q_B,Q_TR,	Q_B,Q_T,	Q_B,Q_TL,	Q_B,Q_L,	Q_B,Q_BL,	Q_B,Q_B,
 	{	45,			90,			135,		180,		135,		90,			45,			0			},
-};
+}};
 
 int PM_SaberAttackChainAngle( int move1, int move2 )
 {
@@ -741,7 +741,7 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 	{
 		return -1;
 	}
-	return saberMoveTransitionAngle[to_underlying( saberMoveData[move1].endQuad )][to_underlying( saberMoveData[move2].startQuad )];
+	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
 }
 
 bool PM_SaberKataDone(int curmove, int newmove)

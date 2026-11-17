@@ -190,7 +190,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if( self->noDamageTeam )
+	if( self->noDamageTeam != TEAM_FREE )
 	{
 		if ( other->client->playerTeam != self->noDamageTeam )
 		{
@@ -834,7 +834,7 @@ void trigger_push_checkclear( gentity_t *self )
 	VectorScale( center, 0.5, center );
 
 	gentity_t *target = G_Find( nullptr, FOFS(targetname), self->target );
-	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, CONTENTS_SOLID, (EG2_Collision)0, 0 );
+	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 
 	if ( trace.fraction >= 1.0f )
 	{//can trace, turn on

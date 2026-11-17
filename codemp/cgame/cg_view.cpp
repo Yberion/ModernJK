@@ -591,7 +591,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 				CG_Trace(&trace, cameraCurTarget, cameramins, cameramaxs, cameraCurLoc, cg.snap->ps.clientNum, MASK_CAMERACLIP);
 
 				//copy old data back in
-				mover->currentState.pos.trType = (trType_t) curTr;
+				mover->currentState.pos.trType = curTr;
 				VectorCopy(curTrB, mover->currentState.pos.trBase);
 			}
 			if (trace.fraction < 1.0f)
@@ -2184,7 +2184,7 @@ void CG_DrawAutoMap(void)
 		return;
 	}
 
-	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR )
+	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 	{ //don't show when spec
 		return;
 	}
@@ -2430,9 +2430,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
-	if (cg.snap && ui_myteam.integer != cg.snap->ps.persistant[PERS_TEAM])
+	if (cg.snap && static_cast<team_t>( ui_myteam.integer ) != PS_Team( cg.snap->ps ))
 	{
-		trap->Cvar_Set ( "ui_myteam", va("%i", cg.snap->ps.persistant[PERS_TEAM]) );
+		trap->Cvar_Set ( "ui_myteam", va("%i", to_underlying( PS_Team( cg.snap->ps ) )) );
 	}
 	if (cgs.gametype == GT_SIEGE &&
 		cg.snap &&
@@ -2528,7 +2528,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 			//mSensitivityOverride = 5.0f;//old default value
 			mSensitivityOverride = 0.0f;
 			bUseFighterPitch = true;
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, mSensitivityOverride, cg.forceSelect, cg.itemSelect, bUseFighterPitch );
+			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, mSensitivityOverride, cg.forceSelect, cg.itemSelect ? to_underlying( *cg.itemSelect ) : -1, bUseFighterPitch );
 			isFighter = true;
 		}
 	}
@@ -2547,12 +2547,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 			veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER &&
 			bg_fighterAltControl.integer)
 		{
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, true );
+			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect ? to_underlying( *cg.itemSelect ) : -1, true );
 			veh = nullptr; //this is done because I don't want an extra assign each frame because I am so perfect and super efficient.
 		}
 		else
 		{
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, false );
+			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect ? to_underlying( *cg.itemSelect ) : -1, false );
 		}
 	}
 
@@ -2599,7 +2599,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 		cg.renderingThirdPerson = 0;
 	}
 
-	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+	if (PS_Team( cg.snap->ps ) == TEAM_SPECTATOR)
 	{
 		cg.renderingThirdPerson = 0;
 	}

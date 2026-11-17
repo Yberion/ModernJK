@@ -260,7 +260,7 @@ static void DynamicMusicInfoPrint(void)
 			psActualMusicState	= "<unknown>";
 		}
 
-		Com_Printf("( Dynamic music ON, request state: '%s'(%d), actual: '%s' (%d) )\n", psRequestMusicState, eMusic_StateRequest, psActualMusicState, eMusic_StateActual);
+		Com_Printf("( Dynamic music ON, request state: '%s'(%d), actual: '%s' (%d) )\n", psRequestMusicState, to_underlying( eMusic_StateRequest ), psActualMusicState, to_underlying( eMusic_StateActual ));
 	}
 	else
 	{
@@ -661,7 +661,7 @@ void S_memoryLoad(sfx_t	*sfx)
 }
 
 //=============================================================================
-static bool S_CheckChannelStomp( int chan1, int chan2 )
+static bool S_CheckChannelStomp( soundChannel_t chan1, soundChannel_t chan2 )
 {
 	{
 		if ( chan1 == chan2 )
@@ -683,14 +683,14 @@ static bool S_CheckChannelStomp( int chan1, int chan2 )
 S_PickChannel
 =================
 */
-channel_t *S_PickChannel(int entnum, int entchannel)
+channel_t *S_PickChannel(int entnum, soundChannel_t entchannel)
 {
     int			ch_idx;
 	channel_t	*ch, *firstToDie;
 	bool	foundChan = false;
 
 
-	if ( entchannel<0 ) {
+	if ( to_underlying( entchannel ) < 0 ) {
 		Com_Error (ERR_DROP, "S_PickChannel: entchannel<0");
 	}
 
@@ -762,7 +762,7 @@ S_SpatializeOrigin
 Used for spatializing s_channels
 =================
 */
-void S_SpatializeOrigin (const vec3_t origin, float master_vol, int *left_vol, int *right_vol, int channel)
+void S_SpatializeOrigin (const vec3_t origin, float master_vol, int *left_vol, int *right_vol, soundChannel_t channel)
 {
     float		dot;
     float		dist;
@@ -923,7 +923,7 @@ S_MuteSound
 Mutes sound on specified channel for specified entity.
 ====================
 */
-void S_MuteSound(int entityNum, int entchannel)
+void S_MuteSound(int entityNum, soundChannel_t entchannel)
 {
 	//I guess this works.
 	channel_t *ch = S_PickChannel( entityNum, entchannel );
@@ -935,7 +935,7 @@ void S_MuteSound(int entityNum, int entchannel)
 
 	ch->master_vol = 0;
 	ch->entnum = 0;
-	ch->entchannel = 0;
+	ch->entchannel = CHAN_AUTO;
 	ch->thesfx = nullptr;
 	ch->startSample = 0;
 
@@ -952,7 +952,7 @@ if pos is nullptr, the sound will be dynamically sourced from the entity
 entchannel 0 will never override a playing sound
 ====================
 */
-void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle )
+void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfxHandle )
 {
 	channel_t	*ch;
 	/*const*/ sfx_t *sfx;
@@ -1028,7 +1028,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 S_StartLocalSound
 ==================
 */
-void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
+void S_StartLocalSound( sfxHandle_t sfxHandle, soundChannel_t channelNum ) {
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
@@ -1388,7 +1388,7 @@ void S_AddLoopSounds (void)
 			continue;		// not audible
 
 		// allocate a channel
-		ch = S_PickChannel(0, 0);
+		ch = S_PickChannel(0, CHAN_AUTO);
 		if (!ch)
 			return;
 
@@ -3053,7 +3053,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledBy
 			for (MusicState_e i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 			{
 				bool bOk = false;
-				const char *psMusicName = Music_GetFileNameForState( (MusicState_e) i);
+				const char *psMusicName = Music_GetFileNameForState( i );
 				if (psMusicName && (!Q_stricmp(tMusic_Info[i].sLoadedDataName, psMusicName) || S_FileExists( psMusicName )) )
 				{
 					bOk = S_StartBackgroundTrack_Actual( &tMusic_Info[i], true, psMusicName, loop );

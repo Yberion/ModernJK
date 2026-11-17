@@ -1031,7 +1031,7 @@ void fx_target_beam_fire( gentity_t *ent )
 	VectorSubtract( org, ent->s.origin, dir );
 	VectorNormalize( dir );
 
-	gi.trace( &trace, ent->s.origin, nullptr, nullptr, org, ENTITYNUM_NONE, MASK_SHOT, (EG2_Collision)0, 0 );//ignore
+	gi.trace( &trace, ent->s.origin, nullptr, nullptr, org, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
 	if ( ent->spawnflags & 2 )
 	{
 		open = true;

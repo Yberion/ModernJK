@@ -48,7 +48,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*var;
 	int		i;
 
-	s = va("%i", client->sess.sessionTeam );
+	s = va("%i", to_underlying( client->sess.sessionTeam ) );
 	var = va( "session%i", client - level.clients );
 	gi.cvar_set( var, s );
 
@@ -138,10 +138,11 @@ void G_ReadSessionData( gclient_t *client ) {
 //			var+=4;
 //	}
 	// Clear the objectives out
-	for (i=0;i<to_underlying( MAX_OBJECTIVES ); i++)
+	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
 	{
-		client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display = false;
-		client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status = OBJECTIVE_STAT_PENDING;
+		objectives_t &objective = client->sess.mission_objectives[o];
+		objective.display = false;
+		objective.status = OBJECTIVE_STAT_PENDING;
 	}
 
 	// Now load the LIGHTSIDE objective. That's the only cross level objective.

@@ -1632,7 +1632,7 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 		&& ent->client->ps.saberLockTime < level.time )
 	{
 		int anim = -1;
-		switch ( static_cast<tauntTypes_t>( taunt ) )
+		switch ( taunt )
 		{
 		case TAUNT_TAUNT:
 			if ( ent->client->ps.weapon != WP_SABER )
@@ -2113,9 +2113,9 @@ void ClientThink_real( gentity_t *ent ) {
 	} else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 		client->ps.pm_type = PM_DEAD;
 	} else {
-		if (client->ps.forceGripChangeMovetype)
+		if (client->ps.forceGripChangeMovetype != PM_NORMAL)
 		{
-			client->ps.pm_type = static_cast<pmtype_t>( client->ps.forceGripChangeMovetype );
+			client->ps.pm_type = client->ps.forceGripChangeMovetype;
 		}
 		else
 		{

@@ -144,7 +144,7 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 					elapsedTime = floor( travelTime );
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
-				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, (EG2_Collision)0, 0 );
+				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, G2_NOCOLLIDE, 0 );
 
 				if ( trace.allsolid || trace.startsolid )
 				{

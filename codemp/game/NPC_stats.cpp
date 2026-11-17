@@ -148,7 +148,7 @@ stringID_table_t BSETTable[] =
 extern stringID_table_t WPTable[];
 extern stringID_table_t FPTable[];
 
-const char	*TeamNames[TEAM_NUM_TEAMS] =
+EnumArray<const char *, npcteam_t, NPCTEAM_NUM_TEAMS>	TeamNames =
 {
 	"",
 	"player",
@@ -2444,7 +2444,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						SkipRestOfLine( &p );
 						continue;
 					}
-					if ( n < BS_DEFAULT || n >= NUM_BSTATES )
+					if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
 					{
 						Com_Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 						continue;

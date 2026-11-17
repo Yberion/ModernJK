@@ -256,7 +256,7 @@ static void DynamicMusicInfoPrint(void)
 			psActualMusicState	= "<unknown>";
 		}
 
-		Com_Printf("( Dynamic music ON, request state: '%s'(%d), actual: '%s' (%d) )\n", psRequestMusicState, eMusic_StateRequest, psActualMusicState, eMusic_StateActual);
+		Com_Printf("( Dynamic music ON, request state: '%s'(%d), actual: '%s' (%d) )\n", psRequestMusicState, to_underlying( eMusic_StateRequest ), psActualMusicState, to_underlying( eMusic_StateActual ));
 	}
 	else
 	{
@@ -657,7 +657,7 @@ void S_memoryLoad(sfx_t	*sfx)
 }
 
 //=============================================================================
-static bool S_CheckChannelStomp( int chan1, int chan2 )
+static bool S_CheckChannelStomp( soundChannel_t chan1, soundChannel_t chan2 )
 {
 	{
 		if ( chan1 == chan2 )
@@ -679,14 +679,14 @@ static bool S_CheckChannelStomp( int chan1, int chan2 )
 S_PickChannel
 =================
 */
-channel_t *S_PickChannel(int entnum, int entchannel)
+channel_t *S_PickChannel(int entnum, soundChannel_t entchannel)
 {
     int			ch_idx;
 	channel_t	*ch, *firstToDie;
 	bool	foundChan = false;
 
 
-	if ( entchannel<0 ) {
+	if ( to_underlying( entchannel ) < 0 ) {
 		Com_Error (ERR_DROP, "S_PickChannel: entchannel<0");
 	}
 
@@ -945,7 +945,7 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
 	SND_TouchSFX(sfx);
 
 	if ( s_show->integer == 1 ) {
-		Com_Printf( "%i : %s for ent %d, chan=%d\n", s_paintedtime, sfx->sSoundName, entityNum, entchannel );
+		Com_Printf( "%i : %s for ent %d, chan=%d\n", s_paintedtime, sfx->sSoundName, entityNum, to_underlying( entchannel ) );
 	}
 
 	// pick a channel to play on
@@ -996,7 +996,7 @@ void S_StartSound(const vec3_t origin, int entityNum, soundChannel_t entchannel,
 S_StartLocalSound
 ==================
 */
-void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
+void S_StartLocalSound( sfxHandle_t sfxHandle, soundChannel_t channelNum ) {
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
@@ -1005,7 +1005,7 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 		Com_Error( ERR_DROP, "S_StartLocalSound: handle %i out of range", sfxHandle );
 	}
 
-	S_StartSound (nullptr, listener_number, (soundChannel_t)channelNum, sfxHandle );
+	S_StartSound (nullptr, listener_number, channelNum, sfxHandle );
 }
 
 /*
@@ -1301,7 +1301,7 @@ void S_AddLoopSounds (void)
 			continue;		// not audible
 
 		// allocate a channel
-		ch = S_PickChannel(0, 0);
+		ch = S_PickChannel(0, CHAN_AUTO);
 		if (!ch)
 			return;
 
@@ -3010,7 +3010,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, bool bCalledBy
 			for (MusicState_e i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 			{
 				bool bOk = false;
-				const char *psMusicName = Music_GetFileNameForState( (MusicState_e) i);
+				const char *psMusicName = Music_GetFileNameForState( i );
 				if (psMusicName && (!Q_stricmp(tMusic_Info[i].sLoadedDataName, psMusicName) || S_FileExists( psMusicName )) )
 				{
 					bOk = S_StartBackgroundTrack_Actual( &tMusic_Info[i], true, psMusicName, loop );

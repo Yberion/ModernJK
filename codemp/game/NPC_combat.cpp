@@ -1636,7 +1636,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, npcteam_t enemyTeam, bool checkV
 			if ( newenemy->health > 0 )
 			{
 				if ( (newenemy->client && NPC_ValidEnemy( newenemy))
-					|| (!newenemy->client && newenemy->alliedTeam == to_underlying( enemyTeam )) )
+					|| (!newenemy->client && to_underlying( newenemy->alliedTeam ) == to_underlying( enemyTeam )) )
 				{//FIXME:  check for range and FOV or vis?
 					if ( NPCS.NPC->client->playerTeam == NPCTEAM_PLAYER && enemyTeam == NPCTEAM_PLAYER )
 					{//player allies turning on ourselves?  How?

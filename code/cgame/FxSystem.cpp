@@ -104,13 +104,13 @@ void SFxHelper::CloseFile( fileHandle_t fh )
 }
 
 //------------------------------------------------------
-void SFxHelper::PlaySound( const vec3_t org, int entityNum, int entchannel, int sfxHandle )
+void SFxHelper::PlaySound( const vec3_t org, int entityNum, soundChannel_t entchannel, int sfxHandle )
 {
 	cgi_S_StartSound( org, entityNum, entchannel, sfxHandle );
 }
 
 //------------------------------------------------------
-void SFxHelper::PlayLocalSound( int sfxHandle, int channelNum )
+void SFxHelper::PlayLocalSound( int sfxHandle, soundChannel_t channelNum )
 {
 	cgi_S_StartLocalSound(sfxHandle, channelNum);
 }

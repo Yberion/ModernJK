@@ -463,7 +463,7 @@ static bool turret_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( self->alliedTeam )
+		if ( self->alliedTeam != TEAM_FREE )
 		{
 			if ( target->client )
 			{
@@ -754,9 +754,9 @@ bool turret_base_spawn_top( gentity_t *base )
 	top->r.ownerNum = base->s.number;
 
 	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
-		!base->teamnodmg)
+		base->teamnodmg == TEAM_FREE)
 	{
-		base->teamnodmg = atoi(base->team);
+		base->teamnodmg = static_cast<team_t>( atoi(base->team) );
 	}
 	base->team = nullptr;
 	top->teamnodmg = base->teamnodmg;
@@ -803,7 +803,7 @@ bool turret_base_spawn_top( gentity_t *base )
 	//even if we don't want to show health, let's at least light the crosshair up properly over ourself
 	if ( !top->s.teamowner )
 	{
-		top->s.teamowner = top->alliedTeam;
+		top->s.teamowner = to_underlying( top->alliedTeam );
 	}
 
 	base->alliedTeam = top->alliedTeam;

@@ -50,9 +50,9 @@ extern void CG_LoadCISounds(clientInfo_t *ci, bool modelloaded); //cg_players.cp
 
 void CG_DrawSiegeMessage( const char *str, int objectiveScreen );
 void CG_DrawSiegeMessageNonMenu( const char *str );
-void CG_SiegeBriefingDisplay(int team, int dontshow);
+void CG_SiegeBriefingDisplay(team_t team, int dontshow);
 
-void CG_PrecacheSiegeObjectiveAssetsForTeam(int myTeam)
+void CG_PrecacheSiegeObjectiveAssetsForTeam(team_t myTeam)
 {
 	char			teamstr[64];
 	char			objstr[256];
@@ -118,7 +118,7 @@ void CG_PrecacheSiegeObjectiveAssetsForTeam(int myTeam)
 	}
 }
 
-void CG_PrecachePlayersForSiegeTeam(int team)
+void CG_PrecachePlayersForSiegeTeam(team_t team)
 {
 	siegeTeam_t *stm;
 	int i = 0;
@@ -167,7 +167,7 @@ void CG_InitSiegeMode(void)
 	char			teams[2048];
 	char			teamInfo[MAX_SIEGE_INFO_SIZE];
 	int				len = 0;
-	int				i = 0;
+	team_t				i = TEAM_FREE;
 	int				j = 0;
 	siegeClass_t		*cl;
 	siegeTeam_t		*sTeam;
@@ -437,7 +437,7 @@ failure:
 	siege_valid = 0;
 }
 
-static char QINLINE *CG_SiegeObjectiveBuffer(int team, int objective)
+static char QINLINE *CG_SiegeObjectiveBuffer(team_t team, int objective)
 {
 	static char buf[8192];
 	char teamstr[1024];
@@ -465,7 +465,7 @@ static char QINLINE *CG_SiegeObjectiveBuffer(int team, int objective)
 void CG_ParseSiegeObjectiveStatus(const char *str)
 {
 	int i = 0;
-	int	team = SIEGETEAM_TEAM1;
+	team_t	team = SIEGETEAM_TEAM1;
 	char *cvarName;
 	char *s;
 	int objectiveNum = 0;
@@ -487,7 +487,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 			objectiveNum++;
 			i++;
 
-			cvarName = va("team%i_objective%i", team, objectiveNum);
+			cvarName = va("team%i_objective%i", to_underlying( team ), objectiveNum);
 			if (str[i] == '1')
 			{ //it's completed
 				trap->Cvar_Set(cvarName, "1");
@@ -502,7 +502,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 			{ //now set the description and graphic cvars to by read by the menu
 				char buffer[8192];
 
-				cvarName = va("team%i_objective%i_longdesc", team, objectiveNum);
+				cvarName = va("team%i_objective%i_longdesc", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "objdesc", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -512,7 +512,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 					trap->Cvar_Set(cvarName, "UNSPECIFIED");
 				}
 
-				cvarName = va("team%i_objective%i_gfx", team, objectiveNum);
+				cvarName = va("team%i_objective%i_gfx", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "objgfx", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -522,7 +522,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 					trap->Cvar_Set(cvarName, "UNSPECIFIED");
 				}
 
-				cvarName = va("team%i_objective%i_mapicon", team, objectiveNum);
+				cvarName = va("team%i_objective%i_mapicon", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "mapicon", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -532,7 +532,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 					trap->Cvar_Set(cvarName, "UNSPECIFIED");
 				}
 
-				cvarName = va("team%i_objective%i_litmapicon", team, objectiveNum);
+				cvarName = va("team%i_objective%i_litmapicon", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "litmapicon", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -542,7 +542,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 					trap->Cvar_Set(cvarName, "UNSPECIFIED");
 				}
 
-				cvarName = va("team%i_objective%i_donemapicon", team, objectiveNum);
+				cvarName = va("team%i_objective%i_donemapicon", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "donemapicon", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -552,7 +552,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 					trap->Cvar_Set(cvarName, "UNSPECIFIED");
 				}
 
-				cvarName = va("team%i_objective%i_mappos", team, objectiveNum);
+				cvarName = va("team%i_objective%i_mappos", to_underlying( team ), objectiveNum);
 				if (BG_SiegeGetPairedValue(s, "mappos", buffer))
 				{
 					trap->Cvar_Set(cvarName, buffer);
@@ -566,15 +566,15 @@ void CG_ParseSiegeObjectiveStatus(const char *str)
 		i++;
 	}
 
-	if (cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR)
+	if (PS_Team( cg.predictedPlayerState ) != TEAM_SPECTATOR)
 	{ //update menu cvars
-		CG_SiegeBriefingDisplay(cg.predictedPlayerState.persistant[PERS_TEAM], 1);
+		CG_SiegeBriefingDisplay(PS_Team( cg.predictedPlayerState ), 1);
 	}
 }
 
-void CG_SiegeRoundOver(centity_t *ent, int won)
+void CG_SiegeRoundOver(centity_t *ent, team_t won)
 {
-	int				myTeam;
+	team_t				myTeam;
 	char			teamstr[64];
 	char			appstring[1024];
 	char			soundstr[1024];
@@ -602,7 +602,7 @@ void CG_SiegeRoundOver(centity_t *ent, int won)
 		return;
 	}
 
-	myTeam = ps->persistant[PERS_TEAM];
+	myTeam = PS_Team( *ps );
 
 	if (myTeam == TEAM_SPECTATOR)
 	{
@@ -671,7 +671,7 @@ void CG_SiegeRoundOver(centity_t *ent, int won)
 	}
 }
 
-void CG_SiegeGetObjectiveDescription(int team, int objective, char *buffer)
+void CG_SiegeGetObjectiveDescription(team_t team, int objective, char *buffer)
 {
 	char teamstr[1024];
 	char objectiveStr[8192];
@@ -697,7 +697,7 @@ void CG_SiegeGetObjectiveDescription(int team, int objective, char *buffer)
 	}
 }
 
-int CG_SiegeGetObjectiveFinal(int team, int objective )
+int CG_SiegeGetObjectiveFinal(team_t team, int objective )
 {
 	char finalStr[64];
 	char teamstr[1024];
@@ -724,14 +724,14 @@ int CG_SiegeGetObjectiveFinal(int team, int objective )
 	return 0;
 }
 
-void CG_SiegeBriefingDisplay(int team, int dontshow)
+void CG_SiegeBriefingDisplay(team_t team, int dontshow)
 {
 	char			teamstr[64];
 	char			briefing[8192];
 	char			properValue[1024];
 	char			objectiveDesc[1024];
 	int				i = 1;
-	int				useTeam = team;
+	team_t				useTeam = team;
 	bool		primary = false;
 
 	if (!siege_valid)
@@ -769,7 +769,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		primary = (CG_SiegeGetObjectiveFinal(useTeam, i)>0)?true:false;
 
 		properValue[0] = 0;
-		trap->Cvar_VariableStringBuffer(va("team%i_objective%i", useTeam, i), properValue, 1024);
+		trap->Cvar_VariableStringBuffer(va("team%i_objective%i", to_underlying( useTeam ), i), properValue, 1024);
 		if (primary)
 		{
 			trap->Cvar_Set(va("siege_primobj"), properValue);
@@ -781,7 +781,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 
 		//Now set the long desc cvar for the menu to display.
 		properValue[0] = 0;
-		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_longdesc", useTeam, i), properValue, 1024);
+		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_longdesc", to_underlying( useTeam ), i), properValue, 1024);
 		if (primary)
 		{
 			trap->Cvar_Set(va("siege_primobj_longdesc"), properValue);
@@ -793,7 +793,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 
 		//Now set the gfx cvar for the menu to display.
 		properValue[0] = 0;
-		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_gfx", useTeam, i), properValue, 1024);
+		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_gfx", to_underlying( useTeam ), i), properValue, 1024);
 		if (primary)
 		{
 			trap->Cvar_Set(va("siege_primobj_gfx"), properValue);
@@ -805,7 +805,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 
 		//Now set the mapicon cvar for the menu to display.
 		properValue[0] = 0;
-		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_mapicon", useTeam, i), properValue, 1024);
+		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_mapicon", to_underlying( useTeam ), i), properValue, 1024);
 		if (primary)
 		{
 			trap->Cvar_Set(va("siege_primobj_mapicon"), properValue);
@@ -817,7 +817,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 
 		//Now set the mappos cvar for the menu to display.
 		properValue[0] = 0;
-		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_mappos", useTeam, i), properValue, 1024);
+		trap->Cvar_VariableStringBuffer(va("team%i_objective%i_mappos", to_underlying( useTeam ), i), properValue, 1024);
 		if (primary)
 		{
 			trap->Cvar_Set(va("siege_primobj_mappos"), properValue);
@@ -839,14 +839,14 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 				trap->Cvar_Set(va("siege_objective%i_inuse", i), "0");
 				trap->Cvar_Set(va("siege_primobj_inuse"), "1");
 
-				trap->Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "1");
+				trap->Cvar_Set(va("team%i_objective%i_inuse", to_underlying( useTeam ), i), "1");
 
 			}
 			else
 			{
 				trap->Cvar_Set(va("siege_objective%i_desc", i), objectiveDesc);
 				trap->Cvar_Set(va("siege_objective%i_inuse", i), "2");
-				trap->Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "2");
+				trap->Cvar_Set(va("team%i_objective%i_inuse", to_underlying( useTeam ), i), "2");
 
 			}
 		}
@@ -854,15 +854,15 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{ //didn't find one, so set the "inuse" cvar to 0 for the objective and mark it non-complete.
 			trap->Cvar_Set(va("siege_objective%i_inuse", i), "0");
 			trap->Cvar_Set(va("siege_objective%i", i), "0");
-			trap->Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "0");
-			trap->Cvar_Set(va("team%i_objective%i", useTeam, i), "0");
+			trap->Cvar_Set(va("team%i_objective%i_inuse", to_underlying( useTeam ), i), "0");
+			trap->Cvar_Set(va("team%i_objective%i", to_underlying( useTeam ), i), "0");
 
 			trap->Cvar_Set(va("siege_objective%i_mappos", i), "");
-			trap->Cvar_Set(va("team%i_objective%i_mappos", useTeam, i), "");
+			trap->Cvar_Set(va("team%i_objective%i_mappos", to_underlying( useTeam ), i), "");
 			trap->Cvar_Set(va("siege_objective%i_gfx", i), "");
-			trap->Cvar_Set(va("team%i_objective%i_gfx", useTeam, i), "");
+			trap->Cvar_Set(va("team%i_objective%i_gfx", to_underlying( useTeam ), i), "");
 			trap->Cvar_Set(va("siege_objective%i_mapicon", i), "");
-			trap->Cvar_Set(va("team%i_objective%i_mapicon", useTeam, i), "");
+			trap->Cvar_Set(va("team%i_objective%i_mapicon", to_underlying( useTeam ), i), "");
 		}
 
 		i++;
@@ -882,9 +882,9 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 	}
 }
 
-void CG_SiegeObjectiveCompleted(centity_t *ent, int won, int objectivenum)
+void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum)
 {
-	int				myTeam;
+	team_t				myTeam;
 	char			teamstr[64];
 	char			objstr[256];
 	char			foundobjective[MAX_SIEGE_INFO_SIZE];
@@ -914,7 +914,7 @@ void CG_SiegeObjectiveCompleted(centity_t *ent, int won, int objectivenum)
 		return;
 	}
 
-	myTeam = ps->persistant[PERS_TEAM];
+	myTeam = PS_Team( *ps );
 
 	if (myTeam == TEAM_SPECTATOR)
 	{

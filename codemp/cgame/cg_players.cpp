@@ -440,7 +440,7 @@ CG_RegisterClientModelname
 ==========================
 */
 bool BG_IsValidCharacterModel(const char *modelName, const char *skinName);
-bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
+bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team, float *colors );
 
 static bool CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *teamName, int clientNum ) {
 	int handle;
@@ -1699,11 +1699,11 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 		v = Info_ValueForKey( configstring, "sdt" );
 		if (v && v[0])
 		{
-            newInfo.siegeDesiredTeam = atoi(v);
+            newInfo.siegeDesiredTeam = static_cast<team_t>( atoi(v) );
 		}
 		else
 		{
-			newInfo.siegeDesiredTeam = 0;
+			newInfo.siegeDesiredTeam = TEAM_FREE;
 		}
 
 		//siege classname
@@ -5098,7 +5098,7 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, team_t team ) {
 
 	if (CG_IsMindTricked(state->trickedentindex,
 		state->trickedentindex2,
@@ -6537,7 +6537,7 @@ JustDoIt:
 	//CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
 	//	scolor, renderfx, (saberNum==0&&bladeNum==0) );
 	CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
-		(saber_colors_t)scolor, renderfx, (client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
+		scolor, renderfx, (client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
 }
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
@@ -8463,7 +8463,7 @@ void CG_Player( centity_t *cent ) {
 	float			angle;
 	vec3_t			angles, dir, elevated, enang, seekorg;
 	int				iwantout = 0, successchange = 0;
-	int				team;
+	team_t				team;
 	mdxaBone_t 		boltMatrix, lHandMatrix;
 	int				doAlpha = 0;
 	bool		gotLHandMatrix = false;
@@ -8675,7 +8675,7 @@ void CG_Player( centity_t *cent ) {
 	{
 		if ( cent->currentState.eType != ET_NPC &&
 			cg.snap->ps.clientNum != cent->currentState.number &&
-			ci->team == cg.snap->ps.persistant[PERS_TEAM] )
+			ci->team == PS_Team( cg.snap->ps ) )
 		{
 			CG_AddRadarEnt(cent);
 		}
@@ -9047,7 +9047,7 @@ void CG_Player( centity_t *cent ) {
 		cent->currentState.number != cg.snap->ps.clientNum &&
 		cent->currentState.eType != ET_NPC)
 	{	// If the view is either a spectator or on the same team as this character, show a symbol above their head.
-		if ((cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap->ps.persistant[PERS_TEAM] == team) &&
+		if ((PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || PS_Team( cg.snap->ps ) == team) &&
 			!(cent->currentState.eFlags & EF_DEAD))
 		{
 			if (cgs.gametype == GT_SIEGE)
@@ -9091,7 +9091,7 @@ void CG_Player( centity_t *cent ) {
 	else if (cgs.gametype == GT_POWERDUEL && cg_drawFriend.integer &&
 		cent->currentState.number != cg.snap->ps.clientNum)
 	{
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR &&
+		if (PS_Team( cg.predictedPlayerState ) != TEAM_SPECTATOR &&
 			cent->currentState.number < MAX_CLIENTS &&
 			!(cent->currentState.eFlags & EF_DEAD) &&
 			ci &&
@@ -9099,7 +9099,7 @@ void CG_Player( centity_t *cent ) {
 		{ //ally in powerduel, so draw the icon
 			CG_PlayerFloatSprite( cent, cgs.media.powerDuelAllyShader);
 		}
-		else if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+		else if (PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR &&
 			cent->currentState.number < MAX_CLIENTS &&
 			!(cent->currentState.eFlags & EF_DEAD) &&
 			ci->duelTeam == DUELTEAM_DOUBLE)
@@ -9111,7 +9111,7 @@ void CG_Player( centity_t *cent ) {
 	if (cgs.gametype == GT_JEDIMASTER && cg_drawFriend.integer &&
 		cent->currentState.number != cg.snap->ps.clientNum)			// Don't show a sprite above a player's own head in 3rd person.
 	{	// If the view is either a spectator or on the same team as this character, show a symbol above their head.
-		if ((cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap->ps.persistant[PERS_TEAM] == team) &&
+		if ((PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || PS_Team( cg.snap->ps ) == team) &&
 			!(cent->currentState.eFlags & EF_DEAD))
 		{
 			if (CG_ThereIsAMaster())

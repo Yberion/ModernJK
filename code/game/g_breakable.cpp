@@ -1063,7 +1063,7 @@ void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 		top[2] += 1;
 		VectorCopy( ent->currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		gi.trace( &tr, top, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, (EG2_Collision)0, 0 );
+		gi.trace( &tr, top, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, G2_NOCOLLIDE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );

@@ -1362,7 +1362,7 @@ bool WP_SaberApplyDamage( gentity_t *ent, float baseDamage, int baseDFlags,
 					}
 					testFrom[2] = victim->currentOrigin[2];
 					trace_t testTrace;
-					gi.trace( &testTrace, testFrom, vec3_origin, vec3_origin, victim->currentOrigin, ent->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+					gi.trace( &testTrace, testFrom, vec3_origin, vec3_origin, victim->currentOrigin, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 					if ( testTrace.entityNum != victim->s.number )
 					{//can only damage maglocks if have a clear trace to the thing's origin
 						continue;
@@ -2068,7 +2068,7 @@ bool WP_SabersIntersection( gentity_t *ent1, gentity_t *ent2, vec3_t intersect )
 const char *hit_blood_sparks = "sparks/blood_sparks2"; // could have changed this effect directly, but this is just safer in case anyone anywhere else is using the old one for something?
 const char *hit_sparks = "saber/saber_cut";
 
-bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float dmg, vec3_t dmgDir, vec3_t bladeVec, int enemyTeam, saberType_t saberType, saberInfo_t *saber, int bladeNum )
+bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float dmg, vec3_t dmgDir, vec3_t bladeVec, team_t enemyTeam, saberType_t saberType, saberInfo_t *saber, int bladeNum )
 {
 
 	int			hitEntNum[MAX_G2_COLLISIONS];
@@ -3543,7 +3543,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	//try to move attacker half the diff towards the defender
 	VectorMA( attacker->currentOrigin, diff*0.5f, defDir, newOrg );
 	trace_t	trace;
-	gi.trace( &trace, attacker->currentOrigin, attacker->mins, attacker->maxs, newOrg, attacker->s.number, attacker->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &trace, attacker->currentOrigin, attacker->mins, attacker->maxs, newOrg, attacker->s.number, attacker->clipmask, G2_NOCOLLIDE, 0 );
 	if ( !trace.startsolid && !trace.allsolid )
 	{
 		G_SetOrigin( attacker, trace.endpos );
@@ -3555,7 +3555,7 @@ bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMo
 	diff = VectorNormalize( attDir ) - idealDist;//diff will be the total error in dist
 	//try to move defender all of the remaining diff towards the attacker
 	VectorMA( defender->currentOrigin, diff, attDir, newOrg );
-	gi.trace( &trace, defender->currentOrigin, defender->mins, defender->maxs, newOrg, defender->s.number, defender->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &trace, defender->currentOrigin, defender->mins, defender->maxs, newOrg, defender->s.number, defender->clipmask, G2_NOCOLLIDE, 0 );
 	if ( !trace.startsolid && !trace.allsolid )
 	{
 		G_SetOrigin( defender, trace.endpos );
@@ -4823,7 +4823,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 			&& !G_InCinematicSaberAnim( ent ) )
 		{//only do once - for first blade
 			trace_t trace;
-			gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, mp1, ent->s.number, (MASK_SHOT&~(CONTENTS_CORPSE|CONTENTS_ITEM)), (EG2_Collision)0, 0 );
+			gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, mp1, ent->s.number, (MASK_SHOT&~(CONTENTS_CORPSE|CONTENTS_ITEM)), G2_NOCOLLIDE, 0 );
 			if ( trace.entityNum < ENTITYNUM_WORLD && (trace.entityNum > 0||ent->client->NPC_class == CLASS_DESANN) )//NPCs don't push player away, unless it's Desann
 			{//a valid ent
 				gentity_t *traceEnt = &g_entities[trace.entityNum];
@@ -5990,7 +5990,7 @@ void WP_SaberImpact( gentity_t *owner, gentity_t *saber, trace_t *trace )
 			float owner_dist = Distance( owner->client->renderInfo.handRPoint, saber->currentOrigin );
 
 			VectorMA( saber->currentOrigin, 10, trace->plane.normal, end );
-			gi.trace( &bounceTr, saber->currentOrigin, saber->mins, saber->maxs, end, owner->s.number, saber->clipmask, (EG2_Collision)0, 0 );
+			gi.trace( &bounceTr, saber->currentOrigin, saber->mins, saber->maxs, end, owner->s.number, saber->clipmask, G2_NOCOLLIDE, 0 );
 			VectorCopy( bounceTr.endpos, saber->currentOrigin );
 			if ( owner_dist > 0 )
 			{
@@ -6424,7 +6424,7 @@ void WP_RunSaber( gentity_t *self, gentity_t *saber )
 		clipmask &= ~CONTENTS_LIGHTSABER;
 	}
 	gi.trace( &tr, saber->currentOrigin, saber->mins, saber->maxs, origin,
-		saber->owner ? saber->owner->s.number : ENTITYNUM_NONE, clipmask, (EG2_Collision)0, 0 );
+		saber->owner ? saber->owner->s.number : ENTITYNUM_NONE, clipmask, G2_NOCOLLIDE, 0 );
 
 	VectorCopy( tr.endpos, saber->currentOrigin );
 
@@ -6605,13 +6605,13 @@ bool WP_SaberLaunch( gentity_t *self, gentity_t *saber, bool thrown, bool noFail
 			return false;
 		}
 		//make sure it won't start in solid
-		gi.trace( &trace, self->client->renderInfo.handRPoint, saberMins, saberMaxs, self->client->renderInfo.handRPoint, saber->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &trace, self->client->renderInfo.handRPoint, saberMins, saberMaxs, self->client->renderInfo.handRPoint, saber->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 		if ( trace.startsolid || trace.allsolid )
 		{
 			return false;
 		}
 		//make sure I'm not throwing it on the other side of a door or wall or whatever
-		gi.trace( &trace, self->currentOrigin, vec3_origin, vec3_origin, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &trace, self->currentOrigin, vec3_origin, vec3_origin, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 		if ( trace.startsolid || trace.allsolid || trace.fraction < 1.0f )
 		{
 			return false;
@@ -7062,7 +7062,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 				trace_t	trace;
 				VectorCopy( self->currentOrigin, axisPoint );
 				axisPoint[2] = self->client->renderInfo.handRPoint[2];
-				gi.trace( &trace, axisPoint, vec3_origin, vec3_origin, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+				gi.trace( &trace, axisPoint, vec3_origin, vec3_origin, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 				if ( !trace.startsolid && trace.fraction >= 1.0f )
 				{//our hand isn't through a wall
 					WP_SaberCatch( self, saberent, true );
@@ -7137,7 +7137,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 		{//we dropped it
 			if ( ucmd->buttons & BUTTON_ATTACK )//|| self->client->ps.weaponstate == WEAPON_RAISING )//ucmd->buttons & BUTTON_ALT_ATTACK ||
 			{//we actively want to pick it up or we just switched to it, so pull it back
-				gi.trace( &tr, saberent->currentOrigin, saberent->mins, saberent->maxs, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+				gi.trace( &tr, saberent->currentOrigin, saberent->mins, saberent->maxs, self->client->renderInfo.handRPoint, self->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 				if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0f )
 				{//can't pick it up yet, no LOS
@@ -7755,12 +7755,12 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		{
 			VectorCopy( self->currentOrigin, traceTo );
 			traceTo[2] = self->absmax[2] - 4;
-			gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, traceTo, ent->s.number, ent->clipmask, (EG2_Collision)0, 0 );
+			gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 			if ( trace.allsolid || trace.startsolid || (trace.fraction < 1.0f && trace.entityNum != self->s.number && trace.entityNum != self->client->ps.saberEntityNum) )
 			{//okay, try one more check
 				VectorNormalize2( ent->s.pos.trDelta, entDir );
 				VectorMA( ent->currentOrigin, radius, entDir, traceTo );
-				gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, traceTo, ent->s.number, ent->clipmask, (EG2_Collision)0, 0 );
+				gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 				if ( trace.allsolid || trace.startsolid || (trace.fraction < 1.0f && trace.entityNum != self->s.number && trace.entityNum != self->client->ps.saberEntityNum) )
 				{//can't hit me, ignore it
 					continue;
@@ -8811,7 +8811,7 @@ bool WP_ForceThrowable( gentity_t *ent, gentity_t *forwardEnt, gentity_t *self, 
 							trace_t tr;
 							vec3_t end;
 							VectorMA( self->client->renderInfo.eyePoint, radius, forward, end );
-							gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, (EG2_Collision)0, 0 );//was MASK_SHOT, changed to match crosshair trace
+							gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, G2_NOCOLLIDE, 0 );//was MASK_SHOT, changed to match crosshair trace
 							if ( tr.entityNum != ent->s.number )
 							{//last chance
 								return false;
@@ -9100,7 +9100,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 	//	if ( cone >= 1.0f )
 	{//must be pointing right at them
 		VectorMA( self->client->renderInfo.eyePoint, radius, forward, end );
-		gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, (EG2_Collision)0, 0 );//was MASK_SHOT, changed to match crosshair trace
+		gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, G2_NOCOLLIDE, 0 );//was MASK_SHOT, changed to match crosshair trace
 		if ( tr.entityNum < ENTITYNUM_WORLD )
 		{//found something right in front of self,
 			forwardEnt = &g_entities[tr.entityNum];
@@ -9237,7 +9237,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 			if ( ent != forwardEnt )
 			{//don't need to trace against forwardEnt again
 			//really should have a clear LOS to this thing...
-				gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_FORCE_PUSH, (EG2_Collision)0, 0 );//was MASK_SHOT, but changed to match above trace and crosshair trace
+				gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_FORCE_PUSH, G2_NOCOLLIDE, 0 );//was MASK_SHOT, but changed to match above trace and crosshair trace
 				if ( tr.fraction < 1.0f && tr.entityNum != ent->s.number )
 				{//must have clear LOS
 					continue;
@@ -9648,7 +9648,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					AngleVectors( self->client->ps.viewangles, forward, nullptr, nullptr );
 					VectorNormalize( forward );
 					VectorMA( self->client->renderInfo.eyePoint, radius, forward, end );
-					gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+					gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 					if ( tr.entityNum != push_list[x]->s.number || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 					{//must be pointing right at it
 						continue;
@@ -9709,7 +9709,7 @@ void ForceThrow( gentity_t *self, bool pull, bool fake )
 					AngleVectors( self->client->ps.viewangles, forward, nullptr, nullptr );
 					VectorNormalize( forward );
 					VectorMA( self->client->renderInfo.eyePoint, radius, forward, end );
-					gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+					gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 					if ( tr.entityNum != push_list[x]->s.number || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 					{//must be pointing right at it
 						continue;
@@ -10343,7 +10343,7 @@ void ForceTelepathy( gentity_t *self )
 	VectorMA( self->client->renderInfo.eyePoint, 2048, forward, end );
 
 	//Cause a distraction if enemy is not fighting
-	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_BODY, (EG2_Collision)0, 0 );
+	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_BODY, G2_NOCOLLIDE, 0 );
 	if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 	{
 		return;
@@ -10598,7 +10598,7 @@ void ForceGrip( gentity_t *self )
 				{//need to be facing the enemy
 					if ( gi.inPVS( self->enemy->currentOrigin, self->client->renderInfo.eyePoint ) )
 					{//must be in PVS
-						gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, self->enemy->currentOrigin, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+						gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, self->enemy->currentOrigin, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 						if ( tr.fraction == 1.0f || tr.entityNum == self->enemy->s.number )
 						{//must have clear LOS
 							traceEnt = self->enemy;
@@ -10610,7 +10610,7 @@ void ForceGrip( gentity_t *self )
 	}
 	if ( !traceEnt )
 	{//okay, trace straight ahead and see what's there
-		gi.trace( &tr, self->client->renderInfo.handLPoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace( &tr, self->client->renderInfo.handLPoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 		if ( tr.entityNum >= ENTITYNUM_WORLD || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 		{
 			return;
@@ -11247,7 +11247,7 @@ void ForceShootLightning( gentity_t *self )
 			}
 
 			//Now check and see if we can actually hit it
-			gi.trace( &tr, self->client->renderInfo.handLPoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+			gi.trace( &tr, self->client->renderInfo.handLPoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 			if ( tr.fraction < 1.0f && tr.entityNum != traceEnt->s.number )
 			{//must have clear LOS
 				continue;
@@ -11412,7 +11412,7 @@ bool ForceDrain2( gentity_t *self )
 	VectorMA( self->client->renderInfo.eyePoint, FORCE_DRAIN_DIST, forward, end );
 
 	//okay, trace straight ahead and see what's there
-	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	if ( tr.entityNum >= ENTITYNUM_WORLD || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 	{
 		return false;
@@ -13635,7 +13635,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				if ( self->client->ps.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_1 )
 				{//if holding him, make sure there's a clear LOS between my hand and him
 					trace_t gripTrace;
-					gi.trace( &gripTrace, self->client->renderInfo.handLPoint, nullptr, nullptr, gripEntOrg, ENTITYNUM_NONE, MASK_FORCE_PUSH, (EG2_Collision)0, 0 );
+					gi.trace( &gripTrace, self->client->renderInfo.handLPoint, nullptr, nullptr, gripEntOrg, ENTITYNUM_NONE, MASK_FORCE_PUSH, G2_NOCOLLIDE, 0 );
 					if ( gripTrace.startsolid
 						|| gripTrace.allsolid
 						|| gripTrace.fraction < 1.0f )

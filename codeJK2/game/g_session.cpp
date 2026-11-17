@@ -49,7 +49,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*var;
 	int		i;
 
-	s = va("%i", client->sess.sessionTeam );
+	s = va("%i", to_underlying( client->sess.sessionTeam ) );
 	var = va( "session%i", client - level.clients );
 	gi.cvar_set( var, s );
 

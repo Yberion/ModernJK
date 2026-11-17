@@ -38,7 +38,7 @@ extern void Jedi_Cloak( gentity_t *self );
 
 extern void Q3_SetParm (int entID, int parmNum, const char *parmValue);
 extern team_t TranslateTeamName( const char *name );
-extern const char	*TeamNames[TEAM_NUM_TEAMS];
+extern EnumArray<const char *, npcteam_t, NPCTEAM_NUM_TEAMS>	TeamNames;
 
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
@@ -1126,7 +1126,7 @@ void NPC_Begin (gentity_t *ent)
 	//FIXME: Set the team correctly
 	if (ent->s.NPC_class != CLASS_VEHICLE || level.gametype != GT_SIEGE)
 	{
-		ent->client->ps.persistant[PERS_TEAM] = to_underlying( ent->client->playerTeam );
+		PS_SetTeam( ent->client->ps, static_cast<team_t>( ent->client->playerTeam ) );	// an NPC team's number, as the teams' (teams.h)
 	}
 
 	ent->use   = NPC_Use;
@@ -1700,23 +1700,23 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 	{//specified team directly?
 		newent->client->sess.sessionTeam = (team_t)atoi(ent->team);
 	}
-	else if ( newent->s.teamowner != TEAM_FREE )
+	else if ( static_cast<team_t>( newent->s.teamowner ) != TEAM_FREE )
 	{
 		newent->client->sess.sessionTeam = (team_t)newent->s.teamowner;
 	}
 	else if ( newent->alliedTeam != TEAM_FREE )
 	{
-		newent->client->sess.sessionTeam = (team_t)newent->alliedTeam;
+		newent->client->sess.sessionTeam = newent->alliedTeam;
 	}
 	else if ( newent->teamnodmg != TEAM_FREE )
 	{
-		newent->client->sess.sessionTeam = (team_t)newent->teamnodmg;
+		newent->client->sess.sessionTeam = newent->teamnodmg;
 	}
 	else
 	{
 		newent->client->sess.sessionTeam = TEAM_FREE;
 	}
-	newent->client->ps.persistant[PERS_TEAM] = newent->client->sess.sessionTeam;
+	PS_SetTeam( newent->client->ps, newent->client->sess.sessionTeam );
 
 	trap->LinkEntity ((sharedEntity_t *)newent);
 
@@ -4151,9 +4151,9 @@ void NPC_Kill_f( void )
 		{
 			Com_Printf( S_COLOR_RED"NPC_Kill Error: 'npc kill team' requires a team name!\n" );
 			Com_Printf( S_COLOR_RED"Valid team names are:\n");
-			for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+			for ( npcteam_t t = NPCTEAM_FREE + 1; t < NPCTEAM_NUM_TEAMS; t++ )
 			{
-				Com_Printf( S_COLOR_RED"%s\n", TeamNames[n] );
+				Com_Printf( S_COLOR_RED"%s\n", TeamNames[t] );
 			}
 			Com_Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 			return;
@@ -4171,9 +4171,9 @@ void NPC_Kill_f( void )
 			{
 				Com_Printf( S_COLOR_RED"NPC_Kill Error: team '%s' not recognized\n", name );
 				Com_Printf( S_COLOR_RED"Valid team names are:\n");
-				for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+				for ( npcteam_t t = NPCTEAM_FREE + 1; t < NPCTEAM_NUM_TEAMS; t++ )
 				{
-					Com_Printf( S_COLOR_RED"%s\n", TeamNames[n] );
+					Com_Printf( S_COLOR_RED"%s\n", TeamNames[t] );
 				}
 				Com_Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 				return;

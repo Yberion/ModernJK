@@ -182,7 +182,7 @@ bool S_LoadSound( sfx_t *sfx );
 void S_PaintChannels(int endtime);
 
 // picks a channel based on priorities, empty slots, number of channels
-channel_t *S_PickChannel(int entnum, int entchannel);
+channel_t *S_PickChannel(int entnum, soundChannel_t entchannel);
 
 // spatializes a channel
 void S_Spatialize(channel_t *ch);

@@ -43,7 +43,7 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 	VectorSet( maxs, 5, 5, 5 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD || tr.entityNum < 0 )
 	{

@@ -1091,7 +1091,7 @@ G_SoundTempEntity
 Special event entity that keeps sound trackers in mind
 =================
 */
-gentity_t *G_SoundTempEntity( vec3_t origin, int event, int channel ) {
+gentity_t *G_SoundTempEntity( vec3_t origin, int event ) {
 	gentity_t		*e;
 	vec3_t		snapped;
 
@@ -1330,14 +1330,14 @@ gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int dur
 G_MuteSound
 =============
 */
-void G_MuteSound( int entnum, int channel )
+void G_MuteSound( int entnum, soundChannel_t channel )
 {
 	gentity_t	*te, *e;
 
 	te = G_TempEntity( vec3_origin, EV_MUTE_SOUND );
 	te->r.svFlags = SVF_BROADCAST;
 	te->s.trickedentindex2 = entnum;
-	te->s.trickedentindex = channel;
+	te->s.trickedentindex = to_underlying( channel );
 
 	e = &g_entities[entnum];
 
@@ -1353,29 +1353,46 @@ void G_MuteSound( int entnum, int channel )
 G_Sound
 =============
 */
-void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
+void G_Sound( gentity_t *ent, soundChannel_t channel, int soundIndex ) {
 	gentity_t	*te;
 
 	assert(soundIndex);
 
-	te = G_SoundTempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND, channel );
+	te = G_SoundTempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
-	te->s.saberEntityNum = channel;
+	te->s.saberEntityNum = to_underlying( channel );
+}
 
-	if (ent && ent->client && channel > to_underlying( TRACK_CHANNEL_NONE ))
+/*
+=============
+G_Sound
+
+On a tracking channel (the force powers' sounds), which the client may stop
+=============
+*/
+void G_Sound( gentity_t *ent, trackchan_t channel, int soundIndex ) {
+	gentity_t	*te;
+
+	assert(soundIndex);
+
+	te = G_SoundTempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
+	te->s.eventParm = soundIndex;
+	te->s.saberEntityNum = to_underlying( channel );
+
+	if (ent && ent->client && channel > TRACK_CHANNEL_NONE)
 	{ //let the client remember the index of the player entity so he can kill the most recent sound on request
-		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]].inuse &&
-			ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] > MAX_CLIENTS)
+		if (g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]].inuse &&
+			ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] > MAX_CLIENTS)
 		{
-			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )], CHAN_VOICE);
-			if (ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]].inuse)
+			G_MuteSound(ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE], CHAN_VOICE);
+			if (ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] > MAX_CLIENTS && g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]].inuse)
 			{
-				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )]]);
+				G_FreeEntity(&g_entities[ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE]]);
 			}
-			ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] = 0;
+			ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] = 0;
 		}
 
-		ent->client->ps.fd.killSoundEntIndex[channel - to_underlying( TRACK_CHANNEL_NONE )] = te->s.number;
+		ent->client->ps.fd.killSoundEntIndex[channel - TRACK_CHANNEL_NONE] = te->s.number;
 		te->s.trickedentindex = ent->s.number;
 		te->s.eFlags = EF_SOUNDTRACKER;
 		// fix: let other players know about this
@@ -1390,12 +1407,12 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 G_SoundAtLoc
 =============
 */
-void G_SoundAtLoc( vec3_t loc, int channel, int soundIndex ) {
+void G_SoundAtLoc( vec3_t loc, soundChannel_t channel, int soundIndex ) {
 	gentity_t	*te;
 
 	te = G_TempEntity( loc, EV_GENERAL_SOUND );
 	te->s.eventParm = soundIndex;
-	te->s.saberEntityNum = channel;
+	te->s.saberEntityNum = to_underlying( channel );
 }
 
 /*
@@ -1403,13 +1420,13 @@ void G_SoundAtLoc( vec3_t loc, int channel, int soundIndex ) {
 G_EntitySound
 =============
 */
-void G_EntitySound( gentity_t *ent, int channel, int soundIndex ) {
+void G_EntitySound( gentity_t *ent, soundChannel_t channel, int soundIndex ) {
 	gentity_t	*te;
 
 	te = G_TempEntity( ent->r.currentOrigin, EV_ENTITY_SOUND );
 	te->s.eventParm = soundIndex;
 	te->s.clientNum = ent->s.number;
-	te->s.trickedentindex = channel;
+	te->s.trickedentindex = to_underlying( channel );
 }
 
 //To make porting from SP easier.
@@ -1420,7 +1437,7 @@ void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath
 	te = G_TempEntity( ent->r.currentOrigin, EV_ENTITY_SOUND );
 	te->s.eventParm = G_SoundIndex((char *)soundPath);
 	te->s.clientNum = ent->s.number;
-	te->s.trickedentindex = channel;
+	te->s.trickedentindex = to_underlying( channel );
 
 }
 
@@ -1718,7 +1735,7 @@ void TryUse( gentity_t *ent )
 			else
 			{ // Otherwise board this vehicle.
 				if (level.gametype < GT_TEAM ||
-					!target->alliedTeam ||
+					target->alliedTeam == TEAM_FREE ||
 					(target->alliedTeam == ent->client->sess.sessionTeam))
 				{ //not belonging to a team, or client is on same team
 					pVeh->m_pVehicleInfo->Board( pVeh, (bgEntity_t *)ent );
@@ -1788,7 +1805,7 @@ void TryUse( gentity_t *ent )
 	//Check for a use command
 	if ( ValidUseTarget( target )
 		&& (level.gametype != GT_SIEGE
-			|| !target->alliedTeam
+			|| target->alliedTeam == TEAM_FREE
 			|| target->alliedTeam != ent->client->sess.sessionTeam
 			|| g_ff_objectives.integer) )
 	{

@@ -1268,7 +1268,7 @@ bool ShotThroughGlass (trace_t *tr, gentity_t *target, vec3_t spot, int mask)
 		vec3_t		muzzle;
 
 		VectorCopy(tr->endpos, muzzle);
-		gi.trace (tr, muzzle, nullptr, nullptr, spot, skip, mask, (EG2_Collision)0, 0 );
+		gi.trace (tr, muzzle, nullptr, nullptr, spot, skip, mask, G2_NOCOLLIDE, 0 );
 		return true;
 	}
 
@@ -1293,7 +1293,7 @@ bool CanShoot ( gentity_t *ent, gentity_t *shooter )
 	CalcEntitySpot( shooter, SPOT_WEAPON, muzzle );
 	CalcEntitySpot( ent, SPOT_ORIGIN, spot );		//FIXME preferred target locations for some weapons (feet for R/L)
 
-	gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// point blank, baby!
@@ -1316,7 +1316,7 @@ bool CanShoot ( gentity_t *ent, gentity_t *shooter )
 	else
 	{//ok, can't hit them in center, try their head
 		CalcEntitySpot( ent, SPOT_HEAD, spot );
-		gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 		traceEnt = &g_entities[ tr.entityNum ];
 		if ( traceEnt == ent)
 		{
@@ -1567,7 +1567,7 @@ You can mix and match any of those options (example: find closest visible player
 
 FIXME: this should go through the snapshot and find the closest enemy
 */
-gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
+gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
 {
 	int			num_choices = 0;
 	int			choice[128];//FIXME: need a different way to determine how many choices?
@@ -2164,7 +2164,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 
 	if ( NPC->enemy && NPC->enemy->client )
 	{
-		if(NPC->enemy->client->playerTeam
+		if(NPC->enemy->client->playerTeam != TEAM_FREE
 			&& NPC->enemy->client->playerTeam != TEAM_FREE)
 		{
 //			assert( NPC->client->playerTeam != NPC->enemy->client->playerTeam);
@@ -2203,11 +2203,11 @@ bool NPC_ClearShot( gentity_t *ent )
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, nullptr, nullptr, ent->currentOrigin, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 
 	if ( tr.startsolid || tr.allsolid )
@@ -2246,7 +2246,7 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 		AngleVectors( angles, forward, nullptr, nullptr );
 		VectorMA( muzzle, 8, forward, end );
 		end[2] += 24;
-		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 		VectorCopy( tr.endpos, muzzle );
 	}
 	else
@@ -2263,11 +2263,11 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, nullptr, nullptr, targ, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace ( &tr, muzzle, nullptr, nullptr, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	//FIXME: if using a bouncing weapon like the bowcaster, should we check the reflection of the wall, too?
 	if ( impactPos )
@@ -2425,7 +2425,7 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 			//NEW: use actual forward facing
 			AngleVectors( client->ps.viewangles, forward, nullptr, nullptr );
 			VectorMA( muzzle, distanceToEnemy, forward, hitspot );
-			gi.trace( &tr, muzzle, nullptr, nullptr, hitspot, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+			gi.trace( &tr, muzzle, nullptr, nullptr, hitspot, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 			ShotThroughGlass( &tr, NPC->enemy, hitspot, MASK_SHOT );
 			/*
 			//OLD: trace regardless of facing
@@ -2453,16 +2453,16 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 
 			VectorCopy( tr.endpos, hitspot );
 
-			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
+			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam != TEAM_FREE && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
 			{
 				dead_on = true;
 			}
 			else
 			{
 				attack_scale *= 0.5;
-				if(NPC->client->playerTeam)
+				if(NPC->client->playerTeam != TEAM_FREE)
 				{
-					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam)
+					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != TEAM_FREE)
 					{
 						if(NPC->client->playerTeam == traceEnt->client->playerTeam)
 						{//Don't shoot our own team
@@ -2863,7 +2863,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 		}
 
 		//Okay, now make sure it's not blocked
-		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask, (EG2_Collision)0, 0 );
+		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			continue;

@@ -219,17 +219,17 @@ static void CG_StartOrbit_f( void ) {
 	}
 }
 
-void CG_SiegeBriefingDisplay(int team, int dontshow);
+void CG_SiegeBriefingDisplay(team_t team, int dontshow);
 static void CG_SiegeBriefing_f(void)
 {
-	int team;
+	team_t team;
 
 	if (cgs.gametype != GT_SIEGE)
 	{ //Cannot be displayed unless in this gametype
 		return;
 	}
 
-	team = cg.predictedPlayerState.persistant[PERS_TEAM];
+	team = PS_Team( cg.predictedPlayerState );
 
 	if (team != SIEGETEAM_TEAM1 &&
 		team != SIEGETEAM_TEAM2)
@@ -242,14 +242,14 @@ static void CG_SiegeBriefing_f(void)
 
 static void CG_SiegeCvarUpdate_f(void)
 {
-	int team;
+	team_t team;
 
 	if (cgs.gametype != GT_SIEGE)
 	{ //Cannot be displayed unless in this gametype
 		return;
 	}
 
-	team = cg.predictedPlayerState.persistant[PERS_TEAM];
+	team = PS_Team( cg.predictedPlayerState );
 
 	if (team != SIEGETEAM_TEAM1 &&
 		team != SIEGETEAM_TEAM2)

@@ -501,7 +501,7 @@ CG_DrawFlagModel
 Used for both the status bar and the scoreboard
 ================
 */
-void CG_DrawFlagModel( float x, float y, float w, float h, int team, bool force2D ) {
+void CG_DrawFlagModel( float x, float y, float w, float h, team_t team, bool force2D ) {
 	qhandle_t		cm;
 	float			len;
 	vec3_t			origin, angles;
@@ -1682,7 +1682,7 @@ CG_DrawInventorySelect
 */
 void CG_DrawInvenSelect( void )
 {
-	int				i;
+	holdable_t		i;
 	int				sideMax,holdCount,iconCnt;
 	int				smallIconSize,bigIconSize;
 	int				sideLeftIconCnt,sideRightIconCnt;
@@ -1706,19 +1706,20 @@ void CG_DrawInvenSelect( void )
 		return;
 	}
 
-	if (cg.itemSelect == -1)
+	if (!cg.itemSelect)
 	{
-		cg.itemSelect = bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+		cg.itemSelect = static_cast<holdable_t>( bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag );
 	}
+	const holdable_t itemSelect = *cg.itemSelect;
 
 //const int bits = cg.snap->ps.stats[ STAT_ITEMS ];
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < to_underlying( HI_NUM_HOLDABLE ) ; i++ )
+	for ( i = HI_NONE ; i < HI_NUM_HOLDABLE ; i++ )
 	{
 		if (/*CG_InventorySelectable(i) && inv_icons[i]*/
-			(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) )
+			(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( i )) )
 		{
 			count++;
 		}
@@ -1751,10 +1752,10 @@ void CG_DrawInvenSelect( void )
 		sideRightIconCnt = holdCount - sideLeftIconCnt;
 	}
 
-	i = cg.itemSelect - 1;
-	if (i<0)
+	i = itemSelect - 1;
+	if (i<HI_NONE)
 	{
-		i = to_underlying( HI_NUM_HOLDABLE )-1;
+		i = HI_NUM_HOLDABLE-1;
 	}
 
 	smallIconSize = 40;
@@ -1771,19 +1772,19 @@ void CG_DrawInvenSelect( void )
 
 	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
 	{
-		if (i<0)
+		if (i<HI_NONE)
 		{
-			i = to_underlying( HI_NUM_HOLDABLE )-1;
+			i = HI_NUM_HOLDABLE-1;
 		}
 
-		if ( !(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) || i == cg.itemSelect )
+		if ( !(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( i )) || i == itemSelect )
 		{
 			continue;
 		}
 
 		++iconCnt;					// Good icon
 
-		if (!BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( i )))
+		if (!BG_IsItemSelectable(&cg.predictedPlayerState, i))
 		{
 			continue;
 		}
@@ -1803,17 +1804,17 @@ void CG_DrawInvenSelect( void )
 	}
 
 	// Current Center Icon
-	if (cgs.media.invenIcons[cg.itemSelect] && BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( cg.itemSelect )))
+	if (cgs.media.invenIcons[itemSelect] && BG_IsItemSelectable(&cg.predictedPlayerState, itemSelect))
 	{
 		int itemNdex;
 		trap->R_SetColor(nullptr);
-		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, cgs.media.invenIcons[cg.itemSelect] );
+		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, cgs.media.invenIcons[itemSelect] );
 	//	addX = (float) bigIconSize * .75;
 		trap->R_SetColor(colorTable[CT_ICON_BLUE]);
 		/*CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
 			NUM_FONT_SMALL,false);*/
 
-		itemNdex = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE);
+		itemNdex = BG_GetItemIndexByTag(to_underlying( itemSelect ), IT_HOLDABLE);
 		if (bg_itemlist[itemNdex].classname)
 		{
 			vec4_t	textColor = { .312f, .75f, .621f, 1.0f };
@@ -1833,10 +1834,10 @@ void CG_DrawInvenSelect( void )
 		}
 	}
 
-	i = cg.itemSelect + 1;
-	if (i> to_underlying( HI_NUM_HOLDABLE )-1)
+	i = itemSelect + 1;
+	if (i> HI_NUM_HOLDABLE-1)
 	{
-		i = 0;
+		i = HI_NONE;
 	}
 
 	// Right side ICONS
@@ -1845,19 +1846,19 @@ void CG_DrawInvenSelect( void )
 //	addX = (float) smallIconSize * .75;
 	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
 	{
-		if (i> to_underlying( HI_NUM_HOLDABLE )-1)
+		if (i> HI_NUM_HOLDABLE-1)
 		{
-			i = 0;
+			i = HI_NONE;
 		}
 
-		if ( !(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << i)) || i == cg.itemSelect )
+		if ( !(cg.snap->ps.stats[STAT_HOLDABLE_ITEMS] & Bit( i )) || i == itemSelect )
 		{
 			continue;
 		}
 
 		++iconCnt;					// Good icon
 
-		if (!BG_IsItemSelectable(&cg.predictedPlayerState, static_cast<holdable_t>( i )))
+		if (!BG_IsItemSelectable(&cg.predictedPlayerState, i))
 		{
 			continue;
 		}
@@ -2858,7 +2859,7 @@ CG_DrawTeamBackground
 
 ================
 */
-void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
+void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, team_t team )
 {
 	vec4_t		hcolor;
 
@@ -3267,7 +3268,7 @@ float CG_DrawRadar ( float y )
 		return y;
 	}
 
-	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR )
+	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 	{
 		return y;
 	}
@@ -3401,7 +3402,7 @@ float CG_DrawRadar ( float y )
 							else
 							{
 								if (cg.snap &&
-									cent->currentState.brokenLimbs == cg.snap->ps.persistant[PERS_TEAM])
+									static_cast<team_t>( cent->currentState.brokenLimbs ) == PS_Team( cg.snap->ps ))
 								{
 									VectorCopy ( g_color_table[ColorIndex(COLOR_RED)], color );
 								}
@@ -3852,7 +3853,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 		return y;
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE ) {
+	if ( PS_Team( cg.snap->ps ) != TEAM_RED && PS_Team( cg.snap->ps ) != TEAM_BLUE ) {
 		return y; // Not on any team
 	}
 
@@ -3866,7 +3867,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
 			plyrs++;
 			len = CG_DrawStrlen(ci->name);
 			if (len > pwidth)
@@ -3910,7 +3911,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 		ret_y = y;
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
+	if ( PS_Team( cg.snap->ps ) == TEAM_RED ) {
 		hcolor[0] = 1.0f;
 		hcolor[1] = 0.0f;
 		hcolor[2] = 0.0f;
@@ -3927,7 +3928,7 @@ static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
 
@@ -4677,7 +4678,7 @@ void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float ch
 	}
 
 	ci = &cgs.clientinfo[cent->currentState.number];
-	if (ci->team != cg.predictedPlayerState.persistant[PERS_TEAM])
+	if (ci->team != PS_Team( cg.predictedPlayerState ))
 	{ //not on the same team
 		return;
 	}
@@ -4791,7 +4792,7 @@ void CG_DrawHealthBar(centity_t *cent, float chX, float chY, float chW, float ch
 		aColor[2] = 0.0f;
 		aColor[3] = 0.4f;
 	}
-	else if (cent->currentState.teamowner == cg.predictedPlayerState.persistant[PERS_TEAM])
+	else if (static_cast<team_t>( cent->currentState.teamowner ) == PS_Team( cg.predictedPlayerState ))
 	{ //owned by my team
 		aColor[0] = 0.0f;
 		aColor[1] = 1.0f;
@@ -5083,7 +5084,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					npcteam_t plTeam;
 					if (cgs.gametype == GT_SIEGE)
 					{
-						plTeam = static_cast<npcteam_t>( cg.predictedPlayerState.persistant[PERS_TEAM] );
+						plTeam = static_cast<npcteam_t>( PS_Team( cg.predictedPlayerState ) );
 					}
 					else
 					{
@@ -5105,7 +5106,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 							{ //base color on who is pilotting this thing
 								clientInfo_t *ci = &cgs.clientinfo[crossEnt->currentState.owner];
 
-								if (cgs.gametype >= GT_TEAM && ci->team == cg.predictedPlayerState.persistant[PERS_TEAM])
+								if (cgs.gametype >= GT_TEAM && ci->team == PS_Team( cg.predictedPlayerState ))
 								{ //friendly
 									ecolor[0] = 0.0f;//R
 									ecolor[1] = 1.0f;//G
@@ -5145,8 +5146,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 						ecolor[2] = 0.0f;//B
 					}
 				}
-				else if ( crossEnt->currentState.teamowner == TEAM_RED
-					|| crossEnt->currentState.teamowner == TEAM_BLUE )
+				else if ( static_cast<team_t>( crossEnt->currentState.teamowner ) == TEAM_RED
+					|| static_cast<team_t>( crossEnt->currentState.teamowner ) == TEAM_BLUE )
 				{
 					if (cgs.gametype < GT_TEAM)
 					{ //not teamplay, just neutral then
@@ -5154,7 +5155,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 						ecolor[1] = 1.0f;//G
 						ecolor[2] = 0.0f;//B
 					}
-					else if ( crossEnt->currentState.teamowner != cgs.clientinfo[cg.snap->ps.clientNum].team )
+					else if ( static_cast<team_t>( crossEnt->currentState.teamowner ) != cgs.clientinfo[cg.snap->ps.clientNum].team )
 					{ //on the enemy team
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 0.0f;//G
@@ -5168,14 +5169,14 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					}
 				}
 				else if (crossEnt->currentState.owner == cg.snap->ps.clientNum ||
-					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner == cgs.clientinfo[cg.snap->ps.clientNum].team))
+					(cgs.gametype >= GT_TEAM && static_cast<team_t>( crossEnt->currentState.teamowner ) == cgs.clientinfo[cg.snap->ps.clientNum].team))
 				{
 					ecolor[0] = 0.0f;//R
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
 				else if (crossEnt->currentState.teamowner == 16 ||
-					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner && crossEnt->currentState.teamowner != cgs.clientinfo[cg.snap->ps.clientNum].team))
+					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner && static_cast<team_t>( crossEnt->currentState.teamowner ) != cgs.clientinfo[cg.snap->ps.clientNum].team))
 				{
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
@@ -5198,7 +5199,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
-                else if (cg.predictedPlayerState.persistant[PERS_TEAM] != crossEnt->currentState.teamowner)
+                else if (PS_Team( cg.predictedPlayerState ) != static_cast<team_t>( crossEnt->currentState.teamowner ))
 				{ //not my team
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
@@ -5219,7 +5220,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 					ecolor[1] = 1.0f;
 					ecolor[2] = 0.0f;
 				}
-				else if (crossEnt->currentState.teamowner == cg.predictedPlayerState.persistant[PERS_TEAM])
+				else if (static_cast<team_t>( crossEnt->currentState.teamowner ) == PS_Team( cg.predictedPlayerState ))
 				{ //owned by my team
 					ecolor[0] = 0.0f;
 					ecolor[1] = 1.0f;
@@ -5548,7 +5549,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 			isEnemy = true;
 			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
 		}
-		else if ( cent->currentState.teamowner != cg.predictedPlayerState.persistant[PERS_TEAM] )
+		else if ( static_cast<team_t>( cent->currentState.teamowner ) != PS_Team( cg.predictedPlayerState ) )
 		{// on enemy team
 			isEnemy = true;
 			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
@@ -6308,7 +6309,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 		}
 	}
 
-	if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
+	if (PS_Team( cg.snap->ps ) != TEAM_SPECTATOR)
 	{
 		if (trace.entityNum < /*MAX_CLIENTS*/ENTITYNUM_WORLD)
 		{
@@ -6411,7 +6412,7 @@ static void CG_DrawCrosshairNames( void ) {
 		//if (cgs.gametype == GT_SIEGE)
 		if (1)
 		{ //instead of team-based we'll make it oriented based on which team we're on
-			if (cgs.clientinfo[cg.crosshairClientNum].team == cg.predictedPlayerState.persistant[PERS_TEAM])
+			if (cgs.clientinfo[cg.crosshairClientNum].team == PS_Team( cg.predictedPlayerState ))
 			{
 				baseColor = CT_GREEN;
 			}
@@ -6991,7 +6992,7 @@ void CG_DrawFlagStatus()
 {
 	int myFlagTakenShader = 0;
 	int theirFlagShader = 0;
-	int team = 0;
+	team_t team = TEAM_FREE;
 	int startDrawPos = 2;
 	int ico_size = 32;
 
@@ -7008,7 +7009,7 @@ void CG_DrawFlagStatus()
 		return;
 	}
 
-	team = cg.snap->ps.persistant[PERS_TEAM];
+	team = PS_Team( cg.snap->ps );
 
 	if (cgs.gametype == GT_CTY)
 	{
@@ -8091,7 +8092,7 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 */
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR ) {
 		CG_DrawSpectator();
 		CG_DrawCrosshair(nullptr, 0);
 		CG_DrawCrosshairNames();
@@ -8297,7 +8298,7 @@ static void CG_Draw2D( void ) {
 	}
 	else if (cgSiegeRoundBeganTime)
 	{ //Draw how much time is left in the round based on local info.
-		int timedTeam = TEAM_FREE;
+		team_t timedTeam = TEAM_FREE;
 		int timedValue = 0;
 
 		if (cgSiegeEntityRender)
@@ -8362,7 +8363,7 @@ static void CG_Draw2D( void ) {
 				timeRemaining /= 1000;
 			}
 
-			if (cg.predictedPlayerState.persistant[PERS_TEAM] == timedTeam)
+			if (PS_Team( cg.predictedPlayerState ) == timedTeam)
 			{ //the team that's timed is the one this client is on
 				isMyTeam = true;
 			}
@@ -8473,7 +8474,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	}
 
 	// optionally draw the tournament scoreboard instead
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
+	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR &&
 		( cg.snap->ps.pm_flags & PMF_SCOREBOARD ) ) {
 		CG_DrawTourneyScoreboard();
 		return;

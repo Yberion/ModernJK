@@ -2599,7 +2599,6 @@ FIXME: this should be a general NPC wrapper function
 static bool Q3_SetBState( int entID, const char *bs_name )
 {
 	gentity_t	*ent  = &g_entities[entID];
-	bState_t	bSID;
 
 	if ( !ent )
 	{
@@ -2613,9 +2612,10 @@ static bool Q3_SetBState( int entID, const char *bs_name )
 		return true;//ok to complete
 	}
 
-	bSID = (bState_t)(GetIDForString( BSTable, bs_name ));
-	if ( bSID != (bState_t)-1 )
+	const int bsID = GetIDForString( BSTable, bs_name );
+	if ( bsID != -1 )
 	{
+		const bState_t bSID = static_cast<bState_t>( bsID );
 		if ( bSID == BS_SEARCH || bSID == BS_WANDER )
 		{
 			//FIXME: Reimplement
@@ -2675,7 +2675,7 @@ static bool Q3_SetBState( int entID, const char *bs_name )
 		//ent->client->moveType = MT_RUNJUMP;
 	}
 
-	if ( bSID == BS_NOCLIP )
+	if ( bsID == to_underlying( BS_NOCLIP ) )
 	{
 		ent->client->noclip = true;
 	}
@@ -2693,7 +2693,7 @@ static bool Q3_SetBState( int entID, const char *bs_name )
 */
 
 //	if ( bSID == BS_SNIPER || bSID == BS_ADVANCE_FIGHT )
-	if ( bSID == BS_ADVANCE_FIGHT )
+	if ( bsID == to_underlying( BS_ADVANCE_FIGHT ) )
 	{
 		return false;//need to wait for task complete message
 	}
@@ -2704,7 +2704,7 @@ static bool Q3_SetBState( int entID, const char *bs_name )
 		ent->NPC->shotTime = ent->attackDebounceTime = level.time;
 	}
 */
-	if ( bSID == BS_JUMP )
+	if ( bsID == to_underlying( BS_JUMP ) )
 	{
 		ent->NPC->jumpState = JS_FACING;
 	}
@@ -2739,9 +2739,10 @@ static bool Q3_SetTempBState( int entID, const char *bs_name )
 		return true;//ok to complete
 	}
 
-	bSID = (bState_t)(GetIDForString( BSTable, bs_name ));
-	if ( bSID != (bState_t)-1 )
+	const int bsID = GetIDForString( BSTable, bs_name );
+	if ( bsID != -1 )
 	{
+		bSID = static_cast<bState_t>( bsID );
 		ent->NPC->tempBehavior = bSID;
 	}
 
@@ -2789,9 +2790,10 @@ static void Q3_SetDefaultBState( int entID, const char *bs_name )
 		return;
 	}
 
-	bSID = (bState_t)(GetIDForString( BSTable, bs_name ));
-	if ( bSID != (bState_t)-1 )
+	const int bsID = GetIDForString( BSTable, bs_name );
+	if ( bsID != -1 )
 	{
+		bSID = static_cast<bState_t>( bsID );
 		ent->NPC->defaultBehavior = bSID;
 	}
 }

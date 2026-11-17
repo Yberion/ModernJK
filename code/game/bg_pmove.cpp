@@ -1436,7 +1436,7 @@ static bool PM_CheckJump( void )
 
 		AngleVectors( pm->ps->viewangles, forward, nullptr, nullptr );
 		VectorMA( pm->ps->origin, -8, forward, back );
-		pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, back, pm->ps->clientNum, pm->tracemask&~(CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP), (EG2_Collision)0, 0 );
+		pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, back, pm->ps->clientNum, pm->tracemask&~(CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP), G2_NOCOLLIDE, 0 );
 
 		pm->cmd.upmove = 0;
 
@@ -1803,7 +1803,7 @@ static bool PM_CheckJump( void )
 				if ( doTrace )
 				{
 					//FIXME: all these jump ones should check for head clearance
-					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 					VectorCopy( trace.plane.normal, wallNormal );
 					VectorNormalize( wallNormal );
 					VectorSubtract( pm->ps->origin, traceto, idealNormal );
@@ -1813,13 +1813,13 @@ static bool PM_CheckJump( void )
 						trace_t	trace2;
 						vec3_t	start;
 						VectorMA( pm->ps->origin, 128, right, traceto );
-						pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+						pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 						if ( !trace2.allsolid && !trace2.startsolid )
 						{
 							VectorCopy( trace2.endpos, traceto );
 							VectorCopy( traceto, start );
 							traceto[2] -= 384;
-							pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+							pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 							if ( !trace2.allsolid && !trace2.startsolid && trace2.fraction >= 1.0f )
 							{//bottomless pit!
 								trace.fraction = 1.0f;//way to stop it from doing the side-flip
@@ -1831,13 +1831,13 @@ static bool PM_CheckJump( void )
 						trace_t	trace2;
 						vec3_t	start;
 						VectorMA( pm->ps->origin, -128, right, traceto );
-						pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+						pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 						if ( !trace2.allsolid && !trace2.startsolid )
 						{
 							VectorCopy( trace2.endpos, traceto );
 							VectorCopy( traceto, start );
 							traceto[2] -= 384;
-							pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+							pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 							if ( !trace2.allsolid && !trace2.startsolid && trace2.fraction >= 1.0f )
 							{//bottomless pit!
 								trace.fraction = 1.0f;//way to stop it from doing the side-flip
@@ -1870,7 +1870,7 @@ static bool PM_CheckJump( void )
 								VectorCopy( pm->ps->origin, start );
 								start[2] += 64;
 								VectorMA( start, 32, fwd, traceto );
-								pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+								pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 								if ( trace2.allsolid
 									|| trace2.startsolid
 									|| trace2.fraction >= 1.0f )
@@ -1886,13 +1886,13 @@ static bool PM_CheckJump( void )
 								trace_t	trace2;
 								vec3_t	start;
 								VectorMA( pm->ps->origin, -128, fwd, traceto );
-								pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+								pm->trace( &trace2, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 								if ( !trace2.allsolid && !trace2.startsolid )
 								{
 									VectorCopy( trace2.endpos, traceto );
 									VectorCopy( traceto, start );
 									traceto[2] -= 384;
-									pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, (EG2_Collision)0, 0 );
+									pm->trace( &trace2, start, mins, maxs, traceto, pm->ps->clientNum, contents, G2_NOCOLLIDE, 0 );
 									if ( !trace2.allsolid && !trace2.startsolid && trace2.fraction >= 1.0f )
 									{//bottomless pit!
 										trace.fraction = 1.0f;//way to stop it from doing the side-flip
@@ -2083,7 +2083,7 @@ static bool PM_CheckJump( void )
 				}
 				if ( anim != -1 )
 				{
-					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, (EG2_Collision)0, 0 );
+					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, G2_NOCOLLIDE, 0 );
 					if ( trace.fraction < 1.0f )
 					{//flip off wall
 						if ( anim == BOTH_WALL_RUN_LEFT_FLIP )
@@ -2124,7 +2124,7 @@ static bool PM_CheckJump( void )
 				}
 				if ( anim != -1 )
 				{
-					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, (EG2_Collision)0, 0 );
+					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY, G2_NOCOLLIDE, 0 );
 					if ( trace.fraction < 1.0f )
 					{//flip off wall
 						pm->ps->velocity[0] *= 0.5f;
@@ -2330,7 +2330,7 @@ static bool PM_CheckJump( void )
 					if ( anim != -1 )
 					{//trace in the dir we're pushing in and see if there's a vertical wall there
 						VectorMA( pm->ps->origin, 16, checkDir, traceto );//was 8
-						pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, (EG2_Collision)0, 0 );//FIXME: clip brushes too?
+						pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );//FIXME: clip brushes too?
 						VectorSubtract( pm->ps->origin, traceto, idealNormal );
 						VectorNormalize( idealNormal );
 						gentity_t *traceEnt = &g_entities[trace.entityNum];
@@ -3896,13 +3896,13 @@ static bool PM_TryRoll( void )
 		}
 		if ( !roll )
 		{
-			pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, clipmask, (EG2_Collision)0, 0 );
+			pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, clipmask, G2_NOCOLLIDE, 0 );
 			if ( trace.fraction >= 1.0f )
 			{//okay, clear, check for a bottomless drop
 				vec3_t	top;
 				VectorCopy( traceto, top );
 				traceto[2] -= 256;
-				pm->trace( &trace, top, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, (EG2_Collision)0, 0 );
+				pm->trace( &trace, top, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 				if ( trace.fraction < 1.0f )
 				{//not a bottomless drop
 					roll = true;
@@ -4835,7 +4835,7 @@ static void PM_GroundTraceMissed( void ) {
 											VectorScale( vel, time, vel );
 											VectorAdd( pm->ps->origin, vel, point );
 
-											pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+											pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 
 											if ( (trace.contents&CONTENTS_LAVA)
 												&& PM_RocketeersAvoidDangerousFalls() )
@@ -5016,7 +5016,7 @@ static void PM_GroundTraceMissed( void ) {
 						VectorCopy( pm->ps->origin, point );
 						point[2] -= 64;
 
-						pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0);
+						pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 						if ( trace.fraction == 1.0 )
 						{//FIXME: if velocity[2] < 0 and didn't jump, use some falling anim
 							if ( pm->ps->velocity[2] <= 0 && !(pm->ps->pm_flags&PMF_JUMP_HELD))
@@ -5184,7 +5184,7 @@ static void PM_GroundTrace( void ) {
 	point[1] = pm->ps->origin[1];
 	point[2] = pm->ps->origin[2] - 0.25f;
 
-	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0);
+	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 	pml.groundTrace = trace;
 
 	// do something corrective if the trace starts in a solid...
@@ -5393,7 +5393,7 @@ void PM_HoverTrace( void )
 		{//sit on water
 			traceContents |= (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA);
 		}
- 		pm->trace( trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, traceContents, (EG2_Collision)0, 0 );
+ 		pm->trace( trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, traceContents, G2_NOCOLLIDE, 0 );
 		if ( trace->plane.normal[2] >= minNormal )
 		{//not a steep slope, so push us up
 			if ( trace->fraction < 0.3f )
@@ -5493,7 +5493,7 @@ void PM_HoverTrace( void )
 
 
 				trace_t trace2;
- 				gi.trace( &trace2, predictedApx, pm->mins, pm->maxs, predictedLandPosition, pm->ps->clientNum, traceContents, (EG2_Collision)0, 0);
+ 				gi.trace( &trace2, predictedApx, pm->mins, pm->maxs, predictedLandPosition, pm->ps->clientNum, traceContents, G2_NOCOLLIDE, 0);
  				if (!trace2.startsolid && !trace2.allsolid && trace2.fraction>0.75 && Q_irand(0, 3)==0)
 				{
 					LastMatrixJumpTime += 20000;
@@ -5578,7 +5578,7 @@ void PM_SetWaterHeight( void )
 	top[2] += pm->gent->client->standheight;
 	bottom[2] += DEFAULT_MINS_2;
 
-	gi.trace( &trace, top, pm->mins, pm->maxs, bottom, pm->ps->clientNum, MASK_WATER, (EG2_Collision)0, 0 );
+	gi.trace( &trace, top, pm->mins, pm->maxs, bottom, pm->ps->clientNum, MASK_WATER, G2_NOCOLLIDE, 0 );
 
 	if ( trace.startsolid )
 	{//under water
@@ -5815,7 +5815,7 @@ static void PM_CheckDuck (void)
 			{//unducking whilst in air will try to drop feet
 				pm->maxs[2] = standheight;
 				pm->ps->origin[2] += oldHeight - pm->maxs[2];
-				pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+				pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid )
 				{
 					pm->ps->eFlags ^= EF_TELEPORT_BIT;
@@ -5833,7 +5833,7 @@ static void PM_CheckDuck (void)
 			{
 				// try to stand up
 				pm->maxs[2] = standheight;
-				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid )
 				{
 					pm->ps->pm_flags &= ~PMF_DUCKED;
@@ -6419,7 +6419,7 @@ bool PM_GettingUpFromKnockDown( float standheight, float crouchheight )
 				trace_t	trace;
 				// try to stand up
 				pm->maxs[2] = standheight;
-				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+				pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid )
 				{//stand up
 					int	anim = BOTH_GETUP1;
@@ -7288,11 +7288,11 @@ void PM_FootSlopeTrace( float *pDiff, float *pInterval )
 		VectorSet( footMaxs, 3, 3, 1 );
 	}
 
-	pm->trace( &trace, footLOrg, footMins, footMaxs, footLBot, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+	pm->trace( &trace, footLOrg, footMins, footMaxs, footLBot, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 	VectorCopy( trace.endpos, footLBot );
 	VectorCopy( trace.plane.normal, footLSlope );
 
-	pm->trace( &trace, footROrg, footMins, footMaxs, footRBot, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0 );
+	pm->trace( &trace, footROrg, footMins, footMaxs, footRBot, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0 );
 	VectorCopy( trace.endpos, footRBot );
 	VectorCopy( trace.plane.normal, footRSlope );
 
@@ -8806,7 +8806,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 		start[2] += 10;
 		end[2] -= 40;
 
-		gi.trace( &tr, start, vec3_origin, vec3_origin, end, pm->gent->s.number, MASK_WATER, (EG2_Collision)0, 0 );
+		gi.trace( &tr, start, vec3_origin, vec3_origin, end, pm->gent->s.number, MASK_WATER, G2_NOCOLLIDE, 0 );
 
 		if ( tr.fraction < 1.0f )
 		{
@@ -10822,7 +10822,7 @@ float PM_GroundDistance(void)
 
 	down[2] -= 4096;
 
-	pm->trace(&tr, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, (EG2_Collision)0, 0);
+	pm->trace(&tr, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 
 	VectorSubtract(pm->ps->origin, tr.endpos, down);
 
@@ -10842,7 +10842,7 @@ float G_GroundDistance(gentity_t *self)
 
 	down[2] -= 4096;
 
-	gi.trace(&tr, self->currentOrigin, self->mins, self->maxs, down, self->s.number, self->clipmask, (EG2_Collision)0, 0);
+	gi.trace(&tr, self->currentOrigin, self->mins, self->maxs, down, self->s.number, self->clipmask, G2_NOCOLLIDE, 0);
 
 	VectorSubtract(self->currentOrigin, tr.endpos, down);
 

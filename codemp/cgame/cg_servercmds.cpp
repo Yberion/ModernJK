@@ -146,7 +146,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.showDuelHealths = atoi( Info_ValueForKey( info, "g_showDuelHealths" ) );
 
 	cgs.gametype = (gametype_t)atoi( Info_ValueForKey( info, "g_gametype" ) );
-	trap->Cvar_Set("g_gametype", va("%i", cgs.gametype));
+	trap->Cvar_Set("g_gametype", va("%i", to_underlying( cgs.gametype )));
 	cgs.needpass = atoi( Info_ValueForKey( info, "g_needpass" ) );
 	cgs.jediVmerc = atoi( Info_ValueForKey( info, "g_jediVmerc" ) );
 
@@ -197,7 +197,7 @@ void CG_ParseServerinfo( void ) {
 //	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
 //	trap->Cvar_Set("g_blueTeam", cgs.blueTeam);
 
-	trap->Cvar_Set ( "ui_about_gametype", va("%i", cgs.gametype ) );
+	trap->Cvar_Set ( "ui_about_gametype", va("%i", to_underlying( cgs.gametype ) ) );
 	trap->Cvar_Set ( "ui_about_fraglimit", va("%i", cgs.fraglimit ) );
 	trap->Cvar_Set ( "ui_about_duellimit", va("%i", cgs.duel_fraglimit ) );
 	trap->Cvar_Set ( "ui_about_capturelimit", va("%i", cgs.capturelimit ) );
@@ -717,7 +717,7 @@ void CG_ParseSiegeObjectiveStatus(const char *str);
 void CG_ParseWeatherEffect(const char *str);
 extern void CG_ParseSiegeState(const char *str); //cg_main.cpp
 extern int cg_beatingSiegeTime;
-extern int cg_siegeWinTeam;
+extern team_t cg_siegeWinTeam;
 static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
@@ -876,7 +876,7 @@ static void CG_ConfigStringModified( void ) {
 	{
 		if (str[0])
 		{
-			cg_siegeWinTeam = atoi(str);
+			cg_siegeWinTeam = static_cast<team_t>( atoi(str) );
 		}
 	}
 	else if ( num >= CS_SIEGE_OBJECTIVES && num < CS_SIEGE_OBJECTIVES+1 )
@@ -1300,10 +1300,10 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	}
 }
 
-void CG_SiegeBriefingDisplay(int team, int dontshow);
+void CG_SiegeBriefingDisplay(team_t team, int dontshow);
 void CG_ParseSiegeExtendedData(void);
 static void CG_SiegeBriefingDisplay_f( void ) {
-	CG_SiegeBriefingDisplay( atoi( CG_Argv( 1 ) ), 0 );
+	CG_SiegeBriefingDisplay( static_cast<team_t>( atoi( CG_Argv( 1 ) ) ), 0 );
 }
 
 static void CG_SiegeClassSelect_f( void ) {

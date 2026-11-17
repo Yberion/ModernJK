@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define		MAX_SIEGE_INFO_SIZE					16384
 
-#define		SIEGETEAM_TEAM1						1 //e.g. TEAM_RED
-#define		SIEGETEAM_TEAM2						2 //e.g. TEAM_BLUE
+inline constexpr team_t SIEGETEAM_TEAM1 = TEAM_RED;
+inline constexpr team_t SIEGETEAM_TEAM2 = TEAM_BLUE;
 
 #define		SIEGE_POINTS_OBJECTIVECOMPLETED		20
 #define		SIEGE_POINTS_FINALOBJECTIVECOMPLETED	30
@@ -120,18 +120,18 @@ void BG_SiegeStripTabs(char *buf);
 void BG_SiegeLoadClasses(siegeClassDesc_t *descBuffer);
 void BG_SiegeLoadTeams(void);
 
-siegeTeam_t *BG_SiegeFindThemeForTeam(int team);
-void BG_PrecacheSabersForSiegeTeam(int team);
+siegeTeam_t *BG_SiegeFindThemeForTeam(team_t team);
+void BG_PrecacheSabersForSiegeTeam(team_t team);
 siegeClass_t *BG_SiegeFindClassByName(const char *classname);
-bool BG_SiegeCheckClassLegality(int team, char *classname);
-void BG_SiegeSetTeamTheme(int team, char *themeName);
+bool BG_SiegeCheckClassLegality(team_t team, char *classname);
+void BG_SiegeSetTeamTheme(team_t team, char *themeName);
 int BG_SiegeFindClassIndexByName(const char *classname);
 
 // for ui
-int BG_GetUIPortrait( const int team, const short classIndex, const short cntIndex );
-char *BG_GetUIPortraitFile( const int team, const short classIndex, const short cntIndex );
-siegeClass_t *BG_GetClassOnBaseClass( const int team, const short classIndex, const short cntIndex );
-int BG_SiegeCountBaseClass( const int team, const short classIndex );
+int BG_GetUIPortrait(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex );
+char *BG_GetUIPortraitFile(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex );
+siegeClass_t *BG_GetClassOnBaseClass(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex );
+int BG_SiegeCountBaseClass(const team_t team, const siegePlayerClassFlags_t classIndex );
 
 extern char	siege_info[MAX_SIEGE_INFO_SIZE];
 extern int	siege_valid;

@@ -587,7 +587,7 @@ bool Wampa_CheckDropVictim( gentity_t *self, bool excludeMe )
 	{
 		gi.unlinkentity( self );
 	}
-	gi.trace( &trace, start, mins, maxs, end, self->activator->s.number, self->activator->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &trace, start, mins, maxs, end, self->activator->s.number, self->activator->clipmask, G2_NOCOLLIDE, 0 );
 	if ( excludeMe )
 	{
 		gi.linkentity( self );

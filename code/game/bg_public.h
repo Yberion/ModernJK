@@ -206,6 +206,10 @@ enum class persEnum_t {
 };
 using enum persEnum_t;
 
+// The player's team is kept in a cell of the networked persistant array, whose cells are integers
+[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
+inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
+
 
 // entityState_t->eFlags
 #define EF_HELD_BY_SAND_CREATURE 0x00000001	// In a sand creature's mouth

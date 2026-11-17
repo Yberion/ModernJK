@@ -415,7 +415,8 @@ void FX_DrawPortableShield(centity_t *cent)
 	//rww - this code differs a bit from the draw code in EF, I don't know why I had to do
 	//it this way yet it worked in EF the other way.
 
-	int				xaxis, height, posWidth, negWidth, team;
+	int				xaxis, height, posWidth, negWidth;
+	team_t			team;
 	vec3_t			start, end, normal;
 	qhandle_t		shader;
 
@@ -435,7 +436,7 @@ void FX_DrawPortableShield(centity_t *cent)
 	posWidth = ((cent->currentState.time2 >> 8) & 255);
 	negWidth = (cent->currentState.time2 & 255);
 
-	team = (cent->currentState.otherEntityNum2);
+	team = static_cast<team_t>( cent->currentState.otherEntityNum2 );
 
 	VectorClear(normal);
 
@@ -3028,7 +3029,7 @@ static void CG_MoverMove( int moverNum, int fromTime, int toTime, vec3_t delta )
 void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out ) {
 	vec3_t	deltaOrigin;
 
-	if ( cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR )
+	if ( PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 	{
 		VectorCopy( in, out );
 		return;
@@ -3323,7 +3324,7 @@ static void CG_AddCEntity( centity_t *cent ) {
 	}
 
 	// don't render when we are in spec, happens occasionally on map_restart and such
-	if ( cg.predictedPlayerState.clientNum == cent->currentState.number && cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR )
+	if ( cg.predictedPlayerState.clientNum == cent->currentState.number && PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 		return;
 
 

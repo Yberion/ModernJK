@@ -684,7 +684,7 @@ void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
-		SetMoverState( slave, (moverState_t) moverState, time );
+		SetMoverState( slave, moverState, time );
 	}
 }
 

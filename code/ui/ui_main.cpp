@@ -120,8 +120,8 @@ static void		UI_ClearWeapons ( void );
 static void		UI_GiveWeapon ( const int weaponIndex );
 static void		UI_EquipWeapon ( const int weaponIndex );
 static void		UI_LoadMissionSelectMenu( const char *cvarName );
-static void		UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
-static void		UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
+static void		UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
+static void		UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
 static void		UI_RemoveWeaponSelection ( const int weaponIndex );
 static void		UI_RemoveThrowWeaponSelection ( void );
 static void		UI_HighLightWeaponSelection ( const int selectionslot );
@@ -1424,7 +1424,7 @@ static bool UI_RunMenuScript ( const char **args )
 			const char *soundfile = nullptr;
 			String_Parse(args, &soundfile);
 
-			UI_AddWeaponSelection(atoi(weaponIndex),atoi(ammoIndex),atoi(ammoAmount),itemName,litItemName, backgroundName, soundfile);
+			UI_AddWeaponSelection(atoi(weaponIndex),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName, backgroundName, soundfile);
 		}
 		else if (Q_stricmp(name, "addthrowweaponselection") == 0)
 		{
@@ -1473,7 +1473,7 @@ static bool UI_RunMenuScript ( const char **args )
 			const char *soundfile;
 			String_Parse(args, &soundfile);
 
-			UI_AddThrowWeaponSelection(atoi(weaponIndex),atoi(ammoIndex),atoi(ammoAmount),itemName,litItemName,backgroundName, soundfile);
+			UI_AddThrowWeaponSelection(atoi(weaponIndex),static_cast<ammo_t>( atoi(ammoIndex) ),atoi(ammoAmount),itemName,litItemName,backgroundName, soundfile);
 		}
 		else if (Q_stricmp(name, "removeweaponselection") == 0)
 		{
@@ -5674,7 +5674,7 @@ static void	UI_LoadMissionSelectMenu( const char *cvarName )
 }
 
 // Update the player weapons with the chosen weapon
-static void	UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
+static void	UI_AddWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
 {
 	itemDef_s  *item, *iconItem,*litIconItem;
 	menuDef_t	*menu;
@@ -5785,9 +5785,9 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, 
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
+			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
 			{
-				pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = ammoAmount;
+				pState->ammo[ ammoIndex ] = ammoAmount;
 			}
 		}
 	}
@@ -5809,7 +5809,8 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	itemDef_s  *item;
 	menuDef_t	*menu;
 	const char *chosenItemName, *chosenButtonName,*background;
-	int		ammoIndex,weaponIndex;
+	int		weaponIndex;
+	ammo_t	ammoIndex;
 
 	menu = Menu_GetFocused();	// Get current menu
 
@@ -5890,11 +5891,11 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 			}
 
 			// Remove ammo too
-			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
+			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
 			{	// But don't take it away if the other weapon is using that ammo
 				if ( uiInfo.selectedWeapon1AmmoIndex != uiInfo.selectedWeapon2AmmoIndex )
 				{
-					pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = 0;
+					pState->ammo[ ammoIndex ] = 0;
 				}
 			}
 		}
@@ -5906,13 +5907,13 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 	{
 		uiInfo.selectedWeapon1 = NOWEAPON;
 		memset(uiInfo.selectedWeapon1ItemName,0,sizeof(uiInfo.selectedWeapon1ItemName));
-		uiInfo.selectedWeapon1AmmoIndex = 0;
+		uiInfo.selectedWeapon1AmmoIndex = AMMO_NONE;
 	}
 	else if ( weaponSelectionIndex == 2 )
 	{
 		uiInfo.selectedWeapon2 = NOWEAPON;
 		memset(uiInfo.selectedWeapon2ItemName,0,sizeof(uiInfo.selectedWeapon2ItemName));
-		uiInfo.selectedWeapon2AmmoIndex = 0;
+		uiInfo.selectedWeapon2AmmoIndex = AMMO_NONE;
 	}
 
 #ifndef JK2_MODE
@@ -5986,7 +5987,7 @@ static void	UI_HighLightWeaponSelection ( const int selectionslot )
 }
 
 // Update the player throwable weapons (okay it's a bad description) with the chosen weapon
-static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
+static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const ammo_t ammoIndex, const int ammoAmount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
 {
 	itemDef_s  *item, *iconItem,*litIconItem;
 	menuDef_t	*menu;
@@ -6076,9 +6077,9 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIn
 			}
 
 			// Give them ammo too
-			if ((ammoIndex>0) && (ammoIndex<to_underlying( AMMO_MAX )))
+			if ((ammoIndex>AMMO_NONE) && (ammoIndex<AMMO_MAX))
 			{
-				pState->ammo[ static_cast<ammo_t>( ammoIndex ) ] = ammoAmount;
+				pState->ammo[ ammoIndex ] = ammoAmount;
 			}
 		}
 	}
@@ -6155,9 +6156,9 @@ static void UI_RemoveThrowWeaponSelection ( void )
 			}
 
 			// Remove ammo too
-			if ((uiInfo.selectedThrowWeaponAmmoIndex>0) && (uiInfo.selectedThrowWeaponAmmoIndex<to_underlying( AMMO_MAX )))
+			if ((uiInfo.selectedThrowWeaponAmmoIndex>AMMO_NONE) && (uiInfo.selectedThrowWeaponAmmoIndex<AMMO_MAX))
 			{
-				pState->ammo[ static_cast<ammo_t>( uiInfo.selectedThrowWeaponAmmoIndex ) ] = 0;
+				pState->ammo[ uiInfo.selectedThrowWeaponAmmoIndex ] = 0;
 			}
 
 		}
@@ -6166,7 +6167,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 	// Now do a little clean up
 	uiInfo.selectedThrowWeapon = NOWEAPON;
 	memset(uiInfo.selectedThrowWeaponItemName,0,sizeof(uiInfo.selectedThrowWeaponItemName));
-	uiInfo.selectedThrowWeaponAmmoIndex = 0;
+	uiInfo.selectedThrowWeaponAmmoIndex = AMMO_NONE;
 
 	if (uiInfo.weaponThrowButton)
 	{

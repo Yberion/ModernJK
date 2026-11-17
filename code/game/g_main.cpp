@@ -256,7 +256,7 @@ static void G_DynamicMusicUpdate( void )
 	int			distSq, radius = 2048;
 	vec3_t		center;
 	int			battle = 0;
-	int			entTeam;
+	team_t			entTeam;
 	//bool	dangerNear = false;
 	//bool	suspicious = false;
 	bool	clearLOS = false;
@@ -1544,7 +1544,7 @@ bool G_RagDoll(gentity_t *ent, vec3_t forcedAngles)
 				}
 
 				//Now that we have all that sorted out, trace between the two points we desire.
-				gi.trace(&tr, trStart, nullptr, nullptr, trEnd, ent->s.number, MASK_SOLID, (EG2_Collision)0, 0);
+				gi.trace(&tr, trStart, nullptr, nullptr, trEnd, ent->s.number, MASK_SOLID, G2_NOCOLLIDE, 0);
 
 				if (tr.fraction != 1.0 || tr.startsolid || tr.allsolid)
 				{ //Hit something or start in solid, so flag it and break.

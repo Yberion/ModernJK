@@ -553,15 +553,15 @@ static bool ICARUS_IsRunning( int entID ) {
 }
 
 static bool ICARUS_TaskIDPending( sharedEntity_t *ent, taskID_t taskID ) {
-	return Q3_TaskIDPending( ent, (taskID_t)taskID );
+	return Q3_TaskIDPending( ent, taskID );
 }
 
 static void SV_ICARUS_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID ) {
-	Q3_TaskIDSet( ent, (taskID_t)taskType, taskID );
+	Q3_TaskIDSet( ent, taskType, taskID );
 }
 
 static void SV_ICARUS_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType ) {
-	Q3_TaskIDComplete( ent, (taskID_t)taskType );
+	Q3_TaskIDComplete( ent, taskType );
 }
 
 static int SV_ICARUS_GetStringVariable( const char *name, const char *value ) {

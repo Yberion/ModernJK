@@ -506,7 +506,7 @@ static bool turret_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -615,7 +615,7 @@ void turret_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+					gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 					if ( self->spawnflags & SPF_TURRETG2_TURBO || ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number ) )
 					{
@@ -1151,7 +1151,7 @@ void laser_arm_fire (gentity_t *ent)
 	//VectorMA( start, -3, up, start );
 	VectorMA( start, 4096, fwd, end );
 
-	gi.trace( &trace, start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_SHOT, (EG2_Collision)0, 0 );//ignore
+	gi.trace( &trace, start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
 	ent->fly_sound_debounce_time = level.time;//used as lastShotTime
 
 	// Only deal damage when in alt-fire mode
@@ -1522,7 +1522,7 @@ static bool pas_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -1596,7 +1596,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+		gi.trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( tr.allsolid || tr.startsolid || tr.entityNum != ent->enemy->s.number )
 		{
@@ -1882,14 +1882,14 @@ bool place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t angs 
 
 	// and move a consistent distance away from us so we don't have the dumb thing spawning inside of us.
 	VectorMA( origin, 30, fwd, pos );
-	gi.trace( &tr, origin, nullptr, nullptr, pos, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace( &tr, origin, nullptr, nullptr, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	// find the ground
 	tr.endpos[2] += 20;
 	VectorCopy( tr.endpos, pos );
 	pos[2] -= 64;
 
-	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	// check for a decent surface, meaning mostly flat...should probably also check surface parms so we don't set us down on lava or something.
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0f && tr.plane.normal[2] > 0.9f && tr.entityNum >= ENTITYNUM_WORLD )
@@ -2181,7 +2181,7 @@ void spotlight_think( gentity_t *ent )
 	ent->s.apos.trType = TR_INTERPOLATE;
 
 	VectorMA( ent->currentOrigin, 2048, dir, end ); // just pick some max trace distance
-	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, CONTENTS_SOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 
 	ent->radius = tr.fraction * 2048.0f;
 

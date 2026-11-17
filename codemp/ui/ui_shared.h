@@ -451,7 +451,7 @@ typedef struct displayContextDef_s {
 	void			(*drawTextWithCursor)				( float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iFontIndex );
 	void			(*setOverstrikeMode)				( bool b );
 	bool		(*getOverstrikeMode)				( void );
-	void			(*startLocalSound)					( sfxHandle_t sfx, int channelNum );
+	void			(*startLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
 	bool		(*ownerDrawHandleKey)				( int ownerDraw, int flags, float *special, int key );
 	int				(*feederCount)						( float feederID );
 	const char *	(*feederItemText)					( float feederID, int index, int column, qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3 );

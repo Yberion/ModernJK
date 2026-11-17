@@ -40,7 +40,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 
 	if ( owner->s.number < MAX_CLIENTS )
 	{//extra checks
-		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, owner->currentOrigin, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, owner->currentOrigin, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 		if ( tr.startsolid || tr.allsolid )
 		{//crap, they're already in solid somehow, don't bother tracing over
 			traceOver = false;
@@ -50,7 +50,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 	{//trace up
 		VectorCopy( owner->currentOrigin, p2 );
 		p2[2] += STEPSIZE;
-		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+		gi.trace(&tr, owner->currentOrigin, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 		if (!tr.startsolid && !tr.allsolid )
 		{
 			VectorCopy( tr.endpos, p2 );
@@ -80,15 +80,15 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 		if ( owner->s.number < MAX_CLIENTS )
 		{//extra checks
 			//just see if end point is not in solid
-			gi.trace(&tr, p, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+			gi.trace(&tr, p, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 			if ( tr.startsolid || tr.allsolid )
 			{//would be in solid there, so just trace over, I guess?
-				gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+				gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 			}
 		}
 		else
 		{//trace over
-			gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+			gi.trace(&tr, p2, owner->mins, owner->maxs, p, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 		}
 	}
 	if (!tr.startsolid && !tr.allsolid )
@@ -97,7 +97,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 		VectorCopy( tr.endpos, p );
 		VectorCopy( p, p2 );
 		p2[2] -= STEPSIZE;
-		gi.trace(&tr, p, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, (EG2_Collision)0, 0);
+		gi.trace(&tr, p, owner->mins, owner->maxs, p2, owner->s.number, owner->clipmask, G2_NOCOLLIDE, 0);
 
 		if (!tr.startsolid && !tr.allsolid )//&& tr.fraction == 1.0f)
 		{ //all clear, we can move there
@@ -945,7 +945,7 @@ void ExitEmplacedWeapon( gentity_t *ent )
 					VectorCopy( start, end );
 					start[2] += 18;
 					end[2] -= 18;
-					gi.trace(&trace, start, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, (EG2_Collision)0, 0);
+					gi.trace(&trace, start, ent->mins, ent->maxs, end, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0);
 					if ( !trace.allsolid && !trace.startsolid )
 					{
 						G_SetOrigin( ent, trace.endpos );

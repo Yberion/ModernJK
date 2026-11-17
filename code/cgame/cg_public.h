@@ -79,7 +79,7 @@ functions imported from the main executable
 
 #define	CGAME_IMPORT_API_VERSION	4
 
-typedef enum {
+enum class cgameImport_t {
 	CG_PRINT,
 	CG_ERROR,
 	CG_MILLISECONDS,
@@ -221,7 +221,8 @@ Ghoul2 Insert End
 
 	CG_MODERNJK_MENU_PAINT,
 	CG_MODERNJK_GETMENU_BYNAME,
-} cgameImport_t;
+};
+using enum cgameImport_t;
 
 #ifdef JK2_MODE
 enum class cgameJK2Import_t {

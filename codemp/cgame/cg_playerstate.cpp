@@ -322,7 +322,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #endif
 
 	// don't play the sounds if the player just changed teams
-	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
+	if ( PS_Team( *ps ) != PS_Team( *ops ) ) {
 		return;
 	}
 
@@ -526,7 +526,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	if ( cg.snap->ps.pm_type != PM_INTERMISSION
-		&& ps->persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+		&& PS_Team( *ps ) != TEAM_SPECTATOR ) {
 		CG_CheckLocalSounds( ps, ops );
 	}
 

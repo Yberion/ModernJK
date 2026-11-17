@@ -95,6 +95,7 @@ bool	G_SpawnBoolean( const char *key, const char *defaultString, bool *out ) {
 enum class fieldtype_t {
 	F_INT,
 	F_BOOL,			// a bool member: any non-zero integer is true
+	F_TEAM,			// a team_t member: the team's number
 	F_FLOAT,
 	F_STRING,			// string on disk, pointer in memory
 	F_VECTOR,
@@ -126,7 +127,7 @@ typedef struct field_s {
 } field_t;
 
 field_t fields[] = {
-	{ "alliedteam",				FOFS( alliedTeam ),						F_INT },//for misc_turrets
+	{ "alliedteam",				FOFS( alliedTeam ),						F_TEAM },//for misc_turrets
 	{ "angerscript",			FOFS( behaviorSet.elems[to_underlying( BSET_ANGER )] ),		F_STRING },//name of script to run
 	{ "angle",					FOFS( s.angles ),						F_ANGLEHACK },
 	{ "angles",					FOFS( s.angles ),						F_VECTOR },
@@ -204,9 +205,9 @@ field_t fields[] = {
 	{ "targetshadername",		FOFS( targetShaderName ),				F_STRING },
 	{ "targetshadernewname",	FOFS( targetShaderNewName ),			F_STRING },
 	{ "team",					FOFS( team ),							F_STRING },
-	{ "teamnodmg",				FOFS( teamnodmg ),						F_INT },
+	{ "teamnodmg",				FOFS( teamnodmg ),						F_TEAM },
 	{ "teamowner",				FOFS( s.teamowner ),					F_INT },
-	{ "teamuser",				FOFS( alliedTeam ),						F_INT },
+	{ "teamuser",				FOFS( alliedTeam ),						F_TEAM },
 	{ "usescript",				FOFS( behaviorSet.elems[to_underlying( BSET_USE )] ),			F_STRING },//name of script to run
 	{ "victoryscript",			FOFS( behaviorSet.elems[to_underlying( BSET_VICTORY )] ),		F_STRING },//name of script to run
 	{ "wait",					FOFS( wait ),							F_FLOAT },
@@ -437,7 +438,7 @@ void SP_gametype_item ( gentity_t* ent )
 {
 	gitem_t *item = nullptr;
 	char *value;
-	int team = -1;
+	std::optional<team_t> team;
 
 	G_SpawnString("teamfilter", "", &value);
 
@@ -458,7 +459,7 @@ void SP_gametype_item ( gentity_t* ent )
 
 	if (ent->targetname && ent->targetname[0])
 	{
-		if (team != -1)
+		if (team)
 		{
 			if (strstr(ent->targetname, "flag"))
 			{
@@ -844,6 +845,9 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 			break;
 		case F_BOOL:
 			*(bool *)(b+f->ofs) = atoi(value) != 0;
+			break;
+		case F_TEAM:
+			*(team_t *)(b+f->ofs) = static_cast<team_t>( atoi(value) );
 			break;
 		case F_FLOAT:
 			*(float *)(b+f->ofs) = Q_atof(value);

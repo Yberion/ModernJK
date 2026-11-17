@@ -43,7 +43,7 @@ extern void Jedi_Cloak( gentity_t *self );
 extern void G_MatchPlayerWeapon( gentity_t *ent );
 extern void Q3_SetParm (int entID, int parmNum, const char *parmValue);
 extern team_t TranslateTeamName( const char *name );
-extern const char	*TeamNames[TEAM_NUM_TEAMS];
+extern EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames;
 
 //extern void CG_ShimmeryThing_Spawner( vec3_t start, vec3_t end, float radius, bool taper, int duration );
 extern void Q3_DebugPrint( WL_e level, const char *format, ... );
@@ -1006,7 +1006,7 @@ void NPC_Begin (gentity_t *ent)
 
 	//MCG - Begin: NPC hacks
 	//FIXME: Set the team correctly
-	ent->client->ps.persistant[PERS_TEAM] = ent->client->playerTeam;
+	PS_SetTeam( ent->client->ps, ent->client->playerTeam );
 
 	ent->client->ps.eFlags |= EF_NPC;
 	ent->e_UseFunc   = useF_NPC_Use;
@@ -2945,9 +2945,9 @@ void NPC_Kill_f( void )
 		{
 			gi.Printf( S_COLOR_RED"NPC_Kill Error: 'npc kill team' requires a team name!\n" );
 			gi.Printf( S_COLOR_RED"Valid team names are:\n");
-			for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t t = TEAM_FREE + 1; t < TEAM_NUM_TEAMS; t++ )
 			{
-				gi.Printf( S_COLOR_RED"%s\n", TeamNames[n] );
+				gi.Printf( S_COLOR_RED"%s\n", TeamNames[t] );
 			}
 			gi.Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 			return;
@@ -2965,9 +2965,9 @@ void NPC_Kill_f( void )
 			{
 				gi.Printf( S_COLOR_RED"NPC_Kill Error: team '%s' not recognized\n", name );
 				gi.Printf( S_COLOR_RED"Valid team names are:\n");
-				for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+				for ( team_t t = TEAM_FREE + 1; t < TEAM_NUM_TEAMS; t++ )
 				{
-					gi.Printf( S_COLOR_RED"%s\n", TeamNames[n] );
+					gi.Printf( S_COLOR_RED"%s\n", TeamNames[t] );
 				}
 				gi.Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 				return;

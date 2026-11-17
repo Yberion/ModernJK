@@ -62,7 +62,7 @@ ObjectivePrint_Line
 Print a single mission objective
 ====================
 */
-static void ObjectivePrint_Line(const ct_table_t color, const int objectIndex, int &missionYcnt)
+static void ObjectivePrint_Line(const ct_table_t color, const objectiveNumber_t objectIndex, int &missionYcnt)
 {
 	char *str,*strBegin;
 	int y,pixelLen,charLen,i;
@@ -73,10 +73,10 @@ static void ObjectivePrint_Line(const ct_table_t color, const int objectIndex, i
 
 	int iYPixelsPerLine = cgi_R_Font_HeightPixels(cgs.media.qhFontMedium, 1.0f);
 
-	cgi_SP_GetStringTextString( va("OBJECTIVES_%s",objectiveTable[objectIndex].name) , finalText, sizeof(finalText) );
+	cgi_SP_GetStringTextString( va("OBJECTIVES_%s",objectiveTable[to_underlying( objectIndex )].name) , finalText, sizeof(finalText) );
 
 	// A hack to be able to count prisoners
-	if (objectIndex == to_underlying( T2_RANCOR_OBJ5 ))
+	if (objectIndex == T2_RANCOR_OBJ5)
 	{
 		char value[64];
 		int	currTotal, minTotal;
@@ -223,7 +223,7 @@ static void ObjectivePrint_Line(const ct_table_t color, const int objectIndex, i
 		}
 	}
 
-	if (objectIndex == to_underlying( T3_BOUNTY_OBJ1 ))
+	if (objectIndex == T3_BOUNTY_OBJ1)
 	{
 		y =objectiveStartingYpos + (iYPixelsPerLine * missionYcnt);
 		if (obj_graphics[1])
@@ -276,10 +276,10 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 	int missionYcnt = 0;
 
 	// Print all active objectives
-	for (i=0;i<to_underlying( MAX_OBJECTIVES );i++)
+	for (objectiveNumber_t o = LIGHTSIDE_OBJ; o < MAX_OBJECTIVES; o++)
 	{
 		// Is there an objective to see?
-		if (cent->gent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].display)
+		if (cent->gent->client->sess.mission_objectives[o].display)
 		{
 			// Calculate the Y position
 			totalY = objectiveStartingYpos + (iYPixelsPerLine * (missionYcnt))+(iYPixelsPerLine/2);
@@ -287,13 +287,13 @@ void CG_DrawDataPadObjectives(const centity_t *cent )
 			//	Draw graphics that show if mission has been accomplished or not
 			cgi_R_SetColor(colorTable[CT_BLUE3]);
 			CG_DrawPic( (graphicXpos),   (totalY-graphicYOffset),   graphic_size,  graphic_size, cgs.media.messageObjCircle);	// Circle in front
-			if (cent->gent->client->sess.mission_objectives[static_cast<objectiveNumber_t>( i )].status == OBJECTIVE_STAT_SUCCEEDED)
+			if (cent->gent->client->sess.mission_objectives[o].status == OBJECTIVE_STAT_SUCCEEDED)
 			{
 				CG_DrawPic( (graphicXpos),   (totalY-graphicYOffset),   graphic_size,  graphic_size, cgs.media.messageLitOn);	// Center Dot
 			}
 
 			// Print current objective text
-			ObjectivePrint_Line(CT_WHITE, i, missionYcnt );
+			ObjectivePrint_Line(CT_WHITE, o, missionYcnt );
 		}
 	}
 

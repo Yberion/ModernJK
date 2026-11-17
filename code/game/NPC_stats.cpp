@@ -94,13 +94,13 @@ stringID_table_t FPTable[] =
 
 stringID_table_t TeamTable[] =
 {
-	{ "free", TEAM_FREE },			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
+	{ "free", to_underlying( TEAM_FREE ) },			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
 	ENUM2STRING(TEAM_FREE),			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
-	{ "player", TEAM_PLAYER },
+	{ "player", to_underlying( TEAM_PLAYER ) },
 	ENUM2STRING(TEAM_PLAYER),
-	{ "enemy", TEAM_ENEMY },
+	{ "enemy", to_underlying( TEAM_ENEMY ) },
 	ENUM2STRING(TEAM_ENEMY),
-	{ "neutral", TEAM_NEUTRAL },	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
+	{ "neutral", to_underlying( TEAM_NEUTRAL ) },	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
 	ENUM2STRING(TEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
 	{ "",	-1 }
 };
@@ -474,8 +474,9 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 		}
 
 		token = COM_Parse( text_p );
-		eventType = (animEventType_t)GetIDForString(animEventTypeTable, token);
-		if ( eventType == AEV_NONE || eventType == (animEventType_t)-1 )
+		const int eventId = GetIDForString(animEventTypeTable, token);
+		eventType = static_cast<animEventType_t>( eventId );
+		if ( eventId == -1 || eventType == AEV_NONE )
 		{//Unrecognized ANIM EVENT TYPE
 			Com_Printf(S_COLOR_RED"ERROR: Unknown EVENT %s in animEvent file %s\n", token, aeb_filename );
 			continue;
@@ -531,31 +532,31 @@ static void ParseAnimationEvtBlock(int glaIndex, unsigned short modelIndex, cons
 			}
 			if ( Q_stricmp( token, "CHAN_VOICE_ATTEN" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_ATTEN;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_ATTEN );
 			}
 			else if ( Q_stricmp( token, "CHAN_VOICE_GLOBAL" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_GLOBAL;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_GLOBAL );
 			}
 			else if ( Q_stricmp( token, "CHAN_ANNOUNCER" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_ANNOUNCER;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_ANNOUNCER );
 			}
 			else if ( Q_stricmp( token, "CHAN_BODY" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_BODY;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_BODY );
 			}
 			else if ( Q_stricmp( token, "CHAN_WEAPON" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_WEAPON;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_WEAPON );
 			}
 			else if ( Q_stricmp( token, "CHAN_VOICE" ) == 0 )
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE );
 			}
 			else
 			{
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_AUTO;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_AUTO );
 			}
 			//fall through to normal sound
 		case AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
@@ -3413,7 +3414,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						SkipRestOfLine( &p );
 						continue;
 					}
-					if ( n < BS_DEFAULT || n >= NUM_BSTATES )
+					if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
 					{
 						gi.Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 						continue;

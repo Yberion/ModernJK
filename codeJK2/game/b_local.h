@@ -122,7 +122,7 @@ extern void WeaponThink( bool inCombat );
 extern bool HaveWeapon( int weapon );
 extern bool CanShoot ( gentity_t *ent, gentity_t *shooter );
 extern void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis );
-extern gentity_t *NPC_PickEnemy (gentity_t *closestTo, int enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest);
+extern gentity_t *NPC_PickEnemy (gentity_t *closestTo, team_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest);
 extern gentity_t *NPC_CheckEnemy (bool findNew, bool tooFarOk, bool setEnemy = true );
 extern bool NPC_CheckAttack (float scale);
 extern bool NPC_CheckDefend (float scale);
@@ -200,9 +200,9 @@ extern bool NPC_ParseParms( const char *NPCName, gentity_t *NPC );
 extern void NPC_LoadParms( void );
 
 //NPC_utils
-extern int	teamNumbers[TEAM_NUM_TEAMS];
-extern int	teamStrength[TEAM_NUM_TEAMS];
-extern int	teamCounter[TEAM_NUM_TEAMS];
+extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamNumbers;
+extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamStrength;
+extern EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamCounter;
 extern void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point );
 extern bool NPC_UpdateAngles ( bool doPitch, bool doYaw );
 extern void NPC_UpdateShootAngles (vec3_t angles, bool doPitch, bool doYaw );

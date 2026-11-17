@@ -1300,7 +1300,7 @@ bool ValidEnemy(gentity_t *ent)
 		return false;
 
 	//if team_free, maybe everyone is an enemy?
-	if ( !NPC->client->enemyTeam )
+	if ( NPC->client->enemyTeam == TEAM_FREE )
 		return false;
 
 	if ( !(ent->flags & FL_NOTARGET) )
@@ -1364,7 +1364,7 @@ You can mix and match any of those options (example: find closest visible player
 
 FIXME: this should go through the snapshot and find the closest enemy
 */
-gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
+gentity_t *NPC_PickEnemy( gentity_t *closestTo, team_t enemyTeam, bool checkVis, bool findPlayersFirst, bool findClosest )
 {
 	int			num_choices = 0;
 	int			choice[128];//FIXME: need a different way to determine how many choices?
@@ -1378,7 +1378,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, bool checkVis, bo
 	int			visChecks = (CHECK_360|CHECK_FOV|CHECK_VISRANGE);
 	visibility_t	minVis = VIS_FOV;
 
-	if (!enemyTeam)
+	if (enemyTeam == TEAM_FREE)
 	{
 		return nullptr;
 	}
@@ -1912,7 +1912,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 		}
 
 		//If enemy dead or unshootable, look for others on out enemy's team
-		if ( NPC->client->enemyTeam )
+		if ( NPC->client->enemyTeam != TEAM_FREE )
 		{
 			//NOTE:  this only checks vis if can't hit enemy for 10 tries, which I suppose
 			//			means they need to find one that in more than just PVS
@@ -1947,7 +1947,7 @@ gentity_t *NPC_CheckEnemy( bool findNew, bool tooFarOk, bool setEnemy )
 
 	if ( NPC->enemy && NPC->enemy->client )
 	{
-		if(NPC->enemy->client->playerTeam)
+		if(NPC->enemy->client->playerTeam != TEAM_FREE)
 		{
 //			assert( NPC->client->playerTeam != NPC->enemy->client->playerTeam);
 			if( NPC->client->playerTeam != NPC->enemy->client->playerTeam )
@@ -2233,16 +2233,16 @@ bool NPC_CheckCanAttack (float attack_scale, bool stationary)
 
 			VectorCopy( tr.endpos, hitspot );
 
-			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
+			if( traceEnt == NPC->enemy || (traceEnt->client && NPC->client->enemyTeam != TEAM_FREE && NPC->client->enemyTeam == traceEnt->client->playerTeam) )
 			{
 				dead_on = true;
 			}
 			else
 			{
 				attack_scale *= 0.5;
-				if(NPC->client->playerTeam)
+				if(NPC->client->playerTeam != TEAM_FREE)
 				{
-					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam)
+					if(traceEnt && traceEnt->client && traceEnt->client->playerTeam != TEAM_FREE)
 					{
 						if(NPC->client->playerTeam == traceEnt->client->playerTeam)
 						{//Don't shoot our own team

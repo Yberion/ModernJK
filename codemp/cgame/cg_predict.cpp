@@ -632,10 +632,10 @@ static void CG_TouchItem( centity_t *cent ) {
 	// We don't predict touching our own flag
 	// Make sure the item type is also a flag too
 	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
+		if (PS_Team( cg.predictedPlayerState ) == TEAM_RED &&
 			item->giType == IT_TEAM && item->giTag == to_underlying( PW_REDFLAG ))
 			return;
-		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
+		if (PS_Team( cg.predictedPlayerState ) == TEAM_BLUE &&
 			item->giType == IT_TEAM && item->giTag == to_underlying( PW_BLUEFLAG ))
 			return;
 	}
@@ -1321,7 +1321,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 				"pm_time %d pm_type %d legs %d torso %d weaponTime %d saberMove %d\n",
 				( m->server.commandTime - m->start.commandTime ) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
 				m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, m->start.pm_flags,
-				m->start.pm_time, m->start.pm_type, m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, m->start.saberMove );
+				m->start.pm_time, to_underlying( m->start.pm_type ), m->start.legsAnim, m->start.torsoAnim, m->start.weaponTime, m->start.saberMove );
 		} else {
 			Com_sprintf( line, sizeof( line ), "  start: not held\n" );
 		}
@@ -1525,7 +1525,7 @@ void CG_PredictPlayerState( void ) {
 		if (cg.snap &&
 			pEnt->ghoul2 &&
 			!(cg.snap->ps.pm_flags & PMF_FOLLOW) &&
-			cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
+			PS_Team( cg.snap->ps ) != TEAM_SPECTATOR)
 		{
 			cg_pmove.ghoul2 = pEnt->ghoul2;
 			cg_pmove.g2Bolts_LFoot = trap->G2API_AddBolt(pEnt->ghoul2, 0, "*l_leg_foot");
@@ -1549,7 +1549,7 @@ void CG_PredictPlayerState( void ) {
 	else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap->ps.pm_type == PM_SPECTATOR ) {
+	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || cg.snap->ps.pm_type == PM_SPECTATOR ) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
 	}
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;

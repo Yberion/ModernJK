@@ -143,7 +143,7 @@ typedef struct uiImport_s {
 	bool		(*LAN_UpdateVisiblePings)				( int source );
 
 	void			(*S_StartBackgroundTrack)				( const char *intro, const char *loop, bool bReturnWithoutStarting );
-	void			(*S_StartLocalSound)					( sfxHandle_t sfx, int channelNum );
+	void			(*S_StartLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
 	void			(*S_StopBackgroundTrack)				( void );
 	sfxHandle_t		(*S_RegisterSound)						( const char *sample );
 

@@ -47,8 +47,8 @@ int G_WeaponLogFrags[MAX_CLIENTS][MAX_CLIENTS];
 int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogLastTime[MAX_CLIENTS];
 bool G_WeaponLogClientTouch[MAX_CLIENTS];
-int G_WeaponLogPowerups[MAX_CLIENTS][to_underlying( HI_NUM_HOLDABLE )];
-int	G_WeaponLogItems[MAX_CLIENTS][to_underlying( PW_NUM_POWERUPS )];
+EnumArray<int, powerup_t, PW_NUM_POWERUPS> G_WeaponLogPowerups[MAX_CLIENTS];
+EnumArray<int, holdable_t, HI_NUM_HOLDABLE> G_WeaponLogItems[MAX_CLIENTS];
 
 // MOD-weapon mapping array.
 int weaponFromMOD[MOD_MAX] =
@@ -208,7 +208,7 @@ void QDECL G_LogWeaponDeath(int client, int weaponid)
 #endif //_LOGGING_WEAPONS
 }
 
-void QDECL G_LogWeaponPowerup(int client, int powerupid)
+void QDECL G_LogWeaponPowerup(int client, powerup_t powerupid)
 {
 #ifdef LOGGING_WEAPONS
 	if (client>=MAX_CLIENTS)
@@ -218,7 +218,7 @@ void QDECL G_LogWeaponPowerup(int client, int powerupid)
 #endif //_LOGGING_WEAPONS
 }
 
-void QDECL G_LogWeaponItem(int client, int itemid)
+void QDECL G_LogWeaponItem(int client, holdable_t itemid)
 {
 #ifdef LOGGING_WEAPONS
 	if (client>=MAX_CLIENTS)
@@ -952,7 +952,7 @@ bool CalculateUntouchable(gentity_t *ent)
 bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 {
 #ifdef LOGGING_WEAPONS
-	int			i = 0, j = 0, nBestPlayer = -1, nStuffUsed = 0, nMostStuffUsed = 0,
+	int			i = 0, nBestPlayer = -1, nStuffUsed = 0, nMostStuffUsed = 0,
 				nDifferent = 0, nMostDifferent = 0;
 	gentity_t	*player = nullptr;
 
@@ -963,21 +963,21 @@ bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 		player = g_entities + i;
 		if (!player->inuse)
 			continue;
-		for (j = to_underlying( HI_NONE )+1; j < to_underlying( HI_NUM_HOLDABLE ); j++)
+		for (powerup_t p = PW_NONE + 1; p < PW_NUM_POWERUPS; p++)
 		{
-			if (G_WeaponLogPowerups[i][j])
+			if (G_WeaponLogPowerups[i][p])
 			{
 				nDifferent++;
 			}
-			nStuffUsed += G_WeaponLogPowerups[i][j];
+			nStuffUsed += G_WeaponLogPowerups[i][p];
 		}
-		for (j = to_underlying( PW_NONE )+1; j < to_underlying( PW_NUM_POWERUPS ); j++)
+		for (holdable_t h = HI_NONE + 1; h < HI_NUM_HOLDABLE; h++)
 		{
-			if (G_WeaponLogItems[i][j])
+			if (G_WeaponLogItems[i][h])
 			{
 				nDifferent++;
 			}
-			nStuffUsed += G_WeaponLogItems[i][j];
+			nStuffUsed += G_WeaponLogItems[i][h];
 		}
 		if ( (nDifferent >= 4) && (nDifferent >= nMostDifferent) )
 		{
@@ -1180,15 +1180,15 @@ int CalculateStreak(gentity_t *ent)
 
 bool CalculateTeamMVP(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->ps.persistant[PERS_SCORE];
 		if (nScore > nHighestScore)
@@ -1210,8 +1210,8 @@ bool CalculateTeamMVP(gentity_t *ent)
 
 bool CalculateTeamDefender(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	/*
@@ -1224,7 +1224,7 @@ bool CalculateTeamDefender(gentity_t *ent)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->pers.teamState.basedefense;
 		if (nScore > nHighestScore)
@@ -1246,8 +1246,8 @@ bool CalculateTeamDefender(gentity_t *ent)
 
 bool CalculateTeamWarrior(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	/*
@@ -1260,7 +1260,7 @@ bool CalculateTeamWarrior(gentity_t *ent)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->ps.persistant[PERS_SCORE];
 		if (nScore > nHighestScore)
@@ -1282,8 +1282,8 @@ bool CalculateTeamWarrior(gentity_t *ent)
 
 bool CalculateTeamCarrier(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	/*
@@ -1296,7 +1296,7 @@ bool CalculateTeamCarrier(gentity_t *ent)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->pers.teamState.captures;
 		if (nScore > nHighestScore)
@@ -1318,8 +1318,8 @@ bool CalculateTeamCarrier(gentity_t *ent)
 
 bool CalculateTeamInterceptor(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	/*
@@ -1333,7 +1333,7 @@ bool CalculateTeamInterceptor(gentity_t *ent)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->pers.teamState.flagrecovery;
 		nScore += player->client->pers.teamState.fragcarrier;
@@ -1356,8 +1356,8 @@ bool CalculateTeamInterceptor(gentity_t *ent)
 
 bool CalculateTeamRedShirt(gentity_t *ent)
 {
-	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
-				team = ent->client->ps.persistant[PERS_TEAM];
+	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0;
+	team_t		team = PS_Team( ent->client->ps );
 	gentity_t	*player = nullptr;
 
 	/*
@@ -1371,7 +1371,7 @@ bool CalculateTeamRedShirt(gentity_t *ent)
 	{
 		nScore = 0;
 		player = g_entities + i;
-		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
+		if (!player->inuse || (PS_Team( player->client->ps ) != team))
 			continue;
 		nScore = player->client->ps.persistant[PERS_KILLED];
 		nScore -= player->client->ps.fd.suicides; // suicides don't count, you big cheater.
@@ -1714,13 +1714,7 @@ void QDECL G_ClearClientLog(int client)
 	}
 	G_WeaponLogLastTime[client] = 0;
 	G_WeaponLogClientTouch[client] = false;
-	for (i = 0; i < to_underlying( HI_NUM_HOLDABLE ); i++)
-	{
-		G_WeaponLogPowerups[client][i] = 0;
-	}
-	for (i = 0; i < to_underlying( PW_NUM_POWERUPS ); i++)
-	{
-		G_WeaponLogItems[client][i] = 0;
-	}
+	G_WeaponLogPowerups[client] = {};
+	G_WeaponLogItems[client] = {};
 }
 

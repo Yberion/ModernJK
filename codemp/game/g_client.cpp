@@ -1317,7 +1317,7 @@ TeamLeader
 Returns the client number of the team leader
 ================
 */
-int TeamLeader( int team ) {
+int TeamLeader( team_t team ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -1341,7 +1341,7 @@ PickTeam
 ================
 */
 team_t PickTeam( int ignoreClientNum ) {
-	int		counts[TEAM_NUM_TEAMS];
+	EnumArray<int, team_t, TEAM_NUM_TEAMS>	counts;
 
 	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
 	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
@@ -1558,7 +1558,7 @@ is used for determining where the lightsaber should be, and for per-poly collisi
 void *g2SaberInstance = nullptr;
 
 bool BG_IsValidCharacterModel(const char *modelName, const char *skinName);
-bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
+bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team, float *colors );
 void BG_GetVehicleModelName(char *modelName, const char *vehicleName, size_t len);
 
 void SetupGameGhoul2Model(gentity_t *ent, const char *modelname, const char *skinName)
@@ -1955,7 +1955,7 @@ if desired.
 */
 
 bool G_SetSaber(gentity_t *ent, int saberNum, const char *saberName, bool siegeOverride);
-void G_ValidateSiegeClassForTeam(gentity_t *ent, int team);
+void G_ValidateSiegeClassForTeam(gentity_t *ent, team_t team);
 
 typedef struct userinfoValidate_s {
 	const char		*field, *fieldClean;
@@ -2109,7 +2109,8 @@ const char *G_ValidateUserinfo( const char *userinfo ) {
 bool ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent = g_entities + clientNum;
 	gclient_t *client = ent->client;
-	int team=TEAM_FREE, health=100, maxHealth=100, teamLeader;
+	int health=100, maxHealth=100, teamLeader;
+	team_t team=TEAM_FREE;
 	const char *s=nullptr;
 	const char *value=nullptr;
 	char userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
@@ -2319,7 +2320,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 	// print scoreboards, display models, and play custom sounds
 	buf[0] = '\0';
 	Q_strcat( buf, sizeof( buf ), va( "n\\%s\\", client->pers.netname ) );
-	Q_strcat( buf, sizeof( buf ), va( "t\\%i\\", client->sess.sessionTeam ) );
+	Q_strcat( buf, sizeof( buf ), va( "t\\%i\\", to_underlying( client->sess.sessionTeam ) ) );
 	Q_strcat( buf, sizeof( buf ), va( "model\\%s\\", model ) );
 	if ( gender == GENDER_FEMALE )	Q_strcat( buf, sizeof( buf ), va( "ds\\%c\\", 'f' ) );
 	else							Q_strcat( buf, sizeof( buf ), va( "ds\\%c\\", 'm' ) );
@@ -2335,14 +2336,14 @@ bool ClientUserinfoChanged( int clientNum ) {
 		Q_strcat( buf, sizeof( buf ), va( "l\\%i\\", client->sess.losses ) );
 	}
 	if ( level.gametype == GT_POWERDUEL )
-		Q_strcat( buf, sizeof( buf ), va( "dt\\%i\\", client->sess.duelTeam ) );
+		Q_strcat( buf, sizeof( buf ), va( "dt\\%i\\", to_underlying( client->sess.duelTeam ) ) );
 	if ( level.gametype >= GT_TEAM ) {
 	//	Q_strcat( buf, sizeof( buf ), va( "tt\\%d\\", teamTask ) );
 		Q_strcat( buf, sizeof( buf ), va( "tl\\%d\\", teamLeader ) );
 	}
 	if ( level.gametype == GT_SIEGE ) {
 		Q_strcat( buf, sizeof( buf ), va( "siegeclass\\%s\\", className ) );
-		Q_strcat( buf, sizeof( buf ), va( "sdt\\%i\\", client->sess.siegeDesiredTeam ) );
+		Q_strcat( buf, sizeof( buf ), va( "sdt\\%i\\", to_underlying( client->sess.siegeDesiredTeam ) ) );
 	}
 
 	trap->GetConfigstring( CS_PLAYERS+clientNum, oldClientinfo, sizeof( oldClientinfo ) );
@@ -2510,7 +2511,7 @@ const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 	if (level.gametype == GT_SIEGE &&
 		(firstTime || level.newSession))
 	{ //if this is the first time then auto-assign a desired siege team and show briefing for that team
-		client->sess.siegeDesiredTeam = 0;//PickTeam(ent->s.number);
+		client->sess.siegeDesiredTeam = TEAM_FREE;//PickTeam(ent->s.number);
 		/*
 		trap->SendServerCommand(ent->s.number, va("sb %i", client->sess.siegeDesiredTeam));
 		*/
@@ -2565,7 +2566,7 @@ const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 
 	if ( level.gametype >= GT_TEAM &&
 		client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		BroadcastTeamChange( client, -1 );
+		BroadcastTeamChange( client, std::nullopt );
 	}
 
 	// count current clients and rank for scoreboard
@@ -2599,7 +2600,7 @@ and on transition between teams, but doesn't happen on respawns
 extern bool	gSiegeRoundBegun;
 extern bool	gSiegeRoundEnded;
 extern bool g_dontPenalizeTeam; //g_cmds.cpp
-void SetTeamQuick(gentity_t *ent, int team, bool doBegin);
+void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin);
 void ClientBegin( int clientNum, bool allowTeamReset ) {
 	gentity_t	*ent;
 	gclient_t	*client;
@@ -2639,7 +2640,7 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 
 			trap->SetUserinfo( clientNum, userinfo );
 
-			ent->client->ps.persistant[ PERS_TEAM ] = ent->client->sess.sessionTeam;
+			PS_SetTeam( ent->client->ps, ent->client->sess.sessionTeam );
 
 			preSess = ent->client->sess.sessionTeam;
 			G_ReadSessionData( ent->client );
@@ -3325,7 +3326,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
 	client->ps.persistant[PERS_SPAWN_COUNT]++;
-	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+	PS_SetTeam( client->ps, client->sess.sessionTeam );
 
 	client->airOutTime = level.time + 12000;
 
@@ -3396,7 +3397,7 @@ void ClientSpawn(gentity_t *ent) {
 		{//In Team games, force one side to be merc and other to be jedi
 			if ( level.numPlayingClients > 0 )
 			{//already someone in the game
-				int forceTeam = TEAM_SPECTATOR;
+				team_t forceTeam = TEAM_SPECTATOR;
 				for ( i = 0 ; i < level.maxclients ; i++ )
 				{
 					if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
@@ -3865,7 +3866,7 @@ void G_ClearVote( gentity_t *ent ) {
 		ent->client->pers.vote = 0;
 	}
 }
-void G_ClearTeamVote( gentity_t *ent, int team ) {
+void G_ClearTeamVote( gentity_t *ent, team_t team ) {
 	int voteteam;
 
 		 if ( team == TEAM_RED )	voteteam = 0;
@@ -4000,7 +4001,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->inuse = false;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+	PS_SetTeam( ent->client->ps, TEAM_FREE );
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->r.contents = 0;
 

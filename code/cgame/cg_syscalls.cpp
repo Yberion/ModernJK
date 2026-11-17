@@ -28,10 +28,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //prototypes
 extern void CG_PreInit();
 
-static intptr_t (QDECL *Q_syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
+static intptr_t (QDECL *Q_syscallRaw)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
+
+// the call's number converts here, at the boundary with the engine
+template <typename... Args>
+static intptr_t Q_syscall( cgameImport_t call, Args... args ) {
+	return Q_syscallRaw( to_underlying( call ), args... );
+}
 
 extern "C" Q_EXPORT void QDECL dllEntry( intptr_t (QDECL  *syscallptr)( intptr_t arg, ... ) ) {
-	Q_syscall = syscallptr;
+	Q_syscallRaw = syscallptr;
 	CG_PreInit();
 }
 
@@ -183,7 +189,7 @@ void cgi_S_StopSounds( void )
 	Q_syscall( CG_S_STOPSOUNDS);
 }
 
-void	cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ) {
+void	cgi_S_StartSound( const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx ) {
 	Q_syscall( CG_S_STARTSOUND, origin, entityNum, entchannel, sfx );
 }
 
@@ -207,7 +213,7 @@ sfxHandle_t cgi_AS_GetBModelSound( const char *name, int stage ) {
 	return Q_syscall( CG_AS_GETBMODELSOUND, name, stage );
 }
 
-void	cgi_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
+void	cgi_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum ) {
 	Q_syscall( CG_S_STARTLOCALSOUND, sfx, channelNum );
 }
 

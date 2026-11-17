@@ -107,7 +107,7 @@ void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t mins, co
 	VectorCopy( ent->currentOrigin, newstart );
 	newstart[2] = start[2]; // force newstart to be on the same plane as the muzzle ( start )
 
-	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|CONTENTS_SHOTCLIP, (EG2_Collision)0, 0 );
+	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
 
 	if ( tr.startsolid || tr.allsolid )
 	{
@@ -593,7 +593,7 @@ void WP_RocketLock( gentity_t *ent, float lockDist )
 	ang[1] = muzzlePoint[1] + ang[1]*lockDist;
 	ang[2] = muzzlePoint[2] + ang[2]*lockDist;
 
-	gi.trace(&tr, muzzlePoint, nullptr, nullptr, ang, ent->client->ps.clientNum, MASK_PLAYERSOLID, (EG2_Collision)0, 0);
+	gi.trace(&tr, muzzlePoint, nullptr, nullptr, ang, ent->client->ps.clientNum, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0);
 
 	if (tr.fraction != 1 && tr.entityNum < ENTITYNUM_NONE && tr.entityNum != ent->client->ps.clientNum)
 	{
@@ -1038,7 +1038,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 							AngleVectors( ang, fixedDir, nullptr, nullptr );
 							//VectorMA( ent->currentOrigin, 32768, dir, end );
 							VectorMA( ent->currentOrigin, 8192, dir, end );
-							gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+							gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 							if ( trace.fraction < 1.0f && !trace.allsolid && !trace.startsolid )
 							{
 								vec3_t newEnd;

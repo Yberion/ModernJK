@@ -33,6 +33,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "sys/sys_loadlib.h"
 
+#include <optional>
+
 vm_t	cgvm;
 /*
 Ghoul2 Insert Start
@@ -443,7 +445,7 @@ Converts a JK2 syscall to a JKA syscall
 ====================
 */
 
-cgameImport_t CL_ConvertJK2SysCall( cgameJK2Import_t import )
+std::optional<cgameImport_t> CL_ConvertJK2SysCall( cgameJK2Import_t import )
 {
 	// FIXME: This was a 5-minute slap-hack job in order to test if this really works. CLEAN ME UP! --eez
 	switch(import)
@@ -794,7 +796,7 @@ Ghoul2 Insert End
 			return CG_MODERNJK_GETMENU_BYNAME;
 			break;
 	}
-	return (cgameImport_t)-1;
+	return std::nullopt;
 }
 
 #endif
@@ -810,9 +812,13 @@ extern void		Menu_Paint(menuDef_t *menu, bool forcePaint);
 extern menuDef_t *Menus_FindByName(const char *p);
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 #ifdef JK2_MODE
-	args[0] = (intptr_t)CL_ConvertJK2SysCall((cgameJK2Import_t)args[0]);
+	const std::optional<cgameImport_t> call = CL_ConvertJK2SysCall( static_cast<cgameJK2Import_t>( args[0] ) );
+	if ( !call ) {
+		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
+	}
+	args[0] = to_underlying( *call );
 #endif
-	switch( args[0] ) {
+	switch( static_cast<cgameImport_t>( args[0] ) ) {
 	case CG_PRINT:
 		Com_Printf( "%s", VMA(1) );
 		return 0;
@@ -931,7 +937,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		if (!cls.cgameStarted) {
 			return 0;
 		}
-		S_StartLocalSound( args[1], args[2] );
+		S_StartLocalSound( args[1], static_cast<soundChannel_t>( args[2] ) );
 		return 0;
 	case CG_S_CLEARLOOPINGSOUNDS:
 		S_ClearLoopingSounds();
@@ -1330,7 +1336,7 @@ Ghoul2 Insert End
 		assert(VMA(1));
 //		assert(VMA(2));	// can now pass in nullptr to just query the size
 
-		if (args[0] == CG_SP_GETSTRINGTEXT)
+		if (static_cast<cgameImport_t>( args[0] ) == CG_SP_GETSTRINGTEXT)
 		{
 			text = JK2SP_GetStringText( args[1] );
 		}

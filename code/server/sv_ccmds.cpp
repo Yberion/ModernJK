@@ -115,7 +115,7 @@ void SV_Player_EndOfLevelSave(void)
 						pState->stats[STAT_WEAPONS],
 						pState->stats[STAT_ITEMS],
 						pState->weapon,
-						pState->weaponstate,
+						to_underlying( pState->weaponstate ),
 						pState->batteryCharge,
 						pState->viewangles[0],
 						pState->viewangles[1],
@@ -135,7 +135,7 @@ void SV_Player_EndOfLevelSave(void)
 						pState->stats[STAT_WEAPONS],
 						pState->stats[STAT_ITEMS],
 						pState->weapon,
-						pState->weaponstate,
+						to_underlying( pState->weaponstate ),
 						pState->batteryCharge,
 						pState->viewangles[0],
 						pState->viewangles[1],
@@ -156,14 +156,14 @@ void SV_Player_EndOfLevelSave(void)
 						pState->saber[0].blade[5].active,
 						pState->saber[0].blade[6].active,
 						pState->saber[0].blade[7].active,
-						pState->saber[0].blade[0].color,
-						pState->saber[0].blade[1].color,
-						pState->saber[0].blade[2].color,
-						pState->saber[0].blade[3].color,
-						pState->saber[0].blade[4].color,
-						pState->saber[0].blade[5].color,
-						pState->saber[0].blade[6].color,
-						pState->saber[0].blade[7].color,
+						to_underlying( pState->saber[0].blade[0].color ),
+						to_underlying( pState->saber[0].blade[1].color ),
+						to_underlying( pState->saber[0].blade[2].color ),
+						to_underlying( pState->saber[0].blade[3].color ),
+						to_underlying( pState->saber[0].blade[4].color ),
+						to_underlying( pState->saber[0].blade[5].color ),
+						to_underlying( pState->saber[0].blade[6].color ),
+						to_underlying( pState->saber[0].blade[7].color ),
 						//saber 2 data
 						pState->saber[1].name,
 						pState->saber[1].blade[0].active,
@@ -174,17 +174,17 @@ void SV_Player_EndOfLevelSave(void)
 						pState->saber[1].blade[5].active,
 						pState->saber[1].blade[6].active,
 						pState->saber[1].blade[7].active,
-						pState->saber[1].blade[0].color,
-						pState->saber[1].blade[1].color,
-						pState->saber[1].blade[2].color,
-						pState->saber[1].blade[3].color,
-						pState->saber[1].blade[4].color,
-						pState->saber[1].blade[5].color,
-						pState->saber[1].blade[6].color,
-						pState->saber[1].blade[7].color,
+						to_underlying( pState->saber[1].blade[0].color ),
+						to_underlying( pState->saber[1].blade[1].color ),
+						to_underlying( pState->saber[1].blade[2].color ),
+						to_underlying( pState->saber[1].blade[3].color ),
+						to_underlying( pState->saber[1].blade[4].color ),
+						to_underlying( pState->saber[1].blade[5].color ),
+						to_underlying( pState->saber[1].blade[6].color ),
+						to_underlying( pState->saber[1].blade[7].color ),
 						//general saber data
 						pState->saberStylesKnown,
-						pState->saberAnimLevel,
+						to_underlying( pState->saberAnimLevel ),
 						pState->saberLockEnemy,
 						pState->saberLockTime
 						);
@@ -193,9 +193,9 @@ void SV_Player_EndOfLevelSave(void)
 
 		//ammo
 		s2 = "";
-		for (i=0;i< to_underlying( AMMO_MAX ); i++)
+		for (const int ammo : pState->ammo)
 		{
-			s2 = va("%s %i",s2, pState->ammo.data()[i]);
+			s2 = va("%s %i",s2, ammo);
 		}
 		Cvar_Set( "playerammo", s2 );
 

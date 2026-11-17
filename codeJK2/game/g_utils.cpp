@@ -228,7 +228,7 @@ void G_PlayEffect( const char *name,  const int modelIndex, const int boltIndex,
 
 //===Bypass network for sounds on specific channels====================
 
-extern void cgi_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
+extern void cgi_S_StartSound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 #include "../cgame/cg_media.h"	//access to cgs
 extern void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
 //NOTE: Do NOT Try to use this before the cgame DLL is valid, it will NOT work!
@@ -1321,7 +1321,7 @@ void TryUse( gentity_t *ent )
 	else if ( target->client
 		&& target->client->ps.pm_type < PM_DEAD
 		&& target->NPC!=nullptr
-		&& target->client->playerTeam
+		&& target->client->playerTeam != TEAM_FREE
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
 		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
 	{

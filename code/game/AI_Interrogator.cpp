@@ -264,7 +264,7 @@ void Interrogator_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )

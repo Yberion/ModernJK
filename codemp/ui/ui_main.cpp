@@ -490,10 +490,10 @@ static int UI_HeadCountByColor( void );
 static void UI_ParseGameInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static int UI_GetIndexFromSelection(int actual);
-static void UI_SiegeClassCnt( const int team );
+static void UI_SiegeClassCnt( const team_t team );
 
-int	uiSkinColor=TEAM_FREE;
-int	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
+team_t	uiSkinColor=TEAM_FREE;
+team_t	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
 
 static const char *skillLevels[] = {
 	"SKILL1", // "Initiate"
@@ -528,7 +528,7 @@ static const int numNetNames = ARRAY_LEN( netNames ) - 1;
 
 const char *UI_GetStringEdString(const char *refSection, const char *refName);
 
-const char *UI_TeamName(int team) {
+const char *UI_TeamName(team_t team) {
 	if (team==TEAM_RED)
 		return "RED";
 	else if (team==TEAM_BLUE)
@@ -838,14 +838,15 @@ UI_BuildPlayerList
 */
 static void UI_BuildPlayerList() {
 	uiClientState_t	cs;
-	int		n, count, team, team2, playerTeamNumber;
+	int		n, count, playerTeamNumber;
+	team_t	team, team2;
 	char	info[MAX_INFO_STRING];
 
 	trap->GetClientState( &cs );
 	trap->GetConfigString( CS_PLAYERS + cs.clientNum, info, MAX_INFO_STRING );
 	uiInfo.playerNumber = cs.clientNum;
 	uiInfo.teamLeader = atoi(Info_ValueForKey(info, "tl"));
-	team = atoi(Info_ValueForKey(info, "t"));
+	team = static_cast<team_t>( atoi(Info_ValueForKey(info, "t")) );
 	trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 	count = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	uiInfo.playerCount = 0;
@@ -859,7 +860,7 @@ static void UI_BuildPlayerList() {
 			Q_StripColor( uiInfo.playerNames[uiInfo.playerCount] );
 			uiInfo.playerIndexes[uiInfo.playerCount] = n;
 			uiInfo.playerCount++;
-			team2 = atoi(Info_ValueForKey(info, "t"));
+			team2 = static_cast<team_t>( atoi(Info_ValueForKey(info, "t")) );
 			if (team2 == team && n != uiInfo.playerNumber) {
 				Q_strncpyz( uiInfo.teamNames[uiInfo.myTeamCount], Info_ValueForKey( info, "n" ), MAX_NETNAME );
 				Q_StripColor( uiInfo.teamNames[uiInfo.myTeamCount] );
@@ -890,7 +891,7 @@ static void UI_BuildPlayerList() {
 		trap->Cvar_Set("cg_selectedPlayerName", "Everyone");
 	}
 
-	if (!team || team == TEAM_SPECTATOR || !uiInfo.teamLeader)
+	if (team == TEAM_FREE || team == TEAM_SPECTATOR || !uiInfo.teamLeader)
 	{
 		n = uiInfo.myTeamCount;
 		trap->Cvar_Set("cg_selectedPlayer", va("%d", n));
@@ -1554,7 +1555,7 @@ static void UI_SetCapFragLimits(bool uiVars) {
 
 static const char* UI_GetGameTypeName(gametype_t gtEnum)
 {
-	switch ( static_cast<gametype_t>( gtEnum ) )
+	switch ( gtEnum )
 	{
 	case GT_FFA:
 		return UI_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
@@ -1755,7 +1756,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 	Text_Paint(rect->x, rect->y, scale, color, s, 0, 0, textStyle, iMenuFont);
 }
 
-static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int textStyle, team_t val, team_t min, team_t max, int iMenuFont)
 {
 	char s[256];
 
@@ -1790,7 +1791,7 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
 		{
 		case TEAM_RED:
 			uiForceSide = FORCE_DARKSIDE;
@@ -2235,7 +2236,7 @@ void UpdateForceStatus()
 		}
 
 		// The leftmost button should be "apply" unless you are in spectator, where you can join any team.
-		if ((int)(trap->Cvar_VariableValue("ui_myteam")) != TEAM_SPECTATOR)
+		if (static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ) != TEAM_SPECTATOR)
 		{
 			Menu_ShowItemByName(menu, "playerapply", true);
 			Menu_ShowItemByName(menu, "playerforcejoin", false);
@@ -2291,7 +2292,7 @@ void UpdateForceStatus()
 	{// Take the current team and force a skin color based on it.
 		char	info[MAX_INFO_STRING];
 
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
 		{
 		case TEAM_RED:
 			uiSkinColor = TEAM_RED;
@@ -3790,7 +3791,7 @@ static bool UI_NetGameType_HandleKey(int flags, float *special, int key)
 
 		trap->Cvar_Set( "ui_netGametype", va("%d", value));
 		trap->Cvar_Update(&ui_netGametype);
-		trap->Cvar_Set( "ui_actualNetGametype", va("%d", uiInfo.gameTypes[ui_netGametype.integer].gtEnum));
+		trap->Cvar_Set( "ui_actualNetGametype", va("%d", to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum )));
 		trap->Cvar_Update(&ui_actualNetGametype);
 		trap->Cvar_Set( "ui_currentNetMap", "0");
 		trap->Cvar_Update(&ui_currentNetMap);
@@ -4627,7 +4628,7 @@ static void UI_StartSkirmish(bool next) {
 //	trap->Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 
 	if (trap->Cvar_VariableValue("ui_recordSPDemo")) {
-		Com_sprintf(buff, MAX_STRING_CHARS, "%s_%i", uiInfo.mapList[ui_currentMap.integer].mapLoadName, g);
+		Com_sprintf(buff, MAX_STRING_CHARS, "%s_%i", uiInfo.mapList[ui_currentMap.integer].mapLoadName, to_underlying( g ));
 		trap->Cvar_Set("ui_recordSPDemoName", buff);
 	}
 
@@ -5119,10 +5120,10 @@ void UI_SetSiegeObjectiveGraphicPos(menuDef_t *menu,const char *itemName,const c
 void UI_FindCurrentSiegeTeamClass( void )
 {
 	menuDef_t *menu;
-	int myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+	team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
 	const char *itemname;
 	itemDef_t *item;
-	int	baseClass;
+	siegePlayerClassFlags_t	baseClass;
 
 	menu = Menu_GetFocused();	// Get current menu
 
@@ -5157,10 +5158,10 @@ void UI_FindCurrentSiegeTeamClass( void )
 	}
 
 
-	baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
+	baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
 
 	// Find correct class button and activate it.
-	switch ( static_cast<siegePlayerClassFlags_t>( baseClass ) ) {
+	switch ( baseClass ) {
 	case SPC_INFANTRY:
 		itemname = "class1_button";
 		break;
@@ -5193,7 +5194,7 @@ void UI_FindCurrentSiegeTeamClass( void )
 void UI_UpdateSiegeObjectiveGraphics( void )
 {
 	menuDef_t *menu;
-	int	teamI,objI;
+	int	objI;
 
 	menu = Menu_GetFocused();	// Get current menu
 
@@ -5214,21 +5215,21 @@ void UI_UpdateSiegeObjectiveGraphics( void )
 	Menu_ShowGroup(menu,"forcepowerlevel",false);
 
 	// Get objective icons for each team
-	for (teamI=1;teamI<3;teamI++)
+	for (team_t teamI = SIEGETEAM_TEAM1; teamI <= SIEGETEAM_TEAM2; teamI++)
 	{
 		for (objI=1;objI<8;objI++)
 		{
-			Menu_SetItemBackground(menu,va("tm%i_icon%i",teamI,objI),va("*team%i_objective%i_mapicon",teamI,objI));
-			Menu_SetItemBackground(menu,va("tm%i_l_icon%i",teamI,objI),va("*team%i_objective%i_mapicon",teamI,objI));
+			Menu_SetItemBackground(menu,va("tm%i_icon%i",to_underlying( teamI ),objI),va("*team%i_objective%i_mapicon",to_underlying( teamI ),objI));
+			Menu_SetItemBackground(menu,va("tm%i_l_icon%i",to_underlying( teamI ),objI),va("*team%i_objective%i_mapicon",to_underlying( teamI ),objI));
 		}
 	}
 
 	// Now get their placement on the map
-	for (teamI=1;teamI<3;teamI++)
+	for (team_t teamI = SIEGETEAM_TEAM1; teamI <= SIEGETEAM_TEAM2; teamI++)
 	{
 		for (objI=1;objI<8;objI++)
 		{
-			UI_SetSiegeObjectiveGraphicPos(menu,va("tm%i_icon%i",teamI,objI),va("team%i_objective%i_mappos",teamI,objI));
+			UI_SetSiegeObjectiveGraphicPos(menu,va("tm%i_icon%i",to_underlying( teamI ),objI),va("team%i_objective%i_mappos",to_underlying( teamI ),objI));
 		}
 	}
 
@@ -5244,11 +5245,11 @@ static void UI_UpdateSaberCvars ( void )
 	trap->Cvar_Set ( "saber2", UI_Cvar_VariableString ( "ui_saber2" ) );
 
 	colorI = TranslateSaberColor( UI_Cvar_VariableString ( "ui_saber_color" ) );
-	trap->Cvar_Set ( "color1", va("%d",colorI));
+	trap->Cvar_Set ( "color1", va("%d",to_underlying( colorI )));
 	trap->Cvar_Set ( "g_saber_color", UI_Cvar_VariableString ( "ui_saber_color" ));
 
 	colorI = TranslateSaberColor( UI_Cvar_VariableString ( "ui_saber2_color" ) );
-	trap->Cvar_Set ( "color2", va("%d",colorI) );
+	trap->Cvar_Set ( "color2", va("%d",to_underlying( colorI )) );
 	trap->Cvar_Set ( "g_saber2_color", UI_Cvar_VariableString ( "ui_saber2_color" ));
 }
 
@@ -5758,14 +5759,13 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 	}
 
 	//now for inventory items
-	i = 0;
 	count = 0;
 
-	while (i < to_underlying( HI_NUM_HOLDABLE ))
+	for (holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++)
 	{
-		if (scl->invenItems & (1<<i))
+		if (scl->invenItems & Bit( h ))
 		{
-			gitem_t *item = BG_FindItemForHoldable((holdable_t)i);
+			gitem_t *item = BG_FindItemForHoldable(h);
 			trap->Cvar_Set(va("ui_class_item%i", count), item->icon);
 			trap->Cvar_Set(va("ui_class_itemdesc%i", count), item->description);
 			count++;
@@ -5774,7 +5774,6 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 		{
 			trap->Cvar_Set(va("ui_class_itemdesc%i", count), " ");
 		}
-		i++;
 	}
 
 	//now for force powers
@@ -5791,7 +5790,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 
 		if (scl->forcePowerLevels[i] != FORCE_LEVEL_0)
 		{
-			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",scl->forcePowerLevels[i]));
+			trap->Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",to_underlying( scl->forcePowerLevels[i] )));
 			trap->Cvar_Set(va("ui_class_power%i", count), HolocronIcons[i]);
 			count++;
 		}
@@ -5817,7 +5816,7 @@ void UI_SiegeSetCvarsForClass( siegeClass_t *scl ) {
 }
 
 static int g_siegedFeederForcedSet = 0;
-void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
+void UI_UpdateCvarsForClass(const team_t team,const siegePlayerClassFlags_t baseClass,const int index)
 {
 	siegeClass_t *holdClass=nullptr;
 	char *holdBuf;
@@ -5828,7 +5827,7 @@ void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
 	{
 
 		// Is it a valid base class?
-		if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
+		if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
 		{
 			// A valid index?
 			if ((index>=0) && (index < BG_SiegeCountBaseClass( team, baseClass )))
@@ -6177,7 +6176,7 @@ static void UI_RunMenuScript(char **args)
 			}
 		} else if (Q_stricmp(name, "voteGame") == 0) {
 			if (ui_netGametype.integer >= 0 && ui_netGametype.integer < uiInfo.numGameTypes) {
-				trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",uiInfo.gameTypes[ui_netGametype.integer].gtEnum) );
+				trap->Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",to_underlying( uiInfo.gameTypes[ui_netGametype.integer].gtEnum )) );
 			}
 		} else if (Q_stricmp(name, "voteLeader") == 0) {
 			if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
@@ -6337,7 +6336,7 @@ static void UI_RunMenuScript(char **args)
 				}
 				else if ( Q_stricmp( "same", teamArg ) == 0 )
 				{//stay on current team
-					int myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+					team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
 					if ( myTeam != TEAM_SPECTATOR )
 					{
 						UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
@@ -6359,8 +6358,8 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "setsiegeclassandteam") == 0)
 		{
-			int team = (int)trap->Cvar_VariableValue("ui_holdteam");
-			int oldteam = (int)trap->Cvar_VariableValue("ui_startsiegeteam");
+			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
+			team_t oldteam = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_startsiegeteam") );
 			bool	goTeam = true;
 			char	newclassString[512];
 			char	startclassString[512];
@@ -6369,7 +6368,7 @@ static void UI_RunMenuScript(char **args)
 			trap->Cvar_VariableStringBuffer( "ui_startsiegeclass", startclassString, sizeof(startclassString) );
 
 			// Was just a spectator - is still just a spectator
-			if ((oldteam == team) && (oldteam == 3))
+			if ((oldteam == team) && (oldteam == TEAM_SPECTATOR))
 			{
 				goTeam = false;
 			}
@@ -6387,17 +6386,17 @@ static void UI_RunMenuScript(char **args)
 
 			if (goTeam)
 			{
-				if (team == 1)	// Team red
+				if (team == TEAM_RED)	// Team red
 				{
-					trap->Cvar_Set("ui_team", va("%d", team));
+					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
-				else if (team == 2)	// Team blue
+				else if (team == TEAM_BLUE)	// Team blue
 				{
-					trap->Cvar_Set("ui_team", va("%d", team));
+					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
-				else if (team == 3)	// Team spectator
+				else if (team == TEAM_SPECTATOR)	// Team spectator
 				{
-					trap->Cvar_Set("ui_team", va("%d", team));
+					trap->Cvar_Set("ui_team", va("%d", to_underlying( team )));
 				}
 
 				if (g_UIGloballySelectedSiegeClass != -1)
@@ -6788,8 +6787,8 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "updatesiegeobjgraphics") == 0)
 		{
-			int team = (int)trap->Cvar_VariableValue("ui_team");
-			trap->Cvar_Set("ui_holdteam", va("%d", team));
+			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
+			trap->Cvar_Set("ui_holdteam", va("%d", to_underlying( team )));
 
 			UI_UpdateSiegeObjectiveGraphics();
 		}
@@ -6851,27 +6850,28 @@ static void UI_RunMenuScript(char **args)
 
 			if (String_Parse(args, &teamArg))
 			{
-				UI_SiegeClassCnt(atoi(teamArg));
+				UI_SiegeClassCnt(static_cast<team_t>( atoi(teamArg) ));
 			}
 		}
 		else if (Q_stricmp(name, "updatesiegecvars") == 0)
 		{
-			int team,baseClass;
+			siegePlayerClassFlags_t baseClass;
+			team_t team;
 
-			team = (int)trap->Cvar_VariableValue("ui_holdteam");
-			baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
+			team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
+			baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
 
 			UI_UpdateCvarsForClass(team, baseClass, 0);
 		}
 		// Save current team and class
 		else if (Q_stricmp(name, "setteamclassicons") == 0)
 		{
-			int team = (int)trap->Cvar_VariableValue("ui_holdteam");
+			team_t team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_holdteam") );
 			char	classString[512];
 
 			trap->Cvar_VariableStringBuffer( "ui_mySiegeClass", classString, sizeof(classString) );
 
-			trap->Cvar_Set("ui_startsiegeteam", va("%d", team));
+			trap->Cvar_Set("ui_startsiegeteam", va("%d", to_underlying( team )));
 		 	trap->Cvar_Set( "ui_startsiegeclass", classString);
 
 			// If player is already on a team, set up icons to show it.
@@ -7191,16 +7191,16 @@ void UI_SetSiegeTeams(void)
 	Menu_SetFeederSelection(nullptr, FEEDER_SIEGE_TEAM2, -1, nullptr);
 }
 
-static void UI_SiegeClassCnt( const int team )
+static void UI_SiegeClassCnt( const team_t team )
 {
 	UI_SetSiegeTeams();
 
-	trap->Cvar_Set("ui_infantry_cnt", va("%d", BG_SiegeCountBaseClass(team,0)));
-	trap->Cvar_Set("ui_vanguard_cnt", va("%d", BG_SiegeCountBaseClass(team,1)));
-	trap->Cvar_Set("ui_support_cnt", va("%d", BG_SiegeCountBaseClass(team,2)));
-	trap->Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,3)));
-	trap->Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,4)));
-	trap->Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,5)));
+	trap->Cvar_Set("ui_infantry_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_INFANTRY)));
+	trap->Cvar_Set("ui_vanguard_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_VANGUARD)));
+	trap->Cvar_Set("ui_support_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_SUPPORT)));
+	trap->Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_JEDI)));
+	trap->Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_DEMOLITIONIST)));
+	trap->Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,SPC_HEAVY_WEAPONS)));
 }
 
 /*
@@ -7883,7 +7883,9 @@ UI_FeederCount
 */
 static int UI_FeederCount(float feederID)
 {
-	int team,baseClass,count=0,i;
+	int count=0,i;
+	siegePlayerClassFlags_t baseClass;
+	team_t team;
 	static char info[MAX_STRING_CHARS];
 
 	switch ( (int)feederID )
@@ -8022,14 +8024,14 @@ static int UI_FeederCount(float feederID)
 			return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
 
 		case FEEDER_SIEGE_BASE_CLASS:
-			team = (int)trap->Cvar_VariableValue("ui_team");
-			baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
+			team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
+			baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
 
 			if ((team == SIEGETEAM_TEAM1) ||
 				(team == SIEGETEAM_TEAM2))
 			{
 				// Is it a valid base class?
-				if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
+				if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
 				{
 					return (BG_SiegeCountBaseClass( team, baseClass ));
 				}
@@ -8651,16 +8653,17 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 
 	else if ( feederID == FEEDER_SIEGE_BASE_CLASS)
 	{
-		int team,baseClass;
+		siegePlayerClassFlags_t baseClass;
+		team_t team;
 
-		team = (int)trap->Cvar_VariableValue("ui_team");
-		baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
+		team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
+		baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
 
 		if ((team == SIEGETEAM_TEAM1) ||
 			(team == SIEGETEAM_TEAM2))
 		{
 			// Is it a valid base class?
-			if ((baseClass >= to_underlying( SPC_INFANTRY )) && (baseClass < to_underlying( SPC_MAX )))
+			if ((baseClass >= SPC_INFANTRY) && (baseClass < SPC_MAX))
 			{
 				if (index >= 0)
 				{
@@ -9053,10 +9056,11 @@ bool UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 	}
 	else if (  feederID == FEEDER_SIEGE_BASE_CLASS )
 	{
-		int team,baseClass;
+		siegePlayerClassFlags_t baseClass;
+		team_t team;
 
-		team = (int)trap->Cvar_VariableValue("ui_team");
-		baseClass = (int)trap->Cvar_VariableValue("ui_siege_class");
+		team = static_cast<team_t>( (int)trap->Cvar_VariableValue("ui_team") );
+		baseClass = static_cast<siegePlayerClassFlags_t>( (int)trap->Cvar_VariableValue("ui_siege_class") );
 
 		UI_UpdateCvarsForClass(team, baseClass, index);
 	}

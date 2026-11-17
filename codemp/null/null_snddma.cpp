@@ -54,7 +54,7 @@ sfxHandle_t S_RegisterSound( const char *name ) {
 	return 0;
 }
 
-void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
+void S_StartLocalSound( sfxHandle_t sfxHandle, soundChannel_t channelNum ) {
 }
 
 void S_ClearSoundBuffer( void ) {

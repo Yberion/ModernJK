@@ -45,18 +45,18 @@ void RT_Precache( void )
 	G_EffectIndex( "rockettrooper/light_cone" );//extern this?  At least use a different one
 }
 
-extern void NPC_BehaviorSet_Stormtrooper( int bState );
+extern void NPC_BehaviorSet_Stormtrooper( bState_t bState );
 void RT_RunStormtrooperAI( void )
 {
-	int bState;
+	bState_t bState;
 	//Execute our bState
-	if(NPCInfo->tempBehavior)
+	if(NPCInfo->tempBehavior != BS_DEFAULT)
 	{//Overrides normal behavior until cleared
 		bState = NPCInfo->tempBehavior;
 	}
 	else
 	{
-		if(!NPCInfo->behaviorState)
+		if(NPCInfo->behaviorState == BS_DEFAULT)
 			NPCInfo->behaviorState = NPCInfo->defaultBehavior;
 
 		bState = NPCInfo->behaviorState;
@@ -207,7 +207,7 @@ void RT_FireDecide( void )
 							vec3_t	forward, end;
 							AngleVectors( NPC->client->ps.viewangles, forward, nullptr, nullptr );
 							VectorMA( muzzle, 8192, forward, end );
-							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 							VectorCopy( tr.endpos, impactPos );
 						}
 
@@ -639,7 +639,7 @@ void RT_Flying_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, RT_FLYING_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -679,7 +679,7 @@ void RT_Flying_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &tr, NPC->currentOrigin, nullptr, nullptr, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )

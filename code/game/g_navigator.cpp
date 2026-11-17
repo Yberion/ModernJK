@@ -833,7 +833,7 @@ bool		ViewTrace(const CVec3& a, const CVec3& b)
 	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -850,7 +850,7 @@ bool		ViewNavTrace(const CVec3& a, const CVec3& b)
 	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
 
 	mViewTraceCount++;
-	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, (EG2_Collision)0, 0);
+	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
 
 	if ((mViewTrace.allsolid==false) && (mViewTrace.startsolid==false ) && (mViewTrace.fraction==1.0f))
 	{
@@ -887,7 +887,7 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 	// Run The Trace
 	//---------------
 	mMoveTraceCount++;
-	gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, (EG2_Collision)0, 0);
+	gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, G2_NOCOLLIDE, 0);
 
 
 	// Did It Make It?
@@ -906,7 +906,7 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 		// Run The Trace
 		//---------------
 		mMoveTraceCount++;
-		gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, (EG2_Collision)0, 0);
+		gi.trace(&mMoveTrace, Start.v, Mins.v, Maxs.v, Stop.v, IgnoreEnt, contents, G2_NOCOLLIDE, 0);
 
 		// Did It Make It?
 		//-----------------
@@ -5305,8 +5305,8 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 
 			// Make Sure The Normal Is Going The Same Way As The Velocity
 			//-----------------------------------------------------------
-			if (((ESide)(actor->NPC->lastAvoidSteerSide)==Side_Right) ||
-				((ESide)(actor->NPC->lastAvoidSteerSide)==Side_None && ContactNormal.Dot(ProjectDirection)<0.0f))
+			if ((actor->NPC->lastAvoidSteerSide==Side_Right) ||
+				(actor->NPC->lastAvoidSteerSide==Side_None && ContactNormal.Dot(ProjectDirection)<0.0f))
 			{
 				ContactNormal *= -1.0f;
 				actor->NPC->lastAvoidSteerSide  = Side_Right;
@@ -5425,7 +5425,7 @@ float			STEER::AvoidCollisions(gentity_t* actor, gentity_t* leader)
 		// Test For Collisions In The Front And On The Sides
 		//---------------------------------------------------
 		bool	HitFront	= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, Side_None, 1.0f);
-		bool	HitSide		= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, (ESide)actor->NPC->avoidSide, 0.5f);
+		bool	HitSide		= TestCollision(actor, suser, ProjectedVelocity, ProjectedSpeed, actor->NPC->avoidSide, 0.5f);
 		if (!HitSide)
 		{
 			// If The Side Is Clear, Try The Other Side

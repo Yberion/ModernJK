@@ -87,7 +87,7 @@ bool Jedi_WaitingAmbush( gentity_t *self );
 
 extern int parryDebounce[];
 
-static int	jediSpeechDebounceTime[TEAM_NUM_TEAMS];//used to stop several jedi from speaking all at once
+static EnumArray<int, team_t, TEAM_NUM_TEAMS>	jediSpeechDebounceTime;//used to stop several jedi from speaking all at once
 //Local state enums
 enum
 {

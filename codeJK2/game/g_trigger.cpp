@@ -173,7 +173,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if( self->noDamageTeam )
+	if( self->noDamageTeam != TEAM_FREE )
 	{
 		if ( other->client->playerTeam != self->noDamageTeam )
 		{

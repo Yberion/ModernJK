@@ -476,7 +476,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score )
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
 	if ( level.gametype == GT_TEAM && !g_dontPenalizeTeam )
-		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
+		level.teamScores[ PS_Team( ent->client->ps ) ] += score;
 	CalculateRanks();
 }
 
@@ -2490,7 +2490,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//also - if MOD_SABER, list the animation and saber style
 			if ( meansOfDeath == MOD_SABER )
 			{
-				G_LogPrintf("killer saber style: %d, killer saber anim %s\n", attacker->client->ps.fd.saberAnimLevel, animTable[(attacker->client->ps.torsoAnim)].name );
+				G_LogPrintf("killer saber style: %d, killer saber anim %s\n", to_underlying( attacker->client->ps.fd.saberAnimLevel ), animTable[(attacker->client->ps.torsoAnim)].name );
 			}
 		}
 	}
@@ -3564,7 +3564,7 @@ void DismembermentTest(gentity_t *self)
 
 	while (sect <= G2_MODELPART_RLEG)
 	{
-		G_GetDismemberBolt(self, boltPoint, static_cast<g2ModelParts_t>( sect ));
+		G_GetDismemberBolt(self, boltPoint, sect);
 		G_Dismember( self, self, boltPoint, sect, 90, 0, BOTH_DEATH1, false );
 		sect++;
 	}
@@ -3602,7 +3602,7 @@ void DismembermentByNum(gentity_t *self, int num)
 		break;
 	}
 
-	G_GetDismemberBolt(self, boltPoint, static_cast<g2ModelParts_t>( sect ));
+	G_GetDismemberBolt(self, boltPoint, sect);
 	G_Dismember( self, self, boltPoint, sect, 90, 0, BOTH_DEATH1, false );
 }
 
@@ -4826,7 +4826,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			else if (targ->inuse && targ->client &&
 				level.gametype >= GT_TEAM &&
 				attacker->s.number >= MAX_CLIENTS &&
-				attacker->alliedTeam &&
+				attacker->alliedTeam != TEAM_FREE &&
 				targ->client->sess.sessionTeam == attacker->alliedTeam &&
 				!g_friendlyFire.integer)
 			{ //things allied with my team should't hurt me.. I guess
@@ -4883,7 +4883,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		if ( level.gametype == GT_SIEGE &&
 			!g_ff_objectives.integer )
 		{//in siege mode (and...?)
-			if ( targ->teamnodmg )
+			if ( targ->teamnodmg != TEAM_FREE )
 			{//targ shouldn't take damage from a certain team
 				if ( attacker->client )
 				{//a client hit a non-client object
@@ -4892,7 +4892,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 						return;
 					}
 				}
-				else if ( attacker->teamnodmg )
+				else if ( attacker->teamnodmg != TEAM_FREE )
 				{//a non-client hit a non-client object
 					//FIXME: maybe check alliedTeam instead?
 					if ( targ->teamnodmg == attacker->teamnodmg )

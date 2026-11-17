@@ -869,7 +869,7 @@ extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
 bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 {
-	bState_t	bSID = (bState_t)-1;
+	int			bsID = -1;	// the behavior state named, -1 for none
 	char *bs_name = nullptr;
 
 	if ( !self )
@@ -886,11 +886,12 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 
 	if ( self->NPC )
 	{
-		bSID = (bState_t)(GetIDForString( BSTable, bs_name ));
+		bsID = GetIDForString( BSTable, bs_name );
 	}
 
-	if(bSID != (bState_t)-1)
+	if(bsID != -1)
 	{
+		const bState_t bSID = static_cast<bState_t>( bsID );
 		self->NPC->tempBehavior = BS_DEFAULT;
 		self->NPC->behaviorState = bSID;
 	}
@@ -1138,7 +1139,7 @@ bool NPC_ValidEnemy( gentity_t *ent )
 	//	if ( ent->svFlags&SVF_NONNPC_ENEMY )
 		if (ent->s.eType != ET_NPC)
 		{//still potentially valid
-			if ( ent->alliedTeam == to_underlying( NPCS.NPC->client->playerTeam ) )
+			if ( to_underlying( ent->alliedTeam ) == to_underlying( NPCS.NPC->client->playerTeam ) )
 			{
 				return false;
 			}

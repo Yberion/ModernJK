@@ -40,7 +40,7 @@ void WP_Melee( gentity_t *ent )
 	VectorSet( maxs, 6, 6, 6 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD )
 	{

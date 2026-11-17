@@ -460,7 +460,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return S_RegisterSound((const char *) VMA(1));
 
 	case UI_S_STARTLOCALSOUND:
-		S_StartLocalSound( args[1], args[2] );
+		S_StartLocalSound( args[1], static_cast<soundChannel_t>( args[2] ) );
 		return 0;
 
 //	case UI_R_REGISTERFONT:

@@ -250,13 +250,13 @@ typedef struct cgameImport_s {
 	void			(*S_AddLoopingSound)					( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
 	void			(*S_ClearLoopingSounds)					( void );
 	int				(*S_GetVoiceVolume)						( int entID );
-	void			(*S_MuteSound)							( int entityNum, int entchannel );
+	void			(*S_MuteSound)							( int entityNum, soundChannel_t entchannel );
 	sfxHandle_t		(*S_RegisterSound)						( const char *sample );
 	void			(*S_Respatialize)						( int entityNum, const vec3_t origin, matrix3_t axis, int inwater );
 	void			(*S_Shutup)								( bool shutup );
 	void			(*S_StartBackgroundTrack)				( const char *intro, const char *loop, bool bReturnWithoutStarting );
-	void			(*S_StartLocalSound)					( sfxHandle_t sfx, int channelNum );
-	void			(*S_StartSound)							( const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
+	void			(*S_StartLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
+	void			(*S_StartSound)							( const vec3_t origin, int entnum, soundChannel_t entchannel, sfxHandle_t sfx );
 	void			(*S_StopBackgroundTrack)				( void );
 	void			(*S_StopLoopingSound)					( int entityNum );
 	void			(*S_UpdateEntityPosition)				( int entityNum, const vec3_t origin );

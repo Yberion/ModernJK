@@ -693,31 +693,30 @@ static void Svcmd_PlayerTeam_f(void)
 	if ( !*cmd2 || !cmd2[0] )
 	{
 		gi.Printf( S_COLOR_RED "'playerteam' - change player team, requires a team name!\n" );
-		gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, g_entities[0].client->playerTeam ) );
+		gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, to_underlying( g_entities[0].client->playerTeam ) ) );
 		gi.Printf( S_COLOR_RED "Valid team names are:\n");
-		for ( int n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+		for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
 		{
-			gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, n ) );
+			gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, to_underlying( n ) ) );
 		}
 	}
 	else
 	{
-		team_t	team;
+		const int	id = GetIDForString( TeamTable, cmd2 );
 
-		team = (team_t)GetIDForString( TeamTable, cmd2 );
-		if ( team == (team_t)-1 )
+		if ( id == -1 )
 		{
 			gi.Printf( S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2 );
-			gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, g_entities[0].client->playerTeam ) );
+			gi.Printf( S_COLOR_RED "Current team is: %s\n", GetStringForID( TeamTable, to_underlying( g_entities[0].client->playerTeam ) ) );
 			gi.Printf( S_COLOR_RED "Valid team names are:\n");
-			for ( int n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
 			{
-				gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, n ) );
+				gi.Printf( S_COLOR_RED "%s\n", GetStringForID( TeamTable, to_underlying( n ) ) );
 			}
 		}
 		else
 		{
-			g_entities[0].client->playerTeam = team;
+			g_entities[0].client->playerTeam = static_cast<team_t>( id );
 			//FIXME: convert Imperial, Malon, Hirogen and Klingon to Scavenger?
 		}
 	}

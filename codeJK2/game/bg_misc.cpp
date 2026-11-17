@@ -256,7 +256,7 @@ gitem_t	*FindItemForAmmo( ammo_t ammo )
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", ammo );
+	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ) );
 	return nullptr;
 }
 

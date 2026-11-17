@@ -635,7 +635,7 @@ void MatchTeam( gentity_t *teamLeader, moverState_t moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
-		SetMoverState( slave, (moverState_t) moverState, time );
+		SetMoverState( slave, moverState, time );
 	}
 }
 
@@ -1149,7 +1149,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 
 	if ( ent->parent->spawnflags & MOVER_LOCKED )
 	{//don't even try to use the door if it's locked
-		if ( !ent->parent->alliedTeam //we don't have a "teamallow" team
+		if ( ent->parent->alliedTeam == TEAM_FREE //we don't have a "teamallow" team
 			|| !other->client //we do have a "teamallow" team, but this isn't a client
 			|| other->client->sess.sessionTeam != ent->parent->alliedTeam )//it is a client, but it's not on the right team
 		{
@@ -1445,7 +1445,9 @@ void SP_func_door (gentity_t *ent)
 		ent->damage = 0;
 	}
 
-	G_SpawnInt( "teamallow", "0", &ent->alliedTeam );
+	int teamAllow;
+	G_SpawnInt( "teamallow", "0", &teamAllow );
+	ent->alliedTeam = static_cast<team_t>( teamAllow );
 
 	// first position at start
 	VectorCopy( ent->s.origin, ent->pos1 );
@@ -2829,9 +2831,9 @@ void SP_func_breakable( gentity_t *self )
 	}
 	*/
 	if ( self->team && self->team[0] && level.gametype == GT_SIEGE &&
-		!self->teamnodmg)
+		self->teamnodmg == TEAM_FREE)
 	{
-		self->teamnodmg = atoi(self->team);
+		self->teamnodmg = static_cast<team_t>( atoi(self->team) );
 	}
 	self->team = nullptr;
 	if (!self->model) {

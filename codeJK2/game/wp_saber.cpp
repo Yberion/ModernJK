@@ -1265,7 +1265,7 @@ const char *hit_blood_sparks = "blood_sparks";
 const char *hit_sparks = "saber_cut";
 
 extern bool G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod );
-bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float dmg, vec3_t dmgDir, vec3_t bladeDir, int enemyTeam )
+bool WP_SaberDamageEffects( trace_t *tr, const vec3_t start, float length, float dmg, vec3_t dmgDir, vec3_t bladeDir, team_t enemyTeam )
 {
 
 	int			hitEntNum[MAX_G2_COLLISIONS] = {ENTITYNUM_NONE};

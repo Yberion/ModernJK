@@ -1755,7 +1755,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 				break;
 
 			default:
-				Com_Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", pStage->bundle[b].texMods[tm].type, tess.shader->name );
+				Com_Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", to_underlying( pStage->bundle[b].texMods[tm].type ), tess.shader->name );
 				break;
 			}
 		}
@@ -1870,8 +1870,9 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		}
 
 		int	stateBits = pStage->stateBits;
-		alphaGen_t	forceAlphaGen = (alphaGen_t)0;
-		colorGen_t	forceRGBGen = (colorGen_t)0;
+		// no override (ComputeColors takes these two as none)
+		alphaGen_t	forceAlphaGen = AGEN_IDENTITY;
+		colorGen_t	forceRGBGen = CGEN_BAD;
 
 		// allow skipping out to show just lightmaps during development
 		if ( stage && r_lightmap->integer)

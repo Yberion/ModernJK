@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 typedef struct teamgame_s {
 	float			last_flag_capture;
-	int				last_capture_team;
+	team_t			last_capture_team;
 	flagStatus_t	redStatus;	// CTF
 	flagStatus_t	blueStatus;	// CTF
 	flagStatus_t	flagStatus;	// One Flag CTF
@@ -38,7 +38,7 @@ typedef struct teamgame_s {
 
 teamgame_t teamgame;
 
-void Team_SetFlagStatus( int team, flagStatus_t status );
+void Team_SetFlagStatus( team_t team, flagStatus_t status );
 
 void Team_InitGame( void ) {
 	memset(&teamgame, 0, sizeof teamgame);
@@ -56,7 +56,7 @@ void Team_InitGame( void ) {
 	}
 }
 
-int OtherTeam(int team) {
+team_t OtherTeam(team_t team) {
 	if (team==TEAM_RED)
 		return TEAM_BLUE;
 	else if (team==TEAM_BLUE)
@@ -64,7 +64,7 @@ int OtherTeam(int team) {
 	return team;
 }
 
-const char *TeamName(int team)  {
+const char *TeamName(team_t team)  {
 	if (team==TEAM_RED)
 		return "RED";
 	else if (team==TEAM_BLUE)
@@ -74,7 +74,7 @@ const char *TeamName(int team)  {
 	return "FREE";
 }
 
-const char *OtherTeamName(int team) {
+const char *OtherTeamName(team_t team) {
 	if (team==TEAM_RED)
 		return "BLUE";
 	else if (team==TEAM_BLUE)
@@ -84,7 +84,7 @@ const char *OtherTeamName(int team) {
 	return "FREE";
 }
 
-const char *TeamColorString(int team) {
+const char *TeamColorString(team_t team) {
 	if (team==TEAM_RED)
 		return S_COLOR_RED;
 	else if (team==TEAM_BLUE)
@@ -119,17 +119,13 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
 //plIndex used to print pl->client->pers.netname
 //teamIndex used to print team name
-void PrintCTFMessage(int plIndex, int teamIndex, ctfMsg_t ctfMessage)
+void PrintCTFMessage(int plIndex, team_t teamIndex, ctfMsg_t ctfMessage)
 {
 	gentity_t *te;
 
 	if (plIndex == -1)
 	{
 		plIndex = MAX_CLIENTS+1;
-	}
-	if (teamIndex == -1)
-	{
-		teamIndex = 50;
 	}
 
 	te = G_TempEntity(vec3_origin, EV_CTFMESSAGE);
@@ -140,16 +136,16 @@ void PrintCTFMessage(int plIndex, int teamIndex, ctfMsg_t ctfMessage)
 	{
 		if (teamIndex == TEAM_RED)
 		{
-			te->s.trickedentindex2 = TEAM_BLUE;
+			te->s.trickedentindex2 = to_underlying( TEAM_BLUE );
 		}
 		else
 		{
-			te->s.trickedentindex2 = TEAM_RED;
+			te->s.trickedentindex2 = to_underlying( TEAM_RED );
 		}
 	}
 	else
 	{
-		te->s.trickedentindex2 = teamIndex;
+		te->s.trickedentindex2 = to_underlying( teamIndex );
 	}
 }
 
@@ -161,7 +157,7 @@ AddTeamScore
  for gametype GT_TEAM the level.teamScores is updated in AddScore in g_combat.cpp
 ==============
 */
-void AddTeamScore(vec3_t origin, int team, int score) {
+void AddTeamScore(vec3_t origin, team_t team, int score) {
 	gentity_t	*te;
 
 	te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND );
@@ -290,7 +286,7 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 
 static const EnumArray<char, flagStatus_t, to_underlying( FLAG_DROPPED ) + 1> ctfFlagStatusRemap = { '0', '1', '*', '*', '2' };
 
-void Team_SetFlagStatus( int team, flagStatus_t status ) {
+void Team_SetFlagStatus( team_t team, flagStatus_t status ) {
 	bool modified = false;
 
 	switch( team ) {
@@ -305,7 +301,10 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
 		if( teamgame.blueStatus != status ) {
 			teamgame.blueStatus = status;
 			modified = true;
-		}
+		
+			default:
+				break;
+			}
 		break;
 
 	case TEAM_FREE:	// One Flag CTF
@@ -355,11 +354,11 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	int i;
 	gentity_t *ent;
 	powerup_t flag_pw, enemy_flag_pw;
-	int otherteam;
+	team_t otherteam;
 	gentity_t *flag, *carrier = nullptr;
 	const char *c;
 	vec3_t v1, v2;
-	int team;
+	team_t team;
 
 	// no bonus for fragging yourself or team mates
 	if (!targ->client || !attacker->client || targ == attacker || OnSameTeam(targ, attacker))
@@ -367,8 +366,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 
 	team = targ->client->sess.sessionTeam;
 	otherteam = OtherTeam(targ->client->sess.sessionTeam);
-	if (otherteam < 0)
-		return; // whoever died isn't on a team
 
 	// same team, if the flag at base, check to he has the enemy flag
 	if (team == TEAM_RED) {
@@ -535,7 +532,7 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
 }
 
 
-gentity_t *Team_ResetFlag( int team ) {
+gentity_t *Team_ResetFlag( team_t team ) {
 	const char *c;
 	gentity_t *ent, *rent = nullptr;
 
@@ -575,7 +572,7 @@ void Team_ResetFlags( void ) {
 	}
 }
 
-void Team_ReturnFlagSound( gentity_t *ent, int team ) {
+void Team_ReturnFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if (ent == nullptr) {
@@ -593,7 +590,7 @@ void Team_ReturnFlagSound( gentity_t *ent, int team ) {
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-void Team_TakeFlagSound( gentity_t *ent, int team ) {
+void Team_TakeFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if (ent == nullptr) {
@@ -616,6 +613,9 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 			if( teamgame.redStatus != FLAG_ATBASE ) {
 				if (teamgame.redTakenTime > level.time - 10000)
 					return;
+			
+			default:
+				break;
 			}
 			teamgame.redTakenTime = level.time;
 			break;
@@ -631,7 +631,7 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-void Team_CaptureFlagSound( gentity_t *ent, int team ) {
+void Team_CaptureFlagSound( gentity_t *ent, team_t team ) {
 	gentity_t	*te;
 
 	if (ent == nullptr) {
@@ -649,7 +649,7 @@ void Team_CaptureFlagSound( gentity_t *ent, int team ) {
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-void Team_ReturnFlag( int team ) {
+void Team_ReturnFlag( team_t team ) {
 	Team_ReturnFlagSound(Team_ResetFlag(team), team);
 	if( team == TEAM_FREE ) {
 		//PrintMsg(nullptr, "The flag has returned!\n" );
@@ -682,7 +682,7 @@ Flags are unique in that if they are dropped, the base flag must be respawned wh
 ==============
 */
 void Team_DroppedFlagThink(gentity_t *ent) {
-	int		team = TEAM_FREE;
+	team_t		team = TEAM_FREE;
 
 	if( ent->item->giTag == to_underlying( PW_REDFLAG ) ) {
 		team = TEAM_RED;
@@ -712,10 +712,11 @@ Team_DroppedFlagThink
 static vec3_t	minFlagRange = { 50, 36, 36 };
 static vec3_t	maxFlagRange = { 44, 36, 36 };
 
-int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team );
+int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team );
 
-int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
-	int			i, num, j, enemyTeam;
+int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
+	int			i, num, j;
+	team_t			enemyTeam;
 	gentity_t	*player;
 	gclient_t	*cl = other->client;
 	powerup_t	enemy_flag;
@@ -858,7 +859,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	return 0; // Do not respawn this automatically
 }
 
-int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
+int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 	gclient_t *cl = other->client;
 	vec3_t		mins, maxs;
 	int			num, j;
@@ -928,7 +929,7 @@ int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
 }
 
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {
-	int team;
+	team_t team;
 	gclient_t *cl = other->client;
 
 	// figure out what team this flag is
@@ -1193,7 +1194,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	int			cnt;
 	int			h, a;
 	int			clients[TEAM_MAXOVERLAY];
-	int			team;
+	team_t			team;
 
 	if ( ! ent->client->pers.teamInfo )
 		return;

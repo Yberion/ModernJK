@@ -32,7 +32,7 @@ extern bool NPCsPrecached;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
-const char	*TeamNames[TEAM_NUM_TEAMS] =
+EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames =
 {
 	"",
 	"player",
@@ -138,11 +138,11 @@ char	NPCParms[MAX_NPC_DATA_SIZE];
 
 team_t TranslateTeamName( const char *name )
 {
-	for ( int n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+	for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
 	{
 		if ( Q_stricmp( TeamNames[n], name ) == 0 )
 		{
-			return ((team_t) n);
+			return n;
 		}
 	}
 
@@ -2103,7 +2103,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					SkipRestOfLine( &p );
 					continue;
 				}
-				if ( n < BS_DEFAULT || n >= NUM_BSTATES )
+				if ( n < to_underlying( BS_DEFAULT ) || n >= to_underlying( NUM_BSTATES ) )
 				{
 					gi.Printf( S_COLOR_YELLOW"WARNING: bad %s in NPC '%s'\n", token, NPCName );
 					continue;

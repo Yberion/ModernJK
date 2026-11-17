@@ -41,7 +41,7 @@ AI_GetGroupSize
 -------------------------
 */
 
-int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *avoid )
+int	AI_GetGroupSize( vec3_t origin, int radius, npcteam_t playerTeam, gentity_t *avoid )
 {
 	int			radiusEnts[ MAX_RADIUS_ENTS ];
 	gentity_t	*check;
@@ -74,7 +74,7 @@ int	AI_GetGroupSize( vec3_t origin, int radius, team_t playerTeam, gentity_t *av
 			continue;
 
 		//Must be on the same team
-		if ( check->client->playerTeam != (npcteam_t)playerTeam )
+		if ( check->client->playerTeam != playerTeam )
 			continue;
 
 		//Must be alive
@@ -94,7 +94,7 @@ int AI_GetGroupSize2( gentity_t *ent, int radius )
 	if ( ( ent == nullptr ) || ( ent->client == nullptr ) )
 		return -1;
 
-	return AI_GetGroupSize( ent->r.currentOrigin, radius, (team_t)ent->client->playerTeam, ent );
+	return AI_GetGroupSize( ent->r.currentOrigin, radius, ent->client->playerTeam, ent );
 }
 
 void AI_SetClosestBuddy( AIGroupInfo_t *group )
@@ -365,7 +365,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 	//rwwFIXMEFIXME: support this flag
 
 	//Must be on the same team
-	if ( member->client->playerTeam != (npcteam_t)group->team )
+	if ( member->client->playerTeam != group->team )
 		return false;
 
 	if ( member->client->ps.weapon == WP_SABER ||//!= self->s.weapon )
@@ -471,7 +471,7 @@ void AI_GetGroup( gentity_t *self )
 	memset( self->NPC->group, 0, sizeof( AIGroupInfo_t ) );
 
 	self->NPC->group->enemy = self->enemy;
-	self->NPC->group->team = (team_t)self->client->playerTeam;
+	self->NPC->group->team = self->client->playerTeam;
 	self->NPC->group->processed = false;
 	self->NPC->group->commander = self;
 	self->NPC->group->memberValidateTime = level.time + 2000;
@@ -1049,7 +1049,7 @@ AI_DistributeAttack
 
 #define	MAX_RADIUS_ENTS		128
 
-gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t team, int threshold )
+gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, npcteam_t team, int threshold )
 {
 	int			radiusEnts[ MAX_RADIUS_ENTS ];
 	gentity_t	*check;

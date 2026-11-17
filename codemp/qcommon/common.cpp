@@ -925,7 +925,7 @@ int Com_EventLoop( void ) {
 
 		switch ( ev.evType ) {
 		default:
-			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
+			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", to_underlying( ev.evType ) );
 			break;
         case SE_NONE:
             break;

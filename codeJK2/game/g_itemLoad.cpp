@@ -510,7 +510,7 @@ static void IT_Type( const char **holdBuf ) {
 		gi.Printf( "WARNING: bad itemname in external item data '%s'\n", tokenStr );
 	}
 
-	bg_itemlist[itemNum].giType = (itemType_t)type;
+	bg_itemlist[itemNum].giType = type;
 }
 
 static void IT_Icon( const char **holdBuf ) {

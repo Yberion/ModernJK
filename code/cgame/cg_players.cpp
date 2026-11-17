@@ -6383,7 +6383,7 @@ Ghoul2 Insert End
 		{
 			VectorCopy( cent->lerpOrigin, rootOrigin );
 		}
-		gi.trace( &trace, rootOrigin, nullptr, nullptr, cent->gent->client->ps.saber[saberNum].blade[bladeNum].muzzlePoint, cent->currentState.number, CONTENTS_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &trace, rootOrigin, nullptr, nullptr, cent->gent->client->ps.saber[saberNum].blade[bladeNum].muzzlePoint, cent->currentState.number, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 	}
 
 	if ( trace.fraction < 1.0f )
@@ -6427,11 +6427,11 @@ Ghoul2 Insert End
 		{
 			if ( i )
 			{//tracing from end to base
-				gi.trace( &trace, end, nullptr, nullptr, org_, cent->currentState.clientNum, traceMask, (EG2_Collision)0, 0 );
+				gi.trace( &trace, end, nullptr, nullptr, org_, cent->currentState.clientNum, traceMask, G2_NOCOLLIDE, 0 );
 			}
 			else
 			{//tracing from base to end
-				gi.trace( &trace, org_, nullptr, nullptr, end, cent->currentState.clientNum, traceMask|CONTENTS_WATER|CONTENTS_SLIME, (EG2_Collision)0, 0 );
+				gi.trace( &trace, org_, nullptr, nullptr, end, cent->currentState.clientNum, traceMask|CONTENTS_WATER|CONTENTS_SLIME, G2_NOCOLLIDE, 0 );
 			}
 
 			if ( trace.fraction < 1.0f )

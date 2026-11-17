@@ -747,7 +747,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( self->alliedTeam )
+		if ( self->alliedTeam != TEAM_FREE )
 		{
 			if ( target->client )
 			{
@@ -1117,9 +1117,9 @@ void finish_spawning_turretG2( gentity_t *base )
 	base->s.eType = ET_GENERAL;
 
 	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
-		!base->teamnodmg)
+		base->teamnodmg == TEAM_FREE)
 	{
-		base->teamnodmg = atoi(base->team);
+		base->teamnodmg = static_cast<team_t>( atoi(base->team) );
 	}
 	base->team = nullptr;
 

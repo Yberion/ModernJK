@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef TEAMS_H
 #define TEAMS_H
 
-typedef enum //# team_e
+enum class team_t //# team_e
 {
 	TEAM_FREE,			// caution, some code checks a team_t via "if (!team_t_varname)" so I guess this should stay as entry 0, great or what? -slc
 	TEAM_PLAYER,
@@ -33,7 +33,9 @@ typedef enum //# team_e
 
 	//# #eol
 	TEAM_NUM_TEAMS
-} team_t;
+};
+using enum team_t;
+template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 
 extern stringID_table_t TeamTable[];
 

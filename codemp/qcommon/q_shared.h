@@ -395,7 +395,7 @@ enum class sharedERagPhase
 };
 using enum sharedERagPhase;
 
-enum sharedERagEffector
+enum class sharedERagEffector
 {
 	RE_MODEL_ROOT=			0x00000001, //"model_root"
 	RE_PELVIS=				0x00000002, //"pelvis"
@@ -423,6 +423,7 @@ enum sharedERagEffector
 	RE_LFEMURX=				0x00800000, //"lfemurX"
 	RE_CEYEBROW=			0x01000000 //"ceyebrow"
 };
+using enum sharedERagEffector;
 
 typedef struct sharedRagDollParams_s {
 	vec3_t angles;
@@ -846,7 +847,7 @@ typedef struct orientation_s {
 // sound channels
 // channel 0 never willingly overrides
 // other channels will allways override a playing sound on that channel
-typedef enum {
+enum class soundChannel_t {
 	CHAN_AUTO,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # Auto-picks an empty channel to play sound on
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
 	CHAN_WEAPON,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
@@ -861,7 +862,8 @@ typedef enum {
 	CHAN_MENU1,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #menu stuff, etc
 	CHAN_VOICE_GLOBAL,  //## %s !!"W:\game\base\!!sound\voice\*.wav;*.mp3" # Causes mouth animation and is broadcast, like announcer
 	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
-} soundChannel_t;
+};
+using enum soundChannel_t;
 
 
 /*
@@ -1250,7 +1252,7 @@ typedef struct playerState_s {
 	float		otherSoundLen;
 
 	int			forceGripMoveInterval;
-	int			forceGripChangeMovetype;
+	pmtype_t	forceGripChangeMovetype;
 
 	int			forceKickFlip;
 
@@ -1743,7 +1745,7 @@ typedef struct entityState_s {
 	vec3_t		userVec2;
 } entityState_t;
 
-typedef enum {
+enum class connstate_t {
 	CA_UNINITIALIZED,
 	CA_DISCONNECTED, 	// not talking to a server
 	CA_AUTHORIZING,		// not used any more, was checking cd key
@@ -1754,7 +1756,8 @@ typedef enum {
 	CA_PRIMED,			// got gamestate, waiting for first frame
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
-} connstate_t;
+};
+using enum connstate_t;
 
 
 #define Square(x) ((x)*(x))
@@ -1897,14 +1900,15 @@ const char *GetStringForID( stringID_table_t *table, int id );
 
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...
 //
-typedef enum
+enum class ForceReload_e
 {
 	eForceReload_NOTHING,
 //	eForceReload_BSP,	// not used in MP codebase
 	eForceReload_MODELS,
 	eForceReload_ALL
 
-} ForceReload_e;
+};
+using enum ForceReload_e;
 
 
 enum {

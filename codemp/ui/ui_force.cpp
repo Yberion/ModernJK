@@ -41,7 +41,7 @@ int uiMaxPoints = 20;
 int	uiForceUsed = 0;
 int uiForceAvailable=0;
 
-extern const char *UI_TeamName(int team);
+extern const char *UI_TeamName(team_t team);
 
 bool gTouchedForce = false;
 
@@ -370,8 +370,8 @@ void UpdateForceUsed()
 			}
 			if ( update )
 			{
-				int myTeam;
-				myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+				team_t myTeam;
+				myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
 				if ( myTeam != TEAM_SPECTATOR )
 				{
 					UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
@@ -516,7 +516,7 @@ void UI_ReadLegalForce(void)
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;
@@ -774,14 +774,14 @@ validitycheck:
 
 	UpdateForceUsed();
 }
-extern int	uiSkinColor;
-extern int	uiHoldSkinColor;
+extern team_t	uiSkinColor;
+extern team_t	uiHoldSkinColor;
 
-bool UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min, int max, int type)
+bool UI_SkinColor_HandleKey(int flags, float *special, int key, team_t num, team_t min, team_t max, int type)
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
-  	int i = num;
+  	team_t i = num;
 
 	if (key == A_MOUSE2)
 	{
@@ -826,7 +826,7 @@ bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
 		{
 		case TEAM_RED:
 			return false;
@@ -927,7 +927,7 @@ bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int m
 		// Resetting power ranks based on if light or dark side is chosen
 		if ( !num )
 		{//not a jedi?
-			int myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+			team_t myTeam = static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) );
 			while ( x < NUM_FORCE_POWERS )
 			{//clear all force powers
 				uiForcePowersRank[x] = 0;
@@ -1217,7 +1217,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch(static_cast<team_t>( (int)(trap->Cvar_VariableValue("ui_myteam")) ))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;

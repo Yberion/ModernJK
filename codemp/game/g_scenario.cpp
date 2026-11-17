@@ -334,7 +334,7 @@ void G_ScenarioTrace( void ) {
 
 		trap->Print( "SCN %d %4d %c cmd%+d hp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n",
 			scn.rep, level.time - scn.repStart, n ? 'D' : 'A', ps->commandTime - level.time, ent->health, ps->saberMove,
-			ps->saberBlocked, ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
+			to_underlying( ps->saberBlocked ), ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
 			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
 	}
 }

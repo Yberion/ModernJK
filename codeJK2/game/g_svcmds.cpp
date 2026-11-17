@@ -30,7 +30,7 @@ extern void Q3_SetViewEntity(int entID, const char *name);
 extern bool G_ClearViewEntity( gentity_t *ent );
 
 extern team_t TranslateTeamName( const char *name );
-extern const char	*TeamNames[TEAM_NUM_TEAMS];
+extern EnumArray<const char *, team_t, TEAM_NUM_TEAMS>	TeamNames;
 
 /*
 ===================
@@ -434,7 +434,7 @@ static void Svcmd_PlayerTeam_f(void)
 		gi.Printf( S_COLOR_RED "'playerteam' - change player team, requires a team name!\n" );
 		gi.Printf( S_COLOR_RED "Current team is: %s\n", TeamNames[g_entities[0].client->playerTeam] );
 		gi.Printf( S_COLOR_RED "Valid team names are:\n");
-		for ( int n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+		for ( team_t n = TEAM_FREE + 1; n < TEAM_NUM_TEAMS; n++ )
 		{
 			gi.Printf( S_COLOR_RED "%s\n", TeamNames[n] );
 		}
@@ -448,7 +448,7 @@ static void Svcmd_PlayerTeam_f(void)
 			gi.Printf( S_COLOR_RED "'playerteam' unrecognized team name %s!\n", cmd2 );
 			gi.Printf( S_COLOR_RED "Current team is: %s\n", TeamNames[g_entities[0].client->playerTeam] );
 			gi.Printf( S_COLOR_RED "Valid team names are:\n");
-			for ( int n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t n = TEAM_FREE; n < TEAM_NUM_TEAMS; n++ )
 			{
 				gi.Printf( S_COLOR_RED "%s\n", TeamNames[n] );
 			}

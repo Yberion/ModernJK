@@ -50,17 +50,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Prototypes
 
-int OtherTeam(int team);
-const char *TeamName(int team);
-const char *OtherTeamName(int team);
-const char *TeamColorString(int team);
-void AddTeamScore(vec3_t origin, int team, int score);
+team_t OtherTeam(team_t team);
+const char *TeamName(team_t team);
+const char *OtherTeamName(team_t team);
+const char *TeamColorString(team_t team);
+void AddTeamScore(vec3_t origin, team_t team, int score);
 
 void Team_DroppedFlagThink(gentity_t *ent);
 void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
 void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
 void Team_InitGame(void);
-void Team_ReturnFlag(int team);
+void Team_ReturnFlag(team_t team);
 void Team_FreeEntity(gentity_t *ent);
 gentity_t *SelectCTFSpawnPoint ( team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot );
 gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, playerTeamStateState_t teamstate, vec3_t origin, vec3_t angles, bool isbot );

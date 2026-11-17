@@ -157,7 +157,7 @@ typedef struct {
 	// callbacks to test the world
 	// these will be different functions during game and cgame
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-						const int passEntityNum, const int contentMask, const EG2_Collision eG2TraceType/* = (EG2_Collision)0*/, const int useLod/* = 0 */);
+						const int passEntityNum, const int contentMask, const EG2_Collision eG2TraceType/* = G2_NOCOLLIDE*/, const int useLod/* = 0 */);
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
 } pmove_t;
 
@@ -205,6 +205,10 @@ enum class persEnum_t {
 	PERS_TEAMMATES_KILLED			// scoreboard - number of teammates killed
 };
 using enum persEnum_t;
+
+// The player's team is kept in a cell of the networked persistant array, whose cells are integers
+[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
+inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
 
 
 // entityState_t->eFlags

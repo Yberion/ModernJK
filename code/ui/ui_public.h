@@ -112,7 +112,7 @@ typedef struct {
 
 	// =========== sound function calls ===============
 
-	void		(*S_StartLocalSound)( sfxHandle_t sfxHandle, int channelNum );
+	void		(*S_StartLocalSound)( sfxHandle_t sfxHandle, soundChannel_t channelNum );
 	sfxHandle_t	(*S_RegisterSound)( const char* name);
 	void		(*S_StartLocalLoopingSound)( sfxHandle_t sfxHandle);
 	void		(*S_StopSounds)( void );

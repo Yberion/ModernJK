@@ -417,7 +417,7 @@ The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, bool thirdPerson ) {
+void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, team_t team, vec3_t newAngles, bool thirdPerson ) {
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	vec3_t		angles;
@@ -794,7 +794,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	if (cgFov > 130)
 		cgFov = 130;
 
-	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( PS_Team( *ps ) == TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -899,7 +899,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON;// | RF_MINLIGHT;
 
 	// add everything onto the hand
-	CG_AddPlayerWeapon( &hand, ps, &cg_entities[cg.predictedPlayerState.clientNum], ps->persistant[PERS_TEAM], angles, false );
+	CG_AddPlayerWeapon( &hand, ps, &cg_entities[cg.predictedPlayerState.clientNum], PS_Team( *ps ), angles, false );
 }
 
 /*
@@ -2534,7 +2534,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 	}
 
 	if (cgs.clientinfo[ps->clientNum].team == TEAM_SPECTATOR ||
-		ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
+		PS_Team( *ps ) == TEAM_SPECTATOR)
 	{
 		cent->ghoul2weapon = cg_entities[ps->clientNum].ghoul2weapon = nullptr;
 		cent->weapon = cg_entities[ps->clientNum].weapon = 0;

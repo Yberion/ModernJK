@@ -1961,7 +1961,7 @@ static QINLINE bool WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *
 		}
 
 		//reverse the left/right of the defQuad because of the mirrored nature of facing each other in combat
-		switch ( static_cast<saberQuadrant_t>( defQuad ) )
+		switch ( defQuad )
 		{
 		case Q_BR:
 			defQuad = Q_BL;

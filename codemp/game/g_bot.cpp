@@ -416,7 +416,7 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 G_AddRandomBot
 ===============
 */
-void G_AddRandomBot( int team ) {
+void G_AddRandomBot( std::optional<team_t> team ) {
 	int		i, n, num;
 	float	skill;
 	const char	*value, *teamstr;
@@ -437,13 +437,13 @@ void G_AddRandomBot( int team ) {
 			}
 			if (level.gametype == GT_SIEGE)
 			{
-				if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
+				if ( team && cl->sess.siegeDesiredTeam != *team ) {
 					continue;
 				}
 			}
 			else
 			{
-				if ( team >= 0 && cl->sess.sessionTeam != team ) {
+				if ( team && cl->sess.sessionTeam != *team ) {
 					continue;
 				}
 			}
@@ -469,13 +469,13 @@ void G_AddRandomBot( int team ) {
 			}
 			if (level.gametype == GT_SIEGE)
 			{
-				if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
+				if ( team && cl->sess.siegeDesiredTeam != *team ) {
 					continue;
 				}
 			}
 			else
 			{
-				if ( team >= 0 && cl->sess.sessionTeam != team ) {
+				if ( team && cl->sess.sessionTeam != *team ) {
 					continue;
 				}
 			}
@@ -504,7 +504,7 @@ void G_AddRandomBot( int team ) {
 G_RemoveRandomBot
 ===============
 */
-int G_RemoveRandomBot( int team ) {
+int G_RemoveRandomBot( std::optional<team_t> team ) {
 	int i;
 	gclient_t	*cl;
 
@@ -519,9 +519,9 @@ int G_RemoveRandomBot( int team ) {
 		if ( cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW )
 			continue;
 
-		if ( level.gametype == GT_SIEGE && team >= 0 && cl->sess.siegeDesiredTeam != team )
+		if ( level.gametype == GT_SIEGE && team && cl->sess.siegeDesiredTeam != *team )
 			continue;
-		else if ( team >= 0 && cl->sess.sessionTeam != team )
+		else if ( team && cl->sess.sessionTeam != *team )
 			continue;
 
 		trap->SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", i) );
@@ -535,7 +535,7 @@ int G_RemoveRandomBot( int team ) {
 G_CountHumanPlayers
 ===============
 */
-int G_CountHumanPlayers( int team ) {
+int G_CountHumanPlayers( std::optional<team_t> team ) {
 	int i, num;
 	gclient_t	*cl;
 
@@ -548,7 +548,7 @@ int G_CountHumanPlayers( int team ) {
 		if ( g_entities[i].r.svFlags & SVF_BOT ) {
 			continue;
 		}
-		if ( team >= 0 && cl->sess.sessionTeam != team ) {
+		if ( team && cl->sess.sessionTeam != *team ) {
 			continue;
 		}
 		num++;
@@ -561,7 +561,7 @@ int G_CountHumanPlayers( int team ) {
 G_CountBotPlayers
 ===============
 */
-int G_CountBotPlayers( int team ) {
+int G_CountBotPlayers( std::optional<team_t> team ) {
 	int i, n, num;
 	gclient_t	*cl;
 
@@ -576,13 +576,13 @@ int G_CountBotPlayers( int team ) {
 		}
 		if (level.gametype == GT_SIEGE)
 		{
-			if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
+			if ( team && cl->sess.siegeDesiredTeam != *team ) {
 				continue;
 			}
 		}
 		else
 		{
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
+			if ( team && cl->sess.sessionTeam != *team ) {
 				continue;
 			}
 		}
@@ -630,12 +630,12 @@ void G_CheckMinimumPlayers( void ) {
 		minplayers = sv_maxclients.integer;
 	}
 
-	humanplayers = G_CountHumanPlayers( -1 );
-	botplayers = G_CountBotPlayers(	-1 );
+	humanplayers = G_CountHumanPlayers( std::nullopt );
+	botplayers = G_CountBotPlayers(	std::nullopt );
 
 	if ((humanplayers+botplayers) < minplayers)
 	{
-		G_AddRandomBot(-1);
+		G_AddRandomBot( std::nullopt );
 	}
 	else if ((humanplayers+botplayers) > minplayers && botplayers)
 	{
@@ -643,7 +643,7 @@ void G_CheckMinimumPlayers( void ) {
 		if (!G_RemoveRandomBot(TEAM_SPECTATOR))
 		{
 			// just remove the bot that is playing
-			G_RemoveRandomBot(-1);
+			G_RemoveRandomBot( std::nullopt );
 		}
 	}
 
@@ -997,7 +997,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 		trap->SetUserinfo( clientNum, userinfo );
 
-		bot->client->ps.persistant[ PERS_TEAM ] = bot->client->sess.sessionTeam;
+		PS_SetTeam( bot->client->ps, bot->client->sess.sessionTeam );
 
 		G_ReadSessionData( bot->client );
 		if ( !ClientUserinfoChanged( clientNum ) )

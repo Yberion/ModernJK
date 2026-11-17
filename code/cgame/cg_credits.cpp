@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_headers.h"
 
 #include "cg_media.h"
+#include "../game/objectives.h"
 
 #define fCARD_FADESECONDS		1.0f	// fade up time, also fade down time
 #define fCARD_SUSTAINSECONDS	2.0f	// hold time before fade down
@@ -226,7 +227,7 @@ static bool SortBySurname(const StringAndSize_t &str1, const StringAndSize_t &st
 void CG_Credits_Init( const char *psStripReference, vec4_t *pv4Color)
 {
 	// Play the light side end credits music.
-	if ( g_entities[0].client->sess.mission_objectives[static_cast<objectiveNumber_t>( 0 )].status != 2 )
+	if ( g_entities[0].client->sess.mission_objectives[LIGHTSIDE_OBJ].status != 2 )
 	{
 		cgi_S_StartBackgroundTrack( "music/endcredits.mp3", nullptr, false );
 	}

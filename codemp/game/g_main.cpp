@@ -140,7 +140,7 @@ void G_CacheGametype( void )
 			level.gametype = GT_FFA;
 		}
 		else
-			level.gametype = (gametype_t)gt;
+			level.gametype = gt;
 	}
 	else if ( g_gametype.integer < 0 || g_gametype.integer >= to_underlying( GT_MAX_GAME_TYPE ) )
 	{
@@ -150,7 +150,7 @@ void G_CacheGametype( void )
 	else
 		level.gametype = (gametype_t)atoi( g_gametype.string );
 
-	trap->Cvar_Set( "g_gametype", va( "%i", level.gametype ) );
+	trap->Cvar_Set( "g_gametype", va( "%i", to_underlying( level.gametype ) ) );
 	trap->Cvar_Update( &g_gametype );
 }
 
@@ -1280,7 +1280,7 @@ This is also used for spectator spawns
 */
 extern bool	gSiegeRoundBegun;
 extern bool	gSiegeRoundEnded;
-extern int	gSiegeRoundWinningTeam;
+extern team_t	gSiegeRoundWinningTeam;
 void FindIntermissionPoint( void ) {
 	gentity_t	*ent = nullptr;
 	gentity_t	*target;
@@ -1608,7 +1608,7 @@ void LogExit( const char *string ) {
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
 		if (level.gametype >= GT_TEAM) {
-			G_LogPrintf( "(%s) score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", TeamName(cl->ps.persistant[PERS_TEAM]), cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
+			G_LogPrintf( "(%s) score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", TeamName(PS_Team( cl->ps )), cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		} else {
 			G_LogPrintf( "score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		}
@@ -2485,7 +2485,7 @@ void CheckTournament( void ) {
 		return;
 	}
 	else if ( level.warmupTime != 0 ) {
-		int		counts[TEAM_NUM_TEAMS];
+		EnumArray<int, team_t, TEAM_NUM_TEAMS>	counts;
 		bool	notEnough = false;
 
 		if ( level.gametype > GT_TEAM ) {
@@ -2657,7 +2657,7 @@ void CheckVote( void ) {
 PrintTeam
 ==================
 */
-void PrintTeam(int team, char *message) {
+void PrintTeam(team_t team, char *message) {
 	int i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2672,7 +2672,7 @@ void PrintTeam(int team, char *message) {
 SetLeader
 ==================
 */
-void SetLeader(int team, int client) {
+void SetLeader(team_t team, int client) {
 	int i;
 
 	if ( level.clients[client].pers.connected == CON_DISCONNECTED ) {
@@ -2701,7 +2701,7 @@ void SetLeader(int team, int client) {
 CheckTeamLeader
 ==================
 */
-void CheckTeamLeader( int team ) {
+void CheckTeamLeader( team_t team ) {
 	int i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2735,7 +2735,7 @@ void CheckTeamLeader( int team ) {
 CheckTeamVote
 ==================
 */
-void CheckTeamVote( int team ) {
+void CheckTeamVote( team_t team ) {
 	int cs_offset;
 
 	if ( team == TEAM_RED )

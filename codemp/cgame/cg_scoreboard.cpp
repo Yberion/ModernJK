@@ -137,7 +137,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 
 		localClient = true;
 
-		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
+		if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR
 			|| cgs.gametype >= GT_TEAM ) {
 			rank = -1;
 		} else {
@@ -318,7 +318,7 @@ CG_DrawScoreboard
 Draw the normal in-game scoreboard
 =================
 */
-int cg_siegeWinTeam = 0;
+team_t cg_siegeWinTeam = TEAM_FREE;
 bool CG_DrawOldScoreboard( void ) {
 	int		x, y, i, n1, n2;
 	float	fade;
@@ -407,7 +407,7 @@ bool CG_DrawOldScoreboard( void ) {
 	{ //do nothing?
 	}
 	else if ( cgs.gametype < GT_TEAM) {
-		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR )
+		if (PS_Team( cg.snap->ps ) != TEAM_SPECTATOR )
 		{
 			char sPlace[256];
 			char sOf[256];
@@ -446,9 +446,9 @@ bool CG_DrawOldScoreboard( void ) {
 
 		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	}
-	else if (cgs.gametype == GT_SIEGE && (cg_siegeWinTeam == 1 || cg_siegeWinTeam == 2))
+	else if (cgs.gametype == GT_SIEGE && (cg_siegeWinTeam == SIEGETEAM_TEAM1 || cg_siegeWinTeam == SIEGETEAM_TEAM2))
 	{
-		if (cg_siegeWinTeam == 1)
+		if (cg_siegeWinTeam == SIEGETEAM_TEAM1)
 		{
 			s = va("%s", CG_GetStringEdString("MP_INGAME", "SIEGETEAM1WIN") );
 		}

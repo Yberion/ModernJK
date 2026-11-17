@@ -36,7 +36,7 @@ int AcceptBotCommand(char *cmd, gentity_t *pl);
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
 void Cmd_NPC_f( gentity_t *ent );
-void SetTeamQuick(gentity_t *ent, int team, bool doBegin);
+void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin);
 
 /*
 ==================
@@ -228,7 +228,6 @@ Give items to a client
 void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 {
 	gitem_t		*it;
-	int			i;
 	bool	give_all = false;
 	gentity_t	*it_ent;
 	trace_t		trace;
@@ -238,8 +237,8 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all )
 	{
-		for ( i=0; i< to_underlying( HI_NUM_HOLDABLE ); i++ )
-			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << i);
+		for ( holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++ )
+			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= Bit( h );
 	}
 
 	if ( give_all || !Q_stricmp( name, "health") )
@@ -578,7 +577,7 @@ BroadCastTeamChange
 Let everyone know about a team change
 =================
 */
-void BroadcastTeamChange( gclient_t *client, int oldTeam )
+void BroadcastTeamChange( gclient_t *client, std::optional<team_t> oldTeam )
 {
 	client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 
@@ -601,7 +600,7 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBATTLE")));
 	}
 
-	G_LogPrintf( "ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n", (int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam ), TeamName( client->sess.sessionTeam ) );
+	G_LogPrintf( "ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n", (int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam.value_or( TEAM_FREE ) ), TeamName( client->sess.sessionTeam ) );
 }
 
 bool G_PowerDuelCheckFail(gentity_t *ent)
@@ -637,7 +636,8 @@ SetTeam
 bool g_dontPenalizeTeam = false;
 bool g_preventTeamBegin = false;
 void SetTeam( gentity_t *ent, const char *s ) {
-	int					team, oldTeam;
+	team_t					oldTeam;
+	team_t					team;
 	gclient_t			*client;
 	int					clientNum;
 	spectatorState_t	specState;
@@ -702,7 +702,7 @@ void SetTeam( gentity_t *ent, const char *s ) {
 		}
 
 		if ( g_teamForceBalance.integer && !g_jediVmerc.integer ) {
-			int		counts[TEAM_NUM_TEAMS];
+			EnumArray<int, team_t, TEAM_NUM_TEAMS>	counts;
 
 			//JAC: Invalid clientNum was being used
 			counts[TEAM_BLUE] = TeamCount( ent-g_entities, TEAM_BLUE );
@@ -888,7 +888,7 @@ void SetTeam( gentity_t *ent, const char *s ) {
 	// also clear team votes if switching red/blue or going to spec
 	G_ClearTeamVote( ent, oldTeam );
 
-	client->sess.sessionTeam = (team_t)team;
+	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
 
@@ -935,7 +935,7 @@ to free floating spectator mode
 */
 extern void G_LeaveVehicle( gentity_t *ent, bool ConCheck );
 void StopFollowing( gentity_t *ent ) {
-	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
+	PS_SetTeam( ent->client->ps, TEAM_SPECTATOR );
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -972,7 +972,7 @@ Cmd_Team_f
 =================
 */
 void Cmd_Team_f( gentity_t *ent ) {
-	int			oldTeam;
+	team_t			oldTeam;
 	char		s[MAX_TOKEN_CHARS];
 
 	oldTeam = ent->client->sess.sessionTeam;
@@ -990,6 +990,9 @@ void Cmd_Team_f( gentity_t *ent ) {
 			break;
 		case TEAM_SPECTATOR:
 			trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTSPECTEAM")) );
+			break;
+		
+		default:
 			break;
 		}
 		return;
@@ -1123,16 +1126,16 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 	ent->client->switchDuelTeamTime = level.time + 5000;
 }
 
-int G_TeamForSiegeClass(const char *clName)
+std::optional<team_t> G_TeamForSiegeClass(const char *clName)
 {
 	int i = 0;
-	int team = SIEGETEAM_TEAM1;
+	team_t team = SIEGETEAM_TEAM1;
 	siegeTeam_t *stm = BG_SiegeFindThemeForTeam(team);
 	siegeClass_t *scl;
 
 	if (!stm)
 	{
-		return 0;
+		return std::nullopt;
 	}
 
 	while (team <= SIEGETEAM_TEAM2)
@@ -1160,7 +1163,7 @@ int G_TeamForSiegeClass(const char *clName)
 		}
 	}
 
-	return 0;
+	return std::nullopt;
 }
 
 /*
@@ -1171,7 +1174,7 @@ Cmd_SiegeClass_f
 void Cmd_SiegeClass_f( gentity_t *ent )
 {
 	char className[64];
-	int team = 0;
+	std::optional<team_t> team;
 	int preScore;
 	bool startedAsSpec = false;
 
@@ -1238,7 +1241,7 @@ void Cmd_SiegeClass_f( gentity_t *ent )
 	preScore = ent->client->ps.persistant[PERS_SCORE];
 
 	//Make sure the class is valid for the team
-	BG_SiegeCheckClassLegality(team, className);
+	BG_SiegeCheckClassLegality(*team, className);
 
 	//Set the session data
 	strcpy(ent->client->sess.siegeClass, className);

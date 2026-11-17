@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Interface.h"
 
 extern bool NPC_CheckSurrender( void );
-extern void NPC_BehaviorSet_Default( int bState );
+extern void NPC_BehaviorSet_Default( bState_t bState );
 
-void NPC_BSCivilian_Default( int bState )
+void NPC_BSCivilian_Default( bState_t bState )
 {
 	if ( NPC->enemy
 		&& NPC->s.weapon == WP_NONE

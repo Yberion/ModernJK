@@ -448,7 +448,7 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
 	}
 	if ( !ent1->client || !ent2->client )
 	{
-		if ( ent1->noDamageTeam )
+		if ( ent1->noDamageTeam != TEAM_FREE )
 		{
 			if ( ent2->client && ent2->client->playerTeam == ent1->noDamageTeam )
 			{
@@ -1655,7 +1655,7 @@ void LimbThink( gentity_t *ent )
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
 	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin,
-		ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, (EG2_Collision)0, 0 );
+		ent->owner ? ent->owner->s.number : ENTITYNUM_NONE, ent->clipmask, G2_NOCOLLIDE, 0 );
 
 	VectorCopy( tr.endpos, ent->currentOrigin );
 	if ( tr.startsolid )
@@ -2146,15 +2146,15 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	VectorSet( limb->maxs, 3.0f, 3.0f, 6.0f );
 
 	//make sure it doesn't start in solid
-	gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 	if ( trace.startsolid )
 	{
 		limb->s.pos.trBase[2] -= limb->mins[2];
-		gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+		gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 		if ( trace.startsolid )
 		{
 			limb->s.pos.trBase[2] += limb->mins[2];
-			gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+			gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 			if ( trace.startsolid )
 			{//stuck?  don't remove
 				G_FreeEntity( limb );
@@ -5232,7 +5232,7 @@ static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDis
 
 	VectorMA( self->currentOrigin, checkDist, fallCheckDir, end );
 	//Should have clip burshes masked out by now and have bbox resized to death size
-	gi.trace( &tr, self->currentOrigin, self->mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &tr, self->currentOrigin, self->mins, self->maxs, end, self->s.number, self->clipmask, G2_NOCOLLIDE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
 		return 0;
@@ -5241,7 +5241,7 @@ static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDis
 	VectorCopy( start, end );
 	end[2] -= 256;
 
-	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, self->clipmask, (EG2_Collision)0, 0 );
+	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, self->clipmask, G2_NOCOLLIDE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
 		return 0;
@@ -6339,15 +6339,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 					// Check For Start In Solid
 					//--------------------------
 					gi.linkentity( limb );
-					gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+					gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 					if ( trace.startsolid )
 					{
 						limb->s.pos.trBase[2] -= limb->mins[2];
-						gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+						gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 						if ( trace.startsolid )
 						{
 							limb->s.pos.trBase[2] += limb->mins[2];
-							gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, (EG2_Collision)0, 0 );
+							gi.trace( &trace, limb->s.pos.trBase, limb->mins, limb->maxs, limb->s.pos.trBase, limb->s.number, limb->clipmask, G2_NOCOLLIDE, 0 );
 
 						}
 					}
@@ -6802,7 +6802,7 @@ bool CanDamage (gentity_t *targ, const vec3_t origin) {
 	VectorCopy( origin, blah);
 	G_DebugLine(blah, dest, 5000, 0x0000ff, true );
 	*/
-	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number ) // if we also test the entitynum's we can bust up bbrushes better!
 		return true;
 
@@ -6811,28 +6811,28 @@ bool CanDamage (gentity_t *targ, const vec3_t origin) {
 	VectorCopy (midpoint, dest);
 	dest[0] += 15.0;
 	dest[1] += 15.0;
-	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
-	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
-	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
-	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
 	if (( tr.fraction == 1.0 && cantHitEnt) || tr.entityNum == targ->s.number )
 		return true;
 

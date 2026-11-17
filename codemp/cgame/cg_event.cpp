@@ -584,7 +584,7 @@ static void CG_UseItem( centity_t *cent ) {
 		itemNum != to_underlying( HI_JETPACK ) && itemNum != to_underlying( HI_HEALTHDISP ) && itemNum != to_underlying( HI_AMMODISP ) && itemNum != to_underlying( HI_CLOAK ) && itemNum != to_underlying( HI_EWEB ))
 	{ //if not using binoculars/jetpack/dispensers/cloak, we just used that item up, so switch
 		BG_CycleInven(&cg.snap->ps, 1);
-		cg.itemSelect = -1; //update the client-side selection display
+		cg.itemSelect.reset(); //update the client-side selection display
 	}
 }
 
@@ -788,7 +788,7 @@ void CG_ReattachLimb(centity_t *source)
 	source->ghoul2weapon = nullptr;
 }
 
-const char *CG_TeamName(int team)
+const char *CG_TeamName(team_t team)
 {
 	if (team==TEAM_RED)
 		return "RED";
@@ -901,7 +901,7 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 
 	if (teamIndex < 50)
 	{
-		teamName = CG_TeamName(teamIndex);
+		teamName = CG_TeamName(static_cast<team_t>( teamIndex ));
 	}
 
 	if (!ci)
@@ -1011,7 +1011,7 @@ int CG_InClientBitflags(entityState_t *ent, int client)
 void CG_PlayDoorLoopSound( centity_t *cent );
 void CG_PlayDoorSound( centity_t *cent, int type );
 
-void CG_TryPlayCustomSound( vec3_t origin, int entityNum, int channel, const char *soundName )
+void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName )
 {
 	sfxHandle_t cSound = CG_CustomSound(entityNum, soundName);
 
@@ -2798,11 +2798,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_SIEGE_ROUNDOVER:
 		DEBUGNAME("EV_SIEGE_ROUNDOVER");
-		CG_SiegeRoundOver(&cg_entities[cent->currentState.weapon], cent->currentState.eventParm);
+		CG_SiegeRoundOver(&cg_entities[cent->currentState.weapon], static_cast<team_t>( cent->currentState.eventParm ));
 		break;
 	case EV_SIEGE_OBJECTIVECOMPLETE:
 		DEBUGNAME("EV_SIEGE_OBJECTIVECOMPLETE");
-		CG_SiegeObjectiveCompleted(&cg_entities[cent->currentState.weapon], cent->currentState.eventParm, cent->currentState.trickedentindex);
+		CG_SiegeObjectiveCompleted(&cg_entities[cent->currentState.weapon], static_cast<team_t>( cent->currentState.eventParm ), cent->currentState.trickedentindex);
 		break;
 
 	case EV_DESTROY_GHOUL2_INSTANCE:
@@ -3125,7 +3125,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			cg_entities[es->trickedentindex2].currentState.eFlags &= ~EF_SOUNDTRACKER;
 		}
-		trap->S_MuteSound(es->trickedentindex2, es->trickedentindex);
+		trap->S_MuteSound(es->trickedentindex2, static_cast<soundChannel_t>( es->trickedentindex ));
 		CG_S_StopLoopingSound(es->trickedentindex2, -1);
 		break;
 
@@ -3151,13 +3151,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			{
 				if (clientNum != cg.predictedPlayerState.clientNum)
 				{ //play on the head as well to simulate hearing in radio and in world
-					if (ci->team == cg.predictedPlayerState.persistant[PERS_TEAM])
+					if (ci->team == PS_Team( cg.predictedPlayerState ))
 					{ //don't hear it if this person is on the other team, but they can still
 						//hear it in the world spot.
 						trap->S_StartSound (nullptr, cg.snap->ps.clientNum, CHAN_MENU1, sfx);
 					}
 				}
-				if (ci->team == cg.predictedPlayerState.persistant[PERS_TEAM])
+				if (ci->team == PS_Team( cg.predictedPlayerState ))
 				{ //add to the chat box
 					//hear it in the world spot.
 					char vchatstr[1024] = {0};
@@ -3186,10 +3186,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		else
 		{
 			if ( cgs.gameSounds[ es->eventParm ] ) {
-				trap->S_StartSound (nullptr, es->number, es->saberEntityNum, cgs.gameSounds[ es->eventParm ] );
+				trap->S_StartSound (nullptr, es->number, static_cast<soundChannel_t>( es->saberEntityNum ), cgs.gameSounds[ es->eventParm ] );
 			} else {
 				s = CG_ConfigString( CS_SOUNDS + es->eventParm );
-				trap->S_StartSound (nullptr, es->number, es->saberEntityNum, CG_CustomSound( es->number, s ) );
+				trap->S_StartSound (nullptr, es->number, static_cast<soundChannel_t>( es->saberEntityNum ), CG_CustomSound( es->number, s ) );
 			}
 		}
 		break;
@@ -3282,10 +3282,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_ENTITY_SOUND");
 		//somewhat of a hack - weapon is the caller entity's index, trickedentindex is the proper sound channel
 		if ( cgs.gameSounds[ es->eventParm ] ) {
-			trap->S_StartSound (nullptr, es->clientNum, es->trickedentindex, cgs.gameSounds[ es->eventParm ] );
+			trap->S_StartSound (nullptr, es->clientNum, static_cast<soundChannel_t>( es->trickedentindex ), cgs.gameSounds[ es->eventParm ] );
 		} else {
 			s = CG_ConfigString( CS_SOUNDS + es->eventParm );
-			trap->S_StartSound (nullptr, es->clientNum, es->trickedentindex, CG_CustomSound( es->clientNum, s ) );
+			trap->S_StartSound (nullptr, es->clientNum, static_cast<soundChannel_t>( es->trickedentindex ), CG_CustomSound( es->clientNum, s ) );
 		}
 		break;
 

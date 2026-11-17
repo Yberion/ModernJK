@@ -29,9 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "Q3_Interface.h"
 
 extern int	ICARUS_entFilter;
-int	teamNumbers[TEAM_NUM_TEAMS];
-int	teamStrength[TEAM_NUM_TEAMS];
-int	teamCounter[TEAM_NUM_TEAMS];
+EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamNumbers;
+EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamStrength;
+EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamCounter;
 
 #define	VALID_ATTACK_CONE	2.0f	//Degrees
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
@@ -840,11 +840,8 @@ void SetTeamNumbers (void)
 	gentity_t	*found;
 	int			i;
 
-	for( i = 0; i < TEAM_NUM_TEAMS; i++ )
-	{
-		teamNumbers[i] = 0;
-		teamStrength[i] = 0;
-	}
+	teamNumbers = {};
+	teamStrength = {};
 
 	for( i = 0; i < 1 ; i++ )
 	{
@@ -860,9 +857,9 @@ void SetTeamNumbers (void)
 		}
 	}
 
-	for( i = 0; i < TEAM_NUM_TEAMS; i++ )
+	for( team_t t = TEAM_FREE; t < TEAM_NUM_TEAMS; t++ )
 	{//Get the average health
-		teamStrength[i] = floor( ((float)(teamStrength[i])) / ((float)(teamNumbers[i])) );
+		teamStrength[t] = floor( ((float)(teamStrength[t])) / ((float)(teamNumbers[t])) );
 	}
 }
 
@@ -870,7 +867,7 @@ extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
 bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 {
-	bState_t	bSID = (bState_t)-1;
+	int			bsID = -1;	// the behavior state named, -1 for none
 	char *bs_name = nullptr;
 
 	if ( !self )
@@ -887,11 +884,12 @@ bool G_ActivateBehavior (gentity_t *self, bSet_t bset )
 
 	if ( self->NPC )
 	{
-		bSID = (bState_t)(GetIDForString( BSTable, bs_name ));
+		bsID = GetIDForString( BSTable, bs_name );
 	}
 
-	if(bSID != (bState_t)-1)
+	if(bsID != -1)
 	{
+		const bState_t bSID = static_cast<bState_t>( bsID );
 		self->NPC->tempBehavior = BS_DEFAULT;
 		self->NPC->behaviorState = bSID;
 	}

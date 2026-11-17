@@ -132,7 +132,7 @@ void GEntity_ThinkFunc(gentity_t *self)
 	THINKCASE( spawn_rack_goods ) // delay spawn of goods to help on ents
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",self->e_ThinkFunc);
+		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",to_underlying( self->e_ThinkFunc ));
 		break;
 	}
 }
@@ -154,7 +154,7 @@ void CEntity_ThinkFunc(centity_s *cent)
 	CLTHINKCASE( CG_Limb )
 
 	default:
-		Com_Error(ERR_DROP, "CEntity_ThinkFunc: case %d not handled!\n",cent->gent->e_clThinkFunc);
+		Com_Error(ERR_DROP, "CEntity_ThinkFunc: case %d not handled!\n",to_underlying( cent->gent->e_clThinkFunc ));
 		break;
 	}
 }
@@ -176,7 +176,7 @@ void GEntity_ReachedFunc(gentity_t *self)
 	REACHEDCASE( moveAndRotateCallback )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_ReachedFunc: case %d not handled!\n",self->e_ReachedFunc);
+		Com_Error(ERR_DROP, "GEntity_ReachedFunc: case %d not handled!\n",to_underlying( self->e_ReachedFunc ));
 		break;
 	}
 }
@@ -197,7 +197,7 @@ void GEntity_BlockedFunc(gentity_t *self, gentity_t *other)
 	BLOCKEDCASE( Blocked_Mover )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_BlockedFunc: case %d not handled!\n",self->e_BlockedFunc);
+		Com_Error(ERR_DROP, "GEntity_BlockedFunc: case %d not handled!\n",to_underlying( self->e_BlockedFunc ));
 		break;
 	}
 }
@@ -231,7 +231,7 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 	TOUCHCASE( func_rotating_touch )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",self->e_TouchFunc);
+		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",to_underlying( self->e_TouchFunc ));
 	}
 }
 
@@ -322,7 +322,7 @@ void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 	USECASE( item_spawn_use )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_UseFunc: case %d not handled!\n",self->e_UseFunc);
+		Com_Error(ERR_DROP, "GEntity_UseFunc: case %d not handled!\n",to_underlying( self->e_UseFunc ));
 	}
 }
 
@@ -361,7 +361,7 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	PAINCASE( TurretPain )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",self->e_PainFunc);
+		Com_Error(ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",to_underlying( self->e_PainFunc ));
 	}
 }
 
@@ -399,7 +399,7 @@ void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	DIECASE( thermal_die )
 
 	default:
-		Com_Error(ERR_DROP, "GEntity_DieFunc: case %d not handled!\n",self->e_DieFunc);
+		Com_Error(ERR_DROP, "GEntity_DieFunc: case %d not handled!\n",to_underlying( self->e_DieFunc ));
 	}
 }
 

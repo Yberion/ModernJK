@@ -599,7 +599,7 @@ void NPC_BSFollowLeader (void)
 				&& NPCS.NPC->client->leader->enemy
 				&& NPCS.NPC->client->leader->enemy != NPCS.NPC
 				&& ( (NPCS.NPC->client->leader->enemy->client&&NPCS.NPC->client->leader->enemy->client->playerTeam==NPCS.NPC->client->enemyTeam)
-					||(/*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*/0&&NPCS.NPC->client->leader->enemy->alliedTeam==to_underlying( NPCS.NPC->client->enemyTeam )) )
+					||(/*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*/0&&to_underlying( NPCS.NPC->client->leader->enemy->alliedTeam )==to_underlying( NPCS.NPC->client->enemyTeam )) )
 				&& NPCS.NPC->client->leader->enemy->health > 0 )
 			{ //rwwFIXMEFIXME: use SVF_NONNPC_ENEMY?
 				G_SetEnemy( NPCS.NPC, NPCS.NPC->client->leader->enemy );

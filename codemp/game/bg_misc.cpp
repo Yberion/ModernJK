@@ -1864,7 +1864,7 @@ gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
 		}
 	}
 
-	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", ammo);
+	Com_Error( ERR_DROP, "Couldn't find item for ammo %i", to_underlying( ammo ));
 	return nullptr;
 }
 
@@ -1998,37 +1998,37 @@ bool BG_IsItemSelectable(playerState_t *ps, holdable_t item)
 
 void BG_CycleInven(playerState_t *ps, int direction)
 {
-	int i;
+	holdable_t i;
 	int dontFreeze = 0;
-	int original;
+	holdable_t original;
 
-	i = bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag;
+	i = static_cast<holdable_t>( bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 	original = i;
 
 	if (direction == 1)
 	{ //next
 		i++;
-		if (i == to_underlying( HI_NUM_HOLDABLE ))
+		if (i == HI_NUM_HOLDABLE)
 		{
-			i = 1;
+			i = HI_NONE + 1;
 		}
 	}
 	else
 	{ //previous
 		i--;
-		if (i == 0)
+		if (i == HI_NONE)
 		{
-			i = to_underlying( HI_NUM_HOLDABLE )-1;
+			i = HI_NUM_HOLDABLE-1;
 		}
 	}
 
 	while (i != original)
 	{ //go in a full loop until hitting something, if hit nothing then select nothing
-		if (ps->stats[STAT_HOLDABLE_ITEMS] & (1 << i))
+		if (ps->stats[STAT_HOLDABLE_ITEMS] & Bit( i ))
 		{ //we have it, select it.
-			if (BG_IsItemSelectable(ps, static_cast<holdable_t>( i )))
+			if (BG_IsItemSelectable(ps, i))
 			{
-				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(i, IT_HOLDABLE);
+				ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(to_underlying( i ), IT_HOLDABLE);
 				break;
 			}
 		}
@@ -2042,13 +2042,13 @@ void BG_CycleInven(playerState_t *ps, int direction)
 			i--;
 		}
 
-		if (i <= 0)
+		if (i <= HI_NONE)
 		{ //wrap around to the last
-			i = to_underlying( HI_NUM_HOLDABLE )-1;
+			i = HI_NUM_HOLDABLE-1;
 		}
-		else if (i >= to_underlying( HI_NUM_HOLDABLE ))
+		else if (i >= HI_NUM_HOLDABLE)
 		{ //wrap around to the first
-			i = 1;
+			i = HI_NONE + 1;
 		}
 
 		dontFreeze++;
@@ -2184,12 +2184,12 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
 			// but we can't pick up our flag at base
-			if (ps->persistant[PERS_TEAM] == TEAM_RED) {
+			if (PS_Team( *ps ) == TEAM_RED) {
 				if (item->giTag == to_underlying( PW_BLUEFLAG ) ||
 					(item->giTag == to_underlying( PW_REDFLAG ) && ent->modelindex2) ||
 					(item->giTag == to_underlying( PW_REDFLAG ) && ps->powerups[PW_BLUEFLAG]) )
 					return true;
-			} else if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+			} else if (PS_Team( *ps ) == TEAM_BLUE) {
 				if (item->giTag == to_underlying( PW_REDFLAG ) ||
 					(item->giTag == to_underlying( PW_BLUEFLAG ) && ent->modelindex2) ||
 					(item->giTag == to_underlying( PW_BLUEFLAG ) && ps->powerups[PW_REDFLAG]) )
@@ -2277,9 +2277,9 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		break;
 	default:
 #ifdef _GAME
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", tr->trType );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
 #else
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", tr->trType );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
 #endif
 		break;
 	}
@@ -2333,9 +2333,9 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		break;
 	default:
 #ifdef _GAME
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", tr->trType );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", to_underlying( tr->trType ) );
 #else
-		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", tr->trType );
+		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", to_underlying( tr->trType ) );
 #endif
 		break;
 	}
@@ -2642,7 +2642,7 @@ bool BG_IsValidCharacterModel(const char *modelName, const char *skinName)
 	return true;
 }
 
-bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors )
+bool BG_ValidateSkinForTeam( const char *modelName, char *skinName, team_t team, float *colors )
 {
 	if (strlen (modelName) > 5 && Q_stricmpn (modelName, "jedi_", 5) == 0)
 	{ //argh, it's a custom player skin!

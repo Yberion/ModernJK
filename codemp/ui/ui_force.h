@@ -48,7 +48,7 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 void UI_UpdateClientForcePowers(const char *teamArg);
 void UI_SaveForceTemplate();
 void UI_UpdateForcePowers();
-bool UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
+bool UI_SkinColor_HandleKey(int flags, float *special, int key, team_t num, team_t min, team_t max, int type);
 bool UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
 bool UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);
 bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type);

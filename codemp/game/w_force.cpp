@@ -78,7 +78,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	// if server has no max rank, default to max (50)
 	if ( g_maxForceRank.integer <= 0 || g_maxForceRank.integer >= to_underlying( NUM_FORCE_MASTERY_LEVELS ) ) {
 		// ack, prevent user from being dumb
-		trap->Cvar_Set( "g_maxForceRank", va( "%i", FORCE_MASTERY_JEDI_MASTER ) );
+		trap->Cvar_Set( "g_maxForceRank", va( "%i", to_underlying( FORCE_MASTERY_JEDI_MASTER ) ) );
 		trap->Cvar_Update( &g_maxForceRank );
 	}
 
@@ -299,14 +299,14 @@ void WP_InitForcePowers( gentity_t *ent ) {
 
 				// event isn't very reliable, I made it a string. This way I can send it to just one client also,
 				//	as opposed to making a broadcast event.
-				trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 1, ent->client->sess.sessionTeam ) );
+				trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 1, to_underlying( ent->client->sess.sessionTeam ) ) );
 				// arg1 is new max rank, arg2 is non-0 if force menu should be shown, arg3 is the current team
 			}
 			ent->client->sess.setForce = true;
 		}
 
 		if ( !didEvent )
-			trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 0, ent->client->sess.sessionTeam ) );
+			trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 0, to_underlying( ent->client->sess.sessionTeam ) ) );
 
 		// the server has one or more force powers disabled and the client is using them in his config
 		if ( warnClientLimit )
@@ -1390,7 +1390,7 @@ void ForceSpeed( gentity_t *self, int forceDuration )
 
 	WP_ForcePowerStart( self, FP_SPEED, forceDuration );
 	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );
-	G_Sound( self, to_underlying( TRACK_CHANNEL_2 ), speedLoopSound );
+	G_Sound( self, TRACK_CHANNEL_2, speedLoopSound );
 }
 
 void ForceSeeing( gentity_t *self )
@@ -1417,7 +1417,7 @@ void ForceSeeing( gentity_t *self )
 	WP_ForcePowerStart( self, FP_SEE, 0 );
 
 	G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/weapons/force/see.wav") );
-	G_Sound( self, to_underlying( TRACK_CHANNEL_5 ), seeLoopSound );
+	G_Sound( self, TRACK_CHANNEL_5, seeLoopSound );
 }
 
 void ForceProtect( gentity_t *self )
@@ -1453,7 +1453,7 @@ void ForceProtect( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_PROTECT, 0 );
 	G_PreDefSound(self->client->ps.origin, PDSOUND_PROTECT);
-	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), protectLoopSound );
+	G_Sound( self, TRACK_CHANNEL_3, protectLoopSound );
 }
 
 void ForceAbsorb( gentity_t *self )
@@ -1489,7 +1489,7 @@ void ForceAbsorb( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_ABSORB, 0 );
 	G_PreDefSound(self->client->ps.origin, PDSOUND_ABSORB);
-	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), absorbLoopSound );
+	G_Sound( self, TRACK_CHANNEL_3, absorbLoopSound );
 }
 
 void ForceRage( gentity_t *self )
@@ -1535,8 +1535,8 @@ void ForceRage( gentity_t *self )
 
 	WP_ForcePowerStart( self, FP_RAGE, 0 );
 
-	G_Sound( self, to_underlying( TRACK_CHANNEL_4 ), G_SoundIndex("sound/weapons/force/rage.wav") );
-	G_Sound( self, to_underlying( TRACK_CHANNEL_3 ), rageLoopSound );
+	G_Sound( self, TRACK_CHANNEL_4, G_SoundIndex("sound/weapons/force/rage.wav") );
+	G_Sound( self, TRACK_CHANNEL_3, rageLoopSound );
 }
 
 void ForceLightning( gentity_t *self )
@@ -2115,7 +2115,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 	//need to play sound
 	if ( !self->client->ps.fd.forceJumpCharge )
 	{
-		G_Sound( self, to_underlying( TRACK_CHANNEL_1 ), G_SoundIndex("sound/weapons/force/jumpbuild.wav") );
+		G_Sound( self, TRACK_CHANNEL_1, G_SoundIndex("sound/weapons/force/jumpbuild.wav") );
 	}
 
 	//Increment
@@ -3642,7 +3642,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 			g_entities[self->client->ps.fd.forceGripEntityNum].inuse)
 		{
 
-			g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.forceGripChangeMovetype = to_underlying( PM_NORMAL );
+			g_entities[self->client->ps.fd.forceGripEntityNum].client->ps.forceGripChangeMovetype = PM_NORMAL;
 		}
 
 		if (self->client->ps.forceHandExtend == HANDEXTEND_FORCE_HOLD)
@@ -3731,7 +3731,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 
 		if (gripEnt && gripEnt->client && gripEnt->inuse)
 		{
-			gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_NORMAL );
+			gripEnt->client->ps.forceGripChangeMovetype = PM_NORMAL;
 		}
 		return;
 	}
@@ -3803,7 +3803,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		gripEnt->client->ps.otherKillerTime = level.time + 5000;
 		gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
 
-		gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_FLOAT );
+		gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
 
 		if ((level.time - gripEnt->client->ps.fd.forceGripStarted) > 3000 && !self->client->ps.fd.forceGripDamageDebounceTime)
 		{ //if we managed to lift him into the air for 2 seconds, give him a crack
@@ -3836,7 +3836,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		gripEnt->client->ps.otherKillerTime = level.time + 5000;
 		gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
 
-		gripEnt->client->ps.forceGripChangeMovetype = to_underlying( PM_FLOAT );
+		gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
 
 		if (gripEnt->client->ps.forceGripMoveInterval < level.time)
 		{

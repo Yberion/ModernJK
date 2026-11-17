@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool G_CheckForStrongAttackMomentum( gentity_t *self );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern void cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
+extern void cgi_S_StartSound( const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern int PM_PickAnim( gentity_t *self, int minAnim, int maxAnim );
 extern bool NPC_CheckLookTarget( gentity_t *self );
@@ -439,7 +439,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 	//	}
 	}
 
-	if ( self->client->playerTeam
+	if ( self->client->playerTeam != TEAM_FREE
 		&& other->client
 		&& otherTeam == self->client->playerTeam
 		&& (!player->client->ps.viewEntity || other->s.number != player->client->ps.viewEntity))
@@ -649,11 +649,11 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 		if( !(self->svFlags&SVF_LOCKEDENEMY) && !(self->svFlags&SVF_IGNORE_ENEMIES) && !(other->flags & FL_NOTARGET) )
 		{
-			if ( self->client->enemyTeam )
+			if ( self->client->enemyTeam != TEAM_FREE )
 			{//See if we bumped into an enemy
 				if ( other->client->playerTeam == self->client->enemyTeam )
 				{//bumped into an enemy
-					if( NPCInfo->behaviorState != BS_HUNT_AND_KILL && !NPCInfo->tempBehavior )
+					if( NPCInfo->behaviorState != BS_HUNT_AND_KILL && NPCInfo->tempBehavior == BS_DEFAULT )
 					{//MCG - Begin: checking specific BS mode here, this is bad, a HACK
 						//FIXME: not medics?
 						if ( NPC->enemy != other )

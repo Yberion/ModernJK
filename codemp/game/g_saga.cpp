@@ -55,20 +55,20 @@ int			imperial_attackers = 0;
 
 bool	gSiegeRoundBegun = false;
 bool	gSiegeRoundEnded = false;
-int			gSiegeRoundWinningTeam = 0;
+team_t		gSiegeRoundWinningTeam = TEAM_FREE;
 int			gSiegeBeginTime = Q3_INFINITE;
 
 int			g_preroundState = 0; //default to starting as spec (1 is starting ingame)
 
 void LogExit( const char *string );
-void SetTeamQuick(gentity_t *ent, int team, bool doBegin);
+void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin);
 
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 static char gObjectiveCfgStr[1024];
 
 //go through all classes on a team and register their
 //weapons and items for precaching.
-void G_SiegeRegisterWeaponsAndHoldables(int team)
+void G_SiegeRegisterWeaponsAndHoldables(team_t team)
 {
 	siegeTeam_t *stm = BG_SiegeFindThemeForTeam(team);
 
@@ -91,14 +91,12 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 					}
 					j++;
 				}
-				j = 0;
-				while (j < to_underlying( HI_NUM_HOLDABLE ))
+				for (holdable_t h = HI_NONE; h < HI_NUM_HOLDABLE; h++)
 				{
-					if (scl->invenItems & (1 << j))
+					if (scl->invenItems & Bit( h ))
 					{ //we use this item so register it.
-						RegisterItem(BG_FindItemForHoldable((holdable_t)j));
+						RegisterItem(BG_FindItemForHoldable(h));
 					}
-					j++;
 				}
 			}
 			i++;
@@ -108,9 +106,9 @@ void G_SiegeRegisterWeaponsAndHoldables(int team)
 
 //tell clients that this team won and print it on their scoreboard for intermission
 //or whatever.
-void SiegeSetCompleteData(int team)
+void SiegeSetCompleteData(team_t team)
 {
-	trap->SetConfigstring(CS_SIEGE_WINTEAM, va("%i", team));
+	trap->SetConfigstring(CS_SIEGE_WINTEAM, va("%i", to_underlying( team )));
 }
 
 void InitSiegeMode(void)
@@ -137,7 +135,7 @@ void InitSiegeMode(void)
 	}
 
 	//reset
-	SiegeSetCompleteData(0);
+	SiegeSetCompleteData(TEAM_FREE);
 
 	//get pers data in case it existed from last level
 	if (g_siegeTeamSwitch.integer)
@@ -397,7 +395,7 @@ failure:
 	siege_valid = 0;
 }
 
-void G_SiegeSetObjectiveComplete(int team, int objective, bool failIt)
+void G_SiegeSetObjectiveComplete(team_t team, int objective, bool failIt)
 {
 	char *p = nullptr;
 	int onObjective = 0;
@@ -452,7 +450,7 @@ void G_SiegeSetObjectiveComplete(int team, int objective, bool failIt)
 }
 
 //Returns true if objective complete currently, otherwise false
-bool G_SiegeGetCompletionStatus(int team, int objective)
+bool G_SiegeGetCompletionStatus(team_t team, int objective)
 {
 	char *p = nullptr;
 	int onObjective = 0;
@@ -550,7 +548,7 @@ void UseSiegeTarget(gentity_t *other, gentity_t *en, char *target)
 	}
 }
 
-void SiegeBroadcast_OBJECTIVECOMPLETE(int team, int client, int objective)
+void SiegeBroadcast_OBJECTIVECOMPLETE(team_t team, int client, int objective)
 {
 	gentity_t *te;
 	vec3_t nomatter;
@@ -559,12 +557,12 @@ void SiegeBroadcast_OBJECTIVECOMPLETE(int team, int client, int objective)
 
 	te = G_TempEntity( nomatter, EV_SIEGE_OBJECTIVECOMPLETE );
 	te->r.svFlags |= SVF_BROADCAST;
-	te->s.eventParm = team;
+	te->s.eventParm = to_underlying( team );
 	te->s.weapon = client;
 	te->s.trickedentindex = objective;
 }
 
-void SiegeBroadcast_ROUNDOVER(int winningteam, int winningclient)
+void SiegeBroadcast_ROUNDOVER(team_t winningteam, int winningclient)
 {
 	gentity_t *te;
 	vec3_t nomatter;
@@ -573,11 +571,11 @@ void SiegeBroadcast_ROUNDOVER(int winningteam, int winningclient)
 
 	te = G_TempEntity( nomatter, EV_SIEGE_ROUNDOVER );
 	te->r.svFlags |= SVF_BROADCAST;
-	te->s.eventParm = winningteam;
+	te->s.eventParm = to_underlying( winningteam );
 	te->s.weapon = winningclient;
 }
 
-void BroadcastObjectiveCompletion(int team, int objective, int final, int client)
+void BroadcastObjectiveCompletion(team_t team, int objective, int final, int client)
 {
 	if (client != ENTITYNUM_NONE && g_entities[client].client && g_entities[client].client->sess.sessionTeam == team)
 	{ //guy who completed this objective gets points, providing he's on the opposing team
@@ -588,7 +586,7 @@ void BroadcastObjectiveCompletion(int team, int objective, int final, int client
 	//trap->Print("Broadcast goal completion team %i objective %i final %i\n", team, objective, final);
 }
 
-void AddSiegeWinningTeamPoints(int team, int winner)
+void AddSiegeWinningTeamPoints(team_t team, int winner)
 {
 	int i = 0;
 	gentity_t *ent;
@@ -654,7 +652,7 @@ void SiegeDoTeamAssign(void)
 	}
 }
 
-void SiegeTeamSwitch(int winTeam, int winTime)
+void SiegeTeamSwitch(team_t winTeam, int winTime)
 {
 	trap->SiegePersGet(&g_siegePersistant);
 	if (g_siegePersistant.beatingTime)
@@ -669,14 +667,14 @@ void SiegeTeamSwitch(int winTeam, int winTime)
 	else
 	{ //go into "beat their time" mode
 		g_siegePersistant.beatingTime = true;
-        g_siegePersistant.lastTeam = winTeam;
+        g_siegePersistant.lastTeam = to_underlying( winTeam );
 		g_siegePersistant.lastTime = winTime;
 
 		trap->SiegePersSet(&g_siegePersistant);
 	}
 }
 
-void SiegeRoundComplete(int winningteam, int winningclient)
+void SiegeRoundComplete(team_t winningteam, int winningclient)
 {
 	vec3_t nomatter;
 	char teamstr[1024];
@@ -766,7 +764,7 @@ void SiegeRoundComplete(int winningteam, int winningclient)
 	}
 }
 
-void G_ValidateSiegeClassForTeam(gentity_t *ent, int team)
+void G_ValidateSiegeClassForTeam(gentity_t *ent, team_t team)
 {
 	siegeClass_t *scl;
 	siegeTeam_t *stm;
@@ -809,7 +807,7 @@ void G_ValidateSiegeClassForTeam(gentity_t *ent, int team)
 }
 
 //bypass most of the normal checks in SetTeam
-void SetTeamQuick(gentity_t *ent, int team, bool doBegin)
+void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin)
 {
 	char userinfo[MAX_INFO_STRING];
 
@@ -820,7 +818,7 @@ void SetTeamQuick(gentity_t *ent, int team, bool doBegin)
 		G_ValidateSiegeClassForTeam(ent, team);
 	}
 
-	ent->client->sess.sessionTeam = (team_t)team;
+	ent->client->sess.sessionTeam = team;
 
 	if (team == TEAM_SPECTATOR)
 	{
@@ -1033,7 +1031,7 @@ void SiegeCheckTimers(void)
 	}
 }
 
-void SiegeObjectiveCompleted(int team, int objective, int final, int client)
+void SiegeObjectiveCompleted(team_t team, int objective, int final, int client)
 {
 	int goals_completed, goals_required;
 
@@ -1169,9 +1167,11 @@ void SP_info_siege_objective (gentity_t *ent)
 
 	ent->use = siegeTriggerUse;
 	G_SpawnInt( "objective", "0", &ent->objective);
-	G_SpawnInt( "side", "0", &ent->side);
+	int side;
+	G_SpawnInt( "side", "0", &side);
+	ent->side = static_cast<team_t>( side );
 
-	if (!ent->objective || !ent->side)
+	if (!ent->objective || ent->side == TEAM_FREE)
 	{ //j00 fux0red something up
 		G_FreeEntity(ent);
 		trap->Print("ERROR: info_siege_objective without an objective or side value\n");
@@ -1196,7 +1196,7 @@ void SP_info_siege_objective (gentity_t *ent)
 		ent->s.genericenemyindex = G_IconIndex(s);
 	}
 
-	ent->s.brokenLimbs = ent->side;
+	ent->s.brokenLimbs = to_underlying( ent->side );
 	ent->s.frame = ent->objective;
 	trap->LinkEntity((sharedEntity_t *)ent);
 }
@@ -1329,9 +1329,11 @@ void SP_info_siege_decomplete (gentity_t *ent)
 
 	ent->use = decompTriggerUse;
 	G_SpawnInt( "objective", "0", &ent->objective);
-	G_SpawnInt( "side", "0", &ent->side);
+	int side;
+	G_SpawnInt( "side", "0", &side);
+	ent->side = static_cast<team_t>( side );
 
-	if (!ent->objective || !ent->side)
+	if (!ent->objective || ent->side == TEAM_FREE)
 	{ //j00 fux0red something up
 		G_FreeEntity(ent);
 		trap->Print("ERROR: info_siege_objective_decomplete without an objective or side value\n");
@@ -1569,7 +1571,7 @@ void SiegeItemTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (self->genericValue6 == other->client->sess.sessionTeam)
+	if (static_cast<team_t>( self->genericValue6 ) == other->client->sess.sessionTeam)
 	{ //Set to not be touchable by players on this team.
 		return;
 	}

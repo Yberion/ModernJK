@@ -63,12 +63,12 @@ void multi_trigger_run( gentity_t *ent )
 
 	if (ent->genericValue4)
 	{ //we want to activate target3 for team1 or target4 for team2
-		if (ent->genericValue4 == SIEGETEAM_TEAM1 &&
+		if (static_cast<team_t>( ent->genericValue4 ) == SIEGETEAM_TEAM1 &&
 			ent->target3 && ent->target3[0])
 		{
 			G_UseTargets2(ent, ent->activator, ent->target3);
 		}
-		else if (ent->genericValue4 == SIEGETEAM_TEAM2 &&
+		else if (static_cast<team_t>( ent->genericValue4 ) == SIEGETEAM_TEAM2 &&
 			ent->target4 && ent->target4[0])
 		{
 			G_UseTargets2(ent, ent->activator, ent->target4);
@@ -165,7 +165,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 
 	if (level.gametype == GT_SIEGE &&
 		activator && activator->client &&
-		ent->alliedTeam &&
+		ent->alliedTeam != TEAM_FREE &&
 		activator->client->sess.sessionTeam != ent->alliedTeam)
 	{ //this team can't activate this trigger.
 		return;
@@ -202,7 +202,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 				if (objItem->goaltarget && objItem->goaltarget[0] &&
 					!Q_stricmp(ent->targetname, objItem->goaltarget))
 				{
-					if (objItem->genericValue7 != activator->client->sess.sessionTeam)
+					if (static_cast<team_t>( objItem->genericValue7 ) != activator->client->sess.sessionTeam)
 					{ //The carrier of the item is not on the team which disallows objective scoring for it
 						if (objItem->target3 && objItem->target3[0])
 						{ //if it has a target3, fire it off instead of using the trigger
@@ -239,8 +239,8 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		int i = 0;
 		int team1ClNum = 0;
 		int team2ClNum = 0;
-		int owningTeam = ent->genericValue3;
-		int newOwningTeam = 0;
+		team_t owningTeam = static_cast<team_t>( ent->genericValue3 );
+		team_t newOwningTeam = TEAM_FREE;
 		int numEnts = 0;
 		int entityList[MAX_GENTITIES];
 		gentity_t *cl;
@@ -310,8 +310,8 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		}
 
 		//Set the new owner and set the variable which will tell us to activate a team-specific target
-		ent->genericValue3 = newOwningTeam;
-		ent->genericValue4 = newOwningTeam;
+		ent->genericValue3 = to_underlying( newOwningTeam );
+		ent->genericValue4 = to_underlying( newOwningTeam );
 	}
 
 	if (haltTrigger)
@@ -380,7 +380,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if( self->alliedTeam )
+	if( self->alliedTeam != TEAM_FREE )
 	{
 		if ( other->client->sess.sessionTeam != self->alliedTeam )
 		{
@@ -668,7 +668,7 @@ void SP_trigger_multiple( gentity_t *ent )
 
 	if ( ent->team && ent->team[0] )
 	{
-		ent->alliedTeam = atoi(ent->team);
+		ent->alliedTeam = static_cast<team_t>( atoi(ent->team) );
 		ent->team = nullptr;
 	}
 
@@ -741,7 +741,7 @@ void SP_trigger_once( gentity_t *ent )
 
 	if ( ent->team && ent->team[0] )
 	{
-		ent->alliedTeam = atoi(ent->team);
+		ent->alliedTeam = static_cast<team_t>( atoi(ent->team) );
 		ent->team = nullptr;
 	}
 
@@ -1322,7 +1322,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	if (level.gametype == GT_SIEGE && self->team && self->team[0])
 	{
-		int team = atoi(self->team);
+		team_t team = static_cast<team_t>( atoi(self->team) );
 
 		if (other->inuse && other->s.number < MAX_CLIENTS && other->client &&
 			other->client->sess.sessionTeam != team)
@@ -1330,7 +1330,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 			return;
 		}
 		else if (other->inuse && other->client && other->s.eType == ET_NPC &&
-			other->s.NPC_class == CLASS_VEHICLE && other->s.teamowner != team)
+			other->s.NPC_class == CLASS_VEHICLE && static_cast<team_t>( other->s.teamowner ) != team)
 		{ //vehicle owned by team don't hurt
 			return;
 		}

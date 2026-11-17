@@ -101,7 +101,7 @@ typedef struct channel_s {
 //
 	unsigned int startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
 	int			entnum;			// to allow overriding a specific sound
-	int			entchannel;		// to allow overriding a specific sound
+	soundChannel_t	entchannel;		// to allow overriding a specific sound
 	int			leftvol;		// 0-255 volume after spatialization
 	int			rightvol;		// 0-255 volume after spatialization
 	int			master_vol;		// 0-255 volume before spatialization
@@ -180,7 +180,7 @@ bool S_LoadSound( sfx_t *sfx );
 void S_PaintChannels(int endtime);
 
 // picks a channel based on priorities, empty slots, number of channels
-channel_t *S_PickChannel(int entnum, int entchannel);
+channel_t *S_PickChannel(int entnum, soundChannel_t entchannel);
 
 // spatializes a channel
 void S_Spatialize(channel_t *ch);

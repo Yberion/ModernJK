@@ -1186,7 +1186,7 @@ NPC_BehaviorSet_Charmed
 -------------------------
 */
 
-void NPC_BehaviorSet_Charmed( int bState )
+void NPC_BehaviorSet_Charmed( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1217,7 +1217,7 @@ NPC_BehaviorSet_Default
 -------------------------
 */
 
-void NPC_BehaviorSet_Default( int bState )
+void NPC_BehaviorSet_Default( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1266,7 +1266,7 @@ void NPC_BehaviorSet_Default( int bState )
 NPC_BehaviorSet_Interrogator
 -------------------------
 */
-void NPC_BehaviorSet_Interrogator( int bState )
+void NPC_BehaviorSet_Interrogator( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1292,7 +1292,7 @@ void NPC_BSImperialProbe_Wait(void);
 NPC_BehaviorSet_ImperialProbe
 -------------------------
 */
-void NPC_BehaviorSet_ImperialProbe( int bState )
+void NPC_BehaviorSet_ImperialProbe( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1317,7 +1317,7 @@ void NPC_BSSeeker_Default( void );
 NPC_BehaviorSet_Seeker
 -------------------------
 */
-void NPC_BehaviorSet_Seeker( int bState )
+void NPC_BehaviorSet_Seeker( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1341,7 +1341,7 @@ void NPC_BSRemote_Default( void );
 NPC_BehaviorSet_Remote
 -------------------------
 */
-void NPC_BehaviorSet_Remote( int bState )
+void NPC_BehaviorSet_Remote( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1365,7 +1365,7 @@ void NPC_BSSentry_Default( void );
 NPC_BehaviorSet_Sentry
 -------------------------
 */
-void NPC_BehaviorSet_Sentry( int bState )
+void NPC_BehaviorSet_Sentry( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1387,7 +1387,7 @@ void NPC_BehaviorSet_Sentry( int bState )
 NPC_BehaviorSet_Grenadier
 -------------------------
 */
-void NPC_BehaviorSet_Grenadier( int bState )
+void NPC_BehaviorSet_Grenadier( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1409,7 +1409,7 @@ void NPC_BehaviorSet_Grenadier( int bState )
 NPC_BehaviorSet_Sniper
 -------------------------
 */
-void NPC_BehaviorSet_Sniper( int bState )
+void NPC_BehaviorSet_Sniper( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1432,7 +1432,7 @@ NPC_BehaviorSet_Stormtrooper
 -------------------------
 */
 
-void NPC_BehaviorSet_Stormtrooper( int bState )
+void NPC_BehaviorSet_Stormtrooper( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1464,7 +1464,7 @@ NPC_BehaviorSet_Jedi
 -------------------------
 */
 
-void NPC_BehaviorSet_Jedi( int bState )
+void NPC_BehaviorSet_Jedi( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1491,7 +1491,7 @@ void NPC_BehaviorSet_Jedi( int bState )
 NPC_BehaviorSet_Droid
 -------------------------
 */
-void NPC_BehaviorSet_Droid( int bState )
+void NPC_BehaviorSet_Droid( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1511,7 +1511,7 @@ void NPC_BehaviorSet_Droid( int bState )
 NPC_BehaviorSet_Mark1
 -------------------------
 */
-void NPC_BehaviorSet_Mark1( int bState )
+void NPC_BehaviorSet_Mark1( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1531,7 +1531,7 @@ void NPC_BehaviorSet_Mark1( int bState )
 NPC_BehaviorSet_Mark2
 -------------------------
 */
-void NPC_BehaviorSet_Mark2( int bState )
+void NPC_BehaviorSet_Mark2( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1552,7 +1552,7 @@ void NPC_BehaviorSet_Mark2( int bState )
 NPC_BehaviorSet_ATST
 -------------------------
 */
-void NPC_BehaviorSet_ATST( int bState )
+void NPC_BehaviorSet_ATST( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1573,7 +1573,7 @@ void NPC_BehaviorSet_ATST( int bState )
 NPC_BehaviorSet_MineMonster
 -------------------------
 */
-void NPC_BehaviorSet_MineMonster( int bState )
+void NPC_BehaviorSet_MineMonster( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1595,7 +1595,7 @@ void NPC_BehaviorSet_MineMonster( int bState )
 NPC_BehaviorSet_Howler
 -------------------------
 */
-void NPC_BehaviorSet_Howler( int bState )
+void NPC_BehaviorSet_Howler( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1619,7 +1619,7 @@ NPC_RunBehavior
 */
 extern void NPC_BSEmplaced( void );
 extern bool NPC_CheckSurrender( void );
-void NPC_RunBehavior( int team, int bState )
+void NPC_RunBehavior( team_t team, bState_t bState )
 {
 	//bool dontSetAim = false;
 
@@ -1790,13 +1790,13 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	NPCInfo->combatMove = false;
 
 	//Execute our bState
-	if(NPCInfo->tempBehavior)
+	if(NPCInfo->tempBehavior != BS_DEFAULT)
 	{//Overrides normal behavior until cleared
 		bState = NPCInfo->tempBehavior;
 	}
 	else
 	{
-		if(!NPCInfo->behaviorState)
+		if(NPCInfo->behaviorState == BS_DEFAULT)
 			NPCInfo->behaviorState = NPCInfo->defaultBehavior;
 
 		bState = NPCInfo->behaviorState;

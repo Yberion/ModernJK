@@ -805,7 +805,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	VectorMA( org, 48, forward, end );
 	VectorMA( end, -8, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -816,7 +816,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// side
 	VectorMA( org, 48, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -827,7 +827,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// other side
 	VectorMA( org, -48, right, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{
@@ -838,7 +838,7 @@ bool PickSeekerSpawnPoint( vec3_t org, vec3_t fwd, vec3_t right, int skip, vec3_
 	// behind
 	VectorMA( org, -48, fwd, end );
 
-	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, (EG2_Collision)0, 0 );
+	gi.trace( &tr, org, mins, maxs, end, skip, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction >= 1.0f )
 	{

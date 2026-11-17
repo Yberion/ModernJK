@@ -1198,7 +1198,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		// drop to floor
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], MIN_WORLD_COORD );
-		gi.trace( &tr, ent->s.origin, ent->mins, ent->maxs, dest, ent->s.number, MASK_SOLID|CONTENTS_PLAYERCLIP, (EG2_Collision)0, 0 );
+		gi.trace( &tr, ent->s.origin, ent->mins, ent->maxs, dest, ent->s.number, MASK_SOLID|CONTENTS_PLAYERCLIP, G2_NOCOLLIDE, 0 );
 		if ( tr.startsolid )
 		{
 			if ( g_entities[tr.entityNum].inuse )
@@ -1537,7 +1537,7 @@ void G_RunItem( gentity_t *ent ) {
 				ignore = ent->activator->s.number;
 			}
 			VectorSet( origin, ent->currentOrigin[0], ent->currentOrigin[1], ent->currentOrigin[2]-1 );
-			gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, (EG2_Collision)0, 0 );
+			gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, G2_NOCOLLIDE, 0 );
 			if ( !tr.allsolid
 				&& !tr.startsolid
 				&& tr.fraction > 0.001f )
@@ -1576,7 +1576,7 @@ void G_RunItem( gentity_t *ent ) {
 	{
 		ignore = ent->activator->s.number;
 	}
-	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, (EG2_Collision)0, 0 );
+	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, ignore, mask, G2_NOCOLLIDE, 0 );
 
 	VectorCopy( tr.endpos, ent->currentOrigin );
 

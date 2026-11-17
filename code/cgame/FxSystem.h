@@ -56,8 +56,8 @@ struct SFxHelper
 	void	CloseFile( fileHandle_t fh );
 
 	// Sound
-	void	PlaySound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
-	void	PlayLocalSound( sfxHandle_t sfx, int channelNum );
+	void	PlaySound( const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
+	void	PlayLocalSound( sfxHandle_t sfx, soundChannel_t channelNum );
 	int		RegisterSound( const gsl::cstring_span& sound );
 
 	//G2

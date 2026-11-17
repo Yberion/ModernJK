@@ -1090,7 +1090,7 @@ void BG_SiegeParseClassFile(const char *filename, siegeClassDesc_t *descBuffer)
 }
 
 // Count the number of like base classes
-int BG_SiegeCountBaseClass(const int team, const short classIndex)
+int BG_SiegeCountBaseClass(const team_t team, const siegePlayerClassFlags_t classIndex)
 {
 	int count = 0,i;
 	siegeTeam_t *stm;
@@ -1105,7 +1105,7 @@ int BG_SiegeCountBaseClass(const int team, const short classIndex)
 	for (i=0;i<stm->numClasses;i++)
 	{
 
-		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
+		if (stm->classes[i]->playerClass == classIndex)
 		{
 			count++;
 		}
@@ -1113,7 +1113,7 @@ int BG_SiegeCountBaseClass(const int team, const short classIndex)
 	return(count);
 }
 
-char *BG_GetUIPortraitFile(const int team, const short classIndex, const short cntIndex)
+char *BG_GetUIPortraitFile(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex)
 {
 	int count = 0,i;
 	siegeTeam_t *stm;
@@ -1129,7 +1129,7 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
+		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
 			{
@@ -1142,7 +1142,7 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 	return(nullptr);
 }
 
-int BG_GetUIPortrait(const int team, const short classIndex, const short cntIndex)
+int BG_GetUIPortrait(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex)
 {
 	int count = 0,i;
 	siegeTeam_t *stm;
@@ -1158,7 +1158,7 @@ int BG_GetUIPortrait(const int team, const short classIndex, const short cntInde
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
+		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
 			{
@@ -1172,7 +1172,7 @@ int BG_GetUIPortrait(const int team, const short classIndex, const short cntInde
 }
 
 // This is really getting ugly - looking to get the base class (within a class) based on the index passed in
-siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, const short cntIndex)
+siegeClass_t *BG_GetClassOnBaseClass(const team_t team, const siegePlayerClassFlags_t classIndex, const short cntIndex)
 {
 	int count = 0,i;
 	siegeTeam_t *stm;
@@ -1187,7 +1187,7 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 	for (i=0;i<stm->numClasses;i++)
 	{
 		// does it match the base class?
-		if (stm->classes[i]->playerClass == static_cast<siegePlayerClassFlags_t>( classIndex ))
+		if (stm->classes[i]->playerClass == classIndex)
 		{
 			if (count==cntIndex)
 			{
@@ -1365,7 +1365,7 @@ void BG_SiegeLoadTeams(void)
 //======================================
 //Misc/utility functions
 //======================================
-siegeTeam_t *BG_SiegeFindThemeForTeam(int team)
+siegeTeam_t *BG_SiegeFindThemeForTeam(team_t team)
 {
 	if (team == SIEGETEAM_TEAM1)
 	{
@@ -1384,7 +1384,7 @@ siegeTeam_t *BG_SiegeFindThemeForTeam(int team)
 extern bool WP_SaberParseParms( const char *saberName, saberInfo_t *saber ); //bg_saberLoad.cpp
 extern int BG_ModelCache(const char *modelName, const char *skinName); //bg_misc.cpp
 
-void BG_PrecacheSabersForSiegeTeam(int team)
+void BG_PrecacheSabersForSiegeTeam(team_t team)
 {
 	siegeTeam_t *t;
 	saberInfo_t saber;
@@ -1437,7 +1437,7 @@ void BG_PrecacheSabersForSiegeTeam(int team)
 }
 #endif
 
-bool BG_SiegeCheckClassLegality(int team, char *classname)
+bool BG_SiegeCheckClassLegality(team_t team, char *classname)
 {
 	siegeTeam_t **teamPtr = nullptr;
 	int i = 0;
@@ -1494,7 +1494,7 @@ siegeTeam_t *BG_SiegeFindTeamForTheme(char *themeName)
 	return nullptr;
 }
 
-void BG_SiegeSetTeamTheme(int team, char *themeName)
+void BG_SiegeSetTeamTheme(team_t team, char *themeName)
 {
 	siegeTeam_t **teamPtr = nullptr;
 

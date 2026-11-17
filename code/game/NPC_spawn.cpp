@@ -1262,7 +1262,7 @@ void NPC_Begin (gentity_t *ent)
 
 	//MCG - Begin: NPC hacks
 	//FIXME: Set the team correctly
-	ent->client->ps.persistant[PERS_TEAM] = ent->client->playerTeam;
+	PS_SetTeam( ent->client->ps, ent->client->playerTeam );
 
 	ent->e_UseFunc   = useF_NPC_Use;
 	ent->e_ThinkFunc = thinkF_NPC_Think;
@@ -1470,7 +1470,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 		VectorCopy( ent->currentOrigin, saveOrg );
 		VectorCopy( ent->currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, (EG2_Collision)0, 0 );
+		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, G2_NOCOLLIDE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -4119,10 +4119,10 @@ static void NPC_Spawn_f(void)
 	AngleVectors(g_entities[0].client->ps.viewangles, forward, nullptr, nullptr);
 	VectorNormalize(forward);
 	VectorMA(g_entities[0].currentOrigin, 64, forward, end);
-	gi.trace(&trace, g_entities[0].currentOrigin, nullptr, nullptr, end, 0, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace(&trace, g_entities[0].currentOrigin, nullptr, nullptr, end, 0, MASK_SOLID, G2_NOCOLLIDE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] -= 24;
-	gi.trace(&trace, trace.endpos, nullptr, nullptr, end, 0, MASK_SOLID, (EG2_Collision)0, 0);
+	gi.trace(&trace, trace.endpos, nullptr, nullptr, end, 0, MASK_SOLID, G2_NOCOLLIDE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] += 24;
 	G_SetOrigin(NPCspawner, end);
@@ -4211,9 +4211,9 @@ void NPC_Kill_f( void )
 		{
 			gi.Printf( S_COLOR_RED"NPC_Kill Error: 'npc kill team' requires a team name!\n" );
 			gi.Printf( S_COLOR_RED"Valid team names are:\n");
-			for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+			for ( team_t t = TEAM_FREE + 1; t < TEAM_NUM_TEAMS; t++ )
 			{
-				gi.Printf( S_COLOR_RED"%s\n", GetStringForID( TeamTable, n ) );
+				gi.Printf( S_COLOR_RED"%s\n", GetStringForID( TeamTable, to_underlying( t ) ) );
 			}
 			gi.Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 			return;
@@ -4225,19 +4225,20 @@ void NPC_Kill_f( void )
 		}
 		else
 		{
-			killTeam = (team_t)GetIDForString( TeamTable, name );
+			const int id = GetIDForString( TeamTable, name );
 
-			if ( killTeam == (team_t)-1 )
+			if ( id == -1 )
 			{
 				gi.Printf( S_COLOR_RED"NPC_Kill Error: team '%s' not recognized\n", name );
 				gi.Printf( S_COLOR_RED"Valid team names are:\n");
-				for ( n = (TEAM_FREE + 1); n < TEAM_NUM_TEAMS; n++ )
+				for ( team_t t = TEAM_FREE + 1; t < TEAM_NUM_TEAMS; t++ )
 				{
-					gi.Printf( S_COLOR_RED"%s\n", GetStringForID( TeamTable, n ) );
+					gi.Printf( S_COLOR_RED"%s\n", GetStringForID( TeamTable, to_underlying( t ) ) );
 				}
 				gi.Printf( S_COLOR_RED"nonally - kills all but your teammates\n" );
 				return;
 			}
+			killTeam = static_cast<team_t>( id );
 		}
 	}
 

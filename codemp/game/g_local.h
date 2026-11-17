@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_local.h -- local definitions for game module
 
+#include <optional>
+
 #include "qcommon/q_shared.h"
 #include "bg_public.h"
 #include "bg_vehicles.h"
@@ -235,7 +237,7 @@ struct gentity_s {
 
 	int			spawnflags;			// set in QuakeEd
 
-	int			teamnodmg;			// damage will be ignored if it comes from this team
+	team_t		teamnodmg;			// damage will be ignored if it comes from this team
 
 	char		*roffname;			// set in QuakeEd
 	char		*rofftarget;		// set in QuakeEd
@@ -248,14 +250,14 @@ struct gentity_s {
 	char		*ownername;
 
 	int			objective;
-	int			side;
+	team_t		side;
 
 	int			passThroughNum;		// set to index to pass through (+1) for missiles
 
 	int			aimDebounceTime;
 	int			painDebounceTime;
 	int			attackDebounceTime;
-	int			alliedTeam;			// only useable by this team, never target this team
+	team_t		alliedTeam;			// only useable by this team, never target this team
 
 	int			roffid;				// if roffname != nullptr then set on spawn
 
@@ -479,7 +481,7 @@ typedef struct clientSession_s {
 	bool	teamLeader;			// true when this client is a team leader
 	char		siegeClass[64];
 	duelTeam_t	duelTeam;
-	int			siegeDesiredTeam;
+	team_t		siegeDesiredTeam;
 
 	char		IP[NET_ADDRSTRMAXLEN];
 } clientSession_t;
@@ -909,7 +911,7 @@ typedef struct level_locals_s {
 
 	int			startTime;				// level.time the map was started
 
-	int			teamScores[TEAM_NUM_TEAMS];
+	EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamScores;
 	int			lastTeamLocationTime;		// last time of client team location update
 
 	bool	newSession;				// don't use any old session data, because
@@ -1043,7 +1045,7 @@ char *G_NewString( const char *string );
 //
 void Cmd_Score_f (gentity_t *ent);
 void StopFollowing( gentity_t *ent );
-void BroadcastTeamChange( gclient_t *client, int oldTeam );
+void BroadcastTeamChange( gclient_t *client, std::optional<team_t> oldTeam );
 void SetTeam( gentity_t *ent, const char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 void Cmd_SaberAttackCycle_f(gentity_t *ent);
@@ -1123,10 +1125,11 @@ gentity_t *G_TempEntity( vec3_t origin, int event );
 gentity_t	*G_PlayEffect(effectTypes_t fxID, vec3_t org, vec3_t ang);
 gentity_t	*G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang);
 gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int duration, bool global);
-void	G_MuteSound( int entnum, int channel );
-void	G_Sound( gentity_t *ent, int channel, int soundIndex );
-void	G_SoundAtLoc( vec3_t loc, int channel, int soundIndex );
-void	G_EntitySound( gentity_t *ent, int channel, int soundIndex );
+void	G_MuteSound( int entnum, soundChannel_t channel );
+void	G_Sound( gentity_t *ent, soundChannel_t channel, int soundIndex );
+void	G_Sound( gentity_t *ent, trackchan_t channel, int soundIndex );
+void	G_SoundAtLoc( vec3_t loc, soundChannel_t channel, int soundIndex );
+void	G_EntitySound( gentity_t *ent, soundChannel_t channel, int soundIndex );
 void	TryUse( gentity_t *ent );
 void	G_SendG2KillQueue(void);
 void	G_KillG2Queue(int entNum);
@@ -1285,7 +1288,7 @@ bool CheckGauntletAttack( gentity_t *ent );
 // g_client.cpp
 //
 int TeamCount( int ignoreClientNum, team_t team );
-int TeamLeader( int team );
+int TeamLeader( team_t team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, bool isbot );
@@ -1341,8 +1344,8 @@ extern int gSlowMoDuelTime;
 void G_PowerDuelCount(int *loners, int *doubles, bool countSpec);
 
 void FindIntermissionPoint( void );
-void SetLeader(int team, int client);
-void CheckTeamLeader( int team );
+void SetLeader(team_t team, int client);
+void CheckTeamLeader( team_t team );
 void G_RunThink (gentity_t *ent);
 void AddTournamentQueue(gclient_t *client);
 void QDECL G_LogPrintf( const char *fmt, ... );
@@ -1361,7 +1364,7 @@ void G_BreakArm(gentity_t *ent, brokenLimb_t arm);
 void G_UpdateClientAnims(gentity_t *self, float animSpeedScale);
 void ClientCommand( int clientNum );
 void G_ClearVote( gentity_t *ent );
-void G_ClearTeamVote( gentity_t *ent, int team );
+void G_ClearTeamVote( gentity_t *ent, team_t team );
 
 //
 // g_active.cpp
@@ -1453,8 +1456,8 @@ void QDECL G_LogWeaponDamage(int client, int mod, int amount);
 void QDECL G_LogWeaponKill(int client, int mod);
 void QDECL G_LogWeaponDeath(int client, int weaponid);
 void QDECL G_LogWeaponFrag(int attacker, int deadguy);
-void QDECL G_LogWeaponPowerup(int client, int powerupid);
-void QDECL G_LogWeaponItem(int client, int itemid);
+void QDECL G_LogWeaponPowerup(int client, powerup_t powerupid);
+void QDECL G_LogWeaponItem(int client, holdable_t itemid);
 void QDECL G_LogWeaponInit(void);
 void QDECL G_LogWeaponOutput(void);
 void QDECL G_LogExit( const char *string );

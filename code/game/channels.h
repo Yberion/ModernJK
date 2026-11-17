@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	are different choices to offer in the pulldown box. I know, it's tacky, but ModView wasn't planned as an
 //	editor and this was never an external file. A great combination...   - Ste.
 //
-typedef enum //# soundChannel_e
+enum class soundChannel_t //# soundChannel_e
 {
 	CHAN_AUTO,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # Auto-picks an empty channel to play sound on
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
@@ -40,5 +40,6 @@ typedef enum //# soundChannel_e
 	CHAN_ANNOUNCER,		//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #announcer voices, etc
 	CHAN_LESS_ATTEN,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #attenuates similar to chan_voice, but uses empty channel auto-pick behaviour
 	CHAN_MUSIC,	//played as a looping sound - added by BTO (VV)
-} soundChannel_t;
+};
+using enum soundChannel_t;
 

@@ -431,7 +431,7 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope, vec3_t storeAn
 		startspot[2] += forwhom->mins[2] + 4;
 		VectorCopy( startspot, endspot );
 		endspot[2] -= 300;
-		gi.trace( &trace, forwhom->currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, (EG2_Collision)0, 0 );
+		gi.trace( &trace, forwhom->currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 //		if(trace_fraction>0.05&&forwhom.movetype==MOVETYPE_STEP)
 //			forwhom.flags(-)FL_ONGROUND;
 
@@ -766,7 +766,7 @@ static void DeadThink ( void )
 	}
 	if ( NPC->maxs[2] > oldMaxs2 )
 	{//inflating maxs, make sure we're not inflating into solid
-		gi.trace (&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, NPC->currentOrigin, NPC->s.number, NPC->clipmask, (EG2_Collision)0, 0 );
+		gi.trace (&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, NPC->currentOrigin, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
 		if ( trace.allsolid )
 		{//must be inflating
 			NPC->maxs[2] = oldMaxs2;
@@ -1072,7 +1072,7 @@ void NPC_HandleAIFlags (void)
 				trace_t	trace;
 				VectorCopy(NPC->currentOrigin, ground);
 				ground[2] -= 60.0f;
-                gi.trace(&trace, NPC->currentOrigin, nullptr, nullptr, ground, NPC->s.number, NPC->clipmask, (EG2_Collision)0, 0);
+                gi.trace(&trace, NPC->currentOrigin, nullptr, nullptr, ground, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0);
 
 				IsInTheAir	= (!trace.allsolid && !trace.startsolid && trace.fraction>0.9f);
 			}
@@ -1280,7 +1280,7 @@ NPC_BehaviorSet_Charmed
 -------------------------
 */
 
-void NPC_BehaviorSet_Charmed( int bState )
+void NPC_BehaviorSet_Charmed( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1311,7 +1311,7 @@ NPC_BehaviorSet_Default
 -------------------------
 */
 
-void NPC_BehaviorSet_Default( int bState )
+void NPC_BehaviorSet_Default( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1360,7 +1360,7 @@ void NPC_BehaviorSet_Default( int bState )
 NPC_BehaviorSet_Interrogator
 -------------------------
 */
-void NPC_BehaviorSet_Interrogator( int bState )
+void NPC_BehaviorSet_Interrogator( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1386,7 +1386,7 @@ void NPC_BSImperialProbe_Wait(void);
 NPC_BehaviorSet_ImperialProbe
 -------------------------
 */
-void NPC_BehaviorSet_ImperialProbe( int bState )
+void NPC_BehaviorSet_ImperialProbe( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1411,7 +1411,7 @@ void NPC_BSSeeker_Default( void );
 NPC_BehaviorSet_Seeker
 -------------------------
 */
-void NPC_BehaviorSet_Seeker( int bState )
+void NPC_BehaviorSet_Seeker( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1433,7 +1433,7 @@ void NPC_BSRemote_Default( void );
 NPC_BehaviorSet_Remote
 -------------------------
 */
-void NPC_BehaviorSet_Remote( int bState )
+void NPC_BehaviorSet_Remote( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1457,7 +1457,7 @@ void NPC_BSSentry_Default( void );
 NPC_BehaviorSet_Sentry
 -------------------------
 */
-void NPC_BehaviorSet_Sentry( int bState )
+void NPC_BehaviorSet_Sentry( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1479,7 +1479,7 @@ void NPC_BehaviorSet_Sentry( int bState )
 NPC_BehaviorSet_Grenadier
 -------------------------
 */
-void NPC_BehaviorSet_Grenadier( int bState )
+void NPC_BehaviorSet_Grenadier( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1502,7 +1502,7 @@ void NPC_BehaviorSet_Grenadier( int bState )
 NPC_BehaviorSet_Tusken
 -------------------------
 */
-void NPC_BehaviorSet_Tusken( int bState )
+void NPC_BehaviorSet_Tusken( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1525,7 +1525,7 @@ void NPC_BehaviorSet_Tusken( int bState )
 NPC_BehaviorSet_Sniper
 -------------------------
 */
-void NPC_BehaviorSet_Sniper( int bState )
+void NPC_BehaviorSet_Sniper( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1548,7 +1548,7 @@ NPC_BehaviorSet_Stormtrooper
 -------------------------
 */
 
-void NPC_BehaviorSet_Stormtrooper( int bState )
+void NPC_BehaviorSet_Stormtrooper( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1580,7 +1580,7 @@ NPC_BehaviorSet_Jedi
 -------------------------
 */
 
-void NPC_BehaviorSet_Jedi( int bState )
+void NPC_BehaviorSet_Jedi( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1629,7 +1629,7 @@ bool G_JediInNormalAI( gentity_t *ent )
 NPC_BehaviorSet_Droid
 -------------------------
 */
-void NPC_BehaviorSet_Droid( int bState )
+void NPC_BehaviorSet_Droid( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1649,7 +1649,7 @@ void NPC_BehaviorSet_Droid( int bState )
 NPC_BehaviorSet_Mark1
 -------------------------
 */
-void NPC_BehaviorSet_Mark1( int bState )
+void NPC_BehaviorSet_Mark1( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1669,7 +1669,7 @@ void NPC_BehaviorSet_Mark1( int bState )
 NPC_BehaviorSet_Mark2
 -------------------------
 */
-void NPC_BehaviorSet_Mark2( int bState )
+void NPC_BehaviorSet_Mark2( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1690,7 +1690,7 @@ void NPC_BehaviorSet_Mark2( int bState )
 NPC_BehaviorSet_ATST
 -------------------------
 */
-void NPC_BehaviorSet_ATST( int bState )
+void NPC_BehaviorSet_ATST( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1711,7 +1711,7 @@ void NPC_BehaviorSet_ATST( int bState )
 NPC_BehaviorSet_MineMonster
 -------------------------
 */
-void NPC_BehaviorSet_MineMonster( int bState )
+void NPC_BehaviorSet_MineMonster( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1733,7 +1733,7 @@ void NPC_BehaviorSet_MineMonster( int bState )
 NPC_BehaviorSet_Howler
 -------------------------
 */
-void NPC_BehaviorSet_Howler( int bState )
+void NPC_BehaviorSet_Howler( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1755,7 +1755,7 @@ void NPC_BehaviorSet_Howler( int bState )
 NPC_BehaviorSet_Rancor
 -------------------------
 */
-void NPC_BehaviorSet_Rancor( int bState )
+void NPC_BehaviorSet_Rancor( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1777,7 +1777,7 @@ void NPC_BehaviorSet_Rancor( int bState )
 NPC_BehaviorSet_Wampa
 -------------------------
 */
-void NPC_BehaviorSet_Wampa( int bState )
+void NPC_BehaviorSet_Wampa( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1799,7 +1799,7 @@ void NPC_BehaviorSet_Wampa( int bState )
 NPC_BehaviorSet_SandCreature
 -------------------------
 */
-void NPC_BehaviorSet_SandCreature( int bState )
+void NPC_BehaviorSet_SandCreature( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1822,7 +1822,7 @@ NPC_BehaviorSet_Droid
 -------------------------
 */
 // Added 01/21/03 by AReis.
-void NPC_BehaviorSet_Animal( int bState )
+void NPC_BehaviorSet_Animal( bState_t bState )
 {
 	switch( bState )
 	{
@@ -1847,13 +1847,13 @@ NPC_RunBehavior
 extern void NPC_BSEmplaced( void );
 extern bool NPC_CheckSurrender( void );
 extern void NPC_BSRT_Default( void );
-extern void NPC_BSCivilian_Default( int bState );
+extern void NPC_BSCivilian_Default( bState_t bState );
 extern void NPC_BSSD_Default( void );
-extern void NPC_BehaviorSet_Trooper( int bState );
+extern void NPC_BehaviorSet_Trooper( bState_t bState );
 extern bool NPC_IsTrooper( gentity_t *ent );
 extern bool Pilot_MasterUpdate();
 
-void NPC_RunBehavior( int team, int bState )
+void NPC_RunBehavior( team_t team, bState_t bState )
 {
 	//
 	if ( bState == BS_CINEMATIC )
@@ -2336,7 +2336,7 @@ void NPC_CheckInSolid(void)
 	VectorCopy(NPC->currentOrigin, point);
 	point[2] -= 0.25;
 
-	gi.trace(&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, point, NPC->s.number, NPC->clipmask, (EG2_Collision)0, 0);
+	gi.trace(&trace, NPC->currentOrigin, NPC->mins, NPC->maxs, point, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0);
 	if(!trace.startsolid && !trace.allsolid)
 	{
 		VectorCopy(NPC->currentOrigin, NPCInfo->lastClearOrigin);

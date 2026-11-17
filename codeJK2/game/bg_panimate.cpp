@@ -844,7 +844,7 @@ int PM_KnockawayForParry( saberBlockedType_t move )
 
 int PM_SaberBounceForAttack( int move )
 {
-	switch ( static_cast<saberQuadrant_t>( saberMoveData[move].startQuad ) )
+	switch ( saberMoveData[move].startQuad )
 	{
 	case Q_B:
 	case Q_BR:
@@ -908,8 +908,8 @@ saberMoveName_t PM_AttackMoveForQuad( saberQuadrant_t quad )
 	return LS_NONE;
 }
 
-int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_QUADS )] =
-{
+EnumArray<EnumArray<int, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> saberMoveTransitionAngle =
+{{
 	{
 		0,//Q_BR,Q_BR,
 		45,//Q_BR,Q_R,
@@ -990,7 +990,7 @@ int saberMoveTransitionAngle[to_underlying( Q_NUM_QUADS )][to_underlying( Q_NUM_
 		45,//Q_B,Q_BL,
 		0//Q_B,Q_B,
 	}
-};
+}};
 
 int PM_SaberAttackChainAngle( int move1, int move2 )
 {
@@ -998,7 +998,7 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 	{
 		return -1;
 	}
-	return saberMoveTransitionAngle[to_underlying( saberMoveData[move1].endQuad )][to_underlying( saberMoveData[move2].startQuad )];
+	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
 }
 
 bool PM_SaberKataDone( int curmove = LS_NONE, int newmove = LS_NONE )

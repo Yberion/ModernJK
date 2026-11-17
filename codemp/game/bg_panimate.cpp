@@ -1109,7 +1109,7 @@ bool BG_StabDownAnim( int anim )
 
 int PM_SaberBounceForAttack( int move )
 {
-	switch ( static_cast<saberQuadrant_t>( saberMoveData[move].startQuad ) )
+	switch ( saberMoveData[move].startQuad )
 	{
 	case Q_B:
 	case Q_BR:
@@ -1142,7 +1142,7 @@ int PM_SaberBounceForAttack( int move )
 
 int PM_SaberDeflectionForQuad( saberQuadrant_t quad )
 {
-	switch ( static_cast<saberQuadrant_t>( quad ) )
+	switch ( quad )
 	{
 	case Q_B:
 		return LS_D1_B_;
@@ -1854,8 +1854,9 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		}
 
 		token = COM_Parse( text_p );
-		eventType = (animEventType_t)GetIDForString(animEventTypeTable, token);
-		if ( eventType == AEV_NONE || eventType == (animEventType_t)-1 )
+		const int eventId = GetIDForString(animEventTypeTable, token);
+		eventType = static_cast<animEventType_t>( eventId );
+		if ( eventId == -1 || eventType == AEV_NONE )
 		{//Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
 			//Com_Printf(S_COLOR_YELLOW"WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename );
 			continue;
@@ -1891,19 +1892,19 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 				break;
 
 				 if ( !Q_stricmp( token, "CHAN_VOICE_ATTEN" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_ATTEN;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_ATTEN );
 			else if ( !Q_stricmp( token, "CHAN_VOICE_GLOBAL" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_GLOBAL;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE_GLOBAL );
 			else if ( !Q_stricmp( token, "CHAN_ANNOUNCER" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_ANNOUNCER;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_ANNOUNCER );
 			else if ( !Q_stricmp( token, "CHAN_BODY" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_BODY;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_BODY );
 			else if ( !Q_stricmp( token, "CHAN_WEAPON" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_WEAPON;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_WEAPON );
 			else if ( !Q_stricmp( token, "CHAN_VOICE" ) )
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_VOICE );
 			else
-				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_AUTO;
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = to_underlying( CHAN_AUTO );
 
 			//fall through to normal sound
 		case AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay

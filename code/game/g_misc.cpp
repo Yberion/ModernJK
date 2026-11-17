@@ -1824,7 +1824,7 @@ void SP_misc_trip_mine( gentity_t *self )
 	AngleVectors( self->s.angles, forward, nullptr, nullptr );
 	VectorMA( self->s.origin, 128, forward, end );
 
-	gi.trace( &trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace( &trace, self->s.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	if ( trace.allsolid || trace.startsolid )
 	{
@@ -1926,7 +1926,7 @@ void maglock_link( gentity_t *self )
 	VectorMA( self->s.origin, 128, forward, end );
 	VectorMA( self->s.origin, -4, forward, start );
 
-	gi.trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+	gi.trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	if ( trace.allsolid || trace.startsolid )
 	{

@@ -1088,14 +1088,20 @@ using enum global_team_sound_t;
 
 
 
-typedef enum {
+enum class team_t {
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
 	TEAM_SPECTATOR,
 
 	TEAM_NUM_TEAMS
-} team_t;
+};
+using enum team_t;
+template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
+
+// The player's team is kept in a cell of the networked persistant array, whose cells are integers
+[[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
+inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
 
 enum class duelTeam_t {
 	DUELTEAM_FREE,

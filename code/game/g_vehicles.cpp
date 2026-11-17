@@ -119,7 +119,7 @@ void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, c
 #ifdef _JK2MP
 	trap_Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask);
 #else
-	gi.trace( results, start, tMins, tMaxs, end, passEntityNum, contentmask, (EG2_Collision)0, 0 );
+	gi.trace( results, start, tMins, tMaxs, end, passEntityNum, contentmask, G2_NOCOLLIDE, 0 );
 #endif
 }
 

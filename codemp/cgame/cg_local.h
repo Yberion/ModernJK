@@ -24,6 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <optional>
+
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
 #include "game/bg_public.h"
@@ -297,7 +299,7 @@ typedef struct clientInfo_s {
 	qhandle_t		bolt_llumbar;
 
 	int				siegeIndex;
-	int				siegeDesiredTeam;
+	team_t			siegeDesiredTeam;
 
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 	sfxHandle_t		combatSounds[MAX_CUSTOM_COMBAT_SOUNDS];
@@ -647,7 +649,7 @@ typedef struct score_s {
 	int				assistCount;
 	int				captures;
 	bool	perfect;
-	int				team;
+	team_t			team;
 } score_t;
 
 
@@ -832,7 +834,7 @@ typedef struct cg_s {
 	int			weaponSelect;
 
 	int			forceSelect;
-	int			itemSelect;
+	std::optional<holdable_t>	itemSelect;	// none before the first selection
 
 	// auto rotating items
 	vec3_t		autoAngles;
@@ -1369,7 +1371,7 @@ typedef struct cgMedia_s {
 	qhandle_t weaponIcons_NA[WP_NUM_WEAPONS];
 
 	//holdable inventory item icons
-	qhandle_t invenIcons[to_underlying( HI_NUM_HOLDABLE )];
+	EnumArray<qhandle_t, holdable_t, HI_NUM_HOLDABLE> invenIcons;
 
 	//force power icons
 	qhandle_t forcePowerIcons[NUM_FORCE_POWERS];
@@ -1747,7 +1749,7 @@ void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color );
 int CG_DrawStrlen( const char *str );
 
 float	*CG_FadeColor( int startMsec, int totalMsec );
-float *CG_TeamColor( int team );
+float *CG_TeamColor( team_t team );
 void CG_TileClear( void );
 void CG_ColorForHealth( vec4_t hcolor );
 void CG_GetColorForHealth( int health, int armor, vec4_t hcolor );
@@ -1770,8 +1772,8 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
 void CG_CenterPrint( const char *str, int y, int charWidth );
 void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles );
 void CG_DrawActive( stereoFrame_t stereoView );
-void CG_DrawFlagModel( float x, float y, float w, float h, int team, bool force2D );
-void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team );
+void CG_DrawFlagModel( float x, float y, float w, float h, team_t team, bool force2D );
+void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, team_t team );
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font);
 void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont);
 int CG_Text_Width(const char *text, float scale, int iMenuFont);
@@ -1805,7 +1807,7 @@ void CG_DestroyNPCClient(clientInfo_t **ci);
 
 void CG_Player( centity_t *cent );
 void CG_ResetPlayerEntity( centity_t *cent );
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int team );
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, team_t team );
 void CG_NewClientInfo( int clientNum, bool entitiesInitialized );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_PlayerShieldHit(int entitynum, vec3_t angles, int amount);
@@ -1888,7 +1890,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, bool alt_fire);
 
 void CG_AddViewWeapon (playerState_t *ps);
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, bool thirdPerson );
+void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, team_t team, vec3_t newAngles, bool thirdPerson );
 void CG_DrawWeaponSelect( void );
 void CG_DrawIconBackground(void);
 
@@ -2000,8 +2002,8 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 // cg_siege.c
 //
 void CG_InitSiegeMode(void);
-void CG_SiegeRoundOver(centity_t *ent, int won);
-void CG_SiegeObjectiveCompleted(centity_t *ent, int won, int objectivenum);
+void CG_SiegeRoundOver(centity_t *ent, team_t won);
+void CG_SiegeObjectiveCompleted(centity_t *ent, team_t won, int objectivenum);
 
 
 

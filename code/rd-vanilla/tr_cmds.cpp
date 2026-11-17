@@ -463,11 +463,11 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		} else if ( stereoFrame == STEREO_RIGHT ) {
 			cmd->buffer = (int)GL_BACK_RIGHT;
 		} else {
-			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
+			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", to_underlying( stereoFrame ) );
 		}
 	} else {
 		if ( stereoFrame != STEREO_CENTER ) {
-			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
+			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", to_underlying( stereoFrame ) );
 		}
 //		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
 //			cmd->buffer = (int)GL_FRONT;

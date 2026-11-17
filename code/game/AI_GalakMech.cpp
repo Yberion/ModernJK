@@ -155,7 +155,7 @@ void	Pilot_Update(void)
 				nullptr,
 				projectedPosition,
 				player->s.number,
- 				MASK_SHOT, (EG2_Collision)0, 0);
+ 				MASK_SHOT, G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==false) &&
 				(mPilotViewTrace.startsolid==false) &&
@@ -386,7 +386,7 @@ void	Pilot_Update_Enemy()
 				NPC->enemy->currentOrigin,
 				NPC->s.number,
 				MASK_SHOT,
-				(EG2_Collision)0, 0);
+				G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==false) &&
 				(mPilotViewTrace.startsolid==false ) &&

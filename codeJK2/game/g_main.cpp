@@ -203,7 +203,7 @@ static void G_DynamicMusicUpdate( void )
 	int			distSq, radius = 2048;
 	vec3_t		center;
 	int			battle = 0;
-	int			entTeam;
+	team_t			entTeam;
 	bool	clearLOS = false;
 
 	//FIXME: intro and/or other cues? (one-shot music sounds)

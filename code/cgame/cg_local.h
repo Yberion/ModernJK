@@ -990,11 +990,11 @@ int		cgi_CM_MarkFragments( int numPoints, const vec3_t *points,
 
 // normal sounds will have their volume dynamically changed as their entity
 // moves and the listener moves
-void	cgi_S_StartSound( const vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
+void	cgi_S_StartSound( const vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 void	cgi_S_StopSounds( void );
 
 // a local sound is always played full volume
-void	cgi_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
+void	cgi_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum );
 void	cgi_S_ClearLoopingSounds( void );
 void	cgi_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, soundChannel_t chan = CHAN_AUTO );
 void	cgi_S_UpdateEntityPosition( int entityNum, const vec3_t origin );

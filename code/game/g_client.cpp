@@ -321,7 +321,7 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, team_t team, vec3_t origin, vec
 		trace_t		tr;
 
 		origin[2] = MIN_WORLD_COORD;
-		gi.trace(&tr, spot->s.origin, playerMins, playerMaxs, origin, ENTITYNUM_NONE, MASK_PLAYERSOLID, (EG2_Collision)0, 0 );
+		gi.trace(&tr, spot->s.origin, playerMins, playerMaxs, origin, ENTITYNUM_NONE, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 		if ( tr.fraction < 1.0 && !tr.allsolid && !tr.startsolid )
 		{//found a floor
 			VectorCopy(tr.endpos, origin );
@@ -486,7 +486,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	// print scoreboards, display models, and play custom sounds
 	buf[0] = '\0';
 	Q_strcat( buf, sizeof( buf ), va( "n\\%s\\", client->pers.netname ) );
-	Q_strcat( buf, sizeof( buf ), va( "t\\%i\\", client->sess.sessionTeam ) );
+	Q_strcat( buf, sizeof( buf ), va( "t\\%i\\", to_underlying( client->sess.sessionTeam ) ) );
 	Q_strcat( buf, sizeof( buf ),	  "headModel\\\\" );
 	Q_strcat( buf, sizeof( buf ),	  "torsoModel\\\\" );
 	Q_strcat( buf, sizeof( buf ),	  "legsModel\\\\" );
@@ -2150,7 +2150,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		// increment the spawncount so the client will detect the respawn
 		client->ps.persistant[PERS_SPAWN_COUNT]++;
-		client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+		PS_SetTeam( client->ps, client->sess.sessionTeam );
 
 		client->airOutTime = level.time + 12000;
 
@@ -2197,7 +2197,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		// ranging doesn't count this client
 		// don't spawn near existing origin if possible
 		spawnPoint = SelectSpawnPoint ( ent->client->ps.origin,
-			(team_t) ent->client->ps.persistant[PERS_TEAM], spawn_origin, spawn_angles);
+			PS_Team( ent->client->ps ), spawn_origin, spawn_angles);
 
 		ent->client->pers.teamState.state = TEAM_ACTIVE;
 
@@ -2218,7 +2218,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 
 		// increment the spawncount so the client will detect the respawn
 		client->ps.persistant[PERS_SPAWN_COUNT]++;
-		client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+		PS_SetTeam( client->ps, client->sess.sessionTeam );
 
 		client->airOutTime = level.time + 12000;
 
@@ -2503,7 +2503,7 @@ void ClientDisconnect( int clientNum ) {
 	ClearInUse(ent);
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+	PS_SetTeam( ent->client->ps, TEAM_FREE );
 
 	gi.SetConfigstring( CS_PLAYERS + clientNum, "");
 

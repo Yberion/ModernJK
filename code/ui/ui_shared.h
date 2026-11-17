@@ -204,7 +204,7 @@ typedef struct {
 	void		(*setColor) (const vec4_t v);
 	void		(*setCVar)(const char *cvar, const char *value);
 	void		(*setOverstrikeMode)(bool b);
-	void		(*startLocalSound)( sfxHandle_t sfx, int channelNum );
+	void		(*startLocalSound)( sfxHandle_t sfx, soundChannel_t channelNum );
 	void		(*stopCinematic)(int handle);
 	int			(*textHeight) (const char *text, float scale, int iFontIndex);
 	int			(*textWidth) (const char *text, float scale, int iFontIndex);

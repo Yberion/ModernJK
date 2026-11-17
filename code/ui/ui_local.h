@@ -177,13 +177,13 @@ typedef struct {
 	// Used by Weapon allocation screen
 	short	selectedWeapon1;					// 1st weapon chosen
 	char 	selectedWeapon1ItemName[64];		// Item name of weapon chosen
-	int		selectedWeapon1AmmoIndex;			// Holds index to ammo
+	ammo_t		selectedWeapon1AmmoIndex;			// Holds index to ammo
 	short	selectedWeapon2;					// 2nd weapon chosen
 	char 	selectedWeapon2ItemName[64];		// Item name of weapon chosen
-	int		selectedWeapon2AmmoIndex;			// Holds index to ammo
+	ammo_t		selectedWeapon2AmmoIndex;			// Holds index to ammo
 	short	selectedThrowWeapon;				// throwable weapon chosen
 	char 	selectedThrowWeaponItemName[64];	// Item name of weapon chosen
-	int		selectedThrowWeaponAmmoIndex;		// Holds index to ammo
+	ammo_t	selectedThrowWeaponAmmoIndex;		// Holds index to ammo
 
 	itemDef_t *weapon1ItemButton;
 	qhandle_t litWeapon1Icon;
@@ -240,7 +240,7 @@ void			trap_R_AddRefEntityToScene( const refEntity_t *re );
 void			trap_R_RenderScene( const refdef_t *fd );
 void			trap_S_StopSounds( void );
 sfxHandle_t		trap_S_RegisterSound( const char *sample, bool compressed );
-void			trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
+void			trap_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum );
 
 
 

@@ -449,7 +449,7 @@ bool PlaceShield(gentity_t *playerent)
 			shield->parent = playerent;
 
 			// Set team number.
-			shield->s.otherEntityNum2 = playerent->client->sess.sessionTeam;
+			shield->s.otherEntityNum2 = to_underlying( playerent->client->sess.sessionTeam );
 
 			shield->s.eType = ET_SPECIAL;
 			shield->s.modelindex = to_underlying( HI_SHIELD );	// this'll be used in CG_Useable() for rendering.
@@ -475,7 +475,7 @@ bool PlaceShield(gentity_t *playerent)
 			shield->s.shouldtarget = true;
 			if (level.gametype >= GT_TEAM)
 			{
-				shield->s.teamowner = playerent->client->sess.sessionTeam;
+				shield->s.teamowner = to_underlying( playerent->client->sess.sessionTeam );
 			}
 			else
 			{
@@ -604,7 +604,7 @@ static bool pas_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( self->alliedTeam && target->client->sess.sessionTeam == self->alliedTeam )
+		if ( self->alliedTeam != TEAM_FREE && target->client->sess.sessionTeam == self->alliedTeam )
 		{
 			continue;
 		}
@@ -789,7 +789,7 @@ void pas_think( gentity_t *ent )
 	}
 
 	if (!g_entities[ent->genericValue3].inuse || !g_entities[ent->genericValue3].client ||
-		g_entities[ent->genericValue3].client->sess.sessionTeam != ent->genericValue2)
+		g_entities[ent->genericValue3].client->sess.sessionTeam != static_cast<team_t>( ent->genericValue2 ))
 	{
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time;
@@ -1090,7 +1090,7 @@ void ItemUse_Sentry( gentity_t *ent )
 	VectorCopy(mins, sentry->r.mins);
 	VectorCopy(maxs, sentry->r.maxs);
 	sentry->genericValue3 = ent->s.number;
-	sentry->genericValue2 = ent->client->sess.sessionTeam; //so we can remove ourself if our owner changes teams
+	sentry->genericValue2 = to_underlying( ent->client->sess.sessionTeam ); //so we can remove ourself if our owner changes teams
 	sentry->genericValue15 = to_underlying( HI_SENTRY_GUN );
 	sentry->r.absmin[0] = sentry->s.pos.trBase[0] + sentry->r.mins[0];
 	sentry->r.absmin[1] = sentry->s.pos.trBase[1] + sentry->r.mins[1];
@@ -1119,7 +1119,7 @@ void ItemUse_Sentry( gentity_t *ent )
 	sentry->s.shouldtarget = true;
 	if (level.gametype >= GT_TEAM)
 	{
-		sentry->s.teamowner = ent->client->sess.sessionTeam;
+		sentry->s.teamowner = to_underlying( ent->client->sess.sessionTeam );
 	}
 	else
 	{
@@ -1943,7 +1943,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	VectorCopy(fAng, ent->r.currentAngles);
 
 	ent->s.owner = spawner->s.number;
-	ent->s.teamowner = spawner->client->sess.sessionTeam;
+	ent->s.teamowner = to_underlying( spawner->client->sess.sessionTeam );
 
 	ent->takedamage = true;
 
@@ -2061,7 +2061,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.powerups[static_cast<powerup_t>( ent->item->giTag )] =
 			level.time - ( level.time % 1000 );
 
-		G_LogWeaponPowerup(other->s.number, ent->item->giTag);
+		G_LogWeaponPowerup(other->s.number, static_cast<powerup_t>( ent->item->giTag ));
 	}
 
 	if ( ent->count ) {
@@ -2136,7 +2136,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << ent->item->giTag);
 
-	G_LogWeaponItem(other->s.number, ent->item->giTag);
+	G_LogWeaponItem(other->s.number, static_cast<holdable_t>( ent->item->giTag ));
 
 	return adjustRespawnTime(RESPAWN_HOLDABLE, ent->item->giType, ent->item->giTag);
 }

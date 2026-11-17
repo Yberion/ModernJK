@@ -286,7 +286,7 @@ void target_laser_think (gentity_t *self) {
 	// fire forward and see what we hit
 	VectorMA (self->s.origin, 2048, self->movedir, end);
 
-	gi.trace( &tr, self->s.origin, nullptr, nullptr, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, (EG2_Collision)0, 0);
+	gi.trace( &tr, self->s.origin, nullptr, nullptr, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, G2_NOCOLLIDE, 0);
 
 	if ( tr.entityNum ) {
 		// hurt it if we can

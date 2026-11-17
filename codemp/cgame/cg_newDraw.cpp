@@ -115,7 +115,7 @@ float CG_GetValue(int ownerDraw) {
 
 bool CG_OtherTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
-		int team = cg.snap->ps.persistant[PERS_TEAM];
+		team_t team = PS_Team( cg.snap->ps );
 		if (team == TEAM_RED && cgs.redflag == FLAG_TAKEN) {
 			return true;
 		} else if (team == TEAM_BLUE && cgs.blueflag == FLAG_TAKEN) {
@@ -129,7 +129,7 @@ bool CG_OtherTeamHasFlag(void) {
 
 bool CG_YourTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
-		int team = cg.snap->ps.persistant[PERS_TEAM];
+		team_t team = PS_Team( cg.snap->ps );
 		if (team == TEAM_RED && cgs.blueflag == FLAG_TAKEN) {
 			return true;
 		} else if (team == TEAM_BLUE && cgs.redflag == FLAG_TAKEN) {
@@ -241,7 +241,7 @@ const char *CG_GetGameStatusText(void) {
 	}
 	else if ( cgs.gametype < GT_TEAM)
 	{
-		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR )
+		if (PS_Team( cg.snap->ps ) != TEAM_SPECTATOR )
 		{
 			char sPlaceWith[256];
 			trap->SE_GetStringTextString("MP_INGAME_PLACE_WITH", sPlaceWith, sizeof(sPlaceWith));
@@ -342,7 +342,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
 			len = CG_Text_Width( ci->name, scale, 0);
 			if (len > pwidth)
 				pwidth = len;
@@ -364,7 +364,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+		if ( ci->infoValid && ci->team == PS_Team( cg.snap->ps )) {
 
 			xx = rect->x + 1;
 			for (powerup_t j = PW_NONE; j < PW_NUM_POWERUPS; j++) {
@@ -886,11 +886,11 @@ bool CG_DeferMenuScript (char **args)
 }
 
 void CG_GetTeamColor(vec4_t *color) {
-	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+	if (PS_Team( cg.snap->ps ) == TEAM_RED) {
 		(*color)[0] = 1.0f;
 		(*color)[3] = 0.25f;
 		(*color)[1] = (*color)[2] = 0.0f;
-	} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+	} else if (PS_Team( cg.snap->ps ) == TEAM_BLUE) {
 		(*color)[0] = (*color)[1] = 0.0f;
 		(*color)[2] = 1.0f;
 		(*color)[3] = 0.25f;

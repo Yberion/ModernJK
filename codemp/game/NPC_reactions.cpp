@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool G_CheckForStrongAttackMomentum( gentity_t *self );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
-extern void cgi_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
+extern void cgi_S_StartSound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern bool NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
@@ -627,7 +627,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			{//See if we bumped into an enemy
 				if ( other->client->playerTeam == self->client->enemyTeam )
 				{//bumped into an enemy
-					if( NPCS.NPCInfo->behaviorState != BS_HUNT_AND_KILL && !NPCS.NPCInfo->tempBehavior )
+					if( NPCS.NPCInfo->behaviorState != BS_HUNT_AND_KILL && NPCS.NPCInfo->tempBehavior == BS_DEFAULT )
 					{//MCG - Begin: checking specific BS mode here, this is bad, a HACK
 						//FIXME: not medics?
 						if ( NPCS.NPC->enemy != other )

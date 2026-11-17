@@ -2577,7 +2577,7 @@ Ghoul2 Insert End
 } entityState_t;
 
 
-typedef enum {
+enum class connstate_t {
 	CA_UNINITIALIZED,
 	CA_DISCONNECTED, 	// not talking to a server
 	CA_CONNECTING,		// sending request packets to the server
@@ -2587,7 +2587,8 @@ typedef enum {
 	CA_PRIMED,			// got gamestate, waiting for first frame
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
-} connstate_t;
+};
+using enum connstate_t;
 
 typedef struct SSkinGoreData_s
 {
@@ -2758,14 +2759,15 @@ typedef memtag memtag_t;
 
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...
 //
-typedef enum
+enum class ForceReload_e
 {
 	eForceReload_NOTHING,
 	eForceReload_BSP,
 	eForceReload_MODELS,
 	eForceReload_ALL
 
-} ForceReload_e;
+};
+using enum ForceReload_e;
 
 bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte );
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte );

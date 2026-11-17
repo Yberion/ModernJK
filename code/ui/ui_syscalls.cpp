@@ -69,7 +69,7 @@ void	trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs )
 	ui.R_ModelBounds(model, mins, maxs);
 }
 
-void trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum )
+void trap_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum )
 {
 //	syscall( UI_S_STARTLOCALSOUND, sfx, channelNum );
 	S_StartLocalSound( sfx, channelNum );

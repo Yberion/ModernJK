@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __BSTATE_H__
 
 //bstate.h
-typedef enum //# bState_e
+enum class bState_t //# bState_e
 {//These take over only if script allows them to be autonomous
 	BS_DEFAULT = 0,//# default behavior for that NPC
 	BS_ADVANCE_FIGHT,//# Advance to captureGoal and shoot enemies if you can
@@ -46,6 +46,7 @@ typedef enum //# bState_e
 	BS_HUNT_AND_KILL,
 	BS_FLEE,//# Run away!
 	NUM_BSTATES
-} bState_t;
+};
+using enum bState_t;
 
 #endif //#ifndef __BSTATE_H__

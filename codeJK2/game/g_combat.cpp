@@ -382,7 +382,7 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
 {
 	if ( !ent1->client || !ent2->client )
 	{
-		if ( ent1->noDamageTeam )
+		if ( ent1->noDamageTeam != TEAM_FREE )
 		{
 			if ( ent2->client && ent2->client->playerTeam == ent1->noDamageTeam )
 			{
