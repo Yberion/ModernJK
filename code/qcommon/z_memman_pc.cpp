@@ -920,7 +920,7 @@ void Com_InitZoneMemory( void )
 
 void Com_InitZoneMemoryVars( void)
 {
-	com_validateZone = Cvar_Get("com_validateZone", "0", 0);
+	com_validateZone = Cvar_Get("com_validateZone", "0", CVAR_NONE);
 
 	Cmd_AddCommand("zone_stats",	Z_Stats_f);
 	Cmd_AddCommand("zone_details",	Z_Details_f);

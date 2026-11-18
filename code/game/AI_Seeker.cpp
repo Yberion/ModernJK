@@ -59,9 +59,9 @@ void NPC_Seeker_Precache(void)
 //------------------------------------
 void NPC_Seeker_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod,hitLocation_t hitLoc )
 {
-	if ( !(self->svFlags & SVF_CUSTOM_GRAVITY ))
+	if ( !Any( self->svFlags & SVF_CUSTOM_GRAVITY ))
 	{
-		G_Damage( self, nullptr, nullptr, vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
+		G_Damage( self, nullptr, nullptr, vec3_origin, (float*)vec3_origin, 999, DAMAGE_NORMAL, MOD_FALLING );
 	}
 
 	SaveNPCGlobals();
@@ -350,11 +350,11 @@ void Seeker_Ranged( bool visible, bool advance )
 	//		NPC->client->ps.gravity = 900;
 	//		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
 	//		NPC->client->ps.velocity[2] += 16;
-			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
+			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
 		}
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Seeker_Hunt( visible, advance );
 	}
@@ -379,7 +379,7 @@ void Seeker_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Seeker_Hunt( visible, advance );
 			return;
@@ -520,7 +520,7 @@ void NPC_BSSeeker_Default( void )
 		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 		{
 			// cameras make me commit suicide....
-			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
+			G_Damage( NPC, NPC, NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
 		}
 	}
 

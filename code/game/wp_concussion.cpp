@@ -50,7 +50,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	//Shove us backwards for half a second
 	VectorMA( ent->client->ps.velocity, -200, forwardVec, ent->client->ps.velocity );
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
-	if ( (ent->client->ps.pm_flags&PMF_DUCKED) )
+	if ( Any(ent->client->ps.pm_flags&PMF_DUCKED) )
 	{//hunkered down
 		ent->client->ps.pm_time = 100;
 	}
@@ -106,7 +106,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 		//gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
 		gi.trace( &tr, start, shot_mins, shot_maxs, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
 
-		if ( tr.surfaceFlags & SURF_NOIMPACT )
+		if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
 		{
 			render_impact = false;
 		}
@@ -162,7 +162,7 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 					}
 
 					hitLocation_t hitLoc = G_GetHitLocFromTrace( &tr, MOD_CONC_ALT );
-					bool noKnockBack = ((traceEnt->flags&FL_NO_KNOCKBACK) != 0);//will be set if they die, I want to know if it was on *before* they died
+					bool noKnockBack = Any( traceEnt->flags & FL_NO_KNOCKBACK );//will be set if they die, I want to know if it was on *before* they died
 					if ( traceEnt && traceEnt->client && traceEnt->client->NPC_class == CLASS_GALAKMECH )
 					{//hehe
 						G_Damage( traceEnt, ent, ent, forwardVec, tr.endpos, 10, DAMAGE_NO_KNOCKBACK|DAMAGE_NO_HIT_LOC, MOD_CONC_ALT, hitLoc );

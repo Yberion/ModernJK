@@ -35,7 +35,7 @@ extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 	extern int PM_AnimLength( int index, animNumber_t anim );
 #endif
 
-extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 extern int BG_GetTime(void);
 extern bool BG_SabersOff( playerState_t *ps );
 
@@ -123,7 +123,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 	if ( (pVeh->m_pPilot /*&& (pilotPS->weapon == WP_NONE || pilotPS->weapon == WP_MELEE )*/ &&
-		(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
+		Any(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
 		/*||
 		(parentPS && parentPS->electrifyTime > curTime && pVeh->m_pVehicleInfo->turboSpeed)*/ //make them go!
 		)
@@ -351,7 +351,7 @@ void AnimateVehicle( Vehicle_t *pVeh )
 void AnimateRiders( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_VS_IDLE;
-	int iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	playerState_t *pilotPS;
 	int curTime;
 
@@ -421,7 +421,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 	else
 	{
 		bool HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
-		bool Attacking	= (HasWeapon && !!(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
+		bool Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
 		bool Flying		= false;
 		bool Crashing	= false;
 		bool Right		= (pVeh->m_ucmd.rightmove>0);
@@ -511,7 +511,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 
 		}
-		else if (Left && pVeh->m_ucmd.buttons&BUTTON_USE)
+		else if (Left && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
 		{// Look To The Left Behind
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			switch(WeaponPose)
@@ -521,7 +521,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			default:				Anim = BOTH_VS_LOOKLEFT;
 			}
 		}
-		else if (Right && pVeh->m_ucmd.buttons&BUTTON_USE)
+		else if (Right && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
 		{// Look To The Right Behind
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			switch(WeaponPose)

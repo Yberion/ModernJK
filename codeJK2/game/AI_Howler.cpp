@@ -224,7 +224,7 @@ void NPC_BSHowler_Default( void )
 	{
 		Howler_Combat();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Howler_Patrol();
 	}

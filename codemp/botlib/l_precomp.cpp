@@ -177,7 +177,7 @@ void QDECL SourceWarning(source_t *source, const char *str, ...)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void PC_PushIndent(source_t *source, int type, int skip)
+void PC_PushIndent(source_t *source, indentFlags_t type, int skip)
 {
 	indent_t *indent;
 
@@ -195,11 +195,11 @@ void PC_PushIndent(source_t *source, int type, int skip)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void PC_PopIndent(source_t *source, int *type, int *skip)
+void PC_PopIndent(source_t *source, indentFlags_t *type, int *skip)
 {
 	indent_t *indent;
 
-	*type = 0;
+	*type = INDENT_NONE;
 	*skip = 0;
 
 	indent = source->indentstack;
@@ -309,7 +309,8 @@ int PC_ReadSourceToken(source_t *source, token_t *token)
 {
 	token_t *t;
 	script_t *script;
-	int type, skip;
+	indentFlags_t type;
+	int skip;
 
 	//if there's no token already available
 	while(!source->tokens)
@@ -1148,7 +1149,7 @@ int PC_Directive_undef(source_t *source)
 	{
 		if (!strcmp(define->name, token.string))
 		{
-			if (define->flags & DEFINE_FIXED)
+			if (Any( define->flags & DEFINE_FIXED ))
 			{
 				SourceWarning(source, "can't undef %s", token.string);
 			} //end if
@@ -1157,7 +1158,7 @@ int PC_Directive_undef(source_t *source)
 				if (lastdefine) lastdefine->hashnext = define->hashnext;
 				else source->definehash[hash] = define->hashnext;
 
-				if ( !(define->flags & DEFINE_GLOBAL ) )
+				if ( !Any( define->flags & DEFINE_GLOBAL ) )
 				{
 					PC_FreeDefine(define);
 				}
@@ -1220,7 +1221,7 @@ int PC_Directive_define(source_t *source)
 #endif //DEFINEHASHING
 	if (define)
 	{
-		if (define->flags & DEFINE_FIXED)
+		if (Any( define->flags & DEFINE_FIXED ))
 		{
 			SourceError(source, "can't redefine %s", token.string);
 			return false;
@@ -1572,7 +1573,7 @@ void PC_AddGlobalDefinesToSource(source_t *source)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_Directive_if_def(source_t *source, int type)
+int PC_Directive_if_def(source_t *source, indentFlags_t type)
 {
 	token_t token;
 	define_t *d;
@@ -1626,10 +1627,11 @@ int PC_Directive_ifndef(source_t *source)
 //============================================================================
 int PC_Directive_else(source_t *source)
 {
-	int type, skip;
+	indentFlags_t type;
+	int skip;
 
 	PC_PopIndent(source, &type, &skip);
-	if (!type)
+	if (!Any( type ))
 	{
 		SourceError(source, "misplaced #else");
 		return false;
@@ -1650,10 +1652,11 @@ int PC_Directive_else(source_t *source)
 //============================================================================
 int PC_Directive_endif(source_t *source)
 {
-	int type, skip;
+	indentFlags_t type;
+	int skip;
 
 	PC_PopIndent(source, &type, &skip);
-	if (!type)
+	if (!Any( type ))
 	{
 		SourceError(source, "misplaced #endif");
 		return false;
@@ -2401,10 +2404,11 @@ int PC_DollarEvaluate(source_t *source, signed long int *intvalue,
 int PC_Directive_elif(source_t *source)
 {
 	signed long int value;
-	int type, skip;
+	indentFlags_t type;
+	int skip;
 
 	PC_PopIndent(source, &type, &skip);
-	if (!type || type == INDENT_ELSE)
+	if (!Any( type ) || type == INDENT_ELSE)
 	{
 		SourceError(source, "misplaced #elif");
 		return false;
@@ -3165,7 +3169,7 @@ void FreeSource(source_t *source)
 		{
 			nextdefine = define->hashnext;
 
-			if ( !(define->flags & DEFINE_GLOBAL) )
+			if ( !Any( define->flags & DEFINE_GLOBAL ) )
 			{
 				PC_FreeDefine(define);
 			}

@@ -238,13 +238,13 @@ static bool VEH_TurretFindEnemies( Vehicle_t *pVeh,
 		if ( target == parent
 			|| !target->takedamage
 			|| target->health <= 0
-			|| ( target->flags & FL_NOTARGET ))
+			|| Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
 		if ( !target->client )
 		{// only attack clients
-			if ( !(target->flags&FL_BBRUSH)//not a breakable brush
+			if ( !Any( target->flags & FL_BBRUSH )//not a breakable brush
 				|| !target->takedamage//is a bbrush, but invincible
 				|| (target->NPC_targetname&&parent->targetname&&Q_stricmp(target->NPC_targetname,parent->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me
 			{
@@ -296,7 +296,7 @@ static bool VEH_TurretFindEnemies( Vehicle_t *pVeh,
 
 		VectorCopy( target->r.currentOrigin, org );
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, parent->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, parent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 		if ( tr.entityNum == target->s.number
 			|| (!tr.allsolid && !tr.startsolid && tr.fraction == 1.0 ) )
@@ -339,7 +339,7 @@ void VEH_TurretObeyPassengerControl( Vehicle_t *pVeh, gentity_t *parent, int tur
 		VectorCopy( passenger->client->ps.viewangles, aimAngles );
 
 		VEH_TurretAim( pVeh, parent, nullptr, turretStats, vehWeapon, turretNum, curMuzzle, aimAngles );
-		if ( (passenger->client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
+		if ( Any(passenger->client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//he's pressing an attack button, so fire!
 			VEH_TurretCheckFire( pVeh, parent, turretStats, vehWeapon, turretNum, curMuzzle );
 		}
@@ -438,7 +438,7 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 					VectorCopy( pVeh->m_vMuzzlePos[curMuzzle], start );
 
 					VectorCopy( turretEnemy->r.currentOrigin, end );
-					trap->Trace( &tr, start, nullptr, nullptr, end, parent->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace( &tr, start, nullptr, nullptr, end, parent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 					if ( tr.entityNum == turretEnemy->s.number
 						|| (!tr.allsolid && !tr.startsolid ) )

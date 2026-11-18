@@ -221,7 +221,7 @@ int GVM_ICARUS_GetSetIDForString( void ) {
 	return ge->ICARUS_GetSetIDForString();
 }
 
-bool GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
+bool GVM_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEnt ) {
 	VMSwap v( gvm );
 
 	return ge->NAV_ClearPathToPoint( entID, pmins, pmaxs, point, clipmask, okToHitEnt );
@@ -233,7 +233,7 @@ bool GVM_NPC_ClearLOS2( int entID, const vec3_t end ) {
 	return ge->NPC_ClearLOS2( entID, end );
 }
 
-int GVM_NAVNEW_ClearPathBetweenPoints( vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask ) {
+int GVM_NAVNEW_ClearPathBetweenPoints( vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask ) {
 	VMSwap v( gvm );
 
 	return ge->NAVNEW_ClearPathBetweenPoints( start, end, mins, maxs, ignore, clipmask );
@@ -288,7 +288,7 @@ int GVM_BG_GetItemIndexByTag( int tag, int type ) {
 siegePers_t sv_siegePersData = {false, {}, 0};
 
 extern float g_svCullDist;
-int CM_ModelContents( clipHandle_t model, int subBSPIndex );
+contentsFlags_t CM_ModelContents( clipHandle_t model, int subBSPIndex );
 int CM_LoadSubBSP( const char *name, bool clientload );
 int CM_FindSubBSP( int modelIndex );
 char *CM_SubBSPEntityString( int index );
@@ -341,7 +341,7 @@ static bool SV_EntityContact( const vec3_t mins, const vec3_t maxs, const shared
 
 	ch = SV_ClipHandleForEntity( gEnt );
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, -1, origin, angles, capsule );
+		ch, CONTENTS_ALL, origin, angles, capsule );
 
 	return trace.startsolid;
 }
@@ -384,7 +384,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
-		//ent->contents = -1;		// we don't know exactly what is in the brushes
+		//ent->contents = CONTENTS_ALL;		// we don't know exactly what is in the brushes
 		h = CM_InlineModel( ent->s.modelindex );
 		ent->r.contents = CM_ModelContents( h, CM_FindSubBSP(ent->s.modelindex) );
 	}
@@ -588,7 +588,7 @@ static bool SV_Nav_Save( const char *filename, int checksum ) {
 	return navigator.Save( filename, checksum );
 }
 
-static int SV_Nav_AddRawPoint( vec3_t point, int flags, int radius ) {
+static int SV_Nav_AddRawPoint( vec3_t point, navNodeFlags_t flags, int radius ) {
 	return navigator.AddRawPoint( point, flags, radius );
 }
 
@@ -612,7 +612,7 @@ static void SV_Nav_ShowPath( int start, int end ) {
 	navigator.ShowPath( start, end );
 }
 
-static int SV_Nav_GetNearestNode( sharedEntity_t *ent, int lastID, int flags, int targetID ) {
+static int SV_Nav_GetNearestNode( sharedEntity_t *ent, int lastID, navNodeFlags_t flags, int targetID ) {
 	return navigator.GetNearestNode( ent, lastID, flags, targetID );
 }
 
@@ -704,7 +704,7 @@ static int SV_Nav_GetBestNodeAltRoute2( int startID, int endID, int rejectID ) {
 	return navigator.GetBestNodeAltRoute( startID, endID, rejectID );
 }
 
-static int SV_Nav_GetBestPathBetweenEnts( sharedEntity_t *ent, sharedEntity_t *goal, int flags ) {
+static int SV_Nav_GetBestPathBetweenEnts( sharedEntity_t *ent, sharedEntity_t *goal, navNodeFlags_t flags ) {
 	return navigator.GetBestPathBetweenEnts( ent, goal, flags );
 }
 
@@ -728,7 +728,7 @@ static void SV_Nav_SetCheckedNode( int wayPoint, int ent, int value ) {
 	navigator.SetCheckedNode( wayPoint, ent, value );
 }
 
-static void SV_Nav_FlagAllNodes( int newFlag ) {
+static void SV_Nav_FlagAllNodes( navNodeFlags_t newFlag ) {
 	navigator.FlagAllNodes( newFlag );
 }
 
@@ -880,11 +880,11 @@ static int SV_BotGetSecondGoal( int goalstate, void *goal ) {
 	return botlib_export->ai.BotGetSecondGoal( goalstate, (bot_goal_s *)goal );
 }
 
-static int SV_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelflags ) {
+static int SV_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags ) {
 	return botlib_export->ai.BotChooseLTGItem( goalstate, origin, inventory, travelflags );
 }
 
-static int SV_BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelflags, void *ltg, float maxtime ) {
+static int SV_BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags, void *ltg, float maxtime ) {
 	return botlib_export->ai.BotChooseNBGItem( goalstate, origin, inventory, travelflags, (bot_goal_s *)ltg, maxtime );
 }
 
@@ -936,11 +936,11 @@ static void SV_BotResetMoveState( int movestate ) {
 	botlib_export->ai.BotResetMoveState( movestate );
 }
 
-static void SV_BotMoveToGoal( void *result, int movestate, void *goal, int travelflags ) {
+static void SV_BotMoveToGoal( void *result, int movestate, void *goal, travelFlags_t travelflags ) {
 	botlib_export->ai.BotMoveToGoal( (bot_moveresult_s *)result, movestate, (bot_goal_s *)goal, travelflags );
 }
 
-static int SV_BotMoveInDirection( int movestate, vec3_t dir, float speed, int type ) {
+static int SV_BotMoveInDirection( int movestate, vec3_t dir, float speed, moveTypeFlags_t type ) {
 	return botlib_export->ai.BotMoveInDirection( movestate, dir, speed, type );
 }
 
@@ -956,7 +956,7 @@ static int SV_BotReachabilityArea( vec3_t origin, int testground ) {
 	return botlib_export->ai.BotReachabilityArea( origin, testground );
 }
 
-static int SV_BotMovementViewTarget( int movestate, void *goal, int travelflags, float lookahead, vec3_t target ) {
+static int SV_BotMovementViewTarget( int movestate, void *goal, travelFlags_t travelflags, float lookahead, vec3_t target ) {
 	return botlib_export->ai.BotMovementViewTarget( movestate, (bot_goal_s *)goal, travelflags, lookahead, target );
 }
 
@@ -1028,7 +1028,7 @@ static void SV_BotRemoveFromAvoidGoals( int goalstate, int number ) {
 	botlib_export->ai.BotRemoveFromAvoidGoals( goalstate, number );
 }
 
-static int SV_BotPredictVisiblePosition( vec3_t origin, int areanum, void *goal, int travelflags, vec3_t target ) {
+static int SV_BotPredictVisiblePosition( vec3_t origin, int areanum, void *goal, travelFlags_t travelflags, vec3_t target ) {
 	return botlib_export->ai.BotPredictVisiblePosition( origin, areanum, (bot_goal_s *)goal, travelflags, target );
 }
 
@@ -1104,7 +1104,7 @@ static int SV_AAS_Initialized( void ) {
 	return botlib_export->aas.AAS_Initialized();
 }
 
-static void SV_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs ) {
+static void SV_AAS_PresenceTypeBoundingBox( presenceFlags_t presencetype, vec3_t mins, vec3_t maxs ) {
 	botlib_export->aas.AAS_PresenceTypeBoundingBox( presencetype, mins, maxs );
 }
 
@@ -1120,7 +1120,7 @@ static int SV_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *poin
 	return botlib_export->aas.AAS_TraceAreas( start, end, areas, points, maxareas );
 }
 
-static int SV_AAS_PointContents( vec3_t point ) {
+static contentsFlags_t SV_AAS_PointContents( vec3_t point ) {
 	return botlib_export->aas.AAS_PointContents( point );
 }
 
@@ -1148,7 +1148,7 @@ static int SV_AAS_AreaReachability( int areanum ) {
 	return botlib_export->aas.AAS_AreaReachability( areanum );
 }
 
-static int SV_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags ) {
+static int SV_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags ) {
 	return botlib_export->aas.AAS_AreaTravelTimeToGoalArea( areanum, origin, goalareanum, travelflags );
 }
 
@@ -1156,15 +1156,15 @@ static int SV_AAS_Swimming( vec3_t origin ) {
 	return botlib_export->aas.AAS_Swimming( origin );
 }
 
-static int SV_AAS_PredictClientMovement( void *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize ) {
+static int SV_AAS_PredictClientMovement( void *move, int entnum, vec3_t origin, presenceFlags_t presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, stopEventFlags_t stopevent, int stopareanum, int visualize ) {
 	return botlib_export->aas.AAS_PredictClientMovement( (aas_clientmove_s *)move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, stopevent, stopareanum, visualize );
 }
 
-static int SV_AAS_AlternativeRouteGoals( vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags, void *altroutegoals, int maxaltroutegoals, int type ) {
+static int SV_AAS_AlternativeRouteGoals( vec3_t start, int startareanum, vec3_t goal, int goalareanum, travelFlags_t travelflags, void *altroutegoals, int maxaltroutegoals, altRouteGoalFlags_t type ) {
 	return botlib_export->aas.AAS_AlternativeRouteGoals( start, startareanum, goal, goalareanum, travelflags, (aas_altroutegoal_s *)altroutegoals, maxaltroutegoals, type );
 }
 
-static int SV_AAS_PredictRoute( void *route, int areanum, vec3_t origin, int goalareanum, int travelflags, int maxareas, int maxtime, int stopevent, int stopcontents, int stoptfl, int stopareanum ) {
+static int SV_AAS_PredictRoute( void *route, int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags, int maxareas, int maxtime, routeStopEventFlags_t stopevent, areaContentsFlags_t stopcontents, travelFlags_t stoptfl, int stopareanum ) {
 	return botlib_export->aas.AAS_PredictRoute( (aas_predictroute_s *)route, areanum, origin, goalareanum, travelflags, maxareas, maxtime, stopevent, stopcontents, stoptfl, stopareanum );
 }
 
@@ -1184,7 +1184,7 @@ static void SV_EA_Command( int client, char *command ) {
 	botlib_export->ea.EA_Command( client, command );
 }
 
-static void SV_EA_Action( int client, int action ) {
+static void SV_EA_Action( int client, actionFlags_t action ) {
 	botlib_export->ea.EA_Action( client, action );
 }
 
@@ -1368,17 +1368,17 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
 
-static bool SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
+static bool SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAnim( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime );
 }
 
-static bool SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
+static bool SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex ) {
 	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetBoneAnim( g2, modelIndex, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList );
@@ -1454,7 +1454,7 @@ static bool SV_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const c
 	return re->G2API_SetRootSurface( *((CGhoul2Info_v *)ghoul2), modelIndex, surfaceName );
 }
 
-static bool SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
+static bool SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetSurfaceOnOff( *((CGhoul2Info_v *)ghoul2), surfaceName, flags );
 }
@@ -1470,8 +1470,8 @@ static bool SV_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *bo
 	return re->G2API_DoesBoneExist( g2, modelIndex, boneName );
 }
 
-static int SV_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, const char *surfaceName ) {
-	if ( !ghoul2 ) return -1;
+static std::optional<g2SurfaceFlags_t> SV_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, const char *surfaceName ) {
+	if ( !ghoul2 ) return std::nullopt;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetSurfaceRenderStatus( g2, modelIndex, surfaceName );
 }
@@ -1509,7 +1509,7 @@ static void SV_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
 	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.effectorsToTurnOff = params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }

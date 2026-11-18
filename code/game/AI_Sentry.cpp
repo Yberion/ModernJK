@@ -458,7 +458,7 @@ void Sentry_RangedAttack( bool visible, bool advance )
 		}
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Sentry_Hunt( visible, advance );
 	}
@@ -510,7 +510,7 @@ void Sentry_AttackDecision( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Sentry_Hunt( visible, advance );
 			return;
@@ -579,7 +579,7 @@ void NPC_BSSentry_Default( void )
 		// Don't attack if waking up or if no enemy
 		Sentry_AttackDecision();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		NPC_Sentry_Patrol();
 	}

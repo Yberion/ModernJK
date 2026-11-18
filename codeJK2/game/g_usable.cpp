@@ -48,12 +48,12 @@ void func_wait_return_solid( gentity_t *self )
 		self->svFlags &= ~SVF_NOCLIENT;
 		self->s.eFlags &= ~EF_NODRAW;
 		self->e_UseFunc = useF_func_usable_use;
-		self->clipmask = 0;
+		self->clipmask = CONTENTS_NONE;
 		if ( self->target2 && self->target2[0] )
 		{
 			G_UseTargets2( self, self->activator, self->target2 );
 		}
-		if ( self->s.eFlags & EF_ANIM_ONCE )
+		if ( Any( self->s.eFlags & EF_ANIM_ONCE ) )
 		{//Start our anim
 			self->s.frame = 0;
 		}
@@ -64,7 +64,7 @@ void func_wait_return_solid( gentity_t *self )
 	}
 	else
 	{
-		self->clipmask = 0;
+		self->clipmask = CONTENTS_NONE;
 		self->e_ThinkFunc = thinkF_func_wait_return_solid;
 		self->nextthink = level.time + FRAMETIME;
 	}
@@ -85,7 +85,7 @@ bool G_EntIsRemovableUsable( int entNum )
 	gentity_t *ent = &g_entities[entNum];
 	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
 	{
-		if ( !(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
+		if ( !Any(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
 		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
 			return true;
 		}
@@ -107,7 +107,7 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 
 	G_ActivateBehavior( self, BSET_USE );
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{//animate shader when used
 		self->s.frame++;//inc frame
 		if ( self->s.frame > self->endFrame )
@@ -148,8 +148,8 @@ void func_usable_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	else
 	{
 		self->s.solid = 0;
-		self->contents = 0;
-		self->clipmask = 0;
+		self->contents = CONTENTS_NONE;
+		self->clipmask = CONTENTS_NONE;
 		self->svFlags |= SVF_NOCLIENT;
 		self->s.eFlags |= EF_NODRAW;
 		self->count = 0;
@@ -172,7 +172,7 @@ void func_usable_pain(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	GEntity_UseFunc( self, attacker, attacker );
 }
 
-void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc)
+void func_usable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc)
 {
 	self->takedamage = false;
 	GEntity_UseFunc( self, inflictor, attacker );
@@ -213,8 +213,8 @@ void SP_func_usable( gentity_t *self )
 	if (self->spawnflags & 1)
 	{
 		self->s.solid = 0;
-		self->contents = 0;
-		self->clipmask = 0;
+		self->contents = CONTENTS_NONE;
+		self->clipmask = CONTENTS_NONE;
 		self->svFlags |= SVF_NOCLIENT;
 		self->s.eFlags |= EF_NODRAW;
 		self->count = 0;

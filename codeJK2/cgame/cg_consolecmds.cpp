@@ -109,7 +109,7 @@ void CG_ToggleBinoculars( void )
 			return;
 		}
 
-		if ( cg.snap->ps.viewEntity || ( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
+		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
 		{
 			// can't zoom when you have a viewEntity or driving an atst or in an emplaced gun
 			return;
@@ -123,7 +123,7 @@ void CG_ToggleBinoculars( void )
 			// when you have batteries, you can actually zoom in
 			cg_zoomFov = 40.0f;
 		}
-		else if ( cg.overrides.active & CG_OVERRIDE_FOV )
+		else if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 		{
 			cg_zoomFov = cg.overrides.fov;
 		}
@@ -157,7 +157,7 @@ void CG_ToggleLAGoggles( void )
 			return;
 		}
 
-		if ( cg.snap->ps.viewEntity || ( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
+		if ( cg.snap->ps.viewEntity || Any( cg_entities[cg.snap->ps.clientNum].currentState.eFlags & ( EF_LOCKED_TO_WEAPON | EF_IN_ATST )))
 		{
 			// can't zoom when you have a viewEntity or driving an atst or in an emplaced gun
 			return;
@@ -165,7 +165,7 @@ void CG_ToggleLAGoggles( void )
 
 		cg.zoomMode = 3;
 		cg.zoomLocked = false;
-		if ( cg.overrides.active & CG_OVERRIDE_FOV )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 		{
 			cg_zoomFov = cg.overrides.fov;
 		}

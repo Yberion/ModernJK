@@ -56,7 +56,7 @@ void NPC_Interrogator_Precache(gentity_t *self)
 Interrogator_die
 -------------------------
 */
-void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	self->client->ps.velocity[2] = -100;
 	/*
@@ -77,7 +77,7 @@ void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	}
 	//self->takedamage = false;
 	//self->client->ps.eFlags |= EF_NODRAW;
-	//self->contents = 0;
+	//self->contents = CONTENTS_NONE;
 	return;
 }
 
@@ -382,7 +382,7 @@ void Interrogator_Melee( bool visible, bool advance )
 		}
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}
@@ -425,7 +425,7 @@ void Interrogator_Attack( void )
 	{
 		advance = true;
 	}
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}

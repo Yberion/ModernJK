@@ -45,7 +45,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_USERMOVE				400
 #define MAX_COMMANDARGUMENTS		10
-#define ACTION_JUMPEDLASTFRAME		0x0800000//128
 
 bot_input_t *botinputs;
 
@@ -253,7 +252,7 @@ void EA_Jump(int client)
 
 	bi = &botinputs[client];
 
-	if (bi->actionflags & ACTION_JUMPEDLASTFRAME)
+	if (Any( bi->actionflags & ACTION_JUMPEDLASTFRAME ))
 	{
 		bi->actionflags &= ~ACTION_JUMP;
 	} //end if
@@ -274,7 +273,7 @@ void EA_DelayedJump(int client)
 
 	bi = &botinputs[client];
 
-	if (bi->actionflags & ACTION_JUMPEDLASTFRAME)
+	if (Any( bi->actionflags & ACTION_JUMPEDLASTFRAME ))
 	{
 		bi->actionflags &= ~ACTION_DELAYEDJUMP;
 	} //end if
@@ -317,7 +316,7 @@ void EA_Walk(int client)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void EA_Action(int client, int action)
+void EA_Action(int client, actionFlags_t action)
 {
 	bot_input_t *bi;
 
@@ -481,8 +480,8 @@ void EA_ResetInput(int client)
 	bi->thinktime = 0;
 	VectorClear(bi->dir);
 	bi->speed = 0;
-	jumped = bi->actionflags & ACTION_JUMP;
-	bi->actionflags = 0;
+	jumped = Any( bi->actionflags & ACTION_JUMP );
+	bi->actionflags = ACTION_NONE;
 	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
 } //end of the function EA_ResetInput
 //===========================================================================

@@ -510,12 +510,18 @@ struct Muzzle
 #define	SHIPSURF_DAMAGE_LEFT_HEAVY		8
 
 //generic part bits
-#define SHIPSURF_BROKEN_A	(1<<0) //gear 1
-#define SHIPSURF_BROKEN_B	(1<<1) //gear 1
-#define SHIPSURF_BROKEN_C	(1<<2) //wing 1
-#define SHIPSURF_BROKEN_D	(1<<3) //wing 2
-#define SHIPSURF_BROKEN_E	(1<<4) //wing 3
-#define SHIPSURF_BROKEN_F	(1<<5) //wing 4
+enum class shipSurfaceFlags_t
+{
+	SHIPSURF_BROKEN_NONE = 0,
+	SHIPSURF_BROKEN_A	= (1<<0), //gear 1
+	SHIPSURF_BROKEN_B	= (1<<1), //gear 1
+	SHIPSURF_BROKEN_C	= (1<<2), //wing 1
+	SHIPSURF_BROKEN_D	= (1<<3), //wing 2
+	SHIPSURF_BROKEN_E	= (1<<4), //wing 3
+	SHIPSURF_BROKEN_F	= (1<<5), //wing 4
+};
+using enum shipSurfaceFlags_t;
+template <> inline constexpr bool enableEnumFlags<shipSurfaceFlags_t> = true;
 
 typedef struct vehWeaponStatus_s
 {
@@ -671,7 +677,7 @@ struct Vehicle_t
 	trace_t m_LandTrace;
 
 	//bitflag of surfaces that have broken off
-	int			m_iRemovedSurfaces;
+	shipSurfaceFlags_t			m_iRemovedSurfaces;
 
 	// the last time this vehicle fired a turbo burst
 	int			m_iTurboTime;

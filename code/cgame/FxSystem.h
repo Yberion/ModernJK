@@ -64,8 +64,8 @@ struct SFxHelper
 	int		GetOriginAxisFromBolt(const centity_t &cent, int modelNum, int boltNum, vec3_t /*out*/origin, vec3_t /*out*/*axis);
 
 	// Physics/collision
-	void	Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags );
-	void	G2Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags );
+	void	Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, contentsFlags_t flags );
+	void	G2Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, contentsFlags_t flags );
 
 	void	AddFxToScene( refEntity_t *ent );
 	void	AddLightToScene( vec3_t org, float radius, float red, float green, float blue );

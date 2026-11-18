@@ -590,7 +590,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			DEBUGNAME("EV_DISINTEGRATION");
 			bool makeNotSolid = false;
 			const powerup_t disintPW = static_cast<powerup_t>( es->eventParm );
-			int disintEffect = 0;
+			entityFlags_t disintEffect = EF_NONE;
 			int disintLength = 0;
 			qhandle_t disintSound1 = NULL_HANDLE;
 			qhandle_t disintSound2 = NULL_HANDLE;
@@ -731,7 +731,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		const char	*snd;
 		const int health = es->eventParm;
 
-		if ( cent->gent && cent->gent->NPC && (cent->gent->NPC->aiFlags & NPCAI_DIE_ON_IMPACT) )
+		if ( cent->gent && cent->gent->NPC && Any(cent->gent->NPC->aiFlags & NPCAI_DIE_ON_IMPACT) )
 		{
 			return;
 		}
@@ -764,7 +764,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEATH3:
 		DEBUGNAME("EV_DEATHx");
 		/*
-		if ( cent->gent && cent->gent->NPC && (cent->gent->NPC->aiFlags & NPCAI_DIE_ON_IMPACT) )
+		if ( cent->gent && cent->gent->NPC && Any(cent->gent->NPC->aiFlags & NPCAI_DIE_ON_IMPACT) )
 		{
 			return;
 		}

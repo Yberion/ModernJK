@@ -178,7 +178,7 @@ void CL_MapLoading( void ) {
 	}
 
 	Con_Close();
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( KEYCATCH_NONE );
 
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) )  {
@@ -194,7 +194,7 @@ void CL_MapLoading( void ) {
 		CL_Disconnect();
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
 		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( 0 );
+		Key_SetCatcher( KEYCATCH_NONE );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress);
@@ -744,7 +744,7 @@ void CL_CheckUserinfo( void ) {
 		return;
 	}
 	// send a reliable userinfo update if needed
-	if ( cvar_modifiedFlags & CVAR_USERINFO ) {
+	if ( Any( cvar_modifiedFlags & CVAR_USERINFO ) ) {
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
 		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
 	}
@@ -770,7 +770,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	// load the ref / cgame if needed
 	CL_StartHunkUsers();
 
-	if ( cls.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) & KEYCATCH_UI )
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		if (!CL_CheckPendingCinematic())	// this avoid having the menu flash for one frame before pending cinematics
@@ -1242,21 +1242,21 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
+	cl_noprint = Cvar_Get( "cl_noprint", "0", CVAR_NONE );
 
-	cl_timeout = Cvar_Get ("cl_timeout", "125", 0);
+	cl_timeout = Cvar_Get ("cl_timeout", "125", CVAR_NONE);
 
 	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
 	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
 	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_newClock = Cvar_Get ("cl_newClock", "1", 0);
+	cl_newClock = Cvar_Get ("cl_newClock", "1", CVAR_NONE);
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
 
-	cl_avidemo = Cvar_Get ("cl_avidemo", "0", 0);
-	cl_pano = Cvar_Get ("pano", "0", 0);
+	cl_avidemo = Cvar_Get ("cl_avidemo", "0", CVAR_NONE);
+	cl_pano = Cvar_Get ("pano", "0", CVAR_NONE);
 	cl_panoNumShots= Cvar_Get ("panoNumShots", "10", CVAR_ARCHIVE_ND);
 	cl_skippingcin = Cvar_Get ("skippingCinematic", "0", CVAR_ROM);
-	cl_endcredits = Cvar_Get ("cg_endcredits", "0", 0);
+	cl_endcredits = Cvar_Get ("cg_endcredits", "0", CVAR_NONE);
 
 	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE_ND);
 	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE_ND);
@@ -1269,7 +1269,7 @@ void CL_Init( void ) {
 	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE_ND);
 	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE_ND );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", CVAR_NONE);
 
 	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", CVAR_ARCHIVE_ND);
 	cl_inGameVideo = Cvar_Get ("cl_inGameVideo", "1", CVAR_ARCHIVE_ND);

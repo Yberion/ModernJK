@@ -40,8 +40,8 @@ extern bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum )
 
 
 //for g2 surface routines
-#define TURN_ON				0x00000000
-#define TURN_OFF			0x00000100
+constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 
 const char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
@@ -605,7 +605,7 @@ retryModel:
 					break;
 				}
 				//turn off this surf
-				trap->G2API_SetSurfaceOnOff( ci->ghoul2Model, token, 0x00000002/*G2SURFACEFLAG_OFF*/ );
+				trap->G2API_SetSurfaceOnOff( ci->ghoul2Model, token, G2SURFACEFLAG_OFF );
 			}
 		}
 		if ( surfOn[0] )
@@ -620,7 +620,7 @@ retryModel:
 					break;
 				}
 				//turn on this surf
-				trap->G2API_SetSurfaceOnOff( ci->ghoul2Model, token, 0 );
+				trap->G2API_SetSurfaceOnOff( ci->ghoul2Model, token, G2SURFACEFLAG_NONE );
 			}
 		}
 	}
@@ -1201,7 +1201,7 @@ static void CG_InitG2SaberData(int saberNum, clientInfo_t *ci)
 			trap->G2API_SetSkin(ci->ghoul2Weapons[saberNum], 0, ci->saber[saberNum].skin, ci->saber[saberNum].skin);
 		}
 
-		if (ci->saber[saberNum].saberFlags & SFL_BOLT_TO_WRIST)
+		if (Any( ci->saber[saberNum].saberFlags & SFL_BOLT_TO_WRIST ))
 		{
 			trap->G2API_SetBoltInfo(ci->ghoul2Weapons[saberNum], 0, 3+saberNum);
 		}
@@ -1896,7 +1896,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 
 		if (anim)
 		{
-			int flags = BONE_ANIM_OVERRIDE_FREEZE;
+			boneFlags_t flags = BONE_ANIM_OVERRIDE_FREEZE;
 			int firstFrame = anim->firstFrame;
 			int setFrame = -1;
 			float animSpeed = 50.0f / anim->frameLerp;
@@ -1921,7 +1921,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 
 		if (anim)
 		{
-			int flags = BONE_ANIM_OVERRIDE_FREEZE;
+			boneFlags_t flags = BONE_ANIM_OVERRIDE_FREEZE;
 			int firstFrame = anim->firstFrame;
 			int setFrame = -1;
 			float animSpeed = 50.0f / anim->frameLerp;
@@ -2065,7 +2065,7 @@ static void _PlayerFootStep( const vec3_t origin,
 	}
 
 	//check for foot-steppable surface flag
-	switch( trace.surfaceFlags & MATERIAL_MASK )
+	switch( SURF_Material( trace.surfaceFlags ) )
 	{
 		case MATERIAL_MUD:
 			bMark = true;
@@ -2823,7 +2823,7 @@ bool PM_RunningAnim( animNumber_t anim );
 static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, animNumber_t newAnimation, float animSpeedMult, bool torsoOnly, bool flipState) {
 	animation_t	*anim;
 	float animSpeed;
-	int	  flags=BONE_ANIM_OVERRIDE_FREEZE;
+	boneFlags_t	  flags=BONE_ANIM_OVERRIDE_FREEZE;
 	animNumber_t oldAnim;
 	int blendTime = 100;
 	float oldSpeed = lf->animationSpeed;
@@ -2906,7 +2906,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			flags &= ~BONE_ANIM_BLEND;
 		}
 
-		if (flags & BONE_ANIM_BLEND)
+		if (Any( flags & BONE_ANIM_BLEND ))
 		{
 			if (BG_FlippingAnim(newAnimation))
 			{
@@ -3250,7 +3250,7 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 	{
 		if (lf->lastForcedFrame != cent->currentState.forceFrame)
 		{
-			int flags = BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND;
+			boneFlags_t flags = BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND;
 			float animSpeed = 1.0f;
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
@@ -3401,7 +3401,7 @@ typedef struct boneAngleParms_s {
 	int modelIndex;
 	char *boneName;
 	vec3_t angles;
-	int flags;
+	boneFlags_t flags;
 	orientations_t up;
 	orientations_t right;
 	orientations_t forward;
@@ -3415,7 +3415,7 @@ typedef struct boneAngleParms_s {
 boneAngleParms_t cgBoneAnglePostSet;
 #endif
 
-void CG_G2SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags,
+void CG_G2SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags,
 								const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList,
 								int blendTime , int currentTime )
 { //we want to hold off on setting the bone angles until the end of the frame, because every time we set
@@ -3458,7 +3458,7 @@ But I don't want to slow it down..
 ================
 */
 void	CG_Rag_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 int skipNumber, int mask ) {
+					 int skipNumber, contentsFlags_t mask ) {
 	trap->CM_Trace ( result, start, end, mins, maxs, 0, mask, 0);
 	result->entityNum = result->fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 }
@@ -3556,7 +3556,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 
 	if (!cent->isRagging)
 	{ //If we're not in a ragdoll state, perform the checks.
-		if (cent->currentState.eFlags & EF_RAG)
+		if (Any( cent->currentState.eFlags & EF_RAG ))
 		{ //want to go into it no matter what then
 			inSomething = true;
 		}
@@ -3704,7 +3704,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 		{
 			float animSpeed = 0;
 			int blendTime = 600;
-			int flags = 0;//BONE_ANIM_OVERRIDE_FREEZE;
+			boneFlags_t flags = BONE_NONE;//BONE_ANIM_OVERRIDE_FREEZE;
 
 			if ((*bgAllAnims[cent->localAnimIndex].anims)[ragAnim].loopFrames != -1)
 			{
@@ -3727,7 +3727,7 @@ bool CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 		{
 			float currentFrame;
 			int startFrame, endFrame;
-			int flags;
+			boneFlags_t flags;
 			float animSpeed;
 
 			if (trap->G2API_GetBoneAnim(cent->ghoul2, "model_root", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0))
@@ -3968,7 +3968,7 @@ void CG_G2ServerBoneAngles(centity_t *cent)
 {
 	int i = 0;
 	int bone = cent->currentState.boneIndex1;
-	int flags;
+	boneFlags_t flags;
 	orientations_t up, right, forward;
 	vec3_t boneAngles;
 
@@ -4068,7 +4068,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, animNumber_t anim )
 {
 	const int blendTime = 50;
 	const animSet_t &animations = *bgAllAnims[cent->localAnimIndex].anims;
-	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
+	boneFlags_t	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
 //	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (timescale.value)?(1.0/timescale.value):1.0;
@@ -4140,7 +4140,7 @@ bool CG_G2PlayerHeadAnims( centity_t *cent )
 		return false;
 	}
 
-	if ( cent->currentState.eFlags & EF_DEAD )
+	if ( Any( cent->currentState.eFlags & EF_DEAD ) )
 	{//Dead people close their eyes and don't make faces!
 		anim = FACE_DEAD;
 		ci->facial_blink = -1;
@@ -4248,7 +4248,7 @@ static void CG_G2PlayerAngles( centity_t *cent, matrix3_t legs, vec3_t legsAngle
 	clientInfo_t *ci;
 
 	//rww - now do ragdoll stuff
-	if ((cent->currentState.eFlags & EF_DEAD) || (cent->currentState.eFlags & EF_RAG))
+	if (Any(cent->currentState.eFlags & EF_DEAD) || Any(cent->currentState.eFlags & EF_RAG))
 	{
 		vec3_t forcedAngles;
 
@@ -4548,13 +4548,13 @@ Float a sprite over the player's head
 ===============
 */
 static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
-	int				rf;
+	renderFxFlags_t	rf;
 	refEntity_t		ent;
 
 	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
 		rf = RF_THIRD_PERSON;		// only show in mirrors
 	} else {
-		rf = 0;
+		rf = RF_NONE;
 	}
 
 	memset( &ent, 0, sizeof( ent ) );
@@ -4582,13 +4582,13 @@ Same as above but allows custom RGBA values
 */
 #if 0
 static void CG_PlayerFloatSpriteRGBA( centity_t *cent, qhandle_t shader, vec4_t rgba ) {
-	int				rf;
+	renderFxFlags_t	rf;
 	refEntity_t		ent;
 
 	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
 		rf = RF_THIRD_PERSON;		// only show in mirrors
 	} else {
-		rf = 0;
+		rf = RF_NONE;
 	}
 
 	memset( &ent, 0, sizeof( ent ) );
@@ -4627,7 +4627,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		return; //this entity is mind-tricking the current client, so don't render it
 	}
 
-	if ( cent->currentState.eFlags & EF_CONNECTION ) {
+	if ( Any( cent->currentState.eFlags & EF_CONNECTION ) ) {
 		CG_PlayerFloatSprite( cent, cgs.media.connectionShader );
 		return;
 	}
@@ -4637,7 +4637,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		CG_PlayerFloatSprite( cent, cgs.media.vchatShader );
 	}
 	else if ( cent->currentState.eType != ET_NPC && //don't draw talk balloons on NPCs
-		(cent->currentState.eFlags & EF_TALK) )
+		Any(cent->currentState.eFlags & EF_TALK) )
 	{
 		CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
 		return;
@@ -4672,7 +4672,7 @@ static bool CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 		return false;
 	}
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		return false;
 	}
@@ -4762,7 +4762,7 @@ Draw a mark at the water surface
 static void CG_PlayerSplash( centity_t *cent ) {
 	vec3_t		start, end;
 	trace_t		trace;
-	int			contents;
+	contentsFlags_t	contents;
 	polyVert_t	verts[4];
 
 	if ( !cg_shadows.integer ) {
@@ -4775,7 +4775,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	// if the feet aren't in liquid, don't make a mark
 	// this won't handle moving water brushes, but they wouldn't draw right anyway...
 	contents = CG_PointContents( end, 0 );
-	if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
+	if ( !Any( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
 		return;
 	}
 
@@ -4784,7 +4784,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 
 	// if the head isn't out of liquid, don't make a mark
 	contents = CG_PointContents( start, 0 );
-	if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+	if ( Any( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
 		return;
 	}
 
@@ -5156,7 +5156,7 @@ void CG_DrawPlayerShield(centity_t *cent, vec3_t origin)
 	float		scale;
 
 	// Don't draw the shield when the player is dead.
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		return;
 	}
@@ -5290,7 +5290,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 		return;
 	}
 
-	if ( (saber->saberFlags2&SFL2_NO_DLIGHT) )
+	if ( Any( saber->saberFlags2 & SFL2_NO_DLIGHT ) )
 	{//no dlight!
 		return;
 	}
@@ -5364,7 +5364,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 	}
 }
 
-void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, bool doLight )
+void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, renderFxFlags_t rfx, bool doLight )
 {
 	vec3_t		mid;
 	qhandle_t	blade = 0, glow = 0;
@@ -5633,7 +5633,7 @@ void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			apArgs.motionDelay = 0;
 			apArgs.killTime = cg_saberDynamicMarkTime.integer;
 			apArgs.shader = cgs.media.rivetMarkShader;
-			apArgs.flags = 0x08000000|0x00000004;
+			apArgs.flags = FX_USE_ALPHA|FX_ALPHA_NONLINEAR;
 
 			trap->FX_AddPoly(&apArgs);
 
@@ -6036,11 +6036,10 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 }
 
 #define SABER_TRAIL_TIME	40.0f
-#define FX_USE_ALPHA		0x08000000
 
 bool BG_SuperBreakWinAnim( animNumber_t anim );
 
-void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, int saberNum, int bladeNum, vec3_t origin, vec3_t angles, bool fromSaber, bool dontDraw)
+void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, renderFxFlags_t renderfx, int modelIndex, int saberNum, int bladeNum, vec3_t origin, vec3_t angles, bool fromSaber, bool dontDraw)
 {
 	vec3_t	org_, end, v,
 			axis_[3] = {{0,0,0}, {0,0,0}, {0,0,0}};	// shut the compiler up
@@ -6223,12 +6222,12 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 					trDir[1] = 1;
 				}
 
-				if ( (client->saber[saberNum].saberFlags2&SFL2_NO_WALL_MARKS) )
+				if ( Any( client->saber[saberNum].saberFlags2 & SFL2_NO_WALL_MARKS ) )
 				{//don't actually draw the marks/impact effects
 				}
 				else
 				{
-					if (!(trace.surfaceFlags & SURF_NOIMPACT) ) // never spark on sky
+					if (!Any( trace.surfaceFlags & SURF_NOIMPACT ) ) // never spark on sky
 					{
 						trap->FX_PlayEffectID( cgs.effects.mSparks, trace.endpos, trDir, -1, -1, false );
 					}
@@ -6240,7 +6239,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 				VectorCopy(trace.endpos, end);
 
-				if ( (client->saber[saberNum].saberFlags2&SFL2_NO_WALL_MARKS) )
+				if ( Any( client->saber[saberNum].saberFlags2 & SFL2_NO_WALL_MARKS ) )
 				{//don't actually draw the marks
 				}
 				else
@@ -6249,7 +6248,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 					//....come up with something better..
 					if ( client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] )
 					{
-						if ( trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.eType == ET_TERRAIN || (cg_entities[trace.entityNum].currentState.eFlags & EF_PERMANENT) )
+						if ( trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.eType == ET_TERRAIN || Any(cg_entities[trace.entityNum].currentState.eFlags & EF_PERMANENT) )
 						{//only put marks on architecture
 							// Let's do some cool burn/glowing mark bits!!!
 							CG_CreateSaberMarks( client->saber[saberNum].blade[bladeNum].trail.oldPos[i], trace.endpos, trace.plane.normal );
@@ -6526,10 +6525,10 @@ JustDoIt:
 		return;
 	}
 
-	if ( (client->saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
+	if ( Any( client->saber[saberNum].saberFlags2 & SFL2_NO_BLADE ) )
 	{//don't actually draw the blade at all
 		if ( client->saber[saberNum].numBlades < 3
-			&& !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT) )
+			&& !Any( client->saber[saberNum].saberFlags2 & SFL2_NO_DLIGHT ) )
 		{//hmm, but still add the dlight
 			CG_DoSaberLight( &client->saber[saberNum] );
 		}
@@ -6540,7 +6539,7 @@ JustDoIt:
 	//CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
 	//	scolor, renderfx, (saberNum==0&&bladeNum==0) );
 	CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
-		scolor, renderfx, (client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
+		scolor, renderfx, (client->saber[saberNum].numBlades < 3 && !Any( client->saber[saberNum].saberFlags2 & SFL2_NO_DLIGHT )) );
 }
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
@@ -6591,7 +6590,7 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 	vec3_t viewDir;
 
 	// Don't draw the shield when the player is dead.
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		return;
 	}
@@ -6755,7 +6754,7 @@ void CG_AddLightningBeam(vec3_t start, vec3_t end)
 	b.rgbParm = 0.0f;
 	b.killTime = 50;
 	b.shader = trap->R_RegisterShader( "gfx/misc/electric2" );
-	b.flags = 0x00000001; //FX_ALPHA_LINEAR
+	b.flags = FX_ALPHA_LINEAR;
 
 	trap->FX_AddBezier(&b);
 }
@@ -6831,7 +6830,7 @@ void CG_DrawNoForceSphere(centity_t *cent, vec3_t origin, float scale, int shade
 	refEntity_t ent;
 
 	// Don't draw the shield when the player is dead.
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		return;
 	}
@@ -7478,8 +7477,8 @@ bool CG_VehicleShouldDrawShields( centity_t *vehCent )
 /*
 extern	vmCvar_t		cg_showVehBounds;
 extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, vec3_t mins, vec3_t maxs,
-										int clientNum, int tracemask,
-										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask)); // bg_pmove.cpp
+										int clientNum, contentsFlags_t tracemask,
+										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask)); // bg_pmove.cpp
 */
 bool CG_VehicleAttachDroidUnit( centity_t *droidCent, refEntity_t *legs )
 {
@@ -7562,7 +7561,7 @@ void CG_G2Animated( centity_t *cent )
 	/*
 	if (cent->currentState.weapon &&
 		!trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1) &&
-		!(cent->currentState.eFlags & EF_DEAD))
+		!Any(cent->currentState.eFlags & EF_DEAD))
 	{ //if the server says we have a weapon and we haven't copied one onto ourselves yet, then do so.
 		trap->G2API_CopySpecificGhoul2Model(g2WeaponInstances[cent->currentState.weapon], 0, cent->ghoul2, 1);
 
@@ -7573,12 +7572,12 @@ void CG_G2Animated( centity_t *cent )
 	}
 	*/
 
-	if (cent->torsoBolt && !(cent->currentState.eFlags & EF_DEAD))
+	if (cent->torsoBolt && !Any(cent->currentState.eFlags & EF_DEAD))
 	{ //he's alive and has a limb missing still, reattach it and reset the weapon
 		CG_ReattachLimb(cent);
 	}
 
-	if (((cent->currentState.eFlags & EF_DEAD) || (cent->currentState.eFlags & EF_RAG)) && !cent->localAnimIndex)
+	if ((Any(cent->currentState.eFlags & EF_DEAD) || Any(cent->currentState.eFlags & EF_RAG)) && !cent->localAnimIndex)
 	{
 		vec3_t forcedAngles;
 
@@ -7686,7 +7685,7 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 
 	if (anim)
 	{
-		int flags = BONE_ANIM_OVERRIDE_FREEZE;
+		boneFlags_t flags = BONE_ANIM_OVERRIDE_FREEZE;
 		int firstFrame = anim->firstFrame;
 		int setFrame = -1;
 		float animSpeed = 50.0f / anim->frameLerp;
@@ -7710,7 +7709,7 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 
 	if (anim)
 	{
-		int flags = BONE_ANIM_OVERRIDE_FREEZE;
+		boneFlags_t flags = BONE_ANIM_OVERRIDE_FREEZE;
 		int firstFrame = anim->firstFrame;
 		int setFrame = -1;
 		float animSpeed = 50.0f / anim->frameLerp;
@@ -7911,7 +7910,7 @@ static void CG_ForceElectrocution( centity_t *cent, const vec3_t origin, vec3_t 
 		p.chaos = 5.0f;
 		p.killTime = (Q_flrand(0.0f, 1.0f) * 50 + 100);
 		p.shader = shader;
-		p.flags = (0x00000001 | 0x00000100 | 0x02000000 | 0x04000000 | 0x01000000);
+		p.flags = (FX_ALPHA_LINEAR | FX_SIZE_LINEAR | FX_BRANCH | FX_GROW | FX_TAPER);
 
 		trap->FX_AddElectricity(&p);
 
@@ -8034,7 +8033,7 @@ static QINLINE void CG_VehicleEffects(centity_t *cent)
 	pVehNPC = cent->m_pVehicle;
 
 	if ( cent->currentState.clientNum == cg.predictedPlayerState.m_iVehicleNum//my vehicle
-		&& (cent->currentState.eFlags2&EF2_HYPERSPACE) )//hyperspacing
+		&& Any(cent->currentState.eFlags2&EF2_HYPERSPACE) )//hyperspacing
 	{//in hyperspace!
 		if ( cg.predictedVehicleState.hyperSpaceTime
 			&& (cg.time-cg.predictedVehicleState.hyperSpaceTime) < HYPERSPACE_TIME )
@@ -8107,10 +8106,10 @@ static QINLINE void CG_VehicleEffects(centity_t *cent)
 			{
 				if (bgToggleableSurfaceDebris[i] > 1)
 				{ //this is decidedly a destroyable surface, let's check its status
-					int surfTest = trap->G2API_GetSurfaceRenderStatus(cent->ghoul2, 0, bgToggleableSurfaces[i]);
+					const std::optional<g2SurfaceFlags_t> surfTest = trap->G2API_GetSurfaceRenderStatus(cent->ghoul2, 0, bgToggleableSurfaces[i]);
 
-					if ( surfTest != -1
-						&& (surfTest&TURN_OFF) )
+					if ( surfTest
+						&& Any( *surfTest & TURN_OFF ) )
 					{ //it exists, but it's off...
 						surfDmg = true;
 
@@ -8155,7 +8154,7 @@ static QINLINE void CG_VehicleEffects(centity_t *cent)
 				//EXHAUST FX
 				//=====================================================================
 				//do exhaust
-				if ( (cent->currentState.eFlags&EF_JETPACK_ACTIVE) )
+				if ( Any(cent->currentState.eFlags&EF_JETPACK_ACTIVE) )
 				{//cheap way of telling us the vehicle is in "turbo" mode
 					doExhaust = (pVehNPC->m_pVehicleInfo->iTurboFX!=0);
 				}
@@ -8191,7 +8190,7 @@ static QINLINE void CG_VehicleEffects(centity_t *cent)
 							}
 						}
 
-						if ( (cent->currentState.eFlags&EF_JETPACK_ACTIVE) //cheap way of telling us the vehicle is in "turbo" mode
+						if ( Any(cent->currentState.eFlags&EF_JETPACK_ACTIVE) //cheap way of telling us the vehicle is in "turbo" mode
 							&& pVehNPC->m_pVehicleInfo->iTurboFX )//they have a valid turbo exhaust effect to play
 						{
 							fx = pVehNPC->m_pVehicleInfo->iTurboFX;
@@ -8260,7 +8259,7 @@ static QINLINE void CG_VehicleEffects(centity_t *cent)
 			}
 			//FIXME armor needs to be sent over network
 			{
-				if ( (cent->currentState.eFlags&EF_DEAD) )
+				if ( Any(cent->currentState.eFlags&EF_DEAD) )
 				{//just plain dead, use flames
 					vec3_t	up ={0,0,1};
 					vec3_t boltOrg;
@@ -8375,7 +8374,7 @@ extern vec3_t	cameraCurLoc;
 void CG_CheckThirdPersonAlpha( centity_t *cent, refEntity_t *legs )
 {
 	float alpha = 1.0f;
-	int	setFlags = 0;
+	renderFxFlags_t	setFlags = RF_NONE;
 
 	if ( cent->m_pVehicle )
 	{//a vehicle
@@ -8459,7 +8458,7 @@ void CG_Player( centity_t *cent ) {
 	refEntity_t		legs;
 	refEntity_t		torso;
 	int				clientNum;
-	int				renderfx;
+	renderFxFlags_t	renderfx;
 	bool		shadow = false;
 	float			shadowPlane = 0;
 	vec3_t			rootAngles;
@@ -8505,7 +8504,7 @@ void CG_Player( centity_t *cent ) {
 	}
 
 	if (cent->currentState.heldByClient && (cent->currentState.groundEntityNum >= ENTITYNUM_WORLD || cent->currentState.eType == ET_TERRAIN) &&
-		!(cent->currentState.eFlags2 & EF2_HYPERSPACE) && cg.predictedPlayerState.m_iVehicleNum != cent->currentState.number)
+		!Any(cent->currentState.eFlags2 & EF2_HYPERSPACE) && cg.predictedPlayerState.m_iVehicleNum != cent->currentState.number)
 	{ //always smooth when being thrown
 		vec3_t			posDif;
 		float			smoothFactor;
@@ -8755,7 +8754,7 @@ void CG_Player( centity_t *cent ) {
 
 	CG_VehicleEffects(cent);
 
-	if ((cent->currentState.eFlags & EF_JETPACK) && !(cent->currentState.eFlags & EF_DEAD) &&
+	if (Any(cent->currentState.eFlags & EF_JETPACK) && !Any(cent->currentState.eFlags & EF_DEAD) &&
 		cg_g2JetpackInstance)
 	{ //should have a jetpack attached
 		//1 is rhand weap, 2 is lhand weap (akimbo sabs), 3 is jetpack
@@ -8764,7 +8763,7 @@ void CG_Player( centity_t *cent ) {
 			trap->G2API_CopySpecificGhoul2Model(cg_g2JetpackInstance, 0, cent->ghoul2, 3);
 		}
 
-		if (cent->currentState.eFlags & EF_JETPACK_ACTIVE)
+		if (Any( cent->currentState.eFlags & EF_JETPACK_ACTIVE ))
 		{
 			mdxaBone_t mat;
 			vec3_t flamePos, flameDir;
@@ -8791,7 +8790,7 @@ void CG_Player( centity_t *cent ) {
 					VectorMA(flamePos, -13.5f, flameDir, flamePos);
 				}
 
-				if (cent->currentState.eFlags & EF_JETPACK_FLAMING)
+				if (Any( cent->currentState.eFlags & EF_JETPACK_FLAMING ))
 				{ //create effects
 					//FIXME: Just one big effect
 					//Play the effect
@@ -8829,12 +8828,12 @@ void CG_Player( centity_t *cent ) {
 		cent->weapon = WP_NONE;
 	}
 
-	if (cent->torsoBolt && !(cent->currentState.eFlags & EF_DEAD))
+	if (cent->torsoBolt && !Any(cent->currentState.eFlags & EF_DEAD))
 	{ //he's alive and has a limb missing still, reattach it and reset the weapon
 		CG_ReattachLimb(cent);
 	}
 
-	if (cent->isRagging && !(cent->currentState.eFlags & EF_DEAD) && !(cent->currentState.eFlags & EF_RAG))
+	if (cent->isRagging && !Any(cent->currentState.eFlags & EF_DEAD) && !Any(cent->currentState.eFlags & EF_RAG))
 	{ //make sure we don't ragdoll ever while alive unless directly told to with eFlags
 		cent->isRagging = false;
 		trap->G2API_SetRagDoll(cent->ghoul2, nullptr); //calling with null parms resets to no ragdoll.
@@ -8852,11 +8851,11 @@ void CG_Player( centity_t *cent ) {
 		cent->trickAlphaTime = cg.time;
 	}
 
-	if (cent->currentState.eFlags & EF_NODRAW)
+	if (Any( cent->currentState.eFlags & EF_NODRAW ))
 	{ //If nodraw, return here
 		return;
 	}
-	else if (cent->currentState.eFlags2 & EF2_SHIP_DEATH)
+	else if (Any( cent->currentState.eFlags2 & EF2_SHIP_DEATH ))
 	{ //died in ship, don't draw, we were "obliterated"
 		return;
 	}
@@ -8910,7 +8909,7 @@ void CG_Player( centity_t *cent ) {
 	}
 
 	// get the player model information
-	renderfx = 0;
+	renderfx = RF_NONE;
 	if ( cent->currentState.number == cg.snap->ps.clientNum) {
 		if (!cg.renderingThirdPerson) {
 #if 0
@@ -8949,8 +8948,8 @@ void CG_Player( centity_t *cent ) {
 	if (cent->ghoul2 &&
 		(cent->currentState.eType != ET_NPC || (cent->currentState.NPC_class != CLASS_VEHICLE&&cent->currentState.NPC_class != CLASS_REMOTE&&cent->currentState.NPC_class != CLASS_SEEKER)) && //don't add weapon models to NPCs that have no bolt for them!
 		cent->ghoul2weapon != CG_G2WeaponInstance(cent, cent->currentState.weapon) &&
-		!(cent->currentState.eFlags & EF_DEAD) && !cent->torsoBolt &&
-		cg.snap && (cent->currentState.number != cg.snap->ps.clientNum || (cg.snap->ps.pm_flags & PMF_FOLLOW)))
+		!Any(cent->currentState.eFlags & EF_DEAD) && !cent->torsoBolt &&
+		cg.snap && (cent->currentState.number != cg.snap->ps.clientNum || Any(cg.snap->ps.pm_flags & PMF_FOLLOW)))
 	{
 		if (ci->team == TEAM_SPECTATOR)
 		{
@@ -9006,7 +9005,7 @@ void CG_Player( centity_t *cent ) {
 			cent->ghoul2weapon = CG_G2WeaponInstance(cent, cent->currentState.weapon);
 		}
 	}
-	else if ((cent->currentState.eFlags & EF_DEAD) || cent->torsoBolt)
+	else if (Any(cent->currentState.eFlags & EF_DEAD) || cent->torsoBolt)
 	{
 		cent->ghoul2weapon = nullptr; //be sure to update after respawning/getting limb regrown
 	}
@@ -9051,7 +9050,7 @@ void CG_Player( centity_t *cent ) {
 		cent->currentState.eType != ET_NPC)
 	{	// If the view is either a spectator or on the same team as this character, show a symbol above their head.
 		if ((PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || PS_Team( cg.snap->ps ) == team) &&
-			!(cent->currentState.eFlags & EF_DEAD))
+			!Any(cent->currentState.eFlags & EF_DEAD))
 		{
 			if (cgs.gametype == GT_SIEGE)
 			{ //check for per-map team shaders
@@ -9096,7 +9095,7 @@ void CG_Player( centity_t *cent ) {
 	{
 		if (PS_Team( cg.predictedPlayerState ) != TEAM_SPECTATOR &&
 			cent->currentState.number < MAX_CLIENTS &&
-			!(cent->currentState.eFlags & EF_DEAD) &&
+			!Any(cent->currentState.eFlags & EF_DEAD) &&
 			ci &&
 			cgs.clientinfo[cg.snap->ps.clientNum].duelTeam == ci->duelTeam)
 		{ //ally in powerduel, so draw the icon
@@ -9104,7 +9103,7 @@ void CG_Player( centity_t *cent ) {
 		}
 		else if (PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR &&
 			cent->currentState.number < MAX_CLIENTS &&
-			!(cent->currentState.eFlags & EF_DEAD) &&
+			!Any(cent->currentState.eFlags & EF_DEAD) &&
 			ci->duelTeam == DUELTEAM_DOUBLE)
 		{
 			CG_PlayerFloatSprite( cent, cgs.media.powerDuelAllyShader);
@@ -9115,7 +9114,7 @@ void CG_Player( centity_t *cent ) {
 		cent->currentState.number != cg.snap->ps.clientNum)			// Don't show a sprite above a player's own head in 3rd person.
 	{	// If the view is either a spectator or on the same team as this character, show a symbol above their head.
 		if ((PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || PS_Team( cg.snap->ps ) == team) &&
-			!(cent->currentState.eFlags & EF_DEAD))
+			!Any(cent->currentState.eFlags & EF_DEAD))
 		{
 			if (CG_ThereIsAMaster())
 			{
@@ -9133,7 +9132,7 @@ void CG_Player( centity_t *cent ) {
 	// add the shadow
 	shadow = CG_PlayerShadow( cent, &shadowPlane );
 
-	if ( ((cent->currentState.eFlags & EF_SEEKERDRONE) || cent->currentState.genericenemyindex != -1) && cent->currentState.eType != ET_NPC )
+	if ( (Any(cent->currentState.eFlags & EF_SEEKERDRONE) || cent->currentState.genericenemyindex != -1) && cent->currentState.eType != ET_NPC )
 	{
 		refEntity_t		seeker;
 
@@ -9144,7 +9143,7 @@ void CG_Player( centity_t *cent ) {
 
 		VectorCopy( elevated, seeker.lightingOrigin );
 		seeker.shadowPlane = shadowPlane;
-		seeker.renderfx = 0; //renderfx;
+		seeker.renderfx = RF_NONE; //renderfx;
 							 //don't show in first person?
 
 		angle = ((cg.time / 12) & 255) * (M_PI * 2) / 255;
@@ -9220,7 +9219,7 @@ void CG_Player( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
 	legs.shadowPlane = shadowPlane;
 	legs.renderfx = renderfx;
-	if (cg_shadows.integer == 2 && (renderfx & RF_THIRD_PERSON))
+	if (cg_shadows.integer == 2 && Any(renderfx & RF_THIRD_PERSON))
 	{ //can see own shadow
 		legs.renderfx |= RF_SHADOW_ONLY;
 	}
@@ -9229,7 +9228,7 @@ void CG_Player( centity_t *cent ) {
 	CG_G2PlayerAngles( cent, legs.axis, rootAngles );
 	CG_G2PlayerHeadAnims( cent );
 
-	if ( (cent->currentState.eFlags2&EF2_HELD_BY_MONSTER)
+	if ( Any(cent->currentState.eFlags2&EF2_HELD_BY_MONSTER)
 		&& cent->currentState.hasLookTarget )//NOTE: lookTarget is an entity number, so this presumes that client 0 is NOT a Rancor...
 	{
 		centity_t	*rancor = &cg_entities[cent->currentState.lookTarget];
@@ -9241,7 +9240,7 @@ void CG_Player( centity_t *cent ) {
 				cg.time,
 				cgs.gameModels,
 				rancor->modelScale,
-				(rancor->currentState.eFlags2&EF2_GENERIC_NPC_FLAG),
+				Any(rancor->currentState.eFlags2&EF2_GENERIC_NPC_FLAG),
 				legs.origin,
 				legs.angles,
 				nullptr );
@@ -9277,7 +9276,7 @@ void CG_Player( centity_t *cent ) {
 			return;
 		}
 	}
-	else if (ci->team == TEAM_SPECTATOR || (cg.snap && (cg.snap->ps.pm_flags & PMF_FOLLOW)))
+	else if (ci->team == TEAM_SPECTATOR || (cg.snap && Any(cg.snap->ps.pm_flags & PMF_FOLLOW)))
 	{ //don't allow this when spectating
 		if (cgFPLSState != 0)
 		{
@@ -9324,7 +9323,7 @@ void CG_Player( centity_t *cent ) {
 	}
 #endif
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		//rww - since our angles are fixed when we're dead this shouldn't be an issue anyway
 		//we need to render the dying/dead player because we are now spawning the body on respawn instead of death
@@ -9414,7 +9413,7 @@ void CG_Player( centity_t *cent ) {
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites( cent );
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{ //keep track of death anim frame for when we copy off the bodyqueue
 		ci->frame = cent->pe.torso.frame;
 	}
@@ -9528,7 +9527,7 @@ void CG_Player( centity_t *cent ) {
 	}
 
 	//fullbody push effect
-	if (cent->currentState.eFlags & EF_BODYPUSH)
+	if (Any( cent->currentState.eFlags & EF_BODYPUSH ))
 	{
 		CG_ForcePushBodyBlur(cent);
 	}
@@ -9691,7 +9690,7 @@ void CG_Player( centity_t *cent ) {
 		else
 		{
 			vec4_t preCol;
-			int preRFX;
+			renderFxFlags_t preRFX;
 
 			preRFX = legs.renderfx;
 
@@ -9791,7 +9790,7 @@ void CG_Player( centity_t *cent ) {
 
 				VectorCopy( elevated, holoRef.lightingOrigin );
 				holoRef.shadowPlane = shadowPlane;
-				holoRef.renderfx = 0;//RF_THIRD_PERSON;
+				holoRef.renderfx = RF_NONE;//RF_THIRD_PERSON;
 
 				if (renderedHolos == 0)
 				{
@@ -9868,7 +9867,7 @@ void CG_Player( centity_t *cent ) {
 					fxSArgs.bounce = 0.0f;
 					fxSArgs.life = 1.0f;
 
-					fxSArgs.flags = 0x08000000|0x00000001;
+					fxSArgs.flags = FX_USE_ALPHA|FX_ALPHA_LINEAR;
 
 					if (forcePowerDarkLight[i] == FORCE_DARKSIDE)
 					{ //dark
@@ -9951,12 +9950,12 @@ void CG_Player( centity_t *cent ) {
 		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.enlightenmentShader );
 	}
 
-	if (cent->currentState.eFlags & EF_INVULNERABLE)
+	if (Any( cent->currentState.eFlags & EF_INVULNERABLE ))
 	{
 		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.0f, cgs.media.invulnerabilityShader );
 	}
 stillDoSaber:
-	if ((cent->currentState.eFlags & EF_DEAD) && cent->currentState.weapon == WP_SABER)
+	if (Any(cent->currentState.eFlags & EF_DEAD) && cent->currentState.weapon == WP_SABER)
 	{
 		//cent->saberLength = 0;
 		BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
@@ -9969,7 +9968,7 @@ stillDoSaber:
 	{
 		if ( (!cent->currentState.saberInFlight //saber not in flight
 				|| ci->saber[1].soundLoop) //???
-			&& !(cent->currentState.eFlags & EF_DEAD))//still alive
+			&& !Any(cent->currentState.eFlags & EF_DEAD))//still alive
 		{
 			vec3_t soundSpot;
 			bool didFirstSound = false;
@@ -10039,7 +10038,7 @@ stillDoSaber:
 		if (iwantout
 			&& !cent->currentState.saberInFlight)
 		{
-			if (cent->currentState.eFlags & EF_DEAD)
+			if (Any( cent->currentState.eFlags & EF_DEAD ))
 			{
 				if (cent->ghoul2
 					&& cent->currentState.saberInFlight
@@ -10232,7 +10231,7 @@ stillDoSaber:
 
 				if (!saberEnt->currentState.saberInFlight && saberEnt->currentState.bolt2 != 123)
 				{ //owner is pulling is back
-					if ( !(ci->saber[0].saberFlags&SFL_RETURN_DAMAGE)
+					if ( !Any( ci->saber[0].saberFlags & SFL_RETURN_DAMAGE )
 						|| cent->currentState.saberHolstered )
 					{
 						vec3_t owndir;
@@ -10304,11 +10303,11 @@ stillDoSaber:
 							&& k > 0 )//this is an extra blade
 						{//extra blades off
 							//don't draw them
-							CG_AddSaberBlade(cent, saberEnt, nullptr, 0, 0, l, k, saberEnt->lerpOrigin, bladeAngles, true, true);
+							CG_AddSaberBlade(cent, saberEnt, nullptr, RF_NONE, 0, l, k, saberEnt->lerpOrigin, bladeAngles, true, true);
 						}
 						else
 						{
-							CG_AddSaberBlade(cent, saberEnt, nullptr, 0, 0, l, k, saberEnt->lerpOrigin, bladeAngles, true, false);
+							CG_AddSaberBlade(cent, saberEnt, nullptr, RF_NONE, 0, l, k, saberEnt->lerpOrigin, bladeAngles, true, false);
 						}
 
 						k++;
@@ -10332,7 +10331,7 @@ stillDoSaber:
 
 				wv = Q_sin( cg.time * 0.003f ) * 0.08f + 0.1f;
 
-				//trap->FX_AddSprite( nullptr, efOrg, nullptr, nullptr, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+				//trap->FX_AddSprite( nullptr, efOrg, nullptr, nullptr, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, FX_USE_ALPHA );
 				VectorCopy(efOrg, fxSArgs.origin);
 				VectorClear(fxSArgs.vel);
 				VectorClear(fxSArgs.accel);
@@ -10344,7 +10343,7 @@ stillDoSaber:
 				fxSArgs.bounce = 0.0f;
 				fxSArgs.life = 1.0f;
 				fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
-				fxSArgs.flags = 0x08000000;
+				fxSArgs.flags = FX_USE_ALPHA;
 				trap->FX_AddSprite(&fxSArgs);
 			}
 		}
@@ -10417,7 +10416,7 @@ stillDoSaber:
 	}
 
 #ifdef _RAG_BOLT_TESTING
-	if (cent->currentState.eFlags & EF_RAG)
+	if (Any( cent->currentState.eFlags & EF_RAG ))
 	{
 		CG_TempTestFunction(cent, cent->turAngles);
 	}
@@ -10474,7 +10473,7 @@ stillDoSaber:
 				break;
 			}
 
-			if (cent->currentState.eFlags2&EF2_HELD_BY_MONSTER)
+			if (Any( cent->currentState.eFlags2&EF2_HELD_BY_MONSTER ))
 			{
 				//vectoangles(legs.axis[0], rootAngles);
 #if 0
@@ -10489,7 +10488,7 @@ stillDoSaber:
 							cg.time,
 							cgs.gameModels,
 							rancor->modelScale,
-							(rancor->currentState.eFlags2&EF2_GENERIC_NPC_FLAG),
+							Any(rancor->currentState.eFlags2&EF2_GENERIC_NPC_FLAG),
 							legs.origin,
 							rootAngles,
 							nullptr );
@@ -10508,18 +10507,18 @@ stillDoSaber:
 					&& ci->saber[l].blade[k].length <= 0 )//it's completely off
 				{//extra blades off
 					//don't draw them
-					CG_AddSaberBlade( cent, cent, nullptr, 0, 0, l, k, legs.origin, rootAngles, false, true);
+					CG_AddSaberBlade( cent, cent, nullptr, RF_NONE, 0, l, k, legs.origin, rootAngles, false, true);
 				}
 				else if ( ci->saber[1].model[0]//we have a second saber
 					&& cent->currentState.saberHolstered == 1 //it should be off
 					&& l > 0//and this is the second one
 					&& ci->saber[l].blade[k].length <= 0 )//it's completely off
 				{//second saber is turned off and this blade is done with turning off
-					CG_AddSaberBlade( cent, cent, nullptr, 0, 0, l, k, legs.origin, rootAngles, false, true);
+					CG_AddSaberBlade( cent, cent, nullptr, RF_NONE, 0, l, k, legs.origin, rootAngles, false, true);
 				}
 				else
 				{
-					CG_AddSaberBlade( cent, cent, nullptr, 0, 0, l, k, legs.origin, rootAngles, false, false);
+					CG_AddSaberBlade( cent, cent, nullptr, RF_NONE, 0, l, k, legs.origin, rootAngles, false, false);
 				}
 
 				k++;
@@ -10547,7 +10546,7 @@ stillDoSaber:
 		cent->bolt2 = 0;
 	}
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{
 		if (cent->ghoul2 && cent->currentState.saberInFlight && g2HasWeapon)
 		{ //special case, kill the saber on a freshly dead player if another source says to.
@@ -10635,7 +10634,7 @@ stillDoSaber:
 	}
 	else
 	{
-		if (cent->currentState.bolt1 && !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
+		if (cent->currentState.bolt1 && !Any(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
 		{
 			legs.shaderRGBA[0] = 50;
 			legs.shaderRGBA[1] = 50;
@@ -10644,7 +10643,7 @@ stillDoSaber:
 		}
 	}
 
-	if (cent->currentState.eFlags & EF_DISINTEGRATION)
+	if (Any( cent->currentState.eFlags & EF_DISINTEGRATION ))
 	{
 		if (!cent->dustTrailTime)
 		{
@@ -10740,7 +10739,7 @@ stillDoSaber:
 			if (cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)
 			{
 				/*
-				legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
+				legs.renderfx = RF_NONE;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 				legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
 				legs.customShader = cgs.media.cloakedShader;
 
@@ -10776,7 +10775,7 @@ stillDoSaber:
 				}
 				else
 				{ //stencil buffer's in use, sorry
-					legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
+					legs.renderfx = RF_NONE;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 					legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
 					legs.customShader = cgs.media.cloakedShader;
 					trap->R_AddRefEntityToScene( &legs );
@@ -10829,7 +10828,7 @@ stillDoSaber:
 
 			//Set the animation to the current frame and freeze on end
 			//trap->G2API_SetBoneAnim(cent->frame_hold.ghoul2, 0, "model_root", cent->frame_hold.frame, cent->frame_hold.frame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->frame_hold.frame, -1);
-			trap->G2API_SetBoneAnim(cent->frame_hold, 0, "model_root", legs.frame, legs.frame, 0, 1.0f, cg.time, legs.frame, -1);
+			trap->G2API_SetBoneAnim(cent->frame_hold, 0, "model_root", legs.frame, legs.frame, BONE_NONE, 1.0f, cg.time, legs.frame, -1);
 		}
 		else
 		{
@@ -10890,7 +10889,7 @@ stillDoSaber:
 		trap->R_AddRefEntityToScene(&legs);
 	}
 
-	if (!cg.snap->ps.duelInProgress && cent->currentState.bolt1 && !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
+	if (!cg.snap->ps.duelInProgress && cent->currentState.bolt1 && !Any(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
 	{
 		legs.shaderRGBA[0] = 50;
 		legs.shaderRGBA[1] = 50;
@@ -11223,7 +11222,7 @@ void CG_ResetPlayerEntity( centity_t *cent )
 	VectorCopy(cent->lerpOrigin, cent->beamEnd);
 
 	if (cent->currentState.eType != ET_NPC ||
-		!(cent->currentState.eFlags & EF_DEAD))
+		!Any(cent->currentState.eFlags & EF_DEAD))
 	{
 		CG_ClearLerpFrame( cent, ci, &cent->pe.legs, ES_LegsAnim( cent->currentState ), false);
 		CG_ClearLerpFrame( cent, ci, &cent->pe.torso, ES_TorsoAnim( cent->currentState ), true);

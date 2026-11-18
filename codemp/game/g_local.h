@@ -77,33 +77,67 @@ extern vec3_t gPainPoint;
 #define	START_TIME_FIND_WAYPOINT	FRAMETIME*5 // time-delay after map start after which it's okay to try to find your best waypoint
 
 // gentity->flags
-#define	FL_GODMODE				0x00000010
-#define	FL_NOTARGET				0x00000020
-#define	FL_TEAMSLAVE			0x00000400	// not the first on the team
-#define FL_NO_KNOCKBACK			0x00000800
-#define FL_DROPPED_ITEM			0x00001000
-#define FL_NO_BOTS				0x00002000	// spawn point not for bot use
-#define FL_NO_HUMANS			0x00004000	// spawn point just for bots
-#define FL_FORCE_GESTURE		0x00008000	// force gesture on client
-#define FL_INACTIVE				0x00010000	// inactive
-#define FL_NAVGOAL				0x00020000	// for npc nav stuff
-#define	FL_DONT_SHOOT			0x00040000
-#define FL_SHIELDED				0x00080000
-#define FL_UNDYING				0x00100000	// takes damage down to 1, but never dies
+enum class gentityFlags_t
+{
+	FL_NONE					= 0,
+	FL_GODMODE				= 0x00000010,
+	FL_NOTARGET				= 0x00000020,
+	FL_TEAMSLAVE			= 0x00000400,	// not the first on the team
+	FL_NO_KNOCKBACK			= 0x00000800,
+	FL_DROPPED_ITEM			= 0x00001000,
+	FL_NO_BOTS				= 0x00002000,	// spawn point not for bot use
+	FL_NO_HUMANS			= 0x00004000,	// spawn point just for bots
+	FL_FORCE_GESTURE		= 0x00008000,	// force gesture on client
+	FL_INACTIVE				= 0x00010000,	// inactive
+	FL_NAVGOAL				= 0x00020000,	// for npc nav stuff
+	FL_DONT_SHOOT			= 0x00040000,
+	FL_SHIELDED				= 0x00080000,
+	FL_UNDYING				= 0x00100000,	// takes damage down to 1, but never dies
 
-//ex-eFlags -rww
-#define	FL_BOUNCE				0x00100000		// for missiles
-#define	FL_BOUNCE_HALF			0x00200000		// for missiles
-#define	FL_BOUNCE_SHRAPNEL		0x00400000		// special shrapnel flag
+	//ex-eFlags -rww
+	FL_BOUNCE				= 0x08000000,		// for missiles
+	FL_BOUNCE_HALF			= 0x00200000,		// for missiles
+	FL_BOUNCE_SHRAPNEL		= 0x00400000,		// special shrapnel flag
 
-//vehicle game-local stuff -rww
-#define	FL_VEH_BOARDING			0x00800000		// special shrapnel flag
+	//vehicle game-local stuff -rww
+	FL_VEH_BOARDING			= 0x00800000,		// special shrapnel flag
 
-//breakable flags -rww
-#define FL_DMG_BY_SABER_ONLY		0x01000000 //only take dmg from saber
-#define FL_DMG_BY_HEAVY_WEAP_ONLY	0x02000000 //only take dmg from explosives
+	//breakable flags -rww
+	FL_DMG_BY_SABER_ONLY		= 0x01000000, //only take dmg from saber
+	FL_DMG_BY_HEAVY_WEAP_ONLY	= 0x02000000, //only take dmg from explosives
 
-#define FL_BBRUSH					0x04000000 //I am a breakable brush
+	FL_BBRUSH					= 0x04000000, //I am a breakable brush
+};
+using enum gentityFlags_t;
+template <> inline constexpr bool enableEnumFlags<gentityFlags_t> = true;
+
+// damage flags
+enum class damageFlags_t
+{
+	DAMAGE_NORMAL				= 0x00000000,	// No flags set.
+	DAMAGE_RADIUS				= 0x00000001,	// damage was indirect
+	DAMAGE_NO_ARMOR				= 0x00000002,	// armour does not protect from this damage
+	DAMAGE_NO_KNOCKBACK			= 0x00000004,	// do not affect velocity, just view angles
+	DAMAGE_NO_PROTECTION		= 0x00000008,  // armor, shields, invulnerability, and godmode have no effect
+	DAMAGE_NO_TEAM_PROTECTION	= 0x00000010,  // armor, shields, invulnerability, and godmode have no effect
+	//JK2 flags
+	DAMAGE_EXTRA_KNOCKBACK		= 0x00000040,	// add extra knockback to this damage
+	DAMAGE_DEATH_KNOCKBACK		= 0x00000080,	// only does knockback on death of target
+	DAMAGE_IGNORE_TEAM			= 0x00000100,	// damage is always done, regardless of teams
+	DAMAGE_NO_DAMAGE			= 0x00000200,	// do no actual damage but react as if damage was taken
+	DAMAGE_HALF_ABSORB			= 0x00000400,	// half shields, half health
+	DAMAGE_HALF_ARMOR_REDUCTION	= 0x00000800,	// This damage doesn't whittle down armor as efficiently.
+	DAMAGE_HEAVY_WEAP_CLASS		= 0x00001000,	// Heavy damage
+	DAMAGE_NO_HIT_LOC			= 0x00002000,	// No hit location
+	DAMAGE_NO_SELF_PROTECTION	= 0x00004000,	// Dont apply half damage to self attacks
+	DAMAGE_NO_DISMEMBER			= 0x00008000,	// Dont do dismemberment
+	DAMAGE_SABER_KNOCKBACK1		= 0x00010000,	// Check the attacker's first saber for a knockbackScale
+	DAMAGE_SABER_KNOCKBACK2		= 0x00020000,	// Check the attacker's second saber for a knockbackScale
+	DAMAGE_SABER_KNOCKBACK1_B2	= 0x00040000,	// Check the attacker's first saber for a knockbackScale2
+	DAMAGE_SABER_KNOCKBACK2_B2	= 0x00080000,	// Check the attacker's second saber for a knockbackScale2
+};
+using enum damageFlags_t;
+template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 
 #ifndef FINAL_BUILD
 #define DEBUG_SABER_BOX
@@ -264,7 +298,7 @@ struct gentity_s {
 	bool	neverFree;			// if true, FreeEntity will only unlink
 									// bodyque uses this
 
-	int			flags;				// FL_* variables
+	gentityFlags_t			flags;				// FL_* variables
 
 	const char	*model;
 	const char	*model2;
@@ -277,7 +311,7 @@ struct gentity_s {
 	bool	physicsObject;		// if true, it can be pushed by movers and fall off edges
 									// all game items are physicsObjects,
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
-	int			clipmask;			// brushes with this content value will be collided against
+	contentsFlags_t	clipmask;			// brushes with this content value will be collided against
 									// when moving.  items and corpses do not collide against
 									// players, for instance
 
@@ -354,7 +388,7 @@ struct gentity_s {
 	material_t	material;
 
 	int			damage;
-	int			dflags;
+	damageFlags_t			dflags;
 	int			splashDamage;	// quad will increase this without increasing radius
 	int			splashRadius;
 	meansOfDeath_t	methodOfDeath;
@@ -373,7 +407,7 @@ struct gentity_s {
 	gentity_t	*teamchain;		// next entity in team
 	gentity_t	*teammaster;	// master of the team
 
-	int			watertype;
+	contentsFlags_t	watertype;
 	int			waterlevel;
 
 	int			noise_index;
@@ -487,8 +521,14 @@ typedef struct clientSession_s {
 } clientSession_t;
 
 // playerstate mGameFlags
-#define	PSG_VOTED				(1<<0)		// already cast a vote
-#define PSG_TEAMVOTED			(1<<1)		// already cast a team vote
+enum class voteFlags_t
+{
+	PSG_NONE				= 0,
+	PSG_VOTED				= 1<<0,		// already cast a vote
+	PSG_TEAMVOTED			= 1<<1,		// already cast a team vote
+};
+using enum voteFlags_t;
+template <> inline constexpr bool enableEnumFlags<voteFlags_t> = true;
 
 //
 #define MAX_NETNAME			36
@@ -629,9 +669,9 @@ struct gclient_s {
 	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
 									// we can't just use pers.lastCommand.time, because
 									// of the g_sycronousclients case
-	int			buttons;
-	int			oldbuttons;
-	int			latched_buttons;
+	buttonFlags_t			buttons;
+	buttonFlags_t			oldbuttons;
+	buttonFlags_t			latched_buttons;
 
 	vec3_t		oldOrigin;
 
@@ -795,7 +835,7 @@ struct gclient_s {
 
 	int			noLightningTime;
 
-	unsigned	mGameFlags;
+	voteFlags_t	mGameFlags;
 
 	//fallen duelist
 	bool	iAmALoser;
@@ -824,10 +864,12 @@ typedef struct
 
 #define MAX_COMBAT_POINTS		512
 
+enum class combatPointFlags_t;	// b_local.h
+
 typedef struct
 {
 	vec3_t		origin;
-	int			flags;
+	combatPointFlags_t	flags;
 //	char		*NPC_targetname;
 //	team_t		team;
 	bool	occupied;
@@ -1112,7 +1154,7 @@ void	G_FreeFakeClient(gclient_t **cl);
 void	G_CreateFakeClient(int entNum, gclient_t **cl);
 void	G_CleanAllFakeClients(void);
 
-void	G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, animNumber_t anim, int setAnimFlags, int blendTime);
+void	G_SetAnim(gentity_t *ent, usercmd_t *ucmd, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int blendTime);
 gentity_t *G_PickTarget (char *targetname);
 void	GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator);
 void	G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string );
@@ -1172,7 +1214,7 @@ Ghoul2 Insert End
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod);
+void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod);
 bool G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, meansOfDeath_t mod);
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 void TossClientWeapon(gentity_t *self, vec3_t direction, float speed);
@@ -1182,29 +1224,6 @@ void ExplodeDeath( gentity_t *self );
 void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, animNumber_t deathAnim, bool postDeath);
 extern int gGAvoidDismember;
 
-
-// damage flags
-#define DAMAGE_NORMAL				0x00000000	// No flags set.
-#define DAMAGE_RADIUS				0x00000001	// damage was indirect
-#define DAMAGE_NO_ARMOR				0x00000002	// armour does not protect from this damage
-#define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
-#define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
-#define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
-//JK2 flags
-#define DAMAGE_EXTRA_KNOCKBACK		0x00000040	// add extra knockback to this damage
-#define DAMAGE_DEATH_KNOCKBACK		0x00000080	// only does knockback on death of target
-#define DAMAGE_IGNORE_TEAM			0x00000100	// damage is always done, regardless of teams
-#define DAMAGE_NO_DAMAGE			0x00000200	// do no actual damage but react as if damage was taken
-#define DAMAGE_HALF_ABSORB			0x00000400	// half shields, half health
-#define DAMAGE_HALF_ARMOR_REDUCTION	0x00000800	// This damage doesn't whittle down armor as efficiently.
-#define DAMAGE_HEAVY_WEAP_CLASS		0x00001000	// Heavy damage
-#define DAMAGE_NO_HIT_LOC			0x00002000	// No hit location
-#define DAMAGE_NO_SELF_PROTECTION	0x00004000	// Dont apply half damage to self attacks
-#define DAMAGE_NO_DISMEMBER			0x00008000	// Dont do dismemberment
-#define DAMAGE_SABER_KNOCKBACK1		0x00010000	// Check the attacker's first saber for a knockbackScale
-#define DAMAGE_SABER_KNOCKBACK2		0x00020000	// Check the attacker's second saber for a knockbackScale
-#define DAMAGE_SABER_KNOCKBACK1_B2	0x00040000	// Check the attacker's first saber for a knockbackScale2
-#define DAMAGE_SABER_KNOCKBACK2_B2	0x00080000	// Check the attacker's second saber for a knockbackScale2
 //
 // g_exphysics.cpp
 //
@@ -1431,7 +1450,7 @@ gentity_t *G_PreDefSound(vec3_t org, pdSounds_t pdSound);
 bool HasSetSaberOnly(void);
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd );
-int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, meansOfDeath_t mod, bool projectile, int attackStr);
+int WP_SaberCanBlock(gentity_t *self, vec3_t point, damageFlags_t dflags, meansOfDeath_t mod, bool projectile, int attackStr);
 void WP_SaberInitBladeData( gentity_t *ent );
 void WP_InitForcePowers( gentity_t *ent );
 void WP_SpawnInitForcePowers( gentity_t *ent );
@@ -1583,5 +1602,7 @@ void Svcmd_ToggleAllowVote_f( void );
 #undef XCVAR_PROTO
 void G_RegisterCvars( void );
 void G_UpdateCvars( void );
+// the dmflags cvar's flags, the one conversion of its number
+[[nodiscard]] inline dmFlags_t G_DmFlags( void ) { return static_cast<dmFlags_t>( dmflags.integer ); }
 
 extern gameImport_t *trap;

@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MIN_DISTANCE		128
 #define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
 
-#define TURN_OFF			0x00000100//G2SURFACEFLAG_NODESCENDANTS
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 #define LEFT_ARM_HEALTH 40
 #define RIGHT_ARM_HEALTH 40
@@ -185,7 +185,7 @@ void ATST_Ranged( bool visible, bool advance, bool altAttack )
 		}
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		ATST_Hunt( visible, advance );
 	}
@@ -199,7 +199,8 @@ ATST_Attack
 void ATST_Attack( void )
 {
 	bool	altAttack=false;
-	int			blasterTest,chargerTest,weapon;
+	std::optional<g2SurfaceFlags_t>	blasterTest, chargerTest;
+	int			weapon;
 	float		distance;
 	distance_e	distRate;
 	bool	visible;
@@ -222,7 +223,7 @@ void ATST_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			ATST_Hunt( visible, advance );
 			return;
@@ -246,10 +247,10 @@ void ATST_Attack( void )
 		chargerTest = trap->G2API_GetSurfaceRenderStatus( NPCS.NPC->ghoul2, 0, "head_concussion_charger" );
 
 		// It has both side weapons
-		if ( blasterTest != -1
-			&& !(blasterTest&TURN_OFF)
-			&& chargerTest != -1
-			&& !(chargerTest&TURN_OFF))
+		if ( blasterTest
+			&& !Any(*blasterTest&TURN_OFF)
+			&& chargerTest
+			&& !Any(*chargerTest&TURN_OFF))
 		{
 			weapon = Q_irand( 0, 1);	// 0 is blaster, 1 is charger (ALT SIDE)
 
@@ -263,13 +264,13 @@ void ATST_Attack( void )
 			}
 
 		}
-		else if (blasterTest != -1
-			&& !(blasterTest & TURN_OFF))	// Blaster is on
+		else if (blasterTest
+			&& !Any(*blasterTest & TURN_OFF))	// Blaster is on
 		{
 			altAttack = false;
 		}
-		else if (chargerTest != -1
-			&&!(chargerTest & TURN_OFF))	// Blaster is on
+		else if (chargerTest
+			&&!Any(*chargerTest & TURN_OFF))	// Blaster is on
 		{
 			altAttack = true;
 		}
@@ -333,13 +334,13 @@ void NPC_BSATST_Default( void )
 {
 	if ( NPCS.NPC->enemy )
 	{
-		if( (NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )
+		if( Any(NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )
 		{
 			NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		}
 		ATST_Attack();
 	}
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ATST_Patrol();
 	}

@@ -453,13 +453,19 @@ template <> inline constexpr bool enableEnumFlags<vehFlags_t> = true;
 #define	SHIPSURF_DAMAGE_LEFT_HEAVY		7
 
 //generic part bits
-#define SHIPSURF_BROKEN_A	(1<<0) //gear 1
-#define SHIPSURF_BROKEN_B	(1<<1) //gear 1
-#define SHIPSURF_BROKEN_C	(1<<2) //wing 1
-#define SHIPSURF_BROKEN_D	(1<<3) //wing 2
-#define SHIPSURF_BROKEN_E	(1<<4) //wing 3
-#define SHIPSURF_BROKEN_F	(1<<5) //wing 4
-#define SHIPSURF_BROKEN_G	(1<<6) //front
+enum class shipSurfaceFlags_t
+{
+	SHIPSURF_BROKEN_NONE = 0,
+	SHIPSURF_BROKEN_A	= (1<<0), //gear 1
+	SHIPSURF_BROKEN_B	= (1<<1), //gear 1
+	SHIPSURF_BROKEN_C	= (1<<2), //wing 1
+	SHIPSURF_BROKEN_D	= (1<<3), //wing 2
+	SHIPSURF_BROKEN_E	= (1<<4), //wing 3
+	SHIPSURF_BROKEN_F	= (1<<5), //wing 4
+	SHIPSURF_BROKEN_G	= (1<<6), //front
+};
+using enum shipSurfaceFlags_t;
+template <> inline constexpr bool enableEnumFlags<shipSurfaceFlags_t> = true;
 
 typedef struct vehWeaponStatus_s {
 	//linked firing mode
@@ -611,7 +617,7 @@ typedef struct Vehicle_s
 	int			m_iLastImpactDmg;
 
 	//bitflag of surfaces that have broken off
-	int			m_iRemovedSurfaces;
+	shipSurfaceFlags_t			m_iRemovedSurfaces;
 
 	int			m_iDmgEffectTime;
 

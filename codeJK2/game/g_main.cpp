@@ -471,7 +471,7 @@ void G_FindTeams( void ) {
 
 		if (!e->team)
 			continue;
-		if (e->flags & FL_TEAMSLAVE)
+		if (Any( e->flags & FL_TEAMSLAVE ))
 			continue;
 		e->teammaster = e;
 		c++;
@@ -487,7 +487,7 @@ void G_FindTeams( void ) {
 			e2=&g_entities[j];
 			if (!e2->team)
 				continue;
-			if (e2->flags & FL_TEAMSLAVE)
+			if (Any( e2->flags & FL_TEAMSLAVE ))
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
@@ -518,8 +518,8 @@ G_InitCvars
 */
 void G_InitCvars( void ) {
 	// don't override the cheat state set by the system
-	g_cheats = gi.cvar ("helpUsObi", "", 0);
-	g_developer = gi.cvar ("developer", "", 0);
+	g_cheats = gi.cvar ("helpUsObi", "", CVAR_NONE);
+	g_developer = gi.cvar ("developer", "", CVAR_NONE);
 
 	// noset vars
 	gi.cvar( "gamename", JK_VERSION , CVAR_SERVERINFO | CVAR_ROM );
@@ -536,16 +536,16 @@ void G_InitCvars( void ) {
 	g_knockback = gi.cvar( "g_knockback", "1000", CVAR_CHEAT );
 	g_dismemberment = gi.cvar ( "g_dismemberment", "3", CVAR_ARCHIVE );//0 = none, 1 = arms and hands, 2 = legs, 3 = waist and head, 4 = mega dismemberment
 	g_dismemberProbabilities = gi.cvar ( "g_dismemberProbabilities", "1", CVAR_ARCHIVE );//0 = ignore probabilities, 1 = use probabilities
-	g_synchSplitAnims = gi.cvar ( "g_synchSplitAnims", "1", 0 );
+	g_synchSplitAnims = gi.cvar ( "g_synchSplitAnims", "1", CVAR_NONE );
 
-	g_inactivity = gi.cvar ("g_inactivity", "0", 0);
+	g_inactivity = gi.cvar ("g_inactivity", "0", CVAR_NONE);
 	g_debugMove = gi.cvar ("g_debugMove", "0", CVAR_CHEAT );
 	g_debugDamage = gi.cvar ("g_debugDamage", "0", CVAR_CHEAT );
 	g_ICARUSDebug = gi.cvar( "g_ICARUSDebug", "0", CVAR_CHEAT );
-	g_timescale = gi.cvar( "timescale", "1", 0 );
+	g_timescale = gi.cvar( "timescale", "1", CVAR_NONE );
 
 	g_subtitles = gi.cvar( "g_subtitles", "2", CVAR_ARCHIVE );
-	com_buildScript = gi.cvar ("com_buildscript", "0", 0);
+	com_buildScript = gi.cvar ("com_buildscript", "0", CVAR_NONE);
 
 	g_saberAutoBlocking = gi.cvar( "g_saberAutoBlocking", "1", CVAR_ARCHIVE|CVAR_CHEAT );//must press +block button to do any blocking
 	g_saberRealisticCombat = gi.cvar( "g_saberRealisticCombat", "0", CVAR_ARCHIVE );//makes collision more precise, increases damage
@@ -733,7 +733,7 @@ Ghoul2 Insert End
 
 //===================================================================
 
-static void G_Cvar_Create( const char *var_name, const char *var_value, int flags ) {
+static void G_Cvar_Create( const char *var_name, const char *var_value, cvarFlags_t flags ) {
 	gi.cvar( var_name, var_value, flags );
 }
 
@@ -975,23 +975,24 @@ G_Animate
 
 void G_Animate ( gentity_t *self )
 {
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{
 		return;
 	}
 	if ( self->s.frame == self->endFrame )
 	{
-		if ( self->svFlags & SVF_ANIMATING )
+		if ( Any( self->svFlags & SVF_ANIMATING ) )
 		{
 			// ghoul2 requires some extra checks to see if the animation is done since it doesn't set the current frame directly
 			if ( self->ghoul2.size() )
 			{
 				float frame, junk2;
 				int junk;
+				boneFlags_t junkFlags;
 
 				// I guess query ghoul2 to find out what the current frame is and see if we are done.
 				gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone,
-									(cg.time?cg.time:level.time), &frame, &junk, &junk, &junk, &junk2, nullptr );
+									(cg.time?cg.time:level.time), &frame, &junk, &junk, &junkFlags, &junk2, nullptr );
 
 				// It NEVER seems to get to what you'd think the last frame would be, so I'm doing this to try and catch when the animation has stopped
 				if ( frame + 1 >= self->endFrame )
@@ -1096,7 +1097,7 @@ void UpdateTeamCounters( gentity_t *ent )
 	{
 		return;
 	}
-	if ( (ent->s.eFlags&EF_NODRAW) )
+	if ( Any(ent->s.eFlags&EF_NODRAW) )
 	{
 		return;
 	}
@@ -1152,7 +1153,7 @@ void G_PlayerGuiltDeath( void )
 		player->client->ps.stats[STAT_DEAD_YAW] = player->client->ps.viewangles[YAW]+180;
 	}
 }
-extern void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority);
 extern void G_MakeTeamVulnerable( void );
 int killPlayerTimer = 0;
 void G_CheckEndLevelTimers( gentity_t *ent )
@@ -1310,14 +1311,14 @@ void G_RunFrame( int levelTime ) {
 
 		if( !ent->client )
 		{
-			if ( !(ent->svFlags & SVF_SELF_ANIMATING) )
+			if ( !Any( ent->svFlags & SVF_SELF_ANIMATING ) )
 			{//FIXME: make sure this is done only for models with frames?
 				//Or just flag as animating?
-				if ( ent->s.eFlags & EF_ANIM_ONCE )
+				if ( Any( ent->s.eFlags & EF_ANIM_ONCE ) )
 				{
 					ent->s.frame++;
 				}
-				else if ( !(ent->s.eFlags & EF_ANIM_ALLFAST) )
+				else if ( !Any(ent->s.eFlags & EF_ANIM_ALLFAST) )
 				{
 					G_Animate( ent );
 				}

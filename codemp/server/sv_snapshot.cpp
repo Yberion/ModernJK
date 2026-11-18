@@ -178,8 +178,8 @@ int SV_SnapshotTime( const client_t *client ) {
 	return sv.time;
 }
 
-int SV_SnapshotFlags( const client_t *client ) {
-	int snapFlags = svs.snapFlagServerBit;
+snapFlags_t SV_SnapshotFlags( const client_t *client ) {
+	snapFlags_t snapFlags = svs.snapFlagServerBit;
 	if ( client->rateDelayed ) {
 		snapFlags |= SNAPFLAG_RATE_DELAYED;
 	}
@@ -216,7 +216,7 @@ void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *o
 	// what we are delta'ing from
 	MSG_WriteByte (msg, lastframe);
 
-	MSG_WriteByte (msg, SV_SnapshotFlags( client ));
+	MSG_WriteByte (msg, to_underlying( SV_SnapshotFlags( client ) ));
 
 	// send over the areabits
 	MSG_WriteByte (msg, frame->areabytes);
@@ -396,7 +396,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (ent->s.eFlags & EF_PERMANENT)
+		if (Any( ent->s.eFlags & EF_PERMANENT ))
 		{	// he's permanent, so don't send him down!
 			continue;
 		}
@@ -407,18 +407,18 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can be flagged to explicitly not be sent to the client
-		if ( ent->r.svFlags & SVF_NOCLIENT ) {
+		if ( Any( ent->r.svFlags & SVF_NOCLIENT ) ) {
 			continue;
 		}
 
 		// entities can be flagged to be sent to only one client
-		if ( ent->r.svFlags & SVF_SINGLECLIENT ) {
+		if ( Any( ent->r.svFlags & SVF_SINGLECLIENT ) ) {
 			if ( ent->r.singleClient != frame->ps.clientNum ) {
 				continue;
 			}
 		}
 		// entities can be flagged to be sent to everyone but one client
-		if ( ent->r.svFlags & SVF_NOTSINGLECLIENT ) {
+		if ( Any( ent->r.svFlags & SVF_NOTSINGLECLIENT ) ) {
 			if ( ent->r.singleClient == frame->ps.clientNum ) {
 				continue;
 			}
@@ -432,13 +432,13 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can request not to be sent to certain clients (NOTE: always send to ourselves)
-		if ( e != frame->ps.clientNum && (ent->r.svFlags & SVF_BROADCASTCLIENTS)
+		if ( e != frame->ps.clientNum && Any( ent->r.svFlags & SVF_BROADCASTCLIENTS )
 			&& !(ent->r.broadcastClients[frame->ps.clientNum/32] & (1 << (frame->ps.clientNum % 32))) )
 		{
 			continue;
 		}
 		// broadcast entities are always sent, and so is the main player so we don't see noclip weirdness
-		if ( (ent->r.svFlags & SVF_BROADCAST) || e == frame->ps.clientNum
+		if ( Any( ent->r.svFlags & SVF_BROADCAST ) || e == frame->ps.clientNum
 			|| (ent->r.broadcastClients[frame->ps.clientNum/32] & (1 << (frame->ps.clientNum % 32))) )
 		{
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
@@ -512,7 +512,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
 
 		// if its a portal entity, add everything visible from its camera position
-		if ( ent->r.svFlags & SVF_PORTAL ) {
+		if ( Any( ent->r.svFlags & SVF_PORTAL ) ) {
 			if ( ent->s.generic1 ) {
 				vec3_t dir;
 				VectorSubtract(ent->s.origin, origin, dir);

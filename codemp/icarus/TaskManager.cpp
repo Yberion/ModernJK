@@ -340,7 +340,7 @@ taskResult_t CTaskManager::Update( void )
 {
 	sharedEntity_t *owner = SV_GentityNum(m_ownerID);
 
-	if ( (owner->r.svFlags&SVF_ICARUS_FREEZE) )
+	if ( Any( owner->r.svFlags & SVF_ICARUS_FREEZE ) )
 	{
 		return TASK_FAILED;
 	}
@@ -1675,7 +1675,7 @@ int CTaskManager::SaveCommand( CBlock *block )
 	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','L','I','D'), &bID, sizeof ( bID ) );
 
 	//Save out the block's flags
-	flags = block->GetFlags();
+	flags = to_underlying( block->GetFlags() );
 	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','F','L','G'), &flags, sizeof ( flags ) );
 
 	//Save out the number of members to read
@@ -1880,7 +1880,7 @@ void CTaskManager::Load( void )
 
 		//Read the block's flags
 		(m_owner->GetInterface())->I_ReadSaveData( 'BFLG', &flags, sizeof( flags ) );
-		block->SetFlags( flags );
+		block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 		//Get the number of block members
 		(m_owner->GetInterface())->I_ReadSaveData( 'BNUM', &numMembers, sizeof( numMembers ) );

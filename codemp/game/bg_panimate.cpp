@@ -1733,7 +1733,7 @@ END: Animation utility functions (sequence checking)
 ==============================================================================
 */
 
-void BG_FlipPart(playerState_t *ps, int part)
+void BG_FlipPart(playerState_t *ps, setAnimParts_t part)
 {
 	if (part == SETANIM_TORSO)
 	{
@@ -2852,7 +2852,7 @@ bool PM_RunningAnim( animNumber_t anim );
 bool PM_WalkingAnim( animNumber_t anim );
 
 void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
-					 int setAnimParts,animNumber_t anim,int setAnimFlags)
+					 setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags)
 {
 	float editAnimSpeed = 1;
 
@@ -2867,24 +2867,24 @@ void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
 
 	// Set torso anim
-	if (setAnimParts & SETANIM_TORSO)
+	if (Any( setAnimParts & SETANIM_TORSO ))
 	{
 		// Don't reset if it's already running the anim
-		if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->torsoAnim) == anim )
+		if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && (ps->torsoAnim) == anim )
 		{
 			goto setAnimLegs;
 		}
 		// or if a more important anim is running
-		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
+		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
 		{
 			goto setAnimLegs;
 		}
 
 		BG_StartTorsoAnim(ps, anim);
 
-		if (setAnimFlags & SETANIM_FLAG_HOLD)
+		if (Any( setAnimFlags & SETANIM_FLAG_HOLD ))
 		{
-			if (setAnimFlags & SETANIM_FLAG_HOLDLESS)
+			if (Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ))
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
@@ -2915,24 +2915,24 @@ void BG_SetAnimFinal(playerState_t *ps, animSet_t *animations,
 
 setAnimLegs:
 	// Set legs anim
-	if (setAnimParts & SETANIM_LEGS)
+	if (Any( setAnimParts & SETANIM_LEGS ))
 	{
 		// Don't reset if it's already running the anim
-		if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->legsAnim) == anim )
+		if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && (ps->legsAnim) == anim )
 		{
 			goto setAnimDone;
 		}
 		// or if a more important anim is running
-		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
+		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
 		{
 			goto setAnimDone;
 		}
 
 		BG_StartLegsAnim(ps, anim);
 
-		if (setAnimFlags & SETANIM_FLAG_HOLD)
+		if (Any( setAnimFlags & SETANIM_FLAG_HOLD ))
 		{
-			if (setAnimFlags & SETANIM_FLAG_HOLDLESS)
+			if (Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ))
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 				int speedDif;
@@ -2973,7 +2973,7 @@ setAnimDone:
 	return;
 }
 
-void PM_SetAnimFinal(int setAnimParts,animNumber_t anim,int setAnimFlags)
+void PM_SetAnimFinal(setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags)
 {
 	BG_SetAnimFinal(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags);
 }
@@ -3027,7 +3027,7 @@ std::optional<animNumber_t> BG_PickAnim( int animIndex, animNumber_t minAnim, an
 //of a pmove too so I have ported it to true BGishness.
 //Please do not reference pm in this function or any functions that it calls,
 //or I will cry. -rww
-void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags)
+void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags)
 {
 	if (!animations)
 	{
@@ -3062,18 +3062,18 @@ void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animN
 //		return;
 //	}
 
-	if (setAnimFlags&SETANIM_FLAG_OVERRIDE)
+	if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
 	{
-		if (setAnimParts & SETANIM_TORSO)
+		if (Any( setAnimParts & SETANIM_TORSO ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || (ps->torsoAnim) != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || (ps->torsoAnim) != anim )
 			{
 				BG_SetTorsoAnimTimer(ps, 0);
 			}
 		}
-		if (setAnimParts & SETANIM_LEGS)
+		if (Any( setAnimParts & SETANIM_LEGS ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || (ps->legsAnim) != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || (ps->legsAnim) != anim )
 			{
 				BG_SetLegsAnimTimer(ps, 0);
 			}
@@ -3083,7 +3083,7 @@ void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animN
 	BG_SetAnimFinal(ps, animations, setAnimParts, anim, setAnimFlags);
 }
 
-void PM_SetAnim(int setAnimParts,animNumber_t anim,int setAnimFlags)
+void PM_SetAnim(setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags)
 {
 	BG_SetAnim(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags);
 }

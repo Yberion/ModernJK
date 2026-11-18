@@ -55,9 +55,9 @@ void NPC_Seeker_Precache(void)
 //------------------------------------
 void NPC_Seeker_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	if ( !(self->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY ))
+	if ( !Any(self->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY ))
 	{
-		G_Damage( self, nullptr, nullptr, (float*)vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
+		G_Damage( self, nullptr, nullptr, (float*)vec3_origin, (float*)vec3_origin, 999, DAMAGE_NORMAL, MOD_FALLING );
 	}
 
 	SaveNPCGlobals();
@@ -186,7 +186,7 @@ void Seeker_Strafe( void )
 		side = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 		VectorMA( NPCS.NPC->r.currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
-		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -228,7 +228,7 @@ void Seeker_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, Q_flrand(-1.0f, 1.0f) * 25, dir, end );
 
-		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -358,11 +358,11 @@ void Seeker_Ranged( bool visible, bool advance )
 	//		NPC->client->ps.gravity = 900;
 	//		NPC->svFlags &= ~SVF_CUSTOM_GRAVITY;
 	//		NPC->client->ps.velocity[2] += 16;
-			G_Damage( NPCS.NPC, NPCS.NPC, NPCS.NPC, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
+			G_Damage( NPCS.NPC, NPCS.NPC, NPCS.NPC, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
 		}
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Seeker_Hunt( visible, advance );
 	}
@@ -390,7 +390,7 @@ void Seeker_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Seeker_Hunt( visible, advance );
 			return;

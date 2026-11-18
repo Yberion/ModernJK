@@ -126,7 +126,8 @@ void CL_ParseSetGame( const char *gameDir )
 	else
 		Cvar_Set("fs_game", newGameDir);
 
-	if(!(Cvar_Flags("fs_game") & CVAR_MODIFIED))
+	const std::optional<cvarFlags_t> fsGameFlags = Cvar_Flags("fs_game");
+	if(!fsGameFlags || !Any(*fsGameFlags & CVAR_MODIFIED))
 		return;
 
 	//Update the search path for the mod dir

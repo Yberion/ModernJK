@@ -235,7 +235,7 @@ void QDECL ScriptError(script_t *script, const char *str, ...)
 	char text[1024];
 	va_list ap;
 
-	if (script->flags & SCFL_NOERRORS) return;
+	if (Any( script->flags & SCFL_NOERRORS )) return;
 
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
@@ -261,7 +261,7 @@ void QDECL ScriptWarning(script_t *script, const char *str, ...)
 	char text[1024];
 	va_list ap;
 
-	if (script->flags & SCFL_NOWARNINGS) return;
+	if (Any( script->flags & SCFL_NOWARNINGS )) return;
 
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
@@ -458,7 +458,7 @@ int PS_ReadString(script_t *script, token_t *token, int quote)
 		} //end if
 		//if there is an escape character and
 		//if escape characters inside a string are allowed
-		if (*script->script_p == '\\' && !(script->flags & SCFL_NOSTRINGESCAPECHARS))
+		if (*script->script_p == '\\' && !Any( script->flags & SCFL_NOSTRINGESCAPECHARS ))
 		{
 			if (!PS_ReadEscapeCharacter(script, &token->string[len]))
 			{
@@ -473,7 +473,7 @@ int PS_ReadString(script_t *script, token_t *token, int quote)
 			//step over the double quote
 			script->script_p++;
 			//if white spaces in a string are not allowed
-			if (script->flags & SCFL_NOSTRINGWHITESPACES) break;
+			if (Any( script->flags & SCFL_NOSTRINGWHITESPACES )) break;
 			//
 			tmpscript_p = script->script_p;
 			tmpline = script->line;
@@ -895,7 +895,7 @@ int PS_ReadToken(script_t *script, token_t *token)
 		if (!PS_ReadNumber(script, token)) return 0;
 	} //end if
 	//if this is a primitive script
-	else if (script->flags & SCFL_PRIMITIVE)
+	else if (Any( script->flags & SCFL_PRIMITIVE ))
 	{
 		return PS_ReadPrimitive(script, token);
 	} //end else if
@@ -1214,7 +1214,7 @@ signed long int ReadSignedInt(script_t *script)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void SetScriptFlags(script_t *script, int flags)
+void SetScriptFlags(script_t *script, scriptParseFlags_t flags)
 {
 	script->flags = flags;
 } //end of the function SetScriptFlags
@@ -1224,7 +1224,7 @@ void SetScriptFlags(script_t *script, int flags)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int GetScriptFlags(script_t *script)
+scriptParseFlags_t GetScriptFlags(script_t *script)
 {
 	return script->flags;
 } //end of the function GetScriptFlags

@@ -619,7 +619,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 	float	health = 0;
 	vec4_t	color;
 
-	if (( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
+	if (Any( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
 	{
 		// DRAW emplaced HUD
 		color[0] = color[1] = color[2] = 0.0f;
@@ -631,7 +631,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 		// NOTE: this looks ugly
 		if ( cent->gent && cent->gent->owner )
 		{
-			if (( cent->gent->owner->flags & FL_GODMODE ))
+			if (Any( cent->gent->owner->flags & FL_GODMODE ))
 			{
 				// chair is in godmode, so render the health of the player instead
 				health = cent->gent->health / (float)cent->gent->max_health;
@@ -654,7 +654,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 
 		return false; // drew this hud, so don't draw the player one
 	}
-	else if (( cent->currentState.eFlags & EF_IN_ATST ))
+	else if (Any( cent->currentState.eFlags & EF_IN_ATST ))
 	{
 		// we are an ATST...
 		color[0] = color[1] = color[2] = 0.0f;
@@ -687,7 +687,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 
 		return false; // drew this hud, so don't draw the player one
 	}
-	else if ( cg.snap->ps.viewEntity && ( g_entities[cg.snap->ps.viewEntity].dflags & DAMAGE_CUSTOM_HUD ))
+	else if ( cg.snap->ps.viewEntity && Any( g_entities[cg.snap->ps.viewEntity].dflags & DAMAGE_CUSTOM_HUD ))
 	{
 		// if we've gotten this far, we are assuming that we are a misc_panel_turret
 		color[0] = color[1] = color[2] = 0.0f;
@@ -1384,7 +1384,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 				ecolor[2] = 0.1f;//B
 			}
 		}
-		else if ( crossEnt->s.weapon == WP_TURRET && (crossEnt->svFlags&SVF_NONNPC_ENEMY) )
+		else if ( crossEnt->s.weapon == WP_TURRET && Any( crossEnt->svFlags & SVF_NONNPC_ENEMY ) )
 		{
 			// a turret
 			if ( crossEnt->noDamageTeam == TEAM_PLAYER )
@@ -1688,7 +1688,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 	trace_t		trace;
 	gentity_t	*traceEnt = nullptr;
 	vec3_t		start, end;
-	int			content;
+	contentsFlags_t	content;
 	int			ignoreEnt = cg.snap->ps.clientNum;
 
 	//FIXME: debounce this to about 10fps?
@@ -1880,7 +1880,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 		g_crosshairEntTime = cg.time;
 	}
 
-	if ( !traceEnt || (traceEnt->s.eFlags & EF_NO_TED) )
+	if ( !traceEnt || Any(traceEnt->s.eFlags & EF_NO_TED) )
 	{
 		if ( traceEnt && scanAll )
 		{
@@ -1893,7 +1893,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 
 	// if the player is in fog, don't show it
 	content = cgi_CM_PointContents( trace.endpos, 0 );
-	if ( content & CONTENTS_FOG )
+	if ( Any( content & CONTENTS_FOG ) )
 	{
 		return;
 	}
@@ -1972,7 +1972,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 
 		if ( cg.zoomMode > 0 )
 		{
-			if ( cg.overrides.active & CG_OVERRIDE_FOV )
+			if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 			{
 				sz -= ( cg.overrides.fov - cg_zoomFov ) / 80.0f;
 			}
@@ -2060,7 +2060,7 @@ static void CG_RunRocketLocking( void )
 	// Only bother with this when the player is holding down the alt-fire button of the rocket launcher
 	if ( player->currentState.weapon == WP_ROCKET_LAUNCHER )
 	{
-		if ( player->currentState.eFlags & EF_ALT_FIRING )
+		if ( Any( player->currentState.eFlags & EF_ALT_FIRING ) )
 		{
 			CG_ScanForRocketLock();
 
@@ -2317,7 +2317,7 @@ static void CG_Draw2D( void )
 	// don't draw any status if dead
 	if ( cg.snap->ps.stats[STAT_HEALTH] > 0 )
 	{
-		if ( !(cent->gent && cent->gent->s.eFlags & (EF_LOCKED_TO_WEAPON |EF_IN_ATST)))
+		if ( !(cent->gent && Any( cent->gent->s.eFlags & (EF_LOCKED_TO_WEAPON |EF_IN_ATST) )))
 		{
 			CG_DrawIconBackground();
 		}

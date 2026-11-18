@@ -434,7 +434,7 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}

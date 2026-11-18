@@ -62,8 +62,8 @@ int		cgi_Milliseconds( void ) {
 	return Q_syscall( CG_MILLISECONDS );
 }
 
-void	cgi_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
-	Q_syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, flags );
+void	cgi_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags ) {
+	Q_syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, to_underlying( flags ) );
 }
 
 void	cgi_Cvar_Update( vmCvar_t *vmCvar ) {
@@ -147,27 +147,27 @@ clipHandle_t cgi_CM_InlineModel( int index ) {
 	return Q_syscall( CG_CM_INLINEMODEL, index );
 }
 
-clipHandle_t cgi_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs ) {//, const int contents ) {
+clipHandle_t cgi_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs ) {//, const contentsFlags_t contents ) {
 	return Q_syscall( CG_CM_TEMPBOXMODEL, mins, maxs );//, contents );
 }
 
-int		cgi_CM_PointContents( const vec3_t p, clipHandle_t model ) {
-	return Q_syscall( CG_CM_POINTCONTENTS, p, model );
+contentsFlags_t	cgi_CM_PointContents( const vec3_t p, clipHandle_t model ) {
+	return static_cast<contentsFlags_t>( Q_syscall( CG_CM_POINTCONTENTS, p, model ) );
 }
 
-int		cgi_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles ) {
-	return Q_syscall( CG_CM_TRANSFORMEDPOINTCONTENTS, p, model, origin, angles );
+contentsFlags_t	cgi_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles ) {
+	return static_cast<contentsFlags_t>( Q_syscall( CG_CM_TRANSFORMEDPOINTCONTENTS, p, model, origin, angles ) );
 }
 
 void	cgi_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask ) {
+						  clipHandle_t model, contentsFlags_t brushmask ) {
 	Q_syscall( CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask );
 }
 
 void	cgi_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask,
+						  clipHandle_t model, contentsFlags_t brushmask,
 						  const vec3_t origin, const vec3_t angles ) {
 	Q_syscall( CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
 }
@@ -460,8 +460,8 @@ void	cgi_R_WorldEffectCommand( const char *command )
 }
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
-int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = nullptr */) {
-  return Q_syscall(CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits, psAudioFile);
+int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char *psAudioFile /* = nullptr */) {
+  return Q_syscall(CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, to_underlying( bits ), psAudioFile);
 }
 
 // stops playing the cinematic and ends it.  should always return FMV_EOF

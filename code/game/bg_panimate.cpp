@@ -113,10 +113,10 @@ bool PM_CheckLungeAttackMove( void );
 // once the game gets out of prototype stage.
 
 // Silly, but I'm replacing these macros so they are shorter!
-#define AFLAG_IDLE	(SETANIM_FLAG_NORMAL)
-#define AFLAG_ACTIVE (SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS)
-#define AFLAG_WAIT (SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS)
-#define AFLAG_FINISH (SETANIM_FLAG_HOLD)
+inline constexpr setAnimFlags_t AFLAG_IDLE = SETANIM_FLAG_NORMAL;
+inline constexpr setAnimFlags_t AFLAG_ACTIVE = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
+inline constexpr setAnimFlags_t AFLAG_WAIT = SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
+inline constexpr setAnimFlags_t AFLAG_FINISH = SETANIM_FLAG_HOLD;
 
 //FIXME: add the alternate anims for each style?
 EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData = {{//							NB:randomized
@@ -2153,7 +2153,7 @@ saberMoveName_t PM_PickBackStab( void )
 	if ( pm->ps->dualSabers
 		&& pm->ps->saber[1].Active() )
 	{
-		if ( pm->ps->pm_flags & PMF_DUCKED )
+		if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 		{
 			return LS_A_BACK_CR;
 		}
@@ -2172,7 +2172,7 @@ saberMoveName_t PM_PickBackStab( void )
 		{
 			return LS_A_BACKSTAB;
 		}
-		else if ( pm->ps->pm_flags & PMF_DUCKED )
+		else if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 		{
 			return LS_A_BACK_CR;
 		}
@@ -2184,7 +2184,7 @@ saberMoveName_t PM_PickBackStab( void )
 	else if ( pm->ps->saberAnimLevel == SS_MEDIUM
 		|| pm->ps->saberAnimLevel == SS_DUAL )
 	{//using medium attacks or dual sabers
-		if ( pm->ps->pm_flags & PMF_DUCKED )
+		if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 		{
 			return LS_A_BACK_CR;
 		}
@@ -2205,18 +2205,18 @@ saberMoveName_t PM_CheckStabDown( void )
 	{
 		return LS_NONE;
 	}
-	if ( (pm->ps->saber[0].saberFlags&SFL_NO_STABDOWN) )
+	if ( Any( pm->ps->saber[0].saberFlags & SFL_NO_STABDOWN ) )
 	{
 		return LS_NONE;
 	}
 	if ( pm->ps->dualSabers
-		&& (pm->ps->saber[1].saberFlags&SFL_NO_STABDOWN) )
+		&& Any( pm->ps->saber[1].saberFlags & SFL_NO_STABDOWN ) )
 	{
 		return LS_NONE;
 	}
 	if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 	{//player
-		if ( G_TryingKataAttack( pm->gent, &pm->cmd ) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+		if ( G_TryingKataAttack( pm->gent, &pm->cmd ) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 		{//want to try a special
 			return LS_NONE;
 		}
@@ -2225,7 +2225,7 @@ saberMoveName_t PM_CheckStabDown( void )
 	{//player
 		if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )//in air
 		{//sorry must be on ground (or have just jumped)
-			if ( level.time-pm->ps->lastOnGround <= 50 && (pm->ps->pm_flags&PMF_JUMPING) )
+			if ( level.time-pm->ps->lastOnGround <= 50 && Any(pm->ps->pm_flags&PMF_JUMPING) )
 			{//just jumped, it's okay
 			}
 			else
@@ -2239,7 +2239,7 @@ saberMoveName_t PM_CheckStabDown( void )
 		}
 		else if ( pm->ps->groundEntityNum == ENTITYNUM_NONE //in air
 			&& level.time-pm->ps->lastOnGround <= 250 //just left ground
-			&& (pm->ps->pm_flags&PMF_JUMPING) )//jumped
+			&& Any(pm->ps->pm_flags&PMF_JUMPING) )//jumped
 		{//just jumped
 		}
 		else
@@ -2254,7 +2254,7 @@ saberMoveName_t PM_CheckStabDown( void )
 	{//NPC
 		if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )//in air
 		{//sorry must be on ground (or have just jumped)
-			if ( level.time-pm->ps->lastOnGround <= 250 && (pm->ps->pm_flags&PMF_JUMPING) )
+			if ( level.time-pm->ps->lastOnGround <= 250 && Any(pm->ps->pm_flags&PMF_JUMPING) )
 			{//just jumped, it's okay
 			}
 			else
@@ -2371,8 +2371,8 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 		}
 		if ( allowFB )
 		{//directly in front anim allowed
-			if ( !(pm->ps->saber[0].saberFlags&SFL_NO_BACK_ATTACK)
-				&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_BACK_ATTACK)) )
+			if ( !Any( pm->ps->saber[0].saberFlags & SFL_NO_BACK_ATTACK )
+				&& (!pm->ps->dualSabers || !Any( pm->ps->saber[1].saberFlags & SFL_NO_BACK_ATTACK )) )
 			{//okay to do backstabs with this saber
 				if ( enemyDist > 200 || pm->gent->enemy->health <= 0 )
 				{//hmm, look in back for an enemy
@@ -2452,8 +2452,8 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 	else if ( allowFB )
 	{//back attack allowed
 		//if ( !PM_InKnockDown( pm->ps ) )
-		if ( !(pm->ps->saber[0].saberFlags&SFL_NO_BACK_ATTACK)
-			&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_BACK_ATTACK)) )
+		if ( !Any( pm->ps->saber[0].saberFlags & SFL_NO_BACK_ATTACK )
+			&& (!pm->ps->dualSabers || !Any( pm->ps->saber[1].saberFlags & SFL_NO_BACK_ATTACK )) )
 		{//okay to do backstabs with this saber
 			if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
 			{//only when on ground
@@ -2463,7 +2463,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 						&& enemyDist < 128
 						&& (pm->ps->saberAnimLevel == SS_FAST || pm->ps->saberAnimLevel == SS_STAFF || (pm->gent->client &&(pm->gent->client->NPC_class == CLASS_TAVION||pm->gent->client->NPC_class == CLASS_ALORA)&&Q_irand(0,2))) )
 					{//fast back-stab
-						if ( !(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
+						if ( !Any(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
 						{//can't do it while ducked?
 							if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) || (pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG) )
 							{//only fencers and above can do this
@@ -2476,7 +2476,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB, bool allowStabDown )
 					{//higher level back spin-attacks
 						if ( (pm->ps->clientNum&&!PM_ControlledByPlayer()) || ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )
 						{
-							if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
+							if ( Any(pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 							{
 								autoMove = LS_A_BACK_CR;
 							}
@@ -2623,7 +2623,7 @@ bool PM_CheckLungeAttackMove( void )
 	{//alt+back+attack using fast, dual or staff attacks
 		if ( pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() )
 		{//NPC
-			if ( pm->cmd.upmove < 0 || (pm->ps->pm_flags&PMF_DUCKED) )
+			if ( pm->cmd.upmove < 0 || Any(pm->ps->pm_flags&PMF_DUCKED) )
 			{//ducking
 				if ( pm->ps->legsAnim == BOTH_STAND2
 					|| pm->ps->legsAnim == BOTH_SABERFAST_STANCE
@@ -2780,7 +2780,7 @@ bool PM_CheckJumpForwardAttackMove( void )
 	if ( pm->cmd.forwardmove > 0 //going forward
 		&& pm->ps->forceRageRecoveryTime < pm->cmd.serverTime	//not in a force Rage recovery period
 		&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
-		&& pm->gent && !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+		&& pm->gent && !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 		&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=250) //on ground or just jumped (if not player)
 		)
 	{
@@ -2790,11 +2790,11 @@ bool PM_CheckJumpForwardAttackMove( void )
 			if ( !PM_SaberInTransitionAny( pm->ps->saberMove ) //not going to/from/between an attack anim
 				&& !PM_SaberInAttack( pm->ps->saberMove ) //not in attack anim
 				&& pm->ps->weaponTime <= 0//not busy
-				&& (pm->cmd.buttons&BUTTON_ATTACK) )//want to attack
+				&& Any(pm->cmd.buttons&BUTTON_ATTACK) )//want to attack
 			{
 				if ( pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() )
 				{//NPC
-					if ( pm->cmd.upmove > 0 || (pm->ps->pm_flags&PMF_JUMPING) )//jumping NPC
+					if ( pm->cmd.upmove > 0 || Any(pm->ps->pm_flags&PMF_JUMPING) )//jumping NPC
 					{
 						if ( pm->gent
 							&& pm->gent->NPC
@@ -2831,7 +2831,7 @@ bool PM_CheckJumpForwardAttackMove( void )
 				*/
 				if ( pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() )
 				{//NPC
-					if ( pm->cmd.upmove > 0 || (pm->ps->pm_flags&PMF_JUMPING) )//NPC jumping
+					if ( pm->cmd.upmove > 0 || Any(pm->ps->pm_flags&PMF_JUMPING) )//NPC jumping
 					{
 						if ( pm->gent
 							&& pm->gent->NPC
@@ -2997,7 +2997,7 @@ bool PM_CheckFlipOverAttackMove( bool checkEnemy )
 	if ( (pm->ps->saberAnimLevel == SS_MEDIUM //medium
 		|| pm->ps->saberAnimLevel == SS_TAVION )//tavion
 		&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
-		&& !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+		&& !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 		&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=250) //on ground or just jumped
 		)
 	{
@@ -3005,7 +3005,7 @@ bool PM_CheckFlipOverAttackMove( bool checkEnemy )
 		if ( pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() )
 		{//NPC
 			if ( pm->cmd.upmove > 0//want to jump
-				|| (pm->ps->pm_flags&PMF_JUMPING) )//jumping
+				|| Any(pm->ps->pm_flags&PMF_JUMPING) )//jumping
 			{//flip over-forward down-attack
 				if ( (pm->gent->NPC
 					&& (pm->gent->NPC->rank==RANK_CREWMAN||pm->gent->NPC->rank>=RANK_LT)
@@ -3136,18 +3136,18 @@ bool PM_CheckBackflipAttackMove( void )
 
 	if ( pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
 		&& pm->ps->forceRageRecoveryTime < pm->cmd.serverTime	//not in a force Rage recovery period
-		&& pm->gent && !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+		&& pm->gent && !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 		//&& (pm->ps->legsAnim == BOTH_SABERSTAFF_STANCE || level.time-pm->ps->lastStationary<=250)//standing or just started moving
 		&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=250) )//on ground or just jumped (if not player)
 	{
 		if ( pm->cmd.forwardmove < 0 //moving backwards
 			&& pm->ps->saberAnimLevel == SS_STAFF //using staff
-			&& (pm->cmd.upmove > 0 || (pm->ps->pm_flags&PMF_JUMPING)) )//jumping
+			&& (pm->cmd.upmove > 0 || Any(pm->ps->pm_flags&PMF_JUMPING)) )//jumping
 		{//jumping backwards and using staff
 			if ( !PM_SaberInTransitionAny( pm->ps->saberMove ) //not going to/from/between an attack anim
 				&& !PM_SaberInAttack( pm->ps->saberMove ) //not in attack anim
 				&& pm->ps->weaponTime <= 0//not busy
-				&& (pm->cmd.buttons&BUTTON_ATTACK) )//want to attack
+				&& Any(pm->cmd.buttons&BUTTON_ATTACK) )//want to attack
 			{//not already attacking
 				if ( pm->ps->clientNum >= MAX_CLIENTS && !PM_ControlledByPlayer() )
 				{//NPC
@@ -3214,13 +3214,13 @@ saberMoveName_t PM_CheckDualSpinProtect( void )
 		&& pm->ps->saber[0].Active() && pm->ps->saber[1].Active()//both sabers on
 		//&& pm->ps->forcePowerLevel[FP_PUSH]>=FORCE_LEVEL_3//force push 3
 		//&& ((pm->ps->forcePowersActive&Bit( FP_PUSH ))||pm->ps->forcePowerDebounce[FP_PUSH]>level.time)//force-pushing
-		&& G_TryingKataAttack( pm->gent, &pm->cmd )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
+		&& G_TryingKataAttack( pm->gent, &pm->cmd )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
 		&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER, true )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER//DUAL_SPIN_PROTECT_POWER//force push 3
-		&& (pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
+		&& Any(pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
 		)
 	{//FIXME: some NPC logic to do this?
 		/*
-		if ( (pm->ps->pm_flags&PMF_DUCKED||pm->cmd.upmove<0)//crouching
+		if ( (Any( pm->ps->pm_flags&PMF_DUCKED )||pm->cmd.upmove<0)//crouching
 			&& g_crosshairEntNum >= ENTITYNUM_WORLD )
 		*/
 		{
@@ -3280,13 +3280,13 @@ saberMoveName_t PM_CheckStaffKata( void )
 		&& pm->ps->saber[0].Active()//saber on
 		//&& pm->ps->forcePowerLevel[FP_PUSH]>=FORCE_LEVEL_3//force push 3
 		//&& ((pm->ps->forcePowersActive&Bit( FP_PUSH ))||pm->ps->forcePowerDebounce[FP_PUSH]>level.time)//force-pushing
-		&& G_TryingKataAttack( pm->gent, &pm->cmd )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
+		&& G_TryingKataAttack( pm->gent, &pm->cmd )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
 		&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER, true )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER//DUAL_SPIN_PROTECT_POWER//force push 3
-		&& (pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
+		&& Any(pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
 		)
 	{//FIXME: some NPC logic to do this?
 		/*
-		if ( (pm->ps->pm_flags&PMF_DUCKED||pm->cmd.upmove<0)//crouching
+		if ( (Any( pm->ps->pm_flags&PMF_DUCKED )||pm->cmd.upmove<0)//crouching
 			&& g_crosshairEntNum >= ENTITYNUM_WORLD )
 		*/
 		{
@@ -3309,12 +3309,12 @@ saberMoveName_t PM_CheckPullAttack( void )
 		return LS_NONE;
 	}
 
-	if ( (pm->ps->saber[0].saberFlags&SFL_NO_PULL_ATTACK) )
+	if ( Any( pm->ps->saber[0].saberFlags & SFL_NO_PULL_ATTACK ) )
 	{
 		return LS_NONE;
 	}
 	if ( pm->ps->dualSabers
-		&& (pm->ps->saber[1].saberFlags&SFL_NO_PULL_ATTACK) )
+		&& Any( pm->ps->saber[1].saberFlags & SFL_NO_PULL_ATTACK ) )
 	{
 		return LS_NONE;
 	}
@@ -3323,9 +3323,9 @@ saberMoveName_t PM_CheckPullAttack( void )
 		//&& (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer())//PLAYER ONLY
 		&& pm->ps->saberAnimLevel >= SS_FAST//single saber styles - FIXME: Tavion?
 		&& pm->ps->saberAnimLevel <= SS_STRONG//single saber styles - FIXME: Tavion?
-		&& G_TryingPullAttack( pm->gent, &pm->cmd, false )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
+		&& G_TryingPullAttack( pm->gent, &pm->cmd, false )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)//holding focus
 		//&& pm->cmd.forwardmove<0//pulling back
-		&& (pm->cmd.buttons&BUTTON_ATTACK)//attacking
+		&& Any(pm->cmd.buttons&BUTTON_ATTACK)//attacking
 		&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER_FB )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER_FB//have enough power
 		)
 	{//FIXME: some NPC logic to do this?
@@ -3383,11 +3383,11 @@ saberMoveName_t PM_CheckPullAttack( void )
 					vec3_t targAngles = {0,targEnt->client->ps.viewangles[YAW],0};
 					if ( InFront( pm->ps->origin, targEnt->currentOrigin, targAngles ) )
 					{
-						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_F, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
+						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_F, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 					}
 					else
 					{
-						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_B, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
+						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_B, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 					}
 					//hold the anim until I'm with done pull anim
 					targEnt->client->ps.legsAnimTimer = targEnt->client->ps.torsoAnimTimer = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, saberMoveData[pullAttackMove].animToUse );
@@ -3512,11 +3512,11 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 		if ( !noSpecials
 			&& overrideJumpRightAttackMove != LS_NONE
 			&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=250) //on ground or just jumped
-			&& (pm->cmd.buttons&BUTTON_ATTACK)//hitting attack
+			&& Any(pm->cmd.buttons&BUTTON_ATTACK)//hitting attack
 			&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0//have force jump 1 at least
 			&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER_LR )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER_LR//have enough power
 			&& (((pm->ps->clientNum>=MAX_CLIENTS&&!PM_ControlledByPlayer())&&pm->cmd.upmove > 0)//jumping NPC
-				||((pm->ps->clientNum<MAX_CLIENTS||PM_ControlledByPlayer())&&G_TryingCartwheel(pm->gent, &pm->cmd)/*(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/)) )//focus-holding player
+				||((pm->ps->clientNum<MAX_CLIENTS||PM_ControlledByPlayer())&&G_TryingCartwheel(pm->gent, &pm->cmd)/*Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/)) )//focus-holding player
 		{//cartwheel right
 			vec3_t right, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 			if ( pm->gent )
@@ -3537,8 +3537,8 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 			}
 			else
 			{
-				if ( !(pm->ps->saber[0].saberFlags&SFL_NO_CARTWHEELS)
-					&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_CARTWHEELS)) )
+				if ( !Any( pm->ps->saber[0].saberFlags & SFL_NO_CARTWHEELS )
+					&& (!pm->ps->dualSabers || !Any( pm->ps->saber[1].saberFlags & SFL_NO_CARTWHEELS )) )
 				{//okay to do cartwheels with this saber
 					/*
 					if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
@@ -3563,7 +3563,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 		{//not in a cartwheel/arial
 			if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 			{//player
-				if ( G_TryingSpecial(pm->gent, &pm->cmd)/*(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/ )//Holding focus
+				if ( G_TryingSpecial(pm->gent, &pm->cmd)/*Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/ )//Holding focus
 				{//if no special worked, do nothing
 					return LS_NONE;
 				}
@@ -3594,11 +3594,11 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 		if ( !noSpecials
 			&& overrideJumpLeftAttackMove != LS_NONE
 			&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=250) //on ground or just jumped
-			&& (pm->cmd.buttons&BUTTON_ATTACK)//hitting attack
+			&& Any(pm->cmd.buttons&BUTTON_ATTACK)//hitting attack
 			&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0//have force jump 1 at least
 			&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER_LR )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER_LR//have enough power
 			&& (((pm->ps->clientNum>=MAX_CLIENTS&&!PM_ControlledByPlayer())&&pm->cmd.upmove > 0)//jumping NPC
-				||((pm->ps->clientNum<MAX_CLIENTS||PM_ControlledByPlayer())&&G_TryingCartwheel(pm->gent, &pm->cmd)/*(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/)) )//focus-holding player
+				||((pm->ps->clientNum<MAX_CLIENTS||PM_ControlledByPlayer())&&G_TryingCartwheel(pm->gent, &pm->cmd)/*Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/)) )//focus-holding player
 		{//cartwheel left
 			vec3_t right, fwdAngles = {0, pm->ps->viewangles[YAW], 0};
 			if ( pm->gent )
@@ -3619,8 +3619,8 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 			}
 			else
 			{
-				if ( !(pm->ps->saber[0].saberFlags&SFL_NO_CARTWHEELS)
-					&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_CARTWHEELS)) )
+				if ( !Any( pm->ps->saber[0].saberFlags & SFL_NO_CARTWHEELS )
+					&& (!pm->ps->dualSabers || !Any( pm->ps->saber[1].saberFlags & SFL_NO_CARTWHEELS )) )
 				{//okay to do cartwheels with this saber
 					/*
 					if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
@@ -3645,7 +3645,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 		{//not in a left cartwheel/arial
 			if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 			{//player
-				if ( G_TryingSpecial(pm->gent, &pm->cmd)/*(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/ )//Holding focus
+				if ( G_TryingSpecial(pm->gent, &pm->cmd)/*Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS)*/ )//Holding focus
 				{//if no special worked, do nothing
 					return LS_NONE;
 				}
@@ -3748,7 +3748,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 
 			if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 			{//player
-				if ( G_TryingSpecial(pm->gent,&pm->cmd) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+				if ( G_TryingSpecial(pm->gent,&pm->cmd) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 				{//if no special worked, do nothing
 					return LS_NONE;
 				}
@@ -3776,7 +3776,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 
 			if ( g_saberNewControlScheme->integer
 				&& (pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer())  //PLAYER ONLY
-				&& (pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus, trying special backwards attacks
+				&& Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus, trying special backwards attacks
 			{//player lunge attack logic
 				if ( ( pm->ps->dualSabers //or dual
 						|| pm->ps->saberAnimLevel == SS_STAFF )//pm->ps->SaberStaff() )//or staff
@@ -3794,15 +3794,15 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 				}
 				if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 				{//player
-					if ( G_TryingSpecial(pm->gent,&pm->cmd) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+					if ( G_TryingSpecial(pm->gent,&pm->cmd) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 					{//if no special worked, do nothing
 						return LS_NONE;
 					}
 				}
 				//if ( !PM_InKnockDown( pm->ps ) )
 				//check backstabs
-				if ( !(pm->ps->saber[0].saberFlags&SFL_NO_BACK_ATTACK)
-					&& (!pm->ps->dualSabers || !(pm->ps->saber[1].saberFlags&SFL_NO_BACK_ATTACK)) )
+				if ( !Any( pm->ps->saber[0].saberFlags & SFL_NO_BACK_ATTACK )
+					&& (!pm->ps->dualSabers || !Any( pm->ps->saber[1].saberFlags & SFL_NO_BACK_ATTACK )) )
 				{//okay to do backstabs with this saber
 					if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
 					{//only when on ground
@@ -3818,7 +3818,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 									&& DistanceSquared( pm->gent->currentOrigin, pm->gent->enemy->currentOrigin ) < 16384//128 squared
 									&& (pm->ps->saberAnimLevel == SS_FAST || pm->ps->saberAnimLevel == SS_STAFF || (pm->gent->client &&(pm->gent->client->NPC_class == CLASS_TAVION||pm->gent->client->NPC_class == CLASS_ALORA)&&Q_irand(0,1))) )
 								{//fast attacks and Tavion
-									if ( !(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
+									if ( !Any(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
 									{//can't do it while ducked?
 										if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) || (pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG) )
 										{//only fencers and above can do this
@@ -3829,7 +3829,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 								else if ( pm->ps->saberAnimLevel != SS_FAST
 									&& pm->ps->saberAnimLevel != SS_STAFF )
 								{//medium and higher attacks
-									if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
+									if ( Any(pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 									{
 										return LS_A_BACK_CR;
 									}
@@ -3888,7 +3888,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 
 			if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 			{//player
-				if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+				if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 				{//if no special worked, do nothing
 					return LS_NONE;
 				}
@@ -3910,7 +3910,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 			{//bounces should go to their default attack if you don't specify a direction but are attacking
 				if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 				{//player
-					if ( G_TryingSpecial(pm->gent,&pm->cmd) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+					if ( G_TryingSpecial(pm->gent,&pm->cmd) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 					{//if no special worked, do nothing
 						return LS_NONE;
 					}
@@ -3937,7 +3937,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 			{//bounces should go to their default attack if you don't specify a direction but are attacking
 				if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 				{//player
-					if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+					if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 					{//if no special worked, do nothing
 						return LS_NONE;
 					}
@@ -3988,7 +3988,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 				}
 				if ( pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer() ) //PLAYER ONLY
 				{//player
-					if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
+					if ( G_TryingSpecial( pm->gent, &pm->cmd ) )//Any(pm->cmd.buttons&BUTTON_FORCE_FOCUS) )//Holding focus
 					{//if no special worked, do nothing
 						return LS_NONE;
 					}
@@ -4327,6 +4327,7 @@ std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame
 bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 {
 	int		junk, curFrame;
+	boneFlags_t		junkFlags;
 	float	currentFrame, animSpeed;
 
 	if ( !self->client )
@@ -4334,7 +4335,7 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 		return true;
 	}
 
-	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junk, &animSpeed, nullptr );
+	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junkFlags, &animSpeed, nullptr );
 	curFrame = floor( currentFrame );
 
 	animNumber_t				legsAnim	= self->client->ps.legsAnim;
@@ -4638,7 +4639,7 @@ PM_SetAnimFinal
 */
 #define G2_DEBUG_TIMING (0)
 void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
-					 int setAnimParts,animNumber_t anim,int setAnimFlags,
+					 setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags,
 					 int *torsoAnimTimer,int *legsAnimTimer,
 					 gentity_t *gent,int blendTime)		// default blendTime=350
 {
@@ -4707,11 +4708,11 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 	//---------------------------------------------------------------------------------------------------------
 	if (!gi.G2API_HaveWeGhoul2Models(gent->ghoul2))
 	{
-		if (setAnimParts&SETANIM_TORSO)
+		if (Any( setAnimParts & SETANIM_TORSO ))
 		{
 			(*torsoAnim) = anim;
 		}
-		if (setAnimParts&SETANIM_LEGS)
+		if (Any( setAnimParts & SETANIM_LEGS ))
 		{
 			(*legsAnim) = anim;
 		}
@@ -4728,17 +4729,17 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 // SETUP VALUES FOR INCOMMING ANIMATION
 //======================================
 	const bool	animFootMove  = (PM_WalkingAnim(anim) || PM_RunningAnim(anim) || anim==BOTH_CROUCH1WALK || anim==BOTH_CROUCH1WALKBACK);
-	const bool	animHoldless  = (setAnimFlags&SETANIM_FLAG_HOLDLESS)!=0;
-	const bool	animHold	  = (setAnimFlags&SETANIM_FLAG_HOLD)!=0;
-	const bool	animRestart	  = (setAnimFlags&SETANIM_FLAG_RESTART)!=0;
-	const bool	animOverride  = (setAnimFlags&SETANIM_FLAG_OVERRIDE)!=0;
+	const bool	animHoldless  = Any( setAnimFlags & SETANIM_FLAG_HOLDLESS );
+	const bool	animHold	  = Any( setAnimFlags & SETANIM_FLAG_HOLD );
+	const bool	animRestart	  = Any( setAnimFlags & SETANIM_FLAG_RESTART );
+	const bool	animOverride  = Any( setAnimFlags & SETANIM_FLAG_OVERRIDE );
 	const bool	animSync	  = (g_synchSplitAnims->integer!=0 && !animRestart);
 	float	animCurrent	  = (-1.0f);
 	float	animSpeed	  = (50.0f / curAnim.frameLerp * timeScaleMod); // animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
 	const float	animFPS		  = (::abs(curAnim.frameLerp));
 	const int		animDurMSec	  = (int)(((curAnim.numFrames - 1) * animFPS) / timeScaleMod);
 	const int		animHoldMSec  = ((animHoldless && timeScaleMod==1.0f)?((animDurMSec>1)?(animDurMSec-1):(animFPS)):(animDurMSec));
-	int		animFlags	  = (curAnim.loopFrames!=-1)?(BONE_ANIM_OVERRIDE_LOOP):(BONE_ANIM_OVERRIDE_FREEZE);
+	boneFlags_t		animFlags	  = (curAnim.loopFrames!=-1)?(BONE_ANIM_OVERRIDE_LOOP):(BONE_ANIM_OVERRIDE_FREEZE);
 	int		animStart	  = (curAnim.firstFrame);
 	int		animEnd		  = (curAnim.firstFrame)+(animations[anim].numFrames);
 
@@ -4861,11 +4862,11 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 	float	bodyCurrent	  = 0.0f;
 	int		bodyStart	  = 0;
 	int		bodyEnd		  = 0;
-	int		bodyFlags	  = 0;
+	boneFlags_t		bodyFlags	  = BONE_NONE;
 	animNumber_t		bodyAnim	  = (*legsAnim);
 	int		bodyBone	  = (gent->rootBone);
 	bool	bodyTimerOn	  = ((*legsAnimTimer>0) || (*legsAnimTimer)==-1);
-	bool	bodyPlay	  = ((setAnimParts&SETANIM_LEGS) && (bodyBone!=-1) && (animOverride || !bodyTimerOn));
+	bool	bodyPlay	  = (Any( setAnimParts & SETANIM_LEGS ) && (bodyBone!=-1) && (animOverride || !bodyTimerOn));
 	bool	bodyAnimating = !!gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel], bodyBone, actualTime, &bodyCurrent, &bodyStart, &bodyEnd, &bodyFlags, &bodySpeed, nullptr);
 	bool	bodyOnAnimNow = (bodyAnimating && bodyAnim==anim && bodyStart==animStart && bodyEnd==animEnd);
 	bool	bodyMatchTorsFrame = false;
@@ -4877,11 +4878,11 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 	float	torsCurrent	  = 0.0f;
 	int		torsStart	  = 0;
 	int		torsEnd		  = 0;
-	int		torsFlags	  = 0;
+	boneFlags_t		torsFlags	  = BONE_NONE;
 	animNumber_t		torsAnim	  = (*torsoAnim);
 	int		torsBone	  = (gent->lowerLumbarBone);
 	bool	torsTimerOn	  = ((*torsoAnimTimer)>0 || (*torsoAnimTimer)==-1);
-	bool	torsPlay	  = (gent->client->NPC_class!=CLASS_RANCOR && (setAnimParts&SETANIM_TORSO) && (torsBone!=-1) && (animOverride || !torsTimerOn));
+	bool	torsPlay	  = (gent->client->NPC_class!=CLASS_RANCOR && Any( setAnimParts & SETANIM_TORSO ) && (torsBone!=-1) && (animOverride || !torsTimerOn));
 	bool	torsAnimating = !!gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel], torsBone, actualTime, &torsCurrent, &torsStart, &torsEnd, &torsFlags, &torsSpeed, nullptr);
 	bool	torsOnAnimNow = (torsAnimating && torsAnim==anim && torsStart==animStart && torsEnd==animEnd);
 	bool	torsMatchBodyFrame = false;
@@ -5070,7 +5071,7 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 
 
 
-void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime)
+void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NPC and Players
 	// rename PM_SetAnimFinal to PM_SetAnim and have both NPC and Players call PM_SetAnim
 
@@ -5101,25 +5102,25 @@ void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags,
 		}
 	}
 
-	if ( !setAnimParts )
+	if ( !Any( setAnimParts ) )
 	{
 		return;
 	}
 
-	if (setAnimFlags&SETANIM_FLAG_OVERRIDE)
+	if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
 	{
 //		pm->ps->animationTimer = 0;
 
-		if (setAnimParts & SETANIM_TORSO)
+		if (Any( setAnimParts & SETANIM_TORSO ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || pm->ps->torsoAnim != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || pm->ps->torsoAnim != anim )
 			{
 				PM_SetTorsoAnimTimer( pm->gent, &pm->ps->torsoAnimTimer, 0 );
 			}
 		}
-		if (setAnimParts & SETANIM_LEGS)
+		if (Any( setAnimParts & SETANIM_LEGS ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || pm->ps->legsAnim != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || pm->ps->legsAnim != anim )
 			{
 				PM_SetLegsAnimTimer( pm->gent, &pm->ps->legsAnimTimer, 0 );
 			}
@@ -5197,7 +5198,7 @@ void PM_TorsoAnimLightsaber()
 
 	if ( pm->ps->saber[0].blade[0].active
 		&& pm->ps->saber[0].blade[0].length < 3
-		&& !(pm->ps->saberEventFlags&SEF_HITWALL)
+		&& !Any( pm->ps->saberEventFlags & SEF_HITWALL )
 		&& pm->ps->weaponstate == WEAPON_RAISING )
 	{
 		if (!G_IsRidingVehicle(pm->gent))
@@ -5503,7 +5504,7 @@ void PM_TorsoAnimLightsaber()
 								|| pm->ps->legsAnim == BOTH_WALKBACK_DUAL )
 								&& pm->ps->saberBlockingTime < cg.time )
 							{//running w/1-handed weapon uses full-body anim
-								int setFlags = SETANIM_FLAG_NORMAL;
+								setAnimFlags_t setFlags = SETANIM_FLAG_NORMAL;
 								if ( PM_LandingAnim( pm->ps->torsoAnim ) )
 								{
 									setFlags = SETANIM_FLAG_OVERRIDE;
@@ -5539,12 +5540,12 @@ void PM_TorsoAnimation( void )
 		return;
 	}
 
-	if ( (pm->ps->eFlags&EF_HELD_BY_WAMPA) )
+	if ( Any(pm->ps->eFlags&EF_HELD_BY_WAMPA) )
 	{
 		return;
 	}
 
-	if ( (pm->ps->eFlags&EF_FORCE_DRAINED) )
+	if ( Any(pm->ps->eFlags&EF_FORCE_DRAINED) )
 	{//being drained
 		//PM_SetAnim( pm, SETANIM_TORSO, BOTH_HUGGEE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 		return;
@@ -5556,7 +5557,7 @@ void PM_TorsoAnimation( void )
 		return;
 	}
 
-	if( pm->gent && pm->gent->NPC && (pm->gent->NPC->scriptFlags & SCF_FORCED_MARCH) )
+	if( pm->gent && pm->gent->NPC && Any(pm->gent->NPC->scriptFlags & SCF_FORCED_MARCH) )
 	{
 		return;
 	}
@@ -5566,7 +5567,7 @@ void PM_TorsoAnimation( void )
 		pm->gent->client->renderInfo.torsoFpsMod = 1.0f;
 	}
 
-	if ( pm->gent && pm->ps && pm->ps->eFlags & EF_LOCKED_TO_WEAPON )
+	if ( pm->gent && pm->ps && Any( pm->ps->eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		if ( pm->gent->owner && pm->gent->owner->e_UseFunc == useF_emplaced_gun_use )//ugly way to tell, but...
 		{//full body
@@ -5777,7 +5778,7 @@ void PM_TorsoAnimation( void )
 		weaponBusy = true;
 		pm->ps->weaponstate = WEAPON_IDLE;
 	}
-	else if ( pm->ps->pm_flags & PMF_DUCKED )
+	else if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 	{//ducking is considered on alert... plus looks stupid to have arms hanging down when crouched
 		weaponBusy = true;
 	}

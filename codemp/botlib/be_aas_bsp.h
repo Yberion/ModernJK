@@ -54,7 +54,7 @@ bool AAS_EntityCollision(int entnum,
 										vec3_t boxmins,
 										vec3_t boxmaxs,
 										vec3_t end,
-										int contentmask,
+										contentsFlags_t contentmask,
 										bsp_trace_t *trace);
 //for debugging
 void AAS_PrintFreeBSPLinks(char *str);
@@ -69,9 +69,9 @@ bsp_trace_t AAS_Trace(	vec3_t start,
 								vec3_t maxs,
 								vec3_t end,
 								int passent,
-								int contentmask);
+								contentsFlags_t contentmask);
 //returns the contents at the given point
-int AAS_PointContents(vec3_t point);
+contentsFlags_t AAS_PointContents(vec3_t point);
 //returns true when p2 is in the PVS of p1
 bool AAS_inPVS(vec3_t p1, vec3_t p2);
 //returns true when p2 is in the PHS of p1

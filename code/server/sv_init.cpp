@@ -398,14 +398,14 @@ void SV_Init (void) {
 	sv_timeout = Cvar_Get ("sv_timeout", "120", CVAR_TEMP );
 	sv_zombietime = Cvar_Get ("sv_zombietime", "2", CVAR_TEMP );
 	Cvar_Get ("nextmap", "", CVAR_TEMP );
-	sv_spawntarget = Cvar_Get ("spawntarget", "", 0 );
+	sv_spawntarget = Cvar_Get ("spawntarget", "", CVAR_NONE );
 
-	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", 0);
-	sv_showloss = Cvar_Get ("sv_showloss", "0", 0);
-	sv_killserver = Cvar_Get ("sv_killserver", "0", 0);
+	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", CVAR_NONE);
+	sv_showloss = Cvar_Get ("sv_showloss", "0", CVAR_NONE);
+	sv_killserver = Cvar_Get ("sv_killserver", "0", CVAR_NONE);
 	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
-	sv_testsave = Cvar_Get ("sv_testsave", "0", 0);
-	sv_compress_saved_games = Cvar_Get ("sv_compress_saved_games", "1", 0);
+	sv_testsave = Cvar_Get ("sv_testsave", "0", CVAR_NONE);
+	sv_compress_saved_games = Cvar_Get ("sv_compress_saved_games", "1", CVAR_NONE);
 
 	// Only allocated once, no point in moving it around and fragmenting
 	// create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection

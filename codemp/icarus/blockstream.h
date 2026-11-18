@@ -124,6 +124,8 @@ protected:
 
 //CBlock
 
+#include "qcommon/q_icarusflags.h"
+
 class CBlock
 {
 	typedef std::vector< CBlockMember * >	blockMember_v;
@@ -159,17 +161,17 @@ public:
 	icarusToken_t	GetBlockID( void )	const	{	return m_id;			}	//Get the ID for the block
 	int	GetNumMembers( void )	const	{	return (int)m_members.size();}	//Get the number of member in the block's list
 
-	void SetFlags( unsigned char flags )	{	m_flags = flags;	}
-	void SetFlag( unsigned char flag )		{	m_flags |= flag;	}
+	void SetFlags( blockFlags_t flags )	{	m_flags = flags;	}
+	void SetFlag( blockFlags_t flag )		{	m_flags |= flag;	}
 
-	int HasFlag( unsigned char flag )	const	{	return ( m_flags & flag );	}
-	unsigned char GetFlags( void )		const	{	return m_flags;				}
+	bool HasFlag( blockFlags_t flag )	const	{	return Any( m_flags & flag );	}
+	blockFlags_t GetFlags( void )		const	{	return m_flags;				}
 
 protected:
 
 	blockMember_v				m_members;			//List of all CBlockMembers owned by this list
 	icarusToken_t				m_id;				//ID of the block
-	unsigned char				m_flags;
+	blockFlags_t				m_flags;
 };
 
 // CBlockStream

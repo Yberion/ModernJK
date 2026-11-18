@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
+#include "ghoul2/G2.h"
+
 #define	CGAME_API_VERSION		2
 
 enum class uiMenuCommand_t;		// ui_public.h
@@ -45,7 +47,7 @@ enum class fakeAscii_t;			// ui/keycodes.h
 // but they may not be sent if a client's rate level is exceeded, or
 // they may be dropped by the network.
 typedef struct snapshot_s {
-	int				snapFlags;			// SNAPFLAG_RATE_DELAYED, etc
+	snapFlags_t		snapFlags;			// SNAPFLAG_RATE_DELAYED, etc
 	int				ping;
 	bool		inputMarginValid;	// the server measured how early it got the command of this snapshot's tick
 	int				inputMargin;		// that margin in ms (negative: the command came after its tick)
@@ -106,7 +108,8 @@ typedef struct TCGVectorData_s {
 typedef struct TCGTrace_s {
 	trace_t mResult;					// output
 	vec3_t	mStart, mMins, mMaxs, mEnd;	// input
-	int		mSkipNumber, mMask;			// input
+	int		mSkipNumber;			// input
+	contentsFlags_t	mMask;		// input
 } TCGTrace;
 
 // CG_G2MARK
@@ -190,7 +193,7 @@ typedef struct ragCallbackTraceLine_s {
 	vec3_t			mins;
 	vec3_t			maxs;
 	int				ignore;
-	int				mask;
+	contentsFlags_t	mask;
 } ragCallbackTraceLine_t;
 
 #define	MAX_CG_SHARED_BUFFER_SIZE		2048
@@ -212,7 +215,7 @@ typedef struct cgameImport_s {
 	int				(*PrecisionTimerEnd)					( void *timer );
 
 	// cvar
-	void			(*Cvar_Register)						( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags );
+	void			(*Cvar_Register)						( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags );
 	void			(*Cvar_Set)								( const char *var_name, const char *value );
 	void			(*Cvar_Update)							( vmCvar_t *vmCvar );
 	void			(*Cvar_VariableStringBuffer)			( const char *var_name, char *buffer, int bufsize );
@@ -240,12 +243,12 @@ typedef struct cgameImport_s {
 	clipHandle_t	(*CM_InlineModel)						( int index );
 	void			(*CM_LoadMap)							( const char *mapname, bool subBSP );
 	int				(*CM_NumInlineModels)					( void );
-	int				(*CM_PointContents)						( const vec3_t p, clipHandle_t model );
+	contentsFlags_t	(*CM_PointContents)						( const vec3_t p, clipHandle_t model );
 	int				(*CM_RegisterTerrain)					( const char *config );
 	clipHandle_t	(*CM_TempModel)							( const vec3_t mins, const vec3_t maxs, int capsule );
-	void			(*CM_Trace)								( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
-	int				(*CM_TransformedPointContents)			( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
-	void			(*CM_TransformedTrace)					( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, const vec3_t origin, const vec3_t angles, int capsule );
+	void			(*CM_Trace)								( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, contentsFlags_t brushmask, int capsule );
+	contentsFlags_t	(*CM_TransformedPointContents)			( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
+	void			(*CM_TransformedTrace)					( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, contentsFlags_t brushmask, const vec3_t origin, const vec3_t angles, int capsule );
 	void			(*RMG_Init)								( int terrainID, const char *terrainInfo );
 
 	// sound
@@ -330,10 +333,10 @@ typedef struct cgameImport_s {
 	void			(*SetUserCmdValue)						( weapon_t stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, forcePowers_t fpSel, int invenSel, bool fighterControls );
 
 	// keys
-	int				(*Key_GetCatcher)						( void );
+	keyCatchFlags_t	(*Key_GetCatcher)						( void );
 	std::optional<fakeAscii_t>	(*Key_GetKey)							( const char *binding );
 	bool		(*Key_IsDown)							( fakeAscii_t keynum );
-	void			(*Key_SetCatcher)						( int catcher );
+	void			(*Key_SetCatcher)						( keyCatchFlags_t catcher );
 
 	// preprocessor (botlib_export->PC_***)
 	int				(*PC_AddGlobalDefine)					( char *string );
@@ -346,13 +349,13 @@ typedef struct cgameImport_s {
 
 	// cinematics
 	void			(*CIN_DrawCinematic)					( int handle );
-	int				(*CIN_PlayCinematic)					( const char *arg, int x, int y, int w, int h, int systemBits );
+	int				(*CIN_PlayCinematic)					( const char *arg, int x, int y, int w, int h, cinematicFlags_t systemBits );
 	e_status		(*CIN_RunCinematic)						( int handle );
 	void			(*CIN_SetExtents)						( int handle, int x, int y, int w, int h );
 	e_status		(*CIN_StopCinematic)					( int handle );
 
 	// FX
-	void			(*FX_AddLine)							( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, vec3_t sRGB, vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, int flags );
+	void			(*FX_AddLine)							( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, vec3_t sRGB, vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, fxPrimitiveFlags_t flags );
 	int				(*FX_RegisterEffect)					( const char *file );
 	void			(*FX_PlayEffect)						( const char *file, vec3_t org, vec3_t fwd, int vol, int rad );
 	void			(*FX_PlayEffectID)						( int id, vec3_t org, vec3_t fwd, int vol, int rad, bool isPortal );
@@ -393,9 +396,9 @@ typedef struct cgameImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
 	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
 	int				(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
@@ -412,10 +415,10 @@ typedef struct cgameImport_s {
 	bool		(*G2API_AttachEnt)						( int *boltInfo, void *ghlInfoTo, int toBoltIndex, int entNum, int toModelNum );
 	void			(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
 	bool		(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
+	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags );
 	bool		(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
 	bool		(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
-	int				(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
+	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
 	int				(*G2API_GetTime)						( void );
 	void			(*G2API_SetTime)						( int time, int clock );
 	void			(*G2API_AbsurdSmoothing)				( void *ghoul2, bool status );
@@ -451,7 +454,7 @@ typedef struct cgameExport_s {
 	void			(*KeyEvent)					( int key, bool down );
 	void			(*MouseEvent)				( int x, int y );
 	void			(*EventHandling)			( cgameEvent_t type );
-	int				(*PointContents)			( void );
+	contentsFlags_t	(*PointContents)			( void );
 	void			(*GetLerpOrigin)			( void );
 	void			(*GetLerpData)				( void );
 	void			(*Trace)					( void );

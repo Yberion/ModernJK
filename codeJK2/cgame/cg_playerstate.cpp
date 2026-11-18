@@ -329,7 +329,7 @@ CG_TransitionPlayerState
 */
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// teleporting
-	if ( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) {
+	if ( Any( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) ) {
 		cg.thisFrameTeleport = true;
 	} else {
 		cg.thisFrameTeleport = false;

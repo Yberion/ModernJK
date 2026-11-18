@@ -84,12 +84,12 @@ void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTi
 		}
 	}
 
-	if ( (self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) && ( (event >= EV_ANGER1 && event <= EV_VICTORY3) || (event >= EV_CHASE1 && event <= EV_SUSPICIOUS5) ) )//(event < EV_FF_1A || event > EV_FF_3C) && (event < EV_RESPOND1 || event > EV_MISSION3) )
+	if ( Any(self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) && ( (event >= EV_ANGER1 && event <= EV_VICTORY3) || (event >= EV_CHASE1 && event <= EV_SUSPICIOUS5) ) )//(event < EV_FF_1A || event > EV_FF_3C) && (event < EV_RESPOND1 || event > EV_MISSION3) )
 	{
 		return;
 	}
 
-	if ( (self->NPC->scriptFlags&SCF_NO_ALERT_TALK) && (event >= EV_GIVEUP1 && event <= EV_SUSPICIOUS5) )
+	if ( Any(self->NPC->scriptFlags&SCF_NO_ALERT_TALK) && (event >= EV_GIVEUP1 && event <= EV_SUSPICIOUS5) )
 	{
 		return;
 	}

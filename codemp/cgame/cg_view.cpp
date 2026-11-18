@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "game/bg_saga.h"
 
-#define MASK_CAMERACLIP (MASK_SOLID|CONTENTS_PLAYERCLIP)
+constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID | CONTENTS_PLAYERCLIP;
 #define CAMERA_SIZE	4
 
 
@@ -369,7 +369,7 @@ static void CG_CalcIdealThirdPersonViewLocation(void)
 	}
 
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
+		&& Any(cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
 		&& cg.snap->ps.hasLookTarget
 		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
 	{//stay back
@@ -649,7 +649,7 @@ static void CG_OffsetThirdPersonView( void )
 
 	// if dead, look at killer
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
+		&& Any(cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
 		&& cg.snap->ps.hasLookTarget
 		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
 	{//being held
@@ -1001,11 +1001,11 @@ static void CG_OffsetFirstPersonView( void ) {
 	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
 	delta = cg.bobfracsin * cg_bobPitch.value * speed;
-	if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+	if (Any( cg.predictedPlayerState.pm_flags & PMF_DUCKED ))
 		delta *= 3;		// crouching
 	angles[PITCH] += delta;
 	delta = cg.bobfracsin * cg_bobRoll.value * speed;
-	if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+	if (Any( cg.predictedPlayerState.pm_flags & PMF_DUCKED ))
 		delta *= 3;		// crouching accentuates roll
 	if (cg.bobcycle & 1)
 		delta = -delta;
@@ -1158,7 +1158,7 @@ static int CG_CalcFov( void ) {
 		fov_x = 80;//90;
 	} else {
 		// user selectable
-		if ( cgs.dmflags & DF_FIXED_FOV ) {
+		if ( Any( cgs.dmflags & DF_FIXED_FOV ) ) {
 			// dmflag to prevent wide fov for all clients
 			fov_x = 80;//90;
 		} else {
@@ -1252,7 +1252,7 @@ static int CG_CalcFov( void ) {
 
 	// warp if underwater
 	cg.refdef.viewContents = CG_PointContents( cg.refdef.vieworg, -1 );
-	if ( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ){
+	if ( Any( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ){
 		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		v = WAVE_AMPLITUDE * Q_sin( phase );
 		fov_x += v;
@@ -1865,7 +1865,7 @@ void CG_UpdateSoundTrackers()
 	{
 		cent = &cg_entities[num];
 
-		if (cent && (cent->currentState.eFlags & EF_SOUNDTRACKER) && cent->currentState.number == num)
+		if (cent && Any(cent->currentState.eFlags & EF_SOUNDTRACKER) && cent->currentState.number == num)
 			//make sure the thing is valid at least.
 		{ //keep sound for this entity updated in accordance with its attached entity at all times
 			if (cg.snap && cent->currentState.trickedentindex == cg.snap->ps.clientNum)
@@ -2098,7 +2098,7 @@ static void CG_AddRefentForAutoMap(centity_t *cent)
 	refEntity_t ent;
 	vec3_t flat;
 
-	if (cent->currentState.eFlags & EF_NODRAW)
+	if (Any( cent->currentState.eFlags & EF_NODRAW ))
 	{
 		return;
 	}
@@ -2184,7 +2184,7 @@ void CG_DrawAutoMap(void)
 		return;
 	}
 
-	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
+	if ( Any(cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 	{ //don't show when spec
 		return;
 	}
@@ -2477,7 +2477,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlay
 
 	// if we haven't received any snapshots yet, all
 	// we can draw is the information screen
-	if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
+	if ( !cg.snap || Any( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
 	{
 #if 0
 		// Transition from zero to negative one on the snapshot timeout.

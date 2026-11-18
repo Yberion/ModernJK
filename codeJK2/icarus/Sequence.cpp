@@ -34,7 +34,7 @@ CSequence::CSequence( void )
 {
 	m_numCommands	= 0;
 	m_numChildren	= 0;
-	m_flags			= 0;
+	m_flags			= SQ_COMMON;
 	m_iterations	= 1;
 
 	m_parent		= nullptr;
@@ -173,10 +173,10 @@ void CSequence::SetParent( CSequence *parent )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( parent->m_flags & SQ_RETAIN )
+	if ( Any( parent->m_flags & SQ_RETAIN ) )
 		m_flags |= SQ_RETAIN;
 
-	if ( parent->m_flags & SQ_PENDING )
+	if ( Any( parent->m_flags & SQ_PENDING ) )
 		m_flags |= SQ_PENDING;
 }
 
@@ -268,7 +268,7 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( int flag )
+void CSequence::SetFlag( sequenceFlags_t flag )
 {
 	m_flags |= flag;
 }
@@ -279,7 +279,7 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( int flag, bool children )
+void CSequence::RemoveFlag( sequenceFlags_t flag, bool children )
 {
 	m_flags &= ~flag;
 
@@ -300,9 +300,9 @@ HasFlag
 -------------------------
 */
 
-int CSequence::HasFlag( int flag )
+bool CSequence::HasFlag( sequenceFlags_t flag )
 {
-	return (m_flags & flag);
+	return Any(m_flags & flag);
 }
 
 /*
@@ -360,7 +360,7 @@ int CSequence::SaveCommand( CBlock *block )
 		bID);
 
 	//Save out the block's flags
-	flags = block->GetFlags();
+	flags = to_underlying( block->GetFlags() );
 
 	saved_game.write_chunk<uint8_t>(
 		INT_ID('B', 'F', 'L', 'G'),
@@ -564,7 +564,7 @@ int CSequence::Load( void )
 			INT_ID('B', 'F', 'L', 'G'),
 			flags);
 
-		block->SetFlags( flags );
+		block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 		numMembers = 0;
 

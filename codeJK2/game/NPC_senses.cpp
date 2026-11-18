@@ -31,11 +31,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int eventClearTime;
 /*
-bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask)
 
 returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't work with portals
 */
-bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask)
 {
 	trace_t		tr;
 
@@ -280,29 +280,29 @@ bool InVisrange ( gentity_t *ent )
 NPC_CheckVisibility
 */
 
-visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
+visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags )
 {
 	// flags should never be 0
-	if ( !flags )
+	if ( !Any(flags) )
 	{
 		return VIS_NOT;
 	}
 
 	// check PVS
-	if ( flags & CHECK_PVS )
+	if ( Any( flags & CHECK_PVS ) )
 	{
 		if ( !gi.inPVS ( ent->currentOrigin, NPC->currentOrigin ) )
 		{
 			return VIS_NOT;
 		}
 	}
-	if ( !(flags & (CHECK_360|CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (CHECK_360|CHECK_FOV|CHECK_SHOOT)) )
 	{
 		return VIS_PVS;
 	}
 
 	// check within visrange
-	if (flags & CHECK_VISRANGE)
+	if (Any(flags & CHECK_VISRANGE))
 	{
 		if( !InVisrange ( ent ) )
 		{
@@ -312,20 +312,20 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 
 	// check 360 degree visibility
 	//Meaning has to be a direct line of site
-	if ( flags & CHECK_360 )
+	if ( Any( flags & CHECK_360 ) )
 	{
 		if ( !CanSee ( ent ) )
 		{
 			return VIS_PVS;
 		}
 	}
-	if ( !(flags & (CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (CHECK_FOV|CHECK_SHOOT)) )
 	{
 		return VIS_360;
 	}
 
 	// check FOV
-	if ( flags & CHECK_FOV )
+	if ( Any( flags & CHECK_FOV ) )
 	{
 		if ( !InFOV ( ent, NPC, NPCInfo->stats.hfov, NPCInfo->stats.vfov) )
 		{
@@ -333,13 +333,13 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		}
 	}
 
-	if ( !(flags & CHECK_SHOOT) )
+	if ( !Any(flags & CHECK_SHOOT) )
 	{
 		return VIS_FOV;
 	}
 
 	// check shootability
-	if ( flags & CHECK_SHOOT )
+	if ( Any( flags & CHECK_SHOOT ) )
 	{
 		if ( !CanShoot ( ent, NPC ) )
 		{
@@ -567,7 +567,7 @@ bool G_CheckForDanger( gentity_t *self, int alertEvent )
 		{
 			if ( self->NPC )
 			{
-				if ( self->NPC->scriptFlags & SCF_DONT_FLEE )
+				if ( Any( self->NPC->scriptFlags & SCF_DONT_FLEE ) )
 				{//can't flee
 					return false;
 				}
@@ -771,7 +771,7 @@ bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 	{//can see through 3 panes of glass
 		if ( tr.entityNum < ENTITYNUM_WORLD )
 		{
-			if ( (g_entities[tr.entityNum].svFlags&SVF_GLASS_BRUSH) )
+			if ( Any( g_entities[tr.entityNum].svFlags & SVF_GLASS_BRUSH ) )
 			{//can see through glass, trace again, ignoring me
 				gi.trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, G2_NOCOLLIDE, 0 );
 				traceCount++;

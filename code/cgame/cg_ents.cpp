@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/wp_saber.h"
 #include "../game/g_vehicles.h"
 
-extern void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, vec3_t origin, vec3_t angles);
+extern void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, renderFxFlags_t renderfx, int modelIndex, vec3_t origin, vec3_t angles);
 extern void CG_CheckSaberInWater( centity_t *cent, centity_t *scent, int saberNum, int modelIndex, vec3_t origin, vec3_t angles );
 extern void CG_ForcePushBlur( const vec3_t org, bool darkSide = false );
 extern void CG_AddForceSightShell( refEntity_t *ent, centity_t *cent );
@@ -172,7 +172,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 		gentity_t *ent = cent->gent;
 
-		if ( ent->s.eFlags & EF_LESS_ATTEN )
+		if ( Any( ent->s.eFlags & EF_LESS_ATTEN ) )
 		{
 			chan = CHAN_LESS_ATTEN;
 		}
@@ -180,7 +180,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 		sfxHandle_t	sfx = ( cent->currentState.eType == ET_MOVER ) ? cent->currentState.loopSound : cgs.sound_precache[ cent->currentState.loopSound ];
 
 		// Only play sound if being drawn.
-		if ( !( ent->s.eFlags & EF_NODRAW ) )
+		if ( !Any( ent->s.eFlags & EF_NODRAW ) )
 		{
 			cgi_S_AddLoopingSound( cent->currentState.number, v3Origin/*cent->lerpOrigin*/, vec3_origin, sfx, chan );
 		}
@@ -205,7 +205,7 @@ void CG_AddRefEntWithTransportEffect ( centity_t *cent, refEntity_t *ent )
 	// We are a normal thing....
 	cgi_R_AddRefEntityToScene (ent);
 
-	if ( ent->renderfx & RF_PULSATE && cent->gent->owner && cent->gent->owner->health &&
+	if ( Any( ent->renderfx & RF_PULSATE ) && cent->gent->owner && cent->gent->owner->health &&
 		!cent->gent->owner->s.number && cent->gent->owner->client && //only for player
 			cent->gent->owner->client->ps.saberEntityState == SES_RETURNING &&
 			cent->currentState.saberActive == false )
@@ -226,11 +226,11 @@ void CG_AddRefEntWithTransportEffect ( centity_t *cent, refEntity_t *ent )
 		{
 			VectorMA( ent->origin, -i, ent->axis[2], org );
 
-			FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, 0x08000000 );
+			FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, FX_USE_ALPHA );
 		}
 		if ( cent->gent->owner->s.weapon == WP_SABER )
 		{//he's still controlling me
-			FX_AddSprite( cent->gent->owner->client->renderInfo.handRPoint, nullptr, nullptr, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, 0x08000000 );
+			FX_AddSprite( cent->gent->owner->client->renderInfo.handRPoint, nullptr, nullptr, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, FX_USE_ALPHA );
 		}
 	}
 }
@@ -330,7 +330,7 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-	if ( s1->eFlags & EF_NODRAW )
+	if ( Any( s1->eFlags & EF_NODRAW ) )
 	{
 		// If you don't like it doing NODRAW, then don't set the flag
 		return;
@@ -340,26 +340,26 @@ Ghoul2 Insert End
 
 	// set frame
 
-	if ( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM )
+	if ( Any( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM ) )
 	{
 		// by setting the shader time to the current time, we can force an animating shader to not animate
 		ent.shaderTime = cg.time * 0.001f;
 	}
 
-	if ( s1->eFlags & EF_SHADER_ANIM )
+	if ( Any( s1->eFlags & EF_SHADER_ANIM ) )
 	{
 		// Deliberately setting it up so that shader anim will completely override any kind of model animation frame setting.
 		ent.renderfx|=RF_SETANIMINDEX;
 		ent.skinNum = s1->frame;
 	}
-	else if ( s1->eFlags & EF_ANIM_ONCE )
+	else if ( Any( s1->eFlags & EF_ANIM_ONCE ) )
 	{
 		//s1->frame++;
 		//ent.frame = s1->frame;
 		ent.frame = cent->gent->s.frame;
 		ent.renderfx|=RF_CAP_FRAMES;
 	}
-	else if ( s1->eFlags & EF_ANIM_ALLFAST )
+	else if ( Any( s1->eFlags & EF_ANIM_ALLFAST ) )
 	{
 		ent.frame = (cg.time / 100);
 		ent.renderfx|=RF_WRAP_FRAMES;
@@ -388,7 +388,7 @@ Ghoul2 Insert End
 		ent.radius = 60;
 	}
 
-	if ( s1->eFlags & EF_AUTO_SIZE && cent->gent )
+	if ( Any( s1->eFlags & EF_AUTO_SIZE ) && cent->gent )
 	{
 		cgi_R_ModelBounds( ent.hModel, cent->gent->mins, cent->gent->maxs );
 		//Only do this once
@@ -414,7 +414,7 @@ Ghoul2 Insert Start
 		// Start of chair
 		//-------------------------------------------------------
 		if ( cent->gent->s.weapon == WP_EMPLACED_GUN || ( cent->gent->activator && cent->gent->activator->owner &&
-				cent->gent->activator->s.eFlags & EF_LOCKED_TO_WEAPON ))
+				Any( cent->gent->activator->s.eFlags & EF_LOCKED_TO_WEAPON ) ))
 		{
 			vec3_t	temp;
 
@@ -437,7 +437,7 @@ Ghoul2 Insert Start
 			{
 				VectorSet( temp, 0, 0, 1 );
 
-				if ( !( cent->gent->svFlags & SVF_INACTIVE ))
+				if ( !Any( cent->gent->svFlags & SVF_INACTIVE ))
 				{
 					if ( !cent->gent->bounceCount )
 					{//not an EWeb
@@ -452,7 +452,7 @@ Ghoul2 Insert Start
 		}
 
 		if ( cent->gent->activator && cent->gent->activator->owner &&
-				cent->gent->activator->s.eFlags & EF_LOCKED_TO_WEAPON &&
+				Any( cent->gent->activator->s.eFlags & EF_LOCKED_TO_WEAPON ) &&
 				cent->gent->activator->owner->s.number == cent->currentState.number ) // gun number must be same as current entities number
 		{
 			centity_t *cc = &cg_entities[cent->gent->activator->s.number];
@@ -464,7 +464,7 @@ const weaponData_t  *wData = nullptr;
 				wData = &weaponData[cc->currentState.weapon];
 			}
 
-			if ( !( cc->currentState.eFlags & EF_FIRING ) && !( cc->currentState.eFlags & EF_ALT_FIRING ))
+			if ( !Any( cc->currentState.eFlags & EF_FIRING ) && !Any( cc->currentState.eFlags & EF_ALT_FIRING ))
 			{
 				// not animating..pausing was leaving the barrels in a bad state
 				gi.G2API_PauseBoneAnim( &cent->gent->ghoul2[cent->gent->playerModel], "model_root", cg.time );
@@ -514,7 +514,7 @@ const weaponData_t  *wData = nullptr;
 					effect = &wData->mMuzzleEffect[0];
 				}
 
-				if ( cc->currentState.eFlags & EF_ALT_FIRING )
+				if ( Any( cc->currentState.eFlags & EF_ALT_FIRING ) )
 				{
 					// We're alt-firing, so see if we need to override with a custom alt-fire effect
 					if ( wData->mAltMuzzleEffect[0] )
@@ -523,7 +523,7 @@ const weaponData_t  *wData = nullptr;
 					}
 				}
 
-				if ( cc->currentState.eFlags & EF_FIRING || cc->currentState.eFlags & EF_ALT_FIRING )
+				if ( Any( cc->currentState.eFlags & EF_FIRING ) || Any( cc->currentState.eFlags & EF_ALT_FIRING ) )
 				{
 					if ( cent->gent->bounceCount )
 					{//EWeb
@@ -581,7 +581,7 @@ const weaponData_t  *wData = nullptr;
 							&cg_entities[cent->gent->s.number], nullptr, ent.renderfx,
 							cent->gent->weaponModel[0], cent->lerpOrigin, cent->lerpAngles );
 					}
-					else if ( cent->gent->owner->client->ps.saberEventFlags & SEF_INWATER )
+					else if ( Any( cent->gent->owner->client->ps.saberEventFlags & SEF_INWATER ) )
 					{
 						CG_CheckSaberInWater( &cg_entities[cent->gent->owner->s.number],
 							&cg_entities[cent->gent->s.number], 0, cent->gent->weaponModel[0],
@@ -647,7 +647,7 @@ const weaponData_t  *wData = nullptr;
 							&cg_entities[cent->gent->s.number], nullptr, ent.renderfx,
 							0, cent->lerpOrigin, cent->lerpAngles );
 					}
-					else if ( cent->gent->owner->client->ps.saberEventFlags & SEF_INWATER )
+					else if ( Any( cent->gent->owner->client->ps.saberEventFlags & SEF_INWATER ) )
 					{
 						CG_CheckSaberInWater( &cg_entities[cent->gent->owner->s.number],
 							&cg_entities[cent->gent->s.number], 0, 0, cent->lerpOrigin,
@@ -751,7 +751,7 @@ Ghoul2 Insert End
 	}
 
 	//--------------------------
-	if ( s1->eFlags & EF_FIRING && cent->gent->inuse )
+	if ( Any( s1->eFlags & EF_FIRING ) && cent->gent->inuse )
 	{
 		//special code for adding the beam to the attached tripwire mine
 		vec3_t			beamOrg;
@@ -795,7 +795,7 @@ Ghoul2 Insert End
 	}
 
 
-	if ( s1->eFlags & EF_PROX_TRIP )
+	if ( Any( s1->eFlags & EF_PROX_TRIP ) )
 	{
 		//special code for adding the glow end to proximity tripmine
 		vec3_t	beamOrg;
@@ -804,7 +804,7 @@ Ghoul2 Insert End
 		theFxScheduler.PlayEffect( "tripMine/glowBit", beamOrg, ent.axis[0] );
 	}
 
-	if ( s1->eFlags & EF_ALT_FIRING )
+	if ( Any( s1->eFlags & EF_ALT_FIRING ) )
 	{
 		// hack for the spotlight
 		vec3_t	org, axis[3], dir;
@@ -821,11 +821,11 @@ Ghoul2 Insert End
 	}
 
 	//-----------------------------------------------------------
-	if ( cent->gent->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ))
+	if ( Any( cent->gent->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ) ))
 	{
 		// Dumb assumption, but I guess we must be a shielded ion_cannon??  We should probably verify
 		// if it's an ion_cannon that's Heavy Weapon only, we don't want to make it shielded do we...?
-		if ( (!strcmp( "misc_ion_cannon", cent->gent->classname )) && (cent->gent->flags & FL_SHIELDED ))
+		if ( (!strcmp( "misc_ion_cannon", cent->gent->classname )) && Any( cent->gent->flags & FL_SHIELDED ))
 		{
 			// must be doing "pain"....er, impact
 			if ( cent->gent->painDebounceTime > cg.time )
@@ -859,7 +859,7 @@ Ghoul2 Insert End
 			|| s1->weapon == WP_TRIP_MINE
 			|| (cent->gent&&cent->gent->e_UseFunc==useF_ammo_power_converter_use)
 			|| (cent->gent&&cent->gent->e_UseFunc==useF_shield_power_converter_use)
-			|| (s1->eFlags&EF_FORCE_VISIBLE) )
+			|| Any(s1->eFlags&EF_FORCE_VISIBLE) )
 		{//really, we only need to do this for things like thermals, detpacks and tripmines, no?
 			CG_AddForceSightShell( &ent, cent );
 		}
@@ -913,7 +913,7 @@ Ghoul2 Insert Start
 */
 
 	// if set to invisible, skip
-	if ( (!es->modelindex && !cent->gent->ghoul2.IsValid() ) || ( es->eFlags & EF_NODRAW ) )
+	if ( (!es->modelindex && !cent->gent->ghoul2.IsValid() ) || Any( es->eFlags & EF_NODRAW ) )
 	{
 		return;
 	}
@@ -1087,7 +1087,7 @@ Ghoul2 Insert End
 		{
 			VectorMA( ent.origin, -i, ent.axis[2], org );
 
-			FX_AddSprite( org, nullptr, nullptr, 10.0f, 10.0f, wv * 0.5f, wv * 0.5f, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, 0x08000000 );
+			FX_AddSprite( org, nullptr, nullptr, 10.0f, 10.0f, wv * 0.5f, wv * 0.5f, 0.0f, 0.0f, 1.0f, cgs.media.yellowDroppedSaberShader, FX_USE_ALPHA );
 		}
 
 		// THIS light looks crappy...maybe it should just be removed...
@@ -1128,7 +1128,7 @@ static void CG_Missile( centity_t *cent ) {
 	{
 		vec3_t forward;
 
-		if (s1->eFlags & EF_USE_ANGLEDELTA)
+		if (Any( s1->eFlags & EF_USE_ANGLEDELTA ))
 		{
 			AngleVectors(cent->currentState.angles, forward, nullptr, nullptr);
 		}
@@ -1246,14 +1246,14 @@ Ghoul2 Insert End
 		}
 		if ( s1->pos.trType != TR_STATIONARY )
 		{
-			if ( s1->eFlags & EF_MISSILE_STICK )
+			if ( Any( s1->eFlags & EF_MISSILE_STICK ) )
 				RotateAroundDirection( ent.axis, cg.time * 0.5f );//Did this so regular missiles don't get broken
 			else
 				RotateAroundDirection( ent.axis, cg.time * 0.25f );//JFM:FLOAT FIX
 		}
 		else
 		{
-			if ( s1->eFlags & EF_MISSILE_STICK )
+			if ( Any( s1->eFlags & EF_MISSILE_STICK ) )
 				RotateAroundDirection( ent.axis, (float)s1->pos.trTime * 0.5f );
 			else
 				RotateAroundDirection( ent.axis, (float)s1->time );
@@ -1274,7 +1274,7 @@ Ghoul2 Insert End
 		if ( s1->weapon == WP_THERMAL
 			|| s1->weapon == WP_DET_PACK
 			|| s1->weapon == WP_TRIP_MINE
-			|| (s1->eFlags&EF_FORCE_VISIBLE) )
+			|| Any(s1->eFlags&EF_FORCE_VISIBLE) )
 		{//really, we only need to do this for things like thermals, detpacks and tripmines, no?
 			CG_AddForceSightShell( &ent, cent );
 		}
@@ -1331,7 +1331,7 @@ Ghoul2 Insert End
 		return;
 	}
 
-	if ( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM )
+	if ( Any( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM ) )
 	{
 		// by setting the shader time to the current time, we can force an animating shader to not animate
 		ent.shaderTime = cg.time * 0.001f;
@@ -1341,7 +1341,7 @@ Ghoul2 Insert End
 	if ( s1->solid == SOLID_BMODEL && s1->modelindex2 )
 	{
 //		vec3_t	org;
-		if ( !(s1->eFlags & EF_NODRAW) )
+		if ( !Any(s1->eFlags & EF_NODRAW) )
 		{
 			// add to refresh list
 			CG_AddRefEntWithTransportEffect( cent, &ent );
@@ -1364,7 +1364,7 @@ Ghoul2 Insert End
 
 	// I changed it to always do it because nodraw seemed like it should actually do what it says. Be aware that if you change this,
 	//	the movers for the shooting gallery on doom_detention will break.
-	if ( (s1->eFlags & EF_NODRAW) )
+	if ( Any(s1->eFlags & EF_NODRAW) )
 	{
 		return;
 	}
@@ -1372,12 +1372,12 @@ Ghoul2 Insert End
 
 	//We're a normal model being moved, animate our model
 	ent.skinNum = 0;
-	if ( s1->eFlags & EF_ANIM_ONCE )
+	if ( Any( s1->eFlags & EF_ANIM_ONCE ) )
 	{//FIXME: needs to anim at once per 100 ms
 		ent.frame = cent->gent->s.frame;
 		ent.renderfx|=RF_CAP_FRAMES;
 	}
-	else if ( s1->eFlags & EF_ANIM_ALLFAST )
+	else if ( Any( s1->eFlags & EF_ANIM_ALLFAST ) )
 	{
 		ent.frame = (cg.time / 100);
 		ent.renderfx|=RF_WRAP_FRAMES;
@@ -1387,7 +1387,7 @@ Ghoul2 Insert End
 		ent.frame = s1->frame;
 	}
 
-	if ( s1->eFlags & EF_SHADER_ANIM )
+	if ( Any( s1->eFlags & EF_SHADER_ANIM ) )
 	{
 		ent.renderfx|=RF_SETANIMINDEX;
 		ent.skinNum = s1->frame;
@@ -1399,7 +1399,7 @@ Ghoul2 Insert End
 
 	if ((cg.snap->ps.forcePowersActive & Bit( FP_SEE ))
 		&& cg.snap->ps.clientNum != cent->currentState.number
-		&& (s1->eFlags&EF_FORCE_VISIBLE) )
+		&& Any(s1->eFlags&EF_FORCE_VISIBLE) )
 	{//so player can see func_breakables
 		CG_AddForceSightShell( &ent, cent );
 	}
@@ -1478,14 +1478,14 @@ void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha )
 
 		FX_AddPoly( point, st, 4, nullptr, nullptr, alpha, alpha, 0.0f,
 						color, color, 0.0f, rot, 0.0f, 0.0f,
-						100, cgs.media.solidWhiteShader, 0 );
+						100, cgs.media.solidWhiteShader, FX_NONE );
 
 		//+ face
 		point[0][vec[0]] = point[1][vec[0]] = point[2][vec[0]] = point[3][vec[0]] = maxs[vec[0]];
 
 		FX_AddPoly( point, st, 4, nullptr, nullptr, alpha, alpha, 0.0f,
 						color, color, 0.0f, rot, 0.0f, 0.0f,
-						100, cgs.media.solidWhiteShader, 0 );
+						100, cgs.media.solidWhiteShader, FX_NONE );
 	}
 }
 
@@ -1760,7 +1760,7 @@ Ghoul2 Insert End
 
 		if ( ent && ent->inuse)
 		{
-			if ( ent->s.eFlags & EF_BLOCKED_MOVER || ent->s.pos.trType == TR_STATIONARY )
+			if ( Any( ent->s.eFlags & EF_BLOCKED_MOVER ) || ent->s.pos.trType == TR_STATIONARY )
 			{//this mover has stopped moving and is going to wig out if we predict it
 				//based on last frame's info- cut across the network and use the currentOrigin
 				VectorCopy( ent->currentOrigin, cent->lerpOrigin );
@@ -1876,7 +1876,7 @@ OutputDebugString(va("[%3d] nonext %4.2f t=%6d  st = %6d  nst = %6d     b=%6.2f 
 
 		if ( ent && ent->inuse)
 		{
-			if ( ent->s.eFlags & EF_BLOCKED_MOVER || ent->s.pos.trType == TR_STATIONARY )
+			if ( Any( ent->s.eFlags & EF_BLOCKED_MOVER ) || ent->s.pos.trType == TR_STATIONARY )
 			{//this mover has stopped moving and is going to wig out if we predict it
 				//based on last frame's info- cut across the network and use the currentOrigin
 				VectorCopy( ent->currentOrigin, cent->lerpOrigin );
@@ -2071,11 +2071,11 @@ extern cvar_t	*g_saberRealisticCombat;
 			if ( cent->gent->target2 )//limbName
 			{//turn the limb off
 				//NOTE: MUST use G2SURFACEFLAG_NODESCENDANTS
-				gi.G2API_SetSurfaceOnOff( &owner->ghoul2[owner->playerModel], cent->gent->target2, 0x00000100 );//G2SURFACEFLAG_NODESCENDANTS
+				gi.G2API_SetSurfaceOnOff( &owner->ghoul2[owner->playerModel], cent->gent->target2, G2SURFACEFLAG_NODESCENDANTS );//G2SURFACEFLAG_NODESCENDANTS
 			}
 			if ( cent->gent->target3 )//stubCapName )
 			{//turn on caps
-				gi.G2API_SetSurfaceOnOff( &owner->ghoul2[owner->playerModel], cent->gent->target3, 0 );
+				gi.G2API_SetSurfaceOnOff( &owner->ghoul2[owner->playerModel], cent->gent->target3, G2SURFACEFLAG_NONE );
 			}
 			if ( owner->weaponModel[0] > 0 )
 			{//the corpse hasn't dropped their weapon
@@ -2108,7 +2108,8 @@ extern cvar_t	*g_skippingcin;
 void CG_MatrixEffect ( centity_t *cent )
 {
 	float	MATRIX_EFFECT_TIME = 1000.0f;
-	if ( (cent->currentState.boltInfo&MEF_MULTI_SPIN) )
+	const matrixEffectFlags_t meFlags = static_cast<matrixEffectFlags_t>( cent->currentState.boltInfo );	// the matrix effect entity keeps its flags in boltInfo
+	if ( Any( meFlags & MEF_MULTI_SPIN ) )
 	{//multiple spins
 		if ( cent->currentState.time2 > 0 )
 		{//with a custom amount of time per spin
@@ -2128,7 +2129,7 @@ void CG_MatrixEffect ( centity_t *cent )
 	float elapsedTime = totalElapsedTime;
 	bool	stopEffect = ((totalElapsedTime > cent->currentState.eventParm) || cg.missionStatusShow || in_camera);
 
-	if (!stopEffect && (cent->currentState.boltInfo&MEF_HIT_GROUND_STOP) && g_entities[cent->currentState.otherEntityNum].client)
+	if (!stopEffect && Any( meFlags & MEF_HIT_GROUND_STOP ) && g_entities[cent->currentState.otherEntityNum].client)
 	{
 		if (g_entities[cent->currentState.otherEntityNum].client->ps.groundEntityNum!=ENTITYNUM_NONE)
 		{
@@ -2143,7 +2144,7 @@ void CG_MatrixEffect ( centity_t *cent )
 			}
 		}
 	}
-	if (!stopEffect && (cent->currentState.boltInfo&MEF_LOOK_AT_ENEMY))
+	if (!stopEffect && Any( meFlags & MEF_LOOK_AT_ENEMY ))
 	{
 		if (!g_entities[cent->currentState.otherEntityNum].lastEnemy ||
 			!g_entities[cent->currentState.otherEntityNum].lastEnemy->inuse)
@@ -2192,7 +2193,7 @@ void CG_MatrixEffect ( centity_t *cent )
 	//cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_ENT;
 	//cg.overrides.thirdPersonEntity = cent->currentState.otherEntityNum;
 
-	if (cent->currentState.boltInfo&MEF_LOOK_AT_ENEMY)
+	if ( Any( meFlags & MEF_LOOK_AT_ENEMY ) )
 	{
 		vec3_t	toEnemy;
 		vec3_t	toEnemyAngles;
@@ -2223,12 +2224,12 @@ void CG_MatrixEffect ( centity_t *cent )
 		cg.overrides.thirdPersonRange		 = cg_thirdPersonRange.value * 3.0f;
 	}
 
-	if ( !(cent->currentState.boltInfo&MEF_NO_SPIN) )
+	if ( !Any( meFlags & MEF_NO_SPIN ) )
 	{//rotate around them
 		//rotate
 		cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_ANG;
 		cg.overrides.thirdPersonAngle = 360.0f*elapsedTime/MATRIX_EFFECT_TIME;
-		if ( (cent->currentState.boltInfo&MEF_REVERSE_SPIN) )
+		if ( Any( meFlags & MEF_REVERSE_SPIN ) )
 		{
 			cg.overrides.thirdPersonAngle *= -1;
 		}
@@ -2239,7 +2240,7 @@ void CG_MatrixEffect ( centity_t *cent )
 	{
 		cgi_Cvar_Set( "timescale", va("%4.2f",cent->currentState.angles2[0]) );
 	}
-	else if ( !(cent->currentState.boltInfo&MEF_NO_TIMESCALE) )
+	else if ( !Any( meFlags & MEF_NO_TIMESCALE ) )
 	{//ramp the timescale
 		//slowdown
 		float timescale = (elapsedTime/MATRIX_EFFECT_TIME);
@@ -2255,7 +2256,7 @@ void CG_MatrixEffect ( centity_t *cent )
 		//cgi_Cvar_Set( "timescale", "1.0ff" );
 	}
 
-	if ( !(cent->currentState.boltInfo&MEF_NO_VERTBOB) )
+	if ( !Any( meFlags & MEF_NO_VERTBOB ) )
 	{//bob the pitch
 		//pitch
 		//dip - FIXME: use pitchOffet?
@@ -2275,7 +2276,7 @@ void CG_MatrixEffect ( centity_t *cent )
 		}
 	}
 
-	if ( !(cent->currentState.boltInfo&MEF_NO_RANGEVAR) )
+	if ( !Any( meFlags & MEF_NO_RANGEVAR ) )
 	{//vary the camera range
 		//pull back
 		cg.overrides.active |= CG_OVERRIDE_3RD_PERSON_RNG;

@@ -57,7 +57,7 @@ void NPC_Interrogator_Precache(gentity_t *self)
 Interrogator_die
 -------------------------
 */
-void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	self->client->ps.velocity[2] = -100;
 	/*
@@ -78,7 +78,7 @@ void Interrogator_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	}
 	//self->takedamage = false;
 	//self->client->ps.eFlags |= EF_NODRAW;
-	//self->contents = 0;
+	//self->contents = CONTENTS_NONE;
 	return;
 }
 
@@ -275,7 +275,7 @@ void Interrogator_Strafe( void )
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -393,7 +393,7 @@ void Interrogator_Melee( bool visible, bool advance )
 		}
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}
@@ -440,7 +440,7 @@ void Interrogator_Attack( void )
 	{
 		advance = true;
 	}
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Interrogator_Hunt( visible, advance );
 	}

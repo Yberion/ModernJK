@@ -194,7 +194,7 @@ void CG_SetEntityNextState( centity_t *cent, entityState_t *state ) {
 
 	// if this frame is a teleport, or the entity wasn't in the
 	// previous frame, don't interpolate
-	if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ state->eFlags ) & EF_TELEPORT_BIT )  ) {
+	if ( !cent->currentValid || Any( ( cent->currentState.eFlags ^ state->eFlags ) & EF_TELEPORT_BIT )  ) {
 		cent->interpolate = false;
 	} else {
 		cent->interpolate = true;
@@ -224,7 +224,7 @@ void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// if the next frame is a teleport for the playerstate,
-	if ( cg.snap && ( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
+	if ( cg.snap && Any( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
 		cg.nextFrameTeleport = true;
 	} else {
 		cg.nextFrameTeleport = false;

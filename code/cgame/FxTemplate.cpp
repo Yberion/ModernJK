@@ -48,7 +48,8 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	mName[0] = 0;
 	mCullRange = 0;
 
-	mFlags = mSpawnFlags = 0;
+	mFlags = FX_NONE;
+	mSpawnFlags = FX_SPAWN_NONE;
 
 	mLife.SetRange( 50.0f, 50.0f );
 	mSpawnCount.SetRange( 1.0f, 1.0f );
@@ -293,7 +294,7 @@ static gsl::span< gsl::cstring_span > scanStrings( const gsl::cstring_span& val,
 // return:
 //	success of parse operation.
 //------------------------------------------------------
-bool CPrimitiveTemplate::ParseGroupFlags( const gsl::cstring_span& val, int& flags )
+bool CPrimitiveTemplate::ParseGroupFlags( const gsl::cstring_span& val, fxPrimitiveFlags_t& flags )
 {
 	// For a sub group, really you probably only have one or two flags set
 	std::array< gsl::cstring_span, 4 > flag;
@@ -301,12 +302,12 @@ bool CPrimitiveTemplate::ParseGroupFlags( const gsl::cstring_span& val, int& fla
 	const auto availableFlag = scanStrings( val, flag );
 
 	// Clear out the flags field, then convert the flag string to an actual value ( use generic flags )
-	flags = 0;
+	flags = FX_NONE;
 
 	bool ok = true;
 	for( auto& cur : availableFlag  )
 	{
-		static StringViewIMap< int > flagNames{
+		static StringViewIMap< fxPrimitiveFlags_t > flagNames{
 			{ CSTRING_VIEW( "linear" ), FX_LINEAR },
 			{ CSTRING_VIEW( "nonlinear" ), FX_NONLINEAR },
 			{ CSTRING_VIEW( "wave" ), FX_WAVE },
@@ -737,7 +738,7 @@ bool CPrimitiveTemplate::ParseFlags( const gsl::cstring_span& val )
 	bool	ok = true;
 	for( auto& cur : availableFlag )
 	{
-		static StringViewIMap< int > flagNames{
+		static StringViewIMap< fxPrimitiveFlags_t > flagNames{
 			{ CSTRING_VIEW( "useModel" ), FX_ATTACHED_MODEL },
 			{ CSTRING_VIEW( "useBBox" ), FX_USE_BBOX },
 			{ CSTRING_VIEW( "usePhysics" ), FX_APPLY_PHYSICS },
@@ -790,7 +791,7 @@ bool CPrimitiveTemplate::ParseSpawnFlags( const gsl::cstring_span& val )
 	bool ok = true;
 	for( auto& cur : availableFlag )
 	{
-		static StringViewIMap< int > flagNames{
+		static StringViewIMap< fxSpawnFlags_t > flagNames{
 			{ CSTRING_VIEW( "org2fromTrace" ), FX_ORG2_FROM_TRACE },
 			{ CSTRING_VIEW( "traceImpactFx" ), FX_TRACE_IMPACT_FX },
 			{ CSTRING_VIEW( "org2isOffset" ), FX_ORG2_IS_OFFSET },
@@ -1004,12 +1005,12 @@ bool CPrimitiveTemplate::ParseRGBParm( const gsl::cstring_span& val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseRGBFlags( const gsl::cstring_span& val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_RGB_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_RGB_SHIFT );
 		return true;
 	}
 
@@ -1097,12 +1098,12 @@ bool CPrimitiveTemplate::ParseAlphaParm( const gsl::cstring_span& val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseAlphaFlags( const gsl::cstring_span& val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_ALPHA_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_ALPHA_SHIFT );
 		return true;
 	}
 
@@ -1190,12 +1191,12 @@ bool CPrimitiveTemplate::ParseSizeParm( const gsl::cstring_span& val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseSizeFlags( const gsl::cstring_span& val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_SIZE_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_SIZE_SHIFT );
 		return true;
 	}
 
@@ -1283,12 +1284,12 @@ bool CPrimitiveTemplate::ParseSize2Parm( const gsl::cstring_span& val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseSize2Flags( const gsl::cstring_span& val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_SIZE2_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_SIZE2_SHIFT );
 		return true;
 	}
 
@@ -1376,12 +1377,12 @@ bool CPrimitiveTemplate::ParseLengthParm( const gsl::cstring_span& val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseLengthFlags( const gsl::cstring_span& val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_LENGTH_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_LENGTH_SHIFT );
 		return true;
 	}
 
@@ -1482,7 +1483,7 @@ bool CPrimitiveTemplate::ParseModels( const CGPProperty& grp )
 	return true;
 }
 
-static bool ParseFX( const CGPProperty& grp, CFxScheduler& scheduler, CMediaHandles& handles, SFxHelper& helper, int& flags, int successFlags, gsl::czstring loadError, gsl::czstring emptyError )
+static bool ParseFX( const CGPProperty& grp, CFxScheduler& scheduler, CMediaHandles& handles, SFxHelper& helper, fxPrimitiveFlags_t& flags, fxPrimitiveFlags_t successFlags, gsl::czstring loadError, gsl::czstring emptyError )
 {
 	bool any = false;
 	for( auto& value : grp.GetValues() )
@@ -1588,7 +1589,7 @@ bool CPrimitiveTemplate::ParsePlayFxStrings( const CGPProperty& grp )
 	return ParseFX(
 		grp,
 		theFxScheduler, mPlayFxHandles, theFxHelper,
-		mFlags, 0,
+		mFlags, FX_NONE,
 		"FxTemplate: Effect file not found.\n",
 		"CPrimitiveTemplate::ParsePlayFxStrings called with an empty list!\n"
 		);

@@ -65,7 +65,7 @@ static PointAndLeaf	pointToLeaf[MAX_POINTS_TO_LEAVES];
 static int	oldestPointToLeaf = 0, sizePointToLeaf = 0;
 
 //static hlist<pair<CPoint,int> >				pointToLeaf;
-//static hlist<pair<CPoint,int> >				pointToContents;
+//static hlist<pair<CPoint,contentsFlags_t> >			pointToContents;
 
 void CM_CleanLeafCache(void)
 {
@@ -267,19 +267,19 @@ CM_PointContents
 
 #if 1
 
-int CM_PointContents( const vec3_t p, clipHandle_t model ) {
+contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int			leafnum=0;
 	int			i, k;
 	int			brushnum;
 	cLeaf_t		*leaf;
 	cbrush_t	*b;
-	int			contents;
+	contentsFlags_t	contents;
 	float		d;
 	cmodel_t	*clipm;
 	clipMap_t	*local;
 
 	if (!cmg.numNodes) {	// map not loaded
-		return 0;
+		return CONTENTS_NONE;
 	}
 
 	if ( model ) {
@@ -356,7 +356,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		leaf = &local->leafs[leafnum];
 	}
 
-	contents = 0;
+	contents = CONTENTS_NONE;
 	for (k=0 ; k<leaf->numLeafBrushes ; k++) {
 		brushnum = local->leafbrushes[leaf->firstLeafBrush+k];
 		b = &local->brushes[brushnum];
@@ -382,18 +382,18 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 
 #else
 
-int CM_PointContents( const vec3_t p, clipHandle_t model ) {
+contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int			leafnum=0;
 	int			i, k;
 	int			brushnum;
 	cLeaf_t		*leaf;
 	cbrush_t	*b;
-	int			contents;
+	contentsFlags_t	contents;
 	float		d;
 	cmodel_t	*clipm;
 
 	if (!cmg.numNodes) {	// map not loaded
-		return 0;
+		return CONTENTS_NONE;
 	}
 
 	CPoint pt(p[0],p[1],p[2]);
@@ -404,7 +404,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	}
 	else
 	{
-		hlist<pair<CPoint,int> >::iterator l;
+		hlist<pair<CPoint,contentsFlags_t> >::iterator l;
 		for(l=pointToContents.begin();l!=pointToContents.end();l++)
 		{
 			if((*l).first==pt)
@@ -418,7 +418,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		leaf = &cmg.leafs[leafnum];
 	}
 
-	contents = 0;
+	contents = CONTENTS_NONE;
 	for (k=0 ; k<leaf->numLeafBrushes ; k++)
 	{
 		brushnum = cmg.leafbrushes[leaf->firstLeafBrush+k];
@@ -449,7 +449,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		{
 			pointToContents.pop_back();
 		}
-		pointToContents.push_front(pair<CPoint,int>(pt,contents));
+		pointToContents.push_front(pair<CPoint,contentsFlags_t>(pt,contents));
 	}
 
 	return contents;
@@ -464,7 +464,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
+contentsFlags_t	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
 	vec3_t		p_l;
 	vec3_t		temp;
 	vec3_t		forward, right, up;

@@ -67,7 +67,7 @@ bool	PM_SlideMove( float gravMod ) {
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
 	bool	damageSelf = true;
-	int			slideMoveContents = pm->tracemask;
+	contentsFlags_t	slideMoveContents = pm->tracemask;
 
 	if ( pm->ps->clientNum >= MAX_CLIENTS
 		&& !PM_ControlledByPlayer() )
@@ -75,8 +75,8 @@ bool	PM_SlideMove( float gravMod ) {
 		if ( pml.walking //walking on the ground
 			|| (pm->ps->groundEntityNum != ENTITYNUM_NONE //in air
 				&& PM_InSpecialJump( pm->ps->legsAnim )//in a special jump
-				&& !(pm->ps->eFlags&EF_FORCE_GRIPPED)//not being gripped
-				&& !(pm->ps->pm_flags&PMF_TIME_KNOCKBACK)
+				&& !Any(pm->ps->eFlags&EF_FORCE_GRIPPED)//not being gripped
+				&& !Any(pm->ps->pm_flags&PMF_TIME_KNOCKBACK)
 				&& pm->gent
 				&& pm->gent->forcePushTime < level.time) )//not being pushed
 		{//
@@ -100,7 +100,7 @@ bool	PM_SlideMove( float gravMod ) {
 
 	if ( gravMod )
 	{
-		if ( !(pm->ps->eFlags&EF_FORCE_GRIPPED) && !(pm->ps->eFlags&EF_FORCE_DRAINED) )
+		if ( !Any(pm->ps->eFlags&EF_FORCE_GRIPPED) && !Any(pm->ps->eFlags&EF_FORCE_DRAINED) )
 		{
 			endVelocity[2] -= pm->ps->gravity * pml.frametime * gravMod;
 		}
@@ -145,8 +145,8 @@ bool	PM_SlideMove( float gravMod ) {
 
 		// see if we can make it there
 		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, G2_NOCOLLIDE, 0 );
-		if ( (trace.contents&CONTENTS_BOTCLIP)
-			&& (slideMoveContents&CONTENTS_BOTCLIP) )
+		if ( Any( trace.contents&CONTENTS_BOTCLIP )
+			&& Any( slideMoveContents&CONTENTS_BOTCLIP ) )
 		{//hit a do not enter brush
 			if ( trace.allsolid || trace.startsolid  )//inside the botclip
 			{//crap, we're in a do not enter brush, take it out for the remainder of the traces and re-trace this one right now without it
@@ -181,7 +181,7 @@ bool	PM_SlideMove( float gravMod ) {
 		PM_AddTouchEnt( trace.entityNum );
 
 		//Hit it
-		if ( trace.surfaceFlags&SURF_NODAMAGE )
+		if ( Any( trace.surfaceFlags&SURF_NODAMAGE ) )
 		{
 			damageSelf = false;
 		}
@@ -229,7 +229,7 @@ bool	PM_SlideMove( float gravMod ) {
 		// out along it, which fixes some epsilon issues with
 		// non-axial planes
 		//
-		if ( !(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		if ( !Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 		{//no sliding if stuck to wall!
 			for ( i = 0 ; i < numplanes ; i++ ) {
 				if ( DotProduct( normal, planes[i] ) > 0.99 ) {

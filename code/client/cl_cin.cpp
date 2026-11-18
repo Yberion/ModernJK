@@ -1475,7 +1475,7 @@ CL_PlayCinematic
 
 ==================
 */
-int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits, const char *psAudioFile /* = nullptr */ )
+int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFlags_t systemBits, const char *psAudioFile /* = nullptr */ )
 {
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
@@ -1488,7 +1488,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 	COM_DefaultExtension(name,sizeof(name),".roq");
 
-	if (!(systemBits & CIN_system)) {
+	if (!Any(systemBits & CIN_system)) {
 		for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
 			if (!strcmp(cinTable[i].fileName, name) ) {
 				return i;
@@ -1515,15 +1515,15 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 
 	CIN_SetExtents(currentHandle, x, y, w, h);
-	CIN_SetLooping(currentHandle, ((systemBits & CIN_loop) != 0));
+	CIN_SetLooping(currentHandle, Any(systemBits & CIN_loop));
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	cinTable[currentHandle].holdAtEnd = ((systemBits & CIN_hold) != 0);
-	cinTable[currentHandle].alterGameState = ((systemBits & CIN_system) != 0);
+	cinTable[currentHandle].holdAtEnd = Any(systemBits & CIN_hold);
+	cinTable[currentHandle].alterGameState = Any(systemBits & CIN_system);
 	cinTable[currentHandle].playonwalls = 1;
-	cinTable[currentHandle].silent = ((systemBits & CIN_silent) != 0);
-	cinTable[currentHandle].shader = ((systemBits & CIN_shader) != 0);
+	cinTable[currentHandle].silent = Any(systemBits & CIN_silent);
+	cinTable[currentHandle].shader = Any(systemBits & CIN_shader);
 	if (psAudioFile)
 	{
 		cinTable[currentHandle].hSFX = S_RegisterSound(psAudioFile);
@@ -1833,7 +1833,7 @@ static void PlayCinematic(const char *arg, const char *s, bool qbInGame)
 		qbInGameCinematicOnStandBy = false;
 	}
 
-	int bits = qbInGame?0:CIN_system;
+	cinematicFlags_t bits = qbInGame?CIN_NONE:CIN_system;
 
 	Com_DPrintf("CL_PlayCinematic_f\n");
 

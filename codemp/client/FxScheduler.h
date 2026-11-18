@@ -43,28 +43,34 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // These are spawn flags for primitiveTemplates
 //-----------------------------------------------
 
-#define FX_ORG_ON_SPHERE		0x00001	// Pretty dang expensive, calculates a point on a sphere/ellipsoid
-#define FX_AXIS_FROM_SPHERE		0x00002	// Can be used in conjunction with org_on_sphere to cause particles to move out
+enum class fxSpawnFlags_t
+{
+	FX_SPAWN_NONE = 0,
+	FX_ORG_ON_SPHERE		= 0x00001,	// Pretty dang expensive, calculates a point on a sphere/ellipsoid
+	FX_AXIS_FROM_SPHERE		= 0x00002,	// Can be used in conjunction with org_on_sphere to cause particles to move out
 										//	from the center of the sphere
-#define FX_ORG_ON_CYLINDER		0x00004	// calculate point on cylinder/disk
+	FX_ORG_ON_CYLINDER		= 0x00004,	// calculate point on cylinder/disk
 
-#define FX_ORG2_FROM_TRACE		0x00010
-#define FX_TRACE_IMPACT_FX		0x00020	// if trace impacts, we should play one of the specified impact fx files
-#define FX_ORG2_IS_OFFSET		0x00040	// template specified org2 should be the offset from a trace endpos or
+	FX_ORG2_FROM_TRACE		= 0x00010,
+	FX_TRACE_IMPACT_FX		= 0x00020,	// if trace impacts, we should play one of the specified impact fx files
+	FX_ORG2_IS_OFFSET		= 0x00040,	// template specified org2 should be the offset from a trace endpos or
 										//	passed in org2. You might use this to lend a random flair to the endpos.
 										//	Note: this is done pre-trace, so you may have to specify large numbers for this
 
-#define FX_CHEAP_ORG_CALC		0x00100	// Origin is calculated relative to passed in axis unless this is on.
-#define FX_CHEAP_ORG2_CALC		0x00200	// Origin2 is calculated relative to passed in axis unless this is on.
-#define FX_VEL_IS_ABSOLUTE		0x00400	// Velocity isn't relative to passed in axis with this flag on.
-#define FX_ACCEL_IS_ABSOLUTE	0x00800	// Acceleration isn't relative to passed in axis with this flag on.
+	FX_CHEAP_ORG_CALC		= 0x00100,	// Origin is calculated relative to passed in axis unless this is on.
+	FX_CHEAP_ORG2_CALC		= 0x00200,	// Origin2 is calculated relative to passed in axis unless this is on.
+	FX_VEL_IS_ABSOLUTE		= 0x00400,	// Velocity isn't relative to passed in axis with this flag on.
+	FX_ACCEL_IS_ABSOLUTE	= 0x00800,	// Acceleration isn't relative to passed in axis with this flag on.
 
-#define FX_RAND_ROT_AROUND_FWD	0x01000	// Randomly rotates up and right around forward vector
-#define FX_EVEN_DISTRIBUTION	0x02000	// When you have a delay, it normally picks a random time to play.  When
+	FX_RAND_ROT_AROUND_FWD	= 0x01000,	// Randomly rotates up and right around forward vector
+	FX_EVEN_DISTRIBUTION	= 0x02000,	// When you have a delay, it normally picks a random time to play.  When
 										// this flag is on, it generates an even time distribution
-#define FX_RGB_COMPONENT_INTERP	0x04000	// Picks a color on the line defined by RGB min & max, default is to pick color in cube defined by min & max
+	FX_RGB_COMPONENT_INTERP	= 0x04000,	// Picks a color on the line defined by RGB min & max, default is to pick color in cube defined by min & max
 
-#define FX_AFFECTED_BY_WIND		0x10000	// this effect primitive needs to query wind
+	FX_AFFECTED_BY_WIND		= 0x10000	// this effect primitive needs to query wind
+};
+using enum fxSpawnFlags_t;
+template <> inline constexpr bool enableEnumFlags<fxSpawnFlags_t> = true;
 
 //-----------------------------------------------------------------
 //
@@ -187,8 +193,8 @@ public:
 	CMediaHandles	mEmitterFxHandles;
 	CMediaHandles	mPlayFxHandles;
 
-	int				mFlags;			// These need to get passed on to the primitive
-	int				mSpawnFlags;	// These are only used to control spawning, but never get passed to prims.
+	fxPrimitiveFlags_t	mFlags;			// These need to get passed on to the primitive
+	fxSpawnFlags_t	mSpawnFlags;	// These are only used to control spawning, but never get passed to prims.
 
 	EMatImpactEffect	mMatImpactFX;
 
@@ -268,7 +274,7 @@ public:
 	// Lower level parsing utilities
 	bool ParseVector( const char *val, vec3_t min, vec3_t max );
 	bool ParseFloat( const char *val, float *min, float *max );
-	bool ParseGroupFlags( const char *val, int *flags );
+	bool ParseGroupFlags( const char *val, fxPrimitiveFlags_t *flags );
 
 	// Base key processing
 	// Note that these all have their own parse functions in case it becomes important to do certain kinds

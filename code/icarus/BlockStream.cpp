@@ -206,7 +206,7 @@ Init
 
 int CBlock::Init( void )
 {
-	m_flags			= {};
+	m_flags			= BF_NONE;
 	m_id			= CIcarus::TK_UNDEFINED;
 
 	return true;
@@ -541,7 +541,7 @@ int CBlockStream::ReadBlock( CBlock *get, CIcarus* icarus )
 		return false;
 
 	get->Create( static_cast<icarusToken_t>( b_id ) );
-	get->SetFlags( static_cast<blockFlag_t>( flags ) );
+	get->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 	while ( numMembers-- > 0)
 	{

@@ -41,7 +41,7 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 		// explicit hulls in the BSP model
 		return CM_InlineModel( ent->s.modelindex );
 	}
-	if ( ent->r.svFlags & SVF_CAPSULE ) {
+	if ( Any( ent->r.svFlags & SVF_CAPSULE ) ) {
 		// create a temp capsule from bounding box sizes
 		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
@@ -226,7 +226,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// encode the size into the entityState_t for client prediction
 	if ( gEnt->r.bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;		// a solid_box will never create this value
-	} else if ( gEnt->r.contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) {
+	} else if ( Any( gEnt->r.contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) ) {
 		// assume that x/y are equal and symetric
 		i = gEnt->r.maxs[0];
 		if (i<1)
@@ -465,10 +465,10 @@ Ghoul2 Insert Start
 	vec3_t		end;
 
 	int			passEntityNum;
-	int			contentmask;
+	contentsFlags_t	contentmask;
 	int			capsule;
 
-	int			traceFlags;
+	g2TraceFlags_t	traceFlags;
 	int			useLod;
 	trace_t		trace;			// make sure nothing goes under here for Ghoul2 collision purposes
 /*
@@ -483,7 +483,7 @@ SV_ClipToEntity
 
 ====================
 */
-void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule ) {
+void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, contentsFlags_t contentmask, int capsule ) {
 	sharedEntity_t	*touch;
 	clipHandle_t	clipHandle;
 	float			*origin, *angles;
@@ -494,7 +494,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 
 	// if it doesn't have any brushes of a type we
 	// are looking for, ignore it
-	if ( ! ( contentmask & touch->r.contents ) ) {
+	if ( !Any( contentmask & touch->r.contents ) ) {
 		trace->fraction = 1.0;
 		return;
 	}
@@ -556,7 +556,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		passOwnerNum = -1;
 	}
 
-	if ( SV_GentityNum(clip->passEntityNum)->r.svFlags & SVF_OWNERNOTSHARED )
+	if ( Any( SV_GentityNum(clip->passEntityNum)->r.svFlags & SVF_OWNERNOTSHARED ) )
 	{
 		thisOwnerShared = 0;
 	}
@@ -573,7 +573,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 				continue;	// don't clip against the pass entity
 			}
 			if ( touch->r.ownerNum == clip->passEntityNum) {
-				if (touch->r.svFlags & SVF_OWNERNOTSHARED)
+				if (Any( touch->r.svFlags & SVF_OWNERNOTSHARED ))
 				{
 					if ( clip->contentmask != (MASK_SHOT | CONTENTS_LIGHTSABER) &&
 						clip->contentmask != (MASK_SHOT))
@@ -587,13 +587,13 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 				}
 			}
 			if ( touch->r.ownerNum == passOwnerNum &&
-				!(touch->r.svFlags & SVF_OWNERNOTSHARED) &&
+				!Any( touch->r.svFlags & SVF_OWNERNOTSHARED ) &&
 				thisOwnerShared ) {
 				continue;	// don't clip against other missiles from our owner
 			}
 
 			if (touch->s.eType == ET_MISSILE &&
-				!(touch->r.svFlags & SVF_OWNERNOTSHARED) &&
+				!Any( touch->r.svFlags & SVF_OWNERNOTSHARED ) &&
 				touch->r.ownerNum == passOwnerNum)
 			{ //blah, hack
 				continue;
@@ -602,11 +602,11 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 		// if it doesn't have any brushes of a type we
 		// are looking for, ignore it
-		if ( ! ( clip->contentmask & touch->r.contents ) ) {
+		if ( !Any( clip->contentmask & touch->r.contents ) ) {
 			continue;
 		}
 
-		if ((clip->contentmask == (MASK_SHOT|CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (touch->r.contents > 0 && (touch->r.contents & CONTENTS_NOSHOT)))
+		if ((clip->contentmask == (MASK_SHOT|CONTENTS_LIGHTSABER) || clip->contentmask == MASK_SHOT) && (!Any( touch->r.contents & CONTENTS_TRANSLUCENT ) && Any( touch->r.contents & CONTENTS_NOSHOT )))
 		{
 			continue;
 		}
@@ -627,7 +627,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			origin, angles, clip->capsule);
 
 
-		if (clip->traceFlags & G2TRFLAG_DOGHOULTRACE)
+		if (Any( clip->traceFlags & G2TRFLAG_DOGHOULTRACE ))
 		{ // keep these older variables around for a bit, incase we need to replace them in the Ghoul2 Collision check
 			oldTrace = clip->trace;
 		}
@@ -658,7 +658,7 @@ Ghoul2 Insert Start
 */
 #if 0
 		// decide if we should do the ghoul2 collision detection right here
-		if ((trace.entityNum == touch->s.number) && (clip->traceFlags))
+		if ((trace.entityNum == touch->s.number) && Any(clip->traceFlags))
 		{
 			// do we actually have a ghoul2 model here?
 			if (touch->s.ghoul2)
@@ -703,7 +703,7 @@ Ghoul2 Insert Start
 #else
 		//rww - since this is multiplayer and we don't have the luxury of violating networking rules in horrible ways,
 		//this must be done somewhat differently.
-		if ((clip->traceFlags & G2TRFLAG_DOGHOULTRACE) && trace.entityNum == touch->s.number && touch->ghoul2 && ((clip->traceFlags & G2TRFLAG_HITCORPSES) || !(touch->s.eFlags & EF_DEAD)))
+		if (Any(clip->traceFlags & G2TRFLAG_DOGHOULTRACE) && trace.entityNum == touch->s.number && touch->ghoul2 && (Any(clip->traceFlags & G2TRFLAG_HITCORPSES) || !Any(touch->s.eFlags & EF_DEAD)))
 		{ //standard behavior will be to ignore g2 col on dead ents, but if traceFlags is set to allow, then we'll try g2 col on EF_DEAD people too.
 			static G2Trace_t G2Trace;
 			vec3_t angles;
@@ -717,7 +717,7 @@ Ghoul2 Insert Start
 				fRadius=(clip->maxs[0]-clip->mins[0])/2.0f;
 			}
 
-			if (clip->traceFlags & G2TRFLAG_THICK)
+			if (Any( clip->traceFlags & G2TRFLAG_THICK ))
 			{ //if using this flag, make sure it's at least 1.0f
 				if (fRadius < 1.0f)
 				{
@@ -788,11 +788,11 @@ Ghoul2 Insert Start
 				VectorCopy(G2Trace[bestTr].mCollisionPosition, clip->trace.endpos);
 				VectorCopy(G2Trace[bestTr].mCollisionNormal, clip->trace.plane.normal);
 
-				if (clip->traceFlags & G2TRFLAG_GETSURFINDEX)
+				if (Any( clip->traceFlags & G2TRFLAG_GETSURFINDEX ))
 				{ //we have requested that surfaceFlags be stomped over with the g2 hit surface index.
 					if (clip->trace.entityNum == G2Trace[bestTr].mEntityNum)
 					{
-						clip->trace.surfaceFlags = G2Trace[bestTr].mSurfaceIndex;
+						Trace_SetG2SurfaceIndex( clip->trace, G2Trace[bestTr].mSurfaceIndex );
 					}
 				}
 			}
@@ -815,7 +815,7 @@ passEntityNum and entities owned by passEntityNum are explicitly not checked.
 /*
 Ghoul2 Insert Start
 */
-void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod ) {
+void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask, int capsule, g2TraceFlags_t traceFlags, int useLod ) {
 /*
 Ghoul2 Insert End
 */
@@ -883,11 +883,11 @@ Ghoul2 Insert End
 SV_PointContents
 =============
 */
-int SV_PointContents( const vec3_t p, int passEntityNum ) {
+contentsFlags_t SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			touch[MAX_GENTITIES];
 	sharedEntity_t *hit;
 	int			i, num;
-	int			contents, c2;
+	contentsFlags_t	contents, c2;
 	clipHandle_t	clipHandle;
 
 	// get base contents from world

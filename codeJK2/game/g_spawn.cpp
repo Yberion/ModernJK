@@ -97,7 +97,7 @@ bool	G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
 	return present;
 }
 
-bool	G_SpawnFlag( const char *key, int flag, int *out )
+bool	G_SpawnFlag( const char *key, entityFlags_t flag, entityFlags_t *out )
 {
 	//find that key
 	for ( int i = 0 ; i < numSpawnVars ; i++ )
@@ -138,7 +138,7 @@ bool G_SpawnAngleHack( const char *key, const char *defaultString, float *out )
 
 stringID_table_t flagTable [] =
 {
-	{ "noTED", EF_NO_TED },
+	{ "noTED", to_underlying( EF_NO_TED ) },
 	//stringID_table_t Must end with a null entry
 	{ "", 0 }
 };
@@ -174,7 +174,7 @@ enum class fieldtype_t {
 	F_PARM14,			// Special case for parms
 	F_PARM15,			// Special case for parms
 	F_PARM16,			// Special case for parms
-	F_FLAG,				// special case for flags
+	F_FLAG,				// special case for flags: an entityFlags_t member
 	F_IGNORE
 };
 using enum fieldtype_t;
@@ -873,7 +873,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 
 					if ( flag > 0 )
 					{
-						G_SpawnFlag( key, flag, (int *)(b+f->ofs) );
+						G_SpawnFlag( key, static_cast<entityFlags_t>( flag ), (entityFlags_t *)(b+f->ofs) );
 					}
 					else
 					{

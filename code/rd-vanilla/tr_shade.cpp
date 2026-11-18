@@ -224,7 +224,7 @@ void R_BindAnimatedImage( const textureBundle_t *bundle) {
 		return;
 	}
 
-	if ((r_fullbright->integer || tr.refdef.doLAGoggles || (tr.refdef.rdflags & RDF_doFullbright) ) && bundle->isLightmap)
+	if ((r_fullbright->integer || tr.refdef.doLAGoggles || Any(tr.refdef.rdflags & RDF_doFullbright) ) && bundle->isLightmap)
 	{
 		GL_Bind( tr.whiteImage );
 		return;
@@ -235,7 +235,7 @@ void R_BindAnimatedImage( const textureBundle_t *bundle) {
 		return;
 	}
 
-	if (backEnd.currentEntity->e.renderfx & RF_SETANIMINDEX )
+	if (Any( backEnd.currentEntity->e.renderfx & RF_SETANIMINDEX ) )
 	{
 		index = backEnd.currentEntity->e.skinNum;
 	}
@@ -890,10 +890,10 @@ static void ProjectDlightTexture2( void ) {
 			int i = 0;
 			while (i < tess.shader->numUnfoggedPasses)
 			{
-				const int blendBits = (GLS_SRCBLEND_BITS+GLS_DSTBLEND_BITS);
+				const glStateBits_t blendBits = (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS);
 				if (((tess.shader->stages[i].bundle[0].image && !tess.shader->stages[i].bundle[0].isLightmap && !tess.shader->stages[i].bundle[0].numTexMods && tess.shader->stages[i].bundle[0].tcGen != TCGEN_ENVIRONMENT_MAPPED && tess.shader->stages[i].bundle[0].tcGen != TCGEN_FOG) ||
 					 (tess.shader->stages[i].bundle[1].image && !tess.shader->stages[i].bundle[1].isLightmap && !tess.shader->stages[i].bundle[1].numTexMods && tess.shader->stages[i].bundle[1].tcGen != TCGEN_ENVIRONMENT_MAPPED && tess.shader->stages[i].bundle[1].tcGen != TCGEN_FOG)) &&
-					(tess.shader->stages[i].stateBits & blendBits) == 0 )
+					!Any(tess.shader->stages[i].stateBits & blendBits) )
 				{ //only use non-lightmap opaque stages
                     dStage = &tess.shader->stages[i];
 					break;
@@ -905,7 +905,7 @@ static void ProjectDlightTexture2( void ) {
 		if (dStage)
 		{
 			GL_SelectTexture( 0 );
-			GL_State(0);
+			GL_State(GLS_NONE);
 			qglTexCoordPointer( 2, GL_FLOAT, 0, oldTexCoordsArray[0] );
 			if (dStage->bundle[0].image && !dStage->bundle[0].isLightmap && !dStage->bundle[0].numTexMods && dStage->bundle[0].tcGen != TCGEN_ENVIRONMENT_MAPPED && dStage->bundle[0].tcGen != TCGEN_FOG)
 			{
@@ -1237,10 +1237,10 @@ static void ProjectDlightTexture( void ) {
 			int i = 0;
 			while (i < tess.shader->numUnfoggedPasses)
 			{
-				const int blendBits = (GLS_SRCBLEND_BITS+GLS_DSTBLEND_BITS);
+				const glStateBits_t blendBits = (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS);
 				if (((tess.shader->stages[i].bundle[0].image && !tess.shader->stages[i].bundle[0].isLightmap && !tess.shader->stages[i].bundle[0].numTexMods && tess.shader->stages[i].bundle[0].tcGen != TCGEN_ENVIRONMENT_MAPPED && tess.shader->stages[i].bundle[0].tcGen != TCGEN_FOG) ||
 					 (tess.shader->stages[i].bundle[1].image && !tess.shader->stages[i].bundle[1].isLightmap && !tess.shader->stages[i].bundle[1].numTexMods && tess.shader->stages[i].bundle[1].tcGen != TCGEN_ENVIRONMENT_MAPPED && tess.shader->stages[i].bundle[1].tcGen != TCGEN_FOG)) &&
-					(tess.shader->stages[i].stateBits & blendBits) == 0 )
+					!Any(tess.shader->stages[i].stateBits & blendBits) )
 				{ //only use non-lightmap opaque stages
                     dStage = &tess.shader->stages[i];
 					break;
@@ -1252,7 +1252,7 @@ static void ProjectDlightTexture( void ) {
 		if (dStage)
 		{
 			GL_SelectTexture( 0 );
-			GL_State(0);
+			GL_State(GLS_NONE);
 			qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 			if (dStage->bundle[0].image && !dStage->bundle[0].isLightmap && !dStage->bundle[0].numTexMods && dStage->bundle[0].tcGen != TCGEN_ENVIRONMENT_MAPPED && dStage->bundle[0].tcGen != TCGEN_FOG)
 			{
@@ -1361,7 +1361,7 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 	int i;
 
 	if ( tess.shader != tr.projectionShadowShader && tess.shader != tr.shadowShader &&
-			( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))
+			Any( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))
 	{
 		RB_CalcDisintegrateColors( (unsigned char *)tess.svars.colors, pStage->rgbGen );
 		RB_CalcDisintegrateVertDeform();
@@ -1379,7 +1379,7 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 		forceRGBGen = pStage->rgbGen;
 	}
 
-	if ( backEnd.currentEntity->e.renderfx & RF_VOLUMETRIC ) // does not work for rotated models, technically, this should also be a CGEN type, but that would entail adding new shader commands....which is too much work for one thing
+	if ( Any( backEnd.currentEntity->e.renderfx & RF_VOLUMETRIC ) ) // does not work for rotated models, technically, this should also be a CGEN type, but that would entail adding new shader commands....which is too much work for one thing
 	{
 		int			i;
 		float		*normal, dot;
@@ -1869,7 +1869,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			continue;
 		}
 
-		int	stateBits = pStage->stateBits;
+		glStateBits_t	stateBits = pStage->stateBits;
 		// no override (ComputeColors takes these two as none)
 		alphaGen_t	forceAlphaGen = AGEN_IDENTITY;
 		colorGen_t	forceRGBGen = CGEN_BAD;
@@ -1889,14 +1889,14 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		if ( backEnd.currentEntity )
 		{
-			if ( backEnd.currentEntity->e.renderfx & RF_DISINTEGRATE1 )
+			if ( Any( backEnd.currentEntity->e.renderfx & RF_DISINTEGRATE1 ) )
 			{
 				// we want to be able to rip a hole in the thing being disintegrated, and by doing the depth-testing it avoids some kinds of artefacts, but will probably introduce others?
 				//	NOTE: adjusting the alphaFunc seems to help a bit
 				stateBits = GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK_TRUE | GLS_ATEST_GE_C0;
 			}
 
-			if ( backEnd.currentEntity->e.renderfx & RF_ALPHA_FADE )
+			if ( Any( backEnd.currentEntity->e.renderfx & RF_ALPHA_FADE ) )
 			{
 				if ( backEnd.currentEntity->e.shaderRGBA[3] < 255 )
 				{
@@ -1905,7 +1905,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				}
 			}
 
-			if ( backEnd.currentEntity->e.renderfx & RF_RGB_TINT )
+			if ( Any( backEnd.currentEntity->e.renderfx & RF_RGB_TINT ) )
 			{//want to use RGBGen from ent
 				forceRGBGen = CGEN_ENTITY;
 			}
@@ -1978,7 +1978,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			// set state
 			//
 			if ( (tess.shader == tr.distortionShader) ||
-				 (backEnd.currentEntity && (backEnd.currentEntity->e.renderfx & RF_DISTORTION)) )
+				 (backEnd.currentEntity && Any(backEnd.currentEntity->e.renderfx & RF_DISTORTION)) )
 			{ //special distortion effect -rww
 				//tr.screenImage should have been set for this specific entity before we got in here.
 				GL_Bind( tr.screenImage );
@@ -2002,9 +2002,9 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
 				//don't depthmask, don't blend.. don't do anything
-				GL_State(0);
+				GL_State(GLS_NONE);
 			}
-			else if (backEnd.currentEntity && (backEnd.currentEntity->e.renderfx & RF_FORCE_ENT_ALPHA))
+			else if (backEnd.currentEntity && Any(backEnd.currentEntity->e.renderfx & RF_FORCE_ENT_ALPHA))
 			{
 				ForceAlpha((unsigned char *) tess.svars.colors, backEnd.currentEntity->e.shaderRGBA[3]);
 				GL_State(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
@@ -2121,7 +2121,7 @@ void RB_StageIteratorGeneric( void )
 	// now do any dynamic lighting needed
 	//
 	if ( tess.dlightBits && tess.shader->sort <= (float)SS_OPAQUE
-		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+		&& !Any( tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
 		if (r_dlightStyle->integer>0)
 		{
 			ProjectDlightTexture2();
@@ -2217,7 +2217,7 @@ void RB_EndSurface( void ) {
 	if ( skyboxportal )
 	{
 		// world
-		if(!(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
+		if(!Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
 		{
 			if(tess.currentStageIteratorFunc == RB_StageIteratorSky)
 			{	// don't process these tris at all

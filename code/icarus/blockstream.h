@@ -112,13 +112,7 @@ protected:
 
 //CBlock
 
-// The flags of a block, set by the sequencer
-enum class blockFlag_t
-{
-	BF_ELSE			= 0x00000001,	//Block has an else id	//FIXME: This was a sloppy fix for a problem that arose from conditionals
-};
-using enum blockFlag_t;
-template <> inline constexpr bool enableEnumFlags<blockFlag_t> = true;
+#include "qcommon/q_icarusflags.h"
 
 class CBlock
 {
@@ -128,7 +122,7 @@ public:
 
 	CBlock()
 	{
-		m_flags			= {};
+		m_flags			= BF_NONE;
 		m_id			= TK_UNDEFINED;
 	}
 	~CBlock() {	assert(!GetNumMembers()); }
@@ -159,11 +153,11 @@ public:
 	icarusToken_t	GetBlockID( void )	const	{	return m_id;			}	//Get the ID for the block
 	int	GetNumMembers( void )	const	{	return (int)m_members.size();}	//Get the number of member in the block's list
 
-	void SetFlags( blockFlag_t flags )	{	m_flags = flags;	}
-	void SetFlag( blockFlag_t flag )		{	m_flags |= flag;	}
+	void SetFlags( blockFlags_t flags )	{	m_flags = flags;	}
+	void SetFlag( blockFlags_t flag )		{	m_flags |= flag;	}
 
-	bool HasFlag( blockFlag_t flag )	const	{	return Any( m_flags & flag );	}
-	blockFlag_t GetFlags( void )		const	{	return m_flags;				}
+	bool HasFlag( blockFlags_t flag )	const	{	return Any( m_flags & flag );	}
+	blockFlags_t GetFlags( void )		const	{	return m_flags;				}
 
 	// Overloaded new operator.
 	inline void *operator new( size_t size )
@@ -186,7 +180,7 @@ protected:
 
 	blockMember_v				m_members;			//List of all CBlockMembers owned by this list
 	icarusToken_t				m_id;				//ID of the block
-	blockFlag_t					m_flags;
+	blockFlags_t					m_flags;
 };
 
 // CBlockStream

@@ -115,8 +115,8 @@ static void CMod_LoadShaders( const lump_t *l, clipMap_t &cm )
 	for ( i = 0; i < count; i++, in++, out++ )
 	{
 		Q_strncpyz(out->shader, in->shader, MAX_QPATH);
-		out->contentFlags = LittleLong( in->contentFlags );
-		out->surfaceFlags = LittleLong( in->surfaceFlags );
+		out->contentFlags = static_cast<contentsFlags_t>( LittleLong( in->contentFlags ) );
+		out->surfaceFlags = static_cast<surfaceFlags_t>( LittleLong( in->surfaceFlags ) );
 	}
 }
 
@@ -1076,10 +1076,10 @@ void CM_GetWorldBounds ( vec3_t mins, vec3_t maxs )
 	VectorCopy ( cmg.cmodels[0].maxs, maxs );
 }
 
-int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
+contentsFlags_t CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 {
 	cmodel_t	*cmod;
-	int			contents = 0;
+	contentsFlags_t	contents = CONTENTS_NONE;
 	int			i;
 
 	if (!cm)
@@ -1109,7 +1109,7 @@ int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 	return contents;
 }
 
-int CM_ModelContents(  clipHandle_t model, int subBSPIndex )
+contentsFlags_t CM_ModelContents(  clipHandle_t model, int subBSPIndex )
 {
 	if (subBSPIndex < 0)
 	{

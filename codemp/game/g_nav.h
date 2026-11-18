@@ -50,16 +50,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 	#define _HARD_CONNECT	1
 
-	//Node flags
-	#define	NF_ANY			0
-	//#define	NF_CLEAR_LOS	0x00000001
-	#define NF_CLEAR_PATH	0x00000002
-	#define NF_RECALC		0x00000004
-
-	//Edge flags
-	#define	EFLAG_NONE		0
-	#define EFLAG_BLOCKED	0x00000001
-	#define EFLAG_FAILED	0x00000002
+	//Node flags: navNodeFlags_t, in g_public.h
 
 	//Miscellaneous defines
 	#define	NODE_NONE		-1
@@ -92,5 +83,5 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	bool NPC_GetMoveDirection( vec3_t out, float *distance );
 	void NPC_MoveToGoalExt( vec3_t point );
 	void NAV_FindPlayerWaypoint( int clNum );
-	bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
+	bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask );
 #endif

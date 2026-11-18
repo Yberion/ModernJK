@@ -165,7 +165,7 @@ void Remote_Strafe( void )
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, REMOTE_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -285,7 +285,7 @@ void Remote_Ranged( bool visible, bool advance, bool retreat )
 		Remote_Fire();
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Remote_Hunt( visible, advance, retreat );
 	}
@@ -334,7 +334,7 @@ void Remote_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Remote_Hunt( visible, advance, retreat );
 			return;
@@ -390,7 +390,7 @@ void NPC_BSRemote_Default( void )
 {
 	if ( NPCS.NPC->enemy )
 		Remote_Attack();
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		Remote_Patrol();
 	else
 		Remote_Idle();

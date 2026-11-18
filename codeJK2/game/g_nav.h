@@ -64,7 +64,7 @@ extern int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failE
 bool NPC_GetMoveDirection( vec3_t out, float *distance );
 void NPC_MoveToGoalExt( vec3_t point );
 void NAV_FindPlayerWaypoint( void );
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask );
 
 void CG_DrawNode( vec3_t origin, nodeType_t type );
 void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type );

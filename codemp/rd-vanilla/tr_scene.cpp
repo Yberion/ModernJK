@@ -364,7 +364,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	startTime = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
 
-	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
+	if (!tr.world && !Any( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
@@ -385,7 +385,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.time = fd->time;
 	tr.refdef.frametime = fd->time - lastTime;
 
-	if (fd->rdflags & RDF_SKYBOXPORTAL)
+	if (Any( fd->rdflags & RDF_SKYBOXPORTAL ))
 	{
 		skyboxportal = 1;
 	}
@@ -396,7 +396,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 		lastTime = fd->time;
 	}
 
-	if (fd->rdflags & RDF_DRAWSKYBOX)
+	if (Any( fd->rdflags & RDF_DRAWSKYBOX ))
 	{
 		drawskyboxportal = 1;
 	}
@@ -418,7 +418,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = false;
-	if ( ! (tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
+	if ( ! Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
 		int		areaDiff;
 		int		i;
 
@@ -452,7 +452,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// Add the decals here because decals add polys and we need to ensure
 	// that the polys are added before the the renderer is prepared
-	if ( !(tr.refdef.rdflags & RDF_NOWORLDMODEL) )
+	if ( !Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) )
 	{
 		R_AddDecals ( );
 	}
@@ -511,7 +511,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	RE_RenderWorldEffects();
 
-	if (tr.refdef.rdflags & RDF_AUTOMAP)
+	if (Any( tr.refdef.rdflags & RDF_AUTOMAP ))
 	{
 		RE_RenderAutoMap();
 	}

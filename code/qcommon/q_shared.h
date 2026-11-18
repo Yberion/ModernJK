@@ -256,29 +256,11 @@ using enum errorParm_t;
 #define BLINK_DIVISOR			600
 #define PULSE_DIVISOR			75
 
-#define UI_LEFT			0x00000000	// default
-#define UI_CENTER		0x00000001
-#define UI_RIGHT		0x00000002
-#define UI_FORMATMASK	0x00000007
-#define UI_SMALLFONT	0x00000010
-#define UI_BIGFONT		0x00000020	// default
-
-#define UI_DROPSHADOW	0x00000800
-#define UI_BLINK		0x00001000
-#define UI_INVERSE		0x00002000
-#define UI_PULSE		0x00004000
-
 
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
-// stuff for TA's ROQ cinematic code...
-//
-#define CIN_system	1
-#define CIN_loop	2
-#define	CIN_hold	4
-#define CIN_silent	8
-#define CIN_shader	16
+#include "qcommon/q_clientflags.h"
 
 
 // all drawing is done to a 640*480 virtual screen size
@@ -423,35 +405,40 @@ default values.
 ==========================================================
 */
 
-#define	CVAR_TEMP			0	// can be set even when cheats are disabled, but is not archived
-#define	CVAR_ARCHIVE		1	// set to cause it to be saved to vars.rc
+enum class cvarFlags_t
+{
+	CVAR_NONE			= 0,	// no flag, the name the multiplayer engine gives it (for the code both engines share)
+	CVAR_TEMP			= 0,	// can be set even when cheats are disabled, but is not archived
+	CVAR_ARCHIVE		= 1,	// set to cause it to be saved to vars.rc
 								// used for system variables, not for player
 								// specific configurations
-#define	CVAR_USERINFO		2	// sent to server on connect or change
-#define	CVAR_SERVERINFO		4	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		8	// these cvars will be duplicated on all clients
-#define	CVAR_INIT			16	// don't allow change from console at all,
+	CVAR_USERINFO		= 2,	// sent to server on connect or change
+	CVAR_SERVERINFO		= 4,	// sent in response to front end requests
+	CVAR_SYSTEMINFO		= 8,	// these cvars will be duplicated on all clients
+	CVAR_INIT			= 16,	// don't allow change from console at all,
 								// but can be set from the command line
-#define	CVAR_LATCH			32	// will only change when C code next does
+	CVAR_LATCH			= 32,	// will only change when C code next does
 								// a Cvar_Get(), so it can't be changed
 								// without proper initialization.  modified
 								// will be set, even though the value hasn't
 								// changed yet
-#define	CVAR_ROM			64	// display only, cannot be set by user at all
-#define	CVAR_USER_CREATED	128	// created by a set command
-#define	CVAR_SAVEGAME		256	// store this in the savegame
-#define CVAR_CHEAT			512	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
+	CVAR_ROM			= 64,	// display only, cannot be set by user at all
+	CVAR_USER_CREATED	= 128,	// created by a set command
+	CVAR_SAVEGAME		= 256,	// store this in the savegame
+	CVAR_CHEAT			= 512,	// can not be changed if cheats are disabled
+	CVAR_NORESTART		= 1024,	// do not clear when a cvar_restart is issued
 
-#define CVAR_SERVER_CREATED	2048	// cvar was created by a server the client connected to.
-#define CVAR_VM_CREATED		4096	// cvar was created exclusively in one of the VMs.
-#define CVAR_PROTECTED		8192	// prevent modifying this var from VMs or the server
-#define CVAR_NODEFAULT		16384	// do not write to config if matching with default value
+	CVAR_SERVER_CREATED	= 2048,	// cvar was created by a server the client connected to.
+	CVAR_VM_CREATED		= 4096,	// cvar was created exclusively in one of the VMs.
+	CVAR_PROTECTED		= 8192,	// prevent modifying this var from VMs or the server
+	CVAR_NODEFAULT		= 16384,	// do not write to config if matching with default value
 
-#define CVAR_ARCHIVE_ND		(CVAR_ARCHIVE | CVAR_NODEFAULT)
-// These flags are only returned by the Cvar_Flags() function
-#define CVAR_MODIFIED		0x40000000		// Cvar was modified
-#define CVAR_NONEXISTENT	0x80000000		// Cvar doesn't exist.
+	CVAR_ARCHIVE_ND		= CVAR_ARCHIVE | CVAR_NODEFAULT,
+	// These flags are only returned by the Cvar_Flags() function
+	CVAR_MODIFIED		= 0x40000000,		// Cvar was modified
+};
+using enum cvarFlags_t;
+template <> inline constexpr bool enableEnumFlags<cvarFlags_t> = true;
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -459,7 +446,7 @@ typedef struct cvar_s {
 	char		*string;
 	char		*resetString;		// cvar_restart will reset to this value
 	char		*latchedString;		// for CVAR_LATCH vars
-	int			flags;
+	cvarFlags_t	flags;
 	bool	modified;			// set each time the cvar is changed
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
@@ -519,8 +506,8 @@ typedef struct trace_s {
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
-	int			surfaceFlags;	// surface hit
-	int			contents;	// contents on other side of surface hit
+	surfaceFlags_t	surfaceFlags;	// surface hit
+	contentsFlags_t	contents;	// contents on other side of surface hit
 	int			entityNum;	// entity the contacted sirface is a part of
 /*
 Ghoul2 Insert Start
@@ -582,8 +569,14 @@ typedef struct {
 
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
-#define KEYCATCH_CONSOLE	1
-#define	KEYCATCH_UI			2
+enum class keyCatchFlags_t
+{
+	KEYCATCH_NONE		= 0,
+	KEYCATCH_CONSOLE	= 1,
+	KEYCATCH_UI			= 2,
+};
+using enum keyCatchFlags_t;
+template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 
 
 // sound channels
@@ -602,9 +595,17 @@ typedef struct {
 #define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
 #define	SHORT2ANGLE(x)	((x)*(360.0/65536))
 
-#define	SNAPFLAG_RATE_DELAYED	1
-#define	SNAPFLAG_NOT_ACTIVE		2	// snapshot used during connection and for zombies
-#define SNAPFLAG_SERVERCOUNT	4	// toggled every map_restart so transitions can be detected
+// one definition for the server, the client and the cgames of both games (it was also in each cg_public.h, where the
+// second bit is the dropped commands the server writes, not the multiplayer's SNAPFLAG_NOT_ACTIVE this header had)
+enum class snapFlags_t
+{
+	SNAPFLAG_NONE				= 0,
+	SNAPFLAG_RATE_DELAYED		= 1,	// the server withheld a packet to save bandwidth
+	SNAPFLAG_DROPPED_COMMANDS	= 2,	// the server lost some cmds coming from the client
+	SNAPFLAG_SERVERCOUNT		= 4,	// toggled every map_restart so transitions can be detected
+};
+using enum snapFlags_t;
+template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
 //
 // per-level limits
@@ -938,55 +939,7 @@ enum class saber_styles_t
 using enum saber_styles_t;
 template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
-//SABER FLAGS
-//Old bools converted to a flag now
-#define SFL_NOT_LOCKABLE			(1<<0)//can't get into a saberlock
-#define SFL_NOT_THROWABLE			(1<<1)//can't be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-#define SFL_NOT_DISARMABLE			(1<<2)//can't be dropped
-#define SFL_NOT_ACTIVE_BLOCKING		(1<<3)//don't to try to block incoming shots with this saber
-#define SFL_TWO_HANDED				(1<<4)//uses both hands
-#define SFL_SINGLE_BLADE_THROWABLE	(1<<5)//can throw this saber if only the first blade is on
-#define SFL_RETURN_DAMAGE			(1<<6)//when returning from a saber throw, it keeps spinning and doing damage
-//NEW FLAGS
-#define SFL_ON_IN_WATER				(1<<7)//if set, weapon stays active even in water
-#define SFL_BOUNCE_ON_WALLS			(1<<8)//if set, the saber will bounce back when it hits solid architecture (good for real-sword type mods)
-#define SFL_BOLT_TO_WRIST			(1<<9)//if set, saber model is bolted to wrist, not in hand... useful for things like claws & shields, etc.
-//#define SFL_STICK_ON_IMPACT		(1<<?)//if set, the saber will stick in the wall when thrown and hits solid architecture (good for sabers that are meant to be thrown).
-//#define SFL_NO_ATTACK				(1<<?)//if set, you cannot attack with the saber (for sabers/weapons that are meant to be thrown only, not used as melee weapons).
-//Move Restrictions
-#define SFL_NO_PULL_ATTACK			(1<<10)//if set, cannot do pull+attack move (move not available in MP anyway)
-#define SFL_NO_BACK_ATTACK			(1<<11)//if set, cannot do back-stab moves
-#define SFL_NO_STABDOWN				(1<<12)//if set, cannot do stabdown move (when enemy is on ground)
-#define SFL_NO_WALL_RUNS			(1<<13)//if set, cannot side-run or forward-run on walls
-#define SFL_NO_WALL_FLIPS			(1<<14)//if set, cannot do backflip off wall or side-flips off walls
-#define SFL_NO_WALL_GRAB			(1<<15)//if set, cannot grab wall & jump off
-#define SFL_NO_ROLLS				(1<<16)//if set, cannot roll
-#define SFL_NO_FLIPS				(1<<17)//if set, cannot do flips
-#define SFL_NO_CARTWHEELS			(1<<18)//if set, cannot do cartwheels
-#define SFL_NO_KICKS				(1<<19)//if set, cannot do kicks (can't do kicks anyway if using a throwable saber/sword)
-#define SFL_NO_MIRROR_ATTACKS		(1<<20)//if set, cannot do the simultaneous attack left/right moves (only available in Dual Lightsaber Combat Style)
-#define SFL_NO_ROLL_STAB			(1<<21)//if set, cannot do roll-stab move at end of roll
-//SABER FLAGS2
-//Primary Blade Style
-#define SFL2_NO_WALL_MARKS			(1<<0)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT				(1<<1)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE				(1<<2)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE			(1<<3)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT		(1<<4)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT			(1<<5)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK			(1<<6)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE	(1<<7)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE		(1<<8)//if set, the blade does damage in start, transition and return anims (like strong style does)
-//Secondary Blade Style
-#define SFL2_NO_WALL_MARKS2			(1<<9)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT2				(1<<10)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE2				(1<<11)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE2		(1<<12)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT2		(1<<13)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT2		(1<<14)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK2			(1<<15)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE2	(1<<16)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
+#include "qcommon/q_saberflags.h"
 
 // !!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!!!!!!!!!!!!
 enum class saberMoveName_t;	// wp_saber.h
@@ -1018,8 +971,8 @@ typedef struct saberInfo_s
 	char		*brokenSaber2;				//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
 //===NEW========================================================================================
 	//these values are global to the saber, like all of the ones above
-	int			saberFlags;					//from SFL_ list above
-	int			saberFlags2;				//from SFL2_ list above
+	saberFlags_t			saberFlags;					//from SFL_ list above
+	saberFlags2_t			saberFlags2;				//from SFL2_ list above
 
 	//done in cgame (client-side code)
 	qhandle_t	spinSound;					//none - if set, plays this sound as it spins when thrown
@@ -1156,17 +1109,17 @@ typedef struct saberInfo_s
 						{
 							if ( i >= bladeStyle2Start )
 							{
-								if ( (saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+								if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 								{//don't count this blade
 									continue;
 								}
 							}
-							else if ( (saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+							else if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 							{//don't count this blade
 								continue;
 							}
 						}
-						else if ( (saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+						else if ( Any( saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 						{//don't count any of these blades!
 							continue;
 						}
@@ -1595,9 +1548,12 @@ enum class inventory_t;	// g_items.h of each single-player game (code/game, code
 enum class weapon_t;	// weapons.h
 enum class weaponstate_t;	// bg_public.h
 enum class saberBlockedType_t;	// g_shared.h
+enum class saberEventFlags_t;	// wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
 enum class pmtype_t;	// bg_public.h
 enum class entity_event_t;	// bg_public.h
 enum class entityType_t;	// bg_public.h
+enum class pmoveFlags_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
+enum class entityFlags_t : uint32_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
 
 template<typename TSaberInfo>
 class PlayerStateBase
@@ -1606,7 +1562,7 @@ public:
 	int			commandTime;		// cmd->serverTime of last executed command
 	pmtype_t	pm_type;
 	int			bobCycle;			// for view bobbing and footstep generation
-	int			pm_flags;			// ducked, jump_held, etc
+	pmoveFlags_t			pm_flags;			// ducked, jump_held, etc
 	int			pm_time;
 
 	vec3_t		origin;
@@ -1631,7 +1587,7 @@ public:
 								// when at rest, the value will remain unchanged
 								// used to twist the legs during strafing
 
-	int			eFlags;			// copied to entityState_t->eFlags
+	entityFlags_t			eFlags;			// copied to entityState_t->eFlags
 
 	int			eventSequence;	// pmove generated events
 	entity_event_t	events[MAX_PS_EVENTS];
@@ -1848,7 +1804,7 @@ public:
 	int			saberEntityState;
 	int			saberDamageDebounceTime;
 	int			saberHitWallSoundDebounceTime;
-	int			saberEventFlags;
+	saberEventFlags_t			saberEventFlags;
 	int			saberBlockingTime;
 #ifdef JK2_MODE
 	forcePowerLevels_t	saberAnimLevel;		// a force level in Jedi Outcast
@@ -2279,20 +2235,26 @@ using playerState_t = PlayerStateBase<saberInfo_t>;
 // usercmd_t->button bits, many of which are generated by the client system,
 // so they aren't game/cgame only definitions
 //
-#define	BUTTON_ATTACK		1
-#define	BUTTON_FORCE_LIGHTNING	2			// displays talk balloon and disables actions
-#define	BUTTON_USE_FORCE	4
-#define	BUTTON_FORCE_DRAIN	8			// draining
-#define	BUTTON_BLOCKING		8
-#define	BUTTON_VEH_SPEED	8			// used for some horrible vehicle hack... :)
-#define	BUTTON_WALKING		16			// walking can't just be infered from MOVE_RUN because a key pressed late in the frame will
+enum class buttonFlags_t
+{
+	BUTTON_NONE = 0,
+	BUTTON_ATTACK		= 1,
+	BUTTON_FORCE_LIGHTNING	= 2,			// displays talk balloon and disables actions
+	BUTTON_USE_FORCE	= 4,
+	BUTTON_FORCE_DRAIN	= 8,			// draining
+	BUTTON_BLOCKING		= 8,
+	BUTTON_VEH_SPEED	= 8,			// used for some horrible vehicle hack... :)
+	BUTTON_WALKING		= 16,			// walking can't just be infered from MOVE_RUN because a key pressed late in the frame will
 										// only generate a small move value for that frame walking will use different animations and
 										// won't generate footsteps
-#define	BUTTON_USE			32			// the ol' use key returns!
-#define BUTTON_FORCEGRIP	64			//
-#define BUTTON_ALT_ATTACK	128
+	BUTTON_USE			= 32,			// the ol' use key returns!
+	BUTTON_FORCEGRIP	= 64,			//
+	BUTTON_ALT_ATTACK	= 128,
 
-#define	BUTTON_FORCE_FOCUS	256			// any key whatsoever
+	BUTTON_FORCE_FOCUS	= 256,			// any key whatsoever
+};
+using enum buttonFlags_t;
+template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
@@ -2321,7 +2283,7 @@ using enum genCmds_t;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct usercmd_s {
 	int		serverTime;
-	int		buttons;
+	buttonFlags_t		buttons;
 	byte	weapon;
 	int		angles[3];
 	byte	generic_cmd;
@@ -2413,7 +2375,7 @@ typedef struct trajectory_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!!!!
 	int		number;			// entity index
 	entityType_t	eType;
-	int		eFlags;
+	entityFlags_t		eFlags;
 
 	trajectory_t	pos;	// for calculating position
 	trajectory_t	apos;	// for calculating angles
@@ -2683,7 +2645,7 @@ typedef struct
 	vec3_t scale; //scale of caller
 	float radius; //bone rad
 	int blendTime; //bone blend time
-	int pcjOverrides; //override ik bone flags
+	ragBoneFlags_t pcjOverrides; //override ik bone flags
 	int startFrame; //base pose start
 	int endFrame; //base pose end
 } sharedSetBoneIKStateParams_t;

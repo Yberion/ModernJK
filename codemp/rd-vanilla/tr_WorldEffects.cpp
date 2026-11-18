@@ -44,7 +44,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define GLS_ALPHA				(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 #define	MAX_WIND_ZONES			10
 #define MAX_WEATHER_ZONES		10
 #define	MAX_PUFF_SYSTEMS		2
@@ -454,9 +453,9 @@ private:
 	////////////////////////////////////////////////////////////////////////////////////
 	// Contents Outside
 	////////////////////////////////////////////////////////////////////////////////////
-	inline	bool	ContentsOutside(int contents)
+	inline	bool	ContentsOutside(contentsFlags_t contents)
 	{
-		if (contents&CONTENTS_WATER || contents&CONTENTS_SOLID)
+		if (Any( contents&CONTENTS_WATER ) || Any( contents&CONTENTS_SOLID ))
 		{
 			return false;
 		}
@@ -464,11 +463,11 @@ private:
 		{
 			if (SWeatherZone::mMarkedOutside)
 			{
-				return (!!(contents&CONTENTS_OUTSIDE));
+				return (Any( contents&CONTENTS_OUTSIDE ));
 			}
-			return (!(contents&CONTENTS_INSIDE));
+			return (!Any( contents&CONTENTS_INSIDE ));
 		}
-		return !!(contents&CONTENTS_OUTSIDE);
+		return Any( contents&CONTENTS_OUTSIDE );
 	}
 
 
@@ -551,7 +550,7 @@ public:
 		CVec3		Mins;
 		int			x, y, z, q, zbase;
 		bool		curPosOutside;
-		uint32_t		contents;
+		contentsFlags_t	contents;
 		uint32_t		bit;
 
 
@@ -597,9 +596,9 @@ public:
 							CurPos	  += Mins;
 
 							contents = ri.CM_PointContents(CurPos.v, 0);
-							if (contents&CONTENTS_INSIDE || contents&CONTENTS_OUTSIDE)
+							if (Any( contents&CONTENTS_INSIDE ) || Any( contents&CONTENTS_OUTSIDE ))
 							{
-								curPosOutside = ((contents&CONTENTS_OUTSIDE)!=0);
+								curPosOutside = Any( contents&CONTENTS_OUTSIDE );
 								if (!mCacheInit)
 								{
 									mCacheInit = true;
@@ -1356,8 +1355,8 @@ void R_ShutdownWorldEffects(void)
 void RB_RenderWorldEffects(void)
 {
 	if (!tr.world ||
-		(tr.refdef.rdflags & RDF_NOWORLDMODEL) ||
-		(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) ||
+		Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ||
+		Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL) ||
 		!mParticleClouds.size())
 	{	//  no world rendering or no world or no particle clouds
 		return;

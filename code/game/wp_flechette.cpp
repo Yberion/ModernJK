@@ -237,7 +237,7 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 	missile->s.eFlags |= EF_BOUNCE_HALF;
 
 	missile->damage = weaponData[WP_FLECHETTE].altDamage;
-	missile->dflags = 0;
+	missile->dflags = DAMAGE_NORMAL;
 	missile->splashDamage = weaponData[WP_FLECHETTE].altSplashDamage;
 	missile->splashRadius = weaponData[WP_FLECHETTE].altSplashRadius;
 

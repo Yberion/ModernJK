@@ -463,7 +463,7 @@ static void SetFarClip( void )
 
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
 		tr.viewParms.zFar = 2048;
 		return;
 	}
@@ -1049,7 +1049,7 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 	int				i;
 	fog_t			*fog;
 
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -1170,7 +1170,7 @@ void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fo
 		fogIndex = tr.world->numfogs;
 	}
 
-	if ( (shader->surfaceFlags & SURF_FORCESIGHT) && !(tr.refdef.rdflags & RDF_ForceSightOn) )
+	if ( Any( shader->surfaceFlags & SURF_FORCESIGHT ) && !Any(tr.refdef.rdflags & RDF_ForceSightOn) )
 	{	//if shader is only seen with ForceSight and we don't have ForceSight on, then don't draw
 		return;
 	}
@@ -1274,7 +1274,7 @@ void R_AddEntitySurfaces (void) {
 		// preshift the value we are going to OR into the drawsurf sort
 		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 
-		if ((ent->e.renderfx & RF_ALPHA_FADE))
+		if (Any(ent->e.renderfx & RF_ALPHA_FADE))
 		{
 			// we need to make sure this is not sorted before the world..in fact we
 			// want this to be sorted quite late...like how about last.
@@ -1287,7 +1287,7 @@ void R_AddEntitySurfaces (void) {
 		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if ( (ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal) {
+		if ( Any(ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal) {
 			continue;
 		}
 
@@ -1308,7 +1308,7 @@ void R_AddEntitySurfaces (void) {
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
-			if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
+			if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
 				continue;
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
@@ -1338,9 +1338,9 @@ Ghoul2 Insert Start
   					R_AddGhoulSurfaces( ent);
   					break;
 				case MOD_BAD:		// null model axis
-					if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+					if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 					{
-						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
+						if (!Any(ent->e.renderfx & RF_SHADOW_ONLY))
 						{
 						break;
 					}
@@ -1460,8 +1460,8 @@ void R_SetViewFogIndex (void)
 	if ( tr.world->numfogs > 1 )
 	{//more than just the LA goggles
 		fog_t *fog;
-		int contents = ri.SV_PointContents( tr.refdef.vieworg, 0 );
-		if ( (contents&CONTENTS_FOG) )
+		contentsFlags_t contents = ri.SV_PointContents( tr.refdef.vieworg, 0 );
+		if ( Any( contents&CONTENTS_FOG ) )
 		{//only take a tr.refdef.fogIndex if the tr.refdef.vieworg is actually *in* that fog brush (assumption: checks pointcontents for any CONTENTS_FOG, not that particular brush...)
 			for ( tr.refdef.fogIndex = 1 ; tr.refdef.fogIndex < tr.world->numfogs ; tr.refdef.fogIndex++ )
 			{
@@ -1537,7 +1537,7 @@ void R_RenderView (viewParms_t *parms) {
 
 	R_SetupFrustum ();
 
-	if (!(tr.refdef.rdflags & RDF_NOWORLDMODEL))
+	if (!Any(tr.refdef.rdflags & RDF_NOWORLDMODEL))
 	{	// Trying to do this with no world is not good.
 		R_SetViewFogIndex ();
 	}

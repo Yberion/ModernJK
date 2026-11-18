@@ -219,19 +219,19 @@ void G_ClassSetDontFlee( gentity_t *self )
 	default:
 		break;
 	}
-	if ( (self->NPC->aiFlags&NPCAI_BOSS_CHARACTER) )
+	if ( Any(self->NPC->aiFlags&NPCAI_BOSS_CHARACTER) )
 	{
 		self->NPC->scriptFlags |= SCF_DONT_FLEE;
 	}
-	if ( (self->NPC->aiFlags&NPCAI_SUBBOSS_CHARACTER) )
+	if ( Any(self->NPC->aiFlags&NPCAI_SUBBOSS_CHARACTER) )
 	{
 		self->NPC->scriptFlags |= SCF_DONT_FLEE;
 	}
-	if ( (self->NPC->aiFlags&NPCAI_ROSH) )
+	if ( Any(self->NPC->aiFlags&NPCAI_ROSH) )
 	{
 		self->NPC->scriptFlags |= SCF_DONT_FLEE;
 	}
-	if ( (self->NPC->aiFlags&NPCAI_HEAL_ROSH) )
+	if ( Any(self->NPC->aiFlags&NPCAI_HEAL_ROSH) )
 	{
 		self->NPC->scriptFlags |= SCF_DONT_FLEE;
 	}
@@ -264,7 +264,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	else if ( ent->client->NPC_class == CLASS_SAND_CREATURE )
 	{//???
 		ent->clipmask = CONTENTS_SOLID|CONTENTS_MONSTERCLIP;//it can go through others
-		ent->contents = 0;//can't be hit?
+		ent->contents = CONTENTS_NONE;//can't be hit?
 		ent->takedamage = false;//can't be killed
 		ent->flags |= FL_NO_KNOCKBACK;
 		SandCreature_ClearTimers( ent );
@@ -372,7 +372,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	}
 	//==================
 	if ( ent->client->ps.saber[0].type != SABER_NONE
-		&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )
+		&& (!Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )
 	{//if I'm equipped with a saber, initialize it (them)
 		ent->client->ps.SaberDeactivate();
 		ent->client->ps.SetSaberLength( 0 );
@@ -449,7 +449,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		{
 			if (ent->client->ps.weapon != WP_NONE
 				&& ent->client->ps.weapon != WP_SABER //sabers done above
-				&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
+				&& (!Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 			{
 				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 			}
@@ -550,7 +550,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 			{
 				if ( ent->client->ps.weapon != WP_NONE
 					&& ent->client->ps.weapon != WP_SABER//sabers done above
-					&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
+					&& (!Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 				{
 					G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 				}
@@ -562,7 +562,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 					NPCInfo->scriptFlags |= SCF_PILOT;
 					if ( ent->client->NPC_class == CLASS_REBORN
 						&& ent->NPC->rank >= RANK_LT_COMM
-						&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
+						&& (!Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 					{//dual blaster pistols, so add the left-hand one, too
 						G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handLBolt, 1 );
 					}
@@ -626,7 +626,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		if ( ent->client->ps.weapon != WP_NONE
 			&& ent->client->ps.weapon != WP_MELEE
 			&& ent->client->ps.weapon != WP_SABER//sabers done above
-			&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
+			&& (!Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 		{
 			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 		}
@@ -1156,7 +1156,7 @@ void NPC_Begin (gentity_t *ent)
 	}
 	else
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 		ent->clipmask = MASK_NPCSOLID&~CONTENTS_BODY;
 	}
 	if(ent->client->moveType == MT_STATIC)//Static?
@@ -1165,7 +1165,7 @@ void NPC_Begin (gentity_t *ent)
 	}
 	ent->e_DieFunc = dieF_player_die;
 	ent->waterlevel = 0;
-	ent->watertype = 0;
+	ent->watertype = CONTENTS_NONE;
 
 	//visible to player and NPCs
 	if ( ent->client->NPC_class != CLASS_R2D2 &&
@@ -1225,7 +1225,7 @@ void NPC_Begin (gentity_t *ent)
 	client->ps.pm_time = 100;
 
 	client->respawnTime = level.time;
-	client->latched_buttons = 0;
+	client->latched_buttons = BUTTON_NONE;
 
 	if ( ent->client->NPC_class != CLASS_VEHICLE )
 	{
@@ -1304,7 +1304,7 @@ void NPC_Begin (gentity_t *ent)
 
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 
-	if ( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON )
+	if ( Any( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON ) )
 	{
 		G_MatchPlayerWeapon( ent );
 	}
@@ -1526,15 +1526,15 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 
 //==NPC_Connect( newent, net_name );===================================
 
-	if ( ent->svFlags & SVF_NO_BASIC_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_BASIC_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_BASIC_SOUNDS;
 	}
-	if ( ent->svFlags & SVF_NO_COMBAT_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_COMBAT_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_COMBAT_SOUNDS;
 	}
-	if ( ent->svFlags & SVF_NO_EXTRA_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_EXTRA_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_EXTRA_SOUNDS;
 	}
@@ -1667,7 +1667,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 			int	n;
 			for ( n = 0; n < 1 ; n++)
 			{
-				if ( !(g_entities[n].svFlags & SVF_NPC) && g_entities[n].client)
+				if ( !Any( g_entities[n].svFlags & SVF_NPC ) && g_entities[n].client)
 				{
 					VectorCopy(g_entities[n].s.origin, newent->s.origin);
 					newent->client->playerTeam = g_entities[n].client->playerTeam;
@@ -1742,7 +1742,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, bool fullSpawnNow )
 	newent->s.apos.trDuration = 0;
 
 	newent->NPC->combatPoint = -1;
-	newent->NPC->aiFlags |= ent->bounceCount;//ai flags
+	newent->NPC->aiFlags |= static_cast<npcAiFlags_t>( ent->bounceCount );//ai flags
 
 
 	newent->flags |= FL_NOTARGET;//So he's ignored until he's fully spawned
@@ -2005,7 +2005,7 @@ void SP_NPC_spawner( gentity_t *self)
 		}
 		if ( G_SpawnInt( "nodelay", "0", &garbage ) )
 		{
-			self->bounceCount |= NPCAI_NO_JEDI_DELAY;
+			self->bounceCount |= to_underlying( NPCAI_NO_JEDI_DELAY );
 		}
 	}
 
@@ -2053,7 +2053,7 @@ void SP_NPC_spawner( gentity_t *self)
 		}
 	}
 
-	if (!(self->svFlags&SVF_NPC_PRECACHE))
+	if (!Any( self->svFlags & SVF_NPC_PRECACHE ))
 	{
 		NPC_PrecacheByClassName(self->NPC_type);
 	}
@@ -4258,7 +4258,7 @@ void NPC_Kill_f( void )
 					{
 						gi.Printf( S_COLOR_GREEN"Killing NPC %s named %s\n", player->NPC_type, player->targetname );
 						/*
-						if ( (player->flags&FL_UNDYING) )
+						if ( Any( player->flags & FL_UNDYING ) )
 						{
 							G_Damage( player, nullptr, nullptr, nullptr, nullptr, player->health+10000, 0, MOD_UNKNOWN );
 						}
@@ -4286,7 +4286,7 @@ void NPC_Kill_f( void )
 				{
 					gi.Printf( S_COLOR_GREEN"Killing NPC %s named %s\n", player->NPC_type, player->targetname );
 					/*
-					if ( (player->flags&FL_UNDYING) )
+					if ( Any( player->flags & FL_UNDYING ) )
 					{
 						G_Damage( player, nullptr, nullptr, nullptr, nullptr, player->health+10000, 0, MOD_UNKNOWN );
 					}
@@ -4304,7 +4304,7 @@ void NPC_Kill_f( void )
 				gi.Printf( S_COLOR_GREEN"Killing NPC %s named %s\n", player->NPC_type, player->targetname );
 				player->client->ps.stats[STAT_HEALTH] = 0;
 				/*
-				if ( (player->flags&FL_UNDYING) )
+				if ( Any( player->flags & FL_UNDYING ) )
 				{
 					G_Damage( player, nullptr, nullptr, nullptr, nullptr, player->health+10000, 0, MOD_UNKNOWN );
 				}
@@ -4316,7 +4316,7 @@ void NPC_Kill_f( void )
 				}
 			}
 		}
-		else if ( player && (player->svFlags&SVF_NPC_PRECACHE) )
+		else if ( player && Any( player->svFlags & SVF_NPC_PRECACHE ) )
 		{//a spawner
 			if( (player->targetname && Q_stricmp( name, player->targetname ) == 0)
 				|| Q_stricmp( name, "all" ) == 0 )

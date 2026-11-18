@@ -52,7 +52,7 @@ extern bool Boba_Flying( gentity_t *self );
 //Local Variables
 npcStatic_t NPCS;
 
-void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
+void NPC_SetAnim(gentity_t	*ent,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority);
 void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
 extern void GM_Dying( gentity_t *self );
 
@@ -71,7 +71,7 @@ void CorpsePhysics( gentity_t *self )
 		GM_Dying( self );
 	}
 	//FIXME: match my pitch and roll for the slope of my groundPlane
-	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !(self->s.eFlags&EF_DISINTEGRATION) )
+	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !Any(self->s.eFlags&EF_DISINTEGRATION) )
 	{//on the ground
 		//FIXME: check 4 corners
 		pitch_roll_for_slope( self, nullptr );
@@ -79,7 +79,7 @@ void CorpsePhysics( gentity_t *self )
 
 	if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 	{//events were just cleared out so add me again
-		if ( !(self->client->ps.eFlags&EF_NODRAW) )
+		if ( !Any(self->client->ps.eFlags&EF_NODRAW) )
 		{
 			AddSightEvent( self->enemy, self->r.currentOrigin, 384, AEL_DISCOVERED, 0.0f );
 		}
@@ -100,9 +100,9 @@ void CorpsePhysics( gentity_t *self )
 	if (self->client->respawnTime < (level.time+500))
 	{//don't turn "nonsolid" until about 1 second after actual death
 
-		if (self->client->ps.eFlags & EF_DISINTEGRATION)
+		if (Any( self->client->ps.eFlags & EF_DISINTEGRATION ))
 		{
-			self->r.contents = 0;
+			self->r.contents = CONTENTS_NONE;
 		}
 		else if ((self->client->NPC_class != CLASS_MARK1) && (self->client->NPC_class != CLASS_INTERROGATOR))	// The Mark1 & Interrogator stays solid.
 		{
@@ -161,7 +161,7 @@ void NPC_RemoveBody( gentity_t *self )
 		//if ( !self->taskManager || !self->taskManager->IsRunning() )
 		if (!trap->ICARUS_IsRunning(self->s.number))
 		{
-			if ( !self->activator || !self->activator->client || !(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+			if ( !self->activator || !self->activator->client || !Any(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 			{//not being held by a Rancor
 				G_FreeEntity( self );
 			}
@@ -219,7 +219,7 @@ void NPC_RemoveBody( gentity_t *self )
 			//if ( !self->taskManager || !self->taskManager->IsRunning() )
 			if (!trap->ICARUS_IsRunning(self->s.number))
 			{
-				if ( !self->activator || !self->activator->client || !(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+				if ( !self->activator || !self->activator->client || !Any(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 				{//not being held by a Rancor
 					if ( self->client && self->client->ps.saberEntityNum > 0 && self->client->ps.saberEntityNum < ENTITYNUM_WORLD )
 					{
@@ -295,7 +295,7 @@ static void NPC_RemoveBodyEffect(void)
 //	vec3_t		org;
 //	gentity_t	*tent;
 
-	if ( !NPCS.NPC || !NPCS.NPC->client || (NPCS.NPC->s.eFlags & EF_NODRAW) )
+	if ( !NPCS.NPC || !NPCS.NPC->client || Any(NPCS.NPC->s.eFlags & EF_NODRAW) )
 		return;
 
 	// team no longer indicates species/race, so in this case we'd use NPC_class, but
@@ -357,7 +357,7 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope )
 		startspot[2] += forwhom->r.mins[2] + 4;
 		VectorCopy( startspot, endspot );
 		endspot[2] -= 300;
-		trap->Trace( &trace, forwhom->r.currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &trace, forwhom->r.currentOrigin, vec3_origin, vec3_origin, endspot, forwhom->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 //		if(trace_fraction>0.05&&forwhom.movetype==MOVETYPE_STEP)
 //			forwhom.flags(-)FL_ONGROUND;
 
@@ -438,7 +438,7 @@ static void DeadThink ( void )
 		if ( NPCS.NPC->r.mins[0] > -32 )
 		{
 			NPCS.NPC->r.mins[0] -= 1;
-			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, 0, 0 );
+			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, G2TRFLAG_NONE, 0 );
 			if ( trace.allsolid )
 			{
 				NPCS.NPC->r.mins[0] += 1;
@@ -447,7 +447,7 @@ static void DeadThink ( void )
 		if ( NPCS.NPC->r.maxs[0] < 32 )
 		{
 			NPCS.NPC->r.maxs[0] += 1;
-			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, 0, 0 );
+			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, G2TRFLAG_NONE, 0 );
 			if ( trace.allsolid )
 			{
 				NPCS.NPC->r.maxs[0] -= 1;
@@ -456,7 +456,7 @@ static void DeadThink ( void )
 		if ( NPCS.NPC->r.mins[1] > -32 )
 		{
 			NPCS.NPC->r.mins[1] -= 1;
-			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, 0, 0 );
+			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, G2TRFLAG_NONE, 0 );
 			if ( trace.allsolid )
 			{
 				NPCS.NPC->r.mins[1] += 1;
@@ -465,7 +465,7 @@ static void DeadThink ( void )
 		if ( NPCS.NPC->r.maxs[1] < 32 )
 		{
 			NPCS.NPC->r.maxs[1] += 1;
-			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, 0, 0 );
+			trap->Trace (&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, G2TRFLAG_NONE, 0 );
 			if ( trace.allsolid )
 			{
 				NPCS.NPC->r.maxs[1] -= 1;
@@ -499,7 +499,7 @@ static void DeadThink ( void )
 		//death anim done (or were given a specific amount of time to wait before removal), wait the requisite amount of time them remove
 		if ( level.time >= NPCS.NPCInfo->timeOfDeath + BodyRemovalPadTime( NPCS.NPC ) )
 		{
-			if ( NPCS.NPC->client->ps.eFlags & EF_NODRAW )
+			if ( Any( NPCS.NPC->client->ps.eFlags & EF_NODRAW ) )
 			{
 				if (!trap->ICARUS_IsRunning(NPCS.NPC->s.number))
 				//if ( !NPC->taskManager || !NPC->taskManager->IsRunning() )
@@ -541,9 +541,10 @@ static void DeadThink ( void )
 	if ( NPCS.NPC->bounceCount < 0 && NPCS.NPC->s.groundEntityNum >= 0 )
 	{
 		// if client is in a nodrop area, make him/her nodraw
-		int contents = NPCS.NPC->bounceCount = trap->PointContents( NPCS.NPC->r.currentOrigin, -1 );
+		const contentsFlags_t contents = trap->PointContents( NPCS.NPC->r.currentOrigin, -1 );
+		NPCS.NPC->bounceCount = to_underlying( contents );
 
-		if ( ( contents & CONTENTS_NODROP ) )
+		if ( Any( contents & CONTENTS_NODROP ) )
 		{
 			NPCS.NPC->client->ps.eFlags |= EF_NODRAW;
 		}
@@ -619,7 +620,7 @@ void NPC_ShowDebugInfo (void)
 
 void NPC_ApplyScriptFlags (void)
 {
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CROUCHED )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CROUCHED ) )
 	{
 		if ( NPCS.NPCInfo->charmedTime > level.time && (NPCS.ucmd.forwardmove || NPCS.ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the crouched command
@@ -630,11 +631,11 @@ void NPC_ApplyScriptFlags (void)
 		}
 	}
 
-	if(NPCS.NPCInfo->scriptFlags & SCF_RUNNING)
+	if(Any(NPCS.NPCInfo->scriptFlags & SCF_RUNNING))
 	{
 		NPCS.ucmd.buttons &= ~BUTTON_WALKING;
 	}
-	else if(NPCS.NPCInfo->scriptFlags & SCF_WALKING)
+	else if(Any(NPCS.NPCInfo->scriptFlags & SCF_WALKING))
 	{
 		if ( NPCS.NPCInfo->charmedTime > level.time && (NPCS.ucmd.forwardmove || NPCS.ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the walking command
@@ -650,14 +651,14 @@ void NPC_ApplyScriptFlags (void)
 		ucmd.buttons |= BUTTON_CAREFUL;
 	}
 */
-	if(NPCS.NPCInfo->scriptFlags & SCF_LEAN_RIGHT)
+	if(Any(NPCS.NPCInfo->scriptFlags & SCF_LEAN_RIGHT))
 	{
 		NPCS.ucmd.buttons |= BUTTON_USE;
 		NPCS.ucmd.rightmove = 127;
 		NPCS.ucmd.forwardmove = 0;
 		NPCS.ucmd.upmove = 0;
 	}
-	else if(NPCS.NPCInfo->scriptFlags & SCF_LEAN_LEFT)
+	else if(Any(NPCS.NPCInfo->scriptFlags & SCF_LEAN_LEFT))
 	{
 		NPCS.ucmd.buttons |= BUTTON_USE;
 		NPCS.ucmd.rightmove = -127;
@@ -665,7 +666,7 @@ void NPC_ApplyScriptFlags (void)
 		NPCS.ucmd.upmove = 0;
 	}
 
-	if ( (NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE) && (NPCS.ucmd.buttons & BUTTON_ATTACK) )
+	if ( Any(NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE) && Any(NPCS.ucmd.buttons & BUTTON_ATTACK) )
 	{//Use altfire instead
 		NPCS.ucmd.buttons |= BUTTON_ALT_ATTACK;
 	}
@@ -675,7 +676,7 @@ void Q3_DebugPrint( WL_e level, const char *format, ... );
 void NPC_HandleAIFlags (void)
 {
 	//FIXME: make these flags checks a function call like NPC_CheckAIFlagsAndTimers
-	if ( NPCS.NPCInfo->aiFlags & NPCAI_LOST )
+	if ( Any( NPCS.NPCInfo->aiFlags & NPCAI_LOST ) )
 	{//Print that you need help!
 		//FIXME: shouldn't remove this just yet if cg_draw needs it
 		NPCS.NPCInfo->aiFlags &= ~NPCAI_LOST;
@@ -696,7 +697,7 @@ void NPC_HandleAIFlags (void)
 
 	//MRJ Request:
 	/*
-	if ( NPCInfo->aiFlags & NPCAI_GREET_ALLIES && !NPC->enemy )//what if "enemy" is the greetEnt?
+	if ( Any(NPCInfo->aiFlags & NPCAI_GREET_ALLIES) && !NPC->enemy )//what if "enemy" is the greetEnt?
 	{//If no enemy, look for teammates to greet
 		//FIXME: don't say hi to the same guy over and over again.
 		if ( NPCInfo->greetingDebounceTime < level.time )
@@ -778,7 +779,7 @@ void NPC_AvoidWallsAndCliffs (void)
 
 void NPC_CheckAttackScript(void)
 {
-	if(!(NPCS.ucmd.buttons & BUTTON_ATTACK))
+	if(!Any(NPCS.ucmd.buttons & BUTTON_ATTACK))
 	{
 		return;
 	}
@@ -802,7 +803,7 @@ void NPC_CheckAttackHold(void)
 	{//FIXME: don't keep holding this if can't hit enemy?
 
 		// If they don't have shields ( been disabled) they shouldn't hold their attack anim.
-		if ( !(NPC->NPC->aiFlags & NPCAI_SHIELDS) )
+		if ( !Any(NPC->NPC->aiFlags & NPCAI_SHIELDS) )
 		{
 			NPCInfo->attackHoldTime = 0;
 			return;
@@ -818,7 +819,7 @@ void NPC_CheckAttackHold(void)
 		{
 			ucmd.buttons |= BUTTON_ATTACK;
 		}
-		else if ( ( NPCInfo->attackHold ) && ( ucmd.buttons & BUTTON_ATTACK ) )
+		else if ( ( NPCInfo->attackHold ) && Any( ucmd.buttons & BUTTON_ATTACK ) )
 		{
 			NPCInfo->attackHoldTime = level.time + NPCInfo->attackHold;
 			PM_SetTorsoAnimTimer(NPC, &NPC->client->ps.torsoAnimTimer, NPCInfo->attackHold);
@@ -840,7 +841,7 @@ void NPC_CheckAttackHold(void)
 		{
 			NPCS.ucmd.buttons |= BUTTON_ATTACK;
 		}
-		else if ( ( NPCS.NPCInfo->attackHold ) && ( NPCS.ucmd.buttons & BUTTON_ATTACK ) )
+		else if ( ( NPCS.NPCInfo->attackHold ) && Any( NPCS.ucmd.buttons & BUTTON_ATTACK ) )
 		{
 			NPCS.NPCInfo->attackHoldTime = level.time + NPCS.NPCInfo->attackHold;
 		}
@@ -1377,7 +1378,7 @@ void NPC_RunBehavior( npcteam_t team, bState_t bState )
 	{
 		NPC_BSJedi_Default();
 	}
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_FORCED_MARCH )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_FORCED_MARCH ) )
 	{//being forced to march
 		NPC_BSDefault();
 	}
@@ -1447,7 +1448,7 @@ void NPC_RunBehavior( npcteam_t team, bState_t bState )
 				NPC_BehaviorSet_Default( bState );
 				return;
 			}
-			if ( NPCS.NPC->client->ps.weapon == WP_DISRUPTOR && (NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			if ( NPCS.NPC->client->ps.weapon == WP_DISRUPTOR && Any(NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 			{//a sniper
 				NPC_BehaviorSet_Sniper( bState );
 				return;
@@ -1590,12 +1591,12 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 
 	if ( NPCS.NPC->enemy )
 	{
-		if(NPCS.NPC->enemy->flags & FL_DONT_SHOOT)
+		if(Any( NPCS.NPC->enemy->flags & FL_DONT_SHOOT ))
 		{
 			NPCS.ucmd.buttons &= ~BUTTON_ATTACK;
 			NPCS.ucmd.buttons &= ~BUTTON_ALT_ATTACK;
 		}
-		else if ( NPCS.NPC->client->playerTeam != NPCTEAM_ENEMY && NPCS.NPC->enemy->NPC && (NPCS.NPC->enemy->NPC->surrenderTime > level.time || (NPCS.NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
+		else if ( NPCS.NPC->client->playerTeam != NPCTEAM_ENEMY && NPCS.NPC->enemy->NPC && (NPCS.NPC->enemy->NPC->surrenderTime > level.time || Any(NPCS.NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
 		{//don't shoot someone who's surrendering if you're a good guy
 			NPCS.ucmd.buttons &= ~BUTTON_ATTACK;
 			NPCS.ucmd.buttons &= ~BUTTON_ALT_ATTACK;
@@ -1614,7 +1615,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 		}
 	}
 
-	if(!(NPCS.ucmd.buttons & BUTTON_ATTACK) && NPCS.NPC->attackDebounceTime > level.time)
+	if(!Any(NPCS.ucmd.buttons & BUTTON_ATTACK) && NPCS.NPC->attackDebounceTime > level.time)
 	{//We just shot but aren't still shooting, so hold the gun up for a while
 		if(NPCS.client->ps.weapon == WP_SABER )
 		{//One-handed
@@ -1708,7 +1709,7 @@ void NPC_CheckInSolid(void)
 	VectorCopy(NPCS.NPC->r.currentOrigin, point);
 	point[2] -= 0.25;
 
-	trap->Trace(&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, point, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, 0, 0);
+	trap->Trace(&trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, point, NPCS.NPC->s.number, NPCS.NPC->clipmask, false, G2TRFLAG_NONE, 0);
 	if(!trace.startsolid && !trace.allsolid)
 	{
 		VectorCopy(NPCS.NPC->r.currentOrigin, NPCS.NPCInfo->lastClearOrigin);
@@ -1802,7 +1803,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	}
 
 	// see if NPC ai is frozen
-	if ( d_npcfreeze.value || (NPCS.NPC->r.svFlags&SVF_ICARUS_FREEZE) )
+	if ( d_npcfreeze.value || Any( NPCS.NPC->r.svFlags & SVF_ICARUS_FREEZE ) )
 	{
 		NPC_UpdateAngles( true, true );
 		ClientThink(self->s.number, &NPCS.ucmd);
@@ -1819,7 +1820,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		player = &g_entities[i];
 
 		if (player->inuse && player->client && player->client->sess.sessionTeam != TEAM_SPECTATOR &&
-			!(player->client->ps.pm_flags & PMF_FOLLOW))
+			!Any(player->client->ps.pm_flags & PMF_FOLLOW))
 		{
 			//if ( player->client->ps.viewEntity == self->s.number )
 			if (0) //rwwFIXMEFIXME: Allow controlling ents
@@ -1852,7 +1853,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 			self->client->pers.cmd.forwardmove = 0;
 			self->client->pers.cmd.rightmove = 0;
 			self->client->pers.cmd.upmove = 0;
-			self->client->pers.cmd.buttons = 0;
+			self->client->pers.cmd.buttons = BUTTON_NONE;
 			memcpy(&self->m_pVehicle->m_ucmd, &self->client->pers.cmd, sizeof(usercmd_t));
 		}
 	}
@@ -1997,25 +1998,25 @@ void NPC_InitGame( void )
 	*/
 }
 
-void NPC_SetAnim(gentity_t *ent, int setAnimParts, animNumber_t anim, int setAnimFlags)
+void NPC_SetAnim(gentity_t *ent, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NCP and Players
 	// rename PM_SETAnimFinal to PM_SetAnim and have both NCP and Players call PM_SetAnim
 	G_SetAnim(ent, nullptr, setAnimParts, anim, setAnimFlags, 0);
 /*
 	if(ent->client)
 	{//Players, NPCs
-		if (setAnimFlags&SETANIM_FLAG_OVERRIDE)
+		if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
 		{
-			if (setAnimParts & SETANIM_TORSO)
+			if (Any( setAnimParts & SETANIM_TORSO ))
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ent->client->ps.torsoAnim != anim )
+				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->client->ps.torsoAnim != anim )
 				{
 					PM_SetTorsoAnimTimer( ent, &ent->client->ps.torsoTimer, 0 );
 				}
 			}
-			if (setAnimParts & SETANIM_LEGS)
+			if (Any( setAnimParts & SETANIM_LEGS ))
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ent->client->ps.legsAnim != anim )
+				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ent->client->ps.legsAnim != anim )
 				{
 					PM_SetLegsAnimTimer( ent, &ent->client->ps.legsAnimTimer, 0 );
 				}
@@ -2027,18 +2028,18 @@ void NPC_SetAnim(gentity_t *ent, int setAnimParts, animNumber_t anim, int setAni
 	}
 	else
 	{//bodies, etc.
-		if (setAnimFlags&SETANIM_FLAG_OVERRIDE)
+		if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
 		{
-			if (setAnimParts & SETANIM_TORSO)
+			if (Any( setAnimParts & SETANIM_TORSO ))
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ES_TorsoAnim( ent->s ) != anim )
+				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ES_TorsoAnim( ent->s ) != anim )
 				{
 					PM_SetTorsoAnimTimer( ent, &ent->s.torsoAnimTimer, 0 );
 				}
 			}
-			if (setAnimParts & SETANIM_LEGS)
+			if (Any( setAnimParts & SETANIM_LEGS ))
 			{
-				if( (setAnimFlags & SETANIM_FLAG_RESTART) || ES_LegsAnim( ent->s ) != anim )
+				if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || ES_LegsAnim( ent->s ) != anim )
 				{
 					PM_SetLegsAnimTimer( ent, &ent->s.legsAnimTimer, 0 );
 				}

@@ -2115,7 +2115,7 @@ bool BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 		{
 			return false;
 		}
-		if (!(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & Bit( GI_Weapon( *item ) )) &&
+		if (!Any(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & Bit( GI_Weapon( *item ) )) &&
 			GI_Weapon( *item ) != WP_THERMAL && GI_Weapon( *item ) != WP_TRIP_MINE && GI_Weapon( *item ) != WP_DET_PACK)
 		{ //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
 			return false;
@@ -2591,7 +2591,7 @@ void BG_AddPredictableEventToPlayerstate( entity_event_t newEvent, int eventParm
 
 		if (!isRegistered)
 		{
-			trap->Cvar_Register(&showEvents, "showevents", "0", 0);
+			trap->Cvar_Register(&showEvents, "showevents", "0", CVAR_NONE);
 			isRegistered = true;
 		}
 

@@ -192,7 +192,7 @@ CBlockMember *CBlockMember::Duplicate( void )
 
 CBlock::CBlock( void )
 {
-	m_flags			= 0;
+	m_flags			= BF_NONE;
 	m_id			= TK_UNDEFINED;
 }
 
@@ -209,7 +209,7 @@ Init
 
 int CBlock::Init( void )
 {
-	m_flags			= 0;
+	m_flags			= BF_NONE;
 	m_id			= TK_UNDEFINED;
 
 	return true;
@@ -571,7 +571,7 @@ int CBlockStream::WriteBlock( CBlock *block )
 	CBlockMember	*bMember;
 	int				id = to_underlying( block->GetBlockID() );
 	int				numMembers = block->GetNumMembers();
-	unsigned char	flags = block->GetFlags();
+	unsigned char	flags = to_underlying( block->GetFlags() );
 
 	fwrite ( &id, sizeof(id), 1, m_fileHandle );
 	fwrite ( &numMembers, sizeof(numMembers), 1, m_fileHandle );
@@ -625,7 +625,7 @@ int CBlockStream::ReadBlock( CBlock *get )
 		return false;
 
 	get->Create( static_cast<icarusToken_t>( b_id ) );
-	get->SetFlags( flags );
+	get->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 	while ( numMembers-- > 0)
 	{

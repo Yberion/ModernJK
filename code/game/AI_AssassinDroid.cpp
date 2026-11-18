@@ -32,8 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	//both_death4 - running death
 
 #define	ASSASSIN_SHIELD_SIZE	75
-#define TURN_ON					0x00000000
-#define TURN_OFF				0x00000100
+constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 
 
@@ -42,7 +42,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 bool BubbleShield_IsOn()
 {
-	return (NPC->flags&FL_SHIELDED);
+	return Any( NPC->flags & FL_SHIELDED );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -414,7 +414,7 @@ void misc_model_breakable_gravity_init( gentity_t *ent, bool dropToFloor )
 		top[2] += 1;
 		VectorCopy( ent->r.currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		trap->Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, false, 0, 0 );
+		trap->Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, false, G2TRFLAG_NONE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -699,7 +699,7 @@ void G_PortalifyEntities(gentity_t *ent)
 		{
 			trace_t tr;
 
-			trap->Trace(&tr, ent->s.origin, vec3_origin, vec3_origin, scan->r.currentOrigin, ent->s.number, CONTENTS_SOLID, false, 0, 0);
+			trap->Trace(&tr, ent->s.origin, vec3_origin, vec3_origin, scan->r.currentOrigin, ent->s.number, CONTENTS_SOLID, false, G2TRFLAG_NONE, 0);
 
 			if (tr.fraction == 1.0 || (tr.entityNum == scan->s.number && tr.entityNum != ENTITYNUM_NONE && tr.entityNum != ENTITYNUM_WORLD))
 			{
@@ -1078,7 +1078,7 @@ void SP_misc_holocron(gentity_t *ent)
 	ent->r.maxs[2] -= 0.1f;
 
 	VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 	if ( tr.startsolid )
 	{
 		trap->Print ("SP_misc_holocron: misc_holocron startsolid at %s\n", vtos(ent->s.origin));
@@ -1237,7 +1237,7 @@ void check_recharge(gentity_t *ent)
 	if (ent->fly_sound_debounce_time < level.time ||
 		!ent->activator ||
 		!ent->activator->client ||
-		!(ent->activator->client->pers.cmd.buttons & BUTTON_USE))
+		!Any(ent->activator->client->pers.cmd.buttons & BUTTON_USE))
 	{
 		if (ent->activator)
 		{
@@ -1486,7 +1486,7 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 			{
 				add = 1;
 			}
-			if ( ( (activator->client->ps.eFlags & EF_DOUBLE_AMMO) && (activator->client->ps.ammo[i] < ammoData[i].max*2)) ||
+			if ( ( Any(activator->client->ps.eFlags & EF_DOUBLE_AMMO) && (activator->client->ps.ammo[i] < ammoData[i].max*2)) ||
 				( activator->client->ps.ammo[i] < ammoData[i].max ) )
 			{
 				gaveSome = true;
@@ -1499,7 +1499,7 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 				{	// fixme - this should SERIOUSLY be externed.
 					activator->client->ps.ammo[i] = 10;
 				}
-				else if ( activator->client->ps.eFlags & EF_DOUBLE_AMMO )
+				else if ( Any( activator->client->ps.eFlags & EF_DOUBLE_AMMO ) )
 				{
 					if (activator->client->ps.ammo[i] >= ammoData[i].max * 2)
 					{	// yuck.
@@ -1583,7 +1583,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	ent->r.maxs[2] -= 0.1f;
 
 	VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 	if ( tr.startsolid )
 	{
 		trap->Print ("SP_misc_ammo_floor_unit: misc_ammo_floor_unit startsolid at %s\n", vtos(ent->s.origin));
@@ -1611,7 +1611,7 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 
 	ent->s.modelindex = G_ModelIndex( ent->model );
 
-	ent->s.eFlags = 0;
+	ent->s.eFlags = EF_NONE;
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
@@ -1678,7 +1678,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	ent->r.maxs[2] -= 0.1f;
 
 	VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 	if ( tr.startsolid )
 	{
 		trap->Print ("SP_misc_shield_floor_unit: misc_shield_floor_unit startsolid at %s\n", vtos(ent->s.origin));
@@ -1706,7 +1706,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 
 	ent->s.modelindex = G_ModelIndex( ent->model );
 
-	ent->s.eFlags = 0;
+	ent->s.eFlags = EF_NONE;
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
@@ -1765,7 +1765,7 @@ void SP_misc_model_shield_power_converter( gentity_t *ent )
 
 	ent->s.modelindex = G_ModelIndex( ent->model );
 
-	ent->s.eFlags = 0;
+	ent->s.eFlags = EF_NONE;
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
@@ -1929,7 +1929,7 @@ void SP_misc_model_ammo_power_converter( gentity_t *ent )
 
 	ent->s.modelindex = G_ModelIndex( ent->model );
 
-	ent->s.eFlags = 0;
+	ent->s.eFlags = EF_NONE;
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
@@ -2047,7 +2047,7 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 
 	ent->s.modelindex = G_ModelIndex( ent->model );
 
-	ent->s.eFlags = 0;
+	ent->s.eFlags = EF_NONE;
 	ent->r.svFlags |= SVF_PLAYER_USABLE;
 	ent->r.contents = CONTENTS_SOLID;
 	ent->clipmask = MASK_SOLID;
@@ -2154,7 +2154,7 @@ gentity_t *CreateNewDamageBox( gentity_t *ent )
 	dmgBox->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	dmgBox->r.ownerNum = ent->s.number;
 
-	dmgBox->clipmask = 0;
+	dmgBox->clipmask = CONTENTS_NONE;
 	dmgBox->r.contents = MASK_PLAYERSOLID;
 
 	dmgBox->mass = 5000;
@@ -2742,7 +2742,7 @@ void Use_Target_Escapetrig( gentity_t *ent, gentity_t *other, gentity_t *activat
 		{ //all of the survivors get 100 points!
 			if (g_entities[i].inuse && g_entities[i].client && g_entities[i].health > 0 &&
 				g_entities[i].client->sess.sessionTeam != TEAM_SPECTATOR &&
-				!(g_entities[i].client->ps.pm_flags & PMF_FOLLOW))
+				!Any(g_entities[i].client->ps.pm_flags & PMF_FOLLOW))
 			{
 				AddScore(&g_entities[i], g_entities[i].client->ps.origin, 100);
 			}
@@ -2828,7 +2828,7 @@ void maglock_link( gentity_t *self )
 	VectorMA( self->s.origin, 128, forward, end );
 	VectorMA( self->s.origin, -4, forward, start );
 
-	trap->Trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace( &trace, start, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 	if ( trace.allsolid || trace.startsolid )
 	{

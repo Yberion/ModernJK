@@ -489,8 +489,8 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", 0, "How many seconds notify messages should be shown before they fade away");
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0, "Console open/close speed");
+	con_notifytime = Cvar_Get ("con_notifytime", "3", CVAR_NONE, "How many seconds notify messages should be shown before they fade away");
+	con_conspeed = Cvar_Get ("scr_conspeed", "3", CVAR_NONE, "Console open/close speed");
 	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, false);
 
 	con_opacity = Cvar_Get ("con_opacity", "1.0", CVAR_ARCHIVE_ND, "Opacity of console background");
@@ -687,7 +687,7 @@ Draw the editline after a ] prompt
 void Con_DrawInput (void) {
 	int		y;
 
-	if ( cls.state != CA_DISCONNECTED && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+	if ( cls.state != CA_DISCONNECTED && !Any(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
 		return;
 	}
 
@@ -763,14 +763,14 @@ void Con_DrawNotify (void)
 			lineLimit -= CON_TIMESTAMP_LEN;
 		}
 
-		if (cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+		if (cl.snap.ps.pm_type != PM_INTERMISSION && Any( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) ) {
 			continue;
 		}
 
 
 		if (!cl_conXOffset)
 		{
-			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
+			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", CVAR_NONE);
 		}
 
 		// asian language needs to use the new font system to print glyphs...
@@ -811,7 +811,7 @@ void Con_DrawNotify (void)
 				}
 				if (!cl_conXOffset)
 				{
-					cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
+					cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", CVAR_NONE);
 				}
 				SCR_DrawSmallChar( (int)(cl_conXOffset->integer + (x+1)*con.charWidth), v, text[x].f.character );
 			}
@@ -822,12 +822,12 @@ void Con_DrawNotify (void)
 
 	re->SetColor( nullptr );
 
-	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+	if (Any( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) ) {
 		return;
 	}
 
 	// draw the chat line
-	if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) )
 	{
 		if (chat_team)
 		{
@@ -1013,7 +1013,7 @@ void Con_DrawConsole( void ) {
 
 	// if disconnected, render console full screen
 	if ( cls.state == CA_DISCONNECTED ) {
-		if ( !( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME)) ) {
+		if ( !Any( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME)) ) {
 			Con_DrawSolidConsole( 1.0 );
 			return;
 		}
@@ -1040,7 +1040,7 @@ Scroll it up or down
 */
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 		con.finalFrac = con_height->value;
 	else
 		con.finalFrac = 0;				// none visible

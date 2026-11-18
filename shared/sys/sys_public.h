@@ -181,12 +181,13 @@ enum class glProfile_t
 };
 using enum glProfile_t;
 
-enum class glContextFlag_t
+enum class glContextFlags_t
 {
+	GLCONTEXT_NONE = 0,
 	GLCONTEXT_DEBUG = (1 << 1),
 };
-using enum glContextFlag_t;
-template <> inline constexpr bool enableEnumFlags<glContextFlag_t> = true;
+using enum glContextFlags_t;
+template <> inline constexpr bool enableEnumFlags<glContextFlags_t> = true;
 
 typedef struct windowDesc_s
 {
@@ -198,7 +199,7 @@ typedef struct windowDesc_s
 		int majorVersion;
 		int minorVersion;
 		glProfile_t profile;
-		glContextFlag_t contextFlags;
+		glContextFlags_t contextFlags;
 	} gl;
 } windowDesc_t;
 

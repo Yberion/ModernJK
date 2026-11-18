@@ -139,11 +139,9 @@ static QINLINE int AAS_ClusterAreaNum(int cluster, int areanum)
 //===========================================================================
 void AAS_InitTravelFlagFromType(void)
 {
-	int i;
-
-	for (i = 0; i < MAX_TRAVELTYPES; i++)
+	for (travelFlags_t &tfl : aasworld.travelflagfortype)
 	{
-		aasworld.travelflagfortype[i] = TFL_INVALID;
+		tfl = TFL_INVALID;
 	} //end for
 	aasworld.travelflagfortype[TRAVEL_INVALID] = TFL_INVALID;
 	aasworld.travelflagfortype[TRAVEL_WALK] = TFL_WALK;
@@ -171,17 +169,17 @@ void AAS_InitTravelFlagFromType(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static QINLINE int AAS_TravelFlagForType_inline(int traveltype)
+static QINLINE travelFlags_t AAS_TravelFlagForType_inline(travelTypeFlags_t traveltype)
 {
-	int tfl;
+	travelFlags_t tfl;
 
-	tfl = 0;
-	if (tfl & TRAVELFLAG_NOTTEAM1)
+	tfl = TFL_NONE;
+	if (Any( traveltype & TRAVELFLAG_NOTTEAM1 ))
 		tfl |= TFL_NOTTEAM1;
-	if (tfl & TRAVELFLAG_NOTTEAM2)
+	if (Any( traveltype & TRAVELFLAG_NOTTEAM2 ))
 		tfl |= TFL_NOTTEAM2;
 	traveltype &= TRAVELTYPE_MASK;
-	if (traveltype < 0 || traveltype >= MAX_TRAVELTYPES)
+	if (to_underlying( traveltype ) < 0 || to_underlying( traveltype ) >= MAX_TRAVELTYPES)
 		return TFL_INVALID;
 	tfl |= aasworld.travelflagfortype[traveltype];
 	return tfl;
@@ -192,7 +190,7 @@ static QINLINE int AAS_TravelFlagForType_inline(int traveltype)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_TravelFlagForType(int traveltype)
+travelFlags_t AAS_TravelFlagForType(travelTypeFlags_t traveltype)
 {
 	return AAS_TravelFlagForType_inline(traveltype);
 } //end of the function AAS_TravelFlagForType_inline
@@ -312,7 +310,7 @@ void AAS_RemoveRoutingCacheUsingArea( int areanum )
 //===========================================================================
 int AAS_EnableRoutingArea(int areanum, int enable)
 {
-	int flags;
+	areaFlags_t flags;
 
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
@@ -324,7 +322,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 	} //end if
 	flags = aasworld.areasettings[areanum].areaflags & AREA_DISABLED;
 	if (enable < 0)
-		return !flags;
+		return !Any( flags );
 
 	if (enable)
 		aasworld.areasettings[areanum].areaflags &= ~AREA_DISABLED;
@@ -336,7 +334,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 		//remove all routing cache involving this area
 		AAS_RemoveRoutingCacheUsingArea( areanum );
 	} //end if
-	return !flags;
+	return !Any( flags );
 } //end of the function AAS_EnableRoutingArea
 //===========================================================================
 //
@@ -354,27 +352,28 @@ static QINLINE float AAS_RoutingTime(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_GetAreaContentsTravelFlags(int areanum)
+travelFlags_t AAS_GetAreaContentsTravelFlags(int areanum)
 {
-	int contents, tfl;
+	areaContentsFlags_t contents;
+	travelFlags_t tfl;
 
 	contents = aasworld.areasettings[areanum].contents;
-	tfl = 0;
-	if (contents & AREACONTENTS_WATER)
+	tfl = TFL_NONE;
+	if (Any( contents & AREACONTENTS_WATER ))
 		tfl |= TFL_WATER;
-	else if (contents & AREACONTENTS_SLIME)
+	else if (Any( contents & AREACONTENTS_SLIME ))
 		tfl |= TFL_SLIME;
-	else if (contents & AREACONTENTS_LAVA)
+	else if (Any( contents & AREACONTENTS_LAVA ))
 		tfl |= TFL_LAVA;
 	else
 		tfl |= TFL_AIR;
-	if (contents & AREACONTENTS_DONOTENTER)
+	if (Any( contents & AREACONTENTS_DONOTENTER ))
 		tfl |= TFL_DONOTENTER;
-	if (contents & AREACONTENTS_NOTTEAM1)
+	if (Any( contents & AREACONTENTS_NOTTEAM1 ))
 		tfl |= TFL_NOTTEAM1;
-	if (contents & AREACONTENTS_NOTTEAM2)
+	if (Any( contents & AREACONTENTS_NOTTEAM2 ))
 		tfl |= TFL_NOTTEAM2;
-	if (aasworld.areasettings[areanum].areaflags & AREA_BRIDGE)
+	if (Any( aasworld.areasettings[areanum].areaflags & AREA_BRIDGE ))
 		tfl |= TFL_BRIDGE;
 	return tfl;
 } //end of the function AAS_GetAreaContentsTravelFlags
@@ -384,7 +383,7 @@ int AAS_GetAreaContentsTravelFlags(int areanum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-static QINLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
+static QINLINE travelFlags_t AAS_AreaContentsTravelFlags_inline(int areanum)
 {
 	return aasworld.areacontentstravelflags[areanum];
 } //end of the function AAS_AreaContentsTravelFlags
@@ -394,7 +393,7 @@ static QINLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaContentsTravelFlags(int areanum)
+travelFlags_t AAS_AreaContentsTravelFlags(int areanum)
 {
 	return aasworld.areacontentstravelflags[areanum];
 } //end of the function AAS_AreaContentsTravelFlags
@@ -409,7 +408,7 @@ void AAS_InitAreaContentsTravelFlags(void)
 	int i;
 
 	if (aasworld.areacontentstravelflags) FreeMemory(aasworld.areacontentstravelflags);
-	aasworld.areacontentstravelflags = (int *) GetClearedMemory(aasworld.numareas * sizeof(int));
+	aasworld.areacontentstravelflags = (travelFlags_t *) GetClearedMemory(aasworld.numareas * sizeof(travelFlags_t));
 	//
 	for (i = 0; i < aasworld.numareas; i++) {
 		aasworld.areacontentstravelflags[i] = AAS_GetAreaContentsTravelFlags(i);
@@ -1294,7 +1293,8 @@ void AAS_FreeRoutingCaches(void)
 //===========================================================================
 void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
 {
-	int i, nextareanum, cluster, badtravelflags, clusterareanum, linknum;
+	int i, nextareanum, cluster, clusterareanum, linknum;
+	travelFlags_t badtravelflags;
 	int numreachabilityareas;
 	unsigned short int t, startareatraveltimes[128]; //NOTE: not more than 128 reachabilities per area allowed
 	aas_routingupdate_t *updateliststart, *updatelistend, *curupdate, *nextupdate;
@@ -1349,11 +1349,11 @@ void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
 			linknum = revlink->linknum;
 			reach = &aasworld.reachability[linknum];
 			//if there is used an undesired travel type
-			if (AAS_TravelFlagForType_inline(reach->traveltype) & badtravelflags) continue;
+			if (Any( AAS_TravelFlagForType_inline(reach->traveltype) & badtravelflags )) continue;
 			//if not allowed to enter the next area
-			if (aasworld.areasettings[reach->areanum].areaflags & AREA_DISABLED) continue;
+			if (Any( aasworld.areasettings[reach->areanum].areaflags & AREA_DISABLED )) continue;
 			//if the next area has a not allowed travel flag
-			if (AAS_AreaContentsTravelFlags_inline(reach->areanum) & badtravelflags) continue;
+			if (Any( AAS_AreaContentsTravelFlags_inline(reach->areanum) & badtravelflags )) continue;
 			//number of the area the reversed reachability leads to
 			nextareanum = revlink->areanum;
 			//get the cluster number of the area
@@ -1403,7 +1403,7 @@ void AAS_UpdateAreaRoutingCache(aas_routingcache_t *areacache)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-aas_routingcache_t *AAS_GetAreaRoutingCache(int clusternum, int areanum, int travelflags)
+aas_routingcache_t *AAS_GetAreaRoutingCache(int clusternum, int areanum, travelFlags_t travelflags)
 {
 	int clusterareanum;
 	aas_routingcache_t *cache, *clustercache;
@@ -1547,7 +1547,7 @@ void AAS_UpdatePortalRoutingCache(aas_routingcache_t *portalcache)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, int travelflags)
+aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, travelFlags_t travelflags)
 {
 	aas_routingcache_t *cache;
 
@@ -1589,7 +1589,7 @@ aas_routingcache_t *AAS_GetPortalRoutingCache(int clusternum, int areanum, int t
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags, int *traveltime, int *reachnum)
+int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags, int *traveltime, int *reachnum)
 {
 	int clusternum, goalclusternum, portalnum, i, clusterareanum, bestreachnum;
 	unsigned short int t, besttime;
@@ -1628,7 +1628,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 		if (!AAS_FreeOldestCache()) break;
 	}
 	//
-	if (AAS_AreaDoNotEnter(areanum) || AAS_AreaDoNotEnter(goalareanum))
+	if (Any( AAS_AreaDoNotEnter(areanum) ) || Any( AAS_AreaDoNotEnter(goalareanum) ))
 	{
 		travelflags |= TFL_DONOTENTER;
 	} //end if
@@ -1771,7 +1771,7 @@ int AAS_AreaRouteToGoalArea(int areanum, vec3_t origin, int goalareanum, int tra
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags)
+int AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags)
 {
 	int traveltime, reachnum = 0;
 
@@ -1787,7 +1787,7 @@ int AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, in
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaReachabilityToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags)
+int AAS_AreaReachabilityToGoalArea(int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags)
 {
 	int traveltime, reachnum = 0;
 
@@ -1805,8 +1805,8 @@ int AAS_AreaReachabilityToGoalArea(int areanum, vec3_t origin, int goalareanum, 
 // Changes Globals:		-
 //===========================================================================
 int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origin,
-							int goalareanum, int travelflags, int maxareas, int maxtime,
-							int stopevent, int stopcontents, int stoptfl, int stopareanum)
+							int goalareanum, travelFlags_t travelflags, int maxareas, int maxtime,
+							routeStopEventFlags_t stopevent, areaContentsFlags_t stopcontents, travelFlags_t stoptfl, int stopareanum)
 {
 	int curareanum, reachnum, i, j, testareanum;
 	vec3_t curorigin;
@@ -1816,8 +1816,8 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 	//init output
 	route->stopevent = RSE_NONE;
 	route->endarea = goalareanum;
-	route->endcontents = 0;
-	route->endtravelflags = 0;
+	route->endcontents = AREACONTENTS_NONE;
+	route->endtravelflags = TFL_NONE;
 	VectorCopy(origin, route->endpos);
 	route->time = 0;
 
@@ -1834,9 +1834,9 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 		} //end if
 		reach = &aasworld.reachability[reachnum];
 		//
-		if (stopevent & RSE_USETRAVELTYPE)
+		if (Any( stopevent & RSE_USETRAVELTYPE ))
 		{
-			if (AAS_TravelFlagForType_inline(reach->traveltype) & stoptfl)
+			if (Any( AAS_TravelFlagForType_inline(reach->traveltype) & stoptfl ))
 			{
 				route->stopevent = RSE_USETRAVELTYPE;
 				route->endarea = curareanum;
@@ -1845,7 +1845,7 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 				VectorCopy(reach->start, route->endpos);
 				return true;
 			} //end if
-			if (AAS_AreaContentsTravelFlags_inline(reach->areanum) & stoptfl)
+			if (Any( AAS_AreaContentsTravelFlags_inline(reach->areanum) & stoptfl ))
 			{
 				route->stopevent = RSE_USETRAVELTYPE;
 				route->endarea = reach->areanum;
@@ -1864,9 +1864,9 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 				testareanum = reach->areanum;
 			else
 				testareanum = aasworld.reachabilityareaindex[reachareas->firstarea + j];
-			if (stopevent & RSE_ENTERCONTENTS)
+			if (Any( stopevent & RSE_ENTERCONTENTS ))
 			{
-				if (aasworld.areasettings[testareanum].contents & stopcontents)
+				if (Any( aasworld.areasettings[testareanum].contents & stopcontents ))
 				{
 					route->stopevent = RSE_ENTERCONTENTS;
 					route->endarea = testareanum;
@@ -1877,7 +1877,7 @@ int AAS_PredictRoute(struct aas_predictroute_s *route, int areanum, vec3_t origi
 					return true;
 				} //end if
 			} //end if
-			if (stopevent & RSE_ENTERAREA)
+			if (Any( stopevent & RSE_ENTERAREA ))
 			{
 				if (testareanum == stopareanum)
 				{
@@ -2005,7 +2005,7 @@ int AAS_NextModelReachability(int num, int modelnum)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_RandomGoalArea(int areanum, int travelflags, int *goalareanum, vec3_t goalorigin)
+int AAS_RandomGoalArea(int areanum, travelFlags_t travelflags, int *goalareanum, vec3_t goalorigin)
 {
 	int i, n, t;
 	vec3_t start, end;
@@ -2084,9 +2084,10 @@ float DistancePointToLine(vec3_t v1, vec3_t v2, vec3_t point)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags)
+int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, travelFlags_t travelflags)
 {
-	int i, j, nextareanum, badtravelflags, numreach, bestarea;
+	int i, j, nextareanum, numreach, bestarea;
+	travelFlags_t badtravelflags;
 	unsigned short int t, besttraveltime;
 	static unsigned short int *hidetraveltimes;
 	aas_routingupdate_t *updateliststart, *updatelistend, *curupdate, *nextupdate;
@@ -2138,9 +2139,9 @@ int AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, ve
 		for (i = 0; i < numreach; i++, reach++)
 		{
 			//if an undesired travel type is used
-			if (AAS_TravelFlagForType_inline(reach->traveltype) & badtravelflags) continue;
+			if (Any( AAS_TravelFlagForType_inline(reach->traveltype) & badtravelflags )) continue;
 			//
-			if (AAS_AreaContentsTravelFlags_inline(reach->areanum) & badtravelflags) continue;
+			if (Any( AAS_AreaContentsTravelFlags_inline(reach->areanum) & badtravelflags )) continue;
 			//number of the area the reachability leads to
 			nextareanum = reach->areanum;
 			// if this moves us into the enemies area, skip it

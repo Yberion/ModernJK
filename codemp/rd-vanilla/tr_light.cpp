@@ -149,7 +149,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		return;
 	}
 
-	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
+	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -272,7 +272,7 @@ LogLight
 static void LogLight( trRefEntity_t *ent ) {
 	int	max1, max2;
 
-	if ( !(ent->e.renderfx & RF_FIRST_PERSON ) ) {
+	if ( !Any(ent->e.renderfx & RF_FIRST_PERSON ) ) {
 		return;
 	}
 
@@ -319,7 +319,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	//
 	// trace a sample point down to find ambient light
 	//
-	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
+	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -329,7 +329,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if ( !(refdef->rdflags & RDF_NOWORLDMODEL )
+	if ( !Any(refdef->rdflags & RDF_NOWORLDMODEL )
 		&& tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
 	} else {
@@ -348,7 +348,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		ent->ambientLight[2] += tr.identityLight * 32;
 	}
 
-	if (ent->e.renderfx & RF_MINLIGHT)
+	if (Any( ent->e.renderfx & RF_MINLIGHT ))
 	{ //the minlight flag is now for items rotating on their holo thing
 		if (ent->e.shaderRGBA[0] == 255 &&
 			ent->e.shaderRGBA[1] == 255 &&

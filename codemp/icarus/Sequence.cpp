@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 CSequence::CSequence( void )
 {
 	m_numCommands	= 0;
-	m_flags			= 0;
+	m_flags			= SQ_COMMON;
 	m_iterations	= 1;
 
 	m_parent		= nullptr;
@@ -173,10 +173,10 @@ void CSequence::SetParent( CSequence *parent )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
-	if ( parent->m_flags & SQ_RETAIN )
+	if ( Any( parent->m_flags & SQ_RETAIN ) )
 		m_flags |= SQ_RETAIN;
 
-	if ( parent->m_flags & SQ_PENDING )
+	if ( Any( parent->m_flags & SQ_PENDING ) )
 		m_flags |= SQ_PENDING;
 }
 
@@ -268,7 +268,7 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( int flag )
+void CSequence::SetFlag( sequenceFlags_t flag )
 {
 	m_flags |= flag;
 }
@@ -279,7 +279,7 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( int flag, bool children )
+void CSequence::RemoveFlag( sequenceFlags_t flag, bool children )
 {
 	m_flags &= ~flag;
 
@@ -300,9 +300,9 @@ HasFlag
 -------------------------
 */
 
-int CSequence::HasFlag( int flag )
+bool CSequence::HasFlag( sequenceFlags_t flag )
 {
-	return (m_flags & flag);
+	return Any(m_flags & flag);
 }
 
 /*
@@ -353,7 +353,7 @@ int CSequence::SaveCommand( CBlock *block )
 	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','L','I','D'), &bID, sizeof ( bID ) );
 
 	//Save out the block's flags
-	flags = block->GetFlags();
+	flags = to_underlying( block->GetFlags() );
 	(m_owner->GetInterface())->I_WriteSaveData( INT_ID('B','F','L','G'), &flags, sizeof ( flags ) );
 
 	//Save out the number of members to read
@@ -498,7 +498,7 @@ int CSequence::Load( void )
 
 		//Read the block's flags
 		(m_owner->GetInterface())->I_ReadSaveData( 'BFLG', &flags, sizeof( flags ) );
-		block->SetFlags( flags );
+		block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 		//Get the number of block members
 		(m_owner->GetInterface())->I_ReadSaveData( 'BNUM', &numMembers, sizeof( numMembers ) );

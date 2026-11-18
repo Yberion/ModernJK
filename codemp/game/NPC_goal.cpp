@@ -97,7 +97,7 @@ void NPC_ClearGoal( void )
 	goal = NPCS.NPCInfo->lastGoalEntity;
 	NPCS.NPCInfo->lastGoalEntity = nullptr;
 //	NAV_ClearLastRoute(NPC);
-	if ( goal->inuse && !(goal->s.eFlags & EF_NODRAW) )
+	if ( goal->inuse && !Any(goal->s.eFlags & EF_NODRAW) )
 	{
 //		Debug_NPCPrintf( NPC, d_npcai, DEBUG_LEVEL_INFO, "NPC_ClearGoal: pop %s\n", goal->classname );
 		SetGoal( goal, 0 );//, NPCInfo->lastGoalEntityNeed
@@ -164,12 +164,12 @@ bool ReachedGoal( gentity_t *goal )
 	//vec3_t	angles;
 	float	delta;
 
-	if ( goal->flags & FL_NAVGOAL )
+	if ( Any( goal->flags & FL_NAVGOAL ) )
 	{//waypoint_navgoal
 		return NAV_HitNavGoal( NPC->currentOrigin, NPC->mins, NPC->maxs, goal, FlyingCreature( NPC ) );
 	}
 
-	if ( goal == NPCInfo->tempGoal && !(goal->flags & FL_NAVGOAL))
+	if ( goal == NPCInfo->tempGoal && !Any( goal->flags & FL_NAVGOAL ))
 	{//MUST touch waypoints, even if moving to it
 		//This is odd, it just checks to see if they are on the same
 		//surface and the tempGoal in in the FOV - does NOT check distance!
@@ -218,13 +218,13 @@ bool ReachedGoal( gentity_t *goal )
 		return false;
 	}
 */
-	if ( NPCS.NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL )
+	if ( Any( NPCS.NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL ) )
 	{
 		NPCS.NPCInfo->aiFlags &= ~NPCAI_TOUCHED_GOAL;
 		return true;
 	}
 /*
-	if ( goal->s.eFlags & EF_NODRAW )
+	if ( Any( goal->s.eFlags & EF_NODRAW ) )
 	{
 		goalWpNum = NAV_FindWaypointAt( goal->currentOrigin );
 		if ( NPC->waypoint == goalWpNum )

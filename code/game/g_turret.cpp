@@ -68,7 +68,7 @@ void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, con
 }
 
 //------------------------------------------------------------------------------------------------------------
-void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 //------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0,-1 }, pos;
@@ -109,7 +109,7 @@ void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		G_RadiusDamage( self->currentOrigin, attacker, self->splashDamage, self->splashRadius, attacker, MOD_UNKNOWN );
 	}
 
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 1; // black
 	}
@@ -168,7 +168,7 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 	vec3_t		org, ang;
 	gentity_t	*bolt;
 
-	if ( (gi.pointcontents( start, ent->s.number )&MASK_SHOT) )
+	if ( Any( gi.pointcontents( start, ent->s.number )&MASK_SHOT ) )
 	{
 		return;
 	}
@@ -480,7 +480,7 @@ static bool turret_find_enemies( gentity_t *self )
 			// only attack clients
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -651,7 +651,7 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
 
-	if (( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	if (Any( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
 	{
 		self->s.frame = 1; // black
 	}
@@ -739,7 +739,7 @@ void turret_SetBoneAngles(gentity_t *ent, const char *bone, const vec3_t angles)
 		return;
 	}
 
-	int flags = BONE_ANGLES_POSTMULT;
+	boneFlags_t flags = BONE_ANGLES_POSTMULT;
 	Eorientations up, right, forward;
 	up = POSITIVE_Y;
 	right = NEGATIVE_Z;
@@ -1497,7 +1497,7 @@ static bool pas_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -1976,7 +1976,7 @@ void ion_cannon_think( gentity_t *self )
 }
 
 //----------------------------------------------------------------------------------------------
-void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 //----------------------------------------------------------------------------------------------
 {
 	vec3_t org;
@@ -2007,7 +2007,7 @@ void ion_cannon_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 	self->s.loopSound = 0;
 
 	// not solid anymore
-	self->contents = 0;
+	self->contents = CONTENTS_NONE;
 
 	VectorCopy( self->currentOrigin, self->s.pos.trBase );
 
@@ -2325,7 +2325,7 @@ void panel_turret_shoot( gentity_t *self, vec3_t org, vec3_t dir)
 }
 
 //-----------------------------------------
-void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void misc_panel_turret_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 {
 	if ( self->target3 )
 	{
@@ -2393,7 +2393,7 @@ void panel_turret_think( gentity_t *self )
 		self->s.pos.trType	= TR_INTERPOLATE; // not really moving, but this fixes an interpolation bug in cg_ents.
 
 		// Check for backing out of turret
-		if ( ( self->useDebounceTime < level.time ) && ((ucmd->buttons & BUTTON_USE) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove) )
+		if ( ( self->useDebounceTime < level.time ) && (Any(ucmd->buttons & BUTTON_USE) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove) )
 		{
 			self->useDebounceTime = level.time + 200;
 
@@ -2424,7 +2424,7 @@ void panel_turret_think( gentity_t *self )
 			cg.overrides.fov = 90;
 		}
 
-		if ( ucmd->buttons & BUTTON_ATTACK || ucmd->buttons & BUTTON_ALT_ATTACK )
+		if ( Any( ucmd->buttons & BUTTON_ATTACK ) || Any( ucmd->buttons & BUTTON_ALT_ATTACK ) )
 		{
 			if ( self->attackDebounceTime < level.time )
 			{

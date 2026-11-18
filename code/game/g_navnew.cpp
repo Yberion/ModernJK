@@ -89,7 +89,7 @@ NAV_CheckAhead
 -------------------------
 */
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask )
 {
 	vec3_t	mins;
 
@@ -98,7 +98,7 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
 
 	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
@@ -178,7 +178,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		return true;
 
 	//See if we're looking for a navgoal
-	if ( goal->svFlags & SVF_NAVGOAL )
+	if ( Any( goal->svFlags & SVF_NAVGOAL ) )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( trace.endpos, NPC->mins, NPC->maxs, goal->currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )

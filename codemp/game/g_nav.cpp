@@ -74,7 +74,7 @@ bool FlyingCreature( gentity_t *ent )
 	return false;
 }
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask );
 void NAV_StoreWaypoint( gentity_t *ent );
 
 extern vec3_t NPCDEBUG_RED;
@@ -241,7 +241,7 @@ NAV_ClearPathToPoint
 -------------------------
 */
 
-bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
+bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEntNum )
 {
 //	trace_t	trace;
 //	return NAV_CheckAhead( self, point, trace, clipmask|CONTENTS_BOTCLIP );
@@ -253,7 +253,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	if ( !trap->InPVS( self->r.currentOrigin, point ) )
 		return false;
 
-	if ( self->flags & FL_NAVGOAL )
+	if ( Any( self->flags & FL_NAVGOAL ) )
 	{
 		if ( !self->parent )
 		{
@@ -270,7 +270,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		VectorCopy( pmaxs, maxs );
 	}
 
-	if ( self->client || ( self->flags & FL_NAVGOAL ) )
+	if ( self->client || Any( self->flags & FL_NAVGOAL ) )
 	{
 		//Clients can step up things, or if this is a navgoal check, a client will be using this info
 		mins[2] += STEPSIZE;
@@ -282,14 +282,14 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		}
 	}
 
-	if ( self->flags & FL_NAVGOAL )
+	if ( Any( self->flags & FL_NAVGOAL ) )
 	{
 		//Trace from point to navgoal
-		trap->Trace( &trace, point, mins, maxs, self->r.currentOrigin, self->parent->s.number, (clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP)&~CONTENTS_BODY, false, 0, 0 );
-		if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+		trap->Trace( &trace, point, mins, maxs, self->r.currentOrigin, self->parent->s.number, (clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP)&~CONTENTS_BODY, false, G2TRFLAG_NONE, 0 );
+		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
 			clipmask &= ~CONTENTS_BOTCLIP;
-			trap->Trace( &trace, point, mins, maxs, self->r.currentOrigin, self->parent->s.number, (clipmask|CONTENTS_MONSTERCLIP)&~CONTENTS_BODY, false, 0, 0 );
+			trap->Trace( &trace, point, mins, maxs, self->r.currentOrigin, self->parent->s.number, (clipmask|CONTENTS_MONSTERCLIP)&~CONTENTS_BODY, false, G2TRFLAG_NONE, 0 );
 		}
 
 		if ( trace.startsolid || trace.allsolid )
@@ -331,11 +331,11 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	}
 	else
 	{
-		trap->Trace( &trace, self->r.currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, false, 0, 0);
-		if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+		trap->Trace( &trace, self->r.currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0);
+		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
 			clipmask &= ~CONTENTS_BOTCLIP;
-			trap->Trace( &trace, self->r.currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP, false, 0, 0);
+			trap->Trace( &trace, self->r.currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP, false, G2TRFLAG_NONE, 0);
 		}
 
 		if( ( ( trace.startsolid == false ) && ( trace.allsolid == false ) ) && ( trace.fraction == 1.0f ) )
@@ -513,7 +513,7 @@ NAV_CheckAhead
 -------------------------
 */
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask )
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask )
 {
 	vec3_t	mins;
 	float	radius;
@@ -523,12 +523,12 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask )
 	//Offset the step height
 	VectorSet( mins, self->r.mins[0], self->r.mins[1], self->r.mins[2] + STEPSIZE );
 
-	trap->Trace( trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, 0, 0 );
+	trap->Trace( trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
 
-	if ( trace->startsolid&&(trace->contents&CONTENTS_BOTCLIP) )
+	if ( trace->startsolid&&Any( trace->contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
-		trap->Trace( trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, 0, 0 );
+		trap->Trace( trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace->allsolid == false ) && ( trace->startsolid == false ) && ( trace->fraction == 1.0f ) )
@@ -781,7 +781,7 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 {
 	vec3_t	perp, cross, test;
 	float	avoidRadius;
-	int		extraClip = CONTENTS_BOTCLIP;
+	contentsFlags_t	extraClip = CONTENTS_BOTCLIP;
 	trace_t	tr;
 
 	PerpendicularVector( perp, pathDir );
@@ -792,11 +792,11 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 
 	VectorMA( blocker->r.currentOrigin, avoidRadius, cross, test );
 
-	trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, 0, 0 );
-	if ( tr.startsolid&&(tr.contents&CONTENTS_BOTCLIP) )
+	trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, G2TRFLAG_NONE, 0 );
+	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		extraClip &= ~CONTENTS_BOTCLIP;
-		trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, 0, 0 );
+		trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, G2TRFLAG_NONE, 0 );
 	}
 
 	if ( NAVDEBUG_showCollision )
@@ -814,11 +814,11 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 
 	VectorMA( blocker->r.currentOrigin, -avoidRadius, cross, test );
 
-	trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, 0, 0 );
-	if ( tr.startsolid&&(tr.contents&CONTENTS_BOTCLIP) )
+	trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, G2TRFLAG_NONE, 0 );
+	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		extraClip &= ~CONTENTS_BOTCLIP;
-		trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, 0, 0 );
+		trap->Trace( &tr, test, self->r.mins, self->r.maxs, test, self->s.number, self->clipmask|extraClip, false, G2TRFLAG_NONE, 0 );
 	}
 
 	if ( tr.startsolid == false && tr.allsolid == false )
@@ -892,7 +892,7 @@ NAV_TestForBlocked
 -------------------------
 */
 
-bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int *flags )
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, navInfoFlags_t *flags )
 {
 	if ( goal == nullptr )
 		return false;
@@ -939,7 +939,7 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info )
 	VectorMA( self->r.currentOrigin, info->distance, info->direction, movepos );
 	VectorCopy( info->direction, movedir );
 
-	if ( self && self->NPC && (self->NPC->aiFlags&NPCAI_NO_COLL_AVOID) )
+	if ( self && self->NPC && Any(self->NPC->aiFlags&NPCAI_NO_COLL_AVOID) )
 	{//pretend there's no-one in the way
 		return true;
 	}
@@ -963,7 +963,7 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info )
 			return false;
 
 		//If the above function said we're blocked, don't do the extra checks
-		if ( info->flags & NIF_BLOCKED )
+		if ( Any( info->flags & NIF_BLOCKED ) )
 			return true;
 
 		//See if we can get that entity to move out of our way
@@ -995,7 +995,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	vec3_t	end;
 	trace_t	trace;
 	vec3_t	mins;
-	int		clipmask = (NPCS.NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP;
+	contentsFlags_t	clipmask = (NPCS.NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP;
 
 	//get the position for the test choice
 	trap->Nav_GetNodePosition( endID, end );
@@ -1003,12 +1003,12 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	//Offset the step height
 	VectorSet( mins, self->r.mins[0], self->r.mins[1], self->r.mins[2] + STEPSIZE );
 
-	trap->Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, 0, 0 );
+	trap->Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
-		trap->Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, 0, 0 );
+		trap->Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == false ) && ( trace.startsolid == false ) && ( trace.fraction == 1.0f ) )
@@ -1081,7 +1081,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 					trap->Nav_AddFailedEdge( self->s.number, startID, endID );
 				}
 			}
-			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && ((blocker->r.contents&CONTENTS_MONSTERCLIP)|| (blocker->r.contents&CONTENTS_BOTCLIP)) )
+			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && (Any( blocker->r.contents&CONTENTS_MONSTERCLIP )|| Any( blocker->r.contents&CONTENTS_BOTCLIP )) )
 			{//some other kind of do not enter entity brush that will probably be removed
 				//path is blocked by a removable brushent, mark it as such if instructed to do so
 				if ( failEdge )
@@ -1258,7 +1258,7 @@ unsigned int waypoint_testDirection( vec3_t origin, float yaw, unsigned int minD
 //	VectorMA( origin, MAX_RADIUS_CHECK, trace_dir, test_pos );
 	VectorMA( origin, minDist, trace_dir, test_pos );
 
-	trap->Trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BOTCLIP ), false, 0, 0 );
+	trap->Trace( &tr, origin, mins, maxs, test_pos, ENTITYNUM_NONE, ( CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BOTCLIP ), false, G2TRFLAG_NONE, 0 );
 
 	//return (unsigned int) ( (float) MAX_RADIUS_CHECK * tr.fraction );
 	return (unsigned int) ( (float) minDist * tr.fraction );
@@ -1325,7 +1325,7 @@ void SP_waypoint ( gentity_t *ent )
 
 		radius = waypoint_getRadius( ent );
 
-		ent->health = trap->Nav_AddRawPoint( ent->r.currentOrigin, ent->spawnflags, radius );
+		ent->health = trap->Nav_AddRawPoint( ent->r.currentOrigin, static_cast<navNodeFlags_t>( ent->spawnflags ), radius );
 		NAV_StoreWaypoint( ent );
 		G_FreeEntity(ent);
 		return;
@@ -1364,7 +1364,7 @@ void SP_waypoint_small (gentity_t *ent)
 			}
 		}
 
-		ent->health = trap->Nav_AddRawPoint( ent->r.currentOrigin, ent->spawnflags, 2 );
+		ent->health = trap->Nav_AddRawPoint( ent->r.currentOrigin, static_cast<navNodeFlags_t>( ent->spawnflags ), 2 );
 		NAV_StoreWaypoint( ent );
 		G_FreeEntity(ent);
 		return;

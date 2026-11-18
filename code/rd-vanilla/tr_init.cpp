@@ -1575,13 +1575,13 @@ void R_Register( void )
 	r_surfaceSprites = ri.Cvar_Get ("r_surfaceSprites", "1", CVAR_ARCHIVE_ND);
 	r_surfaceWeather = ri.Cvar_Get ("r_surfaceWeather", "0", CVAR_TEMP);
 
-	r_windSpeed = ri.Cvar_Get ("r_windSpeed", "0", 0);
-	r_windAngle = ri.Cvar_Get ("r_windAngle", "0", 0);
-	r_windGust = ri.Cvar_Get ("r_windGust", "0", 0);
-	r_windDampFactor = ri.Cvar_Get ("r_windDampFactor", "0.1", 0);
-	r_windPointForce = ri.Cvar_Get ("r_windPointForce", "0", 0);
-	r_windPointX = ri.Cvar_Get ("r_windPointX", "0", 0);
-	r_windPointY = ri.Cvar_Get ("r_windPointY", "0", 0);
+	r_windSpeed = ri.Cvar_Get ("r_windSpeed", "0", CVAR_NONE);
+	r_windAngle = ri.Cvar_Get ("r_windAngle", "0", CVAR_NONE);
+	r_windGust = ri.Cvar_Get ("r_windGust", "0", CVAR_NONE);
+	r_windDampFactor = ri.Cvar_Get ("r_windDampFactor", "0.1", CVAR_NONE);
+	r_windPointForce = ri.Cvar_Get ("r_windPointForce", "0", CVAR_NONE);
+	r_windPointX = ri.Cvar_Get ("r_windPointX", "0", CVAR_NONE);
+	r_windPointY = ri.Cvar_Get ("r_windPointY", "0", CVAR_NONE);
 
 	r_primitives = ri.Cvar_Get( "r_primitives", "0", CVAR_ARCHIVE_ND );
 	ri.Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, true );
@@ -1631,33 +1631,33 @@ void R_Register( void )
 	r_offsetUnits = ri.Cvar_Get( "r_offsetunits", "-2", CVAR_CHEAT );
 	r_lockpvs = ri.Cvar_Get ("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get ("r_noportals", "0", CVAR_CHEAT);
-	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
+	r_shadows = ri.Cvar_Get( "cg_shadows", "1", CVAR_NONE );
 	r_shadowRange = ri.Cvar_Get( "r_shadowRange", "1000", CVAR_ARCHIVE_ND );
 
 /*
 Ghoul2 Insert Start
 */
 	r_noGhoul2 = ri.Cvar_Get( "r_noghoul2", "0", CVAR_CHEAT);
-	r_Ghoul2AnimSmooth = ri.Cvar_Get( "r_ghoul2animsmooth", "0.25", 0);
-	r_Ghoul2UnSqash = ri.Cvar_Get( "r_ghoul2unsquash", "1", 0);
-	r_Ghoul2TimeBase = ri.Cvar_Get( "r_ghoul2timebase", "2", 0);
-	r_Ghoul2NoLerp = ri.Cvar_Get( "r_ghoul2nolerp", "0", 0);
-	r_Ghoul2NoBlend = ri.Cvar_Get( "r_ghoul2noblend", "0", 0);
-	r_Ghoul2BlendMultiplier = ri.Cvar_Get( "r_ghoul2blendmultiplier", "1", 0);
-	r_Ghoul2UnSqashAfterSmooth = ri.Cvar_Get( "r_ghoul2unsquashaftersmooth", "1", 0);
+	r_Ghoul2AnimSmooth = ri.Cvar_Get( "r_ghoul2animsmooth", "0.25", CVAR_NONE);
+	r_Ghoul2UnSqash = ri.Cvar_Get( "r_ghoul2unsquash", "1", CVAR_NONE);
+	r_Ghoul2TimeBase = ri.Cvar_Get( "r_ghoul2timebase", "2", CVAR_NONE);
+	r_Ghoul2NoLerp = ri.Cvar_Get( "r_ghoul2nolerp", "0", CVAR_NONE);
+	r_Ghoul2NoBlend = ri.Cvar_Get( "r_ghoul2noblend", "0", CVAR_NONE);
+	r_Ghoul2BlendMultiplier = ri.Cvar_Get( "r_ghoul2blendmultiplier", "1", CVAR_NONE);
+	r_Ghoul2UnSqashAfterSmooth = ri.Cvar_Get( "r_ghoul2unsquashaftersmooth", "1", CVAR_NONE);
 
-	broadsword = ri.Cvar_Get( "broadsword", "1", 0);
-	broadsword_kickbones = ri.Cvar_Get( "broadsword_kickbones", "1", 0);
-	broadsword_kickorigin = ri.Cvar_Get( "broadsword_kickorigin", "1", 0);
-	broadsword_dontstopanim = ri.Cvar_Get( "broadsword_dontstopanim", "0", 0);
-	broadsword_waitforshot = ri.Cvar_Get( "broadsword_waitforshot", "0", 0);
-	broadsword_playflop = ri.Cvar_Get( "broadsword_playflop", "1", 0);
-	broadsword_smallbbox = ri.Cvar_Get( "broadsword_smallbbox", "0", 0);
-	broadsword_extra1 = ri.Cvar_Get( "broadsword_extra1", "0", 0);
-	broadsword_extra2 = ri.Cvar_Get( "broadsword_extra2", "0", 0);
-	broadsword_effcorr = ri.Cvar_Get( "broadsword_effcorr", "1", 0);
-	broadsword_ragtobase = ri.Cvar_Get( "broadsword_ragtobase", "2", 0);
-	broadsword_dircap = ri.Cvar_Get( "broadsword_dircap", "64", 0);
+	broadsword = ri.Cvar_Get( "broadsword", "1", CVAR_NONE);
+	broadsword_kickbones = ri.Cvar_Get( "broadsword_kickbones", "1", CVAR_NONE);
+	broadsword_kickorigin = ri.Cvar_Get( "broadsword_kickorigin", "1", CVAR_NONE);
+	broadsword_dontstopanim = ri.Cvar_Get( "broadsword_dontstopanim", "0", CVAR_NONE);
+	broadsword_waitforshot = ri.Cvar_Get( "broadsword_waitforshot", "0", CVAR_NONE);
+	broadsword_playflop = ri.Cvar_Get( "broadsword_playflop", "1", CVAR_NONE);
+	broadsword_smallbbox = ri.Cvar_Get( "broadsword_smallbbox", "0", CVAR_NONE);
+	broadsword_extra1 = ri.Cvar_Get( "broadsword_extra1", "0", CVAR_NONE);
+	broadsword_extra2 = ri.Cvar_Get( "broadsword_extra2", "0", CVAR_NONE);
+	broadsword_effcorr = ri.Cvar_Get( "broadsword_effcorr", "1", CVAR_NONE);
+	broadsword_ragtobase = ri.Cvar_Get( "broadsword_ragtobase", "2", CVAR_NONE);
+	broadsword_dircap = ri.Cvar_Get( "broadsword_dircap", "64", CVAR_NONE);
 
 /*
 Ghoul2 Insert End
@@ -1669,7 +1669,7 @@ Ghoul2 Insert End
 #ifdef JK2_MODE
 	sp_language = ri.Cvar_Get ( "sp_language", va("%d", to_underlying( SP_LANGUAGE_ENGLISH )), CVAR_ARCHIVE | CVAR_NORESTART );
 #endif
-	com_buildScript = ri.Cvar_Get ( "com_buildScript", "0", 0 );
+	com_buildScript = ri.Cvar_Get ( "com_buildScript", "0", CVAR_NONE );
 
 	r_modelpoolmegs = ri.Cvar_Get("r_modelpoolmegs", "20", CVAR_ARCHIVE);
 	if (ri.LowPhysicalMemory() )

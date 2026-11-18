@@ -261,7 +261,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 		}
 		b->checkcount = local->checkcount;
 
-		if ( !(b->contents & tw->contents)) {
+		if ( !Any( b->contents & tw->contents )) {
 			continue;
 		}
 
@@ -288,7 +288,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 			}
 			patch->checkcount = local->checkcount;
 
-			if ( !(patch->contents & tw->contents)) {
+			if ( !Any( patch->contents & tw->contents )) {
 				continue;
 			}
 
@@ -547,11 +547,11 @@ void CM_TraceToLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 		}
 		b->checkcount = local->checkcount;
 
-		if ( !(b->contents & tw->contents) ) {
+		if ( !Any( b->contents & tw->contents ) ) {
 			continue;
 		}
 
-		//if (b->contents & CONTENTS_PLAYERCLIP) continue;
+		//if (Any( b->contents & CONTENTS_PLAYERCLIP )) continue;
 
 		CM_TraceThroughBrush( tw, b );
 		if ( !tw->trace.fraction ) {
@@ -575,7 +575,7 @@ void CM_TraceToLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 			}
 			patch->checkcount = local->checkcount;
 
-			if ( !(patch->contents & tw->contents) ) {
+			if ( !Any( patch->contents & tw->contents ) ) {
 				continue;
 			}
 
@@ -751,7 +751,7 @@ CM_BoxTrace
 */
 void CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask) {
+						  clipHandle_t model, contentsFlags_t brushmask) {
 	int			i;
 	traceWork_t	tw;
 	vec3_t		offset;
@@ -901,7 +901,7 @@ rotating entities
 */
 void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask,
+						  clipHandle_t model, contentsFlags_t brushmask,
 						  const vec3_t origin, const vec3_t angles) {
 	trace_t		trace;
 	vec3_t		start_l, end_l;

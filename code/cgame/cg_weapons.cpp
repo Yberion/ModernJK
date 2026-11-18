@@ -754,7 +754,7 @@ the weapon hand animation has 3 anims,
 =================
 */
 extern bool ValidAnimFileIndex ( int index );
-int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, animNumber_t animNum, weapon_t weaponNum, int firing )
+int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, animNumber_t animNum, weapon_t weaponNum, bool firing )
 {
 	// we should use the animNum to map a weapon frame instead of relying on the torso frame
 	if ( !ValidAnimFileIndex( ci->animFileIndex ) )
@@ -894,10 +894,10 @@ static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 		angle = cent->pe.barrelAngle + delta * speed;
 	}
 
-	if ( cent->pe.barrelSpinning == !(cent->currentState.eFlags & EF_FIRING) ) {
+	if ( cent->pe.barrelSpinning == !Any(cent->currentState.eFlags & EF_FIRING) ) {
 		cent->pe.barrelTime = cg.time;
 		cent->pe.barrelAngle = AngleNormalize360( angle );
-		cent->pe.barrelSpinning = !!(cent->currentState.eFlags & EF_FIRING);
+		cent->pe.barrelSpinning = Any(cent->currentState.eFlags & EF_FIRING);
 	}
 
 	return angle;
@@ -942,7 +942,7 @@ static void CG_DoMuzzleFlash( centity_t *cent, vec3_t org, vec3_t dir, weaponDat
 			}
 		}
 
-		if (/*( cent->currentState.eFlags & EF_FIRING || cent->currentState.eFlags & EF_ALT_FIRING ) &&*/ effect )
+		if (/*( Any( cent->currentState.eFlags & EF_FIRING ) || Any( cent->currentState.eFlags & EF_ALT_FIRING ) ) &&*/ effect )
 		{
 			if (( cent->gent && cent->gent->NPC ) || cg.renderingThirdPerson )
 			{
@@ -994,7 +994,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 
 	cent = &cg_entities[ps->clientNum];
 
-	if ( ps->eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( ps->eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		return;
 	}
@@ -1074,7 +1074,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 	}
 	else
 	{
-		if ( cg.overrides.active & CG_OVERRIDE_FOV )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 			actualFOV = cg.overrides.fov;
 		else {
 			actualFOV = cg_fovViewmodel.integer ? cg_fovViewmodel.value : cg_fov.value;
@@ -1155,12 +1155,13 @@ void CG_AddViewWeapon( playerState_t *ps )
 		const clientInfo_t	*ci = &cent->gent->client->clientInfo;
 		animNumber_t torsoAnim = cent->gent->client->ps.torsoAnim;//pe.torso.animationNumber;
 		float currentFrame;
-		int startFrame,endFrame,flags;
+		int startFrame,endFrame;
+		boneFlags_t flags;
 		float animSpeed;
 		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed,nullptr) )
 		{
-			hand.oldframe = CG_MapTorsoToWeaponFrame( ci,floor(currentFrame), torsoAnim, cent->currentState.weapon, ( cent->currentState.eFlags & EF_FIRING ) );
-			hand.frame = CG_MapTorsoToWeaponFrame( ci,ceil(currentFrame), torsoAnim, cent->currentState.weapon, ( cent->currentState.eFlags & EF_FIRING ) );
+			hand.oldframe = CG_MapTorsoToWeaponFrame( ci,floor(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & EF_FIRING ) );
+			hand.frame = CG_MapTorsoToWeaponFrame( ci,ceil(currentFrame), torsoAnim, cent->currentState.weapon, Any( cent->currentState.eFlags & EF_FIRING ) );
 			hand.backlerp=1.0f-(currentFrame-floor(currentFrame));
 			if ( cg_debugAnim.integer == 1 && cent->currentState.clientNum == 0 )
 			{
@@ -2187,12 +2188,12 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 	/*
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 	*/
 
-	if( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS )
+	if( Any( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS ) )
 	{
 		CG_PlayerLockedWeaponSpeech( false );
 		return;
@@ -2204,7 +2205,7 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
-	if ( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		// can't do any sort of weapon switching when in the emplaced gun
 		return;
@@ -2278,7 +2279,7 @@ void CG_DPNextWeapon_f( void ) {
 		return;
 	}
 	/*
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 	*/
@@ -2335,7 +2336,7 @@ void CG_DPPrevWeapon_f( void )
 	}
 
 	/*
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW )
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
 	{
 		return;
 	}
@@ -2391,12 +2392,12 @@ void CG_PrevWeapon_f( void ) {
 		return;
 	}
 	/*
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 	*/
 
-	if( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS )
+	if( Any( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS ) )
 	{
 		CG_PlayerLockedWeaponSpeech( false );
 		return;
@@ -2408,7 +2409,7 @@ void CG_PrevWeapon_f( void ) {
 		return;
 	}
 
-	if ( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		// can't do any sort of weapon switching when in the emplaced gun
 		return;
@@ -2483,7 +2484,7 @@ void CG_ChangeWeapon( weapon_t num )
 		return;
 	}
 
-	if( player->flags & FL_LOCK_PLAYER_WEAPONS )
+	if( Any( player->flags & FL_LOCK_PLAYER_WEAPONS ) )
 	{
 		CG_PlayerLockedWeaponSpeech( false );
 		return;
@@ -2535,12 +2536,12 @@ void CG_Weapon_f( void )
 		return;
 	}
 	/*
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 	*/
 
-	if( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS )
+	if( Any( g_entities[0].flags & FL_LOCK_PLAYER_WEAPONS ) )
 	{
 		CG_PlayerLockedWeaponSpeech( false );
 		return;
@@ -2552,7 +2553,7 @@ void CG_Weapon_f( void )
 		return;
 	}
 
-	if ( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		// can't do any sort of weapon switching when in the emplaced gun
 		return;

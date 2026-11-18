@@ -388,11 +388,11 @@ bool	Boba_CanSeeEnemy( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 void	Boba_Pain( gentity_t *self, gentity_t *inflictor, int damage, meansOfDeath_t mod)
 {
-	if (mod==MOD_SABER && !(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (mod==MOD_SABER && !Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		TIMER_Set( self, "Boba_TacticsSelect", 0);	// Hurt By The Saber, Time To Try Something New
 	}
-	if (self->NPC->aiFlags&NPCAI_FLAMETHROW)
+	if (Any(self->NPC->aiFlags&NPCAI_FLAMETHROW))
 	{
 		NPC_SetAnim( self, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 	 	self->client->ps.torsoAnimTimer  =	level.time - TIMER_Get(self, "falmeTime");
@@ -513,7 +513,7 @@ void Boba_StopFlameThrower( gentity_t *self )
 		G_StopEffect( G_EffectIndex("boba/fthrw"), self->playerModel, self->genericBolt3, self->s.number);
 		return;
 	}
-	if ((NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		self->NPC->aiFlags				&= ~NPCAI_FLAMETHROW;
 		self->client->ps.torsoAnimTimer  =	0;
@@ -534,7 +534,7 @@ void Boba_StopFlameThrower( gentity_t *self )
 ////////////////////////////////////////////////////////////////////////////////////////
 void Boba_StartFlameThrower( gentity_t *self )
 {
-	if (!(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if (!Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		NPC_SetAnim( self, SETANIM_TORSO, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 
@@ -574,12 +574,12 @@ void Boba_DoFlameThrower( gentity_t *self )
 		}
 		return;
 	}
-	if (!(NPCInfo->aiFlags&NPCAI_FLAMETHROW) && TIMER_Done(self, "nextAttackDelay"))
+	if (!Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW) && TIMER_Done(self, "nextAttackDelay"))
 	{
 		Boba_StartFlameThrower( self );
 	}
 
-	if ( (NPCInfo->aiFlags&NPCAI_FLAMETHROW))
+	if ( Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		Boba_FireFlameThrower( self );
 	}
@@ -618,7 +618,7 @@ void		Boba_DoSniper( gentity_t *self)
 
 	// Resolve Blocked Problems
 	//--------------------------
-	if (NPCInfo->aiFlags&NPCAI_BLOCKED &&
+	if (Any(NPCInfo->aiFlags&NPCAI_BLOCKED) &&
 		NPC->client->moveType!=MT_FLYSWIM &&
 		((level.time - NPCInfo->blockedDebounceTime)>3000)
 		)
@@ -647,7 +647,7 @@ void	Boba_Fire()
 
 	// If Actually Fired, Decide To Apply Alt Fire And Calc Next Attack Delay
 	//------------------------------------------------------------------------
-	if (ucmd.buttons&BUTTON_ATTACK)
+	if (Any( ucmd.buttons&BUTTON_ATTACK ))
 	{
 		switch (NPC->s.weapon)
 		{
@@ -684,7 +684,7 @@ void	Boba_Fire()
  			 	if (Q_irand(0, (NPC->count*2)+3)>2)
 				{
 			 		TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(3000, 8000));
-					if (!(NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					if (!Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE On");
 						NPCInfo->scriptFlags |= SCF_ALT_FIRE;
@@ -694,7 +694,7 @@ void	Boba_Fire()
 				else
 				{
 					TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(2000, 5000));
-					if ( (NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE Off");
 						NPCInfo->scriptFlags &=~SCF_ALT_FIRE;
@@ -705,7 +705,7 @@ void	Boba_Fire()
 
 			// Occasionally Alt Fire
 			//-----------------------
-			if (NPCInfo->scriptFlags&SCF_ALT_FIRE)
+			if (Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 			{
 				ucmd.buttons &= ~BUTTON_ATTACK;
 				ucmd.buttons |=  BUTTON_ALT_ATTACK;
@@ -1038,7 +1038,7 @@ void	Boba_Update()
 	//----------------------------------------------------
 	if (NPC->enemy)
 	{
-		if (!(NPC->svFlags&SVF_NOCLIENT))
+		if (!Any( NPC->svFlags & SVF_NOCLIENT ))
 		{
 			trace_t		testTrace;
 			vec3_t		eyes;
@@ -1111,7 +1111,7 @@ void	Boba_Update()
 
 	// Don't Forget To Turn Off That Flame Thrower, Mr. Fett - You're Waisting Precious Natural Gases
 	//------------------------------------------------------------------------------------------------
-	if ((NPCInfo->aiFlags&NPCAI_FLAMETHROW) && (TIMER_Done(NPC, "flameTime")))
+	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW) && (TIMER_Done(NPC, "flameTime")))
 	{
 		Boba_StopFlameThrower(NPC);
 	}
@@ -1247,7 +1247,7 @@ bool	Boba_Flee()
 
 	// Finish The Flame Thrower First...
 	//-----------------------------------
-	if (NPCInfo->aiFlags&NPCAI_FLAMETHROW)
+	if (Any(NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		Boba_DoFlameThrower( NPC );
 		NPC_FacePosition( NPC->enemy->currentOrigin, true);
@@ -1257,7 +1257,7 @@ bool	Boba_Flee()
 
 	bool	IsOnAPath = !!NPC_MoveToGoal(true);
 	if (!ReachedEscapePoint &&
-		NPCInfo->aiFlags&NPCAI_BLOCKED &&
+		Any(NPCInfo->aiFlags&NPCAI_BLOCKED) &&
 		NPC->client->moveType!=MT_FLYSWIM &&
 		((level.time - NPCInfo->blockedDebounceTime)>1000)
 		)

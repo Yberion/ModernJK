@@ -778,7 +778,7 @@ static void DoBoltSeg( vec3_t start, vec3_t end, vec3_t right, float radius )
 		VectorScale( cur, 1.0f - perc, cur );
 		VectorMA( cur, perc, end, cur );
 
-		if ( e->renderfx & RF_TAPERED )
+		if ( Any( e->renderfx & RF_TAPERED ) )
 		{
 			// This does pretty close to perfect tapering since apply shape interpolates the old and new as it goes along.
 			//	by using one minus the square, the radius stays fairly constant, then drops off quickly at the very point of the bolt
@@ -790,7 +790,7 @@ static void DoBoltSeg( vec3_t start, vec3_t end, vec3_t right, float radius )
 		ApplyShape( cur, old, right, newRadius, oldRadius, 2 - r_lodbias->integer, 0, 1 );
 
 		// randomly split off to create little tendrils, but don't do it too close to the end and especially if we are not even of the forked variety
-        if (( e->renderfx & RF_FORKED ) && f_count > 0 && Q_random(&e->frame) > 0.93f && (1.0f - perc) > 0.8f )
+        if (Any( e->renderfx & RF_FORKED ) && f_count > 0 && Q_random(&e->frame) > 0.93f && (1.0f - perc) > 0.8f )
 		{
 			vec3_t newDest;
 
@@ -835,7 +835,7 @@ static void RB_SurfaceElectricity()
 	dis = VectorNormalize( fwd );
 
 	// see if we should grow from start to end
-	if ( e->renderfx & RF_GROW )
+	if ( Any( e->renderfx & RF_GROW ) )
 	{
 		perc = 1.0f - ( e->endTime - tr.refdef.time ) / e->angles[1]/*duration*/;
 
@@ -1794,7 +1794,7 @@ static void RB_SurfaceClouds()
 	e = &backEnd.currentEntity->e;
 
 	// select which type we shall be doing
-	if ( e->renderfx & RF_GROW ) // doing tube type
+	if ( Any( e->renderfx & RF_GROW ) ) // doing tube type
 	{
 		ct = TUBE_DEF;
 		stripDef = tubeStripDef;

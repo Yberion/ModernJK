@@ -208,11 +208,11 @@ void GL_TexEnv( int env )
 ** This routine is responsible for setting the most commonly changed state
 ** in Q3.
 */
-void GL_State( uint32_t stateBits )
+void GL_State( glStateBits_t stateBits )
 {
-	uint32_t diff = stateBits ^ glState.glStateBits;
+	glStateBits_t diff = stateBits ^ glState.glStateBits;
 
-	if ( !diff )
+	if ( !Any( diff ) )
 	{
 		return;
 	}
@@ -220,9 +220,9 @@ void GL_State( uint32_t stateBits )
 	//
 	// check depthFunc bits
 	//
-	if ( diff & GLS_DEPTHFUNC_EQUAL )
+	if ( Any( diff & GLS_DEPTHFUNC_EQUAL ) )
 	{
-		if ( stateBits & GLS_DEPTHFUNC_EQUAL )
+		if ( Any( stateBits & GLS_DEPTHFUNC_EQUAL ) )
 		{
 			qglDepthFunc( GL_EQUAL );
 		}
@@ -235,11 +235,11 @@ void GL_State( uint32_t stateBits )
 	//
 	// check blend bits
 	//
-	if ( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+	if ( Any( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
 	{
 		GLenum srcFactor, dstFactor;
 
-		if ( stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+		if ( Any( stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
 		{
 			switch ( stateBits & GLS_SRCBLEND_BITS )
 			{
@@ -320,9 +320,9 @@ void GL_State( uint32_t stateBits )
 	//
 	// check depthmask
 	//
-	if ( diff & GLS_DEPTHMASK_TRUE )
+	if ( Any( diff & GLS_DEPTHMASK_TRUE ) )
 	{
-		if ( stateBits & GLS_DEPTHMASK_TRUE )
+		if ( Any( stateBits & GLS_DEPTHMASK_TRUE ) )
 		{
 			qglDepthMask( GL_TRUE );
 		}
@@ -335,9 +335,9 @@ void GL_State( uint32_t stateBits )
 	//
 	// fill/line mode
 	//
-	if ( diff & GLS_POLYMODE_LINE )
+	if ( Any( diff & GLS_POLYMODE_LINE ) )
 	{
-		if ( stateBits & GLS_POLYMODE_LINE )
+		if ( Any( stateBits & GLS_POLYMODE_LINE ) )
 		{
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		}
@@ -350,9 +350,9 @@ void GL_State( uint32_t stateBits )
 	//
 	// depthtest
 	//
-	if ( diff & GLS_DEPTHTEST_DISABLE )
+	if ( Any( diff & GLS_DEPTHTEST_DISABLE ) )
 	{
-		if ( stateBits & GLS_DEPTHTEST_DISABLE )
+		if ( Any( stateBits & GLS_DEPTHTEST_DISABLE ) )
 		{
 			qglDisable( GL_DEPTH_TEST );
 		}
@@ -365,11 +365,11 @@ void GL_State( uint32_t stateBits )
 	//
 	// alpha test
 	//
-	if ( diff & GLS_ATEST_BITS )
+	if ( Any( diff & GLS_ATEST_BITS ) )
 	{
 		switch ( stateBits & GLS_ATEST_BITS )
 		{
-		case 0:
+		case GLS_NONE:
 			qglDisable( GL_ALPHA_TEST );
 			break;
 		case GLS_ATEST_GT_0:
@@ -474,9 +474,9 @@ void RB_BeginDrawingView (void) {
 
 	if (skyboxportal)
 	{
-		if ( backEnd.refdef.rdflags & RDF_SKYBOXPORTAL )
+		if ( Any( backEnd.refdef.rdflags & RDF_SKYBOXPORTAL ) )
 		{	// portal scene, clear whatever is necessary
-			if (r_fastsky->integer || (backEnd.refdef.rdflags & RDF_NOWORLDMODEL) )
+			if (r_fastsky->integer || Any(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) )
 			{	// fastsky: clear color
 				// try clearing first with the portal sky fog color, then the world fog color, then finally a default
 				clearBits |= GL_COLOR_BUFFER_BIT;
@@ -487,7 +487,7 @@ void RB_BeginDrawingView (void) {
 	}
 	else
 	{
-		if ( r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && !g_bRenderGlowingObjects )
+		if ( r_fastsky->integer && !Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && !g_bRenderGlowingObjects )
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 #ifdef _DEBUG
@@ -498,7 +498,7 @@ void RB_BeginDrawingView (void) {
 		}
 	}
 
-	if ( tr.refdef.rdflags & RDF_AUTOMAP || (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
+	if ( Any( tr.refdef.rdflags & RDF_AUTOMAP ) || (!Any( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_DynamicGlow->integer && !g_bRenderGlowingObjects ) )
 	{
 		if (tr.world && tr.world->globalFog != -1)
 		{ //this is because of a bug in multiple scenes I think, it needs to clear for the second scene but it doesn't normally.
@@ -521,7 +521,7 @@ void RB_BeginDrawingView (void) {
 		qglClear( clearBits );
 	}
 
-	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
+	if ( Any( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
 	{
 		RB_Hyperspace();
 		return;
@@ -736,9 +736,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		if (entityNum != REFENTITYNUM_WORLD &&
 			g_numPostRenders < MAX_POST_RENDERS)
 		{
-			if ( (backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION) ||
-				 (backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCEPOST) ||
-				 (backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCE_ENT_ALPHA) )
+			if ( Any(backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION) ||
+				 Any(backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCEPOST) ||
+				 Any(backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCE_ENT_ALPHA) )
 			{ //must render last
 				curEnt = &backEnd.refdef.entities[entityNum];
 				pRender = &g_postRenders[g_numPostRenders];
@@ -747,11 +747,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 				depthRange = 0;
 				//figure this stuff out now and store it
-				if ( curEnt->e.renderfx & RF_NODEPTH )
+				if ( Any( curEnt->e.renderfx & RF_NODEPTH ) )
 				{
 					depthRange = 2;
 				}
-				else if ( curEnt->e.renderfx & RF_DEPTHHACK )
+				else if ( Any( curEnt->e.renderfx & RF_DEPTHHACK ) )
 				{
 					depthRange = 1;
 				}
@@ -872,11 +872,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
 				}
 
-				if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
+				if ( Any( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) ) {
 					// No depth at all, very rare but some things for seeing through walls
 					depthRange = 2;
 				}
-				else if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
+				else if ( Any( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) ) {
 					// hack the depth range to prevent view model from poking into walls
 					depthRange = 1;
 				}
@@ -1074,7 +1074,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			if (!pRender->eValid)
 			{
 			}
-			else if ((backEnd.refdef.entities[pRender->entNum].e.renderfx & RF_DISTORTION) &&
+			else if (Any(backEnd.refdef.entities[pRender->entNum].e.renderfx & RF_DISTORTION) &&
 				lastPostEnt != pRender->entNum)
 			{ //do the capture now, we only need to do it once per ent
 				int x, y;
@@ -1638,7 +1638,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 	*/
 
 	// Render dynamic glowing/flaring objects.
-	if ( !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
+	if ( !Any(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
 	{
 		// Copy the normal scene to texture.
 		qglDisable( GL_TEXTURE_2D );
@@ -2070,7 +2070,7 @@ static inline void RB_BlurGlowTexture()
 	qglPushMatrix();
 	qglLoadIdentity();
 
-	GL_State(0);
+	GL_State(GLS_NONE);
 
 	/////////////////////////////////////////////////////////
 	// Setup vertex and pixel programs.
@@ -2246,7 +2246,7 @@ static inline void RB_DrawGlowOverlay()
 	qglPushMatrix();
 	qglLoadIdentity();
 
-	GL_State(0);
+	GL_State(GLS_NONE);
 
 	qglDisable( GL_TEXTURE_2D );
 	qglEnable( GL_TEXTURE_RECTANGLE_ARB );

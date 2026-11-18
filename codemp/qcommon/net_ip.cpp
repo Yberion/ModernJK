@@ -361,7 +361,7 @@ LAN clients will have their rate var ignored
 */
 bool Sys_IsLANAddress( const netadr_t *adr ) {
 	if ( !net_forcenonlocal )
-		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", 0 );
+		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", CVAR_NONE );
 
 	if ( net_forcenonlocal && net_forcenonlocal->integer )
 		return false;

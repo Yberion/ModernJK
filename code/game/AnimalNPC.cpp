@@ -101,7 +101,7 @@ extern cvar_t	*g_speederControlScheme;
 #ifdef _JK2MP
 #include "../namespace_begin.h"
 #endif
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 #ifdef _JK2MP
 #include "../namespace_end.h"
@@ -111,9 +111,9 @@ extern int PM_AnimLength( int index, animNumber_t anim );
 extern void CG_ChangeWeapon( weapon_t num );
 #endif
 
-extern void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
+extern void Vehicle_SetAnim(gentity_t *ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend);
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
-extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
+extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask );
 
 // Update death sequence.
 static void DeathUpdate( Vehicle_t *pVeh )
@@ -235,7 +235,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 	if ( pVeh->m_pPilot /*&& (pilotPS->weapon == WP_NONE || pilotPS->weapon == WP_MELEE )*/ &&
-		(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed )
+		Any(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed )
 	{
 		if ((curTime - pVeh->m_iTurboTime)>pVeh->m_pVehicleInfo->turboRecharge)
 		{
@@ -332,7 +332,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	fWalkSpeedMax = speedMax * 0.275f;
-	if ( curTime>pVeh->m_iTurboTime && (pVeh->m_ucmd.buttons & BUTTON_WALKING) && parentPS->speed > fWalkSpeedMax )
+	if ( curTime>pVeh->m_iTurboTime && Any(pVeh->m_ucmd.buttons & BUTTON_WALKING) && parentPS->speed > fWalkSpeedMax )
 	{
 		parentPS->speed = fWalkSpeedMax;
 	}
@@ -602,7 +602,8 @@ static void AnimalTailSwipe(Vehicle_t* pVeh, gentity_t *parent, gentity_t *pilot
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	animNumber_t	Anim = BOTH_VT_IDLE;
-	int				iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
+	int				iBlend = 300;
+	setAnimFlags_t				iFlags = SETANIM_FLAG_NORMAL;
 	gentity_t *		pilot = (gentity_t *)pVeh->m_pPilot;
 	gentity_t *		parent = (gentity_t *)pVeh->m_pParentEntity;
 	//playerState_t *	pilotPS;
@@ -716,7 +717,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 	else
 	{
 		bool		Turbo		= (fSpeedPercToMax>0.0f && level.time<pVeh->m_iTurboTime);
-		bool		Walking		= (fSpeedPercToMax>0.0f && ((pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
+		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
 		bool		Running		= (fSpeedPercToMax>0.275f);
 
 
@@ -746,7 +747,8 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 static void AnimateRiders( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_VT_IDLE;
-	int iFlags = SETANIM_FLAG_NORMAL, iBlend = 500;
+	int iBlend = 500;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	gentity_t *pilot = (gentity_t *)pVeh->m_pPilot;
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 	playerState_t *pilotPS;
@@ -795,11 +797,11 @@ static void AnimateRiders( Vehicle_t *pVeh )
 */
 	{
 		bool		HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
-		bool		Attacking	= (HasWeapon && !!(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
+		bool		Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
 		bool		Right		= (pVeh->m_ucmd.rightmove>0);
 		bool		Left		= (pVeh->m_ucmd.rightmove<0);
 		bool		Turbo		= (fSpeedPercToMax>0.0f && level.time<pVeh->m_iTurboTime);
-		bool		Walking		= (fSpeedPercToMax>0.0f && ((pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
+		bool		Walking		= (fSpeedPercToMax>0.0f && (Any(pVeh->m_ucmd.buttons&BUTTON_WALKING) || fSpeedPercToMax<=0.275f));
 		bool		Running		= (fSpeedPercToMax>0.275f);
 		EWeaponPose	WeaponPose	= WPOSE_NONE;
 

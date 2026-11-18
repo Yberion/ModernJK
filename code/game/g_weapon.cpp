@@ -231,7 +231,7 @@ void WP_Explode( gentity_t *self )
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
 //-----------------------------------------------------------------------------
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 //-----------------------------------------------------------------------------
 {
 	self->enemy = attacker;
@@ -861,7 +861,7 @@ void FireVehicleWeapon( gentity_t *ent, bool alt_fire )
 		return;
 	}
 
-	if (pVeh->m_iRemovedSurfaces)
+	if (Any( pVeh->m_iRemovedSurfaces ))
 	{ //can't fire when the thing is breaking apart
 		return;
 	}
@@ -1148,7 +1148,7 @@ void WP_FireScepter( gentity_t *ent, bool alt_fire )
 	gi.trace( &tr, start, nullptr, nullptr, end, ent->s.number, MASK_SHOT, G2_RETURNONHIT, 10 );
 	traceEnt = &g_entities[tr.entityNum];
 
-	if ( tr.surfaceFlags & SURF_NOIMPACT )
+	if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
 	{
 		render_impact = false;
 	}
@@ -1243,7 +1243,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			{// ATST SIDE weapons
 				if ( ent->alt_fire )
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) != G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -1251,7 +1251,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 				}
 				else
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) != G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -1305,7 +1305,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 	{
   		if ( (pVeh = G_IsRidingVehicle( ent )) != nullptr) //riding a vehicle
 		{//use our muzzleDir, can't use viewangles or vehicle m_vOrientation because we may be animated to shoot left or right...
-			if ((ent->s.eFlags&EF_NODRAW))//we're inside it
+			if (Any(ent->s.eFlags&EF_NODRAW))//we're inside it
 			{
 				vec3_t	aimAngles;
 				VectorCopy( ent->client->renderInfo.muzzleDir, forwardVec );
@@ -1374,7 +1374,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 	ent->alt_fire = alt_fire;
 	if (!pVeh)
 	{
-		if (ent->NPC && (ent->NPC->scriptFlags&SCF_FIRE_WEAPON_NO_ANIM))
+		if (ent->NPC && Any(ent->NPC->scriptFlags&SCF_FIRE_WEAPON_NO_ANIM))
 		{
 		 	VectorCopy( ent->client->renderInfo.muzzlePoint, muzzle );
 			VectorCopy( ent->client->renderInfo.muzzleDir, forwardVec );

@@ -165,7 +165,7 @@ bool CL_GetDefaultState(int index, entityState_t *state)
 		return false;
 	}
 
-	if (!(cl.entityBaselines[index].eFlags & EF_PERMANENT))
+	if (!Any(cl.entityBaselines[index].eFlags & EF_PERMANENT))
 	{
 		return false;
 	}
@@ -932,7 +932,7 @@ CL_FirstSnapshot
 */
 void CL_FirstSnapshot( void ) {
 	// ignore snapshots that don't have entities
-	if ( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) {
+	if ( Any( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
 		return;
 	}
 

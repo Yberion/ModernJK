@@ -365,7 +365,7 @@ void ImperialProbe_Ranged( bool visible, bool advance )
 //		ucmd.buttons |= BUTTON_ATTACK;
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		ImperialProbe_Hunt( visible, advance );
 	}
@@ -417,7 +417,7 @@ void ImperialProbe_AttackDecision( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			ImperialProbe_Hunt( visible, advance );
 			return;
@@ -575,7 +575,7 @@ void ImperialProbe_Wait(void)
 
 		if ( trace.fraction != 1.0f )
 		{
-			G_Damage(NPC, NPC->enemy, NPC->enemy, nullptr, nullptr, 2000, 0,MOD_UNKNOWN);
+			G_Damage(NPC, NPC->enemy, NPC->enemy, nullptr, nullptr, 2000, DAMAGE_NORMAL,MOD_UNKNOWN);
 		}
 	}
 
@@ -595,7 +595,7 @@ void NPC_BSImperialProbe_Default( void )
 		NPCInfo->goalEntity = NPC->enemy;
 		ImperialProbe_AttackDecision();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ImperialProbe_Patrol();
 	}

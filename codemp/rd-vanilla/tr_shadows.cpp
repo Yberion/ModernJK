@@ -651,7 +651,7 @@ void RB_DistortionFill(void)
 	}
 	else
 	{ //be sure to reset the draw state
-		GL_State(0);
+		GL_State(GLS_NONE);
 	}
 
 	qglBegin(GL_QUADS);

@@ -32,7 +32,7 @@ void WP_ATSTMainFire( gentity_t *ent )
 {
 	float vel = ATST_MAIN_VEL;
 
-//	if ( ent->client && (ent->client->ps.eFlags & EF_IN_ATST ))
+//	if ( ent->client && Any(ent->client->ps.eFlags & EF_IN_ATST ))
 //	{
 //		vel = 4500.0f;
 //	}
@@ -70,7 +70,7 @@ void WP_ATSTSideAltFire( gentity_t *ent )
 	int	damage	= weaponData[WP_ATST_SIDE].altDamage;
 	float	vel = ATST_SIDE_ALT_NPC_VELOCITY;
 
-	if ( ent->client && (ent->client->ps.eFlags & EF_IN_ATST ))
+	if ( ent->client && Any(ent->client->ps.eFlags & EF_IN_ATST ))
 	{
 		vel = ATST_SIDE_ALT_VELOCITY;
 	}

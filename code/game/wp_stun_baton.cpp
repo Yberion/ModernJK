@@ -62,7 +62,7 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 
 		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, weaponData[WP_STUN_BATON].damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
 	}
-	else if ( tr_ent->svFlags & SVF_GLASS_BRUSH || ( tr_ent->svFlags & SVF_BBRUSH && tr_ent->material == MAT_GRATE1 )) // material grate...we are breaking a grate!
+	else if ( Any( tr_ent->svFlags & SVF_GLASS_BRUSH ) || ( Any( tr_ent->svFlags & SVF_BBRUSH ) && tr_ent->material == MAT_GRATE1 )) // material grate...we are breaking a grate!
 	{
 		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, 999, DAMAGE_NO_KNOCKBACK, MOD_MELEE ); // smash that puppy
 	}

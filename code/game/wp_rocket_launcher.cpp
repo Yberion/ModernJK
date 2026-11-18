@@ -43,7 +43,7 @@ void rocketThink( gentity_t *ent )
 	{//time's up, we're done, remove us
 		if ( ent->lockCount )
 		{//explode when die
-			WP_ExplosiveDie( ent, ent->owner, ent->owner, 0, MOD_UNKNOWN, 0, HL_NONE );
+			WP_ExplosiveDie( ent, ent->owner, ent->owner, 0, MOD_UNKNOWN, DAMAGE_NORMAL, HL_NONE );
 		}
 		else
 		{//just remove when die

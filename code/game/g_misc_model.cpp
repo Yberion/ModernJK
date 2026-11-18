@@ -56,7 +56,7 @@ void SetMiscModelModels( char *modelNameString, gentity_t *ent, bool damage_mode
 }
 
 //------------------------------------------------------------
-void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, int solid_mask,int animFlag,
+void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, contentsFlags_t solid_mask,entityFlags_t animFlag,
 									bool take_damage, bool damage_model = false )
 {
 	// Apply damage and chunk models if they exist
@@ -263,8 +263,8 @@ void SP_misc_model_ghoul( gentity_t *ent )
 					(animations[anim].numFrames -1 )+ animations[anim].firstFrame,
 					BONE_ANIM_OVERRIDE_FREEZE , animSpeed, cg.time);
 
-//	int test = gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[0], "l_hand");
-//	gi.G2API_SetSurfaceOnOff(&ent->ghoul2[0], "l_arm",0x00000100);
+//	std::optional<g2SurfaceFlags_t> test = gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[0], "l_hand");
+//	gi.G2API_SetSurfaceOnOff(&ent->ghoul2[0], "l_arm",G2SURFACEFLAG_NODESCENDANTS);
 //	test = gi.G2API_GetSurfaceRenderStatus(&ent->ghoul2[0], "l_hand");
 
 //	gi.G2API_SetNewOrigin(&ent->ghoul2[0], gi.G2API_AddBolt(&ent->ghoul2[0], "rhang_tag_bone"));
@@ -726,7 +726,7 @@ BATTERIES -
 */
 extern gentity_t *LaunchItem( gitem_t *item, const vec3_t origin, const vec3_t velocity, char *target );
 
-void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void misc_model_cargo_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 {
 	int		flags;
 	vec3_t	org, temp;
@@ -826,7 +826,7 @@ void SP_misc_model_cargo_small( gentity_t *ent )
 
 	G_SpawnInt( "health", "25", &ent->health );
 
-	SetMiscModelDefaults( ent, useF_NULL, "11", CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, 0, true, false );
+	SetMiscModelDefaults( ent, useF_NULL, "11", CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, EF_NONE, true, false );
 	ent->s.modelindex2 = G_ModelIndex("/models/map_objects/kejim/cargo_small.md3");	// Precache model
 
 	// we only take damage from a heavy weapon class missile

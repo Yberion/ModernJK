@@ -533,9 +533,9 @@ void SG_WriteCvars(void)
 	for (var = cvar_vars; var; var = var->next)
 	{
 #ifdef JK2_MODE
-		if (!(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
+		if (!Any(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
 #else
-		if (!(var->flags & CVAR_SAVEGAME))
+		if (!Any(var->flags & CVAR_SAVEGAME))
 #endif
 		{
 			continue;
@@ -554,9 +554,9 @@ void SG_WriteCvars(void)
 	for (var = cvar_vars; var; var = var->next)
 	{
 #ifdef JK2_MODE
-		if (!(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
+		if (!Any(var->flags & (CVAR_SAVEGAME|CVAR_USERINFO)))
 #else
-		if (!(var->flags & CVAR_SAVEGAME))
+		if (!Any(var->flags & CVAR_SAVEGAME))
 #endif
 		{
 			continue;

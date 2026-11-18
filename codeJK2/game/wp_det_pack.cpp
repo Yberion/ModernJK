@@ -115,7 +115,7 @@ void WP_FireDetPack( gentity_t *ent, bool alt_fire )
 
 	if ( alt_fire  )
 	{
-		if ( ent->client->ps.eFlags & EF_PLANTED_CHARGE )
+		if ( Any( ent->client->ps.eFlags & EF_PLANTED_CHARGE ) )
 		{
 			gentity_t *found = nullptr;
 

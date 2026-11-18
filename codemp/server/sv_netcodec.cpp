@@ -540,7 +540,7 @@ void SV_NetcodecSendSnapshot( client_t *client, const char *setGame ) {
 	sm.snapshot = true;
 	sm.delta = (uint32_t)lastframe;
 	sm.time = SV_SnapshotTime( client );
-	sm.flags = (uint32_t)SV_SnapshotFlags( client );
+	sm.flags = (uint32_t)to_underlying( SV_SnapshotFlags( client ) );
 	// a margin is sent once, in the snapshot after its measure: the client takes each one as a new sample
 	sm.inputMargin = client->inputMarginNew ? Net_MarginToWire( client->inputMargin ) : INPUT_MARGIN_NONE;
 	client->inputMarginNew = false;

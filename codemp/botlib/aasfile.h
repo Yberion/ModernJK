@@ -31,71 +31,103 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define AASVERSION					5
 
 //presence types
-#define PRESENCE_NONE				1
-#define PRESENCE_NORMAL				2
-#define PRESENCE_CROUCH				4
+enum class presenceFlags_t
+{
+	PRESENCE_EMPTY = 0,			//no presence type (PRESENCE_NONE is a type: not in any area)
+	PRESENCE_NONE				= 1,
+	PRESENCE_NORMAL				= 2,
+	PRESENCE_CROUCH				= 4,
+};
+using enum presenceFlags_t;
+template <> inline constexpr bool enableEnumFlags<presenceFlags_t> = true;
 
 //travel types
 #define MAX_TRAVELTYPES				32
-#define TRAVEL_INVALID				1		//temporary not possible
-#define TRAVEL_WALK					2		//walking
-#define TRAVEL_CROUCH				3		//crouching
-#define TRAVEL_BARRIERJUMP			4		//jumping onto a barrier
-#define TRAVEL_JUMP					5		//jumping
-#define TRAVEL_LADDER				6		//climbing a ladder
-#define TRAVEL_WALKOFFLEDGE			7		//walking of a ledge
-#define TRAVEL_SWIM					8		//swimming
-#define TRAVEL_WATERJUMP			9		//jump out of the water
-#define TRAVEL_TELEPORT				10		//teleportation
-#define TRAVEL_ELEVATOR				11		//travel by elevator
-#define TRAVEL_ROCKETJUMP			12		//rocket jumping required for travel
-#define TRAVEL_BFGJUMP				13		//bfg jumping required for travel
-#define TRAVEL_GRAPPLEHOOK			14		//grappling hook required for travel
-#define TRAVEL_DOUBLEJUMP			15		//double jump
-#define TRAVEL_RAMPJUMP				16		//ramp jump
-#define TRAVEL_STRAFEJUMP			17		//strafe jump
-#define TRAVEL_JUMPPAD				18		//jump pad
-#define TRAVEL_FUNCBOB				19		//func bob
+enum class travelTypeFlags_t
+{
+	TRAVEL_NONE = 0,
+	TRAVEL_INVALID				= 1,		//temporary not possible
+	TRAVEL_WALK					= 2,		//walking
+	TRAVEL_CROUCH				= 3,		//crouching
+	TRAVEL_BARRIERJUMP			= 4,		//jumping onto a barrier
+	TRAVEL_JUMP					= 5,		//jumping
+	TRAVEL_LADDER				= 6,		//climbing a ladder
+	TRAVEL_WALKOFFLEDGE			= 7,		//walking of a ledge
+	TRAVEL_SWIM					= 8,		//swimming
+	TRAVEL_WATERJUMP			= 9,		//jump out of the water
+	TRAVEL_TELEPORT				= 10,		//teleportation
+	TRAVEL_ELEVATOR				= 11,		//travel by elevator
+	TRAVEL_ROCKETJUMP			= 12,		//rocket jumping required for travel
+	TRAVEL_BFGJUMP				= 13,		//bfg jumping required for travel
+	TRAVEL_GRAPPLEHOOK			= 14,		//grappling hook required for travel
+	TRAVEL_DOUBLEJUMP			= 15,		//double jump
+	TRAVEL_RAMPJUMP				= 16,		//ramp jump
+	TRAVEL_STRAFEJUMP			= 17,		//strafe jump
+	TRAVEL_JUMPPAD				= 18,		//jump pad
+	TRAVEL_FUNCBOB				= 19,		//func bob
 
 //additional travel flags
-#define TRAVELTYPE_MASK				0xFFFFFF
-#define TRAVELFLAG_NOTTEAM1			(1 << 24)
-#define TRAVELFLAG_NOTTEAM2			(2 << 24)
+	TRAVELTYPE_MASK				= 0xFFFFFF,
+	TRAVELFLAG_NOTTEAM1			= (1 << 24),
+	TRAVELFLAG_NOTTEAM2			= (2 << 24),
+};
+using enum travelTypeFlags_t;
+template <> inline constexpr bool enableEnumFlags<travelTypeFlags_t> = true;
 
 //face flags
-#define FACE_SOLID					1		//just solid at the other side
-#define FACE_LADDER					2		//ladder
-#define FACE_GROUND					4		//standing on ground when in this face
-#define FACE_GAP					8		//gap in the ground
-#define FACE_LIQUID					16		//face separating two areas with liquid
-#define FACE_LIQUIDSURFACE			32		//face separating liquid and air
-#define FACE_BRIDGE					64		//can walk over this face if bridge is closed
+enum class faceFlags_t
+{
+	FACE_NONE = 0,
+	FACE_SOLID					= 1,		//just solid at the other side
+	FACE_LADDER					= 2,		//ladder
+	FACE_GROUND					= 4,		//standing on ground when in this face
+	FACE_GAP					= 8,		//gap in the ground
+	FACE_LIQUID					= 16,		//face separating two areas with liquid
+	FACE_LIQUIDSURFACE			= 32,		//face separating liquid and air
+	FACE_BRIDGE					= 64,		//can walk over this face if bridge is closed
+};
+using enum faceFlags_t;
+template <> inline constexpr bool enableEnumFlags<faceFlags_t> = true;
 
 //area contents
-#define AREACONTENTS_WATER				1
-#define AREACONTENTS_LAVA				2
-#define AREACONTENTS_SLIME				4
-#define AREACONTENTS_CLUSTERPORTAL		8
-#define AREACONTENTS_TELEPORTAL			16
-#define AREACONTENTS_ROUTEPORTAL		32
-#define AREACONTENTS_TELEPORTER			64
-#define AREACONTENTS_JUMPPAD			128
-#define AREACONTENTS_DONOTENTER			256
-#define	AREACONTENTS_VIEWPORTAL			512
-#define AREACONTENTS_MOVER				1024
-#define AREACONTENTS_NOTTEAM1			2048
-#define AREACONTENTS_NOTTEAM2			4096
-//number of model of the mover inside this area
 #define AREACONTENTS_MODELNUMSHIFT		24
 #define AREACONTENTS_MAXMODELNUM		0xFF
-#define AREACONTENTS_MODELNUM			(AREACONTENTS_MAXMODELNUM << AREACONTENTS_MODELNUMSHIFT)
+enum class areaContentsFlags_t : uint32_t
+{
+	AREACONTENTS_NONE = 0,
+	AREACONTENTS_WATER				= 1,
+	AREACONTENTS_LAVA				= 2,
+	AREACONTENTS_SLIME				= 4,
+	AREACONTENTS_CLUSTERPORTAL		= 8,
+	AREACONTENTS_TELEPORTAL			= 16,
+	AREACONTENTS_ROUTEPORTAL		= 32,
+	AREACONTENTS_TELEPORTER			= 64,
+	AREACONTENTS_JUMPPAD			= 128,
+	AREACONTENTS_DONOTENTER			= 256,
+	AREACONTENTS_VIEWPORTAL			= 512,
+	AREACONTENTS_MOVER				= 1024,
+	AREACONTENTS_NOTTEAM1			= 2048,
+	AREACONTENTS_NOTTEAM2			= 4096,
+//number of model of the mover inside this area
+	AREACONTENTS_MODELNUM			= (uint32_t{ AREACONTENTS_MAXMODELNUM } << AREACONTENTS_MODELNUMSHIFT),
+};
+using enum areaContentsFlags_t;
+template <> inline constexpr bool enableEnumFlags<areaContentsFlags_t> = true;
 
 //area flags
-#define AREA_GROUNDED				1		//bot can stand on the ground
-#define AREA_LADDER					2		//area contains one or more ladder faces
-#define AREA_LIQUID					4		//area contains a liquid
-#define AREA_DISABLED				8		//area is disabled for routing when set
-#define AREA_BRIDGE					16		//area ontop of a bridge
+enum class areaFlags_t
+{
+	AREA_NONE = 0,
+	AREA_GROUNDED				= 1,		//bot can stand on the ground
+	AREA_LADDER					= 2,		//area contains one or more ladder faces
+	AREA_LIQUID					= 4,		//area contains a liquid
+	AREA_DISABLED				= 8,		//area is disabled for routing when set
+	AREA_BRIDGE					= 16,		//area ontop of a bridge
+//area flag used for weapon jumping (be_aas_reach.cpp)
+	AREA_WEAPONJUMP				= 8192,	//valid area to weapon jump to
+};
+using enum areaFlags_t;
+template <> inline constexpr bool enableEnumFlags<areaFlags_t> = true;
 
 //aas file header lumps
 #define AAS_LUMPS					14
@@ -119,7 +151,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //bounding box
 typedef struct aas_bbox_s
 {
-	int presencetype;
+	presenceFlags_t presencetype;
 	int flags;
 	vec3_t mins, maxs;
 } aas_bbox_t;
@@ -134,7 +166,7 @@ typedef struct aas_reachability_s
 	int edgenum;						//number of the edge towards the other area
 	vec3_t start;						//start point of inter area movement
 	vec3_t end;							//end point of inter area movement
-	int traveltype;					//type of travel required to get to the area
+	travelTypeFlags_t traveltype;					//type of travel required to get to the area
 	unsigned short int traveltime;//travel time of the inter area movement
 } aas_reachability_t;
 
@@ -142,9 +174,9 @@ typedef struct aas_reachability_s
 typedef struct aas_areasettings_s
 {
 	//could also add all kind of statistic fields
-	int contents;						//contents of the area
-	int areaflags;						//several area flags
-	int presencetype;					//how a bot can be present in this area
+	areaContentsFlags_t contents;						//contents of the area
+	areaFlags_t areaflags;						//several area flags
+	presenceFlags_t presencetype;					//how a bot can be present in this area
 	int cluster;						//cluster the area belongs to, if negative it's a portal
 	int clusterareanum;				//number of the area in the cluster
 	int numreachableareas;			//number of reachable areas from this one
@@ -197,7 +229,7 @@ typedef int aas_edgeindex_t;
 typedef struct aas_face_s
 {
 	int planenum;						//number of the plane this face is in
-	int faceflags;						//face flags (no use to create face settings for just this field)
+	faceFlags_t faceflags;						//face flags (no use to create face settings for just this field)
 	int numedges;						//number of edges in the boundary of the face
 	int firstedge;						//first edge in the edge index
 	int frontarea;						//area at the front of this face

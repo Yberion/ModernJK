@@ -36,15 +36,15 @@ extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
 	extern vec3_t playerMaxs;
 	extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 	extern int PM_AnimLength( int index, animNumber_t anim );
-	extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
+	extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask );
 #endif
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
-extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 extern int BG_GetTime(void);
 
 //this stuff has got to be predicted, so..
-bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity, void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, int contentMask ))
+bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity, void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask ))
 {
 	vec3_t		bottom;
 	playerState_t *parentPS;
@@ -87,14 +87,15 @@ bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, ve
 	}
 
 	/*
-	isDead = ((parentPS->eFlags&EF_DEAD)!=0);
+	isDead = (Any( parentPS->eFlags&EF_DEAD ));
 
 	if ( isDead ||
 		(pVeh->m_pVehicleInfo->surfDestruction &&
-			pVeh->m_iRemovedSurfaces ) )
+			Any( pVeh->m_iRemovedSurfaces ) ) )
 	{//can't land if dead or spiralling out of control
 		pVeh->m_LandTrace.fraction = 1.0f;
-		pVeh->m_LandTrace.contents = pVeh->m_LandTrace.surfaceFlags = 0;
+		pVeh->m_LandTrace.contents = CONTENTS_NONE;
+		pVeh->m_LandTrace.surfaceFlags = SURF_NONE;
 		VectorClear( pVeh->m_LandTrace.plane.normal );
 		pVeh->m_LandTrace.allsolid = false;
 		pVeh->m_LandTrace.startsolid = false;
@@ -313,7 +314,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		float timeFrac = ((float)(curTime-parentPS->hyperSpaceTime))/HYPERSPACE_TIME;
 		if ( timeFrac < HYPERSPACE_TELEPORT_FRAC )
 		{//for first half, instantly jump to top speed!
-			if ( !(parentPS->eFlags2&EF2_HYPERSPACE) )
+			if ( !Any(parentPS->eFlags2&EF2_HYPERSPACE) )
 			{//waiting to face the right direction, do nothing
 				parentPS->speed = 0.0f;
 			}
@@ -443,7 +444,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	else
 	{//normal max speed
 		speedMax = pVeh->m_pVehicleInfo->speedMax;
-		if ( (parentPS->eFlags&EF_JETPACK_ACTIVE) )
+		if ( Any(parentPS->eFlags&EF_JETPACK_ACTIVE) )
 		{//stop cgame from playing the turbo exhaust effect
 			parentPS->eFlags &= ~EF_JETPACK_ACTIVE;
 		}
@@ -462,7 +463,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		speedMax *= 0.6f;//at 60% speed
 	}
 
-	if (pVeh->m_iRemovedSurfaces
+	if (Any( pVeh->m_iRemovedSurfaces )
 		|| parentPS->electrifyTime>=curTime)
 	{ //go out of control
 		parentPS->speed += speedInc;
@@ -622,7 +623,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #ifdef _GAME//only do this check on game side, because if it's cgame, it's being predicted, and it's only predicted if the local client is the driver
 		&& pVeh->m_pVehicleInfo->Inhabited( pVeh )//has to have a driver in order to be capable of landing
 #endif
-		&& !pVeh->m_iRemovedSurfaces
+		&& !Any( pVeh->m_iRemovedSurfaces )
 		&& parentPS->electrifyTime<curTime
 		&& (pVeh->m_LandTrace.fraction >= 1.0f//no grounf
 			||pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE//can't land here
@@ -721,7 +722,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		}
 	}
 
-	if (pVeh->m_iRemovedSurfaces
+	if (Any( pVeh->m_iRemovedSurfaces )
 		|| parentPS->electrifyTime>=curTime)
 	{ //going down
 		if ( FighterIsInSpace( (gentity_t *)parent ) )
@@ -827,7 +828,7 @@ static void FighterNoseMalfunctionCheck( Vehicle_t *pVeh, playerState_t *parentP
 
 static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerState_t *parentPS, playerState_t *riderPS, bool isDead )
 {
- 	if ( !pVeh->m_iRemovedSurfaces )
+ 	if ( !Any( pVeh->m_iRemovedSurfaces ) )
 	{//still in one piece
 		if ( pVeh->m_pParentEntity && isDead )
 		{//death spiral
@@ -930,16 +931,16 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 	}
 #endif
 
-	if ( ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D)) &&
-		((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
+	if ( (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D)) &&
+		(Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
 	{ //wings on both side broken
 		float factor = 2.0f;
-		if ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-			(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) &&
-			(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-			(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
+			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) &&
+			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
+			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
 		{ //all wings broken
 			factor *= 2.0f;
 		}
@@ -951,12 +952,12 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 
 		pVeh->m_vOrientation[ROLL] += (pVeh->m_fTimeModifier*factor); //do some spiralling
 	}
-	else if ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+	else if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
 	{ //left wing broken
 		float factor = 2.0f;
-		if ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-			(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
+			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
 		{ //if both are broken..
 			factor *= 2.0f;
 		}
@@ -968,12 +969,12 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 
 		pVeh->m_vOrientation[ROLL] += factor*pVeh->m_fTimeModifier;
 	}
-	else if ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+	else if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
 	{ //right wing broken
 		float factor = 2.0f;
-		if ((pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-			(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+		if (Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
+			Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
 		{ //if both are broken..
 			factor *= 2.0f;
 		}
@@ -1251,7 +1252,7 @@ void FighterPitchClamp(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *p
 	if ( !BG_UnrestrainedPitchRoll( riderPS, pVeh ) )
 	{//cap pitch reasonably
 		if ( pVeh->m_pVehicleInfo->pitchLimit != -1
-			&& !pVeh->m_iRemovedSurfaces
+			&& !Any( pVeh->m_iRemovedSurfaces )
 			&& parentPS->electrifyTime < curTime )
 		{
 			if (pVeh->m_vOrientation[PITCH] > pVeh->m_pVehicleInfo->pitchLimit )
@@ -1308,7 +1309,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	parentPS = parent->playerState;
 	riderPS = rider->playerState;
-	isDead = ((parentPS->eFlags&EF_DEAD)!=0);
+	isDead = (Any( parentPS->eFlags&EF_DEAD ));
 
 #ifdef VEH_CONTROL_SCHEME_4
 	if ( parentPS->hyperSpaceTime
@@ -1359,11 +1360,11 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	if ( isDead || parentPS->electrifyTime>=curTime ||
 		(pVeh->m_pVehicleInfo->surfDestruction &&
-		pVeh->m_iRemovedSurfaces &&
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) &&
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
-		(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
+		Any( pVeh->m_iRemovedSurfaces ) &&
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) &&
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) &&
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) &&
+		Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F)) )
 	{ //do some special stuff for when all the wings are torn off
 		FighterDamageRoutine(pVeh, parent, parentPS, riderPS, isDead);
 		pVeh->m_vOrientation[ROLL] = AngleNormalize180( pVeh->m_vOrientation[ROLL] );
@@ -1424,7 +1425,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 
 	// If we're landed, we shouldn't be able to do anything but take off.
 	if ( isLandingOrLanded //going slow enough to start landing
-		&& !pVeh->m_iRemovedSurfaces
+		&& !Any( pVeh->m_iRemovedSurfaces )
 		&& parentPS->electrifyTime<curTime)//not spiraling out of control
 	{
 		if ( parentPS->speed > 0.0f )
@@ -1452,7 +1453,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		}
 #endif// VEH_CONTROL_SCHEME_4
 	}
-	else if ( (pVeh->m_iRemovedSurfaces||parentPS->electrifyTime>=curTime)//spiralling out of control
+	else if ( (Any( pVeh->m_iRemovedSurfaces )||parentPS->electrifyTime>=curTime)//spiralling out of control
 		&& (!(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5)) )
 	{//no yaw control
 	}
@@ -1566,7 +1567,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	{//only if capable of landing
 		if ( !isDead
 			&& parentPS->electrifyTime<curTime
-			&& (!pVeh->m_pVehicleInfo->surfDestruction || !pVeh->m_iRemovedSurfaces ) )
+			&& (!pVeh->m_pVehicleInfo->surfDestruction || !Any( pVeh->m_iRemovedSurfaces ) ) )
 		{//not crashing or spiralling out of control...
 			if ( pVeh->m_vOrientation[PITCH] > 0 )
 			{
@@ -1633,7 +1634,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		//NOTE: this seems really backwards...
 		if ( pVeh->m_vOrientation[ROLL] )
 		{ //continually adjust the yaw based on the roll..
-			if ( (pVeh->m_iRemovedSurfaces||parentPS->electrifyTime>=curTime)//spiralling out of control
+			if ( (Any( pVeh->m_iRemovedSurfaces )||parentPS->electrifyTime>=curTime)//spiralling out of control
 				&& (!(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5)) )
 			{//leave YAW alone
 			}
@@ -1654,7 +1655,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		if ( !BG_UnrestrainedPitchRoll( riderPS, pVeh ) )
 		{//cap it reasonably
 			if ( pVeh->m_pVehicleInfo->rollLimit != -1
-				&& !pVeh->m_iRemovedSurfaces
+				&& !Any( pVeh->m_iRemovedSurfaces )
 				&& parentPS->electrifyTime<curTime)
 			{
 				if (pVeh->m_vOrientation[ROLL] > pVeh->m_pVehicleInfo->rollLimit )
@@ -1686,7 +1687,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	std::optional<animNumber_t> Anim;
-	int iFlags = SETANIM_FLAG_NORMAL;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	bool isLanding = false, isLanded = false;
 	playerState_t *parentPS = pVeh->m_pParentEntity->playerState;
 	int curTime = level.time;

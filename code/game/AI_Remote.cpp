@@ -288,7 +288,7 @@ void Remote_Ranged( bool visible, bool advance, bool retreat )
 		Remote_Fire();
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Remote_Hunt( visible, advance, retreat );
 	}
@@ -333,7 +333,7 @@ void Remote_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Remote_Hunt( visible, advance, retreat );
 			return;
@@ -391,7 +391,7 @@ void NPC_BSRemote_Default( void )
 	{
 		Remote_Attack();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Remote_Patrol();
 	}

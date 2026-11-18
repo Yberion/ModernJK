@@ -137,7 +137,7 @@ void SandCreature_MoveEffect( void )
 bool SandCreature_CheckAhead( vec3_t end )
 {
 	trace_t	trace;
-	int clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
+	contentsFlags_t clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
 
 	//make sure our goal isn't underground (else the trace will fail)
 	vec3_t	bottom = {end[0],end[1],end[2]+NPC->mins[2]};
@@ -149,7 +149,7 @@ bool SandCreature_CheckAhead( vec3_t end )
 
 	gi.trace( &trace, NPC->currentOrigin, NPC->mins, NPC->maxs, end, NPC->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
 		gi.trace( &trace, NPC->currentOrigin, NPC->mins, NPC->maxs, end, NPC->s.number, clipmask, G2_NOCOLLIDE, 0 );
@@ -185,7 +185,7 @@ bool SandCreature_Move( void )
 	{//use our temp move straight to goal check
 		VectorSubtract( dest, NPC->currentOrigin, NPC->client->ps.moveDir );
 		NPC->client->ps.speed = VectorNormalize( NPC->client->ps.moveDir );
-		if ( (ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
+		if ( Any(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
 		{
 			NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 		}
@@ -195,7 +195,7 @@ bool SandCreature_Move( void )
 			{
 				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 			}
-			if ( !(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed < NPCInfo->stats.runSpeed )
+			if ( !Any(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed < NPCInfo->stats.runSpeed )
 			{
 				NPC->client->ps.speed = NPCInfo->stats.runSpeed;
 			}
@@ -303,8 +303,8 @@ void SandCreature_Attack( bool miss )
 		NPC->enemy->activator = NPC; // kind of dumb, but when we are locked to the Rancor, we are owned by it.
 		NPC->activator = NPC->enemy;//remember him
 		//this guy isn't going anywhere anymore
-		NPC->enemy->contents = 0;
-		NPC->enemy->clipmask = 0;
+		NPC->enemy->contents = CONTENTS_NONE;
+		NPC->enemy->clipmask = CONTENTS_NONE;
 
 		if ( NPC->activator->client )
 		{
@@ -405,22 +405,22 @@ void SandCreature_CheckMovingEnts( void )
 		}
 		else
 		{
-			if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
+			if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
 			{//can't be one being held
 				continue;
 			}
 
-			if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_WAMPA) )
+			if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_WAMPA) )
 			{//can't be one being held
 				continue;
 			}
 
-			if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
+			if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
 			{//can't be one being held
 				continue;
 			}
 
-			if ( (radiusEnts[i]->s.eFlags&EF_NODRAW) )
+			if ( Any(radiusEnts[i]->s.eFlags&EF_NODRAW) )
 			{//not if invisible
 				continue;
 			}
@@ -436,7 +436,7 @@ void SandCreature_CheckMovingEnts( void )
 			}
 		}
 
-		if ( (radiusEnts[i]->flags&FL_NOTARGET) )
+		if ( Any( radiusEnts[i]->flags & FL_NOTARGET ) )
 		{
 			continue;
 		}
@@ -472,7 +472,7 @@ void SandCreature_SeekAlert( int alertEvent )
 
 void SandCreature_CheckAlerts( void )
 {
-	if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
 		int alertEvent = NPC_CheckAlertEvents( false, true, NPCInfo->lastAlertID, false, AEL_MINOR, true );
 
@@ -521,12 +521,12 @@ void SandCreature_Chase( void )
 		return;
 	}
 
-	if ( (NPC->svFlags&SVF_LOCKEDENEMY) )
+	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//always know where he is
 		NPCInfo->enemyLastSeenTime = level.time;
 	}
 
-	if ( !(NPC->svFlags&SVF_LOCKEDENEMY) )
+	if ( !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{
 		if ( level.time-NPCInfo->enemyLastSeenTime > 10000 )
 		{
@@ -537,9 +537,9 @@ void SandCreature_Chase( void )
 
 	if ( NPC->enemy->client )
 	{
-		if ( (NPC->enemy->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
-			|| (NPC->enemy->client->ps.eFlags&EF_HELD_BY_RANCOR)
-			|| (NPC->enemy->client->ps.eFlags&EF_HELD_BY_WAMPA) )
+		if ( Any(NPC->enemy->client->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+			|| Any(NPC->enemy->client->ps.eFlags&EF_HELD_BY_RANCOR)
+			|| Any(NPC->enemy->client->ps.eFlags&EF_HELD_BY_WAMPA) )
 		{//was picked up by another monster, forget about him
 			NPC->enemy = nullptr;
 			NPC->svFlags &= ~SVF_LOCKEDENEMY;
@@ -549,7 +549,7 @@ void SandCreature_Chase( void )
 	//chase the enemy
 	if ( NPC->enemy->client
 		&& NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_WORLD
-		&& !(NPC->svFlags&SVF_LOCKEDENEMY) )
+		&& !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//off the ground!
 		//FIXME: keep moving in the dir we were moving for a little bit...
 	}
@@ -557,7 +557,7 @@ void SandCreature_Chase( void )
 	{
 		float enemyScore = SandCreature_EntScore( NPC->enemy );
 		if ( enemyScore < MIN_SCORE
-			&& !(NPC->svFlags&SVF_LOCKEDENEMY) )
+			&& !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 		{//too slow or too far away
 		}
 		else
@@ -580,7 +580,7 @@ void SandCreature_Chase( void )
 	}
 
 	if ( (level.time-NPCInfo->enemyLastSeenTime) > 5000
-		&& !(NPC->svFlags&SVF_LOCKEDENEMY) )
+		&& !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//enemy hasn't moved in about 5 seconds, see if there's anything else of interest
 		SandCreature_CheckAlerts();
 		SandCreature_CheckMovingEnts();
@@ -599,7 +599,7 @@ void SandCreature_Chase( void )
 		}
 	}
 	else if ( (level.time-NPCInfo->enemyLastSeenTime) <= 5000
-		&& !(NPC->svFlags&SVF_LOCKEDENEMY) )
+		&& !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//NOTE: this leaves a 2-second dead zone in which they'll just sit there unless their enemy moves
 		//If there is an event we might be interested in if we weren't still interested in our enemy
 		if ( NPC_CheckAlertEvents( false, true, NPCInfo->lastAlertID, false, AEL_MINOR, true ) >= 0 )
@@ -628,7 +628,7 @@ void SandCreature_Chase( void )
 		&& !VectorCompare( NPC->pos1, NPC->currentOrigin ) //so we don't come up again in the same spot
 		&& !Q_irand( 0, 10 ) )
 	{
-		if ( !(NPC->svFlags&SVF_LOCKEDENEMY) )
+		if ( !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 		{
 			//miss them
 			SandCreature_Attack( true );
@@ -735,9 +735,9 @@ void NPC_BSSandCreature_Default( void )
 
 	if ( NPC->health > 0 && TIMER_Done( NPC, "breaching" ) )
 	{//go back to non-solid mode
-		if ( NPC->contents )
+		if ( Any( NPC->contents ) )
 		{
-			NPC->contents = 0;
+			NPC->contents = CONTENTS_NONE;
 		}
 		if ( NPC->clipmask == MASK_NPCSOLID )
 		{
@@ -795,7 +795,7 @@ void NPC_BSSandCreature_Default( void )
 		{//kill and remove the guy we ate
 			//FIXME: want to play ...?  What was I going to say?
 			NPC->activator->health = 0;
-			GEntity_DieFunc( NPC->activator, NPC, NPC, 1000, MOD_MELEE, 0, HL_NONE );
+			GEntity_DieFunc( NPC->activator, NPC, NPC, 1000, MOD_MELEE, DAMAGE_NORMAL, HL_NONE );
 			if ( NPC->activator->s.number )
 			{
 				G_FreeEntity( NPC->activator );

@@ -1437,7 +1437,7 @@ e_status CIN_RunCinematic (int handle)
 CIN_PlayCinematic
 ==================
 */
-int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
+int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, cinematicFlags_t systemBits ) {
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
 	int		i;
@@ -1449,7 +1449,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 	COM_DefaultExtension(name,sizeof(name),".roq");
 
-	if (!(systemBits & CIN_system)) {
+	if (!Any(systemBits & CIN_system)) {
 		for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
 			if (!strcmp(cinTable[i].fileName, name) ) {
 				return i;
@@ -1476,15 +1476,15 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 
 	CIN_SetExtents(currentHandle, x, y, w, h);
-	CIN_SetLooping(currentHandle, ((systemBits & CIN_loop)!=0));
+	CIN_SetLooping(currentHandle, Any(systemBits & CIN_loop));
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	cinTable[currentHandle].holdAtEnd = ((systemBits & CIN_hold) != 0);
-	cinTable[currentHandle].alterGameState = ((systemBits & CIN_system) != 0);
+	cinTable[currentHandle].holdAtEnd = Any(systemBits & CIN_hold);
+	cinTable[currentHandle].alterGameState = Any(systemBits & CIN_system);
 	cinTable[currentHandle].playonwalls = 1;
-	cinTable[currentHandle].silent = ((systemBits & CIN_silent) != 0);
-	cinTable[currentHandle].shader = ((systemBits & CIN_shader) != 0);
+	cinTable[currentHandle].silent = Any(systemBits & CIN_silent);
+	cinTable[currentHandle].shader = Any(systemBits & CIN_shader);
 
 	if (cinTable[currentHandle].alterGameState) {
 		// close the menu
@@ -1646,7 +1646,7 @@ void CL_PlayCinematic_f(void) {
 	const char *arg = Cmd_Argv(1);
 	const char *s = Cmd_Argv(2);
 
-	int bits = CIN_system;
+	cinematicFlags_t bits = CIN_system;
 	if ((s && s[0] == '1') || Q_stricmp(arg,"demoend.roq")==0 || Q_stricmp(arg,"end.roq")==0) {
 		bits |= CIN_hold;
 	}

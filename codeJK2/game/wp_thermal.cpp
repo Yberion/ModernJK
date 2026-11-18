@@ -61,14 +61,14 @@ void thermalDetonatorExplode( gentity_t *ent )
 }
 
 //-------------------------------------------------------------------------------------------------------------
-void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 //-------------------------------------------------------------------------------------------------------------
 {
 	thermalDetonatorExplode( self );
 }
 
 //---------------------------------------------------------
-bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
+bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, contentsFlags_t clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
 				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit )
 //---------------------------------------------------------
@@ -374,7 +374,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	bolt->s.loopSound = G_SoundIndex( "sound/weapons/thermal/thermloop.wav" );
 
 	bolt->damage = weaponData[WP_THERMAL].damage * damageScale;
-	bolt->dflags = 0;
+	bolt->dflags = DAMAGE_NORMAL;
 	bolt->splashDamage = weaponData[WP_THERMAL].splashDamage * damageScale;
 	bolt->splashRadius = weaponData[WP_THERMAL].splashRadius;
 

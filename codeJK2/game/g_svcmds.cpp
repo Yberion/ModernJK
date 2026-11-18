@@ -163,7 +163,7 @@ extern cvar_t	*g_skippingcin;
 	else if ( !G_ClearViewEntity( player ) )
 	{//didn't exit control of a droid or turret
 		//okay, now try exiting emplaced guns or AT-ST's
-		if ( player->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( player->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{//get out of emplaced gun
 			ExitEmplacedWeapon( player );
 		}
@@ -540,14 +540,19 @@ static void Svcmd_Difficulty_f(void)
 	}
 }
 
-#define CMD_NONE				(0x00000000u)
-#define CMD_CHEAT				(0x00000001u)
-#define CMD_ALIVE				(0x00000002u)
+enum class commandFlags_t
+{
+	CMD_NONE				= 0x00000000u,
+	CMD_CHEAT				= 0x00000001u,
+	CMD_ALIVE				= 0x00000002u,
+};
+using enum commandFlags_t;
+template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct svcmd_s {
 	const char	*name;
 	void		(*func)(void);
-	uint32_t	flags;
+	commandFlags_t	flags;
 } svcmd_t;
 
 static int svcmdcmp( const void *a, const void *b ) {
@@ -611,13 +616,13 @@ bool	ConsoleCommand( void ) {
 	if ( !command )
 		return false;
 
-	if ( (command->flags & CMD_CHEAT)
+	if ( Any( command->flags & CMD_CHEAT )
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
 		return true;
 	}
-	else if ( (command->flags & CMD_ALIVE)
+	else if ( Any( command->flags & CMD_ALIVE )
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );

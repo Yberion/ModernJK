@@ -27,16 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define _HARD_CONNECT	1
 
-//Node flags
-#define	NF_ANY			0
-//#define	NF_CLEAR_LOS	0x00000001
-#define NF_CLEAR_PATH	0x00000002
-#define NF_RECALC		0x00000004
+#include "qcommon/q_npcflags.h"
 
-//Edge flags
-#define	EFLAG_NONE		0
-#define EFLAG_BLOCKED	0x00000001
-#define EFLAG_FAILED	0x00000002
 
 //Miscellaneous defines
 #define	NODE_NONE		-1
@@ -79,7 +71,7 @@ class CNode
 	{
 		int		ID;
 		int		cost;
-		unsigned char	flags;
+		navEdgeFlags_t	flags;	// a byte of the nav file's edge record
 	} edge_t;
 
 	typedef	std::vector< edge_t >	edge_v;
@@ -89,10 +81,10 @@ public:
 	CNode( void );
 	~CNode( void );
 
-	static CNode *Create( vec3_t position, int flags, int radius, int ID );
+	static CNode *Create( vec3_t position, navNodeFlags_t flags, int radius, int ID );
 	static CNode *Create( void );
 
-	void AddEdge( int ID, int cost, int flags = EFLAG_NONE );
+	void AddEdge( int ID, int cost, navEdgeFlags_t flags = EFLAG_NONE );
 	void AddRank( int ID, int rank );
 
 	void Draw( bool radius );
@@ -104,16 +96,16 @@ public:
 	int	GetEdgeNumToNode( int ID );
 	int GetEdge( int edgeNum );
 	int GetEdgeCost( int edgeNum );
-	unsigned char GetEdgeFlags( int edgeNum );
-	void SetEdgeFlags( int edgeNum, int newFlags );
+	navEdgeFlags_t GetEdgeFlags( int edgeNum );
+	void SetEdgeFlags( int edgeNum, navEdgeFlags_t newFlags );
 	int	GetRadius( void )				const	{	return m_radius;	}
 
 	void InitRanks( int size );
 	int GetRank( int ID );
 
-	int	GetFlags( void )				const	{	return m_flags;	}
-	void AddFlag( int newFlag )			{	m_flags |= newFlag;	}
-	void RemoveFlag( int oldFlag )		{	m_flags &= ~oldFlag; }
+	navNodeFlags_t	GetFlags( void )				const	{	return m_flags;	}
+	void AddFlag( navNodeFlags_t newFlag )			{	m_flags |= newFlag;	}
+	void RemoveFlag( navNodeFlags_t oldFlag )		{	m_flags &= ~oldFlag; }
 
 	int	Save( int numNodes, fileHandle_t file );
 	int Load( int numNodes, fileHandle_t file );
@@ -121,7 +113,7 @@ public:
 protected:
 
 	vec3_t			m_position;
-	int				m_flags;
+	navNodeFlags_t	m_flags;
 	int				m_radius;
 	int				m_ID;
 
@@ -173,7 +165,7 @@ public:
 	bool Load( const char *filename, int checksum );
 	bool Save( const char *filename, int checksum );
 
-	int  AddRawPoint( vec3_t point, int flags, int radius );
+	int  AddRawPoint( vec3_t point, navNodeFlags_t flags, int radius );
 	void CalculatePaths( bool	recalc=false );
 
 #if _HARD_CONNECT
@@ -186,7 +178,7 @@ public:
 	void ShowEdges( void );
 	void ShowPath( int start, int end );
 
-	int GetNearestNode( gentity_t *ent, int lastID, int flags, int targetID );
+	int GetNearestNode( gentity_t *ent, int lastID, navNodeFlags_t flags, int targetID );
 
 	int GetBestNode( int startID, int endID, int rejectID = NODE_NONE );
 
@@ -217,14 +209,14 @@ public:
 	bool RouteBlocked( int startID, int testEdgeID, int endID, int rejectRank );
 	int GetBestNodeAltRoute( int startID, int endID, int *pathCost, int rejectID = NODE_NONE );
 	int GetBestNodeAltRoute( int startID, int endID, int rejectID = NODE_NONE );
-	int GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int flags );
+	int GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, navNodeFlags_t flags );
 	int	GetNodeRadius( int nodeID );
 	void CheckBlockedEdges( void );
 	void ClearCheckedNodes( void );
 	byte CheckedNode(int wayPoint,int ent);
 	void SetCheckedNode(int wayPoint,int ent,byte value);
 
-	void FlagAllNodes( int newFlag );
+	void FlagAllNodes( navNodeFlags_t newFlag );
 
 	bool pathsCalculated;
 	failedEdge_t	failedEdges[MAX_FAILED_EDGES];
@@ -235,7 +227,7 @@ protected:
 
 	int		TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, bool includeEnts );
 	int		TestNodeLOS( gentity_t *ent, vec3_t position );
-	int		TestBestFirst( gentity_t *ent, int lastID, int flags );
+	int		TestBestFirst( gentity_t *ent, int lastID, navNodeFlags_t flags );
 
 #if __NEWCOLLECT
 	int		CollectNearestNodes( vec3_t origin, int radius, int maxCollect, nodeChain_l &nodeChain );

@@ -92,7 +92,7 @@ public:
 	}
 
 	// Physics/collision
-	inline	void	Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags )
+	inline	void	Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, contentsFlags_t flags )
 	{
 		TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
 
@@ -119,7 +119,7 @@ public:
 		tr = td->mResult;
 	}
 
-	inline	void	G2Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, int flags )
+	inline	void	G2Trace( trace_t &tr, vec3_t start, vec3_t min, vec3_t max, vec3_t end, int skipEntNum, contentsFlags_t flags )
 	{
 		TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
 

@@ -662,7 +662,7 @@ public:
 	int				fogNum;
 	bool		personalModel;
 	CBoneCache		*boneCache;
-	int				renderfx;
+	renderFxFlags_t	renderfx;
 	const skin_t	*skin;
 	const model_t	*currentModel;
 	int				lod;
@@ -679,7 +679,7 @@ public:
 		int				initfogNum,
 		bool		initpersonalModel,
 		CBoneCache		*initboneCache,
-		int				initrenderfx,
+		renderFxFlags_t	initrenderfx,
 		const skin_t			*initskin,
 		const model_t			*initcurrentModel,
 		int				initlod,
@@ -788,7 +788,7 @@ static int R_GComputeFogNum( trRefEntity_t *ent ) {
 	int				i;
 	fog_t			*fog;
 
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -982,7 +982,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 			((animSpeed < 0.0f) && (newFrame_g < endFrame+1)))
 		{
 			// yep - decide what to do
-			if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
+			if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
 			{
 				// get our new animation frame back within the bounds of the animation set
 				if (animSpeed < 0.0f)
@@ -1115,7 +1115,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 				if (newFrame >= (int)endFrame)
 				{
 					// we only want to lerp with the first frame of the anim if we are looping
-					if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
+					if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
 					{
 					  	newFrame = bone.startFrame;
 						assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1147,7 +1147,7 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 					if (newFrame < endFrame+1)
 					{
 						// we only want to lerp with the first frame of the anim if we are looping
-						if (bone.flags & BONE_ANIM_OVERRIDE_LOOP)
+						if (Any( bone.flags & BONE_ANIM_OVERRIDE_LOOP ))
 						{
 					  		newFrame = bone.startFrame;
 							assert(newFrame>=0&&newFrame<numFramesInFile);
@@ -1334,7 +1334,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	mdxaSkelOffsets_t *offsets;
 	boneInfo_v		&boneList = *BC.rootBoneList;
 	int				j, boneListIndex;
-	int				angleOverride = 0;
+	boneFlags_t				angleOverride = BONE_NONE;
 
 #if DEBUG_G2_TIMING
 	bool printTiming=false;
@@ -1346,13 +1346,13 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		// we found a bone in the list - we need to override something here.
 
 		// do we override the rotational angles?
-		if ((boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL))
+		if (Any( (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL) ))
 		{
 			angleOverride = (boneList[boneListIndex].flags) & (BONE_ANGLES_TOTAL);
 		}
 
 		// set blending stuff if we need to
-		if (boneList[boneListIndex].flags & BONE_ANIM_BLEND)
+		if (Any( boneList[boneListIndex].flags & BONE_ANIM_BLEND ))
 		{
 			float blendTime = BC.incomingTime - boneList[boneListIndex].blendStart;
 			// only set up the blend anim if we actually have some blend time left on this bone anim - otherwise we might corrupt some blend higher up the hiearchy
@@ -1368,21 +1368,21 @@ void G2_TransformBone (int child,CBoneCache &BC)
 				TB.blendMode = false;
 			}
 		}
-		else if (r_Ghoul2NoBlend->integer||((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)))
+		else if (r_Ghoul2NoBlend->integer||Any((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE)))
 		// turn off blending if we are just doing a straing animation override
 		{
 			TB.blendMode = false;
 		}
 
 		// should this animation be overridden by an animation in the bone list?
-		if ((boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE))
+		if (Any( (boneList[boneListIndex].flags) & (BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE) ))
 		{
 			G2_TimingModel(boneList[boneListIndex],BC.incomingTime,BC.header->numFrames,TB.currentFrame,TB.newFrame,TB.backlerp);
 		}
 #if DEBUG_G2_TIMING
 		printTiming=true;
 #endif
-		if ((r_Ghoul2NoLerp->integer)||((boneList[boneListIndex].flags) & (BONE_ANIM_NO_LERP)))
+		if ((r_Ghoul2NoLerp->integer)||Any((boneList[boneListIndex].flags) & (BONE_ANIM_NO_LERP)))
 		{
 			TB.backlerp = 0.0f;
 		}
@@ -1557,12 +1557,12 @@ void G2_TransformBone (int child,CBoneCache &BC)
 
 	int parent=BC.mFinalBones[child].parent;
 	assert((parent==-1&&child==0)||(parent>=0&&parent<BC.mNumBones));
-	if (angleOverride & BONE_ANGLES_REPLACE)
+	if (Any( angleOverride & BONE_ANGLES_REPLACE ))
 	{
-		bool isRag=!!(angleOverride & BONE_ANGLES_RAGDOLL);
+		bool isRag=!!Any(angleOverride & BONE_ANGLES_RAGDOLL);
 		if (!isRag)
 		{ //do the same for ik.. I suppose.
-			isRag = !!(angleOverride & BONE_ANGLES_IK);
+			isRag = !!Any(angleOverride & BONE_ANGLES_IK);
 		}
 
 		mdxaBone_t &bone = BC.mFinalBones[child].boneMatrix;
@@ -1732,9 +1732,9 @@ void G2_TransformBone (int child,CBoneCache &BC)
 			}
 		}
 	}
-	else if (angleOverride & BONE_ANGLES_PREMULT)
+	else if (Any( angleOverride & BONE_ANGLES_PREMULT ))
 	{
-		if ((angleOverride&BONE_ANGLES_RAGDOLL) || (angleOverride&BONE_ANGLES_IK))
+		if (Any(angleOverride&BONE_ANGLES_RAGDOLL) || Any(angleOverride&BONE_ANGLES_IK))
 		{
 			mdxaBone_t	tmp;
 			if (!child)
@@ -1797,7 +1797,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 	}
 
 	// now multiply our resulting bone by an override matrix should we need to
-	if (angleOverride & BONE_ANGLES_POSTMULT)
+	if (Any( angleOverride & BONE_ANGLES_POSTMULT ))
 	{
 		mdxaBone_t	tempMatrix;
 		memcpy (&tempMatrix,&BC.mFinalBones[child].boneMatrix, sizeof(mdxaBone_t));
@@ -1828,8 +1828,6 @@ void G2_TransformBone (int child,CBoneCache &BC)
 
 }
 
-
-#define		GHOUL2_RAG_STARTED						0x0010
 
 // start the recursive hirearchial bone transform and lerp process for this model
 void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGhoul2Info &ghoul2, int time,bool smooth=true)
@@ -1862,12 +1860,12 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 	{
 		ghoul2.mBoneCache->mLastTouch=ghoul2.mBoneCache->mLastLastTouch;
 
-		if(ghoul2.mFlags & GHOUL2_RAG_STARTED)
+		if(Any( ghoul2.mFlags & GHOUL2_RAG_STARTED ))
 		{
 			for (size_t k=0;k<rootBoneList.size();k++)
 			{
 				boneInfo_t &bone=rootBoneList[k];
-				if (bone.flags&BONE_ANGLES_RAGDOLL)
+				if (Any( bone.flags&BONE_ANGLES_RAGDOLL ))
 				{
 					if (bone.firstCollisionTime &&
 						bone.firstCollisionTime>time-250 &&
@@ -2216,19 +2214,19 @@ void G2API_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin)
 		ghlInfo->mMeshFrameNum = 0;
 		for ( j = 0 ; j < skin->numSurfaces ; j++ )
 		{
-			uint32_t flags;
+			g2SurfaceFlags_t flags;
 			int surfaceNum = G2_IsSurfaceLegal(ghlInfo->currentModel, skin->surfaces[j]->name, &flags);
 			// the names have both been lowercased
-			if ( !(flags&G2SURFACEFLAG_OFF) && !strcmp( skin->surfaces[j]->shader->name , "*off") )
+			if ( !Any(flags&G2SURFACEFLAG_OFF) && !strcmp( skin->surfaces[j]->shader->name , "*off") )
 			{
 				G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, G2SURFACEFLAG_OFF);
 			}
 			else
 			{
 				//if ( strcmp( &skin->surfaces[j]->name[strlen(skin->surfaces[j]->name)-4],"_off") )
-				if ( (surfaceNum != -1) && (!(flags&G2SURFACEFLAG_OFF)) )	//only turn on if it's not an "_off" surface
+				if ( (surfaceNum != -1) && (!Any(flags&G2SURFACEFLAG_OFF)) )	//only turn on if it's not an "_off" surface
 				{
-					//G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, 0);
+					//G2_SetSurfaceOnOff(ghlInfo, skin->surfaces[j]->name, G2SURFACEFLAG_NONE);
 				}
 			}
 		}
@@ -2240,7 +2238,7 @@ void RenderSurfaces(CRenderSurface &RS)
 {
 	int			i;
 	const shader_t	*shader = nullptr;
-	int			offFlags = 0;
+	g2SurfaceFlags_t			offFlags = G2SURFACEFLAG_NONE;
 #ifdef _G2_GORE
 	bool		drawGore = true;
 #endif
@@ -2257,7 +2255,7 @@ void RenderSurfaces(CRenderSurface &RS)
 	const surfaceInfo_t	*surfOverride = G2_FindOverrideSurface(RS.surfaceNum, RS.rootSList);
 
 	// really, we should use the default flags for this surface unless it's been overriden
-	offFlags = surfInfo->flags;
+	offFlags = G2_SurfaceFlags( surfInfo );
 
 	// set the off flags if we have some
 	if (surfOverride)
@@ -2266,7 +2264,7 @@ void RenderSurfaces(CRenderSurface &RS)
 	}
 
 	// if this surface is not off, add it to the shader render list
-	if (!offFlags)
+	if (!Any( offFlags) )
 	{
  		if ( RS.cust_shader )
 		{
@@ -2299,8 +2297,8 @@ void RenderSurfaces(CRenderSurface &RS)
 		if ( /*!RS.personalModel
 			&& */r_shadows->integer == 2
 //			&& RS.fogNum == 0
-			&& (RS.renderfx & RF_SHADOW_PLANE )
-			&& !(RS.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
+			&& Any(RS.renderfx & RF_SHADOW_PLANE )
+			&& !Any(RS.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
 			&& shader->sort == (float)SS_OPAQUE )
 		{		// set the surface info to point at the where the transformed bone list is going to be for when the surface gets rendered out
 			CRenderableSurface *newSurf = AllocRS();
@@ -2320,8 +2318,8 @@ void RenderSurfaces(CRenderSurface &RS)
 		// projection shadows work fine with personal models
 		if ( r_shadows->integer == 3
 //			&& RS.fogNum == 0
-			&& (RS.renderfx & RF_SHADOW_PLANE )
-			&& !(RS.renderfx & ( RF_NOSHADOW ) )
+			&& Any(RS.renderfx & RF_SHADOW_PLANE )
+			&& !Any(RS.renderfx & ( RF_NOSHADOW ) )
 			&& shader->sort == (float)SS_OPAQUE )
 		{		// set the surface info to point at the where the transformed bone list is going to be for when the surface gets rendered out
 			CRenderableSurface *newSurf = AllocRS();
@@ -2425,7 +2423,7 @@ void RenderSurfaces(CRenderSurface &RS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
+	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -2512,7 +2510,7 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 	{
 		if (ghoul2[i].mModelindex != -1&&ghoul2[i].mValid)
 		{
-			if (ghoul2[i].mFlags & GHOUL2_NEWORIGIN)
+			if (Any( ghoul2[i].mFlags & GHOUL2_NEWORIGIN ))
 			{
 				mdxaBone_t bolt;
 				mdxaBone_t		tempMatrix;
@@ -2597,7 +2595,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	RootMatrix(ghoul2,currentTime, ent->e.modelScale,rootMatrix);
 
    	// don't add third_person objects if not in a portal
-	personalModel = ((ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal);
+	personalModel = (Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal);
 
 	int modelList[32];
 	assert(ghoul2.size()<=31);
@@ -2629,7 +2627,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	for (j=0; j<modelCount; j++)
 	{
 		i = modelList[j];
-		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!(ghoul2[i].mFlags & GHOUL2_NORENDER))
+		if (ghoul2[i].mValid&&!Any(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!Any(ghoul2[i].mFlags & GHOUL2_NORENDER))
 		{
 			//
 			// figure out whether we should be using a custom shader for this model
@@ -2665,7 +2663,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				G2_TransformGhoulBones(ghoul2[i].mBlist, rootMatrix, ghoul2[i],currentTime);
 			}
-			if ( ent->e.renderfx & RF_G2MINLOD )
+			if ( Any( ent->e.renderfx & RF_G2MINLOD ) )
 			{
 				whichLod = G2_ComputeLOD( ent, ghoul2[i].currentModel, 10 );
 			} else
@@ -2688,7 +2686,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 #else
 			CRenderSurface RS(ghoul2[i].mSurfaceRoot, ghoul2[i].mSlist, cust_shader, fogNum, personalModel, ghoul2[i].mBoneCache, ent->e.renderfx, skin,ghoul2[i].currentModel, whichLod, ghoul2[i].mBltlist);
 #endif
-			if (!personalModel && (RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
+			if (!personalModel && Any(RS.renderfx & RF_SHADOW_PLANE) && !bInShadowRange(ent->e.origin))
 			{
 				RS.renderfx |= RF_NOSHADOW;
 			}

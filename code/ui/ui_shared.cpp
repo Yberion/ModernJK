@@ -50,7 +50,7 @@ extern vmCvar_t	ui_char_color_blue;
 void *UI_Alloc( int size );
 
 void		Controls_GetConfig( void );
-void		Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount);
+void		Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount);
 void		Item_Init(itemDef_t *item);
 void		Item_InitControls(itemDef_t *item);
 bool	Item_Parse(itemDef_t *item);
@@ -141,12 +141,12 @@ static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 typedef struct  itemFlagsDef_s {
 	const char *string;
-	int value;
+	windowFlags_t value;
 }	itemFlagsDef_t;
 
 itemFlagsDef_t itemFlags [] = {
 	{ "WINDOW_INACTIVE",	WINDOW_INACTIVE },
-	{ nullptr,					0 }
+	{ nullptr,					WINDOW_NONE }
 };
 
 const char *styles [] = {
@@ -1048,7 +1048,7 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 		}
 	}
 
-	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && (item->cvarFlags & CVAR_HIDE) ) {
+	if ( item->type == ITEM_TYPE_TEXT && item->window.name && !Q_stricmp( item->window.name, "eax_icon") && item->cvarTest && !Q_stricmp( item->cvarTest, "s_UseOpenAL" ) && item->enableCvar && Any( item->cvarFlags & CVAR_HIDE ) ) {
 		if( item->parent )
 		{
 			menuDef_t *parent = (menuDef_t *)item->parent;
@@ -1578,7 +1578,7 @@ menuDef_t *Menu_GetFocused(void)
 
 	for (i = 0; i < menuCount; i++)
 	{
-		if ((Menus[i].window.flags & WINDOW_HASFOCUS) && (Menus[i].window.flags & WINDOW_VISIBLE))
+		if (Any( Menus[i].window.flags & WINDOW_HASFOCUS ) && Any( Menus[i].window.flags & WINDOW_VISIBLE ))
 		{
 	      return &Menus[i];
 		}
@@ -1622,7 +1622,7 @@ Menu_RunCloseScript
 */
 static void Menu_RunCloseScript(menuDef_t *menu)
 {
-	if (menu && menu->window.flags & WINDOW_VISIBLE && menu->onClose)
+	if (menu && Any( menu->window.flags & WINDOW_VISIBLE ) && menu->onClose)
 	{
 		itemDef_t item;
 		item.parent = menu;
@@ -1669,7 +1669,7 @@ void Menus_CloseByName(const char *p)
 	Menu_RunCloseScript(menu);
 
 	// If this window had the focus then take it away
-	if ( menu->window.flags & WINDOW_HASFOCUS )
+	if ( Any( menu->window.flags & WINDOW_HASFOCUS ) )
 	{
 		// If there is something still in the open menu list then
 		// set it to have focus now
@@ -1731,7 +1731,7 @@ itemDef_t *Menu_ClearFocus(menuDef_t *menu)
 	}
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		if (menu->items[i]->window.flags & WINDOW_HASFOCUS)
+		if (Any( menu->items[i]->window.flags & WINDOW_HASFOCUS ))
 		{
 			ret = menu->items[i];
 			menu->items[i]->window.flags &= ~WINDOW_HASFOCUS;
@@ -2316,7 +2316,7 @@ bool Script_SetFocus(itemDef_t *item, const char **args)
 	if (String_Parse(args, &name))
 	{
 		focusItem = (itemDef_s *) Menu_FindItemByName((menuDef_t *) item->parent, name);
-		if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS))
+		if (focusItem && !Any( focusItem->window.flags & WINDOW_DECORATION ) && !Any( focusItem->window.flags & WINDOW_HASFOCUS ))
 		{
 			Menu_ClearFocus((menuDef_t *) item->parent);
 //JLF
@@ -2353,7 +2353,7 @@ bool Script_SetItemFlag(itemDef_t *item, const char **args)
 
 		if (String_Parse(args, &number))
 		{
-			int amount = atoi(number);
+			windowFlags_t amount = static_cast<windowFlags_t>( atoi(number) );	// a menu script's number
 			item->window.flags |= amount;
 		}
 	}
@@ -4780,7 +4780,7 @@ ItemParse_cvarsubstring
 */
 bool ItemParse_cvarsubstring( itemDef_t *item )
 {
-	assert(item->cvarFlags);	//need something set first, then we or in our flag.
+	assert(Any( item->cvarFlags ));	//need something set first, then we or in our flag.
 	item->cvarFlags |= CVAR_SUBSTRING;
 	return true;
 }
@@ -5457,10 +5457,10 @@ void  Menus_Activate(menuDef_t *menu)
 	{
 		itemDef_t item;
 		item.parent = menu;
-		item.window.flags = 0;	//err, item is fake here, but we want a valid flag before calling runscript
+		item.window.flags = WINDOW_NONE;	//err, item is fake here, but we want a valid flag before calling runscript
 		Item_RunScript(&item, menu->onOpen);
 
-		if (item.window.flags & WINDOW_SCRIPTWAITING)	//in case runscript set waiting, copy it up to the menu
+		if (Any( item.window.flags & WINDOW_SCRIPTWAITING ))	//in case runscript set waiting, copy it up to the menu
 		{
 			menu->window.flags |= WINDOW_SCRIPTWAITING;
 			menu->window.delayedScript = item.window.delayedScript;
@@ -6006,18 +6006,18 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 		return;
 	}
 
-	if (menu->window.flags & WINDOW_SCRIPTWAITING)
+	if (Any( menu->window.flags & WINDOW_SCRIPTWAITING ))
 	{
 		if (DC->realTime > menu->window.delayTime)
 		{ // Time has elapsed, resume running whatever script we saved
 			itemDef_t item;
 			item.parent = menu;
-			item.window.flags = 0;	//clear before calling RunScript
+			item.window.flags = WINDOW_NONE;	//clear before calling RunScript
 			menu->window.flags &= ~WINDOW_SCRIPTWAITING;
 			Item_RunScript(&item, menu->window.delayedScript);
 
 			// Could have hit another delay. Need to hoist from fake item
-			if (item.window.flags & WINDOW_SCRIPTWAITING)
+			if (Any( item.window.flags & WINDOW_SCRIPTWAITING ))
 			{
 				menu->window.flags |= WINDOW_SCRIPTWAITING;
 				menu->window.delayedScript = item.window.delayedScript;
@@ -6026,7 +6026,7 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 		}
 	}
 
-	if (!(menu->window.flags & WINDOW_VISIBLE) &&  !forcePaint)
+	if (!Any( menu->window.flags & WINDOW_VISIBLE ) &&  !forcePaint)
 	{
 		return;
 	}
@@ -6110,14 +6110,14 @@ void Menu_Paint(menuDef_t *menu, bool forcePaint)
 Item_EnableShowViaCvar
 =================
 */
-bool Item_EnableShowViaCvar(itemDef_t *item, int flag)
+bool Item_EnableShowViaCvar(itemDef_t *item, itemCvarFlags_t flag)
 {
 	if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest)
 	{
 		char script[1024];
 		const char *p;
 		char buff[1024];
-		if (item->cvarFlags & CVAR_SUBSTRING)
+		if (Any( item->cvarFlags & CVAR_SUBSTRING ))
 		{
 			const char *val;
 			p = item->enableCvar;
@@ -6125,7 +6125,7 @@ bool Item_EnableShowViaCvar(itemDef_t *item, int flag)
 			if (!String_Parse(&p, &val))
 			{//strip the quotes off
 				COM_EndParseSession();
-				return (item->cvarFlags & flag) ? false : true;
+				return Any( item->cvarFlags & flag ) ? false : true;
 			}
 
 			COM_EndParseSession();
@@ -6147,7 +6147,7 @@ bool Item_EnableShowViaCvar(itemDef_t *item, int flag)
 			if (!String_Parse(&p, &val))
 			{
 				COM_EndParseSession();
-				return (item->cvarFlags & flag) ? false : true;
+				return Any( item->cvarFlags & flag ) ? false : true;
 			}
 
 			if (val[0] == ';' && val[1] == '\0')
@@ -6156,7 +6156,7 @@ bool Item_EnableShowViaCvar(itemDef_t *item, int flag)
 			}
 
 			// enable it if any of the values are true
-			if (item->cvarFlags & flag)
+			if (Any( item->cvarFlags & flag ))
 			{
 				if (Q_stricmp(buff, val) == 0)
 				{
@@ -6175,7 +6175,7 @@ bool Item_EnableShowViaCvar(itemDef_t *item, int flag)
 			}
 		}
 		COM_EndParseSession();
-		return (item->cvarFlags & flag) ? false : true;
+		return Any( item->cvarFlags & flag ) ? false : true;
 	}
 	return true;
 }
@@ -6274,7 +6274,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 
 	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
 
-	if ( !(item->type == ITEM_TYPE_TEXT && item->window.flags & WINDOW_AUTOWRAPPED) && item->window.flags & WINDOW_HASFOCUS)
+	if ( !(item->type == ITEM_TYPE_TEXT && Any( item->window.flags & WINDOW_AUTOWRAPPED )) && Any( item->window.flags & WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -6303,13 +6303,13 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
 	// items can be enabled and disabled based on cvars
 	if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest)
 	{
-		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
 		{
 			memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
 		}
 	}
 
-	if (item->window.flags & WINDOW_INACTIVE)
+	if (Any( item->window.flags & WINDOW_INACTIVE ))
 	{
 		memcpy(newColor, &greyColor, sizeof(vec4_t));
 	}
@@ -6390,13 +6390,13 @@ void Item_Text_Paint(itemDef_t *item)
 	int height, width;
 	vec4_t color;
 
-	if (item->window.flags & WINDOW_WRAPPED)
+	if (Any( item->window.flags & WINDOW_WRAPPED ))
 	{
 		Item_Text_Wrapped_Paint(item);
 		return;
 	}
 
-	if (item->window.flags & WINDOW_AUTOWRAPPED)
+	if (Any( item->window.flags & WINDOW_AUTOWRAPPED ))
 	{
 		Item_Text_AutoWrapped_Paint(item);
 		return;
@@ -6507,7 +6507,7 @@ void Item_TextField_Paint(itemDef_t *item)
 		DC->getCVarString(item->cvar, buff, sizeof(buff));
 	}
 
-	if (item->window.flags & WINDOW_HASFOCUS)
+	if (Any( item->window.flags & WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -6521,7 +6521,7 @@ void Item_TextField_Paint(itemDef_t *item)
 	}
 
 	offset = 8;//(item->text && *item->text) ? 8 : 0;
-	if (item->window.flags & WINDOW_HASFOCUS && g_editingField)
+	if (Any( item->window.flags & WINDOW_HASFOCUS ) && g_editingField)
 	{
 		char cursor = DC->getOverstrikeMode() ? '_' : '|';
 		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, /*editPtr->maxPaintChars*/ item->window.rect.w, item->textStyle, item->font);
@@ -6636,7 +6636,7 @@ void Item_ListBox_Paint(itemDef_t *item)
 		item->cursorPos = 0;
 	}
 	// default is vertical if horizontal flag is not here
-	if (item->window.flags & WINDOW_HORIZONTAL)
+	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 	{
 //JLF new variable (code just indented)
 		if (!listPtr->scrollhidden)
@@ -6684,7 +6684,7 @@ void Item_ListBox_Paint(itemDef_t *item)
 				image = DC->feederItemImage(item->special, i);
 				if (image)
 				{
-					if (item->window.flags & WINDOW_PLAYERCOLOR)
+					if (Any( item->window.flags & WINDOW_PLAYERCOLOR ))
 					{
 						vec4_t	color;
 						color[0] = ui_char_color_red.integer/255.0f;
@@ -6944,7 +6944,7 @@ void Item_Bind_Paint(itemDef_t *item)
 
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
-	if (item->window.flags & WINDOW_HASFOCUS)
+	if (Any( item->window.flags & WINDOW_HASFOCUS ))
 	{
 		if (g_bindItem == item)
 		{
@@ -7293,7 +7293,7 @@ void Item_Model_Paint(itemDef_t *item)
 	refdef.width = w * DC->xscale;
 	refdef.height = h * DC->yscale;
 
-	if (item->flags&ITF_G2VALID)
+	if (Any( item->flags&ITF_G2VALID ))
 	{ //ghoul2 models don't have bounds, so we have to parse them.
 		VectorCopy(modelPtr->g2mins, mins);
 		VectorCopy(modelPtr->g2maxs, maxs);
@@ -7337,7 +7337,7 @@ void Item_Model_Paint(itemDef_t *item)
 	{
 		curYaw += (float)refdef.time/modelPtr->rotationSpeed;
 	}
-	if ( item->flags&ITF_ISANYSABER && !(item->flags&ITF_ISCHARACTER) )
+	if ( Any( item->flags&ITF_ISANYSABER ) && !Any( item->flags&ITF_ISCHARACTER ) )
 	{//hack to put saber on it's side
 		VectorSet( angles, curYaw, 0, 90 );
 	}
@@ -7349,13 +7349,13 @@ void Item_Model_Paint(itemDef_t *item)
 
 	AnglesToAxis( angles, ent.axis );
 
-	if (item->flags&ITF_G2VALID)
+	if (Any( item->flags&ITF_G2VALID ))
 	{
 		ent.ghoul2 = &item->ghoul2;
 		ent.radius = 1000;
 		ent.customSkin = modelPtr->g2skin;
 
-		if ( (item->flags&ITF_ISCHARACTER) )
+		if ( Any( item->flags&ITF_ISCHARACTER ) )
 		{
 			ent.shaderRGBA[0] = ui_char_color_red.integer;
 			ent.shaderRGBA[1] = ui_char_color_green.integer;
@@ -7363,7 +7363,7 @@ void Item_Model_Paint(itemDef_t *item)
 			ent.shaderRGBA[3] = 255;
 			UI_TalkingHead(item);
 		}
-		if ( item->flags&ITF_ISANYSABER )
+		if ( Any( item->flags&ITF_ISANYSABER ) )
 		{//UGH, draw the saber blade!
 			UI_SaberDrawBlades( item, origin, curYaw );
 		}
@@ -7422,7 +7422,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 			}
 		}
 
-		if (item->window.flags & WINDOW_HASFOCUS)
+		if (Any( item->window.flags & WINDOW_HASFOCUS ))
 		{
 			lowLight[0] = 0.8 * parent->focusColor[0];
 			lowLight[1] = 0.8 * parent->focusColor[1];
@@ -7442,7 +7442,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item)
 		if ( item->disabled )
 			memcpy( color, parent->disableColor, sizeof( vec4_t ) );
 
-		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
 		{
 			memcpy(color, parent->disableColor, sizeof(vec4_t));
 		}
@@ -7581,7 +7581,7 @@ int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item )
 	return Item_TextScroll_ThumbPosition(item);
 }
 
-int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
+windowFlags_t Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 {
 	rectDef_t		r;
 	textScrollDef_t *scrollPtr;
@@ -7592,7 +7592,7 @@ int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 	// Scroll bar isn't drawing so ignore this input
 	if ((( scrollPtr->iLineCount * scrollPtr->lineHeight ) <= (item->window.rect.h - 2)) && (item->type == ITEM_TYPE_TEXTSCROLL))
 	{
-		return 0;
+		return WINDOW_NONE;
 	}
 
 	r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
@@ -7630,7 +7630,7 @@ int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y )
 		return WINDOW_LB_PGDN;
 	}
 
-	return 0;
+	return WINDOW_NONE;
 }
 
 void Item_TextScroll_MouseEnter (itemDef_t *item, float x, float y)
@@ -7650,7 +7650,7 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t *item)
 
 	if (itemCapture == item)
 	{
-		if (item->window.flags & WINDOW_HORIZONTAL)
+		if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 		{
 			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
 			max = item->window.rect.x + item->window.rect.w - 2*SCROLLBAR_SIZE - 1;
@@ -7740,7 +7740,7 @@ void Item_Slider_Paint(itemDef_t *item)
 	float x, y;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
-	if (item->window.flags & WINDOW_HASFOCUS)
+	if (Any( item->window.flags & WINDOW_HASFOCUS ))
 	{
 		lowLight[0] = 0.8 * parent->focusColor[0];
 		lowLight[1] = 0.8 * parent->focusColor[1];
@@ -7792,7 +7792,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 
 	parent = (menuDef_t*)item->parent;
 
-	if (item->window.flags & WINDOW_SCRIPTWAITING)
+	if (Any( item->window.flags & WINDOW_SCRIPTWAITING ))
 	{
 		if (DC->realTime > item->window.delayTime)
 		{ // Time has elapsed, resume running whatever script we saved
@@ -7801,7 +7801,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 		}
 	}
 
-	if (item->window.flags & WINDOW_ORBITING)
+	if (Any( item->window.flags & WINDOW_ORBITING ))
 	{
 		if (DC->realTime > item->window.nextTime)
 		{
@@ -7823,7 +7823,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	}
 
 
-	if (item->window.flags & WINDOW_INTRANSITION)
+	if (Any( item->window.flags & WINDOW_INTRANSITION ))
 	{
 		if (DC->realTime > item->window.nextTime)
 		{
@@ -7948,7 +7948,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 #ifdef _TRANS3
 
 //JLF begin model transition stuff
-	if (item->window.flags & WINDOW_INTRANSITIONMODEL)
+	if (Any( item->window.flags & WINDOW_INTRANSITIONMODEL ))
 	{
 		if ( item->type == ITEM_TYPE_MODEL)
 		{
@@ -8212,7 +8212,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 		return false;
 	}
 
-	if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE))
+	if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ))
 	{
 		if (!Item_EnableShowViaCvar(item, CVAR_SHOW))
 		{
@@ -8221,12 +8221,12 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	}
 
 
-	if (item->window.flags & WINDOW_TIMEDVISIBLE)
+	if (Any( item->window.flags & WINDOW_TIMEDVISIBLE ))
 	{
 
 	}
 
-	if (!(item->window.flags & WINDOW_VISIBLE))
+	if (!Any( item->window.flags & WINDOW_VISIBLE ))
 	{
 		return false;
 	}
@@ -8238,7 +8238,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	//okay to paint
 	//JLFMOUSE
 
-	if (item->window.flags & WINDOW_MOUSEOVER)
+	if (Any( item->window.flags & WINDOW_MOUSEOVER ))
 	{
 		if (item->descText && !Display_KeyBindPending())
 		{
@@ -8255,7 +8255,7 @@ static bool Item_Paint(itemDef_t *item, bool bDraw)
 	//END JLFMOUSE
 
 			// items can be enabled and disabled based on cvars
-			if( !(item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) )
+			if( !(Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) )
 			{	// Draw the desctext
 				const char *textPtr = item->descText;
 				if (*textPtr == '@')	// string reference
@@ -8410,14 +8410,14 @@ void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 Fade
 =================
 */
-void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount)
+void Fade(windowFlags_t *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount)
 {
-	if (*flags & (WINDOW_FADINGOUT | WINDOW_FADINGIN))
+	if (Any( *flags & (WINDOW_FADINGOUT | WINDOW_FADINGIN) ))
 	{
 		if (DC->realTime > *nextTime)
 		{
 			*nextTime = DC->realTime + offsetTime;
-			if (*flags & WINDOW_FADINGOUT)
+			if (Any( *flags & WINDOW_FADINGOUT ))
 			{
 				*f -= fadeAmount;
 				if (bFlags && *f <= 0.0)
@@ -8506,7 +8506,7 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 	}
 	else if (w->style == WINDOW_STYLE_SHADER)
 	{
-		if (w->flags & WINDOW_PLAYERCOLOR)
+		if (Any( w->flags & WINDOW_PLAYERCOLOR ))
 		{
 			vec4_t	color;
 			color[0] = ui_char_color_red.integer/255.0f;
@@ -8515,7 +8515,7 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
 			color[3] = 1;
 			ui.R_SetColor(color);
 		}
-		else if (w->flags & WINDOW_FORECOLORSET)
+		else if (Any( w->flags & WINDOW_FORECOLORSET ))
 		{
 			DC->setColor(w->foreColor);
 		}
@@ -8753,7 +8753,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 	int				max;
 	int				viewmax;
 
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS))
+	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS )))
 	{
 		max = Item_TextScroll_MaxScroll(item);
 
@@ -8808,7 +8808,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 		// mouse hit
 		if (key == A_MOUSE1 || key == A_MOUSE2)
 		{
-			if (item->window.flags & WINDOW_LB_LEFTARROW)
+			if (Any( item->window.flags & WINDOW_LB_LEFTARROW ))
 			{
 				scrollPtr->startPos--;
 				if (scrollPtr->startPos < 0)
@@ -8816,7 +8816,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = 0;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_RIGHTARROW)
+			else if (Any( item->window.flags & WINDOW_LB_RIGHTARROW ))
 			{
 				// one down
 				scrollPtr->startPos++;
@@ -8825,7 +8825,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = max;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_PGUP)
+			else if (Any( item->window.flags & WINDOW_LB_PGUP ))
 			{
 				// page up
 				scrollPtr->startPos -= viewmax;
@@ -8834,7 +8834,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = 0;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_PGDN)
+			else if (Any( item->window.flags & WINDOW_LB_PGDN ))
 			{
 				// page down
 				scrollPtr->startPos += viewmax;
@@ -8843,7 +8843,7 @@ bool Item_TextScroll_HandleKey ( itemDef_t *item, fakeAscii_t key, bool down, bo
 					scrollPtr->startPos = max;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_THUMB)
+			else if (Any( item->window.flags & WINDOW_LB_THUMB ))
 			{
 				// Display_SetCaptureItem(item);
 			}
@@ -8898,7 +8898,7 @@ int Item_ListBox_MaxScroll(itemDef_t *item)
 	int count = DC->feederCount(item->special);
 	int max;
 
-	if (item->window.flags & WINDOW_HORIZONTAL)
+	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 	{
 		max = count - (item->window.rect.w / listPtr->elementWidth) + 1;
 	}
@@ -8925,7 +8925,7 @@ int Item_ListBox_ThumbPosition(itemDef_t *item)
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
 	max = Item_ListBox_MaxScroll(item);
-	if (item->window.flags & WINDOW_HORIZONTAL) {
+	if (Any( item->window.flags & WINDOW_HORIZONTAL )) {
 
 		size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
 		if (max > 0)
@@ -8960,12 +8960,12 @@ int Item_ListBox_ThumbPosition(itemDef_t *item)
 Item_ListBox_OverLB
 =================
 */
-int Item_ListBox_OverLB(itemDef_t *item, float x, float y)
+windowFlags_t Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 {
 	rectDef_t r;
 	int thumbstart;
 
-	if (item->window.flags & WINDOW_HORIZONTAL)
+	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 	{
 		// check if on left arrow
 		r.x = item->window.rect.x;
@@ -9034,7 +9034,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 			return WINDOW_LB_PGDN;
 		}
 	}
-	return 0;
+	return WINDOW_NONE;
 }
 
 /*
@@ -9050,9 +9050,9 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 	item->window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN);
 	item->window.flags |= Item_ListBox_OverLB(item, x, y);
 
-	if (item->window.flags & WINDOW_HORIZONTAL)
+	if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 	{
-		if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)))
+		if (!Any( item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN) ))
 		{
 			// check for selection hit as we have exausted buttons and thumb
 			if (listPtr->elementStyle == LISTBOX_IMAGE)
@@ -9076,7 +9076,7 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 			}
 		}
 	}
-	else if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN)))
+	else if (!Any( item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN) ))
 	{
 		r.x = item->window.rect.x;
 		r.y = item->window.rect.y;
@@ -9115,12 +9115,12 @@ void Item_MouseEnter(itemDef_t *item, float x, float y)
 		}
 
 		// items can be enabled and disabled based on cvars
-		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+		if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
 		{
 			return;
 		}
 
-		if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
+		if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
 		{
 			return;
 		}
@@ -9128,13 +9128,13 @@ void Item_MouseEnter(itemDef_t *item, float x, float y)
 //JLFMOUSE
 		if (Rect_ContainsPoint(&r, x, y))
 		{
-			if (!(item->window.flags & WINDOW_MOUSEOVERTEXT))
+			if (!Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
 			{
 				Item_RunScript(item, item->mouseEnterText);
 				item->window.flags |= WINDOW_MOUSEOVERTEXT;
 			}
 
-			if (!(item->window.flags & WINDOW_MOUSEOVER))
+			if (!Any( item->window.flags & WINDOW_MOUSEOVER ))
 			{
 				Item_RunScript(item, item->mouseEnter);
 				item->window.flags |= WINDOW_MOUSEOVER;
@@ -9144,14 +9144,14 @@ void Item_MouseEnter(itemDef_t *item, float x, float y)
 		else
 		{
 			// not in the text rect
-			if (item->window.flags & WINDOW_MOUSEOVERTEXT)
+			if (Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
 			{
 				// if we were
 				Item_RunScript(item, item->mouseExitText);
 				item->window.flags &= ~WINDOW_MOUSEOVERTEXT;
 			}
 
-			if (!(item->window.flags & WINDOW_MOUSEOVER))
+			if (!Any( item->window.flags & WINDOW_MOUSEOVER ))
 			{
 				Item_RunScript(item, item->mouseEnter);
 				item->window.flags |= WINDOW_MOUSEOVER;
@@ -9184,7 +9184,7 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 	sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
 	bool playSound = false;
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == nullptr || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE) || (item->window.flags & WINDOW_INACTIVE))
+	if (item == nullptr || Any( item->window.flags & WINDOW_DECORATION ) || Any( item->window.flags & WINDOW_HASFOCUS ) || !Any( item->window.flags & WINDOW_VISIBLE ) || Any( item->window.flags & WINDOW_INACTIVE ))
 	{
 		return false;
 	}
@@ -9197,12 +9197,12 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 	}
 
 	// items can be enabled and disabled based on cvars
-	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
+	if (Any( item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(item, CVAR_ENABLE))
 	{
 		return false;
 	}
 
-	if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
+	if (Any( item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(item, CVAR_SHOW))
 	{
 		return false;
 	}
@@ -9274,9 +9274,9 @@ bool Item_SetFocus(itemDef_t *item, float x, float y)
 IsVisible
 =================
 */
-bool IsVisible(int flags)
+bool IsVisible(windowFlags_t flags)
 {
-  return ((flags & WINDOW_VISIBLE && !(flags & WINDOW_FADINGOUT)) != 0);
+  return ((Any( flags & WINDOW_VISIBLE ) && !Any( flags & WINDOW_FADINGOUT )) != 0);
 }
 
 /*
@@ -9288,7 +9288,7 @@ void Item_MouseLeave(itemDef_t *item)
 {
 	if (item)
 	{
-		if (item->window.flags & WINDOW_MOUSEOVERTEXT)
+		if (Any( item->window.flags & WINDOW_MOUSEOVERTEXT ))
 		{
 			Item_RunScript(item, item->mouseExitText);
 			item->window.flags &= ~WINDOW_MOUSEOVERTEXT;
@@ -9334,7 +9334,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 		return;
 	}
 
-	if (!(menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)))
+	if (!Any( menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
 	{
 		return;
 	}
@@ -9359,12 +9359,12 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 			// turn off focus each item
 			// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
 
-			if (!(menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)))
+			if (!Any( menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
 			{
 				continue;
 			}
 
-			if (menu->items[i]->window.flags & WINDOW_INACTIVE)
+			if (Any( menu->items[i]->window.flags & WINDOW_INACTIVE ))
 			{
 				continue;
 			}
@@ -9375,12 +9375,12 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 			}
 
 			// items can be enabled and disabled based on cvars
-			if (menu->items[i]->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(menu->items[i], CVAR_ENABLE))
+			if (Any( menu->items[i]->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) ) && !Item_EnableShowViaCvar(menu->items[i], CVAR_ENABLE))
 			{
 				continue;
 			}
 
-			if (menu->items[i]->cvarFlags & (CVAR_SHOW | CVAR_HIDE) && !Item_EnableShowViaCvar(menu->items[i], CVAR_SHOW))
+			if (Any( menu->items[i]->cvarFlags & (CVAR_SHOW | CVAR_HIDE) ) && !Item_EnableShowViaCvar(menu->items[i], CVAR_SHOW))
 			{
 				continue;
 			}
@@ -9413,7 +9413,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y)
 					}
 				}
 
-			} else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER)
+			} else if (Any( menu->items[i]->window.flags & WINDOW_MOUSEOVER ))
 			{
 				Item_MouseLeave(menu->items[i]);
 				Item_SetMouseOver(menu->items[i], false);
@@ -9437,7 +9437,7 @@ bool Display_MouseMove(void *p, int x, int y)
 	    menu = Menu_GetFocused();
 		if (menu)
 		{
-			if (menu->window.flags & WINDOW_POPUP)
+			if (Any( menu->window.flags & WINDOW_POPUP ))
 			{
 				Menu_HandleMouseMove(menu, x, y);
 				return true;
@@ -9469,7 +9469,7 @@ bool Menus_AnyFullScreenVisible(void)
 
 	for (i = 0; i < menuCount; i++)
 	{
-		if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen)
+		if (Any( Menus[i].window.flags & WINDOW_VISIBLE ) && Menus[i].fullScreen)
 		{
 			return true;
 		}
@@ -10014,7 +10014,7 @@ Menu_OverActiveItem
 */
 static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y)
 {
-	if (menu && menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED))
+	if (menu && Any( menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
 	{
 		if (Rect_ContainsPoint(&menu->window.rect, x, y))
 		{
@@ -10024,12 +10024,12 @@ static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y)
 			// turn off focus each item
 			// menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
 
-				if (!(menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)))
+				if (!Any( menu->items[i]->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED) ))
 				{
 					continue;
 				}
 
-				if (menu->items[i]->window.flags & WINDOW_DECORATION)
+				if (Any( menu->items[i]->window.flags & WINDOW_DECORATION ))
 				{
 					continue;
 				}
@@ -10070,7 +10070,7 @@ int Display_VisibleMenuCount(void)
 	count = 0;
 	for (i = 0; i < menuCount; i++)
 	{
-		if (Menus[i].window.flags & (WINDOW_FORCED | WINDOW_VISIBLE))
+		if (Any( Menus[i].window.flags & (WINDOW_FORCED | WINDOW_VISIBLE) ))
 		{
 			count++;
 		}
@@ -10140,7 +10140,7 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down)
 		// basically the behaviour we are looking for is if there are windows in the stack.. see if
 		// the cursor is within any of them.. if not close them otherwise activate them and pass the
 		// key on.. force a mouse move to activate focus and script stuff
-		if (down && menu->window.flags & WINDOW_OOB_CLICK)
+		if (down && Any( menu->window.flags & WINDOW_OOB_CLICK ))
 		{
 			Menu_RunCloseScript(menu);
 			menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
@@ -10189,10 +10189,10 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS))
+	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS )))
 	{
 		max = Item_ListBox_MaxScroll(item);
-		if (item->window.flags & WINDOW_HORIZONTAL)
+		if (Any( item->window.flags & WINDOW_HORIZONTAL ))
 		{
 			viewmax = (item->window.rect.w / listPtr->elementWidth);
 			if ( key == A_CURSOR_LEFT || key == A_KP_4 )
@@ -10360,7 +10360,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 		// mouse hit
 		if (key == A_MOUSE1 || key == A_MOUSE2)
 		{
-			if (item->window.flags & WINDOW_LB_LEFTARROW)
+			if (Any( item->window.flags & WINDOW_LB_LEFTARROW ))
 			{
 	 			listPtr->startPos--;
 				if (listPtr->startPos < 0)
@@ -10368,7 +10368,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = 0;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_RIGHTARROW)
+			else if (Any( item->window.flags & WINDOW_LB_RIGHTARROW ))
 			{
 				// one down
 				listPtr->startPos++;
@@ -10377,7 +10377,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = max;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_PGUP)
+			else if (Any( item->window.flags & WINDOW_LB_PGUP ))
 			{
 				// page up
 				listPtr->startPos -= viewmax;
@@ -10386,7 +10386,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = 0;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_PGDN)
+			else if (Any( item->window.flags & WINDOW_LB_PGDN ))
 			{
 				// page down
 				listPtr->startPos += viewmax;
@@ -10395,7 +10395,7 @@ bool Item_ListBox_HandleKey(itemDef_t *item, fakeAscii_t key, bool down, bool fo
 					listPtr->startPos = max;
 				}
 			}
-			else if (item->window.flags & WINDOW_LB_THUMB)
+			else if (Any( item->window.flags & WINDOW_LB_THUMB ))
 			{
 				// Display_SetCaptureItem(item);
 			}
@@ -10529,7 +10529,7 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 	int pos, max;
 
 	listBoxDef_t *listPtr = (listBoxDef_t*)si->item->typeData;
-	if (si->item->window.flags & WINDOW_HORIZONTAL)
+	if (Any( si->item->window.flags & WINDOW_HORIZONTAL ))
 	{
 		if (DC->cursorx == si->xStart)
 		{
@@ -10599,7 +10599,7 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 Item_Slider_OverSlider
 =================
 */
-int Item_Slider_OverSlider(itemDef_t *item, float x, float y)
+windowFlags_t Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 {
 	rectDef_t r;
 
@@ -10612,7 +10612,7 @@ int Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 	{
 		return WINDOW_LB_THUMB;
 	}
-	return 0;
+	return WINDOW_NONE;
 }
 
 /*
@@ -10658,7 +10658,7 @@ Item_StartCapture
 */
 void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 {
-	int flags;
+	windowFlags_t flags;
 	switch (item->type)
 	{
 		case ITEM_TYPE_EDITFIELD:
@@ -10667,19 +10667,19 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 		case ITEM_TYPE_LISTBOX:
 		{
 			flags = Item_ListBox_OverLB(item, DC->cursorx, DC->cursory);
-			if (flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW))
+			if (Any( flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW) ))
 			{
 				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? true : false;
+				scrollInfo.scrollDir = Any( flags & WINDOW_LB_LEFTARROW ) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_ListBox_AutoFunc;
 				itemCapture = item;
 			}
-			else if (flags & WINDOW_LB_THUMB)
+			else if (Any( flags & WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10694,19 +10694,19 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 
 		case ITEM_TYPE_TEXTSCROLL:
 			flags = Item_TextScroll_OverLB (item, DC->cursorx, DC->cursory);
-			if (flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW))
+			if (Any( flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW) ))
 			{
 				scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? true : false;
+				scrollInfo.scrollDir = Any( flags & WINDOW_LB_LEFTARROW ) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_TextScroll_AutoFunc;
 				itemCapture = item;
 			}
-			else if (flags & WINDOW_LB_THUMB)
+			else if (Any( flags & WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10721,7 +10721,7 @@ void Item_StartCapture(itemDef_t *item, fakeAscii_t key)
 		case ITEM_TYPE_SLIDER:
 		{
 			flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
-			if (flags & WINDOW_LB_THUMB)
+			if (Any( flags & WINDOW_LB_THUMB ))
 			{
 				scrollInfo.scrollKey = key;
 				scrollInfo.item = item;
@@ -10743,7 +10743,7 @@ Item_YesNo_HandleKey
 */
 bool Item_YesNo_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar)
+  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS ) && item->cvar)
 	{
 		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
 		{
@@ -10836,7 +10836,7 @@ Item_Text_HandleKey
 */
 bool Item_Text_HandleKey(itemDef_t *item, fakeAscii_t key)
 {
-	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_AUTOWRAPPED)
+	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_AUTOWRAPPED ))
 
 
 	{
@@ -10876,7 +10876,7 @@ bool Item_Multi_HandleKey(itemDef_t *item, fakeAscii_t key)
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if (multiPtr)
 	{
-		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS)
+		if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && Any( item->window.flags & WINDOW_HASFOCUS ))
 		{
 			//Raz: Scroll on multi buttons!
 			if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3 || key == A_MWHEELDOWN || key == A_MWHEELUP)
@@ -10970,7 +10970,7 @@ bool Item_Slider_HandleKey(itemDef_t *item, fakeAscii_t key, bool down)
 
 	float x, value, width, work;
 
-	if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+	if (Any( item->window.flags & WINDOW_HASFOCUS ) && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
 	{
 
 		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
@@ -11218,7 +11218,7 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 
 	//JLFMOUSE  MPMOVED
 		// see if the mouse is within the window bounds and if so is this a mouse click
-	if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
+	if (down && !Any( menu->window.flags & WINDOW_POPUP ) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
 	{
 		static bool inHandleKey = false;
 		if (!inHandleKey && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3))
@@ -11234,7 +11234,7 @@ void Menu_HandleKey(menuDef_t *menu, int event, bool down)
 	// get the item with focus
 	for (i = 0; i < menu->itemCount; i++)
 	{
-		if (menu->items[i]->window.flags & WINDOW_HASFOCUS)
+		if (Any( menu->items[i]->window.flags & WINDOW_HASFOCUS ))
 		{
 			item = menu->items[i];
 			break;

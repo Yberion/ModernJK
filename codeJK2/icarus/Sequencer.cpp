@@ -262,7 +262,7 @@ CSequence *CSequencer::AddSequence( void )
 	return sequence;
 }
 
-CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, int flags )
+CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, sequenceFlags_t flags )
 {
 	CSequence	*sequence = m_owner->GetSequence();
 

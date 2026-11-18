@@ -309,7 +309,7 @@ int CInterpreter::GetVariable( icarusToken_t type )
 	CToken		*token;
 
 	//Get the variable's name
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 	varName = token->GetStringValue();
 
 	//See if we already have a variable by this name
@@ -394,7 +394,7 @@ int CInterpreter::MatchTag( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
@@ -425,7 +425,7 @@ int CInterpreter::MatchGet( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
@@ -456,7 +456,7 @@ int CInterpreter::MatchRandom( void )
 	const char	*idName;
 	icarusToken_t			id;
 
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 	idName = token->GetStringValue();
 	id = FindSymbol( idName, m_IDKeywords );
 
@@ -511,7 +511,7 @@ int CInterpreter::Match( icarusToken_t token_id )
 {
 	CToken	*token;
 
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 
 	if ( token->GetType() != token_id )
 	{
@@ -532,7 +532,7 @@ GetNextType
 
 icarusToken_t CInterpreter::GetNextType( void )
 {
-	CToken	*token = m_tokenizer->GetToken( 0, 0 );
+	CToken	*token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 	icarusToken_t	id = token->GetType();
 
 	m_tokenizer->PutBackToken( token );
@@ -554,7 +554,7 @@ int CInterpreter::LookAhead( icarusToken_t token_id )
 {
 	CToken	*token;
 
-	token = m_tokenizer->GetToken( 0, 0 );
+	token = m_tokenizer->GetToken( TKF_NONE, TKF_NONE );
 
 	if ( token->GetType() != token_id )
 	{
@@ -643,7 +643,7 @@ int CInterpreter::GetFloat( CBlock *block )
 		return GetRandom( block );
 	}
 
-	token = m_tokenizer->GetToken(0,0);
+	token = m_tokenizer->GetToken(TKF_NONE,TKF_NONE);
 	type = token->GetType();
 
 	//Floats can accept either int or float values
@@ -708,7 +708,7 @@ int CInterpreter::GetString( CBlock *block )
 		return GetRandom( block );
 	}
 
-	token = m_tokenizer->GetToken(0, 0);
+	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
 	type = token->GetType();
 
 	if ( (type != TK_STRING) && (type != TK_CHAR) )
@@ -771,7 +771,7 @@ int CInterpreter::GetIdentifier( CBlock *block )
 		return true;
 	}
 
-	token = m_tokenizer->GetToken(0, 0);
+	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
 	type = token->GetType();
 
 	if ( type != TK_IDENTIFIER )
@@ -807,7 +807,7 @@ int CInterpreter::GetEvaluator( CBlock *block )
 	if ( MatchRandom() )
 		return false;
 
-	token = m_tokenizer->GetToken(0, 0);
+	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
 	type = token->GetType();
 	token->Delete();
 
@@ -875,7 +875,7 @@ int CInterpreter::GetAny( CBlock *block )
 		return true;
 	}
 
-	token = m_tokenizer->GetToken(0, 0);
+	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
 	type = token->GetType();
 
 	switch ( type )
@@ -939,7 +939,7 @@ int CInterpreter::GetType( char *get )
 	char	*string;
 	icarusToken_t		type;
 
-	token = m_tokenizer->GetToken(0, 0);
+	token = m_tokenizer->GetToken(TKF_NONE, TKF_NONE);
 	type = token->GetType();
 
 	if ( type != TK_IDENTIFIER )
@@ -2372,7 +2372,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 
 	while (m_tokenizer->GetRemainingSize() > 0)
 	{
-		token = m_tokenizer->GetToken( TKF_USES_EOL, 0 );
+		token = m_tokenizer->GetToken( TKF_USES_EOL, TKF_NONE );
 		type = token->GetType();
 
 		switch ( type )

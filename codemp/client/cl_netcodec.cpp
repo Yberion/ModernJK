@@ -305,7 +305,7 @@ void CL_NetcodecParseServerMessage( msg_t *msg ) {
 		newSnap.serverTime = cm.time;
 		newSnap.messageNum = seq;
 		newSnap.deltaNum = cm.delta ? seq - (int)cm.delta : -1;
-		newSnap.snapFlags = (int)cm.flags;
+		newSnap.snapFlags = static_cast<snapFlags_t>( cm.flags );
 		newSnap.inputMarginValid = cm.inputMargin != INPUT_MARGIN_NONE ? true : false;
 		newSnap.inputMargin = newSnap.inputMarginValid ? Net_MarginFromWire( cm.inputMargin ) : 0;
 		Com_Memcpy( newSnap.areamask, cm.areas, cm.numAreas );

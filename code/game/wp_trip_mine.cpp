@@ -137,7 +137,7 @@ void laserTrapThink( gentity_t *ent )
 	trace_t		tr;
 
 	// turn on the beam effect
-	if ( !(ent->s.eFlags & EF_FIRING ))
+	if ( !Any(ent->s.eFlags & EF_FIRING ))
 	{
 		// arm me
 		G_Sound( ent, G_SoundIndex( "sound/weapons/laser_trap/warning.wav" ));

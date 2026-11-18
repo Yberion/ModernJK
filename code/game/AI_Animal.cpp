@@ -390,7 +390,7 @@ void NPC_BSAnimal_Default( void )
 					//	}
 					//	else
 						{
-							if (NPCInfo->aiFlags & NPCAI_OFF_PATH)
+							if (Any(NPCInfo->aiFlags & NPCAI_OFF_PATH))
 							{
 								STEER::Wander(NPC);
 								STEER::AvoidCollisions(NPC);

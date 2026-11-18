@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef TR_PUBLIC_H
 #define TR_PUBLIC_H
 
+#include <optional>
+
 #include "../rd-common/tr_types.h"
 #include "../qcommon/MiniHeap.h"
 #include "../qcommon/qcommon.h"
@@ -172,17 +174,17 @@ typedef struct refexport_s {
 	char *				(*G2API_GetAnimFileNameIndex)			( qhandle_t modelIndex );
 	bool			(*G2API_GetAnimRange)					( CGhoul2Info *ghlInfo, const char *boneName, int *startFrame, int *endFrame );
 	bool			(*G2API_GetBoltMatrix)					( CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool			(*G2API_GetBoneAnim)					( CGhoul2Info_v& ghoul2, int modelIndex, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, qhandle_t *modelList );
+	bool			(*G2API_GetBoneAnim)					( CGhoul2Info_v& ghoul2, int modelIndex, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, qhandle_t *modelList );
 	int					(*G2API_GetBoneIndex)					( CGhoul2Info *ghlInfo, const char *boneName );
-	int					(*G2API_GetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo );
+	ghoul2Flags_t		(*G2API_GetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo );
 	char *				(*G2API_GetGLAName)						( CGhoul2Info_v &ghoul2, int modelIndex );
 	const char *		(*G2API_GetModelName)					( CGhoul2Info_v& ghoul2, int modelIndex );
 	int					(*G2API_GetParentSurface)				( CGhoul2Info *ghlInfo, const int index );
 	bool			(*G2API_GetRagBonePos)					( CGhoul2Info_v &ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
 	int					(*G2API_GetSurfaceIndex)				( CGhoul2Info *ghlInfo, const char *surfaceName );
 	char *				(*G2API_GetSurfaceName)					( CGhoul2Info_v& ghlInfo, int modelIndex, int surfNumber );
-	int					(*G2API_GetSurfaceOnOff)				( CGhoul2Info *ghlInfo, const char *surfaceName );
-	int					(*G2API_GetSurfaceRenderStatus)			( CGhoul2Info_v& ghoul2, int modelIndex, const char *surfaceName );
+	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceOnOff)				( CGhoul2Info *ghlInfo, const char *surfaceName );
+	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceRenderStatus)			( CGhoul2Info_v& ghoul2, int modelIndex, const char *surfaceName );
 	int					(*G2API_GetTime)						( int argTime );
 	int					(*G2API_Ghoul2Size)						( CGhoul2Info_v &ghoul2 );
 	void				(*G2API_GiveMeVectorFromMatrix)			( mdxaBone_t *boltMatrix, Eorientations flags, vec3_t vec );
@@ -212,14 +214,14 @@ typedef struct refexport_s {
 	void				(*G2API_ResetRagDoll)					( CGhoul2Info_v &ghoul2 );
 	bool			(*G2API_SaveGhoul2Models)				( CGhoul2Info_v &ghoul2, char **buffer, int *size );
 	void				(*G2API_SetBoltInfo)					( CGhoul2Info_v &ghoul2, int modelIndex, int boltInfo );
-	bool			(*G2API_SetBoneAngles)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags, const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList, int blendTime, int currentTime  );
-	bool			(*G2API_SetBoneAnglesIndex)				( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );
-	bool			(*G2API_SetBoneAnglesMatrix)			( CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime, int currentTime );
-	bool			(*G2API_SetBoneAnglesMatrixIndex)		( CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime, int currentTime );
-	bool			(*G2API_SetBoneAnim)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame /*= -1*/, const int blendTime /*= -1*/ );
-	bool			(*G2API_SetBoneAnimIndex)				( CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool			(*G2API_SetBoneAngles)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList, int blendTime, int currentTime  );
+	bool			(*G2API_SetBoneAnglesIndex)				( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );
+	bool			(*G2API_SetBoneAnglesMatrix)			( CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const boneFlags_t flags, qhandle_t *modelList, int blendTime, int currentTime );
+	bool			(*G2API_SetBoneAnglesMatrixIndex)		( CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix, const boneFlags_t flags, qhandle_t *modelList, int blendTime, int currentTime );
+	bool			(*G2API_SetBoneAnim)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame /*= -1*/, const int blendTime /*= -1*/ );
+	bool			(*G2API_SetBoneAnimIndex)				( CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool			(*G2API_SetBoneIKState)					( CGhoul2Info_v &ghoul2, int time, const char *boneName, sharedEIKMoveState ikState, sharedSetBoneIKStateParams_t *params );
-	bool			(*G2API_SetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo, const int flags );
+	bool			(*G2API_SetGhoul2ModelFlags)			( CGhoul2Info *ghlInfo, const ghoul2Flags_t flags );
 	void				(*G2API_SetGhoul2ModelIndexes)			( CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList );
 	bool			(*G2API_SetLodBias)						( CGhoul2Info *ghlInfo, int lodBias );
 	bool			(*G2API_SetNewOrigin)					( CGhoul2Info_v &ghoul2, const int boltIndex );
@@ -227,7 +229,7 @@ typedef struct refexport_s {
 	bool			(*G2API_SetRootSurface)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName );
 	bool			(*G2API_SetShader)						( CGhoul2Info *ghlInfo, qhandle_t customShader );
 	bool			(*G2API_SetSkin)						( CGhoul2Info_v& ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
-	bool			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags );
+	bool			(*G2API_SetSurfaceOnOff)				( CGhoul2Info_v &ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags );
 	void				(*G2API_SetTime)						( int currentTime, int clock );
 	bool			(*G2API_SkinlessModel)					( CGhoul2Info_v& ghoul2, int modelIndex );
 	bool			(*G2API_StopBoneAngles)					( CGhoul2Info *ghlInfo, const char *boneName );
@@ -277,7 +279,7 @@ typedef struct refimport_s {
 	void			(*Cmd_RemoveCommand)				( const char *cmd_name );
 	void			(*Cmd_RemoveCommandList)			( const cmdList_t *cmdList );
 	cvar_t *		(*Cvar_Set)							( const char *var_name, const char *value );
-	cvar_t *		(*Cvar_Get)							( const char *var_name, const char *value, uint32_t flags, const char *var_desc );
+	cvar_t *		(*Cvar_Get)							( const char *var_name, const char *value, cvarFlags_t flags, const char *var_desc );
 	cvar_t *		(*Cvar_SetValue)					( const char *name, float value );
 	void			(*Cvar_CheckRange)					( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 	void			(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
@@ -299,19 +301,19 @@ typedef struct refimport_s {
 	char **			(*FS_ListFiles)						( const char *directory, const char *extension, int *numfiles );
 	int				(*FS_Write)							( const void *buffer, int len, fileHandle_t f );
 	void			(*FS_WriteFile)						( const char *qpath, const void *buffer, int size );
-	void			(*CM_BoxTrace)						( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask, int capsule );
+	void			(*CM_BoxTrace)						( trace_t *results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, clipHandle_t model, contentsFlags_t brushmask, int capsule );
 	void			(*CM_DrawDebugSurface)				( void (*drawPoly)(int color, int numPoints, float *points) );
 	bool			(*CM_CullWorldBox)					( const cplane_t *frustum, const vec3pair_t bounds );
 	byte *			(*CM_ClusterPVS)					( int cluster );
 	int				(*CM_LeafArea)						( int leafnum );
 	int				(*CM_LeafCluster)					( int leafnum );
 	int				(*CM_PointLeafnum)					( const vec3_t p );
-	int				(*CM_PointContents)					( const vec3_t p, clipHandle_t model );
+	contentsFlags_t	(*CM_PointContents)					( const vec3_t p, clipHandle_t model );
 	bool		(*Com_TheHunkMarkHasBeenMade)		( void );
 	void			(*S_RestartMusic)					( void );
 	bool		(*SND_RegisterAudio_LevelLoadEnd)	( bool bDeleteEverythingNotUsedThisLevel );
 	e_status		(*CIN_RunCinematic)					( int handle );
-	int				(*CIN_PlayCinematic)				( const char *arg0, int xpos, int ypos, int width, int height, int bits );
+	int				(*CIN_PlayCinematic)				( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits );
 	void			(*CIN_UploadCinematic)				( int handle );
 	void			(*CL_WriteAVIVideoFrame)			( const byte *imageBuffer, int size );
 

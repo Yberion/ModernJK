@@ -221,11 +221,11 @@ bool OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		bool ent1IsBot = false;
 		bool ent2IsBot = false;
 
-		if (ent1->r.svFlags & SVF_BOT)
+		if (Any( ent1->r.svFlags & SVF_BOT ))
 		{
 			ent1IsBot = true;
 		}
-		if (ent2->r.svFlags & SVF_BOT)
+		if (Any( ent2->r.svFlags & SVF_BOT ))
 		{
 			ent2IsBot = true;
 		}
@@ -450,7 +450,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	}
 	flag = nullptr;
 	while ((flag = G_Find (flag, FOFS(classname), c)) != nullptr) {
-		if (!(flag->flags & FL_DROPPED_ITEM))
+		if (!Any( flag->flags & FL_DROPPED_ITEM ))
 			break;
 	}
 
@@ -551,7 +551,7 @@ gentity_t *Team_ResetFlag( team_t team ) {
 
 	ent = nullptr;
 	while ((ent = G_Find (ent, FOFS(classname), c)) != nullptr) {
-		if (ent->flags & FL_DROPPED_ITEM)
+		if (Any( ent->flags & FL_DROPPED_ITEM ))
 			G_FreeEntity(ent);
 		else {
 			rent = ent;
@@ -729,7 +729,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, team_t team ) {
 		enemy_flag = PW_REDFLAG;
 	}
 
-	if ( ent->flags & FL_DROPPED_ITEM ) {
+	if ( Any( ent->flags & FL_DROPPED_ITEM ) ) {
 		// hey, its not home.  return it by teleporting it back
 		//PrintMsg( nullptr, "%s" S_COLOR_WHITE " returned the %s flag!\n",
 		//	cl->pers.netname, TeamName(team));

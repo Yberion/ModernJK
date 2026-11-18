@@ -98,12 +98,13 @@ run() {
 	"$BINARY" +set fs_basepath "$BASEPATH" +set fs_homepath "$home" +set net_enabled 0 +set logfile 2 \
 		+exec measure.cfg < /dev/null > "$home/stdout.txt" 2>&1 &
 	local pid=$!
-	# watchdog: once the second statistics are written, give the server 10 seconds to quit, then kill it
+	# watchdog: once the second statistics are written, give the server 20 seconds to quit, then kill it (10 seconds
+	# cut the last lines of a busy server's statistics, 18 November 2026)
 	while kill -0 "$pid" 2> /dev/null; do
 		local done_count
 		done_count=$(grep -a -c "game statistics" "$home/base/qconsole.log" 2> /dev/null)
 		if [ "${done_count:-0}" -ge 2 ]; then
-			sleep 10
+			sleep 20
 			kill -0 "$pid" 2> /dev/null && kill -9 "$pid"
 			break
 		fi

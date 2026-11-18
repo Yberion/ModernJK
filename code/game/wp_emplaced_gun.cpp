@@ -83,7 +83,7 @@ void WP_EmplacedFire( gentity_t *ent )
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
 
 	// do some weird switchery on who the real owner is, we do this so the projectiles don't hit the gun object
-	if ( ent && ent->client && !(ent->client->ps.eFlags&EF_LOCKED_TO_WEAPON) )
+	if ( ent && ent->client && !Any(ent->client->ps.eFlags&EF_LOCKED_TO_WEAPON) )
 	{
 		missile->owner = ent;
 	}

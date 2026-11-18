@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
-bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int *flags );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask );
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, navInfoFlags_t *flags );
 
 void G_Line( vec3_t start, vec3_t end, vec3_t color, float alpha );
 void G_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
@@ -77,7 +77,7 @@ void NPC_SetBlocked( gentity_t *self, gentity_t *blocker )
 NAVNEW_ClearPathBetweenPoints
 -------------------------
 */
-int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask)
+int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask)
 {
 	trace_t	trace;
 
@@ -87,7 +87,7 @@ int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t 
 		return ENTITYNUM_WORLD;
 	}
 
-	trap->Trace( &trace, start, mins, maxs, end, ignore, clipmask, false, 0, 0 );
+	trap->Trace( &trace, start, mins, maxs, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 
 	//if( ( ( trace.startsolid == false ) && ( trace.allsolid == false ) ) && ( trace.fraction < 1.0f ) )
 	//{//FIXME: check for drops?
@@ -130,7 +130,7 @@ void NAVNEW_PushBlocker( gentity_t *self, gentity_t *blocker, vec3_t right, bool
 	moveamt = (self->r.maxs[1] + blocker->r.maxs[1]) * 1.2;//yes, magic number
 
 	VectorMA( blocker->r.currentOrigin, -moveamt, right, end );
-	trap->Trace( &tr, blocker->r.currentOrigin, mins, blocker->r.maxs, end, blocker->s.number, blocker->clipmask|CONTENTS_BOTCLIP, false, 0, 0);
+	trap->Trace( &tr, blocker->r.currentOrigin, mins, blocker->r.maxs, end, blocker->s.number, blocker->clipmask|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0);
 	if ( !tr.startsolid && !tr.allsolid )
 	{
 		leftSucc = tr.fraction;
@@ -148,7 +148,7 @@ void NAVNEW_PushBlocker( gentity_t *self, gentity_t *blocker, vec3_t right, bool
 	else
 	{
 		VectorMA( blocker->r.currentOrigin, moveamt, right, end );
-		trap->Trace( &tr, blocker->r.currentOrigin, mins, blocker->r.maxs, end, blocker->s.number, blocker->clipmask|CONTENTS_BOTCLIP, false, 0, 0 );
+		trap->Trace( &tr, blocker->r.currentOrigin, mins, blocker->r.maxs, end, blocker->s.number, blocker->clipmask|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0 );
 		if ( !tr.startsolid && !tr.allsolid )
 		{
 			rightSucc = tr.fraction;
@@ -281,7 +281,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 		avoidAngles[YAW] = AngleNormalize360( yaw + arcAngle );
 		AngleVectors( avoidAngles, movedir, nullptr, nullptr );
 		VectorMA( self->r.currentOrigin, blocked_dist, movedir, block_pos );
-		trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, 0, 0 );
+		trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0 );
 		return (tr.fraction==1.0&&!tr.allsolid&&!tr.startsolid);
 	}
 
@@ -291,7 +291,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 
 	VectorMA( self->r.currentOrigin, blocked_dist, avoidRight_dir, block_pos );
 
-	trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, 0, 0 );
+	trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0 );
 
 	if ( !tr.allsolid && !tr.startsolid )
 	{
@@ -317,7 +317,7 @@ bool NAVNEW_SidestepBlocker( gentity_t *self, gentity_t *blocker, vec3_t blocked
 
 	VectorMA( self->r.currentOrigin, blocked_dist, avoidLeft_dir, block_pos );
 
-	trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, 0, 0 );
+	trap->Trace( &tr, self->r.currentOrigin, mins, self->r.maxs, block_pos, self->s.number, self->clipmask|CONTENTS_BOTCLIP, false, G2TRFLAG_NONE, 0 );
 
 	if ( !tr.allsolid && !tr.startsolid )
 	{
@@ -510,7 +510,7 @@ bool NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info, b
 
 		//If the above function said we're blocked, don't do the extra checks
 		/*
-		if ( info->flags & NIF_BLOCKED )
+		if ( Any( info->flags & NIF_BLOCKED ) )
 			return true;
 		*/
 
@@ -543,7 +543,7 @@ bool NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEnt, i
 {//see if the direct path between 2 nodes is blocked by architecture or an ent
 	vec3_t	pos1, pos2, mins, maxs;
 	trace_t	trace;
-	int		clipmask = MASK_NPCSOLID|CONTENTS_BOTCLIP;
+	contentsFlags_t	clipmask = MASK_NPCSOLID|CONTENTS_BOTCLIP;
 	int ignoreEntNum;
 	vec3_t playerMins, playerMaxs;
 
@@ -584,7 +584,7 @@ bool NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEnt, i
 		mins[2] = maxs[2];
 	}
 
-	trap->Trace( &trace, pos1, mins, maxs, pos2, ignoreEntNum, clipmask, false, 0, 0 );
+	trap->Trace( &trace, pos1, mins, maxs, pos2, ignoreEntNum, clipmask, false, G2TRFLAG_NONE, 0 );
 	if ( trace.fraction >= 1.0f || trace.entityNum == goalEntNum )
 	{//clear or hit goal
 		return false;

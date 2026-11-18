@@ -552,7 +552,8 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	client->inputRepeats = 0;
 	client->inputMargin = 0;
 	client->inputMarginNew = false;
-	client->lateButtons = client->lateUpmove = client->lateGeneric = 0;
+	client->lateButtons = BUTTON_NONE;
+	client->lateUpmove = client->lateGeneric = 0;
 	if(cmd)
 		memcpy(&client->lastUsercmd, cmd, sizeof(client->lastUsercmd));
 	else
@@ -1308,7 +1309,7 @@ void SV_RunClientCommands( int time, int frameMsec ) {
 			cmd.generic_cmd = 0;	// a one-off command is not run twice
 			if ( ++cl->inputRepeats > SV_INPUT_REPEAT_MSEC / TICK_MSEC ) {
 				cmd.forwardmove = cmd.rightmove = cmd.upmove = 0;
-				cmd.buttons = 0;
+				cmd.buttons = BUTTON_NONE;
 			}
 			st.cmdsMissing++;
 		}
@@ -1325,7 +1326,8 @@ void SV_RunClientCommands( int time, int frameMsec ) {
 		if ( !cmd.generic_cmd ) {
 			cmd.generic_cmd = (byte)cl->lateGeneric;
 		}
-		cl->lateButtons = cl->lateUpmove = cl->lateGeneric = 0;
+		cl->lateButtons = BUTTON_NONE;
+		cl->lateUpmove = cl->lateGeneric = 0;
 
 		SV_ClientThink( cl, &cmd );
 		cl->lastUsercmd = held;

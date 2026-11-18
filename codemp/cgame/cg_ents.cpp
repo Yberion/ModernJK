@@ -265,7 +265,7 @@ void CG_S_UpdateLoopingSounds(int entityNum)
 		VectorCopy(cent->lerpOrigin, lerpOrg);
 	}
 
-	if ( (cent->currentState.eFlags & EF_SOUNDTRACKER)
+	if ( Any(cent->currentState.eFlags & EF_SOUNDTRACKER)
 		&& (!cg.snap || cent->currentState.trickedentindex != cg.snap->ps.clientNum) )
 	{//keep sound for this entity updated in accordance with its attached entity at all times
 		//entity out of range
@@ -425,7 +425,7 @@ void FX_DrawPortableShield(centity_t *cent)
 		return;
 	}
 
-	if (cent->currentState.eFlags & EF_NODRAW)
+	if (Any( cent->currentState.eFlags & EF_NODRAW ))
 	{
 		return;
 	}
@@ -889,11 +889,11 @@ static void CG_General( centity_t *cent ) {
 		}
 	}
 
-	if (cent->currentState.eFlags & EF_RADAROBJECT)
+	if (Any( cent->currentState.eFlags & EF_RADAROBJECT ))
 	{
 		CG_AddRadarEnt(cent);
 	}
-	if (cent->currentState.eFlags2 & EF2_BRACKET_ENTITY)
+	if (Any( cent->currentState.eFlags2 & EF2_BRACKET_ENTITY ))
 	{
 		if ( CG_InFighter() )
 		{//only bracken when in a fighter
@@ -919,7 +919,7 @@ static void CG_General( centity_t *cent ) {
 			{
 				VectorCopy(pl->lerpOrigin, cent->lerpOrigin);
 
-				if (cent->currentState.eFlags & EF_CLIENTSMOOTH)
+				if (Any( cent->currentState.eFlags & EF_CLIENTSMOOTH ))
 				{ //if it's set to smooth keep the smoothed lerp origin updated, as we don't want to smooth while bolted.
 					VectorCopy(cent->lerpOrigin, cent->turAngles);
 				}
@@ -927,7 +927,7 @@ static void CG_General( centity_t *cent ) {
 			return;
 		}
 
-		if (cent->currentState.eFlags & EF_CLIENTSMOOTH)
+		if (Any( cent->currentState.eFlags & EF_CLIENTSMOOTH ))
 		{ //if it's set to smooth keep the smoothed lerp origin updated, as we don't want to smooth while bolted.
 			VectorCopy(cent->lerpOrigin, cent->turAngles);
 		}
@@ -939,7 +939,7 @@ static void CG_General( centity_t *cent ) {
 		}
 */
 	}
-	else if (cent->currentState.eFlags & EF_CLIENTSMOOTH)
+	else if (Any( cent->currentState.eFlags & EF_CLIENTSMOOTH ))
 	{
 		if (cent->currentState.groundEntityNum >= ENTITYNUM_WORLD)
 		{
@@ -969,10 +969,10 @@ static void CG_General( centity_t *cent ) {
 
 	//rww - now do ragdoll stuff
 	if (cent->ghoul2 &&
-		(cent->currentState.eType == ET_BODY || (cent->currentState.eFlags & EF_RAG)))
+		(cent->currentState.eType == ET_BODY || Any(cent->currentState.eFlags & EF_RAG)))
 	{
-		if (!(cent->currentState.eFlags & EF_NODRAW) &&
-			!(cent->currentState.eFlags & EF_DISINTEGRATION) &&
+		if (!Any(cent->currentState.eFlags & EF_NODRAW) &&
+			!Any(cent->currentState.eFlags & EF_DISINTEGRATION) &&
 			cent->bodyFadeTime <= cg.time)
 		{
 			vec3_t forcedAngles;
@@ -998,7 +998,7 @@ static void CG_General( centity_t *cent ) {
 		CG_G2ServerBoneAngles(cent);
 	}
 
-	if ((cent->currentState.eFlags & EF_G2ANIMATING) && cent->ghoul2)
+	if (Any(cent->currentState.eFlags & EF_G2ANIMATING) && cent->ghoul2)
 	{ //mini-animation routine for general objects that want to play quick ghoul2 anims
 		//obviously lacks much of the functionality contained in player/npc animation.
 		//we actually use torsoAnim as the start frame and legsAnim as the end frame and
@@ -1073,7 +1073,7 @@ static void CG_General( centity_t *cent ) {
 			}
 
 
-			if (clEnt && !(clEnt->currentState.eFlags & EF_DEAD))
+			if (clEnt && !Any(clEnt->currentState.eFlags & EF_DEAD))
 			{ //death flag hasn't made it through yet for the limb owner, we cannot create the limb until he's flagged as dead
 				return;
 			}
@@ -1232,10 +1232,10 @@ static void CG_General( centity_t *cent ) {
 
 			trap->G2API_SetNewOrigin(cent->ghoul2, trap->G2API_AddBolt(cent->ghoul2, 0, rotateBone));
 
-			trap->G2API_SetSurfaceOnOff(cent->ghoul2, limbCapName, 0);
+			trap->G2API_SetSurfaceOnOff(cent->ghoul2, limbCapName, G2SURFACEFLAG_NONE);
 
-			trap->G2API_SetSurfaceOnOff(clEnt->ghoul2, limbName, 0x00000100);
-			trap->G2API_SetSurfaceOnOff(clEnt->ghoul2, stubCapName, 0);
+			trap->G2API_SetSurfaceOnOff(clEnt->ghoul2, limbName, G2SURFACEFLAG_NODESCENDANTS);
+			trap->G2API_SetSurfaceOnOff(clEnt->ghoul2, stubCapName, G2SURFACEFLAG_NONE);
 
 			newBolt = trap->G2API_AddBolt( clEnt->ghoul2, 0, stubTagName );
 			if ( newBolt != -1 )
@@ -1354,13 +1354,13 @@ static void CG_General( centity_t *cent ) {
 		return;
 	}
 
-	if ( ( s1->eFlags & EF_NODRAW ) )
+	if ( Any( s1->eFlags & EF_NODRAW ) )
 	{
 		return;
 	}
 
 	// set frame
-	if ( s1->eFlags & EF_SHADER_ANIM )
+	if ( Any( s1->eFlags & EF_SHADER_ANIM ) )
 	{
 		// Deliberately setting it up so that shader anim will completely override any kind of model animation frame setting.
 		ent.renderfx|=RF_SETANIMINDEX;
@@ -1492,7 +1492,7 @@ Ghoul2 Insert End
 		//trap->R_AddRefEntityToScene( &ent );
 	}
 
-	if ((cent->currentState.eFlags & EF_DISINTEGRATION) && cent->currentState.eType == ET_BODY)
+	if (Any(cent->currentState.eFlags & EF_DISINTEGRATION) && cent->currentState.eType == ET_BODY)
 	{
 		if (!cent->dustTrailTime)
 		{
@@ -1676,9 +1676,9 @@ Ghoul2 Insert End
 			fxSArgs.bounce = 0.0f;
 			fxSArgs.life = 1.0f;
 			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
-			fxSArgs.flags = 0x08000000;
+			fxSArgs.flags = FX_USE_ALPHA;
 
-			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, FX_USE_ALPHA );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 	}
@@ -1750,7 +1750,7 @@ Ghoul2 Insert End
 		fxSArgs.bounce = 0.0f;
 		fxSArgs.life = 1.0f;
 
-		fxSArgs.flags = 0x08000000|0x00000001;
+		fxSArgs.flags = FX_USE_ALPHA|FX_ALPHA_LINEAR;
 
 		if (cent->currentState.trickedentindex3 == 1)
 		{ //dark
@@ -1793,7 +1793,7 @@ Ghoul2 Insert End
 		}
 	}
 
-	if ( cent->currentState.time == -1 && cent->currentState.weapon == WP_TRIP_MINE && (cent->currentState.eFlags & EF_FIRING) )
+	if ( cent->currentState.time == -1 && cent->currentState.weapon == WP_TRIP_MINE && Any(cent->currentState.eFlags & EF_FIRING) )
 	{ //if force sight is active, render the laser multiple times up to the force sight level to increase visibility
 		if (cent->currentState.bolt2 == 1)
 		{
@@ -1910,7 +1910,7 @@ static void CG_Item( centity_t *cent ) {
 Ghoul2 Insert Start
 */
 
-	if ((es->eFlags & EF_NODRAW) && (es->eFlags & EF_ITEMPLACEHOLDER))
+	if (Any(es->eFlags & EF_NODRAW) && Any(es->eFlags & EF_ITEMPLACEHOLDER))
 	{
 		es->eFlags &= ~EF_NODRAW;
 	}
@@ -1923,7 +1923,7 @@ Ghoul2 Insert Start
 	item = &bg_itemlist[ es->modelindex ];
 
 	if ((item->giType == IT_WEAPON || item->giType == IT_POWERUP) &&
-		!(cent->currentState.eFlags & EF_DROPPEDWEAPON) &&
+		!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON) &&
 		!cg_simpleItems.integer)
 	{
 		vec3_t uNorm;
@@ -1961,7 +1961,7 @@ Ghoul2 Insert Start
 	}
 
 	// if set to invisible, skip
-	if ( ( es->eFlags & EF_NODRAW ) )
+	if ( Any( es->eFlags & EF_NODRAW ) )
 	{
 		return;
 	}
@@ -1986,7 +1986,7 @@ Ghoul2 Insert End
 			ent.renderfx |= RF_FORCE_ENT_ALPHA;
 		}
 
-		if ( es->eFlags & EF_ITEMPLACEHOLDER )
+		if ( Any( es->eFlags & EF_ITEMPLACEHOLDER ) )
 		{
 			if (item->giType == IT_POWERUP && GI_Powerup( *item ) == PW_FORCE_BOON)
 			{
@@ -2024,12 +2024,12 @@ Ghoul2 Insert End
 	}
 
 	if ((item->giType == IT_WEAPON || item->giType == IT_POWERUP) &&
-		!(cent->currentState.eFlags & EF_DROPPEDWEAPON))
+		!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON))
 	{
 		cent->lerpOrigin[2] += 16;
 	}
 
-	if ((!(cent->currentState.eFlags & EF_DROPPEDWEAPON) || item->giType == IT_POWERUP) &&
+	if ((!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON) || item->giType == IT_POWERUP) &&
 		(item->giType == IT_WEAPON || item->giType == IT_POWERUP))
 	{
 		// items bob up and down continuously
@@ -2068,7 +2068,7 @@ Ghoul2 Insert End
 
 	memset (&ent, 0, sizeof(ent));
 
-	if ( (!(cent->currentState.eFlags & EF_DROPPEDWEAPON) || item->giType == IT_POWERUP) &&
+	if ( (!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON) || item->giType == IT_POWERUP) &&
 		(item->giType == IT_WEAPON || item->giType == IT_POWERUP) )
 	{ //only weapons and powerups rotate now
 		// autorotate at one of two speeds
@@ -2085,7 +2085,7 @@ Ghoul2 Insert End
 	// the weapons have their origin where they attatch to player
 	// models, so we need to offset them or they will rotate
 	// eccentricly
-	if (!(cent->currentState.eFlags & EF_DROPPEDWEAPON))
+	if (!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON))
 	{
 		if ( item->giType == IT_WEAPON ) {
 			wi = &cg_weapons[GI_Weapon( *item )];
@@ -2191,9 +2191,9 @@ Ghoul2 Insert End
 		return;
 	}
 
-	if ( es->eFlags & EF_ITEMPLACEHOLDER )		// item has been picked up
+	if ( Any( es->eFlags & EF_ITEMPLACEHOLDER ) )		// item has been picked up
 	{
-		if ( es->eFlags & EF_DEAD )				// if item had been droped, don't show at all
+		if ( Any( es->eFlags & EF_DEAD ) )				// if item had been droped, don't show at all
 			return;
 
 		ent.renderfx |= RF_RGB_TINT;
@@ -2212,13 +2212,13 @@ Ghoul2 Insert End
 		//trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
 	}
 
-	if (!(cent->currentState.eFlags & EF_DROPPEDWEAPON) &&
+	if (!Any(cent->currentState.eFlags & EF_DROPPEDWEAPON) &&
 		(item->giType == IT_WEAPON || item->giType == IT_POWERUP))
 	{
 		ent.renderfx |= RF_MINLIGHT;
 	}
 
-	if (item->giType != IT_TEAM && msec >= 0 && msec < ITEM_SCALEUP_TIME && !(es->eFlags & EF_ITEMPLACEHOLDER) && !(es->eFlags & EF_DROPPEDWEAPON))
+	if (item->giType != IT_TEAM && msec >= 0 && msec < ITEM_SCALEUP_TIME && !Any(es->eFlags & EF_ITEMPLACEHOLDER) && !Any(es->eFlags & EF_DROPPEDWEAPON))
 	{	// if just respawned, fade in, but don't do this for flags.
 		float alpha;
 		int a;
@@ -2454,14 +2454,14 @@ static void CG_Missile( centity_t *cent ) {
 		weapon = &cg_weapons[s1->weapon];
 	}
 
-	if (cent->currentState.eFlags & EF_RADAROBJECT)
+	if (Any( cent->currentState.eFlags & EF_RADAROBJECT ))
 	{
 		CG_AddRadarEnt(cent);
 	}
 
 	if (s1->weapon == WP_SABER)
 	{
-		if ((cent->currentState.modelindex != cent->serverSaberHitIndex || !cent->ghoul2) && !(s1->eFlags & EF_NODRAW))
+		if ((cent->currentState.modelindex != cent->serverSaberHitIndex || !cent->ghoul2) && !Any(s1->eFlags & EF_NODRAW))
 		{ //no g2, or server changed the model we are using
 			const char *saberModel = CG_ConfigString( CS_MODELS+cent->currentState.modelindex );
 
@@ -2483,7 +2483,7 @@ static void CG_Missile( centity_t *cent ) {
 			}
 			return;
 		}
-		else if (s1->eFlags & EF_NODRAW)
+		else if (Any( s1->eFlags & EF_NODRAW ))
 		{
 			return;
 		}
@@ -2505,7 +2505,7 @@ static void CG_Missile( centity_t *cent ) {
 		{
 			forward[2] = 1.0f;
 		}
-		if ((s1->eFlags&EF_JETPACK_ACTIVE)//hack so we know we're a vehicle Weapon shot
+		if (Any(s1->eFlags&EF_JETPACK_ACTIVE)//hack so we know we're a vehicle Weapon shot
 			&& (g_vehWeaponInfo[s1->otherEntityNum2].iShotFX
 				|| g_vehWeaponInfo[s1->otherEntityNum2].iModel != NULL_HANDLE) )
 		{ //a vehicle with an override for the weapon trail fx or model
@@ -2535,7 +2535,7 @@ static void CG_Missile( centity_t *cent ) {
 			return;
 		}
 	}
-	else if ( cent->currentState.eFlags & EF_ALT_FIRING )
+	else if ( Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 	{
 		// add trails
 		if ( weapon->altMissileTrailFunc )
@@ -2610,13 +2610,13 @@ Ghoul2 Insert End
 	ent.skinNum = cg.clientFrame & 1;
 	ent.renderfx = /*weapon->missileRenderfx | */RF_NOSHADOW;
 
-	if ( !(s1->eFlags&EF_JETPACK_ACTIVE) )
+	if ( !Any(s1->eFlags&EF_JETPACK_ACTIVE) )
 	{
 		if (s1->weapon != WP_SABER && s1->weapon != G2_MODEL_PART)
 		{
 			//if ( cent->currentState.eFlags | EF_ALT_FIRING )
 			//rww - why was this like this?
-			if ( cent->currentState.eFlags & EF_ALT_FIRING )
+			if ( Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 			{
 				ent.hModel = weapon->altMissileModel;
 			}
@@ -2650,7 +2650,7 @@ Ghoul2 Insert End
 		// spin as it moves
 		if ( s1->pos.trType != TR_STATIONARY )
 		{
-			if ( s1->eFlags & EF_MISSILE_STICK )
+			if ( Any( s1->eFlags & EF_MISSILE_STICK ) )
 			{
 				RotateAroundDirection( ent.axis, cg.time * 0.5f );//Did this so regular missiles don't get broken
 			}
@@ -2661,7 +2661,7 @@ Ghoul2 Insert End
 		}
 		else
 		{
-			if ( s1->eFlags & EF_MISSILE_STICK )
+			if ( Any( s1->eFlags & EF_MISSILE_STICK ) )
 			{
 				RotateAroundDirection( ent.axis, (float)s1->pos.trTime * 0.5f );
 			}
@@ -2716,9 +2716,9 @@ Ghoul2 Insert End
 			fxSArgs.bounce = 0.0f;
 			fxSArgs.life = 1.0f;
 			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
-			fxSArgs.flags = 0x08000000;
+			fxSArgs.flags = FX_USE_ALPHA;
 
-			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, nullptr, nullptr, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, FX_USE_ALPHA );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 
@@ -2735,7 +2735,7 @@ Ghoul2 Insert End
 		}
 	}
 
-	if ( s1->eFlags & EF_FIRING )
+	if ( Any( s1->eFlags & EF_FIRING ) )
 	{//special code for adding the beam to the attached tripwire mine
 		vec3_t	beamOrg;
 
@@ -2841,7 +2841,7 @@ static void CG_Mover( centity_t *cent ) {
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
 
-	if ( (cent->currentState.eFlags2&EF2_HYPERSPACE) )
+	if ( Any(cent->currentState.eFlags2&EF2_HYPERSPACE) )
 	{//I'm the hyperspace brush
 		bool drawMe = false;
 		if ( cg.predictedPlayerState.m_iVehicleNum
@@ -2853,7 +2853,7 @@ static void CG_Mover( centity_t *cent ) {
 				&& cg.snap->ps.pm_type == PM_INTERMISSION )
 			{//in the intermission, stop drawing hyperspace ent
 			}
-			else if ( (cg.predictedVehicleState.eFlags2&EF2_HYPERSPACE) )
+			else if ( Any(cg.predictedVehicleState.eFlags2&EF2_HYPERSPACE) )
 			{//actually hyperspacing now
 				float timeFrac = ((float)(cg.time-cg.predictedVehicleState.hyperSpaceTime-1000))/(HYPERSPACE_TIME-1000);
 				if ( timeFrac < (HYPERSPACE_TELEPORT_FRAC+0.1f) )
@@ -2873,7 +2873,7 @@ static void CG_Mover( centity_t *cent ) {
 		}
 	}
 
-	if (cent->currentState.eFlags & EF_RADAROBJECT)
+	if (Any( cent->currentState.eFlags & EF_RADAROBJECT ))
 	{
 		CG_AddRadarEnt(cent);
 	}
@@ -2904,7 +2904,7 @@ Ghoul2 Insert End
 		ent.hModel = cgs.gameModels[s1->modelindex];
 	}
 
-	if ( s1->eFlags & EF_SHADER_ANIM )
+	if ( Any( s1->eFlags & EF_SHADER_ANIM ) )
 	{
 		ent.renderfx|=RF_SETANIMINDEX;
 		ent.skinNum = s1->frame;
@@ -3202,7 +3202,7 @@ void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	}
 
 	//See if we should add in the offset for ragdoll
-	if (cent->isRagging && ((cent->currentState.eFlags & EF_DEAD) || (cent->currentState.eFlags & EF_RAG)))
+	if (cent->isRagging && (Any(cent->currentState.eFlags & EF_DEAD) || Any(cent->currentState.eFlags & EF_RAG)))
 	{
 		VectorAdd(cent->lerpOrigin, cent->lerpOriginOffset, cent->lerpOrigin);
 	}

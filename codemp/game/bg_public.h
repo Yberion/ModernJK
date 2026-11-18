@@ -256,20 +256,9 @@ enum class gametype_t {
 };
 using enum gametype_t;
 
-// gametype bits
-#define GTB_NONE			0x000 // invalid
-#define GTB_FFA				0x001 // free for all
-#define GTB_HOLOCRON		0x002 // holocron ffa
-#define GTB_JEDIMASTER		0x004 // jedi master
-#define GTB_DUEL			0x008 // one on one tournament
-#define GTB_POWERDUEL		0x010 // two on one tournament
-#define GTB_SINGLE_PLAYER	0x020 // single player ffa
-#define GTB_NOTTEAM			0x03F // **SPECIAL: All of the above gametypes, i.e. not team-based
-#define GTB_TEAM			0x040 // team deathmatch
-#define GTB_SIEGE			0x080 // siege
-#define GTB_CTF				0x100 // capture the flag
-#define GTB_CTY				0x200 // capture the ysalimiri
-#define GTB_ALL				0x1FF // all
+// masks of game types, one bit per game type
+inline constexpr int GTB_NOTTEAM = Bit( GT_FFA ) | Bit( GT_HOLOCRON ) | Bit( GT_JEDIMASTER ) | Bit( GT_DUEL ) | Bit( GT_POWERDUEL ) | Bit( GT_SINGLE_PLAYER ); // the game types that are not team-based
+inline constexpr int GTB_ALL = GTB_NOTTEAM | Bit( GT_TEAM ) | Bit( GT_SIEGE ) | Bit( GT_CTF ) | Bit( GT_CTY ); // every game type
 
 enum class flagStatus_t {
 	FLAG_UNSET = -1,	// before the first update, never sent: forces it
@@ -498,23 +487,29 @@ extern const EnumArray<int, forceMasteries_t, NUM_FORCE_MASTERY_LEVELS> forceMas
 extern EnumArray<EnumArray<int, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS>, forcePowers_t, NUM_FORCE_POWERS> bgForcePowerCost;
 
 // pmove->pm_flags
-#define	PMF_DUCKED			1
-#define	PMF_JUMP_HELD		2
-#define PMF_ROLLING			4
-#define	PMF_BACKWARDS_JUMP	8		// go into backwards land
-#define	PMF_BACKWARDS_RUN	16		// coast down to backwards run
-#define	PMF_TIME_LAND		32		// pm_time is time before rejump
-#define	PMF_TIME_KNOCKBACK	64		// pm_time is an air-accelerate only time
-#define	PMF_FIX_MINS		128		// mins have been brought up, keep tracing down to fix them
-#define	PMF_TIME_WATERJUMP	256		// pm_time is waterjump
-#define	PMF_RESPAWNED		512		// clear after attack and jump buttons come up
-#define	PMF_USE_ITEM_HELD	1024
-#define PMF_UPDATE_ANIM		2048	// The server updated the animation, the pmove should set the ghoul2 anim to match.
-#define PMF_FOLLOW			4096	// spectate following another player
-#define PMF_SCOREBOARD		8192	// spectate as a scoreboard
-#define PMF_STUCK_TO_WALL	16384	// grabbing a wall
+enum class pmoveFlags_t
+{
+	PMF_NONE = 0,
+	PMF_DUCKED			= 1,
+	PMF_JUMP_HELD		= 2,
+	PMF_ROLLING			= 4,
+	PMF_BACKWARDS_JUMP	= 8,		// go into backwards land
+	PMF_BACKWARDS_RUN	= 16,		// coast down to backwards run
+	PMF_TIME_LAND		= 32,		// pm_time is time before rejump
+	PMF_TIME_KNOCKBACK	= 64,		// pm_time is an air-accelerate only time
+	PMF_FIX_MINS		= 128,		// mins have been brought up, keep tracing down to fix them
+	PMF_TIME_WATERJUMP	= 256,		// pm_time is waterjump
+	PMF_RESPAWNED		= 512,		// clear after attack and jump buttons come up
+	PMF_USE_ITEM_HELD	= 1024,
+	PMF_UPDATE_ANIM		= 2048,	// The server updated the animation, the pmove should set the ghoul2 anim to match.
+	PMF_FOLLOW			= 4096,	// spectate following another player
+	PMF_SCOREBOARD		= 8192,	// spectate as a scoreboard
+	PMF_STUCK_TO_WALL	= 16384,	// grabbing a wall
 
-#define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
+	PMF_ALL_TIMES	= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK),
+};
+using enum pmoveFlags_t;
+template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
 #define	MAXTOUCH	32
 
@@ -549,7 +544,7 @@ typedef struct pmove_s {
 
 	// command (in)
 	usercmd_t	cmd;
-	int			tracemask;			// collide against these types of surfaces
+	contentsFlags_t	tracemask;			// collide against these types of surfaces
 	int			debugLevel;			// if set, diagnostic output will be printed
 	bool	noFootsteps;		// if the game is setup for no footsteps by the server
 	bool	gauntletHit;		// true if a gauntlet attack would actually hit something
@@ -564,7 +559,7 @@ typedef struct pmove_s {
 
 	vec3_t		mins, maxs;			// bounding box size
 
-	int			watertype;
+	contentsFlags_t	watertype;
 	int			waterlevel;
 
 	gametype_t	gametype;
@@ -579,8 +574,8 @@ typedef struct pmove_s {
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
-	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
-	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask );
+	contentsFlags_t	(*pointcontents)( const vec3_t point, int passEntityNum );
 
 	int			checkDuelLoss;
 
@@ -592,15 +587,8 @@ typedef struct pmove_s {
 
 extern	pmove_t		*pm;
 
-#define SETANIM_TORSO 1
-#define SETANIM_LEGS  2
-#define SETANIM_BOTH  SETANIM_TORSO|SETANIM_LEGS//3
+#include "qcommon/q_animflags.h"
 
-#define SETANIM_FLAG_NORMAL		0//Only set if timer is 0
-#define SETANIM_FLAG_OVERRIDE	1//Override previous
-#define SETANIM_FLAG_HOLD		2//Set the new timer
-#define SETANIM_FLAG_RESTART	4//Allow restarting the anim if playing the same one (weapon fires)
-#define SETANIM_FLAG_HOLDLESS	8//Set the new timer
 
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -655,71 +643,83 @@ using enum persEnum_t;
 
 
 // entityState_t->eFlags
-#define	EF_G2ANIMATING			(1<<0)		//perform g2 bone anims based on torsoAnim and legsAnim, works for ET_GENERAL -rww
-#define	EF_DEAD					(1<<1)		// don't draw a foe marker over players with EF_DEAD
-//#define	EF_BOUNCE_SHRAPNEL		(1<<2)		// special shrapnel flag
-//do not use eflags for server-only things, it wastes bandwidth -rww
-#define EF_RADAROBJECT			(1<<2)		// display on team radar
+enum class entityFlags_t : uint32_t
+{
+	EF_NONE = 0,
+	EF_G2ANIMATING			= (1<<0),		//perform g2 bone anims based on torsoAnim and legsAnim, works for ET_GENERAL -rww
+	EF_DEAD					= (1<<1),		// don't draw a foe marker over players with EF_DEAD
+	//EF_BOUNCE_SHRAPNEL		= (1<<2),		// special shrapnel flag
+	//do not use eflags for server-only things, it wastes bandwidth -rww
+	EF_RADAROBJECT			= (1<<2),		// display on team radar
 
-#define	EF_TELEPORT_BIT			(1<<3)		// toggled every time the origin abruptly changes
+	EF_TELEPORT_BIT			= (1<<3),		// toggled every time the origin abruptly changes
 
-#define	EF_SHADER_ANIM			(1<<4)		// Animating shader (by s.frame)
+	EF_SHADER_ANIM			= (1<<4),		// Animating shader (by s.frame)
 
-#define EF_PLAYER_EVENT			(1<<5)
-//#define	EF_BOUNCE				(1<<5)		// for missiles
-//#define	EF_BOUNCE_HALF			(1<<6)		// for missiles
-//these aren't even referenced in bg or client code and do not need to be eFlags, so I
-//am using these flags for rag stuff -rww
+	EF_PLAYER_EVENT			= (1<<5),
+	//EF_BOUNCE				= (1<<5),		// for missiles
+	//EF_BOUNCE_HALF			= (1<<6),		// for missiles
+	//these aren't even referenced in bg or client code and do not need to be eFlags, so I
+	//am using these flags for rag stuff -rww
 
-#define EF_RAG					(1<<6)		//ragdoll him even if he's alive
+	EF_RAG					= (1<<6),		//ragdoll him even if he's alive
 
 
-#define EF_PERMANENT			(1<<7)		// rww - I am claiming this. (for permanent entities)
+	EF_PERMANENT			= (1<<7),		// rww - I am claiming this. (for permanent entities)
 
-#define	EF_NODRAW				(1<<8)		// may have an event, but no model (unspawned items)
-#define	EF_FIRING				(1<<9)		// for lightning gun
-#define EF_ALT_FIRING			(1<<10)		// for alt-fires, mostly for lightning guns though
-#define	EF_JETPACK_ACTIVE		(1<<11)		//jetpack is activated
+	EF_NODRAW				= (1<<8),		// may have an event, but no model (unspawned items)
+	EF_FIRING				= (1<<9),		// for lightning gun
+	EF_ALT_FIRING			= (1<<10),		// for alt-fires, mostly for lightning guns though
+	EF_JETPACK_ACTIVE		= (1<<11),		//jetpack is activated
 
-#define EF_NOT_USED_1			(1<<12)		// not used
+	EF_NOT_USED_1			= (1<<12),		// not used
 
-#define	EF_TALK					(1<<13)		// draw a talk balloon
-#define	EF_CONNECTION			(1<<14)		// draw a connection trouble sprite
-#define	EF_NOT_USED_6			(1<<15)		// not used
+	EF_TALK					= (1<<13),		// draw a talk balloon
+	EF_CONNECTION			= (1<<14),		// draw a connection trouble sprite
+	EF_NOT_USED_6			= (1<<15),		// not used
 
-#define	EF_NOT_USED_2			(1<<16)		// not used
-#define	EF_NOT_USED_3			(1<<17)		// not used
-#define	EF_NOT_USED_4			(1<<18)		// not used
+	EF_NOT_USED_2			= (1<<16),		// not used
+	EF_NOT_USED_3			= (1<<17),		// not used
+	EF_NOT_USED_4			= (1<<18),		// not used
 
-#define	EF_BODYPUSH				(1<<19)		//rww - claiming this for fullbody push effect
+	EF_BODYPUSH				= (1<<19),		//rww - claiming this for fullbody push effect
 
-#define	EF_DOUBLE_AMMO			(1<<20)		// Hacky way to get around ammo max
-#define EF_SEEKERDRONE			(1<<21)		// show seeker drone floating around head
-#define EF_MISSILE_STICK		(1<<22)		// missiles that stick to the wall.
-#define EF_ITEMPLACEHOLDER		(1<<23)		// item effect
-#define EF_SOUNDTRACKER			(1<<24)		// sound position needs to be updated in relation to another entity
-#define EF_DROPPEDWEAPON		(1<<25)		// it's a dropped weapon
-#define EF_DISINTEGRATION		(1<<26)		// being disintegrated by the disruptor
-#define EF_INVULNERABLE			(1<<27)		// just spawned in or whatever, so is protected
+	EF_DOUBLE_AMMO			= (1<<20),		// Hacky way to get around ammo max
+	EF_SEEKERDRONE			= (1<<21),		// show seeker drone floating around head
+	EF_MISSILE_STICK		= (1<<22),		// missiles that stick to the wall.
+	EF_ITEMPLACEHOLDER		= (1<<23),		// item effect
+	EF_SOUNDTRACKER			= (1<<24),		// sound position needs to be updated in relation to another entity
+	EF_DROPPEDWEAPON		= (1<<25),		// it's a dropped weapon
+	EF_DISINTEGRATION		= (1<<26),		// being disintegrated by the disruptor
+	EF_INVULNERABLE			= (1<<27),		// just spawned in or whatever, so is protected
 
-#define EF_CLIENTSMOOTH			(1<<28)		// standard lerporigin smooth override on client
+	EF_CLIENTSMOOTH			= (1<<28),		// standard lerporigin smooth override on client
 
-#define EF_JETPACK				(1<<29)		//rww - wearing a jetpack
-#define EF_JETPACK_FLAMING		(1<<30)		//rww - jetpack fire effect
+	EF_JETPACK				= (1<<29),		//rww - wearing a jetpack
+	EF_JETPACK_FLAMING		= (1<<30),		//rww - jetpack fire effect
 
-#define	EF_NOT_USED_5			(1<<31)		// not used
+	EF_NOT_USED_5			= (1u<<31),		// not used
+};
+using enum entityFlags_t;
+template <> inline constexpr bool enableEnumFlags<entityFlags_t> = true;
 
 //These new EF2_??? flags were added for NPCs, they really should not be used often.
 //NOTE: we only allow 10 of these!
-#define	EF2_HELD_BY_MONSTER		(1<<0)		// Being held by something, like a Rancor or a Wampa
-#define	EF2_USE_ALT_ANIM		(1<<1)		// For certain special runs/stands for creatures like the Rancor and Wampa whose runs/stands are conditional
-#define	EF2_ALERTED				(1<<2)		// For certain special anims, for Rancor: means you've had an enemy, so use the more alert stand
-#define	EF2_GENERIC_NPC_FLAG	(1<<3)		// So far, used for Rancor...
-#define	EF2_FLYING				(1<<4)		// Flying FIXME: only used on NPCs doesn't *really* have to be passed over, does it?
-#define	EF2_HYPERSPACE			(1<<5)		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
-#define	EF2_BRACKET_ENTITY		(1<<6)		// Draw as bracketed
-#define	EF2_SHIP_DEATH			(1<<7)		// "died in ship" mode
-#define	EF2_NOT_USED_1			(1<<8)		// not used
+enum class entityFlags2_t
+{
+	EF2_NONE = 0,
+	EF2_HELD_BY_MONSTER		= (1<<0),		// Being held by something, like a Rancor or a Wampa
+	EF2_USE_ALT_ANIM		= (1<<1),		// For certain special runs/stands for creatures like the Rancor and Wampa whose runs/stands are conditional
+	EF2_ALERTED				= (1<<2),		// For certain special anims, for Rancor: means you've had an enemy, so use the more alert stand
+	EF2_GENERIC_NPC_FLAG	= (1<<3),		// So far, used for Rancor...
+	EF2_FLYING				= (1<<4),		// Flying FIXME: only used on NPCs doesn't *really* have to be passed over, does it?
+	EF2_HYPERSPACE			= (1<<5),		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
+	EF2_BRACKET_ENTITY		= (1<<6),		// Draw as bracketed
+	EF2_SHIP_DEATH			= (1<<7),		// "died in ship" mode
+	EF2_NOT_USED_1			= (1<<8),		// not used
+};
+using enum entityFlags2_t;
+template <> inline constexpr bool enableEnumFlags<entityFlags2_t> = true;
 
 
 enum class effectTypes_t {
@@ -809,10 +809,16 @@ enum class ctfMsg_t {
 using enum ctfMsg_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define	PLAYEREVENT_DENIEDREWARD		0x0001
-#define	PLAYEREVENT_GAUNTLETREWARD		0x0002
-//OJKFIXME: add holy shit :D
-#define PLAYEREVENT_HOLYSHIT			0x0004
+enum class playerEventFlags_t
+{
+	PLAYEREVENT_NONE				= 0,
+	PLAYEREVENT_DENIEDREWARD		= 0x0001,
+	PLAYEREVENT_GAUNTLETREWARD		= 0x0002,
+	//OJKFIXME: add holy shit :D
+	PLAYEREVENT_HOLYSHIT			= 0x0004,
+};
+using enum playerEventFlags_t;
+template <> inline constexpr bool enableEnumFlags<playerEventFlags_t> = true;
 
 // entityState_t->event values
 // entity events are for effects that take place reletive
@@ -1132,6 +1138,10 @@ template <> inline constexpr bool enableEnumArithmetic<team_t> = true;
 [[nodiscard]] inline team_t PS_Team( const playerState_t &ps ) { return static_cast<team_t>( ps.persistant[PERS_TEAM] ); }
 inline void PS_SetTeam( playerState_t &ps, team_t team ) { ps.persistant[PERS_TEAM] = to_underlying( team ); }
 
+// The reward sounds' bits, flipped in a cell of the networked persistant array so that the client sees each change
+[[nodiscard]] inline playerEventFlags_t PS_PlayerEvents( const playerState_t &ps ) { return static_cast<playerEventFlags_t>( ps.persistant[PERS_PLAYEREVENTS] ); }
+inline void PS_TogglePlayerEvent( playerState_t &ps, playerEventFlags_t event ) { ps.persistant[PERS_PLAYEREVENTS] ^= to_underlying( event ); }
+
 // A user command's weapon, a byte of the client packet: the one conversion of the field
 [[nodiscard]] inline weapon_t UC_Weapon( const usercmd_t &cmd ) { return static_cast<weapon_t>( cmd.weapon ); }
 inline void UC_SetWeapon( usercmd_t &cmd, weapon_t weapon ) { cmd.weapon = to_underlying( weapon ); }
@@ -1314,20 +1324,26 @@ bool	BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 
 
 // g_dmflags->integer flags
-#define	DF_NO_FALLING			8
-#define DF_FIXED_FOV			16
-#define	DF_NO_FOOTSTEPS			32
+enum class dmFlags_t
+{
+	DF_NONE					= 0,
+	DF_NO_FALLING			= 8,
+	DF_FIXED_FOV			= 16,
+	DF_NO_FOOTSTEPS			= 32,
+};
+using enum dmFlags_t;
+template <> inline constexpr bool enableEnumFlags<dmFlags_t> = true;
 
 //rwwRMG - added in CONTENTS_TERRAIN
 // content masks
-#define	MASK_ALL				(0xFFFFFFFFu)
-#define	MASK_SOLID				(CONTENTS_SOLID|CONTENTS_TERRAIN)
-#define	MASK_PLAYERSOLID		(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
-#define	MASK_NPCSOLID			(CONTENTS_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
-#define	MASK_DEADSOLID			(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_TERRAIN)
-#define	MASK_WATER				(CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
-#define	MASK_OPAQUE				(CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_TERRAIN)
-#define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_TERRAIN)
+inline constexpr contentsFlags_t MASK_ALL = CONTENTS_ALL;
+inline constexpr contentsFlags_t MASK_SOLID = CONTENTS_SOLID | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_PLAYERSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_NPCSOLID = CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_DEADSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_WATER = CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME;
+inline constexpr contentsFlags_t MASK_OPAQUE = CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_TERRAIN;
+inline constexpr contentsFlags_t MASK_SHOT = CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TERRAIN;
 
 
 // ET_FX States (stored in modelindex2)
@@ -1597,7 +1613,7 @@ typedef struct saberMoveData_s {
 	animNumber_t animToUse;
 	saberQuadrant_t	startQuad;
 	saberQuadrant_t	endQuad;
-	unsigned animSetFlags;
+	setAnimFlags_t animSetFlags;
 	int blendTime;
 	saberBlockType_t blocking;
 	saberMoveName_t chain_idle;			// What move to call if the attack button is not pressed at the end of this anim
@@ -1675,55 +1691,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 	return static_cast<saber_styles_t>( to_underlying( offenceLevel ) );
 }
 
-//SABER FLAGS
-//Old bools converted to a flag now
-#define SFL_NOT_LOCKABLE			(1<<0)//can't get into a saberlock
-#define SFL_NOT_THROWABLE			(1<<1)//can't be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-#define SFL_NOT_DISARMABLE			(1<<2)//can't be dropped
-#define SFL_NOT_ACTIVE_BLOCKING		(1<<3)//don't to try to block incoming shots with this saber
-#define SFL_TWO_HANDED				(1<<4)//uses both hands
-#define SFL_SINGLE_BLADE_THROWABLE	(1<<5)//can throw this saber if only the first blade is on
-#define SFL_RETURN_DAMAGE			(1<<6)//when returning from a saber throw, it keeps spinning and doing damage
-//NEW FLAGS
-#define SFL_ON_IN_WATER				(1<<7)//if set, weapon stays active even in water
-#define SFL_BOUNCE_ON_WALLS			(1<<8)//if set, the saber will bounce back when it hits solid architecture (good for real-sword type mods)
-#define SFL_BOLT_TO_WRIST			(1<<9)//if set, saber model is bolted to wrist, not in hand... useful for things like claws & shields, etc.
-//#define SFL_STICK_ON_IMPACT		(1<<?)//if set, the saber will stick in the wall when thrown and hits solid architecture (good for sabers that are meant to be thrown).
-//#define SFL_NO_ATTACK				(1<<?)//if set, you cannot attack with the saber (for sabers/weapons that are meant to be thrown only, not used as melee weapons).
-//Move Restrictions
-#define SFL_NO_PULL_ATTACK			(1<<10)//if set, cannot do pull+attack move (move not available in MP anyway)
-#define SFL_NO_BACK_ATTACK			(1<<11)//if set, cannot do back-stab moves
-#define SFL_NO_STABDOWN				(1<<12)//if set, cannot do stabdown move (when enemy is on ground)
-#define SFL_NO_WALL_RUNS			(1<<13)//if set, cannot side-run or forward-run on walls
-#define SFL_NO_WALL_FLIPS			(1<<14)//if set, cannot do backflip off wall or side-flips off walls
-#define SFL_NO_WALL_GRAB			(1<<15)//if set, cannot grab wall & jump off
-#define SFL_NO_ROLLS				(1<<16)//if set, cannot roll
-#define SFL_NO_FLIPS				(1<<17)//if set, cannot do flips
-#define SFL_NO_CARTWHEELS			(1<<18)//if set, cannot do cartwheels
-#define SFL_NO_KICKS				(1<<19)//if set, cannot do kicks (can't do kicks anyway if using a throwable saber/sword)
-#define SFL_NO_MIRROR_ATTACKS		(1<<20)//if set, cannot do the simultaneous attack left/right moves (only available in Dual Lightsaber Combat Style)
-#define SFL_NO_ROLL_STAB			(1<<21)//if set, cannot do roll-stab move at end of roll
-//SABER FLAGS2
-//Primary Blade Style
-#define SFL2_NO_WALL_MARKS			(1<<0)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT				(1<<1)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE				(1<<2)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE			(1<<3)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT		(1<<4)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT			(1<<5)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK			(1<<6)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE	(1<<7)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE		(1<<8)//if set, the blade does damage in start, transition and return anims (like strong style does)
-//Secondary Blade Style
-#define SFL2_NO_WALL_MARKS2			(1<<9)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT2				(1<<10)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE2				(1<<11)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE2		(1<<12)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT2		(1<<13)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT2		(1<<14)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK2			(1<<15)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE2	(1<<16)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
+#include "qcommon/q_saberflags.h"
 
 #define SABER_NAME_LENGTH (64)
 typedef struct saberInfo_s {
@@ -1748,7 +1716,8 @@ typedef struct saberInfo_s {
 	saber_styles_t	singleBladeStyle;						// makes it so that you use a different style if you only have the first blade active
 
 	//these values are global to the saber, like all of the ones above
-	int				saberFlags, saberFlags2;				// from SFL(2)_ list above
+	saberFlags_t	saberFlags;				// from SFL(2)_ list above
+	saberFlags2_t	saberFlags2;
 
 	//done in cgame (client-side code)
 	qhandle_t		spinSound;								// none - if set, plays this sound as it spins when thrown

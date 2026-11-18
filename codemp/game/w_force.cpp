@@ -149,7 +149,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	}
 
 	//if it's a bot just copy the info directly from its personality
-	if ( (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] )
+	if ( Any( ent->r.svFlags & SVF_BOT ) && botstates[ent->s.number] )
 		Q_strncpyz( forcePowers, botstates[ent->s.number]->forceinfo, sizeof( forcePowers ) );
 
 	const forceMasteries_t maxRank = static_cast<forceMasteries_t>( g_maxForceRank.integer );
@@ -188,7 +188,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	ent->client->ps.fd.forceSide = atoi( readBuf );
 	i++;
 
-	if ( level.gametype != GT_SIEGE && (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] ) {
+	if ( level.gametype != GT_SIEGE && Any( ent->r.svFlags & SVF_BOT ) && botstates[ent->s.number] ) {
 		// hmm..I'm going to cheat here.
 		int oldI = i;
 		fp = FP_FIRST;
@@ -288,7 +288,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 			if ( level.gametype != GT_HOLOCRON && level.gametype != GT_JEDIMASTER ) {
 				didEvent = true;
 
-				if ( !(ent->r.svFlags & SVF_BOT) && ent->s.eType != ET_NPC ) {
+				if ( !Any( ent->r.svFlags & SVF_BOT ) && ent->s.eType != ET_NPC ) {
 					if ( !g_teamAutoJoin.integer ) {
 						// make them a spectator so they can set their powerups up without being bothered.
 						ent->client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -584,12 +584,12 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 	}
 
 	if (self->health <= 0 || self->client->ps.stats[STAT_HEALTH] <= 0 ||
-		(self->client->ps.eFlags & EF_DEAD))
+		Any(self->client->ps.eFlags & EF_DEAD))
 	{
 		return false;
 	}
 
-	if (self->client->ps.pm_flags & PMF_FOLLOW)
+	if (Any( self->client->ps.pm_flags & PMF_FOLLOW ))
 	{ //specs can't use powers through people
 		return false;
 	}
@@ -632,7 +632,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 
 	if ( g_debugMelee.integer )
 	{
-		if ( (self->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
+		if ( Any(self->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 		{//no offensive force powers when stuck to wall
 			switch ( forcePower )
 			{
@@ -652,7 +652,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 
 	if ( !self->client->ps.saberHolstered )
 	{
-		if ( (self->client->saber[0].saberFlags&SFL_TWO_HANDED) )
+		if ( Any( self->client->saber[0].saberFlags & SFL_TWO_HANDED ) )
 		{
 			if ( g_saberRestrictForce.integer )
 			{
@@ -672,7 +672,7 @@ bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 			}
 		}
 
-		if ( (self->client->saber[0].saberFlags&SFL_TWO_HANDED)
+		if ( Any( self->client->saber[0].saberFlags & SFL_TWO_HANDED )
 			|| self->client->saber[0].model[0] )
 		{//this saber requires the use of two hands OR our other hand is using an active saber too
 			if ( (self->client->saber[0].forceRestrictions&Bit( forcePower )) )
@@ -1327,7 +1327,7 @@ void ForceGrip( gentity_t *self )
 	tto[1] = tfrom[1] + fwd[1]*MAX_GRIP_DISTANCE;
 	tto[2] = tfrom[2] + fwd[2]*MAX_GRIP_DISTANCE;
 
-	trap->Trace(&tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	if ( tr.fraction != 1.0 &&
 		tr.entityNum != ENTITYNUM_NONE &&
@@ -1648,7 +1648,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				if (dmg)
 				{
 					//rww - Shields can now absorb lightning too.
-					G_Damage( traceEnt, self, self, dir, impactPoint, dmg, 0, MOD_FORCE_DARK );
+					G_Damage( traceEnt, self, self, dir, impactPoint, dmg, DAMAGE_NORMAL, MOD_FORCE_DARK );
 				}
 				if ( traceEnt->client )
 				{
@@ -1767,7 +1767,7 @@ void ForceShootLightning( gentity_t *self )
 			}
 
 			//Now check and see if we can actually hit it
-			trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, 0, 0 );
+			trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 			if ( tr.fraction < 1.0f && tr.entityNum != traceEnt->s.number )
 			{//must have clear LOS
 				continue;
@@ -1781,7 +1781,7 @@ void ForceShootLightning( gentity_t *self )
 	{//trace-line
 		VectorMA( self->client->ps.origin, 2048, forward, end );
 
-		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 		if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 		{
 			return;
@@ -1884,7 +1884,7 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 						dmg = 2;
 					}
 				}
-				//G_Damage( traceEnt, self, self, dir, impactPoint, dmg, 0, MOD_FORCE_DARK );
+				//G_Damage( traceEnt, self, self, dir, impactPoint, dmg, DAMAGE_NORMAL, MOD_FORCE_DARK );
 
 				if (dmg)
 				{
@@ -2052,7 +2052,7 @@ int ForceShootDrain( gentity_t *self )
 			}
 
 			//Now check and see if we can actually hit it
-			trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, 0, 0 );
+			trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 			if ( tr.fraction < 1.0f && tr.entityNum != traceEnt->s.number )
 			{//must have clear LOS
 				continue;
@@ -2067,7 +2067,7 @@ int ForceShootDrain( gentity_t *self )
 	{//trace-line
 		VectorMA( self->client->ps.origin, 2048, forward, end );
 
-		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 		if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid || !g_entities[tr.entityNum].client || !g_entities[tr.entityNum].inuse )
 		{
 			return 0;
@@ -2316,7 +2316,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 	tto[1] = tfrom[1] + fwd[1]*radius/2;
 	tto[2] = tfrom[2] + fwd[2]*radius/2;
 
-	trap->Trace( tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, 0, 0 );
+	trap->Trace( tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0 );
 
 
 	if ( tr->entityNum == ENTITYNUM_NONE
@@ -2330,7 +2330,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 	traceEnt = &g_entities[tr->entityNum];
 
 	if( traceEnt->NPC
-		&& traceEnt->NPC->scriptFlags & SCF_NO_FORCE )
+		&& Any( traceEnt->NPC->scriptFlags & SCF_NO_FORCE ) )
 	{
 		return false;
 	}
@@ -2378,7 +2378,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 			|| (!self->NPC && traceEnt->client->playerTeam != (npcteam_t)self->client->sess.sessionTeam) )
 		{//an enemy
 			int override = 0;
-			if ( (traceEnt->NPC->scriptFlags&SCF_NO_MIND_TRICK) )
+			if ( Any(traceEnt->NPC->scriptFlags&SCF_NO_MIND_TRICK) )
 			{
 			}
 			else if ( traceEnt->s.weapon != WP_SABER
@@ -2456,7 +2456,7 @@ bool ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, bool *too
 		else if ( traceEnt->client->playerTeam == self->client->playerTeam )
 		{//an ally
 			//maybe just have him look at you?  Respond?  Take your enemy?
-			if ( traceEnt->client->ps.pm_type < PM_DEAD && traceEnt->NPC!=nullptr && !(traceEnt->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			if ( traceEnt->client->ps.pm_type < PM_DEAD && traceEnt->NPC!=nullptr && !Any(traceEnt->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			{
 				NPC_UseResponse( traceEnt, self, false );
 				WP_ForcePowerStart( self, FP_TELEPATHY, 1 );
@@ -2999,7 +2999,7 @@ void ForceThrow( gentity_t *self, bool pull )
 		tto[1] = tfrom[1] + fwd[1]*radius/2;
 		tto[2] = tfrom[2] + fwd[2]*radius/2;
 
-		trap->Trace(&tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, 0, 0);
+		trap->Trace(&tr, tfrom, nullptr, nullptr, tto, self->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 		if (tr.fraction != 1.0 &&
 			tr.entityNum != ENTITYNUM_NONE)
@@ -3138,7 +3138,7 @@ void ForceThrow( gentity_t *self, bool pull )
 				}
 				else
 				{
-					if ( ent->s.eFlags & EF_NODRAW )
+					if ( Any( ent->s.eFlags & EF_NODRAW ) )
 					{
 						continue;
 					}
@@ -3173,7 +3173,7 @@ void ForceThrow( gentity_t *self, bool pull )
 		}
 		else
 		{
-			if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK) )
+			if ( ent->s.pos.trType == TR_STATIONARY && Any(ent->s.eFlags&EF_MISSILE_STICK) )
 			{//can't force-push/pull stuck missiles (detpacks, tripmines)
 				continue;
 			}
@@ -3224,14 +3224,14 @@ void ForceThrow( gentity_t *self, bool pull )
 		}
 
 		//really should have a clear LOS to this thing...
-		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 		if ( tr.fraction < 1.0f && tr.entityNum != ent->s.number )
 		{//must have clear LOS
 			//try from eyes too before you give up
 			vec3_t eyePoint;
 			VectorCopy(self->client->ps.origin, eyePoint);
 			eyePoint[2] += self->client->ps.viewheight;
-			trap->Trace( &tr, eyePoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, 0, 0 );
+			trap->Trace( &tr, eyePoint, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 			if ( tr.fraction < 1.0f && tr.entityNum != ent->s.number )
 			{
@@ -3276,7 +3276,7 @@ void ForceThrow( gentity_t *self, bool pull )
 
 				if ( g_debugMelee.integer )
 				{
-					if ( (push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
+					if ( Any(push_list[x]->client->ps.pm_flags&PMF_STUCK_TO_WALL) )
 					{//no resistance if stuck to wall
 						//push/pull them off the wall
 						otherPushPower = FORCE_LEVEL_0;
@@ -3509,7 +3509,7 @@ void ForceThrow( gentity_t *self, bool pull )
 				AngleVectors( self->client->ps.viewangles, forward, nullptr, nullptr );
 				VectorNormalize( forward );
 				VectorMA( trFrom, radius, forward, end );
-				trap->Trace( &tr, trFrom, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, 0, 0 );
+				trap->Trace( &tr, trFrom, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 				if ( tr.entityNum != push_list[x]->s.number || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
 				{//must be pointing right at it
 					continue;
@@ -3747,7 +3747,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 
 	VectorSubtract(gripEnt->client->ps.origin, self->client->ps.origin, a);
 
-	trap->Trace(&tr, self->client->ps.origin, nullptr, nullptr, gripEnt->client->ps.origin, self->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, self->client->ps.origin, nullptr, nullptr, gripEnt->client->ps.origin, self->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	gripLevel = WP_AbsorbConversion(gripEnt, gripEnt->client->ps.fd.forcePowerLevel[FP_ABSORB], self, FP_GRIP, self->client->ps.fd.forcePowerLevel[FP_GRIP], forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_GRIP]][FP_GRIP]).value_or( self->client->ps.fd.forcePowerLevel[FP_GRIP] );
 
@@ -4181,7 +4181,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 		if ( self->client->ps.fd.forcePowerLevel[FP_DRAIN] > FORCE_LEVEL_1 )
 		{//higher than level 1
-			if ( (cmd->buttons & BUTTON_FORCE_DRAIN) || ((cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_DRAIN) )
+			if ( Any(cmd->buttons & BUTTON_FORCE_DRAIN) || (Any(cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_DRAIN) )
 			{//holding it keeps it going
 				self->client->ps.fd.forcePowerDuration[FP_DRAIN] = level.time + 500;
 			}
@@ -4211,7 +4211,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 		if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_1 )
 		{//higher than level 1
-			if ( (cmd->buttons & BUTTON_FORCE_LIGHTNING) || ((cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_LIGHTNING) )
+			if ( Any(cmd->buttons & BUTTON_FORCE_LIGHTNING) || (Any(cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_LIGHTNING) )
 			{//holding it keeps it going
 				self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] = level.time + 500;
 			}
@@ -4352,7 +4352,7 @@ int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepow
 		break;
 	case FP_PUSH:
 		powerSucceeded = 0; //always 0 for nonhold powers
-		if (self->client->ps.fd.forceButtonNeedRelease && !(self->r.svFlags & SVF_BOT))
+		if (self->client->ps.fd.forceButtonNeedRelease && !Any( self->r.svFlags & SVF_BOT ))
 		{ //need to release before we can use nonhold powers again
 			break;
 		}
@@ -4493,7 +4493,7 @@ void SeekerDroneUpdate(gentity_t *self)
 	float prefig = 0;
 	trace_t tr;
 
-	if (!(self->client->ps.eFlags & EF_SEEKERDRONE))
+	if (!Any(self->client->ps.eFlags & EF_SEEKERDRONE))
 	{
 		self->client->ps.genericEnemyIndex = -1;
 		return;
@@ -4628,7 +4628,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		//org is now where the thing should be client-side because it uses the same time-based offset
 		if (self->client->ps.droneFireTime < level.time)
 		{
-			trap->Trace(&tr, org, nullptr, nullptr, en->client->ps.origin, -1, MASK_SOLID, false, 0, 0);
+			trap->Trace(&tr, org, nullptr, nullptr, en->client->ps.origin, -1, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 			if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 			{
@@ -4715,7 +4715,7 @@ void HolocronUpdate(gentity_t *self)
 				{ //dual
 					self->client->ps.fd.saberAnimLevelBase = self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
 				}
-				else if ( (self->client->saber[0].saberFlags & SFL_TWO_HANDED) )
+				else if ( Any( self->client->saber[0].saberFlags & SFL_TWO_HANDED ) )
 				{ //staff
 					self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
 				}
@@ -4898,7 +4898,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		return;
 	}
 
-	if (self->client->ps.pm_flags & PMF_FOLLOW)
+	if (Any( self->client->ps.pm_flags & PMF_FOLLOW ))
 	{ //not a "real" game client, it's a spectator following someone
 		return;
 	}
@@ -4951,7 +4951,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if ( ((self->client->sess.selectedFP != self->client->ps.fd.forcePowerSelected) ||
 		(self->client->sess.saberLevel != self->client->ps.fd.saberAnimLevel)) &&
-		!(self->r.svFlags & SVF_BOT) )
+		!Any( self->r.svFlags & SVF_BOT ) )
 	{
 		if (self->client->sess.updateUITime < level.time)
 		{ //a bit hackish, but we don't want the client to flood with userinfo updates if they rapidly cycle
@@ -4985,7 +4985,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN &&
 			!self->client->ps.forceDodgeAnim)
 		{
-			if (self->health < 1 || (self->client->ps.eFlags & EF_DEAD))
+			if (self->health < 1 || Any(self->client->ps.eFlags & EF_DEAD))
 			{
 				self->client->ps.forceHandExtend = HANDEXTEND_NONE;
 			}
@@ -5024,7 +5024,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		}
 		else if (self->client->ps.forceHandExtend == HANDEXTEND_POSTTHROWN)
 		{
-			if (self->health < 1 || (self->client->ps.eFlags & EF_DEAD))
+			if (self->health < 1 || Any(self->client->ps.eFlags & EF_DEAD))
 			{
 				self->client->ps.forceHandExtend = HANDEXTEND_NONE;
 			}
@@ -5228,7 +5228,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if (self->client->ps.fd.forceJumpCharge && self->client->ps.groundEntityNum == ENTITYNUM_NONE && self->client->fjDidJump)
 	{ //this was for the "charge" jump method... I guess
-		if (ucmd->upmove < 10 && (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LEVITATION))
+		if (ucmd->upmove < 10 && (!Any(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LEVITATION))
 		{
 			G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1 - TRACK_CHANNEL_NONE], CHAN_VOICE);
 			self->client->ps.fd.forceJumpCharge = 0;
@@ -5246,16 +5246,16 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 #endif
 
-	if (!(self->client->ps.pm_flags & PMF_JUMP_HELD) && self->client->ps.fd.forceJumpCharge)
+	if (!Any(self->client->ps.pm_flags & PMF_JUMP_HELD) && self->client->ps.fd.forceJumpCharge)
 	{
-		if (!(ucmd->buttons & BUTTON_FORCEPOWER) ||
+		if (!Any(ucmd->buttons & BUTTON_FORCEPOWER) ||
 			self->client->ps.fd.forcePowerSelected != FP_LEVITATION)
 		{
 			WP_DoSpecificPower( self, ucmd, FP_LEVITATION );
 		}
 	}
 
-	if ( ucmd->buttons & BUTTON_FORCEGRIP )
+	if ( Any( ucmd->buttons & BUTTON_FORCEGRIP ) )
 	{ //grip is one of the powers with its own button.. if it's held, call the specific grip power function.
 		WP_DoSpecificPower( self, ucmd, FP_GRIP );
 	}
@@ -5263,14 +5263,14 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{ //see if we're using it generically.. if not, stop.
 		if (self->client->ps.fd.forcePowersActive & Bit( FP_GRIP ))
 		{
-			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_GRIP)
+			if (!Any(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_GRIP)
 			{
 				WP_ForcePowerStop(self, FP_GRIP);
 			}
 		}
 	}
 
-	if ( ucmd->buttons & BUTTON_FORCE_LIGHTNING )
+	if ( Any( ucmd->buttons & BUTTON_FORCE_LIGHTNING ) )
 	{ //lightning
 		WP_DoSpecificPower(self, ucmd, FP_LIGHTNING);
 	}
@@ -5278,14 +5278,14 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{ //see if we're using it generically.. if not, stop.
 		if (self->client->ps.fd.forcePowersActive & Bit( FP_LIGHTNING ))
 		{
-			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LIGHTNING)
+			if (!Any(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_LIGHTNING)
 			{
 				WP_ForcePowerStop(self, FP_LIGHTNING);
 			}
 		}
 	}
 
-	if ( ucmd->buttons & BUTTON_FORCE_DRAIN )
+	if ( Any( ucmd->buttons & BUTTON_FORCE_DRAIN ) )
 	{ //drain
 		WP_DoSpecificPower(self, ucmd, FP_DRAIN);
 	}
@@ -5293,14 +5293,14 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{ //see if we're using it generically.. if not, stop.
 		if (self->client->ps.fd.forcePowersActive & Bit( FP_DRAIN ))
 		{
-			if (!(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_DRAIN)
+			if (!Any(ucmd->buttons & BUTTON_FORCEPOWER) || self->client->ps.fd.forcePowerSelected != FP_DRAIN)
 			{
 				WP_ForcePowerStop(self, FP_DRAIN);
 			}
 		}
 	}
 
-	if ( (ucmd->buttons & BUTTON_FORCEPOWER) &&
+	if ( Any(ucmd->buttons & BUTTON_FORCEPOWER) &&
 		BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, self->client->ps.fd.forcePowerSelected))
 	{
 		if (self->client->ps.fd.forcePowerSelected == FP_LEVITATION)

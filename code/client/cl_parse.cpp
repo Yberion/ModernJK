@@ -229,7 +229,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		newSnap.deltaNum = newSnap.messageNum - deltaNum;
 	}
 	newSnap.cmdNum = MSG_ReadLong( msg );
-	newSnap.snapFlags = MSG_ReadByte( msg );
+	newSnap.snapFlags = static_cast<snapFlags_t>( MSG_ReadByte( msg ) );
 
 	// If the frame is delta compressed from data that we
 	// no longer have available, we must suck up the rest of

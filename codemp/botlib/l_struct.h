@@ -38,24 +38,30 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_STRINGFIELD				80
 //field types
-#define FT_CHAR						1			// char
-#define FT_INT							2			// int
-#define FT_FLOAT						3			// float
-#define FT_STRING						4			// char [MAX_STRINGFIELD]
-#define FT_STRUCT						6			// struct (sub structure)
+enum class fieldTypeFlags_t
+{
+	FT_NONE = 0,
+	FT_CHAR						= 1,			// char
+	FT_INT							= 2,			// int
+	FT_FLOAT						= 3,			// float
+	FT_STRING						= 4,			// char [MAX_STRINGFIELD]
+	FT_STRUCT						= 6,			// struct (sub structure)
 //type only mask
-#define FT_TYPE						0x00FF	// only type, clear subtype
+	FT_TYPE						= 0x00FF,	// only type, clear subtype
 //sub types
-#define FT_ARRAY						0x0100	// array of type
-#define FT_BOUNDED					0x0200	// bounded value
-#define FT_UNSIGNED					0x0400
+	FT_ARRAY						= 0x0100,	// array of type
+	FT_BOUNDED					= 0x0200,	// bounded value
+	FT_UNSIGNED					= 0x0400,
+};
+using enum fieldTypeFlags_t;
+template <> inline constexpr bool enableEnumFlags<fieldTypeFlags_t> = true;
 
 //structure field definition
 typedef struct fielddef_s
 {
 	const char *name;								//name of the field
 	int offset;										//offset in the structure
-	int type;										//type of the field
+	fieldTypeFlags_t type;										//type of the field
 	//type specific fields
 	int maxarray;									//maximum array size
 	float floatmin, floatmax;					//float min and max

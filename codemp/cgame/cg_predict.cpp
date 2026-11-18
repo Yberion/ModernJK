@@ -227,10 +227,10 @@ CG_ClipMoveToEntities
 ====================
 */
 extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, vec3_t mins, vec3_t maxs,
-										int clientNum, int tracemask,
-										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask)); // bg_pmove.cpp
+										int clientNum, contentsFlags_t tracemask,
+										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask)); // bg_pmove.cpp
 static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-							int skipNumber, int mask, trace_t *tr, bool g2Check ) {
+							int skipNumber, contentsFlags_t mask, trace_t *tr, bool g2Check ) {
 	int			i, x, zd, zu;
 	trace_t		trace, oldTrace;
 	entityState_t	*ent;
@@ -371,7 +371,7 @@ CG_Trace
 ================
 */
 void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 int skipNumber, int mask ) {
+					 int skipNumber, contentsFlags_t mask ) {
 	trace_t	t;
 
 	trap->CM_Trace ( &t, start, end, mins, maxs, 0, mask, 0);
@@ -388,7 +388,7 @@ CG_G2Trace
 ================
 */
 void	CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 int skipNumber, int mask ) {
+					 int skipNumber, contentsFlags_t mask ) {
 	trace_t	t;
 
 	trap->CM_Trace ( &t, start, end, mins, maxs, 0, mask, 0);
@@ -404,12 +404,12 @@ void	CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const v
 CG_PointContents
 ================
 */
-int		CG_PointContents( const vec3_t point, int passEntityNum ) {
+contentsFlags_t	CG_PointContents( const vec3_t point, int passEntityNum ) {
 	int			i;
 	entityState_t	*ent;
 	centity_t	*cent;
 	clipHandle_t cmodel;
-	int			contents;
+	contentsFlags_t	contents;
 
 	contents = trap->CM_PointContents (point, 0);
 
@@ -574,12 +574,12 @@ static void CG_TouchItem( centity_t *cent ) {
 		return;
 	}
 
-	if (cent->currentState.eFlags & EF_ITEMPLACEHOLDER)
+	if (Any( cent->currentState.eFlags & EF_ITEMPLACEHOLDER ))
 	{
 		return;
 	}
 
-	if (cent->currentState.eFlags & EF_NODRAW)
+	if (Any( cent->currentState.eFlags & EF_NODRAW ))
 	{
 		return;
 	}
@@ -723,7 +723,7 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		trap->CM_Trace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, cg_pmove.mins, cg_pmove.maxs, cmodel, -1, 0 );
+		trap->CM_Trace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, cg_pmove.mins, cg_pmove.maxs, cmodel, CONTENTS_ALL, 0 );
 
 		if ( !trace.startsolid ) {
 			continue;
@@ -808,7 +808,7 @@ static QINLINE void CG_EntityStateToPlayerState( entityState_t *s, playerState_t
 	ps->genericEnemyIndex = -1; //no real option for this
 
 	//The client has no knowledge of health levels (except for the client entity)
-	if (s->eFlags & EF_DEAD)
+	if (Any( s->eFlags & EF_DEAD ))
 	{
 		ps->stats[STAT_HEALTH] = 0;
 	}
@@ -936,7 +936,7 @@ typedef struct {
 static void CG_CheckShownFlicker( const playerState_t *ps ) {
 	static shown_t	shown[2];	// the last two frames, newest first
 	const shown_t	now = { to_underlying( ps->legsAnim ) | ( ps->legsFlip ? 0x10000 : 0 ), to_underlying( ps->torsoAnim ) | ( ps->torsoFlip ? 0x10000 : 0 ),
-		( ps->pm_flags & PMF_DUCKED ) ? 1 : 0, ps->commandTime };
+		Any( ps->pm_flags & PMF_DUCKED ) ? 1 : 0, ps->commandTime };
 
 	if ( cg_showMiss.integer ) {
 		if ( now.legs == shown[1].legs && now.legs != shown[0].legs ) {
@@ -1039,7 +1039,7 @@ static void CG_CarryUnsentFields( playerState_t *base ) {
 	const playerState_t *own = CG_PredictedAt( base->commandTime );
 
 	if ( !own || own->persistant[PERS_SPAWN_COUNT] != base->persistant[PERS_SPAWN_COUNT]
-		|| ( ( own->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT ) ) {
+		|| Any( ( own->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT ) ) {
 		return;
 	}
 	base->fd.forcePowerDebounce = own->fd.forcePowerDebounce;
@@ -1072,10 +1072,10 @@ static snapshot_t *CG_SnapshotAhead( const snapshot_t *next ) {
 		aheadNum = cg.latestSnapshotNum;
 	}
 	if ( ahead.serverTime <= next->serverTime || ahead.ps.clientNum != next->ps.clientNum
-		|| ( ( ahead.ps.eFlags ^ next->ps.eFlags ) & EF_TELEPORT_BIT )
+		|| Any( ( ahead.ps.eFlags ^ next->ps.eFlags ) & EF_TELEPORT_BIT )
 		|| ahead.ps.persistant[PERS_SPAWN_COUNT] != next->ps.persistant[PERS_SPAWN_COUNT]
-		|| ( ( ahead.snapFlags ^ next->snapFlags ) & SNAPFLAG_SERVERCOUNT )
-		|| ( ahead.ps.pm_flags & PMF_FOLLOW ) || ahead.ps.m_iVehicleNum != next->ps.m_iVehicleNum ) {
+		|| Any( ( ahead.snapFlags ^ next->snapFlags ) & SNAPFLAG_SERVERCOUNT )
+		|| Any( ahead.ps.pm_flags & PMF_FOLLOW ) || ahead.ps.m_iVehicleNum != next->ps.m_iVehicleNum ) {
 		return nullptr;
 	}
 	return &ahead;
@@ -1228,7 +1228,7 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 	if ( any ) {
 		cg_predictMiss.differing++;
 	}
-	if ( ( base->pm_flags & PMF_TIME_KNOCKBACK ) || base->damageEvent != predicted->damageEvent ) {
+	if ( Any( base->pm_flags & PMF_TIME_KNOCKBACK ) || base->damageEvent != predicted->damageEvent ) {
 		cg_predictMiss.lastHit = base->commandTime;
 	}
 	// a player standing on a mover is moved with it by the server at the instants; the prediction leaves that to the
@@ -1244,7 +1244,7 @@ static void CG_CountPredictMiss( const playerState_t *base ) {
 		const float d = Distance( riding, base->origin );
 		predictMissKind_t cause;
 
-		if ( ( ( predicted->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT )
+		if ( Any( ( predicted->eFlags ^ base->eFlags ) & EF_TELEPORT_BIT )
 			|| predicted->persistant[PERS_SPAWN_COUNT] != base->persistant[PERS_SPAWN_COUNT] ) {
 			cause = MISS_TELEPORT;
 		} else if ( cg_predictMiss.lastHit && base->commandTime - cg_predictMiss.lastHit <= 200 ) {
@@ -1316,7 +1316,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 			"touched %d: %d %d %d %d; nearest player %d at %.1f units, speed %.0f\n",
 			n, m->server.commandTime, cg_predictMissKinds[m->kind], m->d, m->predicted.origin[0] - m->server.origin[0],
 			m->predicted.origin[1] - m->server.origin[1], m->predicted.origin[2] - m->server.origin[2],
-			m->cmd.forwardmove, m->cmd.rightmove, m->cmd.upmove, m->cmd.buttons,
+			m->cmd.forwardmove, m->cmd.rightmove, m->cmd.upmove, to_underlying( m->cmd.buttons ),
 			m->numTouch, m->numTouch > 0 ? m->touch[0] : -1, m->numTouch > 1 ? m->touch[1] : -1, m->numTouch > 2 ? m->touch[2] : -1,
 			m->numTouch > 3 ? m->touch[3] : -1, m->nearest, m->nearest < 0 ? 0.0f : m->nearestDist, m->nearest < 0 ? 0.0f : m->nearestSpeed );
 		CG_PredictMissLine( f, line );
@@ -1324,7 +1324,7 @@ static void CG_WritePredictMiss( fileHandle_t f ) {
 			Com_sprintf( line, sizeof( line ), "  start: %d ticks before; origin %.2f %.2f %.2f velocity %.2f %.2f %.2f ground %d pm_flags %x "
 				"pm_time %d pm_type %d legs %d torso %d weaponTime %d saberMove %d\n",
 				( m->server.commandTime - m->start.commandTime ) / TICK_MSEC, m->start.origin[0], m->start.origin[1], m->start.origin[2],
-				m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, m->start.pm_flags,
+				m->start.velocity[0], m->start.velocity[1], m->start.velocity[2], m->start.groundEntityNum, to_underlying( m->start.pm_flags ),
 				m->start.pm_time, to_underlying( m->start.pm_type ), to_underlying( m->start.legsAnim ), to_underlying( m->start.torsoAnim ), m->start.weaponTime, to_underlying( m->start.saberMove ) );
 		} else {
 			Com_sprintf( line, sizeof( line ), "  start: not held\n" );
@@ -1394,7 +1394,7 @@ static void CG_InterpolateTicks( playerState_t *out, int current ) {
 		cg.cmdTime = now.serverTime;
 	}
 	if ( prev && !CG_Piloting( out->m_iVehicleNum ) && cg.cmdTime >= prev->commandTime && cg.cmdTime < out->commandTime
-		&& !( ( prev->eFlags ^ out->eFlags ) & EF_TELEPORT_BIT )
+		&& !Any( ( prev->eFlags ^ out->eFlags ) & EF_TELEPORT_BIT )
 		&& prev->persistant[PERS_SPAWN_COUNT] == out->persistant[PERS_SPAWN_COUNT] ) {
 		const float f = (float)( cg.cmdTime - prev->commandTime ) / TICK_MSEC;
 
@@ -1497,7 +1497,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// demo playback just copies the moves
-	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+	if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		CG_InterpolatePlayerState( false );
 		if (CG_Piloting(cg.predictedPlayerState.m_iVehicleNum))
 		{
@@ -1527,7 +1527,7 @@ void CG_PredictPlayerState( void ) {
 	{
 		if (cg.snap &&
 			pEnt->ghoul2 &&
-			!(cg.snap->ps.pm_flags & PMF_FOLLOW) &&
+			!Any(cg.snap->ps.pm_flags & PMF_FOLLOW) &&
 			PS_Team( cg.snap->ps ) != TEAM_SPECTATOR)
 		{
 			cg_pmove.ghoul2 = pEnt->ghoul2;
@@ -1555,7 +1555,7 @@ void CG_PredictPlayerState( void ) {
 	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR || cg.snap->ps.pm_type == PM_SPECTATOR ) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
 	}
-	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
+	cg_pmove.noFootsteps = Any( cgs.dmflags & DF_NO_FOOTSTEPS );
 
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predictedPlayerState;
@@ -1808,7 +1808,7 @@ void CG_PredictPlayerState( void ) {
 
 				trap->GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
 
-				if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
+				if ( Any( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK ) )
 				{ //forced input if "chat bubble" is up
 					veh->m_pVehicle->m_ucmd.buttons = BUTTON_TALK;
 					veh->m_pVehicle->m_ucmd.forwardmove = 0;
@@ -1870,7 +1870,7 @@ void CG_PredictPlayerState( void ) {
 					cg_vehPmoveSet = true;
 				}
 
-				cg_vehPmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
+				cg_vehPmove.noFootsteps = Any( cgs.dmflags & DF_NO_FOOTSTEPS );
 
 				cg_entities[cg.predictedPlayerState.clientNum].playerState = &cg.predictedPlayerState;
 				veh->playerState = &cg.predictedVehicleState;

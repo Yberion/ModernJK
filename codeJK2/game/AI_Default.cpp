@@ -151,7 +151,7 @@ bool NPC_StandTrackAndShoot (gentity_t *NPC, bool canDuck)
 			{
 				if ( NPC->enemy->enemy == NPC )
 				{
-					if ( NPC->enemy->client->buttons & BUTTON_ATTACK )
+					if ( Any( NPC->enemy->client->buttons & BUTTON_ATTACK ) )
 					{//FIXME: determine if enemy fire angles would hit me or get close
 						if ( NPC_CheckDefend( 1.0 ) )//FIXME: Check self-preservation?  Health?
 						{
@@ -279,7 +279,7 @@ void NPC_BSHuntAndKill( void )
 			enemyDist = VectorLength(vec);
 			if( enemyDist > 48 && ((enemyDist*1.5)*(enemyDist*1.5) >= NPC_MaxDistSquaredForWeapon() ||
 				oEVis != VIS_SHOOT ||
-				//!(ucmd.buttons & BUTTON_ATTACK) ||
+				//!Any(ucmd.buttons & BUTTON_ATTACK) ||
 				enemyDist > IdealDistance(NPC)*3 ) )
 			{//We should close in?
 				NPCInfo->goalEntity = NPC->enemy;
@@ -288,7 +288,7 @@ void NPC_BSHuntAndKill( void )
 			}
 			else if(enemyDist < IdealDistance(NPC))
 			{//We should back off?
-				//if(ucmd.buttons & BUTTON_ATTACK)
+				//if(Any( ucmd.buttons & BUTTON_ATTACK ))
 				{
 					NPCInfo->goalEntity = NPC->enemy;
 					NPCInfo->goalRadius = 12;
@@ -448,7 +448,7 @@ void NPC_BSRunAndShoot (void)
 		int monitor = NPC->cantHitEnemyCounter;
 		NPC_StandTrackAndShoot( NPC, false );//(NPCInfo->hidingGoal != nullptr) );
 
-		if ( !(ucmd.buttons & BUTTON_ATTACK) && ucmd.upmove >= 0 && NPC->cantHitEnemyCounter > monitor )
+		if ( !Any(ucmd.buttons & BUTTON_ATTACK) && ucmd.upmove >= 0 && NPC->cantHitEnemyCounter > monitor )
 		{//not crouching and not firing
 			vec3_t	vec;
 
@@ -567,13 +567,13 @@ void NPC_BSPointShoot (bool shoot)
 			ucmd.buttons |= BUTTON_ATTACK;
 		}
 
-		if ( !shoot || !(NPC->svFlags & SVF_LOCKEDENEMY) )
+		if ( !shoot || !Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 		{//If locked_enemy is on, dont complete until it is destroyed...
 			Q3_TaskIDComplete( NPC, TID_BSTATE );
 			goto finished;
 		}
 	}
-	else if ( shoot && (NPC->svFlags & SVF_LOCKEDENEMY) )
+	else if ( shoot && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//shooting them till their dead, not aiming right at them yet...
 		/*
 		bool movingTarget = false;
@@ -742,12 +742,12 @@ void NPC_BSDefault( void )
 //	bool	shoot = false;
 
 
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
+	if ( Any( NPCInfo->scriptFlags & SCF_FORCED_MARCH ) )
 	{//being forced to walk
 		if( NPC->client->ps.torsoAnim != TORSO_SURRENDER_START )
 		{
@@ -755,10 +755,10 @@ void NPC_BSDefault( void )
 		}
 	}
 	//look for a new enemy if don't have one and are allowed to look, validate current enemy if have one
-	NPC_CheckEnemy( (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES), false );
+	NPC_CheckEnemy( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES), false );
 	if ( !NPC->enemy )
 	{//still don't have an enemy
-		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{//check for alert events
 			//FIXME: Check Alert events, see if we should investigate or just look at it
 			int alertEvent = NPC_CheckAlertEvents( true, true, -1, true, AEL_DISCOVERED );
@@ -766,7 +766,7 @@ void NPC_BSDefault( void )
 			//There is an event to look at
 			if ( alertEvent >= 0 && level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
 			{//heard/saw something
-				if ( level.alertEvents[alertEvent].level >= AEL_DISCOVERED && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+				if ( level.alertEvents[alertEvent].level >= AEL_DISCOVERED && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 				{//was a big event
 					if ( level.alertEvents[alertEvent].owner && level.alertEvents[alertEvent].owner->client && level.alertEvents[alertEvent].owner->health >= 0 && level.alertEvents[alertEvent].owner->client->playerTeam == NPC->client->enemyTeam )
 					{//an enemy
@@ -781,7 +781,7 @@ void NPC_BSDefault( void )
 		}
 	}
 
-	if ( NPC->enemy && !(NPCInfo->scriptFlags&SCF_FORCED_MARCH) )
+	if ( NPC->enemy && !Any(NPCInfo->scriptFlags&SCF_FORCED_MARCH) )
 	{
 		// just use the stormtrooper attack AI...
 		NPC_CheckGetNewWeapon();
@@ -847,13 +847,13 @@ void NPC_BSDefault( void )
 		}
 
 		//shoot decision
-		if ( !(NPCInfo->scriptFlags&SCF_DONT_FIRE) )
+		if ( !Any(NPCInfo->scriptFlags&SCF_DONT_FIRE) )
 		{//try to shoot
 			if ( NPC->enemy )
 			{
 				if ( shoot )
 				{
-					if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+					if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 					{
 						WeaponThink( true );
 					}
@@ -862,7 +862,7 @@ void NPC_BSDefault( void )
 		}
 
 		//chase decision
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{//go after him
 			NPCInfo->goalEntity = NPC->enemy;
 			//FIXME: don't need to chase when have a clear shot and in range?
@@ -909,7 +909,7 @@ void NPC_BSDefault( void )
 		else
 		{
 			//set angles
-			if ( (NPCInfo->scriptFlags & SCF_FACE_MOVE_DIR) || NPCInfo->goalEntity != NPC->enemy )
+			if ( Any(NPCInfo->scriptFlags & SCF_FACE_MOVE_DIR) || NPCInfo->goalEntity != NPC->enemy )
 			{//face direction of movement, NOTE: default behavior when not chasing enemy
 				NPCInfo->combatMove = false;
 			}
@@ -931,11 +931,11 @@ void NPC_BSDefault( void )
 			//set movement
 			//override default walk/run behavior
 			//NOTE: redundant, done in NPC_ApplyScriptFlags
-			if ( NPCInfo->scriptFlags & SCF_RUNNING )
+			if ( Any( NPCInfo->scriptFlags & SCF_RUNNING ) )
 			{
 				ucmd.buttons &= ~BUTTON_WALKING;
 			}
-			else if ( NPCInfo->scriptFlags & SCF_WALKING )
+			else if ( Any( NPCInfo->scriptFlags & SCF_WALKING ) )
 			{
 				ucmd.buttons |= BUTTON_WALKING;
 			}
@@ -948,7 +948,7 @@ void NPC_BSDefault( void )
 				ucmd.buttons |= BUTTON_WALKING;
 			}
 
-			if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
+			if ( Any( NPCInfo->scriptFlags & SCF_FORCED_MARCH ) )
 			{//being forced to walk
 				if ( g_crosshairEntNum != NPC->s.number )
 				{//don't walk if player isn't aiming at me

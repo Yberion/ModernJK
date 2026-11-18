@@ -48,7 +48,7 @@ bool CG_RegisterClientModelname( clientInfo_t *ci, const char *headModelName, co
 									const char *legsModelName, const char *legsSkinName );
 
 void CG_PlayerAnimSounds( int animFileIndex, bool torso, int oldFrame, int frame, int entNum );
-extern void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const int flags,
+extern void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList );
 extern void FX_BorgDeathSparkParticles( vec3_t origin, vec3_t angles, vec3_t vel, vec3_t user );
 extern std::optional<animNumber_t> PM_GetTurnAnim( gentity_t *gent, animNumber_t anim );
@@ -457,7 +457,7 @@ void CG_NewClientinfo( int clientNum )
 				sizeof(	g_entities[clientNum].client->renderInfo.headModelName));
 
 	// sounds
-	cvar_t	*sex = gi.cvar( "sex", "male", 0 );
+	cvar_t	*sex = gi.cvar( "sex", "male", CVAR_NONE );
 	if ( Q_stricmp("female", sex->string ) == 0 )
 	{
 		ci->customBasicSoundDir = "kyla";
@@ -1270,9 +1270,10 @@ void CGG2_AnimSounds( centity_t *cent )
 	if ( ValidAnimFileIndex( cent->gent->client->clientInfo.animFileIndex ) )
 	{
 		int		junk, curFrame=0;
+		boneFlags_t		junkFlags;
 		float	currentFrame=0, animSpeed;
 
-		if (cent->gent->rootBone>=0&&gi.G2API_GetBoneAnimIndex( &cent->gent->ghoul2[cent->gent->playerModel], cent->gent->rootBone, cg.time, &currentFrame, &junk, &junk, &junk, &animSpeed, cgs.model_draw ))
+		if (cent->gent->rootBone>=0&&gi.G2API_GetBoneAnimIndex( &cent->gent->ghoul2[cent->gent->playerModel], cent->gent->rootBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ))
 		{
 			// the above may have failed, not sure what to do about it, current frame will be zero in that case
 			curFrame = floor( currentFrame );
@@ -1284,7 +1285,7 @@ void CGG2_AnimSounds( centity_t *cent )
 		cent->gent->client->renderInfo.legsFrame = curFrame;
 		cent->pe.legs.frame = curFrame;
 
-		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &junk, &junk, &junk, &animSpeed, cgs.model_draw ) )
+		if (cent->gent->lowerLumbarBone>=0&& gi.G2API_GetBoneAnimIndex(&cent->gent->ghoul2[cent->gent->playerModel], cent->gent->lowerLumbarBone, cg.time, &currentFrame, &junk, &junk, &junkFlags, &animSpeed, cgs.model_draw ) )
 		{
 			curFrame = floor( currentFrame );
 		}
@@ -1742,7 +1743,7 @@ bool CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velocity, float
 			{
 				addAngle = swingTolMin;
 			}
-			if ( cent->gent->client->ps.pm_flags&PMF_BACKWARDS_RUN )
+			if ( Any( cent->gent->client->ps.pm_flags&PMF_BACKWARDS_RUN ) )
 			{
 				addAngle *= -1;
 			}
@@ -2231,7 +2232,7 @@ void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t angles )
 			{
 				cent->gent->client->renderInfo.legsYaw = angles[YAW];
 			}
-			if ( cent->gent->client->ps.eFlags & EF_FORCE_GRIPPED && cent->gent->client->ps.groundEntityNum == ENTITYNUM_NONE )
+			if ( Any( cent->gent->client->ps.eFlags & EF_FORCE_GRIPPED ) && cent->gent->client->ps.groundEntityNum == ENTITYNUM_NONE )
 			{
 				vec3_t	centFwd, centRt;
 
@@ -2521,7 +2522,7 @@ void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], vec3_t h
 		return;
 	}
 
-	if(cent->currentState.eFlags & EF_NPC)
+	if(Any( cent->currentState.eFlags & EF_NPC ))
 	{
 		headYawClampMin = -cent->gent->client->renderInfo.headYawRangeLeft;
 		headYawClampMax = cent->gent->client->renderInfo.headYawRangeRight;
@@ -2955,7 +2956,7 @@ void _PlayerSplash( const vec3_t origin, const vec3_t velocity, const float radi
 	static vec3_t WHITE={1,1,1};
 	vec3_t		start, end;
 	trace_t		trace;
-	int			contents;
+	contentsFlags_t	contents;
 
 	VectorCopy( origin, end );
 	end[2] -= 24;
@@ -2963,7 +2964,7 @@ void _PlayerSplash( const vec3_t origin, const vec3_t velocity, const float radi
 	// if the feet aren't in liquid, don't make a mark
 	// this won't handle moving water brushes, but they wouldn't draw right anyway...
 	contents = cgi_CM_PointContents( end, 0 );
-	if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
+	if ( !Any( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
 	{
 		return;
 	}
@@ -2980,7 +2981,7 @@ void _PlayerSplash( const vec3_t origin, const vec3_t velocity, const float radi
 
 	// if the head isn't out of liquid, don't make a mark
 	contents = cgi_CM_PointContents( start, 0 );
-	if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
+	if ( Any( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
 	{
 		return;
 	}
@@ -3082,11 +3083,11 @@ void CG_LightningBolt( centity_t *cent, vec3_t origin )
 {
 	// FIXME:  This sound also plays when the weapon first fires which causes little sputtering sounds..not exactly cool
 	// Must be currently firing
-	if ( !( cent->currentState.eFlags & EF_FIRING ) )
+	if ( !Any( cent->currentState.eFlags & EF_FIRING ) )
 		return;
 
 	//Must be a durational weapon
-//	if ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.eFlags & EF_ALT_FIRING )
+//	if ( cent->currentState.weapon == WP_DEMP2 && Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 //	{ /*nothing*/ }
 //	else
 	{
@@ -3119,14 +3120,14 @@ void CG_LightningBolt( centity_t *cent, vec3_t origin )
 	traceEnt = &g_entities[ trace.entityNum ];
 
 	// Make sparking be a bit less frame-rate dependent..also never add sparking when we hit a surface with a NOIMPACT flag
-	if ( cent->gent->fx_time < cg.time && !(trace.surfaceFlags & SURF_NOIMPACT ))
+	if ( cent->gent->fx_time < cg.time && !Any( trace.surfaceFlags & SURF_NOIMPACT ))
 	{
 		spark = true;
 		cent->gent->fx_time = cg.time + Q_flrand(0.0f, 1.0f) * 100 + 100;
 	}
 
 	// Don't draw certain kinds of impacts when it hits a player and such..or when we hit a surface with a NOIMPACT flag
-	if ( (traceEnt->takedamage && traceEnt->client) || (trace.surfaceFlags & SURF_NOIMPACT) )
+	if ( (traceEnt->takedamage && traceEnt->client) || Any( trace.surfaceFlags & SURF_NOIMPACT ) )
 	{
 		impact = false;
 	}
@@ -3504,7 +3505,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	}
 	else if (( powerups & Bit( PW_CLOAKED )))
 	{//fully cloaked
-		ent->renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
+		ent->renderfx = RF_NONE;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 		ent->shaderRGBA[0] = ent->shaderRGBA[1] = ent->shaderRGBA[2] = ent->shaderRGBA[3] = 255;
 		ent->customShader = cgs.media.cloakedShader;
 		cgi_R_AddRefEntityToScene( ent );
@@ -3710,7 +3711,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, animNumber_t anim )
 	gentity_t	*gent = cent->gent;
 	const int blendTime = 50;
 	const auto &animations = level.knownAnimFileSets[gent->client->clientInfo.animFileIndex].animations;
-	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
+	boneFlags_t	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
 //	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&Bit( FP_SPEED ))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (cg_timescale.value)?(1.0/cg_timescale.value):1.0;
@@ -4142,7 +4143,7 @@ void CG_StopWeaponSounds( centity_t *cent )
 		return;
 	}
 
-	if ( !( cent->currentState.eFlags & EF_FIRING ) )
+	if ( !Any( cent->currentState.eFlags & EF_FIRING ) )
 	{
 		if ( cent->pe.lightningFiring )
 		{
@@ -4162,7 +4163,7 @@ void CG_StopWeaponSounds( centity_t *cent )
 			weak = true;
 	}
 
-	if ( cent->currentState.eFlags & EF_ALT_FIRING && !weak )
+	if ( Any( cent->currentState.eFlags & EF_ALT_FIRING ) && !weak )
 	{
 		if ( weapon->altFiringSound )
 		{
@@ -4170,7 +4171,7 @@ void CG_StopWeaponSounds( centity_t *cent )
 		}
 		cent->pe.lightningFiring = true;
 	}
-	else if ( cent->currentState.eFlags & EF_FIRING )
+	else if ( Any( cent->currentState.eFlags & EF_FIRING ) )
 	{
 		cent->pe.lightningFiring = true;
 		if ( weapon->firingSound )
@@ -4188,7 +4189,7 @@ void CG_StopWeaponSounds( centity_t *cent )
 //--------------- SABER STUFF --------
 extern void CG_Smoke( vec3_t origin, vec3_t dir, float radius, float speed, qhandle_t shader, int flags);
 
-void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, saber_colors_t color, int rfx )
+void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, saber_colors_t color, renderFxFlags_t rfx )
 {
 	vec3_t		mid, rgb={1,1,1};
 	qhandle_t	blade = 0, glow = 0;
@@ -4393,8 +4394,8 @@ void CG_CheckSaberInWater( centity_t *cent, centity_t *scent, int modelIndex, ve
 	// work the matrix axis stuff into the original axis and origins used.
 	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, saberOrg );
 
-	int contents = gi.pointcontents( saberOrg, cent->currentState.clientNum );
-	if ( (contents&CONTENTS_WATER) || (contents&CONTENTS_SLIME) )
+	contentsFlags_t contents = gi.pointcontents( saberOrg, cent->currentState.clientNum );
+	if ( Any( contents&CONTENTS_WATER ) || Any( contents&CONTENTS_SLIME ) )
 	{//still in water
 		client->ps.saberEventFlags |= SEF_INWATER;
 		return;
@@ -4403,7 +4404,7 @@ void CG_CheckSaberInWater( centity_t *cent, centity_t *scent, int modelIndex, ve
 	client->ps.saberEventFlags &= ~SEF_INWATER;
 }
 
-void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, vec3_t origin, vec3_t angles)
+void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, renderFxFlags_t renderfx, int modelIndex, vec3_t origin, vec3_t angles)
 {
 	vec3_t	org_, end,//org_future,
 			axis_[3] = {{0,0,0}, {0,0,0}, {0,0,0}};//, axis_future[3]={{0,0,0}, {0,0,0}, {0,0,0}};	// shut the compiler up
@@ -4541,10 +4542,10 @@ Ghoul2 Insert End
 
 			if ( trace.fraction < 1.0f )
 			{
-				if ( (trace.contents&CONTENTS_WATER) || (trace.contents&CONTENTS_SLIME) )
+				if ( Any( trace.contents&CONTENTS_WATER ) || Any( trace.contents&CONTENTS_SLIME ) )
 				{
 					/*
-					if ( !(cent->gent->client->ps.saberEventFlags&SEF_INWATER) )
+					if ( !Any( cent->gent->client->ps.saberEventFlags & SEF_INWATER ) )
 					{
 					}
 					*/
@@ -4788,7 +4789,7 @@ void CG_Player( centity_t *cent ) {
 
 	calcedMp = false;
 
-	if ( cent->currentState.eFlags & EF_NODRAW )
+	if ( Any( cent->currentState.eFlags & EF_NODRAW ) )
 	{
 		return;
 	}
@@ -4807,7 +4808,7 @@ void CG_Player( centity_t *cent ) {
 	//Get the player's light level for stealth calculations
 	CG_GetPlayerLightLevel( cent );
 
-	if ((in_camera) && !(cent->currentState.eFlags & EF_NPC))	// If player in camera then no need for shadow
+	if ((in_camera) && !Any(cent->currentState.eFlags & EF_NPC))	// If player in camera then no need for shadow
 	{
 		return;
 	}
@@ -4837,7 +4838,7 @@ void CG_Player( centity_t *cent ) {
 			return;
 		}
 
-		ent.renderfx = 0;
+		ent.renderfx = RF_NONE;
 		if ( cent->currentState.number == cg.snap->ps.clientNum )
 		{//player
 			if ( !cg.renderingThirdPerson )
@@ -4854,7 +4855,7 @@ void CG_Player( centity_t *cent ) {
 			ent.renderfx |= RF_SHADOW_PLANE;
 		}
 		ent.renderfx |= RF_LIGHTING_ORIGIN;			// use the same origin for all
-		if ( cent->gent->NPC && cent->gent->NPC->scriptFlags & SCF_MORELIGHT )
+		if ( cent->gent->NPC && Any( cent->gent->NPC->scriptFlags & SCF_MORELIGHT ) )
 		{
 			ent.renderfx |= RF_MORELIGHT;			//bigger than normal min light
 		}
@@ -4971,7 +4972,7 @@ Ghoul2 Insert Start
 		CG_PlayerSplash( cent );
 
 		// get the player model information
-		ent.renderfx = 0;
+		ent.renderfx = RF_NONE;
 		if ( !cg.renderingThirdPerson || cg.zoomMode )
 		{//in first person or zoomed in
 			if ( cg.snap->ps.viewEntity <= 0 || cg.snap->ps.viewEntity >= ENTITYNUM_WORLD)
@@ -5004,7 +5005,7 @@ Ghoul2 Insert Start
 		}
 		ent.shadowPlane = shadowPlane;
 		ent.renderfx |= RF_LIGHTING_ORIGIN;			// use the same origin for all
-		if ( cent->gent->NPC && cent->gent->NPC->scriptFlags & SCF_MORELIGHT )
+		if ( cent->gent->NPC && Any( cent->gent->NPC->scriptFlags & SCF_MORELIGHT ) )
 		{
 			ent.renderfx |= RF_MORELIGHT;			//bigger than normal min light
 		}
@@ -5012,7 +5013,7 @@ Ghoul2 Insert Start
 		CG_RegisterWeapon( cent->currentState.weapon );
 
 //---------------
-		if ( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON && cent->gent && cent->gent->health > 0 && cent->gent->owner )
+		if ( Any( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ) && cent->gent && cent->gent->health > 0 && cent->gent->owner )
 		{
 			centity_t	*chair = &cg_entities[cent->gent->owner->s.number];
 			if ( chair && chair->gent )
@@ -5084,7 +5085,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		if ( (cent->gent->s.number == 0 || G_ControlledByPlayer( cent->gent )) )
 		{
 			float alpha = 1.0f;
-			if ( (cg.overrides.active&CG_OVERRIDE_3RD_PERSON_APH) )
+			if ( Any(cg.overrides.active&CG_OVERRIDE_3RD_PERSON_APH) )
 			{
 				alpha = cg.overrides.thirdPersonAlpha;
 			}
@@ -5106,15 +5107,15 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		{// Yeah um, this needs to not do this quite this way
 			ent.customSkin = cgi_R_RegisterSkin( "models/players/kyle/model_fpls2.skin" );	//precached in g_client.cpp
 			//turn on arm caps
-			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "r_arm_cap_torso_off", 0 );
-			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "l_arm_cap_torso_off", 0 );
+			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "r_arm_cap_torso_off", G2SURFACEFLAG_NONE );
+			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "l_arm_cap_torso_off", G2SURFACEFLAG_NONE );
 		}
 		else
 		{
 			ent.customSkin = 0;
 			//turn off arm caps
-			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "r_arm_cap_torso_off", 0x00000002 );
-			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "l_arm_cap_torso_off", 0x00000002 );
+			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "r_arm_cap_torso_off", G2SURFACEFLAG_OFF );
+			gi.G2API_SetSurfaceOnOff( &cent->gent->ghoul2[cent->gent->playerModel], "l_arm_cap_torso_off", G2SURFACEFLAG_OFF );
 		}
 
 		// We want to be able to do cool full-body type effects
@@ -5190,7 +5191,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		//Handle saber
 		if ( cent->gent && cent->gent->client && ( cent->currentState.weapon == WP_SABER || cent->currentState.saberInFlight ) && cent->gent->client->NPC_class != CLASS_ATST )
 		{//FIXME: somehow saberactive is getting lost over the network
-			if ( cent->gent->client->ps.saberEventFlags&SEF_INWATER )
+			if ( Any( cent->gent->client->ps.saberEventFlags & SEF_INWATER ) )
 			{
 				cent->gent->client->ps.saberActive = false;
 			}
@@ -5255,7 +5256,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 //						CGhoul2Info *nextModel = &cent->gent->ghoul2[1];
 					//FIXME: need a version of this that *doesn't* need the mFileName in the ghoul2
 					//FIXME: use an actual surfaceIndex?
-					if ( !gi.G2API_GetSurfaceRenderStatus( &cent->gent->ghoul2[cent->gent->playerModel], "r_hand" ) )//surf is still on
+					if ( gi.G2API_GetSurfaceRenderStatus( &cent->gent->ghoul2[cent->gent->playerModel], "r_hand" ) == G2SURFACEFLAG_NONE )//surf is still on
 					{
 						CG_AddSaberBlade( cent, cent, nullptr, ent.renderfx, cent->gent->weaponModel, ent.origin, tempAngles);
 					}//else, the limb will draw the blade itself
@@ -5267,7 +5268,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				{
 					cent->gent->client->ps.saberLength = 0;
 				}
-				//if ( cent->gent->client->ps.saberEventFlags&SEF_INWATER )
+				//if ( Any( cent->gent->client->ps.saberEventFlags & SEF_INWATER ) )
 				{
 					CG_CheckSaberInWater( cent, cent, cent->gent->weaponModel, ent.origin, tempAngles );
 				}
@@ -5442,7 +5443,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 			}
 
 			// Pick the right effect for the type of weapon we are, defaults to no effect unless explicitly specified
-			if ( cent->muzzleFlashTime > 0 && wData && !(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
+			if ( cent->muzzleFlashTime > 0 && wData && !Any(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
 			{
 				const char *effect = nullptr;
 
@@ -5463,7 +5464,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 					}
 				}
 
-				if (/*( cent->currentState.eFlags & EF_FIRING || cent->currentState.eFlags & EF_ALT_FIRING ) &&*/ effect )
+				if (/*( Any( cent->currentState.eFlags & EF_FIRING ) || Any( cent->currentState.eFlags & EF_ALT_FIRING ) ) &&*/ effect )
 				{
 					if ( cent->gent && cent->gent->NPC )
 					{
@@ -5494,7 +5495,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				CG_ForcePushBlur( cent->gent->client->renderInfo.handLPoint );
 			}
 
-			if ( cent->gent->client->ps.eFlags & EF_FORCE_GRIPPED )
+			if ( Any( cent->gent->client->ps.eFlags & EF_FORCE_GRIPPED ) )
 			{//being gripped
 				CG_ForcePushBlur( cent->gent->client->renderInfo.headPoint );
 			}
@@ -5564,7 +5565,8 @@ extern void WP_SaberUpdateOldBladeData( gentity_t *ent );
 	refEntity_t		gun;
 	refEntity_t		flash;
 	refEntity_t		flashlight;
-	int				renderfx, i;
+	renderFxFlags_t	renderfx;
+	int				i;
 	const weaponInfo_t	*weapon;
 
 
@@ -5608,7 +5610,7 @@ Ghoul2 Insert End
 	CG_PlayerSplash( cent );
 
 	// get the player model information
-	renderfx = 0;
+	renderfx = RF_NONE;
 	if ( !cg.renderingThirdPerson || cg.zoomMode )
 	{
 		if ( cg.snap->ps.viewEntity <= 0 || cg.snap->ps.viewEntity >= ENTITYNUM_WORLD)
@@ -5635,7 +5637,7 @@ Ghoul2 Insert End
 		renderfx |= RF_SHADOW_PLANE;
 	}
 	renderfx |= RF_LIGHTING_ORIGIN;			// use the same origin for all
-	if ( cent->gent->NPC && cent->gent->NPC->scriptFlags & SCF_MORELIGHT )
+	if ( cent->gent->NPC && Any( cent->gent->NPC->scriptFlags & SCF_MORELIGHT ) )
 	{
 		renderfx |= RF_MORELIGHT;			//bigger than normal min light
 	}
@@ -5847,7 +5849,7 @@ Ghoul2 Insert End
 				}
 				else
 				{
-					//if ( cent->gent->client->ps.saberEventFlags&SEF_INWATER )
+					//if ( Any( cent->gent->client->ps.saberEventFlags & SEF_INWATER ) )
 					{
 						CG_CheckSaberInWater( cent, cent, 0, nullptr, nullptr );
 					}
@@ -5871,7 +5873,7 @@ Ghoul2 Insert End
 			//
 
 			// impulse flash
-			if ( cent->muzzleFlashTime > 0 && wData && !(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
+			if ( cent->muzzleFlashTime > 0 && wData && !Any(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
 			{
 				int effect = 0;
 
@@ -5885,7 +5887,7 @@ Ghoul2 Insert End
 					effect = wData->mMuzzleEffectID;
 				}
 
-				if ( cent->currentState.eFlags & EF_ALT_FIRING )
+				if ( Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 				{
 					// We're alt-firing, so see if we need to override with a custom alt-fire effect
 					if ( wData->mAltMuzzleEffectID )
@@ -5894,7 +5896,7 @@ Ghoul2 Insert End
 					}
 				}
 
-				if (( cent->currentState.eFlags & EF_FIRING || cent->currentState.eFlags & EF_ALT_FIRING ) && effect )
+				if (( Any( cent->currentState.eFlags & EF_FIRING ) || Any( cent->currentState.eFlags & EF_ALT_FIRING ) ) && effect )
 				{
 					vec3_t up={0,0,1}, ax[3];
 
@@ -5915,7 +5917,7 @@ Ghoul2 Insert End
 				}
 			}
 
-			if ( !calcedMp && !(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
+			if ( !calcedMp && !Any(cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
 			{// Set the muzzle point
 				orientation_t orientation;
 

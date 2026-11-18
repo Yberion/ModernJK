@@ -36,11 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Navigation susbsystem
 //
 
-#define NAVF_DUCK			0x00000001
-#define NAVF_JUMP			0x00000002
-#define NAVF_HOLD			0x00000004
-#define NAVF_SLOW			0x00000008
-
 #define DEBUG_LEVEL_DETAIL	4
 #define DEBUG_LEVEL_INFO	3
 #define DEBUG_LEVEL_WARNING	2
@@ -127,7 +122,7 @@ extern bool NPC_CheckDefend (float scale);
 extern bool NPC_CheckCanAttack (float attack_scale, bool stationary);
 extern int NPC_AttackDebounceForWeapon (void);
 extern bool EntIsGlass (gentity_t *check);
-extern bool ShotThroughGlass (trace_t *tr, gentity_t *target, vec3_t spot, int mask);
+extern bool ShotThroughGlass (trace_t *tr, gentity_t *target, vec3_t spot, contentsFlags_t mask);
 extern bool ValidEnemy (gentity_t *ent);
 extern void G_ClearEnemy (gentity_t *self);
 extern gentity_t *NPC_PickAlly ( bool facingEachOther, float range, bool ignoreGroup, bool movingOnly );
@@ -173,16 +168,12 @@ extern bool NPC_MoveToGoal( bool tryStraight );
 
 //NPC_senses
 #define	ALERT_CLEAR_TIME	200
-#define CHECK_PVS		1
-#define CHECK_360		2
-#define CHECK_FOV		4
-#define CHECK_SHOOT		8
-#define CHECK_VISRANGE	16
+#include "qcommon/q_npcflags.h"
 extern bool CanSee ( gentity_t *ent );
 extern bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV );
 extern bool InFOV2( vec3_t origin, gentity_t *from, int hFOV, int vFOV );
 extern bool InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
-extern visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags );
+extern visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags );
 extern bool InVisrange ( gentity_t *ent );
 
 //NPC_spawn
@@ -209,7 +200,7 @@ extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 
 //g_nav.cpp
 extern int NAV_FindClosestWaypointForEnt (gentity_t *ent, int targWp);
-extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, int clipmask );
+extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t *trace, contentsFlags_t clipmask );
 
 //NPC_combat
 extern float IdealDistance ( gentity_t *self );
@@ -223,7 +214,7 @@ extern bool G_CheckInSolid (gentity_t *self, bool fix);
 //MCG - End============================================================
 
 // NPC.cpp
-extern void NPC_SetAnim(gentity_t *ent, int type, animNumber_t anim, int priority);
+extern void NPC_SetAnim(gentity_t *ent, setAnimParts_t type, animNumber_t anim, setAnimFlags_t priority);
 extern bool NPC_EnemyTooFar(gentity_t *enemy, float dist, bool toShoot);
 
 // ==================================================================
@@ -232,7 +223,7 @@ extern bool NPC_EnemyTooFar(gentity_t *enemy, float dist, bool toShoot);
 void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles);
 
 //rww - and another method of automatically managing surface status for the client and server at once
-void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags);
+void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags);
 
 extern bool NPC_ClearLOS( const vec3_t start, const vec3_t end );
 extern bool NPC_ClearLOS5( const vec3_t end );
@@ -242,40 +233,39 @@ extern bool NPC_ClearLOS2( gentity_t *ent, const vec3_t end );
 
 extern bool NPC_ClearShot( gentity_t *ent );
 
-extern int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3_t enemyPosition, const int flags, const float avoidDist, const int ignorePoint ); //ignorePoint = -1
+// What NPC_FindCombatPoint looks for
+enum class combatPointSearchFlags_t
+{
+	CP_ANY			= 0,			//No flags
+	CP_COVER		= 0x00000001,	//The enemy cannot currently shoot this position
+	CP_CLEAR		= 0x00000002,	//This cover point has a clear shot to the enemy
+	CP_FLEE			= 0x00000004,	//This cover point is marked as a flee point
+	CP_DUCK			= 0x00000008,	//This cover point is marked as a duck point
+	CP_NEAREST		= 0x00000010,	//Find the nearest combat point
+	CP_AVOID_ENEMY	= 0x00000020,	//Avoid our enemy
+	CP_INVESTIGATE	= 0x00000040,	//A special point worth enemy investigation if searching
+	CP_SQUAD		= 0x00000080,	//Squad path
+	CP_AVOID		= 0x00000100,	//Avoid supplied position
+	CP_APPROACH_ENEMY = 0x00000200,	//Try to get closer to enemy
+	CP_CLOSEST		= 0x00000400,	//Take the closest combatPoint to the enemy that's available
+	CP_FLANK		= 0x00000800,	//Pick a combatPoint behind the enemy
+	CP_HAS_ROUTE	= 0x00001000,	//Pick a combatPoint that we have a route to
+	CP_SNIPE		= 0x00002000,	//Pick a combatPoint that is marked as a sniper spot
+	CP_SAFE			= 0x00004000,	//Pick a combatPoint that is not have dangerTime
+	CP_HORZ_DIST_COLL = 0x00008000,	//Collect combat points within *horizontal* dist
+	CP_NO_PVS		= 0x00010000,	//A combat point out of the PVS of enemy pos
+	CP_RETREAT		= 0x00020000,	//Try to get farther from enemy
+};
+using enum combatPointSearchFlags_t;
+template <> inline constexpr bool enableEnumFlags<combatPointSearchFlags_t> = true;
+
+
+extern int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3_t enemyPosition, const combatPointSearchFlags_t flags, const float avoidDist, const int ignorePoint ); //ignorePoint = -1
 
 
 extern bool NPC_ReserveCombatPoint( int combatPointID );
 extern bool NPC_FreeCombatPoint( int combatPointID, bool failed ); //failed = false
 extern bool NPC_SetCombatPoint( int combatPointID );
-
-#define	CP_ANY			0			//No flags
-#define	CP_COVER		0x00000001	//The enemy cannot currently shoot this position
-#define CP_CLEAR		0x00000002	//This cover point has a clear shot to the enemy
-#define CP_FLEE			0x00000004	//This cover point is marked as a flee point
-#define CP_DUCK			0x00000008	//This cover point is marked as a duck point
-#define CP_NEAREST		0x00000010	//Find the nearest combat point
-#define CP_AVOID_ENEMY	0x00000020	//Avoid our enemy
-#define CP_INVESTIGATE	0x00000040	//A special point worth enemy investigation if searching
-#define	CP_SQUAD		0x00000080	//Squad path
-#define	CP_AVOID		0x00000100	//Avoid supplied position
-#define	CP_APPROACH_ENEMY 0x00000200	//Try to get closer to enemy
-#define	CP_CLOSEST		0x00000400	//Take the closest combatPoint to the enemy that's available
-#define	CP_FLANK		0x00000800	//Pick a combatPoint behind the enemy
-#define	CP_HAS_ROUTE	0x00001000	//Pick a combatPoint that we have a route to
-#define	CP_SNIPE		0x00002000	//Pick a combatPoint that is marked as a sniper spot
-#define	CP_SAFE			0x00004000	//Pick a combatPoint that is not have dangerTime
-#define	CP_HORZ_DIST_COLL 0x00008000	//Collect combat points within *horizontal* dist
-#define	CP_NO_PVS		0x00010000	//A combat point out of the PVS of enemy pos
-#define	CP_RETREAT		0x00020000	//Try to get farther from enemy
-
-#define CPF_NONE		0
-#define	CPF_DUCK		0x00000001
-#define	CPF_FLEE		0x00000002
-#define	CPF_INVESTIGATE	0x00000004
-#define	CPF_SQUAD		0x00000008
-#define	CPF_LEAN		0x00000010
-#define	CPF_SNIPE		0x00000020
 
 #define	MAX_COMBAT_POINT_CHECK	32
 
@@ -297,7 +287,7 @@ extern bool NAV_HitNavGoal( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t dest,
 
 extern void NPC_SetMoveGoal( gentity_t *ent, vec3_t point, int radius, bool isNavGoal, int combatPoint, gentity_t *targetEnt ); //isNavGoal = false, combatPoint = -1, targetEnt = nullptr
 
-extern bool NAV_ClearPathToPoint(gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt );
+extern bool NAV_ClearPathToPoint(gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEnt );
 extern void NPC_ApplyWeaponFireDelay(void);
 
 //NPC_FaceXXX suite
@@ -308,11 +298,6 @@ extern bool NPC_FaceEnemy( bool doPitch ); //doPitch = true
 //Skill level cvar
 extern vmCvar_t	g_npcspskill;
 
-#define	NIF_NONE		0x00000000
-#define	NIF_FAILED		0x00000001	//failed to find a way to the goal
-#define	NIF_MACRO_NAV	0x00000002	//using macro navigation
-#define	NIF_COLLISION	0x00000004	//resolving collision with an entity
-#define NIF_BLOCKED		0x00000008	//blocked from moving
 
 /*
 -------------------------
@@ -327,7 +312,7 @@ typedef struct navInfo_s
 	vec3_t		pathDirection;
 	float		distance;
 	trace_t		trace;
-	int			flags;
+	navInfoFlags_t	flags;
 } navInfo_t;
 
 extern int	NAV_MoveToGoal( gentity_t *self, navInfo_t *info );

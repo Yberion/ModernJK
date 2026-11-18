@@ -60,8 +60,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 
-#define DEFINE_FIXED			0x0001
-#define	DEFINE_GLOBAL			0x0002
+enum class defineFlags_t
+{
+	DEFINE_NONE = 0,
+	DEFINE_FIXED			= 0x0001,
+	DEFINE_GLOBAL			= 0x0002,
+};
+using enum defineFlags_t;
+template <> inline constexpr bool enableEnumFlags<defineFlags_t> = true;
 
 #define BUILTIN_LINE			1
 #define BUILTIN_FILE			2
@@ -69,17 +75,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BUILTIN_TIME			4
 #define BUILTIN_STDC			5
 
-#define INDENT_IF				0x0001
-#define INDENT_ELSE				0x0002
-#define INDENT_ELIF				0x0004
-#define INDENT_IFDEF			0x0008
-#define INDENT_IFNDEF			0x0010
+enum class indentFlags_t
+{
+	INDENT_NONE = 0,
+	INDENT_IF				= 0x0001,
+	INDENT_ELSE				= 0x0002,
+	INDENT_ELIF				= 0x0004,
+	INDENT_IFDEF			= 0x0008,
+	INDENT_IFNDEF			= 0x0010,
+};
+using enum indentFlags_t;
+template <> inline constexpr bool enableEnumFlags<indentFlags_t> = true;
 
 //macro definitions
 typedef struct define_s
 {
 	char *name;							//define name
-	int flags;							//define flags
+	defineFlags_t flags;							//define flags
 	int builtin;						// > 0 if builtin define
 	int numparms;						//number of define parameters
 	token_t *parms;						//define parameters
@@ -94,7 +106,7 @@ typedef struct define_s
 //#if, #else, #elif, #ifdef, #ifndef
 typedef struct indent_s
 {
-	int type;								//indent type
+	indentFlags_t type;								//indent type
 	int skip;								//true if skipping current indent
 	script_t *script;						//script the indent was in
 	struct indent_s *next;					//next indent on the indent stack

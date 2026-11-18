@@ -232,9 +232,6 @@ Ghoul2 Insert End
 	return true;
 }
 
-//bg_public.h won't cooperate in here
-#define EF_PERMANENT   0x00080000
-
 bool CL_GetDefaultState(int index, entityState_t *state)
 {
 	if (index < 0 || index >= MAX_GENTITIES)
@@ -243,8 +240,8 @@ bool CL_GetDefaultState(int index, entityState_t *state)
 	}
 
 	// Is this safe? I think so. But it's still ugly as sin.
-	if (!(sv.svEntities[index].baseline.eFlags & EF_PERMANENT))
-//	if (!(cl.entityBaselines[index].eFlags & EF_PERMANENT))
+	if (!Any(sv.svEntities[index].baseline.eFlags & EF_PERMANENT))
+//	if (!Any(cl.entityBaselines[index].eFlags & EF_PERMANENT))
 	{
 		return false;
 	}
@@ -828,7 +825,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
 	case CG_CVAR_REGISTER:
-		Cvar_Register( (vmCvar_t *) VMA(1), (const char *) VMA(2), (const char *) VMA(3), args[4] );
+		Cvar_Register( (vmCvar_t *) VMA(1), (const char *) VMA(2), (const char *) VMA(3), static_cast<cvarFlags_t>( args[4] ) );
 		return 0;
 	case CG_CVAR_UPDATE:
 		Cvar_Update( (vmCvar_t *) VMA(1) );
@@ -887,14 +884,14 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_CM_TEMPBOXMODEL:
 		return CM_TempBoxModel( (const float *) VMA(1), (const float *) VMA(2) );//, (int) VMA(3) );
 	case CG_CM_POINTCONTENTS:
-		return CM_PointContents( (float *)VMA(1), args[2] );
+		return to_underlying( CM_PointContents( (float *)VMA(1), args[2] ) );
 	case CG_CM_TRANSFORMEDPOINTCONTENTS:
-		return CM_TransformedPointContents( (const float *) VMA(1), args[2], (const float *) VMA(3), (const float *) VMA(4) );
+		return to_underlying( CM_TransformedPointContents( (const float *) VMA(1), args[2], (const float *) VMA(3), (const float *) VMA(4) ) );
 	case CG_CM_BOXTRACE:
-		CM_BoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], args[7] );
+		CM_BoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], static_cast<contentsFlags_t>( args[7] ) );
 		return 0;
 	case CG_CM_TRANSFORMEDBOXTRACE:
-		CM_TransformedBoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], args[7], (const float *) VMA(8), (const float *) VMA(9) );
+		CM_TransformedBoxTrace( (trace_t *) VMA(1), (const float *) VMA(2), (const float *) VMA(3), (const float *) VMA(4), (const float *) VMA(5), args[6], static_cast<contentsFlags_t>( args[7] ), (const float *) VMA(8), (const float *) VMA(9) );
 		return 0;
 	case CG_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], (float(*)[3]) VMA(2), (const float *) VMA(3), args[4], (float *) VMA(5), args[6], (markFragment_t *) VMA(7) );
@@ -1120,7 +1117,7 @@ Ghoul2 Insert End
 		return 0;
 
 	case CG_CIN_PLAYCINEMATIC:
-	  return CIN_PlayCinematic( (const char *) VMA(1), args[2], args[3], args[4], args[5], args[6], (const char *) VMA(7));
+	  return CIN_PlayCinematic( (const char *) VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>( args[6] ), (const char *) VMA(7));
 
 	case CG_CIN_STOPCINEMATIC:
 	  return to_underlying( CIN_StopCinematic(args[1]) );

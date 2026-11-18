@@ -455,7 +455,7 @@ void Com_StartupVariable( const char *match ) {
 
 		if(!match || !strcmp(s, match))
 		{
-			if((unsigned)Cvar_Flags(s) == CVAR_NONEXISTENT)
+			if(!Cvar_Flags(s))
 				Cvar_Get(s, Cmd_ArgsFrom(2), CVAR_USER_CREATED);
 			else
 				Cvar_Set2(s, Cmd_ArgsFrom(2), false);
@@ -1134,10 +1134,10 @@ void Com_Init( char *commandLine ) {
 		com_timescale = Cvar_Get ("timescale", "1", CVAR_CHEAT );
 		com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);
 		com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
-		com_speeds = Cvar_Get ("com_speeds", "0", 0);
+		com_speeds = Cvar_Get ("com_speeds", "0", CVAR_NONE);
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-		com_G2Report = Cvar_Get("com_G2Report", "0", 0);
+		com_G2Report = Cvar_Get("com_G2Report", "0", CVAR_NONE);
 #endif
 
 		cl_paused	   = Cvar_Get ("cl_paused", "0", CVAR_ROM);
@@ -1145,7 +1145,7 @@ void Com_Init( char *commandLine ) {
 		com_sv_running = Cvar_Get ("sv_running", "0", CVAR_ROM);
 		com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM);
 		com_skippingcin = Cvar_Get ("skippingCinematic", "0", CVAR_ROM);
-		com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
+		com_buildScript = Cvar_Get( "com_buildScript", "0", CVAR_NONE );
 
 		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE_ND );
 		com_busyWait = Cvar_Get( "com_busyWait", "0", CVAR_ARCHIVE_ND );
@@ -1247,7 +1247,7 @@ void Com_WriteConfiguration( void ) {
 		return;
 	}
 
-	if ( !(cvar_modifiedFlags & CVAR_ARCHIVE ) ) {
+	if ( !Any(cvar_modifiedFlags & CVAR_ARCHIVE ) ) {
 		return;
 	}
 	cvar_modifiedFlags &= ~CVAR_ARCHIVE;

@@ -491,7 +491,7 @@ Closing the main menu will restart the demo loop
 void CL_StartDemoLoop( void ) {
 	// start the demo loop again
 	Cbuf_AddText ("d1\n");
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( KEYCATCH_NONE );
 }
 
 /*
@@ -605,7 +605,7 @@ void CL_MapLoading( void ) {
 	Cvar_Set( "cl_currentServerIP", "loopback");
 
 	Con_Close();
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( KEYCATCH_NONE );
 
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
@@ -621,7 +621,7 @@ void CL_MapLoading( void ) {
 		CL_Disconnect( true );
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
 		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( 0 );
+		Key_SetCatcher( KEYCATCH_NONE );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress);
@@ -673,10 +673,10 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 		}
 	} else {
 		// Remove the cvar entirely if tracking is disabled
-		uint32_t flags = Cvar_Flags("ja_guid");
+		const std::optional<cvarFlags_t> flags = Cvar_Flags("ja_guid");
 		// keep the cvar if it's user-created, but destroy it otherwise
-		if (flags != CVAR_NONEXISTENT && !(flags & CVAR_USER_CREATED)) {
-			cvar_t *ja_guid = Cvar_Get("ja_guid", "", 0, "Client GUID" );
+		if (flags && !Any(*flags & CVAR_USER_CREATED)) {
+			cvar_t *ja_guid = Cvar_Get("ja_guid", "", CVAR_NONE, "Client GUID" );
 			Cvar_Unset(ja_guid);
 		}
 	}
@@ -987,7 +987,7 @@ void CL_Connect_f( void ) {
 		Com_RandomBytes( (byte *)&clc.challenge, sizeof( clc.challenge ) );
 	}
 
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( KEYCATCH_NONE );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 
@@ -2070,7 +2070,7 @@ void CL_CheckUserinfo( void ) {
 		return;
 	}
 	// send a reliable userinfo update if needed
-	if ( cvar_modifiedFlags & CVAR_USERINFO ) {
+	if ( Any( cvar_modifiedFlags & CVAR_USERINFO ) ) {
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
 		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ), false );
 	}
@@ -2096,7 +2096,7 @@ void CL_Frame ( int msec ) {
 	SE_CheckForLanguageUpdates();	// will take zero time to execute unless language changes, then will reload strings.
 									//	of course this still doesn't work for menus...
 
-	if ( cls.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) & KEYCATCH_UI )
 		&& !com_sv_running->integer && cls.uiStarted ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
@@ -2647,10 +2647,10 @@ void CL_Init( void ) {
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
+	cl_noprint = Cvar_Get( "cl_noprint", "0", CVAR_NONE );
 	cl_motd = Cvar_Get ("cl_motd", "1", CVAR_ARCHIVE_ND, "Display welcome message from master server on the bottom of connection screen" );
-	cl_motdServer[0] = Cvar_Get( "cl_motdServer1", UPDATE_SERVER_NAME, 0 );
-	cl_motdServer[1] = Cvar_Get( "cl_motdServer2", JKHUB_UPDATE_SERVER_NAME, 0 );
+	cl_motdServer[0] = Cvar_Get( "cl_motdServer1", UPDATE_SERVER_NAME, CVAR_NONE );
+	cl_motdServer[1] = Cvar_Get( "cl_motdServer2", JKHUB_UPDATE_SERVER_NAME, CVAR_NONE );
 	for ( int index = 2; index < MAX_MASTER_SERVERS; index++ )
 		cl_motdServer[index] = Cvar_Get( va( "cl_motdServer%d", index + 1 ), "", CVAR_ARCHIVE_ND );
 
@@ -2663,13 +2663,13 @@ void CL_Init( void ) {
 	rcon_client_password = Cvar_Get ("rconPassword", "", CVAR_TEMP, "Password for remote console access" );
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
 
-	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
+	cl_timedemo = Cvar_Get ("timedemo", "0", CVAR_NONE);
 	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", CVAR_ARCHIVE);
 	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
 	cl_avi2GBLimit = Cvar_Get ("cl_avi2GBLimit", "1", CVAR_ARCHIVE );
-	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", 0);
+	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", CVAR_NONE);
 
-	rconAddress = Cvar_Get ("rconAddress", "", 0, "Alternate server address to remotely access via rcon protocol");
+	rconAddress = Cvar_Get ("rconAddress", "", CVAR_NONE, "Alternate server address to remotely access via rcon protocol");
 
 	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE_ND );
 	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE_ND );
@@ -2687,17 +2687,17 @@ void CL_Init( void ) {
 	// this should be set to the max rate value
 	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "Mouse acceleration offset for style 1" );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", CVAR_NONE);
 	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
 	cl_allowDownload = Cvar_Get ("cl_allowDownload", "1", CVAR_ARCHIVE_ND, "Allow downloading custom paks from server");
 	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", CVAR_ARCHIVE_ND, "Enables use of ALT+ENTER keyboard combo to toggle fullscreen" );
 
 	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", CVAR_ARCHIVE_ND );
 
-	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
+	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", CVAR_NONE);
 	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "1", CVAR_ARCHIVE_ND );
 
-	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", 0);
+	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", CVAR_NONE);
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
@@ -2878,7 +2878,7 @@ void CL_Shutdown( void ) {
 	recursive = false;
 
 	Com_Memset( &cls, 0, sizeof( cls ) );
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( KEYCATCH_NONE );
 
 	//Com_Printf( "-----------------------\n" );
 
@@ -3990,7 +3990,7 @@ void CL_DrawEngineMenus( void ) {
 }
 
 void CL_UpdateCursorPosition( int dx, int dy ) {
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) return;
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) return;
 
 	cls.cursorX = Com_Clampi( 0, SCREEN_WIDTH, cls.cursorX + dx );
 	cls.cursorY = Com_Clampi( 0, SCREEN_HEIGHT, cls.cursorY + dy );

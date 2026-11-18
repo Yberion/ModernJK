@@ -532,7 +532,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	char bladeColorString[MAX_QPATH];
 	vec3_t	angles={0};
 
-	if ( item->flags&(ITF_ISANYSABER) && item->flags&(ITF_ISCHARACTER) )
+	if ( Any( item->flags&(ITF_ISANYSABER) ) && Any( item->flags&(ITF_ISCHARACTER) ) )
 	{	//it's bolted to a dude!
 		angles[YAW] = curYaw;
 	}
@@ -547,11 +547,11 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 		return;
 	}
 
-	if ( (item->flags&ITF_ISSABER) && saberModel < 2 )
+	if ( Any( item->flags&ITF_ISSABER ) && saberModel < 2 )
 	{
 		DC->getCVarString( "ui_saber_color", bladeColorString, sizeof(bladeColorString) );
 	}
-	else//if ( item->flags&ITF_ISSABER2 ) - presumed
+	else//if ( Any( item->flags&ITF_ISSABER2 ) ) - presumed
 	{
 		DC->getCVarString( "ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
 	}
@@ -813,7 +813,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, float curYaw )
 	int saberModel = 0;
 	int	numSabers = 1;
 
-	if ( (item->flags&ITF_ISCHARACTER)//hacked sabermoves sabers in character's hand
+	if ( Any( item->flags&ITF_ISCHARACTER )//hacked sabermoves sabers in character's hand
 		&& uiInfo.movesTitleIndex == MD_DUAL_SABERS )
 	{
 		numSabers = 2;
@@ -821,17 +821,17 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, float curYaw )
 
 	for ( saberNum = 0; saberNum < numSabers; saberNum++ )
 	{
-		if ( (item->flags&ITF_ISCHARACTER) )//hacked sabermoves sabers in character's hand
+		if ( Any( item->flags&ITF_ISCHARACTER ) )//hacked sabermoves sabers in character's hand
 		{
 			UI_GetSaberForMenu( saber, saberNum );
 			saberModel = saberNum + 1;
 		}
-		else if ( (item->flags&ITF_ISSABER) )
+		else if ( Any( item->flags&ITF_ISSABER ) )
 		{
 			DC->getCVarString( "ui_saber", saber, sizeof(saber) );
 			saberModel = 0;
 		}
-		else if ( (item->flags&ITF_ISSABER2) )
+		else if ( Any( item->flags&ITF_ISSABER2 ) )
 		{
 			DC->getCVarString( "ui_saber2", saber, sizeof(saber) );
 			saberModel = 0;

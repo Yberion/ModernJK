@@ -132,7 +132,7 @@ static bool NPC_Howler_Move( int randomJumpChance = 0 )
 		}
 		else
 		{
-			if ( (ucmd.buttons&BUTTON_WALKING) )
+			if ( Any(ucmd.buttons&BUTTON_WALKING) )
 			{
 				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 			}
@@ -698,7 +698,7 @@ void NPC_BSHowler_Default( void )
 					}
 				}
 			}
-			else if ( (NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( Any(NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
 			{//walked last frame
 				if ( TIMER_Done( NPC, "walking" ) )
 				{//just finished walking
@@ -832,7 +832,7 @@ void NPC_BSHowler_Default( void )
 					}
 				}
 			}
-			else if ( (NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( Any(NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
 			{//walked last frame
 				if ( TIMER_Done( NPC, "walking" ) )
 				{//just finished walking
@@ -861,7 +861,7 @@ void NPC_BSHowler_Default( void )
 				}
 			}
 		}
-		if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		{
 			Howler_Patrol();
 		}

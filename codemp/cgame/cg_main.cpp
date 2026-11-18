@@ -56,7 +56,7 @@ void CG_ROFF_NotetrackCallback( centity_t *cent, const char *notetrack);
 
 void UI_CleanupGhoul2(void);
 
-static int	C_PointContents(void);
+static contentsFlags_t	C_PointContents(void);
 static void C_GetLerpOrigin(void);
 static void C_GetLerpData(void);
 static void C_Trace(void);
@@ -94,7 +94,7 @@ bool CG_NoUseableForce(void)
 	return true;
 }
 
-static int C_PointContents( void ) {
+static contentsFlags_t C_PointContents( void ) {
 	TCGPointContents *data = &cg.sharedBuffer.pointContents;
 	return CG_PointContents( data->mPoint, data->mPassEntityNum );
 }
@@ -2724,13 +2724,13 @@ void CG_NextForcePower_f( void )
 
 	current = trap->GetCurrentCmdNumber();
 	trap->GetUserCmd(current, &cmd);
-	if ((cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
+	if (Any(cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
 	{
 		CG_NextInventory_f();
 		return;
 	}
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW)
+	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
 	{
 		return;
 	}
@@ -2771,13 +2771,13 @@ void CG_PrevForcePower_f( void )
 
 	current = trap->GetCurrentCmdNumber();
 	trap->GetUserCmd(current, &cmd);
-	if ((cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
+	if (Any(cmd.buttons & BUTTON_USE) || CG_NoUseableForce())
 	{
 		CG_PrevInventory_f();
 		return;
 	}
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW)
+	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
 	{
 		return;
 	}
@@ -2804,7 +2804,7 @@ void CG_NextInventory_f(void)
 		return;
 	}
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW)
+	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
 	{
 		return;
 	}
@@ -2834,7 +2834,7 @@ void CG_PrevInventory_f(void)
 		return;
 	}
 
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW)
+	if (Any( cg.snap->ps.pm_flags & PMF_FOLLOW ))
 	{
 		return;
 	}

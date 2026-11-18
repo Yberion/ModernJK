@@ -66,11 +66,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 #define TRAVELTIME_SCALE		0.01
 //item flags
-#define IFL_NOTFREE				1		//not in free for all
-#define IFL_NOTTEAM				2		//not in team play
-#define IFL_NOTSINGLE			4		//not in single player
-#define IFL_NOTBOT				8		//bot should never go for this
-#define IFL_ROAM				16		//bot roam goal
+enum class levelItemFlags_t
+{
+	IFL_NONE = 0,
+	IFL_NOTFREE				= 1,		//not in free for all
+	IFL_NOTTEAM				= 2,		//not in team play
+	IFL_NOTSINGLE			= 4,		//not in single player
+	IFL_NOTBOT				= 8,		//bot should never go for this
+	IFL_ROAM				= 16,		//bot roam goal
+};
+using enum levelItemFlags_t;
+template <> inline constexpr bool enableEnumFlags<levelItemFlags_t> = true;
 
 //location in the map "target_location"
 typedef struct maplocation_s
@@ -98,7 +104,7 @@ typedef struct levelitem_s
 {
 	int number;							//number of the level item
 	int iteminfo;						//index into the item info
-	int flags;							//item flags
+	levelItemFlags_t flags;							//item flags
 	float weight;						//fixed roam weight
 	vec3_t origin;						//origin of the item
 	int goalareanum;					//area the item is in
@@ -134,7 +140,7 @@ fielddef_t iteminfo_fields[] =
 {"respawntime", ITEMINFO_OFS(respawntime), FT_FLOAT},
 {"mins", ITEMINFO_OFS(mins), FT_FLOAT|FT_ARRAY, 3},
 {"maxs", ITEMINFO_OFS(maxs), FT_FLOAT|FT_ARRAY, 3},
-{nullptr, 0, 0}
+{nullptr, 0, FT_NONE}
 };
 
 structdef_t iteminfo_struct =
@@ -583,7 +589,7 @@ void BotInitLevelItems(void)
 		if (spawnflags & 1)
 		{
 			//if the item is not floating in water
-			if (!(AAS_PointContents(origin) & CONTENTS_WATER))
+			if (!Any( AAS_PointContents(origin) & CONTENTS_WATER ))
 			{
 				VectorCopy(origin, end);
 				end[2] -= 32;
@@ -607,7 +613,7 @@ void BotInitLevelItems(void)
 		li->timeout = 0;
 		li->entitynum = 0;
 		//
-		li->flags = 0;
+		li->flags = IFL_NONE;
 		AAS_IntForBSPEpairKey(ent, "notfree", &value);
 		if (value) li->flags |= IFL_NOTFREE;
 		AAS_IntForBSPEpairKey(ent, "notteam", &value);
@@ -863,15 +869,15 @@ int BotGetLevelItemGoal(int index, char *name, bot_goal_t *goal)
 	{
 		//
 		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE) continue;
+			if (Any( li->flags & IFL_NOTSINGLE )) continue;
 		}
 		else if (g_gametype >= GT_TEAM) {
-			if (li->flags & IFL_NOTTEAM) continue;
+			if (Any( li->flags & IFL_NOTTEAM )) continue;
 		}
 		else {
-			if (li->flags & IFL_NOTFREE) continue;
+			if (Any( li->flags & IFL_NOTFREE )) continue;
 		}
-		if (li->flags & IFL_NOTBOT) continue;
+		if (Any( li->flags & IFL_NOTBOT )) continue;
 		//
 		if (!Q_stricmp(name, itemconfig->iteminfo[li->iteminfo].name))
 		{
@@ -1071,13 +1077,13 @@ void BotUpdateEntityItems(void)
 			if (li->entitynum) continue;
 			//
 			if (g_gametype == GT_SINGLE_PLAYER) {
-				if (li->flags & IFL_NOTSINGLE) continue;
+				if (Any( li->flags & IFL_NOTSINGLE )) continue;
 			}
 			else if (g_gametype >= GT_TEAM) {
-				if (li->flags & IFL_NOTTEAM) continue;
+				if (Any( li->flags & IFL_NOTTEAM )) continue;
 			}
 			else {
-				if (li->flags & IFL_NOTFREE) continue;
+				if (Any( li->flags & IFL_NOTFREE )) continue;
 			}
 			//if the model of the level item and the entity are the same
 			if (ic->iteminfo[li->iteminfo].modelindex == modelindex)
@@ -1135,7 +1141,7 @@ void BotUpdateEntityItems(void)
 									ic->iteminfo[i].mins, ic->iteminfo[i].maxs,
 									li->goalorigin);
 		//never go for items dropped into jumppads
-		if (AAS_AreaJumpPad(li->goalareanum))
+		if (Any( AAS_AreaJumpPad(li->goalareanum) ))
 		{
 			FreeLevelItem(li);
 			continue;
@@ -1264,7 +1270,7 @@ int BotGetSecondGoal(int goalstate, bot_goal_t *goal)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelflags)
+int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags)
 {
 	int areanum, t, weightnum;
 	float weight, bestweight, avoidtime;
@@ -1304,24 +1310,24 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	for (li = levelitems; li; li = li->next)
 	{
 		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE)
+			if (Any( li->flags & IFL_NOTSINGLE ))
 				continue;
 		}
 		else if (g_gametype >= GT_TEAM) {
-			if (li->flags & IFL_NOTTEAM)
+			if (Any( li->flags & IFL_NOTTEAM ))
 				continue;
 		}
 		else {
-			if (li->flags & IFL_NOTFREE)
+			if (Any( li->flags & IFL_NOTFREE ))
 				continue;
 		}
-		if (li->flags & IFL_NOTBOT)
+		if (Any( li->flags & IFL_NOTBOT ))
 			continue;
 		//if the item is not in a possible goal area
 		if (!li->goalareanum)
 			continue;
 		//FIXME: is this a good thing? added this for items that never spawned into the game (f.i. CTF flags in obelisk)
-		if (!li->entitynum && !(li->flags & IFL_ROAM))
+		if (!li->entitynum && !Any( li->flags & IFL_ROAM ))
 			continue;
 		//get the fuzzy weight function for this item
 		iteminfo = &ic->iteminfo[li->iteminfo];
@@ -1340,7 +1346,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 			weight += droppedweight->value;
 #endif //DROPPEDWEIGHT
 		//use weight scale for item_botroam
-		if (li->flags & IFL_ROAM) weight *= li->weight;
+		if (Any( li->flags & IFL_ROAM )) weight *= li->weight;
 		//
 		if (weight > 0)
 		{
@@ -1369,7 +1375,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	{
 		/*
 		//if not in lava or slime
-		if (!AAS_AreaLava(areanum) && !AAS_AreaSlime(areanum))
+		if (!Any( AAS_AreaLava(areanum) ) && !Any( AAS_AreaSlime(areanum) ))
 		{
 			if (AAS_RandomGoalArea(areanum, travelflags, &goal.areanum, goal.origin))
 			{
@@ -1402,7 +1408,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	goal.flags = GFL_ITEM;
 	if (bestitem->timeout)
 		goal.flags |= GFL_DROPPED;
-	if (bestitem->flags & IFL_ROAM)
+	if (Any( bestitem->flags & IFL_ROAM ))
 		goal.flags |= GFL_ROAM;
 	goal.iteminfo = bestitem->iteminfo;
 	//if it's a dropped item
@@ -1431,7 +1437,7 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelflags,
+int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags,
 														bot_goal_t *ltg, float maxtime)
 {
 	int areanum, t, weightnum, ltg_time;
@@ -1475,24 +1481,24 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	for (li = levelitems; li; li = li->next)
 	{
 		if (g_gametype == GT_SINGLE_PLAYER) {
-			if (li->flags & IFL_NOTSINGLE)
+			if (Any( li->flags & IFL_NOTSINGLE ))
 				continue;
 		}
 		else if (g_gametype >= GT_TEAM) {
-			if (li->flags & IFL_NOTTEAM)
+			if (Any( li->flags & IFL_NOTTEAM ))
 				continue;
 		}
 		else {
-			if (li->flags & IFL_NOTFREE)
+			if (Any( li->flags & IFL_NOTFREE ))
 				continue;
 		}
-		if (li->flags & IFL_NOTBOT)
+		if (Any( li->flags & IFL_NOTBOT ))
 			continue;
 		//if the item is in a possible goal area
 		if (!li->goalareanum)
 			continue;
 		//FIXME: is this a good thing? added this for items that never spawned into the game (f.i. CTF flags in obelisk)
-		if (!li->entitynum && !(li->flags & IFL_ROAM))
+		if (!li->entitynum && !Any( li->flags & IFL_ROAM ))
 			continue;
 		//get the fuzzy weight function for this item
 		iteminfo = &ic->iteminfo[li->iteminfo];
@@ -1511,7 +1517,7 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 			weight += droppedweight->value;
 #endif //DROPPEDWEIGHT
 		//use weight scale for item_botroam
-		if (li->flags & IFL_ROAM) weight *= li->weight;
+		if (Any( li->flags & IFL_ROAM )) weight *= li->weight;
 		//
 		if (weight > 0)
 		{
@@ -1559,7 +1565,7 @@ int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 	goal.flags = GFL_ITEM;
 	if (bestitem->timeout)
 		goal.flags |= GFL_DROPPED;
-	if (bestitem->flags & IFL_ROAM)
+	if (Any( bestitem->flags & IFL_ROAM ))
 		goal.flags |= GFL_ROAM;
 	goal.iteminfo = bestitem->iteminfo;
 	//if it's a dropped item
@@ -1623,7 +1629,7 @@ int BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, bot
 	bsp_trace_t trace;
 	vec3_t middle;
 
-	if (!(goal->flags & GFL_ITEM)) return false;
+	if (!Any( goal->flags & GFL_ITEM )) return false;
 	//
 	VectorAdd(goal->mins, goal->mins, middle);
 	VectorScale(middle, 0.5, middle);

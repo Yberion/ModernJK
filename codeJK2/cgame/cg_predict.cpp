@@ -77,7 +77,7 @@ CG_ClipMoveToEntities
 ====================
 */
 void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-							int skipNumber, int mask, trace_t *tr ) {
+							int skipNumber, contentsFlags_t mask, trace_t *tr ) {
 	int			i, x, zd, zu;
 	trace_t		trace;
 	entityState_t	*ent;
@@ -149,7 +149,7 @@ CG_Trace
 ================
 */
 void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 const int skipNumber, const int mask, const EG2_Collision eG2TraceType/*=G2_NOCOLLIDE*/, const int useLod/*=0*/) {
+					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType/*=G2_NOCOLLIDE*/, const int useLod/*=0*/) {
 	trace_t	t;
 
 	cgi_CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
@@ -165,12 +165,12 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 CG_PointContents
 ================
 */
-int		CG_PointContents( const vec3_t point, int passEntityNum ) {
+contentsFlags_t	CG_PointContents( const vec3_t point, int passEntityNum ) {
 	int			i;
 	entityState_t	*ent;
 	centity_t	*cent;
 	clipHandle_t cmodel;
-	int			contents;
+	contentsFlags_t	contents;
 
 	contents = cgi_CM_PointContents (point, 0);
 
@@ -553,7 +553,7 @@ void CG_TouchTriggerPrediction( void ) {
 		}
 
 		cgi_CM_BoxTrace( &trace, cg.predicted_player_state.origin, cg.predicted_player_state.origin,
-			cg_pmove.mins, cg_pmove.maxs, cmodel, -1 );
+			cg_pmove.mins, cg_pmove.maxs, cmodel, CONTENTS_ALL );
 
 		if ( !trace.startsolid ) {
 			continue;
@@ -615,7 +615,7 @@ void CG_PredictPlayerState( void ) {
 	{
 		// demo playback just copies the moves
 		/*
-		if ( (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
+		if ( Any(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 			CG_InterpolatePlayerState( false );
 			return;
 		}
@@ -708,13 +708,13 @@ void CG_PredictPlayerState( void ) {
 		gentity_t *ent = &g_entities[0];//cheating and dirty, I know, but this is a SP game so prediction can cheat
 		if ( player_locked ||
 			(ent && !ent->s.number&&ent->aimDebounceTime>level.time) ||
-			(ent && ent->client && ent->client->ps.pm_time && (ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK)) ||
+			(ent && ent->client && ent->client->ps.pm_time && Any(ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK)) ||
 			(ent && ent->forcePushTime > level.time) )
 		{//lock out player control unless dead
 			//VectorClear( cg_pmove.cmd.angles );
 			cg_pmove.cmd.forwardmove = 0;
 			cg_pmove.cmd.rightmove = 0;
-			cg_pmove.cmd.buttons = 0;
+			cg_pmove.cmd.buttons = BUTTON_NONE;
 			cg_pmove.cmd.upmove = 0;
 		}
 		CG_CheckModifyUCmd( &cg_pmove.cmd, nullptr );

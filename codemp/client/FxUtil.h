@@ -38,7 +38,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel,
 							float rotation, float rotationDelta,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
@@ -46,14 +46,14 @@ CLine *FX_AddLine( vec3_t start, vec3_t end,
 							float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
 CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t sRGB, vec3_t eRGB, float rgbParm,
-							float chaos, int killTime, qhandle_t shader, int flags,
+							float chaos, int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
@@ -64,7 +64,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
@@ -74,7 +74,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							float length1, float length2, float lengthParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1,
 							bool traceEnd = false);
@@ -87,13 +87,13 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID, int emitterID,
 							float density, float variance,
-							int killTime, qhandle_t model, int flags,
+							int killTime, qhandle_t model, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
 CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, int flags,
+							int killTime, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
@@ -104,7 +104,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 							float rotation, float rotationDelta,
 							vec3_t min, vec3_t max, float bounce,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = nullptr, int entNum=-1, int modelNum=-1, int boltNum=-1);
 
@@ -113,13 +113,13 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							vec3_t rotationDelta, float bounce, int motionDelay,
-							int killTime, qhandle_t shader, int flags );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags );
 
 CFlash *FX_AddFlash( vec3_t origin,
 							float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t sRGB, vec3_t eRGB, float rgbParm,
-							int killTime, qhandle_t shader, int flags = 0,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1);
 
 CBezier *FX_AddBezier( vec3_t start, vec3_t end,
@@ -128,4 +128,4 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 								float size1, float size2, float sizeParm,
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
-								int killTime, qhandle_t shader, int flags = 0 );
+								int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );

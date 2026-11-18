@@ -344,7 +344,7 @@ typedef struct {
 	vmCvar_t	*vmCvar;
 	const char	*cvarName;
 	const char	*defaultString;
-	int			cvarFlags;
+	cvarFlags_t	cvarFlags;
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
@@ -361,7 +361,7 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
 	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
-	{ &cg_drawHUD, "cg_drawHUD", "1", 0  },
+	{ &cg_drawHUD, "cg_drawHUD", "1", CVAR_NONE  },
 	{ &cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE  },
 	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE  },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
@@ -371,11 +371,11 @@ static cvarTable_t cvarTable[] = {
 	// NOTE : I also create this in UI_Init()
 	{ &cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairForceHint, "cg_crosshairForceHint", "1", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART },
-	{ &cg_endcredits, "cg_endcredits", "0", 0},
-	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", 0},
-	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", 0},
-	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", 0},
-	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", 0},
+	{ &cg_endcredits, "cg_endcredits", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", CVAR_NONE},
+	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", CVAR_NONE},
 
 	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
@@ -400,7 +400,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_gun_z, "cg_gunZ", "0", CVAR_ARCHIVE },
 	{ &cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT },
 	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
-	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
+	{ &cg_errorDecay, "cg_errordecay", "100", CVAR_NONE },
 
 	{ &cg_drawBreath, "cg_drawBreath", "0", CVAR_ARCHIVE },		// Added 11/07/02
 	{ &cg_roffdebug, "cg_roffdebug", "0" },
@@ -412,42 +412,42 @@ static cvarTable_t cvarTable[] = {
 #endif
 	{ &cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME },
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", CVAR_ARCHIVE },
-	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", 0 },
-	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0 },
-	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", 0 },
-	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", 0},
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0},
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", 0},
+	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", CVAR_NONE },
+	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_NONE },
+	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", CVAR_NONE },
+	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", CVAR_NONE},
+	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", CVAR_NONE},
+	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_NONE},
 
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", 0},
+	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_NONE},
 	{ &cg_thirdPersonAlpha, "cg_thirdPersonAlpha", "1.0", CVAR_ARCHIVE },
-	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", 0 },
+	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", CVAR_NONE },
 	// NOTE: also declare this in UI_Init
 	{ &cg_gunAutoFirst, "cg_gunAutoFirst", "1", CVAR_ARCHIVE },
 
-	{ &cg_pano, "pano", "0", 0 },
-	{ &cg_panoNumShots, "panoNumShots", "10", 0 },
+	{ &cg_pano, "pano", "0", CVAR_NONE },
+	{ &cg_panoNumShots, "panoNumShots", "10", CVAR_NONE },
 
-	{ &fx_freeze, "fx_freeze", "0", 0 },
-	{ &fx_debug, "fx_debug", "0", 0 },
+	{ &fx_freeze, "fx_freeze", "0", CVAR_NONE },
+	{ &fx_debug, "fx_debug", "0", CVAR_NONE },
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 
 	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
-	{ &cg_developer, "developer", "", 0 },
-	{ &cg_timescale, "timescale", "1", 0 },
+	{ &cg_developer, "developer", "", CVAR_NONE },
+	{ &cg_timescale, "timescale", "1", CVAR_NONE },
 	{ &cg_skippingcin, "skippingCinematic", "0", CVAR_ROM},
-	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", 0  },
+	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", CVAR_NONE  },
 	{ &cg_hudFiles, "cg_hudFiles", "ui/jahud.txt", CVAR_ARCHIVE},
 
-	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", 0 },
-	{ &cg_turnAnims, "cg_turnAnims", "0", 0 },
-	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", 0 },
-	{ &cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", 0 },
+	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", CVAR_NONE },
+	{ &cg_turnAnims, "cg_turnAnims", "0", CVAR_NONE },
+	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", CVAR_NONE },
+	{ &cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", CVAR_NONE },
 	{ &cg_reliableAnimEvents, "cg_reliableAnimEvents", "1", CVAR_ARCHIVE },
-	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", 0},
-	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", 0},
-	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", 0},
+	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", CVAR_NONE},
+	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", CVAR_NONE},
+	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", CVAR_NONE},
 	{ &cg_g2Marks, "cg_g2Marks", "1", CVAR_ARCHIVE },
 	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE },
 	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
@@ -718,7 +718,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.watrOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
 	cgs.media.watrUnSound = cgi_S_RegisterSound ("sound/player/watr_un.wav");
 
-	if ( (gi.totalMapContents()&CONTENTS_LAVA) )
+	if ( Any( gi.totalMapContents()&CONTENTS_LAVA ) )
 	{
 		cgs.media.lavaInSound = cgi_S_RegisterSound ("sound/player/inlava.wav");
 		cgs.media.lavaOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
@@ -1138,16 +1138,16 @@ static void CG_RegisterEffects( void )
 	cgs.effects.landingSnow = theFxScheduler.RegisterEffect( "materials/snow_large" );
 	cgs.effects.landingGravel = theFxScheduler.RegisterEffect( "materials/gravel_large" );
 	//splashes
-	if ( (gi.totalMapContents()&CONTENTS_WATER) )
+	if ( Any( gi.totalMapContents()&CONTENTS_WATER ) )
 	{
 		theFxScheduler.RegisterEffect( "env/water_impact" );
 		theFxScheduler.RegisterEffect( "misc/waterbreath" );
 	}
-	if ( (gi.totalMapContents()&CONTENTS_LAVA) )
+	if ( Any( gi.totalMapContents()&CONTENTS_LAVA ) )
 	{
 		theFxScheduler.RegisterEffect( "env/lava_splash" );
 	}
-	if ( (gi.totalMapContents()&CONTENTS_SLIME) )
+	if ( Any( gi.totalMapContents()&CONTENTS_SLIME ) )
 	{
 		theFxScheduler.RegisterEffect( "env/acid_splash" );
 	}
@@ -1660,7 +1660,7 @@ Ghoul2 Insert End
 					}
 				}
 			}
-			else if ( g_entities[i].svFlags & SVF_NPC_PRECACHE && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
+			else if ( Any( g_entities[i].svFlags & SVF_NPC_PRECACHE ) && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
 			{//Precache the NPC_type
 				//FIXME: make sure we didn't precache this NPC_type already
 				CG_LoadingString( va("NPC %s", g_entities[i].NPC_type ) );
@@ -2300,30 +2300,30 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 		//=====================================
 	case EDGE_NORMAL:
 		{
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_LARGE:
 		{
-			FX_AddLine( start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_BLOCKED:
 		{
 			vec3_t	color = { 255, 0, 0 };	// RED
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_FLY:
 		{
 			vec3_t	color = { 0, 255, 255 };// GREEN
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_JUMP:
 		{
 			vec3_t	color = { 0, 0, 255 };	// BLUE
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 
@@ -2334,25 +2334,25 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_NODE_NORMAL:
 		{
 			vec3_t	color = { 155, 155, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_NODE_FLOATING:
 		{
 			vec3_t	color = { 155, 155, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_NODE_GOAL:
 		{
 			vec3_t	color = { 0, 0, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_NODE_COMBAT:
 		{
 			vec3_t	color = { 155, 0, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 
@@ -2364,14 +2364,14 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_NEARESTVALID:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
 		}
 		break;
 
 	case EDGE_NEARESTINVALID:
 		{
 			vec3_t	color = { 155, 0, 0 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
 		}
 		break;
 
@@ -2381,13 +2381,13 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_CELL:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
 		}
 		break;
 	case EDGE_CELL_EMPTY:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
+			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, 0, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, FX_ALPHA_LINEAR );
 		}
 		break;
 
@@ -2397,21 +2397,21 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_PATH:
 		{
   			vec3_t	color = { 0, 0, 155 };		// WHITE
- 			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
+ 			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
 		}
 		break;
 
 	case EDGE_PATHBLOCKED:
 		{
  			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
+			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
 			break;
 		}
 
 	case EDGE_FOLLOWPOS:
 		{
 			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
+			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), FX_NONE );
 			break;
 		}
 
@@ -2421,25 +2421,25 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_IMPACT_SAFE:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_IMPACT_POSSIBLE:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_VELOCITY:
 		{
 			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_THRUST:
 		{
 			vec3_t	color = { 0, 0, 255 };		// BLUE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 
@@ -2449,25 +2449,25 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	case EDGE_WHITE_ONESECOND:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_WHITE_TWOSECOND:
 		{
 			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_RED_ONESECOND:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 	case EDGE_RED_TWOSECOND:
 		{
 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
+			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), FX_NONE );
 		}
 		break;
 

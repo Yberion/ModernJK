@@ -105,9 +105,9 @@ G_TestEntityPosition
 */
 gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	trace_t	tr;
-	int		mask;
+	contentsFlags_t	mask;
 
-	if ( ent->clipmask ) {
+	if ( Any( ent->clipmask ) ) {
 		mask = ent->clipmask;
 	} else {
 		mask = MASK_SOLID;
@@ -119,9 +119,9 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 		{
 			vMax[2] = 1;
 		}
-		trap->Trace( &tr, ent->client->ps.origin, ent->r.mins, vMax, ent->client->ps.origin, ent->s.number, mask, false, 0, 0 );
+		trap->Trace( &tr, ent->client->ps.origin, ent->r.mins, vMax, ent->client->ps.origin, ent->s.number, mask, false, G2TRFLAG_NONE, 0 );
 	} else {
-		trap->Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask, false, 0, 0 );
+		trap->Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask, false, G2TRFLAG_NONE, 0 );
 	}
 
 	if (tr.startsolid)
@@ -184,7 +184,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	/*
 	// EF_MOVER_STOP will just stop when contacting another entity
 	// instead of pushing it, but entities can still ride on top of it
-	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) &&
+	if ( Any( pusher->s.eFlags & EF_MOVER_STOP ) &&
 		check->s.groundEntityNum != pusher->s.number ) {
 		return false;
 	}
@@ -255,7 +255,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	{
 		if (check->health > 0)
 		{
-			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
+			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, DAMAGE_NORMAL, MOD_UNKNOWN);
 		}
 	}
 	// if it is ok to leave in the old position, do it
@@ -376,24 +376,24 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 
 		if (pusher->damage && check->client && (pusher->spawnflags & 32))
 		{
-			G_Damage( check, pusher, pusher, nullptr, nullptr, pusher->damage, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, pusher->damage, DAMAGE_NORMAL, MOD_CRUSH );
 			continue;
 		}
 
 		if (check->s.eType == ET_BODY ||
 			(check->s.eType == ET_PLAYER && check->health < 1))
 		{ //whatever, just crush it
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 999, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_CRUSH );
 			continue;
 		}
 
-		if ( (check->r.contents & CONTENTS_TRIGGER) && check->s.weapon == G2_MODEL_PART)
+		if ( Any( check->r.contents & CONTENTS_TRIGGER ) && check->s.weapon == G2_MODEL_PART)
 		{//keep limbs from blocking elevators.  Kill the limb and keep moving.
 			G_FreeEntity(check);
 			continue;
 		}
 
-		if( check->s.eFlags & EF_DROPPEDWEAPON )
+		if( Any( check->s.eFlags & EF_DROPPEDWEAPON ) )
 		{//keep dropped weapons from blocking elevators.  Kill the weapon and keep moving.
 			G_FreeEntity(check);
 			continue;
@@ -401,7 +401,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 
 		if ( check->s.eType == ET_NPC //an NPC
 			&& check->health <= 0 //NPC is dead
-			&& !(check->flags & FL_NOTARGET) )  //NPC isn't still spawned or in no target mode.
+			&& !Any( check->flags & FL_NOTARGET ) )  //NPC isn't still spawned or in no target mode.
 		{//dead npcs should be removed now!
 			NPC_RemoveBody( check );
 			continue;
@@ -411,7 +411,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 
 		// bobbing entities are instant-kill and never get blocked
 		if ( pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE ) {
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
 			continue;
 		}
 
@@ -513,7 +513,7 @@ void G_RunMover( gentity_t *ent ) {
 
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
-	if ( ent->flags & FL_TEAMSLAVE ) {
+	if ( Any( ent->flags & FL_TEAMSLAVE ) ) {
 		return;
 	}
 
@@ -900,13 +900,13 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	}
 
 	// only the master should be used
-	if ( ent->flags & FL_TEAMSLAVE )
+	if ( Any( ent->flags & FL_TEAMSLAVE ) )
 	{
 		Use_BinaryMover( ent->teammaster, other, activator );
 		return;
 	}
 
-	if ( ent->flags & FL_INACTIVE )
+	if ( Any( ent->flags & FL_INACTIVE ) )
 	{
 		return;
 	}
@@ -1052,7 +1052,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other )
 	//determines if we need to relock after moving or not.
 	bool relock = (ent->spawnflags & MOVER_LOCKED) ? true : false;
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, DAMAGE_NORMAL, MOD_CRUSH );
 	}
 	if ( ent->spawnflags & MOVER_CRUSHER ) {
 		return;		// crushers don't reverse
@@ -1096,7 +1096,7 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 
 	VectorSet(pMins, -15.0f, -15.0f, DEFAULT_MINS_2);
 	VectorSet(pMaxs, 15.0f, 15.0f, DEFAULT_MAXS_2);
-	trap->Trace(&tr, origin, pMins, pMaxs, origin, other->s.number, other->clipmask, false, 0, 0);
+	trap->Trace(&tr, origin, pMins, pMaxs, origin, other->s.number, other->clipmask, false, G2TRFLAG_NONE, 0);
 	if (!tr.startsolid &&
 		!tr.allsolid &&
 		tr.fraction == 1.0f &&
@@ -1142,7 +1142,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	if ( ent->flags & FL_INACTIVE )
+	if ( Any( ent->flags & FL_INACTIVE ) )
 	{
 		return;
 	}
@@ -1157,7 +1157,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 		}
 		else
 		{//temporarily unlock us while we call Use_BinaryMover (so it doesn't unlock all the doors in this team)
-			if ( ent->parent->flags & FL_TEAMSLAVE )
+			if ( Any( ent->parent->flags & FL_TEAMSLAVE ) )
 			{
 				relockEnt = ent->parent->teammaster;
 			}
@@ -1276,9 +1276,9 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 {
 	gentity_t *owner = nullptr;
 	gentity_t *door = ent;
-	if ( door->flags & FL_TEAMSLAVE )
+	if ( Any( door->flags & FL_TEAMSLAVE ) )
 	{//not the master door, get the master door
-		while ( door->teammaster && (door->flags&FL_TEAMSLAVE))
+		while ( door->teammaster && Any( door->flags & FL_TEAMSLAVE ))
 		{
 			door = door->teammaster;
 		}
@@ -1288,7 +1288,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		//FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
 		while ( (owner = G_Find( owner, FOFS( target ), door->targetname )) != nullptr )
 		{
-			if ( owner && (owner->r.contents&CONTENTS_TRIGGER) )
+			if ( owner && Any( owner->r.contents&CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1296,7 +1296,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		owner = nullptr;
 		while ( (owner = G_Find( owner, FOFS( target2 ), door->targetname )) != nullptr )
 		{
-			if ( owner && (owner->r.contents&CONTENTS_TRIGGER) )
+			if ( owner && Any( owner->r.contents&CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1326,9 +1326,9 @@ bool G_EntIsUnlockedDoor( int entityNum )
 	{
 		gentity_t *ent = &g_entities[entityNum];
 		gentity_t *owner = nullptr;
-		if ( ent->flags & FL_TEAMSLAVE )
+		if ( Any( ent->flags & FL_TEAMSLAVE ) )
 		{//not the master door, get the master door
-			while ( ent->teammaster && (ent->flags&FL_TEAMSLAVE))
+			while ( ent->teammaster && Any( ent->flags & FL_TEAMSLAVE ))
 			{
 				ent = ent->teammaster;
 			}
@@ -1341,7 +1341,7 @@ bool G_EntIsUnlockedDoor( int entityNum )
 			{
 				if ( !Q_stricmp( "trigger_multiple", owner->classname ) )//FIXME: other triggers okay too?
 				{
-					if ( !(owner->flags & FL_INACTIVE) )
+					if ( !Any( owner->flags & FL_INACTIVE ) )
 					{
 						return true;
 					}
@@ -1352,7 +1352,7 @@ bool G_EntIsUnlockedDoor( int entityNum )
 			{
 				if ( !Q_stricmp( "trigger_multiple", owner->classname ) )//FIXME: other triggers okay too?
 				{
-					if ( !(owner->flags & FL_INACTIVE) )
+					if ( !Any( owner->flags & FL_INACTIVE ) )
 					{
 						return true;
 					}
@@ -1363,12 +1363,12 @@ bool G_EntIsUnlockedDoor( int entityNum )
 		else
 		{//check the door's auto-created trigger instead
 			owner = G_FindDoorTrigger( ent );
-			if ( owner && (owner->flags&FL_INACTIVE) )
+			if ( owner && Any( owner->flags & FL_INACTIVE ) )
 			{//owning auto-created trigger is inactive
 				return false;
 			}
 		}
-		if ( !(ent->flags & FL_INACTIVE) && //assumes that the reactivate trigger isn't right next to the door!
+		if ( !Any( ent->flags & FL_INACTIVE ) && //assumes that the reactivate trigger isn't right next to the door!
 			!ent->health &&
 			!(ent->spawnflags & MOVER_PLAYER_USE) &&
 			!(ent->spawnflags & MOVER_FORCE_ACTIVATE) &&
@@ -1481,7 +1481,7 @@ void SP_func_door (gentity_t *ent)
 
 	ent->nextthink = level.time + FRAMETIME;
 
-	if ( !(ent->flags&FL_TEAMSLAVE) )
+	if ( !Any( ent->flags & FL_TEAMSLAVE ) )
 	{
 		int health;
 
@@ -2430,16 +2430,16 @@ void funcBBrushDieGo (gentity_t *self)
 	// if a missile is stuck to us, blow it up so we don't look dumb
 	for ( i = 0; i < MAX_GENTITIES; i++ )
 	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && ( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
+		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
 		{
-			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, 0, MOD_CRUSH ); //?? MOD?
+			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH ); //?? MOD?
 		}
 	}
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
-	self->r.contents = 0;
-	self->clipmask = 0;
+	self->r.contents = CONTENTS_NONE;
+	self->clipmask = CONTENTS_NONE;
 	trap->LinkEntity((sharedEntity_t *)self);
 
 	VectorSet(up, 0, 0, 1);
@@ -2862,12 +2862,12 @@ bool G_EntIsBreakable( int entityNum )
 	}
 
 	ent = &g_entities[entityNum];
-	if ( (ent->r.svFlags & SVF_GLASS_BRUSH) )
+	if ( Any( ent->r.svFlags & SVF_GLASS_BRUSH ) )
 	{
 		return true;
 	}
 	/*
-	if ( (ent->svFlags&SVF_BBRUSH) )
+	if ( Any( ent->svFlags & SVF_BBRUSH ) )
 	{
 		return true;
 	}
@@ -3029,20 +3029,20 @@ void func_wait_return_solid( gentity_t *self )
 		self->r.svFlags &= ~SVF_NOCLIENT;
 		self->s.eFlags &= ~EF_NODRAW;
 		self->use = func_usable_use;
-		self->clipmask = 0;
+		self->clipmask = CONTENTS_NONE;
 		if ( self->target2 && self->target2[0] )
 		{
 			G_UseTargets2( self, self->activator, self->target2 );
 		}
 		//FIXME: Animations?
-		/*if ( self->s.eFlags & EF_ANIM_ONCE )
+		/*if ( Any( self->s.eFlags & EF_ANIM_ONCE ) )
 		{//Start our anim
 			self->s.frame = 0;
 		}*/
 	}
 	else
 	{
-		self->clipmask = 0;
+		self->clipmask = CONTENTS_NONE;
 		self->think = func_wait_return_solid;
 		self->nextthink = level.time + FRAMETIME;
 	}
@@ -3063,7 +3063,7 @@ bool G_EntIsRemovableUsable( int entNum )
 	gentity_t *ent = &g_entities[entNum];
 	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
 	{
-		if ( !(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
+		if ( !Any(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
 		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
 			return true;
 		}
@@ -3074,7 +3074,7 @@ bool G_EntIsRemovableUsable( int entNum )
 void func_usable_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 {//Toggle on and off
 	G_ActivateBehavior( self, BSET_USE );
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{//animate shader when used
 		self->s.frame++;//inc frame
 		if ( self->s.frame > self->genericValue5 )
@@ -3114,8 +3114,8 @@ void func_usable_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 	else
 	{
 		self->s.solid = 0;
-		self->r.contents = 0;
-		self->clipmask = 0;
+		self->r.contents = CONTENTS_NONE;
+		self->clipmask = CONTENTS_NONE;
 		self->r.svFlags |= SVF_NOCLIENT;
 		self->s.eFlags |= EF_NODRAW;
 		self->count = 0;
@@ -3187,8 +3187,8 @@ void SP_func_usable( gentity_t *self )
 	if (self->spawnflags & 1)
 	{
 		self->s.solid = 0;
-		self->r.contents = 0;
-		self->clipmask = 0;
+		self->r.contents = CONTENTS_NONE;
+		self->clipmask = CONTENTS_NONE;
 		self->r.svFlags |= SVF_NOCLIENT;
 		self->s.eFlags |= EF_NODRAW;
 		self->count = 0;
@@ -3241,7 +3241,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	G_ActivateBehavior(ent,BSET_USE);
 
 	// Not there so make it there
-	if (!(ent->r.contents & CONTENTS_SOLID))
+	if (!Any( ent->r.contents & CONTENTS_SOLID ))
 	{
 		ent->r.svFlags &= ~SVF_NOCLIENT;
 		ent->s.eFlags &= ~EF_NODRAW;
@@ -3254,7 +3254,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	// Make it go away
 	else
 	{
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
 		if ( !(ent->spawnflags&1) )
@@ -3291,7 +3291,7 @@ void SP_func_wall( gentity_t *ent )
 	// it must be START_OFF
 	if (ent->spawnflags & FUNC_WALL_OFF)
 	{
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
 	}

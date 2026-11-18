@@ -42,7 +42,7 @@ CQuickSpriteSystem SQuickSprite;
 
 CQuickSpriteSystem::CQuickSpriteSystem() :
 	mTexBundle(nullptr),
-	mGLStateBits(0),
+	mGLStateBits(GLS_NONE),
 	mFogIndex(-1),
 	mUseFog(false),
 	mNextVert(0)
@@ -167,7 +167,7 @@ void CQuickSpriteSystem::Flush(void)
 }
 
 
-void CQuickSpriteSystem::StartGroup(textureBundle_t *bundle, uint32_t glbits, int fogIndex )
+void CQuickSpriteSystem::StartGroup(textureBundle_t *bundle, glStateBits_t glbits, int fogIndex )
 {
 	mNextVert = 0;
 

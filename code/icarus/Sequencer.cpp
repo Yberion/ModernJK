@@ -305,7 +305,7 @@ CSequence *CSequencer::AddSequence( CIcarus* icarus )
 	return sequence;
 }
 
-CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlag_t flags, CIcarus* icarus )
+CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlags_t flags, CIcarus* icarus )
 {
 	CSequence	*sequence = (CSequence*)icarus->GetSequence();
 

@@ -299,7 +299,7 @@ SetFlag
 -------------------------
 */
 
-void CSequence::SetFlag( sequenceFlag_t flag )
+void CSequence::SetFlag( sequenceFlags_t flag )
 {
 	m_flags |= flag;
 }
@@ -310,7 +310,7 @@ RemoveFlag
 -------------------------
 */
 
-void CSequence::RemoveFlag( sequenceFlag_t flag, bool children )
+void CSequence::RemoveFlag( sequenceFlags_t flag, bool children )
 {
 	m_flags &= ~flag;
 
@@ -336,7 +336,7 @@ HasFlag
 -------------------------
 */
 
-bool CSequence::HasFlag( sequenceFlag_t flag )
+bool CSequence::HasFlag( sequenceFlags_t flag )
 {
 	return Any(m_flags & flag);
 }
@@ -478,7 +478,7 @@ int CSequence::LoadCommand( CBlock *block, CIcarus *icarus )
 
 	//Read the block's flags
 	icarus->BufferRead( &flags, sizeof( flags ) );
-	block->SetFlags( static_cast<blockFlag_t>( flags ) );
+	block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 	//Get the number of block members
 	icarus->BufferRead( &numMembers, sizeof( numMembers ) );
@@ -681,7 +681,7 @@ int CSequence::Load( CIcarus* icarus )
 	//Get the sequence flags
 	int flags;
 	icarus->BufferRead( &flags, sizeof( flags ) );
-	m_flags = static_cast<sequenceFlag_t>( flags );
+	m_flags = static_cast<sequenceFlags_t>( flags );
 
 	//Get the number of iterations
 	icarus->BufferRead( &m_iterations, sizeof( m_iterations ) );

@@ -148,7 +148,7 @@ void PrintContents(int contents)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
+bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask)
 {
 	bsp_trace_t bsptrace;
 	botimport.Trace(&bsptrace, start, mins, maxs, end, passent, contentmask);
@@ -161,7 +161,7 @@ bsp_trace_t AAS_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int pa
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointContents(vec3_t point)
+contentsFlags_t AAS_PointContents(vec3_t point)
 {
 	return botimport.PointContents(point);
 } //end of the function AAS_PointContents
@@ -173,7 +173,7 @@ int AAS_PointContents(vec3_t point)
 //===========================================================================
 bool AAS_EntityCollision(int entnum,
 					vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end,
-								int contentmask, bsp_trace_t *trace)
+								contentsFlags_t contentmask, bsp_trace_t *trace)
 {
 	bsp_trace_t enttrace;
 

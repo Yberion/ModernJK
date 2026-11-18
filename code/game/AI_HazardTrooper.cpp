@@ -807,7 +807,7 @@ private:
 				}
 				else if (NextState==TS_ATTACK_FLANK && actorIndex>=4)
 				{
-					int		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
+					combatPointSearchFlags_t		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
 					float	avoidDist = 128.0f;
 
 					Order.mCombatPoint = NPC_FindCombatPointRetry(
@@ -818,7 +818,7 @@ private:
 											avoidDist,
 											0);
 
-					if (Order.mCombatPoint!=-1 && (cpFlags&CP_CLEAR))
+					if (Order.mCombatPoint!=-1 && Any(cpFlags&CP_CLEAR))
 					{
 						Order.mPosition = level.combatPoints[Order.mCombatPoint].origin;
 						NPC_SetCombatPoint(Order.mCombatPoint);
@@ -867,7 +867,7 @@ private:
 
 				if (trace.startsolid || trace.allsolid)
 				{
-					int		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
+					combatPointSearchFlags_t		cpFlags = (CP_HAS_ROUTE|CP_AVOID_ENEMY|CP_CLEAR|CP_COVER|CP_FLANK|CP_APPROACH_ENEMY);
 					float	avoidDist = 128.0f;
 
 					Order.mCombatPoint = NPC_FindCombatPointRetry(
@@ -1245,7 +1245,7 @@ void		Trooper_SmackAway(gentity_t* actor, gentity_t* target)
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		Trooper_Kneeling(gentity_t* actor)
 {
-	return (actor->NPC->aiFlags&NPCAI_KNEEL || actor->client->ps.legsAnim==BOTH_STAND_TO_KNEEL);
+	return (Any(actor->NPC->aiFlags&NPCAI_KNEEL) || actor->client->ps.legsAnim==BOTH_STAND_TO_KNEEL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1452,7 +1452,7 @@ void		Trooper_Think(gentity_t* actor)
 							g_entities[traceTgt].client->playerTeam==actor->client->playerTeam &&
 							NPC_IsTrooper(&g_entities[traceTgt]) &&
 							g_entities[traceTgt].resultspeed<1.0f &&
-							!(g_entities[traceTgt].NPC->aiFlags & NPCAI_KNEEL))
+							!Any(g_entities[traceTgt].NPC->aiFlags & NPCAI_KNEEL))
 				{
 					Trooper_KneelDown(&g_entities[traceTgt]);
 				}
@@ -1544,8 +1544,8 @@ bool NPC_IsTrooper(gentity_t* actor)
 		actor &&
 		actor->NPC &&
 		actor->s.weapon != WP_NONE &&
-		!!(actor->NPC->scriptFlags&SCF_NO_GROUPS)// &&
-//		 !(actor->NPC->scriptFlags&SCF_CHASE_ENEMIES)
+		!!Any(actor->NPC->scriptFlags&SCF_NO_GROUPS)// &&
+//		 !Any(actor->NPC->scriptFlags&SCF_CHASE_ENEMIES)
 		 );
 }
 

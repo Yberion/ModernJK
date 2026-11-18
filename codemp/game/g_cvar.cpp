@@ -68,7 +68,7 @@ typedef struct cvarTable_s {
 	const char	*cvarName;
 	const char	*defaultString;
 	void		(*update)( void );
-	uint32_t	cvarFlags;
+	cvarFlags_t	cvarFlags;
 	bool	trackChange; // announce if value changes
 } cvarTable_t;
 

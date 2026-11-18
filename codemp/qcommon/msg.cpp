@@ -747,7 +747,7 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 	MSG_WriteDeltaKey( msg, key, from->forwardmove, to->forwardmove, 8 );
 	MSG_WriteDeltaKey( msg, key, from->rightmove, to->rightmove, 8 );
 	MSG_WriteDeltaKey( msg, key, from->upmove, to->upmove, 8 );
-	MSG_WriteDeltaKey( msg, key, from->buttons, to->buttons, 16 );
+	MSG_WriteDeltaKey( msg, key, to_underlying( from->buttons ), to_underlying( to->buttons ), 16 );
 	MSG_WriteDeltaKey( msg, key, from->weapon, to->weapon, 8 );
 
 	MSG_WriteDeltaKey( msg, key, from->forcesel, to->forcesel, 8 );
@@ -781,7 +781,7 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 		to->upmove = MSG_ReadDeltaKey( msg, key, from->upmove, 8);
 		if( to->upmove == -128 )
 			to->upmove = -127;
-		to->buttons = MSG_ReadDeltaKey( msg, key, from->buttons, 16);
+		to->buttons = static_cast<buttonFlags_t>( MSG_ReadDeltaKey( msg, key, to_underlying( from->buttons ), 16) );
 		to->weapon = MSG_ReadDeltaKey( msg, key, from->weapon, 8);
 
 		to->forcesel = MSG_ReadDeltaKey( msg, key, from->forcesel, 8);
@@ -2152,7 +2152,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	else
 	{//regular client playerstate
 		if ( to->m_iVehicleNum
-			&& (to->eFlags&EF_NODRAW) )
+			&& Any(to->eFlags&EF_NODRAW) )
 		{//pilot riding *inside* a vehicle!
 			MSG_WriteBits( msg, 1, 1 );	// Pilot player state
 			numFields = (int)ARRAY_LEN( pilotPlayerStateFields );

@@ -55,21 +55,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	START_TIME_FIND_WAYPOINT	FRAMETIME*5 // time-delay after map start after which it's okay to try to find your best waypoint
 
 // gentity->flags
-#define	FL_SHIELDED				0x00000001	// protected from all damage except lightsabers
-#define FL_DMG_BY_HEAVY_WEAP_ONLY	0x00000002	// protected from all damage except heavy weap class missiles
-#define	FL_DMG_BY_SABER_ONLY	0x00000004	//protected from all damage except saber damage
-#define	FL_GODMODE				0x00000010
-#define	FL_NOTARGET				0x00000020
-#define	FL_TEAMSLAVE			0x00000400	// not the first on the team
-#define FL_NO_KNOCKBACK			0x00000800
-#define FL_DROPPED_ITEM			0x00001000
-#define	FL_DONT_SHOOT			0x00002000	// Can target him, but not shoot him
-#define	FL_UNDYING				0x00004000	// Takes damage down to 1 point, but does not die
-//#define FL_OVERCHARGED			0x00008000	// weapon shot is an overcharged version....probably a lame place to be putting this flag...
-#define FL_LOCK_PLAYER_WEAPONS	0x00010000	// player can't switch weapons... ask james if there's a better spot for this
-#define FL_DISINTEGRATED		0x00020000	// marks that the corpse has already been disintegrated
-#define FL_FORCE_PULLABLE_ONLY	0x00040000	// cannot be force pushed
-#define FL_NO_IMPACT_DMG		0x00080000	// Will not take impact damage
+enum class gentityFlags_t
+{
+	FL_NONE					= 0,
+	FL_SHIELDED				= 0x00000001,	// protected from all damage except lightsabers
+	FL_DMG_BY_HEAVY_WEAP_ONLY	= 0x00000002,	// protected from all damage except heavy weap class missiles
+	FL_DMG_BY_SABER_ONLY	= 0x00000004,	//protected from all damage except saber damage
+	FL_GODMODE				= 0x00000010,
+	FL_NOTARGET				= 0x00000020,
+	FL_TEAMSLAVE			= 0x00000400,	// not the first on the team
+	FL_NO_KNOCKBACK			= 0x00000800,
+	FL_DROPPED_ITEM			= 0x00001000,
+	FL_DONT_SHOOT			= 0x00002000,	// Can target him, but not shoot him
+	FL_UNDYING				= 0x00004000,	// Takes damage down to 1 point, but does not die
+	//FL_OVERCHARGED			= 0x00008000,	// weapon shot is an overcharged version....probably a lame place to be putting this flag...
+	FL_LOCK_PLAYER_WEAPONS	= 0x00010000,	// player can't switch weapons... ask james if there's a better spot for this
+	FL_DISINTEGRATED		= 0x00020000,	// marks that the corpse has already been disintegrated
+	FL_FORCE_PULLABLE_ONLY	= 0x00040000,	// cannot be force pushed
+	FL_NO_IMPACT_DMG		= 0x00080000,	// Will not take impact damage
+};
+using enum gentityFlags_t;
+template <> inline constexpr bool enableEnumFlags<gentityFlags_t> = true;
 
 //Pointer safety utilities
 #define VALID( a )		( a != nullptr )
@@ -95,10 +101,12 @@ typedef struct
 
 #define MAX_COMBAT_POINTS		512
 
+enum class combatPointFlags_t;	// b_local.h
+
 typedef struct
 {
 	vec3_t		origin;
-	int			flags;
+	combatPointFlags_t	flags;
 //	char		*NPC_targetname;
 //	team_t		team;
 	bool	occupied;
@@ -189,8 +197,14 @@ typedef struct
 	int		nodeID;
 } waypointData_t;
 
-#define	WF_RAINING	0x00000001	//raining
-#define	WF_SNOWING	0x00000002	//snowing
+enum class worldFlags_t
+{
+	WF_NONE		= 0,
+	WF_RAINING	= 0x00000001,	//raining
+	WF_SNOWING	= 0x00000002,	//snowing
+};
+using enum worldFlags_t;
+template <> inline constexpr bool enableEnumFlags<worldFlags_t> = true;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class level_locals_t
@@ -221,7 +235,7 @@ public:
 	animFileSet_t	knownAnimFileSets[MAX_ANIM_FILES];
 	int				numKnownAnimFileSets;
 
-	int				worldFlags;
+	worldFlags_t				worldFlags;
 
 	dynamicMusic_t	dmState;		//actually, we do want save/load the dynamic music state
 // =====================================
@@ -405,29 +419,15 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot);
 // g_combat.cpp
 //
 bool CanDamage (gentity_t *targ, vec3_t origin);
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, hitLocation_t hitLoc=HL_NONE );
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc=HL_NONE );
 void G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, meansOfDeath_t mod);
 gentity_t *TossClientItems( gentity_t *self );
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc );
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc );
 void ExplodeDeath( gentity_t *self );
 void GoExplodeDeath( gentity_t *self, gentity_t *other, gentity_t *activator);
 void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
 void G_Throw( gentity_t *targ, vec3_t newDir, float push );
 
-// damage flags
-#define DAMAGE_RADIUS			0x00000001	// damage was indirect
-#define DAMAGE_NO_ARMOR			0x00000002	// armour does not protect from this damage
-#define DAMAGE_NO_KNOCKBACK		0x00000008	// do not affect velocity, just view angles
-#define DAMAGE_NO_HIT_LOC		0x00000010	// do not modify damage by hit loc
-#define DAMAGE_NO_PROTECTION	0x00000020  // armor, shields, invulnerability, and godmode have no effect
-#define DAMAGE_EXTRA_KNOCKBACK	0x00000040	// add extra knockback to this damage
-#define DAMAGE_DEATH_KNOCKBACK	0x00000080	// only does knockback on death of target
-#define DAMAGE_IGNORE_TEAM		0x00000100	// damage is always done, regardless of teams
-#define DAMAGE_NO_DAMAGE		0x00000200	// do no actual damage but react as if damage was taken
-#define DAMAGE_DISMEMBER		0x00000400	// do dismemberment
-#define DAMAGE_NO_KILL			0x00000800	// do damage, but don't kill them
-#define DAMAGE_HEAVY_WEAP_CLASS	0x00001000	// doing heavy weapon type damage, certain objects may only take damage by missiles containing this flag
-#define DAMAGE_CUSTOM_HUD		0x00002000	// really dumb, but....
 
 //
 // g_missile.cpp
@@ -472,7 +472,7 @@ void respawn (gentity_t *ent);
 void InitClientPersistant (gclient_t *client);
 void InitClientResp (gclient_t *client);
 bool ClientSpawn( gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded );
-void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc);
+void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc);
 void AddScore( gentity_t *ent, int score );
 bool SpotWouldTelefrag( gentity_t *spot, team_t checkteam );
 

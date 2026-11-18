@@ -9981,7 +9981,7 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
-	trap->Cvar_Register(nullptr, "debug_protocol", "", 0 );
+	trap->Cvar_Register(nullptr, "debug_protocol", "", CVAR_NONE );
 
 	trap->Cvar_Set("ui_actualNetGameType", va("%d", ui_netGametype.integer));
 	trap->Cvar_Update(&ui_actualNetGametype);
@@ -9993,7 +9993,7 @@ void UI_Refresh( int realtime )
 	static int index;
 	static int	previousTimes[UI_FPS_FRAMES];
 
-	//if ( !( trap->Key_GetCatcher() & KEYCATCH_UI ) ) {
+	//if ( !Any( trap->Key_GetCatcher() & KEYCATCH_UI ) ) {
 	//	return;
 	//}
 
@@ -10033,7 +10033,7 @@ void UI_Refresh( int realtime )
 	}
 	// draw cursor
 	UI_SetColor( nullptr );
-	if (Menu_Count() > 0 && (trap->Key_GetCatcher() & KEYCATCH_UI)) {
+	if (Menu_Count() > 0 && Any(trap->Key_GetCatcher() & KEYCATCH_UI)) {
 		UI_DrawHandlePic( (float)uiInfo.uiDC.cursorx, (float)uiInfo.uiDC.cursory, 40.0f, 40.0f, uiInfo.uiDC.Assets.cursor);
 		//UI_DrawHandlePic( uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory, 48, 48, uiInfo.uiDC.Assets.cursor);
 	}

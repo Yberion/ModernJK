@@ -1067,14 +1067,14 @@ void G_KillBox (gentity_t *ent) {
 		}
 		if ( ent->s.number )
 		{//NPC
-			if ( !(hit->contents&CONTENTS_BODY) )
+			if ( !Any( hit->contents&CONTENTS_BODY ) )
 			{
 				continue;
 			}
 		}
 		else
 		{//player
-			if ( !(hit->contents & ent->contents) )
+			if ( !Any( hit->contents & ent->contents ) )
 			{
 				continue;
 			}
@@ -1432,12 +1432,12 @@ bool ValidUseTarget( gentity_t *ent )
 		return false;
 	}
 
-	if ( ent->svFlags & SVF_INACTIVE )
+	if ( Any( ent->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
 
-	if ( !(ent->svFlags & SVF_PLAYER_USABLE) )
+	if ( !Any( ent->svFlags & SVF_PLAYER_USABLE ) )
 	{//Check for flag that denotes BUTTON_USE useability
 		return false;
 	}
@@ -1506,7 +1506,7 @@ static bool G_ValidActivateBehavior (gentity_t* self, bSet_t bset)
 
 static bool G_IsTriggerUsable(gentity_t* self, gentity_t* other)
 {
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
@@ -1601,7 +1601,7 @@ static bool CanUseInfrontOfPartOfLevel(gentity_t* ent )	//originally from VV
 		if ( (hit->e_TouchFunc == touchF_NULL) && (ent->e_TouchFunc == touchF_NULL) ) {
 			continue;
 		}
-		if ( !( hit->contents & CONTENTS_TRIGGER ) ) {
+		if ( !Any( hit->contents & CONTENTS_TRIGGER ) ) {
 			continue;
 		}
 
@@ -1736,7 +1736,7 @@ bool CanUseInfrontOf(gentity_t *ent)
 		&& target->NPC!=nullptr
 		&& target->client->playerTeam != TEAM_FREE
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
-		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE)
+		&& !Any(target->NPC->scriptFlags&SCF_NO_RESPONSE)
 		&& G_ValidActivateBehavior (target, BSET_USE))
 	{
 		return true;
@@ -1833,7 +1833,7 @@ void TryUse( gentity_t *ent )
 		&& target->NPC!=nullptr
 		&& target->client->playerTeam != TEAM_FREE
 		&& (target->client->playerTeam == ent->client->playerTeam || target->client->playerTeam == TEAM_NEUTRAL)
-		&& !(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
+		&& !Any(target->NPC->scriptFlags&SCF_NO_RESPONSE) )
 	{
 		NPC_UseResponse ( target, ent, false );
 		return;
@@ -1934,7 +1934,7 @@ void G_SetAngles( gentity_t *ent, const vec3_t angles )
 	VectorCopy( angles, ent->s.apos.trBase );
 }
 
-bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask )
+bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, contentsFlags_t clipmask )
 {
 	static	trace_t	tr;
 
@@ -1963,7 +1963,7 @@ void	G_DebugLine(vec3_t A, vec3_t B, int duration, int color, bool deleteornot)
 	CG_TestLine( A, B, duration, color, 1 );
 }
 
-bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
+bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask )
 {
 	trace_t	tr;
 	vec3_t	start, end;

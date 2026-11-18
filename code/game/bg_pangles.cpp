@@ -92,7 +92,7 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 		VectorCopy( origin, ikP.origin );
 		VectorCopy( angles, ikP.angles );
 		ikP.angles[PITCH] = 0;
-		ikP.pcjOverrides = 0;
+		ikP.pcjOverrides = RAG_NONE;
 		ikP.radius = 10.0f;
 		VectorCopy( scale, ikP.scale );
 
@@ -210,7 +210,8 @@ void BG_IK_MoveLimb( CGhoul2Info_v &ghoul2, int boltIndex, const char *animBone,
 	else if ( *ikInProgress )
 	{ //kill it
 		float cFrame, animSpeed;
-		int sFrame, eFrame, flags;
+		int sFrame, eFrame;
+		boneFlags_t flags;
 
 		gi.G2API_SetBoneIKState( ghoul2, time, "lower_lumbar", IKS_NONE, nullptr );
 		gi.G2API_SetBoneIKState( ghoul2, time, "upper_lumbar", IKS_NONE, nullptr );
@@ -367,7 +368,7 @@ void PM_IKUpdate( gentity_t *ent )
 }
 
 
-void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const int flags,
+void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations up, const Eorientations right, const Eorientations forward, qhandle_t *modelList )
 {
 	if (boneIndex!=-1)
@@ -425,7 +426,7 @@ bool PM_LockAngles( gentity_t *ent, usercmd_t *ucmd )
 
 bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
-	if ( ((ent->client->ps.eFlags&EF_FORCE_GRIPPED)||(ent->client->ps.eFlags&EF_FORCE_DRAINED)) && ent->enemy )
+	if ( (Any(ent->client->ps.eFlags&EF_FORCE_GRIPPED)||Any(ent->client->ps.eFlags&EF_FORCE_DRAINED)) && ent->enemy )
 	{
 		vec3_t dir, angles;
 
@@ -787,7 +788,7 @@ bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleCla
 			//if ( !PM_InForceGetUp( &ent->client->ps ) || ent->client->ps.torsoAnimTimer > 800 || ent->s.weapon != WP_SABER )
 			if ( ent->health > 0 )
 			{//can only attack if you've started a force-getup and are using the saber
-				ucmd->buttons = 0;
+				ucmd->buttons = BUTTON_NONE;
 			}
 		}
 		if ( !PM_InForceGetUp( &ent->client->ps ) )
@@ -1065,7 +1066,7 @@ bool PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, bool doMove )
 			return true;
 		}
 		else if ( doMove
-			&& (ent->client->ps.pm_flags&PMF_STUCK_TO_WALL))
+			&& Any(ent->client->ps.pm_flags&PMF_STUCK_TO_WALL))
 		{//jump off
 			//push off of it!
 			ent->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
@@ -1351,7 +1352,7 @@ bool G_OkayToLean( playerState_t *ps, usercmd_t *cmd, bool interruptOkay )
 				&& !ps->legsAnimTimer//not in any held legs anim
 				&& !ps->torsoAnimTimer) //not in any held torso anim
 			)
-		&& !(cmd->buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_LIGHTNING|BUTTON_USE_FORCE|BUTTON_FORCE_DRAIN|BUTTON_FORCEGRIP))//not trying to attack
+		&& !Any(cmd->buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_LIGHTNING|BUTTON_USE_FORCE|BUTTON_FORCE_DRAIN|BUTTON_FORCEGRIP))//not trying to attack
 		//&& (ps->forcePowersActive&Bit( FP_SPEED ))
 		&& VectorCompare( ps->velocity, vec3_origin )//not moving
 		&& !cg_usingInFrontOf )//use button wouldn't be used for anything else
@@ -1421,7 +1422,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		}
 	}
 
-	if ( ps->eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( ps->eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		// Emplaced guns have different pitch capabilities
 		if ( gent && gent->owner && gent->owner->e_UseFunc == useF_eweb_use )
@@ -1591,7 +1592,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 
 	if ( gent )
 	{	//only in the real pmove
-		if ( (cmd->buttons & BUTTON_USE) )
+		if ( Any(cmd->buttons & BUTTON_USE) )
 		{//check leaning
 			if ( cg.renderingThirdPerson )
 			{//third person lean

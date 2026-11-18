@@ -47,7 +47,7 @@ extern vec3_t cl_windVec;
 // snapshots are a view of the server at a given time
 typedef struct clSnapshot_s {
 	bool		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
+	snapFlags_t		snapFlags;		// rate delayed and dropped commands
 
 	int				serverTime;		// server time the message is valid for (in msec)
 
@@ -646,7 +646,7 @@ void CL_PlayCinematic_f( void );
 void SCR_DrawCinematic (void);
 void SCR_RunCinematic (void);
 void SCR_StopCinematic (void);
-int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
+int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits);
 e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);
@@ -671,8 +671,8 @@ void CL_ShaderStateChanged(void);
 //
 void CL_InitUI( void );
 void CL_ShutdownUI( void );
-int Key_GetCatcher( void );
-void Key_SetCatcher( int catcher );
+keyCatchFlags_t Key_GetCatcher( void );
+void Key_SetCatcher( keyCatchFlags_t catcher );
 void LAN_LoadCachedServers();
 void LAN_SaveServersToCache();
 

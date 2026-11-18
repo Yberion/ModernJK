@@ -48,8 +48,8 @@ typedef struct {
 	void		(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
 	void		(*Cvar_SetValue)( const char *var_name, float value );
 	void		(*Cvar_Reset)( const char *name );
-	void		(*Cvar_Create)( const char *var_name, const char *var_value, int flags );
-	void		(*Cvar_InfoStringBuffer)( int bit, char *buffer, int bufsize );
+	void		(*Cvar_Create)( const char *var_name, const char *var_value, cvarFlags_t flags );
+	void		(*Cvar_InfoStringBuffer)( cvarFlags_t bit, char *buffer, int bufsize );
 
 	// console command interaction
 	int			(*Argc)( void );
@@ -138,11 +138,11 @@ typedef struct {
 	bool	(*Key_GetOverstrikeMode)( void );
 	void		(*Key_SetOverstrikeMode)( bool state );
 	void		(*Key_ClearStates)( void );
-	int			(*Key_GetCatcher)( void );
-	void		(*Key_SetCatcher)( int catcher );
+	keyCatchFlags_t	(*Key_GetCatcher)( void );
+	void		(*Key_SetCatcher)( keyCatchFlags_t catcher );
 
 #ifdef JK2_MODE
-	bool	(*SP_Register)( const char *Package, unsigned char Registration );
+	bool	(*SP_Register)( const char *Package, spRegistrationFlags_t Registration );
 	const char *(*SP_GetStringText)(unsigned short ID);
 	const char *(*SP_GetStringTextString)(const char *Reference);
 #endif

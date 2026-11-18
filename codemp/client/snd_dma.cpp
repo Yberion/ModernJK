@@ -322,10 +322,10 @@ void S_Init( void ) {
 	s_initsound         = Cvar_Get( "s_initsound",         "1",       CVAR_ARCHIVE );
 	s_khz               = Cvar_Get( "s_khz",               "44",      CVAR_ARCHIVE | CVAR_LATCH );
 	s_language          = Cvar_Get( "s_language",          "english", CVAR_ARCHIVE | CVAR_NORESTART, "Sound language" );
-	s_lip_threshold_1   = Cvar_Get( "s_threshold1",        "0.5",     0 );
-	s_lip_threshold_2   = Cvar_Get( "s_threshold2",        "4.0",     0 );
-	s_lip_threshold_3   = Cvar_Get( "s_threshold3",        "7.0",     0 );
-	s_lip_threshold_4   = Cvar_Get( "s_threshold4",        "8.0",     0 );
+	s_lip_threshold_1   = Cvar_Get( "s_threshold1",        "0.5",     CVAR_NONE );
+	s_lip_threshold_2   = Cvar_Get( "s_threshold2",        "4.0",     CVAR_NONE );
+	s_lip_threshold_3   = Cvar_Get( "s_threshold3",        "7.0",     CVAR_NONE );
+	s_lip_threshold_4   = Cvar_Get( "s_threshold4",        "8.0",     CVAR_NONE );
 	s_mixahead          = Cvar_Get( "s_mixahead",          "0.2",     CVAR_ARCHIVE );
 	s_mixPreStep        = Cvar_Get( "s_mixPreStep",        "0.05",    CVAR_ARCHIVE );
 	s_musicVolume       = Cvar_Get( "s_musicvolume",       "0.25",    CVAR_ARCHIVE, "Music Volume" );

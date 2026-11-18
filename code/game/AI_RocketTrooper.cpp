@@ -104,7 +104,7 @@ void RT_FireDecide( void )
 	if ( enemyDist < MIN_ROCKET_DIST_SQUARED )//128
 	{//enemy within 128
 		if ( (NPC->client->ps.weapon == WP_FLECHETTE || NPC->client->ps.weapon == WP_REPEATER) &&
-			(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 		{//shooting an explosive, but enemy too close, switch to primary fire
 			NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
 			//FIXME: we can never go back to alt-fire this way since, after this, we don't know if we were initially supposed to use alt-fire or not...
@@ -126,8 +126,8 @@ void RT_FireDecide( void )
 			else
 			{//can we shoot our target?
 				if ( (NPC->client->ps.weapon == WP_ROCKET_LAUNCHER
-					|| (NPC->client->ps.weapon == WP_CONCUSSION && !(NPCInfo->scriptFlags&SCF_ALT_FIRE))
-					|| (NPC->client->ps.weapon == WP_FLECHETTE && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
+					|| (NPC->client->ps.weapon == WP_CONCUSSION && !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					|| (NPC->client->ps.weapon == WP_FLECHETTE && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
 				{
 					enemyCS = false;//not true, but should stop us from firing
 					hitAlly = true;//us!
@@ -140,7 +140,7 @@ void RT_FireDecide( void )
 
 					if ( hit == NPC->enemy->s.number
 						|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
-						|| ( hitEnt && hitEnt->takedamage && ((hitEnt->svFlags&SVF_GLASS_BRUSH)||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
+						|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
 					{//can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
 						enemyCS = true;
 						//NPC_AimAdjust( 2 );//adjust aim better longer we have clear shot at enemy
@@ -223,13 +223,13 @@ void RT_FireDecide( void )
 							distThreshold = 65536/*256*256*/;
 							break;
 						case WP_REPEATER:
-							if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+							if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 							{
 								distThreshold = 65536/*256*256*/;
 							}
 							break;
 						case WP_CONCUSSION:
-							if ( !(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+							if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 							{
 								distThreshold = 65536/*256*256*/;
 							}
@@ -259,13 +259,13 @@ void RT_FireDecide( void )
 								distThreshold = 262144/*512*512*/;
 								break;
 							case WP_REPEATER:
-								if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+								if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 								{
 									distThreshold = 262144/*512*512*/;
 								}
 								break;
 							case WP_CONCUSSION:
-								if ( !(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+								if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 								{
 									distThreshold = 262144/*512*512*/;
 								}
@@ -300,7 +300,7 @@ void RT_FireDecide( void )
 		if ( NPC->client->fireDelay )
 		{
 			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER
-				|| (NPC->s.weapon == WP_CONCUSSION&&!(NPCInfo->scriptFlags&SCF_ALT_FIRE)) )
+				|| (NPC->s.weapon == WP_CONCUSSION&&!Any(NPCInfo->scriptFlags&SCF_ALT_FIRE)) )
 			{
 				if ( !enemyLOS || !enemyCS )
 				{//cancel it
@@ -316,7 +316,7 @@ void RT_FireDecide( void )
 		{//try to shoot if it's time
 			if ( TIMER_Done( NPC, "nextAttackDelay" ) )
 			{
-				if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+				if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 				{
 					WeaponThink( true );
 				}
@@ -324,7 +324,7 @@ void RT_FireDecide( void )
 				int altChance = 6;//FIXME: base on g_spskill
 				if ( NPC->s.weapon == WP_ROCKET_LAUNCHER )
 				{
-					if ( (ucmd.buttons&BUTTON_ATTACK)
+					if ( Any(ucmd.buttons&BUTTON_ATTACK)
 						&& !Q_irand( 0, altChance ) )
 					{//every now and then, shoot a homing rocket
 						ucmd.buttons &= ~BUTTON_ATTACK;
@@ -334,7 +334,7 @@ void RT_FireDecide( void )
 				}
 				else if ( NPC->s.weapon == WP_CONCUSSION )
 				{
-					if ( (ucmd.buttons&BUTTON_ATTACK)
+					if ( Any(ucmd.buttons&BUTTON_ATTACK)
 						&& Q_irand( 0, altChance*5 ) )
 					{//fire the beam shot
 						ucmd.buttons &= ~BUTTON_ATTACK;
@@ -473,7 +473,7 @@ void RT_Flying_MaintainHeight( void )
 		return;
 	}
 
-	if ( (NPC->client->ps.pm_flags&PMF_TIME_KNOCKBACK) )
+	if ( Any(NPC->client->ps.pm_flags&PMF_TIME_KNOCKBACK) )
 	{//don't slow down for a bit
 		if ( NPC->client->ps.pm_time > 0 )
 		{
@@ -483,7 +483,7 @@ void RT_Flying_MaintainHeight( void )
 	}
 
 	/*
-	if ( (NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
+	if ( Any(NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
 	{
 		RT_Flying_ApplyFriction( 3.0f );
 		return;
@@ -727,7 +727,7 @@ void RT_Flying_Hunt( bool visible, bool advance )
 	vec3_t	forward;
 
 	if ( NPC->forcePushTime >= level.time )
-		//|| (NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
+		//|| Any(NPC->client->ps.eFlags&EF_FORCE_GRIPPED) )
 	{//if being pushed, we don't have control over our movement
 		NPC->delay = 0;
 		return;
@@ -805,7 +805,7 @@ void RT_Flying_Hunt( bool visible, bool advance )
 
 void RT_Flying_Ranged( bool visible, bool advance )
 {
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		RT_Flying_Hunt( visible, advance );
 	}
@@ -824,7 +824,7 @@ void RT_Flying_Attack( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			RT_Flying_Hunt( visible, advance );
 			return;

@@ -733,9 +733,9 @@ public:
 
 	usercmd_t	usercmd;			// most recent usercmd
 
-	int			buttons;
-	int			oldbuttons;
-	int			latched_buttons;
+	buttonFlags_t			buttons;
+	buttonFlags_t			oldbuttons;
+	buttonFlags_t			latched_buttons;
 
 	// sum up damage over an entire frame, so
 	// shotgun blasts give a single big kick
@@ -966,6 +966,28 @@ enum class touchFunc_t;
 enum class useFunc_t;
 enum class painFunc_t;
 enum class dieFunc_t;
+enum class gentityFlags_t;	// g_local.h
+
+// damage flags
+enum class damageFlags_t
+{
+	DAMAGE_NORMAL			= 0x00000000,	// No flags set.
+	DAMAGE_RADIUS			= 0x00000001,	// damage was indirect
+	DAMAGE_NO_ARMOR			= 0x00000002,	// armour does not protect from this damage
+	DAMAGE_NO_KNOCKBACK		= 0x00000008,	// do not affect velocity, just view angles
+	DAMAGE_NO_HIT_LOC		= 0x00000010,	// do not modify damage by hit loc
+	DAMAGE_NO_PROTECTION	= 0x00000020,  // armor, shields, invulnerability, and godmode have no effect
+	DAMAGE_EXTRA_KNOCKBACK	= 0x00000040,	// add extra knockback to this damage
+	DAMAGE_DEATH_KNOCKBACK	= 0x00000080,	// only does knockback on death of target
+	DAMAGE_IGNORE_TEAM		= 0x00000100,	// damage is always done, regardless of teams
+	DAMAGE_NO_DAMAGE		= 0x00000200,	// do no actual damage but react as if damage was taken
+	DAMAGE_DISMEMBER		= 0x00000400,	// do dismemberment
+	DAMAGE_NO_KILL			= 0x00000800,	// do damage, but don't kill them
+	DAMAGE_HEAVY_WEAP_CLASS	= 0x00001000,	// doing heavy weapon type damage, certain objects may only take damage by missiles containing this flag
+	DAMAGE_CUSTOM_HUD		= 0x00002000,	// really dumb, but....
+};
+using enum damageFlags_t;
+template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 
 #define MAX_FAILED_NODES 8
 
@@ -977,12 +999,12 @@ struct gentity_s {
 	bool	inuse;
 	bool	linked;				// false if not in any good cluster
 
-	int			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
+	svFlags_t			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
 
 	bool	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by gi.SetBrushModel
 	vec3_t		mins, maxs;
-	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
+	contentsFlags_t	contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
 									// a non-solid entity should set to 0
 
 	vec3_t		absmin, absmax;		// derived from mins/maxs and origin + rotation
@@ -1020,7 +1042,7 @@ Ghoul2 Insert End
 	const char	*classname;			// set in QuakeEd
 	int			spawnflags;			// set in QuakeEd
 
-	int			flags;				// FL_* variables
+	gentityFlags_t			flags;				// FL_* variables
 
 	char		*model;				// Normal model, or legs model on tri-models
 	char		*model2;			// Torso model
@@ -1033,7 +1055,7 @@ Ghoul2 Insert End
 
 //Physics and movement fields
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
-	int			clipmask;			// brushes with this content value will be collided against
+	contentsFlags_t	clipmask;			// brushes with this content value will be collided against
 									// when moving.  items and corpses do not collide against
 									// players, for instance
 //	moveInfo_t	moveInfo;		//FIXME: use this more?
@@ -1045,7 +1067,7 @@ Ghoul2 Insert End
 	int			lastImpact;			//Last time you impacted something
 
 //Variables reflecting environment
-	int			watertype;
+	contentsFlags_t	watertype;
 	int			waterlevel;
 
 //Targeting/linking fields
@@ -1085,7 +1107,7 @@ Ghoul2 Insert End
 	bool	takedamage;
 	material_t	material;
 	int			damage;
-	int			dflags;
+	damageFlags_t			dflags;
 	//explosives, breakable brushes
 	int			splashDamage;	// quad will increase this without increasing radius
 	int			splashRadius;

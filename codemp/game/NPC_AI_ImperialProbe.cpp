@@ -194,7 +194,7 @@ void ImperialProbe_Strafe( void )
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -358,7 +358,7 @@ void ImperialProbe_Ranged( bool visible, bool advance )
 //		ucmd.buttons |= BUTTON_ATTACK;
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		ImperialProbe_Hunt( visible, advance );
 	}
@@ -412,7 +412,7 @@ void ImperialProbe_AttackDecision( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			ImperialProbe_Hunt( visible, advance );
 			return;
@@ -445,7 +445,7 @@ void NPC_Probe_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		trace_t	trace;
 
 		VectorSet( endPos, self->r.currentOrigin[0], self->r.currentOrigin[1], self->r.currentOrigin[2] - 128 );
-		trap->Trace( &trace, self->r.currentOrigin, nullptr, nullptr, endPos, self->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &trace, self->r.currentOrigin, nullptr, nullptr, endPos, self->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) // demp2 always does this
 		{
@@ -571,11 +571,11 @@ void ImperialProbe_Wait(void)
 		NPCS.NPCInfo->desiredYaw = AngleNormalize360( NPCS.NPCInfo->desiredYaw + 25 );
 
 		VectorSet( endPos, NPCS.NPC->r.currentOrigin[0], NPCS.NPC->r.currentOrigin[1], NPCS.NPC->r.currentOrigin[2] - 32 );
-		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, nullptr, nullptr, endPos, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, nullptr, nullptr, endPos, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 		if ( trace.fraction != 1.0f )
 		{
-			G_Damage(NPCS.NPC, NPCS.NPC->enemy, NPCS.NPC->enemy, nullptr, nullptr, 2000, 0,MOD_UNKNOWN);
+			G_Damage(NPCS.NPC, NPCS.NPC->enemy, NPCS.NPC->enemy, nullptr, nullptr, 2000, DAMAGE_NORMAL,MOD_UNKNOWN);
 		}
 	}
 
@@ -595,7 +595,7 @@ void NPC_BSImperialProbe_Default( void )
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		ImperialProbe_AttackDecision();
 	}
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		ImperialProbe_Patrol();
 	}

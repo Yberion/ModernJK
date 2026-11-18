@@ -182,7 +182,7 @@ void SV_SetBrushModel( gentity_t *ent, const char *name ) {
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
-		//ent->contents = -1;		// we don't know exactly what is in the brushes
+		//ent->contents = CONTENTS_ALL;		// we don't know exactly what is in the brushes
 		h = CM_InlineModel( ent->s.modelindex );
 		ent->contents = CM_ModelContents( h, CM_FindSubBSP(ent->s.modelindex) );
 	//	ent->contents = CONTENTS_SOLID;
@@ -304,7 +304,7 @@ SV_AdjustAreaPortalState
 */
 void SV_AdjustAreaPortalState( gentity_t *ent, bool open ) {
 #ifndef JK2_MODE
-	if ( !(ent->contents & CONTENTS_OPAQUE) ) {
+	if ( !Any( ent->contents & CONTENTS_OPAQUE ) ) {
 #ifndef FINAL_BUILD
 //		Com_Printf( "INFO: entity number %d not opaque: not affecting area portal!\n", ent->s.number );
 #endif
@@ -338,7 +338,7 @@ bool	SV_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *gE
 
 	ch = SV_ClipHandleForEntity( gEnt );
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, -1, origin, angles );
+		ch, CONTENTS_ALL, origin, angles );
 
 	return trace.startsolid;
 }
@@ -511,14 +511,14 @@ static bool SV_G2API_GetAnimRangeIndex( CGhoul2Info *ghlInfo, const int boneInde
 
 static bool SV_G2API_GetBoneAnim(
 	CGhoul2Info *ghlInfo, const char *boneName, const int AcurrentTime,
-    float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList )
+    float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList )
 {
 	return re.G2API_GetBoneAnim( ghlInfo, boneName, AcurrentTime, currentFrame,
 		startFrame, endFrame, flags, animSpeed, modelList );
 }
 
 static bool SV_G2API_GetBoneAnimIndex(CGhoul2Info *ghlInfo, const int iBoneIndex, const int AcurrentTime,
-    float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList)
+    float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList)
 {
 	return re.G2API_GetBoneAnimIndex( ghlInfo, iBoneIndex, AcurrentTime, currentFrame,
 		startFrame, endFrame, flags, animSpeed, modelList );
@@ -537,7 +537,7 @@ static bool SV_G2API_GetBoltMatrix(
 		position, AframeNum, modelList, scale );
 }
 
-static int SV_G2API_GetGhoul2ModelFlags( CGhoul2Info *ghlInfo )
+static ghoul2Flags_t SV_G2API_GetGhoul2ModelFlags( CGhoul2Info *ghlInfo )
 {
 	return re.G2API_GetGhoul2ModelFlags( ghlInfo );
 }
@@ -568,7 +568,7 @@ static char* SV_G2API_GetSurfaceName( CGhoul2Info *ghlInfo, int surfNumber )
 	return re.G2API_GetSurfaceName( ghlInfo, surfNumber );
 }
 
-static int SV_G2API_GetSurfaceRenderStatus( CGhoul2Info *ghlInfo, const char *surfaceName )
+static std::optional<g2SurfaceFlags_t> SV_G2API_GetSurfaceRenderStatus( CGhoul2Info *ghlInfo, const char *surfaceName )
 {
 	return re.G2API_GetSurfaceRenderStatus( ghlInfo, surfaceName );
 }
@@ -690,20 +690,20 @@ static bool SV_G2API_SetAnimIndex( CGhoul2Info *ghlInfo, const int index )
 }
 
 static bool SV_G2API_SetBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
-    const int flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime)
+    const boneFlags_t flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime)
 {
 	return re.G2API_SetBoneAnim( ghlInfo, boneName, startFrame, endFrame, flags,
 		animSpeed, AcurrentTime, setFrame, blendTime );
 }
 
 static bool SV_G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame,
-    const int flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime)
+    const boneFlags_t flags, const float animSpeed, const int AcurrentTime, const float setFrame, const int blendTime)
 {
 	return re.G2API_SetBoneAnimIndex( ghlInfo, index, startFrame, endFrame, flags,
 		animSpeed, AcurrentTime, setFrame, blendTime );
 }
 
-static bool SV_G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+static bool SV_G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const boneFlags_t flags,
     const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
     int blendTime, int AcurrentTime)
 {
@@ -711,7 +711,7 @@ static bool SV_G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, c
 		modelList, blendTime, AcurrentTime );
 }
 
-static bool SV_G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
+static bool SV_G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags,
     const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
     int blendTime, int AcurrentTime)
 {
@@ -720,13 +720,13 @@ static bool SV_G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, c
 }
 
 static bool SV_G2API_SetBoneAnglesMatrix(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix,
-    const int flags, qhandle_t *modelList, int blendTime, int AcurrentTime)
+    const boneFlags_t flags, qhandle_t *modelList, int blendTime, int AcurrentTime)
 {
 	return re.G2API_SetBoneAnglesMatrix( ghlInfo, boneName, matrix, flags, modelList, blendTime, AcurrentTime );
 }
 
 static bool SV_G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
-    const int flags, qhandle_t *modelList, int blandeTime, int AcurrentTime)
+    const boneFlags_t flags, qhandle_t *modelList, int blandeTime, int AcurrentTime)
 {
 	return re.G2API_SetBoneAnglesMatrixIndex( ghlInfo, index, matrix, flags, modelList, blandeTime, AcurrentTime );
 }
@@ -737,7 +737,7 @@ static bool SV_G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char 
 	return re.G2API_SetBoneIKState( ghoul2, time, boneName, ikState, params );
 }
 
-static bool SV_G2API_SetGhoul2ModelFlags( CGhoul2Info *ghlInfo, const int flags )
+static bool SV_G2API_SetGhoul2ModelFlags( CGhoul2Info *ghlInfo, const ghoul2Flags_t flags )
 {
 	return re.G2API_SetGhoul2ModelFlags( ghlInfo, flags );
 }
@@ -772,7 +772,7 @@ static bool SV_G2API_SetSkin( CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandl
 	return re.G2API_SetSkin( ghlInfo, customSkin, renderSkin );
 }
 
-static bool SV_G2API_SetSurfaceOnOff( CGhoul2Info *ghlInfo, const char *surfaceName, const int flags )
+static bool SV_G2API_SetSurfaceOnOff( CGhoul2Info *ghlInfo, const char *surfaceName, const g2SurfaceFlags_t flags )
 {
 	return re.G2API_SetSurfaceOnOff( ghlInfo, surfaceName, flags );
 }

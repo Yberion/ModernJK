@@ -40,7 +40,7 @@ extern void ForceProtect( gentity_t *self );
 extern void ForceAbsorb( gentity_t *self );
 extern void ForceSeeing( gentity_t *self );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum );
-extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
+extern void G_StartMatrixEffect( gentity_t *ent, matrixEffectFlags_t meFlags = MEF_NONE, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 extern void ItemUse_Bacta(gentity_t *ent);
 extern gentity_t *G_GetSelfForPlayerCmd( void );
 
@@ -430,7 +430,7 @@ void Cmd_God_f (gentity_t *ent)
 	}
 
 	ent->flags ^= FL_GODMODE;
-	if (!(ent->flags & FL_GODMODE) )
+	if (!Any( ent->flags & FL_GODMODE ) )
 		msg = "godmode OFF\n";
 	else
 		msg = "godmode ON\n";
@@ -457,7 +457,7 @@ void Cmd_Undying_f (gentity_t *ent)
 	}
 
 	ent->flags ^= FL_UNDYING;
-	if (!(ent->flags & FL_UNDYING) )
+	if (!Any( ent->flags & FL_UNDYING ) )
 	{
 		msg = "undead mode OFF\n";
 	}
@@ -506,7 +506,7 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 	}
 
 	ent->flags ^= FL_NOTARGET;
-	if (!(ent->flags & FL_NOTARGET) )
+	if (!Any( ent->flags & FL_NOTARGET ) )
 		msg = "notarget OFF\n";
 	else
 		msg = "notarget ON\n";
@@ -1270,7 +1270,7 @@ void G_SetTauntAnim( gentity_t *ent, tauntTypes_t taunt )
 		{
 			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
 			{
-				int parts = SETANIM_TORSO;
+				setAnimParts_t parts = SETANIM_TORSO;
 				if ( anim != BOTH_ENGAGETAUNT )
 				{
 					parts = SETANIM_BOTH;

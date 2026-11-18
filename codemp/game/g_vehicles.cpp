@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_vehicles.h"
 
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 
-extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 extern void BG_SetLegsAnimTimer(playerState_t *ps, int time );
 extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
 void G_VehUpdateShields( gentity_t *targ );
@@ -38,23 +38,23 @@ void G_VehUpdateShields( gentity_t *targ );
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
-void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend)
+void Vehicle_SetAnim(gentity_t *ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend)
 {
 	assert(ent->client);
 	BG_SetAnim(&ent->client->ps, bgAllAnims[ent->localAnimIndex].anims, setAnimParts, anim, setAnimFlags);
 	ES_SetLegsAnim( ent->s, ent->client->ps.legsAnim );
 }
 
-void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask )
+void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask )
 {
-	trap->Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask, false, 0, 0);
+	trap->Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask, false, G2TRFLAG_NONE, 0);
 }
 
 Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt )
 {
 	gentity_t *ent = (gentity_t *)pEnt;
 
-	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && ( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
+	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && Any( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
 	{
 		return g_entities[ent->s.m_iVehicleNum].m_pVehicle;
 	}
@@ -290,7 +290,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	// If it's not a valid entity, OR if the vehicle is blowing up (it's dead), OR it's not
 	// empty, OR we're already being boarded, OR the person trying to get on us is already
 	// in a vehicle (that was a fun bug :-), leave!
-	if ( !ent || parent->health <= 0 /*|| !( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh->m_iBoarding > 0) ||
+	if ( !ent || parent->health <= 0 /*|| !Any( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh->m_iBoarding > 0) ||
 		 ( ent->client->ps.m_iVehicleNum ) )
 		return false;
 
@@ -566,7 +566,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 	// If the trace hit something, we can't go there!
 	if ( m_ExitTrace.fraction < 1.0f )
 	{//not totally clear
-		if ( (parent->clipmask&ent->r.contents) )//vehicle could actually get stuck on body
+		if ( Any( parent->clipmask&ent->r.contents ) )//vehicle could actually get stuck on body
 		{//the trace hit the vehicle, don't let them get out, just in case
 			return false;
 		}
@@ -594,7 +594,7 @@ void G_EjectDroidUnit( Vehicle_t *pVeh, bool kill )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(droidEnt->s.number, CHAN_VOICE);
-			G_Damage( droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+			G_Damage( droidEnt, nullptr, nullptr, nullptr, droidEnt->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 		}
 	}
 #endif
@@ -910,7 +910,7 @@ bool EjectAll( Vehicle_t *pVeh )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, 0, MOD_SUICIDE );
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );
 		}
 #endif
 	}
@@ -925,7 +925,7 @@ bool EjectAll( Vehicle_t *pVeh )
 		{//Kill them, too
 			//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 			G_MuteSound(pilot->s.number, CHAN_VOICE);
-			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, 0, MOD_SUICIDE );
+			G_Damage( pilot, nullptr, nullptr, nullptr, pilot->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );
 		}
 #endif
 	}
@@ -946,7 +946,7 @@ bool EjectAll( Vehicle_t *pVeh )
 				{//Kill them, too
 					//FIXME: proper origin, MOD and attacker (for credit/death message)?  Get from vehicle?
 					G_MuteSound(rider->s.number, CHAN_VOICE);
-					G_Damage( rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, 0, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
+					G_Damage( rider, nullptr, nullptr, nullptr, rider->s.origin, 10000, DAMAGE_NORMAL, MOD_SUICIDE );//FIXME: proper MOD?  Get from vehicle?
 				}
 #endif
 			}
@@ -1168,7 +1168,7 @@ bool Initialize( Vehicle_t *pVeh )
 
 	//Initialize to landed (wings closed, gears down) animation
 	{
-		int iFlags = SETANIM_FLAG_NORMAL;
+		setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 		pVeh->m_ulFlags |= VEH_GEARSOPEN;
 		BG_SetAnim(pVeh->m_pParentEntity->playerState,
 			bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
@@ -1466,7 +1466,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 				pVeh->weaponStatus[i].linked = true;
 			}
 		}
-		else if ( (pVeh->m_ucmd.buttons&BUTTON_USE_HOLDABLE) )
+		else if ( Any(pVeh->m_ucmd.buttons&BUTTON_USE_HOLDABLE) )
 		{//pilot pressed the "weapon link" toggle button
 			if ( !pVeh->linkWeaponToggleHeld )//so we don't hold it down and toggle it back and forth
 			{//okay to toggle
@@ -1511,7 +1511,7 @@ maintainSelfDuringBoarding:
 	if (pVeh->m_pPilot && pVeh->m_pPilot->playerState && pVeh->m_iBoarding != 0)
 	{
         VectorCopy(pVeh->m_vOrientation, pVeh->m_pPilot->playerState->viewangles);
-		pVeh->m_ucmd.buttons = 0;
+		pVeh->m_ucmd.buttons = BUTTON_NONE;
 		pVeh->m_ucmd.forwardmove = 0;
 		pVeh->m_ucmd.rightmove = 0;
 		pVeh->m_ucmd.upmove = 0;
@@ -1589,7 +1589,7 @@ maintainSelfDuringBoarding:
 
 	if (pVeh->m_pVehicleInfo->surfDestruction)
 	{
-		if (pVeh->m_iRemovedSurfaces)
+		if (Any( pVeh->m_iRemovedSurfaces ))
 		{
 			gentity_t *killer = parent;
 			float	   dmg;
@@ -1651,7 +1651,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 		rider->client->ps.rocketTargetTime = parent->client->ps.rocketTargetTime;
 	}
 	// Regular exit.
-	if ( pUmcd->buttons & BUTTON_USE && pVeh->m_pVehicleInfo->type!=VH_SPEEDER)
+	if ( Any( pUmcd->buttons & BUTTON_USE ) && pVeh->m_pVehicleInfo->type!=VH_SPEEDER)
 	{
 		if ( pVeh->m_pVehicleInfo->type == VH_WALKER )
 		{//just get the fuck out
@@ -1667,7 +1667,8 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				{
 					animNumber_t Anim;
-					int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, iBlend = 300;
+					int iBlend = 300;
+					setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
 					if ( pUmcd->rightmove > 0 )
 					{
 						Anim = BOTH_ROLL_R;
@@ -1691,7 +1692,8 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			{
 				// FIXME: Check trace to see if we should start playing the animation.
 				animNumber_t Anim;
-				int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, iBlend = 500;
+				int iBlend = 500;
+				setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 				if ( pUmcd->rightmove > 0 )
 				{
 					Anim = BOTH_VS_DISMOUNT_R;
@@ -1733,7 +1735,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 	}
 
 	// Getting off animation complete (if we had one going)?
-	if ( pVeh->m_iBoarding < level.time && (rider->flags & FL_VEH_BOARDING) )
+	if ( pVeh->m_iBoarding < level.time && Any( rider->flags & FL_VEH_BOARDING ) )
 	{
 		rider->flags &= ~FL_VEH_BOARDING;
 		// Eject this guy now.
@@ -1931,7 +1933,7 @@ static void Ghost( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	{
 		ent->client->ps.eFlags |= EF_NODRAW;
 	}
-	ent->r.contents = 0;
+	ent->r.contents = CONTENTS_NONE;
 }
 
 // Make someone visible and collidable.
@@ -1976,10 +1978,10 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	//for now, let's only do anything if all wings are stripped off.
 	//this is because I want to be able to tear my wings off and fling
 	//myself down narrow hallways to my death. Because it's fun! -rww
-	if (!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-		!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) ||
-		!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-		!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) )
+	if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
+		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D) ||
+		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
+		!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F) )
 	{
 		return;
 	}
@@ -2000,7 +2002,7 @@ void G_VehicleDamageBoxSizing(Vehicle_t *pVeh)
 	VectorMA(nose, -hDist, up, back);
 
 	//and now, let's trace and see if our new mins/maxs are safe..
-	trap->Trace(&trace, parent->client->ps.origin, back, nose, parent->client->ps.origin, parent->s.number, parent->clipmask, false, 0, 0);
+	trap->Trace(&trace, parent->client->ps.origin, back, nose, parent->client->ps.origin, parent->s.number, parent->clipmask, false, G2TRFLAG_NONE, 0);
 	if (!trace.allsolid && !trace.startsolid && trace.fraction == 1.0f)
 	{ //all clear!
 		VectorCopy(nose, parent->r.maxs);
@@ -2037,7 +2039,7 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 
 	//do a trace to determine if the nose is clear
 	VectorMA(veh->client->ps.origin, 256.0f, fwd, fPos);
-	trap->Trace(&localTrace, veh->client->ps.origin, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, 0, 0);
+	trap->Trace(&localTrace, veh->client->ps.origin, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
 	if (!localTrace.startsolid && !localTrace.allsolid && localTrace.fraction == 1.0f)
 	{ //otherwise I guess it's not clear..
 		noseClear = true;
@@ -2052,11 +2054,11 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 		VectorMA(veh->client->ps.origin, -128.0f, right, lWing);
 
 		//test the right wing - unless it's already removed
-		if (!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
-			!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
+		if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_E) ||
+			!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_F))
 		{
 			VectorMA(rWing, 256.0f, fwd, fPos);
-			trap->Trace(&localTrace, rWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, 0, 0);
+			trap->Trace(&localTrace, rWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
 			if (localTrace.startsolid || localTrace.allsolid || localTrace.fraction != 1.0f)
 			{ //impact
 				return SHIPSURF_RIGHT;
@@ -2064,11 +2066,11 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 		}
 
 		//test the left wing - unless it's already removed
-		if (!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
-			!(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
+		if (!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_C) ||
+			!Any(pVeh->m_iRemovedSurfaces & SHIPSURF_BROKEN_D))
 		{
 			VectorMA(lWing, 256.0f, fwd, fPos);
-			trap->Trace(&localTrace, lWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, 0, 0);
+			trap->Trace(&localTrace, lWing, testMins, testMaxs, fPos, veh->s.number, veh->clipmask, false, G2TRFLAG_NONE, 0);
 			if (localTrace.startsolid || localTrace.allsolid || localTrace.fraction != 1.0f)
 			{ //impact
 				return SHIPSURF_LEFT;
@@ -2098,9 +2100,8 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 }
 
 //try to break surfaces off the ship on impact
-#define TURN_ON				0x00000000
-#define TURN_OFF			0x00000100
-extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags); //NPC_utils.cpp
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags); //NPC_utils.cpp
 int G_ShipSurfaceForSurfName( const char *surfaceName )
 {
 	if ( !surfaceName )
@@ -2155,12 +2156,12 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& ((droidEnt->flags&FL_UNDYING) || droidEnt->health > 0) )
+					&& (Any( droidEnt->flags & FL_UNDYING ) || droidEnt->health > 0) )
 				{//boom
 					//make it vulnerable
 					droidEnt->flags &= ~FL_UNDYING;
 					//blow it up
-					G_Damage( droidEnt, veh->enemy, veh->enemy, nullptr, nullptr, 99999, 0, MOD_UNKNOWN );
+					G_Damage( droidEnt, veh->enemy, veh->enemy, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_UNKNOWN );
 				}
 			}
 		}
@@ -2181,7 +2182,7 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& (droidEnt->flags&FL_UNDYING) )
+					&& Any( droidEnt->flags & FL_UNDYING ) )
 				{//make it vulnerab;e
 					droidEnt->flags &= ~FL_UNDYING;
 				}
@@ -2277,7 +2278,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 {
 	const char *surfName[4]; //up to 4 surfs at once
 	int numSurfs = 0;
-	int smashedBits = 0;
+	shipSurfaceFlags_t smashedBits = SHIPSURF_BROKEN_NONE;
 
 	if (surface == -1)
 	{ //not valid?
@@ -2342,7 +2343,7 @@ bool G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 		NPC_SetSurfaceOnOff(veh, surfName[numSurfs], TURN_OFF);
 	}
 
-	if ( !veh->m_pVehicle->m_iRemovedSurfaces )
+	if ( !Any( veh->m_pVehicle->m_iRemovedSurfaces ) )
 	{//first time something got blown off
 		if ( veh->m_pVehicle->m_pPilot )
 		{//make the pilot scream to his death

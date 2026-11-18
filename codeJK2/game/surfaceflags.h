@@ -28,74 +28,47 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // these definitions also need to be in q_shared.h!
 
-#define CONTENTS_NONE			(0x00000000u)
-#define	CONTENTS_SOLID			(0x00000001u)	// Default setting. An eye is never valid in a solid
-#define	CONTENTS_LAVA			(0x00000002u)	//
-#define	CONTENTS_WATER			(0x00000004u)	//
-#define	CONTENTS_FOG			(0x00000008u)	//
-#define	CONTENTS_PLAYERCLIP		(0x00000010u)	// Player physically blocked
-#define	CONTENTS_MONSTERCLIP	(0x00000020u)	// NPCs cannot physically pass through
-#define CONTENTS_BOTCLIP		(0x00000040u)	// do not enter - NPCs try not to enter these
-#define CONTENTS_SHOTCLIP		(0x00000080u)	// shots physically blocked
-#define	CONTENTS_BODY			(0x00000100u)	// should never be on a brush, only in game
-#define	CONTENTS_CORPSE			(0x00000200u)	// should never be on a brush, only in game
-#define	CONTENTS_TRIGGER		(0x00000400u)	//
-#define	CONTENTS_NODROP			(0x00000800u)	// don't leave bodies or items (death fog, lava)
-#define CONTENTS_TERRAIN		(0x00001000u)	// volume contains terrain data
-#define CONTENTS_LADDER			(0x00002000u)	//
-#define CONTENTS_ABSEIL			(0x00004000u)	// used like ladder to define where an NPC can abseil
-#define CONTENTS_OPAQUE			(0x00008000u)	// defaults to on, when off, solid can be seen through
-#define CONTENTS_OUTSIDE		(0x00010000u)	// volume is considered to be in the outside (i.e. not indoors)
-#define CONTENTS_SLIME			(0x00020000u)	// CHC needs this since we use same tools
-#define CONTENTS_LIGHTSABER		(0x00040000u)	// ""
-#define CONTENTS_TELEPORTER		(0x00080000u)	// ""
-#define CONTENTS_ITEM			(0x00100000u)	// ""
-#define CONTENTS_UNUSED00200000	(0x00200000u)	//
-#define CONTENTS_UNUSED00400000	(0x00400000u)	//
-#define CONTENTS_UNUSED00800000	(0x00800000u)	//
-#define CONTENTS_UNUSED01000000	(0x01000000u)	//
-#define CONTENTS_UNUSED02000000	(0x02000000u)	//
-#define CONTENTS_UNUSED04000000	(0x04000000u)	//
-#define	CONTENTS_DETAIL			(0x08000000u)	// brushes not used for the bsp
-#define	CONTENTS_INSIDE			(0x10000000u)	// volume is considered to be inside (i.e. indoors)
-#define CONTENTS_UNUSED20000000	(0x20000000u)	//
-#define CONTENTS_UNUSED40000000	(0x40000000u)	//
-#define	CONTENTS_TRANSLUCENT	(0x80000000u)	// don't consume surface fragments inside
-#define CONTENTS_ALL			(0xFFFFFFFFu)
+enum class contentsFlags_t : uint32_t
+{
+	CONTENTS_NONE			= 0x00000000u,
+	CONTENTS_SOLID			= 0x00000001u,	// Default setting. An eye is never valid in a solid
+	CONTENTS_LAVA			= 0x00000002u,	//
+	CONTENTS_WATER			= 0x00000004u,	//
+	CONTENTS_FOG			= 0x00000008u,	//
+	CONTENTS_PLAYERCLIP		= 0x00000010u,	// Player physically blocked
+	CONTENTS_MONSTERCLIP	= 0x00000020u,	// NPCs cannot physically pass through
+	CONTENTS_BOTCLIP		= 0x00000040u,	// do not enter - NPCs try not to enter these
+	CONTENTS_SHOTCLIP		= 0x00000080u,	// shots physically blocked
+	CONTENTS_BODY			= 0x00000100u,	// should never be on a brush, only in game
+	CONTENTS_CORPSE			= 0x00000200u,	// should never be on a brush, only in game
+	CONTENTS_TRIGGER		= 0x00000400u,	//
+	CONTENTS_NODROP			= 0x00000800u,	// don't leave bodies or items (death fog, lava)
+	CONTENTS_TERRAIN		= 0x00001000u,	// volume contains terrain data
+	CONTENTS_LADDER			= 0x00002000u,	//
+	CONTENTS_ABSEIL			= 0x00004000u,	// used like ladder to define where an NPC can abseil
+	CONTENTS_OPAQUE			= 0x00008000u,	// defaults to on, when off, solid can be seen through
+	CONTENTS_OUTSIDE		= 0x00010000u,	// volume is considered to be in the outside (i.e. not indoors)
+	CONTENTS_SLIME			= 0x00020000u,	// CHC needs this since we use same tools
+	CONTENTS_LIGHTSABER		= 0x00040000u,	// ""
+	CONTENTS_TELEPORTER		= 0x00080000u,	// ""
+	CONTENTS_ITEM			= 0x00100000u,	// ""
+	CONTENTS_UNUSED00200000	= 0x00200000u,	//
+	CONTENTS_UNUSED00400000	= 0x00400000u,	//
+	CONTENTS_UNUSED00800000	= 0x00800000u,	//
+	CONTENTS_UNUSED01000000	= 0x01000000u,	//
+	CONTENTS_UNUSED02000000	= 0x02000000u,	//
+	CONTENTS_UNUSED04000000	= 0x04000000u,	//
+	CONTENTS_DETAIL			= 0x08000000u,	// brushes not used for the bsp
+	CONTENTS_INSIDE			= 0x10000000u,	// volume is considered to be inside (i.e. indoors)
+	CONTENTS_UNUSED20000000	= 0x20000000u,	//
+	CONTENTS_UNUSED40000000	= 0x40000000u,	//
+	CONTENTS_TRANSLUCENT	= 0x80000000u,	// don't consume surface fragments inside
+	CONTENTS_ALL			= 0xFFFFFFFFu,
+};
+using enum contentsFlags_t;
+template <> inline constexpr bool enableEnumFlags<contentsFlags_t> = true;
 
-#define SURF_NONE				(0x00000000u)
-#define SURF_UNUSED00000001		(0x00000001u)	//
-#define SURF_UNUSED00000002		(0x00000002u)	//
-#define SURF_UNUSED00000004		(0x00000004u)	//
-#define SURF_UNUSED00000008		(0x00000008u)	//
-#define SURF_UNUSED00000010		(0x00000010u)	//
-#define SURF_UNUSED00000020		(0x00000020u)	//
-#define SURF_UNUSED00000040		(0x00000040u)	//
-#define SURF_UNUSED00000080		(0x00000080u)	//
-#define SURF_UNUSED00000100		(0x00000100u)	//
-#define SURF_UNUSED00000200		(0x00000200u)	//
-#define SURF_UNUSED00000400		(0x00000400u)	//
-#define SURF_UNUSED00000800		(0x00000800u)	//
-#define SURF_UNUSED00001000		(0x00001000u)	//
-#define	SURF_SKY				(0x00002000u)	// lighting from environment map
-#define	SURF_SLICK				(0x00004000u)	// affects game physics
-#define	SURF_METALSTEPS			(0x00008000u)	// CHC needs this since we use same tools (though this flag is temp?)
-#define SURF_FORCEFIELD			(0x00010000u)	// CHC ""			(but not temp)
-#define SURF_UNUSED00020000		(0x00020000u)	//
-#define	SURF_NODAMAGE			(0x00040000u)	// never give falling damage
-#define	SURF_NOIMPACT			(0x00080000u)	// don't make missile explosions
-#define	SURF_NOMARKS			(0x00100000u)	// don't leave missile marks
-#define	SURF_NODRAW				(0x00200000u)	// don't generate a drawsurface at all
-#define	SURF_NOSTEPS			(0x00400000u)	// no footstep sounds
-#define	SURF_NODLIGHT			(0x00800000u)	// don't dlight even if solid (solid lava, skies)
-#define	SURF_NOMISCENTS			(0x01000000u)	// no client models allowed on this surface
-#define	SURF_FORCESIGHT			(0x02000000u)	// not visible without Force Sight
-#define SURF_UNUSED04000000		(0x04000000u)	//
-#define SURF_UNUSED08000000		(0x08000000u)	//
-#define SURF_UNUSED10000000		(0x10000000u)	//
-#define SURF_UNUSED20000000		(0x20000000u)	//
-#define SURF_UNUSED40000000		(0x40000000u)	//
-#define SURF_UNUSED80000000		(0x80000000u)	//
+#include "qcommon/q_surfaceflags.h"
 
 #define MATERIAL_BITS			5
 #define MATERIAL_MASK			0x1f	// mask to get the material type
@@ -133,6 +106,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MATERIAL_ARMOR			30			// body armor
 #define MATERIAL_COMPUTER		31			// computers/electronic equipment
 #define MATERIAL_LAST			32			// number of materials
+
+// A surface's material is a number in the low MATERIAL_BITS bits of its flags (an index of the material tables)
+[[nodiscard]] inline int SURF_Material( surfaceFlags_t flags ) { return static_cast<int>( to_underlying( flags ) & MATERIAL_MASK ); }
+[[nodiscard]] inline surfaceFlags_t SURF_MaterialBits( int material ) { return static_cast<surfaceFlags_t>( material ); }
 
 // Defined as a macro here so one change will affect all the relevant files
 

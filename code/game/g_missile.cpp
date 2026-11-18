@@ -373,7 +373,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
-	if ( ent->s.eFlags & EF_BOUNCE_SHRAPNEL )
+	if ( Any( ent->s.eFlags & EF_BOUNCE_SHRAPNEL ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.25f, ent->s.pos.trDelta );
 		ent->s.pos.trType = TR_GRAVITY;
@@ -386,7 +386,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			return;
 		}
 	}
-	else if ( ent->s.eFlags & EF_BOUNCE_HALF )
+	else if ( Any( ent->s.eFlags & EF_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
@@ -562,7 +562,7 @@ void G_MissileImpacted( gentity_t *ent, gentity_t *other, vec3_t impactPos, vec3
 	// one, rather than changing the missile into the explosion?
 	//G_FreeEntity(ent);
 
-	if ( (other->takedamage && other->client ) || (ent->s.weapon == WP_FLECHETTE && other->contents&CONTENTS_LIGHTSABER) )
+	if ( (other->takedamage && other->client ) || (ent->s.weapon == WP_FLECHETTE && Any( other->contents&CONTENTS_LIGHTSABER )) )
 	{
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( normal ) );
 		ent->s.otherEntityNum = other->s.number;
@@ -673,19 +673,19 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 	// check for bounce
 	//OR: if the surfaceParm is has a reflect property (magnetic shielding) and the missile isn't an exploding missile
-	bool bounce = ( (!other->takedamage && (ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF))) || (((trace->surfaceFlags&SURF_FORCEFIELD)||(other->flags&FL_SHIELDED))&&!ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK) );
+	bool bounce = ( (!other->takedamage && Any(ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF))) || ((Any( trace->surfaceFlags&SURF_FORCEFIELD )||Any( other->flags & FL_SHIELDED ))&&!ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK) );
 
-	if ( ent->dflags & DAMAGE_HEAVY_WEAP_CLASS )
+	if ( Any( ent->dflags & DAMAGE_HEAVY_WEAP_CLASS ) )
 	{
 		// heavy class missiles generally never bounce.
 		bounce = false;
 	}
 
-	if ( other->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ))
+	if ( Any( other->flags & (FL_DMG_BY_HEAVY_WEAP_ONLY | FL_SHIELDED ) ))
 	{
 		// Dumb assumption, but I guess we must be a shielded ion_cannon??  We should probably verify
 		// if it's an ion_cannon that's Heavy Weapon only, we don't want to make it shielded do we...?
-		if ( (!strcmp( "misc_ion_cannon", other->classname )) && (other->flags & FL_SHIELDED) )
+		if ( (!strcmp( "misc_ion_cannon", other->classname )) && Any( other->flags & FL_SHIELDED ) )
 		{
 			// Anything will bounce off of us.
 			bounce = true;
@@ -740,10 +740,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	// I would glom onto the EF_BOUNCE code section above, but don't feel like risking breaking something else
-	if ( (!other->takedamage && ( ent->s.eFlags&(EF_BOUNCE_SHRAPNEL) ) )
-		|| ((trace->surfaceFlags&SURF_FORCEFIELD)&&!ent->splashDamage&&!ent->splashRadius) )
+	if ( (!other->takedamage && Any( ent->s.eFlags&(EF_BOUNCE_SHRAPNEL) ) )
+		|| (Any( trace->surfaceFlags&SURF_FORCEFIELD )&&!ent->splashDamage&&!ent->splashRadius) )
 	{
-		if ( !(other->contents&CONTENTS_LIGHTSABER)
+		if ( !Any( other->contents&CONTENTS_LIGHTSABER )
 			|| g_spskill->integer <= 0//on easy, it reflects all shots
 			|| (g_spskill->integer == 1 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 )//on medium it won't reflect flechette or demp shots
 			|| (g_spskill->integer >= 2 && ent->s.weapon != WP_FLECHETTE && ent->s.weapon != WP_DEMP2 && ent->s.weapon != WP_BOWCASTER && ent->s.weapon != WP_REPEATER )//on hard it won't reflect flechette, demp, repeater or bowcaster shots
@@ -774,7 +774,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 	}
 
 	// check for sticking
-	if ( ent->s.eFlags & EF_MISSILE_STICK )
+	if ( Any( ent->s.eFlags & EF_MISSILE_STICK ) )
 	{
 		if ( ent->owner )//&& ent->owner->s.number == 0 )
 		{
@@ -801,7 +801,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, hitLocation_t hitLoc=HL_NO
 
 extern bool WP_DoingMoronicForcedAnimationForForcePowers(gentity_t *ent);
 	// check for hitting a lightsaber
-	if ( other->contents & CONTENTS_LIGHTSABER )
+	if ( Any( other->contents & CONTENTS_LIGHTSABER ) )
 	{
 		if ( other->owner && !other->owner->s.number && other->owner->client )
 		{
@@ -918,7 +918,7 @@ void G_RunStuckMissile( gentity_t *ent )
 			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
 				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
-				G_Damage( ent, other, other, nullptr, nullptr, 99999, 0, MOD_CRUSH );
+				G_Damage( ent, other, other, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
 				return;
 			}
 		}
@@ -1103,7 +1103,7 @@ void G_RollMissile( gentity_t *ent )
 		if ( trace.entityNum < ENTITYNUM_WORLD )
 		{//hit another ent
 			hitEnt = &g_entities[trace.entityNum];
-			if ( hitEnt && (hitEnt->takedamage || (hitEnt->contents&CONTENTS_LIGHTSABER) ) )
+			if ( hitEnt && (hitEnt->takedamage || Any( hitEnt->contents&CONTENTS_LIGHTSABER ) ) )
 			{
 				G_MissileImpact( ent, &trace );
 				if ( ent->s.eType == ET_GENERAL )
@@ -1291,7 +1291,7 @@ void G_RunMissile( gentity_t *ent )
 	trace_t		tr;
 	hitLocation_t			trHitLoc=HL_NONE;
 
-	if ( (ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
+	if ( Any(ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{//in a sand creature's mouth
 		if ( ent->activator )
 		{
@@ -1366,7 +1366,7 @@ void G_RunMissile( gentity_t *ent )
 		{
 			gentity_t *other = &g_entities[tr.entityNum];
 			// check for hitting a lightsaber
-			if ( other->contents & CONTENTS_LIGHTSABER )
+			if ( Any( other->contents & CONTENTS_LIGHTSABER ) )
 			{//hit a lightsaber bbox
 				if ( other->owner
 					&& other->owner->client
@@ -1424,7 +1424,7 @@ void G_RunMissile( gentity_t *ent )
 
 	gi.linkentity( ent );
 
-	if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK) )
+	if ( ent->s.pos.trType == TR_STATIONARY && Any(ent->s.eFlags&EF_MISSILE_STICK) )
 	{//stuck missiles should check some special stuff
 		G_RunStuckMissile( ent );
 		return;
@@ -1443,10 +1443,10 @@ void G_RunMissile( gentity_t *ent )
 		G_MoverTouchPushTriggers( ent, oldOrg );
 	}
 	/*
-	if ( !(ent->s.eFlags & EF_TELEPORT_BIT) )
+	if ( !Any(ent->s.eFlags & EF_TELEPORT_BIT) )
 	{
 		G_MoverTouchTeleportTriggers( ent, oldOrg );
-		if ( ent->s.eFlags & EF_TELEPORT_BIT )
+		if ( Any( ent->s.eFlags & EF_TELEPORT_BIT ) )
 		{//was teleported
 			return;
 		}
@@ -1494,7 +1494,7 @@ void G_RunMissile( gentity_t *ent )
 	}
 
 	// never explode or bounce on sky
-	if ( tr.surfaceFlags & SURF_NOIMPACT )
+	if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
 	{
 		G_FreeEntity( ent );
 		return;

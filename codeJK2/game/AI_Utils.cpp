@@ -340,7 +340,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		return false;
 
 	//must be allowed to join groups
-	if ( member->NPC->scriptFlags&SCF_NO_GROUPS )
+	if ( Any(member->NPC->scriptFlags&SCF_NO_GROUPS) )
 		return false;
 
 	//Must not be in another group
@@ -354,7 +354,7 @@ bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 		return false;
 
 	//can't be in an emplaced gun
-	if( member->s.eFlags & EF_LOCKED_TO_WEAPON )
+	if( Any( member->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		return false;
 
 	//Must be on the same team
@@ -444,7 +444,7 @@ void AI_GetGroup( gentity_t *self )
 		return;
 	}
 
-	if ( self->NPC->scriptFlags&SCF_NO_GROUPS )
+	if ( Any(self->NPC->scriptFlags&SCF_NO_GROUPS) )
 	{
 		self->NPC->group = nullptr;
 		return;
@@ -996,7 +996,7 @@ bool AI_CheckEnemyCollision( gentity_t *ent, bool takeEnemy )
 	if ( ent == nullptr )
 		return false;
 
-	if ( ent->svFlags & SVF_LOCKEDENEMY )
+	if ( Any( ent->svFlags & SVF_LOCKEDENEMY ) )
 		return false;
 
 	navInfo_t	info;
@@ -1029,7 +1029,7 @@ AI_DistributeAttack
 gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t team, int threshold )
 {
 	//Don't take new targets
-	if ( NPC->svFlags & SVF_LOCKEDENEMY )
+	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 		return enemy;
 
 	int	numSurrounding = AI_GetGroupSize( enemy->currentOrigin, 48, team, attacker );

@@ -40,7 +40,8 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	mName[0] = 0;
 	mCullRange = 0; // no distance culling
 
-	mFlags = mSpawnFlags = 0;
+	mFlags = FX_NONE;
+	mSpawnFlags = FX_SPAWN_NONE;
 	mElasticity.SetRange(0.1f, 0.1f);
 
 	mSoundVolume = -1;
@@ -277,7 +278,7 @@ bool CPrimitiveTemplate::ParseVector( const char *val, vec3_t min, vec3_t max )
 // return:
 //	success of parse operation.
 //------------------------------------------------------
-bool CPrimitiveTemplate::ParseGroupFlags( const char *val, int *flags )
+bool CPrimitiveTemplate::ParseGroupFlags( const char *val, fxPrimitiveFlags_t *flags )
 {
 	// Must pass in a non-null pointer
 	if ( flags == nullptr )
@@ -292,7 +293,7 @@ bool CPrimitiveTemplate::ParseGroupFlags( const char *val, int *flags )
 	int v = sscanf( val, "%s %s %s %s", flag[0], flag[1], flag[2], flag[3] );
 
 	// Clear out the flags field, then convert the flag string to an actual value ( use generic flags )
-	*flags = 0;
+	*flags = FX_NONE;
 
 	for ( int i = 0; i < 4; i++ )
 	{
@@ -1045,12 +1046,12 @@ bool CPrimitiveTemplate::ParseRGBParm( const char *val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseRGBFlags( const char *val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, &flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_RGB_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_RGB_SHIFT );
 		return true;
 	}
 
@@ -1138,12 +1139,12 @@ bool CPrimitiveTemplate::ParseAlphaParm( const char *val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseAlphaFlags( const char *val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, &flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_ALPHA_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_ALPHA_SHIFT );
 		return true;
 	}
 
@@ -1231,12 +1232,12 @@ bool CPrimitiveTemplate::ParseSizeParm( const char *val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseSizeFlags( const char *val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, &flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_SIZE_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_SIZE_SHIFT );
 		return true;
 	}
 
@@ -1324,12 +1325,12 @@ bool CPrimitiveTemplate::ParseSize2Parm( const char *val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseSize2Flags( const char *val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, &flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_SIZE2_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_SIZE2_SHIFT );
 		return true;
 	}
 
@@ -1417,12 +1418,12 @@ bool CPrimitiveTemplate::ParseLengthParm( const char *val )
 //------------------------------------------------------
 bool CPrimitiveTemplate::ParseLengthFlags( const char *val )
 {
-	int flags;
+	fxPrimitiveFlags_t flags;
 
 	if ( ParseGroupFlags( val, &flags ) == true )
 	{
 		// Convert our generic flag values into type specific ones
-		mFlags |= ( flags << FX_LENGTH_SHIFT );
+		mFlags |= FX_ChannelFlags( flags, FX_LENGTH_SHIFT );
 		return true;
 	}
 

@@ -919,7 +919,7 @@ void DoFall(centity_t *cent, entityState_t *es, int clientNum)
 {
 	int delta = es->eventParm;
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{ //corpses crack into the ground ^_^
 		if (delta > 25)
 		{
@@ -1087,7 +1087,7 @@ void CG_G2MarkEvent(entityState_t *es)
 		VectorCopy(es->origin, startPoint);
 	}
 
-	if ( (es->eFlags&EF_JETPACK_ACTIVE) )
+	if ( Any(es->eFlags&EF_JETPACK_ACTIVE) )
 	{// a vehicle weapon, make it a larger size mark
 		//OR base this on the size of the thing you hit?
 		if ( g_vehWeaponInfo[es->otherEntityNum2].fG2MarkSize )
@@ -1483,7 +1483,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			break;
 		}
 		// if we are interpolating, we don't need to smooth steps
-		if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ||
+		if ( cg.demoPlayback || Any(cg.snap->ps.pm_flags & PMF_FOLLOW) ||
 			cg_noPredict.integer ) {
 			break;
 		}
@@ -2334,7 +2334,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 								blockSound = client->saber[saberNum].blockSound[Q_irand(0,2)];
 							}
 						}
-						if ( (client->saber[saberNum].saberFlags2&SFL2_NO_CLASH_FLARE) )
+						if ( Any( client->saber[saberNum].saberFlags2 & SFL2_NO_CLASH_FLARE ) )
 						{
 							noFlare = true;
 						}
@@ -2788,7 +2788,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if (cent->ghoul2 && trap->G2_HaveWeGhoul2Models(cent->ghoul2))
 		{
 			//turn the inside of the face off, to avoid showing the mouth when we start alpha fading the corpse
-			trap->G2API_SetSurfaceOnOff( cent->ghoul2, "head_eyes_mouth", 0x00000002/*G2SURFACEFLAG_OFF*/ );
+			trap->G2API_SetSurfaceOnOff( cent->ghoul2, "head_eyes_mouth", G2SURFACEFLAG_OFF );
 		}
 
 		cent->bodyFadeTime = cg.time + 60000;
@@ -2838,7 +2838,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 			trap->Cvar_Set("ui_myteam", va("%i", es->bolt2));
 
-			if (!( trap->Key_GetCatcher() & KEYCATCH_UI ) && !es->bolt1)
+			if (!Any( trap->Key_GetCatcher() & KEYCATCH_UI ) && !es->bolt1)
 			{
 				trap->OpenUIMenu(UIMENU_PLAYERCONFIG);
 			}
@@ -2898,7 +2898,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		else if ( CG_VehicleWeaponImpact( cent ) )
 		{//a vehicle missile that uses an overridden impact effect...
 		}
-		else if (cent->currentState.eFlags & EF_ALT_FIRING)
+		else if (Any( cent->currentState.eFlags & EF_ALT_FIRING ))
 		{
 			CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum, true);
 		}
@@ -2924,7 +2924,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		else if ( CG_VehicleWeaponImpact( cent ) )
 		{//a vehicle missile that used an overridden impact effect...
 		}
-		else if (cent->currentState.eFlags & EF_ALT_FIRING)
+		else if (Any( cent->currentState.eFlags & EF_ALT_FIRING ))
 		{
 			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, true, es->generic1);
 		}
@@ -2950,7 +2950,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		else if ( CG_VehicleWeaponImpact( cent ) )
 		{//a vehicle missile that used an overridden impact effect...
 		}
-		else if (cent->currentState.eFlags & EF_ALT_FIRING)
+		else if (Any( cent->currentState.eFlags & EF_ALT_FIRING ))
 		{
 			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL, true, es->generic1);
 		}
@@ -3122,7 +3122,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_MUTE_SOUND:
 		DEBUGNAME("EV_MUTE_SOUND");
-		if (cg_entities[es->trickedentindex2].currentState.eFlags & EF_SOUNDTRACKER)
+		if (Any( cg_entities[es->trickedentindex2].currentState.eFlags & EF_SOUNDTRACKER ))
 		{
 			cg_entities[es->trickedentindex2].currentState.eFlags &= ~EF_SOUNDTRACKER;
 		}
@@ -3464,7 +3464,7 @@ void CG_CheckEvents( centity_t *cent ) {
 			return;	// already fired
 		}
 		// if this is a player event set the entity number of the client entity number
-		if ( cent->currentState.eFlags & EF_PLAYER_EVENT ) {
+		if ( Any( cent->currentState.eFlags & EF_PLAYER_EVENT ) ) {
 			cent->currentState.number = cent->currentState.otherEntityNum;
 		}
 

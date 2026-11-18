@@ -237,7 +237,7 @@ void Rancor_Swing( bool tryGrab )
 			continue;
 		}
 
-		if ( (radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+		if ( Any(radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 		{//can't be one already being held
 			continue;
 		}
@@ -353,7 +353,7 @@ void Rancor_Smash( void )
 			continue;
 		}
 
-		if ( (radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+		if ( Any(radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 		{//can't be one being held
 			continue;
 		}
@@ -410,7 +410,7 @@ void Rancor_Bite( void )
 			continue;
 		}
 
-		if ( (radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+		if ( Any(radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 		{//can't be one already being held
 			continue;
 		}
@@ -729,7 +729,7 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 	if ( attacker
 		&& attacker->inuse
 		&& attacker != self->enemy
-		&& !(attacker->flags&FL_NOTARGET) )
+		&& !Any( attacker->flags & FL_NOTARGET ) )
 	{
 		if ( !self->count )
 		{
@@ -811,7 +811,7 @@ void Rancor_CheckDropVictim( void )
 	VectorSet( start, NPCS.NPC->activator->r.currentOrigin[0], NPCS.NPC->activator->r.currentOrigin[1], NPCS.NPC->activator->r.absmin[2] );
 	VectorSet( end, NPCS.NPC->activator->r.currentOrigin[0], NPCS.NPC->activator->r.currentOrigin[1], NPCS.NPC->activator->r.absmax[2]-1 );
 
-	trap->Trace( &trace, start, mins, maxs, end, NPCS.NPC->activator->s.number, NPCS.NPC->activator->clipmask, false, 0, 0 );
+	trap->Trace( &trace, start, mins, maxs, end, NPCS.NPC->activator->s.number, NPCS.NPC->activator->clipmask, false, G2TRFLAG_NONE, 0 );
 	if ( !trace.allsolid && !trace.startsolid && trace.fraction >= 1.0f )
 	{
 		Rancor_DropVictim( NPCS.NPC );
@@ -833,7 +833,7 @@ void Rancor_Crush(void)
 	crush = &g_entities[NPCS.NPC->client->ps.groundEntityNum];
 	if (crush->inuse && crush->client && !crush->localAnimIndex)
 	{ //a humanoid, smash them good.
-		G_Damage(crush, NPCS.NPC, NPCS.NPC, nullptr, NPCS.NPC->r.currentOrigin, 200, 0, MOD_CRUSH);
+		G_Damage(crush, NPCS.NPC, NPCS.NPC, nullptr, NPCS.NPC->r.currentOrigin, 200, DAMAGE_NORMAL, MOD_CRUSH);
 	}
 }
 
@@ -958,7 +958,7 @@ void NPC_BSRancor_Default( void )
 			TIMER_Set( NPCS.NPC, "idlenoise", Q_irand( 2000, 4000 ) );
 			AddSoundEvent( NPCS.NPC, NPCS.NPC->r.currentOrigin, 384, AEL_DANGER, false );//, false );
 		}
-		if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		{
 			Rancor_Patrol();
 		}

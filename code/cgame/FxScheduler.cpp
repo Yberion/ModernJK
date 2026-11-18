@@ -878,7 +878,7 @@ void CFxScheduler::PlayEffect( const char *file, int clientID, bool isPortal )
 			prim->mRefCount = count;
 		}
 
-		if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
+		if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
 		{
 			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
 		}
@@ -886,7 +886,7 @@ void CFxScheduler::PlayEffect( const char *file, int clientID, bool isPortal )
 		// Schedule the random number of bits
 		for ( int t = 0; t < count; t++ )
 		{
-			if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
+			if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
 			{
 				delay = t * factor;
 			}
@@ -956,7 +956,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 	vec3_t	sRGB, eRGB;
 	vec3_t	vel, accel;
 	vec3_t	org,org2;
-	int		flags = 0;
+	fxPrimitiveFlags_t		flags = FX_NONE;
 
 	// Origin calculations -- completely ignores most things
 	//-------------------------------------
@@ -964,7 +964,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 	VectorSet( org2, fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 
 	// handle RGB color
-	if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
+	if ( Any( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP ) )
 	{
 		float perc = Q_flrand(0.0f, 1.0f);
 
@@ -983,7 +983,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 
 	// If depth hack ISN'T already on, then turn it on.  Otherwise, we treat a pre-existing depth_hack flag as NOT being depth_hack.
 	//	This is done because muzzle flash fx files are shared amongst all shooters, but for the player we need to do depth hack in first person....
-	if ( !( fx->mFlags & FX_DEPTH_HACK ) && !cg.renderingThirdPerson ) // hack!
+	if ( !Any( fx->mFlags & FX_DEPTH_HACK ) && !cg.renderingThirdPerson ) // hack!
 	{
 		flags = fx->mFlags | FX_RELATIVE | FX_DEPTH_HACK;
 	}
@@ -1182,7 +1182,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 			prim->mRefCount = count;
 		}
 
-		if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
+		if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
 		{
 			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
 		}
@@ -1190,7 +1190,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 		// Schedule the random number of bits
 		for ( int t = 0; t < count; t++ )
 		{
-			if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
+			if ( Any( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION ) )
 			{
 				delay = t * factor;
 			}
@@ -1476,13 +1476,13 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	// We may modify the axis, so make a work copy
 	AxisCopy( axis, ax );
 
-	int flags = fx->mFlags;
+	fxPrimitiveFlags_t flags = fx->mFlags;
 	if (clientID>=0 && modelNum>=0 && boltNum>=0)
 	{//since you passed in these values, mark as relative to use them
 		flags |= FX_RELATIVE;
 	}
 
-	if( fx->mSpawnFlags & FX_RAND_ROT_AROUND_FWD )
+	if( Any( fx->mSpawnFlags & FX_RAND_ROT_AROUND_FWD ) )
 	{
 		RotatePointAroundVector( ax[1], ax[0], axis[1], Q_flrand(0.0f, 1.0f)*360.0f );
 		CrossProduct( ax[0], ax[1], ax[2] );
@@ -1490,7 +1490,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 	// Origin calculations
 	//-------------------------------------
-	if ( fx->mSpawnFlags & FX_CHEAP_ORG_CALC || flags & FX_RELATIVE  )
+	if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG_CALC ) || Any( flags & FX_RELATIVE )  )
 	{ // let's take the easy way out
 		VectorSet( org, fx->mOrigin1X.GetVal(), fx->mOrigin1Y.GetVal(), fx->mOrigin1Z.GetVal() );
 	}
@@ -1506,7 +1506,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 	// Now, we may need to calc a point on a sphere/ellipsoid/cylinder/disk and add that to it
 	//----------------------------------------------------------------
-	if ( fx->mSpawnFlags & FX_ORG_ON_SPHERE )
+	if ( Any( fx->mSpawnFlags & FX_ORG_ON_SPHERE ) )
 	{
 		float x, y;
 		float width, height;
@@ -1521,14 +1521,14 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		VectorSet( temp, sin(x) * width * sin(y), cos(x) * width * sin(y), cos(y) * height ); // sinx * siny, cosx * siny, cosy
 		VectorAdd( org, temp, org );
 
-		if ( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE )
+		if ( Any( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE ) )
 		{
 			// well, we will now override the axis at the users request
 			VectorNormalize2( temp, ax[0] );
 			MakeNormalVectors( ax[0], ax[1], ax[2] );
 		}
 	}
-	else if ( fx->mSpawnFlags & FX_ORG_ON_CYLINDER )
+	else if ( Any( fx->mSpawnFlags & FX_ORG_ON_CYLINDER ) )
 	{
 		vec3_t	pt;
 
@@ -1539,7 +1539,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 		VectorAdd( org, temp, org );
 
-		if ( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE )
+		if ( Any( fx->mSpawnFlags & FX_AXIS_FROM_SPHERE ) )
 		{
 			vec3_t up={0,0,1};
 
@@ -1564,7 +1564,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	{
 		// Velocity calculations
 		//-------------------------------------
-		if ( fx->mSpawnFlags & FX_VEL_IS_ABSOLUTE || flags & FX_RELATIVE )
+		if ( Any( fx->mSpawnFlags & FX_VEL_IS_ABSOLUTE ) || Any( flags & FX_RELATIVE ) )
 		{
 			VectorSet( vel, fx->mVelX.GetVal(), fx->mVelY.GetVal(), fx->mVelZ.GetVal() );
 		}
@@ -1577,7 +1577,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 		// Acceleration calculations
 		//-------------------------------------
-		if ( fx->mSpawnFlags & FX_ACCEL_IS_ABSOLUTE || flags & FX_RELATIVE )
+		if ( Any( fx->mSpawnFlags & FX_ACCEL_IS_ABSOLUTE ) || Any( flags & FX_RELATIVE ) )
 		{
 			VectorSet( accel, fx->mAccelX.GetVal(), fx->mAccelY.GetVal(), fx->mAccelZ.GetVal() );
 		}
@@ -1615,15 +1615,15 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	if ( fx->mType == Line || fx->mType == Electricity )
 	{
 		// We may have to do a trace to find our endpoint
-		if ( fx->mSpawnFlags & FX_ORG2_FROM_TRACE )
+		if ( Any( fx->mSpawnFlags & FX_ORG2_FROM_TRACE ) )
 		{
 			VectorMA( org, FX_MAX_TRACE_DIST, ax[0], temp );
 
-			if ( fx->mSpawnFlags & FX_ORG2_IS_OFFSET )
+			if ( Any( fx->mSpawnFlags & FX_ORG2_IS_OFFSET ) )
 			{ // add a random flair to the endpoint...note: org2 will have to be pretty large to affect this much
 				// we also do this pre-trace as opposed to post trace since we may have to render an impact effect
 				//	and we will want the normal at the exact endpos...
-				if ( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC || flags & FX_RELATIVE )
+				if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC ) || Any( flags & FX_RELATIVE ) )
 				{
 					VectorSet( org2, fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 					VectorAdd( org2, temp, temp );
@@ -1647,14 +1647,14 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 				VectorCopy( tr.endpos, org2 );
 			}
 
-			if ( fx->mSpawnFlags & FX_TRACE_IMPACT_FX )
+			if ( Any( fx->mSpawnFlags & FX_TRACE_IMPACT_FX ) )
 			{
 				PlayEffect( fx->mImpactFxHandles.GetHandle(), org2, tr.plane.normal );
 			}
 		}
 		else
 		{
-			if ( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC || flags & FX_RELATIVE )
+			if ( Any( fx->mSpawnFlags & FX_CHEAP_ORG2_CALC ) || Any( flags & FX_RELATIVE ) )
 			{
 				VectorSet( org2, fx->mOrigin2X.GetVal(), fx->mOrigin2Y.GetVal(), fx->mOrigin2Z.GetVal() );
 			}
@@ -1674,7 +1674,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	//---------------------------------------------------------------------------
 	if ( fx->mType != Sound && fx->mType != FxRunner && fx->mType != CameraShake )
 	{
-		if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
+		if ( Any( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP ) )
 		{
 			float perc = Q_flrand(0.0f, 1.0f);
 
@@ -1798,7 +1798,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 			sRGB[0], sRGB[1], sRGB[2], fx->mAlphaStart.GetVal(),
 			true, fx->mSizeStart.GetVal(), false );
 
-		if (fx->mFlags & FX_GHOUL2_DECALS)
+		if (Any( fx->mFlags & FX_GHOUL2_DECALS ))
 		{
 			trace_t	tr;
 			vec3_t	end;
@@ -1817,7 +1817,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 					vec3_t entOrg, hitDir;
 					float entYaw;
 					float firstModel = 0;
-					if ( !(ent->s.eFlags&EF_NODRAW) )
+					if ( !Any(ent->s.eFlags&EF_NODRAW) )
 					{//not drawn, no marks
 						if ( ent->client )
 						{
@@ -1876,7 +1876,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		{ //could orient this anyway for panning, but eh. It's going to appear to the player in the sky the same place no matter what, so just make it a local sound.
 			theFxHelper.PlayLocalSound( fx->mMediaHandles.GetHandle(), CHAN_AUTO );
 		}
-		else if ( fx->mSpawnFlags & FX_SND_LESS_ATTENUATION )
+		else if ( Any( fx->mSpawnFlags & FX_SND_LESS_ATTENUATION ) )
 		{
 			theFxHelper.PlaySound( org, ENTITYNUM_NONE, CHAN_LESS_ATTEN, fx->mMediaHandles.GetHandle() );
 		}

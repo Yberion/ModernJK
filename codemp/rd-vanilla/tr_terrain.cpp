@@ -1015,8 +1015,8 @@ void R_TerrainInit(void)
 
 	r_terrainTessellate = ri.Cvar_Get("r_terrainTessellate", "3", CVAR_CHEAT);
 	r_drawTerrain = ri.Cvar_Get("r_drawTerrain", "1", CVAR_CHEAT);
-	r_showFrameVariance = ri.Cvar_Get("r_showFrameVariance", "0", 0);
-	r_terrainWaterOffset = ri.Cvar_Get("r_terrainWaterOffset", "0", 0);
+	r_showFrameVariance = ri.Cvar_Get("r_showFrameVariance", "0", CVAR_NONE);
+	r_terrainWaterOffset = ri.Cvar_Get("r_terrainWaterOffset", "0", CVAR_NONE);
 
 	tr.distanceCull = 6000;
 	tr.distanceCullSquared = tr.distanceCull * tr.distanceCull;

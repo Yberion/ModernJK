@@ -212,14 +212,7 @@ enum class leType_t {
 };
 using enum leType_t;
 
-enum class leFlag_t {
-	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
-	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
-	LEF_FADE_RGB		= 0x0004,			// explicitly fade
-	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
-};
-using enum leFlag_t;
-template <> inline constexpr bool enableEnumFlags<leFlag_t> = true;
+#include "qcommon/q_clientflags.h"
 
 enum class leBounceSound_t
 {
@@ -232,7 +225,7 @@ using enum leBounceSound_t;	// fragment local entities can make sounds on impact
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
 	leType_t		leType;
-	leFlag_t		leFlags;
+	leFlags_t		leFlags;
 
 	int				startTime;
 	int				endTime;
@@ -275,18 +268,10 @@ typedef struct {
 } powerupInfo_t;
 
 
-#define	CG_OVERRIDE_3RD_PERSON_ENT	0x00000001
-#define	CG_OVERRIDE_3RD_PERSON_RNG	0x00000002
-#define	CG_OVERRIDE_3RD_PERSON_ANG	0x00000004
-#define	CG_OVERRIDE_3RD_PERSON_VOF	0x00000008
-#define	CG_OVERRIDE_3RD_PERSON_POF	0x00000010
-#define	CG_OVERRIDE_3RD_PERSON_CDP	0x00000020
-#define	CG_OVERRIDE_3RD_PERSON_APH	0x00000040
-#define	CG_OVERRIDE_FOV				0x00000080
 
 typedef struct {
 	//NOTE: these probably get cleared in save/load!!!
-	int				active;	//bit-flag field of which overrides are active
+	cgOverrideFlags_t	active;	//bit-flag field of which overrides are active
 	int				thirdPersonEntity;	//who to center on
 	float			thirdPersonRange;	//how far to be from them
 	float			thirdPersonAngle;	//what angle to look at them from
@@ -694,19 +679,24 @@ Ghoul2 Insert End
 // cg_drawtools.cpp
 //
 
-#define CG_LEFT			0x00000000	// default
-#define CG_CENTER		0x00000001
-#define CG_RIGHT		0x00000002
-#define CG_FORMATMASK	0x00000007
-#define CG_SMALLFONT	0x00000010
-#define CG_BIGFONT		0x00000020	// default
-#define CG_GIANTFONT	0x00000040
-#define CG_DROPSHADOW	0x00000800
-#define CG_BLINK		0x00001000
-#define CG_INVERSE		0x00002000
-#define CG_PULSE		0x00004000
-#define CG_UNDERLINE	0x00008000
-#define CG_TINYFONT		0x00010000
+enum class textStyleFlags_t
+{
+	CG_LEFT			= 0x00000000,	// default
+	CG_CENTER		= 0x00000001,
+	CG_RIGHT		= 0x00000002,
+	CG_FORMATMASK	= 0x00000007,
+	CG_SMALLFONT	= 0x00000010,
+	CG_BIGFONT		= 0x00000020,	// default
+	CG_GIANTFONT	= 0x00000040,
+	CG_DROPSHADOW	= 0x00000800,
+	CG_BLINK		= 0x00001000,
+	CG_INVERSE		= 0x00002000,
+	CG_PULSE		= 0x00004000,
+	CG_UNDERLINE	= 0x00008000,
+	CG_TINYFONT		= 0x00010000,
+};
+using enum textStyleFlags_t;
+template <> inline constexpr bool enableEnumFlags<textStyleFlags_t> = true;
 
 
 void CG_FillRect( float x, float y, float width, float height, const float *color );
@@ -719,7 +709,7 @@ void CG_DrawString( float x, float y, const char *string,
 				   float charWidth, float charHeight, const float *modulate );
 void CG_PrintInterfaceGraphics(int min,int max);
 void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,bool zeroFill);
-void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color );
+void CG_DrawProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color );
 
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
@@ -762,9 +752,9 @@ void CG_GetTagWorldPosition( refEntity_t *model, const char *tag, vec3_t pos, ve
 //
 // cg_predict.cpp
 //
-int	CG_PointContents( const vec3_t point, int passEntityNum );
+contentsFlags_t	CG_PointContents( const vec3_t point, int passEntityNum );
 void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 const int skipNumber, const int mask, const EG2_Collision eG2TraceType=G2_NOCOLLIDE, const int useLod=0 );
+					 const int skipNumber, const contentsFlags_t mask, const EG2_Collision eG2TraceType=G2_NOCOLLIDE, const int useLod=0 );
 void CG_PredictPlayerState( void );
 
 //
@@ -920,7 +910,7 @@ NORETURN void	cgi_Error( const char *fmt );
 int		cgi_Milliseconds( void );
 
 // console variable interaction
-void	cgi_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
+void	cgi_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags );
 void	cgi_Cvar_Update( vmCvar_t *vmCvar );
 void	cgi_Cvar_Set( const char *var_name, const char *value );
 
@@ -957,15 +947,15 @@ void	cgi_UpdateScreen( void );
 void	cgi_CM_LoadMap( const char *mapname, bool subBSP );
 int		cgi_CM_NumInlineModels( void );
 clipHandle_t cgi_CM_InlineModel( int index );		// 0 = world, 1+ = bmodels
-clipHandle_t cgi_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );//, const int contents );
-int		cgi_CM_PointContents( const vec3_t p, clipHandle_t model );
-int		cgi_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
+clipHandle_t cgi_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );//, const contentsFlags_t contents );
+contentsFlags_t	cgi_CM_PointContents( const vec3_t p, clipHandle_t model );
+contentsFlags_t	cgi_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
 void	cgi_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask );
+						  clipHandle_t model, contentsFlags_t brushmask );
 void	cgi_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask,
+						  clipHandle_t model, contentsFlags_t brushmask,
 						  const vec3_t origin, const vec3_t angles );
 
 // Returns the projection of a polygon onto the solid brushes in the world
@@ -1154,7 +1144,7 @@ void	trap_Com_SetOrgAngles(vec3_t org,vec3_t angles);
 void	trap_R_GetLightStyle(int style, color4ub_t color);
 void	trap_R_SetLightStyle(int style, int color);
 
-int		trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile = nullptr);
+int		trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char *psAudioFile = nullptr);
 e_status trap_CIN_StopCinematic(int handle);
 e_status trap_CIN_RunCinematic (int handle);
 void	trap_CIN_DrawCinematic (int handle);

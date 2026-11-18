@@ -36,18 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_STRING_LENGTH		256
 #define MAX_IDENTIFIER_LENGTH	128
 
-#define TKF_IGNOREDIRECTIVES			0x00000001		// skip over lines starting with #
-#define TKF_USES_EOL					0x00000002		// generate end of line tokens
-#define TKF_NODIRECTIVES				0x00000004		// don't treat # in any special way
-#define TKF_WANTUNDEFINED				0x00000008		// if token not found in symbols create undefined token
-#define TKF_WIDEUNDEFINEDSYMBOLS		0x00000010		// when undefined token encountered, accumulate until space
-#define TKF_RAWSYMBOLSONLY				0x00000020
-#define TKF_NUMERICIDENTIFIERSTART		0x00000040
-#define TKF_IGNOREKEYWORDS				0x00000080
-#define TKF_NOCASEKEYWORDS				0x00000100
-#define TKF_NOUNDERSCOREINIDENTIFIER	0x00000200
-#define TKF_NODASHINIDENTIFIER			0x00000400
-#define TKF_COMMENTTOKENS				0x00000800
+#include "qcommon/q_icarusflags.h"
 
 enum class tokenizerError_t
 {
@@ -392,14 +381,14 @@ class CTokenizer
 public:
 	CTokenizer();
 	~CTokenizer();
-	static CTokenizer* Create(unsigned dwFlags = 0);
+	static CTokenizer* Create(tokenizerFlags_t dwFlags = TKF_NONE);
 	virtual void Delete();
 	virtual void Error(tokenizerError_t theError);
 	virtual void Error(tokenizerError_t theError, const char *errString);
 	virtual void Error(const char *errString, tokenizerError_t theError = TKERR_UNKNOWN);
 
-	CToken* GetToken(unsigned onFlags = 0, unsigned offFlags = 0);
-	CToken* GetToken(keywordArray_t* keywords, unsigned onFlags, unsigned offFlags);
+	CToken* GetToken(tokenizerFlags_t onFlags = TKF_NONE, tokenizerFlags_t offFlags = TKF_NONE);
+	CToken* GetToken(keywordArray_t* keywords, tokenizerFlags_t onFlags, tokenizerFlags_t offFlags);
 	void PutBackToken(CToken* theToken, bool commented = false, const char *addedChars = nullptr, bool bIgnoreThisTokenType = false);
 	bool RequireToken(icarusToken_t tokenType);
 	void ScanUntilToken(icarusToken_t tokenType);
@@ -415,8 +404,8 @@ public:
 	unsigned int ParseRGB();
 	long GetRemainingSize();
 
-	unsigned GetFlags();
-	void SetFlags(unsigned flags);
+	tokenizerFlags_t GetFlags();
+	void SetFlags(tokenizerFlags_t flags);
 
 	void GetCurFilename(char** filename);
 	int GetCurLine();
@@ -425,7 +414,7 @@ public:
 
 protected:
 	void SetError(tokenizerError_t theError, const char *errString);
-	virtual void Init(unsigned dwFlags = 0);
+	virtual void Init(tokenizerFlags_t dwFlags = TKF_NONE);
 	CToken* FetchToken();
 	bool AddDefineSymbol(CDirectiveSymbol* definesymbol);
 	bool NextChar(byte& theByte);
@@ -454,7 +443,7 @@ protected:
 	CToken*					m_nextToken;
 	CSymbolTable			m_defines;
 	CTokenizerState*		m_state;
-	unsigned				m_flags;
+	tokenizerFlags_t	m_flags;
 	LPTokenizerErrorProc	m_errorProc;
 
 	static keywordArray_t errorMessages[];

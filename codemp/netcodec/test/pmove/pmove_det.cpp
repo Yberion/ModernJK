@@ -79,13 +79,13 @@ static void BuildWorld(void) {
 
 // box trace against the brushes, as the engine's CM_TraceThroughBrush
 static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum,
-                        int contentMask) {
+                        contentsFlags_t contentMask) {
 	int i, j;
 	(void)passEntityNum;
 	memset(tr, 0, sizeof(*tr));
 	tr->fraction = 1.0f;
 	tr->entityNum = ENTITYNUM_NONE;
-	if (!(contentMask & CONTENTS_SOLID)) {
+	if (!Any(contentMask & CONTENTS_SOLID)) {
 		VectorCopy(end, tr->endpos);
 		return;
 	}
@@ -148,10 +148,10 @@ static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, cons
 	for (i = 0; i < 3; i++) tr->endpos[i] = start[i] + tr->fraction * (end[i] - start[i]);
 }
 
-static int World_Contents(const vec3_t point, int passEntityNum) {
+static contentsFlags_t World_Contents(const vec3_t point, int passEntityNum) {
 	(void)point;
 	(void)passEntityNum;
-	return 0;
+	return CONTENTS_NONE;
 }
 
 // ------------------------------------------------------------------ what the bg code needs from the module
@@ -169,7 +169,7 @@ NORETURN_PTR void (*Com_Error)(errorParm_t level, const char *error, ...) = Harn
 void (*Com_Printf)(const char *msg, ...) = HarnessPrintf;
 
 // debug builds register a cvar from BG_AddPredictableEventToPlayerstate (bg_misc.cpp)
-static void CvarRegisterTrap(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags) {
+static void CvarRegisterTrap(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags) {
 	(void)varName; (void)defaultValue; (void)flags;
 	memset(vmCvar, 0, sizeof(*vmCvar));
 }
@@ -183,7 +183,7 @@ vmCvar_t bg_fighterAltControl, g_fixRunWalkAnims, g_fixSaberMoveData, g_fixWeapo
 bool FighterIsLanded(Vehicle_t *pVeh, playerState_t *parentPS) { (void)pVeh; (void)parentPS; return false; }
 void G_AddEvent(gentity_t *ent, entity_event_t event, int eventParm) { (void)ent; (void)event; (void)eventParm; }
 void G_CheapWeaponFire(int entNum, entity_event_t ev) { (void)entNum; (void)ev; }
-void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod) {
+void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod) {
 	(void)targ; (void)inflictor; (void)attacker; (void)dir; (void)point; (void)damage; (void)dflags; (void)mod;
 }
 void G_FlyVehicleSurfaceDestruction(gentity_t *veh, trace_t *trace, int magnitude, bool force) {
@@ -197,7 +197,7 @@ int G_EffectIndex(const char *name) { (void)name; return 0; }
 bool G_CanBeEnemy(gentity_t *self, gentity_t *enemy) { (void)self; (void)enemy; return false; }
 void Client_CheckImpactBBrush(gentity_t *self, gentity_t *other) { (void)self; (void)other; }
 void G_SetSharedVehicleFunctions(vehicleInfo_t *pVehInfo) { (void)pVehInfo; }
-void NPC_SetAnim(gentity_t *ent, int type, animNumber_t anim, int priority) { (void)ent; (void)type; (void)anim; (void)priority; }
+void NPC_SetAnim(gentity_t *ent, setAnimParts_t type, animNumber_t anim, setAnimFlags_t priority) { (void)ent; (void)type; (void)anim; (void)priority; }
 bool TryGrapple(gentity_t *ent) { (void)ent; return false; }
 void WP_GetVehicleCamPos(gentity_t *ent, gentity_t *pilot, vec3_t camPos) { (void)ent; (void)pilot; (void)camPos; }
 #define HARNESS_ENTITIES g_entities
@@ -210,7 +210,7 @@ centity_t cg_entities[MAX_GENTITIES];
 vmCvar_t bg_fighterAltControl;
 bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity,
                           void (*traceFunc)(trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs,
-                                            const vec3_t end, int passEntityNum, int contentMask)) {
+                                            const vec3_t end, int passEntityNum, contentsFlags_t contentMask)) {
 	(void)pVeh; (void)pUcmd; (void)trMins; (void)trMaxs; (void)gravity; (void)traceFunc;
 	return false;
 }
@@ -340,7 +340,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 		cmd.upmove = crouch ? -127 : (Rand(40) == 0 ? 127 : 0);
 		cmd.angles[YAW] = (int)(short)(cmd.angles[YAW] + yawRate + Rand(21) - 10);
 		cmd.angles[PITCH] = (int)(short)(Rand(2001) - 1000);
-		cmd.buttons = 0;
+		cmd.buttons = BUTTON_NONE;
 		pm.cmd = cmd;
 		Pmove(&pm);
 		moveHash = MoveHash(moveHash, &ps);
@@ -348,7 +348,7 @@ static void Run(int scenario, int mode, int commands, FILE *dump) {
 		if (dump)
 			fprintf(dump, "%d %d %d %08X %08X %08X %08X %08X %08X %08X %08X %08X %d %d %d\n", scenario, mode, i, Bits(ps.origin[0]),
 			        Bits(ps.origin[1]), Bits(ps.origin[2]), Bits(ps.velocity[0]), Bits(ps.velocity[1]), Bits(ps.velocity[2]),
-			        Bits(ps.viewangles[0]), Bits(ps.viewangles[1]), Bits(ps.viewangles[2]), ps.groundEntityNum, ps.pm_flags, ps.pm_time);
+			        Bits(ps.viewangles[0]), Bits(ps.viewangles[1]), Bits(ps.viewangles[2]), ps.groundEntityNum, to_underlying(ps.pm_flags), ps.pm_time);
 	}
 	printf("scenario %d (%s) %s: move %016llX full %016llX origin %08X %08X %08X velocity %08X %08X %08X\n",
 	       scenario, scenario == 0 ? "125 fps" : scenario == 1 ? "333 fps" : scenario == 2 ? "60 fps" : "random 3-20 ms",

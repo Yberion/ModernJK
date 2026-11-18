@@ -25,45 +25,53 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __G_PUBLIC_H__
 // g_public.h -- game module information visible to server
 
+#include <optional>
+
 #define	GAME_API_VERSION	10
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
-#define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
-#define SVF_INACTIVE			0x00000002	// Can't be used when this flag is on
-#define SVF_NPC					0x00000004
-#define SVF_BOT					0x00000008
-#define SVF_PLAYER_USABLE		0x00000010	// player can use this with the use button
-#define	SVF_BROADCAST			0x00000020	// send to all connected clients
-#define	SVF_PORTAL				0x00000040	// merge a second pvs at origin2 into snapshots
-#define	SVF_USE_CURRENT_ORIGIN	0x00000080	// entity->currentOrigin instead of entity->s.origin
+enum class svFlags_t : uint32_t
+{
+	SVF_NONE				= 0,
+	SVF_NOCLIENT			= 0x00000001,	// don't send entity to clients, even if it has effects
+	SVF_INACTIVE			= 0x00000002,	// Can't be used when this flag is on
+	SVF_NPC					= 0x00000004,
+	SVF_BOT					= 0x00000008,
+	SVF_PLAYER_USABLE		= 0x00000010,	// player can use this with the use button
+	SVF_BROADCAST			= 0x00000020,	// send to all connected clients
+	SVF_PORTAL				= 0x00000040,	// merge a second pvs at origin2 into snapshots
+	SVF_USE_CURRENT_ORIGIN	= 0x00000080,	// entity->currentOrigin instead of entity->s.origin
 											// for link position (missiles and movers)
-#define SVF_TRIMODEL			0x00000100	// Use a three piece model make up like a player does
-#define	SVF_OBJECTIVE			0x00000200	// Draw it's name if crosshair comes across it
-#define	SVF_ANIMATING			0x00000400	// Currently animating from startFrame to endFrame
-#define	SVF_NPC_PRECACHE		0x00000800	// Tell cgame to precache this spawner's NPC stuff
-#define	SVF_KILLED_SELF			0x00001000	// ent killed itself in a script, so don't do ICARUS_FreeEnt on it... or else!
-#define	SVF_NAVGOAL				0x00002000	// Navgoal
-#define	SVF_NOPUSH				0x00004000	// Can't be pushed around
-#define	SVF_ICARUS_FREEZE		0x00008000	// NPCs are frozen, ents don't execute ICARUS commands
-#define SVF_PLAT				0x00010000	// A func_plat or door acting like one
-#define	SVF_BBRUSH				0x00020000	// breakable brush
-#define	SVF_LOCKEDENEMY			0x00040000	// keep current enemy until dead
-#define SVF_IGNORE_ENEMIES		0x00080000	// Ignore all enemies
-#define SVF_BEAMING				0x00100000	// Being transported
-#define SVF_PLAYING_SOUND		0x00200000	// In the middle of playing a sound
-#define SVF_CUSTOM_GRAVITY		0x00400000	// Use personal gravity
-#define SVF_BROKEN				0x00800000	// A broken misc_model_breakable
-#define SVF_NO_TELEPORT			0x01000000	// Will not be teleported
-#define SVF_NONNPC_ENEMY		0x02000000	// Not a client/NPC, but can still be considered a hostile lifeform
-#define SVF_SELF_ANIMATING		0x04000000	// Ent will control it's animation itself in it's think func
-#define SVF_GLASS_BRUSH			0x08000000	// Ent is a glass brush
-#define SVF_NO_BASIC_SOUNDS		0x10000000	// Don't load basic custom sound set
-#define SVF_NO_COMBAT_SOUNDS	0x20000000	// Don't load combat custom sound set
-#define SVF_NO_EXTRA_SOUNDS		0x40000000	// Don't load extra custom sound set
-#define SVF_MOVER_ADJ_AREA_PORTALS	0x80000000	// For scripted movers only- must *explicitly instruct* them to affect area portals
+	SVF_TRIMODEL			= 0x00000100,	// Use a three piece model make up like a player does
+	SVF_OBJECTIVE			= 0x00000200,	// Draw it's name if crosshair comes across it
+	SVF_ANIMATING			= 0x00000400,	// Currently animating from startFrame to endFrame
+	SVF_NPC_PRECACHE		= 0x00000800,	// Tell cgame to precache this spawner's NPC stuff
+	SVF_KILLED_SELF			= 0x00001000,	// ent killed itself in a script, so don't do ICARUS_FreeEnt on it... or else!
+	SVF_NAVGOAL				= 0x00002000,	// Navgoal
+	SVF_NOPUSH				= 0x00004000,	// Can't be pushed around
+	SVF_ICARUS_FREEZE		= 0x00008000,	// NPCs are frozen, ents don't execute ICARUS commands
+	SVF_PLAT				= 0x00010000,	// A func_plat or door acting like one
+	SVF_BBRUSH				= 0x00020000,	// breakable brush
+	SVF_LOCKEDENEMY			= 0x00040000,	// keep current enemy until dead
+	SVF_IGNORE_ENEMIES		= 0x00080000,	// Ignore all enemies
+	SVF_BEAMING				= 0x00100000,	// Being transported
+	SVF_PLAYING_SOUND		= 0x00200000,	// In the middle of playing a sound
+	SVF_CUSTOM_GRAVITY		= 0x00400000,	// Use personal gravity
+	SVF_BROKEN				= 0x00800000,	// A broken misc_model_breakable
+	SVF_NO_TELEPORT			= 0x01000000,	// Will not be teleported
+	SVF_NONNPC_ENEMY		= 0x02000000,	// Not a client/NPC, but can still be considered a hostile lifeform
+	SVF_SELF_ANIMATING		= 0x04000000,	// Ent will control it's animation itself in it's think func
+	SVF_GLASS_BRUSH			= 0x08000000,	// Ent is a glass brush
+	SVF_NO_BASIC_SOUNDS		= 0x10000000,	// Don't load basic custom sound set
+	SVF_NO_COMBAT_SOUNDS	= 0x20000000,	// Don't load combat custom sound set
+	SVF_NO_EXTRA_SOUNDS		= 0x40000000,	// Don't load extra custom sound set
+	SVF_MOVER_ADJ_AREA_PORTALS	= 0x80000000,	// For scripted movers only- must *explicitly instruct* them to affect area portals
+};
+using enum svFlags_t;
+template <> inline constexpr bool enableEnumFlags<svFlags_t> = true;
 //===============================================================
 
 //rww - RAGDOLL_BEGIN
@@ -99,12 +107,12 @@ struct gentity_s {
 	bool	inuse;
 	bool	linked;				// false if not in any good cluster
 
-	int			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
+	svFlags_t			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
 
 	bool	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by gi.SetBrushModel
 	vec3_t		mins, maxs;
-	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
+	contentsFlags_t	contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
 									// a non-solid entity should set to 0
 
 	vec3_t		absmin, absmax;		// derived from mins/maxs and origin + rotation
@@ -166,7 +174,7 @@ typedef struct {
 	int		(*Milliseconds)( void );
 
 	// console variable interaction
-	cvar_t	*(*cvar)( const char *var_name, const char *value, int flags );
+	cvar_t	*(*cvar)( const char *var_name, const char *value, cvarFlags_t flags );
 	void	(*cvar_set)( const char *var_name, const char *value );
 	int		(*Cvar_VariableIntegerValue)( const char *var_name );
 	void	(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
@@ -223,12 +231,12 @@ typedef struct {
 
 	// collision detection against all linked entities
 	void	(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-			const int passEntityNum, const int contentmask , const EG2_Collision eG2TraceType , const int useLod );
+			const int passEntityNum, const contentsFlags_t contentmask , const EG2_Collision eG2TraceType , const int useLod );
 
 	// point contents against all linked entities
-	int		(*pointcontents)( const vec3_t point, int passEntityNum );
+	contentsFlags_t	(*pointcontents)( const vec3_t point, int passEntityNum );
 	// what contents are on the map?
-	int		(*totalMapContents)();
+	contentsFlags_t	(*totalMapContents)();
 
 	bool	(*inPVS)( const vec3_t p1, const vec3_t p2 );
 	bool	(*inPVSIgnorePortals)( const vec3_t p1, const vec3_t p2 );
@@ -265,30 +273,30 @@ Ghoul2 Insert Start
 								  qhandle_t customShader, int modelFlags, int lodBias );
 	bool	(*G2API_SetSkin)(CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
 	bool	(*G2API_SetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
-							  const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+							  const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool	(*G2API_SetBoneAngles)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles,
-								   const int flags, const Eorientations up, const Eorientations right, const Eorientations forward,
+								   const boneFlags_t flags, const Eorientations up, const Eorientations right, const Eorientations forward,
 								   qhandle_t *modelList, int blendTime , int blendStart );
-	bool	(*G2API_SetBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
+	bool	(*G2API_SetBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
 							 qhandle_t *modelList, int blendTime, int currentTime );
-	bool	(*G2API_SetBoneAnglesMatrix)(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const int flags,
+	bool	(*G2API_SetBoneAnglesMatrix)(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const boneFlags_t flags,
 									  qhandle_t *modelList, int blendTime , int currentTime );
 	void		(*G2API_CopyGhoul2Instance)(CGhoul2Info_v &ghoul2From, CGhoul2Info_v &ghoul2To, int modelIndex );
-	bool	(*G2API_SetBoneAnimIndex)(CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame, const int flags,
+	bool	(*G2API_SetBoneAnimIndex)(CGhoul2Info *ghlInfo, const int index, const int startFrame, const int endFrame, const boneFlags_t flags,
 							const float animSpeed, const int currentTime, const float setFrame , const int blendTime );
 
 	bool	(*G2API_SetLodBias)(CGhoul2Info *ghlInfo, int lodBias);
 	bool	(*G2API_SetShader)(CGhoul2Info *ghlInfo, qhandle_t customShader);
 	bool	(*G2API_RemoveGhoul2Model)(CGhoul2Info_v &ghlInfo, const int modelIndex);
-	bool	(*G2API_SetSurfaceOnOff)(CGhoul2Info *ghlInfo, const char *surfaceName, const int flags);
+	bool	(*G2API_SetSurfaceOnOff)(CGhoul2Info *ghlInfo, const char *surfaceName, const g2SurfaceFlags_t flags);
 	bool	(*G2API_SetRootSurface)(CGhoul2Info_v &ghlInfo, const int modelIndex, const char *surfaceName);
 	bool	(*G2API_RemoveSurface)(CGhoul2Info *ghlInfo, const int index);
 	int			(*G2API_AddSurface)(CGhoul2Info *ghlInfo, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod );
 	bool	(*G2API_GetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int currentTime, float *currentFrame,
-							  int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList);
+							  int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList);
 	bool	(*G2API_GetBoneAnimIndex)(CGhoul2Info *ghlInfo, const int iBoneIndex, const int currentTime, float *currentFrame,
-							  int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList);
+							  int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList);
 	bool	(*G2API_GetAnimRange)(CGhoul2Info *ghlInfo, const char *boneName,	int *startFrame, int *endFrame);
 	bool	(*G2API_GetAnimRangeIndex)(CGhoul2Info *ghlInfo, const int boneIndex,	int *startFrame, int *endFrame);
 
@@ -312,8 +320,8 @@ Ghoul2 Insert Start
 	void		(*G2API_ListSurfaces)(CGhoul2Info *ghlInfo);
 	void		(*G2API_ListBones)(CGhoul2Info *ghlInfo, int frame);
 	bool	(*G2API_HaveWeGhoul2Models)(CGhoul2Info_v &ghoul2);
-	bool	(*G2API_SetGhoul2ModelFlags)(CGhoul2Info *ghlInfo, const int flags);
-	int			(*G2API_GetGhoul2ModelFlags)(CGhoul2Info *ghlInfo);
+	bool	(*G2API_SetGhoul2ModelFlags)(CGhoul2Info *ghlInfo, const ghoul2Flags_t flags);
+	ghoul2Flags_t	(*G2API_GetGhoul2ModelFlags)(CGhoul2Info *ghlInfo);
 
 	bool	(*G2API_GetAnimFileName)(CGhoul2Info *ghlInfo, char **filename);
 	void		(*G2API_CollisionDetect)(CCollisionRecord *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position,
@@ -331,7 +339,7 @@ Ghoul2 Insert Start
 	bool	(*G2API_StopBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index);
 	bool	(*G2API_StopBoneAnimIndex)(CGhoul2Info *ghlInfo, const int index);
 	bool	(*G2API_SetBoneAnglesMatrixIndex)(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
-								   const int flags, qhandle_t *modelList, int blendTime, int currentTime);
+								   const boneFlags_t flags, qhandle_t *modelList, int blendTime, int currentTime);
 	bool	(*G2API_SetAnimIndex)(CGhoul2Info *ghlInfo, const int index);
 	int			(*G2API_GetAnimIndex)(CGhoul2Info *ghlInfo);
 	void		(*G2API_SaveGhoul2Models)(CGhoul2Info_v &ghoul2);
@@ -339,7 +347,7 @@ Ghoul2 Insert Start
 	void		(*G2API_LoadSaveCodeDestructGhoul2Info)(CGhoul2Info_v &ghoul2);
 	const char	*(*G2API_GetAnimFileNameIndex)(qhandle_t modelIndex);
 	const char	*(*G2API_GetAnimFileInternalNameIndex)(qhandle_t modelIndex);
-	int			(*G2API_GetSurfaceRenderStatus)(CGhoul2Info *ghlInfo, const char *surfaceName);
+	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceRenderStatus)(CGhoul2Info *ghlInfo, const char *surfaceName);
 
 	//rww - RAGDOLL_BEGIN
 	void		(*G2API_SetRagDoll)(CGhoul2Info_v &ghoul2,CRagDollParams *parms);

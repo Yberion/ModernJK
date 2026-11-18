@@ -212,7 +212,7 @@ typedef struct pack_s {
 	int				checksum;					// regular checksum
 	int				pure_checksum;				// checksum for pure
 	int				numfiles;					// number of files in pk3
-	int				referenced;					// referenced file flags
+	fsRefFlags_t	referenced;					// referenced file flags
 	bool		noref;						// file is blacklisted for referencing
 	int				hashSize;					// hash table size (power of 2)
 	fileInPack_t*	*hashTable;					// hash table
@@ -1458,7 +1458,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 							// OLD Ref:
 							/*
 							l = strlen( filename );
-							if ( !(pak->referenced & FS_GENERAL_REF)) {
+							if ( !Any(pak->referenced & FS_GENERAL_REF)) {
 								if( !FS_IsExt(filename, ".shader", l) &&
 								    !FS_IsExt(filename, ".txt", l) &&
 								    !FS_IsExt(filename, ".str", l) &&
@@ -1495,7 +1495,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 	#ifndef DEDICATED
 	#ifndef FINAL_BUILD
 						// Check for unprecached files when in game but not in the menus
-						if((cls.state == CA_ACTIVE) && !(Key_GetCatcher( ) & KEYCATCH_UI))
+						if((cls.state == CA_ACTIVE) && !Any(Key_GetCatcher( ) & KEYCATCH_UI))
 						{
 							Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
 						}
@@ -1623,7 +1623,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFILE
 	#ifndef DEDICATED
 	#ifndef FINAL_BUILD
 				// Check for unprecached files when in game but not in the menus
-				if((cls.state == CA_ACTIVE) && !(Key_GetCatcher( ) & KEYCATCH_UI))
+				if((cls.state == CA_ACTIVE) && !Any(Key_GetCatcher( ) & KEYCATCH_UI))
 				{
 					Com_Printf(S_COLOR_YELLOW "WARNING: File %s not precached\n", filename);
 				}
@@ -3475,10 +3475,10 @@ void FS_LoadReflists( void ) {
 
 			if (f_w && !Q_stristr(mv_whitelist, packstr)) {
 				search->pack->noref = true;
-				search->pack->referenced = 0;
+				search->pack->referenced = FS_NONE;
 			} else if (f_b && Q_stristr(mv_blacklist, packstr)) {
 				search->pack->noref = true;
-				search->pack->referenced = 0;
+				search->pack->referenced = FS_NONE;
 			} else if (f_f && Q_stristr(mv_forcelist, packstr)) {
 				search->pack->referenced |= FS_GENERAL_REF;
 			}
@@ -3506,7 +3506,7 @@ void FS_Startup( const char *gameName ) {
 
 	fs_packFiles = 0;
 
-	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
+	fs_debug = Cvar_Get( "fs_debug", "0", CVAR_NONE );
 #ifdef _WIN32
 	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
 #endif
@@ -3718,7 +3718,7 @@ const char *FS_ReferencedPakChecksums( void ) {
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
-			if (search->pack->referenced) {
+			if (Any(search->pack->referenced)) {
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->checksum ) );
 			}
 		}
@@ -3740,14 +3740,16 @@ The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
 const char *FS_ReferencedPakPureChecksums( void ) {
 	static char	info[BIG_INFO_STRING];
 	searchpath_t	*search;
-	int nFlags, numPaks, checksum;
+	int numPaks, checksum;
 
 	info[0] = 0;
 
 	checksum = fs_checksumFeed;
 	numPaks = 0;
-	for (nFlags = FS_CGAME_REF; nFlags; nFlags = nFlags >> 1) {
-		if (nFlags & FS_GENERAL_REF) {
+	// the string's order: cgame, ui, then the general references
+	static constexpr fsRefFlags_t refOrder[] = { FS_CGAME_REF, FS_UI_REF, FS_GENERAL_REF };
+	for (const fsRefFlags_t nFlags : refOrder) {
+		if (Any(nFlags & FS_GENERAL_REF)) {
 			// add a delimter between must haves and general refs
 			//Q_strcat(info, sizeof(info), "@ ");
 			info[strlen(info)+1] = '\0';
@@ -3757,9 +3759,9 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 		}
 		for ( search = fs_searchpaths ; search ; search = search->next ) {
 			// is the element a pak file and has it been referenced based on flag?
-			if ( search->pack && (search->pack->referenced & nFlags)) {
+			if ( search->pack && Any(search->pack->referenced & nFlags)) {
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->pure_checksum ) );
-				if (nFlags & (FS_CGAME_REF | FS_UI_REF)) {
+				if (Any(nFlags & (FS_CGAME_REF | FS_UI_REF))) {
 					break;
 				}
 				checksum ^= search->pack->pure_checksum;
@@ -3797,7 +3799,7 @@ const char *FS_ReferencedPakNames( void ) {
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
-			if (search->pack->referenced) {
+			if (Any(search->pack->referenced)) {
 				if (*info) {
 					Q_strcat(info, sizeof( info ), " " );
 				}
@@ -3816,12 +3818,9 @@ const char *FS_ReferencedPakNames( void ) {
 FS_ClearPakReferences
 =====================
 */
-void FS_ClearPakReferences( int flags ) {
+void FS_ClearPakReferences( fsRefFlags_t flags ) {
 	searchpath_t *search;
 
-	if ( !flags ) {
-		flags = -1;
-	}
 	for ( search = fs_searchpaths; search; search = search->next ) {
 		// is the element a pak file and has it been referenced?
 		if ( search->pack ) {
@@ -4007,7 +4006,7 @@ void FS_Restart( int checksumFeed, bool inPlace ) {
 	fs_checksumFeed = checksumFeed;
 
 	// clear pak references
-	FS_ClearPakReferences(0);
+	FS_ClearPakReferences(FS_ALL_REF);
 
 	// try to start up normally
 	FS_Startup( BASEGAME );
@@ -4407,7 +4406,7 @@ const char *FS_MV_VerifyDownloadPath(const char *pk3file) {
 			if (search->pack->noref)
 				return nullptr;
 
-			if (search->pack->referenced) {
+			if (Any(search->pack->referenced)) {
 				static char gameDataPath[MAX_OSPATH];
 				Q_strncpyz(gameDataPath, search->pack->pakFilename, sizeof(gameDataPath));
 

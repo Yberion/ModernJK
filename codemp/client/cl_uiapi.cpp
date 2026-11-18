@@ -109,7 +109,7 @@ static int CL_Milliseconds( void ) {
 	return Sys_Milliseconds();
 }
 
-static void CL_Cvar_Get( const char *var_name, const char *value, uint32_t flags ) {
+static void CL_Cvar_Get( const char *var_name, const char *value, cvarFlags_t flags ) {
 	Cvar_Register( nullptr, var_name, value, flags );
 }
 
@@ -368,7 +368,7 @@ static bool CL_G2API_SetBoneAngles(
 	int modelIndex,
 	const char *boneName,
 	const vec3_t angles,
-	const int flags,
+	const boneFlags_t flags,
 	const orientations_t up,
 	const orientations_t right,
 	const orientations_t forward,
@@ -400,7 +400,7 @@ static bool CL_G2API_SetBoneAnim(
 	const char *boneName,
 	const int startFrame,
 	const int endFrame,
-	const int flags,
+	const boneFlags_t flags,
 	const float animSpeed,
 	const int currentTime,
 	const float setFrame,
@@ -430,7 +430,7 @@ static bool CL_G2API_GetBoneAnim(
 	float *currentFrame,
 	int *startFrame,
 	int *endFrame,
-	int *flags,
+	boneFlags_t *flags,
 	float *animSpeed,
 	int *modelList,
 	const int modelIndex)
@@ -466,7 +466,8 @@ static bool CL_G2API_GetBoneFrame(
 	}
 
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
-	int iDontCare1 = 0, iDontCare2 = 0, iDontCare3 = 0;
+	int iDontCare1 = 0, iDontCare2 = 0;
+	boneFlags_t iDontCare3 = BONE_NONE;
 	float fDontCare1 = 0;
 
 	return re->G2API_GetBoneAnim(
@@ -566,7 +567,7 @@ static bool CL_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const c
 	return re->G2API_SetRootSurface( *((CGhoul2Info_v *)ghoul2), modelIndex, surfaceName );
 }
 
-static bool CL_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
+static bool CL_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags ) {
 	if ( !ghoul2 ) {
 		return false;
 	}
@@ -619,7 +620,7 @@ static void CL_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
 	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.effectorsToTurnOff = params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }
@@ -682,7 +683,7 @@ static bool CL_G2API_AttachG2Model( void *ghoul2From, int modelIndexFrom, void *
 	return re->G2API_AttachG2Model(*g2From, modelIndexFrom, *g2To, toBoltIndex, toModel);
 }
 
-static void CL_Key_SetCatcher( int catcher ) {
+static void CL_Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// Don't allow the ui module to close the console
 	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
 }

@@ -68,7 +68,7 @@ bool	PM_SlideMove( float gravMod ) {
 
 	if ( gravMod )
 	{
-		if ( !(pm->ps->eFlags&EF_FORCE_GRIPPED) )
+		if ( !Any(pm->ps->eFlags&EF_FORCE_GRIPPED) )
 		{
 			endVelocity[2] -= pm->ps->gravity * pml.frametime * gravMod;
 		}
@@ -136,7 +136,7 @@ bool	PM_SlideMove( float gravMod ) {
 		PM_AddTouchEnt( trace.entityNum );
 
 		//Hit it
-		if ( trace.surfaceFlags&SURF_NODAMAGE )
+		if ( Any( trace.surfaceFlags&SURF_NODAMAGE ) )
 		{
 			damageSelf = false;
 		}

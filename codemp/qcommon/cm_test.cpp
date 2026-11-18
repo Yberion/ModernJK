@@ -202,19 +202,19 @@ CM_PointContents
 
 ==================
 */
-int CM_PointContents( const vec3_t p, clipHandle_t model ) {
+contentsFlags_t CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int			leafnum;
 	int			i, k;
 	int			brushnum;
 	cLeaf_t		*leaf;
 	cbrush_t	*b;
-	int			contents;
+	contentsFlags_t	contents;
 	float		d;
 	cmodel_t	*clipm;
 	clipMap_t	*local;
 
 	if (!cmg.numNodes) {	// map not loaded
-		return 0;
+		return CONTENTS_NONE;
 	}
 
 	if ( model )
@@ -237,7 +237,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		leaf = &local->leafs[leafnum];
 	}
 
-	contents = 0;
+	contents = CONTENTS_NONE;
 	for (k=0 ; k<leaf->numLeafBrushes ; k++) {
 		brushnum = local->leafbrushes[leaf->firstLeafBrush+k];
 		b = &local->brushes[brushnum];
@@ -269,7 +269,7 @@ Handles offseting and rotation of the end points for moving and
 rotating entities
 ==================
 */
-int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
+contentsFlags_t	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
 	vec3_t		p_l;
 	vec3_t		temp;
 	vec3_t		forward, right, up;

@@ -186,7 +186,7 @@ void eweb_pain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, cons
 	}
 }
 //----------------------------------------------------------
-void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	vec3_t org;
 
@@ -236,7 +236,7 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	G_PlayEffect( "emplaced/explode", org );
 
 	// Turn the top of the eweb off.
-#define TURN_OFF			0x00000100//G2SURFACEFLAG_NODESCENDANTS
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 	gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "eweb_damage", TURN_OFF );
 
 	// create some persistent smoke by using a dynamically created fx runner
@@ -275,7 +275,7 @@ bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return false;
 	}
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return false; // can't use inactive gun
 	}
@@ -301,7 +301,7 @@ bool eweb_can_be_used( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return false;
 	}
 
-	if ( activator && activator->client && (activator->client->ps.pm_flags&PMF_DUCKED) )
+	if ( activator && activator->client && Any(activator->client->ps.pm_flags&PMF_DUCKED) )
 	{//stand up, ya cowardly varmint!
 		return false;
 	}
@@ -524,7 +524,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return; // can't use inactive gun
 	}
@@ -638,7 +638,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 		// FIXME: don't do this, we'll try and actually put the player in this beast
 		// move the player to the center of the gun
-//		activator->contents = 0;
+//		activator->contents = CONTENTS_NONE;
 //		VectorCopy( self->currentOrigin, activator->client->ps.origin );
 
 		SetClientViewAngle( activator, self->pos1 );
@@ -689,7 +689,7 @@ void emplaced_blow( gentity_t *ent )
 }
 
 //----------------------------------------------------------
-void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	vec3_t org;
 
@@ -1085,7 +1085,7 @@ extern void CG_ChangeWeapon( weapon_t num );
 
 void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 {
-	if (( (*ucmd)->buttons & BUTTON_USE || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
+	if (( Any( (*ucmd)->buttons & BUTTON_USE ) || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
 	{
 		ent->owner->s.loopSound = 0;
 

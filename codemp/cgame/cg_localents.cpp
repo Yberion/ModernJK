@@ -139,7 +139,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 					  2000,		// trailTime
 					  t,		// startTime
 					  0,		// fadeInTime
-					  leFlag_t{},	// flags
+					  LEF_NONE,	// flags
 					  /*cgs.media.bloodTrailShader*/0 );
 		// use the optimized version
 		blood->leType = LE_FALL_SCALE_FADE;
@@ -321,7 +321,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( Any( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}

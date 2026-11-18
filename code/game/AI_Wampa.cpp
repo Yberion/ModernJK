@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 using enum monsterLocalState_t;
 
 float enemyDist = 0;
-extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+extern bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask );
 extern int PM_AnimLength( int index, animNumber_t anim );
 extern cvar_t	*g_dismemberment;
 /*
@@ -215,7 +215,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 		if ( DistanceSquared( radiusEnts[i]->currentOrigin, boltOrg ) <= radiusSquared )
 		{
 			//smack
-			G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, radiusEnts[i]->currentOrigin, damage, ((backhand)?0:DAMAGE_NO_KNOCKBACK), MOD_MELEE );
+			G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, radiusEnts[i]->currentOrigin, damage, ((backhand)?DAMAGE_NORMAL:DAMAGE_NO_KNOCKBACK), MOD_MELEE );
 			if ( backhand )
 			{
 				//actually push the enemy
@@ -228,7 +228,7 @@ void Wampa_Slash( int boltIndex, bool backhand )
 				if ( radiusEnts[i]->client->NPC_class != CLASS_WAMPA
 					&& radiusEnts[i]->client->NPC_class != CLASS_RANCOR
 					&& radiusEnts[i]->client->NPC_class != CLASS_ATST
-					&& !(radiusEnts[i]->flags&FL_NO_KNOCKBACK) )
+					&& !Any( radiusEnts[i]->flags & FL_NO_KNOCKBACK ) )
 				{
 					G_Throw( radiusEnts[i], pushDir, 65 );
 					if ( radiusEnts[i]->health > 0 && Q_irand( 0, 1 ) )
@@ -465,7 +465,7 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 	if ( other
 		&& other->inuse
 		&& other != self->enemy
-		&& !(other->flags&FL_NOTARGET) )
+		&& !Any( other->flags & FL_NOTARGET ) )
 	{
 		if ( (!other->s.number&&!Q_irand(0,3))
 			|| !self->enemy
@@ -667,7 +667,7 @@ bool Wampa_TryGrab( void )
 		AngleVectors( angs, pushDir, nullptr, nullptr );
 		if ( NPC->enemy->client->NPC_class != CLASS_RANCOR
 			&& NPC->enemy->client->NPC_class != CLASS_ATST
-			&& !(NPC->enemy->flags&FL_NO_KNOCKBACK) )
+			&& !Any( NPC->enemy->flags & FL_NO_KNOCKBACK ) )
 		{
 			G_Throw( NPC->enemy, pushDir, Q_irand( 30, 70 ) );
 			if ( NPC->enemy->health > 0 )
@@ -912,7 +912,7 @@ void NPC_BSWampa_Default( void )
 
 			TIMER_Set( NPC, "idlenoise", Q_irand( 2000, 4000 ) );
 		}
-		if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		{
 			Wampa_Patrol();
 		}

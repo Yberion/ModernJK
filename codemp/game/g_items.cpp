@@ -201,7 +201,7 @@ void ShieldGoSolid(gentity_t *self)
 		return;
 	}
 
-	trap->Trace (&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY, false, 0, 0 );
+	trap->Trace (&tr, self->r.currentOrigin, self->r.mins, self->r.maxs, self->r.currentOrigin, self->s.number, CONTENTS_BODY, false, G2TRFLAG_NONE, 0 );
 	if(tr.startsolid)
 	{	// gah, we can't activate yet
 		self->nextthink = level.time + 200;
@@ -232,7 +232,7 @@ void ShieldGoSolid(gentity_t *self)
 void ShieldGoNotSolid(gentity_t *self)
 {
 	// make the shield non-solid very briefly
-	self->r.contents = 0;
+	self->r.contents = CONTENTS_NONE;
 	self->s.eFlags |= EF_NODRAW;
 	// nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
 	self->nextthink = level.time + 200;
@@ -284,7 +284,7 @@ void CreateShield(gentity_t *ent)
 	// trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
 	end[2] += MAX_SHIELD_HEIGHT;
-	trap->Trace (&tr, ent->r.currentOrigin, nullptr, nullptr, end, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, ent->r.currentOrigin, nullptr, nullptr, end, ent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 	height = (int)(MAX_SHIELD_HEIGHT * tr.fraction);
 
 	// use angles to find the proper axis along which to align the shield
@@ -310,10 +310,10 @@ void CreateShield(gentity_t *ent)
 	// positive trace
 	VectorCopy(ent->r.currentOrigin, start);
 	start[2] += (height>>1);
-	trap->Trace (&tr, start, nullptr, nullptr, posTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, start, nullptr, nullptr, posTraceEnd, ent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 	posWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 	// negative trace
-	trap->Trace (&tr, start, nullptr, nullptr, negTraceEnd, ent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, start, nullptr, nullptr, negTraceEnd, ent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 	negWidth = MAX_SHIELD_HALFWIDTH * tr.fraction;
 
 	// kef -- monkey with dimensions and place origin in center
@@ -366,12 +366,12 @@ void CreateShield(gentity_t *ent)
 	ent->touch = ShieldTouch;
 
 	// see if we're valid
-	trap->Trace (&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY, false, 0, 0 );
+	trap->Trace (&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, CONTENTS_BODY, false, G2TRFLAG_NONE, 0 );
 
 	if (tr.startsolid)
 	{	// Something in the way!
 		// make the shield non-solid very briefly
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->s.eFlags |= EF_NODRAW;
 		// nextthink needs to have a large enough interval to avoid excess accumulation of Activate messages
 		ent->nextthink = level.time + 200;
@@ -423,13 +423,13 @@ bool PlaceShield(gentity_t *playerent)
 	AngleVectors (playerent->client->ps.viewangles, fwd, nullptr, nullptr);
 	fwd[2] = 0;
 	VectorMA(playerent->client->ps.origin, SHIELD_PLACEDIST, fwd, dest);
-	trap->Trace (&tr, playerent->client->ps.origin, mins, maxs, dest, playerent->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace (&tr, playerent->client->ps.origin, mins, maxs, dest, playerent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 	if (tr.fraction > 0.9)
 	{//room in front
 		VectorCopy(tr.endpos, pos);
 		// drop to floor
 		VectorSet( dest, pos[0], pos[1], pos[2] - 4096 );
-		trap->Trace( &tr, pos, mins, maxs, dest, playerent->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, pos, mins, maxs, dest, playerent->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 		if ( !tr.startsolid && !tr.allsolid )
 		{
 			// got enough room so place the portable shield
@@ -600,7 +600,7 @@ static bool pas_find_enemies( gentity_t *self )
 		{
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -632,7 +632,7 @@ static bool pas_find_enemies( gentity_t *self )
 			VectorCopy( target->r.currentOrigin, org );
 		}
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -688,7 +688,7 @@ void pas_adjust_enemy( gentity_t *ent )
 			VectorCopy( ent->enemy->r.currentOrigin, org );
 		}
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, ent->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 		if ( tr.allsolid || tr.startsolid || tr.fraction < 0.9f || tr.entityNum == ent->s.number )
 		{
@@ -778,7 +778,7 @@ void pas_think( gentity_t *ent )
 
 	if (clTrapped)
 	{
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->s.fireflag = 0;
 		ent->nextthink = level.time + FRAMETIME;
 		return;
@@ -1170,7 +1170,7 @@ static void MedPackGive(gentity_t *ent, int amount)
 
 	if (ent->health <= 0 ||
 		ent->client->ps.stats[STAT_HEALTH] <= 0 ||
-		(ent->client->ps.eFlags & EF_DEAD))
+		Any(ent->client->ps.eFlags & EF_DEAD))
 	{
 		return;
 	}
@@ -1246,7 +1246,7 @@ void ItemUse_Jetpack( gentity_t *ent )
 
 	if (ent->health <= 0 ||
 		ent->client->ps.stats[STAT_HEALTH] <= 0 ||
-		(ent->client->ps.eFlags & EF_DEAD) ||
+		Any(ent->client->ps.eFlags & EF_DEAD) ||
 		ent->client->ps.pm_type == PM_DEAD)
 	{ //can't use it when dead under any circumstances.
 		return;
@@ -1284,7 +1284,7 @@ void ItemUse_UseCloak( gentity_t *ent )
 
 	if (ent->health <= 0 ||
 		ent->client->ps.stats[STAT_HEALTH] <= 0 ||
-		(ent->client->ps.eFlags & EF_DEAD) ||
+		Any(ent->client->ps.eFlags & EF_DEAD) ||
 		ent->client->ps.pm_type == PM_DEAD)
 	{ //can't use it when dead under any circumstances.
 		return;
@@ -1537,7 +1537,7 @@ void EWeb_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
-	int flags;
+	boneFlags_t flags;
 	orientations_t up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
 	vec3_t *freeBoneVec = nullptr;
@@ -1710,7 +1710,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 
 	p[2] += 4.0f;
 
-	trap->Trace(&tr, owner->client->ps.origin, owner->r.mins, owner->r.maxs, p, owner->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, owner->client->ps.origin, owner->r.mins, owner->r.maxs, p, owner->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	if (!tr.startsolid && !tr.allsolid && tr.fraction == 1.0f)
 	{ //all clear, we can move there
@@ -1718,7 +1718,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 
 		VectorCopy(p, pDown);
 		pDown[2] -= 7.0f;
-		trap->Trace(&tr, p, owner->r.mins, owner->r.maxs, pDown, owner->s.number, MASK_PLAYERSOLID, false, 0, 0);
+		trap->Trace(&tr, p, owner->r.mins, owner->r.maxs, pDown, owner->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 		if (!tr.startsolid && !tr.allsolid)
 		{
@@ -1726,7 +1726,7 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 			if (VectorLength(d) > 1.0f)
 			{ //we moved, do some animating
 				vec3_t dAng;
-				int aFlags = SETANIM_FLAG_HOLD;
+				setAnimFlags_t aFlags = SETANIM_FLAG_HOLD;
 
 				vectoangles(d, dAng);
 				dAng[YAW] = AngleSubtract(owner->client->ps.viewangles[YAW], dAng[YAW]);
@@ -1847,7 +1847,7 @@ void EWebThink(gentity_t *self)
 					return;
 				}
 
-				if (owner->client->pers.cmd.buttons & BUTTON_ATTACK)
+				if (Any( owner->client->pers.cmd.buttons & BUTTON_ATTACK ))
 				{
 					if (self->genericValue5 < level.time)
 					{ //we can fire another shot off
@@ -1906,7 +1906,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 
 	VectorMA(s, 48.0f, fwd, pos);
 
-	trap->Trace(&tr, s, mins, maxs, pos, spawner->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, s, mins, maxs, pos, spawner->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.allsolid || tr.startsolid || tr.fraction != 1.0f)
 	{ //can't spawn here, we are in solid
@@ -1926,7 +1926,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 
 	VectorCopy(pos, downPos);
 	downPos[2] -= 18.0f;
-	trap->Trace(&tr, pos, mins, maxs, downPos, spawner->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, pos, mins, maxs, downPos, spawner->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.startsolid || tr.allsolid || tr.fraction == 1.0f || tr.entityNum < ENTITYNUM_WORLD)
 	{ //didn't hit ground.
@@ -2117,13 +2117,13 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		}
 
 		// if not line of sight, no sound
-		trap->Trace( &tr, client->ps.origin, nullptr, nullptr, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0 );
+		trap->Trace( &tr, client->ps.origin, nullptr, nullptr, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID, false, G2TRFLAG_NONE, 0 );
 		if ( tr.fraction != 1.0 ) {
 			continue;
 		}
 
 		// anti-reward
-		client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_DENIEDREWARD;
+		PS_TogglePlayerEvent( client->ps, PLAYEREVENT_DENIEDREWARD );
 	}
 	return RESPAWN_POWERUP;
 }
@@ -2148,7 +2148,7 @@ void Add_Ammo (gentity_t *ent, ammo_t weapon, int count)
 {
 	int max = ammoData[weapon].max;
 
-	if (ent->client->ps.eFlags & EF_DOUBLE_AMMO)
+	if (Any( ent->client->ps.eFlags & EF_DOUBLE_AMMO ))
 	{ // fix: double ammo for siege
 		max *= 2;
 	}
@@ -2226,7 +2226,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		}
 
 		// dropped items and teamplay weapons always have full ammo
-		if ( ! (ent->flags & FL_DROPPED_ITEM) && level.gametype != GT_TEAM ) {
+		if ( ! Any( ent->flags & FL_DROPPED_ITEM ) && level.gametype != GT_TEAM ) {
 			// respawning rules
 
 			// New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
@@ -2372,14 +2372,14 @@ void RespawnItem( gentity_t *ent ) {
 
 bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 {
-	if ( (item->flags&FL_DROPPED_ITEM)
+	if ( Any( item->flags & FL_DROPPED_ITEM )
 		&& item->activator != &g_entities[0]
 		&& pickerupper->s.number
 		&& pickerupper->s.weapon == WP_NONE
 		&& pickerupper->enemy
 		&& pickerupper->painDebounceTime < level.time
 		&& pickerupper->NPC && pickerupper->NPC->surrenderTime < level.time //not surrendering
-		&& !(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) //not being forced to march
+		&& !Any(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) //not being forced to march
 		/*&& item->item->giTag != INV_SECURITY_KEY*/ )
 	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
 		if ( level.time - item->s.time < 3000 )//was 5000
@@ -2407,12 +2407,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	}
 
-	if (ent->s.eFlags & EF_ITEMPLACEHOLDER)
+	if (Any( ent->s.eFlags & EF_ITEMPLACEHOLDER ))
 	{
 		return;
 	}
 
-	if (ent->s.eFlags & EF_NODRAW)
+	if (Any( ent->s.eFlags & EF_NODRAW ))
 	{
 		return;
 	}
@@ -2623,7 +2623,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( ent->wait == -1 ) {
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->unlinkAfterEvent = true;
 		return;
 	}
@@ -2642,14 +2642,14 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	// dropped items will not respawn
-	if ( ent->flags & FL_DROPPED_ITEM ) {
+	if ( Any( ent->flags & FL_DROPPED_ITEM ) ) {
 		ent->freeAfterEvent = true;
 	}
 
 	// picked up items still stay around, they just don't
 	// draw anything.  This allows respawnable items
 	// to be placed on movers.
-	if (!(ent->flags & FL_DROPPED_ITEM) && (ent->item->giType==IT_WEAPON || ent->item->giType==IT_POWERUP))
+	if (!Any( ent->flags & FL_DROPPED_ITEM ) && (ent->item->giType==IT_WEAPON || ent->item->giType==IT_POWERUP))
 	{
 		ent->s.eFlags |= EF_ITEMPLACEHOLDER;
 		ent->s.eFlags &= ~EF_NODRAW;
@@ -2659,7 +2659,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.svFlags |= SVF_NOCLIENT;
 	}
-	ent->r.contents = 0;
+	ent->r.contents = CONTENTS_NONE;
 
 	if (ent->genericValue9)
 	{ //dropped item, should be removed when picked up
@@ -2959,7 +2959,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->r.maxs[2] -= 0.1f;
 
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-		trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 		if ( tr.startsolid ) {
 			trap->Print ("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
 			G_FreeEntity( ent );
@@ -2976,9 +2976,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 	}
 
 	// team slaves and targeted items aren't present at start
-	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
+	if ( Any( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
 		ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		return;
 	}
 
@@ -3216,8 +3216,8 @@ G_RunItem
 void G_RunItem( gentity_t *ent ) {
 	vec3_t		origin;
 	trace_t		tr;
-	int			contents;
-	int			mask;
+	contentsFlags_t	contents;
+	contentsFlags_t	mask;
 
 	if ( !G_GRID20_STEP ) {
 		return;	// items move and think on the 20 Hz instants, as at sv_fps 20 (plan step 14, g_local.h)
@@ -3241,12 +3241,12 @@ void G_RunItem( gentity_t *ent ) {
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
 	// trace a line from the previous position to the current position
-	if ( ent->clipmask ) {
+	if ( Any( ent->clipmask ) ) {
 		mask = ent->clipmask;
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->r.ownerNum, mask, false, 0, 0 );
+	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->r.ownerNum, mask, false, G2TRFLAG_NONE, 0 );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );
 
@@ -3266,7 +3266,7 @@ void G_RunItem( gentity_t *ent ) {
 
 	// if it is in a nodrop volume, remove it
 	contents = trap->PointContents( ent->r.currentOrigin, -1 );
-	if ( contents & CONTENTS_NODROP ) {
+	if ( Any( contents & CONTENTS_NODROP ) ) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
 			Team_FreeEntity(ent);
 		} else if(ent->genericValue15 == to_underlying( HI_SENTRY_GUN )) {

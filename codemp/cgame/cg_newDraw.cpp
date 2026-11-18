@@ -751,7 +751,7 @@ void CG_MouseEvent(int x, int y) {
 
 	/*
 	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == false) {
-		trap->Key_SetCatcher(0);
+		trap->Key_SetCatcher(KEYCATCH_NONE);
 		return;
 	}
 	*/
@@ -838,14 +838,14 @@ void CG_KeyEvent(int key, bool down) {
 
 	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == false)) {
 		CG_EventHandling(CGAME_EVENT_NONE);
-		trap->Key_SetCatcher(0);
+		trap->Key_SetCatcher(KEYCATCH_NONE);
 		return;
 	}
 
 	//if ((KeyEvent_Key( key ) && KeyEvent_Key( key ) == trap->Key_GetKey("teamMenu")) || !Display_CaptureItem(cgs.cursorX, cgs.cursorY)) {
 	// if we see this then we should always be visible
 	//  CG_EventHandling(CGAME_EVENT_NONE);
-	//  trap->Key_SetCatcher(0);
+	//  trap->Key_SetCatcher(KEYCATCH_NONE);
 	//}
 
 

@@ -415,8 +415,8 @@ public:
 		ent->svFlags			= SVF_USE_CURRENT_ORIGIN;
 		ent->s.eType			= ET_MOVER;
 		ent->s.eFlags			|= EF_NODRAW;
-		ent->contents			= 0;
-		ent->clipmask			= 0;
+		ent->contents			= CONTENTS_NONE;
+		ent->clipmask			= CONTENTS_NONE;
 
 		ent->s.pos.trType		= TR_STATIONARY;
 		ent->s.pos.trDuration	= 0;

@@ -798,7 +798,7 @@ void RB_StageIteratorSky( void )
 		return;
 	}
 
-	if (skyboxportal && !(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
+	if (skyboxportal && !Any(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL))
 	{
 		return;
 	}
@@ -822,7 +822,7 @@ void RB_StageIteratorSky( void )
 		qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
 		qglPushMatrix ();
-		GL_State( 0 );
+		GL_State( GLS_NONE );
 		qglTranslatef (backEnd.viewParms.ori.origin[0], backEnd.viewParms.ori.origin[1], backEnd.viewParms.ori.origin[2]);
 
 		DrawSkyBox( tess.shader );

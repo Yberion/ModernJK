@@ -162,7 +162,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
 
-	if ( ent->flags & FL_BOUNCE_SHRAPNEL )
+	if ( Any( ent->flags & FL_BOUNCE_SHRAPNEL ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.25f, ent->s.pos.trDelta );
 		ent->s.pos.trType = TR_GRAVITY;
@@ -175,7 +175,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			return;
 		}
 	}
-	else if ( ent->flags & FL_BOUNCE_HALF )
+	else if ( Any( ent->flags & FL_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.65f, ent->s.pos.trDelta );
 		// check for stop
@@ -264,7 +264,7 @@ void G_RunStuckMissile( gentity_t *ent )
 			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
 				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
-				G_Damage( ent, other, other, nullptr, nullptr, 99999, 0, MOD_CRUSH );
+				G_Damage( ent, other, other, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
 				return;
 			}
 		}
@@ -365,12 +365,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	// check for bounce
 	if ( !other->takedamage &&
 		(ent->bounceCount > 0 || ent->bounceCount == -5) &&
-		( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
+		Any( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
 		G_BounceMissile( ent, trace );
 		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 		return;
 	}
-	else if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF))
+	else if (ent->neverFree && ent->s.weapon == WP_SABER && Any( ent->flags & FL_BOUNCE_HALF ))
 	{ //this is a knocked-away saber
 		if (ent->bounceCount > 0 || ent->bounceCount == -5)
 		{
@@ -383,7 +383,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	}
 
 	// I would glom onto the FL_BOUNCE code section above, but don't feel like risking breaking something else
-	if ( (!other->takedamage && (ent->bounceCount > 0 || ent->bounceCount == -5) && ( ent->flags&(FL_BOUNCE_SHRAPNEL) ) ) || ((trace->surfaceFlags&SURF_FORCEFIELD)&&!ent->splashDamage&&!ent->splashRadius&&(ent->bounceCount > 0 || ent->bounceCount == -5)) )
+	if ( (!other->takedamage && (ent->bounceCount > 0 || ent->bounceCount == -5) && Any( ent->flags & (FL_BOUNCE_SHRAPNEL) ) ) || (Any( trace->surfaceFlags&SURF_FORCEFIELD )&&!ent->splashDamage&&!ent->splashRadius&&(ent->bounceCount > 0 || ent->bounceCount == -5)) )
 	{
 		G_BounceMissile( ent, trace );
 
@@ -407,7 +407,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	}
 	*/
 
-	if ((other->r.contents & CONTENTS_LIGHTSABER) && !isKnockedSaber)
+	if (Any( other->r.contents & CONTENTS_LIGHTSABER ) && !isKnockedSaber)
 	{ //hit this person's saber, so..
 		gentity_t *otherOwner = &g_entities[other->r.ownerNum];
 
@@ -426,7 +426,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if (other->flags & FL_DMG_BY_HEAVY_WEAP_ONLY)
+	if (Any( other->flags & FL_DMG_BY_HEAVY_WEAP_ONLY ))
 	{
 		if (ent->methodOfDeath != MOD_REPEATER_ALT &&
 			ent->methodOfDeath != MOD_ROCKET &&
@@ -460,7 +460,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if ((other->flags & FL_SHIELDED) &&
+	if (Any( other->flags & FL_SHIELDED ) &&
 		ent->s.weapon != WP_ROCKET_LAUNCHER &&
 		ent->s.weapon != WP_THERMAL &&
 		ent->s.weapon != WP_TRIP_MINE &&
@@ -473,7 +473,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_VEHICLE &&
 		ent->methodOfDeath != MOD_CONC &&
 		ent->methodOfDeath != MOD_CONC_ALT &&
-		!(ent->dflags&DAMAGE_HEAVY_WEAP_CLASS) )
+		!Any( ent->dflags & DAMAGE_HEAVY_WEAP_CLASS ) )
 	{
 		vec3_t fwd;
 
@@ -503,7 +503,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		other->client->ps.saberBlockTime < level.time &&
 		!isKnockedSaber &&
-		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, MOD_UNKNOWN, true, 0))
+		WP_SaberCanBlock(other, ent->r.currentOrigin, DAMAGE_NORMAL, MOD_UNKNOWN, true, 0))
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
 		vec3_t fwd;
 		gentity_t *te;
@@ -558,7 +558,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 		return;
 	}
-	else if ((other->r.contents & CONTENTS_LIGHTSABER) && !isKnockedSaber)
+	else if (Any( other->r.contents & CONTENTS_LIGHTSABER ) && !isKnockedSaber)
 	{ //hit this person's saber, so..
 		gentity_t *otherOwner = &g_entities[other->r.ownerNum];
 
@@ -637,7 +637,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	}
 
 	// check for sticking
-	if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) )
+	if ( !other->takedamage && Any( ent->s.eFlags & EF_MISSILE_STICK ) )
 	{
 		laserTrapStick( ent, trace->endpos, trace->plane.normal );
 		G_AddEvent( ent, EV_MISSILE_STICK, 0 );
@@ -663,7 +663,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if (ent->s.weapon == WP_BOWCASTER || ent->s.weapon == WP_FLECHETTE ||
 				ent->s.weapon == WP_ROCKET_LAUNCHER)
 			{
-				if (ent->s.weapon == WP_FLECHETTE && (ent->s.eFlags & EF_ALT_FIRING))
+				if (ent->s.weapon == WP_FLECHETTE && Any(ent->s.eFlags & EF_ALT_FIRING))
 				{
 					/* fix: there are rare situations where flechette did
 					explode by timeout AND by impact in the very same frame, then here
@@ -689,7 +689,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			{
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 					/*ent->s.origin*/ent->r.currentOrigin, ent->damage,
-					0, ent->methodOfDeath);
+					DAMAGE_NORMAL, ent->methodOfDeath);
 				didDmg = true;
 			}
 
@@ -763,7 +763,7 @@ killProj:
 	if ( other->takedamage && other->client && !isKnockedSaber ) {
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
 		ent->s.otherEntityNum = other->s.number;
-	} else if( trace->surfaceFlags & SURF_METALSTEPS ) {
+	} else if( Any( trace->surfaceFlags & SURF_METALSTEPS ) ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_METAL, DirToByte( trace->plane.normal ) );
 	} else if (ent->s.weapon != G2_MODEL_PART && !isKnockedSaber) {
 		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( trace->plane.normal ) );
@@ -817,7 +817,7 @@ void G_RunMissile( gentity_t *ent ) {
 		return;
 	}
 
-	if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF))
+	if (ent->neverFree && ent->s.weapon == WP_SABER && Any( ent->flags & FL_BOUNCE_HALF ))
 	{
 		isKnockedSaber = true;
 		ent->s.pos.trType = TR_GRAVITY;
@@ -832,8 +832,8 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 	else {
 		// ignore interactions with the missile owner
-		if ( (ent->r.svFlags&SVF_OWNERNOTSHARED)
-			&& (ent->s.eFlags&EF_JETPACK_ACTIVE) )
+		if ( Any( ent->r.svFlags & SVF_OWNERNOTSHARED )
+			&& Any(ent->s.eFlags&EF_JETPACK_ACTIVE) )
 		{//A vehicle missile that should be solid to its owner
 			//I don't care about hitting my owner
 			passent = ent->s.number;
@@ -854,24 +854,24 @@ void G_RunMissile( gentity_t *ent ) {
 
 			if (g2Hit->inuse && g2Hit->client && g2Hit->ghoul2)
 			{ //since we used G2TRFLAG_GETSURFINDEX, tr.surfaceFlags will actually contain the index of the surface on the ghoul2 model we collided with.
-				g2Hit->client->g2LastSurfaceHit = tr.surfaceFlags;
+				g2Hit->client->g2LastSurfaceHit = Trace_G2SurfaceIndex( tr );
 				g2Hit->client->g2LastSurfaceTime = level.time;
 			}
 
 			if (g2Hit->ghoul2)
 			{
-				tr.surfaceFlags = 0; //clear the surface flags after, since we actually care about them in here.
+				tr.surfaceFlags = SURF_NONE; //clear the surface flags after, since we actually care about them in here.
 			}
 		}
 	}
 	else
 	{
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, false, 0, 0 );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, false, G2TRFLAG_NONE, 0 );
 	}
 
 	if ( tr.startsolid || tr.allsolid ) {
 		// make sure the tr.entityNum is set to the entity we're stuck in
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask, false, 0, 0 );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask, false, G2TRFLAG_NONE, 0 );
 		tr.fraction = 0;
 	}
 	else {
@@ -894,7 +894,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 		VectorCopy(ent->r.currentOrigin, lowerOrg);
 		lowerOrg[2] -= 1;
-		trap->Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask, false, 0, 0 );
+		trap->Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask, false, G2TRFLAG_NONE, 0 );
 
 		VectorCopy(trG.endpos, groundSpot);
 
@@ -910,7 +910,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 	if ( tr.fraction != 1) {
 		// never explode or bounce on sky
-		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+		if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) ) {
 			// If grapple, reset owner
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
 				ent->parent->client->hook = nullptr;
@@ -992,7 +992,7 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 
 passthrough:
-	if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK) )
+	if ( ent->s.pos.trType == TR_STATIONARY && Any(ent->s.eFlags&EF_MISSILE_STICK) )
 	{//stuck missiles should check some special stuff
 		G_RunStuckMissile( ent );
 		return;

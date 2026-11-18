@@ -41,7 +41,7 @@ void EA_Say(int client, char *str);
 void EA_SayTeam(int client, const char *str);
 void EA_Command(int client, char *command );
 
-void EA_Action(int client, int action);
+void EA_Action(int client, actionFlags_t action);
 void EA_Crouch(int client);
 void EA_Walk(int client);
 void EA_MoveUp(int client);

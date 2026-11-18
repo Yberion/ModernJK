@@ -76,7 +76,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		return true;
 
 	//See if we're looking for a navgoal
-	if ( goal->flags & FL_NAVGOAL )
+	if ( Any( goal->flags & FL_NAVGOAL ) )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( trace.endpos, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, goal->r.currentOrigin, NPCS.NPCInfo->goalRadius, FlyingCreature( NPCS.NPC ) ) )
@@ -195,7 +195,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPCS.NPC->watertype & CONTENTS_LADDER )
+	if ( Any( NPCS.NPC->watertype & CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -225,7 +225,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 		//FIXME: if we have a clear path to our goal (exluding bodies), but then this
 		//			check (against bodies only) fails, shouldn't we fall back
 		//			to macro navigation?  Like so:
-		if ( !(frameNavInfo.flags&NIF_MACRO_NAV) )
+		if ( !Any(frameNavInfo.flags&NIF_MACRO_NAV) )
 		{//we had a clear path to goal and didn't try macro nav, but can't avoid collision so try macro nav here
 			//See if we're just stuck
 			if ( NAV_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
@@ -276,7 +276,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPCS.NPC->watertype & CONTENTS_LADDER )
+	if ( Any( NPCS.NPC->watertype & CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -414,7 +414,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 	}
 
 	/*
-	if( NPC->s.eFlags & EF_LOCKED_TO_WEAPON )
+	if( Any( NPC->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{//If in an emplaced gun, never try to navigate!
 		return true;
 	}
@@ -434,7 +434,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 
 	//Convert the move to angles
 	vectoangles( dir, NPCS.NPCInfo->lastPathAngles );
-	if ( (NPCS.ucmd.buttons&BUTTON_WALKING) )
+	if ( Any(NPCS.ucmd.buttons&BUTTON_WALKING) )
 	{
 		NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 	}
@@ -456,7 +456,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 		NPCS.NPCInfo->desiredYaw		= AngleNormalize360( NPCS.NPCInfo->lastPathAngles[YAW] );
 
 		//Pitch towards the goal and also update if flying or swimming
-		if ( (NPCS.NPC->client->ps.eFlags2&EF2_FLYING) )//moveType == MT_FLYSWIM )
+		if ( Any(NPCS.NPC->client->ps.eFlags2&EF2_FLYING) )//moveType == MT_FLYSWIM )
 		{
 			NPCS.NPCInfo->desiredPitch = AngleNormalize360( NPCS.NPCInfo->lastPathAngles[PITCH] );
 

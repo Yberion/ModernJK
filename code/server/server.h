@@ -270,14 +270,14 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, gentity_t **elist, in
 // The world entity is never returned in this list.
 
 
-int SV_PointContents( const vec3_t p, int passEntityNum );
+contentsFlags_t SV_PointContents( const vec3_t p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
 /*
 Ghoul2 Insert Start
 */
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-			  const int passEntityNum, const int contentmask, const EG2_Collision eG2TraceType = G2_NOCOLLIDE, const int useLod = 0);
+			  const int passEntityNum, const contentsFlags_t contentmask, const EG2_Collision eG2TraceType = G2_NOCOLLIDE, const int useLod = 0);
 /*
 Ghoul2 Insert End
 */
@@ -331,19 +331,19 @@ enum class stripToken_t;	// qcommon/strip.cpp
 class cStrings
 {
 private:
-	unsigned int	Flags;
+	spStringFlags_t	Flags;
 	char			*Reference;
 
 public:
-					 cStrings(unsigned int initFlags = 0, char *initReference = nullptr);
+					 cStrings(spStringFlags_t initFlags = SP_FLAG_NONE, char *initReference = nullptr);
 	virtual			~cStrings(void);
 
 	virtual void	Clear(void);
 
-	void			SetFlags(unsigned int newFlags);
+	void			SetFlags(spStringFlags_t newFlags);
 	void			SetReference(char *newReference);
 
-	unsigned int	GetFlags(void) { return Flags; }
+	spStringFlags_t	GetFlags(void) { return Flags; }
 	char			*GetReference(void) { return Reference; }
 
 	virtual bool	UnderstandToken(stripToken_t token, char *data );
@@ -360,7 +360,7 @@ private:
 	void			SetText(const char *newText);
 
 public:
-					 cStringsSingle(unsigned int initFlags = 0, char *initReference = nullptr);
+					 cStringsSingle(spStringFlags_t initFlags = SP_FLAG_NONE, char *initReference = nullptr);
 	virtual			~cStringsSingle();
 
 	char			*GetText(void) { return Text; }

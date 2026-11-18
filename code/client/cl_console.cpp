@@ -412,8 +412,8 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
+	con_notifytime = Cvar_Get ("con_notifytime", "3", CVAR_NONE);
+	con_conspeed = Cvar_Get ("scr_conspeed", "3", CVAR_NONE);
 	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, false);
 
 	con_opacity = Cvar_Get ("con_opacity", "0.8", CVAR_ARCHIVE_ND);
@@ -566,7 +566,7 @@ Draw the editline after a ] prompt
 void Con_DrawInput (void) {
 	int		y;
 
-	if ( cls.state != CA_DISCONNECTED && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+	if ( cls.state != CA_DISCONNECTED && !Any(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
 		return;
 	}
 
@@ -849,7 +849,7 @@ void Con_DrawConsole( void ) {
 
 	// if disconnected, render console full screen
 	if ( cls.state == CA_DISCONNECTED ) {
-		if ( !( Key_GetCatcher( ) & KEYCATCH_UI) ) {
+		if ( !Any( Key_GetCatcher( ) & KEYCATCH_UI) ) {
 			Con_DrawSolidConsole( 1.0 );
 			return;
 		}
@@ -876,7 +876,7 @@ Scroll it up or down
 */
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 		con.finalFrac = con_height->value;
 	else
 		con.finalFrac = 0;				// none visible

@@ -116,7 +116,7 @@ protected:
 	sequencerResult_t AddAffect( bstream_t *bstream, int retain, int *id, CIcarus* icarus );
 
 	CSequence *AddSequence( CIcarus* icarus );
-	CSequence *AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlag_t flags, CIcarus* icarus );
+	CSequence *AddSequence( CSequence *parent, CSequence *returnSeq, CSequence::sequenceFlags_t flags, CIcarus* icarus );
 
 	CSequence *GetSequence( int id );
 

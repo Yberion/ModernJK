@@ -111,7 +111,7 @@ void DEMP2_AltRadiusDamage( gentity_t *ent )
 	{
 		gent = entityList[ e ];
 
-		if ( !gent->takedamage || !gent->contents )
+		if ( !gent->takedamage || !Any( gent->contents ) )
 		{
 			continue;
 		}

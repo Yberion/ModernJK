@@ -70,7 +70,7 @@ void NPC_MutantRancor_Precache( void )
 bool Rancor_CheckAhead( vec3_t end )
 {
 	trace_t	trace;
-	int clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
+	contentsFlags_t clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
 
 	//make sure our goal isn't underground (else the trace will fail)
 	vec3_t	bottom = {end[0],end[1],end[2]+NPC->mins[2]};
@@ -82,7 +82,7 @@ bool Rancor_CheckAhead( vec3_t end )
 
 	gi.trace( &trace, NPC->currentOrigin, NPC->mins, NPC->maxs, end, NPC->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
 		gi.trace( &trace, NPC->currentOrigin, NPC->mins, NPC->maxs, end, NPC->s.number, clipmask, G2_NOCOLLIDE, 0 );
@@ -173,7 +173,7 @@ void Rancor_Move( bool visible )
 		NPCInfo->goalRadius = NPC->maxs[0]+(MIN_DISTANCE*NPC->s.modelScale[0]);	// just get us within combat range
 		//FIXME: for some reason, if NPC_MoveToGoal fails, it sets my angles to my lastPathAngles, which I don't want
 		float savYaw = NPCInfo->desiredYaw;
-		bool	savWalking = !!(ucmd.buttons&BUTTON_WALKING);
+		bool	savWalking = !!Any(ucmd.buttons&BUTTON_WALKING);
 		if ( !NPC_MoveToGoal( true ) )
 		{//can't macro-nav, just head right for him
 			//FIXME: if something in the way that's not the world, set blocked ent
@@ -193,7 +193,7 @@ void Rancor_Move( bool visible )
 				VectorSubtract( dest, NPC->currentOrigin, NPC->client->ps.moveDir );
 				NPC->client->ps.speed = VectorNormalize( NPC->client->ps.moveDir );
 				NPCInfo->desiredYaw = vectoyaw( NPC->client->ps.moveDir );
-				if ( (ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
+				if ( Any(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
 				{
 					NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 				}
@@ -203,7 +203,7 @@ void Rancor_Move( bool visible )
 					{
 						NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
 					}
-					if ( !(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed < NPCInfo->stats.runSpeed )
+					if ( !Any(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed < NPCInfo->stats.runSpeed )
 					{
 						NPC->client->ps.speed = NPCInfo->stats.runSpeed;
 					}
@@ -407,7 +407,7 @@ void Rancor_Swing( int boltIndex, bool tryGrab )
 		//FIXME: also do a trace TO the bolt from where we are...?
 		if ( G_EntIsBreakable( trace.entityNum, NPC ) )
 		{
-			G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 100, 0, MOD_MELEE );
+			G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 100, DAMAGE_NORMAL, MOD_MELEE );
 		}
 		else
 		{//fuck, do an actual line trace, I guess...
@@ -420,7 +420,7 @@ void Rancor_Swing( int boltIndex, bool tryGrab )
 #endif
 			if ( G_EntIsBreakable( trace.entityNum, NPC ) )
 			{
-				G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, 0, MOD_MELEE );
+				G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, DAMAGE_NORMAL, MOD_MELEE );
 			}
 		}
 	}
@@ -442,13 +442,13 @@ void Rancor_Swing( int boltIndex, bool tryGrab )
 			continue;
 		}
 
-		if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR)
-			||(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_WAMPA) )
+		if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR)
+			||Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_WAMPA) )
 		{//can't be one already being held
 			continue;
 		}
 
-		if ( (radiusEnts[i]->s.eFlags&EF_NODRAW) )
+		if ( Any(radiusEnts[i]->s.eFlags&EF_NODRAW) )
 		{//not if invisible
 			continue;
 		}
@@ -539,7 +539,7 @@ void Rancor_Swing( int boltIndex, bool tryGrab )
 				AngleVectors( angs, pushDir, nullptr, nullptr );
 				if ( radiusEnts[i]->client->NPC_class != CLASS_RANCOR
 					&& radiusEnts[i]->client->NPC_class != CLASS_ATST
-					&& !(radiusEnts[i]->flags&FL_NO_KNOCKBACK) )
+					&& !Any( radiusEnts[i]->flags & FL_NO_KNOCKBACK ) )
 				{
 					G_Throw( radiusEnts[i], pushDir, 250 );
 					if ( radiusEnts[i]->health > 0 )
@@ -584,7 +584,7 @@ void Rancor_Smash( void )
 		//FIXME: also do a trace TO the bolt from where we are...?
 		if ( G_EntIsBreakable( trace.entityNum, NPC ) )
 		{
-			G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, 0, MOD_MELEE );
+			G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, DAMAGE_NORMAL, MOD_MELEE );
 		}
 		else
 		{//fuck, do an actual line trace, I guess...
@@ -597,7 +597,7 @@ void Rancor_Smash( void )
 #endif
 			if ( G_EntIsBreakable( trace.entityNum, NPC ) )
 			{
-				G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, 0, MOD_MELEE );
+				G_Damage( &g_entities[trace.entityNum], NPC, NPC, vec3_origin, boltOrg, 200, DAMAGE_NORMAL, MOD_MELEE );
 			}
 		}
 	}
@@ -620,18 +620,18 @@ void Rancor_Smash( void )
 			{//damage breakables within range, but not as much
 				if ( !Q_irand( 0, 1 ) )
 				{
-					G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, radiusEnts[i]->currentOrigin, 100, 0, MOD_MELEE );
+					G_Damage( radiusEnts[i], NPC, NPC, vec3_origin, radiusEnts[i]->currentOrigin, 100, DAMAGE_NORMAL, MOD_MELEE );
 				}
 			}
 			continue;
 		}
 
-		if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
+		if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
 		{//can't be one being held
 			continue;
 		}
 
-		if ( (radiusEnts[i]->s.eFlags&EF_NODRAW) )
+		if ( Any(radiusEnts[i]->s.eFlags&EF_NODRAW) )
 		{//not if invisible
 			continue;
 		}
@@ -706,12 +706,12 @@ void Rancor_Bite( void )
 			continue;
 		}
 
-		if ( (radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
+		if ( Any(radiusEnts[i]->client->ps.eFlags&EF_HELD_BY_RANCOR) )
 		{//can't be one already being held
 			continue;
 		}
 
-		if ( (radiusEnts[i]->s.eFlags&EF_NODRAW) )
+		if ( Any(radiusEnts[i]->s.eFlags&EF_NODRAW) )
 		{//not if invisible
 			continue;
 		}
@@ -1203,7 +1203,7 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 	if ( other
 		&& other->inuse
 		&& other != self->enemy
-		&& !(other->flags&FL_NOTARGET) )
+		&& !Any( other->flags & FL_NOTARGET ) )
 	{
 		if ( !self->count )
 		{
@@ -1682,7 +1682,7 @@ void NPC_BSRancor_Default( void )
 			TIMER_Set( NPC, "idlenoise", Q_irand( 2000, 4000 ) );
 			AddSoundEvent( NPC, NPC->currentOrigin, 384, AEL_DANGER, false, false );
 		}
-		if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+		if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		{
 			Rancor_Patrol();
 			if ( !NPC->enemy && NPC->wait )

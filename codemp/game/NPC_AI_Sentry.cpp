@@ -368,7 +368,7 @@ void Sentry_Strafe( void )
 	dir = ( Q_irand( 0, 1 ) ) ? -1 : 1;
 	VectorMA( NPCS.NPC->r.currentOrigin, SENTRY_STRAFE_DIS * dir, right, end );
 
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -461,7 +461,7 @@ void Sentry_RangedAttack( bool visible, bool advance )
 		}
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		Sentry_Hunt( visible, advance );
 	}
@@ -516,7 +516,7 @@ void Sentry_AttackDecision( void )
 	// If we cannot see our target, move to see it
 	if ( visible == false )
 	{
-		if ( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+		if ( Any( NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 		{
 			Sentry_Hunt( visible, advance );
 			return;
@@ -585,7 +585,7 @@ void NPC_BSSentry_Default( void )
 		// Don't attack if waking up or if no enemy
 		Sentry_AttackDecision();
 	}
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		NPC_Sentry_Patrol();
 	}

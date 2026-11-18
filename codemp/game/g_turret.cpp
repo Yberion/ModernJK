@@ -153,7 +153,7 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 	vec3_t		org;
 	gentity_t	*bolt;
 
-	if ( (trap->PointContents( start, ent->s.number )&MASK_SHOT) )
+	if ( Any( trap->PointContents( start, ent->s.number )&MASK_SHOT ) )
 	{
 		return;
 	}
@@ -451,7 +451,7 @@ static bool turret_find_enemies( gentity_t *self )
 			// only attack clients
 			continue;
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -487,7 +487,7 @@ static bool turret_find_enemies( gentity_t *self )
 		VectorCopy( target->r.currentOrigin, org );
 		org[2] += target->r.maxs[2]*0.5f;
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -600,7 +600,7 @@ void turret_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
@@ -637,7 +637,7 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	self->spawnflags = (self->spawnflags ^ 1);
 
 	/*
-	if (( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	if (Any( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
 	{
 		self->s.frame = 1; // black
 	}

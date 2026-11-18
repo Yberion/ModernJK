@@ -195,11 +195,11 @@ bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 
 bool WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	//use first blade style for this blade
-	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE) )
+	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & SFL2_TRANSITION_DAMAGE ) )
 		return true;
 
 	//use second blade style for this blade
-	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2) )
+	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && Any( saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2 ) )
 		return true;
 
 	return false;
@@ -332,15 +332,15 @@ bool WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber )
 	if ( saber->bladeStyle2Start > 0
 		&& saber->numBlades > saber->bladeStyle2Start )
 	{
-		if ( (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE)
-			&& (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+		if ( Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE )
+			&& Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 		{//all blades are always on
 			return false;
 		}
 	}
 	else
 	{
-		if ( (saber->saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+		if ( Any( saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 		{//all blades are always on
 			return false;
 		}
@@ -385,8 +385,8 @@ void WP_SaberSetDefaults( saberInfo_t *saber, bool setColors = true )
 	saber->brokenSaber2 = nullptr;//if saber is actually hit by another saber, it can be cut in half/broken and will be replaced with this saber in your left hand
 //===NEW========================================================================================
 	//these values are global to the saber, like all of the ones above
-	saber->saberFlags = 0;					//see all the SFL_ flags
-	saber->saberFlags2 = 0;					//see all the SFL2_ flags
+	saber->saberFlags = SFL_NONE;					//see all the SFL_ flags
+	saber->saberFlags2 = SFL2_NONE;					//see all the SFL2_ flags
 	saber->spinSound = 0;					//none - if set, plays this sound as it spins when thrown
 	saber->swingSound[0] = 0;				//none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
 	saber->swingSound[1] = 0;				//none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
@@ -2049,7 +2049,7 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 	{
 		ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[saberNum].singleBladeStyle );
 	}
-	if ( saberNum == 1 && (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
+	if ( saberNum == 1 && Any( ent->client->ps.saber[1].saberFlags & SFL_TWO_HANDED ) )
 	{//not allowed to use a 2-handed saber as second saber
 		WP_RemoveSaber( ent, saberNum );
 		return;

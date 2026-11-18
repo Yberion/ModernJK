@@ -1210,7 +1210,7 @@ Returns true if bind command should be executed while user interface is shown
 ===================
 */
 static bool CL_BindUICommand( const char *cmd ) {
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 		return false;
 
 	if ( !Q_stricmp( cmd, "toggleconsole" ) )
@@ -1233,14 +1233,14 @@ void CL_ParseBinding( fakeAscii_t key, bool down, unsigned time )
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 	bool allCommands, allowUpCmds;
 
-	if( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == 0 )
+	if( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) ) )
 		return;
 	if( !kg.keys[Key_Upper( key )].binding || !kg.keys[Key_Upper( key )].binding[0] )
 		return;
 	Q_strncpyz( buf, kg.keys[Key_Upper( key )].binding, sizeof( buf ) );
 
 	// run all bind commands if console, ui, etc aren't reading keys
-	allCommands = ( Key_GetCatcher( ) == 0 );
+	allCommands = !Any( Key_GetCatcher( ) );
 
 	// allow button up commands if in game even if key catcher is set
 	allowUpCmds = ( cls.state != CA_DISCONNECTED );
@@ -1329,7 +1329,7 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 	}
 
 	// keys can still be used for bound actions
-	if ( cls.state == CA_CINEMATIC && !Key_GetCatcher() ) {
+	if ( cls.state == CA_CINEMATIC && !Any( Key_GetCatcher() ) ) {
 		if ( !com_cameraMode->integer ) {
 			Cvar_Set( "nextdemo", "" );
 			key = A_ESCAPE;
@@ -1338,26 +1338,26 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 
 	// escape is always handled special
 	if ( key == A_ESCAPE ) {
-		if ( !Key_ShiftDown() && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+		if ( !Key_ShiftDown() && Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
 			Con_ToggleConsole_f();
 			Key_ClearStates();
 			return;
 		}
 
-		if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
+		if ( Any( Key_GetCatcher() & KEYCATCH_MESSAGE ) ) {
 			// clear message mode
 			Message_Key( key );
 			return;
 		}
 
 		// escape always gets out of CGAME stuff
-		if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
+		if ( Any( Key_GetCatcher() & KEYCATCH_CGAME ) ) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 			CGVM_EventHandling( CGAME_EVENT_NONE );
 			return;
 		}
 
-		if ( !(Key_GetCatcher() & KEYCATCH_UI) ) {
+		if ( !Any(Key_GetCatcher() & KEYCATCH_UI) ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying )
 				UIVM_SetActiveMenu( UIMENU_INGAME );
 			else {
@@ -1377,23 +1377,23 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 
 	// distribute the key down event to the appropriate handler
 	// console
-	if ( Key_GetCatcher() & KEYCATCH_CONSOLE )
+	if ( Any( Key_GetCatcher() & KEYCATCH_CONSOLE ) )
 		Console_Key( key );
 	else if ( cls.cursorActive ) {
 		CL_CursorButton( key );
 	}
 	// ui
-	else if ( Key_GetCatcher() & KEYCATCH_UI ) {
+	else if ( Any( Key_GetCatcher() & KEYCATCH_UI ) ) {
 		if ( cls.uiStarted && !cls.cursorActive )
 			UIVM_KeyEvent( key, true );
 	}
 	// cgame
-	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
+	else if ( Any( Key_GetCatcher() & KEYCATCH_CGAME ) ) {
 		if ( cls.cgameStarted && !cls.cursorActive )
 			CGVM_KeyEvent( key, true );
 	}
 	// chatbox
-	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE )
+	else if ( Any( Key_GetCatcher() & KEYCATCH_MESSAGE ) )
 		Message_Key( key );
 	// console
 	else if ( cls.state == CA_DISCONNECTED )
@@ -1430,9 +1430,9 @@ void CL_KeyUpEvent( fakeAscii_t key, unsigned time )
 	//
 	CL_ParseBinding( key, false, time );
 
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.uiStarted )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) && cls.uiStarted )
 		UIVM_KeyEvent( key, false );
-	else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cls.cgameStarted )
+	else if ( Any( Key_GetCatcher( ) & KEYCATCH_CGAME ) && cls.cgameStarted )
 		CGVM_KeyEvent( key, false );
 }
 
@@ -1463,10 +1463,10 @@ void CL_CharEvent( int key ) {
 		return;
 
 	// distribute the key down event to the appropriate handler
-		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )		Field_CharEvent( &g_consoleField, key );
-	else if ( Key_GetCatcher() & KEYCATCH_UI )			UIVM_KeyEvent( key|K_CHAR_FLAG, true );
-	else if ( Key_GetCatcher() & KEYCATCH_CGAME )		CGVM_KeyEvent( key|K_CHAR_FLAG, true );
-	else if ( Key_GetCatcher() & KEYCATCH_MESSAGE )		Field_CharEvent( &chatField, key );
+		 if ( Any( Key_GetCatcher() & KEYCATCH_CONSOLE ) )		Field_CharEvent( &g_consoleField, key );
+	else if ( Any( Key_GetCatcher() & KEYCATCH_UI ) )			UIVM_KeyEvent( key|K_CHAR_FLAG, true );
+	else if ( Any( Key_GetCatcher() & KEYCATCH_CGAME ) )		CGVM_KeyEvent( key|K_CHAR_FLAG, true );
+	else if ( Any( Key_GetCatcher() & KEYCATCH_MESSAGE ) )		Field_CharEvent( &chatField, key );
 	else if ( cls.state == CA_DISCONNECTED )			Field_CharEvent( &g_consoleField, key );
 }
 
@@ -1486,14 +1486,14 @@ void Key_ClearStates( void ) {
 	}
 }
 
-static int keyCatchers = 0;
+static keyCatchFlags_t keyCatchers = KEYCATCH_NONE;
 
 /*
 ====================
 Key_GetCatcher
 ====================
 */
-int Key_GetCatcher( void ) {
+keyCatchFlags_t Key_GetCatcher( void ) {
 	return keyCatchers;
 }
 
@@ -1502,7 +1502,7 @@ int Key_GetCatcher( void ) {
 Key_SetCatcher
 ====================
 */
-void Key_SetCatcher( int catcher ) {
+void Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// If the catcher state is changing, clear all key states
 	if ( catcher != keyCatchers )
 		Key_ClearStates();

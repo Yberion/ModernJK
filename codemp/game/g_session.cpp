@@ -164,7 +164,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, bool isBot ) {
 
 	// initial team determination
 	if ( level.gametype >= GT_TEAM ) {
-		if ( g_teamAutoJoin.integer && !(g_entities[client-level.clients].r.svFlags & SVF_BOT) ) {
+		if ( g_teamAutoJoin.integer && !Any( g_entities[client-level.clients].r.svFlags & SVF_BOT ) ) {
 			sess->sessionTeam = PickTeam( -1 );
 			client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 		} else {

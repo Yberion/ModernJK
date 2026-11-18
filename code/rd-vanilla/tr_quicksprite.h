@@ -33,7 +33,7 @@ class CQuickSpriteSystem
 {
 private:
 			textureBundle_t	*mTexBundle;
-			uint32_t	mGLStateBits;
+			glStateBits_t	mGLStateBits;
 			int				mFogIndex;
 			bool		mUseFog;
 			vec4_t			mVerts[SHADER_MAX_VERTEXES];
@@ -49,7 +49,7 @@ public:
 			CQuickSpriteSystem(void);
 			~CQuickSpriteSystem(void);
 
-			void StartGroup(textureBundle_t *bundle, uint32_t glbits, int fogIndex = -1);
+			void StartGroup(textureBundle_t *bundle, glStateBits_t glbits, int fogIndex = -1);
 			void EndGroup(void);
 
 			void Add(float *pointdata, color4ub_t color, vec2_t fog=nullptr);

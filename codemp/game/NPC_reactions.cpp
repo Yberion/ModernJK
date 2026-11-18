@@ -72,10 +72,10 @@ static void NPC_CheckAttacker( gentity_t *other, meansOfDeath_t mod )
 		return;
 
 	//Don't take a target that doesn't want to be
-	if ( other->flags & FL_NOTARGET )
+	if ( Any( other->flags & FL_NOTARGET ) )
 		return;
 
-//	if ( NPC->svFlags & SVF_LOCKEDENEMY )
+//	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 //	{//IF LOCKED, CANNOT CHANGE ENEMY!!!!!
 //		return;
 //	}
@@ -150,7 +150,7 @@ static void NPC_CheckAttacker( gentity_t *other, meansOfDeath_t mod )
 
 void NPC_SetPainEvent( gentity_t *self )
 {
-	if ( !self->NPC || !(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
+	if ( !self->NPC || !Any(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 	{
 		//if ( !Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
 		if (!trap->ICARUS_TaskIDPending((sharedEntity_t *)self, TID_CHAN_VOICE) && self->client)
@@ -303,7 +303,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 			}
 			else
 			{//play an anim
-				int parts;
+				setAnimParts_t parts;
 
 				if ( self->client->NPC_class == CLASS_GALAKMECH )
 				{//only has 1 for now
@@ -623,7 +623,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			NPCS.NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
 		}
 
-		if( /*!(self->svFlags&SVF_LOCKEDENEMY) && !(self->svFlags&SVF_IGNORE_ENEMIES) &&*/ !(other->flags & FL_NOTARGET) )
+		if( /*!Any( self->svFlags & SVF_LOCKEDENEMY ) && !Any( self->svFlags & SVF_IGNORE_ENEMIES ) &&*/ !Any( other->flags & FL_NOTARGET ) )
 		{
 			if ( self->client->enemyTeam != NPCTEAM_FREE )
 			{//See if we bumped into an enemy
@@ -654,7 +654,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//FIXME: check for SVF_NONNPC_ENEMY flag here?
 		if ( other->health > 0 )
 		{
-			//if ( NPC->enemy == other && (other->svFlags&SVF_NONNPC_ENEMY) )
+			//if ( NPC->enemy == other && Any( other->svFlags & SVF_NONNPC_ENEMY ) )
 			if (0) //rwwFIXMEFIXME: Can probably just check if num < MAX_CLIENTS for non-npc enemy stuff
 			{
 				NPCS.NPCInfo->touchedByPlayer = other;
@@ -683,7 +683,7 @@ void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int m
 		return;
 	}
 
-	if ( (self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( Any(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
 		return;
 	}
@@ -804,8 +804,8 @@ void NPC_Respond( gentity_t *self, int userNum )
 		if ( !self->enemy )
 		{
 			/*
-			if ( !(self->svFlags&SVF_IGNORE_ENEMIES)
-				&& (self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES)
+			if ( !Any( self->svFlags & SVF_IGNORE_ENEMIES )
+				&& Any(self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES)
 				&& self->client->enemyTeam == TEAM_ENEMY )
 				*/
 			if (0) //rwwFIXMEFIXME: support flags!
@@ -949,7 +949,7 @@ void NPC_Respond( gentity_t *self, int userNum )
 	if ( event != EV_NONE )
 	{
 		//hack here because we reuse some "combat" and "extra" sounds
-		bool addFlag = (self->NPC->scriptFlags&SCF_NO_COMBAT_TALK);
+		bool addFlag = Any(self->NPC->scriptFlags&SCF_NO_COMBAT_TALK);
 		self->NPC->scriptFlags &= ~SCF_NO_COMBAT_TALK;
 
 		G_AddVoiceEvent( self, event, 3000 );
@@ -1085,7 +1085,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 					G_ActivateBehavior( self, BSET_USE );
 				}
 			}
-			else if ( !self->enemy && activator->s.number == 0 && !trap->VoiceVolume[self->s.number] && !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			else if ( !self->enemy && activator->s.number == 0 && !trap->VoiceVolume[self->s.number] && !Any(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			{//I don't have an enemy and I'm not talking and I was used by the player
 				NPC_UseResponse( self, other, false );
 			}
@@ -1102,7 +1102,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 //		}
 		else if ( activator && !self->enemy
 			&& activator->s.number >= 0 && activator->s.number < MAX_CLIENTS
-			&& !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			&& !Any(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			//rwwFIXMEFIXME: voice volume support?
 		{//I don't have an enemy and I'm not talking and I was used by the player
 			NPC_UseResponse( self, other, false );

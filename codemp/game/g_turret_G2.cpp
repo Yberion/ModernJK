@@ -49,7 +49,7 @@ void G2Tur_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
-	int flags;
+	boneFlags_t flags;
 	orientations_t up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
 	vec3_t *freeBoneVec = nullptr;
@@ -291,7 +291,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 						MOD_UNKNOWN );
 	}
 
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 1; // black
 	}
@@ -357,7 +357,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 	vec3_t		org, ang;
 	gentity_t	*bolt;
 
-	if ( (trap->PointContents( start, ent->s.number )&MASK_SHOT) )
+	if ( Any( trap->PointContents( start, ent->s.number )&MASK_SHOT ) )
 	{
 		return;
 	}
@@ -428,7 +428,7 @@ void turretG2_respawn( gentity_t *self )
 	self->takedamage = true;
 	self->s.shouldtarget = true;
 	//self->s.owner = MAX_CLIENTS; //not owned by any client
-	if ( self->s.eFlags & EF_SHADER_ANIM )
+	if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 	{
 		self->s.frame = 0; // normal
 	}
@@ -727,7 +727,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 		if ( !target->client )
 		{
 			// only attack clients
-			if ( !(target->flags&FL_BBRUSH)//not a breakable brush
+			if ( !Any( target->flags & FL_BBRUSH )//not a breakable brush
 				|| !target->takedamage//is a bbrush, but invincible
 				|| (target->NPC_targetname&&self->targetname&&Q_stricmp(target->NPC_targetname,self->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me
 			{
@@ -735,7 +735,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 			}
 			//else: we will shoot at bbrushes!
 		}
-		if ( target == self || !target->takedamage || target->health <= 0 || ( target->flags & FL_NOTARGET ))
+		if ( target == self || !target->takedamage || target->health <= 0 || Any( target->flags & FL_NOTARGET ))
 		{
 			continue;
 		}
@@ -786,7 +786,7 @@ static bool turretG2_find_enemies( gentity_t *self )
 			org[2] += 5;
 		}
 
-		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -940,7 +940,7 @@ void turretG2_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
@@ -979,7 +979,7 @@ void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
 
-	if (( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	if (Any( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
 	{
 		self->s.frame = 1; // black
 	}

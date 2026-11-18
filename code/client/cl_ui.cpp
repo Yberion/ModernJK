@@ -138,7 +138,7 @@ static int FloatAsInt( float f )
 	return fi.i;
 }
 
-static void UI_Cvar_Create( const char *var_name, const char *var_value, int flags ) {
+static void UI_Cvar_Create( const char *var_name, const char *var_value, cvarFlags_t flags ) {
 	Cvar_Register( nullptr, var_name, var_value, flags );
 }
 
@@ -205,7 +205,7 @@ CL_InitUI
 */
 void CL_InitUI( void ) {
 #ifdef JK2_MODE
-	JK2SP_Register("keynames", 0	/*SP_REGISTER_REQUIRED*/);		// reference is KEYNAMES
+	JK2SP_Register("keynames", SP_REGISTER_NONE	/*SP_REGISTER_REQUIRED*/);		// reference is KEYNAMES
 #endif
 
 	uiimport_t	uii;
@@ -379,7 +379,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return 0;
 
 	case UI_CVAR_REGISTER:
-		Cvar_Register( (vmCvar_t *)VMA(1),(const char *) VMA(2),(const char *) VMA(3), args[4] );
+		Cvar_Register( (vmCvar_t *)VMA(1),(const char *) VMA(2),(const char *) VMA(3), static_cast<cvarFlags_t>( args[4] ) );
 		return 0;
 
 	case UI_CVAR_SET:
@@ -415,7 +415,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return FS_GetFileList( (const char *) VMA(1), (const char *) VMA(2), (char *) VMA(3), args[4] );
 
 	case UI_KEY_SETCATCHER:
-		Key_SetCatcher( args[1] );
+		Key_SetCatcher( static_cast<keyCatchFlags_t>( args[1] ) );
 		return 0;
 
 	case UI_KEY_CLEARSTATES:
@@ -453,7 +453,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 //		return PC_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
 	case UI_KEY_GETCATCHER:
-		return Key_GetCatcher();
+		return to_underlying( Key_GetCatcher() );
 
 	case UI_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -471,7 +471,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 
 	case UI_CIN_PLAYCINEMATIC:
 	  Com_DPrintf("UI_CIN_PlayCinematic\n");
-	  return CIN_PlayCinematic((const char *)VMA(1), args[2], args[3], args[4], args[5], args[6], (const char *)VMA(7));
+	  return CIN_PlayCinematic((const char *)VMA(1), args[2], args[3], args[4], args[5], static_cast<cinematicFlags_t>( args[6] ), (const char *)VMA(7));
 
 	case UI_CIN_STOPCINEMATIC:
 	  return to_underlying( CIN_StopCinematic(args[1]) );

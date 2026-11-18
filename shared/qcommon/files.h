@@ -37,10 +37,17 @@ issues.
 
 // referenced flags
 // these are in loop specific order so don't change the order
-#define FS_GENERAL_REF	0x01
-#define FS_UI_REF		0x02
-#define FS_CGAME_REF	0x04
-#define FS_GAME_REF		0x08
+enum class fsRefFlags_t
+{
+	FS_NONE			= 0,
+	FS_GENERAL_REF	= 0x01,
+	FS_UI_REF		= 0x02,
+	FS_CGAME_REF	= 0x04,
+	FS_GAME_REF		= 0x08,
+	FS_ALL_REF		= FS_GENERAL_REF | FS_UI_REF | FS_CGAME_REF | FS_GAME_REF,
+};
+using enum fsRefFlags_t;
+template <> inline constexpr bool enableEnumFlags<fsRefFlags_t> = true;
 // number of id paks that will never be autodownloaded from base
 #define NUM_ID_PAKS		9
 
@@ -168,7 +175,7 @@ const char *FS_ReferencedPakPureChecksums( void );
 // AND referenced pk3 files. Servers with sv_pure set will get this string
 // back from clients for pure validation
 
-void FS_ClearPakReferences( int flags );
+void FS_ClearPakReferences( fsRefFlags_t flags );
 // clears referenced booleans on loaded pk3s
 
 void FS_PureServerSetReferencedPaks( const char *pakSums, const char *pakNames );

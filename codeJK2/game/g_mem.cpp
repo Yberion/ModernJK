@@ -49,7 +49,7 @@ void *G_Alloc( int size ) {
 
 void G_InitMemory( void ) {
 	allocPoint = 0;
-	g_debugalloc = gi.cvar ("g_debugalloc", "0", 0);
+	g_debugalloc = gi.cvar ("g_debugalloc", "0", CVAR_NONE);
 }
 
 void Svcmd_GameMem_f( void ) {

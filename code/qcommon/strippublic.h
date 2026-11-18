@@ -54,27 +54,39 @@ using enum spLanguage_t;
 #define SP_GET_PACKAGE(x) ( (x & SP_PACKAGE) >> 8 )
 
 // Flags
-#define SP_FLAG1				0x00000001	// CENTERED
-#define SP_FLAG2				0x00000002
-#define SP_FLAG3				0x00000004
-#define SP_FLAG4				0x00000008
-#define SP_FLAG5				0x00000010
-#define	SP_FLAG6				0x00000020
-#define	SP_FLAG7				0x00000040
-#define	SP_FLAG8				0x00000080
-#define	SP_FLAG9				0x00000100
-#define SP_FLAG_ORIGINAL		0x00000200
+enum class spStringFlags_t
+{
+	SP_FLAG_NONE = 0,
+	SP_FLAG1				= 0x00000001,	// CENTERED
+	SP_FLAG2				= 0x00000002,
+	SP_FLAG3				= 0x00000004,
+	SP_FLAG4				= 0x00000008,
+	SP_FLAG5				= 0x00000010,
+	SP_FLAG6				= 0x00000020,
+	SP_FLAG7				= 0x00000040,
+	SP_FLAG8				= 0x00000080,
+	SP_FLAG9				= 0x00000100,
+	SP_FLAG_ORIGINAL		= 0x00000200,
+};
+using enum spStringFlags_t;
+template <> inline constexpr bool enableEnumFlags<spStringFlags_t> = true;
 
 // Registration
-#define SP_REGISTER_CLIENT	 (0x01)
-#define SP_REGISTER_SERVER	 (0x02)
-#define SP_REGISTER_MENU	 (0x04)
-#define SP_REGISTER_REQUIRED (0x08)
+enum class spRegistrationFlags_t
+{
+	SP_REGISTER_NONE = 0,
+	SP_REGISTER_CLIENT	 = (0x01),
+	SP_REGISTER_SERVER	 = (0x02),
+	SP_REGISTER_MENU	 = (0x04),
+	SP_REGISTER_REQUIRED = (0x08),
+};
+using enum spRegistrationFlags_t;
+template <> inline constexpr bool enableEnumFlags<spRegistrationFlags_t> = true;
 
 
 // Registration
-bool				JK2SP_Register(const char *Package, unsigned char Registration);
-void					JK2SP_Unload(unsigned char Registration);
+bool				JK2SP_Register(const char *Package, spRegistrationFlags_t Registration);
+void					JK2SP_Unload(spRegistrationFlags_t Registration);
 
 // Direct string functions
 int						JK2SP_GetStringID(const char *Reference);

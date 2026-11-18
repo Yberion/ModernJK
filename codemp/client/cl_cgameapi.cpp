@@ -99,7 +99,7 @@ void CGVM_EventHandling( cgameEvent_t type ) {
 	cge->EventHandling( type );
 }
 
-int CGVM_PointContents( void ) {
+contentsFlags_t CGVM_PointContents( void ) {
 	VMSwap v( cgvm );
 
 	return cge->PointContents();
@@ -274,7 +274,7 @@ static void CL_OpenUIMenu( uiMenuCommand_t menuID ) {
 	UIVM_SetActiveMenu( menuID );
 }
 
-static void CGFX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, vec3_t sRGB, vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, int flags ) {
+static void CGFX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, vec3_t sRGB, vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, fxPrimitiveFlags_t flags ) {
 	FX_AddLine( start, end, size1, size2, sizeParm, alpha1, alpha2, alphaParm, sRGB, eRGB, rgbParm, killTime, shader, flags );
 }
 
@@ -440,17 +440,17 @@ static void CL_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static bool CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+static bool CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
 
-static bool CL_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
+static bool CL_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAnim( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime );
 }
 
-static bool CL_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
+static bool CL_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex ) {
 	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetBoneAnim( g2, modelIndex, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList );
@@ -459,7 +459,8 @@ static bool CL_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int 
 static bool CL_G2API_GetBoneFrame( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex ) {
 	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
-	int iDontCare1 = 0, iDontCare2 = 0, iDontCare3 = 0;
+	int iDontCare1 = 0, iDontCare2 = 0;
+	boneFlags_t iDontCare3 = BONE_NONE;
 	float fDontCare1 = 0;
 
 	return re->G2API_GetBoneAnim(g2, modelIndex, boneName, currentTime, currentFrame, &iDontCare1, &iDontCare2, &iDontCare3, &fDontCare1, modelList);
@@ -566,7 +567,7 @@ static bool CL_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const c
 	return re->G2API_SetRootSurface( *((CGhoul2Info_v *)ghoul2), modelIndex, surfaceName );
 }
 
-static bool CL_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
+static bool CL_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags ) {
 	if ( !ghoul2 ) return false;
 	return re->G2API_SetSurfaceOnOff( *((CGhoul2Info_v *)ghoul2), surfaceName, flags );
 }
@@ -582,8 +583,8 @@ static bool CL_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *bo
 	return re->G2API_DoesBoneExist( g2, modelIndex, boneName );
 }
 
-static int CL_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, const char *surfaceName ) {
-	if ( !ghoul2 ) return -1;
+static std::optional<g2SurfaceFlags_t> CL_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, const char *surfaceName ) {
+	if ( !ghoul2 ) return std::nullopt;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetSurfaceRenderStatus( g2, modelIndex, surfaceName );
 }
@@ -628,7 +629,7 @@ static void CL_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
 	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.effectorsToTurnOff = params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }
@@ -721,7 +722,7 @@ static void CL_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelInde
 	strcpy( fillBuf, tmp );
 }
 
-static void CL_Key_SetCatcher( int catcher ) {
+static void CL_Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// Don't allow the cgame module to close the console
 	Key_SetCatcher( catcher | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
 }

@@ -85,7 +85,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 	}
 
 	if ( pSelfVeh//I have a vehicle struct
-		&& pSelfVeh->m_iRemovedSurfaces )//vehicle has bits removed
+		&& Any( pSelfVeh->m_iRemovedSurfaces ) )//vehicle has bits removed
 	{//spiralling to our deaths, explode on any solid impact
 		if ( hitEnt->s.NPC_class == CLASS_VEHICLE )
 		{//hit another vehicle, explode!
@@ -194,7 +194,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			bgEntity_t *hitEnt;
 #endif
 
-			if ( trace && !pSelfVeh->m_iRemovedSurfaces && !forceSurfDestruction )
+			if ( trace && !Any( pSelfVeh->m_iRemovedSurfaces ) && !forceSurfDestruction )
 			{
 				bool turnFromImpact = false, turnHitEnt = false;
 				float l = pm->ps->speed*0.5f;
@@ -553,7 +553,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				{
 					finalD = 1;
 				}
-				G_Damage( hitEnt, attackEnt, attackEnt, nullptr, pm->ps->origin, finalD, 0, MOD_MELEE );//FIXME: MOD_IMPACT
+				G_Damage( hitEnt, attackEnt, attackEnt, nullptr, pm->ps->origin, finalD, DAMAGE_NORMAL, MOD_MELEE );//FIXME: MOD_IMPACT
 			}
 #else	//this is gonna result in "double effects" for the client doing the prediction.
 		//it doesn't look bad though. could just use predicted events, but I'm too lazy.
@@ -630,7 +630,7 @@ bool PM_ClientImpact( trace_t *trace )
 	}
 
 	if ( !traceEnt
-		|| !(traceEnt->r.contents&pm->tracemask) )
+		|| !Any( traceEnt->r.contents&pm->tracemask ) )
 	{//it's dead or not in my way anymore, don't clip against it
 		return true;
 	}
@@ -768,7 +768,7 @@ bool	PM_SlideMove( bool gravity ) {
 		// out along it, which fixes some epsilon issues with
 		// non-axial planes
 		//
-		if ( !(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		if ( !Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 		{//no sliding if stuck to wall!
 			for ( i = 0 ; i < numplanes ; i++ ) {
 				if ( VectorCompare( normal, planes[i] ) ) {//DotProduct( normal, planes[i] ) > 0.99 ) {

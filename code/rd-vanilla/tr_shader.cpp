@@ -282,7 +282,7 @@ bool ParseVector( const char **text, int count, float *v ) {
 NameToAFunc
 ===============
 */
-static unsigned NameToAFunc( const char *funcname )
+static glStateBits_t NameToAFunc( const char *funcname )
 {
 	if ( !Q_stricmp( funcname, "GT0" ) )
 	{
@@ -302,7 +302,7 @@ static unsigned NameToAFunc( const char *funcname )
 	}
 
 	ri.Printf( PRINT_WARNING, "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname, shader.name );
-	return 0;
+	return GLS_NONE;
 }
 
 
@@ -311,7 +311,7 @@ static unsigned NameToAFunc( const char *funcname )
 NameToSrcBlendMode
 ===============
 */
-static int NameToSrcBlendMode( const char *name )
+static glStateBits_t NameToSrcBlendMode( const char *name )
 {
 	if ( !Q_stricmp( name, "GL_ONE" ) )
 	{
@@ -358,7 +358,7 @@ static int NameToSrcBlendMode( const char *name )
 NameToDstBlendMode
 ===============
 */
-static int NameToDstBlendMode( const char *name )
+static glStateBits_t NameToDstBlendMode( const char *name )
 {
 	if ( !Q_stricmp( name, "GL_ONE" ) )
 	{
@@ -1206,7 +1206,7 @@ ParseStage
 static bool ParseStage( shaderStage_t *stage, const char **text )
 {
 	char *token;
-	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
+	glStateBits_t depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = GLS_NONE, blendDstBits = GLS_NONE, atestBits = GLS_NONE, depthFuncBits = GLS_NONE;
 	bool depthMaskExplicit = false;
 
 	stage->active = true;
@@ -1383,7 +1383,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 
 			if ( !Q_stricmp( token, "lequal" ) )
 			{
-				depthFuncBits = 0;
+				depthFuncBits = GLS_NONE;
 			}
 			else if ( !Q_stricmp( token, "equal" ) )
 			{
@@ -1444,7 +1444,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 			// clear depth mask for blended surfaces
 			if ( !depthMaskExplicit )
 			{
-				depthMaskBits = 0;
+				depthMaskBits = GLS_NONE;
 			}
 		}
 		//
@@ -1763,7 +1763,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 	if ( ( blendSrcBits == GLS_SRCBLEND_ONE ) &&
 		 ( blendDstBits == GLS_DSTBLEND_ZERO ) )
 	{
-		blendDstBits = blendSrcBits = 0;
+		blendDstBits = blendSrcBits = GLS_NONE;
 		depthMaskBits = GLS_DEPTHMASK_TRUE;
 	}
 
@@ -2053,7 +2053,9 @@ void ParseSort( const char **text )
 
 typedef struct infoParm_s {
 	const char	*name;
-	uint32_t	clearSolid, surfaceFlags, contents;
+	contentsFlags_t	clearSolid;
+	surfaceFlags_t	surfaceFlags;
+	contentsFlags_t	contents;
 } infoParm_t;
 
 infoParm_t	infoParms[] = {
@@ -2144,8 +2146,8 @@ static void ParseMaterial( const char **text )
 	{
 		if ( !Q_stricmp( token, materialNames[i] ) )
 		{
-			shader.surfaceFlags &= ~MATERIAL_MASK;//safety, clear it first
-			shader.surfaceFlags |= i;
+			shader.surfaceFlags &= ~SURF_MaterialBits( MATERIAL_MASK );//safety, clear it first
+			shader.surfaceFlags |= SURF_MaterialBits( i );
 			break;
 		}
 	}
@@ -2448,7 +2450,7 @@ Ghoul2 Insert End
 	//
 	// ignore shaders that don't have any stages, unless it is a sky or fog
 	//
-	if ( s == 0 && !shader.sky && !(shader.contentFlags & CONTENTS_FOG ) ) {
+	if ( s == 0 && !shader.sky && !Any( shader.contentFlags & CONTENTS_FOG ) ) {
 		COM_EndParseSession();
 		return false;
 	}
@@ -2501,19 +2503,19 @@ SHADER OPTIMIZATION AND FOGGING
 */
 
 typedef struct {
-	int		blendA;
-	int		blendB;
+	glStateBits_t	blendA;
+	glStateBits_t	blendB;
 
 	int		multitextureEnv;
-	int		multitextureBlend;
+	glStateBits_t	multitextureBlend;
 } collapse_t;
 
 static collapse_t	collapse[] = {
-	{ 0, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
-		GL_MODULATE, 0 },
+	{ GLS_NONE, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GL_MODULATE, GLS_NONE },
 
-	{ 0, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
-		GL_MODULATE, 0 },
+	{ GLS_NONE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GL_MODULATE, GLS_NONE },
 
 	{ GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
 		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
@@ -2527,16 +2529,15 @@ static collapse_t	collapse[] = {
 	{ GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
 		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
 
-	{ 0, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
-		GL_ADD, 0 },
+	{ GLS_NONE, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
+		GL_ADD, GLS_NONE },
 
 	{ GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
 		GL_ADD, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE },
 #if 0
-	{ 0, GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA,
-		GL_DECAL, 0 },
+	{ GLS_NONE, GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA,
+		GL_DECAL, GLS_NONE },
 #endif
-	{ -1 }
 };
 
 /*
@@ -2548,8 +2549,7 @@ FIXME: I think modulated add + modulated add collapses incorrectly
 =================
 */
 static bool CollapseMultitexture( void ) {
-	int abits, bbits;
-	int i;
+	glStateBits_t abits, bbits;
 	textureBundle_t tmpBundle;
 
 	if ( !qglActiveTextureARB ) {
@@ -2574,20 +2574,22 @@ static bool CollapseMultitexture( void ) {
 	bbits &= ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
 	// search for a valid multitexture blend function
-	for ( i = 0; collapse[i].blendA != -1 ; i++ ) {
-		if ( abits == collapse[i].blendA
-			&& bbits == collapse[i].blendB ) {
+	const collapse_t *c = nullptr;
+	for ( const collapse_t &entry : collapse ) {
+		if ( abits == entry.blendA
+			&& bbits == entry.blendB ) {
+			c = &entry;
 			break;
 		}
 	}
 
 	// nothing found
-	if ( collapse[i].blendA == -1 ) {
+	if ( !c ) {
 		return false;
 	}
 
 	// GL_ADD is a separate extension
-	if ( collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
+	if ( c->multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
 		return false;
 	}
 
@@ -2598,7 +2600,7 @@ static bool CollapseMultitexture( void ) {
 	}
 
 	// an add collapse can only have identity colors
-	if ( collapse[i].multitextureEnv == GL_ADD && stages[0].rgbGen != CGEN_IDENTITY ) {
+	if ( c->multitextureEnv == GL_ADD && stages[0].rgbGen != CGEN_IDENTITY ) {
 		return false;
 	}
 
@@ -2635,9 +2637,9 @@ static bool CollapseMultitexture( void ) {
 	}
 
 	// set the new blend state bits
-	shader.multitextureEnv = collapse[i].multitextureEnv;
+	shader.multitextureEnv = c->multitextureEnv;
 	stages[0].stateBits &= ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-	stages[0].stateBits |= collapse[i].multitextureBlend;
+	stages[0].stateBits |= c->multitextureBlend;
 
 	//
 	// move down subsequent shaders
@@ -2810,7 +2812,7 @@ static shader_t *GeneratePermanentShader( void ) {
 
 	if ( shader.sort <= /*SS_OPAQUE*/(float)SS_SEE_THROUGH ) {
 		newShader->fogPass = FP_EQUAL;
-	} else if ( shader.contentFlags & CONTENTS_FOG ) {
+	} else if ( Any( shader.contentFlags & CONTENTS_FOG ) ) {
 		newShader->fogPass = FP_LE;
 	}
 
@@ -3131,10 +3133,10 @@ static shader_t *FinishShader( void ) {
 		//
 		// determine sort order and fog color adjustment
 		//
-		if ( ( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
-			 ( stages[0].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) ) {
-			int blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
-			int blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+		if ( Any( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
+			 Any( stages[0].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) ) {
+			glStateBits_t blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
+			glStateBits_t blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
 
 			// fog color adjustment only works for blend modes that have a contribution
 			// that aproaches 0 as the modulate values aproach 0 --
@@ -3163,7 +3165,7 @@ static shader_t *FinishShader( void ) {
 			// don't screw with sort order if this is a portal or environment
 			if ( !shader.sort ) {
 				// see through item, like a grill or grate
-				if ( pStage->stateBits & GLS_DEPTHMASK_TRUE )
+				if ( Any( pStage->stateBits & GLS_DEPTHMASK_TRUE ) )
 				{
 					shader.sort = to_underlying( SS_SEE_THROUGH );
 				}
@@ -3200,11 +3202,11 @@ static shader_t *FinishShader( void ) {
 		{
 			pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;
 		}
-		else if ((pStage->stateBits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) == 0 && stage)
+		else if (!Any(pStage->stateBits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) && stage)
 		{	//
 			pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;
 		}
-		else if ((pStage->stateBits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) == 0 && pStage->bundle[0].isLightmap && stage < MAX_SHADER_STAGES-1 &&
+		else if (!Any(pStage->stateBits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) && pStage->bundle[0].isLightmap && stage < MAX_SHADER_STAGES-1 &&
 			stages[stage+1].bundle[0].isLightmap)
 		{	// multiple light map blending
 			pStage->mGLFogColorOverride = GLFOGOVERRIDE_WHITE;

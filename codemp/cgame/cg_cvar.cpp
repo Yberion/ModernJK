@@ -63,7 +63,7 @@ typedef struct cvarTable_s {
 	const char	*cvarName;
 	const char	*defaultString;
 	void		(*update)( void );
-	uint32_t	cvarFlags;
+	cvarFlags_t	cvarFlags;
 } cvarTable_t;
 
 #define XCVAR_DECL

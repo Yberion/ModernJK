@@ -107,11 +107,17 @@ typedef struct multiDef_s {
 	bool	strDef;
 } multiDef_t;
 
-#define CVAR_ENABLE		0x00000001
-#define CVAR_DISABLE	0x00000002
-#define CVAR_SHOW		0x00000004
-#define CVAR_HIDE		0x00000008
-#define CVAR_SUBSTRING	0x00000010	//when using enable or disable, just check for strstr instead of ==
+enum class itemCvarFlags_t
+{
+	CVAR_NOACTION = 0,	// no cvar test (CVAR_NONE is the engine's cvar flag)
+	CVAR_ENABLE		= 0x00000001,
+	CVAR_DISABLE	= 0x00000002,
+	CVAR_SHOW		= 0x00000004,
+	CVAR_HIDE		= 0x00000008,
+	CVAR_SUBSTRING	= 0x00000010,	//when using enable or disable, just check for strstr instead of ==
+};
+using enum itemCvarFlags_t;
+template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
 #define STRING_POOL_SIZE (2*1024*1024)
 
@@ -217,7 +223,7 @@ typedef struct {
 	//rww - ghoul2 stuff. Add whatever you need here, remember to set it in _UI_Init or it will crash when you try to use it.
 	bool	(*g2_SetSkin)(CGhoul2Info *ghlInfo, qhandle_t customSkin, qhandle_t renderSkin );
 	bool	(*g2_SetBoneAnim)(CGhoul2Info *ghlInfo, const char *boneName, const int startFrame, const int endFrame,
-					  const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+					  const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool	(*g2_RemoveGhoul2Model)(CGhoul2Info_v &ghlInfo, const int modelIndex);
 	int			(*g2_InitGhoul2Model)(CGhoul2Info_v &ghoul2, const char *fileName, int, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias);
 	void		(*g2_CleanGhoul2Models)(CGhoul2Info_v &ghoul2);
@@ -259,35 +265,41 @@ void UI_InitMemory( void );
 
 
 
-#define WINDOW_MOUSEOVER		0x00000001	// mouse is over it, non exclusive
-#define WINDOW_HASFOCUS			0x00000002	// has cursor focus, exclusive
-#define WINDOW_VISIBLE			0x00000004	// is visible
-#define WINDOW_INACTIVE			0x00000008	// is visible but grey ( non-active )
-#define WINDOW_DECORATION		0x00000010	// for decoration only, no mouse, keyboard, etc..
-#define WINDOW_FADINGOUT		0x00000020	// fading out, non-active
-#define WINDOW_FADINGIN			0x00000040	// fading in
-#define WINDOW_MOUSEOVERTEXT	0x00000080	// mouse is over it, non exclusive
-#define WINDOW_INTRANSITION		0x00000100	// window is in transition
-#define WINDOW_FORECOLORSET		0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
-#define WINDOW_HORIZONTAL		0x00000400	// for list boxes and sliders, vertical is default this is set of horizontal
-#define WINDOW_LB_LEFTARROW		0x00000800	// mouse is over left/up arrow
-#define WINDOW_LB_RIGHTARROW	0x00001000	// mouse is over right/down arrow
-#define WINDOW_LB_THUMB			0x00002000	// mouse is over thumb
-#define WINDOW_LB_PGUP			0x00004000	// mouse is over page up
-#define WINDOW_LB_PGDN			0x00008000	// mouse is over page down
-#define WINDOW_ORBITING			0x00010000	// item is in orbit
-#define WINDOW_OOB_CLICK		0x00020000	// close on out of bounds click
-#define WINDOW_WRAPPED			0x00040000	// manually wrap text
-#define WINDOW_AUTOWRAPPED		0x00080000	// auto wrap text
-#define WINDOW_FORCED			0x00100000	// forced open
-#define WINDOW_POPUP			0x00200000	// popup
-#define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set
-#define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
-#define WINDOW_PLAYERCOLOR		0x01000000	// hack the forecolor to match ui_char_color_*
-#define WINDOW_SCRIPTWAITING	0x02000000	// delayed script waiting to run
+enum class windowFlags_t
+{
+	WINDOW_NONE = 0,
+	WINDOW_MOUSEOVER		= 0x00000001,	// mouse is over it, non exclusive
+	WINDOW_HASFOCUS			= 0x00000002,	// has cursor focus, exclusive
+	WINDOW_VISIBLE			= 0x00000004,	// is visible
+	WINDOW_INACTIVE			= 0x00000008,	// is visible but grey ( non-active )
+	WINDOW_DECORATION		= 0x00000010,	// for decoration only, no mouse, keyboard, etc..
+	WINDOW_FADINGOUT		= 0x00000020,	// fading out, non-active
+	WINDOW_FADINGIN			= 0x00000040,	// fading in
+	WINDOW_MOUSEOVERTEXT	= 0x00000080,	// mouse is over it, non exclusive
+	WINDOW_INTRANSITION		= 0x00000100,	// window is in transition
+	WINDOW_FORECOLORSET		= 0x00000200,	// forecolor was explicitly set ( used to color alpha images or not )
+	WINDOW_HORIZONTAL		= 0x00000400,	// for list boxes and sliders, vertical is default this is set of horizontal
+	WINDOW_LB_LEFTARROW		= 0x00000800,	// mouse is over left/up arrow
+	WINDOW_LB_RIGHTARROW	= 0x00001000,	// mouse is over right/down arrow
+	WINDOW_LB_THUMB			= 0x00002000,	// mouse is over thumb
+	WINDOW_LB_PGUP			= 0x00004000,	// mouse is over page up
+	WINDOW_LB_PGDN			= 0x00008000,	// mouse is over page down
+	WINDOW_ORBITING			= 0x00010000,	// item is in orbit
+	WINDOW_OOB_CLICK		= 0x00020000,	// close on out of bounds click
+	WINDOW_WRAPPED			= 0x00040000,	// manually wrap text
+	WINDOW_AUTOWRAPPED		= 0x00080000,	// auto wrap text
+	WINDOW_FORCED			= 0x00100000,	// forced open
+	WINDOW_POPUP			= 0x00200000,	// popup
+	WINDOW_BACKCOLORSET		= 0x00400000,	// backcolor was explicitly set
+	WINDOW_TIMEDVISIBLE		= 0x00800000,	// visibility timing ( NOT implemented )
+	WINDOW_PLAYERCOLOR		= 0x01000000,	// hack the forecolor to match ui_char_color_*
+	WINDOW_SCRIPTWAITING	= 0x02000000,	// delayed script waiting to run
 //JLF MPMOVED
-#define WINDOW_INTRANSITIONMODEL	0x04000000	// delayed script waiting to run
-#define WINDOW_IGNORE_ESCAPE	0x08000000	// ignore normal closeall menus escape functionality
+	WINDOW_INTRANSITIONMODEL	= 0x04000000,	// delayed script waiting to run
+	WINDOW_IGNORE_ESCAPE	= 0x08000000,	// ignore normal closeall menus escape functionality
+};
+using enum windowFlags_t;
+template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 
 typedef struct {
 	float		x;							// horiz position
@@ -311,7 +323,7 @@ typedef struct {
 	int			ownerDraw;					// ownerDraw style
 	int			ownerDrawFlags;				// show flags for ownerdraw items
 	float		borderSize;					//
-	int			flags;						// visible, focus, mouseover, cursor
+	windowFlags_t	flags;						// visible, focus, mouseover, cursor
 	UIRectangle	rectEffects;				// for various effects
 	UIRectangle	rectEffects2;				// for various effects
 	int			offsetTime;					// time based value for various effects
@@ -350,12 +362,7 @@ typedef struct modelDef_s {
 	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
 } modelDef_t;
 
-#define ITF_G2VALID			0x0001					// indicates whether or not g2 instance is valid.
-#define ITF_ISCHARACTER		0x0002					// a character item, uses customRGBA
-#define ITF_ISSABER			0x0004					// first saber item, draws blade
-#define ITF_ISSABER2		0x0008					// second saber item, draws blade
-
-#define ITF_ISANYSABER		(ITF_ISSABER|ITF_ISSABER2)	//either saber
+#include "qcommon/q_clientflags.h"
 
 typedef struct itemDef_s {
 	Window		window;						// common positional, border, style, layout info
@@ -375,7 +382,7 @@ typedef struct itemDef_s {
 	void		*parent;					// menu owner
 	qhandle_t	asset;						// handle to asset
 	CGhoul2Info_v ghoul2;					// ghoul2 instance if available instead of a model.
-	int			flags;						// flags like g2valid, character, saber, saber2, etc.
+	itemModelFlags_t	flags;						// flags like g2valid, character, saber, saber2, etc.
 	const char	*mouseEnterText;			// mouse enter script
 	const char	*mouseExitText;				// mouse exit script
 	const char	*mouseEnter;				// mouse enter script
@@ -392,7 +399,7 @@ typedef struct itemDef_s {
 	const char	*cvar;						// associated cvar
 	const char	*cvarTest;					// associated cvar for enable actions
 	const char	*enableCvar;				// enable, disable, show, or hide based on value, this can contain a list
-	int			cvarFlags;					//	what type of action to take on cvarenables
+	itemCvarFlags_t	cvarFlags;					//	what type of action to take on cvarenables
 	sfxHandle_t focusSound;					//
 	int			numColors;					// number of color ranges
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];

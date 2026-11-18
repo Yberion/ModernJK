@@ -41,7 +41,7 @@ extern void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
 extern void CG_CubeOutline( vec3_t mins, vec3_t maxs, int time, unsigned int color, float alpha );
 extern bool FlyingCreature( gentity_t *ent );
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask );
 void NAV_StoreWaypoint( gentity_t *ent );
 
 extern vec3_t NPCDEBUG_RED;
@@ -208,7 +208,7 @@ NAV_ClearPathToPoint
 -------------------------
 */
 
-bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum )
+bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEntNum )
 {
 //	trace_t	trace;
 //	return NAV_CheckAhead( self, point, trace, clipmask|CONTENTS_BOTCLIP );
@@ -220,7 +220,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	if ( !gi.inPVS( self->currentOrigin, point ) )
 		return false;
 
-	if ( self->svFlags & SVF_NAVGOAL )
+	if ( Any( self->svFlags & SVF_NAVGOAL ) )
 	{
 		if ( !self->owner )
 		{
@@ -237,7 +237,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		VectorCopy( pmaxs, maxs );
 	}
 
-	if ( self->client || ( self->svFlags & SVF_NAVGOAL ) )
+	if ( self->client || Any( self->svFlags & SVF_NAVGOAL ) )
 	{
 		//Clients can step up things, or if this is a navgoal check, a client will be using this info
 		mins[2] += STEPSIZE;
@@ -249,11 +249,11 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 		}
 	}
 
-	if ( self->svFlags & SVF_NAVGOAL )
+	if ( Any( self->svFlags & SVF_NAVGOAL ) )
 	{
 		//Trace from point to navgoal
 		gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP)&~CONTENTS_BODY, G2_NOCOLLIDE, 0 );
-		if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
 			clipmask &= ~CONTENTS_BOTCLIP;
 			gi.trace( &trace, point, mins, maxs, self->currentOrigin, self->owner->s.number, (clipmask|CONTENTS_MONSTERCLIP)&~CONTENTS_BODY, G2_NOCOLLIDE, 0 );
@@ -299,7 +299,7 @@ bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t p
 	else
 	{
 		gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0);
-		if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+		if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 		{//started inside do not enter, so ignore them
 			clipmask &= ~CONTENTS_BOTCLIP;
 			gi.trace( &trace, self->currentOrigin, mins, maxs, point, self->s.number, clipmask|CONTENTS_MONSTERCLIP, G2_NOCOLLIDE, 0);
@@ -479,7 +479,7 @@ NAV_CheckAhead
 -------------------------
 */
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask )
 {
 	vec3_t	mins;
 
@@ -488,7 +488,7 @@ bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask )
 
 	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
@@ -744,7 +744,7 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 {
 	vec3_t	perp, cross, test;
 	float	avoidRadius;
-	int		extraClip = CONTENTS_BOTCLIP;
+	contentsFlags_t	extraClip = CONTENTS_BOTCLIP;
 
 	PerpendicularVector( perp, pathDir );
 	CrossProduct( pathDir, perp, cross );
@@ -756,7 +756,7 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 
 	trace_t	tr;
 	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
-	if ( tr.startsolid&&(tr.contents&CONTENTS_BOTCLIP) )
+	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		extraClip &= ~CONTENTS_BOTCLIP;
 		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
@@ -778,7 +778,7 @@ bool NAV_StackedCanyon( gentity_t *self, gentity_t *blocker, vec3_t pathDir )
 	VectorMA( blocker->currentOrigin, -avoidRadius, cross, test );
 
 	gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
-	if ( tr.startsolid&&(tr.contents&CONTENTS_BOTCLIP) )
+	if ( tr.startsolid&&Any( tr.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		extraClip &= ~CONTENTS_BOTCLIP;
 		gi.trace( &tr, test, self->mins, self->maxs, test, self->s.number, self->clipmask|extraClip, G2_NOCOLLIDE, 0 );
@@ -854,7 +854,7 @@ NAV_TestForBlocked
 -------------------------
 */
 
-bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags )
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, navInfoFlags_t &flags )
 {
 	if ( goal == nullptr )
 		return false;
@@ -921,7 +921,7 @@ bool NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info )
 			return false;
 
 		//If the above function said we're blocked, don't do the extra checks
-		if ( info.flags & NIF_BLOCKED )
+		if ( Any( info.flags & NIF_BLOCKED ) )
 			return true;
 
 		//See if we can get that entity to move out of our way
@@ -953,7 +953,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 	vec3_t	end;
 	trace_t	trace;
 	vec3_t	mins;
-	int		clipmask = (NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP;
+	contentsFlags_t	clipmask = (NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP;
 
 	//get the position for the test choice
 	navigator.GetNodePosition( endID, end );
@@ -963,7 +963,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 
 	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
-	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
+	if ( trace.startsolid&&Any( trace.contents&CONTENTS_BOTCLIP ) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
 		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
@@ -1039,7 +1039,7 @@ int NAV_TestBestNode( gentity_t *self, int startID, int endID, bool failEdge )
 					navigator.AddFailedEdge( self->s.number, startID, endID );
 				}
 			}
-			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && ((blocker->contents&CONTENTS_MONSTERCLIP)|| (blocker->contents&CONTENTS_BOTCLIP)) )
+			else if ( blocker->targetname && blocker->s.solid == SOLID_BMODEL && (Any( blocker->contents&CONTENTS_MONSTERCLIP )|| Any( blocker->contents&CONTENTS_BOTCLIP )) )
 			{//some other kind of do not enter entity brush that will probably be removed
 				//path is blocked by a removable brushent, mark it as such if instructed to do so
 				if ( failEdge )
@@ -1282,7 +1282,7 @@ void SP_waypoint ( gentity_t *ent )
 
 		unsigned int radius = waypoint_getRadius( ent );
 
-		ent->health = navigator.AddRawPoint( ent->currentOrigin, ent->spawnflags, radius );
+		ent->health = navigator.AddRawPoint( ent->currentOrigin, static_cast<navNodeFlags_t>( ent->spawnflags ), radius );
 		NAV_StoreWaypoint( ent );
 		G_FreeEntity(ent);
 		return;
@@ -1326,7 +1326,7 @@ void SP_waypoint_small (gentity_t *ent)
 			}
 		}
 
-		ent->health = navigator.AddRawPoint( ent->currentOrigin, ent->spawnflags, 2 );
+		ent->health = navigator.AddRawPoint( ent->currentOrigin, static_cast<navNodeFlags_t>( ent->spawnflags ), 2 );
 		NAV_StoreWaypoint( ent );
 		G_FreeEntity(ent);
 		return;

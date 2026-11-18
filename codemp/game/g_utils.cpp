@@ -484,9 +484,9 @@ Finally reworked PM_SetAnim to allow non-pmove calls, so we take our
 local anim index into account and make the call -rww
 =============
 */
-void BG_SetAnim(playerState_t *ps, animSet_t *animations, int setAnimParts,animNumber_t anim,int setAnimFlags);
+void BG_SetAnim(playerState_t *ps, animSet_t *animations, setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 
-void G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, animNumber_t anim, int setAnimFlags, int blendTime)
+void G_SetAnim(gentity_t *ent, usercmd_t *ucmd, setAnimParts_t setAnimParts, animNumber_t anim, setAnimFlags_t setAnimFlags, int blendTime)
 {
 #if 0 //old hackish way
 	pmove_t pmv;
@@ -560,7 +560,7 @@ gentity_t *G_PickTarget (char *targetname)
 
 void GlobalUse(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	if (!self || (self->flags & FL_INACTIVE))
+	if (!self || Any( self->flags & FL_INACTIVE ))
 	{
 		return;
 	}
@@ -743,7 +743,7 @@ static void G_SpewEntList(void)
 			else if (ent->freeAfterEvent)
 			{
 				numTempEnt++;
-				if (ent->s.eFlags & EF_SOUNDTRACKER)
+				if (Any( ent->s.eFlags & EF_SOUNDTRACKER ))
 				{
 					numTempEntST++;
 				}
@@ -1009,7 +1009,7 @@ void G_FreeEntity( gentity_t *ed ) {
 		G_FreeFakeClient(&ed->client);
 	}
 
-	if (ed->s.eFlags & EF_SOUNDTRACKER)
+	if (Any( ed->s.eFlags & EF_SOUNDTRACKER ))
 	{
 		int i = 0;
 		gentity_t *ent;
@@ -1341,10 +1341,10 @@ void G_MuteSound( int entnum, soundChannel_t channel )
 
 	e = &g_entities[entnum];
 
-	if (e && (e->s.eFlags & EF_SOUNDTRACKER))
+	if (e && Any(e->s.eFlags & EF_SOUNDTRACKER))
 	{
 		G_FreeEntity(e);
-		e->s.eFlags = 0;
+		e->s.eFlags = EF_NONE;
 	}
 }
 
@@ -1457,12 +1457,12 @@ bool ValidUseTarget( gentity_t *ent )
 		return false;
 	}
 
-	if ( ent->flags & FL_INACTIVE )
+	if ( Any( ent->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
 
-	if ( !(ent->r.svFlags & SVF_PLAYER_USABLE) )
+	if ( !Any( ent->r.svFlags & SVF_PLAYER_USABLE ) )
 	{//Check for flag that denotes BUTTON_USE useability
 		return false;
 	}
@@ -1629,7 +1629,7 @@ void TryUse( gentity_t *ent )
 	}
 
 	if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
-		(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time ||
+		Any(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time ||
 		(ent->client->ps.forceHandExtend != HANDEXTEND_NONE && ent->client->ps.forceHandExtend != HANDEXTEND_DRAGGING))
 	{
 		return;
@@ -1691,7 +1691,7 @@ void TryUse( gentity_t *ent )
 	VectorMA( src, USE_DISTANCE, vf, dest );
 
 	//Trace ahead to find a valid target
-	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, false, 0, 0 );
+	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, false, G2TRFLAG_NONE, 0 );
 
 	if ( trace.fraction == 1.0f || trace.entityNum == ENTITYNUM_NONE )
 	{
@@ -1864,7 +1864,7 @@ tryJetPack:
 		AngleVectors(fAng, fwd, nullptr, nullptr);
 
         VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
-		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, 0, 0);
+		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
 			ItemUse_UseDisp(ent, HI_AMMODISP);
@@ -1931,11 +1931,11 @@ void G_SetAngles( gentity_t *ent, vec3_t angles )
 	VectorCopy( angles, ent->s.apos.trBase );
 }
 
-bool G_ClearTrace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int ignore, int clipmask )
+bool G_ClearTrace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int ignore, contentsFlags_t clipmask )
 {
 	static	trace_t	tr;
 
-	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, false, 0, 0 );
+	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
@@ -1977,7 +1977,7 @@ bool G_CheckInSolid (gentity_t *self, bool fix)
 	VectorCopy(self->r.mins, mins);
 	mins[2] = 0;
 
-	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, false, 0, 0);
+	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, false, G2TRFLAG_NONE, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
 		return true;
@@ -2089,7 +2089,7 @@ void G_SpeechEvent( gentity_t *self, entity_event_t event )
 	G_AddEvent(self, event, 0);
 }
 
-bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
+bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask )
 {
 	trace_t	tr;
 	vec3_t	start, end;
@@ -2101,7 +2101,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 	{
 		VectorCopy( start, end );
 		end[i] += mins[i];
-		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, 0, 0 );
+		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			return false;
@@ -2110,7 +2110,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		{
 			VectorCopy( start, end );
 			end[i] += maxs[i]-(mins[i]*tr.fraction);
-			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, 0, 0 );
+			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
 				return false;
@@ -2123,7 +2123,7 @@ bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, in
 		}
 	}
 	//expanded it, now see if it's all clear
-	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, false, 0, 0 );
+	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
 		return false;

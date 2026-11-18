@@ -541,7 +541,7 @@ void SCR_PrecacheScreenshot()
 		return;
 	}
 
-	if (!Key_GetCatcher( ))
+	if (!Any( Key_GetCatcher( ) ))
 	{
 		// in-game...
 		//

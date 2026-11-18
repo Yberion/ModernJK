@@ -23,6 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "ghoul2/G2.h"
+
 #define UI_API_VERSION 3
 #define UI_LEGACY_API_VERSION 7
 
@@ -75,9 +77,9 @@ typedef struct uiImport_s {
 	int				(*RealTime)								( qtime_t *qtime );
 	int				(*MemoryRemaining)						( void );
 
-	void			(*Cvar_Create)							( const char *var_name, const char *var_value, uint32_t flags );
-	void			(*Cvar_InfoStringBuffer)				( int bit, char *buffer, int bufsize );
-	void			(*Cvar_Register)						( vmCvar_t *cvar, const char *var_name, const char *value, uint32_t flags );
+	void			(*Cvar_Create)							( const char *var_name, const char *var_value, cvarFlags_t flags );
+	void			(*Cvar_InfoStringBuffer)				( cvarFlags_t bit, char *buffer, int bufsize );
+	void			(*Cvar_Register)						( vmCvar_t *cvar, const char *var_name, const char *value, cvarFlags_t flags );
 	void			(*Cvar_Reset)							( const char *name );
 	void			(*Cvar_Set)								( const char *var_name, const char *value );
 	void			(*Cvar_SetValue)						( const char *var_name, float value );
@@ -106,9 +108,9 @@ typedef struct uiImport_s {
 	bool		(*Key_IsDown)							( fakeAscii_t keynum );
 	void			(*Key_KeynumToStringBuf)				( fakeAscii_t keynum, char *buf, int buflen );
 	void			(*Key_SetBinding)						( fakeAscii_t keynum, const char *binding );
-	int				(*Key_GetCatcher)						( void );
+	keyCatchFlags_t	(*Key_GetCatcher)						( void );
 	bool		(*Key_GetOverstrikeMode)				( void );
-	void			(*Key_SetCatcher)						( int catcher );
+	void			(*Key_SetCatcher)						( keyCatchFlags_t catcher );
 	void			(*Key_SetOverstrikeMode)				( bool state );
 
 	int				(*PC_AddGlobalDefine)					( char *define );
@@ -120,7 +122,7 @@ typedef struct uiImport_s {
 	int				(*PC_SourceFileAndLine)					( int handle, char *filename, int *line );
 
 	void			(*CIN_DrawCinematic)					( int handle );
-	int				(*CIN_PlayCinematic)					( const char *arg0, int xpos, int ypos, int width, int height, int bits );
+	int				(*CIN_PlayCinematic)					( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits );
 	e_status		(*CIN_RunCinematic)						( int handle );
 	void			(*CIN_SetExtents)						( int handle, int x, int y, int w, int h );
 	e_status		(*CIN_StopCinematic)					( int handle );
@@ -188,9 +190,9 @@ typedef struct uiImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
 	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
 	int				(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
@@ -201,7 +203,7 @@ typedef struct uiImport_s {
 	int				(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
 	void			(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
 	bool		(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
+	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags );
 	bool		(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
 	int				(*G2API_GetTime)						( void );
 	void			(*G2API_SetTime)						( int time, int clock );

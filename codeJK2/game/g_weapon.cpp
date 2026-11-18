@@ -175,7 +175,7 @@ void WP_Explode( gentity_t *self )
 
 // We need to have a dieFunc, otherwise G_Damage won't actually make us die.  I could modify G_Damage, but that entails too many changes
 //-----------------------------------------------------------------------------
-void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void WP_ExplosiveDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 //-----------------------------------------------------------------------------
 {
 	self->enemy = attacker;
@@ -509,7 +509,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 			{// ATST SIDE weapons
 				if ( ent->alt_fire )
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_light_blaster_cann" ) != G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -517,7 +517,7 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 				}
 				else
 				{
-					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) )
+					if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], "head_concussion_charger" ) != G2SURFACEFLAG_NONE )
 					{//don't have it!
 						return;
 					}
@@ -750,7 +750,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return; // can't use inactive gun
 	}
@@ -870,7 +870,7 @@ extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 
 		// FIXME: don't do this, we'll try and actually put the player in this beast
 		// move the player to the center of the gun
-//		activator->contents = 0;
+//		activator->contents = CONTENTS_NONE;
 //		VectorCopy( self->currentOrigin, activator->client->ps.origin );
 
 		SetClientViewAngle( activator, self->pos1 );
@@ -915,7 +915,7 @@ void emplaced_blow( gentity_t *ent )
 }
 
 //----------------------------------------------------------
-void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	vec3_t org;
 

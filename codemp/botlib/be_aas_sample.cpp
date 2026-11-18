@@ -75,7 +75,7 @@ int numaaslinks;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs)
+void AAS_PresenceTypeBoundingBox(presenceFlags_t presencetype, vec3_t mins, vec3_t maxs)
 {
 	int index;
 	//bounding box size for each presence type
@@ -326,13 +326,13 @@ int AAS_AreaCluster(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_AreaPresenceType(int areanum)
+presenceFlags_t AAS_AreaPresenceType(int areanum)
 {
-	if (!aasworld.loaded) return 0;
+	if (!aasworld.loaded) return PRESENCE_EMPTY;
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
 		botimport.Print(PRT_ERROR, "AAS_AreaPresenceType: invalid area number\n");
-		return 0;
+		return PRESENCE_EMPTY;
 	} //end if
 	return aasworld.areasettings[areanum].presencetype;
 } //end of the function AAS_AreaPresenceType
@@ -343,11 +343,11 @@ int AAS_AreaPresenceType(int areanum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_PointPresenceType(vec3_t point)
+presenceFlags_t AAS_PointPresenceType(vec3_t point)
 {
 	int areanum;
 
-	if (!aasworld.loaded) return 0;
+	if (!aasworld.loaded) return PRESENCE_EMPTY;
 
 	areanum = AAS_PointAreaNum(point);
 	if (!areanum) return PRESENCE_NONE;
@@ -409,7 +409,7 @@ float AAS_BoxOriginDistanceFromPlane(vec3_t normal, vec3_t mins, vec3_t maxs, in
 // Changes Globals:		-
 //===========================================================================
 bool AAS_AreaEntityCollision(int areanum, vec3_t start, vec3_t end,
-										int presencetype, int passent, aas_trace_t *trace)
+										presenceFlags_t presencetype, int passent, aas_trace_t *trace)
 {
 	int collision;
 	vec3_t boxmins, boxmaxs;
@@ -451,7 +451,7 @@ bool AAS_AreaEntityCollision(int areanum, vec3_t start, vec3_t end,
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, int presencetype,
+aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presencetype,
 																				int passent)
 {
 	int side, nodenum, tmpplanenum;
@@ -511,7 +511,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, int presencetype,
 #endif //AAS_SAMPLE_DEBUG
 			//botimport.Print(PRT_MESSAGE, "areanum = %d, must be %d\n", -nodenum, AAS_PointAreaNum(start));
 			//if can't enter the area because it hasn't got the right presence type
-			if (!(aasworld.areasettings[-nodenum].presencetype & presencetype))
+			if (!Any( aasworld.areasettings[-nodenum].presencetype & presencetype ))
 			{
 				//if the start point is still the initial start point
 				//NOTE: no need for epsilons because the points will be
@@ -1036,7 +1036,7 @@ aas_face_t *AAS_AreaGroundFace(int areanum, vec3_t point)
 		facenum = aasworld.faceindex[area->firstface + i];
 		face = &aasworld.faces[abs(facenum)];
 		//if this is a ground face
-		if (face->faceflags & FACE_GROUND)
+		if (Any( face->faceflags & FACE_GROUND ))
 		{
 			//get the up or down normal
 			if (aasworld.planes[face->planenum].normal[2] < 0) VectorNegate(up, normal);
@@ -1324,7 +1324,7 @@ aas_link_t *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-aas_link_t *AAS_LinkEntityClientBBox(vec3_t absmins, vec3_t absmaxs, int entnum, int presencetype)
+aas_link_t *AAS_LinkEntityClientBBox(vec3_t absmins, vec3_t absmaxs, int entnum, presenceFlags_t presencetype)
 {
 	vec3_t mins, maxs;
 	vec3_t newabsmins, newabsmaxs;

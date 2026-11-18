@@ -142,7 +142,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	float			totalFactor;
 	unsigned short	*startGridPos;
 
-	if (r_fullbright->integer || (tr.refdef.rdflags & RDF_doLAGoggles) )
+	if (r_fullbright->integer || Any(tr.refdef.rdflags & RDF_doLAGoggles) )
 	{
 		ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = 255.0;
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = 255.0;
@@ -150,7 +150,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		return;
 	}
 
-	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
+	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -283,7 +283,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 			refEntity_t refEnt;
 			refEnt.hModel = 0;
 			refEnt.ghoul2 = nullptr;
-			refEnt.renderfx = 0;
+			refEnt.renderfx = RF_NONE;
 			VectorCopy( gridOrg, refEnt.origin );
 			vectoangles( normal, refEnt.angles );
 			AnglesToAxis( refEnt.angles, refEnt.axis );
@@ -392,7 +392,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	//
 	// trace a sample point down to find ambient light
 	//
-	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
+	if ( Any( ent->e.renderfx & RF_LIGHTING_ORIGIN ) ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
@@ -402,7 +402,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if ( !(refdef->rdflags & RDF_NOWORLDMODEL )
+	if ( !Any(refdef->rdflags & RDF_NOWORLDMODEL )
 		&& tr.world->lightGridData ) {
 		R_SetupEntityLightingGrid( ent );
 	} else {
@@ -414,7 +414,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if (  ent->e.renderfx & RF_MORELIGHT  ) {
+	if (  Any( ent->e.renderfx & RF_MORELIGHT )  ) {
 		ent->ambientLight[0] += tr.identityLight * 96;
 		ent->ambientLight[1] += tr.identityLight * 96;
 		ent->ambientLight[2] += tr.identityLight * 96;

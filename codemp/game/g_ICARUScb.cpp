@@ -447,7 +447,7 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 	{
 		// Text on
 		// certain NPC's we always want to use subtitles regardless of subtitle setting
-		if (g_subtitles->integer == 1 || (ent->NPC && (ent->NPC->scriptFlags & SCF_USE_SUBTITLES) ) ) // Show all text
+		if (g_subtitles->integer == 1 || (ent->NPC && Any(ent->NPC->scriptFlags & SCF_USE_SUBTITLES) ) ) // Show all text
 		{
 			if ( in_camera)	// Cinematic
 			{
@@ -651,7 +651,7 @@ void Blocked_Mover( gentity_t *ent, gentity_t *other )
 	}
 
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, DAMAGE_NORMAL, MOD_CRUSH );
 	}
 }
 
@@ -1187,6 +1187,14 @@ Q3_GetFloat
   Argument		: float *value
 ============
 */
+// A script's get of a flag: 1 when it is set, 0 when not, like the gets of the other booleans (decided 18 November
+// 2026; the flag's bit was returned before)
+template <FlagEnum E>
+static float Q3_FlagValue( E bits )
+{
+	return Any( bits ) ? 1.0f : 0.0f;
+}
+
 int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 {
 	gentity_t	*ent = &g_entities[entID];
@@ -1414,7 +1422,7 @@ int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_NOTARGET://## %t="BOOL_TYPES" # Others won't pick you as enemy
-		*value = (ent->flags&FL_NOTARGET);
+		*value = Q3_FlagValue( ent->flags & FL_NOTARGET );
 		break;
 	case SET_DONTFIRE://## %t="BOOL_TYPES" # Don't fire your weapon
 		return 0;
@@ -1452,10 +1460,10 @@ int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 		break;
 
 	case SET_SOLID://## %t="BOOL_TYPES" # Make yourself notsolid or solid
-		*value = ent->r.contents;
+		*value = static_cast<int>( to_underlying( ent->r.contents ) );
 		break;
 	case SET_PLAYER_USABLE://## %t="BOOL_TYPES" # Can be activateby the player's "use" button
-		*value = (ent->r.svFlags&SVF_PLAYER_USABLE);
+		*value = Q3_FlagValue( ent->r.svFlags & SVF_PLAYER_USABLE );
 		break;
 	case SET_LOOP_ANIM://## %t="BOOL_TYPES" # For non-NPCs: loop your animation sequence
 		return 0;
@@ -1468,7 +1476,7 @@ int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_INVISIBLE://## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
-		*value = (ent->s.eFlags&EF_NODRAW);
+		*value = Q3_FlagValue( ent->s.eFlags&EF_NODRAW );
 		break;
 	case SET_VAMPIRE://## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
 		return 0;
@@ -1497,7 +1505,7 @@ int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_NO_KNOCKBACK://## %t="BOOL_TYPES" # Stops this ent from taking knockback from weapons
-		*value = (ent->flags&FL_NO_KNOCKBACK);
+		*value = Q3_FlagValue( ent->flags & FL_NO_KNOCKBACK );
 		break;
 	case SET_ALT_FIRE://## %t="BOOL_TYPES" # Force NPC to use altfire when shooting
 		return 0;
@@ -1506,7 +1514,7 @@ int Q3_GetFloat( int entID, icarusToken_t type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_INVINCIBLE://## %t="BOOL_TYPES" # Completely unkillable
-		*value = (ent->flags&FL_GODMODE);
+		*value = Q3_FlagValue( ent->flags & FL_GODMODE );
 		break;
 	case SET_MISSIONSTATUSACTIVE:	//# Turns on Mission Status Screen
 		return 0;
@@ -3094,7 +3102,7 @@ static void Q3_SetInvisible( int entID, bool invisible )
 		{
 			self->client->ps.eFlags |= EF_NODRAW;
 		}
-		self->r.contents = 0;
+		self->r.contents = CONTENTS_NONE;
 	}
 	else
 	{
@@ -5074,7 +5082,7 @@ SolidifyOwner
 */
 void SolidifyOwner( gentity_t *self )
 {
-	int oldContents;
+	contentsFlags_t oldContents;
 	gentity_t *owner = &g_entities[self->r.ownerNum];
 
 	self->nextthink = level.time + FRAMETIME;
@@ -5118,7 +5126,7 @@ static bool Q3_SetSolid( int entID, bool solid)
 
 	if ( solid )
 	{//FIXME: Presumption
-		int oldContents = ent->r.contents;
+		contentsFlags_t oldContents = ent->r.contents;
 		ent->r.contents = CONTENTS_BODY;
 		if ( SpotWouldTelefrag2( ent, ent->r.currentOrigin ) )
 		{
@@ -5136,9 +5144,9 @@ static bool Q3_SetSolid( int entID, bool solid)
 	}
 	else
 	{//FIXME: Presumption
-		if ( ent->s.eFlags & EF_NODRAW )
+		if ( Any( ent->s.eFlags & EF_NODRAW ) )
 		{//We're invisible too, so set contents to none
-			ent->r.contents = 0;
+			ent->r.contents = CONTENTS_NONE;
 		}
 		else
 		{

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 #define AMMO_POD_HEALTH				1
-#define TURN_OFF					0x00000100
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 #define VELOCITY_DECAY		0.25
 #define MAX_DISTANCE		256
@@ -371,7 +371,7 @@ void NPC_BSMark2_Default( void )
 		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 		Mark2_AttackDecision();
 	}
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Mark2_Patrol();
 	}

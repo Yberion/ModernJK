@@ -142,7 +142,7 @@ typedef struct aas_routingcache_s
 	int areanum;								//area the cache is created for
 	vec3_t origin;								//origin within the area
 	float starttraveltime;						//travel time to start with
-	int travelflags;							//combinations of the travel flags
+	travelFlags_t travelflags;							//combinations of the travel flags
 	struct aas_routingcache_s *prev, *next;
 	struct aas_routingcache_s *time_prev, *time_next;
 	unsigned char *reachabilities;				//reachabilities used for routing
@@ -250,9 +250,9 @@ typedef struct aas_s
 	int maxclients;
 	aas_entity_t *entities;
 	//index to retrieve travel flag for a travel type
-	int travelflagfortype[MAX_TRAVELTYPES];
+	EnumArray<travelFlags_t, travelTypeFlags_t, MAX_TRAVELTYPES> travelflagfortype;
 	//travel flags for each area based on contents
-	int *areacontentstravelflags;
+	travelFlags_t *areacontentstravelflags;
 	//routing update
 	aas_routingupdate_t *areaupdate;
 	aas_routingupdate_t *portalupdate;

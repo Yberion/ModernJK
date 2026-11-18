@@ -77,7 +77,7 @@ bool NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 		return true;
 
 	//See if we're looking for a navgoal
-	if ( goal->svFlags & SVF_NAVGOAL )
+	if ( Any( goal->svFlags & SVF_NAVGOAL ) )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
 		if ( NAV_HitNavGoal( trace.endpos, NPC->mins, NPC->maxs, goal->currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )
@@ -197,7 +197,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPC->watertype & CONTENTS_LADDER )
+	if ( Any( NPC->watertype & CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -227,7 +227,7 @@ bool NPC_GetMoveDirection( vec3_t out, float *distance )
 		//FIXME: if we have a clear path to our goal (exluding bodies), but then this
 		//			check (against bodies only) fails, shouldn't we fall back
 		//			to macro navigation?  Like so:
-		if ( !(frameNavInfo.flags&NIF_MACRO_NAV) )
+		if ( !Any(frameNavInfo.flags&NIF_MACRO_NAV) )
 		{//we had a clear path to goal and didn't try macro nav, but can't avoid collision so try macro nav here
 			//See if we're just stuck
 			if ( NAV_MoveToGoal( NPC, frameNavInfo ) == WAYPOINT_NONE )
@@ -279,7 +279,7 @@ bool NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, bool tryStraight
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPC->watertype & CONTENTS_LADDER )
+	if ( Any( NPC->watertype & CONTENTS_LADDER ) )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return true;
@@ -412,7 +412,7 @@ bool NPC_MoveToGoal( bool tryStraight )
 		return true;
 	}
 
-	if( NPC->s.eFlags & EF_LOCKED_TO_WEAPON )
+	if( Any( NPC->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{//If in an emplaced gun, never try to navigate!
 		return true;
 	}

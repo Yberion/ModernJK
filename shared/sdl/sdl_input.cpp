@@ -196,7 +196,7 @@ static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_t *key )
 	// with num lock, keypad keys type digits in the console, chat and menus; in game, and while the UI waits for a
 	// key to bind, they stay KP_* keys (they used to become digits everywhere, so KP_* binds never fired)
 	static cvar_t *com_waitingForKey = Cvar_Get( "com_waitingForKey", "0", CVAR_TEMP );
-	if ( IN_NumLockEnabled() && Key_GetCatcher() && !com_waitingForKey->integer )
+	if ( IN_NumLockEnabled() && Any( Key_GetCatcher() ) && !com_waitingForKey->integer )
 	{
 		switch ( keysym->sym )
 		{
@@ -269,7 +269,7 @@ static bool IN_ModTogglesConsole( int mod ) {
 		return !!(mod & KMOD_SHIFT);
 	case 1:
 	default:
-		return ((mod & KMOD_SHIFT) || (Key_GetCatcher() & KEYCATCH_CONSOLE));
+		return ((mod & KMOD_SHIFT) || Any(Key_GetCatcher() & KEYCATCH_CONSOLE));
 	}
 }
 
@@ -1170,7 +1170,7 @@ void IN_Frame (void) {
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
 	loading = ( cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE );
 
-	if( !cls.glconfig.isFullscreen && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !cls.glconfig.isFullscreen && Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );

@@ -450,16 +450,6 @@ usercmd_t communication
 ============================================================================
 */
 
-// ms is allways sent, the others are optional
-#define	CM_ANGLE1 	(1<<0)
-#define	CM_ANGLE2 	(1<<1)
-#define	CM_ANGLE3 	(1<<2)
-#define	CM_FORWARD	(1<<3)
-#define	CM_SIDE		(1<<4)
-#define	CM_UP		(1<<5)
-#define	CM_BUTTONS	(1<<6)
-#define CM_WEAPON	(1<<7)
-
 /*
 =====================
 MSG_WriteDeltaUsercmd
@@ -473,7 +463,7 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->forwardmove, to->forwardmove, -8 );
 	MSG_WriteDelta( msg, from->rightmove, to->rightmove, -8 );
 	MSG_WriteDelta( msg, from->upmove, to->upmove, -8 );
-	MSG_WriteDelta( msg, from->buttons, to->buttons, 16 );//FIXME:  We're only really using 9 bits...can this be changed to that?
+	MSG_WriteDelta( msg, to_underlying( from->buttons ), to_underlying( to->buttons ), 16 );//FIXME:  We're only really using 9 bits...can this be changed to that?
 	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
 	MSG_WriteDelta( msg, from->generic_cmd, to->generic_cmd, 8 );
 }
@@ -492,7 +482,7 @@ void MSG_ReadDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	to->forwardmove = MSG_ReadDelta( msg, from->forwardmove, -8);
 	to->rightmove = MSG_ReadDelta( msg, from->rightmove, -8);
 	to->upmove = MSG_ReadDelta( msg, from->upmove, -8);
-	to->buttons = MSG_ReadDelta( msg, from->buttons, 16);//FIXME:  We're only really using 9 bits...can this be changed to that?
+	to->buttons = static_cast<buttonFlags_t>( MSG_ReadDelta( msg, to_underlying( from->buttons ), 16) );//FIXME:  We're only really using 9 bits...can this be changed to that?
 	to->weapon = MSG_ReadDelta( msg, from->weapon, 8);
 	to->generic_cmd = MSG_ReadDelta( msg, from->generic_cmd, 8);
 }

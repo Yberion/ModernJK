@@ -336,7 +336,7 @@ typedef struct {
 	vmCvar_t	*vmCvar;
 	const char	*cvarName;
 	const char	*defaultString;
-	int			cvarFlags;
+	cvarFlags_t	cvarFlags;
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
@@ -349,7 +349,7 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
 	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
-	{ &cg_drawHUD, "cg_drawHUD", "1", 0  },
+	{ &cg_drawHUD, "cg_drawHUD", "1", CVAR_NONE  },
 	{ &cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE  },
 	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE  },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
@@ -359,11 +359,11 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairForceHint, "cg_crosshairForceHint", "1", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART },
 	{ &cg_missionstatusscreen, "cg_missionstatusscreen", "0", CVAR_ROM},
-	{ &cg_endcredits, "cg_endcredits", "0", 0},
-	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", 0},
-	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", 0},
-	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", 0},
-	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", 0},
+	{ &cg_endcredits, "cg_endcredits", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", CVAR_NONE},
+	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", CVAR_NONE},
+	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", CVAR_NONE},
 
 	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
@@ -391,55 +391,55 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT },
 	{ &cg_debugPosition, "cg_debugposition", "0", CVAR_CHEAT },
 	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
-	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
+	{ &cg_errorDecay, "cg_errordecay", "100", CVAR_NONE },
 	{ &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
 	{ &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
 
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_SAVEGAME },
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", CVAR_ARCHIVE },
-	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", 0 },
-	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0 },
-	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", 0 },
-	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", 0},
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0},
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", 0},
+	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", CVAR_NONE },
+	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_NONE },
+	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", CVAR_NONE },
+	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", CVAR_NONE},
+	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", CVAR_NONE},
+	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_NONE},
 
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", 0},
+	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_NONE},
 	{ &cg_thirdPersonAlpha,	"cg_thirdPersonAlpha",	"1.0", CVAR_CHEAT },
-	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", 0 },
+	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", CVAR_NONE },
 
 	{ &cg_saberAutoThird, "cg_saberAutoThird", "1", CVAR_ARCHIVE },
 	{ &cg_gunAutoFirst, "cg_gunAutoFirst", "1", CVAR_ARCHIVE },
 
-	{ &cg_pano, "pano", "0", 0 },
-	{ &cg_panoNumShots, "panoNumShots", "10", 0 },
+	{ &cg_pano, "pano", "0", CVAR_NONE },
+	{ &cg_panoNumShots, "panoNumShots", "10", CVAR_NONE },
 
-	{ &fx_freeze, "fx_freeze", "0", 0 },
-	{ &fx_debug, "fx_debug", "0", 0 },
+	{ &fx_freeze, "fx_freeze", "0", CVAR_NONE },
+	{ &fx_debug, "fx_debug", "0", CVAR_NONE },
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 
 	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
-	{ &cg_developer, "developer", "", 0 },
-	{ &cg_timescale, "timescale", "1", 0 },
+	{ &cg_developer, "developer", "", CVAR_NONE },
+	{ &cg_timescale, "timescale", "1", CVAR_NONE },
 	{ &cg_skippingcin, "skippingCinematic", "0", CVAR_ROM},
 	{ &cg_missionInfoCentered, "cg_missionInfoCentered", "1", CVAR_ARCHIVE },
-	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", 0  },
+	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", CVAR_NONE  },
 	{ &cg_hudFiles, "cg_hudFiles", "ui/jk2hud.txt", CVAR_ARCHIVE},
 /*
 Ghoul2 Insert Start
 */
-	{ &cg_debugBB, "debugBB", "0", 0},
+	{ &cg_debugBB, "debugBB", "0", CVAR_NONE},
 /*
 Ghoul2 Insert End
 */
-	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", 0 },
-	{ &cg_turnAnims, "cg_turnAnims", "0", 0 },
-	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", 0 },
+	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", CVAR_NONE },
+	{ &cg_turnAnims, "cg_turnAnims", "0", CVAR_NONE },
+	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", CVAR_NONE },
 	{ &cg_reliableAnimSounds, "cg_reliableAnimSounds", "1", CVAR_ARCHIVE },
-	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", 0},
-	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", 0},
-	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", 0},
+	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", CVAR_NONE},
+	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", CVAR_NONE},
+	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", CVAR_NONE},
 };
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
@@ -1455,7 +1455,7 @@ Ghoul2 Insert End
 					}
 				}
 			}
-			else if ( g_entities[i].svFlags & SVF_NPC_PRECACHE && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
+			else if ( Any( g_entities[i].svFlags & SVF_NPC_PRECACHE ) && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
 			{//Precache the NPC_type
 				//FIXME: make sure we didn't precache this NPC_type already
 				CG_LoadingString( va("NPC %s", g_entities[i].NPC_type ) );
@@ -1909,32 +1909,32 @@ void CG_DrawEdge( vec3_t start, vec3_t end, edgeType_t type )
 	switch ( type )
 	{
 	case EDGE_PATH:
-		FX_AddLine( start, end, 4.0f, 4.0f, 0.0f, 1.0f, 1.0f, 51, cgi_R_RegisterShader( "gfx/misc/nav_arrow" ), 0 );
+		FX_AddLine( start, end, 4.0f, 4.0f, 0.0f, 1.0f, 1.0f, 51, cgi_R_RegisterShader( "gfx/misc/nav_arrow" ), FX_NONE );
 		break;
 
 	case EDGE_NORMAL:
-		FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+		FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		break;
 
 	case EDGE_BLOCKED:
 		{
 			vec3_t	color = { 255, 255, 0 };
 
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_FAILED:
 		{
 			vec3_t	color = { 255, 0, 0 };
 
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	case EDGE_MOVEDIR:
 		{
 			vec3_t	color = { 0, 255, 0 };
 
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
+			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), FX_NONE );
 		}
 		break;
 	default:

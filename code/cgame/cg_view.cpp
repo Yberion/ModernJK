@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/wp_saber.h"
 #include "../game/g_vehicles.h"
 
-#define MASK_CAMERACLIP (MASK_SOLID)
+constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID;
 #define CAMERA_SIZE	4
 
 float cg_zoomFov;
@@ -156,7 +156,7 @@ void CG_TestModelSurfaceOnOff_f(void)
 	}
 	CGhoul2Info_v	&ghoul2 = *((CGhoul2Info_v *)cg.testModelEntity.ghoul2);
 
-	gi.G2API_SetSurfaceOnOff(&ghoul2[cg.testModel], CG_Argv(1), atoi(CG_Argv(2)));
+	gi.G2API_SetSurfaceOnOff(&ghoul2[cg.testModel], CG_Argv(1), static_cast<g2SurfaceFlags_t>( atoi(CG_Argv(2)) ));
 }
 
 void CG_TestModelSetAnglespre_f(void)
@@ -369,7 +369,7 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 			return;
 		}
 
-		if( gent->client->ps.pm_flags & PMF_DUCKED )
+		if( Any( gent->client->ps.pm_flags & PMF_DUCKED ) )
 		{	// sort of a nasty hack in order to get this to work. Don't tell Ensiform, or I'll have to kill him. --eez
 			cameraFocusLoc[2] -= CAMERA_CROUCH_NUDGE*4;
 		}
@@ -378,18 +378,18 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 	// Add in the new viewheight
 	cameraFocusLoc[2] += cg.predicted_player_state.viewheight;
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{
 		VectorCopy( cameraFocusLoc, cameraIdealTarget );
 		cameraIdealTarget[2] += 192;
 	}
 	else if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_WAMPA) )
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_WAMPA) )
 	{
 		VectorCopy( cameraFocusLoc, cameraIdealTarget );
 		cameraIdealTarget[2] -= 48;
 	}
-	else if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_VOF )
+	else if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_VOF ) )
 	{
 		// Add in a vertical offset from the viewpoint, which puts the actual target above the head, regardless of angle.
 		VectorCopy( cameraFocusLoc, cameraIdealTarget );
@@ -405,7 +405,7 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 	}
 
 	// Now, if the player is crouching, do a little special tweak.  The problem is that the player's head is way out of his bbox.
-	if (cg.predicted_player_state.pm_flags & PMF_DUCKED)
+	if (Any( cg.predicted_player_state.pm_flags & PMF_DUCKED ))
 	{ // Nudge to focus location up a tad.
 		vec3_t nudgepos;
 		trace_t trace;
@@ -435,25 +435,25 @@ CG_CalcIdealThirdPersonViewLocation
 */
 static void CG_CalcIdealThirdPersonViewLocation(void)
 {
-	if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_RNG )
+	if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_RNG ) )
 	{
 		VectorMA(cameraIdealTarget, -(cg.overrides.thirdPersonRange), camerafwd, cameraIdealLoc);
 	}
 	else if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_RANCOR)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_RANCOR)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator )
 	{//stay back
 		VectorMA(cameraIdealTarget, -180.0f*cg_entities[cg.snap->ps.clientNum].gent->activator->s.modelScale[0], camerafwd, cameraIdealLoc);
 	}
 	else if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_WAMPA)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_WAMPA)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator->inuse )
 	{//stay back
 		VectorMA(cameraIdealTarget, -120.0f*cg_entities[cg.snap->ps.clientNum].gent->activator->s.modelScale[0], camerafwd, cameraIdealLoc);
 	}
 	else if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator )
 	{//stay back
 		VectorMA(cg_entities[cg_entities[cg.snap->ps.clientNum].gent->activator->s.number].lerpOrigin, -180.0f, camerafwd, cameraIdealLoc);
@@ -572,7 +572,7 @@ static void CG_UpdateThirdPersonTargetDamp(void)
 
 	// First thing we do is trace from the first person viewpoint out to the new target location.
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator )
 	{//if being held by a sand creature, trace from his actual origin, since we could be underground or otherwise in solid once he eats us
 		CG_Trace(&trace, cg_entities[cg_entities[cg.snap->ps.clientNum].gent->activator->s.number].lerpOrigin, cameramins, cameramaxs, cameraCurTarget, cg.predicted_player_state.clientNum, MASK_CAMERACLIP);
@@ -610,7 +610,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 	{//if moving on a plat, camera is *tight*
 		dampfactor=1.0f;
 	}
-	else if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_CDP )
+	else if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_CDP ) )
 	{
 		if ( cg.overrides.thirdPersonCameraDamp != 0.0f )
 		{
@@ -673,7 +673,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 //	CG_Trace(&trace, cameraFocusLoc, cameramins, cameramaxs, cameraCurLoc, cg.predicted_player_state.clientNum, MASK_CAMERACLIP);
 	// (OLD) Now we trace from the new target location to the new view location, to make sure there is nothing in the way.
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator )
 	{//if being held by a sand creature, trace from his actual origin, since we could be underground or otherwise in solid once he eats us
 		CG_Trace( &trace, cg_entities[cg_entities[cg.snap->ps.clientNum].gent->activator->s.number].lerpOrigin, cameramins, cameramaxs, cameraCurLoc, cg.predicted_player_state.clientNum, MASK_CAMERACLIP);
@@ -738,13 +738,13 @@ static void CG_OffsetThirdPersonView( void )
 	VectorCopy( cg.refdefViewAngles, cameraFocusAngles );
 
 	if ( cg.snap
-		&& (cg.snap->ps.eFlags&EF_HELD_BY_RANCOR)
+		&& Any(cg.snap->ps.eFlags&EF_HELD_BY_RANCOR)
 		&& cg_entities[cg.snap->ps.clientNum].gent->activator )
 	{
 		centity_t	*monster = &cg_entities[cg_entities[cg.snap->ps.clientNum].gent->activator->s.number];
 		VectorSet( cameraFocusAngles, 0, AngleNormalize180(monster->lerpAngles[YAW]+180), 0 );
 	}
-	else if ( cg.snap && (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
+	else if ( cg.snap && Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{
 		centity_t	*monster = &cg_entities[cg_entities[cg.snap->ps.clientNum].gent->activator->s.number];
 		VectorSet( cameraFocusAngles, 0, AngleNormalize180(monster->lerpAngles[YAW]+180), 0 );
@@ -753,7 +753,7 @@ static void CG_OffsetThirdPersonView( void )
 	else if ( G_IsRidingVehicle( &g_entities[0] ) )
 	{
 		cameraFocusAngles[YAW] = cg_entities[g_entities[0].owner->s.number].lerpAngles[YAW];
-		if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG ) )
 		{
 			cameraFocusAngles[YAW] += cg.overrides.thirdPersonAngle;
 		}
@@ -766,7 +766,7 @@ static void CG_OffsetThirdPersonView( void )
 	{// if dead, look at killer
 		if ( MatrixMode )
 		{
-			if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG )
+			if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG ) )
 			{
 				cameraFocusAngles[YAW] += cg.overrides.thirdPersonAngle;
 			}
@@ -783,7 +783,7 @@ static void CG_OffsetThirdPersonView( void )
 	}
 	else
 	{	// Add in the third Person Angle.
-		if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG ) )
 		{
 			cameraFocusAngles[YAW] += cg.overrides.thirdPersonAngle;
 		}
@@ -791,7 +791,7 @@ static void CG_OffsetThirdPersonView( void )
 		{
 			cameraFocusAngles[YAW] += cg_thirdPersonAngle.value;
 		}
-		if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_POF )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_POF ) )
 		{
 			cameraFocusAngles[PITCH] += cg.overrides.thirdPersonPitchOffset;
 		}
@@ -1156,11 +1156,11 @@ static void CG_OffsetFirstPersonView( bool firstPersonSaber ) {
 	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
 	delta = cg.bobfracsin * cg_bobpitch.value * speed;
-	if (cg.predicted_player_state.pm_flags & PMF_DUCKED)
+	if (Any( cg.predicted_player_state.pm_flags & PMF_DUCKED ))
 		delta *= 3;		// crouching
 	angles[PITCH] += delta;
 	delta = cg.bobfracsin * cg_bobroll.value * speed;
-	if (cg.predicted_player_state.pm_flags & PMF_DUCKED)
+	if (Any( cg.predicted_player_state.pm_flags & PMF_DUCKED ))
 		delta *= 3;		// crouching accentuates roll
 	if (cg.bobcycle & 1)
 		delta = -delta;
@@ -1278,12 +1278,12 @@ bool CG_CalcFOVFromX( float fov_x )
 	// warp if underwater
 	float	phase;
 	float	v;
-	cg.refdef.viewContents = 0;
-	if (gi.totalMapContents() & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ))
+	cg.refdef.viewContents = CONTENTS_NONE;
+	if (Any( gi.totalMapContents() & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ))
 	{
 		cg.refdef.viewContents = CG_PointContents( cg.refdef.vieworg, -1 );
 	}
-	if ( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
+	if ( Any( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
 	{
 		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		v = WAVE_AMPLITUDE * sin( phase );
@@ -1369,7 +1369,7 @@ static bool	CG_CalcFov( void ) {
 		}
 		else
 		{
-			if ( cg.overrides.active & CG_OVERRIDE_FOV )
+			if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 			{
 				fov_x = cg.overrides.fov;
 			}
@@ -1384,7 +1384,7 @@ static bool	CG_CalcFov( void ) {
 		fov_x = CG_ForceSpeedFOV();
 	} else {
 		// user selectable
-		if ( cg.overrides.active & CG_OVERRIDE_FOV )
+		if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 		{
 			fov_x = cg.overrides.fov;
 		}
@@ -1415,7 +1415,7 @@ static bool	CG_CalcFov( void ) {
 				}
 
 				// Clamp zoomFov
-				float actualFOV = (cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
+				float actualFOV = Any(cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
 				if ( cg_zoomFov < MAX_ZOOM_FOV )
 				{
 					cg_zoomFov = MAX_ZOOM_FOV;
@@ -1610,7 +1610,7 @@ static bool CG_CalcViewValues( void ) {
 	{
 		VectorCopy( ps->origin, cg.refdef.vieworg );
 		VectorCopy( cg_entities[g_entities[0].owner->s.number].lerpAngles, cg.refdefViewAngles );
-		if ( !(ps->eFlags&EF_NODRAW) )
+		if ( !Any(ps->eFlags&EF_NODRAW) )
 		{//riding it, not *inside* it
 			//let us look up & down
 			cg.refdefViewAngles[PITCH] = cg_entities[ps->clientNum].lerpAngles[PITCH] * 0.2f;
@@ -1634,7 +1634,7 @@ static bool CG_CalcViewValues( void ) {
 			viewEntIsCam = true;
 		}
 	}
-	else if ( cg.renderingThirdPerson && !cg.zoomMode && (cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ENT) )
+	else if ( cg.renderingThirdPerson && !cg.zoomMode && Any(cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ENT) )
 	{//different center, same angle
 		VectorCopy( cg_entities[cg.overrides.thirdPersonEntity].lerpOrigin, cg.refdef.vieworg );
 		VectorCopy( ps->viewangles, cg.refdefViewAngles );
@@ -1858,7 +1858,7 @@ static void CG_DrawSkyBoxPortal(void)
 	if ( cg.predicted_player_state.pm_type == PM_INTERMISSION )
 	{
 		// if in intermission, use a fixed value
-		fov_x = (cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
+		fov_x = Any(cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
 	}
 	else
 	{
@@ -1868,7 +1868,7 @@ static void CG_DrawSkyBoxPortal(void)
 		}
 		else
 		{
-			fov_x = (cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
+			fov_x = Any(cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
 			if ( fov_x < 1 )
 			{
 				fov_x = 1;
@@ -1937,7 +1937,7 @@ void CG_RunEmplacedWeapon()
 	if ( player
 		&& gun
 		&& !gun->bounceCount//not an eweb
-		&& ( player->s.eFlags & EF_LOCKED_TO_WEAPON ))
+		&& Any( player->s.eFlags & EF_LOCKED_TO_WEAPON ))
 	{
 //		float dist = -1; // default distance behind gun
 
@@ -2045,7 +2045,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	float mYawOverride = 0.0f;
 	if ( cg.snap->ps.clientNum == 0 && cg_scaleVehicleSensitivity.integer )
 	{//pointless check, but..
-		if ( cg_entities[0].gent->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( cg_entities[0].gent->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{
 			speed *= 0.25f;
 		}
@@ -2072,7 +2072,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	// update cg.predicted_player_state
 	CG_PredictPlayerState();
 
-	if (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+	if (Any( cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE ))
 	{
 		cg.zoomMode = 0;
 	}
@@ -2080,7 +2080,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	cg.renderingThirdPerson = (
 		cg_thirdPerson.integer
 		|| (cg.snap->ps.stats[STAT_HEALTH] <= 0)
-		|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+		|| Any(cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 		|| ((g_entities[0].client&&g_entities[0].client->NPC_class==CLASS_ATST)
 		|| (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE) ));
 
@@ -2141,7 +2141,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 		vec3_t	camTest;
 		VectorCopy( cg.refdef.vieworg, camTest );
 		camTest[2] += 6;
-		if ( !(CG_PointContents( camTest, 0 )&CONTENTS_SOLID) && !gi.inPVS( cg.refdef.vieworg, camTest ) )
+		if ( !Any( CG_PointContents( camTest, 0 )&CONTENTS_SOLID ) && !gi.inPVS( cg.refdef.vieworg, camTest ) )
 		{//crossed visible line into another room
 			cg.refdef.vieworg[2] -= 6;
 			//cgi_CM_SnapPVS(cg.refdef.vieworg,cg.snap->areamask);
@@ -2150,7 +2150,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 		{
 			VectorCopy( cg.refdef.vieworg, camTest );
 			camTest[2] -= 6;
-			if ( !(CG_PointContents( camTest, 0 )&CONTENTS_SOLID) && !gi.inPVS( cg.refdef.vieworg, camTest ) )
+			if ( !Any( CG_PointContents( camTest, 0 )&CONTENTS_SOLID ) && !gi.inPVS( cg.refdef.vieworg, camTest ) )
 			{
 				cg.refdef.vieworg[2] += 6;
 				//cgi_CM_SnapPVS(cg.refdef.vieworg,cg.snap->areamask);

@@ -81,7 +81,7 @@ static fielddef_t weaponinfo_fields[] =
 {"reload", WEAPON_OFS(reload), FT_FLOAT},						//time it takes to reload the weapon
 {"spinup", WEAPON_OFS(spinup), FT_FLOAT},						//time it takes before first shot
 {"spindown", WEAPON_OFS(spindown), FT_FLOAT},				//time it takes before weapon stops firing
-{nullptr, 0, 0, 0}
+{nullptr, 0, FT_NONE, 0}
 };
 
 //projectile definition
@@ -102,7 +102,7 @@ static fielddef_t projectileinfo_fields[] =
 {"bouncefric", PROJECTILE_OFS(bouncefric), FT_FLOAT}, 	//amount the bounce decreases per bounce
 {"bouncestop", PROJECTILE_OFS(bouncestop), FT_FLOAT},		//minimum bounce value before bouncing stops
 //recurive projectile definition??
-{nullptr, 0, 0, 0}
+{nullptr, 0, FT_NONE, 0}
 };
 
 static structdef_t weaponinfo_struct =

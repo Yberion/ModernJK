@@ -1929,7 +1929,7 @@ void CTaskManager::Load( CIcarus* icarus )
 
 		//Read the block's flags
 		pIcarus->BufferRead( &flags, sizeof( flags ) );
-		block->SetFlags( static_cast<blockFlag_t>( flags ) );
+		block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 		//Get the number of block members
 		pIcarus->BufferRead( &numMembers, sizeof( numMembers ) );

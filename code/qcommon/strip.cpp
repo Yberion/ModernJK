@@ -62,24 +62,6 @@ static cvar_t	*sp_leet;
 
 #define SP_GET_PACKAGE(x) ( (x & SP_PACKAGE) >> 8 )
 
-// Flags
-#define SP_FLAG1				0x00000001	// CENTERED
-#define SP_FLAG2				0x00000002
-#define SP_FLAG3				0x00000004
-#define SP_FLAG4				0x00000008
-#define SP_FLAG5				0x00000010
-#define	SP_FLAG6				0x00000020
-#define	SP_FLAG7				0x00000040
-#define	SP_FLAG8				0x00000080
-#define	SP_FLAG9				0x00000100
-#define SP_FLAG_ORIGINAL		0x00000200
-
-// Registration
-#define SP_REGISTER_CLIENT	 (0x01)
-#define SP_REGISTER_SERVER	 (0x02)
-#define SP_REGISTER_MENU	 (0x04)
-#define SP_REGISTER_REQUIRED (0x08)
-
 
 //======================================================================
 
@@ -87,11 +69,11 @@ class cStringPackageID
 {
 private:
 	std::string	name;
-	byte	reg;
+	spRegistrationFlags_t	reg;
 public:
-	cStringPackageID(const char *in_name, byte in_reg) { name = in_name; reg = in_reg; }
+	cStringPackageID(const char *in_name, spRegistrationFlags_t in_reg) { name = in_name; reg = in_reg; }
 	const char *GetName(void) const { return(name.c_str()); }
-	byte GetReg(void) const { return(reg); }
+	spRegistrationFlags_t GetReg(void) const { return(reg); }
 };
 
 
@@ -99,7 +81,7 @@ class cStringPackage
 {
 protected:
 	unsigned char	ID;
-	unsigned char	Registration;
+	spRegistrationFlags_t	Registration;
 	std::string			name;
 	char			*Reference;
 
@@ -107,10 +89,10 @@ public:
 					cStringPackage(const char *in, unsigned char initID = 0, char *initDescription = nullptr, char *initReference = nullptr);
 	virtual			~cStringPackage(void);
 
-	void			Register(unsigned char newRegistration) { Registration |= newRegistration; }
-	bool			UnRegister(unsigned char oldRegistration) { Registration &= ~oldRegistration; return (Registration == 0); }
-	bool			RegisteredOnServer(void) const { return(!!(Registration & SP_REGISTER_SERVER)); }
-	byte			GetRegistration(void) const { return(Registration); }
+	void			Register(spRegistrationFlags_t newRegistration) { Registration |= newRegistration; }
+	bool			UnRegister(spRegistrationFlags_t oldRegistration) { Registration &= ~oldRegistration; return (!Any( Registration )); }
+	bool			RegisteredOnServer(void) const { return(Any( Registration & SP_REGISTER_SERVER )); }
+	spRegistrationFlags_t	GetRegistration(void) const { return(Registration); }
 
 	void			SetID(unsigned char newID) { ID = newID; }
 	void			SetReference(char *newReference);
@@ -148,7 +130,7 @@ public:
 typedef struct sFlagPair
 {
 	stripToken_t	Name;
-	unsigned long	Value;
+	spStringFlags_t	Value;
 } tFlagPair;
 
 typedef struct sLanguagePair
@@ -246,7 +228,7 @@ sFlagPair FlagPairs[] =
 	{ TK_SP_FLAG8,		SP_FLAG8 },
 	{ TK_SP_FLAG9,		SP_FLAG9 },
 	{ TK_SP_FLAG_ORIGINAL,		SP_FLAG_ORIGINAL },
-	{ TK_INVALID,				0 }
+	{ TK_INVALID,				SP_FLAG_NONE }
 };
 
 sLanguagePair LanguagePairs[] =
@@ -441,7 +423,7 @@ void GetLine(char *&Data, int &Size, stripToken_t &token, char *&data)
  * return:
  *
  ************************************************************************************************/
-cStrings::cStrings(unsigned int initFlags, char *initReference)
+cStrings::cStrings(spStringFlags_t initFlags, char *initReference)
 {
 	Flags = initFlags;
 	Reference = nullptr;
@@ -472,7 +454,7 @@ cStrings::~cStrings(void)
  ************************************************************************************************/
 void cStrings::Clear(void)
 {
-	Flags = 0;
+	Flags = SP_FLAG_NONE;
 
 	if (Reference)
 	{
@@ -489,7 +471,7 @@ void cStrings::Clear(void)
  * return:
  *
  ************************************************************************************************/
-void cStrings::SetFlags(unsigned int newFlags)
+void cStrings::SetFlags(spStringFlags_t newFlags)
 {
 	Flags = newFlags;
 }
@@ -594,7 +576,7 @@ bool cStrings::Load(char *&Data, int &Size )
 
 
 
-cStringsSingle::cStringsSingle(unsigned int initFlags, char *initReference)
+cStringsSingle::cStringsSingle(spStringFlags_t initFlags, char *initReference)
 :cStrings(initFlags, initReference)
 {
 	Text = nullptr;
@@ -782,7 +764,7 @@ bool cStringsSingle::UnderstandToken(stripToken_t token, char *data )
 cStringPackage::cStringPackage(const char *in, unsigned char initID, char *initDescription, char *initReference)
 {
 	ID = initID;
-	Registration = 0;
+	Registration = SP_REGISTER_NONE;
 	name = in;
 	Reference = nullptr;
 
@@ -1001,7 +983,7 @@ std::map<byte, cStringPackageSingle *>		JK2SP_ListByID;
  *	success/fail
  *
  ************************************************************************************************/
-bool JK2SP_Register(const char *inPackage, unsigned char Registration)
+bool JK2SP_Register(const char *inPackage, spRegistrationFlags_t Registration)
 {
 	char											*buffer;
 	char											Package[MAX_QPATH];
@@ -1026,7 +1008,7 @@ bool JK2SP_Register(const char *inPackage, unsigned char Registration)
 		size = FS_ReadFile(va("strip/%s.sp", Package), (void **)&buffer);
 		if (size == -1)
 		{
-			if ( Registration & SP_REGISTER_REQUIRED )
+			if ( Any( Registration & SP_REGISTER_REQUIRED ) )
 			{
 				Com_Error(ERR_FATAL, "Could not open string package '%s'", Package);
 			}
@@ -1038,7 +1020,7 @@ bool JK2SP_Register(const char *inPackage, unsigned char Registration)
 		new_sp->Load(buffer, size );
 		FS_FreeFile(buffer);
 
-		if (Registration & SP_REGISTER_CLIENT)
+		if (Any( Registration & SP_REGISTER_CLIENT ))
 		{
 			Com_DPrintf(S_COLOR_YELLOW "JK2SP_Register: Registered client string package '%s' with ID %02x\n", Package, (int)new_sp->GetID());
 		}
@@ -1061,7 +1043,7 @@ bool JK2SP_Register(const char *inPackage, unsigned char Registration)
 
 
 // Unload all packages with the relevant registration bits
-void JK2SP_Unload(unsigned char Registration)
+void JK2SP_Unload(spRegistrationFlags_t Registration)
 {
 	std::map<std::string, cStringPackageSingle *>::iterator	i, next;
 	std::map<byte, cStringPackageSingle *>::iterator		id;
@@ -1244,7 +1226,7 @@ static void JK2SP_UpdateLanguage(void)
 void JK2SP_Init(void)
 {
 	sp_language = Cvar_Get("sp_language", va("%d", to_underlying( SP_LANGUAGE_ENGLISH )), CVAR_ARCHIVE | CVAR_NORESTART);
-	sp_show_strip = Cvar_Get ("sp_show_strip", "0", 0);		// don't switch this on!!!!!!, test only (apparently)
+	sp_show_strip = Cvar_Get ("sp_show_strip", "0", CVAR_NONE);		// don't switch this on!!!!!!, test only (apparently)
 	sp_leet = Cvar_Get ("sp_leet", "0", CVAR_ROM);		// do NOT leave this on in final product!!!!  (only works when == 42 anyway ;-)
 
 //	Cvar_Set("sp_language", va("%d", SP_LANGUAGE_JAPANESE));	// stetest, do NOT leave in

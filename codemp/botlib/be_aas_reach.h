@@ -62,14 +62,14 @@ int AAS_AreaSwim(int areanum);
 //returns true if the area is filled with a liquid
 int AAS_AreaLiquid(int areanum);
 //returns true if the area contains lava
-int AAS_AreaLava(int areanum);
+areaContentsFlags_t AAS_AreaLava(int areanum);
 //returns true if the area contains slime
-int AAS_AreaSlime(int areanum);
+areaContentsFlags_t AAS_AreaSlime(int areanum);
 //returns true if the area has one or more ground faces
-int AAS_AreaGrounded(int areanum);
+areaFlags_t AAS_AreaGrounded(int areanum);
 //returns true if the area has one or more ladder faces
-int AAS_AreaLadder(int areanum);
+areaFlags_t AAS_AreaLadder(int areanum);
 //returns true if the area is a jump pad
-int AAS_AreaJumpPad(int areanum);
+areaContentsFlags_t AAS_AreaJumpPad(int areanum);
 //returns true if the area is donotenter
-int AAS_AreaDoNotEnter(int areanum);
+areaContentsFlags_t AAS_AreaDoNotEnter(int areanum);

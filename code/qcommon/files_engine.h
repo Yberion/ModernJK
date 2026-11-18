@@ -53,7 +53,7 @@ static inline void Hunk_FreeTempMemory( void *buffer ) {
 }
 
 // no description of a cvar or of a command
-static inline cvar_t *Cvar_Get( const char *name, const char *value, int flags, const char * ) {
+static inline cvar_t *Cvar_Get( const char *name, const char *value, cvarFlags_t flags, const char * ) {
 	return Cvar_Get( name, value, flags );
 }
 static inline void Cmd_AddCommand( const char *name, xcommand_t function, const char * ) {

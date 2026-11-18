@@ -503,14 +503,7 @@ enum class leType_t {
 };
 using enum leType_t;
 
-enum class leFlag_t {
-	LEF_PUFF_DONT_SCALE = 0x0001,			// do not scale size over time
-	LEF_TUMBLE			= 0x0002,			// tumble over time, used for ejecting shells
-	LEF_FADE_RGB		= 0x0004,			// explicitly fade
-	LEF_NO_RANDOM_ROTATE= 0x0008			// MakeExplosion adds random rotate which could be bad in some cases
-};
-using enum leFlag_t;
-template <> inline constexpr bool enableEnumFlags<leFlag_t> = true;
+#include "qcommon/q_clientflags.h"
 
 enum class leMarkType_t {
 	LEMT_NONE,
@@ -531,7 +524,7 @@ using enum leBounceSoundType_t;	// fragment local entities can make sounds on im
 typedef struct localEntity_s {
 	struct localEntity_s	*prev, *next;
 	leType_t		leType;
-	leFlag_t		leFlags;
+	leFlags_t		leFlags;
 
 	int				startTime;
 	int				endTime;
@@ -1569,7 +1562,7 @@ typedef struct cgs_s {
 	int				debugMelee;
 	int				stepSlideFix;
 	int				noSpecMove;
-	int				dmflags;
+	dmFlags_t				dmflags;
 	int				fraglimit;
 	int				duel_fraglimit;
 	int				capturelimit;
@@ -1760,8 +1753,8 @@ void CG_TileClear( void );
 void CG_ColorForHealth( vec4_t hcolor );
 void CG_GetColorForHealth( int health, int armor, vec4_t hcolor );
 
-void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color );
-void CG_DrawScaledProportionalString( int x, int y, const char* str, int style, vec4_t color, float scale);
+void CG_DrawProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color );
+void CG_DrawScaledProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color, float scale);
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
@@ -1823,11 +1816,11 @@ void CG_PlayerShieldHit(int entitynum, vec3_t angles, int amount);
 // cg_predict.cpp
 //
 void CG_BuildSolidList( void );
-int	CG_PointContents( const vec3_t point, int passEntityNum );
+contentsFlags_t	CG_PointContents( const vec3_t point, int passEntityNum );
 void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 int skipNumber, int mask );
+					 int skipNumber, contentsFlags_t mask );
 void CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-					 int skipNumber, int mask );
+					 int skipNumber, contentsFlags_t mask );
 void CG_PredictPlayerState( void );
 void CG_PredictMiss_f( void );
 int CG_MoverTime( int serverTime );
@@ -1931,7 +1924,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p,
 				   float duration,
 				   int startTime,
 				   int fadeInTime,
-				   leFlag_t leFlags,
+				   leFlags_t leFlags,
 				   qhandle_t hShader );
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 void CG_GlassShatter(int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards);
@@ -1943,7 +1936,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numframes, qhandle_t shader, int msec,
-								bool isSprite, float scale, leFlag_t flags );// Overloaded in single player
+								bool isSprite, float scale, leFlags_t flags );// Overloaded in single player
 
 void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke );
 

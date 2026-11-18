@@ -29,12 +29,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 bool CM_DeleteCachedMap(bool bGuaranteedOkToDelete);
 void		CM_LoadMap( const char *name, bool clientload, int *checksum, bool subBSP);
 void		CM_ClearMap( void );
-int			CM_TotalMapContents();
+contentsFlags_t	CM_TotalMapContents();
 
 clipHandle_t CM_InlineModel( int index );		// 0 = world, 1 + are bmodels
-clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );//, const int contents );
+clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );//, const contentsFlags_t contents );
 
-int		CM_ModelContents( clipHandle_t model, int subBSPIndex );
+contentsFlags_t	CM_ModelContents( clipHandle_t model, int subBSPIndex );
 
 
 int			CM_NumInlineModels( void );
@@ -44,15 +44,15 @@ int			CM_LoadSubBSP(const char *name, bool clientload);
 int			CM_FindSubBSP(int modelIndex);
 
 // returns an ORed contents mask
-int			CM_PointContents( const vec3_t p, clipHandle_t model );
-int			CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
+contentsFlags_t	CM_PointContents( const vec3_t p, clipHandle_t model );
+contentsFlags_t	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
 
 void		CM_BoxTrace ( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask);
+						  clipHandle_t model, contentsFlags_t brushmask);
 void		CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask,
+						  clipHandle_t model, contentsFlags_t brushmask,
 						  const vec3_t origin, const vec3_t angles);
 
 byte		*CM_ClusterPVS (int cluster);

@@ -210,7 +210,7 @@ void CG_AddFragment( localEntity_t *le )
 
 	if ( le->pos.trType == TR_STATIONARY )
 	{
-		if ( !(cgi_CM_PointContents( le->refEntity.origin, 0 ) & CONTENTS_SOLID ))
+		if ( !Any( cgi_CM_PointContents( le->refEntity.origin, 0 ) & CONTENTS_SOLID ))
 		{
 			// thing is no longer in solid, so let gravity take it back
 			VectorCopy( le->refEntity.origin, le->pos.trBase );
@@ -256,7 +256,7 @@ void CG_AddFragment( localEntity_t *le )
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( cgi_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP )
+	if ( Any( cgi_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) )
 	{
 		CG_FreeLocalEntity( le );
 		return;

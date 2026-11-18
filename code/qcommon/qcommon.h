@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __QCOMMON_H__
 #define __QCOMMON_H__
 
+#include <optional>
+
 #include "q_shared.h"
 #include "stringed_ingame.h"
 #include "strippublic.h"
@@ -365,13 +367,13 @@ modules of the program.
 
 */
 
-cvar_t *Cvar_Get( const char *var_name, const char *value, int flags );
+cvar_t *Cvar_Get( const char *var_name, const char *value, cvarFlags_t flags );
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
 // if value is "", the value will not override a previously set value.
 
-void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
+void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags );
 // basically a slightly modified Cvar_Get for the interpreted modules
 
 void	Cvar_Update( vmCvar_t *vmCvar );
@@ -394,8 +396,8 @@ const char	*Cvar_VariableString( const char *var_name );
 void	Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
-int	Cvar_Flags(const char *var_name);
-// returns CVAR_NONEXISTENT if cvar doesn't exist or the flags of that particular CVAR.
+std::optional<cvarFlags_t>	Cvar_Flags(const char *var_name);
+// returns no value if the cvar doesn't exist, else the flags of that particular CVAR.
 
 void	Cvar_CommandCompletion( callbackFunc_t callback );
 // callback with each valid string
@@ -417,10 +419,10 @@ void 	Cvar_WriteVariables( fileHandle_t f );
 
 void	Cvar_Init( void );
 
-char	*Cvar_InfoString( int bit );
+char	*Cvar_InfoString( cvarFlags_t bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
-void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
+void	Cvar_InfoStringBuffer( cvarFlags_t bit, char *buff, int buffsize );
 void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 
 void	Cvar_Restart(bool unsetVM);
@@ -428,7 +430,7 @@ void	Cvar_Restart_f( void );
 
 void Cvar_CompleteCvarName( char *args, int argNum );
 
-extern	int			cvar_modifiedFlags;
+extern	cvarFlags_t	cvar_modifiedFlags;
 // whenever a cvar is modifed, its flags will be OR'd into this, so
 // a single check can determine if any CVAR_USERINFO, CVAR_SERVERINFO,
 // etc, variables have been modified since the last check.  The bit

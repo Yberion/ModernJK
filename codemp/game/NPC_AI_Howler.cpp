@@ -121,7 +121,7 @@ void Howler_TryDamage( gentity_t *enemy, int damage )
 	VectorMA( NPCS.NPC->r.currentOrigin, MIN_DISTANCE, dir, end );
 
 	// Should probably trace from the mouth, but, ah well.
-	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+	trap->Trace( &tr, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 	if ( tr.entityNum != ENTITYNUM_WORLD )
 	{
@@ -224,7 +224,7 @@ void NPC_BSHowler_Default( void )
 {
 	if ( NPCS.NPC->enemy )
 		Howler_Combat();
-	else if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 		Howler_Patrol();
 	else
 		Howler_Idle();

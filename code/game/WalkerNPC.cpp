@@ -94,11 +94,11 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
+extern void Vehicle_SetAnim(gentity_t *ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend);
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
-extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask );
+extern void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask );
 
 static void RegisterAssets( Vehicle_t *pVeh )
 {
@@ -241,7 +241,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 
 	fWalkSpeedMax = speedMax * 0.275f;
-	if ( pVeh->m_ucmd.buttons & BUTTON_WALKING && parentPS->speed > fWalkSpeedMax )
+	if ( Any( pVeh->m_ucmd.buttons & BUTTON_WALKING ) && parentPS->speed > fWalkSpeedMax )
 	{
 		parentPS->speed = fWalkSpeedMax;
 	}
@@ -373,7 +373,8 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 static void AnimateVehicle( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_STAND1;
-	int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
+	int iBlend = 300;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
 	float fSpeedPercToMax;
 
@@ -423,7 +424,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 		// stuff so good luck to him :-p AReis
 
 		// If we're walking (or our speed is less than .275%)...
-		if ( ( pVeh->m_ucmd.buttons & BUTTON_WALKING ) || fSpeedPercToMax < 0.275f )
+		if ( Any( pVeh->m_ucmd.buttons & BUTTON_WALKING ) || fSpeedPercToMax < 0.275f )
 		{
 			// Make them lean if we're turning.
 			/*if ( fYawDelta < -0.0001f )

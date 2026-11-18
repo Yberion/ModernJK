@@ -33,7 +33,7 @@ extern bool AI_GroupContainsEntNum( AIGroupInfo_t *group, int entNum );
 extern void AI_GroupUpdateEnemyLastSeen( AIGroupInfo_t *group, vec3_t spot );
 extern void AI_GroupUpdateClearShotTime( AIGroupInfo_t *group );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
+extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask );
 extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
 extern void NPC_CheckGetNewWeapon( void );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
@@ -354,7 +354,7 @@ static bool ST_Move( void )
 
 	//FIXME: if we bump into another one of our guys and can't get around him, just stop!
 	//If we hit our target, then stop and fire!
-	if ( info.flags & NIF_COLLISION )
+	if ( Any( info.flags & NIF_COLLISION ) )
 	{
 		if ( info.blocker == NPC->enemy )
 		{
@@ -367,7 +367,7 @@ static bool ST_Move( void )
 	{//FIXME: if we're going to a combat point, need to pick a different one
 		if ( !Q3_TaskIDPending( NPC, TID_MOVE_NAV ) )
 		{//can't transfer movegoal or stop when a script we're running is waiting to complete
-			if ( info.blocker && info.blocker->NPC && NPCInfo->group != nullptr && info.blocker->NPC->group == NPCInfo->group )//(NPCInfo->aiFlags&NPCAI_BLOCKED) && NPCInfo->group != nullptr )
+			if ( info.blocker && info.blocker->NPC && NPCInfo->group != nullptr && info.blocker->NPC->group == NPCInfo->group )//Any(NPCInfo->aiFlags&NPCAI_BLOCKED) && NPCInfo->group != nullptr )
 			{//dammit, something is in our way
 				//see if it's one of ours
 				for ( int j = 0; j < NPCInfo->group->numGroup; j++ )
@@ -455,7 +455,7 @@ void NPC_BSST_Sleep( void )
 	if ( alertEvent >= 0 )
 	{
 		//See if it was enough to wake us up
-		if ( level.alertEvents[alertEvent].level == AEL_DISCOVERED && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( level.alertEvents[alertEvent].level == AEL_DISCOVERED && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( g_entities[0].health > 0 )
 			{
@@ -485,7 +485,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		return true;
 
 	//Ignore notarget
-	if ( target->flags & FL_NOTARGET )
+	if ( Any( target->flags & FL_NOTARGET ) )
 		return false;
 
 	if ( target->health <= 0 )
@@ -498,7 +498,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		minDist = 100;
 	}
 	//If the target is this close, then wake up regardless
-	if ( (target_dist = DistanceSquared( target->currentOrigin, NPC->currentOrigin )) < (minDist*minDist) && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+	if ( (target_dist = DistanceSquared( target->currentOrigin, NPC->currentOrigin )) < (minDist*minDist) && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 	{
 		G_SetEnemy( NPC, target );
 		NPCInfo->enemyLastSeenTime = level.time;
@@ -590,11 +590,11 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		float target_rating		= dist_influence + fov_influence + light_influence;
 
 		//Now award any final bonuses to this number
-		int contents = gi.pointcontents( targ_org, target->s.number );
-		if ( contents&CONTENTS_WATER )
+		contentsFlags_t contents = gi.pointcontents( targ_org, target->s.number );
+		if ( Any( contents&CONTENTS_WATER ) )
 		{
-			int myContents = gi.pointcontents( NPC->client->renderInfo.eyePoint, NPC->s.number );
-			if ( !(myContents&CONTENTS_WATER) )
+			contentsFlags_t myContents = gi.pointcontents( NPC->client->renderInfo.eyePoint, NPC->s.number );
+			if ( !Any( myContents&CONTENTS_WATER ) )
 			{//I'm not in water
 				if ( NPC->client->NPC_class == CLASS_SWAMPTROOPER )
 				{//these guys can see in in/through water pretty well
@@ -618,7 +618,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		}
 		else
 		{//not in water
-			if ( contents&CONTENTS_FOG )
+			if ( Any( contents&CONTENTS_FOG ) )
 			{
 				vis_rating = 0.15f;//15% bonus
 			}
@@ -651,7 +651,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 			cautious = (float)CAUTIOUS_THRESHOLD * 0.75f/**difficulty_scale*/;
 		}
 
-		if ( target_rating > realize && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( target_rating > realize && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			G_SetEnemy( NPC, target );
 			NPCInfo->enemyLastSeenTime = level.time;
@@ -660,7 +660,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 		}
 
 		//If he's above the caution threshold, then realize him in a few seconds unless he moves to cover
-		if ( target_rating > cautious && !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( target_rating > cautious && !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{//FIXME: ambushing guys should never talk
 			if ( TIMER_Done( NPC, "enemyLastVisible" ) )
 			{//If we haven't already, start the counter
@@ -672,7 +672,7 @@ bool NPC_CheckEnemyStealth( gentity_t *target )
 				NPC_TempLookTarget( NPC, target->s.number, lookTime, lookTime );
 				//FIXME: set desired yaw and pitch towards this guy?
 			}
-			else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500 && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
+			else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500 && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
 			{
 				if ( NPCInfo->rank < RANK_LT && !Q_irand( 0, 2 ) )
 				{
@@ -740,7 +740,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 	//If they've given themselves away, just take them as an enemy
 	if ( NPCInfo->confusionTime < level.time )
 	{
-		if ( level.alertEvents[eventID].level == AEL_DISCOVERED && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( level.alertEvents[eventID].level == AEL_DISCOVERED && Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
 			if ( !level.alertEvents[eventID].owner ||
@@ -797,7 +797,7 @@ static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 		NPCInfo->investigateCount = 4;
 
 	//See if we should walk over and investigate
-	if ( level.alertEvents[eventID].level > AEL_MINOR && NPCInfo->investigateCount > 1 && (NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+	if ( level.alertEvents[eventID].level > AEL_MINOR && NPCInfo->investigateCount > 1 && Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 	{
 		//make it so they can walk right to this point and look at it rather than having to use combatPoints
 		if ( G_ExpandPointToBBox( NPCInfo->investigateGoal, NPC->mins, NPC->maxs, NPC->s.number, ((NPC->clipmask&~CONTENTS_BODY)|CONTENTS_BOTCLIP) ) )
@@ -952,14 +952,14 @@ void NPC_BSST_Investigate( void )
 	//get group- mainly for group speech debouncing, but may use for group scouting/investigating AI, too
 	AI_GetGroup( NPC );
 
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
 
 	if ( NPCInfo->confusionTime < level.time )
 	{
-		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
+		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			//Look for an enemy
 			if ( NPC_CheckPlayerTeamStealth() )
@@ -973,7 +973,7 @@ void NPC_BSST_Investigate( void )
 		}
 	}
 
-	if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
 		int alertEvent = NPC_CheckAlertEvents( true, true, NPCInfo->lastAlertID );
 
@@ -1055,7 +1055,7 @@ void NPC_BSST_Patrol( void )
 	if ( NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
+		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
@@ -1067,7 +1067,7 @@ void NPC_BSST_Patrol( void )
 		}
 	}
 
-	if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
 		int alertEvent = NPC_CheckAlertEvents( true, true );
 
@@ -1089,7 +1089,7 @@ void NPC_BSST_Patrol( void )
 		//ST_Move( NPCInfo->goalEntity );
 		NPC_MoveToGoal( true );
 	}
-	else// if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	else// if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
 		if ( NPC->client->NPC_class != CLASS_IMPERIAL && NPC->client->NPC_class != CLASS_IMPWORKER )
 		{//imperials do not look around
@@ -1116,7 +1116,7 @@ void NPC_BSST_Patrol( void )
 
 			if( (!NPC->client->ps.torsoAnimTimer) || (NPC->client->ps.torsoAnim == BOTH_STAND4) )
 			{
-				if ( (ucmd.buttons&BUTTON_WALKING) && !(NPCInfo->scriptFlags&SCF_RUNNING) )
+				if ( Any(ucmd.buttons&BUTTON_WALKING) && !Any(NPCInfo->scriptFlags&SCF_RUNNING) )
 				{//not running, only set upper anim
 					//  No longer overrides scripted anims
 					NPC_SetAnim( NPC, SETANIM_TORSO, BOTH_STAND4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -1436,7 +1436,7 @@ static void ST_CheckFireState( void )
 					distThreshold = 65536/*256*256*/;
 					break;
 				case WP_REPEATER:
-					if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
@@ -1466,7 +1466,7 @@ static void ST_CheckFireState( void )
 						distThreshold = 262144/*512*512*/;
 						break;
 					case WP_REPEATER:
-						if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+						if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 						{
 							distThreshold = 262144/*512*512*/;
 						}
@@ -1514,7 +1514,7 @@ void ST_TrackEnemy( gentity_t *self, vec3_t enemyPos )
 	NPC_SetMoveGoal( self, enemyPos, 16, false );
 }
 
-int ST_ApproachEnemy( gentity_t *self )
+combatPointSearchFlags_t ST_ApproachEnemy( gentity_t *self )
 {
 	TIMER_Set( self, "attackDelay", Q_irand( 250, 500 ) );
 	//TIMER_Set( self, "duck", -1 );
@@ -1537,7 +1537,7 @@ void ST_HuntEnemy( gentity_t *self )
 	//leave my combat point
 	NPC_FreeCombatPoint( NPCInfo->combatPoint );
 	//go directly after the enemy
-	if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
+	if ( Any( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES ) )
 	{
 		self->NPC->goalEntity = NPC->enemy;
 	}
@@ -1576,7 +1576,7 @@ void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 		{
 			NPC_SetMoveGoal(
 				other, self->NPC->tempGoal->currentOrigin, self->NPC->goalRadius,
-				((self->NPC->tempGoal->svFlags & SVF_NAVGOAL) ? true : false));
+				(Any( self->NPC->tempGoal->svFlags & SVF_NAVGOAL ) ? true : false));
 		}
 		else
 		{
@@ -1594,9 +1594,9 @@ void ST_TransferMoveGoal( gentity_t *self, gentity_t *other )
 	TIMER_Set( self, "stand", Q_irand( 1000, 3000 ) );
 }
 
-int ST_GetCPFlags( void )
+combatPointSearchFlags_t ST_GetCPFlags( void )
 {
-	int cpFlags = 0;
+	combatPointSearchFlags_t cpFlags = CP_ANY;
 	if ( NPC && NPCInfo->group )
 	{
 		if ( NPC == NPCInfo->group->commander && NPC->client->NPC_class == CLASS_IMPERIAL )
@@ -1651,7 +1651,7 @@ int ST_GetCPFlags( void )
 			}
 		}
 	}
-	if ( !cpFlags )
+	if ( !Any(cpFlags) )
 	{
 		//at some medium level of morale
 		switch( Q_irand( 0, 3 ) )
@@ -1670,7 +1670,7 @@ int ST_GetCPFlags( void )
 			break;
 		}
 	}
-	if ( NPC && (NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
+	if ( NPC && Any(NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 	{
 		cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
 		cpFlags |= CP_NEAREST;
@@ -1693,7 +1693,8 @@ FIXME: work in pairs?
 void ST_Commander( void )
 {
 	int		i, j;
-	int		cp, cpFlags_org, cpFlags;
+	int		cp;
+	combatPointSearchFlags_t	cpFlags_org, cpFlags;
 	AIGroupInfo_t	*group = NPCInfo->group;
 	gentity_t	*member;//, *buddy;
 	bool	runner = false;
@@ -1730,7 +1731,7 @@ void ST_Commander( void )
 			{//running somewhere that a script requires us to go, don't break from that
 				continue;
 			}
-			if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+			if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 			{//not allowed to move on my own
 				continue;
 			}
@@ -1835,7 +1836,7 @@ void ST_Commander( void )
 	{
 		//reset combat point flags
 		cp = -1;
-		cpFlags = 0;
+		cpFlags = CP_ANY;
 		squadState = SQUAD_IDLE;
 		avoidDist = 0;
 		//scouting = false;
@@ -1877,7 +1878,7 @@ void ST_Commander( void )
 			}
 		}
 
-		if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+		if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 		{//not allowed to do combat-movement
 			continue;
 		}
@@ -1969,7 +1970,7 @@ void ST_Commander( void )
 			}
 		}
 
-		if ( !cpFlags )
+		if ( !Any(cpFlags) )
 		{//okay, we have no new enemy-driven reason to run... let's use tactics now
 			if ( runner && NPCInfo->combatPoint != -1 )
 			{//someone is running and we have a combat point already
@@ -1996,7 +1997,7 @@ void ST_Commander( void )
 				else
 				{//we're running
 					//see if we're blocked
-					if ( NPCInfo->aiFlags & NPCAI_BLOCKED )
+					if ( Any( NPCInfo->aiFlags & NPCAI_BLOCKED ) )
 					{//dammit, something is in our way
 						//see if it's one of ours
 						for ( j = 0; j < group->numGroup; j++ )
@@ -2128,7 +2129,7 @@ void ST_Commander( void )
 							}
 						}
 					}
-					if ( !cpFlags )
+					if ( !Any(cpFlags) )
 					{//still not moving
 						//see if we should say something?
 						/*
@@ -2145,7 +2146,7 @@ void ST_Commander( void )
 						{//not ducking
 							if ( TIMER_Done( NPC, "stand" ) )
 							{//don't have to keep standing
-								if ( NPCInfo->combatPoint == -1 || (level.combatPoints[NPCInfo->combatPoint].flags&CPF_DUCK) )
+								if ( NPCInfo->combatPoint == -1 || Any(level.combatPoints[NPCInfo->combatPoint].flags&CPF_DUCK) )
 								{//okay to duck here
 									if ( !Q_irand( 0, 3 ) )
 									{
@@ -2163,13 +2164,13 @@ void ST_Commander( void )
 		//clear the local state
 		NPC_SetLocalState( *NPCInfo, LSTATE_NONE );
 
-		if ( NPCInfo->scriptFlags&SCF_USE_CP_NEAREST )
+		if ( Any(NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 		{
 			cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
 			cpFlags |= CP_NEAREST;
 		}
 		//Assign combat points
-		if ( cpFlags )
+		if ( Any(cpFlags) )
 		{//we want to run to a combat point
 			/*
 			if ( NPCInfo->combatPoint != -1 )
@@ -2194,65 +2195,65 @@ void ST_Commander( void )
 			}
 			while ( cp == -1 && cpFlags != CP_ANY )
 			{//start "OR"ing out certain flags to see if we can find *any* point
-				if ( cpFlags & CP_INVESTIGATE )
+				if ( Any( cpFlags & CP_INVESTIGATE ) )
 				{//don't need to investigate
 					cpFlags &= ~CP_INVESTIGATE;
 				}
-				else if ( cpFlags & CP_SQUAD )
+				else if ( Any( cpFlags & CP_SQUAD ) )
 				{//don't need to stick to squads
 					cpFlags &= ~CP_SQUAD;
 				}
-				else if ( cpFlags & CP_DUCK )
+				else if ( Any( cpFlags & CP_DUCK ) )
 				{//don't need to duck
 					cpFlags &= ~CP_DUCK;
 				}
-				else if ( cpFlags & CP_NEAREST )
+				else if ( Any( cpFlags & CP_NEAREST ) )
 				{//don't need closest one to me
 					cpFlags &= ~CP_NEAREST;
 				}
-				else if ( cpFlags & CP_FLANK )
+				else if ( Any( cpFlags & CP_FLANK ) )
 				{//don't need to flank enemy
 					cpFlags &= ~CP_FLANK;
 				}
-				else if ( cpFlags & CP_SAFE )
+				else if ( Any( cpFlags & CP_SAFE ) )
 				{//don't need one that hasn't been shot at recently
 					cpFlags &= ~CP_SAFE;
 				}
-				else if ( cpFlags & CP_CLOSEST )
+				else if ( Any( cpFlags & CP_CLOSEST ) )
 				{//don't need to get closest to enemy
 					cpFlags &= ~CP_CLOSEST;
 					//but let's try to approach at least
 					cpFlags |= CP_APPROACH_ENEMY;
 				}
-				else if ( cpFlags & CP_APPROACH_ENEMY )
+				else if ( Any( cpFlags & CP_APPROACH_ENEMY ) )
 				{//don't need to approach enemy
 					cpFlags &= ~CP_APPROACH_ENEMY;
 				}
-				else if ( cpFlags & CP_COVER )
+				else if ( Any( cpFlags & CP_COVER ) )
 				{//don't need cover
 					cpFlags &= ~CP_COVER;
 					//but let's pick one that makes us duck
 					cpFlags |= CP_DUCK;
 				}
-				else if ( cpFlags & CP_CLEAR )
+				else if ( Any( cpFlags & CP_CLEAR ) )
 				{//don't need a clear shot to enemy
 					cpFlags &= ~CP_CLEAR;
 				}
-				else if ( cpFlags & CP_AVOID_ENEMY )
+				else if ( Any( cpFlags & CP_AVOID_ENEMY ) )
 				{//don't need to avoid enemy
 					cpFlags &= ~CP_AVOID_ENEMY;
 				}
-				else if ( cpFlags & CP_RETREAT )
+				else if ( Any( cpFlags & CP_RETREAT ) )
 				{//don't need to retreat
 					cpFlags &= ~CP_RETREAT;
 				}
-				else if ( cpFlags &CP_FLEE )
+				else if ( Any( cpFlags &CP_FLEE ) )
 				{//don't need to flee
 					cpFlags &= ~CP_FLEE;
 					//but at least avoid enemy and pick one that gives cover
 					cpFlags |= (CP_COVER|CP_AVOID_ENEMY);
 				}
-				else if ( cpFlags & CP_AVOID )
+				else if ( Any( cpFlags & CP_AVOID ) )
 				{//okay, even pick one right by me
 					cpFlags &= ~CP_AVOID;
 				}
@@ -2285,7 +2286,7 @@ void ST_Commander( void )
 					{
 						AI_GroupUpdateSquadstates( group, NPC, squadState );
 					}
-					else if ( cpFlags&CP_FLEE )
+					else if ( Any(cpFlags&CP_FLEE) )
 					{//outright running for your life
 						AI_GroupUpdateSquadstates( group, NPC, SQUAD_RETREAT );
 					}
@@ -2295,7 +2296,7 @@ void ST_Commander( void )
 					}
 
 					//unless we're trying to flee, walk slowly
-					if ( !(cpFlags_org&CP_FLEE) )
+					if ( !Any(cpFlags_org&CP_FLEE) )
 					{
 						//ucmd.buttons |= BUTTON_CAREFUL;
 					}
@@ -2308,7 +2309,7 @@ void ST_Commander( void )
 						//group->speechDebounceTime = level.time + 5000;
 					}
 					//flanking:
-					else */if ( cpFlags & CP_FLANK )
+					else */if ( Any( cpFlags & CP_FLANK ) )
 					{
 						if ( group->numGroup > 1 )
 						{
@@ -2344,7 +2345,7 @@ void ST_Commander( void )
 						}
 					}
 					/*
-					else if ( cpFlags & CP_CLOSEST || cpFlags & CP_APPROACH_ENEMY )
+					else if ( Any(cpFlags & CP_CLOSEST) || Any(cpFlags & CP_APPROACH_ENEMY) )
 					{
 						if ( group->numGroup > 1 )
 						{
@@ -2470,7 +2471,7 @@ void NPC_BSST_Attack( void )
 	if ( enemyDist < MIN_ROCKET_DIST_SQUARED )//128
 	{//enemy within 128
 		if ( (NPC->client->ps.weapon == WP_FLECHETTE || NPC->client->ps.weapon == WP_REPEATER) &&
-			(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 		{//shooting an explosive, but enemy too close, switch to primary fire
 			NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
 			//FIXME: we can never go back to alt-fire this way since, after this, we don't know if we were initially supposed to use alt-fire or not...
@@ -2480,7 +2481,7 @@ void NPC_BSST_Attack( void )
 	{
 		if ( NPC->client->ps.weapon == WP_DISRUPTOR )
 		{//sniping... should be assumed
-			if ( !(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+			if ( !Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 			{//use primary fire
 				NPCInfo->scriptFlags |= SCF_ALT_FIRE;
 				//reset fire-timing variables
@@ -2505,7 +2506,7 @@ void NPC_BSST_Attack( void )
 		}
 		else
 		{//can we shoot our target?
-			if ( (NPC->client->ps.weapon == WP_ROCKET_LAUNCHER || (NPC->client->ps.weapon == WP_FLECHETTE && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
+			if ( (NPC->client->ps.weapon == WP_ROCKET_LAUNCHER || (NPC->client->ps.weapon == WP_FLECHETTE && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
 			{
 				enemyCS = false;//not true, but should stop us from firing
 				hitAlly = true;//us!
@@ -2518,7 +2519,7 @@ void NPC_BSST_Attack( void )
 
 				if ( hit == NPC->enemy->s.number
 					|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam )
-					|| ( hitEnt && hitEnt->takedamage && ((hitEnt->svFlags&SVF_GLASS_BRUSH)||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
+					|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->svFlags & SVF_GLASS_BRUSH )||hitEnt->health < 40||NPC->s.weapon == WP_EMPLACED_GUN) ) )
 				{//can hit enemy or enemy ally or will hit glass or other minor breakable (or in emplaced gun), so shoot anyway
 					AI_GroupUpdateClearShotTime( NPCInfo->group );
 					enemyCS = true;
@@ -2579,7 +2580,7 @@ void NPC_BSST_Attack( void )
 		NPC_FaceEnemy( true );
 	}
 
-	if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+	if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 	{//not supposed to chase my enemies
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//goal is my entity, so don't move
@@ -2639,7 +2640,7 @@ void NPC_BSST_Attack( void )
 		}
 	}
 
-	if ( NPCInfo->scriptFlags & SCF_DONT_FIRE )
+	if ( Any( NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
 	{
 		shoot = false;
 	}
@@ -2670,13 +2671,13 @@ void NPC_BSST_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				WeaponThink( true );
 			}
 			//NASTY
 			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER
-				&& (ucmd.buttons&BUTTON_ATTACK)
+				&& Any(ucmd.buttons&BUTTON_ATTACK)
 				&& !AImove
 				&& g_spskill->integer > 1
 				&& !Q_irand( 0, 3 ) )
@@ -2691,7 +2692,7 @@ void NPC_BSST_Attack( void )
 
 void NPC_BSST_Default( void )
 {
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}

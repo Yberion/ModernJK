@@ -480,7 +480,7 @@ void PM_SetSpecialMoveValues (void)
 
 	if ( pEnt )
 	{
-		if ( (pm->ps->eFlags2&EF2_FLYING) )// pm->gent->client->moveType == MT_FLYSWIM )
+		if ( Any(pm->ps->eFlags2&EF2_FLYING) )// pm->gent->client->moveType == MT_FLYSWIM )
 		{
 			pm_flying = FLY_NORMAL;
 		}
@@ -547,7 +547,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 	else if ( normal )
 	{//have a valid surface below me
 		PM_pitch_roll_for_slope( pEnt, normal, vAngles );
-		if ( (pml.groundTrace.contents&(CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) )
+		if ( Any( pml.groundTrace.contents&(CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA) ) )
 		{//on water
 			//view pitch has some influence when on a fluid surface
 			//FIXME: take center of gravity into account
@@ -767,7 +767,7 @@ void PM_HoverTrace( void )
 	}
 	else
 	{
-		int traceContents;
+		contentsFlags_t traceContents;
 		float minNormal = pVeh->m_pVehicleInfo->maxSlope;
 
 		point[0] = pm->ps->origin[0];
@@ -809,7 +809,7 @@ void PM_HoverTrace( void )
 				{
 					pm->ps->velocity[2] += (0.5f-(trace->fraction*trace->fraction))*hoverForce*2.0f*pVeh->m_fTimeModifier;
 				}
-				if ( (trace->contents&(CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) )
+				if ( Any( trace->contents&(CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA) ) )
 				{//hovering on water, make a spash if moving
 					if ( Q_fabs(pm->ps->velocity[0]) + Q_fabs(pm->ps->velocity[1]) > 100 )
 					{//moving at a decent speed
@@ -935,7 +935,7 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 	float	oldInZ;
 	int		i;
 
-	if ( (pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+	if ( Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 	{//no sliding!
 		VectorCopy( in, out );
 		return;
@@ -1016,7 +1016,7 @@ static void PM_Friction( void ) {
 		pEnt->m_pVehicle->m_pVehicleInfo->friction )
 	{
 		float friction = pEnt->m_pVehicle->m_pVehicleInfo->friction;
-		if ( !(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) /*&& !(pm->ps->pm_flags & PMF_TIME_NOFRICTION)*/ )
+		if ( !Any(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) /*&& !Any(pm->ps->pm_flags & PMF_TIME_NOFRICTION)*/ )
 		{
 			control = speed < pm_stopspeed ? pm_stopspeed : speed;
 			drop += control*friction*pml.frametime;
@@ -1047,9 +1047,9 @@ static void PM_Friction( void ) {
 	{
 		// apply ground friction
 		if ( pm->waterlevel <= 1 ) {
-			if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
+			if ( pml.walking && !Any( pml.groundTrace.surfaceFlags & SURF_SLICK ) ) {
 				// if getting knocked back, no friction
-				if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
+				if ( ! Any(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 					control = speed < pm_stopspeed ? pm_stopspeed : speed;
 					drop += control*pm_friction*pml.frametime;
 				}
@@ -1059,7 +1059,7 @@ static void PM_Friction( void ) {
 
 	if ( pm_flying == FLY_VEHICLE )
 	{
-		if ( !(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) )
+		if ( !Any(pm->ps->pm_flags & PMF_TIME_KNOCKBACK) )
 		{
 			control = speed;// < pm_stopspeed ? pm_stopspeed : speed;
 			drop += control*pm_friction*pml.frametime;
@@ -1272,7 +1272,7 @@ bool PM_ForceJumpingUp(void)
 	}
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE && //in air
-		(pm->ps->pm_flags & PMF_JUMP_HELD) && //jumped
+		Any(pm->ps->pm_flags & PMF_JUMP_HELD) && //jumped
 		pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0 && //force-jump capable
 		pm->ps->velocity[2] > 0 )//going up
 	{
@@ -1584,7 +1584,7 @@ bool PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, bool doMove 
 {
 	if ( ( ( BG_InReboundJump( ps->legsAnim ) || BG_InReboundHold( ps->legsAnim ) )
 			&& ( BG_InReboundJump( ps->torsoAnim ) || BG_InReboundHold( ps->torsoAnim ) ) )
-		|| (pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		|| Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 	{//hugging wall, getting ready to jump off
 		//stick to wall, if there is one
 		vec3_t	checkDir, traceTo, mins, maxs, fwdAngles;
@@ -1689,7 +1689,7 @@ bool PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, bool doMove 
 			return true;
 		}
 		else if ( doMove
-			&& (ps->pm_flags&PMF_STUCK_TO_WALL))
+			&& Any(ps->pm_flags&PMF_STUCK_TO_WALL))
 		{//jump off
 			//push off of it!
 			ps->pm_flags &= ~PMF_STUCK_TO_WALL;
@@ -1789,7 +1789,7 @@ static bool PM_CheckJump( void )
 	}
 
 	//Don't allow jump until all buttons are up
-	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+	if ( Any( pm->ps->pm_flags & PMF_RESPAWNED ) ) {
 		return false;
 	}
 
@@ -1803,12 +1803,12 @@ static bool PM_CheckJump( void )
 		saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 		saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
 		if ( saber1
-			&& (saber1->saberFlags&SFL_NO_FLIPS) )
+			&& Any( saber1->saberFlags & SFL_NO_FLIPS ) )
 		{
 			allowFlips = false;
 		}
 		if ( saber2
-			&& (saber2->saberFlags&SFL_NO_FLIPS) )
+			&& Any( saber2->saberFlags & SFL_NO_FLIPS ) )
 		{
 			allowFlips = false;
 		}
@@ -1846,7 +1846,7 @@ static bool PM_CheckJump( void )
 	if (pm->ps->forceJumpFlip)
 	{ //Forced jump anim
 		animNumber_t anim = BOTH_FORCEINAIR1;
-		int	parts = SETANIM_BOTH;
+		setAnimParts_t	parts = SETANIM_BOTH;
 		if ( allowFlips )
 		{
 			if ( pm->cmd.forwardmove > 0 )
@@ -1924,7 +1924,7 @@ static bool PM_CheckJump( void )
 								&& allowFlips )
 							{
 								animNumber_t anim = BOTH_FORCEINAIR1;
-								int	parts = SETANIM_BOTH;
+								setAnimParts_t	parts = SETANIM_BOTH;
 
 								if ( pm->cmd.forwardmove > 0 )
 								{
@@ -1985,7 +1985,7 @@ static bool PM_CheckJump( void )
 								}
 								if ( anim )
 								{
-									int parts = SETANIM_BOTH;
+									setAnimParts_t parts = SETANIM_BOTH;
 									if ( pm->ps->weaponTime )
 									{//FIXME: really only care if we're in a saber attack anim...
 										parts = SETANIM_LEGS;
@@ -2020,7 +2020,7 @@ static bool PM_CheckJump( void )
 								}
 								if ( newAnim )
 								{
-									int parts = SETANIM_BOTH;
+									setAnimParts_t parts = SETANIM_BOTH;
 									if ( pm->ps->weaponTime )
 									{
 										parts = SETANIM_LEGS;
@@ -2069,7 +2069,7 @@ static bool PM_CheckJump( void )
 	}
 
 	// must wait for jump to be released
-	if ( pm->ps->pm_flags & PMF_JUMP_HELD )
+	if ( Any( pm->ps->pm_flags & PMF_JUMP_HELD ) )
 	{
 		// clear upmove so cmdscale doesn't lower running speed
 		pm->cmd.upmove = 0;
@@ -2094,7 +2094,7 @@ static bool PM_CheckJump( void )
 	}
 	else if ( pm->cmd.upmove > 0 && pm->waterlevel < 2 &&
 		pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_0 &&
-		!(pm->ps->pm_flags&PMF_JUMP_HELD) &&
+		!Any(pm->ps->pm_flags&PMF_JUMP_HELD) &&
 		(pm->ps->weapon == WP_SABER || pm->ps->weapon == WP_MELEE) &&
 		!PM_IsRocketTrooper() &&
 		!BG_HasYsalamiri(pm->gametype, pm->ps) &&
@@ -2109,42 +2109,42 @@ static bool PM_CheckJump( void )
 			saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 			saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
 			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_RUNS) )
+				&& Any( saber1->saberFlags & SFL_NO_WALL_RUNS ) )
 			{
 				allowWallRuns = false;
 			}
 			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_RUNS) )
+				&& Any( saber2->saberFlags & SFL_NO_WALL_RUNS ) )
 			{
 				allowWallRuns = false;
 			}
 			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_FLIPS) )
+				&& Any( saber1->saberFlags & SFL_NO_WALL_FLIPS ) )
 			{
 				allowWallFlips = false;
 			}
 			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_FLIPS) )
+				&& Any( saber2->saberFlags & SFL_NO_WALL_FLIPS ) )
 			{
 				allowWallFlips = false;
 			}
 			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_FLIPS) )
+				&& Any( saber1->saberFlags & SFL_NO_FLIPS ) )
 			{
 				allowFlips = false;
 			}
 			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_FLIPS) )
+				&& Any( saber2->saberFlags & SFL_NO_FLIPS ) )
 			{
 				allowFlips = false;
 			}
 			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_GRAB) )
+				&& Any( saber1->saberFlags & SFL_NO_WALL_GRAB ) )
 			{
 				allowWallGrabs = false;
 			}
 			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_GRAB) )
+				&& Any( saber2->saberFlags & SFL_NO_WALL_GRAB ) )
 			{
 				allowWallGrabs = false;
 			}
@@ -2193,7 +2193,7 @@ static bool PM_CheckJump( void )
 					}
 				}
 			}
-			else if ( pm->cmd.forwardmove < 0 && !(pm->cmd.buttons&BUTTON_ATTACK) )
+			else if ( pm->cmd.forwardmove < 0 && !Any(pm->cmd.buttons&BUTTON_ATTACK) )
 			{//backflip
 				if ( allowFlips )
 				{
@@ -2210,7 +2210,7 @@ static bool PM_CheckJump( void )
 				vec3_t	idealNormal={0}, wallNormal={0};
 				trace_t	trace;
 				bool doTrace = false;
-				int contents = MASK_SOLID;//MASK_PLAYERSOLID;
+				contentsFlags_t contents = MASK_SOLID;//MASK_PLAYERSOLID;
 
 				VectorSet(mins, pm->mins[0],pm->mins[1],0);
 				VectorSet(maxs, pm->maxs[0],pm->maxs[1],24);
@@ -2261,7 +2261,7 @@ static bool PM_CheckJump( void )
 							&& anim != BOTH_FORCEWALLRUNFLIP_START)
 						|| (wallNormal[2] >= 0.0f&&wallNormal[2]<=0.4f/*MAX_WALL_RUN_Z_NORMAL*/) )
 					{//wall-runs can only run on perfectly flat walls, sorry.
-						int parts;
+						setAnimParts_t parts;
 						//move me to side
 						if ( anim == BOTH_WALL_FLIP_LEFT )
 						{
@@ -2368,7 +2368,7 @@ static bool PM_CheckJump( void )
 					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY );
 					if ( trace.fraction < 1.0f )
 					{//flip off wall
-						int parts = 0;
+						setAnimParts_t parts = SETANIM_NONE;
 
 						if ( anim == BOTH_WALL_RUN_LEFT_FLIP )
 						{
@@ -2422,7 +2422,7 @@ static bool PM_CheckJump( void )
 					pm->trace( &trace, pm->ps->origin, mins, maxs, traceto, pm->ps->clientNum, CONTENTS_SOLID|CONTENTS_BODY );
 					if ( trace.fraction < 1.0f )
 					{//flip off wall
-						int parts = SETANIM_LEGS;
+						setAnimParts_t parts = SETANIM_LEGS;
 
 						pm->ps->velocity[0] *= 0.5f;
 						pm->ps->velocity[1] *= 0.5f;
@@ -2469,7 +2469,7 @@ static bool PM_CheckJump( void )
 
 				if ( trace.fraction < 1.0f )
 				{//there is a wall there
-					int parts = SETANIM_LEGS;
+					setAnimParts_t parts = SETANIM_LEGS;
 
 					pm->ps->velocity[0] = pm->ps->velocity[1] = 0;
 					VectorMA( pm->ps->velocity, -150, fwd, pm->ps->velocity );
@@ -2506,8 +2506,8 @@ static bool PM_CheckJump( void )
 				{
 					//FIXME: have to be moving... make sure it's opposite the wall... or at least forward?
 					animNumber_t wallWalkAnim = BOTH_WALL_FLIP_BACK1;
-					int parts = SETANIM_LEGS;
-					int contents = MASK_SOLID;//MASK_PLAYERSOLID;//CONTENTS_SOLID;
+					setAnimParts_t parts = SETANIM_LEGS;
+					contentsFlags_t contents = MASK_SOLID;//MASK_PLAYERSOLID;//CONTENTS_SOLID;
 					//bool kick = true;
 					if ( pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_2 )
 					{
@@ -2583,7 +2583,7 @@ static bool PM_CheckJump( void )
 						||BG_InBackFlip( legsAnim ) )//a backflip (needed so you can jump off a wall behind you)
 					//&& pm->ps->velocity[2] <= 0
 					&& pm->ps->velocity[2] > -1200 //not falling down very fast
-					&& !(pm->ps->pm_flags&PMF_JUMP_HELD)//have to have released jump since last press
+					&& !Any(pm->ps->pm_flags&PMF_JUMP_HELD)//have to have released jump since last press
 					&& (pm->cmd.forwardmove||pm->cmd.rightmove)//pushing in a direction
 					//&& pm->ps->forceRageRecoveryTime < pm->cmd.serverTime	//not in a force Rage recovery period
 					&& pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_2//level 3 jump or better
@@ -2669,7 +2669,7 @@ static bool PM_CheckJump( void )
 	if ( pm->cmd.upmove > 0
 		&& (pm->ps->weapon == WP_SABER || pm->ps->weapon == WP_MELEE)
 		&& !PM_IsRocketTrooper()
-		&& (pm->ps->weaponTime > 0||pm->cmd.buttons&BUTTON_ATTACK) )
+		&& (pm->ps->weaponTime > 0||Any( pm->cmd.buttons&BUTTON_ATTACK )) )
 	{//okay, we just jumped and we're in an attack
 		if ( !BG_InRoll( pm->ps, pm->ps->legsAnim )
 			&& !PM_InKnockDown( pm->ps )
@@ -2707,7 +2707,7 @@ static bool PM_CheckJump( void )
 				else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
 				{//using strong attacks
 					if ( pm->cmd.forwardmove > 0 && //going forward
-						(pm->cmd.buttons & BUTTON_ATTACK) && //must be holding attack still
+						Any(pm->cmd.buttons & BUTTON_ATTACK) && //must be holding attack still
 						PM_GroundDistance() < 32 &&
 						!BG_InSpecialJump(pm->ps->legsAnim))
 					{//strong attack: jump-hack
@@ -2760,7 +2760,7 @@ PM_CheckWaterJump
 */
 static bool	PM_CheckWaterJump( void ) {
 	vec3_t	spot;
-	int		cont;
+	contentsFlags_t	cont;
 	vec3_t	flatforward;
 
 	if (pm->ps->pm_time) {
@@ -2780,13 +2780,13 @@ static bool	PM_CheckWaterJump( void ) {
 	VectorMA (pm->ps->origin, 30, flatforward, spot);
 	spot[2] += 4;
 	cont = pm->pointcontents (spot, pm->ps->clientNum );
-	if ( !(cont & CONTENTS_SOLID) ) {
+	if ( !Any( cont & CONTENTS_SOLID ) ) {
 		return false;
 	}
 
 	spot[2] += 16;
 	cont = pm->pointcontents (spot, pm->ps->clientNum );
-	if ( cont & (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY) ) {
+	if ( Any( cont & (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY) ) ) {
 		return false;
 	}
 
@@ -3010,7 +3010,7 @@ static void PM_FlyMove( void ) {
 
 	scale = PM_CmdScale( &pm->cmd );
 
-	if ( pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) {
+	if ( pm->ps->pm_type == PM_SPECTATOR && Any( pm->cmd.buttons & BUTTON_ALT_ATTACK )) {
 		//turbo boost
 		scale *= 10;
 	}
@@ -3256,7 +3256,7 @@ static void PM_AirMove( void ) {
 	// slide along the steep plane
 	if ( pml.groundPlane )
 	{
-		if ( !(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+		if ( !Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 		{//don't slide when stuck to a wall
 			if ( PM_GroundSlideOkay( pml.groundTrace.plane.normal[2] ) )
 			{
@@ -3266,7 +3266,7 @@ static void PM_AirMove( void ) {
 		}
 	}
 
-	if ( (pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
+	if ( Any(pm->ps->pm_flags&PMF_STUCK_TO_WALL) )
 	{//no grav when stuck to wall
 		PM_StepSlideMove( false );
 	}
@@ -3385,12 +3385,12 @@ static void PM_WalkMove( void ) {
 	}
 
 	// clamp the speed lower if ducking
-	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+	if ( Any( pm->ps->pm_flags & PMF_DUCKED ) ) {
 		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
 			wishspeed = pm->ps->speed * pm_duckScale;
 		}
 	}
-	else if ( (pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
+	else if ( Any(pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
 		!PM_InRollComplete(pm->ps, pm->ps->legsAnim))
 	{
 		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
@@ -3415,7 +3415,7 @@ static void PM_WalkMove( void ) {
 	{
 		accelerate = pm_vehicleaccelerate;
 	}
-	else if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
+	else if ( Any( pml.groundTrace.surfaceFlags & SURF_SLICK ) || Any( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
 	{
 		accelerate = pm_airaccelerate;
 	}
@@ -3439,7 +3439,7 @@ static void PM_WalkMove( void ) {
 	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
 	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
+	if ( Any( pml.groundTrace.surfaceFlags & SURF_SLICK ) || Any( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
 	{
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	}
@@ -3532,10 +3532,10 @@ static void PM_NoclipMove( void ) {
 
 	// accelerate
 	scale = PM_CmdScale( &pm->cmd );
-	if (pm->cmd.buttons & BUTTON_ATTACK) {	//turbo boost
+	if (Any( pm->cmd.buttons & BUTTON_ATTACK )) {	//turbo boost
 		scale *= 10;
 	}
-	if (pm->cmd.buttons & BUTTON_ALT_ATTACK) {	//turbo boost
+	if (Any( pm->cmd.buttons & BUTTON_ALT_ATTACK )) {	//turbo boost
 		scale *= 10;
 	}
 
@@ -3567,11 +3567,11 @@ Returns an event number appropriate for the groundsurface
 */
 static int PM_FootstepForSurface( void )
 {
-	if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS )
+	if ( Any( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) )
 	{
 		return 0;
 	}
-	return ( pml.groundTrace.surfaceFlags & MATERIAL_MASK );
+	return SURF_Material( pml.groundTrace.surfaceFlags );
 }
 
 extern bool PM_CanRollFromSoulCal( playerState_t *ps );
@@ -3606,13 +3606,13 @@ static std::optional<animNumber_t> PM_TryRoll( void )
 	{
 		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
 		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLLS) )
+			&& Any( saber->saberFlags & SFL_NO_ROLLS ) )
 		{
 			return std::nullopt;
 		}
 		saber = BG_MySaber( pm->ps->clientNum, 1 );
 		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLLS) )
+			&& Any( saber->saberFlags & SFL_NO_ROLLS ) )
 		{
 			return std::nullopt;
 		}
@@ -3627,7 +3627,7 @@ static std::optional<animNumber_t> PM_TryRoll( void )
 
 	if ( pm->cmd.forwardmove )
 	{ //check forward/backward rolls
-		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+		if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) )
 		{
 			anim = BOTH_ROLL_B;
 			VectorMA( pm->ps->origin, -64, fwd, traceto );
@@ -3674,7 +3674,7 @@ static void PM_CrashLandEffect( void )
 	{
 		vec3_t bottom;
 		effectTypes_t	effectID = EFFECT_NONE;
-		int material = (pml.groundTrace.surfaceFlags&MATERIAL_MASK);
+		int material = SURF_Material( pml.groundTrace.surfaceFlags );
 		VectorSet( bottom, pm->ps->origin[0],pm->ps->origin[1],pm->ps->origin[2]+pm->mins[2]+1 );
 		switch ( material )
 		{
@@ -3740,7 +3740,7 @@ static void PM_CrashLand( void ) {
 	PM_CrashLandEffect();
 #endif
 	// ducking while falling doubles damage
-	if ( pm->ps->pm_flags & PMF_DUCKED ) {
+	if ( Any( pm->ps->pm_flags & PMF_DUCKED ) ) {
 		delta *= 2;
 	}
 
@@ -3807,7 +3807,7 @@ static void PM_CrashLand( void ) {
 	{ //only play a land animation if we transitioned into an in-air animation while off the ground
 		if (!BG_SaberInSpecial(pm->ps->saberMove))
 		{
-			if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
+			if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) ) {
 				PM_ForceLegsAnim( BOTH_LANDBACK1 );
 			} else {
 				PM_ForceLegsAnim( BOTH_LAND1 );
@@ -3877,7 +3877,7 @@ static void PM_CrashLand( void ) {
 		return;
 	}
 
-	if ( pm->ps->pm_flags & PMF_DUCKED )
+	if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 	{
 		if( delta >= 2 && !PM_InOnGroundAnim( pm->ps->legsAnim ) && !PM_InKnockDown( pm->ps ) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
 			pm->ps->forceHandExtend == HANDEXTEND_NONE )
@@ -3910,7 +3910,7 @@ static void PM_CrashLand( void ) {
 
 	// SURF_NODAMAGE is used for bounce pads where you don't ever
 	// want to take damage or play a crunch sound
-	if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
+	if ( !Any( pml.groundTrace.surfaceFlags & SURF_NODAMAGE ) )  {
 		if (delta > 7)
 		{
 			int delta_send = (int)delta;
@@ -4040,7 +4040,7 @@ static void PM_GroundTraceMissed( void ) {
 	if ( pm->ps->pm_type == PM_FLOAT )
 	{
 		//we're assuming this is because you're being choked
-		int parts = SETANIM_LEGS;
+		setAnimParts_t parts = SETANIM_LEGS;
 
 		//rww - also don't use SETANIM_FLAG_HOLD, it will cause the legs to float around a bit before going into
 		//a proper anim even when on the ground.
@@ -4067,10 +4067,10 @@ static void PM_GroundTraceMissed( void ) {
 
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 		if ( trace.fraction == 1.0 || pm->ps->pm_type == PM_FLOAT ) {
-			if ( pm->ps->velocity[2] <= 0 && !(pm->ps->pm_flags&PMF_JUMP_HELD))
+			if ( pm->ps->velocity[2] <= 0 && !Any(pm->ps->pm_flags&PMF_JUMP_HELD))
 			{
 				//PM_SetAnim(SETANIM_LEGS,BOTH_INAIR1,SETANIM_FLAG_OVERRIDE);
-				PM_SetAnim(SETANIM_LEGS,BOTH_INAIR1,0);
+				PM_SetAnim(SETANIM_LEGS,BOTH_INAIR1,SETANIM_FLAG_NORMAL);
 				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 			}
 			else if ( pm->cmd.forwardmove >= 0 )
@@ -4198,7 +4198,7 @@ static void PM_GroundTrace( void ) {
 	pml.walking = true;
 
 	// hitting solid ground will end a waterjump
-	if (pm->ps->pm_flags & PMF_TIME_WATERJUMP)
+	if (Any( pm->ps->pm_flags & PMF_TIME_WATERJUMP ))
 	{
 		pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
 		pm->ps->pm_time = 0;
@@ -4265,7 +4265,7 @@ PM_SetWaterLevel
 */
 static void PM_SetWaterLevel( void ) {
 	vec3_t		point;
-	int			cont;
+	contentsFlags_t	cont;
 	int			sample1;
 	int			sample2;
 
@@ -4273,14 +4273,14 @@ static void PM_SetWaterLevel( void ) {
 	// get waterlevel, accounting for ducking
 	//
 	pm->waterlevel = 0;
-	pm->watertype = 0;
+	pm->watertype = CONTENTS_NONE;
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
 	point[2] = pm->ps->origin[2] + MINS_Z + 1;
 	cont = pm->pointcontents( point, pm->ps->clientNum );
 
-	if ( cont & MASK_WATER ) {
+	if ( Any( cont & MASK_WATER ) ) {
 		sample2 = pm->ps->viewheight - MINS_Z;
 		sample1 = sample2 / 2;
 
@@ -4288,11 +4288,11 @@ static void PM_SetWaterLevel( void ) {
 		pm->waterlevel = 1;
 		point[2] = pm->ps->origin[2] + MINS_Z + sample1;
 		cont = pm->pointcontents (point, pm->ps->clientNum );
-		if ( cont & MASK_WATER ) {
+		if ( Any( cont & MASK_WATER ) ) {
 			pm->waterlevel = 2;
 			point[2] = pm->ps->origin[2] + MINS_Z + sample2;
 			cont = pm->pointcontents (point, pm->ps->clientNum );
-			if ( cont & MASK_WATER ){
+			if ( Any( cont & MASK_WATER ) ){
 				pm->waterlevel = 3;
 			}
 		}
@@ -4321,7 +4321,7 @@ bool PM_CheckDualForwardJumpDuck( void )
 
 void PM_CheckFixMins( void )
 {
-	if ( (pm->ps->pm_flags&PMF_FIX_MINS) )// pm->mins[2] > DEFAULT_MINS_2 )
+	if ( Any(pm->ps->pm_flags&PMF_FIX_MINS) )// pm->mins[2] > DEFAULT_MINS_2 )
 	{//drop the mins back down
 		//do a trace to make sure it's okay
 		trace_t	trace;
@@ -4509,7 +4509,7 @@ static void PM_CheckDuck (void)
 			pm->ps->pm_flags |= PMF_ROLLING;
 			return;
 		}
-		else if (pm->ps->pm_flags & PMF_ROLLING)
+		else if (Any( pm->ps->pm_flags & PMF_ROLLING ))
 		{
 			if ( PM_CanStand() ) {
 				pm->maxs[2] = pm->ps->standheight;
@@ -4525,7 +4525,7 @@ static void PM_CheckDuck (void)
 		}
 		else
 		{	// stand up if possible
-			if (pm->ps->pm_flags & PMF_DUCKED)
+			if (Any( pm->ps->pm_flags & PMF_DUCKED ))
 			{
 				if ( PM_CanStand() ) {
 					pm->maxs[2] = pm->ps->standheight;
@@ -4535,12 +4535,12 @@ static void PM_CheckDuck (void)
 		}
 	}
 
-	if (pm->ps->pm_flags & PMF_DUCKED)
+	if (Any( pm->ps->pm_flags & PMF_DUCKED ))
 	{
 		pm->maxs[2] = pm->ps->crouchheight;//CROUCH_MAXS_2;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
 	}
-	else if (pm->ps->pm_flags & PMF_ROLLING)
+	else if (Any( pm->ps->pm_flags & PMF_ROLLING ))
 	{
 		pm->maxs[2] = pm->ps->crouchheight;//CROUCH_MAXS_2;
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
@@ -4576,7 +4576,7 @@ void PM_Use( void )
 		return;
 	}
 
-	if ( ! (pm->cmd.buttons & BUTTON_USE ) )
+	if ( ! Any(pm->cmd.buttons & BUTTON_USE ) )
 	{
 		pm->useEvent = EV_NONE;
 		pm->ps->useTime = 0;
@@ -5204,7 +5204,7 @@ PM_Footsteps
 static void PM_Footsteps( void ) {
 	float		bobmove;
 	int			old;
-	int			setAnimFlags = 0;
+	setAnimFlags_t	setAnimFlags = SETANIM_FLAG_NORMAL;
 
 	if ( (PM_InSaberAnim( (pm->ps->legsAnim) ) && !BG_SpinningSaberAnim( (pm->ps->legsAnim) ))
 		|| (pm->ps->legsAnim) == BOTH_STAND1
@@ -5256,12 +5256,12 @@ static void PM_Footsteps( void ) {
 				pm_entSelf &&
 				pm_entSelf->s.NPC_class == CLASS_RANCOR )
 			{
-				if ( (pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
+				if ( Any(pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
 				{//holding someone
 					PM_ContinueLegsAnim( BOTH_STAND4 );
 					//PM_SetAnim(pm,SETANIM_LEGS,BOTH_STAND4,SETANIM_FLAG_NORMAL);
 				}
-				else if ( (pm->ps->eFlags2&EF2_ALERTED) )
+				else if ( Any(pm->ps->eFlags2&EF2_ALERTED) )
 				{//have an enemy or have had one since we spawned
 					PM_ContinueLegsAnim( BOTH_STAND2 );
 					//PM_SetAnim(pm,SETANIM_LEGS,BOTH_STAND2,SETANIM_FLAG_NORMAL);
@@ -5276,7 +5276,7 @@ static void PM_Footsteps( void ) {
 				pm_entSelf &&
 				pm_entSelf->s.NPC_class == CLASS_WAMPA )
 			{
-				if ( (pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
+				if ( Any(pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
 				{//holding a victim
 					PM_ContinueLegsAnim( BOTH_STAND2 );
 					//PM_SetAnim(pm,SETANIM_LEGS,BOTH_STAND2,SETANIM_FLAG_NORMAL);
@@ -5287,7 +5287,7 @@ static void PM_Footsteps( void ) {
 					//PM_SetAnim(pm,SETANIM_LEGS,BOTH_STAND1,SETANIM_FLAG_NORMAL);
 				}
 			}
-			else if ( (pm->ps->pm_flags & PMF_DUCKED) || (pm->ps->pm_flags & PMF_ROLLING) ) {
+			else if ( Any(pm->ps->pm_flags & PMF_DUCKED) || Any(pm->ps->pm_flags & PMF_ROLLING) ) {
 				if ((pm->ps->legsAnim) != BOTH_CROUCH1IDLE)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1IDLE, setAnimFlags);
@@ -5338,7 +5338,7 @@ static void PM_Footsteps( void ) {
 		bobmove = 0.2f;
 		PM_ContinueLegsAnim( pm->ps->torsoAnim );
 	}
-	else if ( pm->ps->pm_flags & PMF_DUCKED )
+	else if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 	{
 		std::optional<animNumber_t> rolled;
 
@@ -5351,7 +5351,7 @@ static void PM_Footsteps( void ) {
 		}
 		if ( !rolled )
 		{ //if the roll failed or didn't attempt, do standard crouching anim stuff.
-			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
+			if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) ) {
 				if ((pm->ps->legsAnim) != BOTH_CROUCH1WALKBACK)
 				{
 					PM_SetAnim(SETANIM_LEGS, BOTH_CROUCH1WALKBACK, setAnimFlags);
@@ -5384,12 +5384,12 @@ static void PM_Footsteps( void ) {
 			pm->ps->pm_flags |= PMF_ROLLING;
 		}
 	}
-	else if ((pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
+	else if (Any(pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
 		!PM_InRollComplete(pm->ps, pm->ps->legsAnim))
 	{
 		bobmove = 0.5;	// ducked characters bob much faster
 
-		if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+		if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) )
 		{
 			if ((pm->ps->legsAnim) != BOTH_CROUCH1WALKBACK)
 			{
@@ -5424,14 +5424,14 @@ static void PM_Footsteps( void ) {
 		{ //let it finish first
 			bobmove = 0.2f;
 		}
-		else if ( !( pm->cmd.buttons & BUTTON_WALKING ) )
+		else if ( !Any( pm->cmd.buttons & BUTTON_WALKING ) )
 		{//running
 			bobmove = 0.4f;	// faster speeds bob faster
 			if ( pm->ps->clientNum >= MAX_CLIENTS &&
 				pm_entSelf &&
 				pm_entSelf->s.NPC_class == CLASS_WAMPA )
 			{
-				if ( (pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
+				if ( Any(pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
 				{//full on run, on all fours
 					desiredAnim = BOTH_RUN1;
 				}
@@ -5444,7 +5444,7 @@ static void PM_Footsteps( void ) {
 				pm_entSelf &&
 				pm_entSelf->s.NPC_class == CLASS_RANCOR )
 			{//no run anims
-				if ( (pm->ps->pm_flags&PMF_BACKWARDS_RUN) )
+				if ( Any(pm->ps->pm_flags&PMF_BACKWARDS_RUN) )
 				{
 					desiredAnim = BOTH_WALKBACK1;
 				}
@@ -5463,7 +5463,7 @@ static void PM_Footsteps( void ) {
 				bobmove = 0.2f;
 			}
 #endif
-			else if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+			else if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) )
 			{
 				if ( BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER ) {
 					desiredAnim = BOTH_RUNBACK1;
@@ -5570,7 +5570,7 @@ static void PM_Footsteps( void ) {
 		else
 		{
 			bobmove = 0.2f;	// walking bobs slow
-			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+			if ( Any( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) )
 			{
 				if ( BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER )
 				{
@@ -5773,11 +5773,11 @@ static void PM_WaterEvents( void ) {		// FIXME?
 
 		if ( tr.fraction < 1.0f )
 		{
-			if ( (tr.contents&CONTENTS_LAVA) )
+			if ( Any( tr.contents&CONTENTS_LAVA ) )
 			{
 				G_PlayEffect( EFFECT_LAVA_SPLASH, tr.endpos, tr.plane.normal );
 			}
-			else if ( (tr.contents&CONTENTS_SLIME) )
+			else if ( Any( tr.contents&CONTENTS_SLIME ) )
 			{
 				G_PlayEffect( EFFECT_ACID_SPLASH, tr.endpos, tr.plane.normal );
 			}
@@ -6036,23 +6036,23 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 
 	if ( vehicleRocketLock )
 	{
-		if ( (pm->cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
+		if ( Any(pm->cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//actually charging
 			if ( veh
 				&& veh->m_pVehicle )
 			{//just make sure we have this veh info
-				if ( ( (pm->cmd.buttons&BUTTON_ATTACK)
+				if ( ( Any(pm->cmd.buttons&BUTTON_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].fHoming
 						&&pm->ps->ammo.data()[0]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
 						||
-					( (pm->cmd.buttons&BUTTON_ALT_ATTACK)
+					( Any(pm->cmd.buttons&BUTTON_ALT_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].fHoming
 						&&pm->ps->ammo.data()[1]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot ) )
 				{//pressing the appropriate fire button for the lock-on/charging weapon
 					PM_RocketLock(16384, true);
 					charging = true;
 				}
-				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 				{
 					altFire = true;
 				}
@@ -6072,7 +6072,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 			//if ( pm->gametype == GT_SIEGE )
 			if (1)
 			{
-				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 				{
 					charging = true;
 					altFire = true;
@@ -6081,7 +6081,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 			break;
 
 		case WP_CONCUSSION:
-			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{
 				altFire = true;
 			}
@@ -6090,7 +6090,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 		case WP_BRYAR_OLD:
 
 			// alt-fire charges the weapon
-			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{
 				charging = true;
 				altFire = true;
@@ -6101,7 +6101,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 		case WP_BOWCASTER:
 
 			// primary fire charges the weapon
-			if ( pm->cmd.buttons & BUTTON_ATTACK )
+			if ( Any( pm->cmd.buttons & BUTTON_ATTACK ) )
 			{
 				charging = true;
 			}
@@ -6109,7 +6109,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 
 		//------------------
 		case WP_ROCKET_LAUNCHER:
-			if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK)
+			if ( Any(pm->cmd.buttons & BUTTON_ALT_ATTACK)
 				&& pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] >= weaponData[pm->ps->weapon].altEnergyPerShot )
 			{
 				PM_RocketLock(2048,false);
@@ -6121,19 +6121,19 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 		//------------------
 		case WP_THERMAL:
 
-			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{
 				altFire = true; // override default of not being an alt-fire
 				charging = true;
 			}
-			else if ( pm->cmd.buttons & BUTTON_ATTACK )
+			else if ( Any( pm->cmd.buttons & BUTTON_ATTACK ) )
 			{
 				charging = true;
 			}
 			break;
 
 		case WP_DEMP2:
-			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{
 				altFire = true; // override default of not being an alt-fire
 				charging = true;
@@ -6141,7 +6141,7 @@ static bool PM_DoChargedWeapons( bool vehicleRocketLock, bgEntity_t *veh )
 			break;
 
 		case WP_DISRUPTOR:
-			if ((pm->cmd.buttons & BUTTON_ATTACK) &&
+			if (Any(pm->cmd.buttons & BUTTON_ATTACK) &&
 				pm->ps->zoomMode == 1 &&
 				pm->ps->zoomLocked)
 			{
@@ -6302,7 +6302,7 @@ int PM_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		return 0;
 	}
 
-	if (ps->pm_flags & PMF_USE_ITEM_HELD)
+	if (Any( ps->pm_flags & PMF_USE_ITEM_HELD ))
 	{ //force to let go first
 		return 0;
 	}
@@ -6331,14 +6331,14 @@ int PM_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 			return 0;
 		}
 		if (ps->stats[STAT_HEALTH] <= 0 ||
-			(ps->eFlags & EF_DEAD))
+			Any(ps->eFlags & EF_DEAD))
 		{
 			return 0;
 		}
 
 		return 1;
 	case HI_SEEKER:
-		if (ps->eFlags & EF_SEEKERDRONE)
+		if (Any( ps->eFlags & EF_SEEKERDRONE ))
 		{
 			PM_AddEventWithParm(EV_ITEMUSEFAIL, to_underlying( SEEKER_ALREADYDEPLOYED ));
 			return 0;
@@ -6435,7 +6435,7 @@ void PM_VehicleWeaponAnimate(void)
 {
 	bgEntity_t *veh = pm_entVeh;
 	Vehicle_t *pVeh;
-	int iFlags = 0;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	std::optional<animNumber_t> Anim;
 
 	if (!veh ||
@@ -6456,14 +6456,14 @@ void PM_VehicleWeaponAnimate(void)
 	}
 backAgain:
 	// If they're firing, play the right fire animation.
-	if ( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ALT_ATTACK ) )
+	if ( Any( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ALT_ATTACK ) ) )
 	{
 		iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 
 		switch ( pm->ps->weapon )
 		{
 			case WP_SABER:
-				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 				{ //don't do anything.. I guess.
 					pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 					goto backAgain;
@@ -7071,7 +7071,7 @@ static void PM_Weapon( void )
 	}
 
 	// don't allow attack until all buttons are up
-	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+	if ( Any( pm->ps->pm_flags & PMF_RESPAWNED ) ) {
 		return;
 	}
 
@@ -7087,11 +7087,11 @@ static void PM_Weapon( void )
 	}
 
 	// check for item using
-	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
+	if ( Any( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) ) {
 		// fix: rocket lock bug, one of many...
 		BG_ClearRocketLock( pm->ps );
 
-		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
+		if ( ! Any( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
 
 			if (pm_entSelf->s.NPC_class!=CLASS_VEHICLE
 				&& pm->ps->m_iVehicleNum)
@@ -7336,7 +7336,7 @@ static void PM_Weapon( void )
 				desTAnim = BOTH_STAND6;
 			}
 
-			if (!(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
+			if (!Any(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
 			{ //don't do this while holding attack
 				if (pm->ps->torsoAnim != desTAnim)
 				{
@@ -7349,7 +7349,7 @@ static void PM_Weapon( void )
 	{
 		animNumber_t desTAnim = pm->ps->legsAnim;
 
-		if (!(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
+		if (!Any(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
 		{ //don't do this while holding attack
 			if (pm->ps->torsoAnim != desTAnim)
 			{
@@ -7419,7 +7419,7 @@ static void PM_Weapon( void )
 	}
 
 	// check for fire
-	if ( ! (pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
+	if ( ! Any(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
 	{
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
@@ -7430,7 +7430,7 @@ static void PM_Weapon( void )
 	{
 		addTime = weaponData[pm->ps->weapon].fireTime;
 		pm->ps->weaponTime += addTime;
-		if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+		if ( Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 		{
 			PM_AddEvent( EV_ALT_FIRE );
 		}
@@ -7446,7 +7446,7 @@ static void PM_Weapon( void )
 		pm->ps->weaponstate = WEAPON_FIRING;
 		pm->ps->weaponTime += 100;
 #ifdef _GAME //hack, only do it game-side. vehicle weapons don't really need predicting I suppose.
-		if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+		if ( Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 		{
 			G_CheapWeaponFire(pm->ps->clientNum, EV_ALT_FIRE);
 		}
@@ -7458,7 +7458,7 @@ static void PM_Weapon( void )
 		/*
 		addTime = weaponData[WP_EMPLACED_GUN].fireTime;
 		pm->ps->weaponTime += addTime;
-		if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+		if ( Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 		{
 			PM_AddEvent( EV_ALT_FIRE );
 		}
@@ -7471,14 +7471,14 @@ static void PM_Weapon( void )
 	}
 
 	if (pm->ps->weapon == WP_DISRUPTOR &&
-		(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
+		Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
 		!pm->ps->zoomLocked)
 	{
 		return;
 	}
 
 	if (pm->ps->weapon == WP_DISRUPTOR &&
-		(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
+		Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
 		pm->ps->zoomMode == 2)
 	{ //can't use disruptor secondary while zoomed binoculars
 		return;
@@ -7494,8 +7494,8 @@ static void PM_Weapon( void )
 		if (!pm->ps->m_iVehicleNum)
 		{ //if riding a vehicle don't do this stuff at all
 			if (pm->debugMelee &&
-				(pm->cmd.buttons & BUTTON_ATTACK) &&
-				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
+				Any(pm->cmd.buttons & BUTTON_ATTACK) &&
+				Any(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //ok, grapple time
 #if 0 //eh, I want to try turning the saber off, but can't do that reliably for prediction..
 				bool icandoit = true;
@@ -7542,7 +7542,7 @@ static void PM_Weapon( void )
 #endif
 			}
 			else if (pm->debugMelee &&
-				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
+				Any(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //kicks
 				if (!BG_KickingAnim(pm->ps->torsoAnim) &&
 					!BG_KickingAnim(pm->ps->legsAnim))
@@ -7637,7 +7637,7 @@ static void PM_Weapon( void )
 		PM_StartTorsoAnim( WeaponAttackAnim[pm->ps->weapon] );
 	}
 
-	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+	if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) )
 	{
 		amount = weaponData[pm->ps->weapon].altEnergyPerShot;
 	}
@@ -7671,7 +7671,7 @@ static void PM_Weapon( void )
 		}
 	}
 
-	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) 	{
+	if ( Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) ) 	{
 		//if ( pm->ps->weapon == WP_BRYAR_PISTOL && pm->gametype != GT_SIEGE )
 		if (0)
 		{ //kind of a hack for now
@@ -7731,7 +7731,7 @@ PM_Animate
 */
 
 static void PM_Animate( void ) {
-	if ( pm->cmd.buttons & BUTTON_GESTURE ) {
+	if ( Any( pm->cmd.buttons & BUTTON_GESTURE ) ) {
 		if (pm->ps->m_iVehicleNum)
 		{ //eh, fine, clear it
 			if (pm->ps->forceHandExtendTime < pm->cmd.serverTime)
@@ -7758,32 +7758,32 @@ static void PM_Animate( void ) {
 // Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
 // I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
 // We can always add some back in if we want though.
-	} else if ( pm->cmd.buttons & BUTTON_GETFLAG ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_GETFLAG ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_GETFLAG );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-	} else if ( pm->cmd.buttons & BUTTON_GUARDBASE ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_GUARDBASE ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_GUARDBASE );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-	} else if ( pm->cmd.buttons & BUTTON_PATROL ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_PATROL ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_PATROL );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-	} else if ( pm->cmd.buttons & BUTTON_FOLLOWME ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_FOLLOWME ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_FOLLOWME );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-	} else if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_AFFIRMATIVE);
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
-	} else if ( pm->cmd.buttons & BUTTON_NEGATIVE ) {
+	} else if ( Any( pm->cmd.buttons & BUTTON_NEGATIVE ) ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_NEGATIVE );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
@@ -8092,7 +8092,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 		}
 	}
 	// get ammo usage
-	if ( pmove->cmd.buttons & BUTTON_ALT_ATTACK )
+	if ( Any( pmove->cmd.buttons & BUTTON_ALT_ATTACK ) )
 	{
 		amount = pmove->ps->ammo[weaponData[ pmove->ps->weapon ].ammoIndex] - weaponData[pmove->ps->weapon].altEnergyPerShot;
 	}
@@ -8104,7 +8104,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	// disruptor alt-fire should toggle the zoom mode, but only bother doing this for the player?
 	if ( pmove->ps->weapon == WP_DISRUPTOR && pmove->ps->weaponstate == WEAPON_READY )
 	{
-		if ( !(pmove->ps->eFlags & EF_ALT_FIRING) && (pmove->cmd.buttons & BUTTON_ALT_ATTACK) /*&&
+		if ( !Any(pmove->ps->eFlags & EF_ALT_FIRING) && Any(pmove->cmd.buttons & BUTTON_ALT_ATTACK) /*&&
 			pmove->cmd.upmove <= 0 && !pmove->cmd.forwardmove && !pmove->cmd.rightmove*/)
 		{
 			// We just pressed the alt-fire key
@@ -8127,7 +8127,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 				pmove->ps->weaponTime = 1000;
 			}
 		}
-		else if ( !(pmove->cmd.buttons & BUTTON_ALT_ATTACK ) && pmove->ps->zoomLockTime < pmove->cmd.serverTime)
+		else if ( !Any(pmove->cmd.buttons & BUTTON_ALT_ATTACK ) && pmove->ps->zoomLockTime < pmove->cmd.serverTime)
 		{
 			// Not pressing zoom any more
 			if ( pmove->ps->zoomMode )
@@ -8150,7 +8150,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 		}
 		//This seemed like a good idea, but apparently it confuses people. So disabled for now.
 		/*
-		else if (!(pmove->ps->eFlags & EF_ALT_FIRING) && (pmove->cmd.buttons & BUTTON_ALT_ATTACK) &&
+		else if (!Any(pmove->ps->eFlags & EF_ALT_FIRING) && Any(pmove->cmd.buttons & BUTTON_ALT_ATTACK) &&
 			(pmove->cmd.upmove > 0 || pmove->cmd.forwardmove || pmove->cmd.rightmove))
 		{ //if you try to zoom while moving, just convert it into a primary attack
 			pmove->cmd.buttons &= ~BUTTON_ALT_ATTACK;
@@ -8171,7 +8171,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 		}
 		*/
 
-		if ( pmove->cmd.buttons & BUTTON_ATTACK )
+		if ( Any( pmove->cmd.buttons & BUTTON_ATTACK ) )
 		{
 			// If we are zoomed, we should switch the ammo usage to the alt-fire, otherwise, we'll
 			//	just use whatever ammo was selected from above
@@ -8204,13 +8204,13 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	*/
 
 	// set the firing flag for continuous beam weapons, saber will fire even if out of ammo
-	if ( !(pmove->ps->pm_flags & PMF_RESPAWNED) &&
+	if ( !Any(pmove->ps->pm_flags & PMF_RESPAWNED) &&
 			pmove->ps->pm_type != PM_INTERMISSION &&
 			pmove->ps->pm_type != PM_NOCLIP &&
-			( pmove->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) &&
+			Any( pmove->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) &&
 			( amount >= 0 || pmove->ps->weapon == WP_SABER ))
 	{
-		if ( pmove->cmd.buttons & BUTTON_ALT_ATTACK )
+		if ( Any( pmove->cmd.buttons & BUTTON_ALT_ATTACK ) )
 		{
 			pmove->ps->eFlags |= EF_ALT_FIRING;
 		}
@@ -8231,13 +8231,13 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	// disruptor should convert a main fire to an alt-fire if the gun is currently zoomed
 	if ( pmove->ps->weapon == WP_DISRUPTOR)
 	{
-		if ( pmove->cmd.buttons & BUTTON_ATTACK && pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked)
+		if ( Any( pmove->cmd.buttons & BUTTON_ATTACK ) && pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked)
 		{
 			// converting the main fire to an alt-fire
 			pmove->cmd.buttons |= BUTTON_ALT_ATTACK;
 			pmove->ps->eFlags |= EF_ALT_FIRING;
 		}
-		else if ( pmove->cmd.buttons & BUTTON_ALT_ATTACK && pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked)
+		else if ( Any( pmove->cmd.buttons & BUTTON_ALT_ATTACK ) && pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked)
 		{
 			pmove->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 			pmove->ps->eFlags &= ~EF_ALT_FIRING;
@@ -8409,7 +8409,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	}
 
 
-	if ( cmd->forwardmove < 0 && !(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE )
+	if ( cmd->forwardmove < 0 && !Any(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE )
 	{//running backwards is slower than running forwards (like SP)
 		ps->speed *= 0.75f;
 	}
@@ -8656,7 +8656,7 @@ void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, an
 		VectorCopy(origin, ikP.origin);
 		VectorCopy(angles, ikP.angles);
 		ikP.angles[PITCH] = 0;
-		ikP.pcjOverrides = 0;
+		ikP.pcjOverrides = RAG_NONE;
 		ikP.radius = 10.0f;
 		VectorCopy(scale, ikP.scale);
 
@@ -8757,7 +8757,8 @@ void BG_IK_MoveArm(void *ghoul2, int lHandBolt, int time, entityState_t *ent, an
 	else if (*ikInProgress)
 	{ //kill it
 		float cFrame, animSpeed;
-		int sFrame, eFrame, flags;
+		int sFrame, eFrame;
+		boneFlags_t flags;
 
 		trap->G2API_SetBoneIKState(ghoul2, time, "lhumerus", IKS_NONE, nullptr);
 		trap->G2API_SetBoneIKState(ghoul2, time, "lradius", IKS_NONE, nullptr);
@@ -8954,7 +8955,7 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 		!BG_SaberInSpecialAttack(ciTorso) &&
 		!BG_SaberInSpecialAttack(ciLegs) &&
 
-		!(cent->eFlags & EF_DEAD) &&
+		!Any(cent->eFlags & EF_DEAD) &&
 		(cent->legsAnim) != (cent->torsoAnim) &&
 		(ciLegs) != (ciTorso) &&
 		!cent->m_iVehicleNum)
@@ -9205,7 +9206,7 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	}
 
 	// adjust legs for movement dir
-	if ( cent->eFlags & EF_DEAD ) {
+	if ( Any( cent->eFlags & EF_DEAD ) ) {
 		// don't let dead bodies twitch
 		dir = 0;
 	} else {
@@ -9945,7 +9946,7 @@ void PM_VehFaceHyperspacePoint(bgEntity_t *veh)
 				//keep hyperspace time up to date
 				veh->playerState->hyperSpaceTime += pml.msec;
 			}
-			else if ( !(veh->playerState->eFlags2&EF2_HYPERSPACE))
+			else if ( !Any(veh->playerState->eFlags2&EF2_HYPERSPACE))
 			{//flag us as ready to hyperspace!
 				veh->playerState->eFlags2 |= EF2_HYPERSPACE;
 			}
@@ -10022,7 +10023,7 @@ void PM_VehFaceHyperspacePoint(bgEntity_t *veh)
 				//keep hyperspace time up to date
 				veh->playerState->hyperSpaceTime += pml.msec;
 			}
-			else if ( !(veh->playerState->eFlags2&EF2_HYPERSPACE))
+			else if ( !Any(veh->playerState->eFlags2&EF2_HYPERSPACE))
 			{//flag us as ready to hyperspace!
 				veh->playerState->eFlags2 |= EF2_HYPERSPACE;
 			}
@@ -10033,8 +10034,8 @@ void PM_VehFaceHyperspacePoint(bgEntity_t *veh)
 #endif //VEH_CONTROL_SCHEME_4
 
 void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, vec3_t mins, vec3_t maxs,
-										int clientNum, int tracemask,
-										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask))
+										int clientNum, contentsFlags_t tracemask,
+										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask))
 {
 	if ( !veh
 		|| !veh->m_pVehicleInfo->length
@@ -10124,7 +10125,7 @@ PmoveSingle
 */
 extern int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
 extern bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity,
-					  void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, int contentMask )); //FighterNPC.cpp
+					  void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask )); //FighterNPC.cpp
 
 #define JETPACK_HOVER_HEIGHT	64
 
@@ -10220,12 +10221,12 @@ void PmoveSingle (pmove_t *pmove) {
 
 	pm = pmove;
 
-	if (pm->cmd.buttons & BUTTON_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
+	if (Any( pm->cmd.buttons & BUTTON_ATTACK ) && Any( pm->cmd.buttons & BUTTON_USE_HOLDABLE ))
 	{
 		pm->cmd.buttons &= ~BUTTON_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
 	}
-	if (pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
+	if (Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ) && Any( pm->cmd.buttons & BUTTON_USE_HOLDABLE ))
 	{
 		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
@@ -10233,7 +10234,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if (pm->ps->emplacedIndex)
 	{
-		if (pm->cmd.buttons & BUTTON_ALT_ATTACK)
+		if (Any( pm->cmd.buttons & BUTTON_ALT_ATTACK ))
 		{ //hackerrific.
 			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 			pm->cmd.buttons |= BUTTON_ATTACK;
@@ -10266,7 +10267,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	// clear results
 	pm->numtouch = 0;
-	pm->watertype = 0;
+	pm->watertype = CONTENTS_NONE;
 	pm->waterlevel = 0;
 
 	if (PM_IsRocketTrooper())
@@ -10281,7 +10282,7 @@ void PmoveSingle (pmove_t *pmove) {
 	{ //You get no control over where you go in grip movement
 		stiffenedUp = true;
 	}
-	else if (pm->ps->eFlags & EF_DISINTEGRATION)
+	else if (Any( pm->ps->eFlags & EF_DISINTEGRATION ))
 	{
 		stiffenedUp = true;
 	}
@@ -10365,12 +10366,12 @@ void PmoveSingle (pmove_t *pmove) {
 	else if ( BG_FullBodyTauntAnim( pm->ps->legsAnim )
 		&& BG_FullBodyTauntAnim( pm->ps->torsoAnim ) )
 	{
-		if ( (pm->cmd.buttons&BUTTON_ATTACK)
-			|| (pm->cmd.buttons&BUTTON_ALT_ATTACK)
-			|| (pm->cmd.buttons&BUTTON_FORCEPOWER)
-			|| (pm->cmd.buttons&BUTTON_FORCEGRIP)
-			|| (pm->cmd.buttons&BUTTON_FORCE_LIGHTNING)
-			|| (pm->cmd.buttons&BUTTON_FORCE_DRAIN)
+		if ( Any(pm->cmd.buttons&BUTTON_ATTACK)
+			|| Any(pm->cmd.buttons&BUTTON_ALT_ATTACK)
+			|| Any(pm->cmd.buttons&BUTTON_FORCEPOWER)
+			|| Any(pm->cmd.buttons&BUTTON_FORCEGRIP)
+			|| Any(pm->cmd.buttons&BUTTON_FORCE_LIGHTNING)
+			|| Any(pm->cmd.buttons&BUTTON_FORCE_DRAIN)
 			|| pm->cmd.upmove )
 		{//stop the anim
 			if ( pm->ps->legsAnim == BOTH_MEDITATE
@@ -10412,7 +10413,7 @@ void PmoveSingle (pmove_t *pmove) {
 				pm->cmd.rightmove = 0;
 				pm->cmd.upmove = 0;
 				pm->cmd.forwardmove = 0;
-				pm->cmd.buttons = 0;
+				pm->cmd.buttons = BUTTON_NONE;
 			}
 		}
 	}
@@ -10424,7 +10425,7 @@ void PmoveSingle (pmove_t *pmove) {
         pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 		pm->cmd.forwardmove = 0;
-		pm->cmd.buttons = 0;
+		pm->cmd.buttons = BUTTON_NONE;
 	}
 	else if (pm->ps->legsAnim == BOTH_FORCELAND1 ||
 		pm->ps->legsAnim == BOTH_FORCELANDBACK1 ||
@@ -10542,7 +10543,7 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	// set the talk balloon flag
-	if ( pm->cmd.buttons & BUTTON_TALK ) {
+	if ( Any( pm->cmd.buttons & BUTTON_TALK ) ) {
 		pm->ps->eFlags |= EF_TALK;
 	} else {
 		pm->ps->eFlags &= ~EF_TALK;
@@ -10552,8 +10553,8 @@ void PmoveSingle (pmove_t *pmove) {
 	if (pm->ps->weapon == WP_DISRUPTOR &&
 		pm->ps->zoomMode == 1)
 	{
-		if ((pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
-			!(pm->cmd.buttons & BUTTON_ATTACK) &&
+		if (Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
+			!Any(pm->cmd.buttons & BUTTON_ATTACK) &&
 			pm->ps->zoomLocked)
 		{
 			pm_cancelOutZoom = true;
@@ -10565,14 +10566,14 @@ void PmoveSingle (pmove_t *pmove) {
 
 	// clear the respawned flag if attack and use are cleared
 	if ( pm->ps->stats[STAT_HEALTH] > 0 &&
-		!( pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) ) ) {
+		!Any( pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) ) ) {
 		pm->ps->pm_flags &= ~PMF_RESPAWNED;
 	}
 
 	// if talk button is down, dissallow all other input
 	// this is to prevent any possible intercept proxy from
 	// adding fake talk balloons
-	if ( pmove->cmd.buttons & BUTTON_TALK ) {
+	if ( Any( pmove->cmd.buttons & BUTTON_TALK ) ) {
 		// keep the talk button set tho for when the cmd.serverTime > 66 msec
 		// and the same cmd is used multiple times in Pmove
 		pmove->cmd.buttons = BUTTON_TALK;
@@ -10692,7 +10693,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
 
-	if ( pm->cmd.upmove < 10 && !(pm->ps->pm_flags & PMF_STUCK_TO_WALL)) {
+	if ( pm->cmd.upmove < 10 && !Any(pm->ps->pm_flags & PMF_STUCK_TO_WALL)) {
 		// not holding jump
 		pm->ps->pm_flags &= ~PMF_JUMP_HELD;
 	}
@@ -10712,7 +10713,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	/*
 	if (pm->ps->fd.saberAnimLevel == SS_STAFF &&
-		(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
+		Any(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
 		pm->cmd.upmove > 0)
 	{ //this is how you do kick-for-condition
 		pm->cmd.upmove = 0;
@@ -11094,7 +11095,7 @@ void PmoveSingle (pmove_t *pmove) {
 		}
 		else
 		{
-			if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
+			if (Any( pm->ps->pm_flags & PMF_TIME_WATERJUMP )) {
 				PM_WaterJumpMove();
 			} else if ( pm->waterlevel > 1 ) {
 				// swimming
@@ -11134,7 +11135,7 @@ void PmoveSingle (pmove_t *pmove) {
 		/*&&pm_entSelf->s.NPC_class!=CLASS_VEHICLE*/
 		&& pm->ps->clientNum < MAX_CLIENTS)
 	{//a client riding a vehicle
-		if ( (pm->ps->eFlags&EF_NODRAW) )
+		if ( Any(pm->ps->eFlags&EF_NODRAW) )
 		{//inside the vehicle, do nothing
 		}
 		else if (!PM_WeaponOkOnVehicle(UC_Weapon( pm->cmd )) || !PM_WeaponOkOnVehicle(pm->ps->weapon))
@@ -11158,7 +11159,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if (!pm->ps->m_iVehicleNum //not a vehicle and not riding one
 		|| pm_entSelf->s.NPC_class==CLASS_VEHICLE //you are a vehicle NPC
-		|| (!(pm->ps->eFlags&EF_NODRAW)&&PM_WeaponOkOnVehicle(UC_Weapon( pm->cmd ))) )//you're not inside the vehicle and the weapon you're holding can be used when riding this vehicle
+		|| (!Any(pm->ps->eFlags&EF_NODRAW)&&PM_WeaponOkOnVehicle(UC_Weapon( pm->cmd ))) )//you're not inside the vehicle and the weapon you're holding can be used when riding this vehicle
 	{ //only run weapons if a valid weapon is selected
 		// weapons
 		PM_Weapon();
@@ -11238,7 +11239,7 @@ void Pmove (pmove_t *pmove) {
 		pmove->cmd.forwardmove = 0;
 		pmove->cmd.rightmove = 0;
 		pmove->cmd.upmove = 0;
-		pmove->cmd.buttons = 0;
+		pmove->cmd.buttons = BUTTON_NONE;
 	}
 
 	pmove->ps->pmove_framecount = (pmove->ps->pmove_framecount+1) & ((1<<PS_PMOVEFRAMECOUNTBITS)-1);
@@ -11263,7 +11264,7 @@ void Pmove (pmove_t *pmove) {
 
 		PmoveSingle( pmove );
 
-		if ( pmove->ps->pm_flags & PMF_JUMP_HELD ) {
+		if ( Any( pmove->ps->pm_flags & PMF_JUMP_HELD ) ) {
 			pmove->cmd.upmove = 20;
 		}
 	}

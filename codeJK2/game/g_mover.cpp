@@ -118,9 +118,9 @@ G_TestEntityPosition
 */
 gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	trace_t	tr;
-	int		mask;
+	contentsFlags_t	mask;
 
-	if ( (ent->client && ent->health <= 0) || !ent->clipmask )
+	if ( (ent->client && ent->health <= 0) || !Any( ent->clipmask ) )
 	{//corpse or something with no clipmask
 		mask = MASK_SOLID;
 	}
@@ -134,7 +134,7 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	}
 	else
 	{
-		if ( ent->s.eFlags & EF_MISSILE_STICK )//Arggh, this is dumb...but when it used the bbox, it was pretty much always in solid when it is riding something..which is wrong..so I changed it to basically be a point contents check
+		if ( Any( ent->s.eFlags & EF_MISSILE_STICK ) )//Arggh, this is dumb...but when it used the bbox, it was pretty much always in solid when it is riding something..which is wrong..so I changed it to basically be a point contents check
 		{
 			gi.trace( &tr, ent->s.pos.trBase, vec3_origin, vec3_origin, ent->s.pos.trBase, ent->s.number, mask, G2_NOCOLLIDE, 0 );
 		}
@@ -166,7 +166,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	/*
 	// EF_MOVER_STOP will just stop when contacting another entity
 	// instead of pushing it, but entities can still ride on top of it
-	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) &&
+	if ( Any( pusher->s.eFlags & EF_MOVER_STOP ) &&
 		check->s.groundEntityNum != pusher->s.number ) {
 		return false;
 	}
@@ -249,7 +249,7 @@ bool	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_
 	// blocked
 	if ( pusher->damage )
 	{//Do damage
-		G_Damage(check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, 0, MOD_CRUSH );
+		G_Damage(check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, DAMAGE_NORMAL, MOD_CRUSH );
 	}
 
 	return false;
@@ -339,10 +339,10 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 	for ( e = 0 ; e < listedEntities ; e++ ) {
 		check = entityList[ e ];
 
-		if (( check->s.eFlags & EF_MISSILE_STICK ) && (notMoving || check->s.groundEntityNum < 0 || check->s.groundEntityNum >= ENTITYNUM_NONE ))
+		if (Any( check->s.eFlags & EF_MISSILE_STICK ) && (notMoving || check->s.groundEntityNum < 0 || check->s.groundEntityNum >= ENTITYNUM_NONE ))
 		{
 			// special case hack for sticky things, destroy it if we aren't attached to the thing that is moving, but the moving thing is pushing us
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
 			continue;
 		}
 
@@ -352,7 +352,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 			//FIXME: however it allows items to be pushed through stuff, do same for corpses?
 			if ( check->s.eType != ET_PLAYER )
 			{
-				if ( !( check->s.eFlags & EF_MISSILE_STICK ))
+				if ( !Any( check->s.eFlags & EF_MISSILE_STICK ))
 				{
 					// cannot be pushed by this mover
 					continue;
@@ -411,10 +411,10 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 			//Damage on impact
 			if ( pusher->damage )
 			{//Do damage
-				G_Damage( check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, 0, MOD_CRUSH );
+				G_Damage( check, pusher, pusher->activator, move, check->currentOrigin, pusher->damage, DAMAGE_NORMAL, MOD_CRUSH );
 				if ( pusher->health >= 0 && pusher->takedamage && !(pusher->spawnflags&1) )
 				{//do some damage to me, too
-					G_Damage( pusher, check, pusher->activator, move, pusher->s.pos.trBase, floor(pusher->damage/4.0f), 0, MOD_CRUSH );
+					G_Damage( pusher, check, pusher->activator, move, pusher->s.pos.trBase, floor(pusher->damage/4.0f), DAMAGE_NORMAL, MOD_CRUSH );
 				}
 			}
 		}
@@ -433,7 +433,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 		if ( G_TryPushingEntity( check, pusher, move, amove ) )
 		{
 			// the mover wasn't blocked
-			if ( check->s.eFlags & EF_MISSILE_STICK )
+			if ( Any( check->s.eFlags & EF_MISSILE_STICK ) )
 			{
 				if ( !VectorCompare( oldOrg, check->s.pos.trBase ))
 				{
@@ -451,10 +451,10 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 		}
 
 		// the move was blocked even after pushing this rider
-		if ( check->s.eFlags & EF_MISSILE_STICK )
+		if ( Any( check->s.eFlags & EF_MISSILE_STICK ) )
 		{
 			// so nuke 'em so they don't block us anymore
-			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH );
 			continue;
 		}
 
@@ -557,7 +557,7 @@ G_RunMover
 void G_RunMover( gentity_t *ent ) {
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
-	if ( ent->flags & FL_TEAMSLAVE ) {
+	if ( Any( ent->flags & FL_TEAMSLAVE ) ) {
 		return;
 	}
 
@@ -957,13 +957,13 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	}
 
 	// only the master should be used
-	if ( ent->flags & FL_TEAMSLAVE )
+	if ( Any( ent->flags & FL_TEAMSLAVE ) )
 	{
 		Use_BinaryMover( ent->teammaster, other, activator );
 		return;
 	}
 
-	if ( ent->svFlags & SVF_INACTIVE )
+	if ( Any( ent->svFlags & SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -1160,7 +1160,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	}
 
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, DAMAGE_NORMAL, MOD_CRUSH );
 	}
 	if ( ent->spawnflags & MOVER_CRUSHER ) {
 		return;		// crushers don't reverse
@@ -1179,7 +1179,7 @@ Touch_DoorTrigger
 
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
-	if ( ent->svFlags & SVF_INACTIVE )
+	if ( Any( ent->svFlags & SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -1285,9 +1285,9 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 {
 	gentity_t *owner = nullptr;
 	gentity_t *door = ent;
-	if ( door->flags & FL_TEAMSLAVE )
+	if ( Any( door->flags & FL_TEAMSLAVE ) )
 	{//not the master door, get the master door
-		while ( door->teammaster && (door->flags&FL_TEAMSLAVE))
+		while ( door->teammaster && Any( door->flags & FL_TEAMSLAVE ))
 		{
 			door = door->teammaster;
 		}
@@ -1297,7 +1297,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		//FIXME: if ent->targetname, check what kind of trigger/ent is targetting it?  If a normal trigger (active, etc), then it's okay?
 		while ( (owner = G_Find( owner, FOFS( target ), door->targetname )) != nullptr )
 		{
-			if ( owner && (owner->contents&CONTENTS_TRIGGER) )
+			if ( owner && Any( owner->contents&CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1305,7 +1305,7 @@ gentity_t *G_FindDoorTrigger( gentity_t *ent )
 		owner = nullptr;
 		while ( (owner = G_Find( owner, FOFS( target2 ), door->targetname )) != nullptr )
 		{
-			if ( owner && (owner->contents&CONTENTS_TRIGGER) )
+			if ( owner && Any( owner->contents&CONTENTS_TRIGGER ) )
 			{
 				return owner;
 			}
@@ -1336,9 +1336,9 @@ bool G_EntIsUnlockedDoor( int entityNum )
 	{
 		gentity_t *ent = &g_entities[entityNum];
 		gentity_t *owner = nullptr;
-		if ( ent->flags & FL_TEAMSLAVE )
+		if ( Any( ent->flags & FL_TEAMSLAVE ) )
 		{//not the master door, get the master door
-			while ( ent->teammaster && (ent->flags&FL_TEAMSLAVE))
+			while ( ent->teammaster && Any( ent->flags & FL_TEAMSLAVE ))
 			{
 				ent = ent->teammaster;
 			}
@@ -1373,12 +1373,12 @@ bool G_EntIsUnlockedDoor( int entityNum )
 		else
 		{//check the door's auto-created trigger instead
 			owner = G_FindDoorTrigger( ent );
-			if ( owner && (owner->svFlags&SVF_INACTIVE) )
+			if ( owner && Any( owner->svFlags & SVF_INACTIVE ) )
 			{//owning auto-created trigger is inactive
 				return false;
 			}
 		}
-		if ( !(ent->svFlags & SVF_INACTIVE) && //assumes that the reactivate trigger isn't right next to the door!
+		if ( !Any( ent->svFlags & SVF_INACTIVE ) && //assumes that the reactivate trigger isn't right next to the door!
 			!ent->health &&
 			!(ent->spawnflags & MOVER_PLAYER_USE) &&
 			!(ent->spawnflags & MOVER_FORCE_ACTIVATE) &&
@@ -1489,7 +1489,7 @@ void SP_func_door (gentity_t *ent)
 
 	ent->nextthink = level.time + FRAMETIME;
 
-	if ( !(ent->flags&FL_TEAMSLAVE) )
+	if ( !Any( ent->flags & FL_TEAMSLAVE ) )
 	{
 		int health;
 
@@ -2015,7 +2015,7 @@ void SP_path_corner( gentity_t *self ) {
 }
 
 
-void func_train_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void func_train_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 {
 	if ( self->target3 )
 	{
@@ -2206,7 +2206,7 @@ void func_rotating_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 	// yeah, this is a bit hacky...
-	if(	self->s.apos.trType != TR_STATIONARY && !(other->flags & FL_DISINTEGRATED) ) // only damage if it's moving
+	if(	self->s.apos.trType != TR_STATIONARY && !Any( other->flags & FL_DISINTEGRATED ) ) // only damage if it's moving
 	{
 //		VectorCopy( self->currentOrigin, spot );
 //		tent = G_TempEntity( spot, EV_DISINTEGRATION );
@@ -2474,7 +2474,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	G_ActivateBehavior(ent,BSET_USE);
 
 	// Not there so make it there
-	if (!(ent->contents & CONTENTS_SOLID))
+	if (!Any( ent->contents & CONTENTS_SOLID ))
 	{
 		ent->svFlags &= ~SVF_NOCLIENT;
 		ent->s.eFlags &= ~EF_NODRAW;
@@ -2487,7 +2487,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	// Make it go away
 	else
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 		ent->svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
 		if ( !(ent->spawnflags&1) )
@@ -2527,7 +2527,7 @@ void SP_func_wall( gentity_t *ent )
 	// it must be START_OFF
 	if (ent->spawnflags & FUNC_WALL_OFF)
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 		ent->svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
 	}
@@ -2558,7 +2558,7 @@ void security_panel_use( gentity_t *self, gentity_t *other, gentity_t *activator
 		INV_SecurityKeyTake( activator, self->message );
 		if ( activator->ghoul2.size() )
 		{
-			gi.G2API_SetSurfaceOnOff( &activator->ghoul2[activator->playerModel], "l_arm_key", 0x00000002 );
+			gi.G2API_SetSurfaceOnOff( &activator->ghoul2[activator->playerModel], "l_arm_key", G2SURFACEFLAG_OFF );
 		}
 		//FIXME: maybe set frame on me to have key sticking out?
 		//self->s.frame = 1;

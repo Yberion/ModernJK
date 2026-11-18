@@ -129,7 +129,7 @@ SV_WriteSnapshotToClient
 static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	clientSnapshot_t	*frame, *oldframe;
 	int					lastframe;
-	int					snapFlags;
+	snapFlags_t			snapFlags;
 
 	// this is the snapshot we are creating
 	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
@@ -173,10 +173,10 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	MSG_WriteByte (msg, lastframe);				// what we are delta'ing from
 	MSG_WriteLong (msg, client->cmdNum);		// we have executed up to here
 
-	snapFlags = client->droppedCommands << 1;
+	snapFlags = client->droppedCommands ? SNAPFLAG_DROPPED_COMMANDS : SNAPFLAG_NONE;
 	client->droppedCommands = false;
 
-	MSG_WriteByte (msg, snapFlags);
+	MSG_WriteByte (msg, to_underlying( snapFlags ));
 
 	// send over the areabits
 	MSG_WriteByte (msg, frame->areabytes);
@@ -275,9 +275,6 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 	eNums->numSnapshotEntities++;
 }
 
-//rww - bg_public.h won't cooperate in here
-#define EF_PERMANENT			0x00080000
-
 EnumArray<float, forcePowerLevels_t, to_underlying( FORCE_LEVEL_5 ) + 1> sv_sightRangeForLevel =
 {
 	0,//FORCE_LEVEL_0
@@ -306,7 +303,7 @@ bool SV_PlayerCanSeeEnt( gentity_t *ent, forcePowerLevels_t sightLevel )
 			VectorSubtract( ent->currentOrigin, viewOrg, dir2Ent );
 			float entDist = VectorNormalize( dir2Ent );
 
-			if ( (ent->s.eFlags&EF_FORCE_VISIBLE) )
+			if ( Any(ent->s.eFlags&EF_FORCE_VISIBLE) )
 			{//no dist check on them?
 			}
 			else
@@ -386,7 +383,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if (ent->s.eFlags & EF_PERMANENT)
+		if (Any( ent->s.eFlags & EF_PERMANENT ))
 		{	// he's permanent, so don't send him down!
 			continue;
 		}
@@ -402,7 +399,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// entities can be flagged to explicitly not be sent to the client
-		if ( ent->svFlags & SVF_NOCLIENT ) {
+		if ( Any( ent->svFlags & SVF_NOCLIENT ) ) {
 			continue;
 		}
 
@@ -414,7 +411,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// broadcast entities are always sent, and so is the main player so we don't see noclip weirdness
-		if ( ent->svFlags & SVF_BROADCAST || !e) {
+		if ( Any( ent->svFlags & SVF_BROADCAST ) || !e) {
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
 			continue;
 		}
@@ -484,7 +481,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		SV_AddEntToSnapshot( svEnt, ent, eNums );
 
 		// if its a portal entity, add everything visible from its camera position
-		if ( ent->svFlags & SVF_PORTAL ) {
+		if ( Any( ent->svFlags & SVF_PORTAL ) ) {
 			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, true );
 		}
 	}
@@ -672,7 +669,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 
 	// bots need to have their snapshots build, but
 	// the query them directly without needing to be sent
-	if ( client->gentity && client->gentity->svFlags & SVF_BOT ) {
+	if ( client->gentity && Any( client->gentity->svFlags & SVF_BOT ) ) {
 		return;
 	}
 

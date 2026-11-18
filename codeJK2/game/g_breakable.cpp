@@ -92,16 +92,16 @@ void funcBBrushDieGo (gentity_t *self)
 	// if a missile is stuck to us, blow it up so we don't look dumb
 	for ( int i = 0; i < MAX_GENTITIES; i++ )
 	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && ( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
+		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
 		{
-			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, 0, MOD_CRUSH ); //?? MOD?
+			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH ); //?? MOD?
 		}
 	}
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
-	self->contents = 0;
-	self->clipmask = 0;
+	self->contents = CONTENTS_NONE;
+	self->clipmask = CONTENTS_NONE;
 	gi.linkentity(self);
 
 	VectorSet(up, 0, 0, 1);
@@ -182,7 +182,7 @@ void funcBBrushDieGo (gentity_t *self)
 	//G_FreeEntity( self );
 }
 
-void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc)
+void funcBBrushDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc)
 {
 	self->takedamage = false;//stop chain reaction runaway loops
 
@@ -448,7 +448,7 @@ void misc_model_breakable_pain ( gentity_t *self, gentity_t *inflictor, gentity_
 	}
 }
 
-void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	int		numChunks;
 	float	size = 0, scale;
@@ -505,8 +505,8 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 	if ( !(self->spawnflags & 4) )
 	{//We don't want to stay solid
 		self->s.solid = 0;
-		self->contents = 0;
-		self->clipmask = 0;
+		self->contents = CONTENTS_NONE;
+		self->clipmask = CONTENTS_NONE;
 		gi.linkentity(self);
 	}
 
@@ -992,16 +992,16 @@ extern void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmg
 extern	cgs_t			cgs;
 
 //-----------------------------------------------------
-void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	vec3_t		verts[4], normal;
 
 	// if a missile is stuck to us, blow it up so we don't look dumb....we could, alternately, just let the missile drop off??
 	for ( int i = 0; i < MAX_GENTITIES; i++ )
 	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && ( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
+		if ( g_entities[i].s.groundEntityNum == self->s.number && Any( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
 		{
-			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, 0, MOD_CRUSH ); //?? MOD?
+			G_Damage( &g_entities[i], self, self, nullptr, nullptr, 99999, DAMAGE_NORMAL, MOD_CRUSH ); //?? MOD?
 		}
 	}
 
@@ -1015,8 +1015,8 @@ void funcGlassDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 
 	//So chunks don't get stuck inside me
 	self->s.solid = 0;
-	self->contents = 0;
-	self->clipmask = 0;
+	self->contents = CONTENTS_NONE;
+	self->clipmask = CONTENTS_NONE;
 	gi.linkentity(self);
 
 	if ( self->target && attacker != nullptr )
@@ -1108,11 +1108,11 @@ bool G_EntIsBreakable( int entityNum )
 	}
 
 	gentity_t *ent = &g_entities[entityNum];
-	if ( (ent->svFlags&SVF_GLASS_BRUSH) )
+	if ( Any( ent->svFlags & SVF_GLASS_BRUSH ) )
 	{
 		return true;
 	}
-	if ( (ent->svFlags&SVF_BBRUSH) )
+	if ( Any( ent->svFlags & SVF_BBRUSH ) )
 	{
 		return true;
 	}

@@ -377,6 +377,8 @@ typedef struct textureBundle_s {
 
 #define NUM_TEXTURE_BUNDLES 2
 
+#include "qcommon/q_glstate.h"
+
 typedef struct shaderStage_s {
 	bool			active;
 	bool			isDetail;
@@ -394,7 +396,7 @@ typedef struct shaderStage_s {
 
 	byte			constantColor[4];			// for CGEN_CONST and AGEN_CONST
 
-	uint32_t		stateBits;					// GLS_xxxx mask
+	glStateBits_t	stateBits;					// GLS_xxxx mask
 
 	acff_t			adjustColorsForFog;
 
@@ -448,8 +450,8 @@ typedef struct shader_s {
 
 	float		sort;					// lower numbered shaders draw before higher numbered
 
-	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
-	int			contentFlags;
+	surfaceFlags_t	surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
+	contentsFlags_t	contentFlags;
 
 	bool		defaultShader;			// we want to return index 0 if the shader failed to
 										// load for some reason, but R_FindShader should
@@ -520,7 +522,7 @@ typedef struct trRefdef_s {
 
 	int			time;				// time in milliseconds for shader effects and other time dependent rendering issues
 	int			frametime;
-	int			rdflags;			// RDF_NOWORLDMODEL, etc
+	refdefFlags_t	rdflags;			// RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
@@ -963,7 +965,7 @@ typedef struct glstate_s {
 	bool	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
-	uint32_t	glStateBits;
+	glStateBits_t	glStateBits;
 } glstate_t;
 
 
@@ -1325,46 +1327,9 @@ void	GL_SetDefaultState (void);
 void	GL_SelectTexture( int unit );
 void	GL_TextureMode( const char *string );
 void	GL_CheckErrors( void );
-void	GL_State( uint32_t stateVector );
+void	GL_State( glStateBits_t stateVector );
 void	GL_TexEnv( int env );
 void	GL_Cull( cullType_t cullType );
-
-#define GLS_SRCBLEND_ZERO						0x00000001
-#define GLS_SRCBLEND_ONE						0x00000002
-#define GLS_SRCBLEND_DST_COLOR					0x00000003
-#define GLS_SRCBLEND_ONE_MINUS_DST_COLOR		0x00000004
-#define GLS_SRCBLEND_SRC_ALPHA					0x00000005
-#define GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA		0x00000006
-#define GLS_SRCBLEND_DST_ALPHA					0x00000007
-#define GLS_SRCBLEND_ONE_MINUS_DST_ALPHA		0x00000008
-#define GLS_SRCBLEND_ALPHA_SATURATE				0x00000009
-#define		GLS_SRCBLEND_BITS					0x0000000f
-
-#define GLS_DSTBLEND_ZERO						0x00000010
-#define GLS_DSTBLEND_ONE						0x00000020
-#define GLS_DSTBLEND_SRC_COLOR					0x00000030
-#define GLS_DSTBLEND_ONE_MINUS_SRC_COLOR		0x00000040
-#define GLS_DSTBLEND_SRC_ALPHA					0x00000050
-#define GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA		0x00000060
-#define GLS_DSTBLEND_DST_ALPHA					0x00000070
-#define GLS_DSTBLEND_ONE_MINUS_DST_ALPHA		0x00000080
-#define		GLS_DSTBLEND_BITS					0x000000f0
-
-#define GLS_DEPTHMASK_TRUE						0x00000100
-
-#define GLS_POLYMODE_LINE						0x00001000
-
-#define GLS_DEPTHTEST_DISABLE					0x00010000
-#define GLS_DEPTHFUNC_EQUAL						0x00020000
-
-#define GLS_ATEST_GT_0							0x10000000
-#define GLS_ATEST_LT_80							0x20000000
-#define GLS_ATEST_GE_80							0x40000000
-#define GLS_ATEST_GE_C0							0x80000000
-#define		GLS_ATEST_BITS						0xF0000000
-
-#define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
-#define GLS_ALPHA			(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 
 void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
 void	RE_UploadCinematic (int cols, int rows, const byte *data, int client, bool dirty);

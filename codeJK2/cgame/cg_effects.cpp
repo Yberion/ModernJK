@@ -40,7 +40,7 @@ CG_MakeExplosion
 /*
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numFrames, qhandle_t shader,
-								int msec, bool isSprite, float scale, int flags )
+								int msec, bool isSprite, float scale, leFlags_t flags )
 {
 	float			ang = 0;
 	localEntity_t	*ex;
@@ -72,7 +72,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 		}
 		else
 		{
-			if ( !(flags & LEF_NO_RANDOM_ROTATE) )
+			if ( !Any( flags & LEF_NO_RANDOM_ROTATE ) )
 				ang = rand() % 360;
 			VectorCopy( dir, ex->refEntity.axis[0] );
 			RotateAroundDirection( ex->refEntity.axis, ang );

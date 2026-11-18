@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern gentity_t *G_FindDoorTrigger( gentity_t *door );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
-extern void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, int solid_mask,int animFlag,
+extern void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, contentsFlags_t solid_mask,entityFlags_t animFlag,
 									bool take_damage, bool damage_model);
 
 #define MAX_AMMO_GIVE 4
@@ -190,7 +190,7 @@ TELEPORTERS
 
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
 {
-	if ( player->NPC && ( player->NPC->aiFlags&NPCAI_FORM_TELE_NAV ) )
+	if ( player->NPC && Any( player->NPC->aiFlags&NPCAI_FORM_TELE_NAV ) )
 	{
 		//My leader teleported, I was trying to catch up, take this off
 		player->NPC->aiFlags &= ~NPCAI_FORM_TELE_NAV;
@@ -522,7 +522,7 @@ void SP_misc_portal_camera(gentity_t *ent) {
 extern bool G_ClearViewEntity( gentity_t *ent );
 extern void G_SetViewEntity( gentity_t *self, gentity_t *viewEntity );
 extern void SP_fx_runner( gentity_t *ent );
-void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	if ( player && player->client && player->client->ps.viewEntity == self->s.number )
 	{
@@ -546,7 +546,7 @@ void camera_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	//bye!
 	self->takedamage = false;
-	self->contents = 0;
+	self->contents = CONTENTS_NONE;
 	self->s.eFlags |= EF_NODRAW;
 	self->s.modelindex = 0;
 }
@@ -596,7 +596,7 @@ void camera_aim( gentity_t *self )
 	self->nextthink = level.time + FRAMETIME;
 	if ( player && player->client && player->client->ps.viewEntity == self->s.number )
 	{//I am the viewEntity
-		if ( (player->client->usercmd.buttons&BUTTON_BLOCKING) || player->client->usercmd.forwardmove || player->client->usercmd.rightmove || player->client->usercmd.upmove )
+		if ( Any(player->client->usercmd.buttons&BUTTON_BLOCKING) || player->client->usercmd.forwardmove || player->client->usercmd.rightmove || player->client->usercmd.upmove )
 		{//player wants to back out of camera
 			G_UseTargets2( self, player, self->target4 );
 			G_ClearViewEntity( player );
@@ -609,7 +609,7 @@ void camera_aim( gentity_t *self )
 		}
 		else if ( self->painDebounceTime < level.time )
 		{//check for use button
-			if ( (player->client->usercmd.buttons&BUTTON_USE) )
+			if ( Any(player->client->usercmd.buttons&BUTTON_USE) )
 			{//player pressed use button, wants to cycle to next
 				camera_use( self, player, player );
 			}
@@ -1025,7 +1025,7 @@ int ITM_AddHealth (gentity_t *ent, int count);
 
 void health_shutdown( gentity_t *self )
 {
-	if (!(self->s.eFlags & EF_ANIM_ONCE))
+	if (!Any(self->s.eFlags & EF_ANIM_ONCE))
 	{
 		self->s.eFlags &= ~ EF_ANIM_ALLFAST;
 		self->s.eFlags |= EF_ANIM_ONCE;
@@ -1240,7 +1240,7 @@ int Add_Ammo2 (gentity_t *ent, ammo_t ammoType, int count);
 
 void ammo_shutdown( gentity_t *self )
 {
-	if (!(self->s.eFlags & EF_ANIM_ONCE))
+	if (!Any(self->s.eFlags & EF_ANIM_ONCE))
 	{
 		self->s.eFlags &= ~ EF_ANIM_ALLFAST;
 		self->s.eFlags |= EF_ANIM_ONCE;
@@ -1500,7 +1500,7 @@ void spawn_ammo_crystal_trigger( gentity_t *ent )
 void misc_replicator_item_remove ( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	self->s.eFlags |= EF_NODRAW;
-	//self->contents = 0;
+	//self->contents = CONTENTS_NONE;
 	self->s.modelindex = 0;
 	self->e_UseFunc = useF_misc_replicator_item_spawn;
 	//FIXME: pickup sound?
@@ -1607,7 +1607,7 @@ void SP_misc_replicator_item ( gentity_t *self )
 	self->e_UseFunc = useF_misc_replicator_item_spawn;
 
 	self->s.eFlags |= EF_NODRAW;
-	//self->contents = 0;
+	//self->contents = CONTENTS_NONE;
 
 	VectorSet( self->mins, -4, -4, 0 );
 	VectorSet( self->maxs, 4, 4, 8 );
@@ -1709,7 +1709,7 @@ NOTE: place these half-way in the door to make it flush with the door's surface.
 "target"	thing to use when destoryed (not doors - it automatically unlocks the door it was angled at)
 "health"	default is 10
 */
-void maglock_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void maglock_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 {
 	//unlock our door if we're the last lock pointed at the door
 	if ( self->activator )
@@ -1890,7 +1890,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 			G_Sound( self, G_SoundIndex( "sound/interface/shieldcon_empty.mp3" ));
 			self->s.loopSound = 0;
 
-			if ( self->s.eFlags & EF_SHADER_ANIM )
+			if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 			{
 	 			self->s.frame = 1;
 			}
@@ -1940,7 +1940,7 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_shield_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
+	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -1971,7 +1971,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
+	SetMiscModelDefaults( ent, useF_shield_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -2101,7 +2101,7 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 			G_Sound( self, G_SoundIndex( "sound/interface/ammocon_empty.mp3" ));
 			self->s.loopSound = 0;
 
-			if ( self->s.eFlags & EF_SHADER_ANIM )
+			if ( Any( self->s.eFlags & EF_SHADER_ANIM ) )
 			{
 				self->s.frame = 1;
 			}
@@ -2148,7 +2148,7 @@ USETARGET - when used it fires off target
 //------------------------------------------------------------
 void SP_misc_model_ammo_power_converter( gentity_t *ent )
 {
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
+	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -2179,7 +2179,7 @@ void SP_misc_ammo_floor_unit( gentity_t *ent )
 	VectorSet( ent->mins, -16, -16, 0 );
 	VectorSet( ent->maxs, 16, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, 0, false, false );
+	SetMiscModelDefaults( ent, useF_ammo_power_converter_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
 
 	ent->takedamage = false;
 
@@ -2206,7 +2206,7 @@ void welder_think( gentity_t *self )
 				dir;
 	mdxaBone_t	boltMatrix;
 
-	if( self->svFlags & SVF_INACTIVE )
+	if( Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -2269,10 +2269,10 @@ void SP_misc_model_welder( gentity_t *ent )
 	VectorSet( ent->mins, 336, -16, 0 );
 	VectorSet( ent->maxs, 368, 16, 32 );
 
-	SetMiscModelDefaults( ent, useF_welder_use, "4", CONTENTS_SOLID, 0, false, false );
+	SetMiscModelDefaults( ent, useF_welder_use, "4", CONTENTS_SOLID, EF_NONE, false, false );
 
 	ent->takedamage = false;
-	ent->contents = 0;
+	ent->contents = CONTENTS_NONE;
 	G_EffectIndex( "blueWeldSparks" );
 	ent->noise_index = G_SoundIndex( "sound/movers/objects/welding.wav" );
 
@@ -2329,7 +2329,7 @@ void SP_misc_model_jabba_cam( gentity_t *ent )
 	VectorSet( ent->mins, -60.0f, -8.0f, 0.0f );
 	VectorSet( ent->maxs, 60.0f, 8.0f, 16.0f );
 
-	SetMiscModelDefaults( ent, useF_jabba_cam_use, "4", 0, 0, false, false );
+	SetMiscModelDefaults( ent, useF_jabba_cam_use, "4", CONTENTS_NONE, EF_NONE, false, false );
 	G_SetAngles( ent, ent->s.angles );
 
 	ent->s.modelindex = G_ModelIndex( "models/map_objects/nar_shaddar/jabacam/jabacam.glm" );
@@ -2599,7 +2599,7 @@ void misc_atst_setanim( gentity_t *self, int bone, animNumber_t anim )
 		}
 	}
 }
-void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void misc_atst_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {//ATST was destroyed while you weren't in it
 	//can't be used anymore
 	self->e_UseFunc = useF_NULL;
@@ -2653,7 +2653,7 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		activator->activator = self;
 		self->s.eFlags |= EF_NODRAW;
 		self->svFlags |= SVF_NOCLIENT;
-		self->contents = 0;
+		self->contents = CONTENTS_NONE;
 		self->takedamage = false;
 		//transfer armor
 		tempHealth = self->health;
@@ -2720,7 +2720,7 @@ void misc_atst_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		G_SetOrigin( activator, newOrg );
 		//open the hatch
 		misc_atst_setanim( self, self->craniumBone, BOTH_STAND2 );
-		gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head_hatchcover_off", 0 );
+		gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head_hatchcover_off", G2SURFACEFLAG_NONE );
 		G_Sound( self, G_SoundIndex( "sound/chars/atst/atst_hatch_open" ));
 	}
 }
@@ -2754,7 +2754,7 @@ void SP_misc_atst_drivable( gentity_t *ent )
 	NPC_PrecacheAnimationCFG( ent->NPC_type );
 	//open the hatch
 	misc_atst_setanim( ent, ent->rootBone, BOTH_STAND2 );
-	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head_hatchcover_off", 0 );
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head_hatchcover_off", G2SURFACEFLAG_NONE );
 
 	VectorSet( ent->mins, ATST_MINS0, ATST_MINS1, ATST_MINS2 );
 	VectorSet( ent->maxs, ATST_MAXS0, ATST_MAXS1, ATST_MAXS2 );

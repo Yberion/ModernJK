@@ -357,7 +357,7 @@ static void CG_DrawZoomMask( void )
 		//max = ( cg_entities[0].gent->health / 100.0f );
 
 
-		if ( (cg.snap->ps.eFlags & EF_DOUBLE_AMMO) )
+		if ( Any(cg.snap->ps.eFlags & EF_DOUBLE_AMMO) )
 		{
 			max = cg.snap->ps.ammo[weaponData[WP_DISRUPTOR].ammoIndex] / ((float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max*2.0f);
 		}
@@ -924,7 +924,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		trap->R_SetColor( colorTable[CT_YELLOW] );
 		if (focusItem)
 		{
-			CG_DrawProportionalString(focusItem->window.rect.x, focusItem->window.rect.y, "--", NUM_FONT_SMALL, focusItem->window.foreColor);
+			CG_DrawProportionalString(focusItem->window.rect.x, focusItem->window.rect.y, "--", UI_RIGHT, focusItem->window.foreColor);	// written NUM_FONT_SMALL, a number font whose value (2) is UI_RIGHT
 		}
 	}
 	else
@@ -961,7 +961,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		if (focusItem)
 		{
 
-			if ( (cent->currentState.eFlags & EF_DOUBLE_AMMO) )
+			if ( Any(cent->currentState.eFlags & EF_DOUBLE_AMMO) )
 			{
 				inc = (float) (ammoData[weaponData[cent->currentState.weapon].ammoIndex].max*2.0f) / MAX_HUD_TICS;
 			}
@@ -3269,7 +3269,7 @@ float CG_DrawRadar ( float y )
 		return y;
 	}
 
-	if ( (cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
+	if ( Any(cg.predictedPlayerState.pm_flags & PMF_FOLLOW) || PS_Team( cg.predictedPlayerState ) == TEAM_SPECTATOR )
 	{
 		return y;
 	}
@@ -3310,7 +3310,7 @@ float CG_DrawRadar ( float y )
 
 		if ( distance > cg_radarRange * 0.8f)
 		{
-			if ( (cent->currentState.eFlags & EF_RADAROBJECT)//still want to draw the direction
+			if ( Any(cent->currentState.eFlags & EF_RADAROBJECT)//still want to draw the direction
 				|| ( cent->currentState.eType==ET_NPC//FIXME: draw last, with players...
 					&& cent->currentState.NPC_class == CLASS_VEHICLE
 					&& cent->currentState.speed > 0 ) )//always draw vehicles
@@ -4204,7 +4204,7 @@ typedef struct lagSlice_s {
 	bool	snapshots;			// a snapshot was read
 	bool	dropped;			// a snapshot was missing
 	int			ping;				// the highest
-	int			snapFlags;			// of all of them
+	snapFlags_t	snapFlags;			// of all of them
 	bool	margins;			// the server measured an input margin
 	int			marginMin, marginMax;	// in ms; a negative one: a command reached the server after its tick
 } lagSlice_t;
@@ -4443,7 +4443,7 @@ static void CG_DrawLagometer( void ) {
 			v = slice->ping * ( (float)LAG_PING_HEIGHT / LAG_PING_MSEC );
 			v = Q_min( v, LAG_PING_HEIGHT );
 			CG_LagometerBar( x, ay + LAG_HEIGHT - v, v,
-				( slice->snapFlags & SNAPFLAG_RATE_DELAYED ) ? COLOR_YELLOW : COLOR_GREEN, &colour );
+				Any( slice->snapFlags & SNAPFLAG_RATE_DELAYED ) ? COLOR_YELLOW : COLOR_GREEN, &colour );
 		}
 	}
 
@@ -4458,7 +4458,7 @@ static void CG_DrawLagometer( void ) {
 
 void CG_DrawSiegeMessage( const char *str, int objectiveScreen )
 {
-//	if (!( trap->Key_GetCatcher() & KEYCATCH_UI ))
+//	if (!Any( trap->Key_GetCatcher() & KEYCATCH_UI ))
 	{
 		trap->OpenUIMenu(UIMENU_CLOSEALL);
 		trap->Cvar_Set("cg_siegeMessage", str);
@@ -4668,7 +4668,7 @@ void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float ch
 		return;
 	}
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{ //he's dead, don't display info on him
 		return;
 	}
@@ -4732,7 +4732,7 @@ void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float ch
 
 	//now draw his ammo
 	ammoMax = ammoData[weaponData[cent->currentState.weapon].ammoIndex].max;
-	if ( (cent->currentState.eFlags & EF_DOUBLE_AMMO) )
+	if ( Any(cent->currentState.eFlags & EF_DOUBLE_AMMO) )
 	{
 		ammoMax *= 2;
 	}
@@ -6141,7 +6141,7 @@ CG_`Entity
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
-	int			content;
+	contentsFlags_t	content;
 	int			ignore;
 	bool	bVehCheckTraceFromCamPos = false;
 
@@ -6162,7 +6162,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 		*/
 		//For now we still want to draw the crosshair in relation to the player's world coordinates
 		//even if we have a melee weapon/no weapon.
-		if ( cg.predictedPlayerState.m_iVehicleNum && (cg.predictedPlayerState.eFlags&EF_NODRAW) )
+		if ( cg.predictedPlayerState.m_iVehicleNum && Any(cg.predictedPlayerState.eFlags&EF_NODRAW) )
 		{//we're *inside* a vehicle
 			//do the vehicle's crosshair instead
 			centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
@@ -6341,7 +6341,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 
 	// if the player is in fog, don't show it
 	content = CG_PointContents( trace.endpos, 0 );
-	if ( content & CONTENTS_FOG ) {
+	if ( Any( content & CONTENTS_FOG ) ) {
 		return;
 	}
 
@@ -6739,7 +6739,7 @@ static bool CG_DrawFollow( void )
 {
 	const char	*s;
 
-	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) )
+	if ( !Any(cg.snap->ps.pm_flags & PMF_FOLLOW) )
 	{
 		return false;
 	}
@@ -7972,7 +7972,7 @@ static void CG_Draw2DScreenTints( void )
 		}
 	}
 
-	if ( (cg.refdef.viewContents&CONTENTS_LAVA) )
+	if ( Any( cg.refdef.viewContents&CONTENTS_LAVA ) )
 	{//tint screen red
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.5 + (0.15f*Q_sin( phase ));
@@ -7982,7 +7982,7 @@ static void CG_Draw2DScreenTints( void )
 
 		CG_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, hcolor );
 	}
-	else if ( (cg.refdef.viewContents&CONTENTS_SLIME) )
+	else if ( Any( cg.refdef.viewContents&CONTENTS_SLIME ) )
 	{//tint screen green
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.4 + (0.1f*Q_sin( phase ));
@@ -7992,7 +7992,7 @@ static void CG_Draw2DScreenTints( void )
 
 		CG_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, hcolor );
 	}
-	else if ( (cg.refdef.viewContents&CONTENTS_WATER) )
+	else if ( Any( cg.refdef.viewContents&CONTENTS_WATER ) )
 	{//tint screen light blue -- FIXME: don't do this if CONTENTS_FOG? (in case someone *does* make a water shader with fog in it?)
 		float phase = cg.time / 1000.0f * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.3f + (0.05f*Q_sinf( phase ));
@@ -8476,7 +8476,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// optionally draw the tournament scoreboard instead
 	if ( PS_Team( cg.snap->ps ) == TEAM_SPECTATOR &&
-		( cg.snap->ps.pm_flags & PMF_SCOREBOARD ) ) {
+		Any( cg.snap->ps.pm_flags & PMF_SCOREBOARD ) ) {
 		CG_DrawTourneyScoreboard();
 		return;
 	}

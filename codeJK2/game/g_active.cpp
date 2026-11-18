@@ -124,7 +124,7 @@ int G_FindLookItem( gentity_t *self )
 		{
 			continue;
 		}
-		if ( ent->s.eFlags&EF_NODRAW )
+		if ( Any( ent->s.eFlags&EF_NODRAW ) )
 		{
 			continue;
 		}
@@ -252,7 +252,7 @@ bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 		return false;
 	}
 
-	if ( enemy->flags&FL_NOTARGET )
+	if ( Any( enemy->flags & FL_NOTARGET ) )
 	{
 		return false;
 	}
@@ -263,7 +263,7 @@ bool G_ValidateLookEnemy( gentity_t *self, gentity_t *enemy )
 	}
 	if ( !enemy->client || !enemy->NPC )
 	{//not valid
-		if ( (enemy->svFlags&SVF_NONNPC_ENEMY)
+		if ( Any( enemy->svFlags & SVF_NONNPC_ENEMY )
 			&& enemy->s.weapon == WP_TURRET
 			&& enemy->noDamageTeam != self->client->playerTeam
 			&& enemy->health > 0 )
@@ -358,7 +358,7 @@ void G_ChooseLookEnemy( gentity_t *self, usercmd_t *ucmd )
 		rating *= DotProduct( forward, dir )+1.0f;
 		if ( ent->health <= 0 )
 		{
-			if ( (ucmd->buttons&BUTTON_ATTACK) || (ucmd->buttons&BUTTON_ALT_ATTACK) )
+			if ( Any(ucmd->buttons&BUTTON_ATTACK) || Any(ucmd->buttons&BUTTON_ALT_ATTACK) )
 			{//if attacking, don't consider dead enemies
 				continue;
 			}
@@ -476,7 +476,7 @@ Check for lava / slime contents and drowning
 =============
 */
 void P_WorldEffects( gentity_t *ent ) {
-	int			mouthContents = 0;
+	contentsFlags_t	mouthContents = CONTENTS_NONE;
 
 	if ( ent->client->noclip )
 	{
@@ -491,7 +491,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for drowning
 	//
-	if ( (mouthContents&(CONTENTS_WATER|CONTENTS_SLIME)) )
+	if ( Any( mouthContents&(CONTENTS_WATER|CONTENTS_SLIME) ) )
 	{
 		if ( ent->client->NPC_class == CLASS_SWAMPTROOPER )
 		{//they have air tanks
@@ -536,18 +536,18 @@ void P_WorldEffects( gentity_t *ent ) {
 	// check for sizzle damage (move to pmove?)
 	//
 	if (ent->waterlevel &&
-		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+		Any( ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME) ) ) {
 		if (ent->health > 0
 			&& ent->painDebounceTime < level.time	) {
 
-			if (ent->watertype & CONTENTS_LAVA) {
+			if (Any( ent->watertype & CONTENTS_LAVA )) {
 				G_Damage (ent, nullptr, nullptr, nullptr, nullptr,
-					15*ent->waterlevel, 0, MOD_LAVA);
+					15*ent->waterlevel, DAMAGE_NORMAL, MOD_LAVA);
 			}
 
-			if (ent->watertype & CONTENTS_SLIME) {
+			if (Any( ent->watertype & CONTENTS_SLIME )) {
 				G_Damage (ent, nullptr, nullptr, nullptr, nullptr,
-					1, 0, MOD_SLIME);
+					1, DAMAGE_NORMAL, MOD_SLIME);
 			}
 		}
 	}
@@ -575,7 +575,7 @@ G_SetClientSound
 ===============
 */
 void G_SetClientSound( gentity_t *ent ) {
-//	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
+//	if (ent->waterlevel && Any( ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME) ) )
 //		ent->s.loopSound = G_SoundIndex("sound/weapons/stasis/electricloop.wav");
 
 //	else
@@ -623,7 +623,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 		vec3_t dir1, dir2;
 		float force = 0, dot;
 
-		if ( other->material == MAT_GLASS || other->material == MAT_GLASS_METAL || other->material == MAT_GRATE1 || ((other->svFlags&SVF_BBRUSH)&&(other->spawnflags&4/*THIN*/)) )//(other->absmax[0]-other->absmin[0]<=32||other->absmax[1]-other->absmin[1]<=32||other->absmax[2]-other->absmin[2]<=32)) )
+		if ( other->material == MAT_GLASS || other->material == MAT_GLASS_METAL || other->material == MAT_GRATE1 || (Any( other->svFlags & SVF_BBRUSH )&&(other->spawnflags&4/*THIN*/)) )//(other->absmax[0]-other->absmin[0]<=32||other->absmax[1]-other->absmin[1]<=32||other->absmax[2]-other->absmin[2]<=32)) )
 		{//glass and thin breakable brushes (axially aligned only, unfortunately) take more impact damage
 			magnitude *= 2;
 		}
@@ -656,8 +656,8 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 
 			force *= (magnitude/50);
 
-			int cont = gi.pointcontents( other->absmax, other->s.number );
-			if( (cont&CONTENTS_WATER) )//|| (self.classname=="barrel"&&self.aflag))//FIXME: or other watertypes
+			contentsFlags_t cont = gi.pointcontents( other->absmax, other->s.number );
+			if( Any( cont&CONTENTS_WATER ) )//|| (self.classname=="barrel"&&self.aflag))//FIXME: or other watertypes
 			{
 				force /= 3;							//water absorbs 2/3 velocity
 			}
@@ -681,7 +681,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 				dprint(ftos(force));
 				dprint("\n");
 	*/
-				if ( other->svFlags & SVF_GLASS_BRUSH )
+				if ( Any( other->svFlags & SVF_GLASS_BRUSH ) )
 				{
 					other->splashRadius = (float)(self->maxs[0] - self->mins[0])/4.0f;
 				}
@@ -711,7 +711,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 			}
 		}
 
-		if ( damageSelf && self->takedamage && !(self->flags&FL_NO_IMPACT_DMG))
+		if ( damageSelf && self->takedamage && !Any( self->flags & FL_NO_IMPACT_DMG ))
 		{
 			//Now damage me
 			//FIXME: more lenient falling damage, especially for when driving a vehicle
@@ -881,7 +881,7 @@ void	G_TouchTriggersLerped( gentity_t *ent ) {
 			if ( (hit->e_TouchFunc == touchF_NULL) && (ent->e_TouchFunc == touchF_NULL) ) {
 				continue;
 			}
-			if ( !( hit->contents & CONTENTS_TRIGGER ) ) {
+			if ( !Any( hit->contents & CONTENTS_TRIGGER ) ) {
 				continue;
 			}
 
@@ -967,7 +967,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		if ( (hit->e_TouchFunc == touchF_NULL) && (ent->e_TouchFunc == touchF_NULL) ) {
 			continue;
 		}
-		if ( !( hit->contents & CONTENTS_TRIGGER ) ) {
+		if ( !Any( hit->contents & CONTENTS_TRIGGER ) ) {
 			continue;
 		}
 
@@ -1057,7 +1057,7 @@ void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg )
 				continue;
 			}
 
-			if ( !( hit->contents & CONTENTS_TRIGGER ) )
+			if ( !Any( hit->contents & CONTENTS_TRIGGER ) )
 			{
 				continue;
 			}
@@ -1125,7 +1125,7 @@ void G_NPCMunroMatchPlayerWeapon( gentity_t *ent )
 	//special uber hack for cinematic Munro's to match player's weapon
 	if ( !in_camera )
 	{
-		if ( ent && ent->client && ent->NPC && (ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON) )
+		if ( ent && ent->client && ent->NPC && Any(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON) )
 		{//we're a Kyle NPC
 			G_MatchPlayerWeapon( ent );
 		}
@@ -1149,8 +1149,8 @@ bool ClientInactivityTimer( gclient_t *client ) {
 	else if ( client->usercmd.forwardmove ||
 		client->usercmd.rightmove ||
 		client->usercmd.upmove ||
-		(client->usercmd.buttons & BUTTON_ATTACK) ||
-		(client->usercmd.buttons & BUTTON_ALT_ATTACK) )
+		Any(client->usercmd.buttons & BUTTON_ATTACK) ||
+		Any(client->usercmd.buttons & BUTTON_ALT_ATTACK) )
 	{
 		client->inactivityTime = level.time + g_inactivity->integer * 1000;
 		client->inactivityWarning = false;
@@ -1225,7 +1225,7 @@ static bool ClientCinematicThink( gclient_t *client ) {
 	// swap button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->usercmd.buttons;
-	if ( client->buttons & ( BUTTON_USE ) & ( client->oldbuttons ^ client->buttons ) ) {
+	if ( Any( client->buttons & ( BUTTON_USE ) & ( client->oldbuttons ^ client->buttons ) ) ) {
 		return( true );
 	}
 	return( false );
@@ -1333,10 +1333,10 @@ bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 	bool overridAngles = false;
 
 	if ( (!ent->s.number&&ent->aimDebounceTime>level.time)
-		|| (ent->client->ps.pm_time && (ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK))
+		|| (ent->client->ps.pm_time && Any(ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK))
 		|| ent->forcePushTime > level.time )
 	{//being knocked back, can't do anything!
-		ucmd->buttons = 0;
+		ucmd->buttons = BUTTON_NONE;
 		ucmd->forwardmove = 0;
 		ucmd->rightmove = 0;
 		ucmd->upmove = 0;
@@ -1354,7 +1354,7 @@ bool G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 		if ( ent->client->ps.saberLockTime - level.time > SABER_LOCK_DELAYED_TIME )
 		{//2 second delay before either can push
 			//FIXME: base on difficulty
-			ucmd->buttons = 0;
+			ucmd->buttons = BUTTON_NONE;
 		}
 		else
 		{
@@ -1782,7 +1782,7 @@ extern void CG_ChangeWeapon( weapon_t num );
 
 void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd )
 {
-	if (( (*ucmd)->buttons & BUTTON_USE || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
+	if (( Any( (*ucmd)->buttons & BUTTON_USE ) || (*ucmd)->forwardmove < 0 || (*ucmd)->upmove > 0 ) && ent->owner && ent->owner->delay + 500 < level.time )
 	{
 		ent->owner->s.loopSound = 0;
 
@@ -1867,14 +1867,14 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 		return;
 	}
 	if ( !VectorCompare( vec3_origin, ent->client->ps.velocity )
-		|| ucmd->buttons || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove
+		|| Any( ucmd->buttons ) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove
 		|| !PM_StandingAnim( ent->client->ps.legsAnim )
 		|| ent->enemy
 		|| ent->client->ps.legsAnimTimer
 		|| ent->client->ps.torsoAnimTimer )
 	{//FIXME: also check for turning?
 		if ( !VectorCompare( vec3_origin, ent->client->ps.velocity )
-			|| ucmd->buttons || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove
+			|| Any( ucmd->buttons ) || ucmd->forwardmove || ucmd->rightmove || ucmd->upmove
 			|| ent->enemy )
 		{
 			//if in an idle, break out
@@ -2005,7 +2005,7 @@ void ClientThink_real( gentity_t *ent, usercmd_t *ucmd )
 	{
 extern cvar_t	*g_skippingcin;
 
-		if ( ent->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( ent->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{
 			G_UpdateEmplacedWeaponData( ent );
 			RunEmplacedWeapon( ent, &ucmd );
@@ -2129,7 +2129,7 @@ extern cvar_t	*g_skippingcin;
 			// Any kind of movement when the player is NOT ducked when the disruptor gun is zoomed will cause us to auto-magically un-zoom
 			if ( ( (ucmd->forwardmove||ucmd->rightmove)
 				   && ucmd->upmove >= 0 //crouching-moving is ok
-				   && !(ucmd->buttons&BUTTON_USE)/*leaning is ok*/
+				   && !Any(ucmd->buttons&BUTTON_USE)/*leaning is ok*/
 				 )
 				 || ucmd->upmove > 0 //jumping not allowed
 			   )
@@ -2142,7 +2142,7 @@ extern cvar_t	*g_skippingcin;
 			}
 		}
 
-		if ( (player_locked || (ent->client->ps.eFlags&EF_FORCE_GRIPPED)) && ent->client->ps.pm_type < PM_DEAD ) // unless dead
+		if ( (player_locked || Any(ent->client->ps.eFlags&EF_FORCE_GRIPPED)) && ent->client->ps.pm_type < PM_DEAD ) // unless dead
 		{//lock out player control
 			if ( !player_locked )
 			{
@@ -2150,7 +2150,7 @@ extern cvar_t	*g_skippingcin;
 			}
 			ucmd->forwardmove = 0;
 			ucmd->rightmove = 0;
-			ucmd->buttons = 0;
+			ucmd->buttons = BUTTON_NONE;
 			ucmd->upmove = 0;
 			PM_AdjustAnglesToGripper( ent, ucmd );
 		}
@@ -2165,7 +2165,7 @@ extern cvar_t	*g_skippingcin;
 	}
 	else
 	{
-		if ( ent->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( ent->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{
 			G_UpdateEmplacedWeaponData( ent );
 		}
@@ -2201,7 +2201,7 @@ extern cvar_t	*g_skippingcin;
 				{
 					vec3_t	down = {0,0,-1};
 					//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-					G_Damage( under, ent, ent, down, under->currentOrigin, 100, 0, MOD_CRUSH );
+					G_Damage( under, ent, ent, down, under->currentOrigin, 100, DAMAGE_NORMAL, MOD_CRUSH );
 				}
 				//so they know to run like hell when I get close
 				//FIXME: project this in the direction I'm moving?
@@ -2220,7 +2220,7 @@ extern cvar_t	*g_skippingcin;
 				groundEnt->client->ps.groundEntityNum != ENTITYNUM_NONE &&
 				groundEnt->health > 0 &&
 				!PM_InRoll( &groundEnt->client->ps )
-				&& !(groundEnt->client->ps.eFlags&EF_LOCKED_TO_WEAPON)
+				&& !Any(groundEnt->client->ps.eFlags&EF_LOCKED_TO_WEAPON)
 				&& !inSpinFlipAttack )
 			{//landed on a live client who is on the ground, jump off them and knock them down
 				if ( ent->health > 0 )
@@ -2363,7 +2363,7 @@ extern cvar_t	*g_skippingcin;
 	}
 
 	//FIXME: if global gravity changes this should update everyone's personal gravity...
-	if ( !(ent->svFlags & SVF_CUSTOM_GRAVITY) )
+	if ( !Any( ent->svFlags & SVF_CUSTOM_GRAVITY ) )
 	{
 		client->ps.gravity = g_gravity->value;
 	}
@@ -2373,10 +2373,10 @@ extern cvar_t	*g_skippingcin;
 	{//we don't actually scale the ucmd, we use actual speeds
 		if ( ent->NPC->combatMove == false )
 		{
-			if ( !(ucmd->buttons & BUTTON_USE) )
+			if ( !Any(ucmd->buttons & BUTTON_USE) )
 			{//Not leaning
 				bool Flying = (ucmd->upmove && ent->NPC->stats.moveType == MT_FLYSWIM);
-				bool Climbing = (ucmd->upmove && (ent->watertype & CONTENTS_LADDER));
+				bool Climbing = (ucmd->upmove && Any( ent->watertype & CONTENTS_LADDER ));
 
 				client->ps.friction = 6;
 
@@ -2384,7 +2384,7 @@ extern cvar_t	*g_skippingcin;
 				{
 					//if ( ent->NPC->behaviorState != BS_FORMATION )
 					{//In - Formation NPCs set thier desiredSpeed themselves
-						if ( ucmd->buttons & BUTTON_WALKING )
+						if ( Any( ucmd->buttons & BUTTON_WALKING ) )
 						{
 							ent->NPC->desiredSpeed = NPC_GetWalkSpeed( ent );//ent->NPC->stats.walkSpeed;
 						}
@@ -2396,7 +2396,7 @@ extern cvar_t	*g_skippingcin;
 						if ( ent->NPC->currentSpeed >= 80 && !controlledByPlayer )
 						{//At higher speeds, need to slow down close to stuff
 							//Slow down as you approach your goal
-							if ( ent->NPC->distToGoal < SLOWDOWN_DIST && !(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
+							if ( ent->NPC->distToGoal < SLOWDOWN_DIST && !Any(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
 							{
 								if ( ent->NPC->desiredSpeed > MIN_NPC_SPEED )
 								{
@@ -2488,7 +2488,7 @@ extern cvar_t	*g_skippingcin;
 		}
 		else
 		{
-			ent->NPC->desiredSpeed = ( ucmd->buttons & BUTTON_WALKING ) ? NPC_GetWalkSpeed( ent ) : NPC_GetRunSpeed( ent );
+			ent->NPC->desiredSpeed = Any( ucmd->buttons & BUTTON_WALKING ) ? NPC_GetWalkSpeed( ent ) : NPC_GetRunSpeed( ent );
 
 			client->ps.speed = ent->NPC->desiredSpeed;
 		}
@@ -2594,7 +2594,7 @@ extern cvar_t	*g_skippingcin;
 					client->ps.speed *= g_saberMoveSpeed->value;
 				}
 			}
-			else if ( client->ps.weapon == WP_SABER && ( ucmd->buttons & BUTTON_ATTACK ) )
+			else if ( client->ps.weapon == WP_SABER && Any( ucmd->buttons & BUTTON_ATTACK ) )
 			{//if attacking with saber while running, drop your speed
 				//FIXME: should be weaponTime?  Or in certain anims?
 				switch( client->ps.saberAnimLevel )
@@ -2658,7 +2658,7 @@ extern cvar_t	*g_skippingcin;
 		}
 	}
 
-	if ( ucmd->forwardmove < 0 && !(ucmd->buttons&BUTTON_WALKING) && client->ps.groundEntityNum != ENTITYNUM_NONE )
+	if ( ucmd->forwardmove < 0 && !Any(ucmd->buttons&BUTTON_WALKING) && client->ps.groundEntityNum != ENTITYNUM_NONE )
 	{//running backwards is slower than running forwards
 		client->ps.speed *= 0.75;
 	}
@@ -2668,7 +2668,7 @@ extern cvar_t	*g_skippingcin;
 
 	G_CheckClampUcmd( ent, ucmd );
 
-	if ( (ucmd->buttons&BUTTON_BLOCKING) && !g_saberAutoBlocking->integer )
+	if ( Any(ucmd->buttons&BUTTON_BLOCKING) && !g_saberAutoBlocking->integer )
 	{//blocking with saber
 		ent->client->ps.saberBlockingTime = level.time + FRAMETIME;
 	}
@@ -2697,7 +2697,7 @@ extern cvar_t	*g_skippingcin;
 		cg.overrides.thirdPersonRange = 240;
 		cg.overrides.fov = 100;
 	}
-	else if ( client->ps.eFlags&EF_IN_ATST )
+	else if ( Any( client->ps.eFlags&EF_IN_ATST ) )
 	{
 		cg.overrides.active |= (CG_OVERRIDE_3RD_PERSON_RNG|CG_OVERRIDE_3RD_PERSON_POF|CG_OVERRIDE_3RD_PERSON_VOF);
 		cg.overrides.thirdPersonRange = 240;
@@ -2715,7 +2715,7 @@ extern cvar_t	*g_skippingcin;
 					cg.overrides.thirdPersonAlpha = 0.5f;
 				}
 			}
-			else if ( cg.overrides.active&CG_OVERRIDE_3RD_PERSON_APH )
+			else if ( Any(cg.overrides.active&CG_OVERRIDE_3RD_PERSON_APH) )
 			{
 				if ( cg.overrides.thirdPersonAlpha > cg_thirdPersonAlpha.value )
 				{
@@ -2863,7 +2863,7 @@ extern cvar_t	*g_skippingcin;
 			*/
 
 			// pressing attack or use is the normal respawn method
-			if ( ucmd->buttons & ( BUTTON_ATTACK ) )
+			if ( Any( ucmd->buttons & ( BUTTON_ATTACK ) ) )
 			{
 				respawn( ent );
 //				gi.SendConsoleCommand( va("disconnect;wait;wait;wait;wait;wait;wait;devmap %s\n",level.mapname) );
@@ -2875,7 +2875,7 @@ extern cvar_t	*g_skippingcin;
 			&& ent->enemy != ent
 			&& ent->enemy->s.number < ENTITYNUM_WORLD
 			&& ent->enemy->inuse
-			&& !(cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ANG) )
+			&& !Any(cg.overrides.active&CG_OVERRIDE_3RD_PERSON_ANG) )
 		{//keep facing enemy
 			vec3_t deadDir;
 			float deadYaw;
@@ -2905,7 +2905,7 @@ extern cvar_t	*g_skippingcin;
 /*
 	if ( client->ps.clientNum < 1 )
 	{//Only a player
-		if ( ucmd->buttons & BUTTON_USE )
+		if ( Any( ucmd->buttons & BUTTON_USE ) )
 		{
 			NAV_PrintLocalWpDebugInfo( ent );
 		}
@@ -2949,7 +2949,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 				else if ( ucmd->upmove > 0 )
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
 					G_ClearViewEntity( ent );
-					ucmd->upmove = 0;//ucmd->buttons = 0;
+					ucmd->upmove = 0;//ucmd->buttons = BUTTON_NONE;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
 					freed = true;
@@ -2962,7 +2962,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 				if ( ucmd->upmove > 0 )
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
 					G_ClearViewEntity( ent );
-					ucmd->upmove = 0;//ucmd->buttons = 0;
+					ucmd->upmove = 0;//ucmd->buttons = BUTTON_NONE;
 					//stop player from doing anything for a half second after
 					ent->aimDebounceTime = level.time + 500;
 					freed = true;
@@ -2970,10 +2970,10 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 			}
 			else
 			{//others use the blocking key, button3
-				if ( (ucmd->buttons&BUTTON_BLOCKING) )
+				if ( Any(ucmd->buttons&BUTTON_BLOCKING) )
 				{//jumping gets you out of it FIXME: check some other button instead... like ESCAPE... so you could even have total control over an NPC?
 					G_ClearViewEntity( ent );
-					ucmd->buttons = 0;
+					ucmd->buttons = BUTTON_NONE;
 					freed = true;
 				}
 			}
@@ -2999,11 +2999,11 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 			if ( ucmd->upmove > 0 )
 			{//get out of ATST
 				GEntity_UseFunc( ent->activator, ent, ent );
-				ucmd->upmove = 0;//ucmd->buttons = 0;
+				ucmd->upmove = 0;//ucmd->buttons = BUTTON_NONE;
 			}
 		}
 
-		if ( (ucmd->buttons&BUTTON_BLOCKING) && !g_saberAutoBlocking->integer )
+		if ( Any(ucmd->buttons&BUTTON_BLOCKING) && !g_saberAutoBlocking->integer )
 		{
 			ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 		}

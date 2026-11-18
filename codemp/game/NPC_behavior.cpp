@@ -110,13 +110,13 @@ void NPC_BSAdvanceFight (void)
 					trace_t		tr;
 					gentity_t	*traceEnt;
 					//are we gonna hit him if we shoot at his center?
-					trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_org, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+					trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_org, NPCS.NPC->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 					traceEnt = &g_entities[tr.entityNum];
 					if( traceEnt != NPCS.NPC->enemy &&
 						(!traceEnt || !traceEnt->client || NPCS.NPC->client->enemyTeam == NPCTEAM_FREE || NPCS.NPC->client->enemyTeam != traceEnt->client->playerTeam) )
 					{//no, so shoot for the head
 						attack_scale *= 0.75;
-						trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_head, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+						trap->Trace ( &tr, muzzle, nullptr, nullptr, enemy_head, NPCS.NPC->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 						traceEnt = &g_entities[tr.entityNum];
 					}
 
@@ -231,7 +231,7 @@ void BeamOut (gentity_t *self)
 void NPC_BSCinematic( void )
 {
 
-	if( NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
@@ -445,12 +445,12 @@ bool NPC_CheckInvestigate( int alertEventNum )
 		return false;
 	}
 
-	if ( owner->s.eFlags & EF_NODRAW )
+	if ( Any( owner->s.eFlags & EF_NODRAW ) )
 	{
 		return false;
 	}
 
-	if ( owner->flags & FL_NOTARGET )
+	if ( Any( owner->flags & FL_NOTARGET ) )
 	{
 		return false;
 	}
@@ -569,10 +569,10 @@ void NPC_BSFollowLeader (void)
 		}
 		else
 		{
-			if ( !(NPCS.NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+			if ( !Any(NPCS.NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 			{
 				int eventID = NPC_CheckAlertEvents( true, true, -1, false, AEL_MINOR );
-				if ( level.alertEvents[eventID].level >= AEL_SUSPICIOUS && (NPCS.NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+				if ( level.alertEvents[eventID].level >= AEL_SUSPICIOUS && Any(NPCS.NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 				{
 					NPCS.NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
 					if ( !level.alertEvents[eventID].owner ||
@@ -599,7 +599,7 @@ void NPC_BSFollowLeader (void)
 				&& NPCS.NPC->client->leader->enemy
 				&& NPCS.NPC->client->leader->enemy != NPCS.NPC
 				&& ( (NPCS.NPC->client->leader->enemy->client&&NPCS.NPC->client->leader->enemy->client->playerTeam==NPCS.NPC->client->enemyTeam)
-					||(/*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*/0&&to_underlying( NPCS.NPC->client->leader->enemy->alliedTeam )==to_underlying( NPCS.NPC->client->enemyTeam )) )
+					||(/*Any( NPC->client->leader->enemy->r.svFlags & SVF_NONNPC_ENEMY )*/0&&to_underlying( NPCS.NPC->client->leader->enemy->alliedTeam )==to_underlying( NPCS.NPC->client->enemyTeam )) )
 				&& NPCS.NPC->client->leader->enemy->health > 0 )
 			{ //rwwFIXMEFIXME: use SVF_NONNPC_ENEMY?
 				G_SetEnemy( NPCS.NPC, NPCS.NPC->client->leader->enemy );
@@ -610,7 +610,7 @@ void NPC_BSFollowLeader (void)
 	}
 	else
 	{
-		if ( NPCS.NPC->enemy->health <= 0 || (NPCS.NPC->enemy->flags&FL_NOTARGET) )
+		if ( NPCS.NPC->enemy->health <= 0 || Any( NPCS.NPC->enemy->flags & FL_NOTARGET ) )
 		{
 			G_ClearEnemy( NPCS.NPC );
 			if ( NPCS.NPCInfo->enemyCheckDebounceTime > level.time + 1000 )
@@ -947,7 +947,7 @@ void NPC_BSRemove (void)
 		G_UseTargets2( NPCS.NPC, NPCS.NPC, NPCS.NPC->target3 );
 		NPCS.NPC->s.eFlags |= EF_NODRAW;
 		NPCS.NPC->s.eType = ET_INVISIBLE;
-		NPCS.NPC->r.contents = 0;
+		NPCS.NPC->r.contents = CONTENTS_NONE;
 		NPCS.NPC->health = 0;
 		NPCS.NPC->targetname = nullptr;
 
@@ -1032,7 +1032,7 @@ void NPC_BSSearch (void)
 			if ( NPCS.NPC->waypoint == NPCS.NPCInfo->homeWp )
 			{
 				//Just Reached our homeWp, if this is the first time, run your lostenemyscript
-				if ( NPCS.NPCInfo->aiFlags & NPCAI_ENROUTE_TO_HOMEWP )
+				if ( Any( NPCS.NPCInfo->aiFlags & NPCAI_ENROUTE_TO_HOMEWP ) )
 				{
 					NPCS.NPCInfo->aiFlags &= ~NPCAI_ENROUTE_TO_HOMEWP;
 					G_ActivateBehavior( NPCS.NPC, BSET_LOSTENEMY );
@@ -1683,7 +1683,7 @@ void NPC_BSEmplaced( void )
 		return;
 	}
 
-	if( NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}
@@ -1747,7 +1747,7 @@ void NPC_BSEmplaced( void )
 		NPC_UpdateAngles( true, true );
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags & SCF_DONT_FIRE )
+	if ( Any( NPCS.NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
 	{
 		shoot = false;
 	}
@@ -1761,7 +1761,7 @@ void NPC_BSEmplaced( void )
 	}
 	if ( shoot )
 	{//try to shoot if it's time
-		if( !(NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+		if( !Any(NPCS.NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 		{
 			WeaponThink( true );
 		}

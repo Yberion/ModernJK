@@ -172,7 +172,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		start[2] = ent->r.absmin[2];
 		VectorCopy( start, end );
 		end[2] -= 64;
-		trap->Trace( &tr, start, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_PLAYERSOLID, false, 0, 0 );
+		trap->Trace( &tr, start, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0 );
 		if ( tr.fraction < 1.0 )
 		{
 			VectorCopy( tr.endpos, point);
@@ -929,7 +929,7 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
-	int flags;
+	boneFlags_t flags;
 	orientations_t up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
 	vec3_t *freeBoneVec = nullptr;
@@ -1011,10 +1011,9 @@ void NPC_SetBoneAngles(gentity_t *ent, const char *bone, vec3_t angles)
 }
 
 //rww - and another method of automatically managing surface status for the client and server at once
-#define TURN_ON				0x00000000
-#define TURN_OFF			0x00000100
+constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
 
-void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags)
+void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags)
 {
 	int i = 0;
 	bool foundIt = false;
@@ -1065,7 +1064,7 @@ bool NPC_SomeoneLookingAtMe(gentity_t *ent)
 		pEnt = &g_entities[i];
 
 		if (pEnt && pEnt->inuse && pEnt->client && pEnt->client->sess.sessionTeam != TEAM_SPECTATOR &&
-			pEnt->client->tempSpectate < level.time && !(pEnt->client->ps.pm_flags & PMF_FOLLOW) && pEnt->s.weapon != WP_NONE)
+			pEnt->client->tempSpectate < level.time && !Any(pEnt->client->ps.pm_flags & PMF_FOLLOW) && pEnt->s.weapon != WP_NONE)
 		{
 			if (trap->InPVS(ent->r.currentOrigin, pEnt->r.currentOrigin))
 			{
@@ -1130,13 +1129,13 @@ bool NPC_ValidEnemy( gentity_t *ent )
 		return false;
 
 	//In case they're in notarget mode
-	if ( ent->flags & FL_NOTARGET )
+	if ( Any( ent->flags & FL_NOTARGET ) )
 		return false;
 
 	//Must be an NPC
 	if ( ent->client == nullptr )
 	{
-	//	if ( ent->svFlags&SVF_NONNPC_ENEMY )
+	//	if ( Any( ent->svFlags & SVF_NONNPC_ENEMY ) )
 		if (ent->s.eType != ET_NPC)
 		{//still potentially valid
 			if ( to_underlying( ent->alliedTeam ) == to_underlying( NPCS.NPC->client->playerTeam ) )
@@ -1422,7 +1421,7 @@ bool NPC_FindEnemy( bool checkAlerts )
 	gentity_t *newenemy;
 
 	//We're ignoring all enemies for now
-	//if( NPC->svFlags & SVF_IGNORE_ENEMIES )
+	//if( Any( NPC->svFlags & SVF_IGNORE_ENEMIES ) )
 	if (0) //rwwFIXMEFIXME: support for flag
 	{
 		G_ClearEnemy( NPCS.NPC );
@@ -1437,7 +1436,7 @@ bool NPC_FindEnemy( bool checkAlerts )
 
 	//Don't want a new enemy
 	//rwwFIXMEFIXME: support for locked enemy
-	//if ( ( ValidEnemy( NPC->enemy ) ) && ( NPC->svFlags & SVF_LOCKEDENEMY ) )
+	//if ( ( ValidEnemy( NPC->enemy ) ) && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	//	return true;
 
 	//See if the player is closer than our current enemy
@@ -1601,7 +1600,7 @@ NPC_CheckCanAttackExt
 bool NPC_CheckCanAttackExt( void )
 {
 	//We don't want them to shoot
-	if( NPCS.NPCInfo->scriptFlags & SCF_DONT_FIRE )
+	if( Any( NPCS.NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
 		return false;
 
 	//Turn to face
@@ -1628,7 +1627,7 @@ void NPC_ClearLookTarget( gentity_t *self )
 		return;
 	}
 
-	if ( (self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( Any(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
 		return;
 	}
@@ -1649,7 +1648,7 @@ void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime )
 		return;
 	}
 
-	if ( (self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( Any(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
 		return;
 	}

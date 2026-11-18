@@ -429,7 +429,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 		//ground faces only
 		if (groundfacesonly)
 		{
-			if (!(face->faceflags & (FACE_GROUND | FACE_LADDER))) continue;
+			if (!Any( face->faceflags & (FACE_GROUND | FACE_LADDER) )) continue;
 		} //end if
 		//walk through the edges of the face
 		for (j = 0; j < face->numedges; j++)
@@ -516,7 +516,7 @@ void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly)
 		//ground faces only
 		if (groundfacesonly)
 		{
-			if (!(face->faceflags & (FACE_GROUND | FACE_LADDER))) continue;
+			if (!Any( face->faceflags & (FACE_GROUND | FACE_LADDER) )) continue;
 		} //end if
 		AAS_ShowFacePolygon(facenum, color, face->frontarea != areanum);
 	} //end for
@@ -547,7 +547,7 @@ void AAS_DrawCross(vec3_t origin, float size, int color)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_PrintTravelType(int traveltype)
+void AAS_PrintTravelType(travelTypeFlags_t traveltype)
 {
 #ifdef DEBUG
 	char *str;
@@ -741,7 +741,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 		if (done[nextareanum])
 			continue;
 		done[nextareanum] = true;
-		if (aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL)
+		if (Any( aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL ))
 			continue;
 		if (AAS_AreaCluster(nextareanum) != cluster)
 			continue;
@@ -757,7 +757,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 		if (done[nextareanum])
 			continue;
 		done[nextareanum] = true;
-		if (aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL)
+		if (Any( aasworld.areasettings[nextareanum].contents & AREACONTENTS_VIEWPORTAL ))
 			continue;
 		if (AAS_AreaCluster(nextareanum) != cluster)
 			continue;

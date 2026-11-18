@@ -754,7 +754,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !(spawner->r.svFlags&SVF_NO_BASIC_SOUNDS) )
+			if ( !Any( spawner->r.svFlags & SVF_NO_BASIC_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -773,7 +773,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !(spawner->r.svFlags&SVF_NO_COMBAT_SOUNDS) )
+			if ( !Any( spawner->r.svFlags & SVF_NO_COMBAT_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -792,7 +792,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !(spawner->r.svFlags&SVF_NO_EXTRA_SOUNDS) )
+			if ( !Any( spawner->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -811,7 +811,7 @@ void NPC_Precache ( gentity_t *spawner )
 			if ( COM_ParseString( &p, &value ) ) {
 				continue;
 			}
-			if ( !(spawner->r.svFlags&SVF_NO_EXTRA_SOUNDS) )
+			if ( !Any( spawner->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
 			{
 				//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 				Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2475,7 +2475,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !(NPC->r.svFlags&SVF_NO_BASIC_SOUNDS) )
+				if ( !Any( NPC->r.svFlags & SVF_NO_BASIC_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2497,7 +2497,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !(NPC->r.svFlags&SVF_NO_COMBAT_SOUNDS) )
+				if ( !Any( NPC->r.svFlags & SVF_NO_COMBAT_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2518,7 +2518,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !(NPC->r.svFlags&SVF_NO_EXTRA_SOUNDS) )
+				if ( !Any( NPC->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2539,7 +2539,7 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-				if ( !(NPC->r.svFlags&SVF_NO_EXTRA_SOUNDS) )
+				if ( !Any( NPC->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
 				{
 					//FIXME: store this in some sound field or parse in the soundTable like the animTable...
 					Q_strncpyz( sound, value, sizeof( sound ) );
@@ -2699,13 +2699,13 @@ bool NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 
-				if ( !(NPC->client->saber[0].saberFlags&SFL_TWO_HANDED) )
+				if ( !Any( NPC->client->saber[0].saberFlags & SFL_TWO_HANDED ) )
 				{//can't use a second saber if first one is a two-handed saber...?
 					char *saberName = (char *)BG_TempAlloc(4096);//G_NewString( value );
 					strcpy(saberName, value);
 
 					WP_SaberParseParms( saberName, &NPC->client->saber[1] );
-					if ( (NPC->client->saber[1].saberFlags&SFL_TWO_HANDED) )
+					if ( Any( NPC->client->saber[1].saberFlags & SFL_TWO_HANDED ) )
 					{//tsk tsk, can't use a twoHanded saber as second saber
 						WP_RemoveSaber( NPC->client->saber, 1 );
 					}

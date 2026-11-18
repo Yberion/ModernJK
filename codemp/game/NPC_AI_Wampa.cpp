@@ -463,7 +463,7 @@ void NPC_Wampa_Pain( gentity_t *self, gentity_t *attacker, int damage )
 	if ( attacker
 		&& attacker->inuse
 		&& attacker != self->enemy
-		&& !(attacker->flags&FL_NOTARGET) )
+		&& !Any( attacker->flags & FL_NOTARGET ) )
 	{
 		if ( (!attacker->s.number&&!Q_irand(0,3))
 			|| !self->enemy
@@ -648,7 +648,7 @@ void NPC_BSWampa_Default( void )
 			}
 			NPCS.ucmd.buttons |= BUTTON_WALKING;
 			NPC_BSWander();
-			if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+			if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 			{
 				if ( NPC_CheckEnemyExt( true ) == false )
 				{
@@ -663,7 +663,7 @@ void NPC_BSWampa_Default( void )
 		}
 		else
 		{
-			if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+			if ( Any( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 			{
 				Wampa_Patrol();
 			}

@@ -406,7 +406,7 @@ void Cmd_God_f( gentity_t *ent ) {
 	const char *msg = nullptr;
 
 	ent->flags ^= FL_GODMODE;
-	if ( !(ent->flags & FL_GODMODE) )
+	if ( !Any( ent->flags & FL_GODMODE ) )
 		msg = "godmode OFF";
 	else
 		msg = "godmode ON";
@@ -428,7 +428,7 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 	const char *msg = nullptr;
 
 	ent->flags ^= FL_NOTARGET;
-	if ( !(ent->flags & FL_NOTARGET) )
+	if ( !Any( ent->flags & FL_NOTARGET ) )
 		msg = "notarget OFF";
 	else
 		msg = "notarget ON";
@@ -896,7 +896,7 @@ void SetTeam( gentity_t *ent, const char *s ) {
 	if ( team == TEAM_RED || team == TEAM_BLUE ) {
 		teamLeader = TeamLeader( team );
 		// if there is no team leader or the team leader is a bot and this client is not a bot
-		if ( teamLeader == -1 || ( !(g_entities[clientNum].r.svFlags & SVF_BOT) && (g_entities[teamLeader].r.svFlags & SVF_BOT) ) ) {
+		if ( teamLeader == -1 || ( !Any( g_entities[clientNum].r.svFlags & SVF_BOT ) && Any( g_entities[teamLeader].r.svFlags & SVF_BOT ) ) ) {
 			//SetLeader( team, clientNum );
 		}
 	}
@@ -1726,7 +1726,7 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 	G_Say( ent, target, SAY_TELL, p );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
-	if ( ent != target && !(ent->r.svFlags & SVF_BOT)) {
+	if ( ent != target && !Any( ent->r.svFlags & SVF_BOT )) {
 		G_Say( ent, ent, SAY_TELL, p );
 	}
 }
@@ -1835,7 +1835,7 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 	G_Say( ent, target, SAY_TELL, gc_orders[order] );
 	// don't tell to the player self if it was already directed to this player
 	// also don't send the chat back to a bot
-	if ( ent != target && !(ent->r.svFlags & SVF_BOT) )
+	if ( ent != target && !Any( ent->r.svFlags & SVF_BOT ) )
 		G_Say( ent, ent, SAY_TELL, gc_orders[order] );
 }
 
@@ -2102,16 +2102,16 @@ typedef struct voteString_s {
 
 static voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
-	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		GTB_CTF|GTB_CTY,						true,			"<num>" },
+	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		Bit( GT_CTF )|Bit( GT_CTY ),						true,			"<num>" },
 	{	"clientkick",			nullptr,				G_VoteClientkick,		1,		GTB_ALL,								false,			"<clientnum>" },
-	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(GTB_SIEGE|GTB_CTF|GTB_CTY),	true,			"<num>" },
+	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(Bit( GT_SIEGE )|Bit( GT_CTF )|Bit( GT_CTY )),	true,			"<num>" },
 	{	"g_doWarmup",			"dowarmup warmup",	G_VoteWarmup,			1,		GTB_ALL,								true,			"<0-1>" },
 	{	"g_gametype",			"gametype gt mode",	G_VoteGametype,			1,		GTB_ALL,								true,			"<num or name>" },
 	{	"kick",					nullptr,				G_VoteKick,				1,		GTB_ALL,								false,			"<client name>" },
 	{	"map",					nullptr,				G_VoteMap,				0,		GTB_ALL,								true,			"<name>" },
 	{	"map_restart",			"restart",			G_VoteMapRestart,		0,		GTB_ALL,								true,			"<optional delay>" },
 	{	"nextmap",				nullptr,				G_VoteNextmap,			0,		GTB_ALL,								true,			nullptr },
-	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL &~GTB_SIEGE,					true,			"<num>" },
+	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL &~Bit( GT_SIEGE ),					true,			"<num>" },
 };
 static const int validVoteStringsSize = ARRAY_LEN( validVoteStrings );
 
@@ -2299,7 +2299,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTEINPROG")) );
 		return;
 	}
-	if ( ent->client->mGameFlags & PSG_VOTED ) {
+	if ( Any( ent->client->mGameFlags & PSG_VOTED ) ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "VOTEALREADY")) );
 		return;
 	}
@@ -2471,7 +2471,7 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOTEAMVOTEINPROG")) );
 		return;
 	}
-	if ( ent->client->mGameFlags & PSG_TEAMVOTED ) {
+	if ( Any( ent->client->mGameFlags & PSG_TEAMVOTED ) ) {
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TEAMVOTEALREADYCAST")) );
 		return;
 	}
@@ -2568,7 +2568,7 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		return 0;
 	}
 
-	if (ps->pm_flags & PMF_USE_ITEM_HELD)
+	if (Any( ps->pm_flags & PMF_USE_ITEM_HELD ))
 	{ //force to let go first
 		return 0;
 	}
@@ -2599,7 +2599,7 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 
 		return 1;
 	case HI_SEEKER:
-		if (ps->eFlags & EF_SEEKERDRONE)
+		if (Any( ps->eFlags & EF_SEEKERDRONE ))
 		{
 			G_AddEvent(&g_entities[ps->clientNum], EV_ITEMUSEFAIL, to_underlying( SEEKER_ALREADYDEPLOYED ));
 			return 0;
@@ -2630,7 +2630,7 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		trtest[1] = fwdorg[1] + fwd[1]*16;
 		trtest[2] = fwdorg[2] + fwd[2]*16;
 
-		trap->Trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID, false, 0, 0);
+		trap->Trace(&tr, ps->origin, mins, maxs, trtest, ps->clientNum, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 		if ((tr.fraction != 1 && tr.entityNum != ps->clientNum) || tr.startsolid || tr.allsolid)
 		{
@@ -2651,12 +2651,12 @@ int G_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 		AngleVectors (ps->viewangles, fwd, nullptr, nullptr);
 		fwd[2] = 0;
 		VectorMA(ps->origin, 64, fwd, dest);
-		trap->Trace(&tr, ps->origin, mins, maxs, dest, ps->clientNum, MASK_SHOT, false, 0, 0 );
+		trap->Trace(&tr, ps->origin, mins, maxs, dest, ps->clientNum, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 		if (tr.fraction > 0.9 && !tr.startsolid && !tr.allsolid)
 		{
 			VectorCopy(tr.endpos, pos);
 			VectorSet( dest, pos[0], pos[1], pos[2] - 4096 );
-			trap->Trace( &tr, pos, mins, maxs, dest, ps->clientNum, MASK_SOLID, false, 0, 0 );
+			trap->Trace( &tr, pos, mins, maxs, dest, ps->clientNum, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 			if ( !tr.startsolid && !tr.allsolid )
 			{
 				return 1;
@@ -2811,11 +2811,11 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			}
 			else if ( ent->client->ps.saberHolstered == 0 )
 			{//have none holstered
-				if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+				if ( Any( ent->client->saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 				{//can't turn it off manually
 				}
 				else if ( ent->client->saber[1].bladeStyle2Start > 0
-					&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+					&& Any( ent->client->saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 				{//can't turn it off manually
 				}
 				else
@@ -2867,11 +2867,11 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		}
 		else if ( ent->client->ps.saberHolstered == 0 )
 		{//both blades on
-			if ( (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+			if ( Any( ent->client->saber[0].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 			{//can't turn it off manually
 			}
 			else if ( ent->client->saber[0].bladeStyle2Start > 0
-				&& (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+				&& Any( ent->client->saber[0].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 			{//can't turn it off manually
 			}
 			else
@@ -3070,7 +3070,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 	fwdOrg[1] = ent->client->ps.origin[1] + forward[1]*256;
 	fwdOrg[2] = (ent->client->ps.origin[2]+ent->client->ps.viewheight) + forward[2]*256;
 
-	trap->Trace(&tr, ent->client->ps.origin, nullptr, nullptr, fwdOrg, ent->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&tr, ent->client->ps.origin, nullptr, nullptr, fwdOrg, ent->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.fraction != 1 && tr.entityNum < MAX_CLIENTS)
 	{
@@ -3226,7 +3226,7 @@ void Cmd_DebugSetBodyAnim_f(gentity_t *self)
 }
 #endif
 
-void StandardSetBodyAnim(gentity_t *self, animNumber_t anim, int flags)
+void StandardSetBodyAnim(gentity_t *self, animNumber_t anim, setAnimFlags_t flags)
 {
 	G_SetAnim(self, nullptr, SETANIM_BOTH, anim, flags, 0);
 }
@@ -3388,14 +3388,20 @@ ClientCommand
 =================
 */
 
-#define CMD_NOINTERMISSION		(1<<0)
-#define CMD_CHEAT				(1<<1)
-#define CMD_ALIVE				(1<<2)
+enum class commandFlags_t
+{
+	CMD_NONE				= 0,
+	CMD_NOINTERMISSION		= 1<<0,
+	CMD_CHEAT				= 1<<1,
+	CMD_ALIVE				= 1<<2,
+};
+using enum commandFlags_t;
+template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct command_s {
 	const char	*name;
 	void		(*func)(gentity_t *ent);
-	int			flags;
+	commandFlags_t	flags;
 } command_t;
 
 int cmdcmp( const void *a, const void *b ) {
@@ -3403,7 +3409,7 @@ int cmdcmp( const void *a, const void *b ) {
 }
 
 command_t commands[] = {
-	{ "addbot",				Cmd_AddBot_f,				0 },
+	{ "addbot",				Cmd_AddBot_f,				CMD_NONE },
 	{ "callteamvote",		Cmd_CallTeamVote_f,			CMD_NOINTERMISSION },
 	{ "callvote",			Cmd_CallVote_f,				CMD_NOINTERMISSION },
 	{ "debugBMove_Back",	Cmd_BotMoveBack_f,			CMD_CHEAT|CMD_ALIVE },
@@ -3415,28 +3421,28 @@ command_t commands[] = {
 	{ "follow",				Cmd_Follow_f,				CMD_NOINTERMISSION },
 	{ "follownext",			Cmd_FollowNext_f,			CMD_NOINTERMISSION },
 	{ "followprev",			Cmd_FollowPrev_f,			CMD_NOINTERMISSION },
-	{ "forcechanged",		Cmd_ForceChanged_f,			0 },
+	{ "forcechanged",		Cmd_ForceChanged_f,			CMD_NONE },
 	{ "gc",					Cmd_GameCommand_f,			CMD_NOINTERMISSION },
 	{ "give",				Cmd_Give_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "giveother",			Cmd_GiveOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
 	{ "god",				Cmd_God_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "kill",				Cmd_Kill_f,					CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "killother",			Cmd_KillOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
-//	{ "kylesmash",			TryGrapple,					0 },
+//	{ "kylesmash",			TryGrapple,					CMD_NONE },
 	{ "levelshot",			Cmd_LevelShot_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "maplist",			Cmd_MapList_f,				CMD_NOINTERMISSION },
 	{ "noclip",				Cmd_Noclip_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "notarget",			Cmd_Notarget_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "npc",				Cmd_NPC_f,					CMD_CHEAT|CMD_ALIVE },
-	{ "say",				Cmd_Say_f,					0 },
-	{ "say_team",			Cmd_SayTeam_f,				0 },
-	{ "score",				Cmd_Score_f,				0 },
+	{ "say",				Cmd_Say_f,					CMD_NONE },
+	{ "say_team",			Cmd_SayTeam_f,				CMD_NONE },
+	{ "score",				Cmd_Score_f,				CMD_NONE },
 	{ "setviewpos",			Cmd_SetViewpos_f,			CMD_CHEAT|CMD_NOINTERMISSION },
 	{ "siegeclass",			Cmd_SiegeClass_f,			CMD_NOINTERMISSION },
 	{ "team",				Cmd_Team_f,					CMD_NOINTERMISSION },
 //	{ "teamtask",			Cmd_TeamTask_f,				CMD_NOINTERMISSION },
 	{ "teamvote",			Cmd_TeamVote_f,				CMD_NOINTERMISSION },
-	{ "tell",				Cmd_Tell_f,					0 },
+	{ "tell",				Cmd_Tell_f,					CMD_NONE },
 	{ "thedestroyer",		Cmd_TheDestroyer_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "t_use",				Cmd_TargetUse_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "voice_cmd",			Cmd_VoiceCommand_f,			CMD_NOINTERMISSION },
@@ -3470,21 +3476,21 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
-	else if ( (command->flags & CMD_NOINTERMISSION)
+	else if ( Any( command->flags & CMD_NOINTERMISSION )
 		&& ( level.intermissionQueued || level.intermissiontime ) )
 	{
 		trap->SendServerCommand( clientNum, va( "print \"%s (%s)\n\"", G_GetStringEdString( "MP_SVGAME", "CANNOT_TASK_INTERMISSION" ), cmd ) );
 		return;
 	}
 
-	else if ( (command->flags & CMD_CHEAT)
+	else if ( Any( command->flags & CMD_CHEAT )
 		&& !sv_cheats.integer )
 	{
 		trap->SendServerCommand( clientNum, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "NOCHEATS" ) ) );
 		return;
 	}
 
-	else if ( (command->flags & CMD_ALIVE)
+	else if ( Any( command->flags & CMD_ALIVE )
 		&& (ent->health <= 0
 			|| ent->client->tempSpectate >= level.time
 			|| ent->client->sess.sessionTeam == TEAM_SPECTATOR) )

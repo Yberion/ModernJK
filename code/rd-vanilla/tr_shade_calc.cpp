@@ -909,7 +909,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 	v = tess.xyz[0];
 	normal = tess.normal[0];
 
-	if (backEnd.currentEntity && backEnd.currentEntity->e.renderfx&RF_FIRST_PERSON)	//this is a view model so we must use world lights instead of vieworg
+	if (backEnd.currentEntity && Any( backEnd.currentEntity->e.renderfx&RF_FIRST_PERSON ))	//this is a view model so we must use world lights instead of vieworg
 	{
 		for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 )
 		{
@@ -1243,7 +1243,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 
 	numVertexes = tess.numVertexes;
 
-	if ( ent->renderfx & RF_DISINTEGRATE1 )
+	if ( Any( ent->renderfx & RF_DISINTEGRATE1 ) )
 	{
 		// this handles the blacken and fading out of the regular player model
 		for ( i = 0 ; i < numVertexes ; i++, v += 4 )
@@ -1318,7 +1318,7 @@ void RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen )
 			}
 		}
 	}
-	else if ( ent->renderfx & RF_DISINTEGRATE2 )
+	else if ( Any( ent->renderfx & RF_DISINTEGRATE2 ) )
 	{
 		// this handles the glowing, burning bit that scales away from the model
 		for ( i = 0 ; i < numVertexes ; i++, v += 4 )
@@ -1355,7 +1355,7 @@ void RB_CalcDisintegrateVertDeform( void )
 	float	scale;
 	vec3_t	temp;
 
-	if ( backEnd.currentEntity->e.renderfx & RF_DISINTEGRATE2 )
+	if ( Any( backEnd.currentEntity->e.renderfx & RF_DISINTEGRATE2 ) )
 	{
 		float	threshold = (backEnd.refdef.time - backEnd.currentEntity->e.endTime) * 0.045f;
 

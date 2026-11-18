@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
+extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask );
 extern bool FlyingCreature( gentity_t *ent );
 
 #define	SPF_NO_HIDE			2
@@ -152,7 +152,7 @@ static bool Sniper_Move( void )
 
 	//FIXME: if we bump into another one of our guys and can't get around him, just stop!
 	//If we hit our target, then stop and fire!
-	if ( info.flags & NIF_COLLISION )
+	if ( Any( info.flags & NIF_COLLISION ) )
 	{
 		if ( info.blocker == NPCS.NPC->enemy )
 		{
@@ -163,18 +163,18 @@ static bool Sniper_Move( void )
 	//If our move failed, then reset
 	if ( moved == false )
 	{//couldn't get to enemy
-		if ( (NPCS.NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) && NPCS.NPCInfo->goalEntity && NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy )
+		if ( Any(NPCS.NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) && NPCS.NPCInfo->goalEntity && NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy )
 		{//we were running after enemy
 			//Try to find a combat point that can hit the enemy
-			int cpFlags = (CP_CLEAR|CP_HAS_ROUTE);
+			combatPointSearchFlags_t cpFlags = (CP_CLEAR|CP_HAS_ROUTE);
 			int cp;
-			if ( NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST )
+			if ( Any(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 			{
 				cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
 				cpFlags |= CP_NEAREST;
 			}
 			cp = NPC_FindCombatPoint( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, cpFlags, 32, -1 );
-			if ( cp == -1 && !(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
+			if ( cp == -1 && !Any(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 			{//okay, try one by the enemy
 				cp = NPC_FindCombatPoint( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin, CP_CLEAR|CP_HAS_ROUTE|CP_HORZ_DIST_COLL, 32, -1 );
 			}
@@ -206,7 +206,7 @@ void NPC_BSSniper_Patrol( void )
 	if ( NPCS.NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( NPCS.NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
+		if ( Any(NPCS.NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
@@ -217,7 +217,7 @@ void NPC_BSSniper_Patrol( void )
 			}
 		}
 
-		if ( !(NPCS.NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCS.NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
 			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
@@ -326,7 +326,7 @@ static void Sniper_CheckMoveState( void )
 {
 
 	//See if we're a scout
-	if ( !(NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )//NPCInfo->behaviorState == BS_STAND_AND_SHOOT )
+	if ( !Any(NPCS.NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )//NPCInfo->behaviorState == BS_STAND_AND_SHOOT )
 	{
 		if ( NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy )
 		{
@@ -405,19 +405,19 @@ static void Sniper_ResolveBlockedShot( void )
 		if ( TIMER_Done( NPCS.NPC, "roamTime" ) )
 		{//not roaming
 			//FIXME: try to find another spot from which to hit the enemy
-			if ( (NPCS.NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) && (!NPCS.NPCInfo->goalEntity || NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy) )
+			if ( Any(NPCS.NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) && (!NPCS.NPCInfo->goalEntity || NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy) )
 			{//we were running after enemy
 				//Try to find a combat point that can hit the enemy
-				int cpFlags = (CP_CLEAR|CP_HAS_ROUTE);
+				combatPointSearchFlags_t cpFlags = (CP_CLEAR|CP_HAS_ROUTE);
 				int cp;
 
-				if ( NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST )
+				if ( Any(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 				{
 					cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
 					cpFlags |= CP_NEAREST;
 				}
 				cp = NPC_FindCombatPoint( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, cpFlags, 32, -1 );
-				if ( cp == -1 && !(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
+				if ( cp == -1 && !Any(NPCS.NPCInfo->scriptFlags&SCF_USE_CP_NEAREST) )
 				{//okay, try one by the enemy
 					cp = NPC_FindCombatPoint( NPCS.NPC->r.currentOrigin, NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin, CP_CLEAR|CP_HAS_ROUTE|CP_HORZ_DIST_COLL, 32, -1 );
 				}
@@ -515,8 +515,8 @@ bool Sniper_EvaluateShot( int hit )
 	hitEnt = &g_entities[hit];
 	if ( hit == NPCS.NPC->enemy->s.number
 		|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPCS.NPC->client->enemyTeam )
-		|| ( hitEnt && hitEnt->takedamage && ((hitEnt->r.svFlags&SVF_GLASS_BRUSH)||hitEnt->health < 40||NPCS.NPC->s.weapon == WP_EMPLACED_GUN) )
-		|| ( hitEnt && (hitEnt->r.svFlags&SVF_GLASS_BRUSH)) )
+		|| ( hitEnt && hitEnt->takedamage && (Any( hitEnt->r.svFlags & SVF_GLASS_BRUSH )||hitEnt->health < 40||NPCS.NPC->s.weapon == WP_EMPLACED_GUN) )
+		|| ( hitEnt && Any( hitEnt->r.svFlags & SVF_GLASS_BRUSH )) )
 	{//can hit enemy or will hit glass, so shoot anyway
 		return true;
 	}
@@ -577,7 +577,7 @@ void Sniper_FaceEnemy( void )
 								VectorMA( target, NPCS.NPC->enemy->r.mins[2]*Q_flrand(1.5, 4), up, target );
 							}
 						}
-						trap->Trace( &trace, muzzle, vec3_origin, vec3_origin, target, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+						trap->Trace( &trace, muzzle, vec3_origin, vec3_origin, target, NPCS.NPC->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 						hit = Sniper_EvaluateShot( trace.entityNum );
 					}
 					NPCS.NPC->count++;
@@ -694,10 +694,10 @@ void NPC_BSSniper_Attack( void )
 	{//too close, so switch to primary fire
 		if ( NPCS.NPC->client->ps.weapon == WP_DISRUPTOR )
 		{//sniping... should be assumed
-			if ( NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE )
+			if ( Any( NPCS.NPCInfo->scriptFlags & SCF_ALT_FIRE ) )
 			{//use primary fire
 				trace_t	trace;
-				trap->Trace ( &trace, NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->enemy->r.mins, NPCS.NPC->enemy->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->s.number, NPCS.NPC->enemy->clipmask, false, 0, 0 );
+				trap->Trace ( &trace, NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->enemy->r.mins, NPCS.NPC->enemy->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->s.number, NPCS.NPC->enemy->clipmask, false, G2TRFLAG_NONE, 0 );
 				if ( !trace.allsolid && !trace.startsolid && (trace.fraction == 1.0 || trace.entityNum == NPCS.NPC->s.number ) )
 				{//he can get right to me
 					NPCS.NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
@@ -714,7 +714,7 @@ void NPC_BSSniper_Attack( void )
 	{
 		if ( NPCS.NPC->client->ps.weapon == WP_DISRUPTOR )
 		{//sniping... should be assumed
-			if ( !(NPCS.NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+			if ( !Any(NPCS.NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 			{//use primary fire
 				NPCS.NPCInfo->scriptFlags |= SCF_ALT_FIRE;
 				//reset fire-timing variables
@@ -744,7 +744,7 @@ void NPC_BSSniper_Attack( void )
 			AngleVectors( NPCS.NPC->client->ps.viewangles, fwd, right, up );
 			CalcMuzzlePoint( NPCS.NPC, fwd, right, up, muzzle );
 			VectorMA( muzzle, 8192, fwd, end );
-			trap->Trace ( &tr, muzzle, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SHOT, false, 0, 0 );
+			trap->Trace ( &tr, muzzle, nullptr, nullptr, end, NPCS.NPC->s.number, MASK_SHOT, false, G2TRFLAG_NONE, 0 );
 
 			hit = tr.entityNum;
 			//can we shoot our target?
@@ -815,7 +815,7 @@ void NPC_BSSniper_Attack( void )
 		&& (TIMER_Get( NPCS.NPC, "attackDelay" )-level.time) > 1000
 		&& NPCS.NPC->attackDebounceTime < level.time )
 	{
-		if ( enemyLOS2 && (NPCS.NPCInfo->scriptFlags&SCF_ALT_FIRE) )
+		if ( enemyLOS2 && Any(NPCS.NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 		{
 			if ( NPCS.NPC->fly_sound_debounce_time < level.time )
 			{
@@ -839,7 +839,7 @@ void NPC_BSSniper_Attack( void )
 		Sniper_FaceEnemy();
 	}
 
-	if ( NPCS.NPCInfo->scriptFlags&SCF_DONT_FIRE )
+	if ( Any(NPCS.NPCInfo->scriptFlags&SCF_DONT_FIRE) )
 	{
 		shoot2 = false;
 	}
@@ -850,7 +850,7 @@ void NPC_BSSniper_Attack( void )
 		if ( TIMER_Done( NPCS.NPC, "attackDelay" ) )
 		{
 			WeaponThink( true );
-			if ( NPCS.ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK) )
+			if ( Any( NPCS.ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK) ) )
 			{
 				G_SoundOnEnt( NPCS.NPC, CHAN_WEAPON, "sound/null.wav" );
 			}

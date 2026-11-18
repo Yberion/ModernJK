@@ -1360,7 +1360,7 @@ void moverCallback( gentity_t *ent )
 		MatchTeam( ent, MOVER_POS1, level.time );
 		//SetMoverState( ent, MOVER_POS1, level.time );
 		//close the portal
-		if ( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS )
+		if ( Any( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS ) )
 		{
 			gi.AdjustAreaPortalState( ent, false );
 		}
@@ -1447,7 +1447,7 @@ void Blocked_Mover( gentity_t *ent, gentity_t *other ) {
 	}
 
 	if ( ent->damage ) {
-		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
+		G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, DAMAGE_NORMAL, MOD_CRUSH );
 	}
 }
 
@@ -1531,7 +1531,7 @@ Lerps the origin of an entity to its ending position
 
 	if ( ent->moverState == MOVER_POS1 )
 	{//open the portal
-		if ( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS )
+		if ( Any( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS ) )
 		{
 			gi.AdjustAreaPortalState( ent, true );
 		}
@@ -1604,7 +1604,7 @@ Lerps the origin and angles of an entity to the destination values
 
 		if ( moverState == MOVER_POS1 )
 		{//open the portal
-			if ( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS )
+			if ( Any( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS ) )
 			{
 				gi.AdjustAreaPortalState( ent, true );
 			}
@@ -1714,7 +1714,7 @@ static void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration
 
 		if ( moverState == MOVER_POS1 )
 		{//open the portal
-			if ( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS )
+			if ( Any( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS ) )
 			{
 				gi.AdjustAreaPortalState( ent, true );
 			}
@@ -2927,7 +2927,7 @@ static void Q3_SetInvisible( int entID, bool invisible )
 		{
 			self->client->ps.eFlags |= EF_NODRAW;
 		}
-		self->contents = 0;
+		self->contents = CONTENTS_NONE;
 	}
 	else
 	{
@@ -5624,7 +5624,7 @@ void SolidifyOwner( gentity_t *self )
 		return;
 	}
 
-	int oldContents = self->owner->contents;
+	contentsFlags_t oldContents = self->owner->contents;
 	self->owner->contents = CONTENTS_BODY;
 	if ( SpotWouldTelefrag2( self->owner, self->owner->currentOrigin ) )
 	{
@@ -5661,7 +5661,7 @@ static bool Q3_SetSolid( int entID, bool solid)
 
 	if ( solid )
 	{//FIXME: Presumption
-		int oldContents = ent->contents;
+		contentsFlags_t oldContents = ent->contents;
 		ent->contents = CONTENTS_BODY;
 		if ( SpotWouldTelefrag2( ent, ent->currentOrigin ) )
 		{
@@ -5679,9 +5679,9 @@ static bool Q3_SetSolid( int entID, bool solid)
 	}
 	else
 	{//FIXME: Presumption
-		if ( ent->s.eFlags & EF_NODRAW )
+		if ( Any( ent->s.eFlags & EF_NODRAW ) )
 		{//We're invisible too, so set contents to none
-			ent->contents = 0;
+			ent->contents = CONTENTS_NONE;
 		}
 		else
 		{
@@ -6594,7 +6594,7 @@ static void Q3_SetCleanDamagingEnts( void )
 			else if ( ent->client && ent->client->NPC_class == CLASS_SEEKER )
 			{
 				// they blow up when they run out of ammo, so this may as well just do the same.
-				G_Damage( ent, ent, ent, nullptr, nullptr, 999, 0, MOD_UNKNOWN );
+				G_Damage( ent, ent, ent, nullptr, nullptr, 999, DAMAGE_NORMAL, MOD_UNKNOWN );
 			}
 		}
 	}
@@ -6799,7 +6799,7 @@ static void Q3_RemoveEnt( gentity_t *victim )
 		victim->s.eFlags |= EF_NODRAW;
 		victim->svFlags &= ~SVF_NPC;
 		victim->s.eType = ET_INVISIBLE;
-		victim->contents = 0;
+		victim->contents = CONTENTS_NONE;
 		victim->health = 0;
 		victim->targetname = nullptr;
 
@@ -8007,7 +8007,7 @@ int 	CQuake3GameInterface::PlayIcarusSound( int taskID, int entID, const char *n
 	{
 		// Text on
 		// certain NPC's we always want to use subtitles regardless of subtitle setting
-		if (g_subtitles->integer == 1 || (ent->NPC && (ent->NPC->scriptFlags & SCF_USE_SUBTITLES) ) ) // Show all text
+		if (g_subtitles->integer == 1 || (ent->NPC && Any(ent->NPC->scriptFlags & SCF_USE_SUBTITLES) ) ) // Show all text
 		{
 			if ( in_camera)	// Cinematic
 			{
@@ -8107,7 +8107,7 @@ void	CQuake3GameInterface::Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_
 
 		if ( moverState == MOVER_POS1 )
 		{//open the portal
-			if ( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS )
+			if ( Any( ent->svFlags & SVF_MOVER_ADJ_AREA_PORTALS ) )
 			{
 				gi.AdjustAreaPortalState( ent, true );
 			}
@@ -9191,7 +9191,7 @@ void	CQuake3GameInterface::Set( int taskID, int entID, const char *type_name, co
 
 	case SET_DAMAGEENTITY:
 		int_data = atoi((char *) data);
-		G_Damage( ent, ent, ent, nullptr, nullptr, int_data, 0, MOD_UNKNOWN );
+		G_Damage( ent, ent, ent, nullptr, nullptr, int_data, DAMAGE_NORMAL, MOD_UNKNOWN );
 		break;
 
 	case SET_SABER_ORIGIN:
@@ -9899,6 +9899,14 @@ void	CQuake3GameInterface::CameraShake( float intensity, int duration )
 	CGCam_Shake( intensity, duration );
 }
 
+// A script's get of a flag: 1 when it is set, 0 when not, like the gets of the other booleans (decided 18 November
+// 2026; the flag's bit was returned before)
+template <FlagEnum E>
+static float Q3_FlagValue( E bits )
+{
+	return Any( bits ) ? 1.0f : 0.0f;
+}
+
 int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 {
 	gentity_t	*ent = &g_entities[entID];
@@ -10049,7 +10057,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 		break;
 
 	case SET_GRAVITY://## %f="0.0" # Change this ent's gravity - 800 default
-		if ( (ent->svFlags&SVF_CUSTOM_GRAVITY) && ent->client )
+		if ( Any( ent->svFlags & SVF_CUSTOM_GRAVITY ) && ent->client )
 		{
 			*value = ent->client->ps.gravity;
 		}
@@ -10235,7 +10243,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 		*value = ent->NPC->ignorePain;
 		break;
 	case SET_IGNOREENEMIES://## %t="BOOL_TYPES" # Do not acquire enemies
-		*value = (ent->svFlags&SVF_IGNORE_ENEMIES);
+		*value = Q3_FlagValue( ent->svFlags & SVF_IGNORE_ENEMIES );
 		break;
 	case SET_IGNOREALERTS://## Do not get enemy set by allies in area(ambush)
 		if ( ent->NPC == nullptr )
@@ -10243,14 +10251,14 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_IGNOREALERTS, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_IGNORE_ALERTS);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_IGNORE_ALERTS);
 		break;
 
 	case SET_DONTSHOOT://## %t="BOOL_TYPES" # Others won't shoot you
-		*value = (ent->flags&FL_DONT_SHOOT);
+		*value = Q3_FlagValue( ent->flags & FL_DONT_SHOOT );
 		break;
 	case SET_NOTARGET://## %t="BOOL_TYPES" # Others won't pick you as enemy
-		*value = (ent->flags&FL_NOTARGET);
+		*value = Q3_FlagValue( ent->flags & FL_NOTARGET );
 		break;
 	case SET_DONTFIRE://## %t="BOOL_TYPES" # Don't fire your weapon
 		if ( ent->NPC == nullptr )
@@ -10258,11 +10266,11 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_DONTFIRE, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_DONT_FIRE);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_DONT_FIRE);
 		break;
 
 	case SET_LOCKED_ENEMY://## %t="BOOL_TYPES" # Keep current enemy until dead
-		*value = (ent->svFlags&SVF_LOCKEDENEMY);
+		*value = Q3_FlagValue( ent->svFlags & SVF_LOCKEDENEMY );
 		break;
 	case SET_CROUCHED://## %t="BOOL_TYPES" # Force NPC to crouch
 		if ( ent->NPC == nullptr )
@@ -10270,7 +10278,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_CROUCHED, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_CROUCHED);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_CROUCHED);
 		break;
 	case SET_WALKING://## %t="BOOL_TYPES" # Force NPC to move at walkSpeed
 		if ( ent->NPC == nullptr )
@@ -10278,7 +10286,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_WALKING, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_WALKING);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_WALKING);
 		break;
 	case SET_RUNNING://## %t="BOOL_TYPES" # Force NPC to move at runSpeed
 		if ( ent->NPC == nullptr )
@@ -10286,7 +10294,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_RUNNING, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_RUNNING);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_RUNNING);
 		break;
 	case SET_CHASE_ENEMIES://## %t="BOOL_TYPES" # NPC will chase after enemies
 		if ( ent->NPC == nullptr )
@@ -10294,7 +10302,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_CHASE_ENEMIES, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_CHASE_ENEMIES);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_CHASE_ENEMIES);
 		break;
 	case SET_LOOK_FOR_ENEMIES://## %t="BOOL_TYPES" # NPC will be on the lookout for enemies
 		if ( ent->NPC == nullptr )
@@ -10302,7 +10310,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_LOOK_FOR_ENEMIES, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES);
 		break;
 	case SET_FACE_MOVE_DIR://## %t="BOOL_TYPES" # NPC will face in the direction it's moving
 		if ( ent->NPC == nullptr )
@@ -10310,7 +10318,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_FACE_MOVE_DIR, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_FACE_MOVE_DIR);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_FACE_MOVE_DIR);
 		break;
 	case SET_FORCED_MARCH://## %t="BOOL_TYPES" # Force NPC to move at runSpeed
 		if ( ent->NPC == nullptr )
@@ -10318,10 +10326,10 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_FORCED_MARCH, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_FORCED_MARCH);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_FORCED_MARCH);
 		break;
 	case SET_UNDYING://## %t="BOOL_TYPES" # Can take damage down to 1 but not die
-		*value = (ent->flags&FL_UNDYING);
+		*value = Q3_FlagValue( ent->flags & FL_UNDYING );
 		break;
 	case SET_NOAVOID://## %t="BOOL_TYPES" # Will not avoid other NPCs or architecture
 		if ( ent->NPC == nullptr )
@@ -10329,14 +10337,14 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NOAVOID, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->aiFlags&NPCAI_NO_COLL_AVOID);
+		*value = Q3_FlagValue(ent->NPC->aiFlags&NPCAI_NO_COLL_AVOID);
 		break;
 
 	case SET_SOLID://## %t="BOOL_TYPES" # Make yourself notsolid or solid
-		*value = ent->contents;
+		*value = static_cast<int>( to_underlying( ent->contents ) );
 		break;
 	case SET_PLAYER_USABLE://## %t="BOOL_TYPES" # Can be activateby the player's "use" button
-		*value = (ent->svFlags&SVF_PLAYER_USABLE);
+		*value = Q3_FlagValue( ent->svFlags & SVF_PLAYER_USABLE );
 		break;
 	case SET_LOOP_ANIM://## %t="BOOL_TYPES" # For non-NPCs: loop your animation sequence
 		*value = ent->loopAnim;
@@ -10351,7 +10359,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_SHIELDS, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->aiFlags&NPCAI_SHIELDS);
+		*value = Q3_FlagValue(ent->NPC->aiFlags&NPCAI_SHIELDS);
 		break;
 	case SET_SABERACTIVE:
 		if ( ent->client == nullptr )
@@ -10362,7 +10370,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 		*value = (ent->client->ps.SaberActive());
 		break;
 	case SET_INVISIBLE://## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
-		*value = (ent->s.eFlags&EF_NODRAW);
+		*value = Q3_FlagValue( ent->s.eFlags&EF_NODRAW );
 		break;
 	case SET_VAMPIRE://## %t="BOOL_TYPES" # Makes an NPC not solid and not visible
 		if ( !ent->client )
@@ -10390,7 +10398,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_GREET_ALLIES, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->aiFlags&NPCAI_GREET_ALLIES);
+		*value = Q3_FlagValue(ent->NPC->aiFlags&NPCAI_GREET_ALLIES);
 		break;
 	case SET_VIDEO_FADE_IN://## %t="BOOL_TYPES" # Makes video playback fade in
 		DebugPrint( WL_WARNING, "GetFloat: SET_VIDEO_FADE_IN not implemented\n" );
@@ -10404,13 +10412,13 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 		*value = player_locked;
 		break;
 	case SET_LOCK_PLAYER_WEAPONS://## %t="BOOL_TYPES" # Makes it so player cannot switch weapons
-		*value = (ent->flags&FL_LOCK_PLAYER_WEAPONS);
+		*value = Q3_FlagValue( ent->flags & FL_LOCK_PLAYER_WEAPONS );
 		break;
 	case SET_NO_IMPACT_DAMAGE://## %t="BOOL_TYPES" # Makes it so player cannot switch weapons
-		*value = (ent->flags&FL_NO_IMPACT_DMG);
+		*value = Q3_FlagValue( ent->flags & FL_NO_IMPACT_DMG );
 		break;
 	case SET_NO_KNOCKBACK://## %t="BOOL_TYPES" # Stops this ent from taking knockback from weapons
-		*value = (ent->flags&FL_NO_KNOCKBACK);
+		*value = Q3_FlagValue( ent->flags & FL_NO_KNOCKBACK );
 		break;
 	case SET_ALT_FIRE://## %t="BOOL_TYPES" # Force NPC to use altfire when shooting
 		if ( ent->NPC == nullptr )
@@ -10418,7 +10426,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_ALT_FIRE, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_ALT_FIRE);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_ALT_FIRE);
 		break;
 	case SET_NO_RESPONSE://## %t="BOOL_TYPES" # NPCs will do generic responses when this is on (usescripts override generic responses as well)
 		if ( ent->NPC == nullptr )
@@ -10426,10 +10434,10 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_RESPONSE, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_RESPONSE);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_RESPONSE);
 		break;
 	case SET_INVINCIBLE://## %t="BOOL_TYPES" # Completely unkillable
-		*value = (ent->flags&FL_GODMODE);
+		*value = Q3_FlagValue( ent->flags & FL_GODMODE );
 		break;
 	case SET_MISSIONSTATUSACTIVE:	//# Turns on Mission Status Screen
 		*value = cg.missionStatusShow;
@@ -10440,7 +10448,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_COMBAT_TALK, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_COMBAT_TALK);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_COMBAT_TALK);
 		break;
 	case SET_NO_ALERT_TALK://## %t="BOOL_TYPES" # NPCs will not do their combat talking noises when this is on
 		if ( ent->NPC == nullptr )
@@ -10448,7 +10456,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_ALERT_TALK, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_ALERT_TALK);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_ALERT_TALK);
 		break;
 	case SET_USE_CP_NEAREST://## %t="BOOL_TYPES" # NPCs will use their closest combat points, not try and find ones next to the player, or flank player
 		if ( ent->NPC == nullptr )
@@ -10456,7 +10464,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_USE_CP_NEAREST, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_USE_CP_NEAREST);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_USE_CP_NEAREST);
 		break;
 	case SET_DISMEMBERABLE://## %t="BOOL_TYPES" # NPC will not be affected by force powers
 		if ( ent->client == nullptr )
@@ -10472,7 +10480,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_FORCE, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_FORCE);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_FORCE);
 		break;
 	case SET_NO_ACROBATICS:
 		if ( ent->NPC == nullptr )
@@ -10480,7 +10488,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_ACROBATICS, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_ACROBATICS);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_ACROBATICS);
 		break;
 	case SET_USE_SUBTITLES:
 		if ( ent->NPC == nullptr )
@@ -10488,7 +10496,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_USE_SUBTITLES, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_USE_SUBTITLES);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_USE_SUBTITLES);
 		break;
 	case SET_NO_FALLTODEATH://## %t="BOOL_TYPES" # NPC will not be affected by force powers
 		if ( ent->NPC == nullptr )
@@ -10496,7 +10504,7 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_NO_FALLTODEATH, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_NO_FALLTODEATH);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_NO_FALLTODEATH);
 		break;
 	case SET_MORELIGHT://## %t="BOOL_TYPES" # NPCs will use their closest combat points, not try and find ones next to the player, or flank player
 		if ( ent->NPC == nullptr )
@@ -10504,17 +10512,17 @@ int		CQuake3GameInterface::GetFloat( int entID, const char *name, float *value )
 			DebugPrint( WL_WARNING, "GetFloat: SET_MORELIGHT, %s not an NPC\n", ent->targetname );
 			return false;
 		}
-		*value = (ent->NPC->scriptFlags&SCF_MORELIGHT);
+		*value = Q3_FlagValue(ent->NPC->scriptFlags&SCF_MORELIGHT);
 		break;
 	case SET_TREASONED://## %t="BOOL_TYPES" # Player has turned on his own- scripts will stop: NPCs will turn on him and level changes load the brig
 		DebugPrint( WL_VERBOSE, "SET_TREASONED is disabled, do not use\n" );
 		*value = 0;//(ffireLevel>=FFIRE_LEVEL_RETALIATION);
 		break;
 	case SET_DISABLE_SHADER_ANIM:	//## %t="BOOL_TYPES" # Shaders won't animate
-		*value = (ent->s.eFlags & EF_DISABLE_SHADER_ANIM);
+		*value = Q3_FlagValue( ent->s.eFlags & EF_DISABLE_SHADER_ANIM );
 		break;
 	case SET_SHADER_ANIM:	//## %t="BOOL_TYPES" # Shader will be under frame control
-		*value = (ent->s.eFlags & EF_SHADER_ANIM);
+		*value = Q3_FlagValue( ent->s.eFlags & EF_SHADER_ANIM );
 		break;
 
 	case SET_OBJECTIVE_LIGHTSIDE:
@@ -11293,7 +11301,7 @@ int		CQuake3GameInterface::GetByName( const char *name )
 // return -1 indicates invalid
 int		CQuake3GameInterface::IsFrozen( int entID )
 {
-	return (g_entities[entID].svFlags & SVF_ICARUS_FREEZE);
+	return to_underlying( g_entities[entID].svFlags & SVF_ICARUS_FREEZE );	// the ICARUS interface returns an int
 }
 
 void	CQuake3GameInterface::Free(void* data)

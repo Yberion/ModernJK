@@ -96,7 +96,7 @@ void P_DamageFeedback( gentity_t *player ) {
 	}
 
 	// play an appropriate pain sound
-	if ( (level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE) && !(player->s.eFlags & EF_DEAD) && (player->client->tempSpectate < level.time)) {
+	if ( (level.time > player->pain_debounce_time) && !Any( player->flags & FL_GODMODE ) && !Any(player->s.eFlags & EF_DEAD) && (player->client->tempSpectate < level.time)) {
 
 		// don't do more than two pain sounds a second
 		// nmckenzie: also don't make him loud and whiny if he's only getting nicked.
@@ -198,7 +198,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for sizzle damage (move to pmove?)
 	//
-	if ( waterlevel && (ent->watertype & (CONTENTS_LAVA|CONTENTS_SLIME)) )
+	if ( waterlevel && Any( ent->watertype & (CONTENTS_LAVA|CONTENTS_SLIME) ) )
 	{
 		if ( ent->health > 0 && ent->client->tempSpectate < level.time && ent->pain_debounce_time <= level.time )
 		{
@@ -206,11 +206,11 @@ void P_WorldEffects( gentity_t *ent ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			else
 			{
-				if ( ent->watertype & CONTENTS_LAVA )
-					G_Damage( ent, nullptr, nullptr, nullptr, nullptr, 30*waterlevel, 0, MOD_LAVA );
+				if ( Any( ent->watertype & CONTENTS_LAVA ) )
+					G_Damage( ent, nullptr, nullptr, nullptr, nullptr, 30*waterlevel, DAMAGE_NORMAL, MOD_LAVA );
 
-				if ( ent->watertype & CONTENTS_SLIME )
-					G_Damage( ent, nullptr, nullptr, nullptr, nullptr, 10*waterlevel, 0, MOD_SLIME );
+				if ( Any( ent->watertype & CONTENTS_SLIME ) )
+					G_Damage( ent, nullptr, nullptr, nullptr, nullptr, 10*waterlevel, DAMAGE_NORMAL, MOD_SLIME );
 			}
 		}
 	}
@@ -226,7 +226,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 {
 	float magnitude, my_mass;
 	vec3_t	velocity;
-	int cont;
+	contentsFlags_t cont;
 	bool easyBreakBrush = true;
 
 	if( self->client )
@@ -277,8 +277,8 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 	if ( other->material == MAT_GLASS
 		|| other->material == MAT_GLASS_METAL
 		|| other->material == MAT_GRATE1
-		|| ((other->flags&FL_BBRUSH)&&(other->spawnflags&8/*THIN*/))
-		|| (other->r.svFlags&SVF_GLASS_BRUSH) )
+		|| (Any( other->flags & FL_BBRUSH )&&(other->spawnflags&8/*THIN*/))
+		|| Any( other->r.svFlags & SVF_GLASS_BRUSH ) )
 	{
 		easyBreakBrush = true;
 	}
@@ -320,7 +320,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 			force *= (magnitude/50);
 
 			cont = trap->PointContents( other->r.absmax, other->s.number );
-			if( (cont&CONTENTS_WATER) )//|| (self.classname=="barrel"&&self.aflag))//FIXME: or other watertypes
+			if( Any( cont&CONTENTS_WATER ) )//|| (self.classname=="barrel"&&self.aflag))//FIXME: or other watertypes
 			{
 				force /= 3;							//water absorbs 2/3 velocity
 			}
@@ -339,7 +339,7 @@ void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf )
 				dprint(ftos(force));
 				dprint("\n");
 	*/
-				if ( other->r.svFlags & SVF_GLASS_BRUSH )
+				if ( Any( other->r.svFlags & SVF_GLASS_BRUSH ) )
 				{
 					other->splashRadius = (float)(self->r.maxs[0] - self->r.mins[0])/4.0f;
 				}
@@ -439,9 +439,9 @@ void Client_CheckImpactBBrush( gentity_t *self, gentity_t *other )
 	if ( other->material == MAT_GLASS
 		|| other->material == MAT_GLASS_METAL
 		|| other->material == MAT_GRATE1
-		|| ((other->flags&FL_BBRUSH)&&(other->spawnflags&8/*THIN*/))
-		|| ((other->flags&FL_BBRUSH)&&(other->health<=10))
-		|| (other->r.svFlags&SVF_GLASS_BRUSH) )
+		|| (Any( other->flags & FL_BBRUSH )&&(other->spawnflags&8/*THIN*/))
+		|| (Any( other->flags & FL_BBRUSH )&&(other->health<=10))
+		|| Any( other->r.svFlags & SVF_GLASS_BRUSH ) )
 	{//clients only do impact damage against easy-break breakables
 		DoImpact( self, other, false );
 	}
@@ -469,7 +469,7 @@ void G_SetClientSound( gentity_t *ent ) {
 		ent->client->ps.loopSound = level.snd_medSupplied;
 		ent->s.loopIsSoundset = false;
 	}
-	else if (ent->client && ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+	else if (ent->client && ent->waterlevel && Any( ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME) ) ) {
 		ent->client->ps.loopSound = level.snd_fry;
 		ent->s.loopIsSoundset = false;
 	} else if (ent->client) {
@@ -507,7 +507,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pmove ) {
 		}
 		other = &g_entities[ pmove->touchents[i] ];
 
-		if ( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
+		if ( Any( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
 			ent->touch( ent, other, &trace );
 		}
 
@@ -560,7 +560,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		if ( !hit->touch && !ent->touch ) {
 			continue;
 		}
-		if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
+		if ( !Any( hit->r.contents & CONTENTS_TRIGGER ) ) {
 			continue;
 		}
 
@@ -592,7 +592,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 			hit->touch (hit, ent, &trace);
 		}
 
-		if ( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
+		if ( Any( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
 			ent->touch( ent, hit, &trace );
 		}
 	}
@@ -664,7 +664,7 @@ void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg )
 				continue;
 			}
 
-			if ( !( hit->r.contents & CONTENTS_TRIGGER ) )
+			if ( !Any( hit->r.contents & CONTENTS_TRIGGER ) )
 			{
 				continue;
 			}
@@ -685,8 +685,8 @@ void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg )
 	}
 }
 
-static void SV_PMTrace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) {
-	trap->Trace( results, start, mins, maxs, end, passEntityNum, contentMask, false, 0, 10 );
+static void SV_PMTrace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask ) {
+	trap->Trace( results, start, mins, maxs, end, passEntityNum, contentMask, false, G2TRFLAG_NONE, 10 );
 }
 
 /*
@@ -747,10 +747,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	if (client->tempSpectate < level.time)
 	{
 		// attack button cycles through spectators
-		if ( (client->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK) )
+		if ( Any(client->buttons & BUTTON_ATTACK) && !Any(client->oldbuttons & BUTTON_ATTACK) )
 			Cmd_FollowCycle_f( ent, 1 );
 
-		else if ( client->sess.spectatorState == SPECTATOR_FOLLOW && (client->buttons & BUTTON_ALT_ATTACK) && !(client->oldbuttons & BUTTON_ALT_ATTACK) )
+		else if ( client->sess.spectatorState == SPECTATOR_FOLLOW && Any(client->buttons & BUTTON_ALT_ATTACK) && !Any(client->oldbuttons & BUTTON_ALT_ATTACK) )
 			Cmd_FollowCycle_f( ent, -1 );
 
 		if (client->sess.spectatorState == SPECTATOR_FOLLOW && (ucmd->upmove > 0))
@@ -778,7 +778,7 @@ bool ClientInactivityTimer( gclient_t *client ) {
 	} else if ( client->pers.cmd.forwardmove ||
 		client->pers.cmd.rightmove ||
 		client->pers.cmd.upmove ||
-		(client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) ) {
+		Any(client->pers.cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = false;
 	} else if ( !client->pers.localClient ) {
@@ -837,13 +837,13 @@ void ClientIntermissionThink( gclient_t *client ) {
 	// swap and latch button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
-	if ( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) ) {
+	if ( Any( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) ) ) {
 		// this used to be an ^1 but once a player says ready, it should stick
 		client->readyToExit = true;
 	}
 }
 
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 void G_VehicleAttachDroidUnit( gentity_t *vehEnt )
 {
 	if ( vehEnt && vehEnt->m_pVehicle && vehEnt->m_pVehicle->m_pDroidUnit != nullptr )
@@ -964,7 +964,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 					break;		// not in the player model
 				}
 
-				if ( dmflags.integer & DF_NO_FALLING )
+				if ( Any( G_DmFlags() & DF_NO_FALLING ) )
 				{
 					break;
 				}
@@ -1231,41 +1231,41 @@ bool G_StandingAnim( animNumber_t anim )
 	return false;
 }
 
-bool G_ActionButtonPressed(int buttons)
+bool G_ActionButtonPressed(buttonFlags_t buttons)
 {
-	if (buttons & BUTTON_ATTACK)
+	if (Any( buttons & BUTTON_ATTACK ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_USE_HOLDABLE)
+	else if (Any( buttons & BUTTON_USE_HOLDABLE ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_GESTURE)
+	else if (Any( buttons & BUTTON_GESTURE ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_USE)
+	else if (Any( buttons & BUTTON_USE ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_FORCEGRIP)
+	else if (Any( buttons & BUTTON_FORCEGRIP ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_ALT_ATTACK)
+	else if (Any( buttons & BUTTON_ALT_ATTACK ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_FORCEPOWER)
+	else if (Any( buttons & BUTTON_FORCEPOWER ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_FORCE_LIGHTNING)
+	else if (Any( buttons & BUTTON_FORCE_LIGHTNING ))
 	{
 		return true;
 	}
-	else if (buttons & BUTTON_FORCE_DRAIN)
+	else if (Any( buttons & BUTTON_FORCE_DRAIN ))
 	{
 		return true;
 	}
@@ -1277,17 +1277,17 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 {
 	vec3_t viewChange;
 	bool actionPressed;
-	int buttons;
+	buttonFlags_t buttons;
 
 	if ( !ent || !ent->client || ent->health <= 0 || ent->client->ps.stats[STAT_HEALTH] <= 0 ||
-		ent->client->sess.sessionTeam == TEAM_SPECTATOR || (ent->client->ps.pm_flags & PMF_FOLLOW))
+		ent->client->sess.sessionTeam == TEAM_SPECTATOR || Any(ent->client->ps.pm_flags & PMF_FOLLOW))
 	{
 		return;
 	}
 
 	buttons = ucmd->buttons;
 
-	if (ent->r.svFlags & SVF_BOT)
+	if (Any( ent->r.svFlags & SVF_BOT ))
 	{ //they press use all the time..
 		buttons &= ~BUTTON_USE;
 	}
@@ -1588,7 +1588,7 @@ void G_HeldByMonster( gentity_t *ent, usercmd_t *ucmd )
 					level.time,
 					nullptr,
 					monster->modelScale,
-					(monster->client->ps.eFlags2&EF2_GENERIC_NPC_FLAG),
+					Any(monster->client->ps.eFlags2&EF2_GENERIC_NPC_FLAG),
 					ent->client->ps.origin,
 					ent->client->ps.viewangles,
 					nullptr );
@@ -1927,7 +1927,7 @@ void ClientThink_real( gentity_t *ent ) {
 			{ //only take input from the pilot...
 				veh->client->ps.commandTime = ent->client->ps.commandTime;
 				memcpy(&veh->m_pVehicle->m_ucmd, &ent->client->pers.cmd, sizeof(usercmd_t));
-				if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
+				if ( Any( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK ) )
 				{ //forced input if "chat bubble" is up
 					veh->m_pVehicle->m_ucmd.buttons = BUTTON_TALK;
 					veh->m_pVehicle->m_ucmd.forwardmove = 0;
@@ -1938,7 +1938,7 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	}
 
-	isFollowing = (client->ps.pm_flags & PMF_FOLLOW) ? true : false;
+	isFollowing = Any(client->ps.pm_flags & PMF_FOLLOW) ? true : false;
 
 	if (!isFollowing)
 	{
@@ -2024,7 +2024,7 @@ void ClientThink_real( gentity_t *ent ) {
 	// mark the time, so the connection sprite can be removed
 	ucmd = &ent->client->pers.cmd;
 
-	if ( client && !isFollowing && (client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
+	if ( client && !isFollowing && Any(client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
 	{
 		G_HeldByMonster( ent, ucmd );
 	}
@@ -2077,7 +2077,7 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
-	if (ent && ent->client && (ent->client->ps.eFlags & EF_INVULNERABLE))
+	if (ent && ent->client && Any(ent->client->ps.eFlags & EF_INVULNERABLE))
 	{
 		if (ent->client->invulnerableTimer <= level.time)
 		{
@@ -2115,7 +2115,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if ( client->noclip ) {
 		client->ps.pm_type = PM_NOCLIP;
-	} else if ( client->ps.eFlags & EF_DISINTEGRATION ) {
+	} else if ( Any( client->ps.eFlags & EF_DISINTEGRATION ) ) {
 		client->ps.pm_type = PM_NOCLIP;
 	} else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 		client->ps.pm_type = PM_DEAD;
@@ -2153,8 +2153,8 @@ void ClientThink_real( gentity_t *ent ) {
 		gentity_t *grabbed = &g_entities[client->bodyGrabIndex];
 
 		if (!grabbed->inuse || grabbed->s.eType != ET_BODY ||
-			(grabbed->s.eFlags & EF_DISINTEGRATION) ||
-			(grabbed->s.eFlags & EF_NODRAW))
+			Any(grabbed->s.eFlags & EF_DISINTEGRATION) ||
+			Any(grabbed->s.eFlags & EF_NODRAW))
 		{
 			if (grabbed->inuse && grabbed->s.eType == ET_BODY)
 			{
@@ -2208,11 +2208,11 @@ void ClientThink_real( gentity_t *ent ) {
 		//FIXME: swoop should keep turning (and moving forward?) for a little bit?
 		if ( ent->NPC->combatMove == false )
 		{
-			//if ( !(ucmd->buttons & BUTTON_USE) )
+			//if ( !Any(ucmd->buttons & BUTTON_USE) )
 			if (1)
 			{//Not leaning
-				bool Flying = (ucmd->upmove && (ent->client->ps.eFlags2&EF2_FLYING));//ent->client->moveType == MT_FLYSWIM);
-				bool Climbing = (ucmd->upmove && ent->watertype&CONTENTS_LADDER );
+				bool Flying = (ucmd->upmove && Any(ent->client->ps.eFlags2&EF2_FLYING));//ent->client->moveType == MT_FLYSWIM);
+				bool Climbing = (ucmd->upmove && Any( ent->watertype&CONTENTS_LADDER ) );
 
 				//client->ps.friction = 6;
 
@@ -2220,7 +2220,7 @@ void ClientThink_real( gentity_t *ent ) {
 				{
 					//if ( ent->NPC->behaviorState != BS_FORMATION )
 					{//In - Formation NPCs set thier desiredSpeed themselves
-						if ( ucmd->buttons & BUTTON_WALKING )
+						if ( Any( ucmd->buttons & BUTTON_WALKING ) )
 						{
 							ent->NPC->desiredSpeed = NPC_GetWalkSpeed( ent );//ent->NPC->stats.walkSpeed;
 						}
@@ -2232,7 +2232,7 @@ void ClientThink_real( gentity_t *ent ) {
 						if ( ent->NPC->currentSpeed >= 80 && !controlledByPlayer )
 						{//At higher speeds, need to slow down close to stuff
 							//Slow down as you approach your goal
-							if ( ent->NPC->distToGoal < SLOWDOWN_DIST && !(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
+							if ( ent->NPC->distToGoal < SLOWDOWN_DIST && !Any(ent->NPC->aiFlags&NPCAI_NO_SLOWDOWN) )//128
 							{
 								if ( ent->NPC->desiredSpeed > MIN_NPC_SPEED )
 								{
@@ -2327,12 +2327,12 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 		else
 		{
-			ent->NPC->desiredSpeed = ( ucmd->buttons & BUTTON_WALKING ) ? NPC_GetWalkSpeed( ent ) : NPC_GetRunSpeed( ent );
+			ent->NPC->desiredSpeed = Any( ucmd->buttons & BUTTON_WALKING ) ? NPC_GetWalkSpeed( ent ) : NPC_GetRunSpeed( ent );
 
 			client->ps.speed = ent->NPC->desiredSpeed;
 		}
 
-		if (ucmd->buttons & BUTTON_WALKING)
+		if (Any( ucmd->buttons & BUTTON_WALKING ))
 		{ //sort of a hack I guess since MP handles walking differently from SP (has some proxy cheat prevention methods)
 			/*
 			if (ent->client->ps.speed > 64)
@@ -2384,7 +2384,7 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.basespeed = client->ps.speed;
 	}
 
-	if ( !ent->NPC || !(ent->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY) )
+	if ( !ent->NPC || !Any(ent->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY) )
 	{//use global gravity
 		if (ent->NPC && ent->s.NPC_class == CLASS_VEHICLE &&
 			ent->m_pVehicle && ent->m_pVehicle->m_pVehicleInfo->gravity)
@@ -2403,7 +2403,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			else
 			{
-				if (client->ps.eFlags2 & EF2_SHIP_DEATH)
+				if (Any( client->ps.eFlags2 & EF2_SHIP_DEATH ))
 				{ //float there
 					VectorClear(client->ps.velocity);
 					client->ps.gravity = 1.0f;
@@ -2550,7 +2550,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 		if (!throwee->inuse || !throwee->client || throwee->health < 1 ||
 			throwee->client->sess.sessionTeam == TEAM_SPECTATOR ||
-			(throwee->client->ps.pm_flags & PMF_FOLLOW) ||
+			Any(throwee->client->ps.pm_flags & PMF_FOLLOW) ||
 			throwee->client->throwingIndex != ent->s.number)
 		{
 			ent->client->doingThrow = 0;
@@ -2575,7 +2575,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 		if (!thrower->inuse || !thrower->client || thrower->health < 1 ||
 			thrower->client->sess.sessionTeam == TEAM_SPECTATOR ||
-			(thrower->client->ps.pm_flags & PMF_FOLLOW) ||
+			Any(thrower->client->ps.pm_flags & PMF_FOLLOW) ||
 			thrower->client->throwingIndex != ent->s.number)
 		{
 			ent->client->ps.heldByClient = 0;
@@ -2700,8 +2700,8 @@ void ClientThink_real( gentity_t *ent ) {
 					intendedOrigin[1] = pBoltOrg[1] + vDif[1]*pDif;
 					intendedOrigin[2] = thrower->client->ps.origin[2];
 
-					trap->Trace(&tr, intendedOrigin, ent->r.mins, ent->r.maxs, intendedOrigin, ent->s.number, ent->clipmask, false, 0, 0);
-					trap->Trace(&tr2, ent->client->ps.origin, ent->r.mins, ent->r.maxs, intendedOrigin, ent->s.number, CONTENTS_SOLID, false, 0, 0);
+					trap->Trace(&tr, intendedOrigin, ent->r.mins, ent->r.maxs, intendedOrigin, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
+					trap->Trace(&tr2, ent->client->ps.origin, ent->r.mins, ent->r.maxs, intendedOrigin, ent->s.number, CONTENTS_SOLID, false, G2TRFLAG_NONE, 0);
 
 					if (tr.fraction == 1.0 && !tr.startsolid && tr2.fraction == 1.0 && !tr2.startsolid)
 					{
@@ -2767,7 +2767,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	memset (&pmove, 0, sizeof(pmove));
 
-	if ( ent->flags & FL_FORCE_GESTURE ) {
+	if ( Any( ent->flags & FL_FORCE_GESTURE ) ) {
 		ent->flags &= ~FL_FORCE_GESTURE;
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
 	}
@@ -2837,7 +2837,7 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( pmove.ps->pm_type == PM_DEAD ) {
 		pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
-	else if ( ent->r.svFlags & SVF_BOT ) {
+	else if ( Any( ent->r.svFlags & SVF_BOT ) ) {
 		pmove.tracemask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP;
 	}
 	else {
@@ -2846,7 +2846,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pmove.trace = SV_PMTrace;
 	pmove.pointcontents = trap->PointContents;
 	pmove.debugLevel = g_debugMove.integer;
-	pmove.noFootsteps = (dmflags.integer & DF_NO_FOOTSTEPS) > 0;
+	pmove.noFootsteps = Any( G_DmFlags() & DF_NO_FOOTSTEPS );
 
 	pmove.animations = bgAllAnims[ent->localAnimIndex].anims;//nullptr;
 
@@ -2908,7 +2908,7 @@ void ClientThink_real( gentity_t *ent ) {
 	/*
 	if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
 		if ( level.time - level.intermissionQueued >= 1000  ) {
-			pm.cmd.buttons = 0;
+			pm.cmd.buttons = BUTTON_NONE;
 			pm.cmd.forwardmove = 0;
 			pm.cmd.rightmove = 0;
 			pm.cmd.upmove = 0;
@@ -2942,7 +2942,7 @@ void ClientThink_real( gentity_t *ent ) {
 		if ( ent->client->ps.saberLockHitCheckTime < level.time )
 		{//have moved to next frame since last lock push
 			ent->client->ps.saberLockHitCheckTime = level.time;//so we don't push more than once per server frame
-			if ( ( ent->client->buttons & BUTTON_ATTACK ) && ! ( ent->client->oldbuttons & BUTTON_ATTACK ) )
+			if ( Any( ent->client->buttons & BUTTON_ATTACK ) && ! Any( ent->client->oldbuttons & BUTTON_ATTACK ) )
 			{
 				if ( ent->client->ps.saberLockHitIncrementTime < level.time )
 				{//have moved to next frame since last saberlock attack button press
@@ -3053,7 +3053,7 @@ void ClientThink_real( gentity_t *ent ) {
 					{
 						vec3_t	down = {0,0,-1};
 						//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-						G_Damage( under, ent, ent, down, under->r.currentOrigin, 100, 0, MOD_CRUSH );
+						G_Damage( under, ent, ent, down, under->r.currentOrigin, 100, DAMAGE_NORMAL, MOD_CRUSH );
 					}
 				}
 			}
@@ -3072,7 +3072,7 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		if (ent->client->solidHack > level.time)
 		{ //whee!
-			ent->r.contents = 0;
+			ent->r.contents = CONTENTS_NONE;
 		}
 		else
 		{
@@ -3352,7 +3352,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	SendPendingPredictableEvents( &ent->client->ps );
 
-	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
+	if ( !Any( ent->client->ps.eFlags & EF_FIRING ) ) {
 		client->fireHeld = false;		// for grapple
 	}
 
@@ -3362,7 +3362,7 @@ void ClientThink_real( gentity_t *ent ) {
 	if (ent->s.eType != ET_NPC ||
 		ent->s.NPC_class != CLASS_VEHICLE ||
 		!ent->m_pVehicle ||
-		!ent->m_pVehicle->m_iRemovedSurfaces)
+		!Any( ent->m_pVehicle->m_iRemovedSurfaces ))
 	{ //let vehicles that are getting broken apart do their own crazy sizing stuff
 		VectorCopy (pmove.mins, ent->r.mins);
 		VectorCopy (pmove.maxs, ent->r.maxs);
@@ -3379,7 +3379,7 @@ void ClientThink_real( gentity_t *ent ) {
 		//TODO: Use
 //		TryUse( ent );
 	}
-	if ((ent->client->pers.cmd.buttons & BUTTON_USE) && ent->client->ps.useDelay < level.time)
+	if (Any(ent->client->pers.cmd.buttons & BUTTON_USE) && ent->client->ps.useDelay < level.time)
 	{
 		TryUse(ent);
 		ent->client->ps.useDelay = level.time + 100;
@@ -3466,7 +3466,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// check for respawning
 	if ( client->ps.stats[STAT_HEALTH] <= 0
-		&& !(client->ps.eFlags2&EF2_HELD_BY_MONSTER)//can't respawn while being eaten
+		&& !Any(client->ps.eFlags2&EF2_HELD_BY_MONSTER)//can't respawn while being eaten
 		&& ent->s.eType != ET_NPC ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime && !gDoSlowMoDuel ) {
@@ -3489,7 +3489,7 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 
 			// pressing attack or use is the normal respawn method
-			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
+			if ( Any( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) ) {
 				ClientRespawn( ent );
 			}
 		}
@@ -3594,7 +3594,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 			{ //only take input from the pilot...
 				veh->client->ps.commandTime = ent->client->ps.commandTime;
 				memcpy(&veh->m_pVehicle->m_ucmd, &ent->client->pers.cmd, sizeof(usercmd_t));
-				if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
+				if ( Any( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK ) )
 				{ //forced input if "chat bubble" is up
 					veh->m_pVehicle->m_ucmd.buttons = BUTTON_TALK;
 					veh->m_pVehicle->m_ucmd.forwardmove = 0;

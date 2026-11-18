@@ -39,9 +39,9 @@ int gLastPrintedIndex = -1;
 nodeobject_t nodetable[MAX_NODETABLE_SIZE];
 int nodenum; //so we can connect broken trails
 
-int gLevelFlags = 0;
+botLevelFlags_t gLevelFlags = LEVELFLAG_NONE;
 
-char *GetFlagStr( int flags )
+char *GetFlagStr( waypointFlags_t flags )
 {
 	char *flagstr;
 	int i;
@@ -49,73 +49,73 @@ char *GetFlagStr( int flags )
 	flagstr = (char *)B_TempAlloc(128);
 	i = 0;
 
-	if (!flags)
+	if (!Any( flags ))
 	{
 		strcpy(flagstr, "none\0");
 		goto fend;
 	}
 
-	if (flags & WPFLAG_JUMP)
+	if (Any( flags & WPFLAG_JUMP ))
 	{
 		flagstr[i] = 'j';
 		i++;
 	}
 
-	if (flags & WPFLAG_DUCK)
+	if (Any( flags & WPFLAG_DUCK ))
 	{
 		flagstr[i] = 'd';
 		i++;
 	}
 
-	if (flags & WPFLAG_SNIPEORCAMPSTAND)
+	if (Any( flags & WPFLAG_SNIPEORCAMPSTAND ))
 	{
 		flagstr[i] = 'c';
 		i++;
 	}
 
-	if (flags & WPFLAG_WAITFORFUNC)
+	if (Any( flags & WPFLAG_WAITFORFUNC ))
 	{
 		flagstr[i] = 'f';
 		i++;
 	}
 
-	if (flags & WPFLAG_SNIPEORCAMP)
+	if (Any( flags & WPFLAG_SNIPEORCAMP ))
 	{
 		flagstr[i] = 's';
 		i++;
 	}
 
-	if (flags & WPFLAG_ONEWAY_FWD)
+	if (Any( flags & WPFLAG_ONEWAY_FWD ))
 	{
 		flagstr[i] = 'x';
 		i++;
 	}
 
-	if (flags & WPFLAG_ONEWAY_BACK)
+	if (Any( flags & WPFLAG_ONEWAY_BACK ))
 	{
 		flagstr[i] = 'y';
 		i++;
 	}
 
-	if (flags & WPFLAG_GOALPOINT)
+	if (Any( flags & WPFLAG_GOALPOINT ))
 	{
 		flagstr[i] = 'g';
 		i++;
 	}
 
-	if (flags & WPFLAG_NOVIS)
+	if (Any( flags & WPFLAG_NOVIS ))
 	{
 		flagstr[i] = 'n';
 		i++;
 	}
 
-	if (flags & WPFLAG_NOMOVEFUNC)
+	if (Any( flags & WPFLAG_NOMOVEFUNC ))
 	{
 		flagstr[i] = 'm';
 		i++;
 	}
 
-	if (flags & WPFLAG_RED_FLAG)
+	if (Any( flags & WPFLAG_RED_FLAG ))
 	{
 		if (i)
 		{
@@ -140,7 +140,7 @@ char *GetFlagStr( int flags )
 		i++;
 	}
 
-	if (flags & WPFLAG_BLUE_FLAG)
+	if (Any( flags & WPFLAG_BLUE_FLAG ))
 	{
 		if (i)
 		{
@@ -167,7 +167,7 @@ char *GetFlagStr( int flags )
 		i++;
 	}
 
-	if (flags & WPFLAG_SIEGE_IMPERIALOBJ)
+	if (Any( flags & WPFLAG_SIEGE_IMPERIALOBJ ))
 	{
 		if (i)
 		{
@@ -192,7 +192,7 @@ char *GetFlagStr( int flags )
 		i++;
 	}
 
-	if (flags & WPFLAG_SIEGE_REBELOBJ)
+	if (Any( flags & WPFLAG_SIEGE_REBELOBJ ))
 	{
 		if (i)
 		{
@@ -351,7 +351,7 @@ checkprint:
 	{
 		flagstr = GetFlagStr(gWPArray[bestindex]->flags);
 		gLastPrintedIndex = bestindex;
-		trap->Print(S_COLOR_YELLOW "Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", (int)(gWPArray[bestindex]->index), (int)(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
+		trap->Print(S_COLOR_YELLOW "Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", (int)(gWPArray[bestindex]->index), to_underlying( gWPArray[bestindex]->flags ), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
 		//GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
 		B_TempFree(128); //flagstr
 
@@ -387,7 +387,7 @@ void TransferWPData(int from, int to)
 	VectorCopy(gWPArray[from]->origin, gWPArray[to]->origin);
 }
 
-void CreateNewWP(vec3_t origin, int flags)
+void CreateNewWP(vec3_t origin, waypointFlags_t flags)
 {
 	if (gWPNum >= MAX_WPARRAY_SIZE)
 	{
@@ -458,12 +458,12 @@ void CreateNewWP_FromObject(wpobject_t *wp)
 		i--;
 	}
 
-	if (gWPArray[gWPNum]->flags & WPFLAG_RED_FLAG)
+	if (Any( gWPArray[gWPNum]->flags & WPFLAG_RED_FLAG ))
 	{
 		flagRed = gWPArray[gWPNum];
 		oFlagRed = flagRed;
 	}
-	else if (gWPArray[gWPNum]->flags & WPFLAG_BLUE_FLAG)
+	else if (Any( gWPArray[gWPNum]->flags & WPFLAG_BLUE_FLAG ))
 	{
 		flagBlue = gWPArray[gWPNum];
 		oFlagBlue = flagBlue;
@@ -575,7 +575,7 @@ void RemoveWP_InTrail(int afterindex)
 	gWPNum--;
 }
 
-int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
+int CreateNewWP_InTrail(vec3_t origin, waypointFlags_t flags, int afterindex)
 {
 	int foundindex;
 	int foundanindex;
@@ -653,7 +653,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 	return 1;
 }
 
-int CreateNewWP_InsertUnder(vec3_t origin, int flags, int afterindex)
+int CreateNewWP_InsertUnder(vec3_t origin, waypointFlags_t flags, int afterindex)
 {
 	int foundindex;
 	int foundanindex;
@@ -776,7 +776,7 @@ void TeleportToWP(gentity_t *pl, int afterindex)
 	return;
 }
 
-void WPFlagsModify(int wpnum, int flags)
+void WPFlagsModify(int wpnum, waypointFlags_t flags)
 {
 	if (wpnum < 0 || wpnum >= gWPNum || !gWPArray[wpnum] || !gWPArray[wpnum]->inuse)
 	{
@@ -830,7 +830,7 @@ int CanGetToVector(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
 {
 	trace_t tr;
 
-	trap->Trace(&tr, org1, mins, maxs, org2, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, org1, mins, maxs, org2, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
@@ -910,7 +910,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 	float stepSize = 0;
 	float measureLength = 0;
 	int didMove = 0;
-	int traceMask = MASK_PLAYERSOLID;
+	contentsFlags_t traceMask = MASK_PLAYERSOLID;
 	bool initialDone = false;
 
 	VectorCopy(org1, workingOrg);
@@ -933,7 +933,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 		stepGoal[1] = workingOrg[1] + stepSub[1]*stepSize;
 		stepGoal[2] = workingOrg[2] + stepSub[2]*stepSize;
 
-		trap->Trace(&tr, workingOrg, mins, maxs, stepGoal, ENTITYNUM_NONE, traceMask, false, 0, 0);
+		trap->Trace(&tr, workingOrg, mins, maxs, stepGoal, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
 
 		if (!tr.startsolid && !tr.allsolid && tr.fraction)
 		{
@@ -970,7 +970,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 
 			if (VectorLength(vecMeasure) > 1)
 			{
-				trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, 0, 0);
+				trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
 
 				if (!tr.startsolid && !tr.allsolid && tr.fraction == 1)
 				{ //clear trace here, probably up a step
@@ -980,7 +980,7 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 					VectorCopy(tr.endpos, trDown);
 					trDown[2] -= 16;
 
-					trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, 0, 0);
+					trap->Trace(&tr, trFrom, mins, maxs, trTo, ENTITYNUM_NONE, traceMask, false, G2TRFLAG_NONE, 0);
 
 					if (!tr.startsolid && !tr.allsolid)
 					{ //plop us down on the step after moving up
@@ -1038,8 +1038,8 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	if (RMG.integer)
 	{ //this might be temporary. Or not.
-		if (!(gWPArray[startindex]->flags & WPFLAG_NEVERONEWAY) &&
-			!(gWPArray[endindex]->flags & WPFLAG_NEVERONEWAY))
+		if (!Any( gWPArray[startindex]->flags & WPFLAG_NEVERONEWAY ) &&
+			!Any( gWPArray[endindex]->flags & WPFLAG_NEVERONEWAY ))
 		{
 			gWPArray[startindex]->flags |= WPFLAG_ONEWAY_FWD;
 			gWPArray[endindex]->flags |= WPFLAG_ONEWAY_BACK;
@@ -1077,7 +1077,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	while (i < MAX_NODETABLE_SIZE) //clear it out before using it
 	{
-		nodetable[i].flags = 0;
+		nodetable[i].flags = WPFLAG_NONE;
 //		nodetable[i].index = 0;
 		nodetable[i].inuse = 0;
 		nodetable[i].neighbornum = 0;
@@ -1104,7 +1104,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 	starttrace[2] -= 4096;
 
-	trap->Trace(&tr, startplace, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, startplace, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 	baseheight = startplace[2] - tr.endpos[2];
 
@@ -1177,7 +1177,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1208,7 +1208,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1239,7 +1239,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1270,7 +1270,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 
 				starttrace[2] -= 4096;
 
-				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, testspot, nullptr, nullptr, starttrace, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				testspot[2] = tr.endpos[2]+baseheight;
 
@@ -1423,8 +1423,8 @@ int OpposingEnds(int start, int end)
 		return 0;
 	}
 
-	if ((gWPArray[start]->flags & WPFLAG_ONEWAY_FWD) &&
-		(gWPArray[end]->flags & WPFLAG_ONEWAY_BACK))
+	if (Any( gWPArray[start]->flags & WPFLAG_ONEWAY_FWD ) &&
+		Any( gWPArray[end]->flags & WPFLAG_ONEWAY_BACK ))
 	{
 		return 1;
 	}
@@ -1443,7 +1443,7 @@ int DoorBlockingSection(int start, int end)
 		return 0;
 	}
 
-	trap->Trace(&tr, gWPArray[start]->origin, nullptr, nullptr, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, gWPArray[start]->origin, nullptr, nullptr, gWPArray[end]->origin, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1464,7 +1464,7 @@ int DoorBlockingSection(int start, int end)
 
 	start_trace_index = tr.entityNum;
 
-	trap->Trace(&tr, gWPArray[end]->origin, nullptr, nullptr, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, gWPArray[end]->origin, nullptr, nullptr, gWPArray[start]->origin, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1)
 	{
@@ -1507,9 +1507,9 @@ int RepairPaths(bool behindTheScenes)
 		{
 			VectorSubtract(gWPArray[i]->origin, gWPArray[i+1]->origin, a);
 
-			if (!(gWPArray[i+1]->flags & WPFLAG_NOVIS) &&
-				!(gWPArray[i+1]->flags & WPFLAG_JUMP) && //don't calculate on jump points because they might not always want to be visible (in cases of force jumping)
-				!(gWPArray[i]->flags & WPFLAG_CALCULATED) && //don't calculate it again
+			if (!Any( gWPArray[i+1]->flags & WPFLAG_NOVIS ) &&
+				!Any( gWPArray[i+1]->flags & WPFLAG_JUMP ) && //don't calculate on jump points because they might not always want to be visible (in cases of force jumping)
+				!Any( gWPArray[i]->flags & WPFLAG_CALCULATED ) && //don't calculate it again
 				!OpposingEnds(i, i+1) &&
 				((bot_wp_distconnect.value && VectorLength(a) > maxDistFactor) || (!OrgVisible(gWPArray[i]->origin, gWPArray[i+1]->origin, ENTITYNUM_NONE) && bot_wp_visconnect.value) ) &&
 				!DoorBlockingSection(i, i+1))
@@ -1543,11 +1543,11 @@ int OrgVisibleCurve(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int igno
 	VectorCopy(org1, evenorg1);
 	evenorg1[2] = org2[2];
 
-	trap->Trace(&tr, evenorg1, mins, maxs, org2, ignore, MASK_SOLID, false, 0, 0);
+	trap->Trace(&tr, evenorg1, mins, maxs, org2, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
-		trap->Trace(&tr, evenorg1, mins, maxs, org1, ignore, MASK_SOLID, false, 0, 0);
+		trap->Trace(&tr, evenorg1, mins, maxs, org1, ignore, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 		if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 		{
@@ -1884,7 +1884,7 @@ void CalculateWeightGoals(void)
 			{
 				gWPArray[i]->weight = 0;
 
-				if (gWPArray[i]->flags & WPFLAG_GOALPOINT)
+				if (Any( gWPArray[i]->flags & WPFLAG_GOALPOINT ))
 				{
 					gWPArray[i]->flags &= ~WPFLAG_GOALPOINT;
 				}
@@ -1972,7 +1972,7 @@ void CalculateJumpRoutes(void)
 	{
 		if (gWPArray[i] && gWPArray[i]->inuse)
 		{
-			if (gWPArray[i]->flags & WPFLAG_JUMP)
+			if (Any( gWPArray[i]->flags & WPFLAG_JUMP ))
 			{
 				nheightdif = 0;
 				pheightdif = 0;
@@ -2075,11 +2075,11 @@ int LoadPathData(const char *filename)
 		readLFlags[i_cv] = 0;
 		i++;
 
-		gLevelFlags = atoi(readLFlags);
+		gLevelFlags = static_cast<botLevelFlags_t>( atoi(readLFlags) );	// the waypoint file's number
 	}
 	else
 	{
-		gLevelFlags = 0;
+		gLevelFlags = LEVELFLAG_NONE;
 	}
 
 	while (i < len)
@@ -2087,7 +2087,7 @@ int LoadPathData(const char *filename)
 		i_cv = 0;
 
 		thiswp.index = 0;
-		thiswp.flags = 0;
+		thiswp.flags = WPFLAG_NONE;
 		thiswp.inuse = 0;
 		thiswp.neighbornum = 0;
 		thiswp.origin[0] = 0;
@@ -2128,7 +2128,7 @@ int LoadPathData(const char *filename)
 		}
 		currentVar[i_cv] = '\0';
 
-		thiswp.flags = atoi(currentVar);
+		thiswp.flags = static_cast<waypointFlags_t>( atoi(currentVar) );	// the waypoint file's number
 
 		i_cv = 0;
 		i++;
@@ -2320,7 +2320,7 @@ void FlagObjects(void)
 
 			if (tlen < bestdist)
 			{
-				trap->Trace(&tr, flag_red->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_red->s.number, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, flag_red->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_red->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				if (tr.fraction == 1 || tr.entityNum == flag_red->s.number)
 				{
@@ -2357,7 +2357,7 @@ void FlagObjects(void)
 
 			if (tlen < bestdist)
 			{
-				trap->Trace(&tr, flag_blue->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_blue->s.number, MASK_SOLID, false, 0, 0);
+				trap->Trace(&tr, flag_blue->s.pos.trBase, mins, maxs, gWPArray[i]->origin, flag_blue->s.number, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 				if (tr.fraction == 1 || tr.entityNum == flag_blue->s.number)
 				{
@@ -2426,7 +2426,7 @@ int SavePathData(const char *filename)
 	fileString = (char *)B_TempAlloc(524288);
 	storeString = (char *)B_TempAlloc(4096);
 
-	Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+	Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
 	n = 0;
 
@@ -2461,8 +2461,8 @@ int SavePathData(const char *filename)
 
 	while (i < gWPNum)
 	{
-		//sprintf(fileString, "%s%i %i %f (%f %f %f) { ", fileString, gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
-		Com_sprintf(storeString, 4096, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+		//sprintf(fileString, "%s%i %i %f (%f %f %f) { ", fileString, gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+		Com_sprintf(storeString, 4096, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, to_underlying( gWPArray[i]->flags ), gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
 		n = 0;
 
@@ -2553,7 +2553,7 @@ void G_NodeClearForNext(void)
 
 	while (i < nodenum)
 	{
-		nodetable[i].flags = 0;
+		nodetable[i].flags = WPFLAG_NONE;
 		nodetable[i].weight = 99999;
 
 		i++;
@@ -2566,7 +2566,7 @@ void G_NodeClearFlags(void)
 
 	while (i < nodenum)
 	{
-		nodetable[i].flags = 0;
+		nodetable[i].flags = WPFLAG_NONE;
 
 		i++;
 	}
@@ -2580,7 +2580,7 @@ int G_NodeMatchingXY(float x, float y)
 	{
 		if (nodetable[i].origin[0] == x &&
 			nodetable[i].origin[1] == y &&
-			!nodetable[i].flags)
+			!Any( nodetable[i].flags ))
 		{
 			return i;
 		}
@@ -2601,7 +2601,7 @@ int G_NodeMatchingXY_BA(int x, int y, int final)
 	{
 		if ((int)nodetable[i].origin[0] == x &&
 			(int)nodetable[i].origin[1] == y &&
-			!nodetable[i].flags &&
+			!Any( nodetable[i].flags ) &&
 			((nodetable[i].weight < bestWeight) || (i == final)))
 		{
 			if (i == final)
@@ -2658,18 +2658,18 @@ int G_RecursiveConnection(int start, int end, int weight, bool traceCheck, float
 			return indexDirections[i];
 		}
 
-		if (indexDirections[i] != -1 && nodetable[indexDirections[i]].flags)
+		if (indexDirections[i] != -1 && Any( nodetable[indexDirections[i]].flags ))
 		{ //this point is already used, so it's not valid.
 			indexDirections[i] = -1;
 		}
 		else if (indexDirections[i] != -1)
 		{ //otherwise mark it as used.
-			nodetable[indexDirections[i]].flags = 1;
+			nodetable[indexDirections[i]].flags = WPFLAG_NODE_USED;
 		}
 
 		if (indexDirections[i] != -1 && traceCheck)
 		{ //if we care about trace visibility between nodes, perform the check and mark as not valid if the trace isn't clear.
-			trap->Trace(&tr, nodetable[start].origin, nullptr, nullptr, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID, false, 0, 0);
+			trap->Trace(&tr, nodetable[start].origin, nullptr, nullptr, nodetable[indexDirections[i]].origin, ENTITYNUM_NONE, CONTENTS_SOLID, false, G2TRFLAG_NONE, 0);
 
 			if (tr.fraction != 1)
 			{
@@ -2771,11 +2771,11 @@ void CreateAsciiTableRepresentation()
 
 			if (gotit)
 			{
-				if (gWPArray[i]->flags & WPFLAG_ONEWAY_FWD)
+				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_FWD ))
 				{
 					bChr = 'F';
 				}
-				else if (gWPArray[i]->flags & WPFLAG_ONEWAY_BACK)
+				else if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_BACK ))
 				{
 					bChr = 'B';
 				}
@@ -3015,12 +3015,12 @@ bool G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 		{
 			if (indexDirections[i] == finalDestination)
 			{ //hooray, we've found the original point and linked all the way back to it.
-				CreateNewWP_InsertUnder(nodetable[start].origin, 0, insertAfter);
-				CreateNewWP_InsertUnder(nodetable[indexDirections[i]].origin, 0, insertAfter);
+				CreateNewWP_InsertUnder(nodetable[start].origin, WPFLAG_NONE, insertAfter);
+				CreateNewWP_InsertUnder(nodetable[indexDirections[i]].origin, WPFLAG_NONE, insertAfter);
 				return true;
 			}
 
-			if (nodetable[indexDirections[i]].weight < lowestWeight && nodetable[indexDirections[i]].weight && !nodetable[indexDirections[i]].flags /*&& (nodetable[indexDirections[i]].origin[2]-64 < nodetable[start].origin[2])*/)
+			if (nodetable[indexDirections[i]].weight < lowestWeight && nodetable[indexDirections[i]].weight && !Any( nodetable[indexDirections[i]].flags ) /*&& (nodetable[indexDirections[i]].origin[2]-64 < nodetable[start].origin[2])*/)
 			{
 				desiredIndex = indexDirections[i];
 				lowestWeight = nodetable[indexDirections[i]].weight;
@@ -3033,14 +3033,14 @@ bool G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 	{ //Create a waypoint here, and then recursively call this function for the next neighbor with the lowest weight.
 		if (gWPNum < 3900)
 		{
-			CreateNewWP_InsertUnder(nodetable[start].origin, 0, insertAfter);
+			CreateNewWP_InsertUnder(nodetable[start].origin, WPFLAG_NONE, insertAfter);
 		}
 		else
 		{
 			return false;
 		}
 
-		nodetable[start].flags = 1;
+		nodetable[start].flags = WPFLAG_NODE_USED;
 		return G_BackwardAttachment(desiredIndex, finalDestination, insertAfter);
 	}
 
@@ -3109,7 +3109,7 @@ void G_RMGPathing(void)
 
 			VectorCopy(nodetable[nodenum].origin, downVec);
 			downVec[2] -= 3000;
-			trap->Trace(&tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0);
+			trap->Trace(&tr, nodetable[nodenum].origin, trMins, trMaxs, downVec, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 
 			if ((tr.entityNum >= ENTITYNUM_WORLD || g_entities[tr.entityNum].s.eType == ET_TERRAIN) && tr.endpos[2] < terrain->r.absmin[2]+750)
 			{ //only drop nodes on terrain directly
@@ -3226,7 +3226,7 @@ void BeginAutoPathRoutine(void)
 
 	gSpawnPointNum = 0;
 
-	CreateNewWP(vec3_origin, 0); //create a dummy waypoint to insert under
+	CreateNewWP(vec3_origin, WPFLAG_NONE); //create a dummy waypoint to insert under
 
 	while (i < level.num_entities)
 	{
@@ -3428,7 +3428,7 @@ gentity_t *GetNextSpawnInIndex(gentity_t *currentSpawn)
 int AcceptBotCommand(char *cmd, gentity_t *pl)
 {
 	int OptionalArgument, i;
-	int FlagsFromArgument;
+	waypointFlags_t FlagsFromArgument;
 	char *OptionalSArgument, *RequiredSArgument;
 	vmCvar_t mapname;
 
@@ -3439,7 +3439,7 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 
 	OptionalArgument = 0;
 	i = 0;
-	FlagsFromArgument = 0;
+	FlagsFromArgument = WPFLAG_NONE;
 	OptionalSArgument = nullptr;
 	RequiredSArgument = nullptr;
 
@@ -3476,11 +3476,11 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 
 		if (OptionalSArgument && OptionalSArgument[0])
 		{
-			CreateNewWP_InTrail(pl->client->ps.origin, 0, OptionalArgument);
+			CreateNewWP_InTrail(pl->client->ps.origin, WPFLAG_NONE, OptionalArgument);
 		}
 		else
 		{
-			CreateNewWP(pl->client->ps.origin, 0);
+			CreateNewWP(pl->client->ps.origin, WPFLAG_NONE);
 		}
 		return 1;
 	}
@@ -3708,11 +3708,11 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		{
 			if (gWPArray[i] && gWPArray[i]->inuse)
 			{
-				if (gWPArray[i]->flags & WPFLAG_ONEWAY_FWD)
+				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_FWD ))
 				{
 					gWPArray[i]->flags &= ~WPFLAG_ONEWAY_FWD;
 				}
-				if (gWPArray[i]->flags & WPFLAG_ONEWAY_BACK)
+				if (Any( gWPArray[i]->flags & WPFLAG_ONEWAY_BACK ))
 				{
 					gWPArray[i]->flags &= ~WPFLAG_ONEWAY_BACK;
 				}

@@ -268,7 +268,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 				if (cl->inuse && cl->client &&
 					(cl->client->sess.sessionTeam == SIEGETEAM_TEAM1 || cl->client->sess.sessionTeam == SIEGETEAM_TEAM2) &&
 					cl->health > 0 &&
-					!(cl->client->ps.eFlags & EF_DEAD))
+					!Any(cl->client->ps.eFlags & EF_DEAD))
 				{
 					//See which team he's on
 					if (cl->client->sess.sessionTeam == SIEGETEAM_TEAM1)
@@ -341,7 +341,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if ( ent->flags & FL_INACTIVE )
+	if ( Any( ent->flags & FL_INACTIVE ) )
 	{//Not active at this time
 		return;
 	}
@@ -375,7 +375,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( self->flags & FL_INACTIVE )
+	if ( Any( self->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -443,13 +443,13 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( self->spawnflags & 4 )
 	{//USE_BUTTON
-		if( !( other->client->pers.cmd.buttons & BUTTON_USE ) )
+		if( !Any( other->client->pers.cmd.buttons & BUTTON_USE ) )
 		{//not pressing use button
 			return;
 		}
 
 		if ((other->client->ps.weaponTime > 0 && other->client->ps.torsoAnim != BOTH_BUTTON_HOLD && other->client->ps.torsoAnim != BOTH_CONSOLE1) || other->health < 1 ||
-			(other->client->ps.pm_flags & PMF_FOLLOW) || other->client->sess.sessionTeam == TEAM_SPECTATOR ||
+			Any(other->client->ps.pm_flags & PMF_FOLLOW) || other->client->sess.sessionTeam == TEAM_SPECTATOR ||
 			other->client->ps.forceHandExtend != HANDEXTEND_NONE)
 		{ //player has to be free of other things to use.
 			return;
@@ -504,8 +504,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( self->spawnflags & 8 )
 	{//FIRE_BUTTON
-		if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
-			!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
+		if( !Any( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
+			!Any( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
 		{//not pressing fire button or altfire button
 			return;
 		}
@@ -523,8 +523,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if ( G_PointInBounds( eyeSpot, self->r.absmin, self->r.absmax ) )
 		{
-			if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
-				!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
+			if( !Any( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
+				!Any( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{//not attacking, so hiding bonus
 				/*
 				//FIXME:  should really have sound events clear the hiddenDist
@@ -780,7 +780,7 @@ void Do_Strike(gentity_t *ent)
 	strikeFrom[2] = ent->r.absmax[2]-4.0f;
 
 	//now trace for damaging stuff, and do the effect
-	trap->Trace(&localTrace, strikeFrom, nullptr, nullptr, strikePoint, ent->s.number, MASK_PLAYERSOLID, false, 0, 0);
+	trap->Trace(&localTrace, strikeFrom, nullptr, nullptr, strikePoint, ent->s.number, MASK_PLAYERSOLID, false, G2TRFLAG_NONE, 0);
 	VectorCopy(localTrace.endpos, strikePoint);
 
 	if (localTrace.startsolid || localTrace.allsolid)
@@ -799,7 +799,7 @@ void Do_Strike(gentity_t *ent)
 
 		if (trHit->inuse && trHit->takedamage)
 		{ //damage it then
-			G_Damage(trHit, ent, ent, nullptr, trHit->r.currentOrigin, ent->damage, 0, MOD_SUICIDE);
+			G_Damage(trHit, ent, ent, nullptr, trHit->r.currentOrigin, ent->damage, DAMAGE_NORMAL, MOD_SUICIDE);
 		}
 	}
 
@@ -920,7 +920,7 @@ trigger_push
 #define PUSH_CONSTANT	2
 
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
-	if ( self->flags & FL_INACTIVE )
+	if ( Any( self->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -1218,7 +1218,7 @@ trigger_teleport
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	gentity_t	*dest;
 
-	if ( self->flags & FL_INACTIVE )
+	if ( Any( self->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -1318,7 +1318,7 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 }
 
 void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
-	int		dflags;
+	damageFlags_t		dflags;
 
 	if (level.gametype == GT_SIEGE && self->team && self->team[0])
 	{
@@ -1336,7 +1336,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		}
 	}
 
-	if ( self->flags & FL_INACTIVE )
+	if ( Any( self->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -1377,7 +1377,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if (self->spawnflags & 8)
 		dflags = DAMAGE_NO_PROTECTION;
 	else
-		dflags = 0;
+		dflags = DAMAGE_NORMAL;
 
 	if (self->damage == -1 && other && other->client)
 	{
@@ -1399,7 +1399,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 			vec3_t vDir;
 
 			VectorSet(vDir, 0, 1, 0);
-			G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, 0, MOD_FALLING);
+			G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, DAMAGE_NORMAL, MOD_FALLING);
 		}
 		else
 		{
@@ -1532,7 +1532,7 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
+	if (!other->client->ps.m_iVehicleNum || Any( other->m_pVehicle->m_iRemovedSurfaces ))
 	{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
 		G_Damage(other, other, other, nullptr, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 		return;
@@ -1625,7 +1625,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( other->client->ps.hyperSpaceTime && level.time - other->client->ps.hyperSpaceTime < HYPERSPACE_TIME )
 	{//already hyperspacing, just keep us moving
-		if ( (other->client->ps.eFlags2&EF2_HYPERSPACE) )
+		if ( Any(other->client->ps.eFlags2&EF2_HYPERSPACE) )
 		{//they've started the hyperspace but haven't been teleported yet
 			float timeFrac = ((float)(level.time-other->client->ps.hyperSpaceTime))/HYPERSPACE_TIME;
 			if ( timeFrac >= HYPERSPACE_TELEPORT_FRAC )
@@ -1685,7 +1685,7 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
-		if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
+		if (!other->client->ps.m_iVehicleNum || Any( other->m_pVehicle->m_iRemovedSurfaces ))
 		{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
 			G_Damage(other, other, other, nullptr, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 			return;
@@ -1981,7 +1981,7 @@ target - target this at func_rotating asteroids
 void SP_trigger_asteroid_field(gentity_t *self)
 {
 	trap->SetBrushModel( (sharedEntity_t *)self, self->model );
-	self->r.contents = 0;
+	self->r.contents = CONTENTS_NONE;
 
 	if ( !self->count )
 	{

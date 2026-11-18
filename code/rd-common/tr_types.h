@@ -36,56 +36,68 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	REFENTITYNUM_WORLD	((1<<REFENTITYNUM_BITS) - 1)
 
 // renderfx flags
-#define	RF_MORELIGHT		0x00001	// allways have some light (viewmodel, some items)
-#define	RF_THIRD_PERSON		0x00002	// don't draw through eyes, only mirrors (player bodies, chat sprites)
-#define	RF_FIRST_PERSON		0x00004	// only draw through eyes (view weapon, damage blood blob)
-#define	RF_DEPTHHACK		0x00008	// for view weapon Z crunching
-#define RF_NODEPTH			0x00010	// No depth at all (seeing through walls)
+enum class renderFxFlags_t
+{
+	RF_NONE = 0,
+	RF_MORELIGHT		= 0x00001,	// allways have some light (viewmodel, some items)
+	RF_THIRD_PERSON		= 0x00002,	// don't draw through eyes, only mirrors (player bodies, chat sprites)
+	RF_FIRST_PERSON		= 0x00004,	// only draw through eyes (view weapon, damage blood blob)
+	RF_DEPTHHACK		= 0x00008,	// for view weapon Z crunching
+	RF_NODEPTH			= 0x00010,	// No depth at all (seeing through walls)
 
-#define RF_VOLUMETRIC		0x00020	// fake volumetric shading
+	RF_VOLUMETRIC		= 0x00020,	// fake volumetric shading
 
-#define	RF_NOSHADOW			0x00040	// don't add stencil shadows
+	RF_NOSHADOW			= 0x00040,	// don't add stencil shadows
 
-#define RF_LIGHTING_ORIGIN	0x00080	// use refEntity->lightingOrigin instead of refEntity->origin
+	RF_LIGHTING_ORIGIN	= 0x00080,	// use refEntity->lightingOrigin instead of refEntity->origin
 									// for lighting.  This allows entities to sink into the floor
 									// with their origin going solid, and allows all parts of a
 									// player to get the same lighting
-#define	RF_SHADOW_PLANE		0x00100	// use refEntity->shadowPlane
-#define	RF_WRAP_FRAMES		0x00200	// mod the model frames by the maxframes to allow continuous
+	RF_SHADOW_PLANE		= 0x00100,	// use refEntity->shadowPlane
+	RF_WRAP_FRAMES		= 0x00200,	// mod the model frames by the maxframes to allow continuous
 										// animation without needing to know the frame count
-#define	RF_CAP_FRAMES		0x00400	// cap the model frames by the maxframes for one shot anims
+	RF_CAP_FRAMES		= 0x00400,	// cap the model frames by the maxframes for one shot anims
 
-#define RF_ALPHA_FADE		0x00800	// hacks blend mode and uses whatever the set alpha is.
-#define RF_PULSATE			0x01000	// for things like a dropped saber, where we want to add an extra visual clue
-#define RF_RGB_TINT			0x02000	// overrides ent RGB color to the specified color
+	RF_ALPHA_FADE		= 0x00800,	// hacks blend mode and uses whatever the set alpha is.
+	RF_PULSATE			= 0x01000,	// for things like a dropped saber, where we want to add an extra visual clue
+	RF_RGB_TINT			= 0x02000,	// overrides ent RGB color to the specified color
 
-#define RF_FORKED			0x04000	// override lightning to have forks
-#define RF_TAPERED			0x08000	// lightning tapers
-#define RF_GROW				0x10000	// lightning grows from start to end during its life
+	RF_FORKED			= 0x04000,	// override lightning to have forks
+	RF_TAPERED			= 0x08000,	// lightning tapers
+	RF_GROW				= 0x10000,	// lightning grows from start to end during its life
 
-#define RF_SETANIMINDEX		0x20000	//use backEnd.currentEntity->e.skinNum for R_BindAnimatedImage
+	RF_SETANIMINDEX		= 0x20000,	//use backEnd.currentEntity->e.skinNum for R_BindAnimatedImage
 
-#define RF_DISINTEGRATE1	0x40000	// does a procedural hole-ripping thing.
-#define RF_DISINTEGRATE2	0x80000	// does a procedural hole-ripping thing with scaling at the ripping point
+	RF_DISINTEGRATE1	= 0x40000,	// does a procedural hole-ripping thing.
+	RF_DISINTEGRATE2	= 0x80000,	// does a procedural hole-ripping thing with scaling at the ripping point
 
-#define RF_G2MINLOD		   0x100000	// force Lowest lod on g2
+	RF_G2MINLOD		   = 0x100000,	// force Lowest lod on g2
 
-#define RF_SHADOW_ONLY	   0x200000 //add surfs for shadowing but don't draw them normally -rww
+	RF_SHADOW_ONLY	   = 0x200000, //add surfs for shadowing but don't draw them normally -rww
 
-#define	RF_DISTORTION	   0x400000	//area distortion effect -rww
+	RF_DISTORTION	   = 0x400000,	//area distortion effect -rww
 
-#define RF_FORCE_ENT_ALPHA	0x800000 // override shader alpha settings
+	RF_FORCE_ENT_ALPHA	= 0x800000 // override shader alpha settings
+};
+using enum renderFxFlags_t;
+template <> inline constexpr bool enableEnumFlags<renderFxFlags_t> = true;
 
 // refdef flags
-#define RDF_NOWORLDMODEL	1		// used for player configuration screen
-#define RDF_HYPERSPACE		4		// teleportation effect
+enum class refdefFlags_t
+{
+	RDF_NONE = 0,
+	RDF_NOWORLDMODEL	= 1,		// used for player configuration screen
+	RDF_HYPERSPACE		= 4,		// teleportation effect
 
-#define RDF_SKYBOXPORTAL	8
-#define RDF_DRAWSKYBOX		16		// the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
+	RDF_SKYBOXPORTAL	= 8,
+	RDF_DRAWSKYBOX		= 16,		// the above marks a scene as being a 'portal sky'.  this flag says to draw it or not
 
-#define RDF_doLAGoggles		32		// Light Amp goggles
-#define RDF_doFullbright	64		// Light Amp goggles
-#define RDF_ForceSightOn	128		// using force sight
+	RDF_doLAGoggles		= 32,		// Light Amp goggles
+	RDF_doFullbright	= 64,		// Light Amp goggles
+	RDF_ForceSightOn	= 128		// using force sight
+};
+using enum refdefFlags_t;
+template <> inline constexpr bool enableEnumFlags<refdefFlags_t> = true;
 
 
 extern int	skyboxportal;
@@ -126,7 +138,7 @@ using enum refEntityType_t;
 
 typedef struct {
 	refEntityType_t	reType;
-	int			renderfx;
+	renderFxFlags_t	renderfx;
 
 	qhandle_t	hModel;				// opaque type outside refresh
 
@@ -188,12 +200,12 @@ typedef struct {
 	float		fov_x, fov_y;
 	vec3_t		vieworg;
 	vec3_t		viewaxis[3];		// transformation matrix
-	int			viewContents;		// world contents at vieworg
+	contentsFlags_t	viewContents;		// world contents at vieworg
 
 	// time in milliseconds for shader effects and other time dependent rendering issues
 	int			time;
 
-	int			rdflags;			// RDF_NOWORLDMODEL, etc
+	refdefFlags_t	rdflags;			// RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];

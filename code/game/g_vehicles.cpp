@@ -61,10 +61,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _JK2MP
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags);
 #else
 extern gentity_t *NPC_Spawn_Do( gentity_t *pEnt, bool fullSpawnNow );
-extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask);
+extern bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask);
 
 extern bool G_SetG2PlayerModelInfo( gentity_t *pEnt, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
 extern void G_RemovePlayerModel( gentity_t *pEnt );
@@ -80,15 +80,15 @@ extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
 extern cvar_t *in_joystick;
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend);
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 #endif
 
 #ifdef _JK2MP
 #include "../namespace_begin.h"
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void BG_SetAnim(playerState_t *ps, animation_t *animations, setAnimParts_t setAnimParts,int anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern void BG_SetLegsAnimTimer(playerState_t *ps, int time );
 extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
 #include "../namespace_end.h"
@@ -103,7 +103,7 @@ extern void PM_SetLegsAnimTimer( gentity_t *ent, int *legsAnimTimer, int time );
 
 extern bool BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
-void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend)
+void Vehicle_SetAnim(gentity_t *ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend)
 {
 #ifdef _JK2MP
 	assert(ent->client);
@@ -114,7 +114,7 @@ void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,animNumber_t anim,int setAn
 #endif
 }
 
-void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, int contentmask )
+void G_VehicleTrace( trace_t *results, const vec3_t start, const vec3_t tMins, const vec3_t tMaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask )
 {
 #ifdef _JK2MP
 	trap_Trace(results, start, tMins, tMaxs, end, passEntityNum, contentmask);
@@ -127,7 +127,7 @@ Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt )
 {
 	gentity_t *ent = (gentity_t *)pEnt;
 
-	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && ( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
+	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && Any( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
 	{
 		return g_entities[ent->s.m_iVehicleNum].m_pVehicle;
 	}
@@ -138,7 +138,7 @@ bool	G_IsRidingTurboVehicle( gentity_t *pEnt )
 {
 	gentity_t *ent = (gentity_t *)pEnt;
 
-	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && ( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
+	if ( ent && ent->client && ent->client->NPC_class != CLASS_VEHICLE && ent->s.m_iVehicleNum != 0 ) //ent->client && Any( ent->client->ps.eFlags & EF_IN_VEHICLE ) && ent->owner )
 	{
 		return (level.time<g_entities[ent->s.m_iVehicleNum].m_pVehicle->m_iTurboTime);
 	}
@@ -465,7 +465,7 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 			pEnt->playerModel = 0;
 			G_SetG2PlayerModelInfo( pEnt, "atst", nullptr, nullptr, nullptr );
 			//turn off hatch underside
-			gi.G2API_SetSurfaceOnOff( &pEnt->ghoul2[pEnt->playerModel], "head_hatchcover", 0x00000002/*G2SURFACEFLAG_OFF*/ );
+			gi.G2API_SetSurfaceOnOff( &pEnt->ghoul2[pEnt->playerModel], "head_hatchcover", G2SURFACEFLAG_OFF );
 			G_Sound( pEnt, G_SoundIndex( "sound/chars/atst/atst_hatch_close" ));
 		}
 		pEnt->s.radius = 320;
@@ -635,7 +635,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 	// If it's not a valid entity, OR if the vehicle is blowing up (it's dead), OR it's not
 	// empty, OR we're already being boarded, OR the person trying to get on us is already
 	// in a vehicle (that was a fun bug :-), leave!
-	if ( !ent || parent->health <= 0 /*|| !( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh->m_iBoarding > 0) ||
+	if ( !ent || parent->health <= 0 /*|| !Any( parent->client->ps.eFlags & EF_EMPTY_VEHICLE )*/ || (pVeh->m_iBoarding > 0) ||
 #ifdef _JK2MP
 		 ( ent->client->ps.m_iVehicleNum ) )
 #else
@@ -944,7 +944,7 @@ bool VEH_TryEject( Vehicle_t *pVeh,
 #ifdef _JK2MP
 		if ( (parent->clipmask&ent->r.contents) )//vehicle could actually get stuck on body
 #else
-		if ( (parent->clipmask&ent->contents) )//vehicle could actually get stuck on body
+		if ( Any( parent->clipmask&ent->contents ) )//vehicle could actually get stuck on body
 #endif
 		{//the trace hit the vehicle, don't let them get out, just in case
 			return false;
@@ -1100,7 +1100,7 @@ bool Eject( Vehicle_t *pVeh, bgEntity_t *pEnt, bool forceEject )
 	if ( ent->s.number < MAX_CLIENTS )
 	{
 #ifndef _JK2MP
-		cg.overrides.active = 0;
+		cg.overrides.active = CG_OVERRIDE_NONE;
 #else
 
 #endif
@@ -1636,7 +1636,8 @@ bool Initialize( Vehicle_t *pVeh )
 
 	//Initialize to landed (wings closed, gears down) animation
 	{
-		int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
+		int iBlend = 300;
+		setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 #ifdef _JK2MP
 		pVeh->m_ulFlags |= VEH_GEARSOPEN;
 		BG_SetAnim(pVeh->m_pParentEntity->playerState,
@@ -2238,7 +2239,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 	}
 #endif
 	// Regular exit.
-	if ( pUmcd->buttons & BUTTON_USE && pVeh->m_pVehicleInfo->type!=VH_SPEEDER)
+	if ( Any( pUmcd->buttons & BUTTON_USE ) && pVeh->m_pVehicleInfo->type!=VH_SPEEDER)
 	{
 		if ( pVeh->m_pVehicleInfo->type == VH_WALKER )
 		{//just get the fuck out
@@ -2254,7 +2255,8 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 				if ( pVeh->m_pVehicleInfo->Eject( pVeh, pRider, false ) )
 				{
 					animNumber_t Anim;
-					int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS, iBlend = 300;
+					int iBlend = 300;
+					setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
 					if ( pUmcd->rightmove > 0 )
 					{
 						Anim = BOTH_ROLL_R;
@@ -2281,7 +2283,8 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			{
 				// FIXME: Check trace to see if we should start playing the animation.
 				animNumber_t Anim;
-				int iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, iBlend = 500;
+				int iBlend = 500;
+				setAnimFlags_t iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 				if ( pUmcd->rightmove > 0 )
 				{
 					Anim = BOTH_VS_DISMOUNT_R;
@@ -2332,11 +2335,11 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 
 	// Getting off animation complete (if we had one going)?
 #ifdef _JK2MP
-	if ( pVeh->m_iBoarding < level.time && (rider->flags & FL_VEH_BOARDING) )
+	if ( pVeh->m_iBoarding < level.time && Any( rider->flags & FL_VEH_BOARDING ) )
 	{
 		rider->flags &= ~FL_VEH_BOARDING;
 #else
-	if ( pVeh->m_iBoarding < level.time && (rider->client->ps.eFlags & EF_VEH_BOARDING) )
+	if ( pVeh->m_iBoarding < level.time && Any(rider->client->ps.eFlags & EF_VEH_BOARDING) )
 	{
 		rider->client->ps.eFlags &= ~EF_VEH_BOARDING;
 #endif
@@ -2632,7 +2635,7 @@ static void Ghost( Vehicle_t *pVeh, bgEntity_t *pEnt )
 #ifdef _JK2MP
 	ent->r.contents = 0;
 #else
-	ent->contents = 0;
+	ent->contents = CONTENTS_NONE;
 #endif
 }
 
@@ -2802,9 +2805,9 @@ int G_FlyVehicleImpactDir(gentity_t *veh, trace_t *trace)
 }
 
 //try to break surfaces off the ship on impact
-#define TURN_ON				0x00000000
-#define TURN_OFF			0x00000100
-extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, int surfaceFlags); //NPC_utils.cpp
+constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
+extern void NPC_SetSurfaceOnOff(gentity_t *ent, const char *surfaceName, g2SurfaceFlags_t surfaceFlags); //NPC_utils.cpp
 int G_ShipSurfaceForSurfName( const char *surfaceName )
 {
 	if ( !surfaceName )
@@ -2859,7 +2862,7 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& ((droidEnt->flags&FL_UNDYING) || droidEnt->health > 0) )
+					&& (Any( droidEnt->flags & FL_UNDYING ) || droidEnt->health > 0) )
 				{//boom
 					//make it vulnerable
 					droidEnt->flags &= ~FL_UNDYING;
@@ -2885,7 +2888,7 @@ void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel )
 			{//we have one
 				gentity_t *droidEnt = (gentity_t *)veh->m_pVehicle->m_pDroidUnit;
 				if ( droidEnt
-					&& (droidEnt->flags&FL_UNDYING) )
+					&& Any( droidEnt->flags & FL_UNDYING ) )
 				{//make it vulnerab;e
 					droidEnt->flags &= ~FL_UNDYING;
 				}

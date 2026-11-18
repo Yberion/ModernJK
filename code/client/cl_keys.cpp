@@ -1147,7 +1147,7 @@ Returns true if bind command should be executed while user interface is shown
 ===================
 */
 static bool CL_BindUICommand( const char *cmd ) {
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 		return false;
 
 	if ( !Q_stricmp( cmd, "toggleconsole" ) )
@@ -1170,14 +1170,14 @@ void CL_ParseBinding( fakeAscii_t key, bool down, unsigned time )
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 	bool allCommands, allowUpCmds;
 
-	if( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == 0 )
+	if( cls.state == CA_DISCONNECTED && !Any( Key_GetCatcher( ) ) )
 		return;
 	if( !kg.keys[Key_Upper( key )].binding || !kg.keys[Key_Upper( key )].binding[0] )
 		return;
 	Q_strncpyz( buf, kg.keys[Key_Upper( key )].binding, sizeof( buf ) );
 
 	// run all bind commands if console, ui, etc aren't reading keys
-	allCommands = ( Key_GetCatcher( ) == 0 );
+	allCommands = !Any( Key_GetCatcher( ) );
 
 	// allow button up commands if in game even if key catcher is set
 	allowUpCmds = ( cls.state != CA_DISCONNECTED );
@@ -1245,7 +1245,7 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 	}
 
 	// keys can still be used for bound actions
-	if ( ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic()) && !Key_GetCatcher() )
+	if ( ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic()) && !Any( Key_GetCatcher() ) )
 	{
 		SCR_StopCinematic(true);
 		return;
@@ -1254,13 +1254,13 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 
 	// escape is always handled special
 	if ( key == A_ESCAPE ) {
-		if ( !kg.keys[A_SHIFT].down && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+		if ( !kg.keys[A_SHIFT].down && Any( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
 			Con_ToggleConsole_f ();
 			Key_ClearStates ();
 			return;
 		}
 
-		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
+		if ( !Any( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( cls.state == CA_ACTIVE )
 				UI_SetActiveMenu( "ingame", nullptr );
 			else {
@@ -1278,9 +1278,9 @@ void CL_KeyDownEvent( fakeAscii_t key, unsigned time )
 	CL_ParseBinding( key, true, time );
 
 	// distribute the key down event to the apropriate handler
-	if ( Key_GetCatcher() & KEYCATCH_CONSOLE ) {
+	if ( Any( Key_GetCatcher() & KEYCATCH_CONSOLE ) ) {
 		Console_Key( key );
-	} else if ( Key_GetCatcher() & KEYCATCH_UI ) {
+	} else if ( Any( Key_GetCatcher() & KEYCATCH_UI ) ) {
 		_UI_KeyEvent( key, true );
 	} else if ( cls.state == CA_DISCONNECTED ) {
 		Console_Key( key );
@@ -1317,7 +1317,7 @@ void CL_KeyUpEvent( fakeAscii_t key, unsigned time )
 	//
 	CL_ParseBinding( key, false, time );
 
-	if ( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) )
 		_UI_KeyEvent( key, false );
 }
 
@@ -1348,8 +1348,8 @@ void CL_CharEvent( int key ) {
 		return;
 
 	// distribute the key down event to the apropriate handler
-		 if ( Key_GetCatcher() & KEYCATCH_CONSOLE )		Field_CharEvent( &g_consoleField, key );
-	else if ( Key_GetCatcher() & KEYCATCH_UI )			_UI_KeyEvent( key|K_CHAR_FLAG, true );
+		 if ( Any( Key_GetCatcher() & KEYCATCH_CONSOLE ) )		Field_CharEvent( &g_consoleField, key );
+	else if ( Any( Key_GetCatcher() & KEYCATCH_UI ) )			_UI_KeyEvent( key|K_CHAR_FLAG, true );
 	else if ( cls.state == CA_DISCONNECTED )			Field_CharEvent( &g_consoleField, key );
 }
 
@@ -1370,14 +1370,14 @@ void Key_ClearStates( void ) {
 	}
 }
 
-static int keyCatchers = 0;
+static keyCatchFlags_t keyCatchers = KEYCATCH_NONE;
 
 /*
 ====================
 Key_GetCatcher
 ====================
 */
-int Key_GetCatcher( void ) {
+keyCatchFlags_t Key_GetCatcher( void ) {
 	return keyCatchers;
 }
 
@@ -1386,7 +1386,7 @@ int Key_GetCatcher( void ) {
 Key_SetCatcher
 ====================
 */
-void Key_SetCatcher( int catcher ) {
+void Key_SetCatcher( keyCatchFlags_t catcher ) {
 	// If the catcher state is changing, clear all key states
 	if ( catcher != keyCatchers )
 		Key_ClearStates();

@@ -65,7 +65,7 @@ typedef struct cbrushside_s {
 
 typedef struct cbrush_s {
 	int					shaderNum;		// the shader that determined the contents
-	int					contents;
+	contentsFlags_t		contents;
 	vec3_t				bounds[2];
 	cbrushside_t		*sides;
 	unsigned short		numsides;
@@ -77,8 +77,8 @@ class CCMShader
 public:
 	char		shader[MAX_QPATH];
 	class CCMShader	*mNext;
-	int			surfaceFlags;
-	int			contentFlags;
+	surfaceFlags_t	surfaceFlags;
+	contentsFlags_t	contentFlags;
 
 	const char	*GetName(void) const { return(shader); }
 	class CCMShader *GetNext(void) const { return(mNext); }
@@ -88,8 +88,8 @@ public:
 
 typedef struct cPatch_s {
 	int			checkcount;				// to avoid repeated testings
-	int			surfaceFlags;
-	int			contents;
+	surfaceFlags_t	surfaceFlags;
+	contentsFlags_t	contents;
 	struct patchCollide_s	*pc;
 } cPatch_t;
 
@@ -179,7 +179,7 @@ typedef struct traceWork_s { //rwwRMG - modified
 	float		maxOffset;	// longest corner length from origin
 	vec3_t		extents;	// greatest of abs(size[0]) and abs(size[1])
 	vec3_t		modelOrigin;// origin of the model tracing through
-	int			contents;	// ored contents of the model tracing through
+	contentsFlags_t	contents;	// ored contents of the model tracing through
 	bool	isPoint;	// optimized case
 //	trace_t		trace;		// returned from trace call
 	sphere_t	sphere;		// sphere for oriendted capsule collision

@@ -918,7 +918,7 @@ void NPC_Begin (gentity_t *ent)
 	}
 	else
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 		ent->clipmask = MASK_NPCSOLID&~CONTENTS_BODY;
 	}
 	if(ent->NPC->stats.moveType == MT_STATIC)//Static?
@@ -927,7 +927,7 @@ void NPC_Begin (gentity_t *ent)
 	}
 	ent->e_DieFunc = dieF_player_die;
 	ent->waterlevel = 0;
-	ent->watertype = 0;
+	ent->watertype = CONTENTS_NONE;
 
 	//visible to player and NPCs
 	if ( ent->client->NPC_class != CLASS_R2D2 &&
@@ -974,7 +974,7 @@ void NPC_Begin (gentity_t *ent)
 
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity->value * 1000;
-	client->latched_buttons = 0;
+	client->latched_buttons = BUTTON_NONE;
 
 	// set default animations
 	NPC_SetAnim( ent, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL );
@@ -1049,7 +1049,7 @@ void NPC_Begin (gentity_t *ent)
 
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 
-	if ( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON )
+	if ( Any( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON ) )
 	{
 		G_MatchPlayerWeapon( ent );
 	}
@@ -1243,15 +1243,15 @@ void NPC_Spawn_Go( gentity_t *ent )
 		ent->NPC_type = Q_strlwr( G_NewString( ent->NPC_type ) );
 	}
 
-	if ( ent->svFlags & SVF_NO_BASIC_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_BASIC_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_BASIC_SOUNDS;
 	}
-	if ( ent->svFlags & SVF_NO_COMBAT_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_COMBAT_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_COMBAT_SOUNDS;
 	}
-	if ( ent->svFlags & SVF_NO_EXTRA_SOUNDS )
+	if ( Any( ent->svFlags & SVF_NO_EXTRA_SOUNDS ) )
 	{
 		newent->svFlags |= SVF_NO_EXTRA_SOUNDS;
 	}
@@ -1281,7 +1281,7 @@ void NPC_Spawn_Go( gentity_t *ent )
 			int	n;
 			for ( n = 0; n < 1 ; n++)
 			{
-				if ( !(g_entities[n].svFlags & SVF_NPC) && g_entities[n].client)
+				if ( !Any( g_entities[n].svFlags & SVF_NPC ) && g_entities[n].client)
 				{
 					VectorCopy(g_entities[n].s.origin, newent->s.origin);
 					newent->client->playerTeam = g_entities[n].client->playerTeam;
@@ -3022,7 +3022,7 @@ void NPC_Kill_f( void )
 				GEntity_DieFunc(player, player, player, 100, MOD_UNKNOWN);
 			}
 		}
-		else if ( player && (player->svFlags&SVF_NPC_PRECACHE) )
+		else if ( player && Any( player->svFlags & SVF_NPC_PRECACHE ) )
 		{//a spawner
 			gi.Printf( S_COLOR_GREEN"Removing NPC spawner %s named %s\n", player->NPC_type, player->targetname );
 			G_FreeEntity( player );

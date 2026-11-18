@@ -88,7 +88,7 @@ bool ReadNumber(source_t *source, fielddef_t *fd, void *p)
 	//check for minus sign
 	if (token.type == TT_PUNCTUATION)
 	{
-		if (fd->type & FT_UNSIGNED)
+		if (Any( fd->type & FT_UNSIGNED ))
 		{
 			SourceError(source, "expected unsigned value, found %s", token.string);
 			return 0;
@@ -119,7 +119,7 @@ bool ReadNumber(source_t *source, fielddef_t *fd, void *p)
 		} //end if
 		floatval = token.floatvalue;
 		if (negative) floatval = -floatval;
-		if (fd->type & FT_BOUNDED)
+		if (Any( fd->type & FT_BOUNDED ))
 		{
 			if (floatval < fd->floatmin || floatval > fd->floatmax)
 			{
@@ -136,17 +136,17 @@ bool ReadNumber(source_t *source, fielddef_t *fd, void *p)
 	//check bounds
 	if ((fd->type & FT_TYPE) == FT_CHAR)
 	{
-		if (fd->type & FT_UNSIGNED) {intmin = 0; intmax = 255;}
+		if (Any( fd->type & FT_UNSIGNED )) {intmin = 0; intmax = 255;}
 		else {intmin = -128; intmax = 127;}
 	} //end if
 	if ((fd->type & FT_TYPE) == FT_INT)
 	{
-		if (fd->type & FT_UNSIGNED) {intmin = 0; intmax = 65535;}
+		if (Any( fd->type & FT_UNSIGNED )) {intmin = 0; intmax = 65535;}
 		else {intmin = -32768; intmax = 32767;}
 	} //end else if
 	if ((fd->type & FT_TYPE) == FT_CHAR || (fd->type & FT_TYPE) == FT_INT)
 	{
-		if (fd->type & FT_BOUNDED)
+		if (Any( fd->type & FT_BOUNDED ))
 		{
 			intmin = Maximum(intmin, fd->floatmin);
 			intmax = Minimum(intmax, fd->floatmax);
@@ -159,7 +159,7 @@ bool ReadNumber(source_t *source, fielddef_t *fd, void *p)
 	} //end if
 	else if ((fd->type & FT_TYPE) == FT_FLOAT)
 	{
-		if (fd->type & FT_BOUNDED)
+		if (Any( fd->type & FT_BOUNDED ))
 		{
 			if (intval < fd->floatmin || intval > fd->floatmax)
 			{
@@ -171,12 +171,12 @@ bool ReadNumber(source_t *source, fielddef_t *fd, void *p)
 	//store the value
 	if ((fd->type & FT_TYPE) == FT_CHAR)
 	{
-		if (fd->type & FT_UNSIGNED) *(unsigned char *) p = (unsigned char) intval;
+		if (Any( fd->type & FT_UNSIGNED )) *(unsigned char *) p = (unsigned char) intval;
 		else *(char *) p = (char) intval;
 	} //end if
 	else if ((fd->type & FT_TYPE) == FT_INT)
 	{
-		if (fd->type & FT_UNSIGNED) *(unsigned int *) p = (unsigned int) intval;
+		if (Any( fd->type & FT_UNSIGNED )) *(unsigned int *) p = (unsigned int) intval;
 		else *(int *) p = (int) intval;
 	} //end else
 	else if ((fd->type & FT_TYPE) == FT_FLOAT)
@@ -256,7 +256,7 @@ int ReadStructure(source_t *source, structdef_t *def, char *structure)
 			SourceError(source, "unknown structure field %s", token.string);
 			return false;
 		} //end if
-		if (fd->type & FT_ARRAY)
+		if (Any( fd->type & FT_ARRAY ))
 		{
 			num = fd->maxarray;
 			if (!PC_ExpectTokenString(source, "{")) return false;
@@ -268,7 +268,7 @@ int ReadStructure(source_t *source, structdef_t *def, char *structure)
 		p = (void *)(structure + fd->offset);
 		while (num-- > 0)
 		{
-			if (fd->type & FT_ARRAY)
+			if (Any( fd->type & FT_ARRAY ))
 			{
 				if (PC_CheckTokenString(source, "}")) break;
 			} //end if
@@ -309,8 +309,10 @@ int ReadStructure(source_t *source, structdef_t *def, char *structure)
 					p = (char *) p + fd->substruct->size;
 					break;
 				} //end case
+				default:
+					break;
 			} //end switch
-			if (fd->type & FT_ARRAY)
+			if (Any( fd->type & FT_ARRAY ))
 			{
 				if (!PC_ExpectAnyToken(source, &token)) return false;
 				if (!strcmp(token.string, "}")) break;
@@ -388,7 +390,7 @@ int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int inden
 		if (!WriteIndent(fp, indent)) return false;
 		if (fprintf(fp, "%s\t", fd->name) < 0) return false;
 		p = (void *)(structure + fd->offset);
-		if (fd->type & FT_ARRAY)
+		if (Any( fd->type & FT_ARRAY ))
 		{
 			num = fd->maxarray;
 			if (fprintf(fp, "{") < 0) return false;
@@ -431,8 +433,10 @@ int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int inden
 					p = (char *) p + fd->substruct->size;
 					break;
 				} //end case
+				default:
+					break;
 			} //end switch
-			if (fd->type & FT_ARRAY)
+			if (Any( fd->type & FT_ARRAY ))
 			{
 				if (num > 0)
 				{

@@ -276,17 +276,22 @@ using enum errorParm_t;
 #define BLINK_DIVISOR			200
 #define PULSE_DIVISOR			75
 
-#define UI_LEFT			0x00000000	// default
-#define UI_CENTER		0x00000001
-#define UI_RIGHT		0x00000002
-#define UI_FORMATMASK	0x00000007
-#define UI_SMALLFONT	0x00000010
-#define UI_BIGFONT		0x00000020	// default
+enum class textStyleFlags_t
+{
+	UI_LEFT			= 0x00000000,	// default
+	UI_CENTER		= 0x00000001,
+	UI_RIGHT		= 0x00000002,
+	UI_FORMATMASK	= 0x00000007,
+	UI_SMALLFONT	= 0x00000010,
+	UI_BIGFONT		= 0x00000020,	// default
 
-#define UI_DROPSHADOW	0x00000800
-#define UI_BLINK		0x00001000
-#define UI_INVERSE		0x00002000
-#define UI_PULSE		0x00004000
+	UI_DROPSHADOW	= 0x00000800,
+	UI_BLINK		= 0x00001000,
+	UI_INVERSE		= 0x00002000,
+	UI_PULSE		= 0x00004000,
+};
+using enum textStyleFlags_t;
+template <> inline constexpr bool enableEnumFlags<textStyleFlags_t> = true;
 
 #if defined(_DEBUG) && !defined(BSPC)
 	#define HUNK_DEBUG
@@ -304,11 +309,7 @@ void *Hunk_Alloc( int size, ha_pref preference );
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
-#define CIN_system	1
-#define CIN_loop	2
-#define	CIN_hold	4
-#define CIN_silent	8
-#define CIN_shader	16
+#include "qcommon/q_clientflags.h"
 
 enum class saberBlockType_t {
 	BLK_NO,
@@ -389,35 +390,8 @@ enum class sharedERagPhase
 };
 using enum sharedERagPhase;
 
-enum class sharedERagEffector
-{
-	RE_MODEL_ROOT=			0x00000001, //"model_root"
-	RE_PELVIS=				0x00000002, //"pelvis"
-	RE_LOWER_LUMBAR=		0x00000004, //"lower_lumbar"
-	RE_UPPER_LUMBAR=		0x00000008, //"upper_lumbar"
-	RE_THORACIC=			0x00000010, //"thoracic"
-	RE_CRANIUM=				0x00000020, //"cranium"
-	RE_RHUMEROUS=			0x00000040, //"rhumerus"
-	RE_LHUMEROUS=			0x00000080, //"lhumerus"
-	RE_RRADIUS=				0x00000100, //"rradius"
-	RE_LRADIUS=				0x00000200, //"lradius"
-	RE_RFEMURYZ=			0x00000400, //"rfemurYZ"
-	RE_LFEMURYZ=			0x00000800, //"lfemurYZ"
-	RE_RTIBIA=				0x00001000, //"rtibia"
-	RE_LTIBIA=				0x00002000, //"ltibia"
-	RE_RHAND=				0x00004000, //"rhand"
-	RE_LHAND=				0x00008000, //"lhand"
-	RE_RTARSAL=				0x00010000, //"rtarsal"
-	RE_LTARSAL=				0x00020000, //"ltarsal"
-	RE_RTALUS=				0x00040000, //"rtalus"
-	RE_LTALUS=				0x00080000, //"ltalus"
-	RE_RRADIUSX=			0x00100000, //"rradiusX"
-	RE_LRADIUSX=			0x00200000, //"lradiusX"
-	RE_RFEMURX=				0x00400000, //"rfemurX"
-	RE_LFEMURX=				0x00800000, //"lfemurX"
-	RE_CEYEBROW=			0x01000000 //"ceyebrow"
-};
-using enum sharedERagEffector;
+#include "qcommon/q_ghoul2flags.h"
+
 
 typedef struct sharedRagDollParams_s {
 	vec3_t angles;
@@ -442,7 +416,7 @@ typedef struct sharedRagDollParams_s {
 
 // effector control, used for RP_DISABLE_EFFECTORS call
 
-	int effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
+	ragEffectorFlags_t effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
 
 } sharedRagDollParams_t;
 
@@ -473,7 +447,7 @@ typedef struct sharedSetBoneIKStateParams_s {
 	vec3_t scale; //scale of caller
 	float radius; //bone rad
 	int blendTime; //bone blend time
-	int pcjOverrides; //override ik bone flags
+	ragBoneFlags_t pcjOverrides; //override ik bone flags
 	int startFrame; //base pose start
 	int endFrame; //base pose end
 	bool forceAnimOnBone; //normally if the bone has specified start/end frames already it will leave it alone.. if this is true, then the animation will be restarted on the bone with the specified frames anyway.
@@ -526,6 +500,8 @@ typedef struct wpneighbor_s
 	int forceJumpTo;
 } wpneighbor_t;
 
+enum class waypointFlags_t;	// game/ai_main.h
+
 typedef struct wpobject_s
 {
 	vec3_t origin;
@@ -533,7 +509,7 @@ typedef struct wpobject_s
 	int index;
 	float weight;
 	float disttonext;
-	int flags;
+	waypointFlags_t flags;
 	int associated_entity;
 
 	int forceJumpTo;
@@ -692,32 +668,36 @@ Many variables can be used for cheating purposes, so when cheats is zero,
 ==========================================================
 */
 
-#define	CVAR_NONE			(0x00000000u)
-#define	CVAR_ARCHIVE		(0x00000001u)	// set to cause it to be saved to configuration file. used for system variables,
-											//	not for player specific configurations
-#define	CVAR_USERINFO		(0x00000002u)	// sent to server on connect or change
-#define	CVAR_SERVERINFO		(0x00000004u)	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		(0x00000008u)	// these cvars will be duplicated on all clients
-#define	CVAR_INIT			(0x00000010u)	// don't allow change from console at all, but can be set from the command line
-#define	CVAR_LATCH			(0x00000020u)	// will only change when C code next does a Cvar_Get(), so it can't be changed
-											//	without proper initialization. modified will be set, even though the value
-											//	hasn't changed yet
-#define	CVAR_ROM			(0x00000040u)	// display only, cannot be set by user at all (can be set by code)
-#define	CVAR_USER_CREATED	(0x00000080u)	// created by a set command
-#define	CVAR_TEMP			(0x00000100u)	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT			(0x00000200u)	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		(0x00000400u)	// do not clear when a cvar_restart is issued
-#define CVAR_INTERNAL		(0x00000800u)	// cvar won't be displayed, ever (for passwords and such)
-#define	CVAR_PARENTAL		(0x00001000u)	// lets cvar system know that parental stuff needs to be updated
-#define CVAR_SERVER_CREATED	(0x00002000u)	// cvar was created by a server the client connected to.
-#define CVAR_VM_CREATED		(0x00004000u)	// cvar was created exclusively in one of the VMs.
-#define CVAR_PROTECTED		(0x00008000u)	// prevent modifying this var from VMs or the server
-#define CVAR_NODEFAULT		(0x00010000u)	// do not write to config if matching with default value
+enum class cvarFlags_t
+{
+	CVAR_NONE			= 0x00000000u,
+	CVAR_ARCHIVE		= 0x00000001u,	// set to cause it to be saved to configuration file. used for system variables,
+										//	not for player specific configurations
+	CVAR_USERINFO		= 0x00000002u,	// sent to server on connect or change
+	CVAR_SERVERINFO		= 0x00000004u,	// sent in response to front end requests
+	CVAR_SYSTEMINFO		= 0x00000008u,	// these cvars will be duplicated on all clients
+	CVAR_INIT			= 0x00000010u,	// don't allow change from console at all, but can be set from the command line
+	CVAR_LATCH			= 0x00000020u,	// will only change when C code next does a Cvar_Get(), so it can't be changed
+										//	without proper initialization. modified will be set, even though the value
+										//	hasn't changed yet
+	CVAR_ROM			= 0x00000040u,	// display only, cannot be set by user at all (can be set by code)
+	CVAR_USER_CREATED	= 0x00000080u,	// created by a set command
+	CVAR_TEMP			= 0x00000100u,	// can be set even when cheats are disabled, but is not archived
+	CVAR_CHEAT			= 0x00000200u,	// can not be changed if cheats are disabled
+	CVAR_NORESTART		= 0x00000400u,	// do not clear when a cvar_restart is issued
+	CVAR_INTERNAL		= 0x00000800u,	// cvar won't be displayed, ever (for passwords and such)
+	CVAR_PARENTAL		= 0x00001000u,	// lets cvar system know that parental stuff needs to be updated
+	CVAR_SERVER_CREATED	= 0x00002000u,	// cvar was created by a server the client connected to.
+	CVAR_VM_CREATED		= 0x00004000u,	// cvar was created exclusively in one of the VMs.
+	CVAR_PROTECTED		= 0x00008000u,	// prevent modifying this var from VMs or the server
+	CVAR_NODEFAULT		= 0x00010000u,	// do not write to config if matching with default value
 
-#define CVAR_ARCHIVE_ND		(CVAR_ARCHIVE | CVAR_NODEFAULT)
-// These flags are only returned by the Cvar_Flags() function
-#define CVAR_MODIFIED		(0x40000000u)	// Cvar was modified
-#define CVAR_NONEXISTENT	(0x80000000u)	// Cvar doesn't exist.
+	CVAR_ARCHIVE_ND		= CVAR_ARCHIVE | CVAR_NODEFAULT,
+	// These flags are only returned by the Cvar_Flags() function
+	CVAR_MODIFIED		= 0x40000000u,	// Cvar was modified
+};
+using enum cvarFlags_t;
+template <> inline constexpr bool enableEnumFlags<cvarFlags_t> = true;
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -726,7 +706,7 @@ typedef struct cvar_s {
 	char			*string;
 	char			*resetString;		// cvar_restart will reset to this value
 	char			*latchedString;		// for CVAR_LATCH vars
-	uint32_t		flags;
+	cvarFlags_t		flags;
 	bool		modified;			// set each time the cvar is changed
 	int				modificationCount;	// incremented each time the cvar is changed
 	float			value;				// atof( string )
@@ -798,8 +778,8 @@ typedef struct trace_s {
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact, transformed to world space
-	int			surfaceFlags;	// surface hit
-	int			contents;	// contents on other side of surface hit
+	surfaceFlags_t	surfaceFlags;	// surface hit
+	contentsFlags_t	contents;	// contents on other side of surface hit
 /*
 Ghoul2 Insert Start
 */
@@ -809,6 +789,10 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 } trace_t;
+
+// A trace asked with G2TRFLAG_GETSURFINDEX that hits a ghoul2 model holds the index of the model's surface in surfaceFlags
+[[nodiscard]] inline int Trace_G2SurfaceIndex( const trace_t &tr ) { return static_cast<int>( to_underlying( tr.surfaceFlags ) ); }
+inline void Trace_SetG2SurfaceIndex( trace_t &tr, int surfaceIndex ) { tr.surfaceFlags = static_cast<surfaceFlags_t>( surfaceIndex ); }
 
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
@@ -832,10 +816,16 @@ typedef struct orientation_s {
 
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
-#define KEYCATCH_CONSOLE		0x0001
-#define	KEYCATCH_UI					0x0002
-#define	KEYCATCH_MESSAGE		0x0004
-#define	KEYCATCH_CGAME			0x0008
+enum class keyCatchFlags_t
+{
+	KEYCATCH_NONE			= 0,
+	KEYCATCH_CONSOLE		= 0x0001,
+	KEYCATCH_UI				= 0x0002,
+	KEYCATCH_MESSAGE		= 0x0004,
+	KEYCATCH_CGAME			= 0x0008,
+};
+using enum keyCatchFlags_t;
+template <> inline constexpr bool enableEnumFlags<keyCatchFlags_t> = true;
 
 
 // sound channels
@@ -871,9 +861,15 @@ using enum soundChannel_t;
 #define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
 #define	SHORT2ANGLE(x)	((x)*(360.0/65536))
 
-#define	SNAPFLAG_RATE_DELAYED	1
-#define	SNAPFLAG_NOT_ACTIVE		2	// snapshot used during connection and for zombies
-#define SNAPFLAG_SERVERCOUNT	4	// toggled every map_restart so transitions can be detected
+enum class snapFlags_t
+{
+	SNAPFLAG_NONE			= 0,
+	SNAPFLAG_RATE_DELAYED	= 1,
+	SNAPFLAG_NOT_ACTIVE		= 2,	// snapshot used during connection and for zombies
+	SNAPFLAG_SERVERCOUNT	= 4,	// toggled every map_restart so transitions can be detected
+};
+using enum snapFlags_t;
+template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 
 // The fixed simulation tick in milliseconds, shared by the server, the client and the game module (plan step 14; it
 // replaces the sv_fps cvar): the server runs a game frame and sends a snapshot every tick, and every 20 Hz instant, where
@@ -1074,17 +1070,22 @@ enum class weapon_t;	// bg_weapons.h
 enum class team_t;	// bg_public.h
 enum class weaponstate_t;	// bg_public.h
 enum class forceHandAnims_t;	// bg_public.h
+enum class saberEventFlags_t;	// w_saber.h
 enum class pmtype_t;	// bg_public.h
 enum class entity_event_t;	// bg_public.h
 enum class entityType_t;	// bg_public.h
 enum class saberMoveName_t;	// bg_public.h
 enum class animNumber_t;	// anims.h
+enum class pmoveFlags_t;	// bg_public.h
+enum class entityFlags_t : uint32_t;	// bg_public.h
+enum class entityFlags2_t;	// bg_public.h
+enum class shipSurfaceFlags_t;	// bg_vehicles.h
 
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
 	pmtype_t	pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
-	int			pm_flags;		// ducked, jump_held, etc
+	pmoveFlags_t			pm_flags;		// ducked, jump_held, etc
 	int			pm_time;
 
 	vec3_t		origin;
@@ -1121,8 +1122,8 @@ typedef struct playerState_s {
 								// when at rest, the value will remain unchanged
 								// used to twist the legs during strafing
 
-	int			eFlags;			// copied to entityState_t->eFlags
-	int			eFlags2;		// copied to entityState_t->eFlags2, EF2_??? used much less frequently
+	entityFlags_t			eFlags;			// copied to entityState_t->eFlags
+	entityFlags2_t			eFlags2;		// copied to entityState_t->eFlags2, EF2_??? used much less frequently
 
 	int			eventSequence;	// pmove generated events
 	entity_event_t	events[MAX_PS_EVENTS];
@@ -1192,7 +1193,7 @@ typedef struct playerState_s {
 	int			saberDidThrowTime;
 	int			saberDamageDebounceTime;
 	int			saberHitWallSoundDebounceTime;
-	int			saberEventFlags;
+	saberEventFlags_t			saberEventFlags;
 
 	int			rocketLockIndex;
 	float		rocketLastValidTime;
@@ -1302,7 +1303,7 @@ typedef struct playerState_s {
 	//lovely hack for keeping vehicle orientation in sync with prediction
 	vec3_t		vehOrientation;
 	bool	vehBoarding;
-	int			vehSurfaces;
+	shipSurfaceFlags_t			vehSurfaces;
 
 	//vehicle turnaround stuff (need this in ps so it doesn't jerk too much in prediction)
 	int			vehTurnaroundIndex;
@@ -1360,39 +1361,45 @@ typedef struct siegePers_s
 // usercmd_t->button bits, many of which are generated by the client system,
 // so they aren't game/cgame only definitions
 //
-#define	BUTTON_ATTACK			1
-#define	BUTTON_TALK				2			// displays talk balloon and disables actions
-#define	BUTTON_USE_HOLDABLE		4
-#define	BUTTON_GESTURE			8
-#define	BUTTON_WALKING			16			// walking can't just be infered from MOVE_RUN
+enum class buttonFlags_t
+{
+	BUTTON_NONE = 0,
+	BUTTON_ATTACK			= 1,
+	BUTTON_TALK				= 2,			// displays talk balloon and disables actions
+	BUTTON_USE_HOLDABLE		= 4,
+	BUTTON_GESTURE			= 8,
+	BUTTON_WALKING			= 16,			// walking can't just be infered from MOVE_RUN
 										// because a key pressed late in the frame will
 										// only generate a small move value for that frame
 										// walking will use different animations and
 										// won't generate footsteps
-#define	BUTTON_USE				32			// the ol' use key returns!
-#define BUTTON_FORCEGRIP		64			//
-#define BUTTON_ALT_ATTACK		128
+	BUTTON_USE				= 32,			// the ol' use key returns!
+	BUTTON_FORCEGRIP		= 64,			//
+	BUTTON_ALT_ATTACK		= 128,
 
-#define	BUTTON_ANY				256			// any key whatsoever
+	BUTTON_ANY				= 256,			// any key whatsoever
 
-#define BUTTON_FORCEPOWER		512			// use the "active" force power
+	BUTTON_FORCEPOWER		= 512,			// use the "active" force power
 
-#define BUTTON_FORCE_LIGHTNING	1024
+	BUTTON_FORCE_LIGHTNING	= 1024,
 
-#define BUTTON_FORCE_DRAIN		2048
+	BUTTON_FORCE_DRAIN		= 2048,
 
-// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-// We can always add some back in if we want though.
-/*
-#define BUTTON_AFFIRMATIVE	32
-#define	BUTTON_NEGATIVE		64
+	// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
+	// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
+	// We can always add some back in if we want though.
+	/*
+	BUTTON_AFFIRMATIVE	= 32,
+	BUTTON_NEGATIVE		= 64,
 
-#define BUTTON_GETFLAG		128
-#define BUTTON_GUARDBASE	256
-#define BUTTON_PATROL		512
-#define BUTTON_FOLLOWME		1024
-*/
+	BUTTON_GETFLAG		= 128,
+	BUTTON_GUARDBASE	= 256,
+	BUTTON_PATROL		= 512,
+	BUTTON_FOLLOWME		= 1024,
+	*/
+};
+using enum buttonFlags_t;
+template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
@@ -1438,7 +1445,7 @@ using enum genCmds_t;
 typedef struct usercmd_s {
 	int				serverTime;
 	int				angles[3];
-	int 			buttons;
+	buttonFlags_t 			buttons;
 	byte			weapon;           // weapon
 	byte			forcesel;
 	byte			invensel;
@@ -1447,6 +1454,95 @@ typedef struct usercmd_s {
 } usercmd_t;
 
 //===================================================================
+
+// the effects' primitive flags (the effects system and the arguments of cgame's calls below)
+// Generic group flags, used by parser, then get converted to the appropriate specific flags
+enum class fxPrimitiveFlags_t : uint32_t
+{
+	FX_NONE = 0,
+	FX_PARM_MASK		= 0xC,	// use this to mask off any transition types that use a parm
+	FX_GENERIC_MASK		= 0xF,
+	FX_LINEAR			= 0x1,
+	FX_RAND				= 0x2,
+	FX_NONLINEAR		= 0x4,
+	FX_WAVE				= 0x8,
+	FX_CLAMP			= 0xC,
+
+// Group flags
+	FX_ALPHA_PARM_MASK	= 0x0000000C,
+	FX_ALPHA_LINEAR		= 0x00000001,
+	FX_ALPHA_RAND		= 0x00000002,
+	FX_ALPHA_NONLINEAR	= 0x00000004,
+	FX_ALPHA_WAVE		= 0x00000008,
+	FX_ALPHA_CLAMP		= 0x0000000C,
+
+	FX_RGB_PARM_MASK	= 0x000000C0,
+	FX_RGB_LINEAR		= 0x00000010,
+	FX_RGB_RAND			= 0x00000020,
+	FX_RGB_NONLINEAR	= 0x00000040,
+	FX_RGB_WAVE			= 0x00000080,
+	FX_RGB_CLAMP		= 0x000000C0,
+
+	FX_SIZE_PARM_MASK	= 0x00000C00,
+	FX_SIZE_LINEAR		= 0x00000100,
+	FX_SIZE_RAND		= 0x00000200,
+	FX_SIZE_NONLINEAR	= 0x00000400,
+	FX_SIZE_WAVE		= 0x00000800,
+	FX_SIZE_CLAMP		= 0x00000C00,
+
+	FX_LENGTH_PARM_MASK	= 0x0000C000,
+	FX_LENGTH_LINEAR	= 0x00001000,
+	FX_LENGTH_RAND		= 0x00002000,
+	FX_LENGTH_NONLINEAR	= 0x00004000,
+	FX_LENGTH_WAVE		= 0x00008000,
+	FX_LENGTH_CLAMP		= 0x0000C000,
+
+	FX_SIZE2_PARM_MASK	= 0x000C0000,
+	FX_SIZE2_LINEAR		= 0x00010000,
+	FX_SIZE2_RAND		= 0x00020000,
+	FX_SIZE2_NONLINEAR	= 0x00040000,
+	FX_SIZE2_WAVE		= 0x00080000,
+	FX_SIZE2_CLAMP		= 0x000C0000,
+
+// Shared flag--these flags, at first glance would appear to be shared, but are safe.  I'd rather not do this, but as you can see, features flags are currently all accounted for
+	FX_PAPER_PHYSICS	= 0x00010000,		// emitters ONLY.  shared with FX_SIZE_2_LINEAR
+	FX_LOCALIZED_FLASH	= 0x00010000,		// full screen flashes ONLY.  shared with FX_SIZE_2_LINEAR
+	FX_PLAYER_VIEW		= 0x00010000,		// player view effects ONLY.  shared with FX_SIZE_2_LINEAR
+
+// Feature flags
+	FX_DEPTH_HACK		= 0x00100000,
+	FX_RELATIVE			= 0x00200000,
+	FX_SET_SHADER_TIME	= 0x00400000,
+	FX_EXPENSIVE_PHYSICS = 0x00800000,
+
+//rww - g2-related flags (these can slow things down significantly, use sparingly)
+//These should be used only with particles/decals as they steal flags used by cylinders.
+	FX_GHOUL2_TRACE		= 0x00020000,		//use in conjunction with particles - actually do full ghoul2 traces for physics collision against entities with a ghoul2 instance
+							//shared FX_SIZE2_RAND (used only with cylinders)
+	FX_GHOUL2_DECALS	= 0x00040000,		//use in conjunction with decals - can project decal as a ghoul2 gore skin object onto ghoul2 models
+							//shared FX_SIZE2_NONLINEAR (used only with cylinders)
+
+	FX_ATTACHED_MODEL	= 0x01000000,
+
+	FX_APPLY_PHYSICS	= 0x02000000,
+	FX_USE_BBOX			= 0x04000000,		// can make physics more accurate at the expense of speed
+
+	FX_USE_ALPHA		= 0x08000000,		// the FX system actually uses RGB to do fades, but this will override that
+											//	and cause it to fill in the alpha.
+
+	FX_EMIT_FX			= 0x10000000,		// emitters technically don't have to emit stuff, but when they do
+											//	this flag needs to be set
+	FX_DEATH_RUNS_FX	= 0x20000000,		// Normal death triggers effect, but not kill_on_impact
+	FX_KILL_ON_IMPACT	= 0x40000000,		// works just like it says, but only when physics are on.
+	FX_IMPACT_RUNS_FX	= 0x80000000,		// an effect can call another effect when it hits something.
+
+// Lightning flags, duplicates of existing flags, but lightning doesn't use those flags in that context...and nothing will ever use these in this context..so we are safe.
+	FX_TAPER			= 0x01000000,		// tapers as it moves towards its endpoint
+	FX_BRANCH			= 0x02000000,		// enables lightning branching
+	FX_GROW				= 0x04000000		// lightning grows from start point to end point over the course of its life
+};
+using enum fxPrimitiveFlags_t;
+template <> inline constexpr bool enableEnumFlags<fxPrimitiveFlags_t> = true;
 
 //rww - unsightly hack to allow us to make an FX call that takes a horrible amount of args
 typedef struct addpolyArgStruct_s {
@@ -1466,7 +1562,7 @@ typedef struct addpolyArgStruct_s {
 	int					motionDelay;
 	int					killTime;
 	qhandle_t			shader;
-	int					flags;
+	fxPrimitiveFlags_t	flags;
 } addpolyArgStruct_t;
 
 typedef struct addbezierArgStruct_s {
@@ -1487,7 +1583,7 @@ typedef struct addbezierArgStruct_s {
 	float rgbParm;
 	int killTime;
 	qhandle_t shader;
-	int flags;
+	fxPrimitiveFlags_t flags;
 } addbezierArgStruct_t;
 
 typedef struct addspriteArgStruct_s
@@ -1503,7 +1599,7 @@ typedef struct addspriteArgStruct_s
 	float bounce;
 	int life;
 	qhandle_t shader;
-	int flags;
+	fxPrimitiveFlags_t flags;
 } addspriteArgStruct_t;
 
 typedef struct effectTrailVertStruct_s {
@@ -1528,7 +1624,7 @@ typedef struct effectTrailVertStruct_s {
 typedef struct effectTrailArgStruct_s {
 	effectTrailVertStruct_t		mVerts[4];
 	qhandle_t					mShader;
-	int							mSetFlags;
+	fxPrimitiveFlags_t			mSetFlags;
 	int							mKillTime;
 } effectTrailArgStruct_t;
 
@@ -1547,7 +1643,7 @@ typedef struct addElectricityArgStruct_s {
 	float chaos;
 	int killTime;
 	qhandle_t shader;
-	int flags;
+	fxPrimitiveFlags_t flags;
 } addElectricityArgStruct_t;
 
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
@@ -1582,8 +1678,8 @@ enum class class_t;	// teams.h
 typedef struct entityState_s {
 	int		number;			// entity index
 	entityType_t	eType;
-	int		eFlags;
-	int		eFlags2;		// EF2_??? used much less frequently
+	entityFlags_t		eFlags;
+	entityFlags2_t		eFlags2;		// EF2_??? used much less frequently
 
 	trajectory_t	pos;	// for calculating position
 	trajectory_t	apos;	// for calculating angles

@@ -30,7 +30,7 @@ extern bool G_StandardHumanoid( const char *modelName );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern void NPC_AimAdjust( int change );
-extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
+extern bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, contentsFlags_t clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
 				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit );
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
@@ -44,8 +44,8 @@ extern bool PM_CrouchAnim( animNumber_t anim );
 #define MAX_LOB_DIST_SQUARED 200704//448*448
 #define REPEATER_ALT_SIZE				3	// half of bbox size
 #define	GENERATOR_HEALTH	25
-#define TURN_ON				0x00000000
-#define TURN_OFF			0x00000100
+constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 #define GALAK_SHIELD_HEALTH	500
 
 static vec3_t shieldMins = {-60, -60, -24 };
@@ -164,12 +164,12 @@ void GM_Dying( gentity_t *self )
 			{
 			// Find place to generate explosion
 			case 1:
-				if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_hand" ))
+				if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_hand" ) == G2SURFACEFLAG_NONE)
 				{//r_hand still there
 					GM_CreateExplosion( self, self->handRBolt, true );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "r_hand", TURN_OFF );
 				}
-				else if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm_middle" ))
+				else if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm_middle" ) == G2SURFACEFLAG_NONE)
 				{//r_arm_middle still there
 					newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*r_arm_elbow" );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "r_arm_middle", TURN_OFF );
@@ -177,22 +177,22 @@ void GM_Dying( gentity_t *self )
 				break;
 			case 2:
 				//FIXME: do only once?
-				if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_hand" ))
+				if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_hand" ) == G2SURFACEFLAG_NONE)
 				{//l_hand still there
 					GM_CreateExplosion( self, self->handLBolt );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_hand", TURN_OFF );
 				}
-				else if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_wrist" ))
+				else if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_wrist" ) == G2SURFACEFLAG_NONE)
 				{//l_arm_wrist still there
 					newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*l_arm_cap_l_hand" );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_arm_wrist", TURN_OFF );
 				}
-				else if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_middle" ))
+				else if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_middle" ) == G2SURFACEFLAG_NONE)
 				{//l_arm_middle still there
 					newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*l_arm_cap_l_hand" );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_arm_middle", TURN_OFF );
 				}
-				else if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_augment" ))
+				else if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm_augment" ) == G2SURFACEFLAG_NONE)
 				{//l_arm_augment still there
 					newBolt = gi.G2API_AddBolt( &self->ghoul2[self->playerModel], "*l_arm_elbow" );
 					gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_arm_augment", TURN_OFF );
@@ -393,7 +393,7 @@ static bool GM_Move( void )
 
 	//FIXME: if we bump into another one of our guys and can't get around him, just stop!
 	//If we hit our target, then stop and fire!
-	if ( info.flags & NIF_COLLISION )
+	if ( Any( info.flags & NIF_COLLISION ) )
 	{
 		if ( info.blocker == NPC->enemy )
 		{
@@ -511,7 +511,7 @@ static void GM_CheckFireState( void )
 				float distThreshold = 16384/*128*128*/;//default
 				if ( NPC->s.weapon == WP_REPEATER )
 				{
-					if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+					if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 					{
 						distThreshold = 65536/*256*256*/;
 					}
@@ -529,7 +529,7 @@ static void GM_CheckFireState( void )
 					distThreshold = 65536/*256*256*/;//default
 					if ( NPC->s.weapon == WP_REPEATER )
 					{
-						if ( NPCInfo->scriptFlags&SCF_ALT_FIRE )
+						if ( Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) )
 						{
 							distThreshold = 262144/*512*512*/;
 						}
@@ -648,7 +648,7 @@ void NPC_BSGM_Attack( void )
 			{
 				GM_StartGloat();
 			}
-			else if ( DistanceHorizontalSquared( NPC->client->renderInfo.eyePoint, NPC->enemy->currentOrigin ) > 4096 && (NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )//64 squared
+			else if ( DistanceHorizontalSquared( NPC->client->renderInfo.eyePoint, NPC->enemy->currentOrigin ) > 4096 && Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )//64 squared
 			{
 				NPCInfo->goalEntity = NPC->enemy;
 				GM_Move();
@@ -785,7 +785,7 @@ void NPC_BSGM_Attack( void )
 						if ( traceEnt && traceEnt->takedamage )
 						{//damage it
 							G_SoundAtSpot( trace.endpos, G_SoundIndex( "sound/weapons/galak/laserdamage.wav" ) );
-							G_Damage( traceEnt, NPC, NPC, NPC->client->renderInfo.muzzleDir, trace.endpos, 10, 0, MOD_ENERGY );
+							G_Damage( traceEnt, NPC, NPC, NPC->client->renderInfo.muzzleDir, trace.endpos, 10, DAMAGE_NORMAL, MOD_ENERGY );
 						}
 					}
 					if ( NPCInfo->coverTarg )
@@ -804,9 +804,9 @@ void NPC_BSGM_Attack( void )
 	{//Okay, we're not in a special attack, see if we should switch weapons or start a special attack
 		/*
 		if ( NPC->s.weapon == WP_REPEATER
-			&& !(NPCInfo->scriptFlags & SCF_ALT_FIRE)//using rapid-fire
+			&& !Any(NPCInfo->scriptFlags & SCF_ALT_FIRE)//using rapid-fire
 			&& NPC->enemy->s.weapon == WP_SABER //enemy using saber
-			&& NPC->client && (NPC->client->ps.saberEventFlags&SEF_DEFLECTED)
+			&& NPC->client && Any( NPC->client->ps.saberEventFlags & SEF_DEFLECTED )
 			&& !Q_irand( 0, 50 ) )
 		{//he's deflecting my shots, switch to the laser or the lob fire for a while
 			TIMER_Set( NPC, "noRapid", Q_irand( 2000, 6000 ) );
@@ -858,7 +858,7 @@ void NPC_BSGM_Attack( void )
 			&& (NPC->enemy->s.weapon != WP_TURRET || Q_stricmp( "PAS", NPC->enemy->classname ))
 			&& TIMER_Done( NPC, "noRapid" ) )//256
 		{//enemy within 256
-			if ( (NPC->client->ps.weapon == WP_REPEATER) && (NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			if ( (NPC->client->ps.weapon == WP_REPEATER) && Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 			{//shooting an explosive, but enemy too close, switch to primary fire
 				NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
 				NPC->alt_fire = false;
@@ -869,7 +869,7 @@ void NPC_BSGM_Attack( void )
 		else if ( (enemyDist > MAX_LOB_DIST_SQUARED || (NPC->enemy->s.weapon == WP_TURRET && !Q_stricmp( "PAS", NPC->enemy->classname )))
 			&& TIMER_Done( NPC, "noLob" ) )//448
 		{//enemy more than 448 away and we are ready to try lob fire again
-			if ( (NPC->client->ps.weapon == WP_REPEATER) && !(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
+			if ( (NPC->client->ps.weapon == WP_REPEATER) && !Any(NPCInfo->scriptFlags & SCF_ALT_FIRE) )
 			{//enemy far enough away to use lobby explosives
 				NPCInfo->scriptFlags |= SCF_ALT_FIRE;
 				NPC->alt_fire = true;
@@ -892,7 +892,7 @@ void NPC_BSGM_Attack( void )
 		}
 		else
 		{//can we shoot our target?
-			if ( ((NPC->client->ps.weapon == WP_REPEATER && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_LOB_DIST_SQUARED )//256
+			if ( ((NPC->client->ps.weapon == WP_REPEATER && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_LOB_DIST_SQUARED )//256
 			{
 				enemyCS = false;//not true, but should stop us from firing
 				hitAlly = true;//us!
@@ -1012,7 +1012,7 @@ void NPC_BSGM_Attack( void )
 	//See if we should override shooting decision with any special considerations
 	GM_CheckFireState();
 
-	if ( NPC->client->ps.weapon == WP_REPEATER && (NPCInfo->scriptFlags&SCF_ALT_FIRE) && shoot && TIMER_Done( NPC, "attackDelay" ) )
+	if ( NPC->client->ps.weapon == WP_REPEATER && Any(NPCInfo->scriptFlags&SCF_ALT_FIRE) && shoot && TIMER_Done( NPC, "attackDelay" ) )
 	{
 		vec3_t	muzzle;
 		vec3_t	angles;
@@ -1067,7 +1067,7 @@ void NPC_BSGM_Attack( void )
 	{
 		AImove = false;
 	}
-	if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
+	if ( !Any(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )
 	{//not supposed to chase my enemies
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{//goal is my entity, so don't move
@@ -1114,7 +1114,7 @@ void NPC_BSGM_Attack( void )
 	}
 	NPC_UpdateAngles( true, true );
 
-	if ( NPCInfo->scriptFlags & SCF_DONT_FIRE )
+	if ( Any( NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
 	{
 		shoot = false;
 	}
@@ -1131,7 +1131,7 @@ void NPC_BSGM_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				WeaponThink( true );
 			}
@@ -1179,7 +1179,7 @@ void NPC_BSGM_Attack( void )
 				NPC->enemy->client->ps.powerups[PW_SHOCKED] = level.time + 1000;
 			}
 			//stop any attacks
-			ucmd.buttons = 0;
+			ucmd.buttons = BUTTON_NONE;
 		}
 	}
 
@@ -1208,7 +1208,7 @@ void NPC_BSGM_Attack( void )
 
 void NPC_BSGM_Default( void )
 {
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}

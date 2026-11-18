@@ -887,7 +887,7 @@ void SiegeBeginRound(int entNum)
 			if (ent->inuse && ent->client)
 			{
 				if (ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
-					!(ent->client->ps.pm_flags & PMF_FOLLOW))
+					!Any(ent->client->ps.pm_flags & PMF_FOLLOW))
 				{ //not a spec, just respawn them
 					spawnEnt = true;
 				}
@@ -1092,7 +1092,7 @@ void siegeTriggerUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 		return;
 	}
 
-	if (!(ent->s.eFlags & EF_RADAROBJECT))
+	if (!Any(ent->s.eFlags & EF_RADAROBJECT))
 	{ //toggle radar on and exit if it is not showing up already
 		ent->s.eFlags |= EF_RADAROBJECT;
 		return;
@@ -1204,7 +1204,7 @@ void SP_info_siege_objective (gentity_t *ent)
 
 void SiegeIconUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 { //toggle it on and off
-	if (ent->s.eFlags & EF_RADAROBJECT)
+	if (Any( ent->s.eFlags & EF_RADAROBJECT ))
 	{
 		ent->s.eFlags &= ~EF_RADAROBJECT;
 		ent->r.svFlags &= ~SVF_BROADCAST;
@@ -1454,7 +1454,7 @@ void SiegeItemThink(gentity_t *ent)
 		//get a think in before the default minimum respawn time is exceeded.
 		if (!carrier->inuse || !carrier->client ||
 			(carrier->client->sess.sessionTeam != SIEGETEAM_TEAM1 && carrier->client->sess.sessionTeam != SIEGETEAM_TEAM2) ||
-			(carrier->client->ps.pm_flags & PMF_FOLLOW))
+			Any(carrier->client->ps.pm_flags & PMF_FOLLOW))
 		{ //respawn on the original spot
 			SiegeItemRespawnOnOriginalSpot(ent, nullptr);
 		}
@@ -1465,7 +1465,7 @@ void SiegeItemThink(gentity_t *ent)
 				G_UseTargets2(ent, ent, ent->target6);
 			}
 
-			if ( trap->PointContents(carrier->client->ps.origin, carrier->s.number) & CONTENTS_NODROP )
+			if ( Any( trap->PointContents(carrier->client->ps.origin, carrier->s.number) & CONTENTS_NODROP ) )
 			{ //In nodrop land, go back to the original spot.
 				SiegeItemRespawnOnOriginalSpot(ent, carrier);
 			}
@@ -1474,14 +1474,14 @@ void SiegeItemThink(gentity_t *ent)
 				//perform a startsolid check to make sure the seige item doesn't get stuck
 				//in a wall or something
 				trace_t tr;
-				trap->Trace(&tr, carrier->client->ps.origin, ent->r.mins, ent->r.maxs, carrier->client->ps.origin, ent->s.number, ent->clipmask, false, 0, 0);
+				trap->Trace(&tr, carrier->client->ps.origin, ent->r.mins, ent->r.maxs, carrier->client->ps.origin, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 				if(tr.startsolid)
 				{//bad spawning area, try again with the trace up a bit.
 					vec3_t TracePoint;
 					VectorCopy(carrier->client->ps.origin, TracePoint);
 					TracePoint[2] += 30;
-					trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);
+					trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 					if(tr.startsolid)
 					{//hmm, well that didn't work. try one last time with the item back
@@ -1490,7 +1490,7 @@ void SiegeItemThink(gentity_t *ent)
 						vec3_t fwd;
 						AngleVectors(carrier->client->ps.viewangles,fwd, nullptr, nullptr);
 						VectorMA(TracePoint, -30, fwd, TracePoint);
-						trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);
+						trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 						if(tr.startsolid)
 						{
@@ -1639,7 +1639,7 @@ void SiegeItemUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 	{ //start showing on radar
 		ent->s.eFlags |= EF_RADAROBJECT;
 
-		if (!(ent->s.eFlags & EF_NODRAW))
+		if (!Any(ent->s.eFlags & EF_NODRAW))
 		{ //we've nothing else to do here
 			return;
 		}
@@ -1681,12 +1681,12 @@ void SiegeItemUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 			trace_t tr;
 			vec3_t TracePoint;
 			VectorCopy(targ->r.currentOrigin, TracePoint);
-			trap->Trace(&tr, targ->r.currentOrigin, ent->r.mins, ent->r.maxs, targ->r.currentOrigin, targ->s.number, ent->clipmask, false, 0, 0);
+			trap->Trace(&tr, targ->r.currentOrigin, ent->r.mins, ent->r.maxs, targ->r.currentOrigin, targ->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 			if(tr.startsolid)
 			{//bad spawning area, try again with the trace up a bit.
 				TracePoint[2] += 30;
-				trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);
+				trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 				if(tr.startsolid)
 				{//hmm, well that didn't work. try one last time with the item back
@@ -1702,7 +1702,7 @@ void SiegeItemUse(gentity_t *ent, gentity_t *other, gentity_t *activator)
 						AngleVectors(targ->r.currentAngles,fwd, nullptr, nullptr);
 					}
 					VectorMA(TracePoint, -30, fwd, TracePoint);
-					trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, 0, 0);
+					trap->Trace(&tr, TracePoint, ent->r.mins, ent->r.maxs, TracePoint, ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0);
 
 					if(tr.startsolid)
 					{//crap, that's all we got.  just spawn at the defualt location.

@@ -468,7 +468,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	}
 
 	// the menu draws next
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.uiStarted ) {
+	if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) && cls.uiStarted ) {
 		UIVM_Refresh( cls.realtime );
 	}
 

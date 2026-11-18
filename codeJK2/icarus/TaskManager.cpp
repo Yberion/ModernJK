@@ -342,7 +342,7 @@ Update
 
 taskResult_t CTaskManager::Update( void )
 {
-	if ( (g_entities[m_ownerID].svFlags&SVF_ICARUS_FREEZE) )
+	if ( Any( g_entities[m_ownerID].svFlags & SVF_ICARUS_FREEZE ) )
 	{
 		return TASK_FAILED;
 	}
@@ -1683,7 +1683,7 @@ int CTaskManager::SaveCommand( CBlock *block )
 		bID);
 
 	//Save out the block's flags
-	flags = block->GetFlags();
+	flags = to_underlying( block->GetFlags() );
 
 	saved_game.write_chunk<uint8_t>(
 		INT_ID('B', 'F', 'L', 'G'),
@@ -1971,7 +1971,7 @@ void CTaskManager::Load( void )
 			INT_ID('B', 'F', 'L', 'G'),
 			flags);
 
-		block->SetFlags( flags );
+		block->SetFlags( static_cast<blockFlags_t>( flags ) );
 
 		//Get the number of block members
 		saved_game.read_chunk<int32_t>(

@@ -74,14 +74,14 @@ static bool G_ScenarioFindPlace( void ) {
 		VectorCopy( spot->s.origin, start );
 		start[2] += 9;
 		VectorMA( start, scn.dist + 32, fwd, front );
-		trap->Trace( &tr, start, mins, maxs, front, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, start, mins, maxs, front, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 		if ( tr.fraction < 1.0f || tr.startsolid || tr.allsolid ) {
 			continue;
 		}
 		VectorMA( start, scn.dist, fwd, front );
 		VectorCopy( front, below );
 		below[2] -= 48;
-		trap->Trace( &tr, front, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, 0, 0 );
+		trap->Trace( &tr, front, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, false, G2TRFLAG_NONE, 0 );
 		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
 			continue;	// no floor at the attacker's height in front
 		}
@@ -309,7 +309,7 @@ void G_ScenarioFrame( void ) {
 			gentity_t *e = &g_entities[i];
 
 			if ( e->inuse && !e->neverFree &&
-				( e->freeAfterEvent || e->s.eType == ET_MISSILE || ( e->flags & FL_DROPPED_ITEM ) ) ) {
+				( e->freeAfterEvent || e->s.eType == ET_MISSILE || Any( e->flags & FL_DROPPED_ITEM ) ) ) {
 				G_FreeEntity( e );
 			}
 			if ( !e->inuse ) {
@@ -444,7 +444,7 @@ void Svcmd_Scenario_f( void ) {
 	memset( &scn, 0, sizeof( scn ) );
 	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
 	for ( i = 0; i < MAX_CLIENTS && n < 2; i++ ) {
-		if ( g_entities[i].inuse && g_entities[i].client && ( g_entities[i].r.svFlags & SVF_BOT )
+		if ( g_entities[i].inuse && g_entities[i].client && Any( g_entities[i].r.svFlags & SVF_BOT )
 			&& g_entities[i].client->pers.connected == CON_CONNECTED ) {
 			scn.client[n++] = i;
 		}

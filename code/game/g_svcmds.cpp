@@ -153,7 +153,7 @@ extern cvar_t	*g_skippingcin;
 	else if ( !G_ClearViewEntity( player ) )
 	{//didn't exit control of a droid or turret
 		//okay, now try exiting emplaced guns or AT-ST's
-		if ( player->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( player->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{//get out of emplaced gun
 			ExitEmplacedWeapon( player );
 		}
@@ -203,7 +203,7 @@ static void Svcmd_Saber_f()
 
 	gi.cvar_set( "g_saber", saber );
 	WP_SetSaber( &g_entities[0], 0, saber );
-	if ( saber2 && saber2[0] && !(g_entities[0].client->ps.saber[0].saberFlags&SFL_TWO_HANDED) )
+	if ( saber2 && saber2[0] && !Any( g_entities[0].client->ps.saber[0].saberFlags & SFL_TWO_HANDED ) )
 	{//want to use a second saber and first one is not twoHanded
 		gi.cvar_set( "g_saber2", saber2 );
 		WP_SetSaber( &g_entities[0], 1, saber2 );
@@ -387,14 +387,14 @@ void Svcmd_SaberAttackCycle_f( void )
 					skipThisBlade = false;
 					if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 					{//check to see if we should check the secondary style's flags
-						if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+						if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 						{
 							skipThisBlade = true;
 						}
 					}
 					else
 					{//use the primary style's flags
-						if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+						if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 						{
 							skipThisBlade = true;
 						}
@@ -453,14 +453,14 @@ void Svcmd_SaberAttackCycle_f( void )
 				skipThisBlade = false;
 				if ( WP_SaberBladeUseSecondBladeStyle( &self->client->ps.saber[1], bladeNum ) )
 				{//check to see if we should check the secondary style's flags
-					if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+					if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2 ) )
 					{
 						skipThisBlade = true;
 					}
 				}
 				else
 				{//use the primary style's flags
-					if ( (self->client->ps.saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+					if ( Any( self->client->ps.saber[1].saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE ) )
 					{
 						skipThisBlade = true;
 					}
@@ -881,14 +881,19 @@ static void Svcmd_Difficulty_f(void)
 	}
 }
 
-#define CMD_NONE				(0x00000000u)
-#define CMD_CHEAT				(0x00000001u)
-#define CMD_ALIVE				(0x00000002u)
+enum class commandFlags_t
+{
+	CMD_NONE				= 0x00000000u,
+	CMD_CHEAT				= 0x00000001u,
+	CMD_ALIVE				= 0x00000002u,
+};
+using enum commandFlags_t;
+template <> inline constexpr bool enableEnumFlags<commandFlags_t> = true;
 
 typedef struct svcmd_s {
 	const char	*name;
 	void		(*func)(void);
-	uint32_t	flags;
+	commandFlags_t	flags;
 } svcmd_t;
 
 static int svcmdcmp( const void *a, const void *b ) {
@@ -968,13 +973,13 @@ bool	ConsoleCommand( void ) {
 	if ( !command )
 		return false;
 
-	if ( (command->flags & CMD_CHEAT)
+	if ( Any( command->flags & CMD_CHEAT )
 		&& !g_cheats->integer )
 	{
 		gi.Printf( "Cheats are not enabled on this server.\n" );
 		return true;
 	}
-	else if ( (command->flags & CMD_ALIVE)
+	else if ( Any( command->flags & CMD_ALIVE )
 		&& (g_entities[0].health <= 0) )
 	{
 		gi.Printf( "You must be alive to use this command.\n" );

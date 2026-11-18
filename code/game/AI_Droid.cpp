@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //static void R5D2_LookAround( void );
 float NPC_GetPainChance( gentity_t *self, int damage );
 
-#define TURN_OFF   0x00000100
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 //Local state enums
 using enum droidLocalState_t;
@@ -222,7 +222,7 @@ void Droid_Spin( void )
 	if ( NPC->client->NPC_class == CLASS_R5D2 )
 	{
 		// No head?
-		if (gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "head" ))
+		if (gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "head" ) != G2SURFACEFLAG_NONE)
 		{
 			if (TIMER_Done(NPC,"smoke") && !TIMER_Done(NPC,"droidsmoketotal"))
 			{
@@ -300,7 +300,7 @@ void NPC_Droid_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 				if (!(self->spawnflags & 2))	// Doesn't have to ALWAYSDIE
 				{
 					if ((NPC_LocalState<droidLocalState_t>( *self->NPC ) != LSTATE_SPINNING) &&
-						(!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head" )))
+						(gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head" ) == G2SURFACEFLAG_NONE))
 					{
 						gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "head", TURN_OFF );
 
@@ -557,7 +557,7 @@ void NPC_BSDroid_Default( void )
 		NPC_UpdateAngles( true, true );
 		ucmd.upmove = Q_flrand(-1.0f, 1.0f) * 64;
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Droid_Patrol();
 	}

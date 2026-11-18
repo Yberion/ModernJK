@@ -81,10 +81,10 @@ static void NPC_CheckAttacker( gentity_t *other, meansOfDeath_t mod )
 		return;
 
 	//Don't take a target that doesn't want to be
-	if ( other->flags & FL_NOTARGET )
+	if ( Any( other->flags & FL_NOTARGET ) )
 		return;
 
-	if ( NPC->svFlags & SVF_LOCKEDENEMY )
+	if ( Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 	{//IF LOCKED, CANNOT CHANGE ENEMY!!!!!
 		return;
 	}
@@ -156,7 +156,7 @@ static void NPC_CheckAttacker( gentity_t *other, meansOfDeath_t mod )
 
 void NPC_SetPainEvent( gentity_t *self )
 {
-	if ( !self->NPC || !(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
+	if ( !self->NPC || !Any(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 	{
         if ( !Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
         {
@@ -298,7 +298,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 	if ( Q_flrand(0.0f, 1.0f) < pain_chance )
 	{
 		//Pick and play our animation
-		if ( (self->client->ps.eFlags&EF_FORCE_GRIPPED) )
+		if ( Any(self->client->ps.eFlags&EF_FORCE_GRIPPED) )
 		{
 			G_AddVoiceEvent( self, Q_irand(EV_CHOKE1, EV_CHOKE3), 0 );
 		}
@@ -311,7 +311,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 				G_AddVoiceEvent( self, Q_irand(EV_CHOKE1, EV_CHOKE3), 0 );
 			}
 		}
-		else if ( (self->client->ps.eFlags&EF_FORCE_DRAINED) )
+		else if ( Any(self->client->ps.eFlags&EF_FORCE_DRAINED) )
 		{
 			NPC_SetPainEvent( self );
 		}
@@ -352,7 +352,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 				}
 				self->client->ps.saberAnimLevel = SS_FAST;//next attack must be a quick attack
 				self->client->ps.saberMove = LS_READY;//don't finish whatever saber move you may have been in
-				int parts = SETANIM_BOTH;
+				setAnimParts_t parts = SETANIM_BOTH;
 				if ( PM_CrouchAnim( self->client->ps.legsAnim ) || PM_InCartwheel( self->client->ps.legsAnim ) )
 				{
 					parts = SETANIM_LEGS;
@@ -625,7 +625,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			}
 			if ( keyTaken )
 			{//remove my key
-				gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_arm_key", 0x00000002 );
+				gi.G2API_SetSurfaceOnOff( &self->ghoul2[self->playerModel], "l_arm_key", G2SURFACEFLAG_OFF );
 				self->message = nullptr;
 				self->client->ps.eFlags &= ~EF_FORCE_VISIBLE;	//remove sight flag
 				G_Sound( player, G_SoundIndex( "sound/weapons/key_pkup.wav" ) );
@@ -647,7 +647,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
 		}
 
-		if( !(self->svFlags&SVF_LOCKEDENEMY) && !(self->svFlags&SVF_IGNORE_ENEMIES) && !(other->flags & FL_NOTARGET) )
+		if( !Any( self->svFlags & SVF_LOCKEDENEMY ) && !Any( self->svFlags & SVF_IGNORE_ENEMIES ) && !Any( other->flags & FL_NOTARGET ) )
 		{
 			if ( self->client->enemyTeam != TEAM_FREE )
 			{//See if we bumped into an enemy
@@ -678,7 +678,7 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{//FIXME: check for SVF_NONNPC_ENEMY flag here?
 		if ( other->health > 0 )
 		{
-			if ( NPC->enemy == other && (other->svFlags&SVF_NONNPC_ENEMY) )
+			if ( NPC->enemy == other && Any( other->svFlags & SVF_NONNPC_ENEMY ) )
 			{
 				NPCInfo->touchedByPlayer = other;
 			}
@@ -834,8 +834,8 @@ void NPC_Respond( gentity_t *self, int userNum )
 		if ( !self->enemy )
 		{
 			/*
-			if ( !(self->svFlags&SVF_IGNORE_ENEMIES)
-				&& (self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES)
+			if ( !Any( self->svFlags & SVF_IGNORE_ENEMIES )
+				&& Any(self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES)
 				&& self->client->enemyTeam == TEAM_ENEMY )
 			{
 				event = Q_irand( EV_ANGER1, EV_ANGER3 );
@@ -985,7 +985,7 @@ void NPC_Respond( gentity_t *self, int userNum )
 	if ( event != EV_NONE )
 	{
 		//hack here because we reuse some "combat" and "extra" sounds
-		bool addFlag = ((self->NPC->scriptFlags&SCF_NO_COMBAT_TALK) != 0);
+		bool addFlag = Any(self->NPC->scriptFlags&SCF_NO_COMBAT_TALK);
 		self->NPC->scriptFlags &= ~SCF_NO_COMBAT_TALK;
 
 		G_AddVoiceEvent( self, event, 3000 );
@@ -1117,7 +1117,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 					G_ActivateBehavior( self, BSET_USE );
 				}
 			}
-			else if ( !self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] && !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			else if ( !self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] && !Any(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			{//I don't have an enemy and I'm not talking and I was used by the player
 				NPC_UseResponse( self, other, false );
 			}
@@ -1137,7 +1137,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 			//&& self->client->NPC_class == CLASS_VEHICLE
 			&& activator->s.number == 0
 			&& !gi.VoiceVolume[self->s.number]
-			&& !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			&& !Any(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 		{//I don't have an enemy and I'm not talking and I was used by the player
 			NPC_UseResponse( self, other, false );
 		}

@@ -31,6 +31,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 class ICARUS_Instance;
 
+// The flags of a sequence
+enum class sequenceFlags_t
+{
+	SQ_COMMON		= 0x00000000, 	//Common one-pass sequence
+	SQ_LOOP			= 0x00000001, 	//Looping sequence
+	SQ_RETAIN		= 0x00000002, 	//Inside a looping sequence list, retain the information
+	SQ_AFFECT		= 0x00000004, 	//Affect sequence
+	SQ_RUN			= 0x00000008,	//A run block
+	SQ_PENDING		= 0x00000010,	//Pending use, don't free when flushing the sequences
+	SQ_CONDITIONAL	= 0x00000020,	//Conditional statement
+	SQ_TASK			= 0x00000040,	//Task block
+};
+using enum sequenceFlags_t;
+template <> inline constexpr bool enableEnumFlags<sequenceFlags_t> = true;
+
 class CSequence
 {
 
@@ -60,11 +75,11 @@ public:
 	int PushCommand( CBlock *, pushPop_t );
 
 	//Flag utilties
-	void SetFlag( int );
-	void RemoveFlag( int, bool = false );
-	int  HasFlag( int );
-	int	 GetFlags( void )		const	{	return m_flags;		}
-	void SetFlags( int flags )	{	m_flags = flags;	}
+	void SetFlag( sequenceFlags_t );
+	void RemoveFlag( sequenceFlags_t, bool = false );
+	bool HasFlag( sequenceFlags_t );
+	sequenceFlags_t GetFlags( void )		const	{	return m_flags;		}
+	void SetFlags( sequenceFlags_t flags )	{	m_flags = flags;	}
 
 	//Various encapsulation utilities
 	int GetIterations( void )		const	{	return m_iterations;	}
@@ -104,7 +119,7 @@ protected:
 
 	//Data information
 	block_l					m_commands;
-	int						m_flags;
+	sequenceFlags_t			m_flags;
 	int						m_iterations;
 	int						m_id;
 	int						m_numCommands;

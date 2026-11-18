@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // snapshots are a view of the server at a given time
 typedef struct {
 	bool		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
+	snapFlags_t		snapFlags;		// rate delayed and dropped commands
 
 	int				serverTime;		// server time the message is valid for (in msec)
 
@@ -411,7 +411,7 @@ void SCR_DrawCinematic (void);
 void SCR_RunCinematic (void);
 void SCR_StopCinematic( bool bAllowRefusal = false );
 
-int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile /* = nullptr */);
+int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char *psAudioFile /* = nullptr */);
 e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic (int handle);
 void CIN_DrawCinematic (int handle);
@@ -440,5 +440,5 @@ void CL_ShutdownUI( void );
 void CL_GenericMenu_f(void);
 void CL_DataPad_f(void);
 void CL_EndScreenDissolve_f(void);
-int Key_GetCatcher( void );
-void Key_SetCatcher( int catcher );
+keyCatchFlags_t Key_GetCatcher( void );
+void Key_SetCatcher( keyCatchFlags_t catcher );

@@ -32,7 +32,7 @@ void			CGVM_KeyEvent				( fakeAscii_t key, bool down );
 void			CGVM_MouseEvent				( int x, int y );
 enum class cgameEvent_t;		// cg_public.h
 void			CGVM_EventHandling			( cgameEvent_t type );
-int				CGVM_PointContents			( void );
+contentsFlags_t	CGVM_PointContents			( void );
 void			CGVM_GetLerpOrigin			( void );
 void			CGVM_GetLerpData			( void );
 void			CGVM_Trace					( void );

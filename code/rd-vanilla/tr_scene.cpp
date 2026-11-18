@@ -283,7 +283,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	startTime = ri.Milliseconds();
 
-	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
+	if (!tr.world && !Any( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
@@ -308,7 +308,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// We need to figure out what's going on in fd->rdflags first :S .. I'm half-tempted to just revert
 	// back to JK2 and use a qbool for it --eez
 
-	if (fd->rdflags & RDF_SKYBOXPORTAL)
+	if (Any( fd->rdflags & RDF_SKYBOXPORTAL ))
 	{
 		skyboxportal = 1;
 	}
@@ -318,7 +318,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 		lastTime = fd->time;
 	}
 
-	if (fd->rdflags & RDF_DRAWSKYBOX)
+	if (Any( fd->rdflags & RDF_DRAWSKYBOX ))
 	{
 		drawskyboxportal = 1;
 	}
@@ -330,7 +330,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = false;
-	if ( ! (tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
+	if ( ! Any(tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
 		int		areaDiff;
 		int		i;
 

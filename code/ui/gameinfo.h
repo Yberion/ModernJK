@@ -34,7 +34,7 @@ typedef struct {
 	void		(*FS_FCloseFile)( fileHandle_t f );
 	void		(*Cvar_Set)( const char *name, const char *value );
 	void		(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
-	void		(*Cvar_Create)( const char *var_name, const char *var_value, int flags );
+	void		(*Cvar_Create)( const char *var_name, const char *var_value, cvarFlags_t flags );
 	int			(*FS_ReadFile)( const char *name, void **buf );
 	void		(*FS_FreeFile)( void *buf );
 	void		(*Printf)( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));

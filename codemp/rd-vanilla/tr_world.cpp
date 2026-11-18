@@ -178,7 +178,7 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 
 			if (!tr.startsolid &&
 				!tr.allsolid &&
-				(tr.fraction == 1.0f || (tr.surfaceFlags & SURF_NOIMPACT)))
+				(tr.fraction == 1.0f || Any( tr.surfaceFlags & SURF_NOIMPACT )))
 			{ //either hit nothing or sky, so this surface is near the top of the level I guess. Or the floor of a really tall room, but if that's the case we're just screwed.
 				VectorSubtract(basePoint, tr.endpos, v);
 				if (tr.fraction == 1.0f || VectorLength(v) < r_roofCullCeilDist->value)
@@ -218,7 +218,7 @@ static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 
 						if (!tr.startsolid &&
 							!tr.allsolid &&
-							(tr.fraction != 1.0f && !(tr.surfaceFlags & SURF_NOIMPACT)))
+							(tr.fraction != 1.0f && !Any( tr.surfaceFlags & SURF_NOIMPACT )))
 						{ //if we hit nothing or a noimpact going down then this is probably "ground".
 							VectorSubtract(basePoint, tr.endpos, endPoint);
 							if (VectorLength(endPoint) > r_roofCullCeilDist->value)
@@ -903,14 +903,11 @@ static void R_GenerateWireframeMap(mnode_t *baseNode)
 	//ones that are facing outside the world! (well, ideally.)
 	for (i = 0; i < tr.world->numnodes; i++)
 	{
-		if (tr.world->nodes[i].contents != CONTENTS_SOLID)
-		{
 #if 0 //doesn't work, I take it surfs on nodes are not related to surfs on brushes
-			if (!R_NodeHasOppositeFaces(&tr.world->nodes[i]))
+		if (!R_NodeHasOppositeFaces(&tr.world->nodes[i]))
 #endif
-			{
-				tr.world->nodes[i].visframe = tr.visCount;
-			}
+		{
+			tr.world->nodes[i].visframe = tr.visCount;
 		}
 	}
 
@@ -1172,7 +1169,7 @@ const void *R_DrawWireframeAutomap(const void *data)
 #endif
 	{
 		alpha = 1.0f;
-		GL_State(0);
+		GL_State(GLS_NONE);
 	}
 	//black
 	qglColor4f(0.0f, 0.0f, 0.0f, alpha);
@@ -1628,9 +1625,7 @@ static void R_MarkLeaves (void) {
 
 	if ( r_novis->integer || tr.viewCluster == -1 ) {
 		for (i=0 ; i<tr.world->numnodes ; i++) {
-			if (tr.world->nodes[i].contents != CONTENTS_SOLID) {
-				tr.world->nodes[i].visframe = tr.visCount;
-			}
+			tr.world->nodes[i].visframe = tr.visCount;
 		}
 		return;
 	}
@@ -1673,7 +1668,7 @@ void R_AddWorldSurfaces (void) {
 		return;
 	}
 
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
 		return;
 	}
 

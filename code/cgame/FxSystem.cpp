@@ -117,13 +117,13 @@ void SFxHelper::PlayLocalSound( int sfxHandle, soundChannel_t channelNum )
 
 //------------------------------------------------------
 void SFxHelper::Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max,
-						vec3_t end, int skipEntNum, int flags )
+						vec3_t end, int skipEntNum, contentsFlags_t flags )
 {
 	CG_Trace( tr, start, min, max, end, skipEntNum, flags );
 }
 
 void SFxHelper::G2Trace( trace_t *tr, vec3_t start, vec3_t min, vec3_t max,
-						vec3_t end, int skipEntNum, int flags )
+						vec3_t end, int skipEntNum, contentsFlags_t flags )
 {
 	//CG_Trace( tr, start, min, max, end, skipEntNum, flags, G2_COLLIDE );
 	gi.trace(tr, start, nullptr, nullptr, end, skipEntNum, flags, G2_COLLIDE, 0);

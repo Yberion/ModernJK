@@ -142,7 +142,7 @@ bool SpotWouldTelefrag( gentity_t *spot, team_t checkteam )
 		hit = touch[i];
 		if ( hit != spot && hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 )
 		{
-			if ( hit->contents & CONTENTS_BODY )
+			if ( Any( hit->contents & CONTENTS_BODY ) )
 			{
 				if( checkteam == TEAM_FREE || hit->client->playerTeam == checkteam )
 				{//checking against teammates only...?
@@ -173,7 +173,7 @@ bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest )
 			continue;
 		}
 
-		if ( hit->contents & mover->contents )
+		if ( Any( hit->contents & mover->contents ) )
 		{
 			return true;
 		}
@@ -1143,7 +1143,7 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					break;
 				}
 				//turn off this surf
-				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, 0x00000002/*G2SURFACEFLAG_OFF*/ );
+				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, G2SURFACEFLAG_OFF );
 
 			}
 			COM_EndParseSession();
@@ -1160,13 +1160,13 @@ bool G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const char *
 					break;
 				}
 				//turn on this surf
-				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, 0 );
+				gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], token, G2SURFACEFLAG_NONE );
 			}
 			COM_EndParseSession();
 		}
 		if ( ent->client->NPC_class == CLASS_IMPERIAL && ent->message )
 		{//carrying a key, turn on the key sleeve surface (assuming we have one)
-			gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "l_arm_key", 0 );
+			gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "l_arm_key", G2SURFACEFLAG_NONE );
 		}
 
 		G_LoadAnimFileSet( ent, modelName );
@@ -1899,7 +1899,7 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		&& Q_stricmp( "none", g_saber2->string )
 		&& Q_stricmp( "NULL", g_saber2->string ) )
 	{
-		if ( !(ent->client->ps.saber[0].saberFlags&SFL_TWO_HANDED) )
+		if ( !Any( ent->client->ps.saber[0].saberFlags & SFL_TWO_HANDED ) )
 		{//can't use a second saber if first one is a two-handed saber...?
 			WP_SaberParseParms( g_saber2->string, &ent->client->ps.saber[1] );
 			if ( ent->client->ps.saber[1].stylesLearned )
@@ -1910,7 +1910,7 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			{
 				ent->client->ps.saberStylesKnown |= Bit( ent->client->ps.saber[1].singleBladeStyle );
 			}
-			if ( (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
+			if ( Any( ent->client->ps.saber[1].saberFlags & SFL_TWO_HANDED ) )
 			{//tsk tsk, can't use a twoHanded saber as second saber
 				WP_RemoveSaber( ent, 1 );
 			}
@@ -2247,7 +2247,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		ent->clipmask = MASK_PLAYERSOLID;
 		ent->e_DieFunc = dieF_player_die;
 		ent->waterlevel = 0;
-		ent->watertype = 0;
+		ent->watertype = CONTENTS_NONE;
 		client->ps.friction = 6;
 		client->ps.gravity = g_gravity->value;
 		ent->flags &= ~FL_NO_KNOCKBACK;
@@ -2338,7 +2338,7 @@ bool ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded )
 		client->ps.pm_time = 100;
 
 		client->respawnTime = level.time;
-		client->latched_buttons = 0;
+		client->latched_buttons = BUTTON_NONE;
 
 		// set default animations
 		client->ps.torsoAnim = BOTH_STAND2;

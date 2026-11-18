@@ -62,9 +62,9 @@ bool G_ParseSpawnVars( bool inSubBSP );
 void G_SpawnGEntityFromSpawnVars( bool inSubBSP );
 
 
-bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum );
+bool NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEntNum );
 bool NPC_ClearLOS2( gentity_t *ent, const vec3_t end );
-int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
+int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask);
 bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum );
 bool G_EntIsUnlockedDoor( int entityNum );
 bool G_EntIsDoor( int entityNum );
@@ -92,7 +92,7 @@ void G_FindTeams( void ) {
 			continue;
 		if (!e->team)
 			continue;
-		if (e->flags & FL_TEAMSLAVE)
+		if (Any( e->flags & FL_TEAMSLAVE ))
 			continue;
 		if (e->r.contents==CONTENTS_TRIGGER)
 			continue;//triggers NEVER link up in teams!
@@ -103,7 +103,7 @@ void G_FindTeams( void ) {
 				continue;
 			if (!e2->team)
 				continue;
-			if (e2->flags & FL_TEAMSLAVE)
+			if (Any( e2->flags & FL_TEAMSLAVE ))
 				continue;
 			if (!strcmp(e->team, e2->team))
 			{
@@ -1102,7 +1102,7 @@ void CalculateRanks( void ) {
 					{
 						level.numPlayingClients++;
 					}
-					if ( !(g_entities[i].r.svFlags & SVF_BOT) )
+					if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
 					{
 						level.numVotingClients++;
 						if ( level.clients[i].sess.sessionTeam == TEAM_RED )
@@ -1259,16 +1259,16 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->client->ps.rocketLockIndex = ENTITYNUM_NONE;
 	ent->client->ps.rocketLockTime = 0;
 
-	ent->client->ps.eFlags = 0;
-	ent->s.eFlags = 0;
-	ent->client->ps.eFlags2 = 0;
-	ent->s.eFlags2 = 0;
+	ent->client->ps.eFlags = EF_NONE;
+	ent->s.eFlags = EF_NONE;
+	ent->client->ps.eFlags2 = EF2_NONE;
+	ent->s.eFlags2 = EF2_NONE;
 	ent->s.eType = ET_GENERAL;
 	ent->s.modelindex = 0;
 	ent->s.loopSound = 0;
 	ent->s.loopIsSoundset = false;
 	ent->s.event = 0;
-	ent->r.contents = 0;
+	ent->r.contents = CONTENTS_NONE;
 }
 
 /*
@@ -1613,7 +1613,7 @@ void LogExit( const char *string ) {
 			G_LogPrintf( "score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		}
 //		if (g_singlePlayer.integer && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)) {
-//			if (g_entities[cl - level.clients].r.svFlags & SVF_BOT && cl->ps.persistant[PERS_RANK] == 0) {
+//			if (Any( g_entities[cl - level.clients].r.svFlags & SVF_BOT ) && cl->ps.persistant[PERS_RANK] == 0) {
 //				won = false;
 //			}
 //		}
@@ -1657,7 +1657,7 @@ void CheckIntermissionExit( void ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( g_entities[i].r.svFlags & SVF_BOT ) {
+		if ( Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
 			continue;
 		}
 
@@ -1939,7 +1939,7 @@ void CheckExitRules( void ) {
 			if (g_entities[i].inuse && g_entities[i].client && g_entities[i].health > 0)
 			{
 				if (g_entities[i].client->sess.sessionTeam != TEAM_SPECTATOR &&
-					!(g_entities[i].client->ps.pm_flags & PMF_FOLLOW))
+					!Any(g_entities[i].client->ps.pm_flags & PMF_FOLLOW))
 				{
 					numLiveClients++;
 				}
@@ -2556,7 +2556,7 @@ void G_KickAllBots(void)
 		{
 			continue;
 		}
-		if ( !(g_entities[i].r.svFlags & SVF_BOT) )
+		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
 		{
 			continue;
 		}
@@ -2714,7 +2714,7 @@ void CheckTeamLeader( team_t team ) {
 		for ( i = 0 ; i < level.maxclients ; i++ ) {
 			if (level.clients[i].sess.sessionTeam != team)
 				continue;
-			if (!(g_entities[i].r.svFlags & SVF_BOT)) {
+			if (!Any( g_entities[i].r.svFlags & SVF_BOT )) {
 				level.clients[i].sess.teamLeader = true;
 				break;
 			}
@@ -3099,7 +3099,7 @@ void G_RunFrame( int levelTime ) {
 			}
 			if ( ent->freeAfterEvent ) {
 				// tempEntities or dropped items completely go away after their event
-				if (ent->s.eFlags & EF_SOUNDTRACKER)
+				if (Any( ent->s.eFlags & EF_SOUNDTRACKER ))
 				{ //don't trigger the event again..
 					ent->s.event = 0;
 					ent->s.eventParm = 0;
@@ -3232,7 +3232,7 @@ void G_RunFrame( int levelTime ) {
 					}
 					ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 
-					if (!(ent->client->pers.cmd.buttons & BUTTON_USE))
+					if (!Any(ent->client->pers.cmd.buttons & BUTTON_USE))
 					{ //have to keep holding use
 						ent->client->isHacking = 0;
 						ent->client->ps.hackingTime = 0;
@@ -3322,7 +3322,7 @@ void G_RunFrame( int levelTime ) {
 					}
 				}
 
-				if((!level.intermissiontime)&&!(ent->client->ps.pm_flags&PMF_FOLLOW) && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+				if((!level.intermissiontime)&&!Any(ent->client->ps.pm_flags&PMF_FOLLOW) && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 				{
 					WP_ForcePowersUpdate(ent, &ent->client->pers.cmd );
 					WP_SaberPositionUpdate(ent, &ent->client->pers.cmd);
@@ -3565,7 +3565,7 @@ static int G_ICARUS_GetSetIDForString( void ) {
 	T_G_ICARUS_GETSETIDFORSTRING *sharedMem = &gSharedBuffer.getSetIDForString;
 	return GetIDForString( setTable, sharedMem->string );
 }
-static bool G_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
+static bool G_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEnt ) {
 	return NAV_ClearPathToPoint( &g_entities[entID], pmins, pmaxs, point, clipmask, okToHitEnt );
 }
 static bool G_NPC_ClearLOS2( int entID, const vec3_t end ) {

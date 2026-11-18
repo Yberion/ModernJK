@@ -977,13 +977,13 @@ bool G_ValidEnemy( gentity_t *self, gentity_t *enemy )
 		return false;
 
 	//In case they're in notarget mode
-	if ( enemy->flags & FL_NOTARGET )
+	if ( Any( enemy->flags & FL_NOTARGET ) )
 		return false;
 
 	//Must be an NPC
 	if ( enemy->client == nullptr )
 	{
-		if ( enemy->svFlags&SVF_NONNPC_ENEMY )
+		if ( Any( enemy->svFlags & SVF_NONNPC_ENEMY ) )
 		{//still potentially valid
 			if (self->client)
 			{
@@ -1254,7 +1254,7 @@ NPC_FindEnemy
 bool NPC_FindEnemy( bool checkAlerts = false )
 {
 	//We're ignoring all enemies for now
-	if( NPC->svFlags & SVF_IGNORE_ENEMIES )
+	if( Any( NPC->svFlags & SVF_IGNORE_ENEMIES ) )
 	{
 		G_ClearEnemy( NPC );
 		return false;
@@ -1268,7 +1268,7 @@ bool NPC_FindEnemy( bool checkAlerts = false )
 	}
 
 	//Don't want a new enemy
-	if ( ( NPC_ValidEnemy( NPC->enemy ) ) && ( NPC->svFlags & SVF_LOCKEDENEMY ) )
+	if ( ( NPC_ValidEnemy( NPC->enemy ) ) && Any( NPC->svFlags & SVF_LOCKEDENEMY ) )
 		return true;
 
 	//See if the player is closer than our current enemy
@@ -1432,7 +1432,7 @@ NPC_CheckCanAttackExt
 bool NPC_CheckCanAttackExt( void )
 {
 	//We don't want them to shoot
-	if( NPCInfo->scriptFlags & SCF_DONT_FIRE )
+	if( Any( NPCInfo->scriptFlags & SCF_DONT_FIRE ) )
 		return false;
 
 	//Turn to face

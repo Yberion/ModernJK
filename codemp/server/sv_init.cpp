@@ -95,7 +95,7 @@ void SV_UpdateConfigstrings(client_t *client)
 
 		// do not always send server info to all clients
 		if ( index == CS_SERVERINFO && client->gentity &&
-			(client->gentity->r.svFlags & SVF_NOSERVERINFO) ) {
+			Any( client->gentity->r.svFlags & SVF_NOSERVERINFO ) ) {
 			continue;
 		}
 		SV_SendConfigstring(client, index);
@@ -142,7 +142,7 @@ void SV_SetConfigstring (int index, const char *val) {
 				continue;
 			}
 			// do not always send server info to all clients
-			if ( index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO) ) {
+			if ( index == CS_SERVERINFO && client->gentity && Any( client->gentity->r.svFlags & SVF_NOSERVERINFO ) ) {
 				continue;
 			}
 
@@ -242,7 +242,7 @@ SV_BoundMaxClients
 */
 void SV_BoundMaxClients( int minimum ) {
 	// get the current maxclients value
-	Cvar_Get( "sv_maxclients", "8", 0 );
+	Cvar_Get( "sv_maxclients", "8", CVAR_NONE );
 
 	sv_maxclients->modified = false;
 
@@ -530,7 +530,7 @@ Ghoul2 Insert Start
 	SV_SendMapChange();
 
 	// clear pak references
-	FS_ClearPakReferences(0);
+	FS_ClearPakReferences(FS_ALL_REF);
 
 /*
 Ghoul2 Insert Start
@@ -970,17 +970,17 @@ void SV_Init (void) {
 	sv_master[1] = Cvar_Get ("sv_master2", JKHUB_MASTER_SERVER_NAME, CVAR_PROTECTED);
 	for(int index = 2; index < MAX_MASTER_SERVERS; index++)
 		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE_ND|CVAR_PROTECTED);
-	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", 0);
-	sv_showghoultraces = Cvar_Get ("sv_showghoultraces", "0", 0);
-	sv_showloss = Cvar_Get ("sv_showloss", "0", 0);
+	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", CVAR_NONE);
+	sv_showghoultraces = Cvar_Get ("sv_showghoultraces", "0", CVAR_NONE);
+	sv_showloss = Cvar_Get ("sv_showloss", "0", CVAR_NONE);
 	sv_netcodecCompare = Cvar_Get ("sv_netcodecCompare", "0", CVAR_TEMP, "Debug: also code each message in the legacy format and print the byte ratio (1: every 10 seconds, 2: every message)");
 	sv_netcodecMaxBytes = Cvar_Get ("sv_netcodecMaxBytes", "0", CVAR_TEMP, "Debug: the largest message the server codes, in bytes (0: MAX_MSGLEN, 49152), to test what happens to larger ones: snapshots are cut, a gamestate drops the client");
-	sv_killserver = Cvar_Get ("sv_killserver", "0", 0);
+	sv_killserver = Cvar_Get ("sv_killserver", "0", CVAR_NONE);
 	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
 
 	sv_filterCommands = Cvar_Get( "sv_filterCommands", "1", CVAR_ARCHIVE );
 
-//	sv_debugserver = Cvar_Get ("sv_debugserver", "0", 0);
+//	sv_debugserver = Cvar_Get ("sv_debugserver", "0", CVAR_NONE);
 
 	sv_autoDemo = Cvar_Get( "sv_autoDemo", "0", CVAR_ARCHIVE_ND | CVAR_SERVERINFO, "Automatically take server-side demos" );
 	sv_autoDemoBots = Cvar_Get( "sv_autoDemoBots", "0", CVAR_ARCHIVE_ND, "Record server-side demos for bots" );

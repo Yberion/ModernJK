@@ -113,7 +113,7 @@ void NPC_BSSaberDroid_Patrol( void )
 	if ( NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
+		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
@@ -124,7 +124,7 @@ void NPC_BSSaberDroid_Patrol( void )
 			}
 		}
 
-		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
 			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
@@ -400,7 +400,7 @@ void NPC_BSSaberDroid_Attack( void )
 		NPC_FaceEnemy();
 	}
 
-	if ( NPCInfo->scriptFlags&SCF_DONT_FIRE )
+	if ( Any(NPCInfo->scriptFlags&SCF_DONT_FIRE) )
 	{
 		shoot = false;
 	}
@@ -411,7 +411,7 @@ void NPC_BSSaberDroid_Attack( void )
 	{//try to shoot if it's time
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
-			if( !(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
+			if( !Any(NPCInfo->scriptFlags & SCF_FIRE_WEAPON) ) // we've already fired, no need to do it again here
 			{
 				NPC_SaberDroid_PickAttack();
 				if ( NPCInfo->rank > RANK_CREWMAN )

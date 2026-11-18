@@ -385,7 +385,7 @@ void target_laser_think (gentity_t *self) {
 	// fire forward and see what we hit
 	VectorMA (self->s.origin, 2048, self->movedir, end);
 
-	trap->Trace( &tr, self->s.origin, nullptr, nullptr, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, false, 0, 0);
+	trap->Trace( &tr, self->s.origin, nullptr, nullptr, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, false, G2TRFLAG_NONE, 0);
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
@@ -510,7 +510,7 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 		return;
 	}
 
-	if ( self->flags & FL_INACTIVE )
+	if ( Any( self->flags & FL_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}

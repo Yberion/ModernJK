@@ -38,27 +38,40 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_FORCE_INFO_SIZE 2048
 
-#define WPFLAG_JUMP				0x00000010 //jump when we hit this
-#define WPFLAG_DUCK				0x00000020 //duck while moving around here
-#define WPFLAG_NOVIS			0x00000400 //go here for a bit even with no visibility
-#define WPFLAG_SNIPEORCAMPSTAND	0x00000800 //a good position to snipe or camp - stand
-#define WPFLAG_WAITFORFUNC		0x00001000 //wait for a func brushent under this point before moving here
-#define WPFLAG_SNIPEORCAMP		0x00002000 //a good position to snipe or camp - crouch
-#define WPFLAG_ONEWAY_FWD		0x00004000 //can only go forward on the trial from here (e.g. went over a ledge)
-#define WPFLAG_ONEWAY_BACK		0x00008000 //can only go backward on the trail from here
-#define WPFLAG_GOALPOINT		0x00010000 //make it a goal to get here.. goal points will be decided by setting "weight" values
-#define WPFLAG_RED_FLAG			0x00020000 //red flag
-#define WPFLAG_BLUE_FLAG		0x00040000 //blue flag
-#define WPFLAG_SIEGE_REBELOBJ	0x00080000 //rebel siege objective
-#define WPFLAG_SIEGE_IMPERIALOBJ	0x00100000 //imperial siege objective
-#define WPFLAG_NOMOVEFUNC		0x00200000 //don't move over if a func is under
+enum class waypointFlags_t
+{
+	WPFLAG_NONE = 0,
+	WPFLAG_NODE_USED		= 0x00000001, //nodetable only: the node is already in the trail being connected (RMG)
+	WPFLAG_JUMP				= 0x00000010, //jump when we hit this
+	WPFLAG_DUCK				= 0x00000020, //duck while moving around here
+	WPFLAG_NOVIS			= 0x00000400, //go here for a bit even with no visibility
+	WPFLAG_SNIPEORCAMPSTAND	= 0x00000800, //a good position to snipe or camp - stand
+	WPFLAG_WAITFORFUNC		= 0x00001000, //wait for a func brushent under this point before moving here
+	WPFLAG_SNIPEORCAMP		= 0x00002000, //a good position to snipe or camp - crouch
+	WPFLAG_ONEWAY_FWD		= 0x00004000, //can only go forward on the trial from here (e.g. went over a ledge)
+	WPFLAG_ONEWAY_BACK		= 0x00008000, //can only go backward on the trail from here
+	WPFLAG_GOALPOINT		= 0x00010000, //make it a goal to get here.. goal points will be decided by setting "weight" values
+	WPFLAG_RED_FLAG			= 0x00020000, //red flag
+	WPFLAG_BLUE_FLAG		= 0x00040000, //blue flag
+	WPFLAG_SIEGE_REBELOBJ	= 0x00080000, //rebel siege objective
+	WPFLAG_SIEGE_IMPERIALOBJ	= 0x00100000, //imperial siege objective
+	WPFLAG_NOMOVEFUNC		= 0x00200000, //don't move over if a func is under
 
-#define WPFLAG_CALCULATED		0x00400000 //don't calculate it again
-#define WPFLAG_NEVERONEWAY		0x00800000 //never flag it as one-way
+	WPFLAG_CALCULATED		= 0x00400000, //don't calculate it again
+	WPFLAG_NEVERONEWAY		= 0x00800000, //never flag it as one-way
+};
+using enum waypointFlags_t;
+template <> inline constexpr bool enableEnumFlags<waypointFlags_t> = true;
 
-#define LEVELFLAG_NOPOINTPREDICTION			1 //don't take waypoint beyond current into account when adjusting path view angles
-#define LEVELFLAG_IGNOREINFALLBACK			2 //ignore enemies when in a fallback navigation routine
-#define LEVELFLAG_IMUSTNTRUNAWAY			4 //don't be scared
+enum class botLevelFlags_t
+{
+	LEVELFLAG_NONE = 0,
+	LEVELFLAG_NOPOINTPREDICTION			= 1, //don't take waypoint beyond current into account when adjusting path view angles
+	LEVELFLAG_IGNOREINFALLBACK			= 2, //ignore enemies when in a fallback navigation routine
+	LEVELFLAG_IMUSTNTRUNAWAY			= 4, //don't be scared
+};
+using enum botLevelFlags_t;
+template <> inline constexpr bool enableEnumFlags<botLevelFlags_t> = true;
 
 #define WP_KEEP_FLAG_DIST			128
 
@@ -139,7 +152,7 @@ typedef struct nodeobject_s
 	vec3_t origin;
 //	int index;
 	float weight;
-	int flags;
+	waypointFlags_t flags;
 	int neighbornum;
 	int inuse;
 } nodeobject_t;
@@ -418,7 +431,7 @@ extern int gLastPrintedIndex;
 extern nodeobject_t nodetable[MAX_NODETABLE_SIZE];
 extern int nodenum;
 
-extern int gLevelFlags;
+extern botLevelFlags_t gLevelFlags;
 
 extern float floattime;
 #define FloatTime() floattime

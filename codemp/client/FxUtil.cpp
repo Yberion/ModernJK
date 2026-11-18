@@ -262,7 +262,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 							float rotation, float rotationDelta,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags = 0,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
@@ -275,7 +275,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );
@@ -299,7 +299,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -313,7 +313,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -326,7 +326,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -357,7 +357,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 									float alpha1, float alpha2, float alphaParm,
 									vec3_t sRGB, vec3_t eRGB, float rgbParm,
-									int killTime, qhandle_t shader, int flags = 0,
+									int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 									EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 									CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/)
 {
@@ -370,7 +370,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start ); //offset from bolt pos
@@ -393,7 +393,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -407,7 +407,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -420,7 +420,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -443,7 +443,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
-								float chaos, int killTime, qhandle_t shader, int flags = 0,
+								float chaos, int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 								CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
@@ -456,7 +456,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start );//offset
@@ -479,7 +479,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -493,7 +493,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -506,7 +506,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -539,7 +539,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t sRGB, vec3_t eRGB, float rgbParm,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags = 0,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
@@ -552,7 +552,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );
@@ -575,7 +575,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -589,7 +589,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -602,7 +602,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -615,7 +615,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetLengthParm( lengthParm * PI * 0.001f );
 		}
-		else if ( flags & FX_LENGTH_PARM_MASK )
+		else if ( Any( flags & FX_LENGTH_PARM_MASK ) )
 		{
 			fx->SetLengthParm( lengthParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -645,7 +645,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							float length1, float length2, float lengthParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, qhandle_t shader, int flags,
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/,
 							bool traceEnd)
@@ -659,7 +659,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( start );//offset
@@ -684,7 +684,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -698,7 +698,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		{
 			fx->SetSizeParm( size1Parm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( size1Parm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -711,7 +711,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		{
 			fx->SetSize2Parm( size2Parm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE2_PARM_MASK )
+		else if ( Any( flags & FX_SIZE2_PARM_MASK ) )
 		{
 			fx->SetSize2Parm( size2Parm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -724,7 +724,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		{
 			fx->SetLengthParm( lengthParm * PI * 0.001f );
 		}
-		else if ( flags & FX_LENGTH_PARM_MASK )
+		else if ( Any( flags & FX_LENGTH_PARM_MASK ) )
 		{
 			fx->SetLengthParm( lengthParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -737,7 +737,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -762,7 +762,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 								vec3_t min, vec3_t max, float elasticity,
 								int deathID, int impactID, int emitterID,
 								float density, float variance,
-								int killTime, qhandle_t model, int flags = 0,
+								int killTime, qhandle_t model, fxPrimitiveFlags_t flags = FX_NONE,
 								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 								CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
@@ -775,7 +775,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			assert(0);//not done
 //			fx->SetBoltinfo( ghoul2, entNum, modelNum, boltNum );
@@ -794,7 +794,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -808,7 +808,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -821,7 +821,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -854,7 +854,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 //-------------------------
 CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, int flags = 0,
+							int killTime, fxPrimitiveFlags_t flags = FX_NONE,
 							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/)
 {
@@ -867,7 +867,7 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );//offset
@@ -888,7 +888,7 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -902,7 +902,7 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -927,7 +927,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 						float rotation, float rotationDelta,
 						vec3_t min, vec3_t max, float bounce,
 						int deathID, int impactID,
-						int killTime, qhandle_t shader, int flags = 0,
+						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE,
 						EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 						CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
@@ -940,7 +940,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 
 	if ( fx )
 	{
-		if (flags&FX_RELATIVE && ghoul2 != nullptr)
+		if (Any( flags&FX_RELATIVE ) && ghoul2 != nullptr)
 		{
 			fx->SetOrigin1( nullptr );
 			fx->SetOrgOffset( org );//offset
@@ -965,7 +965,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -979,7 +979,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -992,7 +992,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1022,7 +1022,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							vec3_t rotationDelta, float bounce, int motionDelay,
-							int killTime, qhandle_t shader, int flags )
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags )
 {
 	if ( theFxHelper.mFrameTime < 1 || !verts )
 	{ // disallow adding effects when the system is paused or the user doesn't pass in a vert array
@@ -1051,7 +1051,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1065,7 +1065,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1094,7 +1094,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 					float size1, float size2, float sizeParm,
 					float alpha1, float alpha2, float alphaParm,
 					vec3_t sRGB, vec3_t eRGB, float rgbParm,
-					int killTime, qhandle_t shader, int flags,
+					int killTime, qhandle_t shader, fxPrimitiveFlags_t flags,
 					EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -1124,7 +1124,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1138,7 +1138,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1151,7 +1151,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1178,7 +1178,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 								float size1, float size2, float sizeParm,
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
-								int killTime, qhandle_t shader, int flags )
+								int killTime, qhandle_t shader, fxPrimitiveFlags_t flags )
 {
 	if ( theFxHelper.mFrameTime < 1 )
 	{ // disallow adding new effects when the system is paused
@@ -1203,7 +1203,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 		{
 			fx->SetRGBParm( rgbParm * PI * 0.001f );
 		}
-		else if ( flags & FX_RGB_PARM_MASK )
+		else if ( Any( flags & FX_RGB_PARM_MASK ) )
 		{
 			// rgbParm should be a value from 0-100..
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
@@ -1217,7 +1217,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 		{
 			fx->SetAlphaParm( alphaParm * PI * 0.001f );
 		}
-		else if ( flags & FX_ALPHA_PARM_MASK )
+		else if ( Any( flags & FX_ALPHA_PARM_MASK ) )
 		{
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
@@ -1230,7 +1230,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 		{
 			fx->SetSizeParm( sizeParm * PI * 0.001f );
 		}
-		else if ( flags & FX_SIZE_PARM_MASK )
+		else if ( Any( flags & FX_SIZE_PARM_MASK ) )
 		{
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}

@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void NPC_TempLookTarget( gentity_t *self, int lookEntNum, int minLookTime, int maxLookTime );
-extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask );
+extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, contentsFlags_t clipmask );
 extern void NPC_AimAdjust( int change );
 extern bool FlyingCreature( gentity_t *ent );
 extern int PM_AnimLength( int index, animNumber_t anim );
@@ -173,7 +173,7 @@ void NPC_BSTusken_Patrol( void )
 	if ( NPCInfo->confusionTime < level.time )
 	{
 		//Look for any enemies
-		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
+		if ( Any(NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
@@ -183,7 +183,7 @@ void NPC_BSTusken_Patrol( void )
 			}
 		}
 
-		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+		if ( !Any(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 		{
 			//Is there danger nearby
 			int alertEvent = NPC_CheckAlertEvents( true, true, -1, false, AEL_SUSPICIOUS );
@@ -358,8 +358,8 @@ void NPC_BSTusken_Attack( void )
 		//------------------
 		if (meleeRange || (!meleeWeapon && canSeeEnemy))
 		{
-			if (!(NPCInfo->scriptFlags&SCF_FIRE_WEAPON) && 	// If This Flag Is On, It Calls Attack From Elsewhere
-				!(NPCInfo->scriptFlags&SCF_DONT_FIRE) &&	// If This Flag Is On, Don't Fire At All
+			if (!Any(NPCInfo->scriptFlags&SCF_FIRE_WEAPON) && 	// If This Flag Is On, It Calls Attack From Elsewhere
+				!Any(NPCInfo->scriptFlags&SCF_DONT_FIRE) &&	// If This Flag Is On, Don't Fire At All
 				 (TIMER_Done(NPC, "attackDelay"))
 				)
 			{
@@ -384,7 +384,7 @@ void NPC_BSTusken_Attack( void )
 
 		// Or Should I Move?
 		//-------------------
-		else if (NPCInfo->scriptFlags & SCF_CHASE_ENEMIES)
+		else if (Any(NPCInfo->scriptFlags & SCF_CHASE_ENEMIES))
 		{
 			NPCInfo->goalEntity = NPC->enemy;
 			NPCInfo->goalRadius = lungeRange;
@@ -503,7 +503,7 @@ bool G_TuskenAttackAnimDamage( gentity_t *self )
 
 void NPC_BSTusken_Default( void )
 {
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
+	if( Any( NPCInfo->scriptFlags & SCF_FIRE_WEAPON ) )
 	{
 		WeaponThink( true );
 	}

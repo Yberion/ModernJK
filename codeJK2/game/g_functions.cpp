@@ -237,7 +237,7 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 
 void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
-	if ( !self || (self->svFlags&SVF_INACTIVE) )
+	if ( !self || Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return;
 	}
@@ -366,7 +366,7 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 }
 
 
-void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc)
+void GEntity_DieFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc)
 {
 //#define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod); OutputDebugString(va("%s\n",#blah));break;
 #define DIECASE(blah) case dieF_ ## blah: blah(self,inflictor,attacker,damage,mod,dFlags,hitLoc); break;

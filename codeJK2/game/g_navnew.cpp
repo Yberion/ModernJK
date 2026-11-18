@@ -33,8 +33,8 @@ extern	cvar_t		*d_patched;
 extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 
-bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipmask );
-bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, int &flags );
+bool NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, contentsFlags_t clipmask );
+bool NAV_TestForBlocked( gentity_t *self, gentity_t *goal, gentity_t *blocker, float distance, navInfoFlags_t &flags );
 
 bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
 {
@@ -77,7 +77,7 @@ void NPC_SetBlocked( gentity_t *self, gentity_t *blocker )
 NAVNEW_ClearPathBetweenPoints
 -------------------------
 */
-int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask)
+int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask)
 {
 	trace_t	trace;
 
@@ -508,7 +508,7 @@ bool NAVNEW_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t &info, b
 
 		//If the above function said we're blocked, don't do the extra checks
 		/*
-		if ( info.flags & NIF_BLOCKED )
+		if ( Any( info.flags & NIF_BLOCKED ) )
 			return true;
 		*/
 
@@ -541,7 +541,7 @@ bool NAVNEW_TestNodeConnectionBlocked( int wp1, int wp2, gentity_t *ignoreEnt, i
 {//see if the direct path between 2 nodes is blocked by architecture or an ent
 	vec3_t	pos1, pos2, mins, maxs;
 	trace_t	trace;
-	int		clipmask = MASK_NPCSOLID|CONTENTS_BOTCLIP;
+	contentsFlags_t	clipmask = MASK_NPCSOLID|CONTENTS_BOTCLIP;
 	int ignoreEntNum;
 
 	if ( !checkWorld && !checkEnts )

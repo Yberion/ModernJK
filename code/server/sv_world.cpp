@@ -234,7 +234,7 @@ void SV_LinkEntity( gentity_t *gEnt ) {
 	// encode the size into the entityState_t for client prediction
 	if ( gEnt->bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;		// a solid_box will never create this value
-	} else if ( gEnt->contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) {
+	} else if ( Any( gEnt->contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) ) {
 		// assume that x/y are equal and symetric
 		i = gEnt->maxs[0];
 		if (i<1)
@@ -574,7 +574,7 @@ Ghoul2 Insert End
 */
 	vec3_t		end;
 	int			passEntityNum;
-	int			contentmask;
+	contentsFlags_t	contentmask;
 /*
 Ghoul2 Insert Start
 */
@@ -632,7 +632,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 		// if it doesn't have any brushes of a type we
 		// are looking for, ignore it
-		if ( ! ( clip->contentmask & touch->contents ) ) {
+		if ( !Any( clip->contentmask & touch->contents ) ) {
 			continue;
 		}
 
@@ -654,7 +654,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		{
 			shrinkBox=false;
 		}
-		else if (trace.entityNum == touch->s.number&&touch->ghoul2.size()&&!(touch->contents & CONTENTS_LIGHTSABER))
+		else if (trace.entityNum == touch->s.number&&touch->ghoul2.size()&&!Any( touch->contents & CONTENTS_LIGHTSABER ))
 		{
 			shrinkBox=false;
 		}
@@ -732,7 +732,7 @@ Ghoul2 Insert Start
 		if ((trace.entityNum == touch->s.number) && (clip->eG2TraceType != G2_NOCOLLIDE))
 		{
 			// do we actually have a ghoul2 model here?
-			if (touch->ghoul2.size() && !(touch->contents & CONTENTS_LIGHTSABER))
+			if (touch->ghoul2.size() && !Any( touch->contents & CONTENTS_LIGHTSABER ))
 			{
 				int			oldTraceRecSize = 0;
 				int			newTraceRecSize = 0;
@@ -835,7 +835,7 @@ passEntityNum and entities owned by passEntityNum are explicitly not checked.
 /*
 Ghoul2 Insert Start
 */
-void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, const int passEntityNum, const int contentmask, const EG2_Collision eG2TraceType, const int useLod ) {
+void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, const int passEntityNum, const contentsFlags_t contentmask, const EG2_Collision eG2TraceType, const int useLod ) {
 /*
 Ghoul2 Insert End
 */
@@ -953,10 +953,10 @@ addtime:
 SV_PointContents
 =============
 */
-int SV_PointContents( const vec3_t p, int passEntityNum ) {
+contentsFlags_t SV_PointContents( const vec3_t p, int passEntityNum ) {
 	gentity_t		*touch[MAX_GENTITIES], *hit;
 	int			i, num;
-	int			contents, c2;
+	contentsFlags_t	contents, c2;
 	clipHandle_t	clipHandle;
 
 	// get base contents from world

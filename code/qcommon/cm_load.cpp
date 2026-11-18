@@ -69,7 +69,7 @@ cmodel_t	box_model;
 cplane_t	*box_planes;
 cbrush_t	*box_brush;
 
-int			CM_OrOfAllContentsFlagsInMap;
+contentsFlags_t	CM_OrOfAllContentsFlagsInMap;
 
 
 void	CM_InitBoxHull (void);
@@ -113,8 +113,8 @@ void CMod_LoadShaders( lump_t *l, clipMap_t	&cm )
 	for ( i = 0; i < count; i++, in++, out++ )
 	{
 		Q_strncpyz(out->shader, in->shader, MAX_QPATH);
-		out->contentFlags = LittleLong( in->contentFlags );
-		out->surfaceFlags = LittleLong( in->surfaceFlags );
+		out->contentFlags = static_cast<contentsFlags_t>( LittleLong( in->contentFlags ) );
+		out->surfaceFlags = static_cast<surfaceFlags_t>( LittleLong( in->surfaceFlags ) );
 	}
 }
 
@@ -271,7 +271,7 @@ void CMod_LoadBrushes( lump_t *l, clipMap_t &cm ) {
 		out->contents = cm.shaders[out->shaderNum].contentFlags;
 #ifdef JK2_MODE
 		//JK2 HACK: for water that cuts vis but is not solid!!! (used on yavin swamp)
-		if ( cm.shaders[out->shaderNum].surfaceFlags & SURF_SLICK )
+		if ( Any( cm.shaders[out->shaderNum].surfaceFlags & SURF_SLICK ) )
 		{
 			out->contents &= ~CONTENTS_SOLID;
 		}
@@ -895,7 +895,7 @@ void CM_ClearMap( void )
 	TotalSubModels = 0;
 }
 
-int CM_TotalMapContents()
+contentsFlags_t CM_TotalMapContents()
 {
 	return CM_OrOfAllContentsFlagsInMap;
 }
@@ -1060,7 +1060,7 @@ To keep everything totally uniform, bounding boxes are turned into small
 BSP trees instead of being compared directly.
 ===================
 */
-clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs) {//, const int contents ) {
+clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs) {//, const contentsFlags_t contents ) {
 	box_planes[0].dist = maxs[0];
 	box_planes[1].dist = -maxs[0];
 	box_planes[2].dist = mins[0];
@@ -1155,13 +1155,13 @@ void CM_GetWorldBounds ( vec3_t mins, vec3_t maxs )
 	VectorCopy ( cmg.cmodels[0].maxs, maxs );
 }
 
-int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
+contentsFlags_t CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 {
 	if ( !cm ) {
 		cm = &cmg;
 	}
 
-	int contents = 0;
+	contentsFlags_t contents = CONTENTS_NONE;
 	const cmodel_t *cmod = CM_ClipHandleToModel( model, &cm );
 	for ( int i = 0; i < cmod->leaf.numLeafBrushes; i++ ) {
 		int brushNum = cm->leafbrushes[cmod->leaf.firstLeafBrush + i];
@@ -1179,7 +1179,7 @@ int CM_ModelContents_Actual( clipHandle_t model, clipMap_t *cm )
 	return contents;
 }
 
-int CM_ModelContents(  clipHandle_t model, int subBSPIndex )
+contentsFlags_t CM_ModelContents(  clipHandle_t model, int subBSPIndex )
 {
 	if (subBSPIndex < 0)
 	{

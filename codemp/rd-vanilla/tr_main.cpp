@@ -415,8 +415,8 @@ static void SetFarClip( void )
 
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
-		if (tr.refdef.rdflags & RDF_AUTOMAP)
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
+		if (Any( tr.refdef.rdflags & RDF_AUTOMAP ))
 		{ //override the zfar then
 			tr.viewParms.zFar = 32768.0f;
 		}
@@ -1001,7 +1001,7 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
 
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if ( Any( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
 		return 0;
 	}
 
@@ -1093,12 +1093,12 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 				   int fogIndex, int dlightMap ) {
 	int			index;
 
-	if (tr.refdef.rdflags & RDF_NOFOG)
+	if (Any( tr.refdef.rdflags & RDF_NOFOG ))
 	{
 		fogIndex = 0;
 	}
 
-	if ( (shader->surfaceFlags & SURF_FORCESIGHT) && !(tr.refdef.rdflags & RDF_ForceSightOn) )
+	if ( Any( shader->surfaceFlags & SURF_FORCESIGHT ) && !Any(tr.refdef.rdflags & RDF_ForceSightOn) )
 	{	//if shader is only seen with ForceSight and we don't have ForceSight on, then don't draw
 		return;
 	}
@@ -1213,7 +1213,7 @@ void R_AddEntitySurfaces (void) {
 		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if ( (ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal) {
+		if ( Any(ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal) {
 			continue;
 		}
 
@@ -1232,7 +1232,7 @@ void R_AddEntitySurfaces (void) {
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
-			if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
+			if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
 				continue;
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
@@ -1265,9 +1265,9 @@ Ghoul2 Insert Start
 					}
   					break;
 				case MOD_BAD:		// null model axis
-					if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
+					if ( Any(ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 					{
-						if (!(ent->e.renderfx & RF_SHADOW_ONLY))
+						if (!Any(ent->e.renderfx & RF_SHADOW_ONLY))
 						{
 							break;
 						}

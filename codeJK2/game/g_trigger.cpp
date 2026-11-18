@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ENTDIST_NPC		2
 
 extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
-extern bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, int clipmask );
+extern bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, contentsFlags_t clipmask );
 extern bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
 extern bool PM_CrouchAnim( animNumber_t anim );
 
@@ -136,7 +136,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if ( ent->svFlags & SVF_INACTIVE )
+	if ( Any( ent->svFlags & SVF_INACTIVE ) )
 	{//Not active at this time
 		return;
 	}
@@ -168,7 +168,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -248,7 +248,7 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
-		if( !( other->client->usercmd.buttons & BUTTON_USE ) )
+		if( !Any( other->client->usercmd.buttons & BUTTON_USE ) )
 		{//not pressing use button
 			return;
 		}
@@ -261,8 +261,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			return;
 		}
 
-		if( !( other->client->ps.eFlags & EF_FIRING /*usercmd.buttons & BUTTON_ATTACK*/ ) &&
-			!( other->client->ps.eFlags & EF_ALT_FIRING/*usercmd.buttons & BUTTON_ALT_ATTACK*/ ) )
+		if( !Any( other->client->ps.eFlags & EF_FIRING /*Any( usercmd.buttons & BUTTON_ATTACK )*/ ) &&
+			!Any( other->client->ps.eFlags & EF_ALT_FIRING/*Any( usercmd.buttons & BUTTON_ALT_ATTACK )*/ ) )
 		{//not pressing fire button or altfire button
 			return;
 		}
@@ -287,8 +287,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if ( G_PointInBounds( eyeSpot, self->absmin, self->absmax ) )
 		{
-			if( !( other->client->ps.eFlags & EF_FIRING ) &&
-				!( other->client->ps.eFlags & EF_ALT_FIRING ) )
+			if( !Any( other->client->ps.eFlags & EF_FIRING ) &&
+				!Any( other->client->ps.eFlags & EF_ALT_FIRING ) )
 			{//not attacking, so hiding bonus
 				//FIXME:  should really have sound events clear the hiddenDist
 				other->client->hiddenDist = self->radius;
@@ -339,7 +339,7 @@ void trigger_cleared_fire (gentity_t *self)
 
 bool G_TriggerActive( gentity_t *self )
 {
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return false;
 	}
@@ -569,7 +569,7 @@ void SP_trigger_location( gentity_t *ent )
 	}
 
 	gi.SetBrushModel( ent, ent->model );
-	ent->contents = 0;
+	ent->contents = CONTENTS_NONE;
 	ent->svFlags = SVF_NOCLIENT;
 
 	gi.linkentity (ent);
@@ -606,7 +606,7 @@ trigger_push
 */
 #define PUSH_CONVEYOR 32
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -940,7 +940,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 {
 	gentity_t	*dest;
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -977,7 +977,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		TeleportPlayer( other, dest->s.origin, dest->s.angles );
 	}
 	//FIXME: check for SVF_NO_TELEPORT
-	else if ( !(self->svFlags & SVF_NO_TELEPORT) && !(self->spawnflags & NO_MISSILES) && VectorLengthSquared( other->s.pos.trDelta ) )
+	else if ( !Any( self->svFlags & SVF_NO_TELEPORT ) && !(self->spawnflags & NO_MISSILES) && VectorLengthSquared( other->s.pos.trDelta ) )
 	{//It's a mover of some sort and is currently moving
 		vec3_t	diffAngles = {0, 0, 0};
 		bool	snap = false;
@@ -1098,10 +1098,10 @@ void trigger_hurt_reset (gentity_t *self)
 
 void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-	int		dflags;
+	damageFlags_t		dflags;
 	int		actualDmg = self->damage;
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
 		return;
 	}
@@ -1168,7 +1168,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	}
 	else
 	{
-		dflags = 0;
+		dflags = DAMAGE_NORMAL;
 	}
 
 	if ( self->delay )
@@ -1376,7 +1376,7 @@ void trigger_entdist_use( gentity_t *self, gentity_t *other, gentity_t *activato
 	bool	useflag;
 	const char	*token, *holdString;
 
-	if ( self->svFlags & SVF_INACTIVE )	// Don't use INACTIVE
+	if ( Any( self->svFlags & SVF_INACTIVE ) )	// Don't use INACTIVE
 		return;
 
 	G_ActivateBehavior(self,BSET_USE);
@@ -1464,7 +1464,7 @@ void trigger_visible_check_player_visibility( gentity_t *self )
 	//Check every FRAMETIME*2
 	self->nextthink = level.time + FRAMETIME*2;
 
-	if ( self->svFlags & SVF_INACTIVE )
+	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{
 		return;
 	}

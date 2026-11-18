@@ -63,15 +63,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MT_VARIABLE					1		//variable match piece
 #define MT_STRING					2		//string match piece
 //reply chat key flags
-#define RCKFL_AND					1		//key must be present
-#define RCKFL_NOT					2		//key must be absent
-#define RCKFL_NAME					4		//name of bot must be present
-#define RCKFL_STRING				8		//key is a string
-#define RCKFL_VARIABLES				16		//key is a match template
-#define RCKFL_BOTNAMES				32		//key is a series of botnames
-#define RCKFL_GENDERFEMALE			64		//bot must be female
-#define RCKFL_GENDERMALE			128		//bot must be male
-#define RCKFL_GENDERLESS			256		//bot must be genderless
+enum class replyChatKeyFlags_t
+{
+	RCKFL_NONE = 0,
+	RCKFL_AND					= 1,		//key must be present
+	RCKFL_NOT					= 2,		//key must be absent
+	RCKFL_NAME					= 4,		//name of bot must be present
+	RCKFL_STRING				= 8,		//key is a string
+	RCKFL_VARIABLES				= 16,		//key is a match template
+	RCKFL_BOTNAMES				= 32,		//key is a series of botnames
+	RCKFL_GENDERFEMALE			= 64,		//bot must be female
+	RCKFL_GENDERMALE			= 128,		//bot must be male
+	RCKFL_GENDERLESS			= 256,		//bot must be genderless
+};
+using enum replyChatKeyFlags_t;
+template <> inline constexpr bool enableEnumFlags<replyChatKeyFlags_t> = true;
 //time to ignore a chat message after using it
 #define CHATMESSAGE_RECENTTIME	20
 
@@ -155,7 +161,7 @@ typedef struct bot_matchtemplate_s
 //reply chat key
 typedef struct bot_replychatkey_s
 {
-	int flags;
+	replyChatKeyFlags_t flags;
 	char *string;
 	bot_matchpiece_t *match;
 	struct bot_replychatkey_s *next;
@@ -1675,14 +1681,14 @@ void BotDumpReplyChat(bot_replychat_t *replychat)
 		fprintf(fp, "[");
 		for (key = rp->keys; key; key = key->next)
 		{
-			if (key->flags & RCKFL_AND) fprintf(fp, "&");
-			else if (key->flags & RCKFL_NOT) fprintf(fp, "!");
+			if (Any( key->flags & RCKFL_AND )) fprintf(fp, "&");
+			else if (Any( key->flags & RCKFL_NOT )) fprintf(fp, "!");
 			//
-			if (key->flags & RCKFL_NAME) fprintf(fp, "name");
-			else if (key->flags & RCKFL_GENDERFEMALE) fprintf(fp, "female");
-			else if (key->flags & RCKFL_GENDERMALE) fprintf(fp, "male");
-			else if (key->flags & RCKFL_GENDERLESS) fprintf(fp, "it");
-			else if (key->flags & RCKFL_VARIABLES)
+			if (Any( key->flags & RCKFL_NAME )) fprintf(fp, "name");
+			else if (Any( key->flags & RCKFL_GENDERFEMALE )) fprintf(fp, "female");
+			else if (Any( key->flags & RCKFL_GENDERMALE )) fprintf(fp, "male");
+			else if (Any( key->flags & RCKFL_GENDERLESS )) fprintf(fp, "it");
+			else if (Any( key->flags & RCKFL_VARIABLES ))
 			{
 				fprintf(fp, "(");
 				for (mp = key->match; mp; mp = mp->next)
@@ -1693,7 +1699,7 @@ void BotDumpReplyChat(bot_replychat_t *replychat)
 				} //end for
 				fprintf(fp, ")");
 			} //end if
-			else if (key->flags & RCKFL_STRING)
+			else if (Any( key->flags & RCKFL_STRING ))
 			{
 				fprintf(fp, "\"%s\"", key->string);
 			} //end if
@@ -1756,28 +1762,28 @@ void BotCheckValidReplyChatKeySet(source_t *source, bot_replychatkey_t *keys)
 	hasvariableskey = hasstringkey = false;
 	for (key = keys; key; key = key->next)
 	{
-		if (!(key->flags & (RCKFL_AND|RCKFL_NOT)))
+		if (!Any( key->flags & (RCKFL_AND|RCKFL_NOT) ))
 		{
 			allprefixed = false;
-			if (key->flags & RCKFL_VARIABLES)
+			if (Any( key->flags & RCKFL_VARIABLES ))
 			{
 				for (m = key->match; m; m = m->next)
 				{
 					if (m->type == MT_VARIABLE) hasvariableskey = true;
 				} //end for
 			} //end if
-			else if (key->flags & RCKFL_STRING)
+			else if (Any( key->flags & RCKFL_STRING ))
 			{
 				hasstringkey = true;
 			} //end else if
 		} //end if
-		else if ((key->flags & RCKFL_AND) && (key->flags & RCKFL_STRING))
+		else if (Any( key->flags & RCKFL_AND ) && Any( key->flags & RCKFL_STRING ))
 		{
 			for (key2 = keys; key2; key2 = key2->next)
 			{
 				if (key2 == key) continue;
-				if (key2->flags & RCKFL_NOT) continue;
-				if (key2->flags & RCKFL_VARIABLES)
+				if (Any( key2->flags & RCKFL_NOT )) continue;
+				if (Any( key2->flags & RCKFL_VARIABLES ))
 				{
 					for (m = key2->match; m; m = m->next)
 					{
@@ -1805,20 +1811,20 @@ void BotCheckValidReplyChatKeySet(source_t *source, bot_replychatkey_t *keys)
 				} //end if
 			} //end for
 		} //end else
-		if ((key->flags & RCKFL_NOT) && (key->flags & RCKFL_STRING))
+		if (Any( key->flags & RCKFL_NOT ) && Any( key->flags & RCKFL_STRING ))
 		{
 			for (key2 = keys; key2; key2 = key2->next)
 			{
 				if (key2 == key) continue;
-				if (key2->flags & RCKFL_NOT) continue;
-				if (key2->flags & RCKFL_STRING)
+				if (Any( key2->flags & RCKFL_NOT )) continue;
+				if (Any( key2->flags & RCKFL_STRING ))
 				{
 					if (StringContains(key2->string, key->string, false) != -1)
 					{
 						SourceWarning(source, "the key %s with prefix ! is inside the key %s", key->string, key2->string);
 					} //end if
 				} //end if
-				else if (key2->flags & RCKFL_VARIABLES)
+				else if (Any( key2->flags & RCKFL_VARIABLES ))
 				{
 					for (m = key2->match; m; m = m->next)
 					{
@@ -1890,7 +1896,7 @@ bot_replychat_t *BotLoadReplyChat(char *filename)
 		{
 			//allocate a key
 			key = (bot_replychatkey_t *) GetClearedHunkMemory(sizeof(bot_replychatkey_t));
-			key->flags = 0;
+			key->flags = RCKFL_NONE;
 			key->string = nullptr;
 			key->match = nullptr;
 			key->next = replychat->keys;
@@ -2607,14 +2613,14 @@ void BotPrintReplyChatKeys(bot_replychat_t *replychat)
 	botimport.Print(PRT_MESSAGE, "[");
 	for (key = replychat->keys; key; key = key->next)
 	{
-		if (key->flags & RCKFL_AND) botimport.Print(PRT_MESSAGE, "&");
-		else if (key->flags & RCKFL_NOT) botimport.Print(PRT_MESSAGE, "!");
+		if (Any( key->flags & RCKFL_AND )) botimport.Print(PRT_MESSAGE, "&");
+		else if (Any( key->flags & RCKFL_NOT )) botimport.Print(PRT_MESSAGE, "!");
 		//
-		if (key->flags & RCKFL_NAME) botimport.Print(PRT_MESSAGE, "name");
-		else if (key->flags & RCKFL_GENDERFEMALE) botimport.Print(PRT_MESSAGE, "female");
-		else if (key->flags & RCKFL_GENDERMALE) botimport.Print(PRT_MESSAGE, "male");
-		else if (key->flags & RCKFL_GENDERLESS) botimport.Print(PRT_MESSAGE, "it");
-		else if (key->flags & RCKFL_VARIABLES)
+		if (Any( key->flags & RCKFL_NAME )) botimport.Print(PRT_MESSAGE, "name");
+		else if (Any( key->flags & RCKFL_GENDERFEMALE )) botimport.Print(PRT_MESSAGE, "female");
+		else if (Any( key->flags & RCKFL_GENDERMALE )) botimport.Print(PRT_MESSAGE, "male");
+		else if (Any( key->flags & RCKFL_GENDERLESS )) botimport.Print(PRT_MESSAGE, "it");
+		else if (Any( key->flags & RCKFL_VARIABLES ))
 		{
 			botimport.Print(PRT_MESSAGE, "(");
 			for (mp = key->match; mp; mp = mp->next)
@@ -2625,7 +2631,7 @@ void BotPrintReplyChatKeys(bot_replychat_t *replychat)
 			} //end for
 			botimport.Print(PRT_MESSAGE, ")");
 		} //end if
-		else if (key->flags & RCKFL_STRING)
+		else if (Any( key->flags & RCKFL_STRING ))
 		{
 			botimport.Print(PRT_MESSAGE, "\"%s\"", key->string);
 		} //end if
@@ -2664,15 +2670,15 @@ int BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char 
 		{
 			res = false;
 			//get the match result
-			if (key->flags & RCKFL_NAME) res = (StringContains(message, cs->name, false) != -1);
-			else if (key->flags & RCKFL_BOTNAMES) res = (StringContains(key->string, cs->name, false) != -1);
-			else if (key->flags & RCKFL_GENDERFEMALE) res = (cs->gender == CHAT_GENDERFEMALE);
-			else if (key->flags & RCKFL_GENDERMALE) res = (cs->gender == CHAT_GENDERMALE);
-			else if (key->flags & RCKFL_GENDERLESS) res = (cs->gender == CHAT_GENDERLESS);
-			else if (key->flags & RCKFL_VARIABLES) res = StringsMatch(key->match, &match);
-			else if (key->flags & RCKFL_STRING) res = (StringContainsWord(message, key->string, false) != nullptr);
+			if (Any( key->flags & RCKFL_NAME )) res = (StringContains(message, cs->name, false) != -1);
+			else if (Any( key->flags & RCKFL_BOTNAMES )) res = (StringContains(key->string, cs->name, false) != -1);
+			else if (Any( key->flags & RCKFL_GENDERFEMALE )) res = (cs->gender == CHAT_GENDERFEMALE);
+			else if (Any( key->flags & RCKFL_GENDERMALE )) res = (cs->gender == CHAT_GENDERMALE);
+			else if (Any( key->flags & RCKFL_GENDERLESS )) res = (cs->gender == CHAT_GENDERLESS);
+			else if (Any( key->flags & RCKFL_VARIABLES )) res = StringsMatch(key->match, &match);
+			else if (Any( key->flags & RCKFL_STRING )) res = (StringContainsWord(message, key->string, false) != nullptr);
 			//if the key must be present
-			if (key->flags & RCKFL_AND)
+			if (Any( key->flags & RCKFL_AND ))
 			{
 				if (!res)
 				{
@@ -2681,7 +2687,7 @@ int BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char 
 				} //end if
 			} //end else if
 			//if the key must be absent
-			else if (key->flags & RCKFL_NOT)
+			else if (Any( key->flags & RCKFL_NOT ))
 			{
 				if (res)
 				{

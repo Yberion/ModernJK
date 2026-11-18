@@ -511,21 +511,21 @@ void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	const surfaceInfo_t	*surfOverride = G2_FindOverrideSurface(surfaceNum, rootSList);
 
 	// really, we should use the default flags for this surface unless it's been overriden
-	int offFlags = surfInfo->flags;
+	g2SurfaceFlags_t offFlags = G2_SurfaceFlags( surfInfo );
 
   	if (surfOverride)
 	{
 		offFlags = surfOverride->offFlags;
 	}
 	// if this surface is not off, add it to the shader render list
-	if (!offFlags)
+	if (!Any( offFlags) )
 	{
 
 		R_TransformEachSurface(surface, scale, G2VertSpace, TransformedVertArray, boneCache);
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
+	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -551,7 +551,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0, "" );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE, "" );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -617,7 +617,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #endif
 
 		// give us space for the transformed vertex array to be put in
-		if (!(g.mFlags & GHOUL2_ZONETRANSALLOC))
+		if (!Any(g.mFlags & GHOUL2_ZONETRANSALLOC))
 		{ //do not stomp if we're using zone space
 			g.mTransformedVertsArray = (size_t*)G2VertSpace->MiniHeapAlloc(g.currentModel->mdxm->numSurfaces * sizeof (size_t));
 			if (!g.mTransformedVertsArray)
@@ -1421,7 +1421,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// really, we should use the default flags for this surface unless it's been overriden
-	int offFlags = surfInfo->flags;
+	g2SurfaceFlags_t offFlags = G2_SurfaceFlags( surfInfo );
 
 	// set the off flags if we have some
 	if (surfOverride)
@@ -1430,7 +1430,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if this surface is not off, try to hit it
-	if (!offFlags)
+	if (!Any( offFlags) )
 	{
 #ifdef _G2_GORE
 		if (TS.collRecMap)
@@ -1473,7 +1473,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
+	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -1500,7 +1500,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 #ifdef _G2_GORE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0, "" );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE, "" );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -1529,7 +1529,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 		}
 //		assert(G2_MODEL_OK(&ghoul2[i]));
 		// do we really want to collide with this object?
-		if (ghoul2[i].mFlags & GHOUL2_NOCOLLIDE)
+		if (Any( ghoul2[i].mFlags & GHOUL2_NOCOLLIDE ))
 		{
 			continue;
 		}
@@ -1885,7 +1885,7 @@ void G2_LerpAngles(CGhoul2Info_v &ghoul2,CGhoul2Info_v &nextGhoul2, float interp
 				{
 					boneInfo_t	&nextBone = nextGhoul2[i].mBlist[x];
 					// does this bone override actually have anything in it, and if it does, is it a bone angles override?
-					if ((bone.boneNumber != -1) && ((bone.flags) & (BONE_ANGLES_TOTAL)))
+					if ((bone.boneNumber != -1) && Any((bone.flags) & (BONE_ANGLES_TOTAL)))
 					{
 						float *nowMatrix = (float*) &bone.matrix;
 						float *nextMatrix = (float*) &nextBone.matrix;

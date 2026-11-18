@@ -25,7 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <optional>
+
 #include "qcommon/q_shared.h"
+#include "ghoul2/G2.h"
+#define MDXABONEDEF
+#include "rd-common/mdx_format.h"
 
 #define Q3_INFINITE			16777216
 
@@ -33,43 +38,63 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 enum class itemType_t;	// bg_public.h
 enum class variableType_t;	// icarus/Q3_Registers.h
+enum class presenceFlags_t;	// botlib/aasfile.h
+enum class areaContentsFlags_t : uint32_t;	// botlib/aasfile.h
+enum class travelFlags_t;	// botlib/be_aas.h
+enum class stopEventFlags_t;	// botlib/be_aas.h
+enum class altRouteGoalFlags_t;	// botlib/be_aas.h
+enum class routeStopEventFlags_t;	// botlib/be_aas.h
+enum class moveTypeFlags_t;	// botlib/be_ai_move.h
+enum class actionFlags_t;	// botlib/botlib.h
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
-#define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
-#define SVF_BROADCASTCLIENTS	0x00000002	// only broadcast to clients specified in r.broadcastClients[clientNum/32]
-#define SVF_BOT					0x00000008	// set if the entity is a bot
-#define SVF_PLAYER_USABLE		0x00000010	// player can use this with the use button
-#define	SVF_BROADCAST			0x00000020	// send to all connected clients
-#define	SVF_PORTAL				0x00000040	// merge a second pvs at origin2 into snapshots
-#define	SVF_USE_CURRENT_ORIGIN	0x00000080	// entity->r.currentOrigin instead of entity->s.origin
+enum class svFlags_t
+{
+	SVF_NONE				= 0,
+	SVF_NOCLIENT			= 0x00000001,	// don't send entity to clients, even if it has effects
+	SVF_BROADCASTCLIENTS	= 0x00000002,	// only broadcast to clients specified in r.broadcastClients[clientNum/32]
+	SVF_BOT					= 0x00000008,	// set if the entity is a bot
+	SVF_PLAYER_USABLE		= 0x00000010,	// player can use this with the use button
+	SVF_BROADCAST			= 0x00000020,	// send to all connected clients
+	SVF_PORTAL				= 0x00000040,	// merge a second pvs at origin2 into snapshots
+	SVF_USE_CURRENT_ORIGIN	= 0x00000080,	// entity->r.currentOrigin instead of entity->s.origin
 											// for link position (missiles and movers)
-#define SVF_SINGLECLIENT		0x00000100	// only send to a single client (entityShared_t->singleClient)
-#define SVF_NOSERVERINFO		0x00000200	// don't send CS_SERVERINFO updates to this client
+	SVF_SINGLECLIENT		= 0x00000100,	// only send to a single client (entityShared_t->singleClient)
+	SVF_NOSERVERINFO		= 0x00000200,	// don't send CS_SERVERINFO updates to this client
 											// so that it can be updated for ping tools without
 											// lagging clients
-#define SVF_CAPSULE				0x00000400	// use capsule for collision detection instead of bbox
-#define SVF_NOTSINGLECLIENT		0x00000800	// send entity to everyone but one client
+	SVF_CAPSULE				= 0x00000400,	// use capsule for collision detection instead of bbox
+	SVF_NOTSINGLECLIENT		= 0x00000800,	// send entity to everyone but one client
 											// (entityShared_t->singleClient)
 
-#define SVF_OWNERNOTSHARED		0x00001000	// If it's owned by something and another thing owned by that something
+	SVF_OWNERNOTSHARED		= 0x00001000,	// If it's owned by something and another thing owned by that something
 											// hits it, it will still touch
 
-#define	SVF_ICARUS_FREEZE		0x00008000	// NPCs are frozen, ents don't execute ICARUS commands
+	SVF_ICARUS_FREEZE		= 0x00008000,	// NPCs are frozen, ents don't execute ICARUS commands
 
-#define SVF_GLASS_BRUSH			0x08000000	// Ent is a glass brush
+	SVF_GLASS_BRUSH			= 0x08000000,	// Ent is a glass brush
 
-#define SVF_NO_BASIC_SOUNDS		0x10000000	// No basic sounds
-#define SVF_NO_COMBAT_SOUNDS	0x20000000	// No combat sounds
-#define SVF_NO_EXTRA_SOUNDS		0x40000000	// No extra or jedi sounds
+	SVF_NO_BASIC_SOUNDS		= 0x10000000,	// No basic sounds
+	SVF_NO_COMBAT_SOUNDS	= 0x20000000,	// No combat sounds
+	SVF_NO_EXTRA_SOUNDS		= 0x40000000,	// No extra or jedi sounds
+};
+using enum svFlags_t;
+template <> inline constexpr bool enableEnumFlags<svFlags_t> = true;
 
 //rww - ghoul2 trace flags
-#define G2TRFLAG_DOGHOULTRACE	0x00000001 //do the ghoul2 trace
-#define G2TRFLAG_HITCORPSES		0x00000002 //will try g2 collision on the ent even if it's EF_DEAD
-#define G2TRFLAG_GETSURFINDEX	0x00000004 //will replace surfaceFlags with the ghoul2 surface index that was hit, if any.
-#define G2TRFLAG_THICK			0x00000008 //assures that the trace radius will be significantly large regardless of the trace box size.
+enum class g2TraceFlags_t
+{
+	G2TRFLAG_NONE = 0,
+	G2TRFLAG_DOGHOULTRACE	= 0x00000001, //do the ghoul2 trace
+	G2TRFLAG_HITCORPSES		= 0x00000002, //will try g2 collision on the ent even if it's EF_DEAD
+	G2TRFLAG_GETSURFINDEX	= 0x00000004, //will replace surfaceFlags with the ghoul2 surface index that was hit, if any.
+	G2TRFLAG_THICK			= 0x00000008 //assures that the trace radius will be significantly large regardless of the trace box size.
+};
+using enum g2TraceFlags_t;
+template <> inline constexpr bool enableEnumFlags<g2TraceFlags_t> = true;
 
 //===============================================================
 
@@ -82,17 +107,19 @@ typedef struct failedEdge_e
 	int	entID;
 } failedEdge_t;
 
+#include "qcommon/q_npcflags.h"
+
 typedef struct entityShared_s {
 	bool	linked;				// false if not in any good cluster
 	int			linkcount;
 
-	int			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
+	svFlags_t			svFlags;			// SVF_NOCLIENT, SVF_BROADCAST, etc
 	int			singleClient;		// only send to this client when SVF_SINGLECLIENT is set
 
 	bool	bmodel;				// if false, assume an explicit mins / maxs bounding box
 									// only set by trap_SetBrushModel
 	vec3_t		mins, maxs;
-	int			contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
+	contentsFlags_t	contents;			// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
 									// a non-solid entity should set to 0
 
 	vec3_t		absmin, absmax;		// derived from mins/maxs and origin + rotation
@@ -399,7 +426,7 @@ typedef struct gameImport_s {
 	void		(*SnapVector)							( float *v );
 
 	// cvar
-	void		(*Cvar_Register)						( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags );
+	void		(*Cvar_Register)						( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags );
 	void		(*Cvar_Set)								( const char *var_name, const char *value );
 	void		(*Cvar_Update)							( vmCvar_t *vmCvar );
 	int			(*Cvar_VariableIntegerValue)			( const char *var_name );
@@ -433,7 +460,7 @@ typedef struct gameImport_s {
 	bool	(*InPVSIgnorePortals)					( const vec3_t p1, const vec3_t p2 );
 	void		(*LinkEntity)							( sharedEntity_t *ent );
 	void		(*LocateGameData)						( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient );
-	int			(*PointContents)						( const vec3_t point, int passEntityNum );
+	contentsFlags_t	(*PointContents)						( const vec3_t point, int passEntityNum );
 	void		(*SendConsoleCommand)					( cbufExec_t exec_when, const char *text );
 	void		(*SendServerCommand)					( int clientNum, const char *text );
 	void		(*SetBrushModel)						( sharedEntity_t *ent, const char *name );
@@ -442,7 +469,7 @@ typedef struct gameImport_s {
 	void		(*SetUserinfo)							( int num, const char *buffer );
 	void		(*SiegePersSet)							( siegePers_t *pers );
 	void		(*SiegePersGet)							( siegePers_t *pers );
-	void		(*Trace)								( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod );
+	void		(*Trace)								( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask, int capsule, g2TraceFlags_t traceFlags, int useLod );
 	void		(*UnlinkEntity)							( sharedEntity_t *ent );
 
 	// ROFF
@@ -478,13 +505,13 @@ typedef struct gameImport_s {
 	void		(*Nav_Free)								( void );
 	bool	(*Nav_Load)								( const char *filename, int checksum );
 	bool	(*Nav_Save)								( const char *filename, int checksum );
-	int			(*Nav_AddRawPoint)						( vec3_t point, int flags, int radius );
+	int			(*Nav_AddRawPoint)						( vec3_t point, navNodeFlags_t flags, int radius );
 	void		(*Nav_CalculatePaths)					( bool recalc );
 	void		(*Nav_HardConnect)						( int first, int second );
 	void		(*Nav_ShowNodes)						( void );
 	void		(*Nav_ShowEdges)						( void );
 	void		(*Nav_ShowPath)							( int start, int end );
-	int			(*Nav_GetNearestNode)					( sharedEntity_t *ent, int lastID, int flags, int targetID );
+	int			(*Nav_GetNearestNode)					( sharedEntity_t *ent, int lastID, navNodeFlags_t flags, int targetID );
 	int			(*Nav_GetBestNode)						( int startID, int endID, int rejectID );
 	int			(*Nav_GetNodePosition)					( int nodeID, vec3_t out );
 	int			(*Nav_GetNodeNumEdges)					( int nodeID );
@@ -507,13 +534,13 @@ typedef struct gameImport_s {
 	bool	(*Nav_RouteBlocked)						( int startID, int testEdgeID, int endID, int rejectRank );
 	int			(*Nav_GetBestNodeAltRoute)				( int startID, int endID, int *pathCost, int rejectID );
 	int			(*Nav_GetBestNodeAltRoute2)				( int startID, int endID, int rejectID );
-	int			(*Nav_GetBestPathBetweenEnts)			( sharedEntity_t *ent, sharedEntity_t *goal, int flags );
+	int			(*Nav_GetBestPathBetweenEnts)			( sharedEntity_t *ent, sharedEntity_t *goal, navNodeFlags_t flags );
 	int			(*Nav_GetNodeRadius)					( int nodeID );
 	void		(*Nav_CheckBlockedEdges)				( void );
 	void		(*Nav_ClearCheckedNodes)				( void );
 	int			(*Nav_CheckedNode)						( int wayPoint, int ent );
 	void		(*Nav_SetCheckedNode)					( int wayPoint, int ent, int value );
-	void		(*Nav_FlagAllNodes)						( int newFlag );
+	void		(*Nav_FlagAllNodes)						( navNodeFlags_t newFlag );
 	bool	(*Nav_GetPathsCalculated)				( void );
 	void		(*Nav_SetPathsCalculated)				( bool newVal );
 
@@ -555,8 +582,8 @@ typedef struct gameImport_s {
 	void		(*BotGoalName)							( int number, char *name, int size );
 	int			(*BotGetTopGoal)						( int goalstate, void *goal );
 	int			(*BotGetSecondGoal)						( int goalstate, void *goal );
-	int			(*BotChooseLTGItem)						( int goalstate, vec3_t origin, int *inventory, int travelflags );
-	int			(*BotChooseNBGItem)						( int goalstate, vec3_t origin, int *inventory, int travelflags, void *ltg, float maxtime );
+	int			(*BotChooseLTGItem)						( int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags );
+	int			(*BotChooseNBGItem)						( int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags, void *ltg, float maxtime );
 	int			(*BotTouchingGoal)						( vec3_t origin, void *goal );
 	int			(*BotItemGoalInVisButNotVisible)		( int viewer, vec3_t eye, vec3_t viewangles, void *goal );
 	int			(*BotGetLevelItemGoal)					( int index, char *classname, void *goal );
@@ -569,12 +596,12 @@ typedef struct gameImport_s {
 	int			(*BotAllocGoalState)					( int state );
 	void		(*BotFreeGoalState)						( int handle );
 	void		(*BotResetMoveState)					( int movestate );
-	void		(*BotMoveToGoal)						( void *result, int movestate, void *goal, int travelflags );
-	int			(*BotMoveInDirection)					( int movestate, vec3_t dir, float speed, int type );
+	void		(*BotMoveToGoal)						( void *result, int movestate, void *goal, travelFlags_t travelflags );
+	int			(*BotMoveInDirection)					( int movestate, vec3_t dir, float speed, moveTypeFlags_t type );
 	void		(*BotResetAvoidReach)					( int movestate );
 	void		(*BotResetLastAvoidReach)				( int movestate );
 	int			(*BotReachabilityArea)					( vec3_t origin, int testground );
-	int			(*BotMovementViewTarget)				( int movestate, void *goal, int travelflags, float lookahead, vec3_t target );
+	int			(*BotMovementViewTarget)				( int movestate, void *goal, travelFlags_t travelflags, float lookahead, vec3_t target );
 	int			(*BotAllocMoveState)					( void );
 	void		(*BotFreeMoveState)						( int handle );
 	void		(*BotInitMoveState)						( int handle, void *initmove );
@@ -592,7 +619,7 @@ typedef struct gameImport_s {
 	int			(*BotNumInitialChats)					( int chatstate, char *type );
 	void		(*BotGetChatMessage)					( int chatstate, char *buf, int size );
 	void		(*BotRemoveFromAvoidGoals)				( int goalstate, int number );
-	int			(*BotPredictVisiblePosition)			( vec3_t origin, int areanum, void *goal, int travelflags, vec3_t target );
+	int			(*BotPredictVisiblePosition)			( vec3_t origin, int areanum, void *goal, travelFlags_t travelflags, vec3_t target );
 	void		(*BotSetAvoidGoalTime)					( int goalstate, int number, float avoidtime );
 	void		(*BotAddAvoidSpot)						( int movestate, vec3_t origin, float radius, int type );
 	int			(*BotLibSetup)							( void );
@@ -616,29 +643,29 @@ typedef struct gameImport_s {
 	int			(*AAS_AreaInfo)							( int areanum, void *info );
 	void		(*AAS_EntityInfo)						( int entnum, void *info );
 	int			(*AAS_Initialized)						( void );
-	void		(*AAS_PresenceTypeBoundingBox)			( int presencetype, vec3_t mins, vec3_t maxs );
+	void		(*AAS_PresenceTypeBoundingBox)			( presenceFlags_t presencetype, vec3_t mins, vec3_t maxs );
 	float		(*AAS_Time)								( void );
 	int			(*AAS_PointAreaNum)						( vec3_t point );
 	int			(*AAS_TraceAreas)						( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas );
-	int			(*AAS_PointContents)					( vec3_t point );
+	contentsFlags_t	(*AAS_PointContents)					( vec3_t point );
 	int			(*AAS_NextBSPEntity)					( int ent );
 	int			(*AAS_ValueForBSPEpairKey)				( int ent, const char *key, char *value, int size );
 	int			(*AAS_VectorForBSPEpairKey)				( int ent, const char *key, vec3_t v );
 	int			(*AAS_FloatForBSPEpairKey)				( int ent, const char *key, float *value );
 	int			(*AAS_IntForBSPEpairKey)				( int ent, const char *key, int *value );
 	int			(*AAS_AreaReachability)					( int areanum );
-	int			(*AAS_AreaTravelTimeToGoalArea)			( int areanum, vec3_t origin, int goalareanum, int travelflags );
+	int			(*AAS_AreaTravelTimeToGoalArea)			( int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags );
 	int			(*AAS_Swimming)							( vec3_t origin );
-	int			(*AAS_PredictClientMovement)			( void *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize );
-	int			(*AAS_AlternativeRouteGoals)			( vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags, void *altroutegoals, int maxaltroutegoals, int type );
-	int			(*AAS_PredictRoute)						( void *route, int areanum, vec3_t origin, int goalareanum, int travelflags, int maxareas, int maxtime, int stopevent, int stopcontents, int stoptfl, int stopareanum );
+	int			(*AAS_PredictClientMovement)			( void *move, int entnum, vec3_t origin, presenceFlags_t presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, stopEventFlags_t stopevent, int stopareanum, int visualize );
+	int			(*AAS_AlternativeRouteGoals)			( vec3_t start, int startareanum, vec3_t goal, int goalareanum, travelFlags_t travelflags, void *altroutegoals, int maxaltroutegoals, altRouteGoalFlags_t type );
+	int			(*AAS_PredictRoute)						( void *route, int areanum, vec3_t origin, int goalareanum, travelFlags_t travelflags, int maxareas, int maxtime, routeStopEventFlags_t stopevent, areaContentsFlags_t stopcontents, travelFlags_t stoptfl, int stopareanum );
 	int			(*AAS_PointReachabilityAreaIndex)		( vec3_t point );
 
 	// elementary action
 	void		(*EA_Say)								( int client, char *str );
 	void		(*EA_SayTeam)							( int client, const char *str );
 	void		(*EA_Command)							( int client, char *command );
-	void		(*EA_Action)							( int client, int action );
+	void		(*EA_Action)							( int client, actionFlags_t action );
 	void		(*EA_Gesture)							( int client );
 	void		(*EA_Talk)								( int client );
 	void		(*EA_Attack)							( int client );
@@ -686,9 +713,9 @@ typedef struct gameImport_s {
 	int			(*G2API_Ghoul2Size)						( void *ghlInfo );
 	int			(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
 	void		(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
-	bool	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool	(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool	(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	bool	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags, const orientations_t up, const orientations_t right, const orientations_t forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool	(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool	(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList, const int modelIndex );
 	void		(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
 	int			(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
 	void		(*G2API_CopySpecificGhoul2Model)		( void *g2From, int modelFrom, void *g2To, int modelTo );
@@ -700,10 +727,10 @@ typedef struct gameImport_s {
 	void		(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void		(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	bool	(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool	(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
+	bool	(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags );
 	bool	(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
 	bool	(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
-	int			(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
+	std::optional<g2SurfaceFlags_t>	(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
 	void		(*G2API_AbsurdSmoothing)				( void *ghoul2, bool status );
 	void		(*G2API_SetRagDoll)						( void *ghoul2, sharedRagDollParams_t *params );
 	void		(*G2API_AnimateG2Models)				( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
@@ -754,9 +781,9 @@ typedef struct gameExport_s {
 	int			(*ICARUS_GetString)					( void );
 	void		(*ICARUS_SoundIndex)				( void );
 	int			(*ICARUS_GetSetIDForString)			( void );
-	bool	(*NAV_ClearPathToPoint)				( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt );
+	bool	(*NAV_ClearPathToPoint)				( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, contentsFlags_t clipmask, int okToHitEnt );
 	bool	(*NPC_ClearLOS2)					( int entID, const vec3_t end );
-	int			(*NAVNEW_ClearPathBetweenPoints)	( vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask );
+	int			(*NAVNEW_ClearPathBetweenPoints)	( vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask );
 	bool	(*NAV_CheckNodeFailedForEnt)		( int entID, int nodeNum );
 	bool	(*NAV_EntIsUnlockedDoor)			( int entityNum );
 	bool	(*NAV_EntIsDoor)					( int entityNum );

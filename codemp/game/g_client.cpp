@@ -595,7 +595,7 @@ bool SpotWouldTelefrag2( gentity_t *mover, vec3_t dest )
 			continue;
 		}
 
-		if ( hit->r.contents & mover->r.contents )
+		if ( Any( hit->r.contents & mover->r.contents ) )
 		{
 			return true;
 		}
@@ -658,8 +658,8 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 			continue;
 		}
 
-		if(((spot->flags & FL_NO_BOTS) && isbot) ||
-		   ((spot->flags & FL_NO_HUMANS) && !isbot))
+		if((Any( spot->flags & FL_NO_BOTS ) && isbot) ||
+		   (Any( spot->flags & FL_NO_HUMANS ) && !isbot))
 		{
 			// spot is not for this human/bot player
 			continue;
@@ -714,8 +714,8 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 				continue;
 			}
 
-			if(((spot->flags & FL_NO_BOTS) && isbot) ||
-			   ((spot->flags & FL_NO_HUMANS) && !isbot))
+			if((Any( spot->flags & FL_NO_BOTS ) && isbot) ||
+			   (Any( spot->flags & FL_NO_HUMANS ) && !isbot))
 			{
 				// spot is not for this human/bot player
 				continue;
@@ -752,8 +752,8 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 				continue;
 			}
 
-			if(((spot->flags & FL_NO_BOTS) && isbot) ||
-			   ((spot->flags & FL_NO_HUMANS) && !isbot))
+			if((Any( spot->flags & FL_NO_BOTS ) && isbot) ||
+			   (Any( spot->flags & FL_NO_HUMANS ) && !isbot))
 			{
 				// spot is not for this human/bot player
 				continue;
@@ -838,8 +838,8 @@ tryAgain:
 			continue;
 		}
 
-		if(((spot->flags & FL_NO_BOTS) && isbot) ||
-			((spot->flags & FL_NO_HUMANS) && !isbot))
+		if((Any( spot->flags & FL_NO_BOTS ) && isbot) ||
+			(Any( spot->flags & FL_NO_HUMANS ) && !isbot))
 		{
 			// spot is not for this human/bot player
 			continue;
@@ -947,8 +947,8 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_t team, b
 
 	spot = nullptr;
 	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != nullptr) {
-		if(((spot->flags & FL_NO_BOTS) && isbot) ||
-		   ((spot->flags & FL_NO_HUMANS) && !isbot))
+		if((Any( spot->flags & FL_NO_BOTS ) && isbot) ||
+		   (Any( spot->flags & FL_NO_HUMANS ) && !isbot))
 		{
 			continue;
 		}
@@ -1052,7 +1052,7 @@ just like the existing corpse to leave behind.
 */
 static bool CopyToBodyQue( gentity_t *ent ) {
 	gentity_t		*body;
-	int			contents;
+	contentsFlags_t	contents;
 	int			islight = 0;
 
 	if (level.intermissiontime)
@@ -1064,11 +1064,11 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 
 	// if client is in a nodrop area, don't leave the body
 	contents = trap->PointContents( ent->s.origin, -1 );
-	if ( contents & CONTENTS_NODROP ) {
+	if ( Any( contents & CONTENTS_NODROP ) ) {
 		return false;
 	}
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client && Any(ent->client->ps.eFlags & EF_DISINTEGRATION))
 	{ //for now, just don't spawn a body if you got disint'd
 		return false;
 	}
@@ -1088,7 +1088,7 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 	body->s.eType = ET_BODY;
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client && Any(ent->client->ps.eFlags & EF_DISINTEGRATION))
 	{
 		body->s.eFlags |= EF_DISINTEGRATION;
 	}
@@ -1191,7 +1191,7 @@ void MaintainBodyQueue(gentity_t *ent)
 
 	assert(ent && ent->client);
 	if (ent->client->tempSpectate >= level.time ||
-		(ent->client->ps.eFlags2 & EF2_SHIP_DEATH))
+		Any(ent->client->ps.eFlags2 & EF2_SHIP_DEATH))
 	{
 		ent->client->noCorpse = true;
 	}
@@ -1253,7 +1253,8 @@ void ClientRespawn( gentity_t *ent ) {
 				}
 				ent->client->tempSpectate = level.time + minDel;
 				ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
-				ent->waterlevel = ent->watertype = 0;
+				ent->waterlevel = 0;
+				ent->watertype = CONTENTS_NONE;
 				ent->client->ps.weapon = WP_NONE;
 				ent->client->ps.stats[STAT_WEAPONS] = 0;
 				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
@@ -1495,7 +1496,7 @@ bool G_SaberModelSetup(gentity_t *ent)
 					trap->G2API_SetSkin(ent->client->weaponGhoul2[i], 0, ent->client->saber[i].skin, ent->client->saber[i].skin);
 				}
 
-				if (ent->client->saber[i].saberFlags & SFL_BOLT_TO_WRIST)
+				if (Any( ent->client->saber[i].saberFlags & SFL_BOLT_TO_WRIST ))
 				{
 					trap->G2API_SetBoltInfo(ent->client->weaponGhoul2[i], 0, 3+i);
 				}
@@ -2132,7 +2133,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 
 	// check for local client
 	s = Info_ValueForKey( userinfo, "ip" );
-	if ( !strcmp( s, "localhost" ) && !(ent->r.svFlags & SVF_BOT) )
+	if ( !strcmp( s, "localhost" ) && !Any( ent->r.svFlags & SVF_BOT ) )
 		client->pers.localClient = true;
 
 	// check the item prediction
@@ -2202,7 +2203,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 	}
 
 	// bots set their team a few frames later
-	if ( level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT ) {
+	if ( level.gametype >= GT_TEAM && Any( g_entities[clientNum].r.svFlags & SVF_BOT ) ) {
 		s = Info_ValueForKey( userinfo, "team" );
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) )
 			team = TEAM_RED;
@@ -2330,7 +2331,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 	Q_strcat( buf, sizeof( buf ), va( "c1\\%s\\", color1 ) );
 	Q_strcat( buf, sizeof( buf ), va( "c2\\%s\\", color2 ) );
 	Q_strcat( buf, sizeof( buf ), va( "hc\\%i\\", client->pers.maxHealth ) );
-	if ( ent->r.svFlags & SVF_BOT )
+	if ( Any( ent->r.svFlags & SVF_BOT ) )
 		Q_strcat( buf, sizeof( buf ), va( "skill\\%s\\", Info_ValueForKey( userinfo, "skill" ) ) );
 	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
 		Q_strcat( buf, sizeof( buf ), va( "w\\%i\\", client->sess.wins ) );
@@ -2605,14 +2606,14 @@ void SetTeamQuick(gentity_t *ent, team_t team, bool doBegin);
 void ClientBegin( int clientNum, bool allowTeamReset ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	int			flags;
+	entityFlags_t			flags;
 	char		userinfo[MAX_INFO_VALUE];
 	const char	*modelname;
 	int			spawnCount;
 
 	ent = g_entities + clientNum;
 
-	if ((ent->r.svFlags & SVF_BOT) && level.gametype >= GT_TEAM)
+	if (Any( ent->r.svFlags & SVF_BOT ) && level.gametype >= GT_TEAM)
 	{
 		if (allowTeamReset)
 		{
@@ -2833,7 +2834,7 @@ void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 	static animNumber_t torsoAnim;
 	static animNumber_t legsAnim;
 	static int firstFrame, lastFrame;
-	static int aFlags;
+	static boneFlags_t aFlags;
 	static float animSpeed, lAnimSpeedScale;
 	bool setTorso = false;
 
@@ -2904,7 +2905,7 @@ tryTorso:
 	if ((self->client->torsoAnimExecute != torsoAnim || self->client->torsoLastFlip != self->client->ps.torsoFlip) &&
 		!self->noLumbar)
 	{
-		aFlags = 0;
+		aFlags = BONE_NONE;
 		animSpeed = 0;
 
 		f = torsoAnim;
@@ -3094,7 +3095,9 @@ void ClientSpawn(gentity_t *ent) {
 	forcedata_t			savedForce;
 	saberInfo_t			saberSaved[MAX_SABERS];
 	EnumArray<int, persEnum_t, MAX_PERSISTANT>					persistant{};
-	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
+	entityFlags_t					flags;
+	voteFlags_t					gameFlags;
+	int					savedPing, accuracy_hits, accuracy_shots, eventSequence;
 	void				*g2WeaponPtrs[MAX_SABERS];
 	char				userinfo[MAX_INFO_STRING] = {0}, *key = nullptr, *saber = nullptr;
 	const char			*value = nullptr;
@@ -3146,7 +3149,7 @@ void ClientSpawn(gentity_t *ent) {
 		{ //dual
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
 		}
-		else if ( (ent->client->saber[0].saberFlags&SFL_TWO_HANDED) )
+		else if ( Any( ent->client->saber[0].saberFlags & SFL_TWO_HANDED ) )
 		{ //staff
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
 		}
@@ -3198,7 +3201,7 @@ void ClientSpawn(gentity_t *ent) {
 		spawnPoint = SelectCTFSpawnPoint (
 						client->sess.sessionTeam,
 						client->pers.teamState.state,
-						spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+						spawn_origin, spawn_angles, Any( ent->r.svFlags & SVF_BOT ));
 	}
 	else if (level.gametype == GT_SIEGE)
 	{
@@ -3206,28 +3209,28 @@ void ClientSpawn(gentity_t *ent) {
 						client->siegeClass,
 						client->sess.sessionTeam,
 						client->pers.teamState.state,
-						spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+						spawn_origin, spawn_angles, Any( ent->r.svFlags & SVF_BOT ));
 	}
 	else {
 		if (level.gametype == GT_POWERDUEL)
 		{
-			spawnPoint = SelectDuelSpawnPoint(client->sess.duelTeam, client->ps.origin, spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+			spawnPoint = SelectDuelSpawnPoint(client->sess.duelTeam, client->ps.origin, spawn_origin, spawn_angles, Any( ent->r.svFlags & SVF_BOT ));
 		}
 		else if (level.gametype == GT_DUEL)
 		{	// duel
-			spawnPoint = SelectDuelSpawnPoint(DUELTEAM_SINGLE, client->ps.origin, spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+			spawnPoint = SelectDuelSpawnPoint(DUELTEAM_SINGLE, client->ps.origin, spawn_origin, spawn_angles, Any( ent->r.svFlags & SVF_BOT ));
 		}
 		else
 		{
 			// the first spawn should be at a good looking spot
 			if ( !client->pers.initialSpawn && client->pers.localClient ) {
 				client->pers.initialSpawn = true;
-				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles, client->sess.sessionTeam, !!(ent->r.svFlags & SVF_BOT) );
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles, client->sess.sessionTeam, Any( ent->r.svFlags & SVF_BOT ) );
 			} else {
 				// don't spawn near existing origin if possible
 				spawnPoint = SelectSpawnPoint (
 					client->ps.origin,
-					spawn_origin, spawn_angles, client->sess.sessionTeam, !!(ent->r.svFlags & SVF_BOT) );
+					spawn_origin, spawn_angles, client->sess.sessionTeam, Any( ent->r.svFlags & SVF_BOT ) );
 			}
 		}
 	}
@@ -3364,8 +3367,8 @@ void ClientSpawn(gentity_t *ent) {
 	ent->clipmask = MASK_PLAYERSOLID;
 	ent->die = player_die;
 	ent->waterlevel = 0;
-	ent->watertype = 0;
-	ent->flags = 0;
+	ent->watertype = CONTENTS_NONE;
+	ent->flags = FL_NONE;
 
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
@@ -3736,7 +3739,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity.integer * 1000;
-	client->latched_buttons = 0;
+	client->latched_buttons = BUTTON_NONE;
 
 	if (!level.intermissiontime) {
 		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
@@ -3852,7 +3855,7 @@ extern void G_LeaveVehicle( gentity_t* ent, bool ConCheck );
 
 void G_ClearVote( gentity_t *ent ) {
 	if ( level.voteTime ) {
-		if ( ent->client->mGameFlags & PSG_VOTED ) {
+		if ( Any( ent->client->mGameFlags & PSG_VOTED ) ) {
 			if ( ent->client->pers.vote == 1 ) {
 				level.voteYes--;
 				trap->SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
@@ -3874,7 +3877,7 @@ void G_ClearTeamVote( gentity_t *ent, team_t team ) {
 	else							return;
 
 	if ( level.teamVoteTime[voteteam] ) {
-		if ( ent->client->mGameFlags & PSG_TEAMVOTED ) {
+		if ( Any( ent->client->mGameFlags & PSG_TEAMVOTED ) ) {
 			if ( ent->client->pers.teamvote == 1 ) {
 				level.teamVoteYes[voteteam]--;
 				trap->SetConfigstring( CS_TEAMVOTE_YES, va( "%i", level.teamVoteYes[voteteam] ) );
@@ -4003,7 +4006,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->pers.connected = CON_DISCONNECTED;
 	PS_SetTeam( ent->client->ps, TEAM_FREE );
 	ent->client->sess.sessionTeam = TEAM_FREE;
-	ent->r.contents = 0;
+	ent->r.contents = CONTENTS_NONE;
 
 	if (ent->client->holdingObjectiveItem > 0)
 	{ //carrying a siege objective item - make sure it updates and removes itself from us now in case this is an instant death-respawn situation
@@ -4019,7 +4022,7 @@ void ClientDisconnect( int clientNum ) {
 
 	CalculateRanks();
 
-	if ( ent->r.svFlags & SVF_BOT ) {
+	if ( Any( ent->r.svFlags & SVF_BOT ) ) {
 		BotAIShutdownClient( clientNum, false );
 	}
 

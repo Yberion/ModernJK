@@ -87,7 +87,6 @@ void FX_DisruptorAltShot( vec3_t start, vec3_t end, bool fullCharge )
 FX_DisruptorAltMiss
 ---------------------------
 */
-#define FX_ALPHA_WAVE		0x00000008
 
 void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal )
 {

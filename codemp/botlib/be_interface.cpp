@@ -329,8 +329,8 @@ void ElevatorBottomCenter(aas_reachability_t *reach, vec3_t bottomcenter);
 int BotGetReachabilityToGoal(vec3_t origin, int areanum,
 									  int lastgoalareanum, int lastareanum,
 									  int *avoidreach, float *avoidreachtimes, int *avoidreachtries,
-									  bot_goal_t *goal, int travelflags,
-									  struct bot_avoidspot_s *avoidspots, int numavoidspots, int *flags);
+									  bot_goal_t *goal, travelFlags_t travelflags,
+									  struct bot_avoidspot_s *avoidspots, int numavoidspots, moveResultFlags_t *flags);
 
 int AAS_PointLight(vec3_t origin, int *red, int *green, int *blue);
 
@@ -411,41 +411,41 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		botimport.Print(PRT_MESSAGE, "origin = %f, %f, %f\n", origin[0], origin[1], origin[2]);
 		area = newarea;
 		botimport.Print(PRT_MESSAGE, "new area %d, cluster %d, presence type %d\n",
-					area, AAS_AreaCluster(area), AAS_PointPresenceType(origin));
+					area, AAS_AreaCluster(area), to_underlying( AAS_PointPresenceType(origin) ));
 		botimport.Print(PRT_MESSAGE, "area contents: ");
-		if (aasworld.areasettings[area].contents & AREACONTENTS_WATER)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_WATER ))
 		{
 			botimport.Print(PRT_MESSAGE, "water &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_LAVA)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_LAVA ))
 		{
 			botimport.Print(PRT_MESSAGE, "lava &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_SLIME)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_SLIME ))
 		{
 			botimport.Print(PRT_MESSAGE, "slime &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_JUMPPAD)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_JUMPPAD ))
 		{
 			botimport.Print(PRT_MESSAGE, "jump pad &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_CLUSTERPORTAL)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_CLUSTERPORTAL ))
 		{
 			botimport.Print(PRT_MESSAGE, "cluster portal &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_VIEWPORTAL)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_VIEWPORTAL ))
 		{
 			botimport.Print(PRT_MESSAGE, "view portal &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_DONOTENTER)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_DONOTENTER ))
 		{
 			botimport.Print(PRT_MESSAGE, "do not enter &");
 		} //end if
-		if (aasworld.areasettings[area].contents & AREACONTENTS_MOVER)
+		if (Any( aasworld.areasettings[area].contents & AREACONTENTS_MOVER ))
 		{
 			botimport.Print(PRT_MESSAGE, "mover &");
 		} //end if
-		if (!aasworld.areasettings[area].contents)
+		if (!Any( aasworld.areasettings[area].contents ))
 		{
 			botimport.Print(PRT_MESSAGE, "empty");
 		} //end if
@@ -486,7 +486,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	} //end if*/
 	if (flood)
 		return 0;
-//	if (parm0 & BUTTON_USE)
+//	if (parm0 & to_underlying( BUTTON_USE ))
 //	{
 //		botlibglobals.runai = !botlibglobals.runai;
 //		if (botlibglobals.runai) botimport.Print(PRT_MESSAGE, "started AI\n");
@@ -529,7 +529,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	} //end if*/
 	/*
 	AAS_ClearShownDebugLines();
-	AAS_ShowArea(newarea, parm0 & BUTTON_USE);
+	AAS_ShowArea(newarea, parm0 & to_underlying( BUTTON_USE ));
 	AAS_ShowReachableAreas(area);
 	*/
 	AAS_ClearShownPolygons();
@@ -542,7 +542,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		static int avoidreach[MAX_AVOIDREACH];
 		static float avoidreachtimes[MAX_AVOIDREACH];
 		static int avoidreachtries[MAX_AVOIDREACH];
-		int reachnum, resultFlags;
+		int reachnum;
+		moveResultFlags_t resultFlags;
 		bot_goal_t goal;
 		aas_reachability_t reach;
 
@@ -583,7 +584,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	VectorClear(forward);
 	//BotGapDistance(origin, forward, 0);
 	/*
-	if (parm0 & BUTTON_USE)
+	if (parm0 & to_underlying( BUTTON_USE ))
 	{
 		botimport.Print(PRT_MESSAGE, "test rj from 703 to 716\n");
 		AAS_Reachability_WeaponJump(703, 716);

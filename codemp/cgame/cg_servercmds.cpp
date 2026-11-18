@@ -168,7 +168,7 @@ void CG_ParseServerinfo( void ) {
 	}
 
 	cgs.fDisable = atoi( Info_ValueForKey( info, "g_forcePowerDisable" ) );
-	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
+	cgs.dmflags = static_cast<dmFlags_t>( atoi( Info_ValueForKey( info, "dmflags" ) ) );
 	cgs.duel_fraglimit = atoi( Info_ValueForKey( info, "duel_fraglimit" ) );
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 
@@ -203,7 +203,7 @@ void CG_ParseServerinfo( void ) {
 	trap->Cvar_Set ( "ui_about_capturelimit", va("%i", cgs.capturelimit ) );
 	trap->Cvar_Set ( "ui_about_timelimit", va("%i", cgs.timelimit ) );
 	trap->Cvar_Set ( "ui_about_maxclients", va("%i", cgs.maxclients ) );
-	trap->Cvar_Set ( "ui_about_dmflags", va("%i", cgs.dmflags ) );
+	trap->Cvar_Set ( "ui_about_dmflags", va("%i", to_underlying( cgs.dmflags ) ) );
 	trap->Cvar_Set ( "ui_about_hostname", Info_ValueForKey( info, "sv_hostname" ) );
 	trap->Cvar_Set ( "ui_about_needpass", Info_ValueForKey( info, "g_needpass" ) );
 	trap->Cvar_Set ( "ui_about_botminplayers", Info_ValueForKey ( info, "bot_minplayers" ) );
@@ -1189,7 +1189,7 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, weapon_t knownWeapo
 	centity_t		*source;
 	animation_t		*anim;
 	float			animSpeed;
-	int				flags=BONE_ANIM_OVERRIDE_FREEZE;
+	boneFlags_t				flags=BONE_ANIM_OVERRIDE_FREEZE;
 
 	if (cent->ghoul2)
 	{
@@ -1307,7 +1307,7 @@ static void CG_SiegeBriefingDisplay_f( void ) {
 }
 
 static void CG_SiegeClassSelect_f( void ) {
-	//if (!( trap->Key_GetCatcher() & KEYCATCH_UI ))
+	//if (!Any( trap->Key_GetCatcher() & KEYCATCH_UI ))
 	//Well, I want it to come up even if the briefing display is up.
 	trap->OpenUIMenu( UIMENU_CLASSSEL ); //UIMENU_CLASSSEL
 }
@@ -1340,7 +1340,7 @@ static void CG_NewForceRank_f( void ) {
 
 	trap->Cvar_Set( "ui_myteam", va( "%i", setTeam ) );
 
-	if ( !( trap->Key_GetCatcher() & KEYCATCH_UI ) && doMenu && !cg.demoPlayback )
+	if ( !Any( trap->Key_GetCatcher() & KEYCATCH_UI ) && doMenu && !cg.demoPlayback )
 		trap->OpenUIMenu( UIMENU_PLAYERCONFIG );
 }
 

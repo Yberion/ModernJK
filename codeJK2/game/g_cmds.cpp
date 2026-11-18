@@ -451,7 +451,7 @@ void Cmd_God_f (gentity_t *ent)
 	}
 
 	ent->flags ^= FL_GODMODE;
-	if (!(ent->flags & FL_GODMODE) )
+	if (!Any( ent->flags & FL_GODMODE ) )
 		msg = "godmode OFF\n";
 	else
 		msg = "godmode ON\n";
@@ -478,7 +478,7 @@ void Cmd_Undying_f (gentity_t *ent)
 	}
 
 	ent->flags ^= FL_UNDYING;
-	if (!(ent->flags & FL_UNDYING) )
+	if (!Any( ent->flags & FL_UNDYING ) )
 	{
 		msg = "undead mode OFF\n";
 	}
@@ -527,7 +527,7 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 	}
 
 	ent->flags ^= FL_NOTARGET;
-	if (!(ent->flags & FL_NOTARGET) )
+	if (!Any( ent->flags & FL_NOTARGET ) )
 		msg = "notarget OFF\n";
 	else
 		msg = "notarget ON\n";

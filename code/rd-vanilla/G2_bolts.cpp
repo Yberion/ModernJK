@@ -56,7 +56,7 @@ int G2_Find_Bolt_Bone_Num(boltInfo_v &bltlist, const int boneNum)
 }
 
 // Given a bone number, see if that surface is already in our surfacelist list
-int G2_Find_Bolt_Surface_Num(boltInfo_v &bltlist, const int surfaceNum, const int flags)
+int G2_Find_Bolt_Surface_Num(boltInfo_v &bltlist, const int surfaceNum, const g2SurfaceFlags_t flags)
 {
 	// look through entire list
 	for(size_t i=0; i<bltlist.size(); i++)
@@ -130,7 +130,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 	mdxaSkel_t			*skel;
 	mdxaSkelOffsets_t	*offsets;
 	boltInfo_t			tempBolt;
-	uint32_t			flags;
+	g2SurfaceFlags_t			flags;
 
 	assert(G2_MODEL_OK(ghlInfo));
 
@@ -161,7 +161,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 				// if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
 				bltlist[i].surfaceNumber = surfNum;
 				bltlist[i].boltUsed = 1;
-				bltlist[i].surfaceType = 0;
+				bltlist[i].surfaceType = G2SURFACEFLAG_NONE;
 		 		return i;
 			}
 		}
@@ -170,7 +170,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 		tempBolt.surfaceNumber = surfNum;
 		tempBolt.boneNumber = -1;
 		tempBolt.boltUsed = 1;
-		tempBolt.surfaceType = 0;
+		tempBolt.surfaceType = G2SURFACEFLAG_NONE;
 		bltlist.push_back(tempBolt);
 		return bltlist.size()-1;
 	}
@@ -223,7 +223,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 			// if we found an entry that had a -1 for the bonenumber, then we hit a bone slot that was empty
 			bltlist[i].boneNumber = x;
 			bltlist[i].boltUsed = 1;
-			bltlist[i].surfaceType = 0;
+			bltlist[i].surfaceType = G2SURFACEFLAG_NONE;
 	 		return i;
 		}
 	}
@@ -232,7 +232,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 	tempBolt.boneNumber = x;
 	tempBolt.surfaceNumber = -1;
 	tempBolt.boltUsed = 1;
- 	tempBolt.surfaceType = 0;
+ 	tempBolt.surfaceType = G2SURFACEFLAG_NONE;
 	bltlist.push_back(tempBolt);
 	return bltlist.size()-1;
 

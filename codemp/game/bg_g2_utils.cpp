@@ -100,7 +100,7 @@ void BG_AttachToRancor( void *ghoul2, float rancYaw, vec3_t rancOrigin, int time
 #define	MAX_VARIANTS 8
 bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
-	if ( !ghoul2 || !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) )
+	if ( !ghoul2 || trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) == G2SURFACEFLAG_NONE )
 	{//see if the basic name without variants is on
 		Q_strncpyz( returnSurfName, rootSurfName, returnSize );
 		return true;
@@ -111,7 +111,7 @@ bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char
 		for ( i = 0; i < MAX_VARIANTS; i++ )
 		{
 			Com_sprintf( returnSurfName, returnSize, "%s%c", rootSurfName, 'a'+i );
-			if ( !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, returnSurfName ) )
+			if ( trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, returnSurfName ) == G2SURFACEFLAG_NONE )
 			{
 				return true;
 			}

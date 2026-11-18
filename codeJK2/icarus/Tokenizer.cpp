@@ -1392,7 +1392,7 @@ CTokenizer::~CTokenizer()
 {
 }
 
-CTokenizer* CTokenizer::Create(UINT dwFlags)
+CTokenizer* CTokenizer::Create(tokenizerFlags_t dwFlags)
 {
 	CTokenizer* theTokenizer = new CTokenizer();
 	theTokenizer->Init(dwFlags);
@@ -1613,7 +1613,7 @@ void CTokenizer::PutBackToken(CToken* theToken, bool commented, LPCTSTR addedCha
 	}
 }
 
-CToken* CTokenizer::GetToken(keywordArray_t* keywords, UINT onFlags, UINT offFlags)
+CToken* CTokenizer::GetToken(keywordArray_t* keywords, tokenizerFlags_t onFlags, tokenizerFlags_t offFlags)
 {
 	keywordArray_t* holdKeywords = SetKeywords(keywords);
 	CToken* retval = GetToken(onFlags, offFlags);
@@ -1621,9 +1621,9 @@ CToken* CTokenizer::GetToken(keywordArray_t* keywords, UINT onFlags, UINT offFla
 	return retval;
 }
 
-CToken* CTokenizer::GetToken(UINT onFlags, UINT offFlags)
+CToken* CTokenizer::GetToken(tokenizerFlags_t onFlags, tokenizerFlags_t offFlags)
 {
-	UINT holdFlags = m_flags;
+	tokenizerFlags_t holdFlags = m_flags;
 
 	m_flags |= onFlags;
 	m_flags &= (~offFlags);
@@ -1751,7 +1751,7 @@ CToken* CTokenizer::FetchToken()
 		}
 		if (theByte <= ' ')
 		{
-			if ((theByte == '\n') && ((TKF_USES_EOL & m_flags) != 0))
+			if ((theByte == '\n') && Any(TKF_USES_EOL & m_flags))
 			{
 				return CUserToken::Create(TK_EOL, "-EOLN-");
 			}
@@ -1760,13 +1760,13 @@ CToken* CTokenizer::FetchToken()
 		switch(theByte)
 		{
 		case '#':
-			if ((m_flags & TKF_IGNOREDIRECTIVES) == 0)
+			if (!Any(m_flags & TKF_IGNOREDIRECTIVES))
 			{
 				theToken = HandleDirective();
 			}
 			else
 			{
-				if ((m_flags & TKF_NODIRECTIVES) != 0)
+				if (Any(m_flags & TKF_NODIRECTIVES))
 				{
 					return HandleSymbol('#');
 				}
@@ -1785,11 +1785,11 @@ CToken* CTokenizer::FetchToken()
 		default:
 			if (((theByte >= 'a') && (theByte <= 'z'))
 				|| ((theByte >= 'A') && (theByte <= 'Z'))
-				|| ((theByte == '_') && ((m_flags & TKF_NOUNDERSCOREINIDENTIFIER) == 0)))
+				|| ((theByte == '_') && !Any(m_flags & TKF_NOUNDERSCOREINIDENTIFIER)))
 			{
 				theToken = HandleIdentifier(theByte);
 			}
-			else if (((m_flags & TKF_NUMERICIDENTIFIERSTART) != 0) && (theByte >= '0') && (theByte <= '9'))
+			else if (Any(m_flags & TKF_NUMERICIDENTIFIERSTART) && (theByte >= '0') && (theByte <= '9'))
 			{
 				theToken = HandleIdentifier(theByte);
 			}
@@ -1864,7 +1864,7 @@ void CTokenizer::ScanUntilToken(icarusToken_t tokenType)
 	}
 }
 
-void CTokenizer::Init(UINT dwFlags)
+void CTokenizer::Init(tokenizerFlags_t dwFlags)
 {
 	m_symbolLookup = nullptr;
 	m_nextToken = nullptr;
@@ -2079,10 +2079,10 @@ CToken* CTokenizer::TokenFromName(LPCTSTR name)
 			return FetchToken();
 		}
 	}
-	if ((m_keywords != nullptr) && ((m_flags & TKF_IGNOREKEYWORDS) == 0))
+	if ((m_keywords != nullptr) && !Any(m_flags & TKF_IGNOREKEYWORDS))
 	{
 		int i = 0;
-		if ((m_flags & TKF_NOCASEKEYWORDS) == 0)
+		if (!Any(m_flags & TKF_NOCASEKEYWORDS))
 		{
 			while (m_keywords[i].m_tokenvalue != to_underlying( TK_EOF ))
 			{
@@ -2133,8 +2133,8 @@ CToken* CTokenizer::HandleIdentifier(byte theByte)
 	{
 		if (NextChar((byte&)theString[i]))
 		{
-			if (((theString[i] != '_') || ((m_flags & TKF_NOUNDERSCOREINIDENTIFIER) == 0)) &&
-				((theString[i] != '-') || ((m_flags & TKF_NODASHINIDENTIFIER) == 0)))
+			if (((theString[i] != '_') || !Any(m_flags & TKF_NOUNDERSCOREINIDENTIFIER)) &&
+				((theString[i] != '-') || !Any(m_flags & TKF_NODASHINIDENTIFIER)))
 			{
 				if (((theString[i] >= 'A') && (theString[i] <= 'Z'))
 				 || ((theString[i] >= 'a') && (theString[i] <= 'z'))
@@ -2162,7 +2162,7 @@ CToken* CTokenizer::HandleSlash()
 	}
 	if (theByte == '/')
 	{
-		if (m_flags & TKF_COMMENTTOKENS)
+		if (Any(m_flags & TKF_COMMENTTOKENS))
 		{
 			return GetToEndOfLine(TK_COMMENT);
 		}
@@ -2171,7 +2171,7 @@ CToken* CTokenizer::HandleSlash()
 	}
 	if (theByte == '*')
 	{
-		if (m_flags & TKF_COMMENTTOKENS)
+		if (Any(m_flags & TKF_COMMENTTOKENS))
 		{
 			char theString[MAX_IDENTIFIER_LENGTH + 1];
 			theString[0] = ' ';
@@ -2464,12 +2464,12 @@ CToken* CTokenizer::HandleQuote()
 	return CCharToken::Create(theByte);
 }
 
-void CTokenizer::SetFlags(UINT flags)
+void CTokenizer::SetFlags(tokenizerFlags_t flags)
 {
 	m_flags = flags;
 }
 
-UINT CTokenizer::GetFlags()
+tokenizerFlags_t CTokenizer::GetFlags()
 {
 	return m_flags;
 }
@@ -2482,7 +2482,7 @@ CToken* CTokenizer::HandleSymbol(byte theByte)
 	bool consumed = false;
 
 	CSymbolLookup* curLookup;
-	if ((m_flags & TKF_RAWSYMBOLSONLY) == 0)
+	if (!Any(m_flags & TKF_RAWSYMBOLSONLY))
 	{
 		curLookup = m_symbolLookup;
 	}
@@ -2525,7 +2525,7 @@ CToken* CTokenizer::HandleSymbol(byte theByte)
 	//	symbolString = symbolString.Left(symbolString.GetLength() - 1);
 		if (lastLookup->GetParent() == nullptr)
 		{
-			if ((m_flags & TKF_WANTUNDEFINED) == 0)
+			if (!Any(m_flags & TKF_WANTUNDEFINED))
 			{
 				Error(TKERR_UNRECOGNIZEDSYMBOL);
 			}
@@ -2538,14 +2538,14 @@ CToken* CTokenizer::HandleSymbol(byte theByte)
 	}
 	if (lastLookup == nullptr)
 	{
-		if ((m_flags & TKF_WANTUNDEFINED) == 0)
+		if (!Any(m_flags & TKF_WANTUNDEFINED))
 		{
 			return nullptr;
 		}
 		curStrLen = 0;
 		symbolString[curStrLen++] = char(theByte);
 		symbolString[curStrLen] = '\0';
-		if ((m_flags & TKF_WIDEUNDEFINEDSYMBOLS) != 0)
+		if (Any(m_flags & TKF_WIDEUNDEFINEDSYMBOLS))
 		{
 			while (true)
 			{
@@ -2566,7 +2566,7 @@ CToken* CTokenizer::HandleSymbol(byte theByte)
 				}
 				if (theByte < ' ')
 				{
-					if ((theByte == '\n') && ((TKF_USES_EOL & m_flags) != 0))
+					if ((theByte == '\n') && Any(TKF_USES_EOL & m_flags))
 					{
 						PutBackToken(CUserToken::Create(TK_EOL, "-EOLN-"));
 						break;

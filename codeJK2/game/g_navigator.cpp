@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_navigator.h"
 #include "g_nav.h"
 
-extern int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
+extern int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, contentsFlags_t clipmask);
 extern bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum );
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool G_EntIsDoor( int entityNum );
@@ -95,7 +95,7 @@ Create
 -------------------------
 */
 
-CNode *CNode::Create( vec3_t position, int flags, int radius, int ID )
+CNode *CNode::Create( vec3_t position, navNodeFlags_t flags, int radius, int ID )
 {
 	CNode	*node = new CNode;
 
@@ -125,7 +125,7 @@ AddEdge
 -------------------------
 */
 
-void CNode::AddEdge( int ID, int cost, int flags )
+void CNode::AddEdge( int ID, int cost, navEdgeFlags_t flags )
 {
 	if ( m_numEdges )
 	{//already have at least 1
@@ -266,10 +266,10 @@ GetEdgeFlags
 -------------------------
 */
 
-unsigned char CNode::GetEdgeFlags( int edgeNum )
+navEdgeFlags_t CNode::GetEdgeFlags( int edgeNum )
 {
 	if ( edgeNum > m_numEdges )
-		return 0;
+		return EFLAG_NONE;
 
 	int count = 0;
 
@@ -284,7 +284,7 @@ unsigned char CNode::GetEdgeFlags( int edgeNum )
 		count++;
 	}
 
-	return 0;
+	return EFLAG_NONE;
 }
 
 /*
@@ -293,7 +293,7 @@ SetEdgeFlags
 -------------------------
 */
 
-void CNode::SetEdgeFlags( int edgeNum, int newFlags )
+void CNode::SetEdgeFlags( int edgeNum, navEdgeFlags_t newFlags )
 {
 	if ( edgeNum > m_numEdges )
 		return;
@@ -461,7 +461,7 @@ FlagAllNodes
 -------------------------
 */
 
-void CNavigator::FlagAllNodes( int newFlag )
+void CNavigator::FlagAllNodes( navNodeFlags_t newFlag )
 {
 	node_v::iterator	ni;
 
@@ -672,7 +672,7 @@ AddRawPoint
 -------------------------
 */
 
-int CNavigator::AddRawPoint( vec3_t point, int flags, int radius )
+int CNavigator::AddRawPoint( vec3_t point, navNodeFlags_t flags, int radius )
 {
 	CNode	*node	= CNode::Create( point, flags, radius, m_nodes.size() );
 
@@ -967,7 +967,7 @@ void CNavigator::ShowEdges( void )
 			if ( drawMap[(*ni)->GetID()].find( id ) != drawMap[(*ni)->GetID()].end() )
 				continue;
 
-			unsigned char flags = (*ni)->GetEdgeFlags( i );
+			navEdgeFlags_t flags = (*ni)->GetEdgeFlags( i );
 
 			CNode	*node = m_nodes[id];
 
@@ -986,7 +986,7 @@ void CNavigator::ShowEdges( void )
 
 			if ( EdgeFailed( id, (*ni)->GetID() ) != -1 )//flags & EFLAG_FAILED )
 				CG_DrawEdge( start, end, EDGE_FAILED );
-			else if ( flags & EFLAG_BLOCKED )
+			else if ( Any( flags & EFLAG_BLOCKED ) )
 				CG_DrawEdge( start, end, EDGE_BLOCKED );
 			else
 				CG_DrawEdge( start, end, EDGE_NORMAL );
@@ -1007,7 +1007,8 @@ void CNavigator::CheckBlockedEdges( void )
 {
 	CNode	*start, *end;
 	vec3_t	p1, p2;
-	int		flags, first, second;
+	navEdgeFlags_t	flags;
+	int		first, second;
 	trace_t	trace;
 	bool failed;
 	int		edgeNum;
@@ -1020,7 +1021,7 @@ void CNavigator::CheckBlockedEdges( void )
 		for ( edgeNum = 0; edgeNum < (*ni)->GetNumEdges(); edgeNum++ )
 		{
 			flags = (*ni)->GetEdgeFlags( edgeNum );
-			if ( (flags&EFLAG_BLOCKED) )
+			if ( Any(flags&EFLAG_BLOCKED) )
 			{
 				first	= (*ni)->GetID();
 				second	= (*ni)->GetEdge( edgeNum );
@@ -1094,7 +1095,7 @@ void CNavigator::HardConnect( int first, int second )
 
 	trace_t	trace;
 
-	int		flags = EFLAG_NONE;
+	navEdgeFlags_t	flags = EFLAG_NONE;
 
 	gi.trace( &trace, p1, wpMins, wpMaxs, p2, ENTITYNUM_NONE, MASK_SOLID|CONTENTS_BOTCLIP|CONTENTS_MONSTERCLIP, G2_NOCOLLIDE, 0 );
 
@@ -1119,7 +1120,7 @@ TestNodePath
 
 int CNavigator::TestNodePath( gentity_t *ent, int okToHitEntNum, vec3_t position, bool includeEnts )
 {
-	int clipmask = ent->clipmask;
+	contentsFlags_t clipmask = ent->clipmask;
 
 	if ( !includeEnts )
 	{
@@ -1149,7 +1150,7 @@ TestBestFirst
 -------------------------
 */
 
-int	CNavigator::TestBestFirst( gentity_t *ent, int lastID, int flags )
+int	CNavigator::TestBestFirst( gentity_t *ent, int lastID, navNodeFlags_t flags )
 {
 	//Must be a valid one to begin with
 	if ( lastID == NODE_NONE )
@@ -1287,7 +1288,7 @@ int CNavigator::CollectNearestNodes( vec3_t origin, int radius, int maxCollect, 
 	return collected;
 }
 
-int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int flags )
+int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, navNodeFlags_t flags )
 {
 	//Must have nodes
 	if ( m_nodes.size() == 0 )
@@ -1311,7 +1312,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 	CNode				*node, *node2;
 	int					nodeNum, nodeNum2;
 	int					nextNode = NODE_NONE, bestNode = NODE_NONE;
-	int					nodeFlags = 0;
+	navNodeFlags_t		nodeFlags = NF_ANY;
 //	bool				recalc = false;
 
 	ent->waypoint = NODE_NONE;
@@ -1348,7 +1349,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 				//We're not *within* this node, so check clear path, etc.
 
 				//FIXME: any way to call G_FindClosestPointOnLineSegment and see if I can at least get to the waypoint's path
-				if ( flags & NF_CLEAR_PATH )//|| flags & NF_CLEAR_LOS )
+				if ( Any( flags & NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
 				{//need a clear path or LOS
 					if ( !gi.inPVS( ent->currentOrigin, position ) )
 					{//not even potentially clear
@@ -1358,7 +1359,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 				}
 
 				//Do we need a clear path?
-				if ( flags & NF_CLEAR_PATH )
+				if ( Any( flags & NF_CLEAR_PATH ) )
 				{
 					if ( TestNodePath( ent, goal->s.number, position, true ) == false )
 					{
@@ -1374,7 +1375,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 		{
 			//calc the paths for this node if they're out of date
 			nodeFlags = node->GetFlags();
-			if ( (nodeFlags&NF_RECALC) )
+			if ( Any(nodeFlags&NF_RECALC) )
 			{
 				//gi.Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum );
 				CalculatePath( node );
@@ -1389,7 +1390,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 			{
 				//calc the paths for this node if they're out of date
 				nodeFlags = node2->GetFlags();
-				if ( (nodeFlags&NF_RECALC) )
+				if ( Any(nodeFlags&NF_RECALC) )
 				{
 					//gi.Printf( S_COLOR_CYAN"%d recalcing paths from node %d\n", level.time, nodeNum2 );
 					CalculatePath( node2 );
@@ -1437,7 +1438,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 				{
 					//We're not *within* this node, so check clear path, etc.
 
-					if ( flags & NF_CLEAR_PATH )//|| flags & NF_CLEAR_LOS )
+					if ( Any( flags & NF_CLEAR_PATH ) )//|| Any(flags & NF_CLEAR_LOS) )
 					{//need a clear path or LOS
 						if ( !gi.inPVS( goal->currentOrigin, position2 ) )
 						{//not even potentially clear
@@ -1446,7 +1447,7 @@ int CNavigator::GetBestPathBetweenEnts( gentity_t *ent, gentity_t *goal, int fla
 						}
 					}
 					//Do we need a clear path?
-					if ( flags & NF_CLEAR_PATH )
+					if ( Any( flags & NF_CLEAR_PATH ) )
 					{
 						if ( TestNodePath( goal, ent->s.number, position2, false ) == false )//true?
 						{
@@ -1481,7 +1482,7 @@ GetNearestWaypoint
 -------------------------
 */
 
-int CNavigator::GetNearestNode( gentity_t *ent, int lastID, int flags, int targetID )
+int CNavigator::GetNearestNode( gentity_t *ent, int lastID, navNodeFlags_t flags, int targetID )
 {
 	int	bestNode = NODE_NONE;
 	//Must have nodes
@@ -1550,7 +1551,7 @@ int CNavigator::GetNearestNode( gentity_t *ent, int lastID, int flags, int targe
 		else
 		{
 			//Do we need a clear path?
-			if ( flags & NF_CLEAR_PATH )
+			if ( Any( flags & NF_CLEAR_PATH ) )
 			{
 				if ( TestNodePath( ent, ENTITYNUM_NONE, position, false ) == false )//true?
 				{
@@ -1561,7 +1562,7 @@ int CNavigator::GetNearestNode( gentity_t *ent, int lastID, int flags, int targe
 
 			//Do we need a clear line of sight?
 			/*
-			if ( flags & NF_CLEAR_LOS )
+			if ( Any( flags & NF_CLEAR_LOS ) )
 			{
 				if ( TestNodeLOS( ent, position ) == false )
 				{
@@ -1804,7 +1805,7 @@ void CNavigator::ClearFailedEdge( failedEdge_t *failedEdge )
 	/*
 	CNode *node = m_nodes[failedEdge->startID];
 	int edgeNum = node->GetEdgeNumToNode( failedEdge->endID );
-	int	flags;
+	navEdgeFlags_t	flags;
 	if ( edgeNum != -1 )
 	{
 		flags = node->GetEdgeFlags( edgeNum )&~EFLAG_FAILED;
@@ -1981,7 +1982,7 @@ void CNavigator::AddFailedEdge( int entID, int startID, int endID )
 			/*
 			CNode *node = m_nodes[startID];
 			int edgeNum = node->GetEdgeNumToNode( endID );
-			int	flags;
+			navEdgeFlags_t	flags;
 			if ( edgeNum != -1 )
 			{
 				flags = node->GetEdgeFlags( edgeNum )|EFLAG_FAILED;
@@ -2028,7 +2029,8 @@ bool CNavigator::CheckFailedEdge( failedEdge_t *failedEdge )
 		if ( failedEdge->startID != WAYPOINT_NONE )
 		{
 			vec3_t		start, end, mins, maxs;
-			int			ignore, clipmask;
+			int			ignore;
+			contentsFlags_t	clipmask;
 			gentity_t	*ent = (failedEdge->entID<ENTITYNUM_WORLD)?&g_entities[failedEdge->entID]:nullptr;
 			int			hitEntNum;
 

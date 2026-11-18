@@ -39,10 +39,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_AVOIDGOALS			256
 #define MAX_GOALSTACK			8
 
-#define GFL_NONE				0
-#define GFL_ITEM				1
-#define GFL_ROAM				2
-#define GFL_DROPPED				4
+enum class goalFlags_t
+{
+	GFL_NONE				= 0,
+	GFL_ITEM				= 1,
+	GFL_ROAM				= 2,
+	GFL_DROPPED				= 4,
+};
+using enum goalFlags_t;
+template <> inline constexpr bool enableEnumFlags<goalFlags_t> = true;
 
 //a bot goal
 typedef struct bot_goal_s
@@ -52,7 +57,7 @@ typedef struct bot_goal_s
 	vec3_t mins, maxs;			//mins and maxs of the goal
 	int entitynum;				//number of the goal entity
 	int number;					//goal number
-	int flags;					//goal flags
+	goalFlags_t flags;					//goal flags
 	int iteminfo;				//item information
 } bot_goal_t;
 
@@ -79,12 +84,12 @@ int BotGetTopGoal(int goalstate, bot_goal_t *goal);
 //get the second goal on the stack
 int BotGetSecondGoal(int goalstate, bot_goal_t *goal);
 //choose the best long term goal item for the bot
-int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelflags);
+int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags);
 //choose the best nearby goal item for the bot
 //the item may not be further away from the current bot position than maxtime
 //also the travel time from the nearby goal towards the long term goal may not
 //be larger than the travel time towards the long term goal from the current bot position
-int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelflags,
+int BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, travelFlags_t travelflags,
 							bot_goal_t *ltg, float maxtime);
 //returns true if the bot touches the goal
 int BotTouchingGoal(vec3_t origin, bot_goal_t *goal);

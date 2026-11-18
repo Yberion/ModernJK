@@ -210,7 +210,7 @@ typedef struct client_s {
 	int				inputMargin;		// how early the last command measured came before its tick ran, in ms (negative:
 										// after it)
 	bool		inputMarginNew;		// measured since the last snapshot: sent in the next one, once
-	int				lateButtons;		// what the commands that came after their tick newly pressed, for the next
+	buttonFlags_t				lateButtons;		// what the commands that came after their tick newly pressed, for the next
 	int				lateUpmove;			// command run
 	int				lateGeneric;
 	int				lastMessageNum;		// for delta compression
@@ -270,7 +270,7 @@ typedef struct serverStatic_s {
 	int			time;						// will be strictly increasing across level changes
 	time_t		startTime;					// time since epoch the executable was started
 
-	int			snapFlagServerBit;			// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
+	snapFlags_t	snapFlagServerBit;			// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
 
 	client_t	*clients;					// [sv_maxclients->integer];
 	// The entity states of the snapshots (plan step 14, part 5): one copy of an entity's state while it does not
@@ -467,7 +467,7 @@ void SV_SendClientMessages( void );
 void SV_SendClientSnapshot( client_t *client );
 clientSnapshot_t *SV_SnapshotBase( client_t *client, int *lastframe );
 int SV_SnapshotTime( const client_t *client );
-int SV_SnapshotFlags( const client_t *client );
+snapFlags_t SV_SnapshotFlags( const client_t *client );
 void SV_WriteSnapshotToClient( client_t *client, msg_t *msg, clientSnapshot_t *oldframe, int lastframe );
 
 //
@@ -556,11 +556,11 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 // The world entity is never returned in this list.
 
 
-int SV_PointContents( const vec3_t p, int passEntityNum );
+contentsFlags_t SV_PointContents( const vec3_t p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
 
-void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod );
+void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, contentsFlags_t contentmask, int capsule, g2TraceFlags_t traceFlags, int useLod );
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,
@@ -572,7 +572,7 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 // passEntityNum is explicitly excluded from clipping checks (normally ENTITYNUM_NONE)
 
 
-void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule );
+void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, contentsFlags_t contentmask, int capsule );
 // clip to a specific entity
 
 //

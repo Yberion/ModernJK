@@ -38,7 +38,7 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 {
 	vec3_t forward;
 
- 	if (cent->currentState.eFlags & EF_USE_ANGLEDELTA)
+ 	if (Any( cent->currentState.eFlags & EF_USE_ANGLEDELTA ))
 	{
 		AngleVectors(cent->currentState.angles, forward, nullptr, nullptr);
 	}

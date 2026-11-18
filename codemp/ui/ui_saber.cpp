@@ -355,11 +355,11 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 
     memset (axis, 0, sizeof (axis));
 
-	if ( (item->flags&ITF_ISSABER) && saberModel < 2 )
+	if ( Any( item->flags&ITF_ISSABER ) && saberModel < 2 )
 	{
 		trap->Cvar_VariableStringBuffer("ui_saber_color", bladeColorString, sizeof(bladeColorString) );
 	}
-	else//if ( item->flags&ITF_ISSABER2 ) - presumed
+	else//if ( Any( item->flags&ITF_ISSABER2 ) ) - presumed
 	{
 		trap->Cvar_VariableStringBuffer("ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
 	}
@@ -642,7 +642,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 	int saberModel = 0;
 	int	numSabers = 1;
 
-	if ( (item->flags&ITF_ISCHARACTER)//hacked sabermoves sabers in character's hand
+	if ( Any( item->flags&ITF_ISCHARACTER )//hacked sabermoves sabers in character's hand
 		&& uiInfo.movesTitleIndex == MD_DUAL_SABERS )
 	{
 		numSabers = 2;
@@ -650,12 +650,12 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 
 	for ( saberNum = 0; saberNum < numSabers; saberNum++ )
 	{
-		if ( (item->flags&ITF_ISCHARACTER) )//hacked sabermoves sabers in character's hand
+		if ( Any( item->flags&ITF_ISCHARACTER ) )//hacked sabermoves sabers in character's hand
 		{
 			UI_GetSaberForMenu( saber, saberNum );
 			saberModel = saberNum + 1;
 		}
-		else if ( (item->flags&ITF_ISSABER) )
+		else if ( Any( item->flags&ITF_ISSABER ) )
 		{
 			trap->Cvar_VariableStringBuffer("ui_saber", saber, sizeof(saber) );
 			if ( !UI_SaberValidForPlayerInMP( saber ) )
@@ -665,7 +665,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 			}
 			saberModel = 0;
 		}
-		else if ( (item->flags&ITF_ISSABER2) )
+		else if ( Any( item->flags&ITF_ISSABER2 ) )
 		{
 			trap->Cvar_VariableStringBuffer("ui_saber2", saber, sizeof(saber) );
 			if ( !UI_SaberValidForPlayerInMP( saber ) )

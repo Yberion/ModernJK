@@ -73,8 +73,8 @@ static void Scoreboard_Draw( void )
 
 	CG_DrawPic(40,357, 58, 18, cgs.media.whiteShader);	// Bottom
 
-	CG_DrawProportionalString( 356, 208, "%", UI_RIGHT | UI_SMALLFONT, colorTable[CT_LTPURPLE1] );
-	CG_DrawProportionalString( 610, 72, ingame_text[IGT_MISSIONANALYSIS],UI_RIGHT| CG_BIGFONT, colorTable[CT_LTORANGE] );
+	CG_DrawProportionalString( 356, 208, "%", CG_RIGHT | CG_SMALLFONT, colorTable[CT_LTPURPLE1] );
+	CG_DrawProportionalString( 610, 72, ingame_text[IGT_MISSIONANALYSIS],CG_RIGHT| CG_BIGFONT, colorTable[CT_LTORANGE] );
 
 	CG_PrintScreenGraphics(statsmenu_graphics,SMG_MAX);
 

@@ -127,7 +127,7 @@ Draw all the status / pacifier stuff during level loading
 ====================
 overlays UI_DrawConnectScreen
 */
-#define UI_INFOFONT (UI_BIGFONT)
+constexpr textStyleFlags_t UI_INFOFONT = UI_BIGFONT;
 void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info;

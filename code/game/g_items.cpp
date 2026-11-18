@@ -358,8 +358,8 @@ bool Pickup_Saber( gentity_t *self, bool hadSaber, gentity_t *pickUpSaber )
 				removeLeftSaber = true;
 			}
 			else if ( pickUpSaber->loopAnim//only supposed to use this one saber when grab this pickup
-				|| (newSaber.saberFlags&SFL_TWO_HANDED) //new saber is two-handed
-				|| (hadSaber && (self->client->ps.saber[0].saberFlags&SFL_TWO_HANDED)) )//old saber is two-handed
+				|| Any( newSaber.saberFlags & SFL_TWO_HANDED ) //new saber is two-handed
+				|| (hadSaber && Any( self->client->ps.saber[0].saberFlags & SFL_TWO_HANDED )) )//old saber is two-handed
 			{//replace the old right-hand saber and remove the left hand one
 				saberNum = 0;
 				removeLeftSaber = true;
@@ -466,7 +466,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	*/
 
 	// dropped items are always picked up
-	if ( ent->flags & FL_DROPPED_ITEM )
+	if ( Any( ent->flags & FL_DROPPED_ITEM ) )
 	{
 		quantity = ent->count;
 	}
@@ -673,14 +673,14 @@ bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 		GI_Inventory( *item->item ) == INV_SECURITY_KEY ) {
 		return false;
 	}
-	if ( (item->flags&FL_DROPPED_ITEM)
+	if ( Any( item->flags & FL_DROPPED_ITEM )
 		&& item->activator != &g_entities[0]
 		&& pickerupper->s.number
 		&& pickerupper->s.weapon == WP_NONE
 		&& pickerupper->enemy
 		&& pickerupper->painDebounceTime < level.time
 		&& pickerupper->NPC && pickerupper->NPC->surrenderTime < level.time //not surrendering
-		&& !(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) ) // not being forced to march
+		&& !Any(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) ) // not being forced to march
 	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
 		if ( level.time - item->s.time < 3000 )//was 5000
 		{
@@ -795,7 +795,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	if ( other->client )
 	{
-		if ( (other->client->ps.eFlags&EF_FORCE_GRIPPED) || (other->client->ps.eFlags&EF_FORCE_DRAINED) )
+		if ( Any(other->client->ps.eFlags&EF_FORCE_GRIPPED) || Any(other->client->ps.eFlags&EF_FORCE_DRAINED) )
 		{//can't pick up anything while being gripped
 			return;
 		}
@@ -821,7 +821,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( other->s.number < MAX_CLIENTS
 		&& (ent->spawnflags&ITMSF_USEPICKUP) )
 	{//only if player is holing use button
-		if ( !(other->client->usercmd.buttons&BUTTON_USE) )
+		if ( !Any(other->client->usercmd.buttons&BUTTON_USE) )
 		{//not holding use?
 			return;
 		}
@@ -1059,7 +1059,7 @@ Respawn the item
 */
 void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	if ( (ent->svFlags&SVF_PLAYER_USABLE) && other && !other->s.number )
+	if ( Any( ent->svFlags & SVF_PLAYER_USABLE ) && other && !other->s.number )
 	{//used directly by the player, pick me up
 		if ( (ent->spawnflags&ITMSF_USEPICKUP) )
 		{//player has to be touching me and hit use to pick it up, so don't allow this
@@ -1189,7 +1189,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	// Hang in air?
 	ent->s.origin[2] += 1;//just to get it off the damn ground because coplanar = insolid
 	if ( (ent->spawnflags&ITMSF_SUSPEND)
-		|| (ent->flags&FL_DROPPED_ITEM) )
+		|| Any( ent->flags & FL_DROPPED_ITEM ) )
 	{
 		// suspended
 		G_SetOrigin( ent, ent->s.origin );
@@ -1225,7 +1225,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 /* ? don't need this
 	// team slaves and targeted items aren't present at start
-	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
+	if ( Any( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->contents = 0;
 		return;
@@ -1234,12 +1234,12 @@ void FinishSpawningItem( gentity_t *ent ) {
 	if ( ent->spawnflags & ITMSF_INVISIBLE ) // invisible
 	{
 		ent->s.eFlags |= EF_NODRAW;
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 	}
 
 	if ( ent->spawnflags & ITMSF_NOTSOLID ) // not solid
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 	}
 
 	if ( (ent->spawnflags&ITMSF_STATIONARY) )
@@ -1247,7 +1247,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->flags |= FL_NO_KNOCKBACK;
 	}
 
-	if ( (ent->flags&FL_DROPPED_ITEM) )
+	if ( Any( ent->flags & FL_DROPPED_ITEM ) )
 	{//go away after 30 seconds
 		ent->e_ThinkFunc = thinkF_G_FreeEntity;
 		ent->nextthink = level.time + 30000;
@@ -1416,7 +1416,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	if ( ent->item
 		&& ent->item->giType == IT_WEAPON
 		&& GI_Weapon( *ent->item ) == WP_SABER
-		&& (ent->flags&FL_DROPPED_ITEM) )
+		&& Any( ent->flags & FL_DROPPED_ITEM ) )
 	{
 		droppedSaber = true;
 	}
@@ -1453,7 +1453,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 				saberInfo_t saber;
 				if ( WP_SaberParseParms( ent->NPC_type, &saber ) )
 				{
-					if ( (saber.saberFlags&SFL_BOLT_TO_WRIST) )
+					if ( Any( saber.saberFlags & SFL_BOLT_TO_WRIST ) )
 					{
 						ent->currentAngles[PITCH] = 0;
 					}
@@ -1489,8 +1489,8 @@ G_RunItem
 void G_RunItem( gentity_t *ent ) {
 	vec3_t		origin;
 	trace_t		tr;
-	int			contents;
-	int			mask;
+	contentsFlags_t	contents;
+	contentsFlags_t	mask;
 
 	// if groundentity has been set to -1, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE )
@@ -1514,13 +1514,13 @@ void G_RunItem( gentity_t *ent ) {
 			ent->s.pos.trDelta[1] += Q_flrand(-1.0f, 1.0f) * 40.0f;
 			ent->s.pos.trDelta[2] += Q_flrand(0.0f, 1.0f) * 20.0f;
 		}
-		else if ( (ent->flags&FL_DROPPED_ITEM)
+		else if ( Any( ent->flags & FL_DROPPED_ITEM )
 			&& ent->item
 			&& ent->item->giType == IT_WEAPON
 			&& GI_Weapon( *ent->item ) == WP_SABER )
 		{//a dropped saber item, check below, just in case
 			int ignore = ENTITYNUM_NONE;
-			if ( ent->clipmask )
+			if ( Any( ent->clipmask ) )
 			{
 				mask = ent->clipmask;
 			}
@@ -1558,7 +1558,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// trace a line from the previous position to the current position
-	if ( ent->clipmask )
+	if ( Any( ent->clipmask ) )
 	{
 		mask = ent->clipmask;
 	}
@@ -1623,7 +1623,7 @@ void G_RunItem( gentity_t *ent ) {
 
 	// if it is in a nodrop volume, remove it
 	contents = gi.pointcontents( ent->currentOrigin, -1 );
-	if ( contents & CONTENTS_NODROP )
+	if ( Any( contents & CONTENTS_NODROP ) )
 	{
 		G_FreeEntity( ent );
 		return;

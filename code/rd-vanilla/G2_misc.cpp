@@ -538,21 +538,21 @@ void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	const surfaceInfo_t	*surfOverride = G2_FindOverrideSurface(surfaceNum, rootSList);
 
 	// really, we should use the default flags for this surface unless it's been overriden
-	int offFlags = surfInfo->flags;
+	g2SurfaceFlags_t offFlags = G2_SurfaceFlags( surfInfo );
 
   	if (surfOverride)
 	{
 		offFlags = surfOverride->offFlags;
 	}
 	// if this surface is not off, add it to the shader render list
-	if (!offFlags)
+	if (!Any( offFlags) )
 	{
 
 		R_TransformEachSurface(surface, scale, G2VertSpace, TransformedVertArray, boneCache);
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
+	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -581,7 +581,7 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 #ifndef JK2_MODE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0 );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -1489,7 +1489,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// really, we should use the default flags for this surface unless it's been overriden
-	int offFlags = surfInfo->flags;
+	g2SurfaceFlags_t offFlags = G2_SurfaceFlags( surfInfo );
 
 	// set the off flags if we have some
 	if (surfOverride)
@@ -1498,7 +1498,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if this surface is not off, try to hit it
-	if (!offFlags)
+	if (!Any( offFlags) )
 	{
 #ifdef _G2_GORE
 		if (TS.collRecMap)
@@ -1541,7 +1541,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 	}
 
 	// if we are turning off all descendants, then stop this recursion now
-	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
+	if (Any( offFlags & G2SURFACEFLAG_NODESCENDANTS ))
 	{
 		return;
 	}
@@ -1571,7 +1571,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 #ifndef JK2_MODE
 	if ( cg_g2MarksAllModels == nullptr )
 	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0 );
+		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", CVAR_NONE );
 	}
 
 	if (cg_g2MarksAllModels == nullptr
@@ -1609,7 +1609,7 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, CColl
 		}
 		assert(G2_MODEL_OK(&ghoul2[i]));
 		// do we really want to collide with this object?
-		if (g.mFlags & GHOUL2_NOCOLLIDE)
+		if (Any( g.mFlags & GHOUL2_NOCOLLIDE ))
 		{
 			continue;
 		}

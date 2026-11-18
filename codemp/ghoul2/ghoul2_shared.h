@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "rd-common/tr_types.h"
 #include "qcommon/matcomp.h"
 #include "ghoul2/G2_gore.h"
+#include "ghoul2/G2.h"
 
 struct model_s;
 
@@ -47,7 +48,7 @@ struct model_s;
 // we save the whole surfaceInfo_t struct
 struct surfaceInfo_t
 {
-	int			offFlags;		// what the flags are for this model
+	g2SurfaceFlags_t	offFlags;		// what the flags are for this model
 	int			surface;		// index into array held inside the model definition of pointers to the actual surface data loaded in - used by both client and game
 	float		genBarycentricJ;	// point 0 barycentric coors
 	float		genBarycentricI;	// point 1 barycentric coors - point 2 is 1 - point0 - point1
@@ -55,7 +56,7 @@ struct surfaceInfo_t
 	int			genLod;			// used to determine original lod of original surface and poly hit location
 
 	surfaceInfo_t()
-	: offFlags(0)
+	: offFlags(G2SURFACEFLAG_NONE)
 	, surface(0)
 	, genBarycentricJ(0)
 	, genBarycentricI(0)
@@ -72,7 +73,7 @@ struct  boneInfo_t
 {
 	int			boneNumber;		// what bone are we overriding?
 	mdxaBone_t	matrix;			// details of bone angle overrides - some are pre-done on the server, some in ghoul2
-	int			flags;			// flags for override
+	boneFlags_t	flags;			// flags for override
 	int			startFrame;		// start frame for animation
 	int			endFrame;		// end frame for animation NOTE anim actually ends on endFrame+1
 	int			startTime;		// time we started this animation
@@ -106,7 +107,7 @@ struct  boneInfo_t
 	int			firstTime;
 	int			firstCollisionTime;
 	int			restTime;
-	int			RagFlags;
+	ragBoneFlags_t	RagFlags;
 	int			DependentRagIndexMask;
 	mdxaBone_t	originalTrueBoneMatrix;
 	mdxaBone_t	parentTrueBoneMatrix;			// figure I will need this sooner or later
@@ -153,7 +154,7 @@ struct  boneInfo_t
 
 	boneInfo_t()
 	: boneNumber(-1)
-	, flags(0)
+	, flags(BONE_NONE)
 	, startFrame(0)
 	, endFrame(0)
 	, startTime(0)
@@ -166,7 +167,7 @@ struct  boneInfo_t
 	, boneBlendTime(0)
 	, boneBlendStart(0)
 	, lastTime(0)
-	, RagFlags(0)
+	, RagFlags(RAG_NONE)
 	{
 		Com_Memset(&matrix, 0, sizeof(matrix));
 	}
@@ -176,13 +177,13 @@ struct  boneInfo_t
 struct boltInfo_t{
 	int			boneNumber;		// bone number bolt attaches to
 	int			surfaceNumber;	// surface number bolt attaches to
-	int			surfaceType;	// if we attach to a surface, this tells us if it is an original surface or a generated one - doesn't go across the network
+	g2SurfaceFlags_t	surfaceType;	// if we attach to a surface, this tells us if it is an original surface or a generated one - doesn't go across the network
 	int			boltUsed;		// nor does this
 	mdxaBone_t	position;		// this does not go across the network
 	boltInfo_t():
 	boneNumber(-1),
 	surfaceNumber(-1),
-	surfaceType(0),
+	surfaceType(G2SURFACEFLAG_NONE),
 	boltUsed(0)
 	{}
 };
@@ -233,13 +234,30 @@ typedef std::vector <boltInfo_t> boltInfo_v;
 typedef std::vector <std::pair<int,mdxaBone_t> > mdxaBone_v;
 
 // defines for stuff to go into the mflags
-#define		GHOUL2_NOCOLLIDE 0x001
-#define		GHOUL2_NORENDER	 0x002
-#define		GHOUL2_NOMODEL	 0x004
-#define		GHOUL2_NEWORIGIN 0x008
+enum class ghoul2Flags_t
+{
+	GHOUL2_NONE = 0,
+	GHOUL2_NOCOLLIDE = 0x001,
+	GHOUL2_NORENDER	 = 0x002,
+	GHOUL2_NOMODEL	 = 0x004,
+	GHOUL2_NEWORIGIN = 0x008,
 
-//for transform optimization -rww
-#define		GHOUL2_ZONETRANSALLOC	0x2000
+	//for transform optimization -rww
+	GHOUL2_ZONETRANSALLOC	= 0x2000,
+
+	// thiese flags are on the model and correspond to...
+	//GHOUL2_RESERVED_FOR_RAGDOLL = 0x0ff0,  // these are not defined here for dependecies sake
+	GHOUL2_RAG_STARTED						= 0x0010,  // we are actually a ragdoll
+	GHOUL2_RAG_PENDING						= 0x0100,  // got start death anim but not end death anim
+	GHOUL2_RAG_DONE							= 0x0200,		// got end death anim
+	GHOUL2_RAG_COLLISION_DURING_DEATH		= 0x0400,		// ever have gotten a collision (da) event
+	GHOUL2_RAG_COLLISION_SLIDE				= 0x0800,		// ever have gotten a collision (slide) event
+	GHOUL2_RAG_FORCESOLVE					= 0x1000,		//api-override, determine if ragdoll should be forced to continue solving even if it thinks it is settled
+
+	GHOUL2_CRAZY_SMOOTH						= 0x4000		//hack for smoothing during ugly situations. forgive me.
+};
+using enum ghoul2Flags_t;
+template <> inline constexpr bool enableEnumFlags<ghoul2Flags_t> = true;
 
 class CBoneCache;
 
@@ -266,7 +284,7 @@ public:
 	int				mAnimFrameDefault;
 	int				mSkelFrameNum;
 	int				mMeshFrameNum;
-	int				mFlags;	// used for determining whether to do full collision detection against this object
+	ghoul2Flags_t	mFlags;	// used for determining whether to do full collision detection against this object
 // to here
 	size_t			*mTransformedVertsArray;	// used to create an array of pointers to transformed verts per surface for collision detection
 	CBoneCache		*mBoneCache;
@@ -300,7 +318,7 @@ public:
 	mAnimFrameDefault(0),
 	mSkelFrameNum(-1),
 	mMeshFrameNum(-1),
-	mFlags(0),
+	mFlags(GHOUL2_NONE),
 	mTransformedVertsArray(nullptr),
 	mBoneCache(nullptr),
 	mSkin(0),

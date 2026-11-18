@@ -283,7 +283,7 @@ void NPC_BSMineMonster_Default( void )
 	{
 		MineMonster_Combat();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		MineMonster_Patrol();
 	}

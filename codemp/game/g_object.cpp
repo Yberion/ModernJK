@@ -52,7 +52,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	VectorMA( velocity, -2*dot*bounceFactor, trace->plane.normal, ent->s.pos.trDelta );
 
 	//FIXME: customized or material-based impact/bounce sounds
-	if ( ent->flags & FL_BOUNCE_HALF )
+	if ( Any( ent->flags & FL_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
@@ -123,7 +123,7 @@ void G_RunObject( gentity_t *ent )
 	}
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
-	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, false, 0, 0 );
+	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, false, G2TRFLAG_NONE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction )
 	{
@@ -138,10 +138,10 @@ void G_RunObject( gentity_t *ent )
 
 	G_MoverTouchPushTriggers( ent, oldOrg );
 	/*
-	if ( !(ent->s.eFlags & EF_TELEPORT_BIT) && !(ent->svFlags & SVF_NO_TELEPORT) )
+	if ( !Any(ent->s.eFlags & EF_TELEPORT_BIT) && !Any( ent->svFlags & SVF_NO_TELEPORT ) )
 	{
 		G_MoverTouchTeleportTriggers( ent, oldOrg );
-		if ( ent->s.eFlags & EF_TELEPORT_BIT )
+		if ( Any( ent->s.eFlags & EF_TELEPORT_BIT ) )
 		{//was teleported
 			return;
 		}
@@ -216,7 +216,7 @@ void G_RunObject( gentity_t *ent )
 	{//FIXME: only do this if no trDelta
 		if ( g_gravity.value <= 0 || tr.plane.normal[2] < 0.7 )
 		{
-			if ( ent->flags&(FL_BOUNCE|FL_BOUNCE_HALF) )
+			if ( Any( ent->flags & (FL_BOUNCE|FL_BOUNCE_HALF) ) )
 			{
 				if ( tr.fraction <= 0.0f )
 				{

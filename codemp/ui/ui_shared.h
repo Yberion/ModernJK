@@ -41,34 +41,40 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_OPEN_MENUS				64 //16
 #define	MAX_TEXTSCROLL_LINES		256
 
-#define WINDOW_MOUSEOVER			0x00000001	// mouse is over it, non exclusive
-#define WINDOW_HASFOCUS				0x00000002	// has cursor focus, exclusive
-#define WINDOW_VISIBLE				0x00000004	// is visible
-#define WINDOW_INACTIVE				0x00000008	// is visible but grey ( non-active )
-#define WINDOW_DECORATION			0x00000010	// for decoration only, no mouse, keyboard, etc..
-#define WINDOW_FADINGOUT			0x00000020	// fading out, non-active
-#define WINDOW_FADINGIN				0x00000040	// fading in
-#define WINDOW_MOUSEOVERTEXT		0x00000080	// mouse is over it, non exclusive
-#define WINDOW_INTRANSITION			0x00000100	// window is in transition
-#define WINDOW_FORECOLORSET			0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
-#define WINDOW_HORIZONTAL			0x00000400	// for list boxes and sliders, vertical is default this is set of horizontal
-#define WINDOW_LB_LEFTARROW			0x00000800	// mouse is over left/up arrow
-#define WINDOW_LB_RIGHTARROW		0x00001000	// mouse is over right/down arrow
-#define WINDOW_LB_THUMB				0x00002000	// mouse is over thumb
-#define WINDOW_LB_PGUP				0x00004000	// mouse is over page up
-#define WINDOW_LB_PGDN				0x00008000	// mouse is over page down
-#define WINDOW_ORBITING				0x00010000	// item is in orbit
-#define WINDOW_OOB_CLICK			0x00020000	// close on out of bounds click
-#define WINDOW_WRAPPED				0x00040000	// manually wrap text
-#define WINDOW_AUTOWRAPPED			0x00080000	// auto wrap text
-#define WINDOW_FORCED				0x00100000	// forced open
-#define WINDOW_POPUP				0x00200000	// popup
-#define WINDOW_BACKCOLORSET			0x00400000	// backcolor was explicitly set
-#define WINDOW_TIMEDVISIBLE			0x00800000	// visibility timing ( NOT implemented )
-#define WINDOW_PLAYERCOLOR			0x01000000	// hack the forecolor to match ui_char_color_*
+enum class windowFlags_t
+{
+	WINDOW_NONE = 0,
+	WINDOW_MOUSEOVER			= 0x00000001,	// mouse is over it, non exclusive
+	WINDOW_HASFOCUS				= 0x00000002,	// has cursor focus, exclusive
+	WINDOW_VISIBLE				= 0x00000004,	// is visible
+	WINDOW_INACTIVE				= 0x00000008,	// is visible but grey ( non-active )
+	WINDOW_DECORATION			= 0x00000010,	// for decoration only, no mouse, keyboard, etc..
+	WINDOW_FADINGOUT			= 0x00000020,	// fading out, non-active
+	WINDOW_FADINGIN				= 0x00000040,	// fading in
+	WINDOW_MOUSEOVERTEXT		= 0x00000080,	// mouse is over it, non exclusive
+	WINDOW_INTRANSITION			= 0x00000100,	// window is in transition
+	WINDOW_FORECOLORSET			= 0x00000200,	// forecolor was explicitly set ( used to color alpha images or not )
+	WINDOW_HORIZONTAL			= 0x00000400,	// for list boxes and sliders, vertical is default this is set of horizontal
+	WINDOW_LB_LEFTARROW			= 0x00000800,	// mouse is over left/up arrow
+	WINDOW_LB_RIGHTARROW		= 0x00001000,	// mouse is over right/down arrow
+	WINDOW_LB_THUMB				= 0x00002000,	// mouse is over thumb
+	WINDOW_LB_PGUP				= 0x00004000,	// mouse is over page up
+	WINDOW_LB_PGDN				= 0x00008000,	// mouse is over page down
+	WINDOW_ORBITING				= 0x00010000,	// item is in orbit
+	WINDOW_OOB_CLICK			= 0x00020000,	// close on out of bounds click
+	WINDOW_WRAPPED				= 0x00040000,	// manually wrap text
+	WINDOW_AUTOWRAPPED			= 0x00080000,	// auto wrap text
+	WINDOW_FORCED				= 0x00100000,	// forced open
+	WINDOW_POPUP				= 0x00200000,	// popup
+	WINDOW_BACKCOLORSET			= 0x00400000,	// backcolor was explicitly set
+	WINDOW_TIMEDVISIBLE			= 0x00800000,	// visibility timing ( NOT implemented )
+	WINDOW_PLAYERCOLOR			= 0x01000000,	// hack the forecolor to match ui_char_color_*
 
 //JLF
-#define WINDOW_INTRANSITIONMODEL	0x04000000	// delayed script waiting to run
+	WINDOW_INTRANSITIONMODEL	= 0x04000000,	// delayed script waiting to run
+};
+using enum windowFlags_t;
+template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 
 
 // cgame cursor type bits
@@ -144,7 +150,7 @@ typedef struct windowDef_s {
   int ownerDraw;									// ownerDraw style
 	int ownerDrawFlags;							// show flags for ownerdraw items
   float borderSize;               //
-  int flags;                      // visible, focus, mouseover, cursor
+  windowFlags_t flags;                 // visible, focus, mouseover, cursor
   rectDef_t rectEffects;          // for various effects
   rectDef_t rectEffects2;         // for various effects
   int offsetTime;                 // time based value for various effects
@@ -254,17 +260,18 @@ typedef struct textScrollDef_s
 #define ITEM_ALIGN_CENTER	1		// center alignment
 #define ITEM_ALIGN_RIGHT	2		// right alignment
 
-#define CVAR_ENABLE			0x00000001
-#define CVAR_DISABLE		0x00000002
-#define CVAR_SHOW			0x00000004
-#define CVAR_HIDE			0x00000008
+enum class itemCvarFlags_t
+{
+	CVAR_NOACTION = 0,	// no cvar test (CVAR_NONE is the engine's cvar flag)
+	CVAR_ENABLE			= 0x00000001,
+	CVAR_DISABLE		= 0x00000002,
+	CVAR_SHOW			= 0x00000004,
+	CVAR_HIDE			= 0x00000008,
+};
+using enum itemCvarFlags_t;
+template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
-#define ITF_G2VALID			0x0001					// indicates whether or not g2 instance is valid.
-#define ITF_ISCHARACTER		0x0002					// a character item, uses customRGBA
-#define ITF_ISSABER			0x0004					// first saber item, draws blade
-#define ITF_ISSABER2		0x0008					// second saber item, draws blade
-
-#define ITF_ISANYSABER		(ITF_ISSABER|ITF_ISSABER2)	//either saber
+#include "qcommon/q_clientflags.h"
 
 typedef struct itemDef_s {
 	windowDef_t	window;						// common positional, border, style, layout info
@@ -283,7 +290,7 @@ typedef struct itemDef_s {
 	void		*parent;					// menu owner
 	qhandle_t	asset;						// handle to asset
 	void		*ghoul2;					// ghoul2 instance if available instead of a model.
-	int			flags;						// flags like g2valid, character, saber, saber2, etc.
+	itemModelFlags_t	flags;						// flags like g2valid, character, saber, saber2, etc.
 	const char	*mouseEnterText;			// mouse enter script
 	const char	*mouseExitText;				// mouse exit script
 	const char	*mouseEnter;				// mouse enter script
@@ -300,7 +307,7 @@ typedef struct itemDef_s {
 	const char	*cvar;						// associated cvar
 	const char	*cvarTest;					// associated cvar for enable actions
 	const char	*enableCvar;				// enable, disable, show, or hide based on value, this can contain a list
-	int			cvarFlags;					//	what type of action to take on cvarenables
+	itemCvarFlags_t	cvarFlags;					//	what type of action to take on cvarenables
 	sfxHandle_t focusSound;
 	int			numColors;					// number of color ranges
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];

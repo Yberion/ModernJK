@@ -945,9 +945,9 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 		g_clAutoMapInput.yaw = 0.0f;
 		g_clAutoMapInput.pitch = 0.0f;
 	}
-	else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
+	else if ( Any( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 		UIVM_MouseEvent( dx, dy );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
+	} else if ( Any( Key_GetCatcher( ) & KEYCATCH_CGAME ) ) {
 		CGVM_MouseEvent( dx, dy );
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
@@ -1235,27 +1235,27 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 	//
 	for (i = 0 ; i < MAX_KBUTTONS ; i++) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
-			cmd->buttons |= 1 << i;
+			cmd->buttons |= static_cast<buttonFlags_t>( 1 << i );
 		}
 		in_buttons[i].wasPressed = false;
 	}
 
-	if (cmd->buttons & BUTTON_FORCEPOWER)
+	if (Any( cmd->buttons & BUTTON_FORCEPOWER ))
 	{ //check for transferring a use force to a use inventory...
-		if ((cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
+		if (Any(cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
 		{ //it's pushed, remap it!
 			cmd->buttons &= ~BUTTON_FORCEPOWER;
 			cmd->buttons |= BUTTON_USE_HOLDABLE;
 		}
 	}
 
-	if ( Key_GetCatcher( ) ) {
+	if ( Any( Key_GetCatcher( ) ) ) {
 		cmd->buttons |= BUTTON_TALK;
 	}
 
 	// allow the game to know if any key at all is
 	// currently pressed, even if it isn't bound to anything
-	if ( kg.anykeydown && Key_GetCatcher( ) == 0 ) {
+	if ( kg.anykeydown && !Any( Key_GetCatcher( ) ) ) {
 		cmd->buttons |= BUTTON_ANY;
 	}
 }
@@ -1855,8 +1855,8 @@ CL_InitInput
 void CL_InitInput( void ) {
 	Cmd_AddCommandList( inputCmds );
 
-	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);
+	cl_nodelta = Cvar_Get ("cl_nodelta", "0", CVAR_NONE);
+	cl_debugMove = Cvar_Get ("cl_debugMove", "0", CVAR_NONE);
 }
 
 /*

@@ -64,7 +64,7 @@ int SV_OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 	trace_t tr;
 
 
-	SV_Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, 0, 0, 10);
+	SV_Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, 0, G2TRFLAG_NONE, 10);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 	{
@@ -247,18 +247,18 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 	if (!debugpolygons)
 		return;
 	//bot debugging
-	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", 0);
+	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", CVAR_NONE);
 	//
 	if (bot_enable && bot_debug->integer) {
 		//show reachabilities
-		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", 0);
+		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", CVAR_NONE);
 		//show ground faces only
-		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", 0);
+		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", CVAR_NONE);
 		//get the hightlight area
-		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0);
+		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", CVAR_NONE);
 		//
 		parm0 = 0;
-		if (svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK) parm0 |= 1;
+		if (Any( svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK )) parm0 |= 1;
 		if (bot_reachability->integer) parm0 |= 2;
 		if (bot_groundonly->integer) parm0 |= 4;
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
@@ -321,10 +321,10 @@ void QDECL BotImport_Print(int type, const char *fmt, ...)
 BotImport_Trace
 ==================
 */
-void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
+void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask) {
 	trace_t trace;
 
-	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, false, 0, 10);
+	SV_Trace(&trace, start, mins, maxs, end, passent, contentmask, false, G2TRFLAG_NONE, 10);
 	//copy the trace information
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
@@ -334,11 +334,11 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 	VectorCopy(trace.plane.normal, bsptrace->plane.normal);
 	bsptrace->plane.signbits = trace.plane.signbits;
 	bsptrace->plane.type = trace.plane.type;
-	bsptrace->surface.value = trace.surfaceFlags;
+	bsptrace->surface.flags = trace.surfaceFlags;
 	bsptrace->ent = trace.entityNum;
 	bsptrace->exp_dist = 0;
 	bsptrace->sidenum = 0;
-	bsptrace->contents = 0;
+	bsptrace->contents = CONTENTS_NONE;
 }
 
 /*
@@ -346,7 +346,7 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 BotImport_EntityTrace
 ==================
 */
-void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
+void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, contentsFlags_t contentmask) {
 	trace_t trace;
 
 	SV_ClipToEntity(&trace, start, mins, maxs, end, entnum, contentmask, false);
@@ -359,11 +359,11 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
 	VectorCopy(trace.plane.normal, bsptrace->plane.normal);
 	bsptrace->plane.signbits = trace.plane.signbits;
 	bsptrace->plane.type = trace.plane.type;
-	bsptrace->surface.value = trace.surfaceFlags;
+	bsptrace->surface.flags = trace.surfaceFlags;
 	bsptrace->ent = trace.entityNum;
 	bsptrace->exp_dist = 0;
 	bsptrace->sidenum = 0;
-	bsptrace->contents = 0;
+	bsptrace->contents = CONTENTS_NONE;
 }
 
 
@@ -372,7 +372,7 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
 BotImport_PointContents
 ==================
 */
-int BotImport_PointContents(vec3_t point) {
+contentsFlags_t BotImport_PointContents(vec3_t point) {
 	return SV_PointContents(point, -1);
 }
 
@@ -648,32 +648,32 @@ SV_BotInitCvars
 */
 void SV_BotInitCvars(void) {
 
-	Cvar_Get("bot_enable", "1", 0);						//enable the bot
+	Cvar_Get("bot_enable", "1", CVAR_NONE);						//enable the bot
 	Cvar_Get("bot_developer", "0", CVAR_CHEAT);			//bot developer mode
 	Cvar_Get("bot_debug", "0", CVAR_CHEAT);				//enable bot debugging
-	Cvar_Get("bot_maxdebugpolys", "2", 0);				//maximum number of debug polys
-	Cvar_Get("bot_groundonly", "1", 0);					//only show ground faces of areas
-	Cvar_Get("bot_reachability", "0", 0);				//show all reachabilities to other areas
+	Cvar_Get("bot_maxdebugpolys", "2", CVAR_NONE);				//maximum number of debug polys
+	Cvar_Get("bot_groundonly", "1", CVAR_NONE);					//only show ground faces of areas
+	Cvar_Get("bot_reachability", "0", CVAR_NONE);				//show all reachabilities to other areas
 	Cvar_Get("bot_visualizejumppads", "0", CVAR_CHEAT);	//show jumppads
-	Cvar_Get("bot_forceclustering", "0", 0);			//force cluster calculations
-	Cvar_Get("bot_forcereachability", "0", 0);			//force reachability calculations
-	Cvar_Get("bot_forcewrite", "0", 0);					//force writing aas file
-	Cvar_Get("bot_aasoptimize", "0", 0);				//no aas file optimisation
-	Cvar_Get("bot_saveroutingcache", "0", 0);			//save routing cache
+	Cvar_Get("bot_forceclustering", "0", CVAR_NONE);			//force cluster calculations
+	Cvar_Get("bot_forcereachability", "0", CVAR_NONE);			//force reachability calculations
+	Cvar_Get("bot_forcewrite", "0", CVAR_NONE);					//force writing aas file
+	Cvar_Get("bot_aasoptimize", "0", CVAR_NONE);				//no aas file optimisation
+	Cvar_Get("bot_saveroutingcache", "0", CVAR_NONE);			//save routing cache
 	Cvar_Get("bot_thinktime", "100", CVAR_CHEAT);		//msec the bots thinks
-	Cvar_Get("bot_reloadcharacters", "0", 0);			//reload the bot characters each time
-	Cvar_Get("bot_testichat", "0", 0);					//test ichats
-	Cvar_Get("bot_testrchat", "0", 0);					//test rchats
+	Cvar_Get("bot_reloadcharacters", "0", CVAR_NONE);			//reload the bot characters each time
+	Cvar_Get("bot_testichat", "0", CVAR_NONE);					//test ichats
+	Cvar_Get("bot_testrchat", "0", CVAR_NONE);					//test rchats
 	Cvar_Get("bot_testsolid", "0", CVAR_CHEAT);			//test for solid areas
 	Cvar_Get("bot_testclusters", "0", CVAR_CHEAT);		//test the AAS clusters
-	Cvar_Get("bot_fastchat", "0", 0);					//fast chatting bots
-	Cvar_Get("bot_nochat", "0", 0);						//disable chats
+	Cvar_Get("bot_fastchat", "0", CVAR_NONE);					//fast chatting bots
+	Cvar_Get("bot_nochat", "0", CVAR_NONE);						//disable chats
 	Cvar_Get("bot_pause", "0", CVAR_CHEAT);				//pause the bots thinking
 	Cvar_Get("bot_report", "0", CVAR_CHEAT);			//get a full report in ctf
-	Cvar_Get("bot_grapple", "0", 0);					//enable grapple
-	Cvar_Get("bot_rocketjump", "1", 0);					//enable rocket jumping
-	Cvar_Get("bot_challenge", "0", 0);					//challenging bot
-	Cvar_Get("bot_minplayers", "0", 0);					//minimum players in a team or the game
+	Cvar_Get("bot_grapple", "0", CVAR_NONE);					//enable grapple
+	Cvar_Get("bot_rocketjump", "1", CVAR_NONE);					//enable rocket jumping
+	Cvar_Get("bot_challenge", "0", CVAR_NONE);					//challenging bot
+	Cvar_Get("bot_minplayers", "0", CVAR_NONE);					//minimum players in a team or the game
 	Cvar_Get("bot_interbreedchar", "", CVAR_CHEAT);		//bot character used for interbreeding
 	Cvar_Get("bot_interbreedbots", "10", CVAR_CHEAT);	//number of bots used for interbreeding
 	Cvar_Get("bot_interbreedcycle", "20", CVAR_CHEAT);	//bot interbreeding cycle

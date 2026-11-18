@@ -373,7 +373,7 @@ typedef struct cvarTable_s {
 	const char		*cvarName;
 	const char		*defaultString;
 	void		(*update)( void );
-	uint32_t	cvarFlags;
+	cvarFlags_t	cvarFlags;
 } cvarTable_t;
 
 vmCvar_t	ui_menuFiles;
@@ -437,22 +437,22 @@ static cvarTable_t cvarTable[] =
 	{ &ui_hudFiles,				"cg_hudFiles",			"ui/jahud.txt", nullptr, CVAR_ARCHIVE},
 #endif
 
-	{ &ui_char_anim,			"ui_char_anim",			"BOTH_WALK1", nullptr, 0},
+	{ &ui_char_anim,			"ui_char_anim",			"BOTH_WALK1", nullptr, CVAR_NONE},
 
-	{ &ui_char_model,			"ui_char_model",		"", nullptr, 0},	//these are filled in by the "g_*" versions on load
-	{ &ui_char_skin_head,		"ui_char_skin_head",	"", nullptr, 0},	//the "g_*" versions are initialized in UI_Init, ui_atoms.cpp
-	{ &ui_char_skin_torso,		"ui_char_skin_torso",	"", nullptr, 0},
-	{ &ui_char_skin_legs,		"ui_char_skin_legs",	"", nullptr, 0},
+	{ &ui_char_model,			"ui_char_model",		"", nullptr, CVAR_NONE},	//these are filled in by the "g_*" versions on load
+	{ &ui_char_skin_head,		"ui_char_skin_head",	"", nullptr, CVAR_NONE},	//the "g_*" versions are initialized in UI_Init, ui_atoms.cpp
+	{ &ui_char_skin_torso,		"ui_char_skin_torso",	"", nullptr, CVAR_NONE},
+	{ &ui_char_skin_legs,		"ui_char_skin_legs",	"", nullptr, CVAR_NONE},
 
-	{ &ui_saber_type,			"ui_saber_type",		"", nullptr, 0},
-	{ &ui_saber,				"ui_saber",				"", nullptr, 0},
-	{ &ui_saber2,				"ui_saber2",			"", nullptr, 0},
-	{ &ui_saber_color,			"ui_saber_color",		"", nullptr, 0},
-	{ &ui_saber2_color,			"ui_saber2_color",		"", nullptr, 0},
+	{ &ui_saber_type,			"ui_saber_type",		"", nullptr, CVAR_NONE},
+	{ &ui_saber,				"ui_saber",				"", nullptr, CVAR_NONE},
+	{ &ui_saber2,				"ui_saber2",			"", nullptr, CVAR_NONE},
+	{ &ui_saber_color,			"ui_saber_color",		"", nullptr, CVAR_NONE},
+	{ &ui_saber2_color,			"ui_saber2_color",		"", nullptr, CVAR_NONE},
 
-	{ &ui_char_color_red,		"ui_char_color_red",	"", nullptr, 0},
-	{ &ui_char_color_green,		"ui_char_color_green",	"", nullptr, 0},
-	{ &ui_char_color_blue,		"ui_char_color_blue",	"", nullptr, 0},
+	{ &ui_char_color_red,		"ui_char_color_red",	"", nullptr, CVAR_NONE},
+	{ &ui_char_color_green,		"ui_char_color_green",	"", nullptr, CVAR_NONE},
+	{ &ui_char_color_blue,		"ui_char_color_blue",	"", nullptr, CVAR_NONE},
 
 	{ &ui_PrecacheModels,		"ui_PrecacheModels",	"1", nullptr, CVAR_ARCHIVE},
 
@@ -464,7 +464,7 @@ static cvarTable_t cvarTable[] =
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, int iMaxPixelWidth, int style, int iFontIndex);
-int Key_GetCatcher( void );
+keyCatchFlags_t Key_GetCatcher( void );
 
 #define	UI_FPS_FRAMES	4
 void _UI_Refresh( int realtime )
@@ -472,7 +472,7 @@ void _UI_Refresh( int realtime )
 	static int index;
 	static int	previousTimes[UI_FPS_FRAMES];
 
-	if ( !( Key_GetCatcher() & KEYCATCH_UI ) )
+	if ( !Any( Key_GetCatcher() & KEYCATCH_UI ) )
 	{
 		return;
 	}
@@ -2274,7 +2274,7 @@ int UI_G2SetAnim(CGhoul2Info *ghlInfo, const char *boneName, animNumber_t animNu
 		}
 		int sFrame = anim->firstFrame;
 		int eFrame = anim->firstFrame + anim->numFrames;
-		int flags = BONE_ANIM_OVERRIDE;
+		boneFlags_t flags = BONE_ANIM_OVERRIDE;
 		int time = uiInfo.uiDC.realTime;
 		float animSpeed = (50.0f / anim->frameLerp);
 
@@ -4039,7 +4039,7 @@ void _UI_KeyEvent( int key, bool down )
 		if (menu)
 		{
 			//DemoEnd();
-			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !(menu->window.flags & WINDOW_IGNORE_ESCAPE))
+			if (KeyEvent_Key( key ) == A_ESCAPE && down && !Menus_AnyFullScreenVisible() && !Any( menu->window.flags & WINDOW_IGNORE_ESCAPE ))
 			{
 				Menus_CloseAll();
 			}
@@ -6392,7 +6392,7 @@ void UI_CheckVid1Data(const char *menuTo,const char *warningMenuName)
 		return;
 	}
 
-	if ((applyChanges->window.flags & WINDOW_VISIBLE))	// Is the APPLY CHANGES button active?
+	if (Any( applyChanges->window.flags & WINDOW_VISIBLE ))	// Is the APPLY CHANGES button active?
 	{
 //		Menus_SaveGoToMenu(menuTo);							// Save menu you're going to
 //		Menus_HideItems(menu->window.name);					// HIDE videMenu in case you have to come back

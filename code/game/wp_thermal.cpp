@@ -34,11 +34,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void thermalDetonatorExplode( gentity_t *ent )
 //---------------------------------------------------------
 {
-	if ( (ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
+	if ( Any(ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{
 		ent->takedamage = false; // don't allow double deaths!
 
-		G_Damage( ent->activator, ent, ent->owner, vec3_origin, ent->currentOrigin, weaponData[WP_THERMAL].altDamage, 0, MOD_EXPLOSIVE );
+		G_Damage( ent->activator, ent, ent->owner, vec3_origin, ent->currentOrigin, weaponData[WP_THERMAL].altDamage, DAMAGE_NORMAL, MOD_EXPLOSIVE );
 		G_PlayEffect( "thermal/explosion", ent->currentOrigin );
 		G_PlayEffect( "thermal/shockwave", ent->currentOrigin );
 
@@ -69,14 +69,14 @@ void thermalDetonatorExplode( gentity_t *ent )
 }
 
 //-------------------------------------------------------------------------------------------------------------
-void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, int dFlags, hitLocation_t hitLoc )
+void thermal_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod, damageFlags_t dFlags, hitLocation_t hitLoc )
 //-------------------------------------------------------------------------------------------------------------
 {
 	thermalDetonatorExplode( self );
 }
 
 //---------------------------------------------------------
-bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, int clipmask,
+bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3_t maxs, contentsFlags_t clipmask,
 				vec3_t velocity, bool tracePath, int ignoreEntNum, int enemyNum,
 				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit )
 //---------------------------------------------------------
@@ -233,7 +233,7 @@ void WP_ThermalThink( gentity_t *ent )
 	// Thermal detonators for the player do occasional radius checks and blow up if there are entities in the blast radius
 	//	This is done so that the main fire is actually useful as an attack.  We explode anyway after delay expires.
 
-	if ( (ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
+	if ( Any(ent->s.eFlags&EF_HELD_BY_SAND_CREATURE) )
 	{//blow once creature is underground (done with anim)
 		//FIXME: chance of being spit out?  Especially if lots of delay left...
 		ent->e_TouchFunc = touchF_NULL;//don't impact on anything
@@ -420,7 +420,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool alt_fire )
 	bolt->s.loopSound = G_SoundIndex( "sound/weapons/thermal/thermloop.wav" );
 
 	bolt->damage = weaponData[WP_THERMAL].damage * damageScale;
-	bolt->dflags = 0;
+	bolt->dflags = DAMAGE_NORMAL;
 	bolt->splashDamage = weaponData[WP_THERMAL].splashDamage * damageScale;
 	bolt->splashRadius = weaponData[WP_THERMAL].splashRadius;
 

@@ -72,10 +72,10 @@ int PM_AnimLength( int index, animNumber_t anim );
 // once the game gets out of prototype stage.
 
 // Silly, but I'm replacing these macros so they are shorter!
-#define AFLAG_IDLE	(SETANIM_FLAG_NORMAL)
-#define AFLAG_ACTIVE (SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS)
-#define AFLAG_WAIT (SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS)
-#define AFLAG_FINISH (SETANIM_FLAG_HOLD)
+inline constexpr setAnimFlags_t AFLAG_IDLE = SETANIM_FLAG_NORMAL;
+inline constexpr setAnimFlags_t AFLAG_ACTIVE = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
+inline constexpr setAnimFlags_t AFLAG_WAIT = SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS;
+inline constexpr setAnimFlags_t AFLAG_FINISH = SETANIM_FLAG_HOLD;
 
 EnumArray<saberMoveData_t, saberMoveName_t, LS_MOVE_MAX> saberMoveData = {{//							NB:randomized
 	// name			anim				startQ	endQ	setanimflag		blend,	blocking	chain_idle		chain_attack	trailLen
@@ -1135,7 +1135,7 @@ saberMoveName_t PM_PickBackStab( void )
 		{
 			return LS_A_BACKSTAB;
 		}
-		else if ( pm->ps->pm_flags & PMF_DUCKED )
+		else if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 		{
 			return LS_A_BACK_CR;
 		}
@@ -1146,7 +1146,7 @@ saberMoveName_t PM_PickBackStab( void )
 	}
 	else if ( pm->ps->saberAnimLevel == FORCE_LEVEL_2 )
 	{//using medium attacks
-		if ( pm->ps->pm_flags & PMF_DUCKED )
+		if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 		{
 			return LS_A_BACK_CR;
 		}
@@ -1220,10 +1220,10 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB )
 				if ( (pm->ps->saberAnimLevel == FORCE_LEVEL_2 || pm->ps->saberAnimLevel == FORCE_LEVEL_5)//using medium attacks or Tavion
 					//&& !PM_InKnockDown( pm->ps )
 					&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
-					&& !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+					&& !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 					&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=500) //on ground or just jumped
 					&& ( pm->ps->clientNum || pm->ps->legsAnim == BOTH_JUMP1 || pm->ps->legsAnim == BOTH_FORCEJUMP1 || pm->ps->legsAnim == BOTH_INAIR1 || pm->ps->legsAnim == BOTH_FORCEINAIR1 )//either an NPC or in a non-flip forward jump
-					&& ( (pm->ps->clientNum&&!PM_ControlledByPlayer()&&!Q_irand(0,2)) || pm->cmd.upmove || (pm->ps->pm_flags&PMF_JUMPING) ) )//jumping
+					&& ( (pm->ps->clientNum&&!PM_ControlledByPlayer()&&!Q_irand(0,2)) || pm->cmd.upmove || Any(pm->ps->pm_flags&PMF_JUMPING) ) )//jumping
 				{//flip over-forward down-attack
 					if ( (!pm->ps->clientNum||PM_ControlledByPlayer()) ||
 						(pm->gent->NPC && (pm->gent->NPC->rank==RANK_CREWMAN||pm->gent->NPC->rank>=RANK_LT) && !Q_irand(0, 2) ) )
@@ -1259,7 +1259,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB )
 			{//player
 				if ( pm->ps->saberAnimLevel == FORCE_LEVEL_1
 					//&& !PM_InKnockDown( pm->ps )
-					&& (pm->ps->pm_flags&PMF_DUCKED||pm->cmd.upmove<0) )
+					&& (Any( pm->ps->pm_flags&PMF_DUCKED )||pm->cmd.upmove<0) )
 				{//ducking player
 					autoMove = LS_A_LUNGE;
 				}
@@ -1318,7 +1318,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB )
 				&& enemyDist < 128
 				&& (pm->ps->saberAnimLevel == FORCE_LEVEL_1 || (pm->gent->client &&pm->gent->client->NPC_class == CLASS_TAVION&&Q_irand(0,2))) )
 			{//fast back-stab
-				if ( !(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
+				if ( !Any(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
 				{//can't do it while ducked?
 					if ( (!pm->ps->clientNum||PM_ControlledByPlayer()) || (pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG) )
 					{//only fencers and above can do this
@@ -1330,7 +1330,7 @@ saberMoveName_t PM_AttackForEnemyPos( bool allowFB )
 			{//higher level back spin-attacks
 				if ( (pm->ps->clientNum&&!PM_ControlledByPlayer()) || ((!pm->ps->clientNum||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )
 				{
-					if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
+					if ( Any(pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 					{
 						autoMove = LS_A_BACK_CR;
 					}
@@ -1488,10 +1488,10 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 					if ( (pm->ps->saberAnimLevel == FORCE_LEVEL_2 || pm->ps->saberAnimLevel == FORCE_LEVEL_5)//using medium attacks or Tavion
 						//&& !PM_InKnockDown( pm->ps )
 						&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
-						&& !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+						&& !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 						&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=500) //on ground or just jumped
 						&& ( pm->ps->clientNum || pm->ps->legsAnim == BOTH_JUMP1 || pm->ps->legsAnim == BOTH_FORCEJUMP1 || pm->ps->legsAnim == BOTH_INAIR1 || pm->ps->legsAnim == BOTH_FORCEINAIR1 )//either an NPC or in a non-flip forward jump
-						&& ((pm->ps->clientNum&&!PM_ControlledByPlayer()&&!Q_irand(0,2))||pm->cmd.upmove>0||pm->ps->pm_flags&PMF_JUMPING))//jumping
+						&& ((pm->ps->clientNum&&!PM_ControlledByPlayer()&&!Q_irand(0,2))||pm->cmd.upmove>0||Any( pm->ps->pm_flags&PMF_JUMPING )))//jumping
 					{//flip over-forward down-attack
 						if ( (!pm->ps->clientNum||PM_ControlledByPlayer()) ||
 							(pm->gent->NPC && (pm->gent->NPC->rank==RANK_CREWMAN||pm->gent->NPC->rank>=RANK_LT) && !Q_irand(0, 2) ) )
@@ -1513,7 +1513,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 			{
 				if ( (pm->ps->saberAnimLevel == FORCE_LEVEL_1 || (pm->gent&&pm->gent->client&&pm->gent->client->NPC_class == CLASS_DESANN && !Q_irand( 0, 2 )))
 					//&& !PM_InKnockDown( pm->ps )
-					&& (pm->cmd.upmove < 0 || pm->ps->pm_flags&PMF_DUCKED)
+					&& (pm->cmd.upmove < 0 || Any( pm->ps->pm_flags&PMF_DUCKED ))
 					&& (pm->ps->legsAnim == BOTH_STAND2||pm->ps->legsAnim == BOTH_SABERFAST_STANCE||pm->ps->legsAnim == BOTH_SABERSLOW_STANCE||level.time-pm->ps->lastStationary<=500)  )
 				{//not moving (or just started), ducked and using fast attacks
 					if ( (!pm->ps->clientNum||PM_ControlledByPlayer()) ||
@@ -1532,10 +1532,10 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 				if ( (pm->ps->saberAnimLevel == FORCE_LEVEL_3 || (pm->gent&&pm->gent->client&&pm->gent->client->NPC_class == CLASS_DESANN && !Q_irand( 0, 1 )))//using strong attacks
 					//&& !PM_InKnockDown( pm->ps )
 					&& pm->ps->forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 //can force jump
-					&& pm->gent && !(pm->gent->flags&FL_LOCK_PLAYER_WEAPONS) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
+					&& pm->gent && !Any( pm->gent->flags & FL_LOCK_PLAYER_WEAPONS ) // yes this locked weapons check also includes force powers, if we need a separate check later I'll make one
 					&& (pm->ps->groundEntityNum != ENTITYNUM_NONE||level.time-pm->ps->lastOnGround<=500) //on ground or just jumped (if not player)
 					//&& (pm->ps->legsAnim == BOTH_STAND2||pm->ps->legsAnim == BOTH_SABERFAST_STANCE||pm->ps->legsAnim == BOTH_SABERSLOW_STANCE||level.time-pm->ps->lastStationary<=500)//standing or just started moving
-					&& (pm->cmd.upmove||pm->ps->pm_flags&PMF_JUMPING))//jumping
+					&& (pm->cmd.upmove||Any( pm->ps->pm_flags&PMF_JUMPING )))//jumping
 				{//strong attack: jump-hack
 					if ( //!pm->ps->clientNum ||
 						(pm->gent && pm->gent->NPC && !PM_ControlledByPlayer() && (pm->gent->NPC->rank==RANK_CREWMAN||pm->gent->NPC->rank>=RANK_LT) ) )
@@ -1563,7 +1563,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 							&& DistanceSquared( pm->gent->currentOrigin, pm->gent->enemy->currentOrigin ) < 16384//128 squared
 							&& (pm->ps->saberAnimLevel == FORCE_LEVEL_1 || (pm->gent->client &&pm->gent->client->NPC_class == CLASS_TAVION&&Q_irand(0,1))) )
 						{//fast attacks and Tavion
-							if ( !(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
+							if ( !Any(pm->ps->pm_flags&PMF_DUCKED) && pm->cmd.upmove >= 0 )
 							{//can't do it while ducked?
 								if ( (!pm->ps->clientNum||PM_ControlledByPlayer()) || (pm->gent->NPC && pm->gent->NPC->rank >= RANK_LT_JG) )
 								{//only fencers and above can do this
@@ -1573,7 +1573,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, saber
 						}
 						else if ( pm->ps->saberAnimLevel > FORCE_LEVEL_1 )
 						{//medium and higher attacks
-							if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
+							if ( Any(pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 							{
 								return LS_A_BACK_CR;
 							}
@@ -1993,6 +1993,7 @@ std::optional<animNumber_t> PM_TorsoAnimForFrame( gentity_t *ent, int torsoFrame
 bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 {
 	int		junk, curFrame;
+	boneFlags_t		junkFlags;
 	float	currentFrame, animSpeed;
 
 	if ( !self->client )
@@ -2000,7 +2001,7 @@ bool PM_FinishedCurrentLegsAnim( gentity_t *self )
 		return true;
 	}
 
-	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junk, &animSpeed, nullptr );
+	gi.G2API_GetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, (cg.time?cg.time:level.time), &currentFrame, &junk, &junk, &junkFlags, &animSpeed, nullptr );
 	curFrame = floor( currentFrame );
 
 	animNumber_t				legsAnim	= self->client->ps.legsAnim;
@@ -2270,7 +2271,7 @@ PM_SetAnimFinal
 */
 #define G2_DEBUG_TIMING (0)
 void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
-					 int setAnimParts,animNumber_t anim,int setAnimFlags,
+					 setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags,
 					 int *torsoAnimTimer,int *legsAnimTimer,
 					 gentity_t *gent,int blendTime)		// default blendTime=350
 {
@@ -2298,10 +2299,10 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 	}
 
 	// Set torso anim
-	if (setAnimParts & SETANIM_TORSO)
+	if (Any( setAnimParts & SETANIM_TORSO ))
 	{
 		// or if a more important anim is running
-		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((*torsoAnimTimer > 0)||(*torsoAnimTimer == -1)) )
+		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((*torsoAnimTimer > 0)||(*torsoAnimTimer == -1)) )
 		{
 			goto setAnimLegs;
 		}
@@ -2321,8 +2322,9 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 		if ( gi.G2API_HaveWeGhoul2Models(gent->ghoul2) && gent->lowerLumbarBone != -1 )//gent->upperLumbarBone
 		{//see if we need to tell ghoul2 to play it again because of a animSpeed change
 			int		blah;
+			boneFlags_t		blahFlags;
 			float	junk;
-			if (!gi.G2API_GetBoneAnimIndex( &gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, actualTime, &junk, &blah, &blah, &blah, &oldAnimSpeed, nullptr ))
+			if (!gi.G2API_GetBoneAnimIndex( &gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, actualTime, &junk, &blah, &blah, &blahFlags, &oldAnimSpeed, nullptr ))
 			{
 				animSpeed = oldAnimSpeed;
 			}
@@ -2331,7 +2333,7 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 		if ( oldAnimSpeed == animSpeed )
 		{//animSpeed has not changed
 			// Don't reset if it's already running the anim
-			if( !(setAnimFlags & SETANIM_FLAG_RESTART) && *torsoAnim == anim )
+			if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && *torsoAnim == anim )
 			{
 				goto setAnimLegs;
 			}
@@ -2374,7 +2376,7 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 
 					// before we do this, lets see if this animation is one the legs are already playing?
 
-					int	animFlags = BONE_ANIM_OVERRIDE_FREEZE;
+					boneFlags_t	animFlags = BONE_ANIM_OVERRIDE_FREEZE;
 
 					if (animations[anim].loopFrames != -1)
 					{
@@ -2388,12 +2390,12 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 					//HACKHACKHACK
 					//bool animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
 					float	currentFrame, legAnimSpeed, firstFrame, lastFrame;
-					int		flags;
+					boneFlags_t		flags;
 					bool animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
 										gent->rootBone, actualTime, &currentFrame,
 										&startFrame, &endFrame, &flags, &legAnimSpeed, nullptr );
 					if ( g_synchSplitAnims->integer
-						&& !(setAnimFlags & SETANIM_FLAG_RESTART)
+						&& !Any( setAnimFlags & SETANIM_FLAG_RESTART )
 						&& animatingLegs
 						&& (animations[anim].firstFrame == startFrame)
 						&& (legAnimSpeed == animSpeed )//|| oldAnimSpeed != animSpeed)
@@ -2515,13 +2517,13 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 		gi.Printf(S_COLOR_GREEN"SET_ANIM_UPPER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
 #endif
 */
-		if ((gent->client) && (setAnimFlags & SETANIM_FLAG_HOLD))
+		if ((gent->client) && Any( setAnimFlags & SETANIM_FLAG_HOLD ))
 		{//FIXME: allow to set a specific time?
 			if ( timeScaleMod != 1.0 )
 			{
 				PM_SetTorsoAnimTimer( gent, torsoAnimTimer, (animations[anim].numFrames - 1) * fabs((double)animations[anim].frameLerp) / timeScaleMod );
 			}
-			else if ( setAnimFlags & SETANIM_FLAG_HOLDLESS )
+			else if ( Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ) )
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 
@@ -2546,10 +2548,10 @@ void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 
 setAnimLegs:
 	// Set legs anim
-	if (setAnimParts & SETANIM_LEGS)
+	if (Any( setAnimParts & SETANIM_LEGS ))
 	{
 		// or if a more important anim is running
-		if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((*legsAnimTimer > 0)||(*legsAnimTimer == -1)) )
+		if( !Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ) && ((*legsAnimTimer > 0)||(*legsAnimTimer == -1)) )
 		{
 			goto setAnimDone;
 		}
@@ -2569,8 +2571,9 @@ setAnimLegs:
 		if ( gi.G2API_HaveWeGhoul2Models(gent->ghoul2) && gent->rootBone != -1 )
 		{//see if we need to tell ghoul2 to play it again because of a animSpeed change
 			int		blah;
+			boneFlags_t		blahFlags;
 			float	junk;
-			if (!gi.G2API_GetBoneAnimIndex( &gent->ghoul2[gent->playerModel], gent->rootBone, actualTime, &junk, &blah, &blah, &blah, &oldAnimSpeed, nullptr ))
+			if (!gi.G2API_GetBoneAnimIndex( &gent->ghoul2[gent->playerModel], gent->rootBone, actualTime, &junk, &blah, &blah, &blahFlags, &oldAnimSpeed, nullptr ))
 			{
 				animSpeed = oldAnimSpeed;
 			}
@@ -2579,7 +2582,7 @@ setAnimLegs:
 		if ( oldAnimSpeed == animSpeed )
 		{//animSpeed has not changed
 			// Don't reset if it's already running the anim
-			if( !(setAnimFlags & SETANIM_FLAG_RESTART) && *legsAnim == anim )
+			if( !Any( setAnimFlags & SETANIM_FLAG_RESTART ) && *legsAnim == anim )
 			{
 				goto setAnimDone;
 			}
@@ -2597,7 +2600,7 @@ setAnimLegs:
 				Com_Printf("Time=%d: %s LEGS anim %d %s\n", actualTime, gent->targetname, to_underlying( anim ), BG_AnimName( anim ) );
 			}
 
-			int	animFlags = BONE_ANIM_OVERRIDE_FREEZE;
+			boneFlags_t	animFlags = BONE_ANIM_OVERRIDE_FREEZE;
 
 			if (animations[anim].loopFrames != -1)
 			{
@@ -2639,10 +2642,10 @@ setAnimLegs:
 				//HACKHACKHACK
 				//bool animatingTorso =  gi.G2API_GetAnimRangeIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone, &startFrame, &endFrame);
 				float	currentFrame, torsoAnimSpeed;
-				int		flags;
+				boneFlags_t		flags;
 				bool animatingTorso = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->lowerLumbarBone,actualTime, &currentFrame, &startFrame, &endFrame, &flags, &torsoAnimSpeed, nullptr);
 				if ( g_synchSplitAnims->integer
-					&& !(setAnimFlags & SETANIM_FLAG_RESTART)
+					&& !Any( setAnimFlags & SETANIM_FLAG_RESTART )
 					&& animatingTorso
 					&& (torsoAnimSpeed == animSpeed)//|| oldAnimSpeed != animSpeed)
 					&& (animations[anim].firstFrame == startFrame)
@@ -2685,7 +2688,7 @@ setAnimLegs:
 					// before we do this, lets see if this animation is one the legs are already playing?
 					//bool animatingLegs =  gi.G2API_GetAnimRange(&gent->ghoul2[gent->playerModel], "model_root", &startFrame, &endFrame);
 					float	currentFrame, legAnimSpeed;
-					int		flags;
+					boneFlags_t		flags;
 					bool animatingLegs = gi.G2API_GetBoneAnimIndex(&gent->ghoul2[gent->playerModel],
 										gent->rootBone, actualTime, &currentFrame,
 										&startFrame, &endFrame, &flags, &legAnimSpeed, nullptr );
@@ -2731,13 +2734,13 @@ setAnimLegs:
 		gi.Printf(S_COLOR_GREEN"SET_ANIM_LOWER: %s (%s)\n", BG_AnimName( anim ), gent->targetname );
 #endif
 */
-		if ((gent->client) && (setAnimFlags & SETANIM_FLAG_HOLD))
+		if ((gent->client) && Any( setAnimFlags & SETANIM_FLAG_HOLD ))
 		{//FIXME: allow to set a specific time?
 			if ( timeScaleMod != 1.0 )
 			{
 				PM_SetLegsAnimTimer( gent, legsAnimTimer, (animations[anim].numFrames - 1) * fabs((double)animations[anim].frameLerp) / timeScaleMod );
 			}
-			else if ( setAnimFlags & SETANIM_FLAG_HOLDLESS )
+			else if ( Any( setAnimFlags & SETANIM_FLAG_HOLDLESS ) )
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
 				int dur;
 
@@ -2764,7 +2767,7 @@ setAnimDone:
 	return;
 }
 
-void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime)
+void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime)
 {	// FIXME : once torsoAnim and legsAnim are in the same structure for NPC and Players
 	// rename PM_SetAnimFinal to PM_SetAnim and have both NPC and Players call PM_SetAnim
 
@@ -2778,20 +2781,20 @@ void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags,
 		return;
 	}
 
-	if (setAnimFlags&SETANIM_FLAG_OVERRIDE)
+	if (Any( setAnimFlags & SETANIM_FLAG_OVERRIDE ))
 	{
 //		pm->ps->animationTimer = 0;
 
-		if (setAnimParts & SETANIM_TORSO)
+		if (Any( setAnimParts & SETANIM_TORSO ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || pm->ps->torsoAnim != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || pm->ps->torsoAnim != anim )
 			{
 				PM_SetTorsoAnimTimer( pm->gent, &pm->ps->torsoAnimTimer, 0 );
 			}
 		}
-		if (setAnimParts & SETANIM_LEGS)
+		if (Any( setAnimParts & SETANIM_LEGS ))
 		{
-			if( (setAnimFlags & SETANIM_FLAG_RESTART) || pm->ps->legsAnim != anim )
+			if( Any( setAnimFlags & SETANIM_FLAG_RESTART ) || pm->ps->legsAnim != anim )
 			{
 				PM_SetLegsAnimTimer( pm->gent, &pm->ps->legsAnimTimer, 0 );
 			}
@@ -2833,7 +2836,7 @@ void PM_TorsoAnimLightsaber()
 
 	if ( pm->ps->saberActive
 		&& pm->ps->saberLength < 3
-		&& !(pm->ps->saberEventFlags&SEF_HITWALL)
+		&& !Any( pm->ps->saberEventFlags & SEF_HITWALL )
 		&& pm->ps->weaponstate == WEAPON_RAISING )
 	{
 		PM_SetSaberMove(LS_DRAW);
@@ -3071,7 +3074,7 @@ void PM_TorsoAnimation( void )
 		return;
 	}
 
-	if( pm->gent && pm->gent->NPC && (pm->gent->NPC->scriptFlags & SCF_FORCED_MARCH) )
+	if( pm->gent && pm->gent->NPC && Any(pm->gent->NPC->scriptFlags & SCF_FORCED_MARCH) )
 	{
 		return;
 	}
@@ -3081,7 +3084,7 @@ void PM_TorsoAnimation( void )
 		pm->gent->client->renderInfo.torsoFpsMod = 1.0f;
 	}
 
-	if ( pm->gent && pm->ps && pm->ps->eFlags & EF_LOCKED_TO_WEAPON )
+	if ( pm->gent && pm->ps && Any( pm->ps->eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		PM_SetAnim(pm,SETANIM_BOTH,BOTH_GUNSIT1,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);//SETANIM_FLAG_NORMAL
 		return;
@@ -3204,7 +3207,7 @@ void PM_TorsoAnimation( void )
 		weaponBusy = true;
 		pm->ps->weaponstate = WEAPON_IDLE;
 	}
-	else if ( pm->ps->pm_flags & PMF_DUCKED )
+	else if ( Any( pm->ps->pm_flags & PMF_DUCKED ) )
 	{//ducking is considered on alert... plus looks stupid to have arms hanging down when crouched
 		weaponBusy = true;
 	}

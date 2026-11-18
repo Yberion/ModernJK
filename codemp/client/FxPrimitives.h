@@ -26,92 +26,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_EFFECTS			1800
 
-// Generic group flags, used by parser, then get converted to the appropriate specific flags
-#define FX_PARM_MASK		0xC	// use this to mask off any transition types that use a parm
-#define FX_GENERIC_MASK		0xF
-#define FX_LINEAR			0x1
-#define FX_RAND				0x2
-#define FX_NONLINEAR		0x4
-#define FX_WAVE				0x8
-#define FX_CLAMP			0xC
-
-// Group flags
+// the channels' bits (the flags, fxPrimitiveFlags_t, are in q_shared.h)
 #define FX_ALPHA_SHIFT		0
-#define FX_ALPHA_PARM_MASK	0x0000000C
-#define	FX_ALPHA_LINEAR		0x00000001
-#define FX_ALPHA_RAND		0x00000002
-#define	FX_ALPHA_NONLINEAR	0x00000004
-#define FX_ALPHA_WAVE		0x00000008
-#define FX_ALPHA_CLAMP		0x0000000C
-
 #define FX_RGB_SHIFT		4
-#define FX_RGB_PARM_MASK	0x000000C0
-#define	FX_RGB_LINEAR		0x00000010
-#define FX_RGB_RAND			0x00000020
-#define	FX_RGB_NONLINEAR	0x00000040
-#define FX_RGB_WAVE			0x00000080
-#define FX_RGB_CLAMP		0x000000C0
-
 #define FX_SIZE_SHIFT		8
-#define FX_SIZE_PARM_MASK	0x00000C00
-#define	FX_SIZE_LINEAR		0x00000100
-#define FX_SIZE_RAND		0x00000200
-#define	FX_SIZE_NONLINEAR	0x00000400
-#define FX_SIZE_WAVE		0x00000800
-#define FX_SIZE_CLAMP		0x00000C00
-
 #define FX_LENGTH_SHIFT		12
-#define FX_LENGTH_PARM_MASK	0x0000C000
-#define	FX_LENGTH_LINEAR	0x00001000
-#define FX_LENGTH_RAND		0x00002000
-#define	FX_LENGTH_NONLINEAR	0x00004000
-#define FX_LENGTH_WAVE		0x00008000
-#define FX_LENGTH_CLAMP		0x0000C000
-
 #define FX_SIZE2_SHIFT		16
-#define FX_SIZE2_PARM_MASK	0x000C0000
-#define	FX_SIZE2_LINEAR		0x00010000
-#define FX_SIZE2_RAND		0x00020000
-#define	FX_SIZE2_NONLINEAR	0x00040000
-#define FX_SIZE2_WAVE		0x00080000
-#define FX_SIZE2_CLAMP		0x000C0000
 
-// Shared flag--these flags, at first glance would appear to be shared, but are safe.  I'd rather not do this, but as you can see, features flags are currently all accounted for
-#define	FX_PAPER_PHYSICS	0x00010000		// emitters ONLY.  shared with FX_SIZE_2_LINEAR
-#define	FX_LOCALIZED_FLASH	0x00010000		// full screen flashes ONLY.  shared with FX_SIZE_2_LINEAR
-#define	FX_PLAYER_VIEW		0x00010000		// player view effects ONLY.  shared with FX_SIZE_2_LINEAR
-
-// Feature flags
-#define	FX_DEPTH_HACK		0x00100000
-#define	FX_RELATIVE			0x00200000
-#define FX_SET_SHADER_TIME	0x00400000
-#define FX_EXPENSIVE_PHYSICS 0x00800000
-
-//rww - g2-related flags (these can slow things down significantly, use sparingly)
-//These should be used only with particles/decals as they steal flags used by cylinders.
-#define	FX_GHOUL2_TRACE		0x00020000		//use in conjunction with particles - actually do full ghoul2 traces for physics collision against entities with a ghoul2 instance
-							//shared FX_SIZE2_RAND (used only with cylinders)
-#define	FX_GHOUL2_DECALS	0x00040000		//use in conjunction with decals - can project decal as a ghoul2 gore skin object onto ghoul2 models
-							//shared FX_SIZE2_NONLINEAR (used only with cylinders)
-
-#define FX_ATTACHED_MODEL	0x01000000
-
-#define FX_APPLY_PHYSICS	0x02000000
-#define FX_USE_BBOX			0x04000000		// can make physics more accurate at the expense of speed
-
-#define FX_USE_ALPHA		0x08000000		// the FX system actually uses RGB to do fades, but this will override that
-											//	and cause it to fill in the alpha.
-
-#define FX_EMIT_FX			0x10000000		// emitters technically don't have to emit stuff, but when they do
-											//	this flag needs to be set
-#define FX_DEATH_RUNS_FX	0x20000000		// Normal death triggers effect, but not kill_on_impact
-#define FX_KILL_ON_IMPACT	0x40000000		// works just like it says, but only when physics are on.
-#define FX_IMPACT_RUNS_FX	0x80000000		// an effect can call another effect when it hits something.
-
-// Lightning flags, duplicates of existing flags, but lightning doesn't use those flags in that context...and nothing will ever use these in this context..so we are safe.
-#define FX_TAPER			0x01000000		// tapers as it moves towards its endpoint
-#define FX_BRANCH			0x02000000		// enables lightning branching
-#define FX_GROW				0x04000000		// lightning grows from start point to end point over the course of its life
+// a channel's transitions, parsed as the generic values (FX_LINEAR ... FX_CLAMP), moved into the channel's bits
+inline fxPrimitiveFlags_t FX_ChannelFlags( fxPrimitiveFlags_t generic, int shift ) {
+	return static_cast<fxPrimitiveFlags_t>( to_underlying( generic ) << shift );
+}
 
 
 // stuff that can occur when an effect is flagged with "materialImpact" and it hits something
@@ -133,7 +58,7 @@ protected:
 	int			mTimeStart;
 	int			mTimeEnd;
 
-	unsigned int	mFlags;
+	fxPrimitiveFlags_t	mFlags;
 
 	EMatImpactEffect	mMatImpactFX;
 	int					mMatImpactParm;
@@ -170,11 +95,11 @@ public:
 	inline void SetSound ( int vol, int rad) { mSoundRadius = rad; mSoundVolume = vol; }
 	inline void SetMin( vec3_t min )		{ if(min){VectorCopy(min,mMin);}else{VectorClear(mMin);}			}
 	inline void SetMax( vec3_t max )		{ if(max){VectorCopy(max,mMax);}else{VectorClear(mMax);}			}
-	inline void SetFlags( int flags )		{ mFlags = flags;				}
-	inline void AddFlags( int flags )		{ mFlags |= flags;				}
-	inline void ClearFlags( int flags )		{ mFlags &= ~flags;				}
+	inline void SetFlags( fxPrimitiveFlags_t flags )		{ mFlags = flags;				}
+	inline void AddFlags( fxPrimitiveFlags_t flags )		{ mFlags |= flags;				}
+	inline void ClearFlags( fxPrimitiveFlags_t flags )		{ mFlags &= ~flags;				}
 	inline void SetOrigin1( vec3_t org )	{ if(org){VectorCopy(org,mOrigin1);}else{VectorClear(mOrigin1);}	}
-	inline void SetTimeStart( int time )	{ mTimeStart = time; if (mFlags&FX_SET_SHADER_TIME) { mRefEnt.shaderTime = time * 0.001f; }}
+	inline void SetTimeStart( int time )	{ mTimeStart = time; if (Any( mFlags&FX_SET_SHADER_TIME )) { mRefEnt.shaderTime = time * 0.001f; }}
 	inline void	SetTimeEnd( int time )		{ mTimeEnd = time;				}
 	inline void SetImpactFxID( int id )		{ mImpactFxID = id;				}
 	inline void SetDeathFxID( int id )		{ mDeathFxID = id;				}

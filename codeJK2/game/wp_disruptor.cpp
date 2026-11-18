@@ -113,7 +113,7 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		break;
 	}
 
-	if ( tr.surfaceFlags & SURF_NOIMPACT )
+	if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
 	{
 		render_impact = false;
 	}
@@ -246,7 +246,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		//alternately, if you end up hitting an emplaced_gun that has a sitter, just redo this one trace with the "G2_COLLIDE, 10" to see if we it the sitter
 		gi.trace( &tr, start, nullptr, nullptr, end, skip, MASK_SHOT, G2_COLLIDE, 10 );//G2_RETURNONHIT, 0 );
 
-		if ( tr.surfaceFlags & SURF_NOIMPACT )
+		if ( Any( tr.surfaceFlags & SURF_NOIMPACT ) )
 		{
 			render_impact = false;
 		}

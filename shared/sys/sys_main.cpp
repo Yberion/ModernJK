@@ -375,18 +375,19 @@ void *Sys_LoadMachOBundle( const char *name )
 }
 #endif
 
-enum class SearchPathFlag
+enum class SearchPathFlags
 {
+	SEARCH_PATH_NONE	= 0,
 	SEARCH_PATH_MOD		= 1 << 0,
 	SEARCH_PATH_BASE	= 1 << 1,
 	SEARCH_PATH_MODERNJK	= 1 << 2,
 	SEARCH_PATH_ROOT	= 1 << 3
 };
-using enum SearchPathFlag;
-template <> inline constexpr bool enableEnumFlags<SearchPathFlag> = true;
+using enum SearchPathFlags;
+template <> inline constexpr bool enableEnumFlags<SearchPathFlags> = true;
 
 static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char **searchPaths,
-									size_t numPaths, SearchPathFlag searchFlags, const char *callerName )
+									size_t numPaths, SearchPathFlags searchFlags, const char *callerName )
 {
 	char *fn;
 	void *libHandle;

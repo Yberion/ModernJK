@@ -550,14 +550,14 @@ public:
 	{
 		// If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
 		//-----------------------------------------------------------------
-		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ) && mActor->NPC && !(mActor->NPC->scriptFlags&SCF_NAV_CAN_FLY))
+		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_FLYING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&SCF_NAV_CAN_FLY))
 		{
 			return false;
 		}
 
 		// If The Actor Can't Fly, But This Is A Flying Edge, It's Invalid
 		//-----------------------------------------------------------------
-		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ) && mActor->NPC && !(mActor->NPC->scriptFlags&SCF_NAV_CAN_JUMP))
+		if (mActor && Edge.mFlags.get_bit( to_underlying( CWayEdge::WE_JUMPING ) ) && mActor->NPC && !Any(mActor->NPC->scriptFlags&SCF_NAV_CAN_JUMP))
 		{
 			return false;
 		}
@@ -581,7 +581,7 @@ public:
 				//------------------------------------------------------
 				if ((mActor) &&
 					(mActor->NPC) &&
-					(mActor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
+					Any(mActor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
 					(Edge.BlockingBreakable()) &&
 					(G_EntIsBreakable(Edge.mEntityNum, mActor))
 					)
@@ -605,7 +605,7 @@ public:
 						{
 							// Check To See If The Owner Is Inactive Or Locked, Or Unavailable To The NPC
 							//----------------------------------------------------------------------------
-							if ((owner->svFlags & SVF_INACTIVE) ||
+							if (Any( owner->svFlags & SVF_INACTIVE ) ||
 								(owner==ent && (owner->spawnflags & (MOVER_PLAYER_USE|MOVER_FORCE_ACTIVATE|MOVER_LOCKED))) ||
 								(owner!=ent && (owner->spawnflags & (1 /*PLAYERONLY*/|4 /*USE_BOTTON*/))))
 							{
@@ -639,7 +639,7 @@ public:
 				//-------------------------------------------------
 				else if (Edge.BlockingWall())
 				{
-					return !(ent->contents&CONTENTS_SOLID);
+					return !Any( ent->contents&CONTENTS_SOLID );
 				}
 			}
 		}
@@ -830,7 +830,7 @@ int					GetIslandRegion()
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		ViewTrace(const CVec3& a, const CVec3& b)
 {
-	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP);
+	contentsFlags_t contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP);
 
 	mViewTraceCount++;
 	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
@@ -847,7 +847,7 @@ bool		ViewTrace(const CVec3& a, const CVec3& b)
 ////////////////////////////////////////////////////////////////////////////////////////
 bool		ViewNavTrace(const CVec3& a, const CVec3& b)
 {
-	int contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
+	contentsFlags_t contents	= (CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
 
 	mViewTraceCount++;
 	gi.trace(&mViewTrace, a.v, nullptr, nullptr, b.v, ENTITYNUM_NONE, contents, G2_NOCOLLIDE, 0);
@@ -867,10 +867,10 @@ bool		MoveTrace(const CVec3& Start, const CVec3& Stop, const CVec3& Mins, const 
 					  bool CheckForDoNotEnter=false,
 					  bool RetryIfStartInDoNotEnter=true,
 					  bool IgnoreAllEnts=false,
-					  int OverrideContents=0)
+					  contentsFlags_t OverrideContents=CONTENTS_NONE)
 {
-	int contents	= (MASK_NPCSOLID);
-	if (OverrideContents)
+	contentsFlags_t contents	= (MASK_NPCSOLID);
+	if (Any( OverrideContents ))
 	{
 		contents	= OverrideContents;
 	}
@@ -1329,7 +1329,7 @@ bool			NAV::TestEdge( TNodeHandle NodeA, TNodeHandle NodeB, bool IsDebugEdge )
 			// Find The Master
 			//-----------------
 			gentity_t *master = ent;
-			while (master && master->teammaster && (master->flags&FL_TEAMSLAVE))
+			while (master && master->teammaster && Any( master->flags & FL_TEAMSLAVE ))
 			{
 				master = master->teammaster;
 			}
@@ -1546,8 +1546,8 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			if (ent->NPC  || (ent->NPC_type && Q_stricmp(ent->NPC_type, "atst")==0))
 			{
 				NPCs.set_bit(curEnt);
-				ent->lastMoveTime = ent->contents;
-				ent->contents = 0;
+				ent->lastMoveTime = to_underlying( ent->contents );
+				ent->contents = CONTENTS_NONE;
 				gi.linkentity(ent);
 			}
 
@@ -1951,19 +1951,19 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 					gentity_t*	ent		= &g_entities[mMoveTrace.entityNum];
 					gi.Printf("Nav(%s)<->(%s):     on entity Type (%s), TargetName (%s)\n", aName, bName, ent->classname, ent->targetname);
 				}
-				if ((mMoveTrace.contents)&CONTENTS_MONSTERCLIP)
+				if (Any( (mMoveTrace.contents)&CONTENTS_MONSTERCLIP ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents BLOCKNPC\n", aName, bName);
 				}
-				else if ((mMoveTrace.contents)&CONTENTS_BOTCLIP)
+				else if (Any( (mMoveTrace.contents)&CONTENTS_BOTCLIP ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents DONOTENTER\n", aName, bName);
 				}
-				else if ((mMoveTrace.contents)&CONTENTS_SOLID)
+				else if (Any( (mMoveTrace.contents)&CONTENTS_SOLID ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents SOLID\n", aName, bName);
 				}
-				else if ((mMoveTrace.contents)&CONTENTS_WATER)
+				else if (Any( (mMoveTrace.contents)&CONTENTS_WATER ))
 				{
 					gi.Printf("Nav(%s)<->(%s):     with contents WATER\n", aName, bName);
 				}
@@ -2115,7 +2115,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			//--------------------------------------
 			else if (Walls.get_bit(curEnt))
 			{
-				ent->contents = 0;
+				ent->contents = CONTENTS_NONE;
 				gi.linkentity(ent);
 			}
 
@@ -2123,7 +2123,7 @@ bool			NAV::LoadFromEntitiesAndSaveToFile(const char *filename, int checksum)
 			//--------------------------------------
 			else if (NPCs.get_bit(curEnt))
 			{
-				ent->contents = ent->lastMoveTime;
+				ent->contents = static_cast<contentsFlags_t>( ent->lastMoveTime );
 				ent->lastMoveTime = 0;
 				gi.linkentity(ent);
 			}
@@ -2909,10 +2909,10 @@ bool	NAV::FindPath(gentity_t* actor, NAV::TNodeHandle target, float MaxDangerLev
 	CVec3	At(actor->currentOrigin);
 	float	AtTime	= level.time;
 	float	AtSpeed = actor->NPC->stats.runSpeed;
-	if (!(actor->NPC->scriptFlags&SCF_RUNNING) &&
-		((actor->NPC->scriptFlags&SCF_WALKING) ||
-		 (actor->NPC->aiFlags&NPCAI_WALKING) ||
-		 (ucmd.buttons&BUTTON_WALKING)
+	if (!Any(actor->NPC->scriptFlags&SCF_RUNNING) &&
+		(Any(actor->NPC->scriptFlags&SCF_WALKING) ||
+		 Any(actor->NPC->aiFlags&NPCAI_WALKING) ||
+		 Any(ucmd.buttons&BUTTON_WALKING)
 		))
 	{
 		AtSpeed	= actor->NPC->stats.walkSpeed;
@@ -4125,10 +4125,10 @@ void			STEER::Activate(gentity_t* actor)
 	suser.mRadius		= RadiusFromBounds(actor->mins, actor->maxs);
 	suser.mMaxForce		= 150.0f;		//STEER_TODO: Get From actor Somehow
 	suser.mMass			= 1.0f;			//STEER_TODO: Get From actor Somehow
-	if (!(actor->NPC->scriptFlags&SCF_RUNNING) &&
-		((actor->NPC->scriptFlags&SCF_WALKING) ||
-		 (actor->NPC->aiFlags&NPCAI_WALKING) ||
-		 (ucmd.buttons&BUTTON_WALKING)
+	if (!Any(actor->NPC->scriptFlags&SCF_RUNNING) &&
+		(Any(actor->NPC->scriptFlags&SCF_WALKING) ||
+		 Any(actor->NPC->aiFlags&NPCAI_WALKING) ||
+		 Any(ucmd.buttons&BUTTON_WALKING)
 		))
 	{
 		suser.mMaxSpeed	= actor->NPC->stats.walkSpeed;
@@ -4346,7 +4346,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 		{
 			// If Not Previously Blocked, Record The Start Time And Any Entites Involved
 			//---------------------------------------------------------------------------
-			if (!(actor->NPC->aiFlags&NPCAI_BLOCKED))
+			if (!Any(actor->NPC->aiFlags&NPCAI_BLOCKED))
 			{
 				actor->NPC->aiFlags				|= NPCAI_BLOCKED;
 				actor->NPC->blockedDebounceTime  = level.time;
@@ -4365,7 +4365,7 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 		{
 			// Nothing Blocking, So Turn Off The Blocked Stuff If It Is There
 			//----------------------------------------------------------------
-			if (actor->NPC->aiFlags&NPCAI_BLOCKED)
+			if (Any(actor->NPC->aiFlags&NPCAI_BLOCKED))
 			{
 				actor->NPC->aiFlags				&= ~NPCAI_BLOCKED;
 				actor->NPC->blockedDebounceTime  = 0;
@@ -4389,8 +4389,8 @@ void			STEER::DeActivate(gentity_t* actor, usercmd_t* ucmd)
 
 			// If He Can Fly Or Jump, Try That
 			//---------------------------------
-			if ((actor->NPC->scriptFlags&SCF_NAV_CAN_FLY) ||
-				(actor->NPC->scriptFlags&SCF_NAV_CAN_JUMP)
+			if (Any(actor->NPC->scriptFlags&SCF_NAV_CAN_FLY) ||
+				Any(actor->NPC->scriptFlags&SCF_NAV_CAN_JUMP)
 				)
 			{
 				// Ok, Well, How About Jumping To The Last Waypoint We Had That Was Valid
@@ -4647,7 +4647,7 @@ void			STEER::Blocked(gentity_t* actor, const vec3_t& target)
 bool			STEER::HasBeenBlockedFor(gentity_t* actor, int duration)
 {
 	return (
-		(actor->NPC->aiFlags&NPCAI_BLOCKED) &&
+		Any(actor->NPC->aiFlags&NPCAI_BLOCKED) &&
 		(level.time - actor->NPC->blockedDebounceTime)>duration
 		);
 }
@@ -4668,7 +4668,7 @@ float			STEER::Stop(gentity_t* actor, float weight)
 	suser.mDesiredSpeed		=  0.0f;
 	suser.mSteering			+= ((suser.mDesiredVelocity - suser.mVelocity) * weight);
 
-	if (actor->NPC->aiFlags&NPCAI_FLY)
+	if (Any(actor->NPC->aiFlags&NPCAI_FLY))
 	{
 		int nearestNode = NAV::GetNearestNode(actor);
 		if (nearestNode>0 && !mGraph.get_node(nearestNode).mFlags.get_bit( to_underlying( CWayNode::WN_FLOATING ) ))
@@ -5021,7 +5021,7 @@ float			STEER::Path(gentity_t* actor)
 
 		// Otherwise, If Next Point Is On The Ground, No Need To Fly Any Longer
 		//----------------------------------------------------------------------
-		else if (actor->NPC->aiFlags&NPCAI_FLY)
+		else if (Any(actor->NPC->aiFlags&NPCAI_FLY))
 		{
 			actor->NPC->aiFlags &= ~NPCAI_FLY;
 		}
@@ -5186,7 +5186,7 @@ bool		TestCollision(gentity_t* actor, SSteerUser& suser, const CVec3& ProjectVel
 
 		// If It's Breakable And We Can Go Through It, Then That's Safe Too
 		//------------------------------------------------------------------
-		if ((actor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
+		if (Any(actor->NPC->aiFlags&NPCAI_NAV_THROUGH_BREAKABLES) &&
 			G_EntIsBreakable(mMoveTrace.entityNum, actor))
 		{
 			Safe = true;

@@ -96,7 +96,7 @@ void NPC_ClearGoal( void )
 
 	goal = NPCInfo->lastGoalEntity;
 	NPCInfo->lastGoalEntity = nullptr;
-	if ( goal->inuse && !(goal->s.eFlags & EF_NODRAW) )
+	if ( goal->inuse && !Any(goal->s.eFlags & EF_NODRAW) )
 	{
 //		Debug_NPCPrintf( NPC, debugNPCAI, DEBUG_LEVEL_INFO, "NPC_ClearGoal: pop %s\n", goal->classname );
 		SetGoal( goal, 0 );//, NPCInfo->lastGoalEntityNeed
@@ -156,7 +156,7 @@ id removed checks against waypoints and is now checking surfaces
 bool ReachedGoal( gentity_t *goal )
 {
 
-	if ( NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL )
+	if ( Any( NPCInfo->aiFlags & NPCAI_TOUCHED_GOAL ) )
 	{
 		NPCInfo->aiFlags &= ~NPCAI_TOUCHED_GOAL;
 		return true;

@@ -613,13 +613,13 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 }
 
 #include "ui/ui_shared.h"	// for some text style junk
-void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color )
+void CG_DrawProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color )
 {
 	// having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
 	//	is dumb, but for now...
 	//
 	int iStyle = 0;
-	menuFont_t iMenuFont = (style & UI_SMALLFONT) ? FONT_SMALL : FONT_MEDIUM;
+	menuFont_t iMenuFont = Any( style & UI_SMALLFONT ) ? FONT_SMALL : FONT_MEDIUM;
 
 	switch (style & (UI_LEFT|UI_CENTER|UI_RIGHT))
 	{
@@ -643,12 +643,12 @@ void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 		break;
 	}
 
-	if (style & UI_DROPSHADOW)
+	if (Any( style & UI_DROPSHADOW ))
 	{
 		iStyle = ITEM_TEXTSTYLE_SHADOWED;
 	}
 	else
-	if ( style & (UI_BLINK|UI_PULSE) )
+	if ( Any( style & (UI_BLINK|UI_PULSE) ) )
 	{
 		iStyle = ITEM_TEXTSTYLE_BLINK;
 	}
@@ -656,7 +656,7 @@ void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 	CG_Text_Paint(x, y, 1.0, color, str, 0, 0, iStyle, iMenuFont);
 }
 
-void CG_DrawScaledProportionalString( int x, int y, const char* str, int style, vec4_t color, float scale)
+void CG_DrawScaledProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color, float scale)
 {
 	// having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
 	//	is dumb, but for now...
@@ -685,12 +685,12 @@ void CG_DrawScaledProportionalString( int x, int y, const char* str, int style, 
 		break;
 	}
 
-	if (style & UI_DROPSHADOW)
+	if (Any( style & UI_DROPSHADOW ))
 	{
 		iStyle = ITEM_TEXTSTYLE_SHADOWED;
 	}
 	else
-	if ( style & (UI_BLINK|UI_PULSE) )
+	if ( Any( style & (UI_BLINK|UI_PULSE) ) )
 	{
 		iStyle = ITEM_TEXTSTYLE_BLINK;
 	}

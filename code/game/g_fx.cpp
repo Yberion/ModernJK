@@ -793,7 +793,7 @@ void fx_explosion_trail_think( gentity_t *ent )
 	if ( tr.fraction < 1.0f )
 	{
 		// never explode or bounce on sky
-		if ( !( tr.surfaceFlags & SURF_NOIMPACT ))
+		if ( !Any( tr.surfaceFlags & SURF_NOIMPACT ))
 		{
 			if ( ent->splashDamage && ent->splashRadius )
 			{
@@ -1056,7 +1056,7 @@ void fx_target_beam_fire( gentity_t *ent )
 				}
 				else
 				{
-					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, 0, MOD_UNKNOWN );
+					G_Damage( victim, ent, ent->activator, dir, trace.endpos, ent->damage, DAMAGE_NORMAL, MOD_UNKNOWN );
 				}
 			}
 		}
@@ -1253,7 +1253,7 @@ void SP_fx_cloudlayer( gentity_t *ent )
 
 	G_SetOrigin( ent, ent->s.origin );
 
-	ent->contents = 0;
+	ent->contents = CONTENTS_NONE;
 	VectorSet( ent->maxs, 200, 200, 200 );
 	VectorScale( ent->maxs, -1, ent->mins );
 

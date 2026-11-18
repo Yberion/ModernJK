@@ -291,7 +291,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 //	vec3_t   muzzlePoint, endPoint;
 
 	//Must be a durational weapon that continuously generates an effect.
-	if ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.eFlags & EF_ALT_FIRING )
+	if ( cent->currentState.weapon == WP_DEMP2 && Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 	{ /*nothing*/ }
 	else
 	{
@@ -473,7 +473,7 @@ Ghoul2 Insert Start
 		if ( !ps ) {
 			// add weapon ready sound
 			cent->pe.lightningFiring = false;
-			if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
+			if ( Any( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 				// lightning gun and gauntlet make a different sound when fire is held down
 				trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
 				cent->pe.lightningFiring = true;
@@ -671,7 +671,7 @@ Ghoul2 Insert End
 		fxSArgs.bounce = 0.0f;
 		fxSArgs.life = 1.0f;
 		fxSArgs.shader = shader;
-		fxSArgs.flags = 0x08000000;
+		fxSArgs.flags = FX_USE_ALPHA;
 
 		//FX_AddSprite( flash.origin, nullptr, nullptr, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, Q_flrand(0.0f, 1.0f) * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
 		trap->FX_AddSprite(&fxSArgs);
@@ -689,7 +689,7 @@ Ghoul2 Insert End
 
 	// add the flash
 	if ( ( weaponNum == WP_DEMP2)
-		&& ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
+		&& Any( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
 	{
 		// continuous flash
 	} else {
@@ -735,7 +735,7 @@ Ghoul2 Insert End
 		if ( cent->muzzleEffectTime != cent->muzzleFlashTime )
 		{	// Handle muzzle flashes: once per shot, not at every frame of the flash (the effect carries the shot's sound)
 			cent->muzzleEffectTime = cent->muzzleFlashTime;
-			if ( cent->currentState.eFlags & EF_ALT_FIRING )
+			if ( Any( cent->currentState.eFlags & EF_ALT_FIRING ) )
 			{	// Check the alt firing first.
 				if (weapon->altMuzzleEffect)
 				{
@@ -814,7 +814,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	if ( !cg_drawGun.integer || cg.predictedPlayerState.zoomMode) {
 		vec3_t		origin;
 
-		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
+		if ( Any( cg.predictedPlayerState.eFlags & EF_FIRING ) ) {
 			// special hack for lightning gun...
 			VectorCopy( cg.refdef.vieworg, origin );
 			VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
@@ -1392,7 +1392,7 @@ void CG_NextWeapon_f( void ) {
 	if ( !cg.snap ) {
 		return;
 	}
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 
@@ -1458,7 +1458,7 @@ void CG_PrevWeapon_f( void ) {
 	if ( !cg.snap ) {
 		return;
 	}
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 
@@ -1523,7 +1523,7 @@ void CG_Weapon_f( void ) {
 	if ( !cg.snap ) {
 		return;
 	}
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 
@@ -1648,7 +1648,7 @@ void CG_WeaponClean_f( void ) {
 	if ( !cg.snap ) {
 		return;
 	}
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if ( Any( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
 		return;
 	}
 
@@ -1962,7 +1962,7 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 
 bool CG_VehicleWeaponImpact( centity_t *cent )
 {//see if this is a missile entity that's owned by a vehicle and should do a special, overridden impact effect
-	if ((cent->currentState.eFlags&EF_JETPACK_ACTIVE)//hack so we know we're a vehicle Weapon shot
+	if (Any(cent->currentState.eFlags&EF_JETPACK_ACTIVE)//hack so we know we're a vehicle Weapon shot
 		&& cent->currentState.otherEntityNum2
 		&& g_vehWeaponInfo[cent->currentState.otherEntityNum2].iImpactFX)
 	{//missile is from a special vehWeapon
@@ -2509,7 +2509,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 		return;
 	}
 
-	if (ps->pm_flags & PMF_FOLLOW)
+	if (Any( ps->pm_flags & PMF_FOLLOW ))
 	{
 		return;
 	}
@@ -2526,7 +2526,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 		cent->ghoul2weapon = CG_G2WeaponInstance(cent, WP_SABER);
 	}
 
-	if (cent->currentState.eFlags & EF_DEAD)
+	if (Any( cent->currentState.eFlags & EF_DEAD ))
 	{ //no updating weapons when dead
 		cent->ghoul2weapon = nullptr;
 		return;

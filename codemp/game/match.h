@@ -36,16 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // make sure this is the same character as we use in chats in g_cmd.c
 #define EC	"\x19"
 
-//match template contexts
-#define MTCONTEXT_MISC					2
-#define MTCONTEXT_INITIALTEAMCHAT		4
-#define MTCONTEXT_TIME					8
-#define MTCONTEXT_TEAMMATE				16
-#define MTCONTEXT_ADDRESSEE				32
-#define MTCONTEXT_PATROLKEYAREA			64
-#define MTCONTEXT_REPLYCHAT				128
-#define MTCONTEXT_CTF					256
-
 //message types
 #define MSG_NEWLEADER					1		//new leader
 #define MSG_ENTERGAME					2		//enter game message
@@ -97,30 +87,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MSG_CHATTELL					202
 //
 #define MSG_CTF							300		//ctf message
-
-//command sub types
-#define ST_SOMEWHERE					0
-#define ST_NEARITEM						1
-#define ST_ADDRESSED					2
-#define ST_METER						4
-#define ST_FEET							8
-#define ST_TIME							16
-#define ST_HERE							32
-#define ST_THERE						64
-#define ST_I							128
-#define ST_MORE							256
-#define ST_BACK							512
-#define ST_REVERSE						1024
-#define ST_SOMEONE						2048
-#define ST_GOTFLAG						4096
-#define ST_CAPTUREDFLAG					8192
-#define ST_RETURNEDFLAG					16384
-#define ST_TEAM							32768
-#define ST_1FCTFGOTFLAG					65535
-//ctf task preferences
-#define ST_DEFENDER						1
-#define ST_ATTACKER						2
-#define ST_ROAMER						4
 
 
 //word replacement variables

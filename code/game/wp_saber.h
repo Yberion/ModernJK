@@ -29,17 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define JSF_AMBUSH		16	//ambusher Jedi
 
-//saberEventFlags
-#define	SEF_HITENEMY	0x1		//Hit the enemy
-#define	SEF_HITOBJECT	0x2		//Hit some other object
-#define	SEF_HITWALL		0x4		//Hit a wall
-#define	SEF_PARRIED		0x8		//Parried a saber swipe
-#define	SEF_DEFLECTED	0x10	//Deflected a missile or saberInFlight
-#define	SEF_BLOCKED		0x20	//Was blocked by a parry
-#define	SEF_EVENTS		(SEF_HITENEMY|SEF_HITOBJECT|SEF_HITWALL|SEF_PARRIED|SEF_DEFLECTED|SEF_BLOCKED)
-#define	SEF_LOCKED		0x40	//Sabers locked with someone else
-#define	SEF_INWATER		0x80	//Saber is in water
-#define	SEF_LOCK_WON	0x100	//Won a saberLock
+#include "qcommon/q_saberflags.h"
 //saberEntityState
 #define SES_LEAVING		1
 #define SES_HOVERING	2
@@ -150,14 +140,20 @@ using enum direction_t;
 #define MAX_WALL_GRAB_SLOPE	0.2f
 
 //"Matrix" effect flags
-#define MEF_NO_TIMESCALE		0x000001	//no timescale
-#define MEF_NO_VERTBOB			0x000002	//no vert bob
-#define MEF_NO_SPIN				0x000004	//no spin
-#define MEF_NO_RANGEVAR			0x000008	//no camera range variation
-#define MEF_HIT_GROUND_STOP		0x000010	//stop effect when subject hits the ground
-#define MEF_REVERSE_SPIN		0x000020	//spin counter-clockwise instead of clockwise
-#define MEF_MULTI_SPIN			0x000040	//spin once every second, until the effect stops
-#define	MEF_LOOK_AT_ENEMY		0x000200
+enum class matrixEffectFlags_t
+{
+	MEF_NONE				= 0,
+	MEF_NO_TIMESCALE		= 0x000001,	//no timescale
+	MEF_NO_VERTBOB			= 0x000002,	//no vert bob
+	MEF_NO_SPIN				= 0x000004,	//no spin
+	MEF_NO_RANGEVAR			= 0x000008,	//no camera range variation
+	MEF_HIT_GROUND_STOP		= 0x000010,	//stop effect when subject hits the ground
+	MEF_REVERSE_SPIN		= 0x000020,	//spin counter-clockwise instead of clockwise
+	MEF_MULTI_SPIN			= 0x000040,	//spin once every second, until the effect stops
+	MEF_LOOK_AT_ENEMY		= 0x000200,
+};
+using enum matrixEffectFlags_t;
+template <> inline constexpr bool enableEnumFlags<matrixEffectFlags_t> = true;
 
 #define SABER_PITCH_HACK 90
 
@@ -175,7 +171,7 @@ extern const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE
 #define FORCE_SPEED_DURATION 10000.0f
 #define FORCE_RAGE_DURATION 10000.0f
 
-#define MASK_FORCE_PUSH (MASK_OPAQUE|CONTENTS_SOLID)
+inline constexpr contentsFlags_t MASK_FORCE_PUSH = MASK_OPAQUE | CONTENTS_SOLID;
 
 enum class forceJump_t
 {
@@ -456,7 +452,7 @@ typedef struct
 	animNumber_t animToUse;
 	saberQuadrant_t	startQuad;
 	saberQuadrant_t	endQuad;
-	unsigned animSetFlags;
+	setAnimFlags_t animSetFlags;
 	int blendTime;
 	saberBlockType_t blocking;
 	saberMoveName_t chain_idle;			// What move to call if the attack button is not pressed at the end of this anim

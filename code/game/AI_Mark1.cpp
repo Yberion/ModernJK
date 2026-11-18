@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MIN_DISTANCE				128
 #define MIN_DISTANCE_SQR			( MIN_DISTANCE * MIN_DISTANCE )
 
-#define TURN_OFF					0x00000100
+constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
 #define LEFT_ARM_HEALTH				40
 #define RIGHT_ARM_HEALTH			40
@@ -223,7 +223,7 @@ void Mark1Dead_FireBlaster (void)
 Mark1_die
 -------------------------
 */
-void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,int dFlags,hitLocation_t hitLoc )
+void Mark1_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	/*
 	animNumber_t	anim;
@@ -302,7 +302,7 @@ void Mark1_dying( gentity_t *self )
 
 		// See which weapons are there
 		// Randomly fire blaster
-		if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm" ))	// Is the blaster still on the model?
+		if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm" ) == G2SURFACEFLAG_NONE)	// Is the blaster still on the model?
 		{
 			if (Q_irand( 1, 5) == 1)
 			{
@@ -314,7 +314,7 @@ void Mark1_dying( gentity_t *self )
 		}
 
 		// Randomly fire rocket
-		if (!gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm" ))	// Is the rocket still on the model?
+		if (gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm" ) == G2SURFACEFLAG_NONE)	// Is the rocket still on the model?
 		{
 			if (Q_irand( 1, 10) == 1)
 			{
@@ -404,10 +404,10 @@ void NPC_Mark1_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 	}
 
 	// Are both guns shot off?
-	if ((gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm" )) &&
-		(gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm" )))
+	if ((gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "l_arm" ) != G2SURFACEFLAG_NONE) &&
+		(gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "r_arm" ) != G2SURFACEFLAG_NONE))
 	{
-		G_Damage(self,nullptr,nullptr,nullptr,nullptr,self->health,0,MOD_UNKNOWN);
+		G_Damage(self,nullptr,nullptr,nullptr,nullptr,self->health,DAMAGE_NORMAL,MOD_UNKNOWN);
 	}
 
 }
@@ -638,7 +638,7 @@ Mark1_AttackDecision
 */
 void Mark1_AttackDecision( void )
 {
-	int blasterTest,rocketTest;
+	std::optional<g2SurfaceFlags_t> blasterTest, rocketTest;
 
 	//randomly talk
 	if ( TIMER_Done(NPC,"patrolNoise") )
@@ -675,15 +675,15 @@ void Mark1_AttackDecision( void )
 	rocketTest = gi.G2API_GetSurfaceRenderStatus( &NPC->ghoul2[NPC->playerModel], "r_arm" );
 
 	// It has both side weapons
-	if (!blasterTest  && !rocketTest)
+	if (blasterTest == G2SURFACEFLAG_NONE  && rocketTest == G2SURFACEFLAG_NONE)
 	{
 		;	// So do nothing.
 	}
-	else if (blasterTest)
+	else if (blasterTest != G2SURFACEFLAG_NONE)
 	{
 		distRate = DIST_LONG;
 	}
-	else if (rocketTest)
+	else if (rocketTest != G2SURFACEFLAG_NONE)
 	{
 		distRate = DIST_MELEE;
 	}
@@ -757,7 +757,7 @@ void NPC_BSMark1_Default( void )
 		NPCInfo->goalEntity = NPC->enemy;
 		Mark1_AttackDecision();
 	}
-	else if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+	else if ( Any( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES ) )
 	{
 		Mark1_Patrol();
 	}

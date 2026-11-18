@@ -52,13 +52,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 //script flags
-#define SCFL_NOERRORS				0x0001
-#define SCFL_NOWARNINGS				0x0002
-#define SCFL_NOSTRINGWHITESPACES	0x0004
-#define SCFL_NOSTRINGESCAPECHARS	0x0008
-#define SCFL_PRIMITIVE				0x0010
-#define SCFL_NOBINARYNUMBERS		0x0020
-#define SCFL_NONUMBERVALUES		0x0040
+enum class scriptParseFlags_t
+{
+	SCFL_NONE = 0,
+	SCFL_NOERRORS				= 0x0001,
+	SCFL_NOWARNINGS				= 0x0002,
+	SCFL_NOSTRINGWHITESPACES	= 0x0004,
+	SCFL_NOSTRINGESCAPECHARS	= 0x0008,
+	SCFL_PRIMITIVE				= 0x0010,
+	SCFL_NOBINARYNUMBERS		= 0x0020,
+	SCFL_NONUMBERVALUES		= 0x0040,
+};
+using enum scriptParseFlags_t;
+template <> inline constexpr bool enableEnumFlags<scriptParseFlags_t> = true;
 
 //token types
 #define TT_STRING						1			// string
@@ -192,7 +198,7 @@ typedef struct script_s
 	int line;						//current line in script
 	int lastline;					//line before reading token
 	int tokenavailable;				//set by UnreadLastToken
-	int flags;						//several script flags
+	scriptParseFlags_t flags;						//several script flags
 	punctuation_t *punctuations;	//the punctuations used in the script
 	punctuation_t **punctuationtable;
 	token_t token;					//available token
@@ -230,9 +236,9 @@ long double ReadSignedFloat(script_t *script);
 //set an array with punctuations, nullptr restores default C/C++ set
 void SetScriptPunctuations(script_t *script, punctuation_t *p);
 //set script flags
-void SetScriptFlags(script_t *script, int flags);
+void SetScriptFlags(script_t *script, scriptParseFlags_t flags);
 //get script flags
-int GetScriptFlags(script_t *script);
+scriptParseFlags_t GetScriptFlags(script_t *script);
 //reset a script
 void ResetScript(script_t *script);
 //returns true if at the end of the script

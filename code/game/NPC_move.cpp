@@ -157,7 +157,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 					}
 					else
 					{
-						if ( trace.contents & CONTENTS_BOTCLIP )
+						if ( Any( trace.contents & CONTENTS_BOTCLIP ) )
 						{//hit a do-not-enter brush
 							blocked = true;
 							break;
@@ -272,8 +272,8 @@ trace_t		mJumpTrace;
 
 bool NPC_CanTryJump()
 {
-	if (!(NPCInfo->scriptFlags&SCF_NAV_CAN_JUMP)	||		// Can't Jump
-		(NPCInfo->scriptFlags&SCF_NO_ACROBATICS)	||		// If Can't Jump At All
+	if (!Any(NPCInfo->scriptFlags&SCF_NAV_CAN_JUMP)	||		// Can't Jump
+		Any(NPCInfo->scriptFlags&SCF_NO_ACROBATICS)	||		// If Can't Jump At All
 		(level.time<NPCInfo->jumpBackupTime)		||		// If Backing Up, Don't Try The Jump Again
 		(level.time<NPCInfo->jumpNextCheckTime)		||		// Don't Even Try To Jump Again For This Amount Of Time
 		(NPCInfo->jumpTime)							||		// Don't Jump If Already Going
@@ -574,8 +574,8 @@ bool NPC_Jumping()
 {
 	if ( NPCInfo->jumpTime )
 	{
-		if ( !(NPC->client->ps.pm_flags & PMF_JUMPING )//forceJumpZStart )
-			&& !(NPC->client->ps.pm_flags&PMF_TRIGGER_PUSHED))
+		if ( !Any(NPC->client->ps.pm_flags & PMF_JUMPING )//forceJumpZStart )
+			&& !Any(NPC->client->ps.pm_flags&PMF_TRIGGER_PUSHED))
 		{//landed
 			NPCInfo->jumpTime = 0;
 		}
@@ -770,25 +770,25 @@ bool NPC_MoveToGoal( bool tryStraight ) //FIXME: tryStraight not even used!  Sto
 		return true;
 	}
 
-	if( NPC->s.eFlags & EF_LOCKED_TO_WEAPON )
+	if( Any( NPC->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 	{//If in an emplaced gun, never try to navigate!
 		return true;
 	}
 
-	if( NPC->s.eFlags & EF_HELD_BY_RANCOR )
+	if( Any( NPC->s.eFlags & EF_HELD_BY_RANCOR ) )
 	{//If in a rancor's hand, never try to navigate!
 		return true;
 	}
-	if( NPC->s.eFlags & EF_HELD_BY_WAMPA )
+	if( Any( NPC->s.eFlags & EF_HELD_BY_WAMPA ) )
 	{//If in a wampa's hand, never try to navigate!
 		return true;
 	}
-	if( NPC->s.eFlags & EF_HELD_BY_SAND_CREATURE )
+	if( Any( NPC->s.eFlags & EF_HELD_BY_SAND_CREATURE ) )
 	{//If in a worm's mouth, never try to navigate!
 		return true;
 	}
 
-	if ( NPC->watertype & CONTENTS_LADDER )
+	if ( Any( NPC->watertype & CONTENTS_LADDER ) )
 	{//Do we still want to do this?
 		vec3_t	dir;
 		VectorSubtract( NPCInfo->goalEntity->currentOrigin, NPC->currentOrigin, dir );

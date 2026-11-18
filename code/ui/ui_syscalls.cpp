@@ -106,16 +106,16 @@ void trap_Key_ClearStates( void )
 	Key_ClearStates();
 }
 
-int Key_GetCatcher( void );
+keyCatchFlags_t Key_GetCatcher( void );
 
-int trap_Key_GetCatcher( void )
+keyCatchFlags_t trap_Key_GetCatcher( void )
 {
 	return Key_GetCatcher();
 }
 
-void Key_SetCatcher( int catcher );
+void Key_SetCatcher( keyCatchFlags_t catcher );
 
-void trap_Key_SetCatcher( int catcher )
+void trap_Key_SetCatcher( keyCatchFlags_t catcher )
 {
 	Key_SetCatcher( catcher );
 }
@@ -138,8 +138,8 @@ void trap_GetGlconfig( glconfig_t *glconfig )
 }
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
-int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits, const char *psAudioFile) {
-//  return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits, psAudioFile);
+int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, cinematicFlags_t bits, const char *psAudioFile) {
+//  return syscall(UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, to_underlying( bits ), psAudioFile);
 	return CIN_PlayCinematic( arg0, xpos, ypos, width, height, bits, psAudioFile );
 }
 

@@ -432,7 +432,7 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
-			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
+			if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
 				continue;
 			}
 			if (level.gametype == GT_SIEGE)
@@ -464,7 +464,7 @@ void G_AddRandomBot( std::optional<team_t> team ) {
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
-			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
+			if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
 				continue;
 			}
 			if (level.gametype == GT_SIEGE)
@@ -513,7 +513,7 @@ int G_RemoveRandomBot( std::optional<team_t> team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( !(g_entities[i].r.svFlags & SVF_BOT) )
+		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) )
 			continue;
 
 		if ( cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW )
@@ -545,7 +545,7 @@ int G_CountHumanPlayers( std::optional<team_t> team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( g_entities[i].r.svFlags & SVF_BOT ) {
+		if ( Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
 			continue;
 		}
 		if ( team && cl->sess.sessionTeam != *team ) {
@@ -571,7 +571,7 @@ int G_CountBotPlayers( std::optional<team_t> team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
+		if ( !Any( g_entities[i].r.svFlags & SVF_BOT ) ) {
 			continue;
 		}
 		if (level.gametype == GT_SIEGE)

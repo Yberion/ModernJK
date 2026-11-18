@@ -87,7 +87,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MOD_EXPLOSIVE MOD_SUICIDE
 #else
 #define bgEntity_t gentity_t
-extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,animNumber_t anim,int setAnimFlags, int iBlend);
+extern void NPC_SetAnim(gentity_t	*ent,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int iBlend);
 #endif
 
 extern float DotToSpot( vec3_t spot, vec3_t from, vec3_t fromAngles );
@@ -97,7 +97,7 @@ extern vec3_t playerMins;
 extern vec3_t playerMaxs;
 extern cvar_t	*g_speederControlScheme;
 extern void ChangeWeapon( gentity_t *ent, weapon_t newWeapon );
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 #endif
 
@@ -105,7 +105,7 @@ extern int PM_AnimLength( int index, animNumber_t anim );
 
 #include "../namespace_begin.h"
 
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void BG_SetAnim(playerState_t *ps, animation_t *animations, setAnimParts_t setAnimParts,int anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int BG_GetTime(void);
 #endif
 
@@ -353,7 +353,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 
 
 	if ( (pVeh->m_pPilot /*&& (pilotPS->weapon == WP_NONE || pilotPS->weapon == WP_MELEE )*/ &&
-		(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
+		Any(pVeh->m_ucmd.buttons & BUTTON_ALT_ATTACK) && pVeh->m_pVehicleInfo->turboSpeed)
 #ifdef _JK2MP
 		||
 		(parentPS && parentPS->electrifyTime > curTime && pVeh->m_pVehicleInfo->turboSpeed) //make them go!
@@ -527,7 +527,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	// In SP, The AI Pilots Can Directly Control The Speed Of Their Bike In Order To
 	// Match The Speed Of The Person They Are Trying To Chase
 	//-------------------------------------------------------------------------------
-	if (pVeh->m_pPilot && (pVeh->m_ucmd.buttons&BUTTON_VEH_SPEED))
+	if (pVeh->m_pPilot && Any(pVeh->m_ucmd.buttons&BUTTON_VEH_SPEED))
 	{
 		parentPS->speed = pVeh->m_pPilot->client->ps.speed;
 	}
@@ -651,7 +651,7 @@ void ProcessOrientCommands( Vehicle_t *pVeh )
 
 #ifdef QAGAME
 
-extern void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime);
+extern void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime);
 extern int PM_AnimLength( int index, animNumber_t anim );
 
 // This function makes sure that the vehicle is properly animated.
@@ -669,7 +669,7 @@ extern void CG_ChangeWeapon( weapon_t num );
 
 
 #ifndef _JK2MP
-extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
+extern void G_StartMatrixEffect( gentity_t *ent, matrixEffectFlags_t meFlags = MEF_NONE, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 #endif
 
 
@@ -681,7 +681,8 @@ void AnimateRiders( Vehicle_t *pVeh )
 {
 	animNumber_t Anim = BOTH_VS_IDLE;
 	//float fSpeedPercToMax;
-	int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
+	int iBlend = 300;
+	setAnimFlags_t iFlags = SETANIM_FLAG_NORMAL;
 	playerState_t *pilotPS;
 	//playerState_t *parentPS;
 	int curTime;
@@ -768,7 +769,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			// Kill Him
 			//----------
 			oldPilot->client->noRagTime = -1;	// no ragdoll for you
-			G_Damage(oldPilot, pVeh->m_pPilot, pVeh->m_pPilot, pVeh->m_pPilot->currentAngles, pVeh->m_pPilot->currentOrigin, 1000, 0, MOD_CRUSH);
+			G_Damage(oldPilot, pVeh->m_pPilot, pVeh->m_pPilot, pVeh->m_pPilot->currentAngles, pVeh->m_pPilot->currentOrigin, 1000, DAMAGE_NORMAL, MOD_CRUSH);
 
 			// Compute THe Throw Direction As Backwards From The Vehicle's Velocity
 			//----------------------------------------------------------------------
@@ -836,7 +837,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 */
 	{
 		bool		HasWeapon	= ((pilotPS->weapon != WP_NONE) && (pilotPS->weapon != WP_MELEE));
-		bool		Attacking	= (HasWeapon && !!(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
+		bool		Attacking	= (HasWeapon && !!Any(pVeh->m_ucmd.buttons&BUTTON_ATTACK));
 #ifdef _JK2MP //fixme: flying tends to spaz out a lot
 		bool		Flying		= false;
 		bool		Crashing	= false;
@@ -988,7 +989,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			}
 
 		}
-		else if (Left && pVeh->m_ucmd.buttons&BUTTON_USE)
+		else if (Left && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
 		{// Look To The Left Behind
 			iBlend	= 400;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
@@ -999,7 +1000,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			default:				Anim = BOTH_VS_LOOKLEFT;
 			}
 		}
-		else if (Right && pVeh->m_ucmd.buttons&BUTTON_USE)
+		else if (Right && Any( pVeh->m_ucmd.buttons&BUTTON_USE ))
 		{// Look To The Right Behind
 			iBlend	= 400;
 			iFlags	= SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;

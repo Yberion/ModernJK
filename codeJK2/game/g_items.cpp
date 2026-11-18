@@ -269,7 +269,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	*/
 
 	// dropped items are always picked up
-	if ( ent->flags & FL_DROPPED_ITEM )
+	if ( Any( ent->flags & FL_DROPPED_ITEM ) )
 	{
 		quantity = ent->count;
 	}
@@ -452,14 +452,14 @@ bool CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
 		GI_Inventory( *item->item ) == INV_SECURITY_KEY ) {
 		return false;
 	}
-	if ( (item->flags&FL_DROPPED_ITEM)
+	if ( Any( item->flags & FL_DROPPED_ITEM )
 		&& item->activator != &g_entities[0]
 		&& pickerupper->s.number
 		&& pickerupper->s.weapon == WP_NONE
 		&& pickerupper->enemy
 		&& pickerupper->painDebounceTime < level.time
 		&& pickerupper->NPC && pickerupper->NPC->surrenderTime < level.time //not surrendering
-		&& !(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) ) // not being forced to march
+		&& !Any(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) ) // not being forced to march
 	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
 		if ( level.time - item->s.time < 3000 )//was 5000
 		{
@@ -543,7 +543,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	if ( other->client )
 	{
-		if ( other->client->ps.eFlags&EF_FORCE_GRIPPED )
+		if ( Any( other->client->ps.eFlags&EF_FORCE_GRIPPED ) )
 		{//can't pick up anything while being gripped
 			return;
 		}
@@ -773,7 +773,7 @@ Respawn the item
 */
 void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-	if ( (ent->svFlags&SVF_PLAYER_USABLE) && other && !other->s.number )
+	if ( Any( ent->svFlags & SVF_PLAYER_USABLE ) && other && !other->s.number )
 	{//used directly by the player, pick me up
 		GEntity_TouchFunc( ent, other, nullptr );
 	}
@@ -911,7 +911,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 /* ? don't need this
 	// team slaves and targeted items aren't present at start
-	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
+	if ( Any( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->contents = 0;
 		return;
@@ -920,12 +920,12 @@ void FinishSpawningItem( gentity_t *ent ) {
 	if ( ent->spawnflags & ITMSF_INVISIBLE ) // invisible
 	{
 		ent->s.eFlags |= EF_NODRAW;
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 	}
 
 	if ( ent->spawnflags & ITMSF_NOTSOLID ) // not solid
 	{
-		ent->contents = 0;
+		ent->contents = CONTENTS_NONE;
 	}
 
 	gi.linkentity (ent);
@@ -1097,8 +1097,8 @@ G_RunItem
 void G_RunItem( gentity_t *ent ) {
 	vec3_t		origin;
 	trace_t		tr;
-	int			contents;
-	int			mask;
+	contentsFlags_t	contents;
+	contentsFlags_t	mask;
 
 	// if groundentity has been set to -1, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE )
@@ -1129,7 +1129,7 @@ void G_RunItem( gentity_t *ent ) {
 	EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
 	// trace a line from the previous position to the current position
-	if ( ent->clipmask )
+	if ( Any( ent->clipmask ) )
 	{
 		mask = ent->clipmask;
 	}
@@ -1194,7 +1194,7 @@ void G_RunItem( gentity_t *ent ) {
 
 	// if it is in a nodrop volume, remove it
 	contents = gi.pointcontents( ent->currentOrigin, -1 );
-	if ( contents & CONTENTS_NODROP )
+	if ( Any( contents & CONTENTS_NODROP ) )
 	{
 		G_FreeEntity( ent );
 		return;

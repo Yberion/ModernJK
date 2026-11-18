@@ -36,9 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	MAX_ENTITIES_IN_SNAPSHOT	512
 
-#define	SNAPFLAG_RATE_DELAYED		1		// the server withheld a packet to save bandwidth
-#define	SNAPFLAG_DROPPED_COMMANDS	2		// the server lost some cmds coming from the client
-
 // snapshots are a view of the server at a given time
 
 // Snapshots are generated at regular time intervals by the server,
@@ -46,7 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // they may be dropped by the network.
 struct snapshot_s
 {
-	int				snapFlags;			// SNAPFLAG_RATE_DELAYED, SNAPFLAG_DROPPED_COMMANDS
+	snapFlags_t		snapFlags;			// SNAPFLAG_RATE_DELAYED, SNAPFLAG_DROPPED_COMMANDS
 
 	int				serverTime;		// server time the message is valid for (in msec)
 

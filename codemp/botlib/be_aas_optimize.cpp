@@ -137,7 +137,7 @@ int AAS_OptimizeEdge(optimized_t *optimized, int edgenum)
 //===========================================================================
 int AAS_KeepFace(aas_face_t *face)
 {
-	if (!(face->faceflags & FACE_LADDER)) return 0;
+	if (!Any( face->faceflags & FACE_LADDER )) return 0;
 	else return 1;
 } //end of the function AAS_KeepFace
 //===========================================================================

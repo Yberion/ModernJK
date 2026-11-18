@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 cvar_t		*cvar_vars = nullptr;
 cvar_t		*cvar_cheats;
-int			cvar_modifiedFlags;
+cvarFlags_t	cvar_modifiedFlags;
 
 #define	MAX_CVARS	8192
 cvar_t		cvar_indexes[MAX_CVARS];
@@ -182,11 +182,11 @@ void Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize 
 Cvar_Flags
 ============
 */
-int Cvar_Flags( const char *var_name ) {
+std::optional<cvarFlags_t> Cvar_Flags( const char *var_name ) {
 	cvar_t *var;
 
 	if(!(var = Cvar_FindVar(var_name)))
-		return CVAR_NONEXISTENT;
+		return std::nullopt;
 	else
 	{
 		if(var->modified)
@@ -205,7 +205,7 @@ void	Cvar_CommandCompletion( callbackFunc_t callback ) {
 	cvar_t		*cvar;
 
 	for ( cvar = cvar_vars ; cvar ; cvar = cvar->next ) {
-		if ( (cvar->flags & CVAR_CHEAT) && !cvar_cheats->integer )
+		if ( Any(cvar->flags & CVAR_CHEAT) && !cvar_cheats->integer )
 		{
 			continue;
 		}
@@ -323,7 +323,7 @@ If the variable already exists, the value will not be set unless CVAR_ROM
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
+cvar_t *Cvar_Get( const char *var_name, const char *var_value, cvarFlags_t flags ) {
 	cvar_t	*var;
 	long	hash;
 	int		index;
@@ -349,26 +349,26 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		var_value = Cvar_Validate(var, var_value, false);
 
 		// Make sure the game code cannot mark engine-added variables as gamecode vars
-		if(var->flags & CVAR_VM_CREATED)
+		if(Any( var->flags & CVAR_VM_CREATED ))
 		{
-			if(!(flags & CVAR_VM_CREATED))
+			if(!Any(flags & CVAR_VM_CREATED))
 				var->flags &= ~CVAR_VM_CREATED;
 		}
-		else if (!(var->flags & CVAR_USER_CREATED))
+		else if (!Any(var->flags & CVAR_USER_CREATED))
 		{
-			if(flags & CVAR_VM_CREATED)
+			if(Any( flags & CVAR_VM_CREATED ))
 				flags &= ~CVAR_VM_CREATED;
 		}
 
 		// if the C code is now specifying a variable that the user already
 		// set a value for, take the new value as the reset value
-		if ( var->flags & CVAR_USER_CREATED )
+		if ( Any( var->flags & CVAR_USER_CREATED ) )
 		{
 			var->flags &= ~CVAR_USER_CREATED;
 			Cvar_FreeString( var->resetString );
 			var->resetString = CopyString( var_value );
 
-			if(flags & CVAR_ROM)
+			if(Any( flags & CVAR_ROM ))
 			{
 				// this variable was set by the user,
 				// so force it to value given by the engine.
@@ -381,14 +381,14 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		}
 
 		// Make sure servers cannot mark engine-added variables as SERVER_CREATED
-		if(var->flags & CVAR_SERVER_CREATED)
+		if(Any( var->flags & CVAR_SERVER_CREATED ))
 		{
-			if(!(flags & CVAR_SERVER_CREATED))
+			if(!Any(flags & CVAR_SERVER_CREATED))
 				var->flags &= ~CVAR_SERVER_CREATED;
 		}
 		else
 		{
-			if(flags & CVAR_SERVER_CREATED)
+			if(Any( flags & CVAR_SERVER_CREATED ))
 				flags &= ~CVAR_SERVER_CREATED;
 		}
 
@@ -554,7 +554,7 @@ Prints the value, default, and latched string of the given variable
 void Cvar_Print( cvar_t *v ) {
 	Com_Printf( S_COLOR_GREY "Cvar " S_COLOR_WHITE "%s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE, v->name, v->string );
 
-	if ( !(v->flags & CVAR_ROM) ) {
+	if ( !Any(v->flags & CVAR_ROM) ) {
 		if ( !Q_stricmp( v->string, v->resetString ) )
 			Com_Printf( ", " S_COLOR_WHITE "the default" );
 		else
@@ -598,7 +598,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 		if ( !force ) {
 			return Cvar_Get( var_name, value, CVAR_USER_CREATED );
 		} else {
-			return Cvar_Get (var_name, value, 0);
+			return Cvar_Get (var_name, value, CVAR_NONE);
 		}
 	}
 
@@ -608,7 +608,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 
 	value = Cvar_Validate(var, value, true);
 
-	if((var->flags & CVAR_LATCH) && var->latchedString)
+	if(Any(var->flags & CVAR_LATCH) && var->latchedString)
 	{
 		if(!strcmp(value, var->string))
 		{
@@ -628,19 +628,19 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 
 	if (!force)
 	{
-		if (var->flags & CVAR_ROM)
+		if (Any( var->flags & CVAR_ROM ))
 		{
 			Com_Printf ("%s is read only.\n", var_name);
 			return var;
 		}
 
-		if (var->flags & CVAR_INIT)
+		if (Any( var->flags & CVAR_INIT ))
 		{
 			Com_Printf ("%s is write protected.\n", var_name);
 			return var;
 		}
 
-		if (var->flags & CVAR_LATCH)
+		if (Any( var->flags & CVAR_LATCH ))
 		{
 			if (var->latchedString)
 			{
@@ -661,7 +661,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 			return var;
 		}
 
-		if ( (var->flags & CVAR_CHEAT) && !cvar_cheats->integer )
+		if ( Any(var->flags & CVAR_CHEAT) && !cvar_cheats->integer )
 		{
 			Com_Printf ("%s is cheat protected.\n", var_name);
 			return var;
@@ -764,7 +764,7 @@ void Cvar_SetCheatState( void ) {
 
 	// set all default vars to the safe value
 	for ( var = cvar_vars ; var ; var = var->next ) {
-		if ( var->flags & CVAR_CHEAT ) {
+		if ( Any( var->flags & CVAR_CHEAT ) ) {
 			// the CVAR_LATCHED|CVAR_CHEAT vars might escape the reset here
 			// because of a different var->latchedString
 			if (var->latchedString)
@@ -919,19 +919,19 @@ void Cvar_Set_f( void ) {
 	}
 	switch( cmd[3] ) {
 		case 'a':
-			if( !( v->flags & CVAR_ARCHIVE ) ) {
+			if( !Any( v->flags & CVAR_ARCHIVE ) ) {
 				v->flags |= CVAR_ARCHIVE;
 				cvar_modifiedFlags |= CVAR_ARCHIVE;
 			}
 			break;
 		case 'u':
-			if( !( v->flags & CVAR_USERINFO ) ) {
+			if( !Any( v->flags & CVAR_USERINFO ) ) {
 				v->flags |= CVAR_USERINFO;
 				cvar_modifiedFlags |= CVAR_USERINFO;
 			}
 			break;
 		case 's':
-			if( !( v->flags & CVAR_SERVERINFO ) ) {
+			if( !Any( v->flags & CVAR_SERVERINFO ) ) {
 				v->flags |= CVAR_SERVERINFO;
 				cvar_modifiedFlags |= CVAR_SERVERINFO;
 			}
@@ -975,7 +975,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 		if ( !var->name || Q_stricmp( var->name, "cl_cdkey" ) == 0 )
 			continue;
 
-		if ( var->flags & CVAR_ARCHIVE ) {
+		if ( Any( var->flags & CVAR_ARCHIVE ) ) {
 			// write the latched value, even if it hasn't taken effect yet
 			if ( var->latchedString ) {
 				if( strlen( var->name ) + strlen( var->latchedString ) + 10 > sizeof( buffer ) ) {
@@ -983,7 +983,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 							"\"%s\" too long to write to file\n", var->name );
 					continue;
 				}
-				if ( (var->flags & CVAR_NODEFAULT) && !strcmp( var->latchedString, var->resetString ) ) {
+				if ( Any(var->flags & CVAR_NODEFAULT) && !strcmp( var->latchedString, var->resetString ) ) {
 					continue;
 				}
 				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->latchedString);
@@ -993,7 +993,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 							"\"%s\" too long to write to file\n", var->name );
 					continue;
 				}
-				if ( (var->flags & CVAR_NODEFAULT) && !strcmp( var->string, var->resetString ) ) {
+				if ( Any(var->flags & CVAR_NODEFAULT) && !strcmp( var->string, var->resetString ) ) {
 					continue;
 				}
 				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->string);
@@ -1023,15 +1023,15 @@ void Cvar_List_f( void ) {
 		if ( !var->name || (match && !Com_Filter( match, var->name, false )) )
 			continue;
 
-		if (var->flags & CVAR_SERVERINFO)	Com_Printf( "S" );	else Com_Printf( " " );
-		if (var->flags & CVAR_SYSTEMINFO)	Com_Printf( "s" );	else Com_Printf( " " );
-		if (var->flags & CVAR_USERINFO)		Com_Printf( "U" );	else Com_Printf( " " );
-		if (var->flags & CVAR_ROM)			Com_Printf( "R" );	else Com_Printf( " " );
-		if (var->flags & CVAR_INIT)			Com_Printf( "I" );	else Com_Printf( " " );
-		if (var->flags & CVAR_ARCHIVE)		Com_Printf( "A" );	else Com_Printf( " " );
-		if (var->flags & CVAR_LATCH)		Com_Printf( "L" );	else Com_Printf( " " );
-		if (var->flags & CVAR_CHEAT)		Com_Printf( "C" );	else Com_Printf( " " );
-		if (var->flags & CVAR_USER_CREATED)	Com_Printf( "?" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_SERVERINFO ))	Com_Printf( "S" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_SYSTEMINFO ))	Com_Printf( "s" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_USERINFO ))		Com_Printf( "U" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_ROM ))			Com_Printf( "R" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_INIT ))			Com_Printf( "I" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_ARCHIVE ))		Com_Printf( "A" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_LATCH ))		Com_Printf( "L" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_CHEAT ))		Com_Printf( "C" );	else Com_Printf( " " );
+		if (Any( var->flags & CVAR_USER_CREATED ))	Com_Printf( "?" );	else Com_Printf( " " );
 
 		Com_Printf( S_COLOR_WHITE " %s = " S_COLOR_GREY "\"" S_COLOR_WHITE "%s" S_COLOR_GREY "\"" S_COLOR_WHITE, var->name, var->string );
 		if ( var->latchedString )
@@ -1073,7 +1073,7 @@ void Cvar_ListUserCreated_f( void ) {
 		var=var->next )
 	{
 		char *value = var->latchedString ? var->latchedString : var->string;
-		if ( !(var->flags & CVAR_USER_CREATED) )
+		if ( !Any(var->flags & CVAR_USER_CREATED) )
 			continue;
 
 		Com_Printf( S_COLOR_GREY "Cvar "
@@ -1154,7 +1154,7 @@ void Cvar_Unset_f(void)
 	if(!cv)
 		return;
 
-	if(cv->flags & CVAR_USER_CREATED)
+	if(Any( cv->flags & CVAR_USER_CREATED ))
 		Cvar_Unset(cv);
 	else
 		Com_Printf("Error: %s: Variable %s is not user created.\n", Cmd_Argv(0), cv->name);
@@ -1167,7 +1167,7 @@ void Cvar_UnsetUserCreated_f(void)
 
 	while ( curvar )
 	{
-		if ( ( curvar->flags & CVAR_USER_CREATED ) )
+		if ( Any( curvar->flags & CVAR_USER_CREATED ) )
 		{
 			// throw out any variables the user created
 			curvar = Cvar_Unset( curvar );
@@ -1200,15 +1200,15 @@ void Cvar_Restart(bool unsetVM)
 
 	while(curvar)
 	{
-		if((curvar->flags & CVAR_USER_CREATED) ||
-			(unsetVM && (curvar->flags & CVAR_VM_CREATED)))
+		if(Any(curvar->flags & CVAR_USER_CREATED) ||
+			(unsetVM && Any(curvar->flags & CVAR_VM_CREATED)))
 		{
 			// throw out any variables the user/vm created
 			curvar = Cvar_Unset(curvar);
 			continue;
 		}
 
-		if(!(curvar->flags & (CVAR_ROM | CVAR_INIT | CVAR_NORESTART)))
+		if(!Any(curvar->flags & (CVAR_ROM | CVAR_INIT | CVAR_NORESTART)))
 		{
 			// Just reset the rest to their default values.
 			Cvar_Set2(curvar->name, curvar->resetString, false);
@@ -1234,14 +1234,14 @@ void Cvar_Restart_f( void ) {
 Cvar_InfoString
 =====================
 */
-char	*Cvar_InfoString( int bit ) {
+char	*Cvar_InfoString( cvarFlags_t bit ) {
 	static char	info[MAX_INFO_STRING];
 	cvar_t	*var;
 
 	info[0] = 0;
 
 	for (var = cvar_vars ; var ; var = var->next) {
-		if (var->name && (var->flags & bit)) {
+		if (var->name && Any(var->flags & bit)) {
 			Info_SetValueForKey (info, var->name, var->string);
 		}
 	}
@@ -1253,7 +1253,7 @@ char	*Cvar_InfoString( int bit ) {
 Cvar_InfoStringBuffer
 =====================
 */
-void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
+void Cvar_InfoStringBuffer( cvarFlags_t bit, char* buff, int buffsize ) {
 	Q_strncpyz(buff,Cvar_InfoString(bit),buffsize);
 }
 
@@ -1280,7 +1280,7 @@ Cvar_Register
 basically a slightly modified Cvar_Get for the interpreted modules
 =====================
 */
-void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
+void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, cvarFlags_t flags ) {
 	cvar_t	*cv;
 
 	// There is code in Cvar_Get to prevent CVAR_ROM cvars being changed by the

@@ -325,14 +325,14 @@ void ExplodeDeath( gentity_t *self )
 	ObjectDie( self, self, self, 20, MOD_UNKNOWN );
 }
 
-void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void ExplodeDeath_Wait( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	self->e_DieFunc = dieF_NULL;
 	self->nextthink = level.time + Q_irand(100, 500);
 	self->e_ThinkFunc = thinkF_ExplodeDeath;
 }
 
-void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,int dFlags,hitLocation_t hitLoc )
+void ExplodeDeath( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath,damageFlags_t dFlags,hitLocation_t hitLoc )
 {
 	self->currentOrigin[2] += 16; // me bad for hacking this.  should either do it in the effect file or make a custom explode death??
 	ExplodeDeath( self );
@@ -453,19 +453,19 @@ void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float so
 			continue;
 
 		//Don't bother if they're ignoring enemies
-		if ( radiusEnts[i]->svFlags & SVF_IGNORE_ENEMIES )
+		if ( Any( radiusEnts[i]->svFlags & SVF_IGNORE_ENEMIES ) )
 			continue;
 
 		//This NPC specifically flagged to ignore alerts
-		if ( radiusEnts[i]->NPC->scriptFlags & SCF_IGNORE_ALERTS )
+		if ( Any( radiusEnts[i]->NPC->scriptFlags & SCF_IGNORE_ALERTS ) )
 			continue;
 
 		//This NPC specifically flagged to ignore alerts
-		if ( !(radiusEnts[i]->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
+		if ( !Any(radiusEnts[i]->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 			continue;
 
 		//this ent does not participate in group AI
-		if ( (radiusEnts[i]->NPC->scriptFlags&SCF_NO_GROUPS) )
+		if ( Any(radiusEnts[i]->NPC->scriptFlags&SCF_NO_GROUPS) )
 			continue;
 
 		//Skip the requested avoid radiusEnts[i] if present
@@ -724,7 +724,7 @@ void G_MakeTeamVulnerable( void )
 		{
 			continue;
 		}
-		if ( !(ent->flags&FL_UNDYING) )
+		if ( !Any( ent->flags & FL_UNDYING ) )
 		{
 			continue;
 		}
@@ -790,7 +790,7 @@ bool G_JediInRoom( vec3_t from )
 		{
 			continue;
 		}
-		if ( ent->s.eFlags&EF_NODRAW )
+		if ( Any( ent->s.eFlags&EF_NODRAW ) )
 		{
 			continue;
 		}
@@ -1789,7 +1789,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	trace_t	trace;
 
 	//make sure this limb hasn't been lopped off already!
-	if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], limbName ) )
+	if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], limbName ) != G2SURFACEFLAG_NONE )
 	{//already lost this limb
 		return false;
 	}
@@ -1903,7 +1903,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	}
 	if ( limbCapName )
 	{//turn on caps
-		gi.G2API_SetSurfaceOnOff( &limb->ghoul2[limb->playerModel], limbCapName, 0 );
+		gi.G2API_SetSurfaceOnOff( &limb->ghoul2[limb->playerModel], limbCapName, G2SURFACEFLAG_NONE );
 	}
 //3) turn off w/descendants that surf in original model
 //NOTE: we actually change the ent's stuff on the cgame side so that there is no 50ms lag
@@ -1922,12 +1922,12 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	if ( limbName )
 	{
 		limb->target2 = G_NewString( limbName );
-		//gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], limbName, 0x00000100 );//G2SURFACEFLAG_NODESCENDANTS
+		//gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], limbName, G2SURFACEFLAG_NODESCENDANTS );//G2SURFACEFLAG_NODESCENDANTS
 	}
 	if ( stubCapName )
 	{//turn on caps
 		limb->target3 = G_NewString( stubCapName );
-		//gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], stubCapName, 0 );
+		//gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], stubCapName, G2SURFACEFLAG_NONE );
 	}
 	G_SetLimbAnim( *limb, limbAnim );
 //
@@ -1940,7 +1940,7 @@ static bool G_Dismember( gentity_t *ent, vec3_t point,
 	{//the corpse hasn't dropped their weapon
 		if ( limbAnim == BOTH_DISMEMBER_RARM || limbAnim == BOTH_DISMEMBER_TORSO1 )//&& ent->s.weapon == WP_SABER && ent->weaponModel != -1 )
 		{//FIXME: is this first check needed with this lower one?
-			if ( !gi.G2API_GetSurfaceRenderStatus( &limb->ghoul2[0], "r_hand" ) )
+			if ( gi.G2API_GetSurfaceRenderStatus( &limb->ghoul2[0], "r_hand" ) == G2SURFACEFLAG_NONE )
 			{//only copy the weapon over if the right hand is actually on this limb...
 				//copy it to limb
 				if ( ent->s.weapon != WP_NONE )
@@ -3331,15 +3331,15 @@ int G_CheckLedgeDive( gentity_t *self, float checkDist, vec3_t checkVel, bool tr
 player_die
 ==================
 */
-void NPC_SetAnim(gentity_t	*ent,int type,animNumber_t anim,int priority);
+void NPC_SetAnim(gentity_t	*ent,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority);
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern bool FlyingCreature( gentity_t *ent );
 extern void G_DrivableATSTDie( gentity_t *self );
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, int dflags, hitLocation_t hitLoc )
+void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath, damageFlags_t dflags, hitLocation_t hitLoc )
 {
 	std::optional<animNumber_t>	anim;
-	int			contents;
+	contentsFlags_t	contents;
 	bool	deathScript = false;
 	bool	lastInGroup = false;
 	bool	specialAnim = false;
@@ -3347,14 +3347,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			cliff_fall = 0;
 
 	//FIXME: somehow people are sometimes not completely dying???
-	if ( self->client->ps.pm_type == PM_DEAD && (meansOfDeath != MOD_SNIPER || (self->flags & FL_DISINTEGRATED)) )
+	if ( self->client->ps.pm_type == PM_DEAD && (meansOfDeath != MOD_SNIPER || Any( self->flags & FL_DISINTEGRATED )) )
 	{//do dismemberment/twitching
 		if ( self->client->NPC_class == CLASS_MARK1 )
 		{
 			DeathFX(self);
 			self->takedamage = false;
 			self->client->ps.eFlags |= EF_NODRAW;
-			self->contents = 0;
+			self->contents = CONTENTS_NONE;
 			// G_FreeEntity( self ); // Is this safe?  I can't see why we'd mark it nodraw and then just leave it around??
 			self->e_ThinkFunc = thinkF_G_FreeEntity;
 			self->nextthink = level.time + FRAMETIME;
@@ -3362,7 +3362,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		else
 		{
 			anim = G_PickDeathAnim( self, self->pos1, damage, meansOfDeath, hitLoc );
-			if ( dflags & DAMAGE_DISMEMBER )
+			if ( Any( dflags & DAMAGE_DISMEMBER ) )
 			{
 				G_DoDismemberment( self, self->pos1, meansOfDeath, damage, hitLoc );
 			}
@@ -3400,7 +3400,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			G_FreeEntity( self->NPC->tempGoal );
 			self->NPC->tempGoal = nullptr;
 		}
-		if ( self->s.eFlags & EF_LOCKED_TO_WEAPON )
+		if ( Any( self->s.eFlags & EF_LOCKED_TO_WEAPON ) )
 		{
 			// dumb, just get the NPC out of the chair
 extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
@@ -3604,7 +3604,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	contents = gi.pointcontents( self->currentOrigin, -1 );
 	if ( !holdingSaber
 		//&& self->s.number != 0
-		&& !( contents & CONTENTS_NODROP )
+		&& !Any( contents & CONTENTS_NODROP )
 		&& meansOfDeath != MOD_SNIPER
 		&& (!self->client||self->client->NPC_class!=CLASS_GALAKMECH))
 	{
@@ -3771,7 +3771,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			{
 				G_SoundOnEnt( self, CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN
 			}
-			else if (!(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
+			else if (!Any(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 			{
 				G_SoundOnEnt( self, CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN
 				//so we don't do this again
@@ -3809,7 +3809,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//HMM: check for nodrop?
 			G_SoundOnEnt( self, CHAN_BODY, "sound/player/fallsplat.wav" );
 			if ( gi.VoiceVolume[self->s.number]
-				&& self->NPC && (self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
+				&& self->NPC && Any(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 			{//I was talking, so cut it off... with a jump sound?
 				G_SoundOnEnt( self, CHAN_VOICE_ATTEN, "*pain100.wav" );
 			}
@@ -3847,7 +3847,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 						{
 							G_SoundOnEnt( self, CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN
 						}
-						else if (!(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
+						else if (!Any(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 						{
 							G_SoundOnEnt( self, CHAN_VOICE, "*falling1.wav" );//CHAN_VOICE_ATTEN
 							self->NPC->aiFlags |= NPCAI_DIE_ON_IMPACT;
@@ -3855,7 +3855,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 						}
 					}
 				}
-				if ( self->client->ps.pm_time > 0 && self->client->ps.pm_flags & PMF_TIME_KNOCKBACK && self->client->ps.velocity[2] > 0 )
+				if ( self->client->ps.pm_time > 0 && Any( self->client->ps.pm_flags & PMF_TIME_KNOCKBACK ) && self->client->ps.velocity[2] > 0 )
 				{
 					float	thrown, dot;
 					vec3_t	throwdir, forward;
@@ -3980,7 +3980,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		if ( !anim )
 		{
 			if ( meansOfDeath == MOD_ELECTROCUTE
-				|| (meansOfDeath == MOD_CRUSH && self->s.eFlags&EF_FORCE_GRIPPED) )
+				|| (meansOfDeath == MOD_CRUSH && Any( self->s.eFlags&EF_FORCE_GRIPPED )) )
 			{//electrocuted or choked to death
 				anim = BOTH_DEATH17;
 			}
@@ -4039,7 +4039,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			}
 
 			//not solid anymore
-			self->contents = 0;
+			self->contents = CONTENTS_NONE;
 			self->maxs[2] = -8;
 
 			if ( self->NPC )
@@ -4051,7 +4051,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		else
 		{
 			if ( hitLoc == HL_HEAD
-				&& !(dflags&DAMAGE_RADIUS)
+				&& !Any( dflags & DAMAGE_RADIUS )
 				&& meansOfDeath!=MOD_REPEATER_ALT
 				&& meansOfDeath!=MOD_FLECHETTE_ALT
 				&& meansOfDeath!=MOD_ROCKET
@@ -4072,7 +4072,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			}
 			else
 			{
-				if ( (self->client->ps.eFlags&EF_FORCE_GRIPPED) )
+				if ( Any(self->client->ps.eFlags&EF_FORCE_GRIPPED) )
 				{//killed while gripped - no loud scream
 					G_AlertTeam( self, attacker, 512, 32 );
 				}
@@ -4109,7 +4109,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	}
 
 	//do any dismemberment if there's any to do...
-	if ( (dflags&DAMAGE_DISMEMBER) && G_DoDismemberment( self, self->pos1, meansOfDeath, damage, hitLoc ) && !specialAnim )
+	if ( Any( dflags & DAMAGE_DISMEMBER ) && G_DoDismemberment( self, self->pos1, meansOfDeath, damage, hitLoc ) && !specialAnim )
 	{//we did dismemberment and our death anim is okay to override
 		if ( hitLoc == HL_HAND_RT && self->locationDamage[hitLoc] >= Q3_INFINITE && cliff_fall != 2 && self->client->ps.groundEntityNum != ENTITYNUM_NONE )
 		{//just lost our right hand and we're on the ground, use the special anim
@@ -4145,7 +4145,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		deathScript = true;
 	}
 
-	if ( self->NPC && (self->NPC->scriptFlags&SCF_FFDEATH) )
+	if ( self->NPC && Any(self->NPC->scriptFlags&SCF_FFDEATH) )
 	{
 		if ( G_ActivateBehavior( self, BSET_FFDEATH ) )
 		{//FIXME: should running this preclude running the normal deathscript?
@@ -4154,7 +4154,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		G_UseTargets2( self, self, self->target4 );
 	}
 
-	if ( !deathScript && !(self->svFlags&SVF_KILLED_SELF) )
+	if ( !deathScript && !Any( self->svFlags & SVF_KILLED_SELF ) )
 	{
 		//Should no longer run scripts
 		//WARNING!!! DO NOT DO THIS WHILE RUNNING A SCRIPT, ICARUS WILL CRASH!!!
@@ -4216,9 +4216,9 @@ void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t
 	if ( self->client->NPC_class == CLASS_ATST )
 	{//different kind of pain checking altogether
 		G_ATSTCheckPain( self, other, point, damage, mod, hitLoc );
-		int blasterTest = gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head_light_blaster_cann" );
-		int chargerTest = gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head_concussion_charger" );
-		if ( blasterTest && chargerTest )
+		const std::optional<g2SurfaceFlags_t> blasterTest = gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head_light_blaster_cann" );
+		const std::optional<g2SurfaceFlags_t> chargerTest = gi.G2API_GetSurfaceRenderStatus( &self->ghoul2[self->playerModel], "head_concussion_charger" );
+		if ( blasterTest != G2SURFACEFLAG_NONE && chargerTest != G2SURFACEFLAG_NONE )
 		{//lost both side guns
 			//take away that weapon
 			self->client->ps.stats[STAT_WEAPONS] &= ~Bit( WP_ATST_SIDE );
@@ -4232,7 +4232,7 @@ void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t
 	else
 	{
 		// play an apropriate pain sound
-		if ( level.time > self->painDebounceTime && !(self->flags & FL_GODMODE) )
+		if ( level.time > self->painDebounceTime && !Any( self->flags & FL_GODMODE ) )
 		{//first time hit this frame and not in godmode
 			self->client->ps.damageEvent++;
 			if ( !Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
@@ -4251,7 +4251,7 @@ void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t
 					&& !PM_SaberInSpecialAttack( self->client->ps.torsoAnim )
 					&& !PM_InKnockDown( &self->client->ps ) )
 				{//strong attacks and spins cannot be interrupted by pain, no pain when in knockdown
-					int	parts = SETANIM_BOTH;
+					setAnimParts_t	parts = SETANIM_BOTH;
 					if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE &&
 						!PM_SpinningSaberAnim( self->client->ps.legsAnim ) &&
 						!PM_FlippingAnim( self->client->ps.legsAnim ) &&
@@ -4301,7 +4301,7 @@ void PlayerPain( gentity_t *self, gentity_t *inflictor, gentity_t *other, vec3_t
 CheckArmor
 ================
 */
-int CheckArmor (gentity_t *ent, int damage, int dflags)
+int CheckArmor (gentity_t *ent, int damage, damageFlags_t dflags)
 {
 	gclient_t	*client;
 	int			save;
@@ -4315,7 +4315,7 @@ int CheckArmor (gentity_t *ent, int damage, int dflags)
 	if (!client)
 		return 0;
 
-	if ( (dflags&DAMAGE_NO_ARMOR) )
+	if ( Any( dflags & DAMAGE_NO_ARMOR ) )
 		return 0;
 
 	if ( client->NPC_class == CLASS_GALAKMECH )
@@ -4448,13 +4448,13 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, vec3_t pushDir, float st
 	}
 }
 
-void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, int dflags, meansOfDeath_t mod )
+void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, damageFlags_t dflags, meansOfDeath_t mod )
 {
 	if ( !targ || !attacker )
 	{
 		return;
 	}
-	if ( !(dflags&DAMAGE_RADIUS) )
+	if ( !Any( dflags & DAMAGE_RADIUS ) )
 	{//not inherently explosive damage, check mod
 		if ( mod!=MOD_REPEATER_ALT
 			&&mod!=MOD_FLECHETTE_ALT
@@ -4607,7 +4607,7 @@ static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDis
 	return 0;
 }
 
-static void G_FriendlyFireReaction( gentity_t *self, gentity_t *other, int dflags )
+static void G_FriendlyFireReaction( gentity_t *self, gentity_t *other, damageFlags_t dflags )
 {
 	if ( (!player->client->ps.viewEntity || other->s.number != player->client->ps.viewEntity))
 	{//hit by a teammate
@@ -4619,7 +4619,7 @@ static void G_FriendlyFireReaction( gentity_t *self, gentity_t *other, int dflag
 			}
 			else if ( self->NPC && !other->s.number )//should be assumed, but...
 			{//dammit, stop that!
-				if ( !(dflags&DAMAGE_RADIUS) )
+				if ( !Any( dflags & DAMAGE_RADIUS ) )
 				{
 					//if it's radius damage, ignore it
 					if ( self->NPC->ffireDebounce < level.time )
@@ -4794,7 +4794,7 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, meansOfDeath_t mod, hitLocation_t hitLoc )
+void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, damageFlags_t dflags, meansOfDeath_t mod, hitLocation_t hitLoc )
 {
 	gclient_t	*client;
 	int			take;
@@ -4809,28 +4809,28 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	if ( targ->health <= 0 && !targ->client )
 	{	// allow corpses to be disintegrated
-		if( mod != MOD_SNIPER || (targ->flags & FL_DISINTEGRATED) )
+		if( mod != MOD_SNIPER || Any( targ->flags & FL_DISINTEGRATED ) )
 		return;
 	}
 
 	// if we are the player and we are locked to an emplaced gun, we have to reroute damage to the gun....sigh.
-	if ( targ->s.eFlags & EF_LOCKED_TO_WEAPON && targ->s.number == 0 && targ->owner && !( targ->owner->flags & FL_GODMODE ))
+	if ( Any( targ->s.eFlags & EF_LOCKED_TO_WEAPON ) && targ->s.number == 0 && targ->owner && !Any( targ->owner->flags & FL_GODMODE ))
 	{
 		// swapping the gun into our place to absorb our damage
 		targ = targ->owner;
 	}
 
-	if ( (targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
+	if ( Any( targ->flags & FL_SHIELDED ) && mod != MOD_SABER  && !targ->client)
 	{//magnetically protected, this thing can only be damaged by lightsabers
 		return;
 	}
 
-	if ( (targ->flags&FL_DMG_BY_SABER_ONLY) && mod != MOD_SABER )
+	if ( Any( targ->flags & FL_DMG_BY_SABER_ONLY ) && mod != MOD_SABER )
 	{//can only be damaged by lightsabers (but no shield... yeah, it's redundant, but whattayagonnado?)
 		return;
 	}
 
-	if (( targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY ) && !( dflags & DAMAGE_HEAVY_WEAP_CLASS ))
+	if (Any( targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY ) && !Any( dflags & DAMAGE_HEAVY_WEAP_CLASS ))
 	{
 		// can only be damaged by an heavy type weapon...but impacting missile was in the heavy weap class...so we just aren't taking damage from this missile
 		return;
@@ -4878,7 +4878,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		}
 	}
 
-	if ( dflags&DAMAGE_NO_DAMAGE )
+	if ( Any( dflags & DAMAGE_NO_DAMAGE ) )
 	{
 		damage = 0;
 	}
@@ -4894,7 +4894,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	if ( targ->s.number != 0 )
 	{//not the player
-		if ( (targ->flags&FL_GODMODE) || (targ->flags&FL_UNDYING) )
+		if ( Any( targ->flags & FL_GODMODE ) || Any( targ->flags & FL_UNDYING ) )
 		{//have god or undying on, so ignore no protection flag
 			dflags &= ~DAMAGE_NO_PROTECTION;
 		}
@@ -4928,7 +4928,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			{//Galak takes no impact damage
 				return;
 			}
-			if ( (dflags & DAMAGE_RADIUS)
+			if ( Any( dflags & DAMAGE_RADIUS )
 				|| mod == MOD_REPEATER_ALT
 				|| mod == MOD_FLECHETTE_ALT
 				|| mod == MOD_ROCKET
@@ -4974,7 +4974,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	knockback = damage;
 
 	//Attempt to apply extra knockback
-	if ( dflags & DAMAGE_EXTRA_KNOCKBACK )
+	if ( Any( dflags & DAMAGE_EXTRA_KNOCKBACK ) )
 	{
 		knockback *= 2;
 	}
@@ -4987,7 +4987,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	{
 		knockback = 0;
 	}
-	else if ( targ->flags & FL_NO_KNOCKBACK )
+	else if ( Any( targ->flags & FL_NO_KNOCKBACK ) )
 	{
 		knockback = 0;
 	}
@@ -4995,19 +4995,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	{
 		knockback = 0;
 	}
-	else if ( dflags & DAMAGE_NO_KNOCKBACK )
+	else if ( Any( dflags & DAMAGE_NO_KNOCKBACK ) )
 	{
 		knockback = 0;
 	}
 	// figure momentum add, even if the damage won't be taken
-	if ( knockback && !(dflags&DAMAGE_DEATH_KNOCKBACK) ) //&& targ->client
+	if ( knockback && !Any( dflags & DAMAGE_DEATH_KNOCKBACK ) ) //&& targ->client
 	{
 		G_ApplyKnockback( targ, newDir, knockback );
 		G_CheckKnockdown( targ, attacker, newDir, dflags, mod );
 	}
 
 	// check for godmode, completely getting out of the damage
-	if ( targ->flags & FL_GODMODE && !(dflags&DAMAGE_NO_PROTECTION) )
+	if ( Any( targ->flags & FL_GODMODE ) && !Any( dflags & DAMAGE_NO_PROTECTION ) )
 	{
 		if ( targ->client
 			&& attacker->client
@@ -5021,7 +5021,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 	// Check for team damage
 	/*
-	if ( targ != attacker && !(dflags&DAMAGE_IGNORE_TEAM) && OnSameTeam (targ, attacker)  )
+	if ( targ != attacker && !Any( dflags & DAMAGE_IGNORE_TEAM ) && OnSameTeam (targ, attacker)  )
 	{//on same team
 		if ( !targ->client )
 		{//a non-player object should never take damage from an ent on the same team
@@ -5090,7 +5090,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		}
 		take -= asave;
 	}
-	if ( !(dflags&DAMAGE_NO_HIT_LOC) || !(dflags&DAMAGE_RADIUS))
+	if ( !Any( dflags & DAMAGE_NO_HIT_LOC ) || !Any( dflags & DAMAGE_RADIUS ))
 	{
 		if ( !G_NonLocationSpecificDamage( mod ) )
 		{//certain kinds of damage don't care about hitlocation
@@ -5146,7 +5146,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			}
 		}
 	}
-	if ( take || (dflags&DAMAGE_NO_DAMAGE) )
+	if ( take || Any( dflags & DAMAGE_NO_DAMAGE ) )
 	{
 		if ( !targ->client || !attacker->client )
 		{
@@ -5155,7 +5155,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			{
 				targ->health = 0;
 			}
-			if ( !alreadyDead && ( ((targ->flags&FL_UNDYING) && !(dflags&DAMAGE_NO_PROTECTION)) || (dflags&DAMAGE_NO_KILL)) )
+			if ( !alreadyDead && ( (Any( targ->flags & FL_UNDYING ) && !Any( dflags & DAMAGE_NO_PROTECTION )) || Any( dflags & DAMAGE_NO_KILL )) )
 			{
 				if(targ->health < 1)
 				{
@@ -5210,7 +5210,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 					targ->health = 0;
 				}
 
-				if ( !alreadyDead && ( ((targ->flags&FL_UNDYING) && !(dflags&DAMAGE_NO_PROTECTION)) || (dflags&DAMAGE_NO_KILL) ) )
+				if ( !alreadyDead && ( (Any( targ->flags & FL_UNDYING ) && !Any( dflags & DAMAGE_NO_PROTECTION )) || Any( dflags & DAMAGE_NO_KILL ) ) )
 				{
 					if ( targ->health < 1 )
 					{
@@ -5239,7 +5239,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				//2) NPCs don't take any damage from player during combat
 				else
 				{//an NPC
-					if ( ((dflags & DAMAGE_RADIUS)) && !(dflags&DAMAGE_IGNORE_TEAM) )
+					if ( (Any( dflags & DAMAGE_RADIUS )) && !Any( dflags & DAMAGE_IGNORE_TEAM ) )
 					{//An NPC got hit by player and this is during combat or it was slash damage
 						//NOTE: though it's not realistic to have teammates not take splash damage,
 						//		even when not in combat, it feels really bad to have them able to
@@ -5247,7 +5247,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 						takeDamage = false;
 					}
 
-					if ( (dflags & DAMAGE_RADIUS) )
+					if ( Any( dflags & DAMAGE_RADIUS ) )
 					{//you're fighting and it's just radius damage, so don't even mention it
 						yellAtAttacker = false;
 					}
@@ -5256,7 +5256,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				if ( takeDamage )
 				{
 					targ->health = targ->health - take;
-					if ( !alreadyDead && (((targ->flags&FL_UNDYING) && !(dflags&DAMAGE_NO_PROTECTION) && attacker->s.number != 0) || (dflags&DAMAGE_NO_KILL) ) )
+					if ( !alreadyDead && ((Any( targ->flags & FL_UNDYING ) && !Any( dflags & DAMAGE_NO_PROTECTION ) && attacker->s.number != 0) || Any( dflags & DAMAGE_NO_KILL ) ) )
 					{//guy is marked undying and we're not the player or we're in combat
 						if ( targ->health < 1 )
 						{
@@ -5265,7 +5265,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 							targ->health = 1;
 						}
 					}
-					else if ( !alreadyDead && (((targ->flags&FL_UNDYING) && !(dflags&DAMAGE_NO_PROTECTION) && !attacker->s.number && !targ->s.number) || (dflags&DAMAGE_NO_KILL)) )
+					else if ( !alreadyDead && ((Any( targ->flags & FL_UNDYING ) && !Any( dflags & DAMAGE_NO_PROTECTION ) && !attacker->s.number && !targ->s.number) || Any( dflags & DAMAGE_NO_KILL )) )
 					{// player is undying and he's attacking himself, don't let him die
 						if ( targ->health < 1 )
 						{
@@ -5339,7 +5339,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		}
 		if ( targ->health <= 0 )
 		{
-			if ( knockback && (dflags&DAMAGE_DEATH_KNOCKBACK) )//&& targ->client
+			if ( knockback && Any( dflags & DAMAGE_DEATH_KNOCKBACK ) )//&& targ->client
 			{//only do knockback on death
 				if ( mod == MOD_FLECHETTE )
 				{//special case because this is shotgun-ish damage, we need to multiply the knockback
@@ -5355,7 +5355,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 				targ->health = -999;
 
 			// If we are a breaking glass brush, store the damage point so we can do cool things with it.
-			if ( targ->svFlags & SVF_GLASS_BRUSH )
+			if ( Any( targ->svFlags & SVF_GLASS_BRUSH ) )
 			{
 				VectorCopy( point, targ->pos1 );
 				VectorCopy( dir, targ->pos2 );
@@ -5413,7 +5413,7 @@ bool CanDamage (gentity_t *targ, vec3_t origin) {
 
 	VectorCopy (midpoint, dest);
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
-	if (( tr.fraction == 1.0 && !(targ->contents & MASK_SOLID)) || tr.entityNum == targ->s.number ) // if we also test the entitynum's we can bust up bbrushes better!
+	if (( tr.fraction == 1.0 && !Any( targ->contents & MASK_SOLID )) || tr.entityNum == targ->s.number ) // if we also test the entitynum's we can bust up bbrushes better!
 		return true;
 
 	// this should probably check in the plane of projection,
@@ -5422,28 +5422,28 @@ bool CanDamage (gentity_t *targ, vec3_t origin) {
 	dest[0] += 15.0;
 	dest[1] += 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
-	if (( tr.fraction == 1.0 && !(targ->contents & MASK_SOLID)) || tr.entityNum == targ->s.number )
+	if (( tr.fraction == 1.0 && !Any( targ->contents & MASK_SOLID )) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
-	if (( tr.fraction == 1.0 && !(targ->contents & MASK_SOLID)) || tr.entityNum == targ->s.number )
+	if (( tr.fraction == 1.0 && !Any( targ->contents & MASK_SOLID )) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
-	if (( tr.fraction == 1.0 && !(targ->contents & MASK_SOLID)) || tr.entityNum == targ->s.number )
+	if (( tr.fraction == 1.0 && !Any( targ->contents & MASK_SOLID )) || tr.entityNum == targ->s.number )
 		return true;
 
 	VectorCopy (midpoint, dest);
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
 	gi.trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, G2_NOCOLLIDE, 0);
-	if (( tr.fraction == 1.0 && !(targ->contents & MASK_SOLID)) || tr.entityNum == targ->s.number )
+	if (( tr.fraction == 1.0 && !Any( targ->contents & MASK_SOLID )) || tr.entityNum == targ->s.number )
 		return true;
 
 
@@ -5485,7 +5485,7 @@ void G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float ra
 			continue;
 		if ( !ent->takedamage )
 			continue;
-		if ( !ent->contents )
+		if ( !Any( ent->contents ) )
 			continue;
 
 		// find the distance from the edge of the bounding box
@@ -5508,7 +5508,7 @@ void G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float ra
 
 		if (CanDamage (ent, origin))
 		{//FIXME: still do a little damage in in PVS and close?
-			if ( ent->svFlags & (SVF_GLASS_BRUSH|SVF_BBRUSH) )
+			if ( Any( ent->svFlags & (SVF_GLASS_BRUSH|SVF_BBRUSH) ) )
 			{
 				VectorAdd( ent->absmin, ent->absmax, v );
 				VectorScale( v, 0.5f, v );
@@ -5523,7 +5523,7 @@ void G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float ra
 			// get knocked into the air more
 			dir[2] += 24;
 
-			if ( ent->svFlags & SVF_GLASS_BRUSH )
+			if ( Any( ent->svFlags & SVF_GLASS_BRUSH ) )
 			{
 				if ( points > 1.0f )
 				{

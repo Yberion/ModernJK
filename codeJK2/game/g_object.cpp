@@ -52,7 +52,7 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	VectorMA( velocity, -2*dot*bounceFactor, trace->plane.normal, ent->s.pos.trDelta );
 
 	//FIXME: customized or material-based impact/bounce sounds
-	if ( ent->s.eFlags & EF_BOUNCE_HALF )
+	if ( Any( ent->s.eFlags & EF_BOUNCE_HALF ) )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.5, ent->s.pos.trDelta );
 
@@ -138,10 +138,10 @@ void G_RunObject( gentity_t *ent )
 
 	G_MoverTouchPushTriggers( ent, oldOrg );
 	/*
-	if ( !(ent->s.eFlags & EF_TELEPORT_BIT) && !(ent->svFlags & SVF_NO_TELEPORT) )
+	if ( !Any(ent->s.eFlags & EF_TELEPORT_BIT) && !Any( ent->svFlags & SVF_NO_TELEPORT ) )
 	{
 		G_MoverTouchTeleportTriggers( ent, oldOrg );
-		if ( ent->s.eFlags & EF_TELEPORT_BIT )
+		if ( Any( ent->s.eFlags & EF_TELEPORT_BIT ) )
 		{//was teleported
 			return;
 		}
@@ -197,7 +197,7 @@ void G_RunObject( gentity_t *ent )
 			}
 			G_Sound( ent, G_SoundIndex( "sound/movers/objects/objectHit.wav" ) );
 		}
-		DoImpact( ent, traceEnt, (!(tr.surfaceFlags & SURF_NODAMAGE)) );
+		DoImpact( ent, traceEnt, (!Any( tr.surfaceFlags & SURF_NODAMAGE )) );
 	}
 
 	if ( !ent || (ent->takedamage&&ent->health <= 0) )
@@ -212,7 +212,7 @@ void G_RunObject( gentity_t *ent )
 	{//FIXME: only do this if no trDelta
 		if ( g_gravity->value <= 0 || tr.plane.normal[2] < 0.7 )
 		{
-			if ( ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF) )
+			if ( Any( ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF) ) )
 			{
 				if ( tr.fraction <= 0.0f )
 				{

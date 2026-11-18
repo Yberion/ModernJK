@@ -251,7 +251,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 			ent->pain = NPC_ATST_Pain;
 		}
 		//turn the damn hatch cover on and LEAVE it on
-		trap->G2API_SetSurfaceOnOff( ent->ghoul2, "head_hatchcover", 0/*TURN_ON*/ );
+		trap->G2API_SetSurfaceOnOff( ent->ghoul2, "head_hatchcover", G2SURFACEFLAG_NONE/*TURN_ON*/ );
 	}
 	if ( !Q_stricmp( "wampa", ent->NPC_type ) )
 	{//FIXME: extern this into NPC.cfg?
@@ -816,7 +816,7 @@ void NPC_SpawnEffect (gentity_t *ent)
 //--------------------------------------------------------------
 void NPC_SetFX_SpawnStates( gentity_t *ent )
 {
-	if ( !(ent->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY) )
+	if ( !Any(ent->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY) )
 	{
 		ent->client->ps.gravity = g_gravity.value;
 	}
@@ -846,7 +846,7 @@ bool NPC_SpotWouldTelefrag( gentity_t *npc )
 		if (hit->inuse
 			&& hit->client
 			&& hit->s.number != npc->s.number
-			&& (hit->r.contents&MASK_NPCSOLID)
+			&& Any( hit->r.contents&MASK_NPCSOLID )
 			&& hit->s.number != npc->r.ownerNum
 			&& hit->r.ownerNum != npc->s.number)
 		{
@@ -1008,7 +1008,7 @@ void NPC_Begin (gentity_t *ent)
 	}
 	else
 	{
-		ent->r.contents = 0;
+		ent->r.contents = CONTENTS_NONE;
 		ent->clipmask = MASK_NPCSOLID&~CONTENTS_BODY;
 	}
 	/*
@@ -1021,7 +1021,7 @@ void NPC_Begin (gentity_t *ent)
 
 	ent->die = player_die;
 	ent->waterlevel = 0;
-	ent->watertype = 0;
+	ent->watertype = CONTENTS_NONE;
 	ent->client->ps.rocketLockIndex = ENTITYNUM_NONE;
 	ent->client->ps.rocketLockTime = 0;
 
@@ -1078,7 +1078,7 @@ void NPC_Begin (gentity_t *ent)
 
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity.value * 1000;
-	client->latched_buttons = 0;
+	client->latched_buttons = BUTTON_NONE;
 	if ( ent->s.m_iVehicleNum )
 	{//I'm an NPC in a vehicle (or a vehicle), I already have owner set
 	}
@@ -1174,7 +1174,7 @@ void NPC_Begin (gentity_t *ent)
 
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 
-	if ( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON )
+	if ( Any( ent->NPC->aiFlags & NPCAI_MATCHPLAYERWEAPON ) )
 	{
 		//G_MatchPlayerWeapon( ent );
 		//rwwFIXMEFIXME: Use this? Probably doesn't really matter for MP.
@@ -1379,7 +1379,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 		VectorCopy( ent->r.currentOrigin, saveOrg );
 		VectorCopy( ent->r.currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, false, 0, 0 );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, false, G2TRFLAG_NONE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -1455,15 +1455,15 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 		ent->NPC_type = Q_strlwr( G_NewString( ent->NPC_type ) );
 	}
 
-	if ( ent->r.svFlags & SVF_NO_BASIC_SOUNDS )
+	if ( Any( ent->r.svFlags & SVF_NO_BASIC_SOUNDS ) )
 	{
 		newent->r.svFlags |= SVF_NO_BASIC_SOUNDS;
 	}
-	if ( ent->r.svFlags & SVF_NO_COMBAT_SOUNDS )
+	if ( Any( ent->r.svFlags & SVF_NO_COMBAT_SOUNDS ) )
 	{
 		newent->r.svFlags |= SVF_NO_COMBAT_SOUNDS;
 	}
-	if ( ent->r.svFlags & SVF_NO_EXTRA_SOUNDS )
+	if ( Any( ent->r.svFlags & SVF_NO_EXTRA_SOUNDS ) )
 	{
 		newent->r.svFlags |= SVF_NO_EXTRA_SOUNDS;
 	}
@@ -3986,10 +3986,10 @@ gentity_t *NPC_SpawnType( gentity_t *ent, const char *npc_type, char *targetname
 	AngleVectors(ent->client->ps.viewangles, forward, nullptr, nullptr);
 	VectorNormalize(forward);
 	VectorMA(ent->r.currentOrigin, 64, forward, end);
-	trap->Trace(&trace, ent->r.currentOrigin, nullptr, nullptr, end, 0, MASK_SOLID, false, 0, 0);
+	trap->Trace(&trace, ent->r.currentOrigin, nullptr, nullptr, end, 0, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] -= 24;
-	trap->Trace(&trace, trace.endpos, nullptr, nullptr, end, 0, MASK_SOLID, false, 0, 0);
+	trap->Trace(&trace, trace.endpos, nullptr, nullptr, end, 0, MASK_SOLID, false, G2TRFLAG_NONE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] += 24;
 	G_SetOrigin(NPCspawner, end);
@@ -4239,7 +4239,7 @@ void NPC_Kill_f( void )
 			}
 		}
 		/*
-		else if ( player && (player->r.svFlags&SVF_NPC_PRECACHE) )
+		else if ( player && Any( player->r.svFlags & SVF_NPC_PRECACHE ) )
 		{//a spawner
 			Com_Printf( S_COLOR_GREEN"Removing NPC spawner %s named %s\n", player->NPC_type, player->targetname );
 			G_FreeEntity( player );

@@ -105,28 +105,34 @@ enum class weaponstate_t {
 using enum weaponstate_t;
 
 // pmove->pm_flags
-#define	PMF_DUCKED			1
-#define	PMF_JUMP_HELD		2
-#define	PMF_JUMPING			4		// yes, I really am in a jump -- Mike, you may want to come up with something better here since this is really a temp fix.
-#define	PMF_BACKWARDS_JUMP	8		// go into backwards land
-#define	PMF_BACKWARDS_RUN	16		// coast down to backwards run
-#define	PMF_TIME_LAND		32		// pm_time is time before rejump
-#define	PMF_TIME_KNOCKBACK	64		// pm_time is an air-accelerate only time
-#define	PMF_TIME_NOFRICTION	128		// pm_time is a no-friction time
-//#define	PMF_BLOCKED			128		// Bumped into something you can't step up - NOTHING WAS EVER CHECKING THIS
-#define	PMF_TIME_WATERJUMP	256		// pm_time is waterjump
-#define	PMF_RESPAWNED		512		// clear after attack and jump buttons come up
-#define	PMF_USE_FORCE		1024	// for debouncing the button
-#define PMF_JUMP_DUCKED		2048	// viewheight changes in mid-air
-#define PMF_TRIGGER_PUSHED	4096	// pushed by a trigger_push or other such thing - cannot force jump and will not take impact damage
-//#define PMF_FOLLOW			4096	// spectate following another player
-#define PMF_SCOREBOARD		8192	// spectate as a scoreboard
-//#define	PMF_BUMPED			16384	// Bumped into something and slid to the side - NOTHING WAS EVER CHECKING THIS
-#define PMF_SLOW_MO_FALL	16384	// Fall slower until hit ground
-#define	PMF_ATTACK_HELD		32768	// Holding down the attack button
-#define	PMF_ALT_ATTACK_HELD	65536	// Holding down the alt-attack button
+enum class pmoveFlags_t
+{
+	PMF_NONE = 0,
+	PMF_DUCKED			= 1,
+	PMF_JUMP_HELD		= 2,
+	PMF_JUMPING			= 4,		// yes, I really am in a jump -- Mike, you may want to come up with something better here since this is really a temp fix.
+	PMF_BACKWARDS_JUMP	= 8,		// go into backwards land
+	PMF_BACKWARDS_RUN	= 16,		// coast down to backwards run
+	PMF_TIME_LAND		= 32,		// pm_time is time before rejump
+	PMF_TIME_KNOCKBACK	= 64,		// pm_time is an air-accelerate only time
+	PMF_TIME_NOFRICTION	= 128,		// pm_time is a no-friction time
+	//PMF_BLOCKED			= 128,		// Bumped into something you can't step up - NOTHING WAS EVER CHECKING THIS
+	PMF_TIME_WATERJUMP	= 256,		// pm_time is waterjump
+	PMF_RESPAWNED		= 512,		// clear after attack and jump buttons come up
+	PMF_USE_FORCE		= 1024,	// for debouncing the button
+	PMF_JUMP_DUCKED		= 2048,	// viewheight changes in mid-air
+	PMF_TRIGGER_PUSHED	= 4096,	// pushed by a trigger_push or other such thing - cannot force jump and will not take impact damage
+	//PMF_FOLLOW			= 4096,	// spectate following another player
+	PMF_SCOREBOARD		= 8192,	// spectate as a scoreboard
+	//PMF_BUMPED			= 16384,	// Bumped into something and slid to the side - NOTHING WAS EVER CHECKING THIS
+	PMF_SLOW_MO_FALL	= 16384,	// Fall slower until hit ground
+	PMF_ATTACK_HELD		= 32768,	// Holding down the attack button
+	PMF_ALT_ATTACK_HELD	= 65536,	// Holding down the alt-attack button
 
-#define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_NOFRICTION)
+	PMF_ALL_TIMES	= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_NOFRICTION),
+};
+using enum pmoveFlags_t;
+template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
 #define	MAXTOUCH	32
 typedef struct gentity_s gentity_t;
@@ -136,7 +142,7 @@ typedef struct {
 
 	// command (in)
 	usercmd_t	cmd;
-	int			tracemask;			// collide against these types of surfaces
+	contentsFlags_t	tracemask;			// collide against these types of surfaces
 	int			debugLevel;			// if set, diagnostic output will be printed
 	bool	noFootsteps;		// if the game is setup for no footsteps by the server
 
@@ -148,7 +154,7 @@ typedef struct {
 
 	vec3_t		mins, maxs;			// bounding box size
 
-	int			watertype;
+	contentsFlags_t	watertype;
 	int			waterlevel;
 
 	float		xyspeed;
@@ -157,8 +163,8 @@ typedef struct {
 	// callbacks to test the world
 	// these will be different functions during game and cgame
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-						const int passEntityNum, const int contentMask, const EG2_Collision eG2TraceType/* = G2_NOCOLLIDE*/, const int useLod/* = 0 */);
-	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+						const int passEntityNum, const contentsFlags_t contentMask, const EG2_Collision eG2TraceType/* = G2_NOCOLLIDE*/, const int useLod/* = 0 */);
+	contentsFlags_t	(*pointcontents)( const vec3_t point, int passEntityNum );
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -166,18 +172,11 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent );
 void Pmove( pmove_t *pmove );
 
 
-#define SETANIM_TORSO 1
-#define SETANIM_LEGS  2
-#define SETANIM_BOTH  (SETANIM_TORSO|SETANIM_LEGS)//3
+#include "qcommon/q_animflags.h"
 
-#define SETANIM_FLAG_NORMAL		0//Only set if timer is 0
-#define SETANIM_FLAG_OVERRIDE	1//Override previous
-#define SETANIM_FLAG_HOLD		2//Set the new timer
-#define SETANIM_FLAG_RESTART	4//Allow restarting the anim if playing the same one (weapon fires)
-#define SETANIM_FLAG_HOLDLESS	8//Set the new timer
 
-void PM_SetAnim(pmove_t	*pm,int setAnimParts,animNumber_t anim,int setAnimFlags, int blendTime=100);
-void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,int type,animNumber_t anim,int priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=100);
+void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime=100);
+void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=100);
 void PM_SetSaberMove(saberMoveName_t newMove);
 
 //===================================================================================
@@ -221,38 +220,44 @@ inline void ES_SetWeaponParm( entityState_t &es, int parm ) { es.weapon = static
 
 
 // entityState_t->eFlags
-#define	EF_DEAD					0x00000001	// don't draw a foe marker over players with EF_DEAD
-#define	EF_NPC					0x00000002	// An NPC
-#define	EF_TELEPORT_BIT			0x00000004	// toggled every time the origin abruptly changes
-#define	EF_SHADER_ANIM			0x00000008	// Animating shader (by s.frame)
-#define	EF_BOUNCE				0x00000010	// for missiles
-#define	EF_BOUNCE_HALF			0x00000020	// for missiles
-#define EF_MISSILE_STICK		0x00000040	// missiles that stick to the wall.
-#define	EF_NODRAW				0x00000080	// may have an event, but no model (unspawned items)
-#define	EF_FIRING				0x00000100	// for lightning gun
-#define EF_ALT_FIRING			0x00000200	// for alt-fires, mostly for lightning guns though
-#define	EF_NO_TED				0x00000400	// won't show up on TED unless actively scan with tricorder
-#define	EF_AUTO_SIZE			0x00000800	// CG_Ents will create the mins & max itself based on model bounds
-#define	EF_BOUNCE_SHRAPNEL		0x00001000	// special shrapnel flag
-#define	EF_CONNECTION			0x00002000	// draw a connection trouble sprite
-#define EF_ANIM_ALLFAST			0x00004000	// automatically cycle through all frames at 10hz
-#define EF_ANIM_ONCE			0x00008000	// cycle through all frames just once then stop
-#define EF_PLANTED_CHARGE		0x00010000	// For detpack charge
-#define EF_PROX_TRIP			0x00020000	// Proximity trip mine has been activated
-#define EF_LOCKED_TO_WEAPON		0x00040000	// When we use an emplaced weapon, we turn this on to lock us to that weapon
-//#define EF_use_me				0x00080000	// Not used
-//#define EF_use_me				0x00100000	// Not used
-//#define EF_use_me				0x00200000	// Not used
-//#define EF_use_me				0x00400000	// Not used
-//#define EF_use_me				0x00800000	// Not used
-#define EF_IN_ATST				0x01000000	// Driving an ATST
-#define EF_DISINTEGRATION		0x02000000	// Disruptor effect
-//#define EF_use_me				0x04000000	// Not used
-//#define EF_use_me				0x08000000	// Not used
-#define EF_DISABLE_SHADER_ANIM	0x10000000	// Normally shader animation chugs along, but movers can force shader animation to be on frame 1
-#define EF_FORCE_GRIPPED		0x20000000	// Force gripped effect
-//#define EF_use_me				0x40000000	// Not used
-#define EF_BLOCKED_MOVER		0x80000000	// for movers that are blocked - shared with previous
+enum class entityFlags_t : uint32_t
+{
+	EF_NONE = 0,
+	EF_DEAD					= 0x00000001,	// don't draw a foe marker over players with EF_DEAD
+	EF_NPC					= 0x00000002,	// An NPC
+	EF_TELEPORT_BIT			= 0x00000004,	// toggled every time the origin abruptly changes
+	EF_SHADER_ANIM			= 0x00000008,	// Animating shader (by s.frame)
+	EF_BOUNCE				= 0x00000010,	// for missiles
+	EF_BOUNCE_HALF			= 0x00000020,	// for missiles
+	EF_MISSILE_STICK		= 0x00000040,	// missiles that stick to the wall.
+	EF_NODRAW				= 0x00000080,	// may have an event, but no model (unspawned items)
+	EF_FIRING				= 0x00000100,	// for lightning gun
+	EF_ALT_FIRING			= 0x00000200,	// for alt-fires, mostly for lightning guns though
+	EF_NO_TED				= 0x00000400,	// won't show up on TED unless actively scan with tricorder
+	EF_AUTO_SIZE			= 0x00000800,	// CG_Ents will create the mins & max itself based on model bounds
+	EF_BOUNCE_SHRAPNEL		= 0x00001000,	// special shrapnel flag
+	EF_CONNECTION			= 0x00002000,	// draw a connection trouble sprite
+	EF_ANIM_ALLFAST			= 0x00004000,	// automatically cycle through all frames at 10hz
+	EF_ANIM_ONCE			= 0x00008000,	// cycle through all frames just once then stop
+	EF_PLANTED_CHARGE		= 0x00010000,	// For detpack charge
+	EF_PROX_TRIP			= 0x00020000,	// Proximity trip mine has been activated
+	EF_LOCKED_TO_WEAPON		= 0x00040000,	// When we use an emplaced weapon, we turn this on to lock us to that weapon
+	//EF_use_me				= 0x00080000,	// Not used
+	//EF_use_me				= 0x00100000,	// Not used
+	//EF_use_me				= 0x00200000,	// Not used
+	//EF_use_me				= 0x00400000,	// Not used
+	//EF_use_me				= 0x00800000,	// Not used
+	EF_IN_ATST				= 0x01000000,	// Driving an ATST
+	EF_DISINTEGRATION		= 0x02000000,	// Disruptor effect
+	//EF_use_me				= 0x04000000,	// Not used
+	//EF_use_me				= 0x08000000,	// Not used
+	EF_DISABLE_SHADER_ANIM	= 0x10000000,	// Normally shader animation chugs along, but movers can force shader animation to be on frame 1
+	EF_FORCE_GRIPPED		= 0x20000000,	// Force gripped effect
+	//EF_use_me				= 0x40000000,	// Not used
+	EF_BLOCKED_MOVER		= 0x80000000,	// for movers that are blocked - shared with previous
+};
+using enum entityFlags_t;
+template <> inline constexpr bool enableEnumFlags<entityFlags_t> = true;
 
 enum class powerup_t {
 	PW_NONE,
@@ -661,17 +666,17 @@ bool	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 
 
 // content masks
-#define	MASK_ALL				(-1)
-#define	MASK_SOLID				(CONTENTS_SOLID)
-#define	MASK_PLAYERSOLID		(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY)
-#define	MASK_NPCSOLID			(CONTENTS_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BODY)
-#define	MASK_DEADSOLID			(CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
-#define	MASK_WATER				(CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
-#define	MASK_OPAQUE				(CONTENTS_OPAQUE|CONTENTS_SLIME|CONTENTS_LAVA)//was CONTENTS_SOLID, not CONTENTS_OPAQUE...?
+inline constexpr contentsFlags_t MASK_ALL = CONTENTS_ALL;
+inline constexpr contentsFlags_t MASK_SOLID = CONTENTS_SOLID;
+inline constexpr contentsFlags_t MASK_PLAYERSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY;
+inline constexpr contentsFlags_t MASK_NPCSOLID = CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BODY;
+inline constexpr contentsFlags_t MASK_DEADSOLID = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
+inline constexpr contentsFlags_t MASK_WATER = CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME;
+inline constexpr contentsFlags_t MASK_OPAQUE = CONTENTS_OPAQUE | CONTENTS_SLIME | CONTENTS_LAVA;//was CONTENTS_SOLID, not CONTENTS_OPAQUE...?
 /*
 Ghoul2 Insert Start
 */
-#define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_SHOTCLIP)
+inline constexpr contentsFlags_t MASK_SHOT = CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_SHOTCLIP;
 /*
 Ghoul2 Insert End
 */

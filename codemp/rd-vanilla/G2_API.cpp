@@ -156,7 +156,7 @@ static int G2_Dedicated( void )
 
 	if ( !dedicated )
 	{
-		dedicated = ri.Cvar_Get( "dedicated", "0", 0, "" );
+		dedicated = ri.Cvar_Get( "dedicated", "0", CVAR_NONE, "" );
 	}
 	return dedicated->integer;
 }
@@ -870,7 +870,7 @@ int G2API_InitGhoul2Model(CGhoul2Info_v **ghoul2Ptr, const char *fileName, int m
 		ghoul2[model].mCustomSkin = customSkin;
 		ghoul2[model].mLodBias = lodBias;
 		ghoul2[model].mAnimFrameDefault = 0;
-		ghoul2[model].mFlags = 0;
+		ghoul2[model].mFlags = GHOUL2_NONE;
 
 		ghoul2[model].mModelBoltLink = -1;
 	}
@@ -915,7 +915,7 @@ bool G2API_SetShader(CGhoul2Info *ghlInfo, qhandle_t customShader)
 	return false;
 }
 
-bool G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const int flags)
+bool G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const g2SurfaceFlags_t flags)
 {
 	CGhoul2Info *ghlInfo = nullptr;
 
@@ -933,13 +933,13 @@ bool G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const
 	return false;
 }
 
-int G2API_GetSurfaceOnOff(CGhoul2Info *ghlInfo, const char *surfaceName)
+std::optional<g2SurfaceFlags_t> G2API_GetSurfaceOnOff(CGhoul2Info *ghlInfo, const char *surfaceName)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		return G2_IsSurfaceOff(ghlInfo, ghlInfo->mSlist, surfaceName);
 	}
-	return -1;
+	return std::nullopt;
 }
 
 bool G2API_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
@@ -983,7 +983,7 @@ int G2API_GetParentSurface(CGhoul2Info *ghlInfo, const int index)
 	return -1;
 }
 
-int G2API_GetSurfaceRenderStatus(CGhoul2Info_v& ghoul2, int modelIndex, const char *surfaceName)
+std::optional<g2SurfaceFlags_t> G2API_GetSurfaceRenderStatus(CGhoul2Info_v& ghoul2, int modelIndex, const char *surfaceName)
 {
 	CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
 
@@ -991,7 +991,7 @@ int G2API_GetSurfaceRenderStatus(CGhoul2Info_v& ghoul2, int modelIndex, const ch
 	{
 		return G2_IsSurfaceRendered(ghlInfo, surfaceName, ghlInfo->mSlist);
 	}
-	return -1;
+	return std::nullopt;
 }
 
 bool G2API_HasGhoul2ModelOnIndex(CGhoul2Info_v **ghlRemove, const int modelIndex)
@@ -1204,12 +1204,7 @@ bool G2API_DoesBoneExist(CGhoul2Info_v& ghoul2, int modelIndex, const char *bone
 	return false;
 }
 
-//rww - RAGDOLL_BEGIN
-#define		GHOUL2_RAG_STARTED						0x0010
-#define		GHOUL2_RAG_FORCESOLVE					0x1000		//api-override, determine if ragdoll should be forced to continue solving even if it thinks it is settled
-//rww - RAGDOLL_END
-
-bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int AstartFrame, const int AendFrame, const int flags, const float animSpeed, const int currentTime, const float AsetFrame, const int blendTime)
+bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int AstartFrame, const int AendFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float AsetFrame, const int blendTime)
 {
 	bool setPtrs = false;
 	bool res = false;
@@ -1222,7 +1217,7 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int Ast
 
 		if (res)
 		{
-			if (ghlInfo->mFlags & GHOUL2_RAG_STARTED)
+			if (Any( ghlInfo->mFlags & GHOUL2_RAG_STARTED ))
 			{
 				return false;
 			}
@@ -1279,7 +1274,7 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int Ast
 
 #define _PLEASE_SHUT_THE_HELL_UP
 
-bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const int AstartFrame, const int AendFrame, const int flags, const float animSpeed, const int currentTime, const float AsetFrame, const int blendTime)
+bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const int AstartFrame, const int AendFrame, const boneFlags_t flags, const float animSpeed, const int currentTime, const float AsetFrame, const int blendTime)
 {
 	int endFrame=AendFrame;
 	int startFrame=AstartFrame;
@@ -1330,7 +1325,7 @@ bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *
 
 			if (res)
 			{
-				if (ghlInfo->mFlags & GHOUL2_RAG_STARTED)
+				if (Any( ghlInfo->mFlags & GHOUL2_RAG_STARTED ))
 				{
 					return false;
 				}
@@ -1354,7 +1349,7 @@ bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *
 }
 
 bool G2API_GetBoneAnim(CGhoul2Info_v& ghoul2, int modelIndex, const char *boneName, const int currentTime, float *currentFrame,
-						   int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList)
+						   int *startFrame, int *endFrame, boneFlags_t *flags, float *animSpeed, int *modelList)
 {
 	assert(startFrame!=endFrame); //this is bad
 	assert(startFrame!=flags); //this is bad
@@ -1477,7 +1472,7 @@ bool G2API_StopBoneAnim(CGhoul2Info *ghlInfo, const char *boneName)
 	return false;
 }
 
-bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
+bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
 							 qhandle_t *modelList, int blendTime, int currentTime)
 {
@@ -1492,7 +1487,7 @@ bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_
 
 		if (res)
 		{
-			if (ghlInfo->mFlags & GHOUL2_RAG_STARTED)
+			if (Any( ghlInfo->mFlags & GHOUL2_RAG_STARTED ))
 			{
 				return false;
 			}
@@ -1514,7 +1509,7 @@ bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_
 	return false;
 }
 
-bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags,
+bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations up, const Eorientations left, const Eorientations forward,
 							 qhandle_t *modelList, int blendTime, int currentTime )
 {
@@ -1532,7 +1527,7 @@ bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char
 
 			if (res)
 			{
-				if (ghlInfo->mFlags & GHOUL2_RAG_STARTED)
+				if (Any( ghlInfo->mFlags & GHOUL2_RAG_STARTED ))
 				{
 					return false;
 				}
@@ -1556,7 +1551,7 @@ bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char
 }
 
 bool G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
-								   const int flags, qhandle_t *modelList, int blendTime, int currentTime)
+								   const boneFlags_t flags, qhandle_t *modelList, int blendTime, int currentTime)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
@@ -1568,7 +1563,7 @@ bool G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int index, const
 }
 
 bool G2API_SetBoneAnglesMatrix(CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix,
-								   const int flags, qhandle_t *modelList, int blendTime, int currentTime)
+								   const boneFlags_t flags, qhandle_t *modelList, int blendTime, int currentTime)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
@@ -1687,15 +1682,13 @@ void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUp
 //rww - RAGDOLL_END
 
 int G2_Find_Bone_Rag(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName);
-#define RAG_PCJ						(0x00001)
-#define RAG_EFFECTOR				(0x00100)
 
 static inline boneInfo_t *G2_GetRagBoneConveniently(CGhoul2Info_v &ghoul2, const char *boneName)
 {
 	assert(ghoul2.size());
 	CGhoul2Info *ghlInfo = &ghoul2[0];
 
-	if (!(ghlInfo->mFlags & GHOUL2_RAG_STARTED))
+	if (!Any(ghlInfo->mFlags & GHOUL2_RAG_STARTED))
 	{ //can't do this if not in ragdoll
 		return nullptr;
 	}
@@ -1709,7 +1702,7 @@ static inline boneInfo_t *G2_GetRagBoneConveniently(CGhoul2Info_v &ghoul2, const
 
 	boneInfo_t *bone = &ghlInfo->mBlist[boneIndex];
 
-	if (!(bone->flags & BONE_ANGLES_RAGDOLL))
+	if (!Any(bone->flags & BONE_ANGLES_RAGDOLL))
 	{ //only want to return rag bones
 		return nullptr;
 	}
@@ -1726,7 +1719,7 @@ bool G2API_RagPCJConstraint(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t 
 		return false;
 	}
 
-	if (!(bone->RagFlags & RAG_PCJ))
+	if (!Any(bone->RagFlags & RAG_PCJ))
 	{ //this function is only for PCJ bones
 		return false;
 	}
@@ -1746,7 +1739,7 @@ bool G2API_RagPCJGradientSpeed(CGhoul2Info_v &ghoul2, const char *boneName, cons
 		return false;
 	}
 
-	if (!(bone->RagFlags & RAG_PCJ))
+	if (!Any(bone->RagFlags & RAG_PCJ))
 	{ //this function is only for PCJ bones
 		return false;
 	}
@@ -1765,7 +1758,7 @@ bool G2API_RagEffectorGoal(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t p
 		return false;
 	}
 
-	if (!(bone->RagFlags & RAG_EFFECTOR))
+	if (!Any(bone->RagFlags & RAG_EFFECTOR))
 	{ //this function is only for effectors
 		return false;
 	}
@@ -1796,7 +1789,7 @@ bool G2API_RagEffectorKick(CGhoul2Info_v &ghoul2, const char *boneName, vec3_t v
 		return false;
 	}
 
-	if (!(bone->RagFlags & RAG_EFFECTOR))
+	if (!Any(bone->RagFlags & RAG_EFFECTOR))
 	{ //this function is only for effectors
 		return false;
 	}
@@ -1813,7 +1806,7 @@ bool G2API_RagForceSolve(CGhoul2Info_v &ghoul2, bool force)
 	assert(ghoul2.size());
 	CGhoul2Info *ghlInfo = &ghoul2[0];
 
-	if (!(ghlInfo->mFlags & GHOUL2_RAG_STARTED))
+	if (!Any(ghlInfo->mFlags & GHOUL2_RAG_STARTED))
 	{ //can't do this if not in ragdoll
 		return false;
 	}
@@ -2238,8 +2231,8 @@ static inline bool G2_NeedRetransform(CGhoul2Info *g2, int frameNum)
 		int newFrame = bone.startFrame + (time * bone.animSpeed);
 
 		if (newFrame < bone.endFrame ||
-			(bone.flags & BONE_ANIM_OVERRIDE_LOOP) ||
-			(bone.flags & BONE_NEED_TRANSFORM))
+			Any(bone.flags & BONE_ANIM_OVERRIDE_LOOP) ||
+			Any(bone.flags & BONE_NEED_TRANSFORM))
 		{ //ok, we're gonna have to do it. bone is apparently animating.
 			bone.flags &= ~BONE_NEED_TRANSFORM;
 			needTrans = true;
@@ -2278,7 +2271,7 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 					g2.mTransformedVertsArray = 0;
 				}
 				*/
-				if (!g2.mTransformedVertsArray || !(g2.mFlags & GHOUL2_ZONETRANSALLOC))
+				if (!g2.mTransformedVertsArray || !Any(g2.mFlags & GHOUL2_ZONETRANSALLOC))
 				{ //reworked so we only alloc once!
 					//if we have a pointer, but not a ghoul2_zonetransalloc flag, then that means
 					//it is a miniheap pointer. Just stomp over it.
@@ -2392,7 +2385,7 @@ void G2API_CollisionDetect(CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2,
 	}
 }
 
-bool G2API_SetGhoul2ModelFlags(CGhoul2Info *ghlInfo, const int flags)
+bool G2API_SetGhoul2ModelFlags(CGhoul2Info *ghlInfo, const ghoul2Flags_t flags)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
@@ -2403,13 +2396,13 @@ bool G2API_SetGhoul2ModelFlags(CGhoul2Info *ghlInfo, const int flags)
 	return false;
 }
 
-int G2API_GetGhoul2ModelFlags(CGhoul2Info *ghlInfo)
+ghoul2Flags_t G2API_GetGhoul2ModelFlags(CGhoul2Info *ghlInfo)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		return (ghlInfo->mFlags & ~GHOUL2_NEWORIGIN);
 	}
-	return 0;
+	return GHOUL2_NONE;
 }
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags

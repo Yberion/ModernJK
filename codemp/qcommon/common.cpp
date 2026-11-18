@@ -1245,23 +1245,23 @@ void Com_Init( char *commandLine ) {
 		com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);
 		com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
 
-		com_speeds = Cvar_Get ("com_speeds", "0", 0);
-		com_timedemo = Cvar_Get ("timedemo", "0", 0);
+		com_speeds = Cvar_Get ("com_speeds", "0", CVAR_NONE);
+		com_timedemo = Cvar_Get ("timedemo", "0", CVAR_NONE);
 		com_cameraMode = Cvar_Get ("com_cameraMode", "0", CVAR_CHEAT);
 
-		com_optvehtrace = Cvar_Get("com_optvehtrace", "0", 0);
+		com_optvehtrace = Cvar_Get("com_optvehtrace", "0", CVAR_NONE);
 
 		cl_paused = Cvar_Get ("cl_paused", "0", CVAR_ROM);
 		sv_paused = Cvar_Get ("sv_paused", "0", CVAR_ROM);
 		com_sv_running = Cvar_Get ("sv_running", "0", CVAR_ROM, "Is a server running?" );
 		com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM, "Is the client running?" );
-		com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
+		com_buildScript = Cvar_Get( "com_buildScript", "0", CVAR_NONE );
 #ifndef _WIN32
 		com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE_ND );
 #endif
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-		com_G2Report = Cvar_Get("com_G2Report", "0", 0);
+		com_G2Report = Cvar_Get("com_G2Report", "0", CVAR_NONE);
 #endif
 
 		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE_ND );
@@ -1360,7 +1360,7 @@ void Com_WriteConfiguration( void ) {
 		return;
 	}
 
-	if ( !(cvar_modifiedFlags & CVAR_ARCHIVE ) ) {
+	if ( !Any(cvar_modifiedFlags & CVAR_ARCHIVE ) ) {
 		return;
 	}
 	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
@@ -1607,7 +1607,7 @@ void Com_Frame( void ) {
 		// but before the client tries to auto-connect
 		if ( com_dedicated->modified ) {
 			// get the latched value
-			Cvar_Get( "_dedicated", "0", 0 );
+			Cvar_Get( "_dedicated", "0", CVAR_NONE );
 			com_dedicated->modified = false;
 			if ( !com_dedicated->integer ) {
 				CL_Init();

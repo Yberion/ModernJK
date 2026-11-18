@@ -1196,7 +1196,7 @@ static void CG_DrawEmplacedGunHealth( const centity_t *cent )
 
 	if ( cent->gent && cent->gent->owner )
 	{
-		if (( cent->gent->owner->flags & FL_GODMODE ))
+		if (Any( cent->gent->owner->flags & FL_GODMODE ))
 		{
 			// chair is in godmode, so render the health of the player instead
 			health = cent->gent->health;
@@ -1520,7 +1520,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 	Vehicle_t *pVeh;
 
 	// In a Weapon?
-	if (( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
+	if (Any( cent->currentState.eFlags & EF_LOCKED_TO_WEAPON ))
 	{
 		CG_DrawEmplacedGunHud(cent);
 
@@ -1534,7 +1534,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 		// NOTE: this looks ugly
 		if ( cent->gent && cent->gent->owner )
 		{
-			if (( cent->gent->owner->flags & FL_GODMODE ))
+			if (Any( cent->gent->owner->flags & FL_GODMODE ))
 			{
 				// chair is in godmode, so render the health of the player instead
 				health = cent->gent->health / (float)cent->gent->max_health;
@@ -1558,7 +1558,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 		return false; // drew this hud, so don't draw the player one
 	}
 	// In an ATST
-	else if (( cent->currentState.eFlags & EF_IN_ATST ))
+	else if (Any( cent->currentState.eFlags & EF_IN_ATST ))
 	{
 
 /*
@@ -1611,7 +1611,7 @@ static bool CG_DrawCustomHealthHud( centity_t *cent )
 		return true; // draw this hud AND the player one
 	}
 	// Other?
-	else if ( cg.snap->ps.viewEntity && ( g_entities[cg.snap->ps.viewEntity].dflags & DAMAGE_CUSTOM_HUD ))
+	else if ( cg.snap->ps.viewEntity && Any( g_entities[cg.snap->ps.viewEntity].dflags & DAMAGE_CUSTOM_HUD ))
 	{
 		CG_DrawPanelTurretHud();
 		return false; // drew this hud, so don't draw the player one
@@ -2607,7 +2607,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 				ecolor[2] = 0.1f;//B
 			}
 		}
-		else if ( crossEnt->s.weapon == WP_TURRET && (crossEnt->svFlags&SVF_NONNPC_ENEMY) )
+		else if ( crossEnt->s.weapon == WP_TURRET && Any( crossEnt->svFlags & SVF_NONNPC_ENEMY ) )
 		{
 			// a turret
 			if ( crossEnt->noDamageTeam == TEAM_PLAYER )
@@ -2632,7 +2632,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 			ecolor[1] = 0.0;//G
 			ecolor[2] = 0.0;//B
 		}
-		else if ( (crossEnt->flags&FL_RED_CROSSHAIR) )
+		else if ( Any( crossEnt->flags & FL_RED_CROSSHAIR ) )
 		{//special case flagged to turn crosshair red
 			ecolor[0] = 1.0;//R
 			ecolor[1] = 0.0;//G
@@ -2918,7 +2918,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 	trace_t		trace;
 	gentity_t	*traceEnt = nullptr;
 	vec3_t		start, end;
-	int			content;
+	contentsFlags_t	content;
 	int			ignoreEnt = cg.snap->ps.clientNum;
 	Vehicle_t *pVeh = nullptr;
 
@@ -2930,7 +2930,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 		vec3_t d_f, d_rt, d_up;
 
 		// If you're riding a vehicle and not being drawn.
-		if ( ( pVeh = G_IsRidingVehicle( cg_entities[0].gent ) ) != nullptr && cg_entities[0].currentState.eFlags & EF_NODRAW )
+		if ( ( pVeh = G_IsRidingVehicle( cg_entities[0].gent ) ) != nullptr && Any( cg_entities[0].currentState.eFlags & EF_NODRAW ) )
 		{
 			VectorCopy( cg_entities[pVeh->m_pParentEntity->s.number].lerpOrigin, start );
 			AngleVectors( cg_entities[pVeh->m_pParentEntity->s.number].lerpAngles, d_f, d_rt, d_up );
@@ -3029,7 +3029,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 		{//100% accurate
 			vec3_t d_f, d_rt, d_up;
 			// If you're riding a vehicle and not being drawn.
-			if ( ( pVeh = G_IsRidingVehicle( cg_entities[0].gent ) ) != nullptr && cg_entities[0].currentState.eFlags & EF_NODRAW )
+			if ( ( pVeh = G_IsRidingVehicle( cg_entities[0].gent ) ) != nullptr && Any( cg_entities[0].currentState.eFlags & EF_NODRAW ) )
 			{
 				VectorCopy( cg_entities[pVeh->m_pParentEntity->s.number].lerpOrigin, start );
 				AngleVectors( cg_entities[pVeh->m_pParentEntity->s.number].lerpAngles, d_f, d_rt, d_up );
@@ -3139,7 +3139,7 @@ static void CG_ScanForCrosshairEntity( bool scanAll )
 
 	// if the player is in fog, don't show it
 	content = cgi_CM_PointContents( trace.endpos, 0 );
-	if ( content & CONTENTS_FOG )
+	if ( Any( content & CONTENTS_FOG ) )
 	{
 		return;
 	}
@@ -3262,7 +3262,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 
 		if ( cg.zoomMode > 0 )
 		{
-			if ( cg.overrides.active & CG_OVERRIDE_FOV )
+			if ( Any( cg.overrides.active & CG_OVERRIDE_FOV ) )
 			{
 				sz -= ( cg.overrides.fov - cg_zoomFov ) / 80.0f;
 			}
@@ -3351,7 +3351,7 @@ static void CG_RunRocketLocking( void )
 	// Only bother with this when the player is holding down the alt-fire button of the rocket launcher
 	if ( player->currentState.weapon == WP_ROCKET_LAUNCHER )
 	{
-		if ( player->currentState.eFlags & EF_ALT_FIRING )
+		if ( Any( player->currentState.eFlags & EF_ALT_FIRING ) )
 		{
 			CG_ScanForRocketLock();
 
@@ -3862,7 +3862,7 @@ static void CG_Draw2DScreenTints( void )
 		}
 	}
 
-	if ( (cg.refdef.viewContents&CONTENTS_LAVA) )
+	if ( Any( cg.refdef.viewContents&CONTENTS_LAVA ) )
 	{//tint screen red
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.5 + (0.15f*sin( phase ));
@@ -3872,7 +3872,7 @@ static void CG_Draw2DScreenTints( void )
 
 		CG_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, hcolor  );
 	}
-	else if ( (cg.refdef.viewContents&CONTENTS_SLIME) )
+	else if ( Any( cg.refdef.viewContents&CONTENTS_SLIME ) )
 	{//tint screen green
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.4 + (0.1f*sin( phase ));
@@ -3882,7 +3882,7 @@ static void CG_Draw2DScreenTints( void )
 
 		CG_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, hcolor  );
 	}
-	else if ( (cg.refdef.viewContents&CONTENTS_WATER) )
+	else if ( Any( cg.refdef.viewContents&CONTENTS_WATER ) )
 	{//tint screen light blue -- FIXME: check to see if in fog?
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
 		hcolor[3] = 0.3 + (0.05f*sin( phase ));
@@ -3981,7 +3981,7 @@ static void CG_Draw2D( void )
 	// don't draw any status if dead
 	if ( cg.snap->ps.stats[STAT_HEALTH] > 0 )
 	{
-		if ( !(cent->gent && cent->gent->s.eFlags & (EF_LOCKED_TO_WEAPON )))//|EF_IN_ATST
+		if ( !(cent->gent && Any( cent->gent->s.eFlags & (EF_LOCKED_TO_WEAPON ) )))//|EF_IN_ATST
 		{
 			//CG_DrawIconBackground();
 		}

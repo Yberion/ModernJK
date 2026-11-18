@@ -42,7 +42,7 @@ extern bool		player_locked;
 extern pmove_t		*pm;
 extern pml_t		pml;
 
-void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const int flags,
+void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const boneFlags_t flags,
 							 const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList )
 {
 	if (boneIndex!=-1)
@@ -89,7 +89,7 @@ void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 extern void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 bool PM_AdjustAnglesToGripper( gentity_t *ent, usercmd_t *ucmd )
 {//FIXME: make this more generic and have it actually *tell* the client what cmd angles it should be locked at?
-	if ( (ent->client->ps.eFlags&EF_FORCE_GRIPPED) && ent->enemy )
+	if ( Any(ent->client->ps.eFlags&EF_FORCE_GRIPPED) && ent->enemy )
 	{
 		vec3_t dir, angles;
 
@@ -371,7 +371,7 @@ bool PM_AdjustAnglesForKnockdown( gentity_t *ent, usercmd_t *ucmd, bool angleCla
 			//if ( !PM_InForceGetUp( &ent->client->ps ) || ent->client->ps.torsoAnimTimer > 800 || ent->s.weapon != WP_SABER )
 			if ( ent->health > 0 )
 			{//can only attack if you've started a force-getup and are using the saber
-				ucmd->buttons = 0;
+				ucmd->buttons = BUTTON_NONE;
 			}
 		}
 		if ( !PM_InForceGetUp( &ent->client->ps ) )
@@ -420,7 +420,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 //	{//can't turn
 //		return;
 //	}
-	if ( ps->eFlags & EF_NPC && gent != nullptr && gent->client != nullptr )
+	if ( Any( ps->eFlags & EF_NPC ) && gent != nullptr && gent->client != nullptr )
 	{
 		if(gent->client->renderInfo.renderFlags & RF_LOCKEDANGLE)
 		{
@@ -439,7 +439,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		}
 	}
 
-	if ( ps->eFlags & EF_LOCKED_TO_WEAPON )
+	if ( Any( ps->eFlags & EF_LOCKED_TO_WEAPON ) )
 	{
 		// Emplaced guns have different pitch capabilities
 		pitchMin = -35;
@@ -498,7 +498,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		}
 	}
 
-	if ( (!cg.renderingThirdPerson||cg.zoomMode) && (cmd->buttons & BUTTON_USE) && cmd->rightmove != 0 && !cmd->forwardmove && cmd->upmove <= 0 )
+	if ( (!cg.renderingThirdPerson||cg.zoomMode) && Any(cmd->buttons & BUTTON_USE) && cmd->rightmove != 0 && !cmd->forwardmove && cmd->upmove <= 0 )
 	{//Only lean if holding use button, strafing and not moving forward or back and not jumping
 		if ( gent )
 		{

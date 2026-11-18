@@ -414,7 +414,7 @@ Dissolve_t Dissolve={0};
 //
 static void RE_Blit(float fX0, float fY0, float fX1, float fY1, float fX2, float fY2, float fX3, float fY3,
 					//float fU0, float fV0, float fU1, float fV1, float fU2, float fV2, float fU3, float fV3,
-					image_t *pImage, int iGLState
+					image_t *pImage, glStateBits_t iGLState
 					)
 {
 	//

@@ -43,18 +43,18 @@ CParticle *FX_AddParticle( int clientID, const vec3_t org, const vec3_t vel, con
 							float rotation, float rotationDelta,
 							const vec3_t min, const vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags, int modelNum = -1, int boltNum = -1 );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CLine *FX_AddLine( int clientID, vec3_t start, vec3_t end,
 							float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, qhandle_t shader, int impactFX_id, int flags, int modelNum = -1, int boltNum = -1 );
+							int killTime, qhandle_t shader, int impactFX_id, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CElectricity *FX_AddElectricity( int clientID, vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t sRGB, vec3_t eRGB, float rgbParm,
-							float chaos, int killTime, qhandle_t shader, int flags, int modelNum = -1, int boltNum = -1 );
+							float chaos, int killTime, qhandle_t shader, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,
@@ -63,7 +63,7 @@ CTail *FX_AddTail( int clientID, vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags, int modelNum = -1, int boltNum = -1 );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 							float size1s, float size1e, float size1Parm,
@@ -71,7 +71,7 @@ CCylinder *FX_AddCylinder( int clientID, vec3_t start, vec3_t normal,
 							float length1, float length2, float lengthParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, qhandle_t shader, int flags, int modelNum = -1, int boltNum = -1 );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,
@@ -81,11 +81,11 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID, int emitterID,
 							float density, float variance,
-							int killTime, qhandle_t model, int flags );
+							int killTime, qhandle_t model, fxPrimitiveFlags_t flags );
 
 CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
-							int killTime, int flags );
+							int killTime, fxPrimitiveFlags_t flags );
 
 COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,
@@ -94,17 +94,17 @@ COrientedParticle *FX_AddOrientedParticle( int clientID, vec3_t org, vec3_t norm
 							float rotation, float rotationDelta,
 							vec3_t min, vec3_t max, float bounce,
 							int deathID, int impactID,
-							int killTime, qhandle_t shader, int flags, int modelNum = -1, int boltNum = -1 );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags, int modelNum = -1, int boltNum = -1 );
 
 CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 							vec3_t vel, vec3_t accel,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							vec3_t rotationDelta, float bounce, int motionDelay,
-							int killTime, qhandle_t shader, int flags );
+							int killTime, qhandle_t shader, fxPrimitiveFlags_t flags );
 
 CFlash *FX_AddFlash( vec3_t origin, vec3_t sRGB, vec3_t eRGB, float rgbParm,
-						int life, qhandle_t shader, int flags );
+						int life, qhandle_t shader, fxPrimitiveFlags_t flags );
 
 
 // Included for backwards compatibility with CHC and for doing quick programmatic effects.
@@ -112,32 +112,32 @@ void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							float scale, float dscale,
 							float sAlpha, float eAlpha,
 							float rotation, float bounce,
-							int life, qhandle_t shader, int flags = 0 );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 void FX_AddSprite( vec3_t origin, vec3_t vel, vec3_t accel,
 							float scale, float dscale,
 							float sAlpha, float eAlpha,
 							vec3_t sRGB, vec3_t eRGB,
 							float rotation, float bounce,
-							int life, qhandle_t shader, int flags = 0 );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 							float width, float dwidth,
 							float sAlpha, float eAlpha,
-							int life, qhandle_t shader, int flags = 0 );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 void FX_AddLine( vec3_t start, vec3_t end, float stScale,
 							float width, float dwidth,
 							float sAlpha, float eAlpha,
 							vec3_t sRGB, vec3_t eRGB,
-							int life, qhandle_t shader, int flags = 0 );
+							int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 void FX_AddQuad( vec3_t origin, vec3_t normal,
 						vec3_t vel, vec3_t accel,
 						float sradius, float eradius,
 						float salpha, float ealpha,
 						vec3_t sRGB, vec3_t eRGB,
-						float rotation, int life, qhandle_t shader, int flags = 0 );
+						float rotation, int life, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 						const vec3_t control1, const vec3_t control1Vel,
@@ -145,7 +145,7 @@ CBezier *FX_AddBezier( const vec3_t start, const vec3_t end,
 						float size1, float size2, float sizeParm,
 						float alpha1, float alpha2, float alphaParm,
 						const vec3_t sRGB, const vec3_t eRGB, const float rgbParm,
-						int killTime, qhandle_t shader, int flags = 0 );
+						int killTime, qhandle_t shader, fxPrimitiveFlags_t flags = FX_NONE );
 
 
 #endif //FX_UTIL_H_INC

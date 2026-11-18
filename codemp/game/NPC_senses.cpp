@@ -26,16 +26,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int eventClearTime;
 /*
-bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask)
 
 returns true if can see from point 1 to 2, even through glass (1 pane)- doesn't work with portals
 */
-bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, int clipmask)
+bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, contentsFlags_t clipmask)
 {
 	trace_t		tr;
 	gentity_t	*hit;
 
-	trap->Trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, false, 0, 0 );
+	trap->Trace ( &tr, point1, nullptr, nullptr, point2, ignore, clipmask, false, G2TRFLAG_NONE, 0 );
 	if ( tr.fraction == 1.0 )
 	{
 		return true;
@@ -46,7 +46,7 @@ bool G_ClearLineOfSight(const vec3_t point1, const vec3_t point2, int ignore, in
 	{
 		vec3_t	newpoint1;
 		VectorCopy(tr.endpos, newpoint1);
-		trap->Trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, false, 0, 0 );
+		trap->Trace (&tr, newpoint1, nullptr, nullptr, point2, hit->s.number, clipmask, false, G2TRFLAG_NONE, 0 );
 
 		if ( tr.fraction == 1.0 )
 		{
@@ -74,7 +74,7 @@ bool CanSee ( gentity_t *ent )
 	CalcEntitySpot( NPCS.NPC, SPOT_HEAD_LEAN, eyes );
 
 	CalcEntitySpot( ent, SPOT_ORIGIN, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, 0, 0 );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -82,7 +82,7 @@ bool CanSee ( gentity_t *ent )
 	}
 
 	CalcEntitySpot( ent, SPOT_HEAD, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, 0, 0 );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -90,7 +90,7 @@ bool CanSee ( gentity_t *ent )
 	}
 
 	CalcEntitySpot( ent, SPOT_LEGS, spot );
-	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, 0, 0 );
+	trap->Trace ( &tr, eyes, nullptr, nullptr, spot, NPCS.NPC->s.number, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
 	ShotThroughGlass (&tr, ent, spot, MASK_OPAQUE);
 	if ( tr.fraction == 1.0 )
 	{
@@ -275,29 +275,29 @@ bool InVisrange ( gentity_t *ent )
 NPC_CheckVisibility
 */
 
-visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
+visibility_t NPC_CheckVisibility ( gentity_t *ent, visCheckFlags_t flags )
 {
 	// flags should never be 0
-	if ( !flags )
+	if ( !Any(flags) )
 	{
 		return VIS_NOT;
 	}
 
 	// check PVS
-	if ( flags & CHECK_PVS )
+	if ( Any( flags & CHECK_PVS ) )
 	{
 		if ( !trap->InPVS ( ent->r.currentOrigin, NPCS.NPC->r.currentOrigin ) )
 		{
 			return VIS_NOT;
 		}
 	}
-	if ( !(flags & (CHECK_360|CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (CHECK_360|CHECK_FOV|CHECK_SHOOT)) )
 	{
 		return VIS_PVS;
 	}
 
 	// check within visrange
-	if (flags & CHECK_VISRANGE)
+	if (Any(flags & CHECK_VISRANGE))
 	{
 		if( !InVisrange ( ent ) )
 		{
@@ -307,20 +307,20 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 
 	// check 360 degree visibility
 	//Meaning has to be a direct line of site
-	if ( flags & CHECK_360 )
+	if ( Any( flags & CHECK_360 ) )
 	{
 		if ( !CanSee ( ent ) )
 		{
 			return VIS_PVS;
 		}
 	}
-	if ( !(flags & (CHECK_FOV|CHECK_SHOOT)) )
+	if ( !Any(flags & (CHECK_FOV|CHECK_SHOOT)) )
 	{
 		return VIS_360;
 	}
 
 	// check FOV
-	if ( flags & CHECK_FOV )
+	if ( Any( flags & CHECK_FOV ) )
 	{
 		if ( !InFOV ( ent, NPCS.NPC, NPCS.NPCInfo->stats.hfov, NPCS.NPCInfo->stats.vfov) )
 		{
@@ -328,13 +328,13 @@ visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags )
 		}
 	}
 
-	if ( !(flags & CHECK_SHOOT) )
+	if ( !Any(flags & CHECK_SHOOT) )
 	{
 		return VIS_FOV;
 	}
 
 	// check shootability
-	if ( flags & CHECK_SHOOT )
+	if ( Any( flags & CHECK_SHOOT ) )
 	{
 		if ( !CanShoot ( ent, NPCS.NPC ) )
 		{
@@ -569,7 +569,7 @@ bool G_CheckForDanger( gentity_t *self, int alertEvent )
 		{
 			if ( self->NPC )
 			{
-				if ( self->NPC->scriptFlags & SCF_DONT_FLEE )
+				if ( Any( self->NPC->scriptFlags & SCF_DONT_FLEE ) )
 				{//can't flee
 					return false;
 				}
@@ -764,14 +764,14 @@ bool G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 	int			traceCount = 0;
 
 	//FIXME: ENTITYNUM_NONE ok?
-	trap->Trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, CONTENTS_OPAQUE/*CONTENTS_SOLID*//*(CONTENTS_SOLID|CONTENTS_MONSTERCLIP)*/, false, 0, 0 );
+	trap->Trace ( &tr, start, nullptr, nullptr, end, ENTITYNUM_NONE, CONTENTS_OPAQUE/*CONTENTS_SOLID*//*(CONTENTS_SOLID|CONTENTS_MONSTERCLIP)*/, false, G2TRFLAG_NONE, 0 );
 	while ( tr.fraction < 1.0 && traceCount < 3 )
 	{//can see through 3 panes of glass
 		if ( tr.entityNum < ENTITYNUM_WORLD )
 		{
-			if ( (g_entities[tr.entityNum].r.svFlags&SVF_GLASS_BRUSH) )
+			if ( Any( g_entities[tr.entityNum].r.svFlags & SVF_GLASS_BRUSH ) )
 			{//can see through glass, trace again, ignoring me
-				trap->Trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, false, 0, 0 );
+				trap->Trace ( &tr, tr.endpos, nullptr, nullptr, end, tr.entityNum, MASK_OPAQUE, false, G2TRFLAG_NONE, 0 );
 				traceCount++;
 				continue;
 			}
