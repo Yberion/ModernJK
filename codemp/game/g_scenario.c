@@ -30,7 +30,11 @@
 // scenario turret <reps> <g2|hoth> [distance]
 //   a turret spawned between the bots (misc_turretG2 or misc_turret) fires at the defender, the attacker untargeted
 // scenario off
-// Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end).
+// Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end);
+// pickup=<units> (plan step 20, the game types: in a holocron game a holocron of the force scenario's power, in a Jedi
+// Master game the Jedi Master's saber, put that far in front of the attacker, which walks onto it before its script);
+// target=ally (in a team game the attacker's teammate takes the defender's place and role, the defender the ally's).
+// The bots are the first ones that are not spectators; in a power duel the defender is the lone duelist.
 
 #include "g_local.h"
 
@@ -43,9 +47,13 @@ extern void SaberUpdateSelf( gentity_t *ent );
 extern void WP_SaberRemoveG2Model( gentity_t *saberent );
 extern qboolean G_CallSpawn( gentity_t *ent );
 extern void G_Knockdown( gentity_t *victim );
+extern void HolocronRespawn( gentity_t *self );
+extern void ThrowSaberToAttacker( gentity_t *self, gentity_t *attacker );
 
 #define SCN_REP_MSEC		2000	// one repetition
 #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
+#define SCN_PICKUP_WALK_MSEC	300	// pickup=: the attacker walks forward onto the object
+#define SCN_PICKUP_MSEC		400		// pickup=: the script starts that much later
 
 typedef enum {
 	SCN_NONE,
@@ -94,6 +102,8 @@ static struct {
 	int				repMsec;		// a repetition (option rep=)
 	qboolean		turretG2;		// misc_turretG2, else misc_turret
 	gentity_t		*spawned[2];	// what the scenario spawned (the emplaced gun, a turret and its top), freed at its end
+	gentity_t		*pickup;		// pickup=: the holocron (spawned) or the Jedi Master's saber (the map's)
+	float			pickupDist;		// pickup=: its distance in front of the attacker, 0 without
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -110,6 +120,8 @@ static struct {
 	int		saberLocked[3];		// instants in a saber lock
 	float	path[3];			// distance moved
 	int		end[3][3];			// the place at the end of each repetition against the place at its start, rounded to the unit
+	// the scores at the start of the counted repetitions (plan step 20, the game types)
+	int		scoreStart[3], capturesStart[3], teamScoreStart[2];
 	// the previous instant's values, from the reset on
 	int		health[3], force[3];
 	vec3_t	origin[3], start[3];
@@ -267,6 +279,10 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 		client->ps.fd.forcePowerDebounce[i] = 0;
 	}
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
+	if ( level.gametype == GT_POWERDUEL && client->sess.duelTeam == DUELTEAM_LONE ) {
+		// the lone duelist's health as it spawns before any win (ClientSpawn)
+		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = g_powerDuelStartHealth.integer;
+	}
 	client->ps.stats[STAT_ARMOR] = 0;
 	client->ps.fd.forcePower = 100;
 	client->ps.fd.forcePowerRegenDebounceTime = level.time;
@@ -307,6 +323,11 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	// powerups picked up in the free play before the scenario, and the pain sound timers (P_DamageFeedback), which a
 	// pain in the previous repetition or in the free play would carry into this one
 	memset( client->ps.powerups, 0, sizeof( client->ps.powerups ) );
+	// the holocrons carried, which keep their powers (HolocronUpdate); G_ScenarioReturnPickup puts them back in place
+	memset( client->ps.holocronsCarried, 0, sizeof( client->ps.holocronsCarried ) );
+	client->ps.holocronBits = 0;
+	client->ps.holocronCantTouch = 0;
+	client->ps.holocronCantTouchTime = 0;
 	client->ps.painTime = 0;
 	ent->pain_debounce_time = 0;
 	// the damage P_DamageFeedback keeps summing until it plays a pain (under 10 points, or within 500 ms of a pain)
@@ -377,6 +398,12 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 		G_SetSaber( ent, 1, "none", qtrue );
 		client->ps.fd.saberAnimLevel = client->ps.fd.saberAnimLevelBase = client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
 		client->saberCycleQueue = SS_MEDIUM;
+	}
+	if ( level.gametype == GT_JEDIMASTER ) {
+		// only the Jedi Master holds a saber, the Jedi Master's (JMSaberTouch): the others the melee and the bryar, as they
+		// spawn (ClientSpawn); the saber set above is the one the attacker plays once it is the Jedi Master
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MELEE ) | ( 1 << WP_BRYAR_PISTOL );
+		client->ps.weapon = WP_BRYAR_PISTOL;
 	}
 }
 
@@ -470,17 +497,29 @@ void G_ScenarioPrintStats( void ) {
 			scnStats.end[n][0], scnStats.end[n][1], scnStats.end[n][2] ) );
 	}
 	trap->Print( "%s\n", line );
+	// plan step 20, the game types: what the counted repetitions added to the scores
+	Q_strncpyz( line, "score statistics: score and captures gained by role, red and blue team scores gained:", sizeof( line ) );
+	for ( n = 0; n < scn.numClients; n++ ) {
+		const playerState_t *ps = &g_entities[scn.client[n]].client->ps;
+
+		Q_strcat( line, sizeof( line ), va( "%s %s %d %d", n ? "," : "", roles[n],
+			ps->persistant[PERS_SCORE] - scnStats.scoreStart[n], ps->persistant[PERS_CAPTURES] - scnStats.capturesStart[n] ) );
+	}
+	Q_strcat( line, sizeof( line ), va( ", teams %d %d", level.teamScores[TEAM_RED] - scnStats.teamScoreStart[0],
+		level.teamScores[TEAM_BLUE] - scnStats.teamScoreStart[1] ) );
+	trap->Print( "%s\n", line );
 }
 
-// an entity of a map's kind spawned by the scenario, with no keys but its place, angle and flags (the spawn functions
-// would read the keys of the last entity the map loaded)
-static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, float yaw, int spawnflags ) {
+// an entity of a map's kind spawned by the scenario, with no keys but its place, angle, flags and count (the spawn
+// functions would read the keys of the last entity the map loaded)
+static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, float yaw, int spawnflags, int count ) {
 	gentity_t *ent = G_Spawn();
 
 	level.numSpawnVars = 0;
 	level.numSpawnVarChars = 0;
 	ent->classname = (char *)classname;
 	ent->spawnflags = spawnflags;
+	ent->count = count;
 	VectorCopy( origin, ent->s.origin );
 	VectorCopy( origin, ent->s.pos.trBase );
 	VectorCopy( origin, ent->r.currentOrigin );
@@ -514,6 +553,40 @@ static void G_ScenarioReleaseGun( void ) {
 	gun->genericValue1 = 0;
 }
 
+// at every reset: nobody the Jedi Master any more (its saber dropped as at its death without a killer, back to its spot,
+// ThrowSaberToAttacker), and the holocron or the Jedi Master's saber of pickup= back in its place; the free play or the
+// previous repetition left them taken (the holocrons carried are cleared by G_ScenarioPlace)
+static void G_ScenarioReturnPickup( void ) {
+	gentity_t *p = scn.pickup;
+	int i;
+
+	if ( level.gametype == GT_JEDIMASTER ) {
+		for ( i = 0; i < scn.numClients; i++ ) {
+			gentity_t *ent = &g_entities[scn.client[i]];
+
+			if ( ent->client->ps.isJediMaster ) {
+				ThrowSaberToAttacker( ent, NULL );
+				ent->client->ps.isJediMaster = qfalse;
+				ent->client->ps.saberInFlight = qfalse;	// set by ThrowSaberToAttacker for the dead body
+			}
+		}
+	}
+	if ( !p || !p->inuse ) {
+		return;
+	}
+	p->enemy = NULL;
+	p->pos2[0] = 0;
+	VectorCopy( p->s.origin2, p->s.pos.trBase );
+	VectorCopy( p->s.origin2, p->s.origin );
+	VectorCopy( p->s.origin2, p->r.currentOrigin );
+	VectorClear( p->s.pos.trDelta );
+	p->s.pos.trTime = level.time;
+	if ( level.gametype == GT_HOLOCRON ) {
+		HolocronRespawn( p );
+	}
+	trap->LinkEntity( (sharedEntity_t *)p );
+}
+
 // at the scenario's end: what it spawned removed
 static void G_ScenarioFreeSpawned( void ) {
 	int i;
@@ -525,6 +598,7 @@ static void G_ScenarioFreeSpawned( void ) {
 		}
 		scn.spawned[i] = NULL;
 	}
+	scn.pickup = NULL;
 }
 
 // called at the start of every server frame: resets the bots at the start of each repetition
@@ -565,12 +639,14 @@ void G_ScenarioFrame( void ) {
 	VectorSet( fwd, Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 );
 	VectorMA( scn.origin, scn.dist, fwd, front );
 	G_ScenarioReleaseGun();
+	G_ScenarioReturnPickup();
 	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, G_ScenarioAttackerYaw() );
 	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
 	G_ScenarioEquip( &g_entities[scn.client[0]], qtrue );
 	G_ScenarioEquip( &g_entities[scn.client[1]], qfalse );
-	if ( scn.type == SCN_SABER && scn.saberMode == SM_LOCK ) {
-		// saber locks happen only in a duel (WP_SabersCheckLock): a private one, already started
+	if ( scn.type == SCN_SABER && scn.saberMode == SM_LOCK && level.gametype != GT_DUEL ) {
+		// saber locks happen only in a duel (WP_SabersCheckLock): a private one, already started, but in the duel game
+		// type, where every clash may lock
 		for ( i = 0; i < 2; i++ ) {
 			gclient_t *client = g_entities[scn.client[i]].client;
 
@@ -618,6 +694,14 @@ void G_ScenarioFrame( void ) {
 	if ( scn.rep == 1 ) {
 		memset( &g_stats, 0, sizeof( g_stats ) );	// the counted repetitions start
 		memset( &scnStats, 0, sizeof( scnStats ) );
+		for ( i = 0; i < scn.numClients; i++ ) {
+			const playerState_t *ps = &g_entities[scn.client[i]].client->ps;
+
+			scnStats.scoreStart[i] = ps->persistant[PERS_SCORE];
+			scnStats.capturesStart[i] = ps->persistant[PERS_CAPTURES];
+		}
+		scnStats.teamScoreStart[0] = level.teamScores[TEAM_RED];
+		scnStats.teamScoreStart[1] = level.teamScores[TEAM_BLUE];
 		// without the corpses left by the free play or the warm-up, the body queue from its first slot (as BodySink
 		// leaves a body at its end)
 		for ( i = 0; i < BODY_QUEUE_SIZE; i++ ) {
@@ -803,7 +887,7 @@ static void G_ScenarioSaberCommand( gentity_t *ent, qboolean attacker, int phase
 qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	gentity_t *ent = &g_entities[clientNum];
 	const qboolean attacker = ( clientNum == scn.client[0] ) ? qtrue : qfalse;
-	const int phase = t - scn.repStart - SCN_SETTLE_MSEC;
+	int phase = t - scn.repStart - SCN_SETTLE_MSEC;
 	vec3_t view = { 0, 0, 0 };
 	int i;
 
@@ -826,6 +910,15 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	}
 	if ( !scn.repStart || phase < 0 || scn.done ) {
 		return qtrue;	// still
+	}
+	if ( scn.pickupDist ) { // the attacker walks onto the holocron or the Jedi Master's saber, then the script starts
+		if ( attacker && phase < SCN_PICKUP_WALK_MSEC ) {
+			ucmd->forwardmove = 127;
+		}
+		phase -= SCN_PICKUP_MSEC;
+		if ( phase < 0 ) {
+			return qtrue;
+		}
 	}
 
 	switch ( scn.type ) {
@@ -955,6 +1048,20 @@ static int G_ScenarioOpt( const char *name, int def ) {
 	return def;
 }
 
+// an option given as a word among the arguments
+static qboolean G_ScenarioOptIs( const char *text ) {
+	char arg[MAX_TOKEN_CHARS];
+	int n;
+
+	for ( n = 2; n < trap->Argc(); n++ ) {
+		trap->Argv( n, arg, sizeof( arg ) );
+		if ( !Q_stricmp( arg, text ) ) {
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
 void Svcmd_Scenario_f( void ) {
 	char type[MAX_TOKEN_CHARS], arg[MAX_TOKEN_CHARS];
 	int i, n = 0;
@@ -981,7 +1088,8 @@ void Svcmd_Scenario_f( void ) {
 		for ( i = 0; i < MAX_CLIENTS; i++ ) {
 			gentity_t *e = &g_entities[i];
 
-			if ( !e->inuse || !e->client || !( e->r.svFlags & SVF_BOT ) || e->client->pers.connected != CON_CONNECTED ) {
+			if ( !e->inuse || !e->client || !( e->r.svFlags & SVF_BOT ) || e->client->pers.connected != CON_CONNECTED
+				|| e->client->sess.sessionTeam == TEAM_SPECTATOR ) {	// the queue of a duel
 				continue;
 			}
 			if ( !n ) {
@@ -1002,7 +1110,18 @@ void Svcmd_Scenario_f( void ) {
 			return;
 		}
 		scn.numClients = ally ? 3 : 2;
+		if ( G_ScenarioOptIs( "target=ally" ) ) { // the teammate in the defender's place and role
+			const int enemy = scn.client[1];
+
+			if ( !ally ) {
+				trap->Print( "scenario: target=ally needs a team game and a third bot, a teammate of the first\n" );
+				return;
+			}
+			scn.client[1] = scn.client[2];
+			scn.client[2] = enemy;
+		}
 	}
+	scn.pickupDist = (float)G_ScenarioOpt( "pickup", 0 );
 	scn.reps = G_ScenarioArgInt( 2, 100 );
 	trap->Argv( 3, arg, sizeof( arg ) );
 	if ( !Q_stricmp( type, "saber" ) ) {
@@ -1082,7 +1201,7 @@ void Svcmd_Scenario_f( void ) {
 
 		if ( scn.type == SCN_WEAPON ) {
 			VectorMA( scn.origin, 52, fwd, at );
-			scn.spawned[0] = G_ScenarioSpawn( "emplaced_gun", at, scn.yaw, 0 );
+			scn.spawned[0] = G_ScenarioSpawn( "emplaced_gun", at, scn.yaw, 0, 0 );
 		}
 		else {
 			VectorMA( scn.origin, 48, fwd, at );
@@ -1092,10 +1211,10 @@ void Svcmd_Scenario_f( void ) {
 			VectorCopy( tr.endpos, at );
 			if ( scn.turretG2 ) { // upside down (2), on the floor: its spawn lowers it by 22 units
 				at[2] += 22;
-				scn.spawned[0] = G_ScenarioSpawn( "misc_turretG2", at, scn.yaw, 2 );
+				scn.spawned[0] = G_ScenarioSpawn( "misc_turretG2", at, scn.yaw, 2, 0 );
 			}
 			else {
-				scn.spawned[0] = G_ScenarioSpawn( "misc_turret", at, scn.yaw, 0 );
+				scn.spawned[0] = G_ScenarioSpawn( "misc_turret", at, scn.yaw, 0, 0 );
 				if ( scn.spawned[0] && scn.spawned[0]->r.ownerNum != ENTITYNUM_NONE ) {
 					scn.spawned[1] = &g_entities[scn.spawned[0]->r.ownerNum];	// its top, which aims and fires
 				}
@@ -1103,6 +1222,24 @@ void Svcmd_Scenario_f( void ) {
 		}
 		if ( !scn.spawned[0] ) {
 			trap->Print( "scenario: the entity could not be spawned\n" );
+			scn.type = SCN_NONE;
+			return;
+		}
+	}
+	if ( scn.pickupDist ) { // the holocron or the Jedi Master's saber in front of the attacker, on the way to the defender
+		const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+		vec3_t at;
+
+		VectorMA( scn.origin, scn.pickupDist, fwd, at );
+		if ( level.gametype == GT_HOLOCRON && scn.type == SCN_FORCE ) {
+			scn.spawned[0] = scn.pickup = G_ScenarioSpawn( "misc_holocron", at, scn.yaw, 0, scn.power );
+		}
+		else if ( level.gametype == GT_JEDIMASTER && gJMSaberEnt && gJMSaberEnt->inuse ) {
+			scn.pickup = gJMSaberEnt;
+			VectorCopy( at, scn.pickup->s.origin2 );	// its spot from now on (ThrowSaberToAttacker), placed at every reset
+		}
+		if ( !scn.pickup ) {
+			trap->Print( "scenario: pickup= needs a force scenario in a holocron game or a Jedi Master game\n" );
 			scn.type = SCN_NONE;
 			return;
 		}

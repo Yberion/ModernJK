@@ -14,7 +14,7 @@ Three files of the game module, nothing in the engine:
 
 | file | change |
 |---|---|
-| `codemp/game/g_scenario.c` | the scenarios: the `scenario` server command, the bots' scripts, the reset at every repetition, the statistics per role |
+| `codemp/game/g_scenario.c` | the scenarios: the `scenario` server command, the bots' scripts, the reset at every repetition, the statistics per role and the scores |
 | `codemp/game/g_svcmds.c` | the lines `gamestats` prints: the other force powers, the special saber moves started |
 | `codemp/game/g_local.h` | the counter of the special saber moves |
 
@@ -50,7 +50,7 @@ It ends with `golden: SAME` when this build gives the recorded counts. The outpu
 
 ## The scenarios
 
-The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 165 scenarios on 78 servers, about 1 min 40 s with 30 servers at a time.
+The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attacker and a defender, sometimes a third one as the attacker's ally, are placed face to face and reset at every repetition (2 s, or `rep=`), then play a fixed script of commands timed in milliseconds. The first repetition is not counted. The statistics of the counted ones are printed at the end. The script `scenarios.sh` gives each server its map, game type, bots and settings, and plays several scenarios of one group one after the other on the same server: 198 scenarios on 87 servers, about 2 min with 30 servers at a time. Outside free for all, a scenario's name starts with its game type (`duel_saber_fast_idle`).
 
 | group | scenarios | what they play |
 |---|---|---|
@@ -60,6 +60,7 @@ The full syntax is at the top of `codemp/game/g_scenario.c`. Two bots, an attack
 | force powers (step 20, part 1) | 44 | the six of step 14 at levels 1 and 2; heal, levitation, speed, push, pull, telepathy, sight and saber throw at levels 1 to 3; push and pull against a defender at level 3; team heal and team energize at levels 1 to 3 in a team game, with the ally |
 | weapons (step 20, part 2) | 46 | the stun baton, the melee (and its kicks and grabs with `g_debugMelee`), the old bryar, the emplaced gun and two turrets spawned by the scenario; the charges at several lengths (the bryars, the bowcaster, the DEMP2, the disruptor's sniper shot, the rocket launcher's lock, the thermal detonator) |
 | saber moves (step 20, part 3) | 35 | the katas of the five styles, the back attacks, standing and crouched, the jump attacks, the lunges, the cartwheels, the staff's back flip and its kicks on the ground and in the air, the roll stab, the stab down on a defender knocked down, the throws of the single and dual sabers against an armed defender, the saber locks in a private duel |
+| game types (step 20, part 4a) | 33 | the holocron picked up, then its power used (lightning, push, heal), and a saber attack at the levels of the holocron game; the Jedi Master's saber picked up, then a saber attack or lightning; in the duel game type the saber cases of step 14, the locks and the force jump; in a power duel the five styles against the lone duelist; in a team game the attacker's teammate as the target, the friendly fire off and on, and a kill at every repetition for the team score |
 
 Each scenario prints, after its repetitions:
 
@@ -69,7 +70,8 @@ Each scenario prints, after its repetitions:
 - the health taken and the deaths by cause;
 - the shots by weapon and fire mode;
 - the saber attacks started and bounced by style, and the special saber moves started by move;
-- by role: the health and force gained and lost, the instants off the ground, knocked down, mind tricked and in a saber lock, the distance moved and the end place against the start.
+- by role: the health and force gained and lost, the instants off the ground, knocked down, mind tricked and in a saber lock, the distance moved and the end place against the start;
+- what the counted repetitions added to the scores: each role's score and captures, the red and blue team scores.
 
 ## Differences with the build of the day
 
@@ -77,6 +79,6 @@ The two builds give the same counts but where a fix decided since changes them. 
 
 | since | what | scenarios |
 |---|---|---|
-| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 18 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges) |
+| 19 November 2026 | the weapons' charge counted to the command that releases the button, no longer to the last 20 Hz instant, which was up to 50 ms earlier | 18 (the bryars', the bowcaster's, the DEMP2's, the sniper shot's, the rocket lock's and the thermal detonator's charges); in three of them the score too, since the charge decides whether every shot kills |
 
-The game types, teams and spectators, the items, the vehicles and the NPCs (parts 4 to 8) are to come.
+CTF, CTY and siege (part 4b), teams and spectators, the items, the vehicles and the NPCs (parts 5 to 8) are to come.
