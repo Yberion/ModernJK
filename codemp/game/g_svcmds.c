@@ -489,6 +489,9 @@ void G_StatsSaberMove( gentity_t *ent, int oldSaberMove ) {
 	if ( PM_SaberInBounce( move ) && !PM_SaberInBounce( oldSaberMove ) ) {
 		g_stats.styleBounces[style]++;
 	}
+	if ( move >= LS_A_BACKSTAB && move <= LS_HILT_BASH ) {
+		g_stats.specialMoves[move]++;
+	}
 }
 
 // the central counters: events by type, health taken and deaths by cause, shots by weapon, saber attacks and bounces by style
@@ -523,6 +526,23 @@ static void G_PrintCentralStats( void ) {
 	for ( i = 1; i < SS_NUM_SABER_STYLES; i++ ) {
 		if ( s->styleAttacks[i] || s->styleBounces[i] ) {
 			Q_strcat( line, sizeof( line ), va( " %s %d %d", styles[i], s->styleAttacks[i], s->styleBounces[i] ) );
+		}
+	}
+	trap->Print( "%s\n", line );
+	// plan step 20: the moves by the name of saberMoveData, its spaces as underscores
+	Q_strncpyz( line, "saber special move statistics (moves started):", sizeof( line ) );
+	for ( i = LS_A_BACKSTAB; i <= LS_HILT_BASH; i++ ) {
+		if ( s->specialMoves[i] ) {
+			char name[64];
+			char *c;
+
+			Q_strncpyz( name, saberMoveData[i].name, sizeof( name ) );
+			for ( c = name; *c; c++ ) {
+				if ( *c == ' ' ) {
+					*c = '_';
+				}
+			}
+			Q_strcat( line, sizeof( line ), va( " %s %d", name, s->specialMoves[i] ) );
 		}
 	}
 	trap->Print( "%s\n", line );

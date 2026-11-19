@@ -9,7 +9,17 @@
 // In a team game a third bot, a teammate of the attacker, stands beside it as the ally the team powers act on; the
 // defender is the first bot that is not the attacker's teammate.
 //
-// scenario saber <reps> <fast|medium|strong|dual|staff> <idle|attack> [distance]
+// scenario saber <reps> <fast|medium|strong|dual|staff> <mode> [distance]
+//   mode: idle (an attack in one of the eight directions in turn), attack (the same, the defender attacking at the same
+//   time), and the special moves of plan step 20, the defender idle unless said: throw (the saber thrown, the alternate
+//   attack held 1 s), lock (both the same attack, held, in a private duel; during a lock the attacker presses attack
+//   every 100 ms),
+//   kata (attack and alternate attack together), back and backcrouch (facing away from the defender, backward and
+//   attack, crouched for the second), jump (a jump, then forward and attack), lunge (crouched, then forward and attack),
+//   cartwheel (a jump, then the side and attack, right and left in turn), backflip (backward, jump and attack), kick
+//   (alternate attack and a direction: forward, back, right, left in turn), airkick (the same after a force jump),
+//   rollstab (a run forward, crouched into a roll, attack held to its end), stabdown (the defender knocked down, forward
+//   and attack)
 // scenario force <reps> <power> [level 1 to 3, 3] [distance] [the defender's level 0 to 3 in push or pull, 0]
 //   power: lightning grip drain rage protect absorb heal levitation speed push pull telepathy teamheal teamforce see
 //   saberthrow (teamheal and teamforce need the ally; against saberthrow the defender holds no saber)
@@ -32,6 +42,7 @@ extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void SaberUpdateSelf( gentity_t *ent );
 extern void WP_SaberRemoveG2Model( gentity_t *saberent );
 extern qboolean G_CallSpawn( gentity_t *ent );
+extern void G_Knockdown( gentity_t *victim );
 
 #define SCN_REP_MSEC		2000	// one repetition
 #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
@@ -44,6 +55,26 @@ typedef enum {
 	SCN_TURRET
 } scenarioType_t;
 
+// what the bots do in a saber scenario, in the order of the names the command takes
+typedef enum {
+	SM_IDLE,
+	SM_ATTACK,
+	SM_THROW,
+	SM_LOCK,
+	SM_KATA,
+	SM_BACK,
+	SM_BACKCROUCH,
+	SM_JUMP,
+	SM_LUNGE,
+	SM_CARTWHEEL,
+	SM_BACKFLIP,
+	SM_KICK,
+	SM_AIRKICK,
+	SM_ROLLSTAB,
+	SM_STABDOWN,
+	SM_NUM_MODES
+} saberMode_t;
+
 static struct {
 	scenarioType_t	type;
 	int				reps;			// repetitions asked
@@ -53,7 +84,7 @@ static struct {
 	int				client[3];		// attacker, defender, ally (a teammate of the attacker, in team games)
 	int				numClients;		// 2, or 3 with the ally
 	int				style;			// the attacker's saber style
-	qboolean		counter;		// the defender attacks at the same time
+	saberMode_t		saberMode;
 	forcePowers_t	power;
 	int				level;			// the attacker's level in that power
 	int				defenderLevel;	// push and pull: the defender's level in the same power, which resists it
@@ -76,6 +107,7 @@ static struct {
 	int		airborne[3];		// instants off the ground
 	int		knockedDown[3];		// instants knocked down (HANDEXTEND_KNOCKDOWN)
 	int		mindTricked[3];		// instants in the attacker's mind trick
+	int		saberLocked[3];		// instants in a saber lock
 	float	path[3];			// distance moved
 	int		end[3][3];			// the place at the end of each repetition against the place at its start, rounded to the unit
 	// the previous instant's values, from the reset on
@@ -100,6 +132,13 @@ qboolean G_ScenarioControls( int clientNum ) {
 		}
 	}
 	return qfalse;
+}
+
+// the attacker's view: towards the defender, or away from it for the back attacks
+static float G_ScenarioAttackerYaw( void ) {
+	const qboolean back = ( scn.type == SCN_SABER && ( scn.saberMode == SM_BACK || scn.saberMode == SM_BACKCROUCH ) ) ? qtrue : qfalse;
+
+	return back ? AngleNormalize360( scn.yaw + 180 ) : scn.yaw;
 }
 
 // the ally's place: beside the attacker, on its right
@@ -238,6 +277,12 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	client->ps.weaponTime = 0;
 	client->ps.weaponstate = WEAPON_READY;
 	client->ps.saberBlocked = BLOCKED_NONE;
+	// a saber lock still running at the end of the previous repetition, and its private duel (a death ends it)
+	client->ps.saberLockTime = 0;
+	client->ps.saberLockFrame = 0;
+	client->ps.saberLockHits = 0;
+	client->ps.saberLockAdvance = qfalse;
+	client->ps.duelInProgress = qfalse;
 	client->ps.saberMove = LS_READY;
 	client->ps.saberHolstered = 0;
 	client->ps.legsTimer = client->ps.torsoTimer = 0;
@@ -293,6 +338,15 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
 	}
 	if ( scn.type == SCN_FORCE && !attacker && ( scn.power == FP_PUSH || scn.power == FP_PULL ) ) {
 		client->ps.fd.forcePowerLevel[scn.power] = scn.defenderLevel;
+	}
+	if ( scn.type == SCN_SABER && attacker && scn.saberMode > SM_LOCK ) {
+		// the jumps, rolls and the staff's back flip need the jump at level 2 at least
+		client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
+		client->ps.fd.forcePowersKnown |= ( 1 << FP_LEVITATION );
+	}
+	if ( scn.type == SCN_SABER && attacker && scn.saberMode == SM_THROW ) {
+		client->ps.fd.forcePowerLevel[FP_SABERTHROW] = FORCE_LEVEL_3;
+		client->ps.fd.forcePowersKnown |= ( 1 << FP_SABERTHROW );
 	}
 
 	if ( scn.type == SCN_WEAPON || scn.type == SCN_TURRET || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker ) ) {
@@ -389,6 +443,9 @@ static void G_ScenarioSample( void ) {
 		if ( n && G_IsMindTricked( &g_entities[scn.client[0]].client->ps.fd, scn.client[n] ) ) {
 			scnStats.mindTricked[n]++;
 		}
+		if ( ps->saberLockTime > level.time ) {
+			scnStats.saberLocked[n]++;
+		}
 		scnStats.path[n] += Distance( ps->origin, scnStats.origin[n] );
 		scnStats.health[n] = ent->health;
 		scnStats.force[n] = ps->fd.forcePower;
@@ -400,16 +457,16 @@ static void G_ScenarioSample( void ) {
 void G_ScenarioPrintStats( void ) {
 	static const char *roles[] = { "attacker", "defender", "ally" };
 	char line[MAX_STRING_CHARS] = "scenario statistics: health gained and lost, force gained and spent, instants off the ground, "
-		"knocked down and mind tricked, distance moved, end place against the start, by role:";
+		"knocked down, mind tricked and in a saber lock, distance moved, end place against the start, by role:";
 	int n;
 
 	if ( scn.type == SCN_NONE ) {
 		return;
 	}
 	for ( n = 0; n < scn.numClients; n++ ) {
-		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d %.0f %d %d %d", n ? "," : "", roles[n],
+		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d %d %.0f %d %d %d", n ? "," : "", roles[n],
 			scnStats.healthGained[n], scnStats.healthLost[n], scnStats.forceGained[n], scnStats.forceSpent[n],
-			scnStats.airborne[n], scnStats.knockedDown[n], scnStats.mindTricked[n], scnStats.path[n],
+			scnStats.airborne[n], scnStats.knockedDown[n], scnStats.mindTricked[n], scnStats.saberLocked[n], scnStats.path[n],
 			scnStats.end[n][0], scnStats.end[n][1], scnStats.end[n][2] ) );
 	}
 	trap->Print( "%s\n", line );
@@ -508,10 +565,20 @@ void G_ScenarioFrame( void ) {
 	VectorSet( fwd, Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 );
 	VectorMA( scn.origin, scn.dist, fwd, front );
 	G_ScenarioReleaseGun();
-	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, scn.yaw );
+	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, G_ScenarioAttackerYaw() );
 	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
 	G_ScenarioEquip( &g_entities[scn.client[0]], qtrue );
 	G_ScenarioEquip( &g_entities[scn.client[1]], qfalse );
+	if ( scn.type == SCN_SABER && scn.saberMode == SM_LOCK ) {
+		// saber locks happen only in a duel (WP_SabersCheckLock): a private one, already started
+		for ( i = 0; i < 2; i++ ) {
+			gclient_t *client = g_entities[scn.client[i]].client;
+
+			client->ps.duelInProgress = qtrue;
+			client->ps.duelIndex = scn.client[1 - i];
+			client->ps.duelTime = 0;
+		}
+	}
 	if ( scn.numClients == 3 ) {
 		vec3_t ally;
 
@@ -615,6 +682,123 @@ void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t 
 		inflictor ? inflictor->r.currentOrigin[2] : 0.0f );
 }
 
+// a saber scenario's buttons and moves, from the start of the repetition's script (phase, in ms)
+static void G_ScenarioSaberCommand( gentity_t *ent, qboolean attacker, int phase, usercmd_t *ucmd ) {
+	static const signed char kickDirs[4][2] = { { 127, 0 }, { -127, 0 }, { 0, 127 }, { 0, -127 } };
+	static const signed char lockDirs[3][2] = { { 127, 0 }, { 127, -127 }, { 127, 127 } };
+	const int turn = scn.rep + 7;	// repetition 1 in the first direction
+	const signed char side = ( scn.rep & 1 ) ? 127 : -127;	// right, then left
+	const signed char *dir;
+
+	if ( scn.saberMode == SM_LOCK && ent->client->ps.saberLockTime > level.time ) {
+		// the attacker pushes the lock: the game reads the buttons once per 20 Hz frame, at the frame's first command and
+		// before that command sets them (g_active.c), so it counts a press made by the command before, the bot's command
+		// at the instant's time: pressed from there, 50 ms every 100 ms
+		if ( attacker && phase % 100 < 50 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+		}
+		return;
+	}
+	if ( scn.saberMode == SM_STABDOWN && !attacker && phase < 50 && ent->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN ) {
+		G_Knockdown( ent );
+	}
+	if ( !attacker && scn.saberMode != SM_ATTACK && scn.saberMode != SM_LOCK ) {
+		return;	// the defender idle
+	}
+
+	switch ( scn.saberMode ) {
+	case SM_IDLE:
+	case SM_ATTACK:
+		if ( phase < 100 ) {
+			dir = scnDirs[turn % 8];
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = dir[0];
+			ucmd->rightmove = attacker ? dir[1] : -dir[1];
+		}
+		break;
+	case SM_LOCK:
+		// both the same attack, top-down, then each diagonal in turn, the pairs a lock starts from (WP_SabersCheckLock),
+		// held 600 ms: a clash locks only a player who is pressing something (G_ClientIdleInWorld)
+		if ( phase < 600 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = lockDirs[turn % 3][0];
+			ucmd->rightmove = lockDirs[turn % 3][1];
+		}
+		break;
+	case SM_THROW:
+		if ( phase < 1000 ) ucmd->buttons = BUTTON_ALT_ATTACK;
+		break;
+	case SM_KATA:
+		if ( phase < 100 ) ucmd->buttons = BUTTON_ATTACK | BUTTON_ALT_ATTACK;
+		break;
+	case SM_BACK:
+	case SM_BACKCROUCH:	// ducked first for the crouched back attack
+		if ( scn.saberMode == SM_BACKCROUCH && phase < 300 ) ucmd->upmove = -127;
+		if ( phase >= 50 && phase < 150 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = -127;
+		}
+		break;
+	case SM_JUMP:	// the jump held, the attack once in the air (the flip and the strong style's need rising)
+		if ( phase < 120 ) ucmd->upmove = 127;
+		if ( phase >= 20 && phase < 120 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = 127;
+		}
+		break;
+	case SM_LUNGE:	// ducked first
+		if ( phase < 300 ) ucmd->upmove = -127;
+		if ( phase >= 50 && phase < 150 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = 127;
+		}
+		break;
+	case SM_CARTWHEEL:	// the jump held, then the side and the attack once rising (a jump begun to the side
+						// is a side flip, during which no attack starts)
+		if ( phase < 120 ) ucmd->upmove = 127;
+		if ( phase >= 20 && phase < 120 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->rightmove = side;
+		}
+		break;
+	case SM_BACKFLIP:
+		if ( phase < 100 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = -127;
+			ucmd->upmove = 127;
+		}
+		break;
+	case SM_KICK:
+		if ( phase < 100 ) {
+			ucmd->buttons = BUTTON_ALT_ATTACK;
+			ucmd->forwardmove = kickDirs[turn % 4][0];
+			ucmd->rightmove = kickDirs[turn % 4][1];
+		}
+		break;
+	case SM_AIRKICK:	// a force jump held, then the kick high enough above the floor (more than 64 units)
+		if ( phase < 400 ) ucmd->upmove = 127;
+		if ( phase >= 300 && phase < 400 ) {
+			ucmd->buttons = BUTTON_ALT_ATTACK;
+			ucmd->forwardmove = kickDirs[turn % 4][0];
+			ucmd->rightmove = kickDirs[turn % 4][1];
+		}
+		break;
+	case SM_ROLLSTAB:	// running at full speed, ducked into a roll, the attack held to the roll's end
+		if ( phase < 800 ) ucmd->forwardmove = 127;
+		if ( phase >= 600 && phase < 800 ) ucmd->upmove = -127;
+		if ( phase >= 650 && phase < 1600 ) ucmd->buttons = BUTTON_ATTACK;
+		break;
+	case SM_STABDOWN:	// once the defender is down
+		if ( phase >= 150 && phase < 250 ) {
+			ucmd->buttons = BUTTON_ATTACK;
+			ucmd->forwardmove = 127;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
 // fills a bot's command for the time t; false when the bot is not in the scenario
 qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	gentity_t *ent = &g_entities[clientNum];
@@ -630,7 +814,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	memset( ucmd, 0, sizeof( *ucmd ) );
 	ucmd->serverTime = t;
 	ucmd->weapon = ent->client->ps.weapon;
-	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
+	view[YAW] = attacker ? G_ScenarioAttackerYaw() : AngleNormalize360( scn.yaw + 180 );
 	if ( attacker && scn.type == SCN_WEAPON && scn.weapon == WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
 		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
 		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
@@ -646,13 +830,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 
 	switch ( scn.type ) {
 	case SCN_SABER:
-		if ( phase < 100 && ( attacker || scn.counter ) ) {
-			const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];	// repetition 1 in the first direction
-
-			ucmd->buttons = BUTTON_ATTACK;
-			ucmd->forwardmove = dir[0];
-			ucmd->rightmove = attacker ? dir[1] : -dir[1];
-		}
+		G_ScenarioSaberCommand( ent, attacker, phase, ucmd );
 		break;
 	case SCN_FORCE:
 		if ( !attacker ) {
@@ -830,6 +1008,8 @@ void Svcmd_Scenario_f( void ) {
 	if ( !Q_stricmp( type, "saber" ) ) {
 		static const char *styles[] = { "fast", "medium", "strong", "dual", "staff" };
 		static const int styleValues[] = { SS_FAST, SS_MEDIUM, SS_STRONG, SS_DUAL, SS_STAFF };
+		static const char *modes[] = { "idle", "attack", "throw", "lock", "kata", "back", "backcrouch", "jump", "lunge",
+			"cartwheel", "backflip", "kick", "airkick", "rollstab", "stabdown" };
 		char mode[MAX_TOKEN_CHARS];
 
 		scn.style = SS_MEDIUM;
@@ -839,7 +1019,12 @@ void Svcmd_Scenario_f( void ) {
 			}
 		}
 		trap->Argv( 4, mode, sizeof( mode ) );
-		scn.counter = !Q_stricmp( mode, "attack" ) ? qtrue : qfalse;
+		scn.saberMode = SM_IDLE;
+		for ( i = 0; i < SM_NUM_MODES; i++ ) {
+			if ( !Q_stricmp( mode, modes[i] ) ) {
+				scn.saberMode = (saberMode_t)i;
+			}
+		}
 		scn.dist = (float)G_ScenarioArgInt( 5, 56 );
 		scn.type = SCN_SABER;
 	}

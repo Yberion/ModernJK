@@ -1532,6 +1532,7 @@ typedef struct gameStats_s {
 	int		shots[WP_NUM_WEAPONS][2];	// FireWeapon by weapon, primary and alternate
 	int		styleAttacks[SS_NUM_SABER_STYLES];	// saber attack moves started by clients, by style
 	int		styleBounces[SS_NUM_SABER_STYLES];	// saber moves of clients sent into a bounce or deflection, by style
+	int		specialMoves[LS_MOVE_MAX];	// special saber moves started by clients (back attacks to the hilt bash), by move
 } gameStats_t;
 extern	gameStats_t		g_stats;
 void G_StatsSaberMove( gentity_t *ent, int oldSaberMove );
