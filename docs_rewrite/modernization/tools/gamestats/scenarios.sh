@@ -22,7 +22,8 @@ case "$(uname -s)" in
 esac
 PYTHON=$(command -v python3 || command -v python)
 
-# one server per line: <name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenario>[;<scenario>...]
+# one server per line: <name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenario>[;<scenario>...][|<free play>]
+# (the free play before the scenarios in ticks of 10 ms, 3000 when not given: gamestats_cfg.sh's FREEPLAY)
 cases() {
 	local ffa="mp/ffa3|0|Jedi Reborn" team="mp/ffa3|6|Jedi:red Reborn:blue Jedi:red" force="g_forcePowerDisable 0"
 	local s d f w l
@@ -80,16 +81,37 @@ cases() {
 	# the saber locks: a clash locks at once (g_saberLockFactor 20, every other condition of the game kept); the single
 	# saber's attacks never meet the defender's while both are attacking, so only the dual sabers and the staff lock
 	echo "saber_lock|$ffa|g_saberLocking 1;g_saberLockFactor 20|saber 48 dual lock;saber 48 staff lock"
+	# step 20, the game types (part 4a), the scenarios named after their game type (gamestats_scn.py). Holocron: a
+	# holocron of the power 32 units in front of the attacker, which walks onto it (pickup=), and a saber attack at the
+	# levels the holocrons leave (attack 1, defence 0); Jedi Master: the attacker walks onto the Jedi Master's saber, then
+	# attacks; duel: the saber cases of step 14, the locks (a clash may lock without a private duel) and the force jump,
+	# whose cost is lower; power duel: the five styles against the lone duelist, after a free play of 1 s (its death
+	# ends the round, after which the game stays in its intermission); team: the attacker's teammate as the target
+	# (target=ally), the friendly fire off then on, and a kill at every repetition for the team score
+	local holo="mp/ffa3|1|Jedi Reborn" jm="mp/ffa3|2|Jedi Reborn" duel="mp/duel1|3|Jedi Reborn" pduel="mp/duel1|4|Jedi Reborn Jedi"
+	echo "holocron|$holo|$force|force 48 lightning 3 128 pickup=32;force 48 push 3 128 pickup=32;force 48 heal 3 128 pickup=32;saber 48 medium idle"
+	echo "jedimaster|$jm|$force|saber 48 medium idle 96 pickup=32;force 48 lightning 3 128 pickup=32"
+	for d in idle attack; do
+		l=""; for s in fast medium strong dual staff; do l="$l;saber 48 $s $d"; done
+		echo "duel_saber_$d|$duel||${l#;}"
+	done
+	echo "duel_lock|$duel|g_saberLocking 1;g_saberLockFactor 20|saber 48 dual lock;saber 48 staff lock"
+	echo "duel_levitation|$duel|$force|force 48 levitation 1;force 48 levitation 2;force 48 levitation 3"
+	l=""; for s in fast medium strong dual staff; do l="$l;saber 48 $s idle"; done
+	echo "powerduel|$pduel||${l#;}|100"
+	l="saber 48 medium idle target=ally;weapon 48 12 0 256 target=ally;force 48 lightning 3 128 target=ally"
+	echo "team_friendlyfire0|$team|$wd;$force|$l;saber 48 dual back"
+	echo "team_friendlyfire1|$team|$wd;$force;g_friendlyFire 1;g_friendlySaber 1|$l"
 }
 
 one() {
-	local name map gametype bots pre scn
-	IFS='|' read -r name map gametype bots pre scn <<< "$1"
+	local name map gametype bots pre scn fp
+	IFS='|' read -r name map gametype bots pre scn fp <<< "$1"
 	if [ "$WINDOWS" = 1 ]; then
-		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" \
+		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" FREEPLAY="$fp" \
 			bash "$HERE/gamestats_windows.sh" 1 "${PREFIX}_${name}|$MODULE" > /dev/null 2>&1
 	else
-		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" \
+		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" FREEPLAY="$fp" \
 			bash "$HERE/gamestats.sh" "$DED" "$BASE" "$MODULE" 1 "${PREFIX}_${name}" > /dev/null 2>&1
 	fi
 	echo "done $name"

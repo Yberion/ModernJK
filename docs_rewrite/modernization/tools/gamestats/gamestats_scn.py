@@ -4,7 +4,8 @@ Usage: python -I gamestats_scn.py <directory of the runs> <tagA> <tagB> [<tagA> 
    or: python -I gamestats_scn.py --dump <directory of the runs> <prefix> <tag>... (the lines, for a diff)
 (runs in <directory>/gs_<tag> for the Windows script, <directory>/<tag> for the Linux one). A run may play several
 scenarios one after the other; each is named from its command in the run's measure.cfg ("saber 96 fast idle" is
-saber_fast_idle: the type and the arguments after the repetitions). The statistics are the lines printed after each
+saber_fast_idle: the type and the arguments after the repetitions; outside free for all, the game type before it,
+duel_saber_fast_idle). The statistics are the lines printed after each
 "scenario done"; the events left by the free play before the scenario (bodies fading, items respawning with the global
 sound of a powerup, doors) and the death animation numbers (cycled by a static counter in player_die) are ignored."""
 import re
@@ -14,7 +15,9 @@ from pathlib import Path
 D = Path(sys.argv[1])
 IGNORE = re.compile(r" (EV_BODYFADE|EV_ITEM_RESPAWN|EV_GLOBAL_SOUND|EV_PLAYDOORSOUND|EV_DEATH[123]) \d+")
 KEEP = ("saber swings", "force statistics", "event statistics", "damage statistics", "shot statistics",
-        "style statistics", "special move statistics", "scenario statistics")
+        "style statistics", "special move statistics", "scenario statistics", "score statistics")
+# the game types' names in the scenarios' names (g_gametype; free for all has none)
+GAMETYPES = {1: "holocron", 2: "jedimaster", 3: "duel", 4: "powerduel", 6: "team", 7: "siege", 8: "ctf", 9: "cty"}
 
 
 def run_dir(tag):
@@ -25,10 +28,13 @@ def run_dir(tag):
 def names(base):
     """the scenarios of a run, in their order, from its measure.cfg"""
     out = []
+    gametype = []
     for line in (base / "measure.cfg").read_bytes().decode("latin-1").splitlines():
         words = line.split()
+        if words[:2] == ["set", "g_gametype"] and int(words[2]) in GAMETYPES:
+            gametype = [GAMETYPES[int(words[2])]]
         if len(words) >= 3 and words[0] == "scenario":
-            out.append("_".join([words[1]] + words[3:]).replace("=", ""))
+            out.append("_".join(gametype + [words[1]] + words[3:]).replace("=", ""))
     return out
 
 

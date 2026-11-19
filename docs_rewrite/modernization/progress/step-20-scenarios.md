@@ -9,7 +9,8 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | 1 | the tools (the shared cfg, maps, game types and bots per case, several scenarios per server), the statistics, the old commit's worktree, the force powers | ✅ done (19 November 2026): Windows and Linux |
 | 2 | the weapons missing (stun baton, melee, the old bryar, the emplaced gun, the turrets) and the charges at several lengths | ✅ done (19 November 2026): Windows and Linux |
 | 3 | the saber: thrown and blocked, the saber locks, the special moves | ✅ done (19 November 2026): Windows and Linux |
-| 4 | the game types | ⏳ |
+| 4a | the game types without objectives: holocron, Jedi Master, duel, power duel, team | ✅ done (20 November 2026): Windows and Linux |
+| 4b | the game types with objectives: CTF, CTY, siege | ⏳ |
 | 5 | teams and spectators | ⏳ |
 | 6 | the holdable items and the items picked up | ⏳ |
 | 7 | the vehicles | ⏳ |
@@ -29,6 +30,7 @@ Check before any change (19 November 2026): the 40 cases with that build, `golde
 - `measure_home`: an empty `modernjk_server.cfg` and `openjk_server.cfg` in each run's folder (section 4).
 - `gamestats_scn.py`: every scenario of a run, named from its command in the run's `measure.cfg` (`saber 96 fast idle` is `saber_fast_idle`, as before); the new statistics lines kept.
 - `scenarios.sh` (was `scenarios40.sh`), golden `scenarios_golden.txt` (was `scenarios40_golden.txt`): one server per line, `<name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenarios>`; the 40 cases of step 14 one per server as before, the new ones grouped; the servers with the most scenarios start first. Since the charge's fix (section 9) two golden files: `scenarios_golden.txt`, the build of the day's counts once their differences with the old commit are explained, and `scenarios_golden_step14.txt`, the old commit's; `GOLDEN=<file>` compares a run with another file than the first (`GOLDEN=scenarios_golden_step14.txt` for the old commit's build).
+- Since part 4a (20 November 2026): a case's seventh field, optional, is the free play before its scenarios in ticks (`FREEPLAY=` of `gamestats_cfg.sh`, 30 s by default; 1 s for the power duel, section 11); outside free for all a scenario's name starts with its game type (`duel_saber_fast_idle`; the team powers of part 1, played in a team game, became `team_force_teamheal_1` and the like); the `score statistics` line is kept. Two servers play the same commands with other settings, as `weapon_2_1_40` with and without `g_debugMelee`: the team cases with the friendly fire off, then on, told apart by their order in the file.
 
 ## 4. Found: the test servers read the machine's settings
 
@@ -41,6 +43,12 @@ The dedicated server executes the archived settings of its configuration file, `
 - A `scenario statistics` line with the gamestats of a scenario, per role, sampled at the 20 Hz instants of the counted repetitions: health gained and lost, force gained and spent, the instants off the ground, knocked down and in the attacker's mind trick, the distance moved, and the place at each repetition's end against its start, rounded to the unit and summed.
 - `gamestats` prints the other ten powers (starts and milliseconds held) on a line of their own, `force statistics of the other powers`, so that the line of the six of step 14 is unchanged.
 - `scenario_trace` prints the force points (`fp`) and the ally (`T`).
+- Since part 4a (20 November 2026, section 11):
+  - the bots are the first ones that are not spectators (a duel's queue); in a power duel the defender is the lone duelist (`OnSameTeam` compares the duel teams), reset to its health at spawn, 150 (`g_powerDuelStartHealth`), the others to 100 as before;
+  - the option `pickup=<units>`: in a holocron game a `misc_holocron` of the force scenario's power, in a Jedi Master game the map's Jedi Master saber, put that far in front of the attacker, which walks forward 300 ms onto it, its script starting 400 ms later; every reset puts it back in place, clears the holocrons carried and drops the Jedi Master's saber as at its death without a killer (`ThrowSaberToAttacker`); in a Jedi Master game the bots hold the melee and the bryar, as they spawn, until the attacker takes the saber;
+  - the option `target=ally`: the attacker's teammate takes the defender's place and role (the statistics' defender is then the teammate), the defender the ally's;
+  - the lock mode starts no private duel in the duel game type, where every clash may lock;
+  - a line `score statistics` in every scenario: each role's score and captures, and the red and blue team scores, gained over the counted repetitions; the goldens were recorded again, every scenario of before giving the same counts but for it.
 
 ## 6. Part 1: the force powers
 
@@ -163,3 +171,33 @@ What was found on the way (19 November 2026), none changed:
 10 servers more, 165 scenarios in 78 servers, about 1 min 40 s on the development machine (30 servers at a time). At the old commit, with the port (`scenarios_golden.patch`): the 35 scenarios of this part give the same 315 lines as the build of the day; the two files differ only by the 44 lines of the charge (section 9). Two runs of the build of the day give the same file.
 
 On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 165 scenarios on the VPS: `golden: SAME`.
+
+## 11. Part 4a: the game types without objectives
+
+Decided on 20 November 2026, after reading the code of the game types and trying the scenarios of before in each ([../PLAN.md](../PLAN.md) step 20): the game types in two parts, 4a (holocron, Jedi Master, duel, power duel, team) and 4b (CTF, CTY, siege, whose objectives and flags need more of the module); 33 scenarios of 48 repetitions on 9 servers, each testing what its game type changes.
+
+What the game types change, read from the code:
+
+- Holocron: every frame `HolocronUpdate` sets every force power to level 0 but those of the holocrons carried (level 3), the saber attack and the jump to level 1, the saber defence to 0; the scenario's levels are overwritten. No map of the game has a holocron (`misc_holocron`).
+- Jedi Master: the Jedi Master's saber is put at a spawn point drawn at random when the map loads; who touches it gets 200 health, every power at level 3 (but team heal, team energize, drain and absorb; telepathy at 2) and regenerates the force four times faster; the others have the jump at level 1, the melee and the bryar, and cannot hurt each other. `JediMasterUpdate` sets the levels every frame.
+- Duel and power duel: the saber's damage is not doubled as in the other game types (`w_saber.cpp`, also in siege), a clash may lock without a private duel, the force jump drains 1 instead of 5, the health and armour items are removed. In a power duel the lone duelist parries as if its block level were doubled, regenerates the force faster, spawns with 150 health and never locks; a dead player becomes a spectator (`ClientRespawn`), and the lone duelist's death ends the round.
+- Team: the friendly fire (`g_friendlyFire`, `g_friendlySaber`), the team score from the kills (`AddScore`).
+
+| server (map, game type) | scenarios | what the counts show |
+|---|---|---|
+| `holocron` (`mp/ffa3`, 1) | lightning, push and heal with `pickup=32`; the medium style's attack (`idle`) | the holocron picked up at every repetition (`EV_ITEM_PICKUP` 48) and its power at level 3: lightning 1,430 damage, push knocks the defender down (1,056 instants) and hurts it by its fall (3,696), heal gives 2,400 health; the saber at the levels the holocrons leave (attack 1, defence 0): 600 damage |
+| `jedimaster` (`mp/ffa3`, 2) | the medium style's attack 96 units away with `pickup=32`, lightning with `pickup=32` | the attacker becomes the Jedi Master at every repetition (`EV_BECOME_JEDIMASTER` 48, 100 health gained each time, 2 lost since health above the maximum decays by 1 a second); its saber kills 12 times (score 12), its lightning takes 1,437 |
+| `duel_saber_idle`, `duel_saber_attack` (`mp/duel1`, 3) | the ten saber cases of step 14 (the five styles, `idle` and `attack`) | the saber's damage without the doubling (fast 204, medium 162, strong 750, dual 162, staff 246 in `idle`); another map than the step 14 cases', so not compared with them |
+| `duel_lock` (`mp/duel1`, 3) | the dual sabers' and the staff's locks, `g_saberLocking 1`, `g_saberLockFactor 20`, no private duel | no lock (below) |
+| `duel_levitation` (`mp/duel1`, 3) | the force jump at levels 1 to 3 | the force spent (1,824, 1,248, 1,104), the time off the ground |
+| `powerduel` (`mp/duel1`, 4) | the five styles' attack (`idle`) against the lone duelist, a free play of 1 s | the lone duelist at 150 health; it parries the medium style better than a duelist (126 damage against 162 in a duel), the other styles the same; no death |
+| `team_friendlyfire0`, `team_friendlyfire1` (`mp/ffa3`, 6) | the medium style's attack, the thermal detonator and lightning against the attacker's teammate (`target=ally`), the friendly fire off then on (`g_friendlyFire 1`, `g_friendlySaber 1`); the dual sabers' back attack against the enemy | off: the teammate loses no health (the saber's counters count its wounds before the friendly fire's test: 24 wounds, 570 damage); on: 134, 4,368 and 1,437; the back attack kills at every repetition, 48 points to the attacker and the red team |
+
+Found on the way (20 November 2026), none changed:
+
+- The duel game type's saber locks: the duel's halved saber damage makes a clash's damage 1, the damage of an idle touch (`SABER_NONATTACK_DAMAGE`), and the game tries a lock only above it (`w_saber.cpp`, the saber against saber collision). The same clash on `mp/duel1` at the same instant (a temporary trace of the damage): 2 in free for all with a private duel, which locks 8 times in 24 repetitions; 1 in the duel game type, no lock in 48 repetitions with the dual sabers or the staff. In game: in a duel, the same attacks that lock in a private duel of free for all clash and part. Its place not set.
+- A power duel whose lone duelist dies in the free play ends its round ("Exit: Powerduel ended.") and stays in its intermission: the scenario never ends. Not looked at further; the power duel's free play is 1 s (the case's seventh field), shorter than the bots take to kill.
+
+At the old commit, with the port (`scenarios_golden.patch`): the 33 scenarios give the same counts as the build of the day; the two files differ only by the 18 scenarios of the charge (section 9), 47 lines: the 44 of before and the score line of three of them (`weapon_4_1`, `weapon_16_1_256_hold1000`, `weapon_11_1_256_hold750_rep3000`), whose every shot kills with the charge counted to the releasing command (48 points). The 165 scenarios of before give the same counts as the goldens of before but for the new line and the team powers' new names. Two runs of the build of the day give the same file. 198 scenarios on 87 servers, about 2 min on the development machine (30 servers at a time).
+
+On Linux (20 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 198 scenarios on the VPS: `golden: SAME`.

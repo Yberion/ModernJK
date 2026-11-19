@@ -7,6 +7,8 @@
 #             attacker, the first that is not its teammate the defender, a teammate the ally (g_scenario.cpp)
 #   SCENARIO  one scenario, or several separated by ";" played one after the other on the same server, each with its own
 #             statistics (gamestats_scn.py names them from the cfg); the waits are computed from their repetitions
+#   FREEPLAY  the free play before the scenarios, in ticks of 10 ms (3000, 30 s); shorter in a power duel, where the
+#             lone duelist's death in the free play ends the round and the game stays in its intermission
 
 # measure_home <fs_homepath of the run>: the dedicated server executes the archived settings of its configuration file,
 # found in fs_homepath or else in fs_basepath, the game's folder, whose settings differ between machines (found on
@@ -62,7 +64,7 @@ measure_cfg() {
 			IFS=':' read -r name team <<< "$b"
 			echo "addbot $name 4${team:+ $team}"
 		done
-		echo "wait $chunk"
+		echo "wait ${FREEPLAY:-$chunk}"
 		echo "gamestats"
 		IFS=';' read -ra scns <<< "$SCENARIO"
 		for s in "${scns[@]}"; do
