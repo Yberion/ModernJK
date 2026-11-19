@@ -65,6 +65,21 @@ cases() {
 	echo "weapon_12_charges|$ffa|$wd|${l#;}"
 	echo "weapon_17|$ffa|$wd|weapon 48 17 0;weapon 48 17 1"
 	echo "turret|$ffa|$wd|turret 48 g2;turret 48 hoth"
+	# step 20, the saber's special moves (g_scenario.cpp's saber modes), a server or two per style; the throws 128 units
+	# away, the room a throw needs in front, with the saber throw allowed (g_forcePowerDisable without its bit); the roll
+	# stab 400 units away, where the roll ends short of the defender, in repetitions of 3 s, long enough for the stab
+	echo "saber_fast_moves|$ffa||saber 48 fast kata;saber 48 fast back;saber 48 fast lunge"
+	echo "saber_medium_moves|$ffa||saber 48 medium kata;saber 48 medium back;saber 48 medium backcrouch;saber 48 medium jump"
+	echo "saber_medium_moves2|$ffa||saber 48 medium cartwheel;saber 48 medium stabdown;saber 48 medium rollstab 400 rep=3000"
+	echo "saber_strong_moves|$ffa||saber 48 strong kata;saber 48 strong back;saber 48 strong backcrouch;saber 48 strong jump"
+	echo "saber_dual_moves|$ffa||saber 48 dual kata;saber 48 dual back;saber 48 dual jump;saber 48 dual lunge"
+	echo "saber_dual_moves2|$ffa||saber 48 dual cartwheel;saber 48 dual stabdown;saber 48 dual rollstab 400 rep=3000"
+	echo "saber_staff_moves|$ffa||saber 48 staff kata;saber 48 staff back;saber 48 staff jump;saber 48 staff lunge;saber 48 staff cartwheel"
+	echo "saber_staff_moves2|$ffa||saber 48 staff backflip;saber 48 staff kick;saber 48 staff airkick;saber 48 staff stabdown;saber 48 staff rollstab 400 rep=3000"
+	echo "saber_throw|$ffa|g_forcePowerDisable 32765|saber 48 fast throw 128;saber 48 dual throw 128"
+	# the saber locks: a clash locks at once (g_saberLockFactor 20, every other condition of the game kept); the single
+	# saber's attacks never meet the defender's while both are attacking, so only the dual sabers and the staff lock
+	echo "saber_lock|$ffa|g_saberLocking 1;g_saberLockFactor 20|saber 48 dual lock;saber 48 staff lock"
 }
 
 one() {

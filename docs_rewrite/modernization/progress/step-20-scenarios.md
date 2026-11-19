@@ -8,7 +8,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 |---|---|---|
 | 1 | the tools (the shared cfg, maps, game types and bots per case, several scenarios per server), the statistics, the old commit's worktree, the force powers | ✅ done (19 November 2026): Windows and Linux |
 | 2 | the weapons missing (stun baton, melee, the old bryar, the emplaced gun, the turrets) and the charges at several lengths | ✅ done (19 November 2026): Windows and Linux |
-| 3 | the saber: thrown and blocked, the saber locks, the special moves | ⏳ |
+| 3 | the saber: thrown and blocked, the saber locks, the special moves | ✅ done (19 November 2026): Windows and Linux |
 | 4 | the game types | ⏳ |
 | 5 | teams and spectators | ⏳ |
 | 6 | the holdable items and the items picked up | ⏳ |
@@ -121,3 +121,45 @@ Against the old commit, 18 scenarios differ (44 of 1,040 lines), each by the cha
 The rocket's case: 780 ms, tried first, locks with both counts (30 ms of gap, 750 ms counted); 750 ms is the length on either side of the threshold. Two runs of the build of the day give the same file; the old commit's gives its former 1,032 lines and the new case's 8.
 
 On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC; the 130 scenarios on the VPS: `golden: SAME` against the new `scenarios_golden.txt`.
+
+## 10. Part 3: the saber
+
+Decided on 19 November 2026, after reading the code of the special moves, the locks and the throw:
+
+- not in the multiplayer game, so not scripted: the pull attack (`PM_CheckPullAttack`, under `#if 0` since Raven's "disabling these for MP"), and the dual sabers' kicks (only the staff kicks; with two sabers the alternate attack throws one);
+- the saber locks happen only between players in a duel (`WP_SabersCheckLock`), so the scenario puts both bots in a private duel already started, on `mp/ffa3`, with `g_saberLocking 1`;
+- the throws: the single saber and the dual sabers, against an armed defender; the staff's alternate attack is a kick, and it is thrown only with one blade off, which is not scripted;
+- a new statistics line for every scenario, the special moves started, so that a scenario that does a plain attack instead shows it;
+- 35 scenarios of 48 repetitions, by the modes below.
+
+The module (section 5) gains `scenario saber <reps> <style> <mode> [distance]`, the modes after the two of step 14 (`idle`, `attack`) given in the table, each the attacker's script, the defender idle unless said. Every reset also ends a saber lock and its private duel. The jumps, rolls and the staff's back flip set the attacker's jump at level 3; the throw its saber throw at level 3.
+
+The statistics: `gamestats` prints a line `saber special move statistics (moves started)`, each move from the back stab to the hilt bash (`LS_A_BACKSTAB` to `LS_HILT_BASH`) that a client started, by its name in `saberMoveData`, the spaces as underscores; the `scenario statistics` line counts the instants each role spent in a saber lock (after the instants mind tricked). Both are in every scenario's output, so the two goldens were recorded again; every scenario of before gives the same counts but for them.
+
+| mode | the attacker's script | styles | the move, in each of the 48 repetitions | what the counts show |
+|---|---|---|---|---|
+| `kata` | attack and alternate attack together, standing | the five | `specialfast`, `specialmed`, `specialstr`, `dualspinprot`, `StfSoulCal` | the force spent (50); the fast and medium katas kill every time, the strong one only touches (1 damage a repetition) |
+| `back` | facing away from the defender 56 units behind, backward and attack | the five | `Back_Stab` (fast, staff), `Back_Att` (medium, strong, dual) | the damage; the dual sabers' kill every time |
+| `backcrouch` | the same, crouched | medium, strong | `CR_Back_Att` | the damage |
+| `jump` | a jump, then forward and attack while rising | medium, strong, dual, staff | `Flip_Slash`, `Jump_Att`, `DualJump_Atk`, `DualJumpAtkRStaff` | the medium flip goes over the defender and lands behind it, without a hit; the others hit, the dual and staff ones kill |
+| `lunge` | crouched, then forward and attack | fast, dual, staff | `Lunge_Att`, `DualSpinAtk`, `StfSpinAtk` | the damage; the lunge kills |
+| `cartwheel` | a jump, then the side and attack while rising, right and left in turn | medium, dual, staff | the staff's `ButterflyRight` and `ButterflyLeft`, 24 each; none with the single and dual sabers | see below |
+| `backflip` | backward, jump and attack | staff | `BkFlip_Atk` | the time off the ground, no hit |
+| `kick` | alternate attack and a direction, forward, back, right, left in turn | staff | `StfKickFwd`, `StfKickBack`, `StfKickRight`, `StfKickLeft`, 12 each | no hit (below) |
+| `airkick` | a force jump, then the same | staff | the four air kicks, 12 each | the force spent, the time off the ground, no hit |
+| `rollstab` | a run, crouched into a roll, attack held to its end; 400 units apart, repetitions of 3 s | medium, dual, staff | `RollStab` | the damage |
+| `stabdown` | the defender knocked down by the scenario, forward and attack | medium, dual, staff | `StabDown`, `StabDownDual`, `StabDownStf` | the damage |
+| `throw` | the alternate attack held 1 s, 128 units apart (the room a throw needs in front), the saber throw allowed | fast, dual | no special move | `EV_SABER_BLOCK` (83 and 52) and the saber knocked out of the air and bouncing on the floor, `EV_GRENADE_BOUNCE` (32 each); the force spent |
+| `lock` | both the same attack, top-down then each diagonal in turn, held 600 ms; during a lock the attacker presses attack every 100 ms | dual, staff | 16 locks each | each lock 6 instants (300 ms) for both roles, then the attacker's win; with the staff, its hits |
+
+What was found on the way (19 November 2026), none changed:
+
+- The single and dual sabers' cartwheel is played on the legs only (`PM_SetSaberMove`, "force only on legs" from Raven): the torso keeps the jump, so the saber move stays the ready one and no blade hits. Its counts are the force it costs (10 a cartwheel), the time off the ground and the move to the side. A jump begun to the side is a side flip instead (the force jump's flip), during which no attack starts, so the scenario jumps straight up first.
+- The single saber's attacks never locked: with the same attack on both sides, their blades meet when one of them is no longer attacking, and a lock needs both. The dual sabers and the staff lock at their 16 clashes; a clash locks with a probability of 10 % (`g_saberLockFactor` 2), so the lock server sets it to 20, a lock at every clash that meets the game's other conditions.
+- A clash locks only a player who is pressing a button or moving at that moment (`G_ClientIdleInWorld`), so the lock scenario holds the attack 600 ms.
+- The pushes of a saber lock: the game reads the attack button once per 20 Hz frame, at the frame's first command and before that command sets the buttons (`g_active.cpp`), so a press counts only if the command before it made it, one tick in five at 100 Hz; a press begun on another tick and held is not counted at all. In OpenJK at `sv_fps` 20 the same rule counts a press begun on the last command before a server frame (read from the code, not measured). The scenario presses from the bot's command at the instant's time. To review with the pushes' design, not decided.
+- The staff's kicks: their trace runs from the hip to the right foot, about 44 units ahead and 18 to the right; at 32, 40, 48 and 56 units the defender in front is never hit (24 units is too close: the two bots stand in each other). Not looked at further.
+
+10 servers more, 165 scenarios in 78 servers, about 1 min 40 s on the development machine (30 servers at a time). At the old commit, with the port (`scenarios_golden.patch`): the 35 scenarios of this part give the same 315 lines as the build of the day; the two files differ only by the 44 lines of the charge (section 9). Two runs of the build of the day give the same file.
+
+On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 165 scenarios on the VPS: `golden: SAME`.

@@ -14,7 +14,7 @@ from pathlib import Path
 D = Path(sys.argv[1])
 IGNORE = re.compile(r" (EV_BODYFADE|EV_ITEM_RESPAWN|EV_GLOBAL_SOUND|EV_PLAYDOORSOUND|EV_DEATH[123]) \d+")
 KEEP = ("saber swings", "force statistics", "event statistics", "damage statistics", "shot statistics",
-        "style statistics", "scenario statistics")
+        "style statistics", "special move statistics", "scenario statistics")
 
 
 def run_dir(tag):
