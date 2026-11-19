@@ -7,7 +7,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 | part | group | state |
 |---|---|---|
 | 1 | the tools (the shared cfg, maps, game types and bots per case, several scenarios per server), the statistics, the old commit's worktree, the force powers | ✅ done (19 November 2026): Windows and Linux |
-| 2 | the weapons missing (stun baton, melee, the old bryar, the emplaced gun, the turret) | ⏳ |
+| 2 | the weapons missing (stun baton, melee, the old bryar, the emplaced gun, the turrets) and the charges at several lengths | ✅ done (19 November 2026): Windows and Linux |
 | 3 | the saber: thrown and blocked, the saber locks, the special moves | ⏳ |
 | 4 | the game types | ⏳ |
 | 5 | teams and spectators | ⏳ |
@@ -19,7 +19,7 @@ The 40 scripted bot fights of plan step 14 (10 saber, 6 force, 24 weapon cases) 
 
 The current golden counts (`scenarios40_golden.txt` until this step) were recorded at step 14 part 4b (13 November 2026, one user command per tick), not on 12 November as the plan said: the commit before it (12 November 2026, `sv_fps` removed) only took the rate out of the cases' names, and part 4b changed two saber cases (`saber_fast_idle`, `saber_fast_attack`: the legs follow the velocity only from 1 unit per second). Since then `g_scenario` changed only by the types of plan steps 17 and 18.
 
-That commit is checked out in a git worktree of its own, `E:\Git\jka\ModernJK_golden` (detached), and built there with the same llvm-mingw clang (`build-clang`: `openjkded.x86_64` and `jampgamex86_64`, 156 warnings of that time). Its game is still C (`g_scenario.c`, `qboolean`, unscoped enumerations), so the scenarios written on the build of the day are ported to it by hand; the port is kept as `tools/gamestats/scenarios_golden.patch` (`git apply` in a worktree of that commit), so that the golden can be made again. The server was named `openjkded.x86_64.exe` then: `gamestats_windows.sh` takes `DED_EXE=` besides `BUILD=`.
+That commit is checked out in a git worktree of its own, `E:\Git\jka\ModernJK_golden`, on the branch `scenarios-golden` (created at that commit on 19 November 2026; each part's port is committed on it), and built there with the same llvm-mingw clang (`build-clang`: `openjkded.x86_64` and `jampgamex86_64`, 156 warnings of that time). Its game is still C (`g_scenario.c`, `qboolean`, unscoped enumerations), so the scenarios written on the build of the day are ported to it by hand; the port is kept as `tools/gamestats/scenarios_golden.patch` (`git apply` in a worktree of that commit), so that the golden can be made again. The server was named `openjkded.x86_64.exe` then: `gamestats_windows.sh` takes `DED_EXE=` besides `BUILD=`.
 
 Check before any change (19 November 2026): the 40 cases with that build, `golden: SAME` in 81 s.
 
@@ -65,3 +65,36 @@ What the counts show:
 Recorded on 19 November 2026 at the old commit with `scenarios_golden.patch`: 84 scenarios, 672 lines. The build of the day gives the same 672 lines (no difference to explain for this part), and two runs of it the same file; the 40 cases of step 14 give the same counts as the golden of before this step, without its seventh line.
 
 On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM (no warning; MSVC's build of the day none either), the widened set on the VPS (4 servers at a time): `golden: SAME`.
+
+## 8. Part 2: the weapons
+
+12 servers, 45 scenarios of 48 repetitions (with the 40 of step 14 and part 1: 68 servers, 129 scenarios, about 1 min 40 s on the development machine). Two cases of step 14 changed meaning, since they tested nothing: `weapon_6_1`, the disruptor's alternate, only zoomed in and never fired (it is now the sniper shot: zoomed in for 300 ms, the zoom locked on release, then the shot charged for `hold=` ms), and `weapon_14_1` set off det packs that were never thrown (a pack is now thrown, then set off 800 ms later). The other cases of step 14 and part 1 give the same counts as before.
+
+The module (section 5) gains:
+
+- the options `hold=<ms>` (how long the fire button is held, 1000 by default as in step 14) and `rep=<ms>` (a repetition, 2000 by default); the cfg reads `rep=` to wait for a scenario's end, and a positional argument that is an option counts as missing;
+- the fire mode 2, both buttons;
+- the emplaced gun (17): spawned once 52 units in front of the attacker (clear of its box), mounted with the use key at every repetition (looking 20 degrees down, since the use key's trace leaves the eyes level with the top of the gun's box), fired 2 degrees up, taken off it at every reset;
+- `scenario turret <reps> <g2|hoth>`: a `misc_turretG2` (upside down, on the floor) or a `misc_turret` (Hoth's, with its top) spawned 48 units in front of the attacker, which is made untargeted (`FL_NOTARGET`), so that the turret fires at the defender;
+- at every reset the disruptor's zoom, the rocket launcher's lock and a charge cleared; what a scenario spawned is freed at its end;
+- the entities are spawned by their spawn functions with no keys (`level.numSpawnVars` cleared first: the spawn functions read the keys of the last entity the map loaded otherwise).
+
+| weapon | cases | what the counts show |
+|---|---|---|
+| stun baton (1) | primary, alternate, at 40 units | the same hits (the alternate is the primary) |
+| melee (2) | primary, alternate at 40 units; with `g_debugMelee 1` the alternate in the eight directions and both buttons (`rep=6000`) | the alternate punches as the primary (moving in the eight directions in turn); with `g_debugMelee` it kicks in the direction moved (a kick needs a direction: standing still nothing happens) and knocks down, and both buttons grab: a punch moving forward, a throw moving back (4 s long, so a repetition of 6 s) |
+| old bryar (16) | primary, alternate held 100 to 1,400 ms | the charge's damage |
+| bryar (4) alternate, bowcaster (7) primary | held 100 to 1,400 ms | the charge; below |
+| DEMP2 (9) alternate | held 300 to 2,800 ms | the charge, up to 3 units |
+| disruptor (6) sniper | held 100 to 2,500 ms | the damage up to full charge (1.7 s), the kills |
+| rocket launcher (11) alternate | held 300 to 1,400 ms | the lock: from about 0.9 s held every rocket kills |
+| thermal detonator (12) | primary and alternate held 100, 450, 1,400 ms | the throw's speed: the splash only, then direct hits |
+| emplaced gun (17) | primary, alternate | the alternate fires as the primary; a third of the bolts hit (below) |
+| turrets | `misc_turretG2`, `misc_turret` | the G2 turret's hits, the Hoth turret's kills |
+
+Found on the way (19 November 2026), none changed:
+
+- The weapons' charge is measured against the logic clock, not the command's time. The charge starts at the command that presses the button (`weaponChargeTime`, the command's time) and is counted when the shot is fired against `level.time`, the last 20 Hz instant, which in this branch is up to 50 ms before the command that releases the button (exactly 50 ms in the scenarios, since a bot's command for a 20 Hz instant runs on the tick before it). In game: the bryar's alternate held 400 ms fires a shot of 1 unit (19 damage on the body in the scenario) instead of 2 (44); held exactly 1 s, 4 units instead of 5. The same count for the old bryar, the bowcaster, the DEMP2, the disruptor's sniper shot, the thermal detonator's throw and the rocket launcher's lock. Measured against the releasing command's time, 400 ms would give 2 units. In OpenJK the logic clock lags the commands as well (by a varying amount; not measured). Kept as it is until decided.
+- The emplaced gun's two barrels fire 10 units left and right of the view, alternately: aimed at the middle of a defender 204 units away, every bolt passes beside its model (the trace of a missile against a player tests the model, not only its box); 2 degrees up, 15 of 41 hit, 4 degrees up 10, level, 6 up and 2, 3 or 5 down none. Where each weapon's shots start against the crosshair is to be reviewed (asked on 19 November 2026, its place not set).
+
+On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 129 scenarios on the VPS: `golden: SAME`.

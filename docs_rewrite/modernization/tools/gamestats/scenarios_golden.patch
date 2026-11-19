@@ -11,10 +11,10 @@ index dcbef7cb..189377a1 100644
  
  #define	FOFS(x) offsetof(gentity_t, x)
 diff --git a/codemp/game/g_scenario.c b/codemp/game/g_scenario.c
-index 004cab64..26dea4f2 100644
+index 004cab64..413e7495 100644
 --- a/codemp/game/g_scenario.c
 +++ b/codemp/game/g_scenario.c
-@@ -6,9 +6,13 @@
+@@ -6,11 +6,21 @@
  // the bots (powerups, pain timers and damage sums, walking direction), and the corpses, missiles, events and dropped
  // items are removed when the counted repetitions start, so that every run plays the same game; the statistics of the
  // counted repetitions are printed at the end (gamestats), and the bots then stand still until "scenario off".
@@ -23,13 +23,40 @@ index 004cab64..26dea4f2 100644
  //
  // scenario saber <reps> <fast|medium|strong|dual|staff> <idle|attack> [distance]
 -// scenario force <reps> <lightning|grip|drain|rage|protect|absorb> [distance]
+-// scenario weapon <reps> <weapon number> <0|1 alternate> [distance]
 +// scenario force <reps> <power> [level 1 to 3, 3] [distance] [the defender's level 0 to 3 in push or pull, 0]
 +//   power: lightning grip drain rage protect absorb heal levitation speed push pull telepathy teamheal teamforce see
 +//   saberthrow (teamheal and teamforce need the ally; against saberthrow the defender holds no saber)
- // scenario weapon <reps> <weapon number> <0|1 alternate> [distance]
++// scenario weapon <reps> <weapon number> <0 primary|1 alternate|2 both> [distance]
++//   the button held for hold= ms (1000), released, which fires the charged weapons; the disruptor's alternate is the
++//   sniper shot (zoomed in, the zoom locked, then the shot charged for hold= ms), the det pack's alternate sets off a
++//   pack thrown first; the emplaced gun (17) is spawned in front of the attacker, which mounts it with the use key
++// scenario turret <reps> <g2|hoth> [distance]
++//   a turret spawned between the bots (misc_turretG2 or misc_turret) fires at the defender, the attacker untargeted
  // scenario off
++// Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end).
  
-@@ -38,10 +42,13 @@ static struct {
+ #include "g_local.h"
+ 
+@@ -21,6 +31,7 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
+ extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
+ extern void SaberUpdateSelf( gentity_t *ent );
+ extern void WP_SaberRemoveG2Model( gentity_t *saberent );
++extern qboolean G_CallSpawn( gentity_t *ent );
+ 
+ #define SCN_REP_MSEC		2000	// one repetition
+ #define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
+@@ -29,7 +40,8 @@ typedef enum {
+ 	SCN_NONE,
+ 	SCN_SABER,
+ 	SCN_FORCE,
+-	SCN_WEAPON
++	SCN_WEAPON,
++	SCN_TURRET
+ } scenarioType_t;
+ 
+ static struct {
+@@ -38,25 +50,63 @@ static struct {
  	int				rep;			// the current repetition: 0 is the warm-up, then 1 to reps
  	qboolean		done;			// all repetitions played: the bots stand still
  	int				repStart;		// level.time of the current repetition's reset, 0 before the first
@@ -42,9 +69,15 @@ index 004cab64..26dea4f2 100644
 +	int				level;			// the attacker's level in that power
 +	int				defenderLevel;	// push and pull: the defender's level in the same power, which resists it
  	int				weapon;
- 	qboolean		alt;
+-	qboolean		alt;
++	int				fire;			// 0 primary, 1 alternate, 2 both
++	int				hold;			// ms the fire button is held (option hold=)
++	int				repMsec;		// a repetition (option rep=)
++	qboolean		turretG2;		// misc_turretG2, else misc_turret
++	gentity_t		*spawned[2];	// what the scenario spawned (the emplaced gun, a turret and its top), freed at its end
  	float			dist;			// between the two origins
-@@ -50,13 +57,44 @@ static struct {
+ 	vec3_t			origin;			// the attacker's place, facing yaw
+ 	float			yaw;
  	int				traceReps;		// repetitions traced at every 20 Hz instant (cvar scenario_trace), to diff two rates
  } scn;
  
@@ -90,7 +123,7 @@ index 004cab64..26dea4f2 100644
  }
  
  // a place where the attacker stands on a spawn point and the defender on the floor in front of it
-@@ -84,6 +122,21 @@ static qboolean G_ScenarioFindPlace( void ) {
+@@ -84,6 +134,21 @@ static qboolean G_ScenarioFindPlace( void ) {
  		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
  			continue;	// no floor at the attacker's height in front
  		}
@@ -112,7 +145,22 @@ index 004cab64..26dea4f2 100644
  		{ // away from doors and lifts, which crush the bots standing in their way
  			int e;
  			qboolean nearMover = qfalse;
-@@ -213,13 +266,18 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+@@ -183,6 +248,14 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
+ 	// the model points the missiles hit
+ 	client->ps.pm_flags &= ~( PMF_TIME_KNOCKBACK | PMF_TIME_WATERJUMP | PMF_BACKWARDS_RUN );
+ 	client->ps.movementDir = 0;
++	// the disruptor's zoom, the rocket launcher's lock and a charge, which the next repetition would start from
++	client->ps.zoomMode = 0;
++	client->ps.zoomLocked = qfalse;
++	client->ps.zoomFov = 0;
++	BG_ClearRocketLock( &client->ps );
++	client->ps.weaponChargeTime = 0;
++	client->ps.weaponChargeSubtractTime = 0;
++	ent->flags &= ~FL_NOTARGET;	// the turrets' attacker
+ 	client->ps.saberAttackWound = client->ps.saberIdleWound = 0;
+ 	client->invulnerableTimer = 0;
+ 	client->ps.eFlags &= ~EF_INVULNERABLE;
+@@ -213,13 +286,23 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
  	client->ps.fd.forcePowersKnown |= ( 1 << FP_SABER_OFFENSE ) | ( 1 << FP_SABER_DEFENSE );
  	if ( scn.type == SCN_FORCE && attacker ) {
@@ -129,13 +177,18 @@ index 004cab64..26dea4f2 100644
  
 -	if ( scn.type == SCN_WEAPON ) {
 -		const int weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
-+	if ( scn.type == SCN_WEAPON || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker ) ) {
++	if ( scn.type == SCN_WEAPON || scn.type == SCN_TURRET || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker ) ) {
 +		// the defender cannot block with a saber
-+		const int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : WP_MELEE;
++		int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : WP_MELEE;
++
++		if ( weapon == WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
++			client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
++			weapon = WP_MELEE;
++		}
  
  		client->ps.stats[STAT_WEAPONS] |= ( 1 << weapon );
  		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
-@@ -243,7 +301,96 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+@@ -243,7 +326,151 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
  	}
  }
  
@@ -229,12 +282,71 @@ index 004cab64..26dea4f2 100644
 +	trap->Print( "%s\n", line );
 +}
 +
++// an entity of a map's kind spawned by the scenario, with no keys but its place, angle and flags (the spawn functions
++// would read the keys of the last entity the map loaded)
++static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, float yaw, int spawnflags ) {
++	gentity_t *ent = G_Spawn();
++
++	level.numSpawnVars = 0;
++	level.numSpawnVarChars = 0;
++	ent->classname = (char *)classname;
++	ent->spawnflags = spawnflags;
++	VectorCopy( origin, ent->s.origin );
++	VectorCopy( origin, ent->s.pos.trBase );
++	VectorCopy( origin, ent->r.currentOrigin );
++	ent->s.angles[YAW] = yaw;
++	if ( !G_CallSpawn( ent ) ) {
++		G_FreeEntity( ent );
++		return NULL;
++	}
++	return ent;
++}
++
++// the emplaced gun's user taken off it as emplaced_gun_update does, and free to mount it again at once
++static void G_ScenarioReleaseGun( void ) {
++	gentity_t *gun = scn.spawned[0];
++	gentity_t *user;
++
++	if ( scn.type != SCN_WEAPON || scn.weapon != WP_EMPLACED_GUN || !gun || !gun->inuse
++		|| !gun->activator || !gun->activator->client ) {
++		return;
++	}
++	user = gun->activator;
++	user->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_EMPLACED_GUN );
++	user->client->ps.weapon = gun->s.weapon;
++	gun->s.weapon = WP_EMPLACED_GUN;
++	user->r.ownerNum = ENTITYNUM_NONE;
++	user->client->ps.emplacedTime = 0;
++	user->client->ps.emplacedIndex = 0;
++	user->client->ps.saberHolstered = 0;
++	gun->activator = NULL;
++	gun->s.activeForcePass = 0;
++	gun->genericValue1 = 0;
++}
++
++// at the scenario's end: what it spawned removed
++static void G_ScenarioFreeSpawned( void ) {
++	int i;
++
++	G_ScenarioReleaseGun();
++	for ( i = 0; i < 2; i++ ) {
++		if ( scn.spawned[i] && scn.spawned[i]->inuse ) {
++			G_FreeEntity( scn.spawned[i] );
++		}
++		scn.spawned[i] = NULL;
++	}
++}
++
 +// called at the start of every server frame: resets the bots at the start of each repetition
  void G_ScenarioFrame( void ) {
  	vec3_t fwd, front;
  	int seed, i;
-@@ -254,16 +401,21 @@ void G_ScenarioFrame( void ) {
- 	if ( scn.repStart && level.time < scn.repStart + SCN_REP_MSEC ) {
+@@ -251,19 +478,25 @@ void G_ScenarioFrame( void ) {
+ 	if ( scn.type == SCN_NONE || scn.done ) {
+ 		return;
+ 	}
+-	if ( scn.repStart && level.time < scn.repStart + SCN_REP_MSEC ) {
++	if ( scn.repStart && level.time < scn.repStart + scn.repMsec ) {
  		return;
  	}
 +	if ( scn.repStart && scn.rep >= 1 ) {
@@ -243,6 +355,7 @@ index 004cab64..26dea4f2 100644
  	if ( scn.rep >= scn.reps ) {
  		trap->Print( "scenario done: %d repetitions\n", scn.rep );
  		Svcmd_GameStats_f();
++		G_ScenarioFreeSpawned();
  		scn.done = qtrue;
  		return;
  	}
@@ -259,7 +372,12 @@ index 004cab64..26dea4f2 100644
  	}
  
  	// the same random numbers at the start of a repetition at any rate, from before the bots are placed: a bot killed in
-@@ -278,10 +430,31 @@ void G_ScenarioFrame( void ) {
+@@ -274,14 +507,39 @@ void G_ScenarioFrame( void ) {
+ 
+ 	VectorSet( fwd, Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 );
+ 	VectorMA( scn.origin, scn.dist, fwd, front );
++	G_ScenarioReleaseGun();
+ 	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, scn.yaw );
  	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
  	G_ScenarioEquip( &g_entities[scn.client[0]], qtrue );
  	G_ScenarioEquip( &g_entities[scn.client[1]], qfalse );
@@ -269,6 +387,9 @@ index 004cab64..26dea4f2 100644
 +		G_ScenarioAllyPlace( scn.origin, scn.yaw, ally );
 +		G_ScenarioPlace( &g_entities[scn.client[2]], ally, scn.yaw );
 +		G_ScenarioEquip( &g_entities[scn.client[2]], qfalse );
++	}
++	if ( scn.type == SCN_TURRET ) { // the turret's target is the defender
++		g_entities[scn.client[0]].flags |= FL_NOTARGET;
 +	}
 +	if ( scn.type == SCN_FORCE ) { // what the healing and replenishing powers act on
 +		gentity_t *attacker = &g_entities[scn.client[0]];
@@ -292,7 +413,7 @@ index 004cab64..26dea4f2 100644
  		gclient_t *client = g_entities[scn.client[i]].client;
  
  		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
-@@ -292,6 +465,7 @@ void G_ScenarioFrame( void ) {
+@@ -292,6 +550,7 @@ void G_ScenarioFrame( void ) {
  	scn.rep++;
  	if ( scn.rep == 1 ) {
  		memset( &g_stats, 0, sizeof( g_stats ) );	// the counted repetitions start
@@ -300,7 +421,7 @@ index 004cab64..26dea4f2 100644
  		// without the corpses left by the free play or the warm-up, the body queue from its first slot (as BodySink
  		// leaves a body at its end)
  		for ( i = 0; i < BODY_QUEUE_SIZE; i++ ) {
-@@ -316,23 +490,28 @@ void G_ScenarioFrame( void ) {
+@@ -316,23 +575,28 @@ void G_ScenarioFrame( void ) {
  			}
  		}
  	}
@@ -316,13 +437,13 @@ index 004cab64..26dea4f2 100644
  
 -	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
 +	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 ) {
-+		return;
-+	}
-+	G_ScenarioSample();
-+	if ( scn.rep > scn.traceReps ) {
  		return;
  	}
 -	for ( n = 0; n < 2; n++ ) {
++	G_ScenarioSample();
++	if ( scn.rep > scn.traceReps ) {
++		return;
++	}
 +	for ( n = 0; n < scn.numClients; n++ ) {
  		const gentity_t *ent = &g_entities[scn.client[n]];
  		const playerState_t *ps = &ent->client->ps;
@@ -335,7 +456,20 @@ index 004cab64..26dea4f2 100644
  			ps->saberBlocked, ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
  			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
  	}
-@@ -398,6 +577,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+@@ -367,6 +631,12 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+ 	ucmd->serverTime = t;
+ 	ucmd->weapon = ent->client->ps.weapon;
+ 	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
++	if ( attacker && scn.type == SCN_WEAPON && scn.weapon == WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
++		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
++		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
++		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none)
++		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
++	}
+ 	for ( i = 0; i < 3; i++ ) {
+ 		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
+ 	}
+@@ -398,6 +668,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
  		case FP_DRAIN:
  			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
  			break;
@@ -367,14 +501,107 @@ index 004cab64..26dea4f2 100644
  		default:	// powers used on oneself: switched on once, held until the next reset
  			ucmd->forcesel = scn.power;
  			ent->client->ps.fd.forcePowerSelected = scn.power;
-@@ -442,15 +646,33 @@ void Svcmd_Scenario_f( void ) {
+@@ -405,11 +700,52 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+ 			break;
+ 		}
+ 		break;
+-	case SCN_WEAPON:
+-		if ( attacker && phase < 1000 ) {
+-			ucmd->buttons = scn.alt ? BUTTON_ALT_ATTACK : BUTTON_ATTACK;
++	case SCN_WEAPON: {
++		const int buttons = ( scn.fire == 0 ) ? BUTTON_ATTACK : ( scn.fire == 1 ) ? BUTTON_ALT_ATTACK : BUTTON_ATTACK | BUTTON_ALT_ATTACK;
++
++		if ( !attacker ) {
++			break;
++		}
++		if ( scn.weapon == WP_DISRUPTOR && scn.fire == 1 ) { // zoomed in, the zoom locked on release, the shot charged
++			if ( phase < 300 ) {
++				ucmd->buttons = BUTTON_ALT_ATTACK;
++			}
++			else if ( phase >= 400 && phase < 400 + scn.hold ) {
++				ucmd->buttons = BUTTON_ATTACK;
++			}
++		}
++		else if ( scn.weapon == WP_DET_PACK && scn.fire == 1 ) { // a pack thrown, then set off
++			if ( phase < 50 ) {
++				ucmd->buttons = BUTTON_ATTACK;
++			}
++			else if ( phase >= 800 && phase < 850 ) {
++				ucmd->buttons = BUTTON_ALT_ATTACK;
++			}
++		}
++		else if ( scn.weapon == WP_EMPLACED_GUN ) { // the gun mounted, then fired
++			if ( phase < 50 ) {
++				ucmd->buttons = BUTTON_USE;
++			}
++			else if ( phase >= 200 && phase < 200 + scn.hold ) {
++				ucmd->buttons = buttons;
++			}
++		}
++		else if ( phase < scn.hold ) {
++			ucmd->buttons = buttons;
++			if ( scn.weapon == WP_MELEE && scn.fire == 1 && phase < 100 ) {
++				// with g_debugMelee the alternate attack kicks in the direction moved: the eight directions in turn
++				const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];
++
++				ucmd->forwardmove = dir[0];
++				ucmd->rightmove = dir[1];
++			}
++			else if ( scn.weapon == WP_MELEE && scn.fire == 2 ) {
++				// with g_debugMelee both buttons grab, and the grab punches moving forward, throws moving back
++				ucmd->forwardmove = ( scn.rep & 1 ) ? 127 : -127;
++			}
+ 		}
+ 		break;
++	}
+ 	default:
+ 		break;
+ 	}
+@@ -423,7 +759,22 @@ static int G_ScenarioArgInt( int n, int def ) {
+ 		return def;
+ 	}
+ 	trap->Argv( n, arg, sizeof( arg ) );
+-	return atoi( arg );
++	return strchr( arg, '=' ) ? def : atoi( arg );
++}
++
++// an option name=value among the arguments, or def
++static int G_ScenarioOpt( const char *name, int def ) {
++	char arg[MAX_TOKEN_CHARS];
++	const int len = (int)strlen( name );
++	int n;
++
++	for ( n = 2; n < trap->Argc(); n++ ) {
++		trap->Argv( n, arg, sizeof( arg ) );
++		if ( !Q_strncmp( arg, name, len ) && arg[len] == '=' ) {
++			return atoi( arg + len + 1 );
++		}
++	}
++	return def;
+ }
  
+ void Svcmd_Scenario_f( void ) {
+@@ -432,6 +783,7 @@ void Svcmd_Scenario_f( void ) {
+ 
+ 	trap->Argv( 1, type, sizeof( type ) );
+ 	if ( !Q_stricmp( type, "off" ) || !type[0] ) {
++		G_ScenarioFreeSpawned();
+ 		scn.type = SCN_NONE;
+ 		return;
+ 	}
+@@ -440,17 +792,38 @@ void Svcmd_Scenario_f( void ) {
+ 		return;
+ 	}
+ 
++	G_ScenarioFreeSpawned();	// a scenario stopped before its end
  	memset( &scn, 0, sizeof( scn ) );
  	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
 -	for ( i = 0; i < MAX_CLIENTS && n < 2; i++ ) {
 -		if ( g_entities[i].inuse && g_entities[i].client && ( g_entities[i].r.svFlags & SVF_BOT )
 -			&& g_entities[i].client->pers.connected == CON_CONNECTED ) {
 -			scn.client[n++] = i;
++	scn.repMsec = Q_max( 1000, G_ScenarioOpt( "rep", SCN_REP_MSEC ) );
++	scn.hold = G_ScenarioOpt( "hold", 1000 );
 +	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
 +		qboolean defender = qfalse, ally = qfalse;
 +
@@ -409,7 +636,7 @@ index 004cab64..26dea4f2 100644
  	}
  	scn.reps = G_ScenarioArgInt( 2, 100 );
  	trap->Argv( 3, arg, sizeof( arg ) );
-@@ -471,8 +693,10 @@ void Svcmd_Scenario_f( void ) {
+@@ -471,8 +844,10 @@ void Svcmd_Scenario_f( void ) {
  		scn.type = SCN_SABER;
  	}
  	else if ( !Q_stricmp( type, "force" ) ) {
@@ -422,7 +649,7 @@ index 004cab64..26dea4f2 100644
  
  		scn.power = FP_LIGHTNING;
  		for ( i = 0; i < (int)ARRAY_LEN( powers ); i++ ) {
-@@ -480,7 +704,13 @@ void Svcmd_Scenario_f( void ) {
+@@ -480,7 +855,13 @@ void Svcmd_Scenario_f( void ) {
  				scn.power = powerValues[i];
  			}
  		}
@@ -437,6 +664,69 @@ index 004cab64..26dea4f2 100644
  		scn.type = SCN_FORCE;
  	}
  	else if ( !Q_stricmp( type, "weapon" ) ) {
+@@ -489,12 +870,17 @@ void Svcmd_Scenario_f( void ) {
+ 			trap->Print( "scenario: bad weapon number\n" );
+ 			return;
+ 		}
+-		scn.alt = G_ScenarioArgInt( 4, 0 ) ? qtrue : qfalse;
++		scn.fire = Q_max( 0, Q_min( 2, G_ScenarioArgInt( 4, 0 ) ) );
+ 		scn.dist = (float)G_ScenarioArgInt( 5, 256 );
+ 		scn.type = SCN_WEAPON;
+ 	}
++	else if ( !Q_stricmp( type, "turret" ) ) {
++		scn.turretG2 = Q_stricmp( arg, "hoth" ) ? qtrue : qfalse;
++		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
++		scn.type = SCN_TURRET;
++	}
+ 	else {
+-		trap->Print( "scenario: saber, force, weapon or off\n" );
++		trap->Print( "scenario: saber, force, weapon, turret or off\n" );
+ 		return;
+ 	}
+ 	if ( !G_ScenarioFindPlace() ) {
+@@ -502,7 +888,41 @@ void Svcmd_Scenario_f( void ) {
+ 		scn.type = SCN_NONE;
+ 		return;
+ 	}
++	if ( ( scn.type == SCN_WEAPON && scn.weapon == WP_EMPLACED_GUN ) || scn.type == SCN_TURRET ) {
++		// the gun 52 units in front of the attacker, clear of its box (the gun drops itself to the floor; it is used from 64
++		// units at most), a turret 48 units in front, on the floor
++		const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
++		vec3_t at, below;
++		trace_t tr;
++
++		if ( scn.type == SCN_WEAPON ) {
++			VectorMA( scn.origin, 52, fwd, at );
++			scn.spawned[0] = G_ScenarioSpawn( "emplaced_gun", at, scn.yaw, 0 );
++		}
++		else {
++			VectorMA( scn.origin, 48, fwd, at );
++			VectorCopy( at, below );
++			below[2] -= 128;
++			trap->Trace( &tr, at, vec3_origin, vec3_origin, below, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0 );
++			VectorCopy( tr.endpos, at );
++			if ( scn.turretG2 ) { // upside down (2), on the floor: its spawn lowers it by 22 units
++				at[2] += 22;
++				scn.spawned[0] = G_ScenarioSpawn( "misc_turretG2", at, scn.yaw, 2 );
++			}
++			else {
++				scn.spawned[0] = G_ScenarioSpawn( "misc_turret", at, scn.yaw, 0 );
++				if ( scn.spawned[0] && scn.spawned[0]->r.ownerNum != ENTITYNUM_NONE ) {
++					scn.spawned[1] = &g_entities[scn.spawned[0]->r.ownerNum];	// its top, which aims and fires
++				}
++			}
++		}
++		if ( !scn.spawned[0] ) {
++			trap->Print( "scenario: the entity could not be spawned\n" );
++			scn.type = SCN_NONE;
++			return;
++		}
++	}
+ 	scn.traceReps = trap->Cvar_VariableIntegerValue( "scenario_trace" );
+-	trap->Print( "scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, SCN_REP_MSEC,
++	trap->Print( "scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, scn.repMsec,
+ 		scn.client[0], scn.client[1], scn.dist );
+ }
 diff --git a/codemp/game/g_svcmds.c b/codemp/game/g_svcmds.c
 index 78617f85..a4f715ed 100644
 --- a/codemp/game/g_svcmds.c

@@ -298,7 +298,7 @@ Depends on: step 18. Added on 15 November 2026: the build of the whole project w
 
 ### ⏳ Step 20: the scripted scenarios widened (M)
 
-In progress since 19 November 2026: part 1 (the tools, the old commit's worktree, the force powers) done, the same counts on Windows and Linux ([progress/step-20-scenarios.md](progress/step-20-scenarios.md)).
+In progress since 19 November 2026: part 1 (the tools, the old commit's worktree, the force powers) done, the same counts on Windows and Linux; part 2 (the weapons missing, the charges at several lengths) done, the same counts on Windows and Linux ([progress/step-20-scenarios.md](progress/step-20-scenarios.md)).
 
 Depends on: step 18. Added on 18 November 2026, to be done after step 18 and before step 19. The 40 scripted bot fights (`tools/gamestats/scenarios40.sh`, `codemp/game/g_scenario.cpp`: 10 saber, 6 force, 24 weapon) check that the game is unchanged after each change, on a part of it only. They are widened so that the golden counts show what is tested: every game type, every force power, the weapons missing (the stun baton, the melee), the saber thrown, the saber locks and the special moves, teams and spectators, the holdable items, the vehicles and the NPCs, with the statistics each needs.
 

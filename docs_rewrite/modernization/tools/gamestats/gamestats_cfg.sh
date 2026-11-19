@@ -57,7 +57,7 @@ measure_cfg() {
 	if [ -n "${SCENARIO:-}" ]; then
 		# scripted scenarios (codemp/game/g_scenario.cpp): each prints its own gamestats at its end, which the watchdog
 		# counts (measure_stats)
-		local b name team s reps ticks scns
+		local b name team s reps rep ticks scns
 		for b in ${BOTS:-Jedi Reborn}; do
 			IFS=':' read -r name team <<< "$b"
 			echo "addbot $name 4${team:+ $team}"
@@ -67,9 +67,12 @@ measure_cfg() {
 		IFS=';' read -ra scns <<< "$SCENARIO"
 		for s in "${scns[@]}"; do
 			echo "scenario $s"
-			# the repetitions and the uncounted first one, 2 s (200 ticks) each, and a margin of 1 s
+			# the repetitions and the uncounted first one, of rep= ms each (2000 by default, g_scenario.cpp), and a margin
+			# of 1 s
 			read -r _ reps _ <<< "$s"
-			ticks=$(( ( reps + 1 ) * 200 + 100 ))
+			rep=2000
+			[[ " $s " =~ \ rep=([0-9]+)\  ]] && rep=${BASH_REMATCH[1]}
+			ticks=$(( ( reps + 1 ) * rep / 10 + 100 ))
 			while [ "$ticks" -gt 0 ]; do
 				echo "wait $(( ticks < chunk ? ticks : chunk ))"
 				ticks=$(( ticks - chunk ))

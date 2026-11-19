@@ -36,6 +36,29 @@ cases() {
 		echo "force_${f}_levels|$ffa|$force|$l"
 	done
 	for f in teamheal teamforce; do echo "force_${f}_levels|$team|$force|force 48 $f 1;force 48 $f 2;force 48 $f 3"; done
+	# step 20, the weapons: the ones missing (stun baton, melee, the old bryar, the emplaced gun, the turrets) and the
+	# charges at other lengths than the 1 s of step 14 (the bryars' alternate: a unit per 200 ms up to 5; the bowcaster's
+	# primary: the same; the DEMP2's alternate: a unit per 700 ms up to 3; the disruptor's sniper shot: a unit per 50 ms,
+	# full at 1.7 s; the rocket launcher's lock: full at 1.2 s; the thermal detonator: full speed at 0.9 s); a charge
+	# released late gets a longer repetition (rep=), so that its shot lands before the reset
+	local wd="g_weaponDisable 0" h
+	echo "weapon_1|$ffa|$wd|weapon 48 1 0 40;weapon 48 1 1 40"
+	echo "weapon_2|$ffa|$wd|weapon 48 2 0 40;weapon 48 2 1 40"
+	# g_debugMelee: the alternate kicks (the eight directions), both buttons grab (a punch or a throw, 4 s)
+	echo "weapon_2_debugmelee|$ffa|$wd;g_debugMelee 1|weapon 48 2 1 40;weapon 48 2 2 40 rep=6000"
+	l=""; for h in 100 400 600 800; do l="$l;weapon 48 4 1 256 hold=$h"; done
+	echo "weapon_4_charges|$ffa|$wd|${l#;};weapon 48 4 1 256 hold=1400 rep=3000"
+	l="weapon 48 16 0"; for h in 100 400 600 800 1000; do l="$l;weapon 48 16 1 256 hold=$h"; done
+	echo "weapon_16|$ffa|$wd|$l;weapon 48 16 1 256 hold=1400 rep=3000"
+	echo "weapon_6_charges|$ffa|$wd|weapon 48 6 1 256 hold=100;weapon 48 6 1 256 hold=500;weapon 48 6 1 256 hold=1700 rep=3600;weapon 48 6 1 256 hold=2500 rep=4400"
+	l=""; for h in 100 400 600 800; do l="$l;weapon 48 7 0 256 hold=$h"; done
+	echo "weapon_7_charges|$ffa|$wd|${l#;};weapon 48 7 0 256 hold=1400 rep=3000"
+	echo "weapon_9_charges|$ffa|$wd|weapon 48 9 1 256 hold=300;weapon 48 9 1 256 hold=1400 rep=3000;weapon 48 9 1 256 hold=2100 rep=4000;weapon 48 9 1 256 hold=2800 rep=4500"
+	echo "weapon_11_charges|$ffa|$wd|weapon 48 11 1 256 hold=300;weapon 48 11 1 256 hold=700 rep=3000;weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000"
+	l=""; for a in 0 1; do for h in 100 450; do l="$l;weapon 48 12 $a 256 hold=$h"; done; l="$l;weapon 48 12 $a 256 hold=1400 rep=3500"; done
+	echo "weapon_12_charges|$ffa|$wd|${l#;}"
+	echo "weapon_17|$ffa|$wd|weapon 48 17 0;weapon 48 17 1"
+	echo "turret|$ffa|$wd|turret 48 g2;turret 48 hoth"
 }
 
 one() {

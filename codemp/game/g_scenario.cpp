@@ -13,8 +13,14 @@
 // scenario force <reps> <power> [level 1 to 3, 3] [distance] [the defender's level 0 to 3 in push or pull, 0]
 //   power: lightning grip drain rage protect absorb heal levitation speed push pull telepathy teamheal teamforce see
 //   saberthrow (teamheal and teamforce need the ally; against saberthrow the defender holds no saber)
-// scenario weapon <reps> <weapon number> <0|1 alternate> [distance]
+// scenario weapon <reps> <weapon number> <0 primary|1 alternate|2 both> [distance]
+//   the button held for hold= ms (1000), released, which fires the charged weapons; the disruptor's alternate is the
+//   sniper shot (zoomed in, the zoom locked, then the shot charged for hold= ms), the det pack's alternate sets off a
+//   pack thrown first; the emplaced gun (17) is spawned in front of the attacker, which mounts it with the use key
+// scenario turret <reps> <g2|hoth> [distance]
+//   a turret spawned between the bots (misc_turretG2 or misc_turret) fires at the defender, the attacker untargeted
 // scenario off
+// Options after the arguments: hold=<ms>, rep=<ms> (a repetition, 2000; the scripts read it to wait for the end).
 
 #include "g_local.h"
 
@@ -25,6 +31,7 @@ extern void saberReactivate( gentity_t *saberent, gentity_t *saberOwner );
 extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void SaberUpdateSelf( gentity_t *ent );
 extern void WP_SaberRemoveG2Model( gentity_t *saberent );
+extern bool G_CallSpawn( gentity_t *ent );
 
 constexpr int SCN_REP_MSEC = 2000;	// one repetition
 constexpr int SCN_SETTLE_MSEC = 500;		// still, after the reset, before the script starts
@@ -33,7 +40,8 @@ enum class scenarioType_t {
 	SCN_NONE,
 	SCN_SABER,
 	SCN_FORCE,
-	SCN_WEAPON
+	SCN_WEAPON,
+	SCN_TURRET
 };
 
 static struct {
@@ -50,7 +58,11 @@ static struct {
 	forcePowerLevels_t	level;		// the attacker's level in that power
 	forcePowerLevels_t	defenderLevel;	// push and pull: the defender's level in the same power, which resists it
 	weapon_t		weapon;
-	bool		alt;
+	int				fire;			// 0 primary, 1 alternate, 2 both
+	int				hold;			// ms the fire button is held (option hold=)
+	int				repMsec;		// a repetition (option rep=)
+	bool			turretG2;		// misc_turretG2, else misc_turret
+	gentity_t		*spawned[2];	// what the scenario spawned (the emplaced gun, a turret and its top), freed at its end
 	float			dist;			// between the two origins
 	vec3_t			origin;			// the attacker's place, facing yaw
 	float			yaw;
@@ -234,6 +246,14 @@ static void G_ScenarioPlace( gentity_t *ent, const vec3_t origin, float yaw ) {
 	// the model points the missiles hit
 	client->ps.pm_flags &= ~( pmoveFlags_t::PMF_TIME_KNOCKBACK | pmoveFlags_t::PMF_TIME_WATERJUMP | pmoveFlags_t::PMF_BACKWARDS_RUN );
 	client->ps.movementDir = 0;
+	// the disruptor's zoom, the rocket launcher's lock and a charge, which the next repetition would start from
+	client->ps.zoomMode = 0;
+	client->ps.zoomLocked = false;
+	client->ps.zoomFov = 0;
+	BG_ClearRocketLock( &client->ps );
+	client->ps.weaponChargeTime = 0;
+	client->ps.weaponChargeSubtractTime = 0;
+	ent->flags &= ~gentityFlags_t::FL_NOTARGET;	// the turrets' attacker
 	client->ps.saberAttackWound = client->ps.saberIdleWound = 0;
 	client->invulnerableTimer = 0;
 	client->ps.eFlags &= ~entityFlags_t::EF_INVULNERABLE;
@@ -275,10 +295,15 @@ static void G_ScenarioEquip( gentity_t *ent, bool attacker ) {
 		client->ps.fd.forcePowerLevel[scn.power] = scn.defenderLevel;
 	}
 
-	if ( scn.type == scenarioType_t::SCN_WEAPON || ( scn.type == scenarioType_t::SCN_FORCE && scn.power == forcePowers_t::FP_SABERTHROW && !attacker ) ) {
+	if ( scn.type == scenarioType_t::SCN_WEAPON || scn.type == scenarioType_t::SCN_TURRET
+		|| ( scn.type == scenarioType_t::SCN_FORCE && scn.power == forcePowers_t::FP_SABERTHROW && !attacker ) ) {
 		// the defender cannot block with a saber
-		const weapon_t weapon = ( attacker && scn.type == scenarioType_t::SCN_WEAPON ) ? scn.weapon : weapon_t::WP_MELEE;
+		weapon_t weapon = ( attacker && scn.type == scenarioType_t::SCN_WEAPON ) ? scn.weapon : weapon_t::WP_MELEE;
 
+		if ( weapon == weapon_t::WP_EMPLACED_GUN ) { // the hands free to mount the gun, which takes the place of the weapon
+			client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
+			weapon = weapon_t::WP_MELEE;
+		}
 		client->ps.stats[statIndex_t::STAT_WEAPONS] |= Bit( weapon );
 		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
 		client->ps.weapon = weapon;
@@ -383,6 +408,59 @@ void G_ScenarioPrintStats( void ) {
 	trap->Print( "%s\n", line );
 }
 
+// an entity of a map's kind spawned by the scenario, with no keys but its place, angle and flags (the spawn functions
+// would read the keys of the last entity the map loaded)
+static gentity_t *G_ScenarioSpawn( const char *classname, const vec3_t origin, float yaw, int spawnflags ) {
+	gentity_t *ent = G_Spawn();
+
+	level.numSpawnVars = 0;
+	level.numSpawnVarChars = 0;
+	ent->classname = classname;
+	ent->spawnflags = spawnflags;
+	VectorCopy( origin, ent->s.origin );
+	VectorCopy( origin, ent->s.pos.trBase );
+	VectorCopy( origin, ent->r.currentOrigin );
+	ent->s.angles[YAW] = yaw;
+	if ( !G_CallSpawn( ent ) ) {
+		G_FreeEntity( ent );
+		return nullptr;
+	}
+	return ent;
+}
+
+// the emplaced gun's user taken off it as emplaced_gun_update does, and free to mount it again at once
+static void G_ScenarioReleaseGun( void ) {
+	gentity_t *gun = scn.spawned[0];
+	gentity_t *user;
+
+	if ( scn.type != scenarioType_t::SCN_WEAPON || scn.weapon != weapon_t::WP_EMPLACED_GUN || !gun || !gun->inuse
+		|| !gun->activator || !gun->activator->client ) {
+		return;
+	}
+	user = gun->activator;
+	user->client->ps.stats[statIndex_t::STAT_WEAPONS] &= ~Bit( weapon_t::WP_EMPLACED_GUN );
+	user->client->ps.weapon = gun->s.weapon;
+	gun->s.weapon = weapon_t::WP_EMPLACED_GUN;
+	user->r.ownerNum = ENTITYNUM_NONE;
+	user->client->ps.emplacedTime = 0;
+	user->client->ps.emplacedIndex = 0;
+	user->client->ps.saberHolstered = 0;
+	gun->activator = nullptr;
+	gun->s.activeForcePass = 0;
+	gun->genericValue1 = 0;
+}
+
+// at the scenario's end: what it spawned removed
+static void G_ScenarioFreeSpawned( void ) {
+	G_ScenarioReleaseGun();
+	for ( gentity_t *&e : scn.spawned ) {
+		if ( e && e->inuse ) {
+			G_FreeEntity( e );
+		}
+		e = nullptr;
+	}
+}
+
 // called at the start of every server frame: resets the bots at the start of each repetition
 void G_ScenarioFrame( void ) {
 	vec3_t fwd, front;
@@ -391,7 +469,7 @@ void G_ScenarioFrame( void ) {
 	if ( scn.type == scenarioType_t::SCN_NONE || scn.done ) {
 		return;
 	}
-	if ( scn.repStart && level.time < scn.repStart + SCN_REP_MSEC ) {
+	if ( scn.repStart && level.time < scn.repStart + scn.repMsec ) {
 		return;
 	}
 	if ( scn.repStart && scn.rep >= 1 ) {
@@ -400,6 +478,7 @@ void G_ScenarioFrame( void ) {
 	if ( scn.rep >= scn.reps ) {
 		trap->Print( "scenario done: %d repetitions\n", scn.rep );
 		Svcmd_GameStats_f();
+		G_ScenarioFreeSpawned();
 		scn.done = true;
 		return;
 	}
@@ -419,6 +498,7 @@ void G_ScenarioFrame( void ) {
 
 	VectorSet( fwd, Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 );
 	VectorMA( scn.origin, scn.dist, fwd, front );
+	G_ScenarioReleaseGun();
 	G_ScenarioPlace( &g_entities[scn.client[0]], scn.origin, scn.yaw );
 	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
 	G_ScenarioEquip( &g_entities[scn.client[0]], true );
@@ -429,6 +509,9 @@ void G_ScenarioFrame( void ) {
 		G_ScenarioAllyPlace( scn.origin, scn.yaw, ally );
 		G_ScenarioPlace( &g_entities[scn.client[2]], ally, scn.yaw );
 		G_ScenarioEquip( &g_entities[scn.client[2]], false );
+	}
+	if ( scn.type == scenarioType_t::SCN_TURRET ) { // the turret's target is the defender
+		g_entities[scn.client[0]].flags |= gentityFlags_t::FL_NOTARGET;
 	}
 	if ( scn.type == scenarioType_t::SCN_FORCE ) { // what the healing and replenishing powers act on
 		gentity_t *attacker = &g_entities[scn.client[0]];
@@ -539,6 +622,12 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 	ucmd->serverTime = t;
 	UC_SetWeapon( *ucmd, ent->client->ps.weapon );
 	view[YAW] = attacker ? scn.yaw : AngleNormalize360( scn.yaw + 180 );
+	if ( attacker && scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN && scn.repStart && phase >= 0 ) {
+		// the use key's trace leaves the eyes level with the top of the gun's box: looking down at it; then 2 degrees up,
+		// since the two barrels fire 10 units left and right of the view, beside the model of a defender aimed at
+		// (2 up, 15 of 41 bolts hit; 4 up, 10; level, 6 up and 2, 3 or 5 down, none)
+		view[PITCH] = ( phase < 50 ) ? 20.0f : -2.0f;
+	}
 	for ( i = 0; i < 3; i++ ) {
 		ucmd->angles[i] = ANGLE2SHORT( view[i] ) - ent->client->ps.delta_angles[i];
 	}
@@ -602,17 +691,60 @@ bool G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
 			break;
 		}
 		break;
-	case scenarioType_t::SCN_WEAPON:
-		if ( attacker && phase < 1000 ) {
-			ucmd->buttons = scn.alt ? buttonFlags_t::BUTTON_ALT_ATTACK : buttonFlags_t::BUTTON_ATTACK;
+	case scenarioType_t::SCN_WEAPON: {
+		const buttonFlags_t buttons = ( scn.fire == 0 ) ? buttonFlags_t::BUTTON_ATTACK : ( scn.fire == 1 ) ? buttonFlags_t::BUTTON_ALT_ATTACK
+			: buttonFlags_t::BUTTON_ATTACK | buttonFlags_t::BUTTON_ALT_ATTACK;
+
+		if ( !attacker ) {
+			break;
+		}
+		if ( scn.weapon == weapon_t::WP_DISRUPTOR && scn.fire == 1 ) { // zoomed in, the zoom locked on release, the shot charged
+			if ( phase < 300 ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_ALT_ATTACK;
+			}
+			else if ( phase >= 400 && phase < 400 + scn.hold ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_ATTACK;
+			}
+		}
+		else if ( scn.weapon == weapon_t::WP_DET_PACK && scn.fire == 1 ) { // a pack thrown, then set off
+			if ( phase < 50 ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_ATTACK;
+			}
+			else if ( phase >= 800 && phase < 850 ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_ALT_ATTACK;
+			}
+		}
+		else if ( scn.weapon == weapon_t::WP_EMPLACED_GUN ) { // the gun mounted, then fired
+			if ( phase < 50 ) {
+				ucmd->buttons = buttonFlags_t::BUTTON_USE;
+			}
+			else if ( phase >= 200 && phase < 200 + scn.hold ) {
+				ucmd->buttons = buttons;
+			}
+		}
+		else if ( phase < scn.hold ) {
+			ucmd->buttons = buttons;
+			if ( scn.weapon == weapon_t::WP_MELEE && scn.fire == 1 && phase < 100 ) {
+				// with g_debugMelee the alternate attack kicks in the direction moved: the eight directions in turn
+				const signed char *dir = scnDirs[( scn.rep + 7 ) % 8];
+
+				ucmd->forwardmove = dir[0];
+				ucmd->rightmove = dir[1];
+			}
+			else if ( scn.weapon == weapon_t::WP_MELEE && scn.fire == 2 ) {
+				// with g_debugMelee both buttons grab, and the grab punches moving forward, throws moving back
+				ucmd->forwardmove = ( scn.rep & 1 ) ? 127 : -127;
+			}
 		}
 		break;
+	}
 	default:
 		break;
 	}
 	return true;
 }
 
+// a positional argument, or def when it is missing or is an option (name=value)
 static int G_ScenarioArgInt( int n, int def ) {
 	char arg[MAX_TOKEN_CHARS];
 
@@ -620,7 +752,21 @@ static int G_ScenarioArgInt( int n, int def ) {
 		return def;
 	}
 	trap->Argv( n, arg, sizeof( arg ) );
-	return atoi( arg );
+	return strchr( arg, '=' ) ? def : atoi( arg );
+}
+
+// an option name=value among the arguments, or def
+static int G_ScenarioOpt( const char *name, int def ) {
+	char arg[MAX_TOKEN_CHARS];
+	const size_t len = strlen( name );
+
+	for ( int n = 2; n < trap->Argc(); n++ ) {
+		trap->Argv( n, arg, sizeof( arg ) );
+		if ( !Q_strncmp( arg, name, len ) && arg[len] == '=' ) {
+			return atoi( arg + len + 1 );
+		}
+	}
+	return def;
 }
 
 void Svcmd_Scenario_f( void ) {
@@ -629,6 +775,7 @@ void Svcmd_Scenario_f( void ) {
 
 	trap->Argv( 1, type, sizeof( type ) );
 	if ( !Q_stricmp( type, "off" ) || !type[0] ) {
+		G_ScenarioFreeSpawned();
 		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
@@ -637,8 +784,11 @@ void Svcmd_Scenario_f( void ) {
 		return;
 	}
 
+	G_ScenarioFreeSpawned();	// a scenario stopped before its end
 	memset( &scn, 0, sizeof( scn ) );
 	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
+	scn.repMsec = Q_max( 1000, G_ScenarioOpt( "rep", SCN_REP_MSEC ) );
+	scn.hold = G_ScenarioOpt( "hold", 1000 );
 	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
 		bool defender = false, ally = false;
 
@@ -714,12 +864,17 @@ void Svcmd_Scenario_f( void ) {
 			trap->Print( "scenario: bad weapon number\n" );
 			return;
 		}
-		scn.alt = G_ScenarioArgInt( 4, 0 ) ? true : false;
+		scn.fire = Q_max( 0, Q_min( 2, G_ScenarioArgInt( 4, 0 ) ) );
 		scn.dist = (float)G_ScenarioArgInt( 5, 256 );
 		scn.type = scenarioType_t::SCN_WEAPON;
 	}
+	else if ( !Q_stricmp( type, "turret" ) ) {
+		scn.turretG2 = Q_stricmp( arg, "hoth" ) ? true : false;
+		scn.dist = (float)G_ScenarioArgInt( 4, 256 );
+		scn.type = scenarioType_t::SCN_TURRET;
+	}
 	else {
-		trap->Print( "scenario: saber, force, weapon or off\n" );
+		trap->Print( "scenario: saber, force, weapon, turret or off\n" );
 		return;
 	}
 	if ( !G_ScenarioFindPlace() ) {
@@ -727,7 +882,41 @@ void Svcmd_Scenario_f( void ) {
 		scn.type = scenarioType_t::SCN_NONE;
 		return;
 	}
+	if ( ( scn.type == scenarioType_t::SCN_WEAPON && scn.weapon == weapon_t::WP_EMPLACED_GUN ) || scn.type == scenarioType_t::SCN_TURRET ) {
+		// the gun 52 units in front of the attacker, clear of its box (the gun drops itself to the floor; it is used from 64
+		// units at most), a turret 48 units in front, on the floor
+		const vec3_t fwd = { Q_cospif( scn.yaw / 180.0f ), Q_sinpif( scn.yaw / 180.0f ), 0 };
+		vec3_t at, below;
+		trace_t tr;
+
+		if ( scn.type == scenarioType_t::SCN_WEAPON ) {
+			VectorMA( scn.origin, 52, fwd, at );
+			scn.spawned[0] = G_ScenarioSpawn( "emplaced_gun", at, scn.yaw, 0 );
+		}
+		else {
+			VectorMA( scn.origin, 48, fwd, at );
+			VectorCopy( at, below );
+			below[2] -= 128;
+			trap->Trace( &tr, at, vec3_origin, vec3_origin, below, ENTITYNUM_NONE, MASK_SOLID, false, g2TraceFlags_t::G2TRFLAG_NONE, 0 );
+			VectorCopy( tr.endpos, at );
+			if ( scn.turretG2 ) { // upside down (2), on the floor: its spawn lowers it by 22 units
+				at[2] += 22;
+				scn.spawned[0] = G_ScenarioSpawn( "misc_turretG2", at, scn.yaw, 2 );
+			}
+			else {
+				scn.spawned[0] = G_ScenarioSpawn( "misc_turret", at, scn.yaw, 0 );
+				if ( scn.spawned[0] && scn.spawned[0]->r.ownerNum != ENTITYNUM_NONE ) {
+					scn.spawned[1] = &g_entities[scn.spawned[0]->r.ownerNum];	// its top, which aims and fires
+				}
+			}
+		}
+		if ( !scn.spawned[0] ) {
+			trap->Print( "scenario: the entity could not be spawned\n" );
+			scn.type = scenarioType_t::SCN_NONE;
+			return;
+		}
+	}
 	scn.traceReps = trap->Cvar_VariableIntegerValue( "scenario_trace" );
-	trap->Print( "scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, SCN_REP_MSEC,
+	trap->Print( "scenario %s: %d repetitions of %d ms, bots %d and %d, distance %.0f\n", type, scn.reps, scn.repMsec,
 		scn.client[0], scn.client[1], scn.dist );
 }

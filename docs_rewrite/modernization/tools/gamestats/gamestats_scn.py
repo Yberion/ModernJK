@@ -28,7 +28,7 @@ def names(base):
     for line in (base / "measure.cfg").read_bytes().decode("latin-1").splitlines():
         words = line.split()
         if len(words) >= 3 and words[0] == "scenario":
-            out.append("_".join([words[1]] + words[3:]))
+            out.append("_".join([words[1]] + words[3:]).replace("=", ""))
     return out
 
 
