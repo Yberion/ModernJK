@@ -65,7 +65,7 @@ bool G2_TestModelPointers(CGhoul2Info *ghlInfo);
 #include <float.h> //for isnan
 
 
-#define MAX_ERROR_PRINTS (3)
+constexpr int MAX_ERROR_PRINTS = 3;
 class ErrorReporter
 {
 	std::string mName;
@@ -332,9 +332,9 @@ int	G2API_GetTime(int argTime) // this may or may not return arg depending on gh
 
 
 // must be a power of two
-#define MAX_G2_MODELS (512)
-#define G2_MODEL_BITS (9)
-#define G2_INDEX_MASK (MAX_G2_MODELS-1)
+constexpr int MAX_G2_MODELS = 512;
+constexpr int G2_MODEL_BITS = 9;
+constexpr int G2_INDEX_MASK = MAX_G2_MODELS-1;
 
 void RemoveBoneCache(CBoneCache *boneCache);
 

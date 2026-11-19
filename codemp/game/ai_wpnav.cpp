@@ -2510,7 +2510,7 @@ int SavePathData(const char *filename)
 	return 1;
 }
 
-#define MAX_SPAWNPOINT_ARRAY 64
+constexpr int MAX_SPAWNPOINT_ARRAY = 64;
 int gSpawnPointNum = 0;
 gentity_t *gSpawnPoints[MAX_SPAWNPOINT_ARRAY];
 
@@ -2730,7 +2730,7 @@ void G_DebugNodeFile()
 
 #ifdef ASCII_ART_DEBUG
 
-#define ALLOWABLE_DEBUG_FILE_SIZE 1048576
+constexpr int ALLOWABLE_DEBUG_FILE_SIZE = 1048576;
 
 void CreateAsciiTableRepresentation()
 { //Draw a text grid of the entire waypoint array (useful for debugging final waypoint placement)

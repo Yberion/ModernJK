@@ -51,8 +51,8 @@ void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const 
 	}
 }
 
-#define	MAX_YAWSPEED_X_WING		1
-#define	MAX_PITCHSPEED_X_WING	1
+constexpr int MAX_YAWSPEED_X_WING = 1;
+constexpr int MAX_PITCHSPEED_X_WING = 1;
 void PM_ScaleUcmd( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 {
 	if ( ps->vehicleModel != 0 )

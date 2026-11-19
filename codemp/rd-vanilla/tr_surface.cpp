@@ -387,7 +387,7 @@ RB_SurfaceBeam
 */
 static void RB_SurfaceBeam( void )
 {
-#define NUM_BEAM_SEGS 6
+constexpr int NUM_BEAM_SEGS = 6;
 	refEntity_t *e;
 	int	i;
 	vec3_t perpvec;
@@ -722,7 +722,7 @@ RB_SurfaceCylinder
 ==============
 */
 
-#define NUM_CYLINDER_SEGMENTS 32
+constexpr int NUM_CYLINDER_SEGMENTS = 32;
 
 // FIXME: use quad stamp?
 static void DoCylinderPart(polyVert_t *verts)
@@ -865,7 +865,7 @@ static void RB_SurfaceCylinder( void )
 static vec3_t sh1, sh2;
 static float f_count;
 
-#define LIGHTNING_RECURSION_LEVEL 1 // was 2
+constexpr int LIGHTNING_RECURSION_LEVEL = 1; // was 2
 
 // these functions are pretty crappy in terms of returning a nice range of rnd numbers, but it's probably good enough?
 /*static int Q_rand( int *seed ) {

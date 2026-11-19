@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "../../code/qcommon/tri_coll_test.h"
 
-#define MAX_SABER_VICTIMS 16
+constexpr int MAX_SABER_VICTIMS = 16;
 static int		victimEntityNum[MAX_SABER_VICTIMS];
 static float	totalDmg[MAX_SABER_VICTIMS];
 static vec3_t	dmgDir[MAX_SABER_VICTIMS];
@@ -45,7 +45,7 @@ static float	sabersCrossed;
 static int		saberHitEntity;
 static int		numVictims = 0;
 
-#define SABER_PITCH_HACK 90
+constexpr int SABER_PITCH_HACK = 90;
 
 
 extern cvar_t	*g_timescale;
@@ -1448,7 +1448,7 @@ void WP_SaberKnockaway( gentity_t *attacker, trace_t *tr )
 	//NPC_SetAnim( hitEnt, SETANIM_BOTH, BOTH_KNOCKSABER, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 }
 
-#define SABER_COLLISION_DIST 6//was 2//was 4//was 8//was 16
+constexpr int SABER_COLLISION_DIST = 6; //was 2//was 4//was 8//was 16
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 								vec3_t bladeDir, bool noGhoul, forcePowerLevels_t attackStrength,
@@ -1857,8 +1857,8 @@ enum class sabersLockMode_t
 using enum sabersLockMode_t;
 template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
-#define LOCK_IDEAL_DIST_TOP 32.0f
-#define LOCK_IDEAL_DIST_CIRCLE 48.0f
+constexpr float LOCK_IDEAL_DIST_TOP = 32.0f;
+constexpr float LOCK_IDEAL_DIST_CIRCLE = 48.0f;
 extern void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs );
 extern bool ValidAnimFileIndex ( int index );
 bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
@@ -2515,7 +2515,7 @@ void WP_SaberDamageTrace( gentity_t *ent )
   FIXME: if the dot product of the old muzzle dir and the new muzzle dir is < 0.75, subdivide it and do multiple traces so we don't flatten out the arc!
 ---------------------------------------------------------
 */
-#define MAX_SABER_SWING_INC 0.33f
+constexpr float MAX_SABER_SWING_INC = 0.33f;
 void WP_SaberDamageTrace( gentity_t *ent )
 {
 	vec3_t		mp1, mp2, md1, md2, baseOld, baseNew, baseDiff, endOld, endNew, bladePointOld, bladePointNew;

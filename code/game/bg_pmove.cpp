@@ -149,11 +149,8 @@ extern cvar_t	*g_saberAutoBlocking;
 
 static void PM_SetWaterLevelAtPoint( vec3_t org, int *waterlevel, contentsFlags_t *watertype );
 
-#define		FLY_NONE	0
-#define		FLY_NORMAL	1
-#define		FLY_VEHICLE	2
-#define		FLY_HOVER	3
-int			Flying = FLY_NONE;
+#include "qcommon/q_gamesets.h"
+flyMode_t	Flying = FLY_NONE;
 
 pmove_t		*pm;
 pml_t		pml;
@@ -191,7 +188,6 @@ extern animNumber_t PM_PickAnim( gentity_t *self, animNumber_t minAnim, animNumb
 
 extern void DoImpact( gentity_t *self, gentity_t *other, bool damageSelf, trace_t *trace );
 
-#define	PHASER_RECHARGE_TIME	100
 extern EnumArray<EnumArray<saberMoveName_t, saberQuadrant_t, Q_NUM_QUADS>, saberQuadrant_t, Q_NUM_QUADS> transitionMove;
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
@@ -3958,7 +3954,7 @@ static bool PM_TryRoll( void )
 	return false;
 }
 
-extern void CG_LandingEffect( vec3_t origin, vec3_t normal, int material );
+extern void CG_LandingEffect( vec3_t origin, vec3_t normal, surfaceMaterial_t material );
 static void PM_CrashLandEffect( void )
 {
 	if ( pm->waterlevel )
@@ -5175,7 +5171,7 @@ static void PM_GroundTrace( void ) {
 		VectorSet( pml.groundTrace.plane.normal, 0, 0, 1 );
 		pml.groundTrace.plane.pad = 0;
 		pml.groundTrace.plane.signbits = 0;
-		pml.groundTrace.plane.type = 0;;
+		pml.groundTrace.plane.type = PLANE_X;;
 		pml.groundTrace.startsolid = false;
 		pml.groundTrace.surfaceFlags = SURF_NONE;
 		*/
@@ -5341,7 +5337,6 @@ static void PM_GroundTrace( void ) {
 }
 
 int		LastMatrixJumpTime = 0;
-#define	DEBUGMATRIXJUMP		0
 
 void PM_HoverTrace( void )
 {
@@ -7506,7 +7501,7 @@ bool PM_SaberDrawPutawayAnim( animNumber_t anim )
 	return false;
 }
 
-#define	SLOPE_RECALC_INT 100
+constexpr int SLOPE_RECALC_INT = 100;
 extern bool G_StandardHumanoid( gentity_t *self );
 bool PM_AdjustStandAnimForSlope( void )
 {
@@ -9750,7 +9745,7 @@ PM_Use
 Generates a use event
 ==============
 */
-#define USE_DELAY 250
+constexpr int USE_DELAY = 250;
 
 void PM_Use( void )
 {
@@ -13160,10 +13155,6 @@ static bool PM_DoChargedWeapons( void )
 }
 
 
-#define BOWCASTER_CHARGE_UNIT	200.0f	// bowcaster charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
-#define BRYAR_CHARGE_UNIT		200.0f	// bryar charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
-#define DEMP2_CHARGE_UNIT		500.0f	// ditto
-#define DISRUPTOR_CHARGE_UNIT	150.0f	// ditto
 
 // Specific weapons can opt to modify the ammo usage based on charges, otherwise if no special case code
 //	is handled below, regular ammo usage will happen
@@ -14460,7 +14451,7 @@ static void PM_DropTimers( void )
 
 void PM_SetSpecialMoveValues (void )
 {
-	Flying = 0;
+	Flying = FLY_NONE;
 	if ( pm->gent )
 	{
 		if ( pm->gent->client && pm->gent->client->moveType == MT_FLYSWIM )
@@ -14973,7 +14964,7 @@ void Pmove( pmove_t *pmove )
 	// set mins, maxs, and viewheight
 	PM_SetBounds();
 
-	if ( !Flying && !Any( pm->watertype & CONTENTS_LADDER ) && pm->ps->pm_type != PM_DEAD )
+	if ( Flying == FLY_NONE && !Any( pm->watertype & CONTENTS_LADDER ) && pm->ps->pm_type != PM_DEAD )
 	{//NOTE: noclippers shouldn't jump or duck either, no?
 		PM_CheckDuck();
 	}

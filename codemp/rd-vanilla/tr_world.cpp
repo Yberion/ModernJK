@@ -38,7 +38,7 @@ Also sets the clipped hint bit in tess
 =================
 */
 static bool	R_CullTriSurf( srfTriangles_t *cv ) {
-	int 	boxCull;
+	cullResult_t	boxCull;
 
 	boxCull = R_CullLocalBox( cv->bounds );
 
@@ -57,8 +57,8 @@ Also sets the clipped hint bit in tess
 =================
 */
 static bool	R_CullGrid( srfGridMesh_t *cv ) {
-	int 	boxCull;
-	int 	sphereCull;
+	cullResult_t	boxCull;
+	cullResult_t	sphereCull;
 
 	if ( r_nocurves->integer ) {
 		return true;
@@ -535,7 +535,7 @@ R_AddBrushModelSurfaces
 */
 void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	bmodel_t	*bmodel;
-	int			clip;
+	cullResult_t	clip;
 	model_t		*pModel;
 	int			i;
 
@@ -1102,7 +1102,7 @@ bool R_InitializeWireframeAutomap(void)
 #endif
 
 //draw the automap with the given transformation matrix -rww
-#define QUADINFINITY			16777216
+constexpr int QUADINFINITY = 16777216;
 static float g_lastHeight = 0.0f;
 static bool g_lastHeightValid = false;
 static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits );

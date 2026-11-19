@@ -371,7 +371,6 @@ inline constexpr bool enableEnumArithmetic<fakeAscii_t> = true;
 // The menu code needs to get both key and char events, but
 // to avoid duplicating the paths, the char events are just
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
-#define	K_CHAR_FLAG		1024
 
 // the key of such an event, none for a character
 [[nodiscard]] inline std::optional<fakeAscii_t> KeyEvent_Key( int event ) {

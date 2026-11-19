@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	Laser Trip Mine
 //-----------------------
 
-#define PROXIMITY_STYLE 1
-#define TRIPWIRE_STYLE	2
+constexpr int PROXIMITY_STYLE = 1;
+constexpr int TRIPWIRE_STYLE = 2;
 
 //---------------------------------------------------------
 void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace )

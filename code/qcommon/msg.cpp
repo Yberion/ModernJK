@@ -600,8 +600,8 @@ Ghoul2 Insert Start
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
-#define	FLOAT_INT_BITS	13
-#define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
+constexpr int FLOAT_INT_BITS = 13;
+constexpr int FLOAT_INT_BIAS = 1<<(FLOAT_INT_BITS-1);
 
 void MSG_WriteField (msg_t *msg, const int *toF, const netField_t *field)
 {

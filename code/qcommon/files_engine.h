@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FS_DEFAULT_CFG			"default.cfg"		// the configuration a game folder must hold
 #define FS_AUTOEXEC_CFG			"autoexec_sp.cfg"	// read from outside the pk3 files only, as Q3CONFIG_CFG is
 #define Q3CONFIG_CFG			Q3CONFIG_NAME		// the name the file system knows this engine's configuration file by
-#define FS_MODULES_FROM_PAKS	false				// the modules are loaded from folders only
+inline constexpr bool FS_MODULES_FROM_PAKS = false;				// the modules are loaded from folders only
 
 // before a file is read whole, and before a saved game is renamed: stops the sound from repeating meanwhile
 static inline void FS_QuietSound( void ) {

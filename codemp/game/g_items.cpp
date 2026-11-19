@@ -39,30 +39,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#define	RESPAWN_ARMOR		20
-#define	RESPAWN_TEAM_WEAPON	30
-#define	RESPAWN_HEALTH		30
-#define	RESPAWN_AMMO		40
-#define	RESPAWN_HOLDABLE	60
-#define	RESPAWN_MEGAHEALTH	120
-#define	RESPAWN_POWERUP		120
+constexpr int RESPAWN_ARMOR = 20;
+constexpr int RESPAWN_TEAM_WEAPON = 30;
+constexpr int RESPAWN_HEALTH = 30;
+constexpr int RESPAWN_AMMO = 40;
+constexpr int RESPAWN_HOLDABLE = 60;
+constexpr int RESPAWN_MEGAHEALTH = 120;
+constexpr int RESPAWN_POWERUP = 120;
 
 // Item Spawn flags
-#define ITMSF_SUSPEND		1
-#define ITMSF_NOPLAYER		2
-#define ITMSF_ALLOWNPC		4
-#define ITMSF_NOTSOLID		8
-#define ITMSF_VERTICAL		16
-#define ITMSF_INVISIBLE		32
+constexpr int ITMSF_SUSPEND = 1;
+constexpr int ITMSF_ALLOWNPC = 4;
 
 extern gentity_t *droppedRedFlag;
 extern gentity_t *droppedBlueFlag;
 
 
 //======================================================================
-#define MAX_MEDPACK_HEAL_AMOUNT		25
-#define MAX_MEDPACK_BIG_HEAL_AMOUNT	50
-#define MAX_SENTRY_DISTANCE			256
+constexpr int MAX_MEDPACK_HEAL_AMOUNT = 25;
+constexpr int MAX_MEDPACK_BIG_HEAL_AMOUNT = 50;
 
 // For more than four players, adjust the respawn times, up to 1/4.
 int adjustRespawnTime(float preRespawnTime, const gitem_t &item)
@@ -109,15 +104,15 @@ int adjustRespawnTime(float preRespawnTime, const gitem_t &item)
 }
 
 
-#define SHIELD_HEALTH				250
-#define SHIELD_HEALTH_DEC			10		// 25 seconds
-#define MAX_SHIELD_HEIGHT			254
-#define MAX_SHIELD_HALFWIDTH		255
-#define SHIELD_HALFTHICKNESS		4
-#define SHIELD_PLACEDIST			64
+constexpr int SHIELD_HEALTH = 250;
+constexpr int SHIELD_HEALTH_DEC = 10;		// 25 seconds
+constexpr int MAX_SHIELD_HEIGHT = 254;
+constexpr int MAX_SHIELD_HALFWIDTH = 255;
+constexpr int SHIELD_HALFTHICKNESS = 4;
+constexpr int SHIELD_PLACEDIST = 64;
 
-#define SHIELD_SIEGE_HEALTH			2000
-#define SHIELD_SIEGE_HEALTH_DEC		(SHIELD_SIEGE_HEALTH/25)	// still 25 seconds.
+constexpr int SHIELD_SIEGE_HEALTH = 2000;
+constexpr int SHIELD_SIEGE_HEALTH_DEC = SHIELD_SIEGE_HEALTH/25;	// still 25 seconds.
 
 static qhandle_t	shieldLoopSound=0;
 static qhandle_t	shieldAttachSound=0;
@@ -533,7 +528,6 @@ void ItemUse_Shield(gentity_t *ent)
 // PERSONAL ASSAULT SENTRY
 //--------------------------
 
-#define PAS_DAMAGE	2
 
 void SentryTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
@@ -564,7 +558,7 @@ void pas_fire( gentity_t *ent )
 	G_RunObject(ent);
 }
 
-#define TURRET_RADIUS 800
+constexpr int TURRET_RADIUS = 800;
 
 //-----------------------------------------------------
 static bool pas_find_enemies( gentity_t *self )
@@ -717,8 +711,8 @@ void pas_adjust_enemy( gentity_t *ent )
 	}
 }
 
-#define TURRET_DEATH_DELAY 2000
-#define TURRET_LIFETIME 60000
+constexpr int TURRET_DEATH_DELAY = 2000;
+constexpr int TURRET_LIFETIME = 60000;
 
 void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t mod);
 
@@ -1008,7 +1002,7 @@ void turret_free(gentity_t *self)
 	G_FreeEntity( self );
 }
 
-#define TURRET_AMMO_COUNT 40
+constexpr int TURRET_AMMO_COUNT = 40;
 
 //---------------------------------
 void SP_PAS( gentity_t *base )
@@ -1198,7 +1192,7 @@ void ItemUse_MedPack(gentity_t *ent)
 	MedPackGive(ent, MAX_MEDPACK_HEAL_AMOUNT);
 }
 
-#define JETPACK_TOGGLE_TIME			1000
+constexpr int JETPACK_TOGGLE_TIME = 1000;
 void Jetpack_Off(gentity_t *ent)
 { //create effects?
 	assert(ent && ent->client);
@@ -1270,7 +1264,7 @@ void ItemUse_Jetpack( gentity_t *ent )
 	ent->client->jetPackToggleTime = level.time + JETPACK_TOGGLE_TIME;
 }
 
-#define CLOAK_TOGGLE_TIME			1000
+constexpr int CLOAK_TOGGLE_TIME = 1000;
 extern void Jedi_Cloak( gentity_t *self );
 extern void Jedi_Decloak( gentity_t *self );
 void ItemUse_UseCloak( gentity_t *ent )
@@ -1308,8 +1302,8 @@ void ItemUse_UseCloak( gentity_t *ent )
 	ent->client->cloakToggleTime = level.time + CLOAK_TOGGLE_TIME;
 }
 
-#define TOSSED_ITEM_STAY_PERIOD			20000
-#define TOSSED_ITEM_OWNER_NOTOUCH_DUR	1000
+constexpr int TOSSED_ITEM_STAY_PERIOD = 20000;
+constexpr int TOSSED_ITEM_OWNER_NOTOUCH_DUR = 1000;
 
 void SpecialItemThink(gentity_t *ent)
 {
@@ -1476,8 +1470,8 @@ void EWebPrecache(void)
 }
 
 //e-web death
-#define EWEB_DEATH_RADIUS		128
-#define EWEB_DEATH_DMG			90
+constexpr int EWEB_DEATH_RADIUS = 128;
+constexpr int EWEB_DEATH_DMG = 90;
 
 extern void BG_CycleInven(playerState_t *ps, int direction); //bg_misc.cpp
 
@@ -1651,7 +1645,7 @@ void EWeb_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 }
 
 //fire a shot off
-#define EWEB_MISSILE_DAMAGE			20
+constexpr int EWEB_MISSILE_DAMAGE = 20;
 void EWebFire(gentity_t *owner, gentity_t *eweb)
 {
 	mdxaBone_t boltMatrix;
@@ -1882,7 +1876,7 @@ void EWebThink(gentity_t *self)
 	self->nextthink = level.time;
 }
 
-#define EWEB_HEALTH			200
+constexpr int EWEB_HEALTH = 200;
 
 //spawn and set up an e-web ent
 gentity_t *EWeb_Create(gentity_t *spawner)
@@ -2008,7 +2002,7 @@ gentity_t *EWeb_Create(gentity_t *spawner)
 	return ent;
 }
 
-#define EWEB_USE_DEBOUNCE		1000
+constexpr int EWEB_USE_DEBOUNCE = 1000;
 //use the e-web
 void ItemUse_UseEWeb(gentity_t *ent)
 {

@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-#define MAX_VERTS_ON_POLY		64
+constexpr int MAX_VERTS_ON_POLY = 64;
 
-#define MARKER_OFFSET			0	// 1
+constexpr int MARKER_OFFSET = 0;	// 1
 
 /*
 =============
@@ -39,15 +39,12 @@ R_ChopPolyBehindPlane
 Out must have space for two more vertexes than in
 =============
 */
-#define	SIDE_FRONT	0
-#define	SIDE_BACK	1
-#define	SIDE_ON		2
 static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON_POLY],
 								   int *numOutPoints, vec3_t outPoints[MAX_VERTS_ON_POLY],
 							vec3_t normal, vec_t dist, vec_t epsilon) {
 	float		dists[MAX_VERTS_ON_POLY+4] = { 0 };
-	int			sides[MAX_VERTS_ON_POLY+4] = { 0 };
-	int			counts[3];
+	planeSide_t	sides[MAX_VERTS_ON_POLY+4] = {};
+	EnumArray<int, planeSide_t, 3>	counts;
 	float		dot;
 	int			i, j;
 	float		*p1, *p2, *clip;
@@ -59,7 +56,7 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 		return;
 	}
 
-	counts[0] = counts[1] = counts[2] = 0;
+	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
 
 	// determine sides for each point
 	for ( i = 0 ; i < numInPoints ; i++ ) {
@@ -80,10 +77,10 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 
 	*numOutPoints = 0;
 
-	if ( !counts[0] ) {
+	if ( !counts[SIDE_FRONT] ) {
 		return;
 	}
-	if ( !counts[1] ) {
+	if ( !counts[SIDE_BACK] ) {
 		*numOutPoints = numInPoints;
 		memcpy( outPoints, inPoints, numInPoints * sizeof(vec3_t) );
 		return;

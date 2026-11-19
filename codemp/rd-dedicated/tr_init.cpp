@@ -293,11 +293,11 @@ static consoleCommand_t	commands[] = {
 static const size_t numCommands = ARRAY_LEN( commands );
 
 #ifdef _DEBUG
-#define MIN_PRIMITIVES -1
+constexpr int MIN_PRIMITIVES = -1;
 #else
-#define MIN_PRIMITIVES 0
+constexpr int MIN_PRIMITIVES = 0;
 #endif
-#define MAX_PRIMITIVES 3
+constexpr int MAX_PRIMITIVES = 3;
 
 #ifdef _WIN32
 constexpr cvarFlags_t SWAPINTERVAL_FLAGS = CVAR_ARCHIVE_ND;

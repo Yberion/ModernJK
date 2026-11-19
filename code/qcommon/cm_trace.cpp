@@ -307,7 +307,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf, clipMap_t *local ) {
 CM_PositionTest
 ==================
 */
-#define	MAX_POSITION_LEAFS	1024
+constexpr int MAX_POSITION_LEAFS = 1024;
 void CM_PositionTest( traceWork_t *tw ) {
 	int		leafs[MAX_POSITION_LEAFS];
 	int		i;
@@ -634,10 +634,10 @@ return;
 #endif
 
 	// adjust the plane distance apropriately for mins/maxs
-	if ( plane->type < 3 ) {
-		t1 = p1[plane->type] - plane->dist;
-		t2 = p2[plane->type] - plane->dist;
-		offset = tw->extents[plane->type];
+	if ( plane->type < PLANE_NON_AXIAL ) {
+		t1 = p1[PlaneAxis( plane->type )] - plane->dist;
+		t2 = p2[PlaneAxis( plane->type )] - plane->dist;
+		offset = tw->extents[PlaneAxis( plane->type )];
 	} else {
 		t1 = DotProduct (plane->normal, p1) - plane->dist;
 		t2 = DotProduct (plane->normal, p2) - plane->dist;

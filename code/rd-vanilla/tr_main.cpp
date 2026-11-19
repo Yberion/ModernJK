@@ -56,7 +56,7 @@ R_CullLocalBox
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox (const vec3_t bounds[2]) {
+cullResult_t R_CullLocalBox (const vec3_t bounds[2]) {
 	int		i, j;
 	vec3_t	transformed[8];
 	float	dists[8];
@@ -115,7 +115,7 @@ int R_CullLocalBox (const vec3_t bounds[2]) {
 /*
 ** R_CullLocalPointAndRadius
 */
-int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
+cullResult_t R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 {
 	vec3_t transformed;
 
@@ -127,7 +127,7 @@ int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 /*
 ** R_CullPointAndRadius
 */
-int R_CullPointAndRadius( const vec3_t pt, float radius )
+cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 {
 	int		i;
 	float	dist;

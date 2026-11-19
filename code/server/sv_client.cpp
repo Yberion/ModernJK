@@ -348,7 +348,6 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s ) {
 	}
 }
 
-#define	MAX_STRINGCMDS	8
 
 /*
 ===============

@@ -37,23 +37,23 @@ extern int GetTime ( int lastTime );
 extern void NPC_AimAdjust( int change );
 extern bool FlyingCreature( gentity_t *ent );
 
-#define	MAX_VIEW_DIST		1024
-#define MAX_VIEW_SPEED		250
-#define	MAX_LIGHT_INTENSITY 255
-#define	MIN_LIGHT_THRESHOLD	0.1
-#define	ST_MIN_LIGHT_THRESHOLD 30
-#define	ST_MAX_LIGHT_THRESHOLD 180
-#define	DISTANCE_THRESHOLD	0.075f
+constexpr int MAX_VIEW_DIST = 1024;
+constexpr int MAX_VIEW_SPEED = 250;
+constexpr int MAX_LIGHT_INTENSITY = 255;
+constexpr double MIN_LIGHT_THRESHOLD = 0.1;
+constexpr int ST_MIN_LIGHT_THRESHOLD = 30;
+constexpr int ST_MAX_LIGHT_THRESHOLD = 180;
+constexpr float DISTANCE_THRESHOLD = 0.075f;
 
-#define	DISTANCE_SCALE		0.35f	//These first three get your base detection rating, ideally add up to 1
-#define	FOV_SCALE			0.40f	//
-#define	LIGHT_SCALE			0.25f	//
+constexpr float DISTANCE_SCALE = 0.35f;	//These first three get your base detection rating, ideally add up to 1
+constexpr float FOV_SCALE = 0.40f;	//
+constexpr float LIGHT_SCALE = 0.25f;	//
 
-#define	SPEED_SCALE			0.25f	//These next two are bonuses
-#define	TURNING_SCALE		0.25f	//
+constexpr float SPEED_SCALE = 0.25f;	//These next two are bonuses
+constexpr float TURNING_SCALE = 0.25f;	//
 
-#define	REALIZE_THRESHOLD	0.6f
-#define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
+constexpr float REALIZE_THRESHOLD = 0.6f;
+constexpr double CAUTIOUS_THRESHOLD = REALIZE_THRESHOLD * 0.75;
 
 bool NPC_CheckPlayerTeamStealth( void );
 
@@ -773,7 +773,6 @@ NPC_ST_InvestigateEvent
 -------------------------
 */
 
-#define	MAX_CHECK_THRESHOLD	1
 
 static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 {

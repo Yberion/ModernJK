@@ -10,23 +10,23 @@ extern "C" {
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
 
-#define Q_COLOR_ESCAPE	'^'
-#define Q_COLOR_BITS 0xF // was 7
+inline constexpr char Q_COLOR_ESCAPE = '^';
+inline constexpr int Q_COLOR_BITS = 0xF; // was 7
 
 // you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '9' && *((p)+1) >= '0' )
 #define Q_IsColorStringExt(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) >= '0' && *((p)+1) <= '9') // ^[0-9]
 
-#define COLOR_BLACK		'0'
+inline constexpr char COLOR_BLACK = '0';
 #define COLOR_RED		'1'
 #define COLOR_GREEN		'2'
-#define COLOR_YELLOW	'3'
+inline constexpr char COLOR_YELLOW = '3';
 #define COLOR_BLUE		'4'
-#define COLOR_CYAN		'5'
-#define COLOR_MAGENTA	'6'
-#define COLOR_WHITE		'7'
-#define COLOR_ORANGE	'8'
-#define COLOR_GREY		'9'
+inline constexpr char COLOR_CYAN = '5';
+inline constexpr char COLOR_MAGENTA = '6';
+inline constexpr char COLOR_WHITE = '7';
+inline constexpr char COLOR_ORANGE = '8';
+inline constexpr char COLOR_GREY = '9';
 #define ColorIndex(c)	( ( (c) - '0' ) & Q_COLOR_BITS )
 
 #define S_COLOR_BLACK	"^0"

@@ -188,7 +188,7 @@ MASTER SERVER FUNCTIONS
 
 ==============================================================================
 */
-#define NEW_RESOLVE_DURATION		86400000 //24 hours
+constexpr int NEW_RESOLVE_DURATION = 86400000; //24 hours
 static int g_lastResolveTime[MAX_MASTER_SERVERS];
 
 static inline bool SV_MasterNeedsResolving(int server, int time)
@@ -217,7 +217,7 @@ changes from empty to non-empty, and full to non-full,
 but not on every player enter or exit.
 ================
 */
-#define	HEARTBEAT_MSEC	300*1000
+constexpr int HEARTBEAT_MSEC = 300*1000;
 #define	HEARTBEAT_GAME	"QuakeArena-1"
 void SV_MasterHeartbeat( void ) {
 	static netadr_t	adr[MAX_MASTER_SERVERS];
@@ -444,7 +444,7 @@ void SVC_Status( const netadr_t *from ) {
 		if ( cl->state >= CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
 			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n",
-				ps->persistant.data()[PERS_SCORE], cl->ping, cl->name);
+				ps->persistant[PERS_SCORE], cl->ping, cl->name);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= (int)sizeof(status) ) {
 				break;		// can't hold any more
@@ -569,7 +569,7 @@ void SVC_RemoteCommand( const netadr_t *from, msg_t *msg ) {
 	char		remaining[1024];
 	// TTimo - scaled down to accumulate, but not overflow anything network wise, print wise etc.
 	// (OOB messages are the bottleneck here)
-#define	SV_OUTPUTBUF_LENGTH	(1024 - 16)
+constexpr int SV_OUTPUTBUF_LENGTH = 1024 - 16;
 	char		sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 	char		*cmd_aux;
 

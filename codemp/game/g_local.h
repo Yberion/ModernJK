@@ -47,13 +47,13 @@ extern vec3_t gPainPoint;
 
 #define SECURITY_LOG "security.log"
 
-#define BODY_QUEUE_SIZE		8
+inline constexpr int BODY_QUEUE_SIZE = 8;
 
 #ifndef INFINITE
 #define INFINITE			1000000
 #endif
 
-#define	FRAMETIME			100					// msec
+inline constexpr int FRAMETIME = 100;					// msec
 
 // Two clocks (plan step 14). The game module was tuned on the 50 ms frames of sv_fps 20; the server ticks at 100 Hz,
 // and every 20 Hz instant (a multiple of 50 ms) is a tick. level.time is the logic clock: the last 20 Hz instant, which
@@ -62,19 +62,17 @@ extern vec3_t gPainPoint;
 // frames (thinks, force powers, the saber, pain, missiles, movers, items, the bots' AI) runs on the frames where
 // G_GRID20_STEP is true.
 #define	G_GRID20_STEP			( level.logicFrame )
-#define	CARNAGE_REWARD_TIME	3000
-#define REWARD_SPRITE_TIME	2000
+inline constexpr int CARNAGE_REWARD_TIME = 3000;
+inline constexpr int REWARD_SPRITE_TIME = 2000;
 
-#define	INTERMISSION_DELAY_TIME	1000
-#define	SP_INTERMISSION_DELAY_TIME	5000
+inline constexpr int INTERMISSION_DELAY_TIME = 1000;
+inline constexpr int SP_INTERMISSION_DELAY_TIME = 5000;
 
 //primarily used by NPCs
-#define	START_TIME_LINK_ENTS		FRAMETIME*1 // time-delay after map start at which all ents have been spawned, so can link them
-#define	START_TIME_FIND_LINKS		FRAMETIME*2 // time-delay after map start at which you can find linked entities
-#define	START_TIME_MOVERS_SPAWNED	FRAMETIME*2 // time-delay after map start at which all movers should be spawned
-#define	START_TIME_REMOVE_ENTS		FRAMETIME*3 // time-delay after map start to remove temporary ents
-#define	START_TIME_NAV_CALC			FRAMETIME*4 // time-delay after map start to connect waypoints and calc routes
-#define	START_TIME_FIND_WAYPOINT	FRAMETIME*5 // time-delay after map start after which it's okay to try to find your best waypoint
+inline constexpr int START_TIME_LINK_ENTS = FRAMETIME*1; // time-delay after map start at which all ents have been spawned, so can link them
+inline constexpr int START_TIME_FIND_LINKS = FRAMETIME*2; // time-delay after map start at which you can find linked entities
+inline constexpr int START_TIME_REMOVE_ENTS = FRAMETIME*3; // time-delay after map start to remove temporary ents
+inline constexpr int START_TIME_NAV_CALC = FRAMETIME*4; // time-delay after map start to connect waypoints and calc routes
 
 // gentity->flags
 enum class gentityFlags_t
@@ -146,7 +144,7 @@ template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 // make sure this matches game/match.h for botlibs
 #define EC "\x19"
 
-#define	MAX_G_SHARED_BUFFER_SIZE		8192
+inline constexpr int MAX_G_SHARED_BUFFER_SIZE = 8192;
 // used for communication with the engine
 typedef union sharedBuffer_u {
 	char							raw[MAX_G_SHARED_BUFFER_SIZE];
@@ -210,6 +208,16 @@ enum class hitLocation_t
 };
 using enum hitLocation_t;
 template <> inline constexpr bool enableEnumArithmetic<hitLocation_t> = true;
+
+// the part of a player a damage box stands for, whose damage goes to the player
+enum class damageRedirect_t
+{
+	DAMAGEREDIRECT_NONE,	// takes its own damage
+	DAMAGEREDIRECT_HEAD,
+	DAMAGEREDIRECT_RLEG,
+	DAMAGEREDIRECT_LLEG,
+};
+using enum damageRedirect_t;
 
 //============================================================================
 extern void *precachedKyle;
@@ -438,7 +446,7 @@ struct gentity_s {
 
 	bool	isSaberEntity;
 
-	int			damageRedirect; //if entity takes damage, redirect to..
+	damageRedirect_t	damageRedirect; //if entity takes damage, redirect to..
 	int			damageRedirectTo; //this entity number
 
 	vec3_t		epVelocity;
@@ -449,10 +457,6 @@ struct gentity_s {
 	// OpenJK add
 	int			useDebounceTime;	// for cultist_destroyer
 };
-
-#define DAMAGEREDIRECT_HEAD		1
-#define DAMAGEREDIRECT_RLEG		2
-#define DAMAGEREDIRECT_LLEG		3
 
 enum class clientConnected_t {
 	CON_DISCONNECTED,
@@ -495,8 +499,6 @@ typedef struct playerTeamState_s {
 
 // the auto following clients don't follow a specific client
 // number, but instead follow the first two active players
-#define	FOLLOW_ACTIVE1	-1
-#define	FOLLOW_ACTIVE2	-2
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
@@ -531,8 +533,6 @@ using enum voteFlags_t;
 template <> inline constexpr bool enableEnumFlags<voteFlags_t> = true;
 
 //
-#define MAX_NETNAME			36
-#define	MAX_VOTE_COUNT		3
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
@@ -852,7 +852,7 @@ struct gclient_s {
 
 //Interest points
 
-#define MAX_INTEREST_POINTS		64
+inline constexpr int MAX_INTEREST_POINTS = 64;
 
 typedef struct
 {
@@ -862,7 +862,7 @@ typedef struct
 
 //Combat points
 
-#define MAX_COMBAT_POINTS		512
+inline constexpr int MAX_COMBAT_POINTS = 512;
 
 enum class combatPointFlags_t;	// b_local.h
 
@@ -879,7 +879,7 @@ typedef struct
 
 // Alert events
 
-#define	MAX_ALERT_EVENTS	32
+inline constexpr int MAX_ALERT_EVENTS = 32;
 
 enum class alertEventType_e
 {
@@ -1251,8 +1251,7 @@ extern int	BMS_START;
 extern int	BMS_MID;
 extern int	BMS_END;
 
-#define SPF_BUTTON_USABLE		1
-#define SPF_BUTTON_FPUSHABLE	2
+inline constexpr int SPF_BUTTON_FPUSHABLE = 2;
 void G_PlayDoorLoopSound( gentity_t *ent );
 void G_PlayDoorSound( gentity_t *ent, int type );
 void G_RunMover( gentity_t *ent );
@@ -1267,11 +1266,9 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 //
 // g_misc.cpp
 //
-#define MAX_REFNAME	32
-#define	START_TIME_LINK_ENTS		FRAMETIME*1
+inline constexpr int MAX_REFNAME = 32;
 
-#define	RTF_NONE	0
-#define	RTF_NAVGOAL	0x00000001
+inline constexpr int RTF_NAVGOAL = 0x00000001;
 
 typedef struct reference_tag_s
 {
@@ -1510,7 +1507,7 @@ extern void G_SetEnemy (gentity_t *self, gentity_t *enemy);
 bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold );
 
 // ai_main.cpp
-#define MAX_FILEPATH			144
+inline constexpr int MAX_FILEPATH = 144;
 
 int		OrgVisible		( vec3_t org1, vec3_t org2, int ignore);
 void	BotOrder		( gentity_t *ent, int clientnum, int ordernum);

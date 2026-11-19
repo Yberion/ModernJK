@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_saga.h"
 
 constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID | CONTENTS_PLAYERCLIP;
-#define CAMERA_SIZE	4
+constexpr int CAMERA_SIZE = 4;
 
 
 /*
@@ -234,7 +234,7 @@ static void CG_StepOffset( void ) {
 	}
 }
 
-#define CAMERA_DAMP_INTERVAL	50
+constexpr int CAMERA_DAMP_INTERVAL = 50;
 
 static vec3_t	cameramins = { -CAMERA_SIZE, -CAMERA_SIZE, -CAMERA_SIZE };
 static vec3_t	cameramaxs = { CAMERA_SIZE, CAMERA_SIZE, CAMERA_SIZE };
@@ -1053,7 +1053,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	// pivot the eye based on a neck length
 #if 0
 	{
-#define	NECK_LENGTH		8
+constexpr int NECK_LENGTH = 8;
 	vec3_t			forward, up;
 
 	cg.refdef.vieworg[2] -= NECK_LENGTH;
@@ -1131,8 +1131,6 @@ CG_CalcFov
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
 ====================
 */
-#define	WAVE_AMPLITUDE	1
-#define	WAVE_FREQUENCY	0.4
 float zoomFov; //this has to be global client-side
 
 static int CG_CalcFov( void ) {
@@ -1894,8 +1892,8 @@ void CG_UpdateSoundTrackers()
 Screen Effect stuff starts here
 ================================
 */
-#define	CAMERA_DEFAULT_FOV			90.0f
-#define MAX_SHAKE_INTENSITY			16.0f
+constexpr float CAMERA_DEFAULT_FOV = 90.0f;
+constexpr float MAX_SHAKE_INTENSITY = 16.0f;
 
 cgscreffects_t cgScreenEffects;
 
@@ -2161,8 +2159,8 @@ float cg_autoMapZoomMainOffset = 0.0f;
 vec3_t cg_autoMapAngle = {90.0f, 0.0f, 0.0f};
 autoMapInput_t cg_autoMapInput;
 int cg_autoMapInputTime = 0;
-#define	SIDEFRAME_WIDTH			16
-#define	SIDEFRAME_HEIGHT		32
+constexpr int SIDEFRAME_WIDTH = 16;
+constexpr int SIDEFRAME_HEIGHT = 32;
 void CG_DrawAutoMap(void)
 {
 	clientInfo_t	*local;

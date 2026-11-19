@@ -5612,10 +5612,8 @@ Q3_SetLean
 ?
 ============
 */
-#define LEAN_NONE	0
-#define LEAN_RIGHT	1
-#define LEAN_LEFT	2
-static void Q3_SetLean( int entID, int lean)
+#include "qcommon/q_spsets.h"
+static void Q3_SetLean( int entID, lean_t lean)
 {
 	gentity_t	*ent  = &g_entities[entID];
 

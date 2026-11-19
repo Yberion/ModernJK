@@ -44,7 +44,7 @@ void CIN_CloseAllVideos();
 // This handles zone memory allocation.
 // It is a wrapper around malloc with a tag id and a magic number at the start
 
-#define ZONE_MAGIC			0x21436587
+constexpr int ZONE_MAGIC = 0x21436587;
 
 typedef struct zoneHeader_s
 {

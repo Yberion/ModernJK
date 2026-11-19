@@ -49,9 +49,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 #ifndef PATH_SEPERATORCHAR
 	#ifdef _WIN32
-		#define PATHSEPERATOR_CHAR		'\\'
+		inline constexpr char PATHSEPERATOR_CHAR = '\\';
 	#else
-		#define PATHSEPERATOR_CHAR		'/'
+		inline constexpr char PATHSEPERATOR_CHAR = '/';
 	#endif
 #endif
 
@@ -69,11 +69,16 @@ enum class defineFlags_t
 using enum defineFlags_t;
 template <> inline constexpr bool enableEnumFlags<defineFlags_t> = true;
 
-#define BUILTIN_LINE			1
-#define BUILTIN_FILE			2
-#define BUILTIN_DATE			3
-#define BUILTIN_TIME			4
-#define BUILTIN_STDC			5
+enum class builtinDefine_t
+{
+	BUILTIN_NONE,			// not a builtin define
+	BUILTIN_LINE,
+	BUILTIN_FILE,
+	BUILTIN_DATE,
+	BUILTIN_TIME,
+	BUILTIN_STDC,
+};
+using enum builtinDefine_t;
 
 enum class indentFlags_t
 {
@@ -92,7 +97,7 @@ typedef struct define_s
 {
 	char *name;							//define name
 	defineFlags_t flags;							//define flags
-	int builtin;						// > 0 if builtin define
+	builtinDefine_t builtin;			// not BUILTIN_NONE if builtin define
 	int numparms;						//number of define parameters
 	token_t *parms;						//define parameters
 	token_t *tokens;					//macro tokens (possibly containing parm tokens)
@@ -133,13 +138,13 @@ int PC_ReadToken(source_t *source, token_t *token);
 //expect a certain token
 int PC_ExpectTokenString(source_t *source, const char *string);
 //expect a certain token type
-int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token);
+int PC_ExpectTokenType(source_t *source, tokenType_t type, int subtype, token_t *token);
 //expect a token
 int PC_ExpectAnyToken(source_t *source, token_t *token);
 //returns true when the token is available
 int PC_CheckTokenString(source_t *source, const char *string);
 //returns true and reads the token when a token with the given type is available
-int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token);
+int PC_CheckTokenType(source_t *source, tokenType_t type, int subtype, token_t *token);
 //skip tokens until the given token string is read
 int PC_SkipUntilString(source_t *source, char *string);
 //unread the last token read from the script
@@ -181,10 +186,10 @@ void QDECL SourceWarning(source_t *source, const char *str, ...);
 // some of BSPC source does include qcommon/q_shared.h and some does not
 // we define pc_token_s pc_token_t if needed (yes, it's ugly)
 #ifndef __Q_SHARED_H
-#define MAX_TOKENLENGTH		1024
+inline constexpr int MAX_TOKENLENGTH = 1024;
 typedef struct pc_token_s
 {
-	int type;
+	tokenType_t type;
 	int subtype;
 	int intvalue;
 	float floatvalue;

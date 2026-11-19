@@ -23,25 +23,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-#define	MIN_MELEE_RANGE				320
-#define	MIN_MELEE_RANGE_SQR			( MIN_MELEE_RANGE * MIN_MELEE_RANGE )
+constexpr int MIN_MELEE_RANGE = 320;
+constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;
 
-#define MIN_DISTANCE				128
-#define MIN_DISTANCE_SQR			( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 128;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
-#define LEFT_ARM_HEALTH				40
-#define RIGHT_ARM_HEALTH			40
-#define AMMO_POD_HEALTH				40
+constexpr int LEFT_ARM_HEALTH = 40;
+constexpr int RIGHT_ARM_HEALTH = 40;
+constexpr int AMMO_POD_HEALTH = 40;
 
-#define	BOWCASTER_VELOCITY			1300
-#define	BOWCASTER_NPC_DAMAGE_EASY	12
-#define	BOWCASTER_NPC_DAMAGE_NORMAL	24
-#define	BOWCASTER_NPC_DAMAGE_HARD	36
-#define BOWCASTER_SIZE				2
-#define BOWCASTER_SPLASH_DAMAGE		0
-#define BOWCASTER_SPLASH_RADIUS		0
+constexpr int BOWCASTER_VELOCITY = 1300;
+constexpr int BOWCASTER_SIZE = 2;
+constexpr int BOWCASTER_SPLASH_DAMAGE = 0;
+constexpr int BOWCASTER_SPLASH_RADIUS = 0;
 
 //Local state enums
 enum class mark1LocalState_t

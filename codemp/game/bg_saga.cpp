@@ -42,7 +42,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-#define SIEGECHAR_TAB 9 //perhaps a bit hacky, but I don't think there's any define existing for "tab"
+constexpr int SIEGECHAR_TAB = 9; //perhaps a bit hacky, but I don't think there's any define existing for "tab"
 
 char		siege_info[MAX_SIEGE_INFO_SIZE];
 int			siege_valid = 0;

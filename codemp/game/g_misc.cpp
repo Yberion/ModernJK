@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ai_main.h" //for the g2animents
 
-#define HOLOCRON_RESPAWN_TIME 30000
-#define MAX_AMMO_GIVE 2
-#define STATION_RECHARGE_TIME 100
+constexpr int HOLOCRON_RESPAWN_TIME = 30000;
+constexpr int MAX_AMMO_GIVE = 2;
+constexpr int STATION_RECHARGE_TIME = 100;
 
 void HolocronThink(gentity_t *ent);
 
@@ -675,7 +675,6 @@ densityMap - how dense the client models are packed
 
 */
 void AddSpawnField(const char *field, char *value);
-#define MAX_INSTANCE_TYPES		16
 void SP_terrain(gentity_t *ent)
 {
 	G_FreeEntity (ent);
@@ -2313,8 +2312,7 @@ Runs the specified effect, can also be targeted at an info_notnull to orient the
 	"splashDamage" - only works when damage is checked ( default 5 )
 	"soundset"	- bmodel set to use, plays start sound when toggled on, loop sound while on ( doesn't play on a oneshot), and a stop sound when turned off
 */
-#define FX_RUNNER_RESERVED 0x800000
-#define FX_ENT_RADIUS 32
+constexpr int FX_ENT_RADIUS = 32;
 extern int	BMS_START;
 extern int	BMS_MID;
 extern int	BMS_END;
@@ -3031,8 +3029,8 @@ void SP_misc_faller(gentity_t *ent)
 //MAX_TAG_OWNERS is 16 for now in order to not use too much VM memory.
 //Each tag owner has preallocated space for tags up to MAX_TAGS.
 //As is this means 16*256 sizeof(reference_tag_t)'s in addition to name+inuse*16.
-#define MAX_TAGS 256
-#define MAX_TAG_OWNERS 16
+constexpr int MAX_TAGS = 256;
+constexpr int MAX_TAG_OWNERS = 16;
 
 //Maybe I should use my trap->TrueMalloc/trap->TrueFree stuff with this.
 //But I am not yet confident that it can be used without exploding at some point.
@@ -3501,7 +3499,7 @@ TOGGLE - keep firing until used again (fires at intervals of "wait")
 	WP_BLASTER_PISTOL
 */
 //kind of hacky, but we have to do this with no dynamic allocation
-#define MAX_SHOOTERS		16
+constexpr int MAX_SHOOTERS = 16;
 typedef struct shooterClient_s
 {
 	gclient_t		cl;

@@ -924,8 +924,8 @@ void G_SetActiveState(char *targetstring, bool actState)
 	}
 }
 
-#define ACT_ACTIVE		true
-#define ACT_INACTIVE	false
+constexpr bool ACT_ACTIVE = true;
+constexpr bool ACT_INACTIVE = false;
 
 void target_activate_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {

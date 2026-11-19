@@ -88,11 +88,11 @@ using enum material_t;
 // client model and other color coded effects
 // this is regenerated each time a userinfo configstring changes
 
-#define	MAX_CUSTOM_BASIC_SOUNDS	14
-#define	MAX_CUSTOM_COMBAT_SOUNDS	17
-#define	MAX_CUSTOM_EXTRA_SOUNDS	36
-#define	MAX_CUSTOM_JEDI_SOUNDS	22
-#define	MAX_CUSTOM_SOUNDS	(MAX_CUSTOM_JEDI_SOUNDS + MAX_CUSTOM_EXTRA_SOUNDS + MAX_CUSTOM_COMBAT_SOUNDS + MAX_CUSTOM_BASIC_SOUNDS)
+inline constexpr int MAX_CUSTOM_BASIC_SOUNDS = 14;
+inline constexpr int MAX_CUSTOM_COMBAT_SOUNDS = 17;
+inline constexpr int MAX_CUSTOM_EXTRA_SOUNDS = 36;
+inline constexpr int MAX_CUSTOM_JEDI_SOUNDS = 22;
+inline constexpr int MAX_CUSTOM_SOUNDS = MAX_CUSTOM_JEDI_SOUNDS + MAX_CUSTOM_EXTRA_SOUNDS + MAX_CUSTOM_COMBAT_SOUNDS + MAX_CUSTOM_BASIC_SOUNDS;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class clientInfo_t
 {
@@ -199,7 +199,7 @@ enum class targetModel_t
 using enum targetModel_t;
 
 //renderFlags
-#define	RF_LOCKEDANGLE	1
+inline constexpr int RF_LOCKEDANGLE = 1;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class renderInfo_t
@@ -512,7 +512,7 @@ public:
 }; // objectives_t
 // NOTE: This is an arbitrary number greater than our current number of objectives with
 // some fluff just in case we add more in the future.
-#define MAX_MISSION_OBJ 100
+inline constexpr int MAX_MISSION_OBJ = 100;
 enum class objectiveNumber_t;	// objectives.h
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
@@ -576,8 +576,6 @@ public:
 
 // the auto following clients don't follow a specific client
 // number, but instead follow the first two active players
-#define	FOLLOW_ACTIVE1	-1
-#define	FOLLOW_ACTIVE2	-2
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
@@ -937,8 +935,8 @@ using gclient_t = GClientBase<saberInfo_t>;
 using RetailGClient = GClientBase<saberInfoRetail_t>;
 
 
-#define	MAX_PARMS	16
-#define	MAX_PARM_STRING_LENGTH	MAX_QPATH//was 16, had to lengthen it so they could take a valid file path
+inline constexpr int MAX_PARMS = 16;
+inline constexpr int MAX_PARM_STRING_LENGTH = MAX_QPATH; //was 16, had to lengthen it so they could take a valid file path
 
 class parms_t
 {
@@ -998,8 +996,7 @@ enum class damageFlags_t
 using enum damageFlags_t;
 template <> inline constexpr bool enableEnumFlags<damageFlags_t> = true;
 
-#define MAX_FAILED_NODES 8
-#define MAX_INHAND_WEAPONS	2
+inline constexpr int MAX_INHAND_WEAPONS = 2;
 
 
 typedef struct centity_s centity_t;

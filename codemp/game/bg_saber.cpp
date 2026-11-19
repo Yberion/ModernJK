@@ -1573,7 +1573,7 @@ saberMoveName_t PM_BrokenParryForParry( saberMoveName_t move )
 	return LS_NONE;
 }
 
-#define BACK_STAB_DISTANCE 128
+constexpr int BACK_STAB_DISTANCE = 128;
 
 bool PM_CanBackstab(void)
 {
@@ -1753,7 +1753,7 @@ saberMoveName_t PM_SaberDualJumpAttackMove( void )
 	return LS_JUMPATTACK_DUAL;
 }
 
-#define FLIPHACK_DISTANCE 200
+constexpr int FLIPHACK_DISTANCE = 200;
 
 bool PM_SomeoneInFront(trace_t *tr)
 { //Also a very simplified version of the sp counterpart
@@ -2063,9 +2063,9 @@ static bool PM_CheckEnemyPresence( direction_t dir, float radius )
 	return false;
 }
 
-#define SABER_ALT_ATTACK_POWER		50//75?
-#define SABER_ALT_ATTACK_POWER_LR	10//30?
-#define SABER_ALT_ATTACK_POWER_FB	25//30/50?
+constexpr int SABER_ALT_ATTACK_POWER = 50; //75?
+constexpr int SABER_ALT_ATTACK_POWER_LR = 10; //30?
+constexpr int SABER_ALT_ATTACK_POWER_FB = 25; //30/50?
 
 extern bool PM_SaberInReturn( saberMoveName_t move ); //bg_panimate.cpp
 saberMoveName_t PM_CheckPullAttack( void )

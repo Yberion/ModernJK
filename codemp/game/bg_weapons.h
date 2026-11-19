@@ -67,7 +67,7 @@ using enum weapon_t;
 template <> inline constexpr bool enableEnumArithmetic<weapon_t> = true;
 
 //anything > this will be considered not player useable
-#define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
+inline constexpr weapon_t LAST_USEABLE_WEAPON = WP_BRYAR_OLD;
 
 enum class ammo_t //# ammo_e
 {
@@ -126,11 +126,8 @@ extern EnumArray<ammoData_t, ammo_t, AMMO_MAX> ammoData;
 
 // Specific weapon information
 
-#define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
-#define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
+inline constexpr weapon_t FIRST_WEAPON = WP_BRYAR_PISTOL;		// this is the first weapon for next and prev weapon switching
 
 
-#define DEFAULT_SHOTGUN_SPREAD	700
-#define DEFAULT_SHOTGUN_COUNT	11
 
-#define	LIGHTNING_RANGE		768
+inline constexpr int LIGHTNING_RANGE = 768;

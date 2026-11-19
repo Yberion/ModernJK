@@ -57,7 +57,7 @@ Hunter_MaintainHeight
 -------------------------
 */
 
-#define VELOCITY_DECAY	0.85f
+constexpr float VELOCITY_DECAY = 0.85f;
 
 void ImperialProbe_MaintainHeight( void )
 {
@@ -177,9 +177,9 @@ ImperialProbe_Strafe
 -------------------------
 */
 
-#define HUNTER_STRAFE_VEL	256
-#define HUNTER_STRAFE_DIS	200
-#define HUNTER_UPWARD_PUSH	32
+constexpr int HUNTER_STRAFE_VEL = 256;
+constexpr int HUNTER_STRAFE_DIS = 200;
+constexpr int HUNTER_UPWARD_PUSH = 32;
 
 void ImperialProbe_Strafe( void )
 {
@@ -216,8 +216,8 @@ ImperialProbe_Hunt
 -------------------------`
 */
 
-#define HUNTER_FORWARD_BASE_SPEED	10
-#define HUNTER_FORWARD_MULTIPLIER	5
+constexpr int HUNTER_FORWARD_BASE_SPEED = 10;
+constexpr int HUNTER_FORWARD_MULTIPLIER = 5;
 
 void ImperialProbe_Hunt( bool visible, bool advance )
 {
@@ -370,11 +370,9 @@ ImperialProbe_AttackDecision
 -------------------------
 */
 
-#define	MIN_MELEE_RANGE		320
-#define	MIN_MELEE_RANGE_SQR	( MIN_MELEE_RANGE * MIN_MELEE_RANGE )
 
-#define MIN_DISTANCE		128
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 128;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 void ImperialProbe_AttackDecision( void )
 {

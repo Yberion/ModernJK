@@ -3254,8 +3254,8 @@ void G_RunFrame( int levelTime ) {
 					}
 				}
 
-	#define JETPACK_DEFUEL_RATE		200 //approx. 20 seconds of idle use from a fully charged fuel amt
-	#define JETPACK_REFUEL_RATE		150 //seems fair
+	constexpr int JETPACK_DEFUEL_RATE = 200; //approx. 20 seconds of idle use from a fully charged fuel amt
+	constexpr int JETPACK_REFUEL_RATE = 150; //seems fair
 				if (ent->client->jetPackOn)
 				{ //using jetpack, drain fuel
 					if (ent->client->jetPackDebReduce < level.time)
@@ -3286,8 +3286,8 @@ void G_RunFrame( int levelTime ) {
 					}
 				}
 
-	#define CLOAK_DEFUEL_RATE		200 //approx. 20 seconds of idle use from a fully charged fuel amt
-	#define CLOAK_REFUEL_RATE		150 //seems fair
+	constexpr int CLOAK_DEFUEL_RATE = 200; //approx. 20 seconds of idle use from a fully charged fuel amt
+	constexpr int CLOAK_REFUEL_RATE = 150; //seems fair
 				if (ent->client->ps.powerups[PW_CLOAKED])
 				{ //using cloak, drain battery
 					if (ent->client->cloakDebReduce < level.time)

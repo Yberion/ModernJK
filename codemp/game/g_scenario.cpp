@@ -22,8 +22,8 @@ extern void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void SaberUpdateSelf( gentity_t *ent );
 extern void WP_SaberRemoveG2Model( gentity_t *saberent );
 
-#define SCN_REP_MSEC		2000	// one repetition
-#define SCN_SETTLE_MSEC		500		// still, after the reset, before the script starts
+constexpr int SCN_REP_MSEC = 2000;	// one repetition
+constexpr int SCN_SETTLE_MSEC = 500;		// still, after the reset, before the script starts
 
 enum class scenarioType_t {
 	SCN_NONE,

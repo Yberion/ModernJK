@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 //Miscellaneous defines
-#define	NODE_NONE		-1
+inline constexpr int NODE_NONE = -1;
 #define	NAV_HEADER_ID	INT_ID('J','N','V','5')
 #define	NODE_HEADER_ID	INT_ID('N','O','D','E')
 
@@ -128,7 +128,7 @@ protected:
 CNavigator
 -------------------------
 */
-#define MAX_FAILED_EDGES	32
+inline constexpr int MAX_FAILED_EDGES = 32;
 typedef struct failedEdge_e
 {
 	int	startID;

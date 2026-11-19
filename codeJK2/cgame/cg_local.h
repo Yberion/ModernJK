@@ -38,63 +38,43 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
-#define	POWERUP_BLINKS		5
-#define	POWERUP_BLINK_TIME	1000
-#define	FADE_TIME			200
-#define	PULSE_TIME			200
-#define	DAMAGE_DEFLECT_TIME	100
-#define	DAMAGE_RETURN_TIME	400
-#define DAMAGE_TIME			500
-#define	LAND_DEFLECT_TIME	150
-#define	LAND_RETURN_TIME	300
-#define	STEP_TIME			200
-#define	DUCK_TIME			100
-#define	PAIN_TWITCH_TIME	200
-#define	WEAPON_SELECT_TIME	1400
-#define	ITEM_SCALEUP_TIME	1000
+inline constexpr int FADE_TIME = 200;
+inline constexpr int DAMAGE_DEFLECT_TIME = 100;
+inline constexpr int DAMAGE_RETURN_TIME = 400;
+inline constexpr int DAMAGE_TIME = 500;
+inline constexpr int LAND_DEFLECT_TIME = 150;
+inline constexpr int LAND_RETURN_TIME = 300;
+inline constexpr int STEP_TIME = 200;
+inline constexpr int DUCK_TIME = 100;
+inline constexpr int PAIN_TWITCH_TIME = 200;
+inline constexpr int WEAPON_SELECT_TIME = 1400;
 // Zoom vars
-#define	ZOOM_TIME			150		// not currently used?
-#define MAX_ZOOM_FOV		3.0f
-#define ZOOM_IN_TIME		1500.0f
-#define ZOOM_OUT_TIME		100.0f
-#define ZOOM_START_PERCENT	0.3f
+inline constexpr float MAX_ZOOM_FOV = 3.0f;
+inline constexpr float ZOOM_OUT_TIME = 100.0f;
 
-#define	ITEM_BLOB_TIME		200
-#define	MUZZLE_FLASH_TIME	20
-#define	FRAG_FADE_TIME		1000		// time for fragments to fade away
+inline constexpr int ITEM_BLOB_TIME = 200;
+inline constexpr int FRAG_FADE_TIME = 1000;		// time for fragments to fade away
 
-#define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
 
-#define	MAX_STEP_CHANGE		32
+inline constexpr int MAX_STEP_CHANGE = 32;
 
-#define	MAX_VERTS_ON_POLY	10
-#define	MAX_MARK_POLYS		256
+inline constexpr int MAX_VERTS_ON_POLY = 10;
+inline constexpr int MAX_MARK_POLYS = 256;
 
-#define STAT_MINUS			10	// num frame for '-' stats digit
+inline constexpr int STAT_MINUS = 10;	// num frame for '-' stats digit
 
-#define	ICON_SIZE			48
-#define	TEXT_ICON_SPACE		4
+inline constexpr int ICON_SIZE = 48;
 
-#define	CHARSMALL_WIDTH		16
-#define	CHARSMALL_HEIGHT	32
 
 // very large characters
-#define	GIANT_WIDTH			32
-#define	GIANT_HEIGHT		48
 
-#define MAX_PRINTTEXT		128
-#define MAX_CAPTIONTEXT		 32	// we don't need 64 now since we don't use this for scroll text, and I needed to change a hardwired 128 to 256, so...
-#define MAX_LCARSTEXT		128
+inline constexpr int MAX_PRINTTEXT = 128;
+inline constexpr int MAX_CAPTIONTEXT = 32;	// we don't need 64 now since we don't use this for scroll text, and I needed to change a hardwired 128 to 256, so...
 
 
-#define NUM_FONT_BIG	1
-#define NUM_FONT_SMALL	2
-#define NUM_FONT_CHUNKY	3
+#include "qcommon/q_gamesets.h"
+#include "qcommon/q_spsets.h"
 
-#define CS_BASIC	0
-#define CS_COMBAT	1
-#define CS_EXTRA	2
-#define CS_JEDI		3
 //=================================================
 
 // player entities need to track more information
@@ -492,20 +472,15 @@ Ghoul2 Insert End
 } cg_t;
 
 
-#define MAX_SHOWPOWERS 7
+inline constexpr int MAX_SHOWPOWERS = 7;
 extern forcePowers_t showPowers[MAX_SHOWPOWERS];
 extern const char *showPowersName[MAX_SHOWPOWERS];
 extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> force_icons;
-#define MAX_DPSHOWPOWERS 11
+inline constexpr int MAX_DPSHOWPOWERS = 11;
 
 //==============================================================================
 
 
-#define SG_OFF		0
-#define SG_STRING	1
-#define SG_GRAPHIC	2
-#define SG_NUMBER	3
-#define SG_VAR		4
 
 typedef struct
 {
@@ -708,7 +683,7 @@ void CG_DrawRotatePic2( float x, float y, float width, float height,float angle,
 void CG_DrawString( float x, float y, const char *string,
 				   float charWidth, float charHeight, const float *modulate );
 void CG_PrintInterfaceGraphics(int min,int max);
-void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,bool zeroFill);
+void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,numFont_t style,bool zeroFill);
 void CG_DrawProportionalString( int x, int y, const char* str, textStyleFlags_t style, vec4_t color );
 
 

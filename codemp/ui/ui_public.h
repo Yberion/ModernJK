@@ -25,8 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ghoul2/G2.h"
 
-#define UI_API_VERSION 3
-#define UI_LEGACY_API_VERSION 7
+inline constexpr int UI_API_VERSION = 3;
 
 enum class fakeAscii_t;		// keycodes.h
 
@@ -55,11 +54,15 @@ enum class uiMenuCommand_t {
 };
 using enum uiMenuCommand_t;
 
-#define SORT_HOST			0
-#define SORT_MAP			1
-#define SORT_CLIENTS		2
-#define SORT_GAME			3
-#define SORT_PING			4
+// the column the server browser sorts by
+enum class serverSortKey_t {
+	SORT_HOST,
+	SORT_MAP,
+	SORT_CLIENTS,
+	SORT_GAME,
+	SORT_PING
+};
+using enum serverSortKey_t;
 
 // state of a server in the browser lists, apart from its ping
 enum class lanServerState_t {
@@ -127,24 +130,24 @@ typedef struct uiImport_s {
 	void			(*CIN_SetExtents)						( int handle, int x, int y, int w, int h );
 	e_status		(*CIN_StopCinematic)					( int handle );
 
-	int				(*LAN_AddServer)						( int source, const char *name, const char *addr );
+	int				(*LAN_AddServer)						( lanSource_t source, const char *name, const char *addr );
 	void			(*LAN_ClearPing)						( int n );
-	int				(*LAN_CompareServers)					( int source, int sortKey, int sortDir, int s1, int s2 );
+	int				(*LAN_CompareServers)					( lanSource_t source, serverSortKey_t sortKey, int sortDir, int s1, int s2 );
 	void			(*LAN_GetPing)							( int n, char *buf, int buflen, int *pingtime );
 	void			(*LAN_GetPingInfo)						( int n, char *buf, int buflen );
 	int				(*LAN_GetPingQueueCount)				( void );
-	void			(*LAN_GetServerAddressString)			( int source, int n, char *buf, int buflen );
-	int				(*LAN_GetServerCount)					( int source );
-	void			(*LAN_GetServerInfo)					( int source, int n, char *buf, int buflen );
-	int				(*LAN_GetServerPing)					( int source, int n );
+	void			(*LAN_GetServerAddressString)			( lanSource_t source, int n, char *buf, int buflen );
+	int				(*LAN_GetServerCount)					( lanSource_t source );
+	void			(*LAN_GetServerInfo)					( lanSource_t source, int n, char *buf, int buflen );
+	int				(*LAN_GetServerPing)					( lanSource_t source, int n );
 	void			(*LAN_LoadCachedServers)				( void );
-	void			(*LAN_MarkServerVisible)				( int source, int n, bool visible );
-	void			(*LAN_RemoveServer)						( int source, const char *addr );
-	void			(*LAN_ResetPings)						( int n );
+	void			(*LAN_MarkServerVisible)				( lanSource_t source, int n, bool visible );
+	void			(*LAN_RemoveServer)						( lanSource_t source, const char *addr );
+	void			(*LAN_ResetPings)						( lanSource_t source );
 	void			(*LAN_SaveCachedServers)				( void );
-	int				(*LAN_ServerIsVisible)					( int source, int n );
+	int				(*LAN_ServerIsVisible)					( lanSource_t source, int n );
 	int				(*LAN_ServerStatus)						( const char *serverAddress, char *serverStatus, int maxLen );
-	bool		(*LAN_UpdateVisiblePings)				( int source );
+	bool		(*LAN_UpdateVisiblePings)				( lanSource_t source );
 
 	void			(*S_StartBackgroundTrack)				( const char *intro, const char *loop, bool bReturnWithoutStarting );
 	void			(*S_StartLocalSound)					( sfxHandle_t sfx, soundChannel_t channelNum );
@@ -219,7 +222,7 @@ typedef struct uiImport_s {
 		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 		void			(*AddCommand)							( const char *cmd_name );
 		void			(*RemoveCommand)						( const char *cmd_name );
-		lanServerState_t	(*LAN_GetServerState)				( int source, int n );
+		lanServerState_t	(*LAN_GetServerState)				( lanSource_t source, int n );
 	} ext;
 } uiImport_t;
 

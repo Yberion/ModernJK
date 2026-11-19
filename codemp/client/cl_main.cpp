@@ -996,7 +996,7 @@ void CL_Connect_f( void ) {
 	Cvar_Set( "cl_currentServerIP", serverString );
 }
 
-#define MAX_RCON_MESSAGE 1024
+constexpr int MAX_RCON_MESSAGE = 1024;
 
 /*
 ==================
@@ -1632,7 +1632,7 @@ void CL_InitServerInfo( serverInfo_t *server, const netadr_t *address ) {
 	server->humans = server->bots = 0;
 }
 
-#define MAX_SERVERSPERPACKET	256
+constexpr int MAX_SERVERSPERPACKET = 256;
 
 /*
 ===================
@@ -2313,7 +2313,7 @@ static void *CM_GetCachedMapDiskImage( void ) { return gpvCachedMapDiskImage; }
 static void CM_SetCachedMapDiskImage( void *ptr ) { gpvCachedMapDiskImage = ptr; }
 static void CM_SetUsingCache( bool usingCache ) { gbUsingCachedMapDataRightNow = usingCache; }
 
-#define G2_VERT_SPACE_SERVER_SIZE 256
+constexpr int G2_VERT_SPACE_SERVER_SIZE = 256;
 IHeapAllocator *G2VertSpaceServer = nullptr;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 
@@ -2455,7 +2455,7 @@ void CL_InitRef( void ) {
 
 //===========================================================================================
 
-#define MODEL_CHANGE_DELAY 5000
+[[maybe_unused]] constexpr int MODEL_CHANGE_DELAY = 5000;
 int gCLModelDelay = 0;
 
 void CL_SetModel_f( void ) {
@@ -2580,7 +2580,7 @@ static void CL_AddFavorite_f( void ) {
 	}
 }
 
-#define G2_VERT_SPACE_CLIENT_SIZE 256
+constexpr int G2_VERT_SPACE_CLIENT_SIZE = 256;
 
 /*
 ===============
@@ -3564,14 +3564,14 @@ void CL_Ping_f( void ) {
 CL_UpdateVisiblePings_f
 ==================
 */
-bool CL_UpdateVisiblePings_f(int source) {
+bool CL_UpdateVisiblePings_f(lanSource_t source) {
 	int			slots, i;
 	char		buff[MAX_STRING_CHARS];
 	int			pingTime;
 	int			max;
 	bool status = false;
 
-	if (source < 0 || source > AS_FAVORITES) {
+	if (source < AS_LOCAL || source > AS_FAVORITES) {
 		return false;
 	}
 
@@ -3788,9 +3788,9 @@ static void CL_DrawMenuButton( menuButton_t *button, vec4_t buttonBackgroundColo
 
 static const char *CL_ByteCountToHumanString( int byteCount )
 {
-	#define GB_BYTES (1024 * 1024 * 1024)
-	#define MB_BYTES (1024 * 1024)
-	#define KB_BYTES (1024)
+	constexpr int GB_BYTES = 1024 * 1024 * 1024;
+	constexpr int MB_BYTES = 1024 * 1024;
+	constexpr int KB_BYTES = 1024;
 
 	     if ( byteCount > GB_BYTES ) return va( "%.02f GB", (float)byteCount / GB_BYTES );
 	else if ( byteCount > MB_BYTES ) return va( "%.02f MB", (float)byteCount / MB_BYTES );
@@ -3800,11 +3800,11 @@ static const char *CL_ByteCountToHumanString( int byteCount )
 
 static const char *CL_DurationSecToString( int duration )
 { // SkyMod: Duration seconds to string
-	#define TIME_YEAR   (60 * 60 * 24 * 365)
-	#define TIME_WEEK   (60 * 60 * 24 * 7)
-	#define TIME_DAY    (60 * 60 * 24)
-	#define TIME_HOUR   (60 * 60)
-	#define TIME_MINUTE (60)
+	constexpr int TIME_YEAR = 60 * 60 * 24 * 365;
+	constexpr int TIME_WEEK = 60 * 60 * 24 * 7;
+	constexpr int TIME_DAY = 60 * 60 * 24;
+	constexpr int TIME_HOUR = 60 * 60;
+	constexpr int TIME_MINUTE = 60;
 
 	static int call;
 	static char bufs[2][128];

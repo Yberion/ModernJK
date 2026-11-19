@@ -27,10 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tokens.h"
 
-#define ICARUS_VERSION	1.33
+#include "qcommon/q_icarusflags.h"
 
-#define MAX_STRING_SIZE	256
-#define	MAX_VAR_NAME	64
 
 typedef float	vector_t[3];
 

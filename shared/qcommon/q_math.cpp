@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //      DIRECTION ENCODING
 //
 ///////////////////////////////////////////////////////////////////////////
-#define NUMVERTEXNORMALS 162
+constexpr int NUMVERTEXNORMALS = 162;
 static const vec3_t bytedirs[NUMVERTEXNORMALS] =
 {
 	{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f},
@@ -764,7 +764,7 @@ void SetPlaneSignbits( cplane_t *out )
 	out->signbits = bits;
 }
 
-int	PlaneTypeForNormal( const vec3_t normal )
+planeType_t	PlaneTypeForNormal( const vec3_t normal )
 {
 	if ( normal[0] == 1.0 )
 		return PLANE_X;
@@ -789,11 +789,11 @@ int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p)
 	int		sides, b, i;
 
 	// fast axial cases
-	if (p->type < 3)
+	if (p->type < PLANE_NON_AXIAL)
 	{
-		if (p->dist <= emins[p->type])
+		if (p->dist <= emins[PlaneAxis( p->type )])
 			return 1;
-		if (p->dist >= emaxs[p->type])
+		if (p->dist >= emaxs[PlaneAxis( p->type )])
 			return 2;
 		return 3;
 	}

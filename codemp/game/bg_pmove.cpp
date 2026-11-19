@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-#define MAX_WEAPON_CHARGE_TIME 5000
+constexpr int MAX_WEAPON_CHARGE_TIME = 5000;
 
 #ifdef _GAME
 	extern void G_CheapWeaponFire(int entNum, entity_event_t ev);
@@ -457,11 +457,8 @@ void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t sto
 	*/
 }
 
-#define		FLY_NONE	0
-#define		FLY_NORMAL	1
-#define		FLY_VEHICLE	2
-#define		FLY_HOVER	3
-static int pm_flying = FLY_NONE;
+#include "qcommon/q_gamesets.h"
+static flyMode_t pm_flying = FLY_NONE;
 
 void PM_SetSpecialMoveValues (void)
 {
@@ -1573,7 +1570,7 @@ bool PM_AdjustAngleForWallRunUp( playerState_t *ps, usercmd_t *ucmd, bool doMove
 	return false;
 }
 
-#define	JUMP_OFF_WALL_SPEED	200.0f
+constexpr float JUMP_OFF_WALL_SPEED = 200.0f;
 //nice...
 static float BG_ForceWallJumpStrength( void )
 {
@@ -3565,11 +3562,11 @@ PM_FootstepForSurface
 Returns an event number appropriate for the groundsurface
 ================
 */
-static int PM_FootstepForSurface( void )
+static std::optional<surfaceMaterial_t> PM_FootstepForSurface( void )
 {
 	if ( Any( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) )
 	{
-		return 0;
+		return std::nullopt;	// no footstep on such a surface
 	}
 	return SURF_Material( pml.groundTrace.surfaceFlags );
 }
@@ -3674,7 +3671,7 @@ static void PM_CrashLandEffect( void )
 	{
 		vec3_t bottom;
 		effectTypes_t	effectID = EFFECT_NONE;
-		int material = SURF_Material( pml.groundTrace.surfaceFlags );
+		surfaceMaterial_t material = SURF_Material( pml.groundTrace.surfaceFlags );
 		VectorSet( bottom, pm->ps->origin[0],pm->ps->origin[1],pm->ps->origin[2]+pm->mins[2]+1 );
 		switch ( material )
 		{
@@ -3692,6 +3689,8 @@ static void PM_CrashLandEffect( void )
 			break;
 		case MATERIAL_GRAVEL:
 			effectID = EFFECT_LANDING_GRAVEL;
+			break;
+		default:
 			break;
 		}
 
@@ -3968,9 +3967,9 @@ static void PM_CrashLand( void ) {
 			{
 				PM_AddEventWithParm( EV_ROLL, 0 );
 			}
-			else
+			else if ( const std::optional<surfaceMaterial_t> material = PM_FootstepForSurface() )
 			{
-				PM_AddEventWithParm( EV_FOOTSTEP, PM_FootstepForSurface() );
+				PM_AddEventWithParm( EV_FOOTSTEP, to_underlying( *material ) );
 			}
 		}
 	}
@@ -4565,7 +4564,7 @@ PM_Use
 Generates a use event
 ==============
 */
-#define USE_DELAY 2000
+constexpr int USE_DELAY = 2000;
 
 void PM_Use( void )
 {
@@ -4816,7 +4815,7 @@ bool BG_InSlopeAnim( animNumber_t anim )
 	return false;
 }
 
-#define	SLOPE_RECALC_INT 100
+constexpr int SLOPE_RECALC_INT = 100;
 
 bool PM_AdjustStandAnimForSlope( void )
 {
@@ -5886,7 +5885,7 @@ extern void WP_GetVehicleCamPos( gentity_t *ent, gentity_t *pilot, vec3_t camPos
 #else
 extern void CG_GetVehicleCamPos( vec3_t camPos );
 #endif
-#define MAX_XHAIR_DIST_ACCURACY	20000.0f
+constexpr float MAX_XHAIR_DIST_ACCURACY = 20000.0f;
 int BG_VehTraceFromCamPos( trace_t *camTrace, bgEntity_t *bgEnt, const vec3_t entOrg, const vec3_t shotStart, const vec3_t end, vec3_t newEnd, vec3_t shotDir, float bestDist )
 {
 	//NOTE: this MUST stay up to date with the method used in CG_ScanForCrosshairEntity (where it checks the doExtraVehTraceFromViewPos bool)
@@ -6286,8 +6285,6 @@ rest:
 }
 
 
-#define BOWCASTER_CHARGE_UNIT	200.0f	// bowcaster charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
-#define BRYAR_CHARGE_UNIT		200.0f	// bryar charging gives us one more unit every 200ms--if you change this, you'll have to do the same in g_weapon
 
 int PM_ItemUsable(playerState_t *ps, holdable_t forcedUse)
 {
@@ -10127,7 +10124,7 @@ extern int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, floa
 extern bool BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t trMins, vec3_t trMaxs, float gravity,
 					  void (*traceFunc)( trace_t *results, const vec3_t start, const vec3_t lmins, const vec3_t lmaxs, const vec3_t end, int passEntityNum, contentsFlags_t contentMask )); //FighterNPC.cpp
 
-#define JETPACK_HOVER_HEIGHT	64
+constexpr int JETPACK_HOVER_HEIGHT = 64;
 
 //#define _TESTING_VEH_PREDICTION
 

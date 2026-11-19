@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __CG_MEDIA_H_
 #define __CG_MEDIA_H_
 
-#define	NUM_CROSSHAIRS		9
+inline constexpr int NUM_CROSSHAIRS = 9;
 
 enum class footstep_t {
 	FOOTSTEP_NORMAL,
@@ -37,11 +37,9 @@ enum class footstep_t {
 };
 using enum footstep_t;
 
-#define ICON_WEAPONS	0
-#define ICON_FORCE		1
-#define ICON_INVENTORY	2
+#include "qcommon/q_spsets.h"
 
-#define MAX_TICS	14
+inline constexpr int MAX_TICS = 14;
 
 typedef struct forceTicPos_s
 {
@@ -55,7 +53,7 @@ typedef struct forceTicPos_s
 extern forceTicPos_t forceTicPos[];
 extern forceTicPos_t ammoTicPos[];
 
-#define NUM_CHUNK_MODELS	4
+inline constexpr int NUM_CHUNK_MODELS = 4;
 
 enum class chunkType_t
 {
@@ -92,7 +90,7 @@ typedef struct {
 	qhandle_t	loadTickCap;
 
 	//			HUD artwork
-	int			currentBackground;
+	iconBackground_t	currentBackground;
 	qhandle_t	weaponbox;
 	qhandle_t	weaponIconBackground;
 	qhandle_t	weaponProngsOff;
@@ -105,7 +103,7 @@ typedef struct {
 	qhandle_t	turretComputerOverlayShader;
 	qhandle_t	turretCrossHairShader;
 
-	int			currentDataPadIconBackground;
+	iconBackground_t	currentDataPadIconBackground;
 
 //Chunks
 	EnumArray<qhandle_t[4], chunkType_t, NUM_CHUNK_TYPES>	chunkModels;
@@ -326,7 +324,7 @@ typedef struct
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
 // all clients to begin playing instantly
-#define STRIPED_LEVELNAME_VARIATIONS 3	// sigh, to cope with levels that use text from >1 SP file (plus 1 for common)
+inline constexpr int STRIPED_LEVELNAME_VARIATIONS = 3;	// sigh, to cope with levels that use text from >1 SP file (plus 1 for common)
 typedef struct {
 	gameState_t		gameState;			// gamestate from server
 	glconfig_t		glconfig;			// rendering configuration

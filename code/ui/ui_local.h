@@ -34,12 +34,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_public.h"
 #include "ui_shared.h"
 
-#define MAX_DEFERRED_SCRIPT		1024
+inline constexpr int MAX_DEFERRED_SCRIPT = 1024;
 
 //
 // ui_qmenu.c
 //
-#define	MAX_EDIT_LINE			256
 
 typedef struct {
 	int		cursor;
@@ -83,8 +82,6 @@ extern void UI_UpdateConnectionMessageString( char *string );
 // ui_atoms.cpp
 //
 
-#define UI_FADEOUT	0
-#define UI_FADEIN	1
 
 typedef struct {
 	int					frametime;
@@ -115,16 +112,15 @@ extern uiStatic_t	uis;
 extern uiimport_t	ui;
 
 
-#define MAX_MOVIES 256
-#define MAX_MODS 64
+inline constexpr int MAX_MODS = 64;
 
 typedef struct {
 	const char *modName;
 	const char *modDescr;
 } modInfo_t;
 
-#define SKIN_LENGTH			16
-#define ACTION_BUFFER_SIZE	128
+inline constexpr int SKIN_LENGTH = 16;
+inline constexpr int ACTION_BUFFER_SIZE = 128;
 
 typedef struct {
 	char name[SKIN_LENGTH];
@@ -273,7 +269,7 @@ void			trap_S_StartLocalSound( sfxHandle_t sfx, soundChannel_t channelNum );
 
 void _UI_Refresh( int realtime );
 
-#define MAX_FONTS 64
+inline constexpr int MAX_FONTS = 64;
 extern int registeredFontsCount;
 extern int registeredFonts[MAX_FONTS];
 

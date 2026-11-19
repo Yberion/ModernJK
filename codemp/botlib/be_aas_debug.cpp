@@ -47,8 +47,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
-#define MAX_DEBUGLINES				1024
-#define MAX_DEBUGPOLYGONS			8192
+constexpr int MAX_DEBUGLINES = 1024;
+constexpr int MAX_DEBUGPOLYGONS = 8192;
 
 int debuglines[MAX_DEBUGLINES];
 int debuglinevisible[MAX_DEBUGLINES];
@@ -86,7 +86,7 @@ void AAS_ClearShownPolygons(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShowPolygon(int color, int numpoints, vec3_t *points)
+void AAS_ShowPolygon(lineColor_t color, int numpoints, vec3_t *points)
 {
 	int i;
 
@@ -94,7 +94,7 @@ void AAS_ShowPolygon(int color, int numpoints, vec3_t *points)
 	{
 		if (!debugpolygons[i])
 		{
-			debugpolygons[i] = botimport.DebugPolygonCreate(color, numpoints, points);
+			debugpolygons[i] = botimport.DebugPolygonCreate(to_underlying( color ), numpoints, points);	// the engine's polygons keep the renderer's colour
 			break;
 		} //end if
 	} //end for
@@ -127,7 +127,7 @@ void AAS_ClearShownDebugLines(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DebugLine(vec3_t start, vec3_t end, int color)
+void AAS_DebugLine(vec3_t start, vec3_t end, lineColor_t color)
 {
 	int line;
 
@@ -153,7 +153,7 @@ void AAS_DebugLine(vec3_t start, vec3_t end, int color)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_PermanentLine(vec3_t start, vec3_t end, int color)
+void AAS_PermanentLine(vec3_t start, vec3_t end, lineColor_t color)
 {
 	int line;
 
@@ -166,7 +166,7 @@ void AAS_PermanentLine(vec3_t start, vec3_t end, int color)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DrawPermanentCross(vec3_t origin, float size, int color)
+void AAS_DrawPermanentCross(vec3_t origin, float size, lineColor_t color)
 {
 	int i, debugline;
 	vec3_t start, end;
@@ -188,7 +188,7 @@ void AAS_DrawPermanentCross(vec3_t origin, float size, int color)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DrawPlaneCross(vec3_t point, vec3_t normal, float dist, int type, int color)
+void AAS_DrawPlaneCross(vec3_t point, vec3_t normal, float dist, int type, lineColor_t color)
 {
 	int n0, n1, n2, j, line, lines[2];
 	vec3_t start1, end1, start2, end2;
@@ -306,7 +306,8 @@ void AAS_ShowBoundingBox(vec3_t origin, vec3_t mins, vec3_t maxs)
 //===========================================================================
 void AAS_ShowFace(int facenum)
 {
-	int i, color, edgenum;
+	int i, edgenum;
+	lineColor_t color;
 	aas_edge_t *edge;
 	aas_face_t *face;
 	aas_plane_t *plane;
@@ -351,7 +352,7 @@ void AAS_ShowFace(int facenum)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShowFacePolygon(int facenum, int color, int flip)
+void AAS_ShowFacePolygon(int facenum, lineColor_t color, int flip)
 {
 	int i, edgenum, numpoints;
 	vec3_t points[128];
@@ -399,7 +400,8 @@ void AAS_ShowFacePolygon(int facenum, int color, int flip)
 void AAS_ShowArea(int areanum, int groundfacesonly)
 {
 	int areaedges[MAX_DEBUGLINES];
-	int numareaedges, i, j, n, color = 0, line;
+	int numareaedges, i, j, n, line;
+	lineColor_t color = LINECOLOR_NONE;
 	int facenum, edgenum;
 	aas_area_t *area;
 	aas_face_t *face;
@@ -488,7 +490,7 @@ void AAS_ShowArea(int areanum, int groundfacesonly)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly)
+void AAS_ShowAreaPolygons(int areanum, lineColor_t color, int groundfacesonly)
 {
 	int i, facenum;
 	aas_area_t *area;
@@ -527,7 +529,7 @@ void AAS_ShowAreaPolygons(int areanum, int color, int groundfacesonly)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DrawCross(vec3_t origin, float size, int color)
+void AAS_DrawCross(vec3_t origin, float size, lineColor_t color)
 {
 	int i;
 	vec3_t start, end;
@@ -581,7 +583,7 @@ void AAS_PrintTravelType(travelTypeFlags_t traveltype)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DrawArrow(vec3_t start, vec3_t end, int linecolor, int arrowcolor)
+void AAS_DrawArrow(vec3_t start, vec3_t end, lineColor_t linecolor, lineColor_t arrowcolor)
 {
 	vec3_t dir, cross, p1, p2, up = {0, 0, 1};
 	float dot;
@@ -613,7 +615,7 @@ void AAS_ShowReachability(aas_reachability_t *reach)
 	float speed, zvel;
 	aas_clientmove_t move;
 
-	AAS_ShowAreaPolygons(reach->areanum, 5, true);
+	AAS_ShowAreaPolygons(reach->areanum, LINECOLOR_MAGENTA, true);
 	//AAS_ShowArea(reach->areanum, true);
 	AAS_DrawArrow(reach->start, reach->end, LINECOLOR_BLUE, LINECOLOR_YELLOW);
 	//
@@ -723,7 +725,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 	aas_areasettings_t *settings;
 	aas_reachability_t *reach;
 
-	AAS_ShowAreaPolygons(areanum, 1, true);
+	AAS_ShowAreaPolygons(areanum, LINECOLOR_RED, true);
 	//pointer to the convex area
 	area = &aasworld.areas[areanum];
 	settings = &aasworld.areasettings[areanum];
@@ -764,7 +766,7 @@ void AAS_FloodAreas_r(int areanum, int cluster, int *done)
 		/*
 		if ((reach->traveltype & TRAVELTYPE_MASK) == TRAVEL_WALKOFFLEDGE)
 		{
-			AAS_DebugLine(reach->start, reach->end, 1);
+			AAS_DebugLine(reach->start, reach->end, LINECOLOR_RED);
 		}
 		*/
 		AAS_FloodAreas_r(nextareanum, cluster, done);

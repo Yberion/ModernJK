@@ -27,16 +27,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 
 // These define the working combat range for these suckers
-#define MIN_DISTANCE		128
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 128;
 
-#define MAX_DISTANCE		1024
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
+constexpr int MAX_DISTANCE = 1024;
 
 using enum monsterLocalState_t;
 
-#define SPF_RANCOR_MUTANT	1
-#define SPF_RANCOR_FASTKILL	2
+constexpr int SPF_RANCOR_MUTANT = 1;
+constexpr int SPF_RANCOR_FASTKILL = 2;
 
 extern bool G_EntIsBreakable( int entityNum, gentity_t *breaker );
 extern cvar_t	*g_dismemberment;

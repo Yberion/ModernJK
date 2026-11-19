@@ -1252,9 +1252,8 @@ CollectNearestNodes
 -------------------------
 */
 
-#define	NODE_COLLECT_MAX	16		//Maximum # of nodes collected at any time
-#define NODE_COLLECT_RADIUS	512		//Default radius to search for nodes in
-#define NODE_COLLECT_RADIUS_SQR		( NODE_COLLECT_RADIUS * NODE_COLLECT_RADIUS )
+constexpr int NODE_COLLECT_MAX = 16;		//Maximum # of nodes collected at any time
+constexpr int NODE_COLLECT_RADIUS = 512;		//Default radius to search for nodes in
 
 int CNavigator::CollectNearestNodes( vec3_t origin, int radius, int maxCollect, nodeChain_l &nodeChain )
 {
@@ -1333,7 +1332,7 @@ int CNavigator::GetBestPathBetweenEnts( sharedEntity_t *ent, sharedEntity_t *goa
 	if ( m_nodes.size() == 0 )
 		return NODE_NONE;
 
-#define	MAX_Z_DELTA	18
+constexpr int MAX_Z_DELTA = 18;
 
 	nodeChain_l				nodeChain;
 	nodeChain_l::iterator	nci;
@@ -1539,7 +1538,7 @@ int CNavigator::GetNearestNode( sharedEntity_t *ent, int lastID, navNodeFlags_t 
 
 /////////////////////////////////////////////////
 
-#define	MAX_Z_DELTA	18
+constexpr int MAX_Z_DELTA = 18;
 
 /////////////////////////////////////////////////
 
@@ -1728,8 +1727,8 @@ void CNavigator::SetCheckedNode(int wayPoint,int ent,byte value)
 	CheckedNodes[wayPoint*MAX_GENTITIES+ent]=value;
 }
 
-#define	CHECK_FAILED_EDGE_INTERVAL	1000
-#define	CHECK_FAILED_EDGE_INTITIAL	5000//10000
+constexpr int CHECK_FAILED_EDGE_INTERVAL = 1000;
+constexpr int CHECK_FAILED_EDGE_INTITIAL = 5000; //10000
 
 void CNavigator::CheckFailedNodes( sharedEntity_t *ent )
 {

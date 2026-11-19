@@ -373,7 +373,7 @@ quake3 set test blah + map test
 ============================================================================
 */
 
-#define	MAX_CONSOLE_LINES	32
+constexpr int MAX_CONSOLE_LINES = 32;
 int		com_numConsoleLines;
 char	*com_consoleLines[MAX_CONSOLE_LINES];
 
@@ -766,7 +766,7 @@ journaled file
 ===================================================================
 */
 
-#define	MAX_PUSHED_EVENTS	64
+constexpr int MAX_PUSHED_EVENTS = 64;
 int			com_pushedEventsHead, com_pushedEventsTail;
 sysEvent_t	com_pushedEvents[MAX_PUSHED_EVENTS];
 

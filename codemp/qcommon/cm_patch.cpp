@@ -346,7 +346,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 CM_ComparePoints
 ======================
 */
-#define	POINT_EPSILON	0.1
+constexpr double POINT_EPSILON = 0.1;
 static bool CM_ComparePoints( float *a, float *b ) {
 	float		d;
 
@@ -414,8 +414,8 @@ static	patchPlane_t	planes[MAX_PATCH_PLANES];
 //static	facet_t			facets[MAX_PATCH_PLANES]; //maybe MAX_FACETS ??
 static		facet_t			*facets = nullptr;
 
-#define	NORMAL_EPSILON	0.00015
-#define	DIST_EPSILON	0.0235
+constexpr double NORMAL_EPSILON = 0.00015;
+constexpr double DIST_EPSILON = 0.0235;
 
 static inline int CM_PlaneEqual(patchPlane_t *p, float plane[4], int *flipped) {
 	float invplane[4];
@@ -547,7 +547,7 @@ static inline int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 CM_PointOnPlaneSide
 ==================
 */
-static inline int CM_PointOnPlaneSide( float *p, int planeNum ) {
+static inline planeSide_t CM_PointOnPlaneSide( float *p, int planeNum ) {
 	float	*plane;
 	float	d;
 
@@ -710,7 +710,7 @@ static inline void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPl
 		back = 0;
 
 		for ( l = 0 ; l < numPoints ; l++ ) {
-			int		side;
+			planeSide_t	side;
 
 			side = CM_PointOnPlaneSide( points[l], facet->borderPlanes[k] );
 			if ( side == SIDE_FRONT ) {

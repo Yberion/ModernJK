@@ -58,10 +58,10 @@ EnumArray<const char *, forcePowers_t, NUM_FORCE_POWERS> HolocronIcons = {
 	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
 };
 
-#define SCROLL_TIME_START					500
-#define SCROLL_TIME_ADJUST					150
-#define SCROLL_TIME_ADJUSTOFFSET			40
-#define SCROLL_TIME_FLOOR					20
+constexpr int SCROLL_TIME_START = 500;
+constexpr int SCROLL_TIME_ADJUST = 150;
+constexpr int SCROLL_TIME_ADJUSTOFFSET = 40;
+constexpr int SCROLL_TIME_FLOOR = 20;
 
 typedef struct scrollInfo_s {
 	int nextScrollTime;
@@ -108,7 +108,7 @@ int openMenuCount = 0;
 
 static bool debugMode = false;
 
-#define DOUBLE_CLICK_DELAY 300
+constexpr int DOUBLE_CLICK_DELAY = 300;
 static int lastListBoxClickTime = 0;
 
 void Item_RunScript(itemDef_t *item, const char *s);
@@ -126,9 +126,9 @@ extern bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
 
 
 #ifdef _CGAME
-#define MEM_POOL_SIZE  (128 * 1024)
+constexpr int MEM_POOL_SIZE = 128 * 1024;
 #else
-#define MEM_POOL_SIZE  (4 * 1024 * 1024)
+constexpr int MEM_POOL_SIZE = 4 * 1024 * 1024;
 #endif
 
 static char memoryPool[MEM_POOL_SIZE];
@@ -184,7 +184,7 @@ bool UI_OutOfMemory( void ) {
 	return outOfMemory;
 }
 
-#define HASH_TABLE_SIZE 2048
+constexpr int HASH_TABLE_SIZE = 2048;
 /*
 ================
 return a hash value for the string
@@ -1617,7 +1617,7 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 
 #endif
 
-#define MAX_DEFERRED_SCRIPT		2048
+constexpr int MAX_DEFERRED_SCRIPT = 2048;
 
 char		ui_deferredScript [ MAX_DEFERRED_SCRIPT ];
 itemDef_t*	ui_deferredScriptItem = nullptr;
@@ -5530,7 +5530,7 @@ void Item_TextScroll_Paint(itemDef_t *item)
 	}
 }
 
-#define COLOR_MAX 255.0f
+[[maybe_unused]] constexpr float COLOR_MAX = 255.0f;
 
 // Draw routine for list boxes
 void Item_ListBox_Paint(itemDef_t *item) {
@@ -6851,7 +6851,7 @@ Keyword Hash
 ===============
 */
 
-#define KEYWORDHASH_SIZE	512
+constexpr int KEYWORDHASH_SIZE = 512;
 
 typedef struct keywordHash_s
 {
@@ -9436,7 +9436,7 @@ bool Display_MouseMove(void *p, int x, int y) {
 
 }
 
-int Display_CursorType(int x, int y) {
+cursorType_t Display_CursorType(int x, int y) {
 	int i;
 	for (i = 0; i < menuCount; i++) {
 		rectDef_t r2;

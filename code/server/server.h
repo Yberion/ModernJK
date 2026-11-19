@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //I'm including it here instead so we can have our PERS_SCORE value. And have
 //it be the proper enum value.
 
-#define	MAX_ENT_CLUSTERS	16
+#include "qcommon/q_limits.h"
 
 typedef struct svEntity_s {
 	struct worldSector_s *worldSector;
@@ -316,7 +316,7 @@ void SG_TestSave(void);
 // What it's used for is for things like mission pack etc if we need to distinguish "street-copy" savegames from
 //	any new enhanced ones that need to ask for new chunks during loading.
 //
-#define iSAVEGAME_VERSION 2
+inline constexpr int iSAVEGAME_VERSION = 2;
 int SG_Version(void);	// call this to know what version number a successfully-opened savegame file was
 //
 extern SavedGameJustLoaded_e eSavedGameJustLoaded;

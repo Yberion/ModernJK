@@ -39,7 +39,7 @@ int g_G2AllocServer = 0;
 //stupid debug crap to track leaks in case they happen.
 //we used to shove everything into a map and delete it all and not care about
 //leaks, but that was not the Right Thing. -rww
-#define MAX_TRACKED_ALLOC					4096
+constexpr int MAX_TRACKED_ALLOC = 4096;
 static bool g_G2AllocTrackInit = false; //want to keep this thing contained
 static CGhoul2Info_v *g_G2AllocTrack[MAX_TRACKED_ALLOC];
 
@@ -166,7 +166,6 @@ bool G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 bool G2_TestModelPointers(CGhoul2Info *ghlInfo);
 
 //rww - RAGDOLL_BEGIN
-#define NUM_G2T_TIME (2)
 static int G2TimeBases[NUM_G2T_TIME];
 
 void G2API_SetTime(int currentTime,int clock)
@@ -307,10 +306,10 @@ bool G2API_OverrideServerWithClientData(CGhoul2Info_v& ghoul2, int modelIndex)
 }
 
 // must be a power of two
-#define MAX_G2_MODELS (1024)
-#define G2_MODEL_BITS (10)
+constexpr int MAX_G2_MODELS = 1024;
+constexpr int G2_MODEL_BITS = 10;
 
-#define G2_INDEX_MASK (MAX_G2_MODELS-1)
+constexpr int G2_INDEX_MASK = MAX_G2_MODELS-1;
 
 class Ghoul2InfoArray : public IGhoul2InfoArray
 {

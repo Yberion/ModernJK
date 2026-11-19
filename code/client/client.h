@@ -67,7 +67,7 @@ new gamestate_t, potentially several times during an established connection
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
 // it can be un-deltad from the original
-#define MAX_PARSE_ENTITIES	512
+inline constexpr int MAX_PARSE_ENTITIES = 512;
 
 extern int g_console_field_width;
 
@@ -218,8 +218,8 @@ typedef struct {
 	int			menuFont;
 } clientStatic_t;
 
-#define	CON_TEXTSIZE	0x30000 //was 32768
-#define	NUM_CON_TIMES	4
+inline constexpr int CON_TEXTSIZE = 0x30000; //was 32768
+#include "qcommon/q_limits.h"
 
 typedef union {
 	struct {

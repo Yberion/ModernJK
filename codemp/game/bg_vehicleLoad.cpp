@@ -38,8 +38,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // These buffers are filled in with the same contents and then just read from in
 // a few places. We only need one copy on Xbox.
-#define MAX_VEH_WEAPON_DATA_SIZE 0x40000 // 0x4000
-#define MAX_VEHICLE_DATA_SIZE 0x100000 // 0x10000
+constexpr int MAX_VEH_WEAPON_DATA_SIZE = 0x40000; // 0x4000
+constexpr int MAX_VEHICLE_DATA_SIZE = 0x100000; // 0x10000
 
 char	VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE];
 char	VehicleParms[MAX_VEHICLE_DATA_SIZE];

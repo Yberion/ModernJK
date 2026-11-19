@@ -1389,9 +1389,9 @@ enum class animNumber_t //# animNumber_e
 using enum animNumber_t;
 template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
-#define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
+inline constexpr int SABER_ANIM_GROUP_SIZE = BOTH_A2_T__B_ - BOTH_A1_T__B_;
 
-#define MAX_ANIM_SOUNDS 69
+inline constexpr int MAX_ANIM_SOUNDS = 69;
 
 #ifndef CG_PLAYERS_CPP
 
@@ -1439,7 +1439,7 @@ public:
 		saved_game.read<int32_t>(soundsCached);
 	}
 }; // animFileSet_t
-#define MAX_ANIM_FILES	64
+inline constexpr int MAX_ANIM_FILES = 64;
 
 #endif// #ifndef __ANIMS_H__
 

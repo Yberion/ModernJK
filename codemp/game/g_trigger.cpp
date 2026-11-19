@@ -913,11 +913,11 @@ trigger_push
 ==============================================================================
 */
 //trigger_push
-#define PUSH_LINEAR		4
-#define PUSH_RELATIVE	16
-#define PUSH_MULTIPLE	2048
+constexpr int PUSH_LINEAR = 4;
+constexpr int PUSH_RELATIVE = 16;
+constexpr int PUSH_MULTIPLE = 2048;
 //target_push
-#define PUSH_CONSTANT	2
+constexpr int PUSH_CONSTANT = 2;
 
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( Any( self->flags & FL_INACTIVE ) )
@@ -1456,7 +1456,7 @@ void SP_trigger_hurt( gentity_t *self ) {
 	}
 }
 
-#define	INITIAL_SUFFOCATION_DELAY	500 //.5 seconds
+constexpr int INITIAL_SUFFOCATION_DELAY = 500; //.5 seconds
 void space_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
 	if (!other || !other->inuse || !other->client )

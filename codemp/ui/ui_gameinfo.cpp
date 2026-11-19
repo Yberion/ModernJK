@@ -145,7 +145,7 @@ UI_LoadArenas
 ===============
 */
 
-#define MAPSBUFSIZE (MAX_MAPS * 64)
+constexpr int MAPSBUFSIZE = MAX_MAPS * 64;
 void UI_LoadArenas( void ) {
 	int			numdirs;
 	char		filename[MAX_QPATH];

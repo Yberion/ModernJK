@@ -579,8 +579,8 @@ G_DeathAlert
 -------------------------
 */
 
-#define	DEATH_ALERT_RADIUS			512
-#define	DEATH_ALERT_SOUND_RADIUS	512
+constexpr int DEATH_ALERT_RADIUS = 512;
+constexpr int DEATH_ALERT_SOUND_RADIUS = 512;
 
 void G_DeathAlert( gentity_t *victim, gentity_t *attacker )
 {//FIXME: with all the other alert stuff, do we really need this?
@@ -2303,7 +2303,7 @@ static bool G_Dismemberable2( gentity_t *self, hitLocation_t hitLoc )
 	return true;
 }
 
-#define	MAX_VARIANTS 8
+constexpr int MAX_VARIANTS = 8;
 bool G_GetRootSurfNameWithVariant( gentity_t *ent, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
 	if ( gi.G2API_GetSurfaceRenderStatus( &ent->ghoul2[ent->playerModel], rootSurfName ) == G2SURFACEFLAG_NONE )

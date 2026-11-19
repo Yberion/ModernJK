@@ -1034,8 +1034,8 @@ void SV_UserinfoChanged( client_t *cl ) {
 		Info_SetValueForKey( cl->userinfo, "ip", ip );
 }
 
-#define INFO_CHANGE_MIN_INTERVAL	6000 //6 seconds is reasonable I suppose
-#define INFO_CHANGE_MAX_COUNT		3 //only allow 3 changes within the 6 seconds
+constexpr int INFO_CHANGE_MIN_INTERVAL = 6000; //6 seconds is reasonable I suppose
+constexpr int INFO_CHANGE_MAX_COUNT = 3; //only allow 3 changes within the 6 seconds
 
 /*
 ==================

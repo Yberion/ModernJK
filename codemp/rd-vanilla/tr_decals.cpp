@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-#define	MAX_VERTS_ON_DECAL_POLY	10
-#define	MAX_DECAL_POLYS			500
+constexpr int MAX_VERTS_ON_DECAL_POLY = 10;
+constexpr int MAX_DECAL_POLYS = 500;
 
 typedef struct decalPoly_s
 {
@@ -45,7 +45,7 @@ enum class decalPolyType_t
 using enum decalPolyType_t;
 template <> inline constexpr bool enableEnumArithmetic<decalPolyType_t> = true;
 
-#define		DECAL_FADE_TIME		1000
+constexpr int DECAL_FADE_TIME = 1000;
 
 decalPoly_t*		RE_AllocDecal( decalPolyType_t type );
 
@@ -156,8 +156,8 @@ temporary marks will not be stored or randomly oriented, but immediately
 passed to the renderer.
 =================
 */
-#define	MAX_DECAL_FRAGMENTS	128
-#define	MAX_DECAL_POINTS		384
+constexpr int MAX_DECAL_FRAGMENTS = 128;
+constexpr int MAX_DECAL_POINTS = 384;
 
 void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, bool alphaFade, float radius, bool temporary )
 {

@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/qfiles.h"
 
-#define NUM_FORCE_STAR_IMAGES  9
-#define FORCE_NONJEDI	0
-#define FORCE_JEDI		1
+inline constexpr int NUM_FORCE_STAR_IMAGES = 9;
+inline constexpr int FORCE_NONJEDI = 0;
+inline constexpr int FORCE_JEDI = 1;
 
 extern int uiForceSide;
 extern int uiJediNonJedi;

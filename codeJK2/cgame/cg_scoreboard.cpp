@@ -26,7 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/objectives.h"
 #include "../game/b_local.h"
 
-#define	SCOREBOARD_WIDTH	(26*BIGCHAR_WIDTH)
 
 
 /*

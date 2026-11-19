@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __G_NAV_H__
 #define __G_NAV_H__
 
-#define	WAYPOINT_NONE	0
+inline constexpr int WAYPOINT_NONE = 0;
 
-#define	MAX_RADIUS_CHECK	1024
-#define	YAW_ITERATIONS	16
+inline constexpr int MAX_RADIUS_CHECK = 1024;
+inline constexpr int YAW_ITERATIONS = 16;
 
 extern	bool navCalculatePaths;
 

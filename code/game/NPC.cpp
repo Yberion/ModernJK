@@ -141,8 +141,8 @@ NPC_RemoveBody
 Determines when it's ok to ditch the corpse
 ----------------------------------------
 */
-#define REMOVE_DISTANCE		128
-#define REMOVE_DISTANCE_SQR (REMOVE_DISTANCE * REMOVE_DISTANCE)
+constexpr int REMOVE_DISTANCE = 128;
+constexpr int REMOVE_DISTANCE_SQR = REMOVE_DISTANCE * REMOVE_DISTANCE;
 extern bool InFOVFromPlayerView ( gentity_t *ent, int hFOV, int vFOV );
 bool G_OkayToRemoveCorpse( gentity_t *self )
 {

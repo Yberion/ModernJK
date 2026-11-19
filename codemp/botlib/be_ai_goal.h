@@ -36,8 +36,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define MAX_AVOIDGOALS			256
-#define MAX_GOALSTACK			8
+inline constexpr int MAX_AVOIDGOALS = 256;
+inline constexpr int MAX_GOALSTACK = 8;
 
 enum class goalFlags_t
 {
@@ -117,7 +117,7 @@ void BotSaveGoalFuzzyLogic(int goalstate, char *filename);
 //mutate the goal fuzzy logic
 void BotMutateGoalFuzzyLogic(int goalstate, float range);
 //loads item weights for the bot
-int BotLoadItemWeights(int goalstate, char *filename);
+botlibError_t BotLoadItemWeights(int goalstate, char *filename);
 //frees the item weights of the bot
 void BotFreeItemWeights(int goalstate);
 //returns the handle of a newly allocated goal state
@@ -125,6 +125,6 @@ int BotAllocGoalState(int client);
 //free the given goal state
 void BotFreeGoalState(int handle);
 //setup the goal AI
-int BotSetupGoalAI(void);
+botlibError_t BotSetupGoalAI(void);
 //shut down the goal AI
 void BotShutdownGoalAI(void);

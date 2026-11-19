@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //NOTE:	int =	default signed
 //				default long
 
-#define AASID						(('S'<<24)+('A'<<16)+('A'<<8)+'E')
-#define AASVERSION_OLD				4
-#define AASVERSION					5
+inline constexpr int AASID = ('S'<<24)+('A'<<16)+('A'<<8)+'E';
+inline constexpr int AASVERSION_OLD = 4;
+inline constexpr int AASVERSION = 5;
 
 //presence types
 enum class presenceFlags_t
@@ -42,7 +42,7 @@ using enum presenceFlags_t;
 template <> inline constexpr bool enableEnumFlags<presenceFlags_t> = true;
 
 //travel types
-#define MAX_TRAVELTYPES				32
+inline constexpr int MAX_TRAVELTYPES = 32;
 enum class travelTypeFlags_t
 {
 	TRAVEL_NONE = 0,
@@ -90,8 +90,8 @@ using enum faceFlags_t;
 template <> inline constexpr bool enableEnumFlags<faceFlags_t> = true;
 
 //area contents
-#define AREACONTENTS_MODELNUMSHIFT		24
-#define AREACONTENTS_MAXMODELNUM		0xFF
+inline constexpr int AREACONTENTS_MODELNUMSHIFT = 24;
+inline constexpr int AREACONTENTS_MAXMODELNUM = 0xFF;
 enum class areaContentsFlags_t : uint32_t
 {
 	AREACONTENTS_NONE = 0,
@@ -130,21 +130,25 @@ using enum areaFlags_t;
 template <> inline constexpr bool enableEnumFlags<areaFlags_t> = true;
 
 //aas file header lumps
-#define AAS_LUMPS					14
-#define AASLUMP_BBOXES				0
-#define AASLUMP_VERTEXES			1
-#define AASLUMP_PLANES				2
-#define AASLUMP_EDGES				3
-#define AASLUMP_EDGEINDEX			4
-#define AASLUMP_FACES				5
-#define AASLUMP_FACEINDEX			6
-#define AASLUMP_AREAS				7
-#define AASLUMP_AREASETTINGS		8
-#define AASLUMP_REACHABILITY		9
-#define AASLUMP_NODES				10
-#define AASLUMP_PORTALS				11
-#define AASLUMP_PORTALINDEX			12
-#define AASLUMP_CLUSTERS			13
+enum class aasLump_t
+{
+	AASLUMP_BBOXES				= 0,
+	AASLUMP_VERTEXES			= 1,
+	AASLUMP_PLANES				= 2,
+	AASLUMP_EDGES				= 3,
+	AASLUMP_EDGEINDEX			= 4,
+	AASLUMP_FACES				= 5,
+	AASLUMP_FACEINDEX			= 6,
+	AASLUMP_AREAS				= 7,
+	AASLUMP_AREASETTINGS		= 8,
+	AASLUMP_REACHABILITY		= 9,
+	AASLUMP_NODES				= 10,
+	AASLUMP_PORTALS				= 11,
+	AASLUMP_PORTALINDEX			= 12,
+	AASLUMP_CLUSTERS			= 13,
+	AAS_LUMPS					= 14
+};
+using enum aasLump_t;
 
 //========== bounding box =========
 
@@ -274,7 +278,7 @@ typedef struct aas_header_s
 	int version;
 	int bspchecksum;
 	//data entries
-	aas_lump_t lumps[AAS_LUMPS];
+	EnumArray<aas_lump_t, aasLump_t, AAS_LUMPS> lumps;
 } aas_header_t;
 
 

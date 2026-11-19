@@ -43,8 +43,6 @@ extern bool BG_SabersOff( playerState_t *ps );
 //I would like to keep it this way, so when modifying for SP please keep in
 //mind the bgEntity restrictions imposed. -rww
 
-#define	STRAFERAM_DURATION	8
-#define	STRAFERAM_ANGLE		8
 
 bool VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right, int Duration)
 {

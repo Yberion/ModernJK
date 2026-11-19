@@ -211,9 +211,9 @@ public:
 }; // gNPCstats_t
 
 
-#define	MAX_ENEMY_POS_LAG	2400
-#define	ENEMY_POS_LAG_INTERVAL	100
-#define	ENEMY_POS_LAG_STEPS	(MAX_ENEMY_POS_LAG/ENEMY_POS_LAG_INTERVAL)
+inline constexpr int MAX_ENEMY_POS_LAG = 2400;
+inline constexpr int ENEMY_POS_LAG_INTERVAL = 100;
+inline constexpr int ENEMY_POS_LAG_STEPS = MAX_ENEMY_POS_LAG/ENEMY_POS_LAG_INTERVAL;
 
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 enum class ESide;	// Ravl/CVec.h

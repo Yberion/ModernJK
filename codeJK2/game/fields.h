@@ -30,8 +30,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // fields are needed for spawning from the entity string
 // and saving / loading games
 //
-#define FFL_SPAWNTEMP		1
-#define MAX_GHOULINST_SIZE	16384
 
 #ifndef FOFS
 #define	FOFS(x) offsetof(gentity_t, x)	// usually already defined in qshared.h

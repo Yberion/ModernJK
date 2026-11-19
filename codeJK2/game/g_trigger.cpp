@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "anims.h"
 
-#define ENTDIST_PLAYER	1
-#define ENTDIST_NPC		2
+constexpr int ENTDIST_PLAYER = 1;
+constexpr int ENTDIST_NPC = 2;
 
 extern bool G_PointInBounds( const vec3_t point, const vec3_t mins, const vec3_t maxs );
 extern bool G_ClearTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int ignore, contentsFlags_t clipmask );
@@ -604,7 +604,7 @@ trigger_push
 
 ==============================================================================
 */
-#define PUSH_CONVEYOR 32
+constexpr int PUSH_CONVEYOR = 32;
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( Any( self->svFlags & SVF_INACTIVE ) )
 	{//set by target_deactivate
@@ -712,7 +712,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-#define PUSH_CONSTANT 2
+constexpr int PUSH_CONSTANT = 2;
 
 /*
 =================
@@ -930,11 +930,10 @@ trigger_teleport
 
 ==============================================================================
 */
-#define SNAP_ANGLES 1
-#define NO_MISSILES 2
-#define NO_NPCS		4
-#define TTSF_STASIS		8
-#define TTSF_DEAD_OK	16
+[[maybe_unused]] constexpr int SNAP_ANGLES = 1;
+constexpr int NO_MISSILES = 2;
+constexpr int NO_NPCS = 4;
+constexpr int TTSF_DEAD_OK = 16;
 void TeleportMover( gentity_t *mover, vec3_t origin, vec3_t diffAngles, bool snapAngle );
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace )
 {

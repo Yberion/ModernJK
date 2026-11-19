@@ -719,9 +719,9 @@ void FireWeapon( gentity_t *ent, bool alt_fire )
 }
 
 // spawnflag
-#define	EMPLACED_INACTIVE	1
-#define EMPLACED_FACING		2
-#define EMPLACED_VULNERABLE	4
+constexpr int EMPLACED_INACTIVE = 1;
+constexpr int EMPLACED_FACING = 2;
+constexpr int EMPLACED_VULNERABLE = 4;
 
 //----------------------------------------------------------
 

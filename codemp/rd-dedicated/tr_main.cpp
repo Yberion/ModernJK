@@ -34,7 +34,7 @@ void R_AddTerrainSurfaces(void);
 /*
 ** R_CullLocalPointAndRadius
 */
-int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
+cullResult_t R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 {
 	vec3_t transformed;
 
@@ -46,7 +46,7 @@ int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 /*
 ** R_CullPointAndRadius
 */
-int R_CullPointAndRadius( const vec3_t pt, float radius )
+cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius )
 {
 	int		i;
 	float	dist;

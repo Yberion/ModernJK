@@ -35,16 +35,16 @@ static	texModInfo_t	texMods[MAX_SHADER_STAGES][TR_MAX_TEXMODS];
 
 // Hash value (generated using the generateHashValueForText function) for the original
 // retail JKA shader for gfx/2d/wedge.
-#define RETAIL_ROCKET_WEDGE_SHADER_HASH (1217042)
+constexpr int RETAIL_ROCKET_WEDGE_SHADER_HASH = 1217042;
 
 // Hash value (generated using the generateHashValueForText function) for the original
 // retail JKA shader for gfx/menus/radar/arrow_w.
-#define RETAIL_ARROW_W_SHADER_HASH (1650186)
+constexpr int RETAIL_ARROW_W_SHADER_HASH = 1650186;
 
-#define FILE_HASH_SIZE		1024
+constexpr int FILE_HASH_SIZE = 1024;
 static	shader_t*		hashTable[FILE_HASH_SIZE];
 
-#define MAX_SHADERTEXT_HASH		2048
+constexpr int MAX_SHADERTEXT_HASH = 2048;
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH] = { nullptr };
 
 void KillTheShaderHashTable(void)
@@ -1247,7 +1247,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 		//
 		else if ( !Q_stricmp( token, "animMap" ) || !Q_stricmp( token, "clampanimMap" ) || !Q_stricmp( token, "oneshotanimMap" ))
 		{
-			#define	MAX_IMAGE_ANIMATIONS	32
+			constexpr int MAX_IMAGE_ANIMATIONS = 32;
 			image_t *images[MAX_IMAGE_ANIMATIONS];
 			bool bClamp = !Q_stricmp( token, "clampanimMap" );
 			bool oneShot = !Q_stricmp( token, "oneshotanimMap" );
@@ -1990,7 +1990,7 @@ static void ParseSort( const char **text ) {
 ParseMaterial
 =================
 */
-const char *materialNames[MATERIAL_LAST] =
+EnumArray<const char *, surfaceMaterial_t, MATERIAL_LAST> materialNames =
 {
 	MATERIALS
 };
@@ -1998,7 +1998,7 @@ const char *materialNames[MATERIAL_LAST] =
 void ParseMaterial( const char **text )
 {
 	char	*token;
-	int		i;
+	surfaceMaterial_t	i;
 
 	token = COM_ParseExt( text, false );
 	if ( token[0] == 0 )
@@ -2006,7 +2006,7 @@ void ParseMaterial( const char **text )
 		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: missing material in shader '%s'\n", shader.name );
 		return;
 	}
-	for(i = 0; i < MATERIAL_LAST; i++)
+	for(i = MATERIAL_NONE; i < MATERIAL_LAST; i++)
 	{
 		if ( !Q_stricmp( token, materialNames[i] ) )
 		{
@@ -3942,7 +3942,7 @@ Finds and loads all .shader files, combining them into
 a single large text block that can be scanned for shader names
 =====================
 */
-#define	MAX_SHADER_FILES	4096
+constexpr int MAX_SHADER_FILES = 4096;
 static void ScanAndLoadShaderFiles( void )
 {
 	char **shaderFiles;

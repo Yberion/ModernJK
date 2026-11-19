@@ -36,8 +36,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define WT_BALANCE			1
-#define MAX_WEIGHTS			128
+inline constexpr int WT_BALANCE = 1;
+inline constexpr int MAX_WEIGHTS = 128;
 
 //fuzzy seperator
 typedef struct fuzzyseperator_s

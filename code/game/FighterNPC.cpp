@@ -378,7 +378,7 @@ extern sfxHandle_t trap_S_RegisterSound( const char *sample); //cg_syscalls.cpp
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
 // ProcessMoveCommands the Vehicle.
-#define FIGHTER_MIN_TAKEOFF_FRACTION 0.7f
+constexpr float FIGHTER_MIN_TAKEOFF_FRACTION = 0.7f;
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
 	/************************************************************************************/

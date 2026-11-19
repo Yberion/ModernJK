@@ -41,26 +41,26 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/qcommon.h"
 #include "qcommon/q_pk3.h"
 
-#define ZIP_END_SIGNATURE		0x06054b50u		// the record that ends the archive and locates the directory
-#define ZIP_END_SIZE			22
-#define ZIP_END_COMMENT			65535			// the longest comment that may follow it
-#define ZIP_ENTRY_SIGNATURE		0x02014b50u		// one record of the directory
-#define ZIP_ENTRY_SIZE			46
-#define ZIP_LOCAL_SIGNATURE		0x04034b50u		// the header before a file's data
-#define ZIP_LOCAL_SIZE			30
-#define ZIP64_LOCATOR_SIGNATURE	0x07064b50u		// before the end record: where the ZIP64 end record is
-#define ZIP64_LOCATOR_SIZE		20
-#define ZIP64_END_SIGNATURE		0x06064b50u		// the end record with 64-bit fields
-#define ZIP64_END_SIZE			56
-#define ZIP64_EXTRA_ID			1				// the field of an entry's extra data that holds its 64-bit sizes
-#define ZIP_ALL_ONES			0xffffffffu		// a 32-bit field whose value is in its ZIP64 form
-#define ZIP_FLAG_ENCRYPTED		1
-#define ZIP_STORED				0
-#define ZIP_DEFLATED			8
+constexpr unsigned int ZIP_END_SIGNATURE = 0x06054b50u;		// the record that ends the archive and locates the directory
+constexpr int ZIP_END_SIZE = 22;
+constexpr int ZIP_END_COMMENT = 65535;			// the longest comment that may follow it
+constexpr unsigned int ZIP_ENTRY_SIGNATURE = 0x02014b50u;		// one record of the directory
+constexpr int ZIP_ENTRY_SIZE = 46;
+constexpr unsigned int ZIP_LOCAL_SIGNATURE = 0x04034b50u;		// the header before a file's data
+constexpr int ZIP_LOCAL_SIZE = 30;
+constexpr unsigned int ZIP64_LOCATOR_SIGNATURE = 0x07064b50u;		// before the end record: where the ZIP64 end record is
+constexpr int ZIP64_LOCATOR_SIZE = 20;
+constexpr unsigned int ZIP64_END_SIGNATURE = 0x06064b50u;		// the end record with 64-bit fields
+constexpr int ZIP64_END_SIZE = 56;
+constexpr int ZIP64_EXTRA_ID = 1;				// the field of an entry's extra data that holds its 64-bit sizes
+constexpr unsigned int ZIP_ALL_ONES = 0xffffffffu;		// a 32-bit field whose value is in its ZIP64 form
+constexpr int ZIP_FLAG_ENCRYPTED = 1;
+constexpr int ZIP_STORED = 0;
+constexpr int ZIP_DEFLATED = 8;
 
-#define PK3_INPUT_SIZE			65536			// the bytes of a deflated file read from the archive at a time
+constexpr int PK3_INPUT_SIZE = 65536;			// the bytes of a deflated file read from the archive at a time
 #define PK3_NOWHERE				UINT64_MAX		// the archive's read position, when it is not known
-#define PK3_MAX_SIZE			0x7fffffffu		// sizes are ints in the file system
+constexpr unsigned int PK3_MAX_SIZE = 0x7fffffffu;		// sizes are ints in the file system
 
 typedef struct pk3Slot_s {
 	const char	*name;

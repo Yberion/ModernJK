@@ -97,7 +97,7 @@ void BG_AttachToRancor( void *ghoul2, float rancYaw, vec3_t rancOrigin, int time
 	}
 }
 
-#define	MAX_VARIANTS 8
+constexpr int MAX_VARIANTS = 8;
 bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
 	if ( !ghoul2 || trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) == G2SURFACEFLAG_NONE )

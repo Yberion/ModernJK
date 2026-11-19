@@ -44,10 +44,10 @@ void SetPlaneSignbits (cplane_t *out) {
 
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map
-#define	BOX_BRUSHES		1
-#define	BOX_SIDES		6
-#define	BOX_LEAFS		2
-#define	BOX_PLANES		12
+constexpr int BOX_BRUSHES = 1;
+constexpr int BOX_SIDES = 6;
+constexpr int BOX_LEAFS = 2;
+constexpr int BOX_PLANES = 12;
 
 #define	LL(x) x=LittleLong(x)
 
@@ -495,7 +495,7 @@ void CMod_LoadEntityString( lump_t *l, clipMap_t &cm, const char* name ) {
 CMod_LoadVisibility
 =================
 */
-#define	VIS_HEADER	8
+constexpr int VIS_HEADER = 8;
 void CMod_LoadVisibility( lump_t *l, clipMap_t &cm ) {
 	int		len;
 	byte	*buf;
@@ -524,7 +524,7 @@ void CMod_LoadVisibility( lump_t *l, clipMap_t &cm ) {
 CMod_LoadPatches
 =================
 */
-#define	MAX_PATCH_VERTS		1024
+constexpr int MAX_PATCH_VERTS = 1024;
 void CMod_LoadPatches( lump_t *surfs, lump_t *verts, clipMap_t &cm ) {
 	mapVert_t	*dv, *dv_p;
 	dsurface_t	*in;
@@ -1035,13 +1035,13 @@ void CM_InitBoxHull (void)
 
 		// planes
 		p = &box_planes[i*2];
-		p->type = i>>1;
 		p->signbits = 0;
 		VectorClear (p->normal);
 		p->normal[i>>1] = 1;
+		p->type = PlaneTypeForNormal( p->normal );
 
 		p = &box_planes[i*2+1];
-		p->type = 3 + (i>>1);
+		p->type = PLANE_NON_AXIAL;
 		p->signbits = 0;
 		VectorClear (p->normal);
 		p->normal[i>>1] = -1;

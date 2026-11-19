@@ -36,62 +36,50 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
-#define	POWERUP_BLINKS		5
+inline constexpr int POWERUP_BLINKS = 5;
 
-#define	POWERUP_BLINK_TIME	1000
-#define	FADE_TIME			200
-#define	PULSE_TIME			200
-#define	DAMAGE_DEFLECT_TIME	100
-#define	DAMAGE_RETURN_TIME	400
-#define DAMAGE_TIME			500
-#define	LAND_DEFLECT_TIME	150
-#define	LAND_RETURN_TIME	300
-#define	STEP_TIME			200
-#define	DUCK_TIME			100
-#define	PAIN_TWITCH_TIME	200
-#define	WEAPON_SELECT_TIME	1400
-#define	ITEM_SCALEUP_TIME	1000
+inline constexpr int POWERUP_BLINK_TIME = 1000;
+inline constexpr int FADE_TIME = 200;
+inline constexpr int DAMAGE_DEFLECT_TIME = 100;
+inline constexpr int DAMAGE_RETURN_TIME = 400;
+inline constexpr int DAMAGE_TIME = 500;
+inline constexpr int LAND_DEFLECT_TIME = 150;
+inline constexpr int LAND_RETURN_TIME = 300;
+inline constexpr int STEP_TIME = 200;
+inline constexpr int DUCK_TIME = 100;
+inline constexpr int WEAPON_SELECT_TIME = 1400;
+inline constexpr int ITEM_SCALEUP_TIME = 1000;
 
 // Zoom vars
-#define	ZOOM_TIME			150		// not currently used?
-#define MAX_ZOOM_FOV		3.0f
-#define ZOOM_IN_TIME		1500.0f
-#define ZOOM_OUT_TIME		100.0f
-#define ZOOM_START_PERCENT	0.3f
+inline constexpr float MAX_ZOOM_FOV = 3.0f;
+inline constexpr float ZOOM_OUT_TIME = 100.0f;
 
-#define	ITEM_BLOB_TIME		200
-#define	MUZZLE_FLASH_TIME	20
-#define	SINK_TIME			1000		// time for fragments to sink into ground before going away
-#define	ATTACKER_HEAD_TIME	10000
-#define	REWARD_TIME			3000
+inline constexpr int ITEM_BLOB_TIME = 200;
+inline constexpr int MUZZLE_FLASH_TIME = 20;
+inline constexpr int SINK_TIME = 1000;		// time for fragments to sink into ground before going away
+inline constexpr int ATTACKER_HEAD_TIME = 10000;
+inline constexpr int REWARD_TIME = 3000;
 
-#define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
 
-#define	MAX_STEP_CHANGE		32
+inline constexpr int MAX_STEP_CHANGE = 32;
 
-#define	MAX_VERTS_ON_POLY	10
-#define	MAX_MARK_POLYS		256
+inline constexpr int MAX_VERTS_ON_POLY = 10;
+inline constexpr int MAX_MARK_POLYS = 256;
 
-#define STAT_MINUS			10	// num frame for '-' stats digit
+inline constexpr int STAT_MINUS = 10;	// num frame for '-' stats digit
 
-#define	ICON_SIZE			48
-#define	TEXT_ICON_SPACE		4
+inline constexpr int ICON_SIZE = 48;
 
 // very large characters
-#define	GIANT_WIDTH			32
-#define	GIANT_HEIGHT		48
 
-#define NUM_FONT_BIG	1
-#define NUM_FONT_SMALL	2
-#define NUM_FONT_CHUNKY	3
+#include "qcommon/q_gamesets.h"
 
-#define	NUM_CROSSHAIRS		9
 
-#define TEAM_OVERLAY_MAXNAME_WIDTH	32
-#define TEAM_OVERLAY_MAXLOCATION_WIDTH	64
+inline constexpr int TEAM_OVERLAY_MAXNAME_WIDTH = 32;
+inline constexpr int TEAM_OVERLAY_MAXLOCATION_WIDTH = 64;
 
-#define	WAVE_AMPLITUDE	1
-#define	WAVE_FREQUENCY	0.4
+inline constexpr int WAVE_AMPLITUDE = 1;
+inline constexpr double WAVE_FREQUENCY = 0.4;
 
 enum class footstep_t {
 	FOOTSTEP_STONEWALK,
@@ -196,13 +184,13 @@ typedef struct playerEntity_s {
 // client model and other color coded effects
 // this is regenerated each time a client's configstring changes,
 // usually as a result of a userinfo (name, model, etc) change
-#define	MAX_CUSTOM_COMBAT_SOUNDS	40
-#define	MAX_CUSTOM_EXTRA_SOUNDS	40
-#define	MAX_CUSTOM_JEDI_SOUNDS	40
+inline constexpr int MAX_CUSTOM_COMBAT_SOUNDS = 40;
+inline constexpr int MAX_CUSTOM_EXTRA_SOUNDS = 40;
+inline constexpr int MAX_CUSTOM_JEDI_SOUNDS = 40;
 // MAX_CUSTOM_SIEGE_SOUNDS defined in bg_public.h
-#define MAX_CUSTOM_DUEL_SOUNDS	40
+inline constexpr int MAX_CUSTOM_DUEL_SOUNDS = 40;
 
-#define	MAX_CUSTOM_SOUNDS	40 //rww - Note that for now these must all be the same, because of the way I am
+inline constexpr int MAX_CUSTOM_SOUNDS = 40; //rww - Note that for now these must all be the same, because of the way I am
 							   //cycling through them and comparing for custom sounds.
 
 typedef struct clientInfo_s {
@@ -324,7 +312,7 @@ typedef struct clientInfo_s {
 } clientInfo_t;
 
 //rww - cheap looping sound struct
-#define MAX_CG_LOOPSOUNDS 8
+inline constexpr int MAX_CG_LOOPSOUNDS = 8;
 
 typedef struct cgLoopSound_s {
 	int entityNum;
@@ -730,7 +718,7 @@ typedef struct powerupInfo_s {
 } powerupInfo_t;
 
 
-#define MAX_SKULLTRAIL		10
+inline constexpr int MAX_SKULLTRAIL = 10;
 
 typedef struct skulltrail_s {
 	vec3_t positions[MAX_SKULLTRAIL];
@@ -738,18 +726,18 @@ typedef struct skulltrail_s {
 } skulltrail_t;
 
 
-#define MAX_REWARDSTACK		10
-#define MAX_SOUNDBUFFER		20
+inline constexpr int MAX_REWARDSTACK = 10;
+inline constexpr int MAX_SOUNDBUFFER = 20;
 
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
-#define MAX_PREDICTED_EVENTS	16
+inline constexpr int MAX_PREDICTED_EVENTS = 16;
 
 
-#define	MAX_CHATBOX_ITEMS		5
+inline constexpr int MAX_CHATBOX_ITEMS = 5;
 typedef struct chatBoxItem_s
 {
 	char	string[MAX_SAY_TEXT];
@@ -1043,7 +1031,6 @@ Ghoul2 Insert End
 
 } cg_t;
 
-#define MAX_TICS	14
 
 typedef struct forceTicPos_s
 {
@@ -1089,7 +1076,7 @@ enum class chunkType_t
 	NUM_CHUNK_TYPES
 };
 using enum chunkType_t;
-#define NUM_CHUNK_MODELS	4
+inline constexpr int NUM_CHUNK_MODELS = 4;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -1529,7 +1516,7 @@ typedef struct cgEffects_s {
 	fxHandle_t acidSplash;
 } cgEffects_t;
 
-#define MAX_STATIC_MODELS 4000
+inline constexpr int MAX_STATIC_MODELS = 4000;
 
 typedef struct cg_staticmodel_s {
 	qhandle_t		model;
@@ -1736,7 +1723,7 @@ void CG_DrawRotatePic2( float x, float y, float width, float height,float angle,
 void CG_DrawString( float x, float y, const char *string,
 				   float charWidth, float charHeight, const float *modulate );
 
-void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,bool zeroFill);
+void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,numFont_t style,bool zeroFill);
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		bool forceColor, bool shadow, int charWidth, int charHeight, int maxChars );

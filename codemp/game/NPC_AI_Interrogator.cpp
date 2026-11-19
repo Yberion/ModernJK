@@ -152,8 +152,8 @@ void Interrogator_PartsMove(void)
 
 }
 
-#define VELOCITY_DECAY	0.85f
-#define HUNTER_UPWARD_PUSH	2
+constexpr float VELOCITY_DECAY = 0.85f;
+constexpr int HUNTER_UPWARD_PUSH = 2;
 
 /*
 -------------------------
@@ -254,8 +254,8 @@ void Interrogator_MaintainHeight( void )
 	}
 }
 
-#define HUNTER_STRAFE_VEL	32
-#define HUNTER_STRAFE_DIS	200
+constexpr int HUNTER_STRAFE_VEL = 32;
+constexpr int HUNTER_STRAFE_DIS = 200;
 /*
 -------------------------
 Interrogator_Strafe
@@ -310,8 +310,8 @@ Interrogator_Hunt
 -------------------------`
 */
 
-#define HUNTER_FORWARD_BASE_SPEED	10
-#define HUNTER_FORWARD_MULTIPLIER	2
+constexpr int HUNTER_FORWARD_BASE_SPEED = 10;
+constexpr int HUNTER_FORWARD_MULTIPLIER = 2;
 
 void Interrogator_Hunt( bool visible, bool advance )
 {
@@ -361,7 +361,7 @@ void Interrogator_Hunt( bool visible, bool advance )
 	VectorMA( NPCS.NPC->client->ps.velocity, speed, forward, NPCS.NPC->client->ps.velocity );
 }
 
-#define MIN_DISTANCE		64
+constexpr int MIN_DISTANCE = 64;
 
 /*
 -------------------------

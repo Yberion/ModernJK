@@ -56,7 +56,7 @@ char teamChat2[256];
 // The time at which you died and the time it will take for you to rejoin game.
 int cg_siegeDeathTime = 0;
 
-#define MAX_HUD_TICS 4
+constexpr int MAX_HUD_TICS = 4;
 const char *armorTicName[MAX_HUD_TICS] =
 {
 "armor_tic1",
@@ -1506,7 +1506,7 @@ void CG_DrawHUD(centity_t	*cent)
 	}
 }
 
-#define MAX_SHOWPOWERS to_underlying( NUM_FORCE_POWERS )
+constexpr int MAX_SHOWPOWERS = to_underlying( NUM_FORCE_POWERS );
 
 bool ForcePower_Valid(forcePowers_t i)
 {
@@ -1951,10 +1951,10 @@ bool CG_CheckTargetVehicle( centity_t **pTargetVeh, float *alpha )
 	return false;
 }
 
-#define MAX_VHUD_SHIELD_TICS 12
-#define MAX_VHUD_SPEED_TICS 5
-#define MAX_VHUD_ARMOR_TICS 5
-#define MAX_VHUD_AMMO_TICS 5
+constexpr int MAX_VHUD_SHIELD_TICS = 12;
+constexpr int MAX_VHUD_SPEED_TICS = 5;
+constexpr int MAX_VHUD_ARMOR_TICS = 5;
+constexpr int MAX_VHUD_AMMO_TICS = 5;
 
 float CG_DrawVehicleShields( const menuDef_t	*menuHUD, const centity_t *veh )
 {
@@ -3142,7 +3142,7 @@ static float CG_DrawSnapshot( float y ) {
 CG_DrawFPS
 ==================
 */
-#define	FPS_FRAMES	16
+constexpr int FPS_FRAMES = 16;
 static float CG_DrawFPS( float y ) {
 	char		*s;
 	int			w;
@@ -3184,7 +3184,7 @@ static float CG_DrawFPS( float y ) {
 }
 
 // nmckenzie: DUEL_HEALTH
-#define MAX_HEALTH_FOR_IFACE	100
+constexpr int MAX_HEALTH_FOR_IFACE = 100;
 void CG_DrawHealthBarRough (float x, float y, int width, int height, float ratio, const float *color1, const float *color2)
 {
 	float midpoint, remainder;
@@ -3236,14 +3236,13 @@ CG_DrawRadar
 */
 float	cg_radarRange = 2500.0f;
 
-#define RADAR_RADIUS			60
-#define RADAR_X					(580 - RADAR_RADIUS)
-#define RADAR_CHAT_DURATION		6000
+constexpr int RADAR_RADIUS = 60;
+constexpr int RADAR_X = 580 - RADAR_RADIUS;
 static int radarLockSoundDebounceTime = 0;
 static int impactSoundDebounceTime = 0;
-#define	RADAR_MISSILE_RANGE					3000.0f
-#define	RADAR_ASTEROID_RANGE				10000.0f
-#define	RADAR_MIN_ASTEROID_SURF_WARN_DIST	1200.0f
+constexpr float RADAR_MISSILE_RANGE = 3000.0f;
+constexpr float RADAR_ASTEROID_RANGE = 10000.0f;
+constexpr float RADAR_MIN_ASTEROID_SURF_WARN_DIST = 1200.0f;
 
 float CG_DrawRadar ( float y )
 {
@@ -4193,9 +4192,9 @@ LAGOMETER
 // The lagometer in time (plan step 14, part 9): a column is a slice of LAG_SLICE_MSEC of real time, not a frame or a
 // snapshot, so that the graph covers the same span at any frame rate (LAG_COLUMNS slices: 2.4 s). A slice keeps the
 // worst case of what happened in it.
-#define	LAG_SLICE_MSEC		50
-#define	LAG_COLUMNS			48		// the graph's width: a slice per virtual pixel
-#define	LAG_SLICES			64		// slices kept: a power of two, at least LAG_COLUMNS
+constexpr int LAG_SLICE_MSEC = 50;
+constexpr int LAG_COLUMNS = 48;		// the graph's width: a slice per virtual pixel
+constexpr int LAG_SLICES = 64;		// slices kept: a power of two, at least LAG_COLUMNS
 
 typedef struct lagSlice_s {
 	int			number;				// real time / LAG_SLICE_MSEC: tells this slice from an older one at the same place
@@ -4334,15 +4333,15 @@ static void CG_DrawDisconnect( void ) {
 // line LAG_DELAY_MID pixels down, the ping in its bottom LAG_PING_HEIGHT pixels. Every bar is a delay, and the scales
 // leave the usual ones about a pixel high (a margin of 4 ms, 10 ms behind the newest snapshot, a ping of 20 to 40 ms):
 // a thin graph is a good connection.
-#define	LAG_HEIGHT			48
-#define	LAG_MARGIN_HEIGHT	12
-#define	LAG_MARGIN_MSEC		50		// the margin that fills its band
-#define	LAG_DELAY_MID		20
-#define	LAG_DELAY_UP		8		// the most drawn above the line (past the newest snapshot)
-#define	LAG_DELAY_DOWN		16		// the most drawn below it (behind the newest snapshot)
-#define	LAG_DELAY_MSEC		150		// the delay that fills LAG_DELAY_DOWN
-#define	LAG_PING_HEIGHT		24
-#define	LAG_PING_MSEC		900		// the ping that fills its band
+constexpr int LAG_HEIGHT = 48;
+constexpr int LAG_MARGIN_HEIGHT = 12;
+constexpr int LAG_MARGIN_MSEC = 50;		// the margin that fills its band
+constexpr int LAG_DELAY_MID = 20;
+constexpr int LAG_DELAY_UP = 8;		// the most drawn above the line (past the newest snapshot)
+constexpr int LAG_DELAY_DOWN = 16;		// the most drawn below it (behind the newest snapshot)
+constexpr int LAG_DELAY_MSEC = 150;		// the delay that fills LAG_DELAY_DOWN
+constexpr int LAG_PING_HEIGHT = 24;
+constexpr int LAG_PING_MSEC = 900;		// the ping that fills its band
 
 // one bar of a column, in a colour of g_color_table; *current is the colour set last
 static void CG_LagometerBar( float x, float y, float h, int colour, int *current ) {
@@ -4639,8 +4638,8 @@ CROSSHAIR
 ================================================================================
 */
 
-#define HEALTH_WIDTH		50.0f
-#define HEALTH_HEIGHT		5.0f
+constexpr float HEALTH_WIDTH = 50.0f;
+constexpr float HEALTH_HEIGHT = 5.0f;
 
 //see if we can draw some extra info on this guy based on our class
 void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float chH)
@@ -4868,10 +4867,10 @@ void CG_DrawHaqrBar(float chX, float chY, float chW, float chH)
 int cg_genericTimerBar = 0;
 int cg_genericTimerDur = 0;
 vec4_t cg_genericTimerColor;
-#define CGTIMERBAR_H			50.0f
-#define CGTIMERBAR_W			10.0f
-#define CGTIMERBAR_X			(SCREEN_WIDTH-CGTIMERBAR_W-120.0f)
-#define CGTIMERBAR_Y			(SCREEN_HEIGHT-CGTIMERBAR_H-20.0f)
+constexpr float CGTIMERBAR_H = 50.0f;
+constexpr float CGTIMERBAR_W = 10.0f;
+constexpr float CGTIMERBAR_X = SCREEN_WIDTH-CGTIMERBAR_W-120.0f;
+constexpr float CGTIMERBAR_Y = SCREEN_HEIGHT-CGTIMERBAR_H-20.0f;
 void CG_DrawGenericTimerBar(void)
 {
 	vec4_t aColor;
@@ -4920,8 +4919,8 @@ CG_DrawCrosshair
 
 float cg_crosshairPrevPosX = 0;
 float cg_crosshairPrevPosY = 0;
-#define CRAZY_CROSSHAIR_MAX_ERROR_X	(100.0f*640.0f/480.0f)
-#define CRAZY_CROSSHAIR_MAX_ERROR_Y	(100.0f)
+constexpr float CRAZY_CROSSHAIR_MAX_ERROR_X = 100.0f*640.0f/480.0f;
+constexpr float CRAZY_CROSSHAIR_MAX_ERROR_Y = 100.0f;
 void CG_LerpCrosshairPos( float *x, float *y )
 {
 	if ( cg_crosshairPrevPosX )
@@ -6137,7 +6136,7 @@ void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_
 CG_`Entity
 =================
 */
-#define MAX_XHAIR_DIST_ACCURACY	20000.0f
+constexpr float MAX_XHAIR_DIST_ACCURACY = 20000.0f;
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
@@ -7054,10 +7053,10 @@ void CG_DrawFlagStatus()
 }
 
 //draw meter showing jetpack fuel when it's not full
-#define JPFUELBAR_H			100.0f
-#define JPFUELBAR_W			20.0f
-#define JPFUELBAR_X			(SCREEN_WIDTH-JPFUELBAR_W-8.0f)
-#define JPFUELBAR_Y			260.0f
+constexpr float JPFUELBAR_H = 100.0f;
+constexpr float JPFUELBAR_W = 20.0f;
+constexpr float JPFUELBAR_X = SCREEN_WIDTH-JPFUELBAR_W-8.0f;
+constexpr float JPFUELBAR_Y = 260.0f;
 void CG_DrawJetpackFuel(void)
 {
 	vec4_t aColor;
@@ -7099,10 +7098,10 @@ void CG_DrawJetpackFuel(void)
 }
 
 //draw meter showing e-web health when it is in use
-#define EWEBHEALTH_H			100.0f
-#define EWEBHEALTH_W			20.0f
-#define EWEBHEALTH_X			(SCREEN_WIDTH-EWEBHEALTH_W-8.0f)
-#define EWEBHEALTH_Y			290.0f
+constexpr float EWEBHEALTH_H = 100.0f;
+constexpr float EWEBHEALTH_W = 20.0f;
+constexpr float EWEBHEALTH_X = SCREEN_WIDTH-EWEBHEALTH_W-8.0f;
+constexpr float EWEBHEALTH_Y = 290.0f;
 void CG_DrawEWebHealth(void)
 {
 	vec4_t aColor;
@@ -7155,10 +7154,10 @@ void CG_DrawEWebHealth(void)
 }
 
 //draw meter showing cloak fuel when it's not full
-#define CLFUELBAR_H			100.0f
-#define CLFUELBAR_W			20.0f
-#define CLFUELBAR_X			(SCREEN_WIDTH-CLFUELBAR_W-8.0f)
-#define CLFUELBAR_Y			260.0f
+constexpr float CLFUELBAR_H = 100.0f;
+constexpr float CLFUELBAR_W = 20.0f;
+constexpr float CLFUELBAR_X = SCREEN_WIDTH-CLFUELBAR_W-8.0f;
+constexpr float CLFUELBAR_Y = 260.0f;
 void CG_DrawCloakFuel(void)
 {
 	vec4_t aColor;
@@ -7415,8 +7414,8 @@ static void CG_DrawSiegeHUDItem(void)
 /*====================================
 chatbox functionality -rww
 ====================================*/
-#define	CHATBOX_CUTOFF_LEN	550
-#define	CHATBOX_FONT_HEIGHT	20
+constexpr int CHATBOX_CUTOFF_LEN = 550;
+constexpr int CHATBOX_FONT_HEIGHT = 20;
 
 //utility func, insert a string into a string at the specified
 //place (assuming this will not overflow the buffer)

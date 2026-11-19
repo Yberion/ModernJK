@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FX_PRIMITIVES_H_INC
 
 
-#define MAX_EFFECTS			1200
+inline constexpr int MAX_EFFECTS = 1200;
 
 
 // Generic group flags, used by parser, then get converted to the appropriate specific flags
@@ -108,11 +108,11 @@ using enum fxPrimitiveFlags_t;
 template <> inline constexpr bool enableEnumFlags<fxPrimitiveFlags_t> = true;
 
 // the channels' bits
-#define FX_ALPHA_SHIFT		0
-#define FX_RGB_SHIFT		4
-#define FX_SIZE_SHIFT		8
-#define FX_LENGTH_SHIFT		12
-#define FX_SIZE2_SHIFT		16
+inline constexpr int FX_ALPHA_SHIFT = 0;
+inline constexpr int FX_RGB_SHIFT = 4;
+inline constexpr int FX_SIZE_SHIFT = 8;
+inline constexpr int FX_LENGTH_SHIFT = 12;
+inline constexpr int FX_SIZE2_SHIFT = 16;
 
 // a channel's transitions, parsed as the generic values (FX_LINEAR ... FX_CLAMP), moved into the channel's bits
 inline fxPrimitiveFlags_t FX_ChannelFlags( fxPrimitiveFlags_t generic, int shift ) {
@@ -552,7 +552,7 @@ public:
 //	adds to a SINGLE triangle or quad....
 // The editor doesn't need to see or do anything with this
 //------------------------------
-#define MAX_CPOLY_VERTS	5
+inline constexpr int MAX_CPOLY_VERTS = 5;
 
 class CPoly : public CParticle
 {

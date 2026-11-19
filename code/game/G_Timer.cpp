@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../Rufl/hstring.h"
 #include "qcommon/ojk_saved_game_helper.h"
 
-#define MAX_GTIMERS	16384
+constexpr int MAX_GTIMERS = 16384;
 
 typedef struct gtimer_s
 {

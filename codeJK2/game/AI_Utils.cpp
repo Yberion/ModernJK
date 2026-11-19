@@ -31,8 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "g_navigator.h"
 
-#define	MAX_RADIUS_ENTS		128
-#define	DEFAULT_RADIUS		45
+constexpr int MAX_RADIUS_ENTS = 128;
+[[maybe_unused]] constexpr int DEFAULT_RADIUS = 45;
 
 extern	CNavigator	navigator;
 extern cvar_t		*d_noGroupAI;
@@ -1024,7 +1024,6 @@ AI_DistributeAttack
 -------------------------
 */
 
-#define	MAX_RADIUS_ENTS		128
 
 gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, team_t team, int threshold )
 {

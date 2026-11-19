@@ -1030,7 +1030,7 @@ SelectRandomTeamSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-#define	MAX_TEAM_SPAWN_POINTS	32
+constexpr int MAX_TEAM_SPAWN_POINTS = 32;
 gentity_t *SelectRandomTeamSpawnPoint( playerTeamStateState_t teamstate, team_t team, int siegeClass ) {
 	gentity_t	*spot;
 	int			count;

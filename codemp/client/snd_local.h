@@ -35,7 +35,7 @@ extern void AS_Init( void );
 extern void AS_Free( void );
 
 
-#define	PAINTBUFFER_SIZE	1024
+#include "qcommon/q_sound.h"
 
 
 // !!! if this is changed, the asm code must change !!!
@@ -85,14 +85,10 @@ typedef struct dma_s {
 } dma_t;
 
 
-#define START_SAMPLE_IMMEDIATE	0x7fffffff
+inline constexpr int START_SAMPLE_IMMEDIATE = 0x7fffffff;
 
 
-#define NUM_STREAMING_BUFFERS	4
-#define STREAMING_BUFFER_SIZE	4608		// 4 decoded MP3 frames
 
-#define QUEUED		1
-#define UNQUEUED	2
 
 
 typedef struct channel_s {
@@ -132,13 +128,10 @@ typedef struct channel_s {
 } channel_t;
 
 
-#define	WAV_FORMAT_PCM		1
-#define WAV_FORMAT_ADPCM	2	// not actually implemented, but is the value that you get in a header
-#define WAV_FORMAT_MP3		3	// not actually used this way, but just ensures we don't match one of the legit formats
 
 
 typedef struct wavinfo_s {
-	int			format;
+	wavFormat_t	format;
 	int			rate;
 	int			width;
 	int			channels;
@@ -148,7 +141,6 @@ typedef struct wavinfo_s {
 
 //====================================================================
 
-#define	MAX_CHANNELS			32
 extern	channel_t   s_channels[MAX_CHANNELS];
 
 extern	int		s_paintedtime;
@@ -156,7 +148,6 @@ extern	int		s_rawend;
 extern	vec3_t	listener_origin;
 extern	dma_t	dma;
 
-#define	MAX_RAW_SAMPLES	16384
 extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 portable_samplepair_t *S_GetRawSamplePointer();	// TA added this, but it just returns the s_rawsamples[] array above. Oh well...
 

@@ -72,8 +72,8 @@ typedef struct worldSector_s {
 	svEntity_t	*entities;
 } worldSector_t;
 
-#define	AREA_DEPTH	4
-#define	AREA_NODES	64
+constexpr int AREA_DEPTH = 4;
+constexpr int AREA_NODES = 64;
 
 worldSector_t	sv_worldSectors[AREA_NODES];
 int			sv_numworldSectors;
@@ -205,7 +205,7 @@ SV_LinkEntity
 
 ===============
 */
-#define MAX_TOTAL_ENT_LEAFS		128
+constexpr int MAX_TOTAL_ENT_LEAFS = 128;
 void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	worldSector_t	*node;
 	int			leafs[MAX_TOTAL_ENT_LEAFS];

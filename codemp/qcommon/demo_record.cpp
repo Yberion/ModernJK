@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 namespace eng = netcodec::engine;
 
 // one snapshot every two ticks: 50 per second, the half of the stream's (plan step 14, part 11)
-#define DEMO_SNAPSHOT_MSEC	( 2 * TICK_MSEC )
+constexpr int DEMO_SNAPSHOT_MSEC = 2 * TICK_MSEC;
 
 // one encoder for every demo: it keeps only scratch buffers
 static eng::ServerCodec &DemoCodec( void ) {

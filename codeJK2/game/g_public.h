@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <optional>
 
-#define	GAME_API_VERSION	10
+inline constexpr int GAME_API_VERSION = 10;
 
 // entity->svFlags
 // the server does not know how to interpret most of the values

@@ -1,7 +1,7 @@
 #ifndef __BOLTONS_H__
 #define __BOLTONS_H__
 
-#define MAX_GAME_BOLTONS		64
+inline constexpr int MAX_GAME_BOLTONS = 64;
 
 typedef struct boltOn_s
 {//a tagged object

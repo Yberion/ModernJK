@@ -27,13 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../game/ghoul2_shared.h"
 
-#define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
-#define	REFENTITYNUM_BITS	11		// can't be increased without changing drawsurf bit packing
-#define	REFENTITYNUM_MASK	((1<<REFENTITYNUM_BITS) - 1)
+#include "qcommon/q_renderer.h"
 // the last N-bit number (2^REFENTITYNUM_BITS - 1) is reserved for the special world refentity,
 //  and this is reflected by the value of MAX_REFENTITIES (which therefore is not a power-of-2)
-#define	MAX_REFENTITIES		((1<<REFENTITYNUM_BITS) - 1)
-#define	REFENTITYNUM_WORLD	((1<<REFENTITYNUM_BITS) - 1)
 
 // renderfx flags
 enum class renderFxFlags_t
@@ -192,8 +188,6 @@ Ghoul2 Insert End
 } refEntity_t;
 
 
-#define	MAX_RENDER_STRINGS			8
-#define	MAX_RENDER_STRING_LENGTH	32
 
 typedef struct {
 	int			x, y, width, height;

@@ -35,7 +35,7 @@ extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern void SetMiscModelDefaults( gentity_t *ent, useFunc_t use_func, const char *material, contentsFlags_t solid_mask,entityFlags_t animFlag,
 									bool take_damage, bool damage_model);
 
-#define MAX_AMMO_GIVE 4
+constexpr int MAX_AMMO_GIVE = 4;
 
 
 

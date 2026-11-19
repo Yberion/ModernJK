@@ -29,18 +29,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "teams.h"
 #include "statindex.h"
 
-#define	DEFAULT_GRAVITY		800
-#define	GIB_HEALTH			-40
-#define	ARMOR_PROTECTION	0.40
+inline constexpr int DEFAULT_GRAVITY = 800;
+inline constexpr int GIB_HEALTH = -40;
+inline constexpr double ARMOR_PROTECTION = 0.40;
 
-#define	MAX_ITEMS			128
+inline constexpr int MAX_ITEMS = 128;
 
-#define	RANK_TIED_FLAG		0x4000
+inline constexpr int RANK_TIED_FLAG = 0x4000;
 
-#define DEFAULT_SHOTGUN_SPREAD	700
-#define DEFAULT_SHOTGUN_COUNT	11
 
-#define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
+inline constexpr int ITEM_RADIUS = 15;		// item sizes are needed for client side pickup detection
 
 //Player sizes
 extern float DEFAULT_MINS_0;
@@ -48,27 +46,26 @@ extern float DEFAULT_MINS_1;
 extern float DEFAULT_MAXS_0;
 extern float DEFAULT_MAXS_1;
 extern float DEFAULT_PLAYER_RADIUS;
-#define DEFAULT_MINS_2		-24
-#define DEFAULT_MAXS_2		40// was 32, but too short for player
-#define CROUCH_MAXS_2		16
+inline constexpr int DEFAULT_MINS_2 = -24;
+inline constexpr int DEFAULT_MAXS_2 = 40; // was 32, but too short for player
+inline constexpr int CROUCH_MAXS_2 = 16;
 
-#define ATST_MINS0			-40
-#define ATST_MINS1			-40
-#define ATST_MINS2			-24
-#define ATST_MAXS0			40
-#define ATST_MAXS1			40
-#define ATST_MAXS2			248
+inline constexpr int ATST_MINS0 = -40;
+inline constexpr int ATST_MINS1 = -40;
+inline constexpr int ATST_MINS2 = -24;
+inline constexpr int ATST_MAXS0 = 40;
+inline constexpr int ATST_MAXS1 = 40;
+inline constexpr int ATST_MAXS2 = 248;
 
 //Player viewheights
-#define	STANDARD_VIEWHEIGHT_OFFSET -4
+inline constexpr int STANDARD_VIEWHEIGHT_OFFSET = -4;
 //#define	RAVEN_VIEWHEIGHT_ADJ 2
 //#define	DEFAULT_VIEWHEIGHT	(26+RAVEN_VIEWHEIGHT_ADJ)
 //#define CROUCH_VIEWHEIGHT	12
-#define	DEAD_VIEWHEIGHT		-16
 //Player movement values
-#define	MIN_WALK_NORMAL		0.7		// can't walk on very steep slopes
-#define	JUMP_VELOCITY		225		// 270
-#define	STEPSIZE			18
+inline constexpr double MIN_WALK_NORMAL = 0.7;		// can't walk on very steep slopes
+inline constexpr int JUMP_VELOCITY = 225;		// 270
+inline constexpr int STEPSIZE = 18;
 
 
 
@@ -133,7 +130,7 @@ enum class pmoveFlags_t
 using enum pmoveFlags_t;
 template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
-#define	MAXTOUCH	32
+inline constexpr int MAXTOUCH = 32;
 typedef struct gentity_s gentity_t;
 typedef struct {
 	// state (in / out)
@@ -174,7 +171,7 @@ void Pmove( pmove_t *pmove );
 #include "qcommon/q_animflags.h"
 
 
-#define SETANIM_BLEND_DEFAULT	100
+inline constexpr int SETANIM_BLEND_DEFAULT = 100;
 
 void PM_SetAnim(pmove_t	*pm,setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags, int blendTime=SETANIM_BLEND_DEFAULT);
 void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,setAnimParts_t type,animNumber_t anim,setAnimFlags_t priority,int *torsoAnimTimer,int *legsAnimTimer,gentity_t *gent,int blendTime=SETANIM_BLEND_DEFAULT);
@@ -285,7 +282,7 @@ enum class powerup_t {
 using enum powerup_t;
 template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 
-#define PW_REMOVE_AT_DEATH (Bit( PW_QUAD )|Bit( PW_BATTLESUIT )|Bit( PW_HASTE )|Bit( PW_CLOAKED )|Bit( PW_UNCLOAKING )|Bit( PW_UNCLOAKING )|Bit( PW_GALAK_SHIELD )|Bit( PW_DISINT_2 )|Bit( PW_INVINCIBLE )|Bit( PW_SEEKER ))
+inline constexpr int PW_REMOVE_AT_DEATH = Bit( PW_QUAD )|Bit( PW_BATTLESUIT )|Bit( PW_HASTE )|Bit( PW_CLOAKED )|Bit( PW_UNCLOAKING )|Bit( PW_UNCLOAKING )|Bit( PW_GALAK_SHIELD )|Bit( PW_DISINT_2 )|Bit( PW_INVINCIBLE )|Bit( PW_SEEKER );
 // entityState_t->event values
 // entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
@@ -295,9 +292,9 @@ template <> inline constexpr bool enableEnumArithmetic<powerup_t> = true;
 // that an identical event started twice in a row can
 // be distinguished.  And off the value with ~EV_EVENT_BITS
 // to retrieve the actual event number
-#define	EV_EVENT_BIT1		0x00000100
-#define	EV_EVENT_BIT2		0x00000200
-#define	EV_EVENT_BITS		(EV_EVENT_BIT1|EV_EVENT_BIT2)
+inline constexpr int EV_EVENT_BIT1 = 0x00000100;
+inline constexpr int EV_EVENT_BIT2 = 0x00000200;
+inline constexpr int EV_EVENT_BITS = EV_EVENT_BIT1|EV_EVENT_BIT2;
 
 enum class entity_event_t {
 	EV_NONE,
@@ -517,41 +514,41 @@ public:
 }; // animation_t
 
 #define MAX_ANIM_FILES	16
-#define MAX_ANIM_EVENTS 300
+inline constexpr int MAX_ANIM_EVENTS = 300;
 
 //size of Anim eventData array...
-#define MAX_RANDOM_ANIM_SOUNDS		8
-#define	AED_ARRAY_SIZE				(MAX_RANDOM_ANIM_SOUNDS+3)
+inline constexpr int MAX_RANDOM_ANIM_SOUNDS = 8;
+inline constexpr int AED_ARRAY_SIZE = MAX_RANDOM_ANIM_SOUNDS+3;
 //indices for AEV_SOUND data
-#define	AED_SOUNDINDEX_START		0
-#define	AED_SOUNDINDEX_END			(MAX_RANDOM_ANIM_SOUNDS-1)
-#define	AED_SOUND_NUMRANDOMSNDS		(MAX_RANDOM_ANIM_SOUNDS)
-#define	AED_SOUND_PROBABILITY		(MAX_RANDOM_ANIM_SOUNDS+1)
+inline constexpr int AED_SOUNDINDEX_START = 0;
+inline constexpr int AED_SOUNDINDEX_END = MAX_RANDOM_ANIM_SOUNDS-1;
+inline constexpr int AED_SOUND_NUMRANDOMSNDS = MAX_RANDOM_ANIM_SOUNDS;
+inline constexpr int AED_SOUND_PROBABILITY = MAX_RANDOM_ANIM_SOUNDS+1;
 //indices for AEV_SOUNDCHAN data
-#define	AED_SOUNDCHANNEL			(MAX_RANDOM_ANIM_SOUNDS+2)
+inline constexpr int AED_SOUNDCHANNEL = MAX_RANDOM_ANIM_SOUNDS+2;
 //indices for AEV_FOOTSTEP data
-#define	AED_FOOTSTEP_TYPE			0
-#define	AED_FOOTSTEP_PROBABILITY	1
+inline constexpr int AED_FOOTSTEP_TYPE = 0;
+inline constexpr int AED_FOOTSTEP_PROBABILITY = 1;
 //indices for AEV_EFFECT data
-#define	AED_EFFECTINDEX				0
-#define	AED_BOLTINDEX				1
-#define	AED_EFFECT_PROBABILITY		2
-#define	AED_MODELINDEX				3
+inline constexpr int AED_EFFECTINDEX = 0;
+inline constexpr int AED_BOLTINDEX = 1;
+inline constexpr int AED_EFFECT_PROBABILITY = 2;
+inline constexpr int AED_MODELINDEX = 3;
 //indices for AEV_FIRE data
-#define	AED_FIRE_ALT				0
-#define	AED_FIRE_PROBABILITY		1
+inline constexpr int AED_FIRE_ALT = 0;
+inline constexpr int AED_FIRE_PROBABILITY = 1;
 //indices for AEV_MOVE data
-#define	AED_MOVE_FWD				0
-#define	AED_MOVE_RT					1
-#define	AED_MOVE_UP					2
+inline constexpr int AED_MOVE_FWD = 0;
+inline constexpr int AED_MOVE_RT = 1;
+inline constexpr int AED_MOVE_UP = 2;
 //indices for AEV_SABER_SWING data
-#define	AED_SABER_SWING_SABERNUM	0
-#define	AED_SABER_SWING_TYPE		1
-#define	AED_SABER_SWING_PROBABILITY	2
+inline constexpr int AED_SABER_SWING_SABERNUM = 0;
+inline constexpr int AED_SABER_SWING_TYPE = 1;
+inline constexpr int AED_SABER_SWING_PROBABILITY = 2;
 //indices for AEV_SABER_SPIN data
-#define	AED_SABER_SPIN_SABERNUM		0
-#define	AED_SABER_SPIN_TYPE			1	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
-#define	AED_SABER_SPIN_PROBABILITY	2
+inline constexpr int AED_SABER_SPIN_SABERNUM = 0;
+inline constexpr int AED_SABER_SPIN_TYPE = 1;	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
+inline constexpr int AED_SABER_SPIN_PROBABILITY = 2;
 
 enum class animEventType_t
 {//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!

@@ -763,7 +763,7 @@ void SV_BotInitBotLib(void);
 
 #ifdef DEDICATED
 
-#define G2_VERT_SPACE_SERVER_SIZE 256
+constexpr int G2_VERT_SPACE_SERVER_SIZE = 256;
 IHeapAllocator *G2VertSpaceServer = nullptr;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 

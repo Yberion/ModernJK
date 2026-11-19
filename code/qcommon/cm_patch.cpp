@@ -100,7 +100,6 @@ typedef struct {
 } cGrid_t;
 
 #define	SUBDIVIDE_DISTANCE	16	//4	// never more than this units away from curve
-#define	PLANE_TRI_EPSILON	0.1
 #define	WRAP_POINT_EPSILON	0.1
 */
 
@@ -372,7 +371,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 }
 
 
-#define	POINT_EPSILON	0.1
+constexpr double POINT_EPSILON = 0.1;
 /*
 ======================
 CM_ComparePoints
@@ -446,8 +445,8 @@ static	patchPlane_t	planes[MAX_PATCH_PLANES];
 //static	facet_t			facets[MAX_FACETS];	// Switched to MAX_FACETS = VV_FIXME, allocate these only during use
 static	facet_t			*facets = nullptr;
 
-#define	NORMAL_EPSILON	0.00015
-#define	DIST_EPSILON	0.0235
+constexpr double NORMAL_EPSILON = 0.00015;
+constexpr double DIST_EPSILON = 0.0235;
 
 int CM_PlaneEqual(patchPlane_t *p, float plane[4], int *flipped) {
 	float invplane[4];
@@ -579,7 +578,7 @@ static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 CM_PointOnPlaneSide
 ==================
 */
-static int CM_PointOnPlaneSide( float *p, int planeNum ) {
+static planeSide_t CM_PointOnPlaneSide( float *p, int planeNum ) {
 	float	*plane;
 	float	d;
 
@@ -740,7 +739,7 @@ static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[CM
 		back = 0;
 
 		for ( l = 0 ; l < numPoints ; l++ ) {
-			int		side;
+			planeSide_t	side;
 
 			side = CM_PointOnPlaneSide( points[l], facet->borderPlanes[k] );
 			if ( side == SIDE_FRONT ) {
@@ -1649,9 +1648,12 @@ POSITION TEST
 =======================================================================
 */
 
-#define	BOX_FRONT	0
-#define	BOX_BACK	1
-#define	BOX_CROSS	2
+enum class boxSide_t {
+	BOX_FRONT,
+	BOX_BACK,
+	BOX_CROSS,
+};
+using enum boxSide_t;
 
 /*
 ====================
@@ -1661,7 +1663,7 @@ Modifies tr->tr if any of the facets effect the trace
 ====================
 */
 bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
-	int			cross[MAX_PATCH_PLANES];
+	boxSide_t	cross[MAX_PATCH_PLANES];
 	const patchPlane_t	*planes;
 	const facet_t	*facet;
 	int			i, j, k;
@@ -1707,7 +1709,7 @@ bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s
 			if ( cross[ k ] == BOX_CROSS ) {
 				continue;
 			}
-			if ( cross[k] ^ facet->borderInward[j] ) {
+			if ( ( cross[k] == BOX_BACK ) != facet->borderInward[j] ) {
 				break;
 			}
 		}

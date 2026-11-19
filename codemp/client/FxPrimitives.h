@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "FxSystem.h"
 
-#define MAX_EFFECTS			1800
+inline constexpr int MAX_EFFECTS = 1800;
 
 // the channels' bits (the flags, fxPrimitiveFlags_t, are in q_shared.h)
-#define FX_ALPHA_SHIFT		0
-#define FX_RGB_SHIFT		4
-#define FX_SIZE_SHIFT		8
-#define FX_LENGTH_SHIFT		12
-#define FX_SIZE2_SHIFT		16
+inline constexpr int FX_ALPHA_SHIFT = 0;
+inline constexpr int FX_RGB_SHIFT = 4;
+inline constexpr int FX_SIZE_SHIFT = 8;
+inline constexpr int FX_LENGTH_SHIFT = 12;
+inline constexpr int FX_SIZE2_SHIFT = 16;
 
 // a channel's transitions, parsed as the generic values (FX_LINEAR ... FX_CLAMP), moved into the channel's bits
 inline fxPrimitiveFlags_t FX_ChannelFlags( fxPrimitiveFlags_t generic, int shift ) {
@@ -510,7 +510,7 @@ public:
 // We're getting pretty low level here, not the kind of thing to abuse considering how much overhead this
 //	adds to a SINGLE triangle or quad....
 //------------------------------
-#define MAX_CPOLY_VERTS	5
+inline constexpr int MAX_CPOLY_VERTS = 5;
 
 class CPoly : public CParticle
 {

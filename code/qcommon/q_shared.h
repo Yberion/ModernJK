@@ -151,7 +151,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, clipHandle_t;
 
-#define NULL_HANDLE ((qhandle_t)0)
+inline constexpr qhandle_t NULL_HANDLE = 0;
 #define NULL_SOUND ((sfxHandle_t)0)
 #define NULL_FX ((fxHandle_t)0)
 #define NULL_SFX ((sfxHandle_t)0)
@@ -173,23 +173,15 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
-#define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
-#define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
-#define	MAX_TOKEN_CHARS		1024	// max length of an individual token
+#include "qcommon/q_limits.h"
 
-#define	MAX_INFO_STRING		1024
-#define	MAX_INFO_KEY		1024
-#define	MAX_INFO_VALUE		1024
 
-#define	BIG_INFO_STRING		8192  // used for system info key only
-#define	BIG_INFO_KEY		  8192
-#define	BIG_INFO_VALUE		8192
 
-#define	MAX_QPATH			64		// max length of a quake game pathname
+inline constexpr int MAX_QPATH = 64;		// max length of a quake game pathname
 #ifdef PATH_MAX
 #define MAX_OSPATH			PATH_MAX
 #else
-#define	MAX_OSPATH			256		// max length of a filesystem pathname
+inline constexpr int MAX_OSPATH = 256;		// max length of a filesystem pathname
 #endif
 
 #define	MAX_NAME_LENGTH		32		// max length of a client name
@@ -207,15 +199,10 @@ using enum cbufExec_t;
 //
 // these aren't needed by any of the VMs.  put in another header?
 //
-#define	MAX_MAP_AREA_BYTES		32		// bit vector of area visibility
 
 // Light Style Constants
 
-#define LS_STYLES_START			0
-#define LS_NUM_STYLES			32
-#define	LS_SWITCH_START			(LS_STYLES_START+LS_NUM_STYLES)
-#define LS_NUM_SWITCH			32
-#define MAX_LIGHT_STYLES		64
+inline constexpr int MAX_LIGHT_STYLES = 64;
 
 // print levels from renderer (FIXME: set up for game / cgame?)
 enum class printParm_t {
@@ -235,26 +222,12 @@ enum class errorParm_t {
 using enum errorParm_t;
 
 // font rendering values used by ui and cgame
-#define PROP_GAP_WIDTH			2 // 3
-#define PROP_SPACE_WIDTH		4
-#define PROP_HEIGHT				16
-
-#define PROP_TINY_SIZE_SCALE	1
-#define PROP_SMALL_SIZE_SCALE	1
-#define PROP_BIG_SIZE_SCALE		1
-#define PROP_GIANT_SIZE_SCALE	2
-
-#define PROP_TINY_HEIGHT		10
-#define PROP_GAP_TINY_WIDTH		1
-#define PROP_SPACE_TINY_WIDTH	3
-
-#define PROP_BIG_HEIGHT			24
-#define PROP_GAP_BIG_WIDTH		3
-#define PROP_SPACE_BIG_WIDTH	6
 
 
-#define BLINK_DIVISOR			600
-#define PULSE_DIVISOR			75
+
+
+
+inline constexpr int BLINK_DIVISOR = 600;
 
 
 #define Com_Memset memset
@@ -265,20 +238,10 @@ using enum errorParm_t;
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
-#define	SCREEN_WIDTH		640
-#define	SCREEN_HEIGHT		480
 
-#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
-#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
 
-#define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	16
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
 
-#define	GIANTCHAR_WIDTH		32
-#define	GIANTCHAR_HEIGHT	48
 
 
 // Player weapons effects
@@ -301,7 +264,7 @@ enum class saberBlockType_t {
 };
 using enum saberBlockType_t;
 
-#define MAX_BATTERIES	2500
+inline constexpr int MAX_BATTERIES = 2500;
 
 #define ENUM2STRING(arg)   { #arg, to_underlying( arg ) }
 
@@ -375,7 +338,6 @@ using enum fsOrigin_t;
 //=============================================
 char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
-#define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
 
 //=============================================
@@ -462,7 +424,6 @@ typedef struct cvar_s {
 	int			hashIndex;
 } cvar_t;
 
-#define	MAX_CVAR_VALUE_STRING	256
 
 typedef int	cvarHandle_t;
 
@@ -498,7 +459,6 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-#define MAX_G2_COLLISIONS 16
 // a trace is returned when a box is swept through the world
 typedef struct trace_s {
 	bool	allsolid;	// if true, plane is not valid
@@ -610,119 +570,106 @@ template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 //
 // per-level limits
 //
-#define	MAX_CLIENTS			1 // 128		// absolute limit
-#define MAX_TERRAINS		1 //32
+inline constexpr int MAX_CLIENTS = 1; // 128		// absolute limit
 
-#define	GENTITYNUM_BITS		10		// don't need to send any more
-#define	MAX_GENTITIES		(1<<GENTITYNUM_BITS)
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values thatare going to be communcated over the net need to
 // also be in this range
-#define	ENTITYNUM_NONE		(MAX_GENTITIES-1)
-#define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
-#define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
 
-#define	MAX_MODELS			256
+inline constexpr int MAX_MODELS = 256;
 
 #ifdef JK2_MODE
-#define MAX_SOUNDS (256)
+inline constexpr int MAX_SOUNDS = 256;
 #else
-#define	MAX_SOUNDS			380
+inline constexpr int MAX_SOUNDS = 380;
 #endif // JK2_MODE
 
-#define MAX_SUB_BSP			32
 
-#define	MAX_SUBMODELS		512		// nine bits
+inline constexpr int MAX_SUBMODELS = 512;		// nine bits
 
-#define MAX_FX				128
+inline constexpr int MAX_FX = 128;
 
 #ifdef JK2_MODE
-#define MAX_WORLD_FX (4)
+inline constexpr int MAX_WORLD_FX = 4;
 #else
-#define MAX_WORLD_FX		66		// was 16 // was 4
+inline constexpr int MAX_WORLD_FX = 66;		// was 16 // was 4
 #endif // JK2_MODE
 
 /*
 Ghoul2 Insert Start
 */
-#define	MAX_CHARSKINS		64		// character skins
+inline constexpr int MAX_CHARSKINS = 64;		// character skins
 /*
 Ghoul2 Insert End
 */
 
 #ifdef JK2_MODE
-#define MAX_CONFIGSTRINGS (1024)
+inline constexpr int MAX_CONFIGSTRINGS = 1024;
 #else
-#define	MAX_CONFIGSTRINGS	1300//1024 //rww - I had to up this for terrains
+inline constexpr int MAX_CONFIGSTRINGS = 1300; //1024 //rww - I had to up this for terrains
 #endif // JK2_MODE
 
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication
-#define	CS_SERVERINFO		0		// an info string with all the serverinfo cvars
-#define	CS_SYSTEMINFO		1		// an info string for server system to client system configuration (timescale, etc)
 
-#define	RESERVED_CONFIGSTRINGS	2	// game can't modify below this, only the system can
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
 //
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
-#define	CS_MUSIC			2
-#define	CS_MESSAGE			3		// from the map worldspawn's message field
-#define	CS_ITEMS			4		// string of 0's and 1's that tell which items are present
-#define CS_AMBIENT_SET		5		// ambient set information for the player
+inline constexpr int CS_MUSIC = 2;
+inline constexpr int CS_MESSAGE = 3;		// from the map worldspawn's message field
+inline constexpr int CS_ITEMS = 4;		// string of 0's and 1's that tell which items are present
+inline constexpr int CS_AMBIENT_SET = 5;		// ambient set information for the player
 
-#define	CS_MODELS			10
+inline constexpr int CS_MODELS = 10;
 
 #ifndef JK2_MODE
-#define	CS_SKYBOXORG		(CS_MODELS+MAX_MODELS)		//rww - skybox info
+inline constexpr int CS_SKYBOXORG = CS_MODELS+MAX_MODELS;		//rww - skybox info
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-#define CS_SOUNDS (CS_MODELS + MAX_MODELS)
+inline constexpr int CS_SOUNDS = CS_MODELS + MAX_MODELS;
 #else
-#define	CS_SOUNDS			(CS_SKYBOXORG+1)
+inline constexpr int CS_SOUNDS = CS_SKYBOXORG+1;
 #endif // JK2_MODE
 
 #ifdef BASE_SAVE_COMPAT
-#define CS_RESERVED1		(CS_SOUNDS+MAX_SOUNDS) // reserved field for base compat from immersion removal
-#define	CS_PLAYERS			(CS_RESERVED1 + 96)
+inline constexpr int CS_RESERVED1 = CS_SOUNDS+MAX_SOUNDS; // reserved field for base compat from immersion removal
+inline constexpr int CS_PLAYERS = CS_RESERVED1 + 96;
 #else
-#define	CS_PLAYERS			(CS_SOUNDS+MAX_SOUNDS)
+inline constexpr int CS_PLAYERS = CS_SOUNDS+MAX_SOUNDS;
 #endif
 
-#define	CS_LIGHT_STYLES		(CS_PLAYERS+MAX_CLIENTS)
+inline constexpr int CS_LIGHT_STYLES = CS_PLAYERS+MAX_CLIENTS;
 
 #ifndef JK2_MODE
-#define CS_TERRAINS			(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
-#define CS_BSP_MODELS		(CS_TERRAINS + MAX_TERRAINS)
+inline constexpr int CS_TERRAINS = CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3);
+inline constexpr int CS_BSP_MODELS = CS_TERRAINS + MAX_TERRAINS;
 #endif // !JK2_MODE
 
 #ifdef JK2_MODE
-#define CS_EFFECTS (CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3))
+inline constexpr int CS_EFFECTS = CS_LIGHT_STYLES + (MAX_LIGHT_STYLES * 3);
 #else
-#define CS_EFFECTS			(CS_BSP_MODELS + MAX_SUB_BSP)//(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
+inline constexpr int CS_EFFECTS = CS_BSP_MODELS + MAX_SUB_BSP; //(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
 #endif // JK2_MODE
 
 /*
 Ghoul2 Insert Start
 */
-#define CS_CHARSKINS 		(CS_EFFECTS + MAX_FX)
+inline constexpr int CS_CHARSKINS = CS_EFFECTS + MAX_FX;
 /*
 Ghoul2 Insert End
 */
-#define CS_DYNAMIC_MUSIC_STATE	(CS_CHARSKINS + MAX_CHARSKINS)
-#define CS_WORLD_FX				(CS_DYNAMIC_MUSIC_STATE + 1)
-#define CS_MAX					(CS_WORLD_FX + MAX_WORLD_FX)
+inline constexpr int CS_DYNAMIC_MUSIC_STATE = CS_CHARSKINS + MAX_CHARSKINS;
+inline constexpr int CS_WORLD_FX = CS_DYNAMIC_MUSIC_STATE + 1;
+inline constexpr int CS_MAX = CS_WORLD_FX + MAX_WORLD_FX;
 
-#if (CS_MAX) > MAX_CONFIGSTRINGS
-#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
-#endif
+static_assert( CS_MAX <= MAX_CONFIGSTRINGS, "overflow: (CS_MAX) > MAX_CONFIGSTRINGS" );
 
-#define	MAX_GAMESTATE_CHARS	16000
 typedef struct {
 	int			stringOffsets[MAX_CONFIGSTRINGS];
 	char		stringData[MAX_GAMESTATE_CHARS];
@@ -783,26 +730,22 @@ using enum saberType_t;
 //=========================================================
 
 // bit field limits
-#define	MAX_STATS				16
 
 // NOTE!!! be careful about altering this because although it's used to define an array size, the entry indexes come from
 //	the typedef'd enum "persEnum_t" in bg_public.h, and there's no compile-tie between the 2 -slc
 //
-#define	MAX_PERSISTANT			16
 
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				32
-#define MAX_AMMO				10
-#define MAX_INVENTORY			15		// See INV_MAX
-#define MAX_SECURITY_KEYS		5
-#define MAX_SECURITY_KEY_MESSSAGE		24
-
-#define	MAX_PS_EVENTS			2		// this must be a power of 2 unless you change some &'s to %'s -ste
+inline constexpr int MAX_WEAPONS = 32;
+inline constexpr int MAX_AMMO = 10;
+inline constexpr int MAX_INVENTORY = 15;		// See INV_MAX
+inline constexpr int MAX_SECURITY_KEYS = 5;
+inline constexpr int MAX_SECURITY_KEY_MESSSAGE = 24;
 
 
-#define MAX_WORLD_COORD		( 64*1024 )
-#define MIN_WORLD_COORD		( -64*1024 )
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+
+inline constexpr int MAX_WORLD_COORD = 64*1024;
+inline constexpr int MIN_WORLD_COORD = -64*1024;
+inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 
 enum class waterHeightLevel_t
 {
@@ -861,7 +804,6 @@ typedef struct saberTrail_s
 	}
 } saberTrail_t;
 
-#define MAX_SABER_TRAIL_SEGS 8
 
 // !!!!!!!!!!!!! loadsave affecting struct !!!!!!!!!!!!!!!
 typedef struct bladeInfo_s
@@ -922,7 +864,7 @@ typedef struct bladeInfo_s
 	}
 } bladeInfo_t;
 
-#define MAX_BLADES 8
+inline constexpr int MAX_BLADES = 8;
 
 enum class saber_styles_t
 {
@@ -1527,7 +1469,7 @@ public:
 		saberInfo_t& dst) const;
 }; // saberInfoRetail_t
 
-#define MAX_SABERS 2	// if this ever changes then update the table "static const save_field_t savefields_gClient[]"!!!!!!!!!!!!
+inline constexpr int MAX_SABERS = 2;	// if this ever changes then update the table "static const save_field_t savefields_gClient[]"!!!!!!!!!!!!
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -1554,6 +1496,7 @@ enum class entity_event_t;	// bg_public.h
 enum class entityType_t;	// bg_public.h
 enum class pmoveFlags_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
 enum class entityFlags_t : uint32_t;	// bg_public.h of each single-player game (code/game, codeJK2/game), each its own
+enum class saberEntityState_t;	// wp_saber.h of each single-player game (code/game, codeJK2/game), each its own
 
 template<typename TSaberInfo>
 class PlayerStateBase
@@ -1801,7 +1744,7 @@ public:
 	int			saberEntityNum;
 	float		saberEntityDist;
 	int			saberThrowTime;
-	int			saberEntityState;
+	saberEntityState_t	saberEntityState;
 	int			saberDamageDebounceTime;
 	int			saberHitWallSoundDebounceTime;
 	saberEventFlags_t			saberEventFlags;
@@ -2256,7 +2199,6 @@ enum class buttonFlags_t
 using enum buttonFlags_t;
 template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
-#define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
 
 
@@ -2322,7 +2264,7 @@ typedef struct usercmd_s {
 //===================================================================
 
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
-#define	SOLID_BMODEL	0xffffff
+inline constexpr int SOLID_BMODEL = 0xffffff;
 
 enum class trType_t {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!!
 	TR_STATIONARY,
@@ -2675,9 +2617,9 @@ const char *GetStringForID( const stringID_table_t *table, int id );
 
 // savegame screenshot size stuff...
 //
-#define SG_SCR_WIDTH			512	//256
-#define SG_SCR_HEIGHT			512	//256
-#define iSG_COMMENT_SIZE		64
+inline constexpr int SG_SCR_WIDTH = 512;	//256
+inline constexpr int SG_SCR_HEIGHT = 512;	//256
+inline constexpr int iSG_COMMENT_SIZE = 64;
 
 #define sCVARNAME_PLAYERSAVE	"playersave"	// used for level-transition, accessed by game and server modules
 
@@ -2704,7 +2646,6 @@ template <> inline constexpr bool enableEnumArithmetic<Eorientations> = true;
 Ghoul2 Insert End
 */
 
-#define MAX_PARSEFILES	16
 typedef struct parseData_s
 {
 	char	fileName[MAX_QPATH];			// Name of current file being read in

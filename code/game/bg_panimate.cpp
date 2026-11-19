@@ -4637,7 +4637,6 @@ float PM_GetTimeScaleMod( gentity_t *gent )
 PM_SetAnimFinal
 -------------------------
 */
-#define G2_DEBUG_TIMING (0)
 void PM_SetAnimFinal(animNumber_t *torsoAnim,animNumber_t *legsAnim,
 					 setAnimParts_t setAnimParts,animNumber_t anim,setAnimFlags_t setAnimFlags,
 					 int *torsoAnimTimer,int *legsAnimTimer,

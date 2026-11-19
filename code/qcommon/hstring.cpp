@@ -22,9 +22,9 @@ CMapPoolLow &GetMapPool()
 	return thePool;
 }
 
-#define MAPBLOCK_SIZE_NODES	(1024)
-#define MAPNODE_FREE		(0xa1)
-#define MAPNODE_INUSE		(0x94)
+constexpr int MAPBLOCK_SIZE_NODES = 1024;
+constexpr int MAPNODE_FREE = 0xa1;
+constexpr int MAPNODE_INUSE = 0x94;
 
 struct SMapNode
 {
@@ -180,13 +180,13 @@ void CMapPoolLow::TouchMem()
 ////////////
 // hString stuff
 ////////////
-#define MAX_HASH (65536*2)
+constexpr int MAX_HASH = 65536*2;
 
 // Max number of strings we can ever deal with.
-#define MAX_HSTRINGS 100000
+constexpr int MAX_HSTRINGS = 100000;
 
 // Size of a string storage block in bytes.
-#define	BLOCK_SIZE	65536
+constexpr int BLOCK_SIZE = 65536;
 
 
 int HashFunction(const char *key)

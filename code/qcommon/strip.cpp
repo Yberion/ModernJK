@@ -34,11 +34,7 @@ cvar_t	*sp_language;
 static cvar_t	*sp_show_strip;
 static cvar_t	*sp_leet;
 
-#define STRIP_VERSION	1
 
-#define MAX_LANGUAGES	10
-#define MAX_STRINGS		256
-#define MAX_ID			255
 
 /*enum
 {
@@ -57,8 +53,6 @@ static cvar_t	*sp_leet;
 };*/
 
 
-#define SP_PACKAGE		0xff00
-#define SP_STRING		0x00ff
 
 #define SP_GET_PACKAGE(x) ( (x & SP_PACKAGE) >> 8 )
 

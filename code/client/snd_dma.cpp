@@ -125,7 +125,7 @@ typedef struct MusicInfo_s
 
 static void S_SetDynamicMusicState( MusicState_e musicState );
 
-#define fDYNAMIC_XFADE_SECONDS (1.0f)
+constexpr float fDYNAMIC_XFADE_SECONDS = 1.0f;
 
 static EnumArray<MusicInfo_t, MusicState_e, eBGRNDTRACK_NUMBEROF>	tMusic_Info = {};
 static bool		bMusic_IsDynamic					= false;
@@ -142,10 +142,10 @@ static char			sInfoOnly_CurrentDynamicMusicSet[64];	// any old reasonable size, 
 // =======================================================================
 
 // only begin attenuating sound volumes when outside the FULLVOLUME range
-#define		SOUND_FULLVOLUME	256
+constexpr int SOUND_FULLVOLUME = 256;
 
-#define		SOUND_ATTENUATE		0.0008f
-#define		VOICE_ATTENUATE		0.004f
+constexpr float SOUND_ATTENUATE = 0.0008f;
+constexpr float VOICE_ATTENUATE = 0.004f;
 
 const float	SOUND_FMAXVOL=0.75;//1.0;
 const int	SOUND_MAXVOL=255;
@@ -166,11 +166,11 @@ int   		s_paintedtime; 		// sample PAIRS
 
 // MAX_SFX may be larger than MAX_SOUNDS because
 // of custom player sounds
-#define		MAX_SFX			10000	//512 * 2
+constexpr int MAX_SFX = 10000;	//512 * 2
 sfx_t		s_knownSfx[MAX_SFX];
 int			s_numSfx;
 
-#define		LOOP_HASH		128
+constexpr int LOOP_HASH = 128;
 static	sfx_t		*sfxHash[LOOP_HASH];
 
 cvar_t *s_allowDynamicMusic;
@@ -207,7 +207,7 @@ typedef struct
 	bool	bRelative;
 } loopSound_t;
 
-#define	MAX_LOOP_SOUNDS		64
+constexpr int MAX_LOOP_SOUNDS = 64;
 int			numLoopSounds;
 loopSound_t	loopSounds[MAX_LOOP_SOUNDS];
 
@@ -2685,7 +2685,7 @@ static bool S_StartBackgroundTrack_Actual( MusicInfo_t *pMusicInfo, bool qbDynam
 		}
 
 		// save name for soundinfo
-		pMusicInfo->s_backgroundInfo.format = FGetLittleShort( pMusicInfo->s_backgroundFile );
+		pMusicInfo->s_backgroundInfo.format = static_cast<wavFormat_t>( FGetLittleShort( pMusicInfo->s_backgroundFile ) );
 		pMusicInfo->s_backgroundInfo.channels = FGetLittleShort( pMusicInfo->s_backgroundFile );
 		pMusicInfo->s_backgroundInfo.rate = FGetLittleLong( pMusicInfo->s_backgroundFile );
 		FGetLittleLong(  pMusicInfo->s_backgroundFile );

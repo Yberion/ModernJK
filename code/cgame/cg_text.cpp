@@ -603,7 +603,7 @@ void CG_ScrollText( const char *str, int iPixelWidth )
 
 // draws using [textcolor_scroll]...
 //
-#define SCROLL_LPM (1/50.0) // 1 line per 50 ms
+constexpr double SCROLL_LPM = 1/50.0; // 1 line per 50 ms
 void CG_DrawScrollText(void)
 {
 	int		i;

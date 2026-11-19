@@ -51,8 +51,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		RAVL_BB_EMPTY_MIN				( 1.234567E30f)					// Empty Value
-#define		RAVL_BB_EMPTY_MAX				(-1.234567E30f)					// Empty Value
+inline constexpr float RAVL_BB_EMPTY_MIN = 1.234567E30f;					// Empty Value
+inline constexpr float RAVL_BB_EMPTY_MAX = -1.234567E30f;					// Empty Value
 
 
 

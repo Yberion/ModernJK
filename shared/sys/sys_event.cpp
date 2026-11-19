@@ -34,8 +34,8 @@ EVENT LOOP
 ========================================================================
 */
 
-#define	MAX_QUED_EVENTS		256
-#define	MASK_QUED_EVENTS	( MAX_QUED_EVENTS - 1 )
+constexpr int MAX_QUED_EVENTS = 256;
+constexpr int MASK_QUED_EVENTS = MAX_QUED_EVENTS - 1;
 
 static sysEvent_t	eventQue[MAX_QUED_EVENTS] = {};
 static sysEvent_t	*lastEvent = nullptr;

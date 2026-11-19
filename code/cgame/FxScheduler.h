@@ -38,10 +38,10 @@ typedef sstring_t fxString_t;
 
 #define FX_FILE_PATH	"effects"
 
-#define FX_MAX_TRACE_DIST			WORLD_SIZE
-#define FX_MAX_EFFECTS				150		// how many effects the system can store
-#define FX_MAX_EFFECT_COMPONENTS	24		// how many primitives an effect can hold, this should be plenty
-#define FX_MAX_PRIM_NAME			32
+inline constexpr int FX_MAX_TRACE_DIST = WORLD_SIZE;
+inline constexpr int FX_MAX_EFFECTS = 150;		// how many effects the system can store
+inline constexpr int FX_MAX_EFFECT_COMPONENTS = 24;		// how many primitives an effect can hold, this should be plenty
+inline constexpr int FX_MAX_PRIM_NAME = 32;
 
 //-----------------------------------------------
 // These are spawn flags for primitiveTemplates
@@ -581,7 +581,7 @@ class PagedPoolAllocator
 //-----------------------------------------------------------------
 // needs to be in global space now (loadsave stuff)
 
-#define MAX_LOOPED_FX 32
+inline constexpr int MAX_LOOPED_FX = 32;
 // We hold a looped effect here
 struct SLoopedEffect
 {

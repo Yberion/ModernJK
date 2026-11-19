@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ai_main.h"
 #include "ghoul2/G2.h"
 
-#define SABER_BOX_SIZE 16.0f
+constexpr float SABER_BOX_SIZE = 16.0f;
 extern bot_state_t *botstates[MAX_CLIENTS];
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold );
 extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
@@ -282,7 +282,7 @@ void WP_ActivateSaber( gentity_t *self )
 	}
 }
 
-#define PROPER_THROWN_VALUE 999 //Ah, well..
+constexpr int PROPER_THROWN_VALUE = 999; //Ah, well..
 
 void SaberUpdateSelf(gentity_t *ent)
 {
@@ -634,8 +634,7 @@ void WP_SaberInitBladeData( gentity_t *ent )
 	saberSpinSound = G_SoundIndex("sound/weapons/saber/saberspin.wav");
 }
 
-#define LOOK_DEFAULT_SPEED	0.15f
-#define LOOK_TALKING_SPEED	0.15f
+constexpr float LOOK_DEFAULT_SPEED = 0.15f;
 
 static QINLINE bool G_CheckLookTarget( gentity_t *ent, vec3_t	lookAngles, float *lookingSpeed )
 {
@@ -1070,10 +1069,10 @@ enum class sabersLockMode_t
 using enum sabersLockMode_t;
 template <> inline constexpr bool enableEnumArithmetic<sabersLockMode_t> = true;
 
-#define LOCK_IDEAL_DIST_TOP 32.0f
-#define LOCK_IDEAL_DIST_CIRCLE 48.0f
+constexpr float LOCK_IDEAL_DIST_TOP = 32.0f;
+constexpr float LOCK_IDEAL_DIST_CIRCLE = 48.0f;
 
-#define SABER_HITDAMAGE 35
+constexpr int SABER_HITDAMAGE = 35;
 void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, bool missileBlock );
 
 animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t defenderSaberStyle, saberLockType_t topOrSide, saberLockType_t lockOrBreakOrSuperBreak, saberLockType_t winOrLose )
@@ -1196,7 +1195,7 @@ animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t 
 }
 
 extern bool BG_CheckIncrementLockAnim( animNumber_t anim, saberLockType_t winOrLose ); //bg_saber.cpp
-#define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
+constexpr float LOCK_IDEAL_DIST_JKA = 46.0f; //all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 
 static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
 {
@@ -2214,7 +2213,7 @@ saberMoveName_t G_KnockawayForParry( saberMoveName_t move )
 	}
 }
 
-#define SABER_NONATTACK_DAMAGE 1
+constexpr int SABER_NONATTACK_DAMAGE = 1;
 
 //For strong attacks, we ramp damage based on the point in the attack animation
 static QINLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg, float multPoint)
@@ -2817,7 +2816,7 @@ FIXME: subdivide the arc into a consistant increment
 FIXME: test the intersection to see if the sabers really did intersect (weren't going in the same direction and/or passed through same point at different times)?
 */
 extern bool tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,vec3_t U0,vec3_t U1,vec3_t U2);
-#define SABER_EXTRAPOLATE_DIST 16.0f
+constexpr float SABER_EXTRAPOLATE_DIST = 16.0f;
 bool WP_SabersIntersect( gentity_t *ent1, int ent1SaberNum, int ent1BladeNum, gentity_t *ent2, bool checkDir )
 {
 	vec3_t	saberBase1, saberTip1, saberBaseNext1, saberTipNext1;
@@ -3472,7 +3471,7 @@ static QINLINE forcePowerLevels_t G_PowerLevelForSaberAnim( gentity_t *ent, int 
 	}
 }
 
-#define MAX_SABER_VICTIMS 16
+constexpr int MAX_SABER_VICTIMS = 16;
 static int		victimEntityNum[MAX_SABER_VICTIMS];
 static bool victimHitEffectDone[MAX_SABER_VICTIMS];
 static float	totalDmg[MAX_SABER_VICTIMS];
@@ -5257,7 +5256,7 @@ blockStuff:
 	return didHit;
 }
 
-#define MAX_SABER_SWING_INC 0.33f
+constexpr float MAX_SABER_SWING_INC = 0.33f;
 void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, vec3_t baseNew, vec3_t endNew, contentsFlags_t clipmask )
 {
 	vec3_t baseOld, endOld;
@@ -5855,12 +5854,11 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	}
 }
 
-#define MIN_SABER_SLICE_DISTANCE 50
+constexpr int MIN_SABER_SLICE_DISTANCE = 50;
 
-#define MIN_SABER_SLICE_RETURN_DISTANCE 30
+constexpr int MIN_SABER_SLICE_RETURN_DISTANCE = 30;
 
-#define SABER_THROWN_HIT_DAMAGE 30
-#define SABER_THROWN_RETURN_HIT_DAMAGE 5
+constexpr int SABER_THROWN_HIT_DAMAGE = 30;
 
 void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace);
 
@@ -6335,7 +6333,7 @@ void MakeDeadSaber(gentity_t *ent)
 	trap->LinkEntity((sharedEntity_t *)saberent);
 }
 
-#define MAX_LEAVE_TIME 20000
+constexpr int MAX_LEAVE_TIME = 20000;
 
 void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
 void saberBackToOwner(gentity_t *saberent);
@@ -6508,7 +6506,7 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 	trap->LinkEntity((sharedEntity_t *)saberent);
 }
 
-#define SABER_RETRIEVE_DELAY 3000 //3 seconds for now. This will leave you nice and open if you lose your saber.
+constexpr int SABER_RETRIEVE_DELAY = 3000; //3 seconds for now. This will leave you nice and open if you lose your saber.
 
 void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
@@ -7131,7 +7129,7 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	saberent->speed = 0;
 }
 
-#define SABER_MAX_THROW_DISTANCE 700
+constexpr int SABER_MAX_THROW_DISTANCE = 700;
 
 void saberFirstThrown(gentity_t *saberent)
 {
@@ -7486,7 +7484,7 @@ void UpdateClientRenderinfo(gentity_t *self, vec3_t renderOrigin, vec3_t renderA
 	}
 }
 
-#define STAFF_KICK_RANGE 16
+constexpr int STAFF_KICK_RANGE = 16;
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex ); //NPC_utils.cpp
 
 extern bool BG_InKnockDown( animNumber_t anim );

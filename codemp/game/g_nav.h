@@ -25,21 +25,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //This file is shared by the exe nav code.
 //If you modify it without recompiling the exe with new code, there could be issues.
 
-#define	WAYPOINT_NONE	-1
+inline constexpr int WAYPOINT_NONE = -1;
 
-#define MAX_STORED_WAYPOINTS	512//???
-#define MAX_WAYPOINT_REACHED_DIST_SQUARED	1024	//32 squared
-#define	MAX_COLL_AVOID_DIST					128
-#define	NAVGOAL_USE_RADIUS					16384	//Used to force the waypoint_navgoals with a manually set radius to actually do a DistanceSquared check, not just bounds overlap
+inline constexpr int MAX_STORED_WAYPOINTS = 512; //???
+inline constexpr int MAX_COLL_AVOID_DIST = 128;
+inline constexpr int NAVGOAL_USE_RADIUS = 16384;	//Used to force the waypoint_navgoals with a manually set radius to actually do a DistanceSquared check, not just bounds overlap
 
-#define	MIN_STOP_DIST 64
-#define	MIN_BLOCKED_SPEECH_TIME	4000
-#define	MIN_DOOR_BLOCK_DIST			16
-#define	MIN_DOOR_BLOCK_DIST_SQR		( MIN_DOOR_BLOCK_DIST * MIN_DOOR_BLOCK_DIST )
-#define	SHOVE_SPEED	200
-#define SHOVE_LIFT	10
-#define	MAX_RADIUS_CHECK	1024
-#define	YAW_ITERATIONS	16
+inline constexpr int MIN_STOP_DIST = 64;
+inline constexpr int MIN_BLOCKED_SPEECH_TIME = 4000;
+inline constexpr int MIN_DOOR_BLOCK_DIST = 16;
+inline constexpr int MIN_DOOR_BLOCK_DIST_SQR = MIN_DOOR_BLOCK_DIST * MIN_DOOR_BLOCK_DIST;
+inline constexpr int SHOVE_SPEED = 200;
+inline constexpr int SHOVE_LIFT = 10;
+inline constexpr int MAX_RADIUS_CHECK = 1024;
+inline constexpr int YAW_ITERATIONS = 16;
 
 
 // Engine has its own copy of these (navigator.h)
@@ -53,9 +52,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	//Node flags: navNodeFlags_t, in g_public.h
 
 	//Miscellaneous defines
-	#define	NODE_NONE		-1
-	#define	NAV_HEADER_ID	'JNV5'
-	#define	NODE_HEADER_ID	'NODE'
+	inline constexpr int NODE_NONE = -1;
 
 	//this stuff is local and can be modified, don't even show it to the engine.
 	extern	bool navCalculatePaths;

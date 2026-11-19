@@ -1522,7 +1522,7 @@ G_Say
 ==================
 */
 
-static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
+static void G_SayTo( gentity_t *ent, gentity_t *other, sayMode_t mode, int color, const char *name, const char *message, char *locMsg )
 {
 	if (!other) {
 		return;
@@ -1572,7 +1572,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 }
 
-void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
+void G_Say( gentity_t *ent, gentity_t *target, sayMode_t mode, const char *chatText ) {
 	int			j;
 	gentity_t	*other;
 	int			color;

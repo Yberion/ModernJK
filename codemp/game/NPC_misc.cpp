@@ -29,13 +29,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 /*
 Debug_Printf
 */
-void Debug_Printf (vmCvar_t *cv, int debugLevel, const char *fmt, ...)
+void Debug_Printf (vmCvar_t *cv, aiDebugLevel_t debugLevel, const char *fmt, ...)
 {
 	const char		*color;
 	va_list		argptr;
 	char		msg[1024];
 
-	if (cv->value < debugLevel)
+	if (cv->value < to_underlying( debugLevel ))
 		return;
 
 	if (debugLevel == DEBUG_LEVEL_DETAIL)
@@ -58,13 +58,13 @@ void Debug_Printf (vmCvar_t *cv, int debugLevel, const char *fmt, ...)
 /*
 Debug_NPCPrintf
 */
-void Debug_NPCPrintf (gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ...)
+void Debug_NPCPrintf (gentity_t *printNPC, vmCvar_t *cv, aiDebugLevel_t debugLevel, char *fmt, ...)
 {
 	int			color;
 	va_list		argptr;
 	char		msg[1024];
 
-	if (cv->value < debugLevel)
+	if (cv->value < to_underlying( debugLevel ))
 	{
 		return;
 	}

@@ -57,7 +57,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BOT_CTF_DEBUG	1
 */
 
-#define BOT_THINK_TIME	0
+constexpr int BOT_THINK_TIME = 0;
 
 //bot states
 bot_state_t	*botstates[MAX_CLIENTS];
@@ -340,12 +340,12 @@ int BotMindTricked(int botClient, int enemyClient)
 	return 0;
 }
 
-int BotGetWeaponRange(bot_state_t *bs);
+botWeaponRange_t BotGetWeaponRange(bot_state_t *bs);
 int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent);
 
 void ExitLevel( void );
 
-void QDECL BotAI_Print(int type, const char *fmt, ...) { return; }
+void QDECL BotAI_Print(printType_t type, const char *fmt, ...) { return; }
 
 bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 
@@ -1573,8 +1573,8 @@ void MoveTowardIdealAngles(bot_state_t *bs)
 #define BOT_STRAFE_AVOIDANCE
 
 #ifdef BOT_STRAFE_AVOIDANCE
-#define STRAFEAROUND_RIGHT			1
-#define STRAFEAROUND_LEFT			2
+constexpr int STRAFEAROUND_RIGHT = 1;
+constexpr int STRAFEAROUND_LEFT = 2;
 
 //do some trace checks for strafing to get an idea of where we
 //are and if we should move to avoid obstacles.
@@ -2286,7 +2286,7 @@ int WaitingForNow(bot_state_t *bs, vec3_t goalpos)
 
 //get an ideal distance for us to be at in relation to our opponent
 //based on our weapon.
-int BotGetWeaponRange(bot_state_t *bs)
+botWeaponRange_t BotGetWeaponRange(bot_state_t *bs)
 {
 	switch (bs->cur_ps.weapon)
 	{
@@ -2325,7 +2325,7 @@ int BotGetWeaponRange(bot_state_t *bs)
 //see if we want to run away from the opponent for whatever reason
 int BotIsAChickenWuss(bot_state_t *bs)
 {
-	int bWRange;
+	botWeaponRange_t bWRange;
 
 	if (Any( gLevelFlags & LEVELFLAG_IMUSTNTRUNAWAY ))
 	{ //The level says we mustn't run away!
@@ -3803,21 +3803,21 @@ void GetIdealDestination(bot_state_t *bs)
 
 	distChange = 0; //keep the compiler from complaining
 
-	tempInt = BotGetWeaponRange(bs);
+	const botWeaponRange_t weaponRange = BotGetWeaponRange(bs);
 
-	if (tempInt == BWEAPONRANGE_MELEE)
+	if (weaponRange == BWEAPONRANGE_MELEE)
 	{
 		distChange = 1;
 	}
-	else if (tempInt == BWEAPONRANGE_SABER)
+	else if (weaponRange == BWEAPONRANGE_SABER)
 	{
 		distChange = 1;
 	}
-	else if (tempInt == BWEAPONRANGE_MID)
+	else if (weaponRange == BWEAPONRANGE_MID)
 	{
 		distChange = 128;
 	}
-	else if (tempInt == BWEAPONRANGE_LONG)
+	else if (weaponRange == BWEAPONRANGE_LONG)
 	{
 		distChange = 300;
 	}
@@ -7644,9 +7644,9 @@ int BotAISetup( int restart ) {
 	//initialize the bot states
 	memset( botstates, 0, sizeof(botstates) );
 
-	if (!trap->BotLibSetup())
+	if (trap->BotLibSetup() != BLERR_NOERROR)
 	{
-		return false; //wts?!
+		return false;
 	}
 
 	return true;

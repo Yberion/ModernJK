@@ -1778,9 +1778,7 @@ TRAIN
 */
 
 
-#define TRAIN_START_ON		1
-#define TRAIN_TOGGLE		2
-#define TRAIN_BLOCK_STOPS	4
+constexpr int TRAIN_BLOCK_STOPS = 4;
 
 /*
 ===============
@@ -2553,8 +2551,8 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	}
 }
 
-#define FUNC_WALL_OFF	1
-#define FUNC_WALL_ANIM	2
+constexpr int FUNC_WALL_OFF = 1;
+constexpr int FUNC_WALL_ANIM = 2;
 
 
 /*QUAKED func_wall (0 .5 .8) ? START_OFF AUTOANIMATE x x x x PLAYER_USE INACTIVE

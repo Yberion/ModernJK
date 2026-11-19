@@ -38,10 +38,7 @@ extern vec4_t textcolor_center;
 extern vec4_t textcolor_scroll;
 
 
-#define	GAMETEXT_X_START	75.0f
-#define	GAMETEXT_X_END		600.0f
 
-#define	MAX_NUM_GAMELINES 4
 
 
 // display text in a supplied box, start at top left and going down by however many pixels I feel like internally,
@@ -597,7 +594,7 @@ void CG_ScrollText( const char *str, int iPixelWidth )
 
 // draws using [textcolor_scroll]...
 //
-#define SCROLL_LPM (1/50.0) // 1 line per 50 ms
+constexpr double SCROLL_LPM = 1/50.0; // 1 line per 50 ms
 void CG_DrawScrollText(void)
 {
 	int		i;

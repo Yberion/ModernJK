@@ -22,29 +22,28 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define ARMOR_EFFECT_TIME	500
+inline constexpr int ARMOR_EFFECT_TIME = 500;
 
 #include "qcommon/q_saberflags.h"
 //saberEntityState
-#define SES_LEAVING		1
-#define SES_HOVERING	1//2
-#define SES_RETURNING	1//3
+inline constexpr int SES_LEAVING = 1;
+inline constexpr int SES_RETURNING = 1; //3
 //This is a hack because ATM the saberEntityState is only non-0 if out or 0 if in, and we
 //at least want NPCs knowing when their saber is out regardless.
 
 
-#define JSF_AMBUSH		16	//ambusher Jedi
+inline constexpr int JSF_AMBUSH = 16;	//ambusher Jedi
 
-#define SABER_RADIUS_STANDARD	3.0f
-#define	SABER_REFLECT_MISSILE_CONE	0.2f
+inline constexpr float SABER_RADIUS_STANDARD = 3.0f;
+inline constexpr float SABER_REFLECT_MISSILE_CONE = 0.2f;
 
-#define	FORCE_POWER_MAX	100
-#define MAX_GRIP_DISTANCE 256
-#define MAX_TRICK_DISTANCE 512
-#define FORCE_JUMP_CHARGE_TIME 6400//3000.0f
-#define GRIP_DRAIN_AMOUNT 30
-#define FORCE_LIGHTNING_RADIUS 300
-#define MAX_DRAIN_DISTANCE 512
+inline constexpr int FORCE_POWER_MAX = 100;
+inline constexpr int MAX_GRIP_DISTANCE = 256;
+inline constexpr int MAX_TRICK_DISTANCE = 512;
+inline constexpr int FORCE_JUMP_CHARGE_TIME = 6400; //3000.0f
+inline constexpr int GRIP_DRAIN_AMOUNT = 30;
+inline constexpr int FORCE_LIGHTNING_RADIUS = 300;
+inline constexpr int MAX_DRAIN_DISTANCE = 512;
 
 enum class forceJump_t
 {
@@ -72,13 +71,13 @@ enum class evasionType_t
 };
 using enum evasionType_t;
 
-#define SABERMINS_X -3.0f//-24.0f
-#define SABERMINS_Y -3.0f//-24.0f
-#define SABERMINS_Z -3.0f//-8.0f
-#define SABERMAXS_X 3.0f//24.0f
-#define SABERMAXS_Y 3.0f//24.0f
-#define SABERMAXS_Z 3.0f//8.0f
-#define	SABER_MIN_THROW_DIST	80.0f
+inline constexpr float SABERMINS_X = -3.0f; //-24.0f
+inline constexpr float SABERMINS_Y = -3.0f; //-24.0f
+inline constexpr float SABERMINS_Z = -3.0f; //-8.0f
+inline constexpr float SABERMAXS_X = 3.0f; //24.0f
+inline constexpr float SABERMAXS_Y = 3.0f; //24.0f
+inline constexpr float SABERMAXS_Z = 3.0f; //8.0f
+inline constexpr float SABER_MIN_THROW_DIST = 80.0f;
 
 extern EnumArray<EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forcePowerNeeded;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;

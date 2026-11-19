@@ -27,16 +27,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //#define FORCEJUMP_INSTANTMETHOD 1
 
-#define MAX_CHAT_BUFFER_SIZE 8192
-#define MAX_CHAT_LINE_SIZE 128
+inline constexpr int MAX_CHAT_BUFFER_SIZE = 8192;
+inline constexpr int MAX_CHAT_LINE_SIZE = 128;
 
-#define TABLE_BRANCH_DISTANCE 32
-#define MAX_NODETABLE_SIZE 16384
+inline constexpr int TABLE_BRANCH_DISTANCE = 32;
+inline constexpr int MAX_NODETABLE_SIZE = 16384;
 
-#define MAX_LOVED_ONES 4
-#define MAX_ATTACHMENT_NAME 64
+inline constexpr int MAX_LOVED_ONES = 4;
+inline constexpr int MAX_ATTACHMENT_NAME = 64;
 
-#define MAX_FORCE_INFO_SIZE 2048
+inline constexpr int MAX_FORCE_INFO_SIZE = 2048;
 
 enum class waypointFlags_t
 {
@@ -73,42 +73,46 @@ enum class botLevelFlags_t
 using enum botLevelFlags_t;
 template <> inline constexpr bool enableEnumFlags<botLevelFlags_t> = true;
 
-#define WP_KEEP_FLAG_DIST			128
+inline constexpr int WP_KEEP_FLAG_DIST = 128;
 
-#define BWEAPONRANGE_MELEE			1
-#define BWEAPONRANGE_MID			2
-#define BWEAPONRANGE_LONG			3
-#define BWEAPONRANGE_SABER			4
+enum class botWeaponRange_t
+{
+	BWEAPONRANGE_MELEE			= 1,
+	BWEAPONRANGE_MID,
+	BWEAPONRANGE_LONG,
+	BWEAPONRANGE_SABER,
+};
+using enum botWeaponRange_t;
 
-#define MELEE_ATTACK_RANGE			256
-#define SABER_ATTACK_RANGE			128
-#define MAX_CHICKENWUSS_TIME		10000 //wait 10 secs between checking which run-away path to take
+inline constexpr int MELEE_ATTACK_RANGE = 256;
+inline constexpr int SABER_ATTACK_RANGE = 128;
+inline constexpr int MAX_CHICKENWUSS_TIME = 10000; //wait 10 secs between checking which run-away path to take
 
-#define BOT_RUN_HEALTH				40
-#define BOT_WPTOUCH_DISTANCE		32
-#define ENEMY_FORGET_MS				10000
+inline constexpr int BOT_RUN_HEALTH = 40;
+inline constexpr int BOT_WPTOUCH_DISTANCE = 32;
+inline constexpr int ENEMY_FORGET_MS = 10000;
 //if our enemy isn't visible within 10000ms (aprx 10sec) then "forget" about him and treat him like every other threat, but still look for
 //more immediate threats while main enemy is not visible
 
-#define BOT_PLANT_DISTANCE			256 //plant if within this radius from the last spotted enemy position
-#define BOT_PLANT_INTERVAL			15000 //only plant once per 15 seconds at max
-#define BOT_PLANT_BLOW_DISTANCE		256 //blow det packs if enemy is within this radius and I am further away than the enemy
+inline constexpr int BOT_PLANT_DISTANCE = 256; //plant if within this radius from the last spotted enemy position
+inline constexpr int BOT_PLANT_INTERVAL = 15000; //only plant once per 15 seconds at max
+inline constexpr int BOT_PLANT_BLOW_DISTANCE = 256; //blow det packs if enemy is within this radius and I am further away than the enemy
 
-#define BOT_MAX_WEAPON_GATHER_TIME	1000 //spend a max of 1 second after spawn issuing orders to gather weapons before attacking enemy base
-#define BOT_MAX_WEAPON_CHASE_TIME	15000 //time to spend gathering the weapon before persuing the enemy base (in case it takes longer than expected)
+inline constexpr int BOT_MAX_WEAPON_GATHER_TIME = 1000; //spend a max of 1 second after spawn issuing orders to gather weapons before attacking enemy base
+inline constexpr int BOT_MAX_WEAPON_CHASE_TIME = 15000; //time to spend gathering the weapon before persuing the enemy base (in case it takes longer than expected)
 
-#define BOT_MAX_WEAPON_CHASE_CTF	5000 //time to spend gathering the weapon before persuing the enemy base (in case it takes longer than expected) [ctf-only]
+inline constexpr int BOT_MAX_WEAPON_CHASE_CTF = 5000; //time to spend gathering the weapon before persuing the enemy base (in case it takes longer than expected) [ctf-only]
 
-#define BOT_MIN_SIEGE_GOAL_SHOOT		1024
-#define BOT_MIN_SIEGE_GOAL_TRAVEL	128
+inline constexpr int BOT_MIN_SIEGE_GOAL_SHOOT = 1024;
+inline constexpr int BOT_MIN_SIEGE_GOAL_TRAVEL = 128;
 
-#define BASE_GUARD_DISTANCE			256 //guarding the flag
-#define BASE_FLAGWAIT_DISTANCE		256 //has the enemy flag and is waiting in his own base for his flag to be returned
-#define BASE_GETENEMYFLAG_DISTANCE	256 //waiting around to get the enemy's flag
+inline constexpr int BASE_GUARD_DISTANCE = 256; //guarding the flag
+inline constexpr int BASE_FLAGWAIT_DISTANCE = 256; //has the enemy flag and is waiting in his own base for his flag to be returned
+inline constexpr int BASE_GETENEMYFLAG_DISTANCE = 256; //waiting around to get the enemy's flag
 
-#define BOT_FLAG_GET_DISTANCE		256
+inline constexpr int BOT_FLAG_GET_DISTANCE = 256;
 
-#define BOT_SABER_THROW_RANGE		800
+inline constexpr int BOT_SABER_THROW_RANGE = 800;
 
 enum class bot_ctf_state_t
 {

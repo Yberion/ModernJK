@@ -83,12 +83,16 @@ enum class moveResultFlags_t
 using enum moveResultFlags_t;
 template <> inline constexpr bool enableEnumFlags<moveResultFlags_t> = true;
 //
-#define MAX_AVOIDREACH					1
-#define MAX_AVOIDSPOTS					32
+inline constexpr int MAX_AVOIDREACH = 1;
+inline constexpr int MAX_AVOIDSPOTS = 32;
 // avoid spot types
-#define AVOID_CLEAR						0		//clear all avoid spots
-#define AVOID_ALWAYS					1		//avoid always
-#define AVOID_DONTBLOCK					2		//never totally block
+enum class avoidSpotType_t
+{
+	AVOID_CLEAR,					//clear all avoid spots
+	AVOID_ALWAYS,					//avoid always
+	AVOID_DONTBLOCK,				//never totally block
+};
+using enum avoidSpotType_t;
 // restult types
 enum class moveResultTypeFlags_t
 {
@@ -136,7 +140,7 @@ typedef struct bot_avoidspot_s
 {
 	vec3_t origin;
 	float radius;
-	int type;
+	avoidSpotType_t type;
 } bot_avoidspot_t;
 
 //resets the whole move state
@@ -162,10 +166,10 @@ void BotFreeMoveState(int handle);
 //initialize movement state before performing any movement
 void BotInitMoveState(int handle, bot_initmove_t *initmove);
 //add a spot to avoid (if type == AVOID_CLEAR all spots are removed)
-void BotAddAvoidSpot(int movestate, vec3_t origin, float radius, int type);
+void BotAddAvoidSpot(int movestate, vec3_t origin, float radius, avoidSpotType_t type);
 //must be called every map change
 void BotSetBrushModelTypes(void);
 //setup movement AI
-int BotSetupMoveAI(void);
+botlibError_t BotSetupMoveAI(void);
 //shutdown movement AI
 void BotShutdownMoveAI(void);

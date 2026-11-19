@@ -51,8 +51,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define MAX_HASH		16384			// How Many Hash
-#define	BLOCK_SIZE		65536			// Size of a string storage block in bytes.
+constexpr int MAX_HASH = 16384;			// How Many Hash
+constexpr int BLOCK_SIZE = 65536;			// Size of a string storage block in bytes.
 
 
 

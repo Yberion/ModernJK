@@ -44,7 +44,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "l_libvar.h"
 #include "l_log.h"
 
-#define MAX_LOGFILENAMESIZE		1024
+constexpr int MAX_LOGFILENAMESIZE = 1024;
 
 typedef struct logfile_s
 {

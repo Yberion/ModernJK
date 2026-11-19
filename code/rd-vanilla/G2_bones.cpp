@@ -1067,7 +1067,7 @@ void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxa
 int G2_GetParentBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv);
 bool G2_WasBoneRendered(CGhoul2Info &ghoul2,int boneNum);
 
-#define MAX_BONES_RAG (256)
+constexpr int MAX_BONES_RAG = 256;
 
 struct SRagEffector
 {
@@ -2671,7 +2671,7 @@ void Rag_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const v
 
 //run advanced physics on each bone indivudually
 //an adaption of my "exphys" custom game physics model
-#define MAX_GRAVITY_PULL 256//512
+constexpr int MAX_GRAVITY_PULL = 256; //512
 
 static inline bool G2_BoneOnGround(const vec3_t org, const vec3_t mins, const vec3_t maxs, const int ignoreNum)
 {

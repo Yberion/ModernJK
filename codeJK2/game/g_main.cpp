@@ -43,7 +43,6 @@ extern CNavigator		navigator;
 static int				navCalcPathTime = 0;
 int		eventClearTime = 0;
 
-#define	STEPSIZE		18
 
 level_locals_t	level;
 game_import_t	gi;

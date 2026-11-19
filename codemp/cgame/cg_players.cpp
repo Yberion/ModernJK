@@ -332,7 +332,7 @@ CLIENT INFO
 
 =============================================================================
 */
-#define MAX_SURF_LIST_SIZE	1024
+constexpr int MAX_SURF_LIST_SIZE = 1024;
 bool CG_ParseSurfsFile( const char *modelName, const char *skinName, char *surfOff, char *surfOn )
 {
 	const char	*text_p;
@@ -2038,7 +2038,7 @@ PLAYER ANIMATION
 =============================================================================
 */
 
-#define	FOOTSTEP_DISTANCE	32
+constexpr int FOOTSTEP_DISTANCE = 32;
 static void _PlayerFootStep( const vec3_t origin,
 								const float orientation,
 								const float radius,
@@ -4653,7 +4653,7 @@ Returns the Z component of the surface being shadowed
   should it return a full plane instead of a Z?
 ===============
 */
-#define	SHADOW_DISTANCE		128
+constexpr int SHADOW_DISTANCE = 128;
 static bool CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	vec3_t		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
 	trace_t		trace;
@@ -4839,7 +4839,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	trap->R_AddPolysToScene( cgs.media.wakeMarkShader, 4, verts, 1 );
 }
 
-#define REFRACT_EFFECT_DURATION		500
+constexpr int REFRACT_EFFECT_DURATION = 500;
 static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 {
 	if (!cent || !cg_renderToTextureFX.integer)
@@ -5115,8 +5115,8 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, team_t
 	trap->R_AddRefEntityToScene( ent );
 }
 
-#define MAX_SHIELD_TIME	2000.0
-#define MIN_SHIELD_TIME	2000.0
+constexpr double MAX_SHIELD_TIME = 2000.0;
+constexpr double MIN_SHIELD_TIME = 2000.0;
 
 
 void CG_PlayerShieldHit(int entitynum, vec3_t dir, int amount)
@@ -5502,8 +5502,8 @@ void CG_GetTagWorldPosition( refEntity_t *model, char *tag, vec3_t pos, matrix3_
 	}
 }
 
-#define	MAX_MARK_FRAGMENTS	128
-#define	MAX_MARK_POINTS		384
+constexpr int MAX_MARK_FRAGMENTS = 128;
+constexpr int MAX_MARK_POINTS = 384;
 extern markPoly_t *CG_AllocMark();
 
 void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
@@ -5781,7 +5781,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t *owner)
 	}
 }
 
-#define CG_MAX_SABER_COMP_TIME 400 //last registered saber entity hit must match within this many ms for the client effect to take place.
+constexpr int CG_MAX_SABER_COMP_TIME = 400; //last registered saber entity hit must match within this many ms for the client effect to take place.
 
 void CG_AddGhoul2Mark(int shader, float size, vec3_t start, vec3_t end, int entnum,
 					  vec3_t entposition, float entangle, void *ghoul2, vec3_t scale, int lifeTime)
@@ -6035,7 +6035,7 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 	}
 }
 
-#define SABER_TRAIL_TIME	40.0f
+constexpr float SABER_TRAIL_TIME = 40.0f;
 
 bool BG_SuperBreakWinAnim( animNumber_t anim );
 
@@ -6580,7 +6580,7 @@ int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int tric
 	return 0;
 }
 
-#define SPEED_TRAIL_DISTANCE 6
+constexpr int SPEED_TRAIL_DISTANCE = 6;
 
 void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader)
 {
@@ -7960,9 +7960,9 @@ void CG_CleanJetpackGhoul2(void)
 	}
 }
 
-#define RARMBIT			(1 << (to_underlying( G2_MODELPART_RARM )-10))
-#define RHANDBIT		(1 << (to_underlying( G2_MODELPART_RHAND )-10))
-#define WAISTBIT		(1 << (to_underlying( G2_MODELPART_WAIST )-10))
+constexpr int RARMBIT = 1 << (to_underlying( G2_MODELPART_RARM )-10);
+constexpr int RHANDBIT = 1 << (to_underlying( G2_MODELPART_RHAND )-10);
+constexpr int WAISTBIT = 1 << (to_underlying( G2_MODELPART_WAIST )-10);
 
 #if 0
 static void CG_VehicleHeatEffect( vec3_t org, centity_t *cent )
@@ -8017,7 +8017,7 @@ static void CG_VehicleHeatEffect( vec3_t org, centity_t *cent )
 #endif
 
 static int lastFlyBySound[MAX_GENTITIES] = {0};
-#define	FLYBYSOUNDTIME 2000
+constexpr int FLYBYSOUNDTIME = 2000;
 int	cg_lastHyperSpaceEffectTime = 0;
 static QINLINE void CG_VehicleEffects(centity_t *cent)
 {

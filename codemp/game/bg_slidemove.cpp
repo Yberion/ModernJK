@@ -65,7 +65,7 @@ extern bgEntity_t *pm_entVeh;
 
 extern void PM_SetPMViewAngle(playerState_t *ps, vec3_t angle, usercmd_t *ucmd);
 
-#define MAX_IMPACT_TURN_ANGLE 45.0f
+constexpr float MAX_IMPACT_TURN_ANGLE = 45.0f;
 void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 {
 	// See if the vehicle has crashed into the ground.
@@ -646,7 +646,7 @@ PM_SlideMove
 Returns true if the velocity was clipped in some way
 ==================
 */
-#define	MAX_CLIP_PLANES	5
+constexpr int MAX_CLIP_PLANES = 5;
 bool	PM_SlideMove( bool gravity ) {
 	int			bumpcount, numbumps;
 	vec3_t		dir;

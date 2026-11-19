@@ -7214,9 +7214,9 @@ bool Kothos_Retreat( void )
 	return true;
 }
 
-#define TWINS_DANGER_DIST_EASY (128.0f*128.0f)
-#define TWINS_DANGER_DIST_MEDIUM (192.0f*192.0f)
-#define TWINS_DANGER_DIST_HARD (256.0f*256.0f)
+constexpr float TWINS_DANGER_DIST_EASY = 128.0f*128.0f;
+constexpr float TWINS_DANGER_DIST_MEDIUM = 192.0f*192.0f;
+constexpr float TWINS_DANGER_DIST_HARD = 256.0f*256.0f;
 float Twins_DangerDist( void )
 {
 	switch ( g_spskill->integer )

@@ -47,7 +47,7 @@ static char homePath[ MAX_OSPATH ] = { 0 };
 
 // Max open file descriptors. Mostly used by pk3 files with
 // MAX_SEARCH_PATHS limit.
-#define MAX_OPEN_FILES	4096
+constexpr int MAX_OPEN_FILES = 4096;
 
 void Sys_PlatformInit( int argc, char *argv[] )
 {
@@ -157,8 +157,6 @@ const char *Sys_GetCurrentUser( void )
 	return p->pw_name;
 }
 
-#define MEM_THRESHOLD 96*1024*1024
-
 /*
 ==================
 Sys_LowPhysicalMemory
@@ -203,7 +201,7 @@ DIRECTORY SCANNING
 ==============================================================
 */
 
-#define MAX_FOUND_FILES 0x1000
+constexpr int MAX_FOUND_FILES = 0x1000;
 
 /*
 ==================

@@ -421,9 +421,9 @@ void CG_InitGlass( void )
 	}
 }
 
-#define TIME_DECAY_SLOW		0.1f
-#define TIME_DECAY_MED		0.04f
-#define TIME_DECAY_FAST		0.009f
+constexpr float TIME_DECAY_SLOW = 0.1f;
+constexpr float TIME_DECAY_MED = 0.04f;
+constexpr float TIME_DECAY_FAST = 0.009f;
 
 void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards )
 {
@@ -1121,9 +1121,7 @@ Adds an explosion to a surface
 -------------------------
 */
 
-#define NUM_SPARKS		12
-#define NUM_PUFFS		1
-#define NUM_EXPLOSIONS	4
+constexpr int NUM_EXPLOSIONS = 4;
 
 void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke )
 {

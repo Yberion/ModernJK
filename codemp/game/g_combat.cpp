@@ -1888,8 +1888,8 @@ G_DeathAlert
 -------------------------
 */
 
-#define	DEATH_ALERT_RADIUS			512
-#define	DEATH_ALERT_SOUND_RADIUS	512
+constexpr int DEATH_ALERT_RADIUS = 512;
+constexpr int DEATH_ALERT_SOUND_RADIUS = 512;
 
 void G_DeathAlert( gentity_t *victim, gentity_t *attacker )
 {//FIXME: with all the other alert stuff, do we really need this?
@@ -4443,7 +4443,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 	if (!targ)
 		return;
 
-	if (targ && targ->damageRedirect)
+	if (targ && targ->damageRedirect != DAMAGEREDIRECT_NONE)
 	{
 		G_Damage(&g_entities[targ->damageRedirectTo], inflictor, attacker, dir, point, damage, dflags, mod);
 		return;

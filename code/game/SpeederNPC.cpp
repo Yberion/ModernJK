@@ -113,8 +113,8 @@ extern int BG_GetTime(void);
 //I would like to keep it this way, so when modifying for SP please keep in
 //mind the bgEntity restrictions imposed. -rww
 
-#define	STRAFERAM_DURATION	8
-#define	STRAFERAM_ANGLE		8
+constexpr int STRAFERAM_DURATION = 8;
+constexpr int STRAFERAM_ANGLE = 8;
 
 
 #ifndef _JK2MP

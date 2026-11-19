@@ -25,29 +25,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "b_public.h"
 
-#define ARMOR_EFFECT_TIME	500
+inline constexpr int ARMOR_EFFECT_TIME = 500;
 
-#define JSF_AMBUSH		16	//ambusher Jedi
+inline constexpr int JSF_AMBUSH = 16;	//ambusher Jedi
 
 #include "qcommon/q_saberflags.h"
-//saberEntityState
-#define SES_LEAVING		1
-#define SES_HOVERING	2
-#define SES_RETURNING	3
+#include "qcommon/q_spsets.h"
 
-#define SABER_EXTRAPOLATE_DIST 16.0f
+inline constexpr float SABER_EXTRAPOLATE_DIST = 16.0f;
 
-#define	SABER_MAX_DIST	400.0f
-#define	SABER_MAX_DIST_SQUARED	(SABER_MAX_DIST*SABER_MAX_DIST)
+inline constexpr float SABER_MAX_DIST = 400.0f;
 
-#define	FORCE_POWER_MAX	100
+inline constexpr int FORCE_POWER_MAX = 100;
 
-#define	SABER_REFLECT_MISSILE_CONE	0.2f
+inline constexpr float SABER_REFLECT_MISSILE_CONE = 0.2f;
 
-#define SABER_RADIUS_STANDARD	3.0f
+inline constexpr float SABER_RADIUS_STANDARD = 3.0f;
 
-#define	SABER_LOCK_TIME			10000
-#define	SABER_LOCK_DELAYED_TIME 9500
+inline constexpr int SABER_LOCK_TIME = 10000;
+inline constexpr int SABER_LOCK_DELAYED_TIME = 9500;
 enum class saberLockResult_t
 {
 	LOCK_VICTORY = 0,//one side won
@@ -96,48 +92,48 @@ enum class direction_t
 };
 using enum direction_t;
 
-#define FORCE_LIGHTSIDE			1
-#define FORCE_DARKSIDE			2
+inline constexpr int FORCE_LIGHTSIDE = 1;
+inline constexpr int FORCE_DARKSIDE = 2;
 
-#define	MAX_FORCE_HEAL_HARD		25
-#define	MAX_FORCE_HEAL_MEDIUM	50
-#define	MAX_FORCE_HEAL_EASY		75
-#define	FORCE_HEAL_INTERVAL	200//FIXME: maybe level 1 is slower or level 2 is faster?
+inline constexpr int MAX_FORCE_HEAL_HARD = 25;
+inline constexpr int MAX_FORCE_HEAL_MEDIUM = 50;
+inline constexpr int MAX_FORCE_HEAL_EASY = 75;
+inline constexpr int FORCE_HEAL_INTERVAL = 200; //FIXME: maybe level 1 is slower or level 2 is faster?
 
-#define	FORCE_GRIP_3_MIN_DIST	128.0f
-#define	FORCE_GRIP_3_MAX_DIST	256.0f
-#define	FORCE_GRIP_DIST			512.0f//FIXME: vary by power level?
-#define	FORCE_GRIP_DIST_SQUARED	(FORCE_GRIP_DIST*FORCE_GRIP_DIST)
+inline constexpr float FORCE_GRIP_3_MIN_DIST = 128.0f;
+inline constexpr float FORCE_GRIP_3_MAX_DIST = 256.0f;
+inline constexpr float FORCE_GRIP_DIST = 512.0f; //FIXME: vary by power level?
+inline constexpr float FORCE_GRIP_DIST_SQUARED = FORCE_GRIP_DIST*FORCE_GRIP_DIST;
 
-#define	FORCE_DRAIN_DIST	64.0f//FIXME: vary by power level?
-#define	FORCE_DRAIN_DIST_SQUARED	(FORCE_DRAIN_DIST*FORCE_DRAIN_DIST)
+inline constexpr float FORCE_DRAIN_DIST = 64.0f; //FIXME: vary by power level?
+inline constexpr float FORCE_DRAIN_DIST_SQUARED = FORCE_DRAIN_DIST*FORCE_DRAIN_DIST;
 
-#define MAX_DRAIN_DISTANCE 512
+inline constexpr int MAX_DRAIN_DISTANCE = 512;
 
-#define MIN_SABERBLADE_DRAW_LENGTH 0.5f
+inline constexpr float MIN_SABERBLADE_DRAW_LENGTH = 0.5f;
 
-#define STAFF_KICK_RANGE 16
+inline constexpr int STAFF_KICK_RANGE = 16;
 
-#define	JUMP_OFF_WALL_SPEED	200.0f
+inline constexpr float JUMP_OFF_WALL_SPEED = 200.0f;
 
-#define	FORCE_LONG_LEAP_SPEED	475.0f//300
+inline constexpr float FORCE_LONG_LEAP_SPEED = 475.0f; //300
 
 
 //#define DUAL_SPIN_PROTECT_POWER	50	//power required to do the dual spin attack
 //#define SINGLE_SPECIAL_POWER	20	//power required to do the single saber special attacks
 
-#define SABER_ALT_ATTACK_POWER		50//75?
-#define SABER_ALT_ATTACK_POWER_LR	10//30?
-#define SABER_ALT_ATTACK_POWER_FB	25//30/50?
+inline constexpr int SABER_ALT_ATTACK_POWER = 50; //75?
+inline constexpr int SABER_ALT_ATTACK_POWER_LR = 10; //30?
+inline constexpr int SABER_ALT_ATTACK_POWER_FB = 25; //30/50?
 
-#define FORCE_LONGJUMP_POWER	20
+inline constexpr int FORCE_LONGJUMP_POWER = 20;
 
-#define WALL_RUN_UP_BACKFLIP_SPEED	-150.0f//was -300.0f
-#define	MAX_WALL_RUN_Z_NORMAL	0.4f//was 0.0f
+inline constexpr float WALL_RUN_UP_BACKFLIP_SPEED = -150.0f; //was -300.0f
+inline constexpr float MAX_WALL_RUN_Z_NORMAL = 0.4f; //was 0.0f
 
-#define	PLAYER_KNOCKDOWN_HOLD_EXTRA_TIME	4000	//player stays down after a knockdown for 4 whole seconds before automatically doing one of the slow get-ups
+inline constexpr int PLAYER_KNOCKDOWN_HOLD_EXTRA_TIME = 4000;	//player stays down after a knockdown for 4 whole seconds before automatically doing one of the slow get-ups
 
-#define MAX_WALL_GRAB_SLOPE	0.2f
+inline constexpr float MAX_WALL_GRAB_SLOPE = 0.2f;
 
 //"Matrix" effect flags
 enum class matrixEffectFlags_t
@@ -155,7 +151,7 @@ enum class matrixEffectFlags_t
 using enum matrixEffectFlags_t;
 template <> inline constexpr bool enableEnumFlags<matrixEffectFlags_t> = true;
 
-#define SABER_PITCH_HACK 90
+inline constexpr int SABER_PITCH_HACK = 90;
 
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
@@ -168,8 +164,8 @@ extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedVa
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
 extern const EnumArray<const char *, saber_colors_t, to_underlying( SABER_PURPLE ) + 1> saberColorStringForColor;
-#define FORCE_SPEED_DURATION 10000.0f
-#define FORCE_RAGE_DURATION 10000.0f
+inline constexpr float FORCE_SPEED_DURATION = 10000.0f;
+inline constexpr float FORCE_RAGE_DURATION = 10000.0f;
 
 inline constexpr contentsFlags_t MASK_FORCE_PUSH = MASK_OPAQUE | CONTENTS_SOLID;
 
@@ -183,9 +179,9 @@ enum class forceJump_t
 };
 using enum forceJump_t;
 
-#define FORCE_JUMP_CHARGE_TIME 1000.0f	//Force jump reaches maximum power in one second
+inline constexpr float FORCE_JUMP_CHARGE_TIME = 1000.0f;	//Force jump reaches maximum power in one second
 
-#define FORCE_POWERS_ROSH_FROM_TWINS (Bit( FP_SPEED )|Bit( FP_GRIP )|Bit( FP_RAGE )|Bit( FP_SABERTHROW ))
+inline constexpr int FORCE_POWERS_ROSH_FROM_TWINS = Bit( FP_SPEED )|Bit( FP_GRIP )|Bit( FP_RAGE )|Bit( FP_SABERTHROW );
 
 extern void WP_InitForcePowers( gentity_t *ent );
 extern forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );

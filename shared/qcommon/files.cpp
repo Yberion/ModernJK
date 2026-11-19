@@ -192,9 +192,9 @@ or configs will never get loaded from disk!
 
 */
 
-#define MAX_ZPATH			256
-#define	MAX_SEARCH_PATHS	4096
-#define MAX_FILEHASH_SIZE	1024
+constexpr int MAX_ZPATH = 256;
+constexpr int MAX_SEARCH_PATHS = 4096;
+constexpr int MAX_FILEHASH_SIZE = 1024;
 
 typedef struct fileInPack_s {
 	char					*name;		// name of the file
@@ -2202,7 +2202,7 @@ DIRECTORY SCANNING FUNCTIONS
 =================================================================================
 */
 
-#define	MAX_FOUND_FILES	0x1000
+constexpr int MAX_FOUND_FILES = 0x1000;
 
 static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
 	int len, at, newdep;

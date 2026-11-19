@@ -1497,7 +1497,7 @@ bool CalculateSection31Award(gentity_t *ent)
 
 #if 0
 
-#define AWARDS_MSG_LENGTH		256
+constexpr int AWARDS_MSG_LENGTH = 256;
 
 void CalculateAwards(gentity_t *ent, char *msg)
 {

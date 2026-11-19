@@ -33,7 +33,7 @@ struct SEffectList
 	int		mKillTime;
 };
 
-#define PI		3.14159f
+constexpr float PI = 3.14159f;
 
 SEffectList		effectList[MAX_EFFECTS];
 SEffectList		*nextValidEffect;

@@ -4,7 +4,6 @@ class CWorldEffectsSystem;
 
 
 
-#define PARTICLE_FLAG_RENDER			0x00000001
 
 struct	SParticle
 {

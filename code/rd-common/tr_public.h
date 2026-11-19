@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ghoul2/G2.h"
 #include "../ghoul2/ghoul2_gore.h"
 
-#define	REF_API_VERSION		18
+inline constexpr int REF_API_VERSION = 18;
 
 typedef struct {
 	void				(QDECL *Printf)						( printParm_t printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));

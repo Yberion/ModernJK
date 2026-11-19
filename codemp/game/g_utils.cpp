@@ -33,7 +33,7 @@ typedef struct shaderRemap_s {
   float timeOffset;
 } shaderRemap_t;
 
-#define MAX_SHADER_REMAPS 128
+constexpr int MAX_SHADER_REMAPS = 128;
 
 int remapCount = 0;
 shaderRemap_t remappedShaders[MAX_SHADER_REMAPS];
@@ -402,7 +402,7 @@ void G_FreeFakeClient(gclient_t **cl)
 }
 
 //allocate a veh object
-#define MAX_VEHICLES_AT_A_TIME		512//128
+constexpr int MAX_VEHICLES_AT_A_TIME = 512; //128
 static Vehicle_t g_vehiclePool[MAX_VEHICLES_AT_A_TIME];
 static bool g_vehiclePoolOccupied[MAX_VEHICLES_AT_A_TIME];
 static bool g_vehiclePoolInit = false;
@@ -525,7 +525,7 @@ G_PickTarget
 Selects a random entity from among the targets
 =============
 */
-#define MAXCHOICES	32
+constexpr int MAXCHOICES = 32;
 
 gentity_t *G_PickTarget (char *targetname)
 {
@@ -876,7 +876,7 @@ bool G_EntitiesFree( void ) {
 	return false;
 }
 
-#define MAX_G2_KILL_QUEUE 256
+constexpr int MAX_G2_KILL_QUEUE = 256;
 
 int gG2KillIndex[MAX_G2_KILL_QUEUE];
 int gG2KillNum = 0;
@@ -1609,7 +1609,7 @@ Try and use an entity in the world, directly ahead of us
 ==============
 */
 
-#define USE_DISTANCE	64.0f
+constexpr float USE_DISTANCE = 64.0f;
 
 extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
 extern bool gSiegeRoundBegun;

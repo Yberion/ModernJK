@@ -627,7 +627,7 @@ real time (about 6 and 7 %, the limits of Counter-Strike 2's clock: surveys/tick
 =================
 */
 
-#define	RESET_TIME	500
+constexpr int RESET_TIME = 500;
 
 // netstats: the interpolation delay since the last netstats
 static struct {

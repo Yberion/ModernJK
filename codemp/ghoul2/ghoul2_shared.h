@@ -35,9 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 struct model_s;
 
 //rww - RAGDOLL_BEGIN
-#define G2T_SV_TIME (0)
-#define G2T_CG_TIME (1)
-#define NUM_G2T_TIME (2)
+inline constexpr int NUM_G2T_TIME = 2;
 
 //rww - RAGDOLL_END
 
@@ -226,7 +224,6 @@ struct SSkinGoreData
 };
 #endif // _SOF2
 
-#define MAX_GHOUL_COUNT_BITS 8 // bits required to send across the MAX_G2_MODELS inside of the networking - this is the only restriction on ghoul models possible per entity
 
 typedef std::vector <surfaceInfo_t> surfaceInfo_v;
 typedef std::vector <boneInfo_t> boneInfo_v;
@@ -339,8 +336,8 @@ public:
 class CGhoul2Info_v;
 
 // collision detection stuff
-#define G2_FRONTFACE 1
-#define	G2_BACKFACE	 0
+inline constexpr int G2_FRONTFACE = 1;
+inline constexpr int G2_BACKFACE = 0;
 
 
 // calling defines for the trace function

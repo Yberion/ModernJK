@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef _G2_GORE
 #include "ghoul2/G2_gore.h"
 
-#define GORE_TAG_UPPER (256)
-#define GORE_TAG_MASK (~255)
+constexpr int GORE_TAG_UPPER = 256;
+constexpr int GORE_TAG_MASK = ~255;
 
 static int CurrentTag=GORE_TAG_UPPER+1;
 static int CurrentTagUpper=GORE_TAG_UPPER;
@@ -57,7 +57,7 @@ static inline void DestroyGoreTexCoordinates(int tag)
 }
 
 //TODO: This needs to be set via a scalability cvar with some reasonable minimum value if pgore is used at all
-#define MAX_GORE_RECORDS (500)
+constexpr int MAX_GORE_RECORDS = 500;
 
 int AllocGoreRecord()
 {
@@ -772,15 +772,15 @@ struct SVertexTemp
 	}
 };
 
-#define MAX_GORE_VERTS (3000)
+constexpr int MAX_GORE_VERTS = 3000;
 static SVertexTemp GoreVerts[MAX_GORE_VERTS];
 static int GoreIndexCopy[MAX_GORE_VERTS];
 static int GoreTouch=1;
 
-#define MAX_GORE_INDECIES (6000)
+constexpr int MAX_GORE_INDECIES = 6000;
 static int GoreIndecies[MAX_GORE_INDECIES];
 
-#define GORE_MARGIN (0.0f)
+constexpr float GORE_MARGIN = 0.0f;
 int	G2API_GetTime(int argTime);
 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
@@ -1061,7 +1061,7 @@ struct SVertexTemp
 	}
 };
 
-#define MAX_GORE_VERTS (3000)
+constexpr int MAX_GORE_VERTS = 3000;
 static SVertexTemp GoreVerts[MAX_GORE_VERTS];
 #endif
 

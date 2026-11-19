@@ -29,10 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ROFF Defines
 //-------------------
-#define ROFF_VERSION		1	// ver # for the (R)otation (O)bject (F)ile (F)ormat
-#define ROFF_VERSION2		2	// ver # for the (R)otation (O)bject (F)ile (F)ormat
-#define MAX_ROFFS			128	// hard coded number of max roffs per level, sigh..
-#define ROFF_SAMPLE_RATE	20	// 10hz
+inline constexpr int ROFF_VERSION = 1;	// ver # for the (R)otation (O)bject (F)ile (F)ormat
+inline constexpr int ROFF_VERSION2 = 2;	// ver # for the (R)otation (O)bject (F)ile (F)ormat
+inline constexpr int MAX_ROFFS = 128;	// hard coded number of max roffs per level, sigh..
 
 
 // ROFF Header file definition

@@ -47,7 +47,7 @@ extern int WP_SaberInitBladeData( gentity_t *ent );
 extern void ST_ClearTimers( gentity_t *ent );
 extern void Jedi_ClearTimers( gentity_t *ent );
 extern void Howler_ClearTimers( gentity_t *self );
-#define	NSF_DROP_TO_FLOOR	16
+constexpr int NSF_DROP_TO_FLOOR = 16;
 
 
 /*
@@ -1383,7 +1383,7 @@ void NPC_DefaultScriptFlags( gentity_t *ent )
 	ent->NPC->scriptFlags = (SCF_CHASE_ENEMIES|SCF_LOOK_FOR_ENEMIES);
 }
 
-#define MAX_SAFESPAWN_ENTS 4
+constexpr int MAX_SAFESPAWN_ENTS = 4;
 
 bool NPC_SafeSpawn( gentity_t *ent, float safeRadius )
 {
@@ -1833,9 +1833,9 @@ NPC_ShySpawn
 -------------------------
 */
 
-#define SHY_THINK_TIME			1000
-#define SHY_SPAWN_DISTANCE		128
-#define SHY_SPAWN_DISTANCE_SQR	( SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE )
+constexpr int SHY_THINK_TIME = 1000;
+constexpr int SHY_SPAWN_DISTANCE = 128;
+constexpr int SHY_SPAWN_DISTANCE_SQR = SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE;
 
 void NPC_ShySpawn( gentity_t *ent )
 {

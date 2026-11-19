@@ -51,7 +51,7 @@ typedef	struct modelHash_s
 
 }modelHash_t;
 
-#define FILE_HASH_SIZE		1024
+constexpr int FILE_HASH_SIZE = 1024;
 modelHash_t 		*mhHashTable[FILE_HASH_SIZE];
 
 

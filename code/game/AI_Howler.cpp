@@ -24,11 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_camera.h"
 
 // These define the working combat range for these suckers
-#define MIN_DISTANCE		54
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 54;
 
-#define MAX_DISTANCE		128
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
+constexpr int MAX_DISTANCE = 128;
+constexpr int MAX_DISTANCE_SQR = MAX_DISTANCE * MAX_DISTANCE;
 
 enum class howlerLocalState_t
 {
@@ -39,8 +38,8 @@ enum class howlerLocalState_t
 };
 using enum howlerLocalState_t;
 
-#define HOWLER_RETREAT_DIST	300.0f
-#define HOWLER_PANIC_HEALTH	10
+constexpr float HOWLER_RETREAT_DIST = 300.0f;
+constexpr int HOWLER_PANIC_HEALTH = 10;
 
 extern void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir );
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex = 0 );

@@ -73,9 +73,9 @@ const float randomchart[256] = {
 	0.3188f, 0.8481f, 0.2356f, 0.6736f, 0.4770f, 0.4560f, 0.6266f, 0.4677f
 };
 
-#define WIND_DAMP_INTERVAL 50
-#define WIND_GUST_TIME 2500.0
-#define WIND_GUST_DECAY (1.0 / WIND_GUST_TIME)
+constexpr int WIND_DAMP_INTERVAL = 50;
+constexpr double WIND_GUST_TIME = 2500.0;
+constexpr double WIND_GUST_DECAY = 1.0 / WIND_GUST_TIME;
 
 int		lastSSUpdateTime = 0;
 float	curWindSpeed=0;
@@ -325,8 +325,8 @@ static void R_SurfaceSpriteFrameUpdate(void)
 // Surface sprite calculation and drawing.
 /////////////////////////////////////////////
 
-#define FADE_RANGE			250.0
-#define WINDPOINT_RADIUS	750.0
+constexpr double FADE_RANGE = 250.0;
+constexpr double WINDPOINT_RADIUS = 750.0;
 
 float SSVertAlpha[SHADER_MAX_VERTEXES];
 float SSVertWindForce[SHADER_MAX_VERTEXES];

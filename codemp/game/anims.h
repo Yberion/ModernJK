@@ -1817,4 +1817,4 @@ enum class animNumber_t //# animNumber_e
 using enum animNumber_t;
 template <> inline constexpr bool enableEnumArithmetic<animNumber_t> = true;
 
-#define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
+inline constexpr int SABER_ANIM_GROUP_SIZE = BOTH_A2_T__B_ - BOTH_A1_T__B_;

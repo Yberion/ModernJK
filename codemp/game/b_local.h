@@ -36,16 +36,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Navigation susbsystem
 //
 
-#define DEBUG_LEVEL_DETAIL	4
-#define DEBUG_LEVEL_INFO	3
-#define DEBUG_LEVEL_WARNING	2
-#define DEBUG_LEVEL_ERROR	1
-#define DEBUG_LEVEL_NONE	0
+#include "qcommon/q_gamesets.h"
 
-#define MAX_GOAL_REACHED_DIST_SQUARED	256//16 squared
-#define MIN_ANGLE_ERROR 0.01f
+inline constexpr float MIN_ANGLE_ERROR = 0.01f;
 
-#define MIN_ROCKET_DIST_SQUARED 16384//128*128
+inline constexpr int MIN_ROCKET_DIST_SQUARED = 16384; //128*128
 //
 // NPC.cpp
 //
@@ -64,8 +59,8 @@ extern float NPC_GetPainChance( gentity_t *self, int damage );
 //
 // NPC_misc.cpp
 //
-extern void Debug_Printf( vmCvar_t *cv, int level, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
-extern void Debug_NPCPrintf( gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ... );
+extern void Debug_Printf( vmCvar_t *cv, aiDebugLevel_t level, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
+extern void Debug_NPCPrintf( gentity_t *printNPC, vmCvar_t *cv, aiDebugLevel_t debugLevel, char *fmt, ... );
 
 //MCG - Begin============================================================
 //NPC_ai variables - shared by NPC.cpp and the following modules
@@ -143,16 +138,14 @@ extern void NPC_ReorderFormation (gentity_t *self);
 extern void NPC_InsertIntoFormation (gentity_t *self);
 extern void NPC_DeleteFromFormation (gentity_t *self);
 
-#define COLLISION_RADIUS 32
-#define NUM_POSITIONS 30
 
 //NPC spawnflags
-#define SFB_RIFLEMAN	2
-#define SFB_PHASER		4
+inline constexpr int SFB_RIFLEMAN = 2;
+inline constexpr int SFB_PHASER = 4;
 
-#define	SFB_CINEMATIC	32
-#define	SFB_NOTSOLID	64
-#define	SFB_STARTINSOLID 128
+inline constexpr int SFB_CINEMATIC = 32;
+inline constexpr int SFB_NOTSOLID = 64;
+inline constexpr int SFB_STARTINSOLID = 128;
 
 //NPC_goal
 extern void SetGoal( gentity_t *goal, float rating );
@@ -167,7 +160,7 @@ extern bool NPC_MoveToGoal( bool tryStraight );
 //NPC_reactions
 
 //NPC_senses
-#define	ALERT_CLEAR_TIME	200
+inline constexpr int ALERT_CLEAR_TIME = 200;
 #include "qcommon/q_npcflags.h"
 extern bool CanSee ( gentity_t *ent );
 extern bool InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV );
@@ -267,7 +260,6 @@ extern bool NPC_ReserveCombatPoint( int combatPointID );
 extern bool NPC_FreeCombatPoint( int combatPointID, bool failed ); //failed = false
 extern bool NPC_SetCombatPoint( int combatPointID );
 
-#define	MAX_COMBAT_POINT_CHECK	32
 
 extern bool NPC_ValidEnemy( gentity_t *ent );
 extern bool NPC_CheckEnemyExt( bool checkAlerts ); //checkAlerts = false

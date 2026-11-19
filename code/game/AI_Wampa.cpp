@@ -24,11 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_navigator.h"
 
 // These define the working combat range for these suckers
-#define MIN_DISTANCE		48
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 48;
 
-#define MAX_DISTANCE		1024
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
+[[maybe_unused]] constexpr int MAX_DISTANCE = 1024;
 
 using enum monsterLocalState_t;
 

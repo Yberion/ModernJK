@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __Q3_REGISTERS__
 #define __Q3_REGISTERS__
 
-#define	MAX_VARIABLES	32
+inline constexpr int MAX_VARIABLES = 32;
 
 #include <string>
 #include <map>

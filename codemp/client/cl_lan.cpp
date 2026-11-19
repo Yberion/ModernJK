@@ -79,7 +79,7 @@ void LAN_SaveServersToCache( ) {
 LAN_ResetPings
 ====================
 */
-void LAN_ResetPings(int source) {
+void LAN_ResetPings(lanSource_t source) {
 	int count,i;
 	serverInfo_t *servers = nullptr;
 	count = 0;
@@ -111,7 +111,7 @@ void LAN_ResetPings(int source) {
 LAN_AddServer
 ====================
 */
-int LAN_AddServer(int source, const char *name, const char *address) {
+int LAN_AddServer(lanSource_t source, const char *name, const char *address) {
 	int max, *count, i;
 	netadr_t adr;
 	serverInfo_t *servers = nullptr;
@@ -184,7 +184,7 @@ int LAN_AddFavAddr( const char *address ) {
 LAN_RemoveServer
 ====================
 */
-void LAN_RemoveServer(int source, const char *addr) {
+void LAN_RemoveServer(lanSource_t source, const char *addr) {
 	int *count, i;
 	serverInfo_t *servers = nullptr;
 	count = nullptr;
@@ -226,7 +226,7 @@ void LAN_RemoveServer(int source, const char *addr) {
 LAN_GetServerCount
 ====================
 */
-int LAN_GetServerCount( int source ) {
+int LAN_GetServerCount( lanSource_t source ) {
 	switch (source) {
 		case AS_LOCAL :
 			return cls.numlocalservers;
@@ -247,7 +247,7 @@ int LAN_GetServerCount( int source ) {
 LAN_GetLocalServerAddressString
 ====================
 */
-void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
+void LAN_GetServerAddressString( lanSource_t source, int n, char *buf, int buflen ) {
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -277,7 +277,7 @@ void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
 LAN_GetServerInfo
 ====================
 */
-void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
+void LAN_GetServerInfo( lanSource_t source, int n, char *buf, int buflen ) {
 	char info[MAX_STRING_CHARS];
 	serverInfo_t *server = nullptr;
 	info[0] = '\0';
@@ -333,7 +333,7 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 LAN_GetServerPing
 ====================
 */
-int LAN_GetServerPing( int source, int n ) {
+int LAN_GetServerPing( lanSource_t source, int n ) {
 	serverInfo_t *server = nullptr;
 	switch (source) {
 		case AS_LOCAL :
@@ -364,7 +364,7 @@ int LAN_GetServerPing( int source, int n ) {
 LAN_GetServerPtr
 ====================
 */
-static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
+static serverInfo_t *LAN_GetServerPtr( lanSource_t source, int n ) {
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -391,7 +391,7 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 LAN_GetServerState
 ====================
 */
-lanServerState_t LAN_GetServerState( int source, int n ) {
+lanServerState_t LAN_GetServerState( lanSource_t source, int n ) {
 	const serverInfo_t *server = LAN_GetServerPtr( source, n );
 	return server ? server->state : LANSERVER_NOT_ASKED;
 }
@@ -401,7 +401,7 @@ lanServerState_t LAN_GetServerState( int source, int n ) {
 LAN_CompareServers
 ====================
 */
-int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
+int LAN_CompareServers( lanSource_t source, serverSortKey_t sortKey, int sortDir, int s1, int s2 ) {
 	int res;
 	serverInfo_t *server1, *server2;
 
@@ -506,7 +506,7 @@ void LAN_GetPingInfo( int n, char *buf, int buflen ) {
 LAN_MarkServerVisible
 ====================
 */
-void LAN_MarkServerVisible(int source, int n, bool visible ) {
+void LAN_MarkServerVisible(lanSource_t source, int n, bool visible ) {
 	if (n == -1) {
 		int count = MAX_OTHER_SERVERS;
 		serverInfo_t *server = nullptr;
@@ -557,7 +557,7 @@ void LAN_MarkServerVisible(int source, int n, bool visible ) {
 LAN_ServerIsVisible
 =======================
 */
-int LAN_ServerIsVisible(int source, int n ) {
+int LAN_ServerIsVisible(lanSource_t source, int n ) {
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -584,7 +584,7 @@ int LAN_ServerIsVisible(int source, int n ) {
 LAN_UpdateVisiblePings
 =======================
 */
-bool LAN_UpdateVisiblePings(int source ) {
+bool LAN_UpdateVisiblePings(lanSource_t source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 

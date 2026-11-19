@@ -89,11 +89,9 @@ extern vec3_t		playerMaxs;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		NAV_VERSION						1.3f
-#define		NEIGHBORING_DIST				200.0f
-#define		SAFE_NEIGHBORINGPOINT_DIST		400.0f
-#define		SAFE_AT_NAV_DIST_SQ				6400.0f			//80*80
-#define		SAFE_GOTO_DIST_SQ				19600.0f		//140*140
+constexpr float NAV_VERSION = 1.3f;
+constexpr float NEIGHBORING_DIST = 200.0f;
+constexpr float SAFE_NEIGHBORINGPOINT_DIST = 400.0f;
 
 namespace NAV
 {

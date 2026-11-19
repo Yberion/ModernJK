@@ -32,7 +32,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void CG_LightningBolt( centity_t *cent, vec3_t origin );
 
-#define	PHASER_HOLDFRAME	2
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight,
 								const char *psText, int iFontHandle, float fScale,
@@ -1711,7 +1710,7 @@ CG_DrawDataPadIconBackground
 Draw the proper background graphic for the icons being displayed on the datapad
 ===================
 */
-void CG_DrawDataPadIconBackground(const int backgroundType)
+void CG_DrawDataPadIconBackground(const iconBackground_t backgroundType)
 {
 //	const int		graphicXPos = 40;
 //	const int		graphicYPos = 340;

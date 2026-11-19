@@ -201,7 +201,7 @@ int AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int g
 		numaltroutegoals++;
 		//
 #ifdef ALTROUTE_DEBUG
-		AAS_ShowAreaPolygons(bestareanum, 1, true);
+		AAS_ShowAreaPolygons(bestareanum, LINECOLOR_RED, true);
 #endif
 		//don't return more than the maximum alternative route goals
 		if (numaltroutegoals >= maxaltroutegoals) break;

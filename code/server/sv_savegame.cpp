@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include "../server/exe_headers.h"
 
-#define JPEG_IMAGE_QUALITY 95
+[[maybe_unused]] constexpr int JPEG_IMAGE_QUALITY = 95;
 
 //#define USE_LAST_SAVE_FROM_THIS_MAP	// enable this if you want to use the last explicity-loaded savegame from this map
 				 						//	when respawning after dying, else it'll just load "auto" regardless
@@ -53,9 +53,9 @@ SavedGameJustLoaded_e eSavedGameJustLoaded = eNO;
 char sLastSaveFileLoaded[MAX_QPATH]={0};
 
 #ifdef JK2_MODE
-#define iSG_MAPCMD_SIZE (MAX_TOKEN_CHARS)
+constexpr int iSG_MAPCMD_SIZE = MAX_TOKEN_CHARS;
 #else
-#define iSG_MAPCMD_SIZE (MAX_QPATH)
+constexpr int iSG_MAPCMD_SIZE = MAX_QPATH;
 #endif // JK2_MODE
 
 static char *SG_GetSaveGameMapName(const char *psPathlessBaseName);

@@ -35,7 +35,7 @@ using enum variableType_t;
 
 #if defined( __cplusplus ) && !defined( _GAME )	// the interpreter's own part, the engine's; the game module uses the part above
 
-#define	MAX_VARIABLES	32
+inline constexpr int MAX_VARIABLES = 32;
 
 typedef std::map < std::string, std::string >		varString_m;
 typedef std::map < std::string, float >		varFloat_m;

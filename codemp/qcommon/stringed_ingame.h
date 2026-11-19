@@ -30,9 +30,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // alter these to suit your own game...
 //
 #define SE_BOOL					bool
-#define SE_TRUE					true
-#define SE_FALSE				false
-#define	iSE_MAX_FILENAME_LENGTH	MAX_QPATH
+inline constexpr bool SE_TRUE = true;
+inline constexpr bool SE_FALSE = false;
+inline constexpr int iSE_MAX_FILENAME_LENGTH = MAX_QPATH;
 #define sSE_STRINGS_DIR			"strings"
 #define sSE_DEBUGSTR_PREFIX		"["		// any string you want prefixing onto the debug versions of strings (to spot hardwired english etc)
 #define sSE_DEBUGSTR_SUFFIX		"]"		// ""
@@ -41,7 +41,7 @@ extern cvar_t	*se_language;
 
 // some needed text-equates, do not alter these under any circumstances !!!! (unless you're me. Which you're not)
 //
-#define iSE_VERSION					1
+#include "qcommon/q_limits.h"
 #define sSE_KEYWORD_VERSION			"VERSION"
 #define sSE_KEYWORD_CONFIG			"CONFIG"
 #define sSE_KEYWORD_FILENOTES		"FILENOTES"

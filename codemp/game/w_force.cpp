@@ -47,7 +47,6 @@ int		absorbLoopSound		= 0;
 int		seeLoopSound		= 0;
 int		ysalamiriLoopSound	= 0;
 
-#define FORCE_VELOCITY_DAMAGE 0
 
 int ForceShootDrain( gentity_t *self );
 
@@ -4040,7 +4039,7 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 	}
 }
 
-#define FORCE_DEBOUNCE_TIME 50 // sv_fps 20 = 50msec frametime, basejka balance/timing
+constexpr int FORCE_DEBOUNCE_TIME = 50; // sv_fps 20 = 50msec frametime, basejka balance/timing
 
 static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd_t *cmd )
 {

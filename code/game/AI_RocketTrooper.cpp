@@ -27,14 +27,14 @@ extern void NPC_BSST_Patrol( void );
 extern void RT_FlyStart( gentity_t *self );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 
-#define VELOCITY_DECAY		0.7f
+constexpr float VELOCITY_DECAY = 0.7f;
 
-#define RT_FLYING_STRAFE_VEL	60
-#define RT_FLYING_STRAFE_DIS	200
-#define RT_FLYING_UPWARD_PUSH	150
+constexpr int RT_FLYING_STRAFE_VEL = 60;
+constexpr int RT_FLYING_STRAFE_DIS = 200;
+constexpr int RT_FLYING_UPWARD_PUSH = 150;
 
-#define RT_FLYING_FORWARD_BASE_SPEED	50
-#define RT_FLYING_FORWARD_MULTIPLIER	10
+constexpr int RT_FLYING_FORWARD_BASE_SPEED = 50;
+constexpr int RT_FLYING_FORWARD_MULTIPLIER = 10;
 
 void RT_Precache( void )
 {

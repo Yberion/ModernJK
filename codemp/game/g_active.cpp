@@ -2145,8 +2145,8 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.eFlags &= ~EF_JETPACK_FLAMING;
 	}
 
-#define	SLOWDOWN_DIST	128.0f
-#define	MIN_NPC_SPEED	16.0f
+constexpr float SLOWDOWN_DIST = 128.0f;
+constexpr float MIN_NPC_SPEED = 16.0f;
 
 	if (client->bodyGrabIndex != ENTITYNUM_NONE)
 	{

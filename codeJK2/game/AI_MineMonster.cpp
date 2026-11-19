@@ -26,11 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
 // These define the working combat range for these suckers
-#define MIN_DISTANCE		54
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 54;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
-#define MAX_DISTANCE		128
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
+constexpr int MAX_DISTANCE = 128;
 
 using enum monsterLocalState_t;
 

@@ -40,7 +40,7 @@ CG_ParseScores
 
 =================
 */
-#define SCORE_OFFSET (14)
+constexpr int SCORE_OFFSET = 14;
 static void CG_ParseScores( void ) {
 	int i, powerups, readScores;
 
@@ -93,7 +93,7 @@ CG_ParseTeamInfo
 
 =================
 */
-#define TEAMINFO_OFFSET (6)
+constexpr int TEAMINFO_OFFSET = 6;
 static void CG_ParseTeamInfo( void ) {
 	int i, client;
 

@@ -885,7 +885,7 @@ float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV
 	return ( ( vFOV - delta ) / vFOV );
 }
 
-#define MAX_INTEREST_DIST	( 256 * 256 )
+constexpr int MAX_INTEREST_DIST = 256 * 256;
 /*
 -------------------------
 NPC_FindLocalInterestPoint

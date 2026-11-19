@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shlobj.h>
 #include <windows.h>
 
-#define MEM_THRESHOLD (128*1024*1024)
+constexpr int MEM_THRESHOLD = 128*1024*1024;
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
@@ -298,7 +298,7 @@ DIRECTORY SCANNING
 ==============================================================
 */
 
-#define	MAX_FOUND_FILES	0x1000
+constexpr int MAX_FOUND_FILES = 0x1000;
 
 void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char *filter, char **psList, int *numfiles ) {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
@@ -542,7 +542,7 @@ Platform-specific initialization
 
 // Max open file descriptors. Mostly used by pk3 files with
 // MAX_SEARCH_PATHS limit.
-#define MAX_OPEN_FILES	4096
+constexpr int MAX_OPEN_FILES = 4096;
 
 void Sys_PlatformInit( int argc, char *argv[] ) {
 	TIMECAPS ptc;

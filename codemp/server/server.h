@@ -31,10 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //=============================================================================
 
-#define	PERS_SCORE				0		// !!! MUST NOT CHANGE, SERVER AND
-										// GAME BOTH REFERENCE !!!
-
-#define	MAX_ENT_CLUSTERS	16
+#include "qcommon/q_limits.h"
 
 typedef struct svEntity_s {
 	struct worldSector_s *worldSector;
@@ -113,14 +110,14 @@ typedef struct clientSnapshot_s {
 
 // the snapshots' entity states: SV_SNAPSHOT_TICKS copies of each of the MAX_GENTITIES entities (69.7 MB at 128, of
 // which only the copies written are memory in use); a power of two, so that an entity's version count may wrap
-#define	SV_SNAPSHOT_TICKS		PACKET_BACKUP
-#define	SV_SNAPSHOT_ENTITIES	( SV_SNAPSHOT_TICKS * MAX_GENTITIES )
-#define	SV_INPUT_REPEAT_MSEC	250	// a player whose commands stop coming has its last one run again this long, then
+inline constexpr int SV_SNAPSHOT_TICKS = PACKET_BACKUP;
+inline constexpr int SV_SNAPSHOT_ENTITIES = SV_SNAPSHOT_TICKS * MAX_GENTITIES;
+inline constexpr int SV_INPUT_REPEAT_MSEC = 250;	// a player whose commands stop coming has its last one run again this long, then
 									// empty ones (g_forceClientUpdateRate's default, removed)
-#define	SV_INPUT_AHEAD_MSEC		1000	// a command dated further ahead of the server's clock is not kept
-#define SV_INPUT_BUFFER	256		// user commands a client may have received and not yet run (plan step 14: they run in the
+inline constexpr int SV_INPUT_AHEAD_MSEC = 1000;	// a command dated further ahead of the server's clock is not kept
+inline constexpr int SV_INPUT_BUFFER = 256;		// user commands a client may have received and not yet run (plan step 14: they run in the
 								// tick of their time); a power of two
-#define SV_PING_WINDOW	256		// messages the ping is measured over: the window of the client's 8-bit acknowledge
+inline constexpr int SV_PING_WINDOW = 256;		// messages the ping is measured over: the window of the client's 8-bit acknowledge
 								// (eng::kAckWindow), 2.56 s at the tick, valid up to that round trip (plan step 14; the
 								// 32 frames were 320 ms at 100 Hz, 1.6 s at 20 Hz)
 
@@ -297,7 +294,7 @@ typedef struct serverStatic_s {
 	bool	gameStarted;				// gvm is loaded
 } serverStatic_t;
 
-#define SERVER_MAXBANS	1024
+inline constexpr int SERVER_MAXBANS = 1024;
 // Structure for managing bans
 typedef struct serverBan_s {
 	netadr_t ip;
@@ -317,13 +314,13 @@ extern	refexport_t		*re;					// interface to refresh .dll
 
 // Network settings of the server, fixed rather than set by cvars (plan step 11; the shared ones are in qcommon.h): a
 // snapshot every server frame, the rate only paces messages larger than a frame allows (a gamestate, a download block)
-#define SV_CLIENT_RATE			200000	// bytes per second to each client: a single message (counted at most 1,500
+inline constexpr int SV_CLIENT_RATE = 200000;	// bytes per second to each client: a single message (counted at most 1,500
 										// bytes, SV_RateMsec: 7 ms) never lasts a tick, so none delays the next snapshot (plan step 14)
-#define SV_PACKET_RATE			( MAX_PACKET_RATE + MAX_PACKET_RATE / 10 )	// client packets per second decoded: 10 % above what
+inline constexpr int SV_PACKET_RATE = MAX_PACKET_RATE + MAX_PACKET_RATE / 10;	// client packets per second decoded: 10 % above what
 														// the client sends, whose clock may run slightly faster than the server's
-#define SV_PACKET_BURST			100		// packets a client may send above SV_PACKET_RATE at once (one second of them)
-#define SV_ZOMBIE_TIME			2		// seconds to sink messages after a disconnection
-#define SV_MAX_CATCHUP_TICKS	25		// ticks run at once after a stall (250 ms); the rest of the stall is dropped and the
+inline constexpr int SV_PACKET_BURST = 100;		// packets a client may send above SV_PACKET_RATE at once (one second of them)
+inline constexpr int SV_ZOMBIE_TIME = 2;		// seconds to sink messages after a disconnection
+inline constexpr int SV_MAX_CATCHUP_TICKS = 25;		// ticks run at once after a stall (250 ms); the rest of the stall is dropped and the
 										// clients follow the server's clock (plan step 14; Bevy and "Fix Your Timestep!" 250 ms)
 
 extern	cvar_t	*sv_rconPassword;

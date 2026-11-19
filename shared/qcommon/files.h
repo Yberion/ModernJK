@@ -49,9 +49,9 @@ enum class fsRefFlags_t
 using enum fsRefFlags_t;
 template <> inline constexpr bool enableEnumFlags<fsRefFlags_t> = true;
 // number of id paks that will never be autodownloaded from base
-#define NUM_ID_PAKS		9
+inline constexpr int NUM_ID_PAKS = 9;
 
-#define	MAX_FILE_HANDLES	64
+inline constexpr int MAX_FILE_HANDLES = 64;
 
 bool FS_Initialized();
 

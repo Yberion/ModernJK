@@ -63,3 +63,43 @@ enum class surfaceFlags_t : uint32_t
 };
 using enum surfaceFlags_t;
 template <> inline constexpr bool enableEnumFlags<surfaceFlags_t> = true;
+
+// the values are written in the maps (a surface's flags in the BSP files)
+enum class surfaceMaterial_t
+{
+	MATERIAL_NONE = 0,			// for when the artist hasn't set anything up =)
+	MATERIAL_SOLIDWOOD = 1,		// freshly cut timber
+	MATERIAL_HOLLOWWOOD = 2,	// termite infested creaky wood
+	MATERIAL_SOLIDMETAL = 3,	// solid girders
+	MATERIAL_HOLLOWMETAL = 4,	// hollow metal machines
+	MATERIAL_SHORTGRASS = 5,	// manicured lawn
+	MATERIAL_LONGGRASS = 6,		// long jungle grass
+	MATERIAL_DIRT = 7,			// hard mud
+	MATERIAL_SAND = 8,			// sandy beach
+	MATERIAL_GRAVEL = 9,		// lots of small stones
+	MATERIAL_GLASS = 10,		//
+	MATERIAL_CONCRETE = 11,		// hardened concrete pavement
+	MATERIAL_MARBLE = 12,		// marble floors
+	MATERIAL_WATER = 13,		// light covering of water on a surface
+	MATERIAL_SNOW = 14,			// freshly laid snow
+	MATERIAL_ICE = 15,			// packed snow/solid ice
+	MATERIAL_FLESH = 16,		// hung meat, corpses in the world
+	MATERIAL_MUD = 17,			// wet soil
+	MATERIAL_BPGLASS = 18,		// bulletproof glass
+	MATERIAL_DRYLEAVES = 19,	// dried up leaves on the floor
+	MATERIAL_GREENLEAVES = 20,	// fresh leaves still on a tree
+	MATERIAL_FABRIC = 21,		// Cotton sheets
+	MATERIAL_CANVAS = 22,		// tent material
+	MATERIAL_ROCK = 23,			//
+	MATERIAL_RUBBER = 24,		// hard tire like rubber
+	MATERIAL_PLASTIC = 25,		//
+	MATERIAL_TILES = 26,		// tiled floor
+	MATERIAL_CARPET = 27,		// lush carpet
+	MATERIAL_PLASTER = 28,		// drywall style plaster
+	MATERIAL_SHATTERGLASS = 29,	// glass with the Crisis Zone style shattering
+	MATERIAL_ARMOR = 30,		// body armor
+	MATERIAL_COMPUTER = 31,		// computers/electronic equipment
+	MATERIAL_LAST = 32,			// number of materials
+};
+using enum surfaceMaterial_t;
+template <> inline constexpr bool enableEnumArithmetic<surfaceMaterial_t> = true;

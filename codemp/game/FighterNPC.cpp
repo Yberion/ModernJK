@@ -290,7 +290,7 @@ bool FighterSuspended( Vehicle_t *pVeh, playerState_t *parentPS )
 //as a gentity, but the MP-compatible access restrictions are based
 //on the bgEntity structure in the MP codebase) -rww
 // ProcessMoveCommands the Vehicle.
-#define FIGHTER_MIN_TAKEOFF_FRACTION 0.7f
+constexpr float FIGHTER_MIN_TAKEOFF_FRACTION = 0.7f;
 static void ProcessMoveCommands( Vehicle_t *pVeh )
 {
 	/************************************************************************************/
@@ -990,8 +990,8 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 
 #ifdef VEH_CONTROL_SCHEME_4
 
-#define FIGHTER_TURNING_MULTIPLIER 0.8f//was 1.6f //magic number hackery
-#define FIGHTER_TURNING_DEADZONE 0.25f//no turning if offset is this much
+constexpr float FIGHTER_TURNING_MULTIPLIER = 0.8f; //was 1.6f //magic number hackery
+constexpr float FIGHTER_TURNING_DEADZONE = 0.25f; //no turning if offset is this much
 void FighterRollAdjust(Vehicle_t *pVeh, playerState_t *riderPS, playerState_t *parentPS)
 {
 /*

@@ -157,7 +157,6 @@ set(JK2SPGameGameFiles
 	"${JK2SPDir}/game/objectives.h"
 	"${JK2SPDir}/game/say.h"
 	"${JK2SPDir}/game/statindex.h"
-	"${JK2SPDir}/game/surfaceflags.h"
 	"${JK2SPDir}/game/teams.h"
 	"${JK2SPDir}/game/weapons.h"
 	"${JK2SPDir}/game/w_local.h"

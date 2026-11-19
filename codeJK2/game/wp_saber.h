@@ -23,27 +23,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef __WP_SABER_H
 #define __WP_SABER_H
 
-#define ARMOR_EFFECT_TIME	500
+inline constexpr int ARMOR_EFFECT_TIME = 500;
 
-#define JSF_AMBUSH		16	//ambusher Jedi
+inline constexpr int JSF_AMBUSH = 16;	//ambusher Jedi
 
 #include "qcommon/q_saberflags.h"
-//saberEntityState
-#define SES_LEAVING		1
-#define SES_HOVERING	2
-#define SES_RETURNING	3
+#include "qcommon/q_spsets.h"
 
-#define SABER_EXTRAPOLATE_DIST 16.0f
+inline constexpr float SABER_EXTRAPOLATE_DIST = 16.0f;
 
-#define	SABER_MAX_DIST	400.0f
-#define	SABER_MAX_DIST_SQUARED	(SABER_MAX_DIST*SABER_MAX_DIST)
+inline constexpr float SABER_MAX_DIST = 400.0f;
 
-#define	FORCE_POWER_MAX	100
+inline constexpr int FORCE_POWER_MAX = 100;
 
-#define	SABER_REFLECT_MISSILE_CONE	0.2f
+inline constexpr float SABER_REFLECT_MISSILE_CONE = 0.2f;
 
-#define	SABER_LOCK_TIME			10000
-#define	SABER_LOCK_DELAYED_TIME 9500
+inline constexpr int SABER_LOCK_TIME = 10000;
+inline constexpr int SABER_LOCK_DELAYED_TIME = 9500;
 enum class saberLockResult_t
 {
 	LOCK_VICTORY = 0,//one side won
@@ -52,11 +48,11 @@ enum class saberLockResult_t
 };
 using enum saberLockResult_t;
 
-#define	MAX_FORCE_HEAL	25
-#define	FORCE_HEAL_INTERVAL	200//FIXME: maybe level 1 is slower or level 2 is faster?
+inline constexpr int MAX_FORCE_HEAL = 25;
+inline constexpr int FORCE_HEAL_INTERVAL = 200; //FIXME: maybe level 1 is slower or level 2 is faster?
 
-#define	FORCE_GRIP_DIST	512.0f//FIXME: vary by power level?
-#define	FORCE_GRIP_DIST_SQUARED	(FORCE_GRIP_DIST*FORCE_GRIP_DIST)
+inline constexpr float FORCE_GRIP_DIST = 512.0f; //FIXME: vary by power level?
+inline constexpr float FORCE_GRIP_DIST_SQUARED = FORCE_GRIP_DIST*FORCE_GRIP_DIST;
 
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpStrength;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceJumpHeight;
@@ -67,7 +63,7 @@ extern void ForceSpeed( gentity_t *self, int duration = 0 );
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedValue;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedRangeMod;
 extern EnumArray<float, forcePowerLevels_t, NUM_FORCE_POWER_LEVELS> forceSpeedFOVMod;
-#define FORCE_SPEED_DURATION 10000.0f
+inline constexpr float FORCE_SPEED_DURATION = 10000.0f;
 
 enum class forceJump_t
 {
@@ -79,7 +75,7 @@ enum class forceJump_t
 };
 using enum forceJump_t;
 
-#define FORCE_JUMP_CHARGE_TIME 1000.0f	//Force jump reaches maximum power in one second
+inline constexpr float FORCE_JUMP_CHARGE_TIME = 1000.0f;	//Force jump reaches maximum power in one second
 
 extern void WP_InitForcePowers( gentity_t *ent );
 extern forceJump_t WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd );

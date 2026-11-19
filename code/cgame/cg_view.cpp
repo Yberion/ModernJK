@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/g_vehicles.h"
 
 constexpr contentsFlags_t MASK_CAMERACLIP = MASK_SOLID;
-#define CAMERA_SIZE	4
+constexpr int CAMERA_SIZE = 4;
 
 float cg_zoomFov;
 
@@ -309,9 +309,9 @@ void CG_CalcVrect (void) {
 
 //==============================================================================
 //==============================================================================
-#define CAMERA_DAMP_INTERVAL	50
+constexpr int CAMERA_DAMP_INTERVAL = 50;
 
-#define CAMERA_CROUCH_NUDGE		6
+constexpr int CAMERA_CROUCH_NUDGE = 6;
 
 static vec3_t	cameramins = { -CAMERA_SIZE, -CAMERA_SIZE, -CAMERA_SIZE };
 static vec3_t	cameramaxs = { CAMERA_SIZE, CAMERA_SIZE, CAMERA_SIZE };
@@ -1232,7 +1232,7 @@ static void CG_OffsetFirstPersonView( bool firstPersonSaber ) {
 	// pivot the eye based on a neck length
 #if 0
 	{
-#define	NECK_LENGTH		8
+constexpr int NECK_LENGTH = 8;
 	vec3_t			forward, up;
 
 	cg.refdef.vieworg[2] -= NECK_LENGTH;

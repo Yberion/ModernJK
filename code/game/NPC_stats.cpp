@@ -43,7 +43,7 @@ extern vec3_t playerMaxs;
 extern stringID_table_t WPTable[];
 extern std::optional<weapon_t> G_WeaponFromName( const char *name );
 
-#define		MAX_MODELS_PER_LEVEL	60
+constexpr int MAX_MODELS_PER_LEVEL = 60;
 
 hstring		modelsAlreadyDone[MAX_MODELS_PER_LEVEL];
 
@@ -217,7 +217,7 @@ bool G_ParseLiteral( const char **data, const char *string )
 //
 // NPC parameters file : ext_data/NPCs/*.npc*
 //
-#define MAX_NPC_DATA_SIZE 0x80000
+constexpr int MAX_NPC_DATA_SIZE = 0x80000;
 char	NPCParms[MAX_NPC_DATA_SIZE];
 
 /*

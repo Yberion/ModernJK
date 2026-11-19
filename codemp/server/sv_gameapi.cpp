@@ -828,7 +828,7 @@ static void SV_BotReplaceSynonyms( char *string, unsigned long int context ) {
 	botlib_export->ai.BotReplaceSynonyms( string, context );
 }
 
-static int SV_BotLoadChatFile( int chatstate, char *chatfile, char *chatname ) {
+static botlibError_t SV_BotLoadChatFile( int chatstate, char *chatfile, char *chatname ) {
 	return botlib_export->ai.BotLoadChatFile( chatstate, chatfile, chatname );
 }
 
@@ -912,7 +912,7 @@ static void SV_BotUpdateEntityItems( void ) {
 	botlib_export->ai.BotUpdateEntityItems();
 }
 
-static int SV_BotLoadItemWeights( int goalstate, char *filename ) {
+static botlibError_t SV_BotLoadItemWeights( int goalstate, char *filename ) {
 	return botlib_export->ai.BotLoadItemWeights( goalstate, filename );
 }
 
@@ -980,7 +980,7 @@ static void SV_BotGetWeaponInfo( int weaponstate, int weapon, void *weaponinfo )
 	botlib_export->ai.BotGetWeaponInfo( weaponstate, weapon, (weaponinfo_s *)weaponinfo );
 }
 
-static int SV_BotLoadWeaponWeights( int weaponstate, char *filename ) {
+static botlibError_t SV_BotLoadWeaponWeights( int weaponstate, char *filename ) {
 	return botlib_export->ai.BotLoadWeaponWeights( weaponstate, filename );
 }
 
@@ -1036,23 +1036,23 @@ static void SV_BotSetAvoidGoalTime( int goalstate, int number, float avoidtime )
 	botlib_export->ai.BotSetAvoidGoalTime( goalstate, number, avoidtime );
 }
 
-static void SV_BotAddAvoidSpot( int movestate, vec3_t origin, float radius, int type ) {
+static void SV_BotAddAvoidSpot( int movestate, vec3_t origin, float radius, avoidSpotType_t type ) {
 	botlib_export->ai.BotAddAvoidSpot( movestate, origin, radius, type );
 }
 
-static int SV_BotLibSetup( void ) {
+static botlibError_t SV_BotLibSetup( void ) {
 	return botlib_export->BotLibSetup();
 }
 
-static int SV_BotLibShutdown( void ) {
+static botlibError_t SV_BotLibShutdown( void ) {
 	return botlib_export->BotLibShutdown();
 }
 
-static int SV_BotLibVarSet( const char *var_name, const char *value ) {
+static botlibError_t SV_BotLibVarSet( const char *var_name, const char *value ) {
 	return botlib_export->BotLibVarSet( var_name, value );
 }
 
-static int SV_BotLibVarGet( const char *var_name, char *value, int size ) {
+static botlibError_t SV_BotLibVarGet( const char *var_name, char *value, int size ) {
 	return botlib_export->BotLibVarGet( var_name, value, size );
 }
 
@@ -1060,15 +1060,15 @@ static int SV_BotLibDefine( char *string ) {
 	return botlib_export->PC_AddGlobalDefine( string );
 }
 
-static int SV_BotLibStartFrame( float time ) {
+static botlibError_t SV_BotLibStartFrame( float time ) {
 	return botlib_export->BotLibStartFrame( time );
 }
 
-static int SV_BotLibLoadMap( const char *mapname ) {
+static botlibError_t SV_BotLibLoadMap( const char *mapname ) {
 	return botlib_export->BotLibLoadMap( mapname );
 }
 
-static int SV_BotLibUpdateEntity( int ent, void *bue ) {
+static botlibError_t SV_BotLibUpdateEntity( int ent, void *bue ) {
 	return botlib_export->BotLibUpdateEntity( ent, (bot_entitystate_t *)bue );
 }
 

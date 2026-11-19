@@ -211,7 +211,6 @@ NPC_ChoosePainAnimation
 -------------------------
 */
 
-#define	MIN_PAIN_TIME	200
 
 extern std::optional<animNumber_t> G_PickPainAnim( gentity_t *self, const vec3_t point, int damage, hitLocation_t hitLoc );
 void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc, entity_event_t voiceEvent = EV_NONE )

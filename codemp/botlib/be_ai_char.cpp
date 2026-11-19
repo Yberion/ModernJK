@@ -49,11 +49,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "be_interface.h"
 #include "be_ai_char.h"
 
-#define MAX_CHARACTERISTICS		80
+constexpr int MAX_CHARACTERISTICS = 80;
 
-#define CT_INTEGER				1
-#define CT_FLOAT				2
-#define CT_STRING				3
+enum class characteristicType_t
+{
+	CT_EMPTY,				// not read from a character file
+	CT_INTEGER,
+	CT_FLOAT,
+	CT_STRING,
+};
+using enum characteristicType_t;
 
 #define DEFAULT_CHARACTER		"bots/default_c.c"
 
@@ -67,7 +72,7 @@ union cvalue
 //a characteristic
 typedef struct bot_characteristic_s
 {
-	char type;						//characteristic type
+	characteristicType_t type;		//characteristic type
 	union cvalue value;				//characteristic value
 } bot_characteristic_t;
 
@@ -121,6 +126,7 @@ void BotDumpCharacter(bot_character_t *ch)
 			case CT_INTEGER: Log_Write(" %4d %d\n", i, ch->c[i].value.integer); break;
 			case CT_FLOAT: Log_Write(" %4d %f\n", i, ch->c[i].value._float); break;
 			case CT_STRING: Log_Write(" %4d %s\n", i, ch->c[i].value.string); break;
+			case CT_EMPTY: break;
 		} //end case
 	} //end for
 	Log_Write("}\n");
@@ -188,7 +194,7 @@ void BotDefaultCharacteristics(bot_character_t *ch, bot_character_t *defaultch)
 
 	for (i = 0; i < MAX_CHARACTERISTICS; i++)
 	{
-		if (ch->c[i].type) continue;
+		if (ch->c[i].type != CT_EMPTY) continue;
 		//
 		if (defaultch->c[i].type == CT_FLOAT)
 		{
@@ -276,7 +282,7 @@ bot_character_t *BotLoadCharacterFromFile(const char *charfile, int skill)
 						FreeMemory(ch);
 						return nullptr;
 					} //end if
-					if (ch->c[index].type)
+					if (ch->c[index].type != CT_EMPTY)
 					{
 						SourceError(source, "characteristic %d already initialized", index);
 						FreeSource(source);
@@ -630,7 +636,7 @@ int CheckCharacteristicIndex(int character, int index)
 		botimport.Print(PRT_ERROR, "characteristic %d does not exist\n", index);
 		return false;
 	} //end if
-	if (!ch->c[index].type)
+	if (ch->c[index].type == CT_EMPTY)
 	{
 		botimport.Print(PRT_ERROR, "characteristic %d is not initialized\n", index);
 		return false;

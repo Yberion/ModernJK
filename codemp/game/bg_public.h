@@ -35,8 +35,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_vehicles.h"
 
 //these two defs are shared now because we do clientside ent parsing
-#define	MAX_SPAWN_VARS			64
-#define	MAX_SPAWN_VARS_CHARS	4096
+inline constexpr int MAX_SPAWN_VARS = 64;
+inline constexpr int MAX_SPAWN_VARS_CHARS = 4096;
 
 // like a protocol version, but for mods
 #define	GAME_VERSION		"basejka-1"
@@ -50,40 +50,40 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define DEFAULT_REDTEAM_NAME	"Empire"
 #define DEFAULT_BLUETEAM_NAME	"Rebellion"
 
-#define	STEPSIZE		18
+inline constexpr int STEPSIZE = 18;
 
 #define DEFAULT_FORCEPOWERS	"5-1-000000000000000000"
-#define DEFAULT_FORCEPOWERS_LEN (22) // numPowers + rank + side + separators
+inline constexpr int DEFAULT_FORCEPOWERS_LEN = 22; // numPowers + rank + side + separators
 //"rank-side-heal.lev.speed.push.pull.tele.grip.lightning.rage.protect.absorb.teamheal.teamforce.drain.see"
 
-#define	DEFAULT_GRAVITY		800
-#define	GIB_HEALTH			-40
-#define ARMOR_PROTECTION		0.50 // Shields only stop 50% of armor-piercing dmg
-#define ARMOR_REDUCTION_FACTOR	0.50 // Certain damage doesn't take off armor as efficiently
+inline constexpr int DEFAULT_GRAVITY = 800;
+inline constexpr int GIB_HEALTH = -40;
+inline constexpr double ARMOR_PROTECTION = 0.50; // Shields only stop 50% of armor-piercing dmg
+inline constexpr double ARMOR_REDUCTION_FACTOR = 0.50; // Certain damage doesn't take off armor as efficiently
 
-#define	JUMP_VELOCITY		225//270
+inline constexpr int JUMP_VELOCITY = 225; //270
 
-#define	MAX_ITEMS			256
+inline constexpr int MAX_ITEMS = 256;
 
-#define	RANK_TIED_FLAG		0x4000
+inline constexpr int RANK_TIED_FLAG = 0x4000;
 
-#define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
+inline constexpr int ITEM_RADIUS = 15;		// item sizes are needed for client side pickup detection
 
-#define	SCORE_NOT_PRESENT	-9999	// for the CS_SCORES[12] when only one player is present
+inline constexpr int SCORE_NOT_PRESENT = -9999;	// for the CS_SCORES[12] when only one player is present
 
-#define	VOTE_TIME			30000	// 30 seconds before vote times out
+inline constexpr int VOTE_TIME = 30000;	// 30 seconds before vote times out
 
-#define DEFAULT_MINS_2		-24
-#define DEFAULT_MAXS_2		40
-#define CROUCH_MAXS_2		16
-#define	STANDARD_VIEWHEIGHT_OFFSET -4
+inline constexpr int DEFAULT_MINS_2 = -24;
+inline constexpr int DEFAULT_MAXS_2 = 40;
+inline constexpr int CROUCH_MAXS_2 = 16;
+inline constexpr int STANDARD_VIEWHEIGHT_OFFSET = -4;
 
-#define	MINS_Z				-24
-#define	DEFAULT_VIEWHEIGHT	(DEFAULT_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//26
-#define CROUCH_VIEWHEIGHT	(CROUCH_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//12
-#define	DEAD_VIEWHEIGHT		-16
+inline constexpr int MINS_Z = -24;
+inline constexpr int DEFAULT_VIEWHEIGHT = DEFAULT_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET; //26
+inline constexpr int CROUCH_VIEWHEIGHT = CROUCH_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET; //12
+inline constexpr int DEAD_VIEWHEIGHT = -16;
 
-#define MAX_CLIENT_SCORE_SEND 20
+inline constexpr int MAX_CLIENT_SCORE_SEND = 20;
 
 //
 // config strings are a general means of communicating variable length strings
@@ -91,74 +91,71 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
-#define	CS_MUSIC				2
-#define	CS_MESSAGE				3		// from the map worldspawn's message field
-#define	CS_MOTD					4		// g_motd string for server message of the day
-#define	CS_WARMUP				5		// server time when the match will be restarted
-#define	CS_SCORES1				6
-#define	CS_SCORES2				7
-#define CS_VOTE_TIME			8
-#define CS_VOTE_STRING			9
-#define	CS_VOTE_YES				10
-#define	CS_VOTE_NO				11
+inline constexpr int CS_MUSIC = 2;
+inline constexpr int CS_MESSAGE = 3;		// from the map worldspawn's message field
+inline constexpr int CS_MOTD = 4;		// g_motd string for server message of the day
+inline constexpr int CS_WARMUP = 5;		// server time when the match will be restarted
+inline constexpr int CS_SCORES1 = 6;
+inline constexpr int CS_SCORES2 = 7;
+inline constexpr int CS_VOTE_TIME = 8;
+inline constexpr int CS_VOTE_STRING = 9;
+inline constexpr int CS_VOTE_YES = 10;
+inline constexpr int CS_VOTE_NO = 11;
 
-#define CS_TEAMVOTE_TIME		12
-#define CS_TEAMVOTE_STRING		14
-#define	CS_TEAMVOTE_YES			16
-#define	CS_TEAMVOTE_NO			18
+inline constexpr int CS_TEAMVOTE_TIME = 12;
+inline constexpr int CS_TEAMVOTE_STRING = 14;
+inline constexpr int CS_TEAMVOTE_YES = 16;
+inline constexpr int CS_TEAMVOTE_NO = 18;
 
-#define	CS_GAME_VERSION			20
-#define	CS_LEVEL_START_TIME		21		// so the timer only shows the current level
-#define	CS_INTERMISSION			22		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS			23		// string indicating flag status in CTF
-#define CS_SHADERSTATE			24
-#define CS_BOTINFO				25
+inline constexpr int CS_GAME_VERSION = 20;
+inline constexpr int CS_LEVEL_START_TIME = 21;		// so the timer only shows the current level
+inline constexpr int CS_INTERMISSION = 22;		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+inline constexpr int CS_FLAGSTATUS = 23;		// string indicating flag status in CTF
+inline constexpr int CS_SHADERSTATE = 24;
 
-#define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+inline constexpr int CS_ITEMS = 27;		// string of 0's and 1's that tell which items are present
 
-#define CS_CLIENT_JEDIMASTER	28		// current jedi master
-#define CS_CLIENT_DUELWINNER	29		// current duel round winner - needed for printing at top of scoreboard
-#define CS_CLIENT_DUELISTS		30		// client numbers for both current duelists. Needed for a number of client-side things.
-#define CS_CLIENT_DUELHEALTHS	31		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
-#define CS_GLOBAL_AMBIENT_SET	32
+inline constexpr int CS_CLIENT_JEDIMASTER = 28;		// current jedi master
+inline constexpr int CS_CLIENT_DUELWINNER = 29;		// current duel round winner - needed for printing at top of scoreboard
+inline constexpr int CS_CLIENT_DUELISTS = 30;		// client numbers for both current duelists. Needed for a number of client-side things.
+inline constexpr int CS_CLIENT_DUELHEALTHS = 31;		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
+inline constexpr int CS_GLOBAL_AMBIENT_SET = 32;
 
-#define CS_LEGACY_FIXES			36
+inline constexpr int CS_LEGACY_FIXES = 36;
 
-#define CS_AMBIENT_SET			37
+inline constexpr int CS_AMBIENT_SET = 37;
 
-#define CS_SIEGE_STATE			(CS_AMBIENT_SET+MAX_AMBIENT_SETS)
-#define CS_SIEGE_OBJECTIVES		(CS_SIEGE_STATE+1)
-#define CS_SIEGE_TIMEOVERRIDE	(CS_SIEGE_OBJECTIVES+1)
-#define CS_SIEGE_WINTEAM		(CS_SIEGE_TIMEOVERRIDE+1)
-#define CS_SIEGE_ICONS			(CS_SIEGE_WINTEAM+1)
+inline constexpr int CS_SIEGE_STATE = CS_AMBIENT_SET+MAX_AMBIENT_SETS;
+inline constexpr int CS_SIEGE_OBJECTIVES = CS_SIEGE_STATE+1;
+inline constexpr int CS_SIEGE_TIMEOVERRIDE = CS_SIEGE_OBJECTIVES+1;
+inline constexpr int CS_SIEGE_WINTEAM = CS_SIEGE_TIMEOVERRIDE+1;
+inline constexpr int CS_SIEGE_ICONS = CS_SIEGE_WINTEAM+1;
 
-#define	CS_MODELS				(CS_SIEGE_ICONS+1)
-#define	CS_SKYBOXORG			(CS_MODELS+MAX_MODELS)		//rww - skybox info
-#define	CS_SOUNDS				(CS_SKYBOXORG+1)
-#define CS_ICONS				(CS_SOUNDS+MAX_SOUNDS)
-#define	CS_PLAYERS				(CS_ICONS+MAX_ICONS)
+inline constexpr int CS_MODELS = CS_SIEGE_ICONS+1;
+inline constexpr int CS_SKYBOXORG = CS_MODELS+MAX_MODELS;		//rww - skybox info
+inline constexpr int CS_SOUNDS = CS_SKYBOXORG+1;
+inline constexpr int CS_ICONS = CS_SOUNDS+MAX_SOUNDS;
+inline constexpr int CS_PLAYERS = CS_ICONS+MAX_ICONS;
 /*
 Ghoul2 Insert Start
 */
-#define CS_G2BONES				(CS_PLAYERS+MAX_CLIENTS)
+inline constexpr int CS_G2BONES = CS_PLAYERS+MAX_CLIENTS;
 //rww - used to be CS_CHARSKINS, but I have eliminated the need for that.
 /*
 Ghoul2 Insert End
 */
-#define CS_LOCATIONS			(CS_G2BONES+MAX_G2BONES)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
-#define CS_EFFECTS				(CS_PARTICLES+MAX_LOCATIONS)
-#define	CS_LIGHT_STYLES			(CS_EFFECTS + MAX_FX)
+inline constexpr int CS_LOCATIONS = CS_G2BONES+MAX_G2BONES;
+inline constexpr int CS_PARTICLES = CS_LOCATIONS+MAX_LOCATIONS;
+inline constexpr int CS_EFFECTS = CS_PARTICLES+MAX_LOCATIONS;
+inline constexpr int CS_LIGHT_STYLES = CS_EFFECTS + MAX_FX;
 
 //rwwRMG - added:
-#define CS_TERRAINS				(CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
-#define CS_BSP_MODELS			(CS_TERRAINS + MAX_TERRAINS)
+inline constexpr int CS_TERRAINS = CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3);
+inline constexpr int CS_BSP_MODELS = CS_TERRAINS + MAX_TERRAINS;
 
-#define CS_MAX					(CS_BSP_MODELS + MAX_SUB_BSP)
+inline constexpr int CS_MAX = CS_BSP_MODELS + MAX_SUB_BSP;
 
-#if (CS_MAX) > MAX_CONFIGSTRINGS
-#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
-#endif
+static_assert( CS_MAX <= MAX_CONFIGSTRINGS, "overflow: (CS_MAX) > MAX_CONFIGSTRINGS" );
 
 enum class legacyFixes_t {
 	LEGACYFIX_SABERMOVEDATA = 0,
@@ -192,9 +189,9 @@ using enum g2ModelParts_t;
 template <> inline constexpr bool enableEnumArithmetic<g2ModelParts_t> = true;
 
 
-#define BG_NUM_TOGGLEABLE_SURFACES 31
+inline constexpr int BG_NUM_TOGGLEABLE_SURFACES = 31;
 
-#define MAX_CUSTOM_SIEGE_SOUNDS 30
+inline constexpr int MAX_CUSTOM_SIEGE_SOUNDS = 30;
 
 extern const char *bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS];
 
@@ -235,7 +232,7 @@ enum class brokenLimb_t
 using enum brokenLimb_t;
 
 //for supplier class items
-#define TOSS_DEBOUNCE_TIME				5000
+inline constexpr int TOSS_DEBOUNCE_TIME = 5000;
 
 enum class gametype_t {
 	GT_UNKNOWN = -1,	// a name that matches no game type
@@ -326,8 +323,8 @@ using animSet_t = EnumArray<animation_t, animNumber_t, MAX_TOTALANIMATIONS>;
 extern bool			BGPAFtextLoaded;
 extern animSet_t		bgHumanoidAnimations;
 
-#define MAX_ANIM_FILES	16
-#define MAX_ANIM_EVENTS 300
+inline constexpr int MAX_ANIM_FILES = 16;
+inline constexpr int MAX_ANIM_EVENTS = 300;
 
 enum class footstepType_t
 {
@@ -356,38 +353,38 @@ extern stringID_table_t animTable[to_underlying( MAX_ANIMATIONS ) + 1];
 [[nodiscard]] inline const char *BG_AnimName( animNumber_t anim ) { return animTable[to_underlying( anim )].name; }
 
 //size of Anim eventData array...
-#define MAX_RANDOM_ANIM_SOUNDS		4
-#define	AED_ARRAY_SIZE				(MAX_RANDOM_ANIM_SOUNDS+3)
+inline constexpr int MAX_RANDOM_ANIM_SOUNDS = 4;
+inline constexpr int AED_ARRAY_SIZE = MAX_RANDOM_ANIM_SOUNDS+3;
 //indices for AEV_SOUND data
-#define	AED_SOUNDINDEX_START		0
-#define	AED_SOUNDINDEX_END			(MAX_RANDOM_ANIM_SOUNDS-1)
-#define	AED_SOUND_NUMRANDOMSNDS		(MAX_RANDOM_ANIM_SOUNDS)
-#define	AED_SOUND_PROBABILITY		(MAX_RANDOM_ANIM_SOUNDS+1)
+inline constexpr int AED_SOUNDINDEX_START = 0;
+inline constexpr int AED_SOUNDINDEX_END = MAX_RANDOM_ANIM_SOUNDS-1;
+inline constexpr int AED_SOUND_NUMRANDOMSNDS = MAX_RANDOM_ANIM_SOUNDS;
+inline constexpr int AED_SOUND_PROBABILITY = MAX_RANDOM_ANIM_SOUNDS+1;
 //indices for AEV_SOUNDCHAN data
-#define	AED_SOUNDCHANNEL			(MAX_RANDOM_ANIM_SOUNDS+2)
+inline constexpr int AED_SOUNDCHANNEL = MAX_RANDOM_ANIM_SOUNDS+2;
 //indices for AEV_FOOTSTEP data
-#define	AED_FOOTSTEP_TYPE			0
-#define	AED_FOOTSTEP_PROBABILITY	1
+inline constexpr int AED_FOOTSTEP_TYPE = 0;
+inline constexpr int AED_FOOTSTEP_PROBABILITY = 1;
 //indices for AEV_EFFECT data
-#define	AED_EFFECTINDEX				0
-#define	AED_BOLTINDEX				1
-#define	AED_EFFECT_PROBABILITY		2
-#define	AED_MODELINDEX				3
+inline constexpr int AED_EFFECTINDEX = 0;
+inline constexpr int AED_BOLTINDEX = 1;
+inline constexpr int AED_EFFECT_PROBABILITY = 2;
+inline constexpr int AED_MODELINDEX = 3;
 //indices for AEV_FIRE data
-#define	AED_FIRE_ALT				0
-#define	AED_FIRE_PROBABILITY		1
+inline constexpr int AED_FIRE_ALT = 0;
+inline constexpr int AED_FIRE_PROBABILITY = 1;
 //indices for AEV_MOVE data
-#define	AED_MOVE_FWD				0
-#define	AED_MOVE_RT					1
-#define	AED_MOVE_UP					2
+inline constexpr int AED_MOVE_FWD = 0;
+inline constexpr int AED_MOVE_RT = 1;
+inline constexpr int AED_MOVE_UP = 2;
 //indices for AEV_SABER_SWING data
-#define	AED_SABER_SWING_SABERNUM	0
-#define	AED_SABER_SWING_TYPE		1
-#define	AED_SABER_SWING_PROBABILITY	2
+inline constexpr int AED_SABER_SWING_SABERNUM = 0;
+inline constexpr int AED_SABER_SWING_TYPE = 1;
+inline constexpr int AED_SABER_SWING_PROBABILITY = 2;
 //indices for AEV_SABER_SPIN data
-#define	AED_SABER_SPIN_SABERNUM		0
-#define	AED_SABER_SPIN_TYPE			1	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
-#define	AED_SABER_SPIN_PROBABILITY	2
+inline constexpr int AED_SABER_SPIN_SABERNUM = 0;
+inline constexpr int AED_SABER_SPIN_TYPE = 1;	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
+inline constexpr int AED_SABER_SPIN_PROBABILITY = 2;
 
 enum class animEventType_t
 {//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!
@@ -511,7 +508,7 @@ enum class pmoveFlags_t
 using enum pmoveFlags_t;
 template <> inline constexpr bool enableEnumFlags<pmoveFlags_t> = true;
 
-#define	MAXTOUCH	32
+inline constexpr int MAXTOUCH = 32;
 
 typedef struct bgEntity_s
 {
@@ -829,11 +826,11 @@ template <> inline constexpr bool enableEnumFlags<playerEventFlags_t> = true;
 // that an identical event started twice in a row can
 // be distinguished.  And off the value with ~EV_EVENT_BITS
 // to retrieve the actual event number
-#define	EV_EVENT_BIT1		0x00000100
-#define	EV_EVENT_BIT2		0x00000200
-#define	EV_EVENT_BITS		(EV_EVENT_BIT1|EV_EVENT_BIT2)
+inline constexpr int EV_EVENT_BIT1 = 0x00000100;
+inline constexpr int EV_EVENT_BIT2 = 0x00000200;
+inline constexpr int EV_EVENT_BITS = EV_EVENT_BIT1|EV_EVENT_BIT2;
 
-#define	EVENT_VALID_MSEC	300
+inline constexpr int EVENT_VALID_MSEC = 300;
 
 enum class pdSounds_t
 {
@@ -1183,10 +1180,10 @@ enum class duelTeam_t {
 using enum duelTeam_t;
 
 // Time between location updates
-#define TEAM_LOCATION_UPDATE_TIME		1000
+inline constexpr int TEAM_LOCATION_UPDATE_TIME = 1000;
 
 // How many players on the overlay
-#define TEAM_MAXOVERLAY		32
+inline constexpr int TEAM_MAXOVERLAY = 32;
 
 //team task
 enum class teamtask_t {
@@ -1276,7 +1273,7 @@ enum class itemType_t {
 };
 using enum itemType_t;
 
-#define MAX_ITEM_MODELS 4
+inline constexpr int MAX_ITEM_MODELS = 4;
 
 typedef struct gitem_s {
 	const char	*classname;	// spawning name
@@ -1319,7 +1316,7 @@ bool	BG_CanItemBeGrabbed( gametype_t gametype, const entityState_t *ent, const p
 
 
 
-#define SABER_BLOCK_DUR 150		// number of milliseconds a block animation should take.
+inline constexpr int SABER_BLOCK_DUR = 150;		// number of milliseconds a block animation should take.
 
 
 
@@ -1348,10 +1345,10 @@ inline constexpr contentsFlags_t MASK_SHOT = CONTENTS_SOLID | CONTENTS_BODY | CO
 
 // ET_FX States (stored in modelindex2)
 
-#define	FX_STATE_OFF			0
-#define FX_STATE_ONE_SHOT		1
-#define FX_STATE_ONE_SHOT_LIMIT	10
-#define FX_STATE_CONTINUOUS		20
+inline constexpr int FX_STATE_OFF = 0;
+inline constexpr int FX_STATE_ONE_SHOT = 1;
+inline constexpr int FX_STATE_ONE_SHOT_LIMIT = 10;
+inline constexpr int FX_STATE_CONTINUOUS = 20;
 
 //
 // entityState_t->eType
@@ -1669,7 +1666,7 @@ typedef struct bladeInfo_s {
 	int				storageTime;
 	int				extendDebounce;
 } bladeInfo_t;
-#define MAX_BLADES 8
+inline constexpr int MAX_BLADES = 8;
 
 enum class saber_styles_t {
 	SS_NONE=0,
@@ -1693,7 +1690,7 @@ template <> inline constexpr bool enableEnumArithmetic<saber_styles_t> = true;
 
 #include "qcommon/q_saberflags.h"
 
-#define SABER_NAME_LENGTH (64)
+inline constexpr int SABER_NAME_LENGTH = 64;
 typedef struct saberInfo_s {
 	char			name[SABER_NAME_LENGTH];				// entry in sabers.cfg, if any
 	char			fullName[SABER_NAME_LENGTH];			// the "Proper Name" of the saber, shown in UI
@@ -1768,7 +1765,7 @@ typedef struct saberInfo_s {
 	int				splashDamage, splashDamage2;			// 0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
 	float			splashKnockback, splashKnockback2;		// 0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 } saberInfo_t;
-#define MAX_SABERS 2
+inline constexpr int MAX_SABERS = 2;
 
 
 bgEntity_t *PM_BGEntForNum( int num );
@@ -1887,17 +1884,15 @@ extern EnumArray<animNumber_t, weapon_t, WP_NUM_WEAPONS> WeaponAttackAnim;
 extern EnumArray<int, forcePowers_t, NUM_FORCE_POWERS> forcePowerDarkLight;
 
 
-#define ARENAS_PER_TIER		4
-#define MAX_ARENAS			1024
-#define	MAX_ARENAS_TEXT		8192
+inline constexpr int MAX_ARENAS = 1024;
+inline constexpr int MAX_ARENAS_TEXT = 8192;
 
-#define MAX_BOTS			1024
-#define MAX_BOTS_TEXT		8192
+inline constexpr int MAX_BOTS = 1024;
+inline constexpr int MAX_BOTS_TEXT = 8192;
 
-#define	HYPERSPACE_TIME				4000 //For hyperspace triggers
-#define	HYPERSPACE_TELEPORT_FRAC	0.75f
-#define	HYPERSPACE_SPEED			10000.0f//was 30000
-#define	HYPERSPACE_TURN_RATE		45.0f
+inline constexpr int HYPERSPACE_TIME = 4000; //For hyperspace triggers
+inline constexpr float HYPERSPACE_TELEPORT_FRAC = 0.75f;
+inline constexpr float HYPERSPACE_SPEED = 10000.0f; //was 30000
 
 extern const EnumArray<const char *, gametype_t, GT_MAX_GAME_TYPE> gametypeStringShort;
 const char *BG_GetGametypeString( gametype_t gametype );

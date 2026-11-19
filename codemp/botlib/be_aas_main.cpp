@@ -150,7 +150,7 @@ void AAS_ContinueInit(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_StartFrame(float time)
+botlibError_t AAS_StartFrame(float time)
 {
 	aasworld.time = time;
 	//unlink all entities that were not updated last frame
@@ -222,9 +222,9 @@ void AAS_ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadFiles(const char *mapname)
+botlibError_t AAS_LoadFiles(const char *mapname)
 {
-	int errnum;
+	botlibError_t errnum;
 	char aasfile[MAX_PATH];
 //	char bspfile[MAX_PATH];
 
@@ -253,14 +253,14 @@ int AAS_LoadFiles(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadMap(const char *mapname)
+botlibError_t AAS_LoadMap(const char *mapname)
 {
-	int	errnum;
+	botlibError_t	errnum;
 
 	//if no mapname is provided then the string indexes are updated
 	if (!mapname)
 	{
-		return 0;
+		return BLERR_NOERROR;
 	} //end if
 	//
 	aasworld.initialized = false;
@@ -286,7 +286,7 @@ int AAS_LoadMap(const char *mapname)
 	//initialize the alternative routing
 	AAS_InitAlternativeRouting();
 	//everything went ok
-	return 0;
+	return BLERR_NOERROR;
 } //end of the function AAS_LoadMap
 //===========================================================================
 // called when the library is first loaded
@@ -295,7 +295,7 @@ int AAS_LoadMap(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_Setup(void)
+botlibError_t AAS_Setup(void)
 {
 	aasworld.maxclients = (int) LibVarValue("maxclients", "128");
 	aasworld.maxentities = (int) LibVarValue("maxentities", "1024");

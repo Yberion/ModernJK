@@ -743,9 +743,8 @@ void NPC_BSFollowLeader (void)
 		}
 	}
 }
-#define	APEX_HEIGHT		200.0f
+constexpr float APEX_HEIGHT = 200.0f;
 #define	PARA_WIDTH		(Q_sqrt(APEX_HEIGHT)+Q_sqrt(APEX_HEIGHT))
-#define	JUMP_SPEED		200.0f
 void NPC_BSJump (void)
 {
 	vec3_t		dir, angles, p1, p2, apex;

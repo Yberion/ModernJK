@@ -25,11 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex );
 
 // These define the working combat range for these suckers
-#define MIN_DISTANCE		128
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 128;
 
-#define MAX_DISTANCE		1024
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
+constexpr int MAX_DISTANCE = 1024;
 
 using enum monsterLocalState_t;
 

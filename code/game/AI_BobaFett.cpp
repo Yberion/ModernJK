@@ -168,13 +168,12 @@ void	Boba_Printf(const char * format, ...)
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		BOBA_FLAMEDURATION			3000
-#define		BOBA_FLAMETHROWRANGE		128
-#define		BOBA_FLAMETHROWSIZE			40
-#define		BOBA_FLAMETHROWDAMAGEMIN	1//10
-#define		BOBA_FLAMETHROWDAMAGEMAX	5//40
-#define		BOBA_ROCKETRANGEMIN			300
-#define		BOBA_ROCKETRANGEMAX			2000
+constexpr int BOBA_FLAMEDURATION = 3000;
+constexpr int BOBA_FLAMETHROWRANGE = 128;
+constexpr int BOBA_FLAMETHROWDAMAGEMIN = 1; //10
+constexpr int BOBA_FLAMETHROWDAMAGEMAX = 5; //40
+constexpr int BOBA_ROCKETRANGEMIN = 300;
+constexpr int BOBA_ROCKETRANGEMAX = 2000;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////

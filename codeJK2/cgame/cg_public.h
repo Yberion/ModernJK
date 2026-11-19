@@ -21,17 +21,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#define NUM_EXPLOSION_SHADERS	8
-#define NUM_EXPLOSION_FRAMES	3
 
-#define	CMD_BACKUP			64
-#define	CMD_MASK			(CMD_BACKUP - 1)
+inline constexpr int CMD_BACKUP = 64;
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
 // needs to be larger than PACKET_BACKUP
 
 
-#define	MAX_ENTITIES_IN_SNAPSHOT	512
+inline constexpr int MAX_ENTITIES_IN_SNAPSHOT = 512;
 
 // snapshots are a view of the server at a given time
 
@@ -71,7 +68,6 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	4
 
 enum class cgameImport_t {
 	CG_PRINT,

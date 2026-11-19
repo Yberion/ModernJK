@@ -28,12 +28,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_media.h"
 
 
-#define fCARD_FADESECONDS		1.0f	// fade up time, also fade down time
-#define fCARD_SUSTAINSECONDS	2.0f	// hold time before fade down
-#define fLINE_SECONDTOSCROLLUP	15.0f	// how long one line takes to scroll up the screen
+constexpr float fCARD_FADESECONDS = 1.0f;	// fade up time, also fade down time
+constexpr float fCARD_SUSTAINSECONDS = 2.0f;	// hold time before fade down
+constexpr float fLINE_SECONDTOSCROLLUP = 15.0f;	// how long one line takes to scroll up the screen
 
 
-#define MAX_LINE_BYTES 2048
+constexpr int MAX_LINE_BYTES = 2048;
 
 qhandle_t ghFontHandle = 0;
 float gfFontScale = 1.0f;

@@ -959,8 +959,8 @@ static void CG_CheckShownFlicker( const playerState_t *ps ) {
 // The predicted states of the last PREDICTED_STATES command times, the server's in place of the client's once a snapshot
 // holds them (plan step 14): the local player is drawn between the last two of them (CG_InterpolateTicks), and cg_showmiss
 // compares a snapshot's animations with those the client predicted for the same command time.
-#define PREDICTED_STATES	64
-#define PREDICTED_TOUCH		4
+constexpr int PREDICTED_STATES = 64;
+constexpr int PREDICTED_TOUCH = 4;
 static struct {
 	playerState_t	ps;
 	bool		valid;
@@ -1104,8 +1104,8 @@ int CG_MoverTime( int serverTime ) {
 //    that differs with both values, the command, the snapshot the prediction started from and its state, the entities
 //    touched, the nearest player.
 #define PS_WORDS	( sizeof( playerState_t ) / 4 )
-#define PREDICT_MISS_POSITIONS	80
-#define PREDICT_MISS_ANIMS		30
+constexpr int PREDICT_MISS_POSITIONS = 80;
+constexpr int PREDICT_MISS_ANIMS = 30;
 // the kind of a miss: the causes of a position that differs, then an animation only
 enum class predictMissKind_t { MISS_TELEPORT, MISS_HIT, MISS_ENTITY, MISS_OTHER, MISS_ANIM, MISS_KINDS };
 using enum predictMissKind_t;

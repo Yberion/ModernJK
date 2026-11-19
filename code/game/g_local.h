@@ -36,22 +36,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //==================================================================
 
-#define BODY_QUEUE_SIZE		8
+inline constexpr int BODY_QUEUE_SIZE = 8;
 
-#define Q3_INFINITE			16777216
+inline constexpr int FRAMETIME = 100;					// msec
+inline constexpr int EVENT_VALID_MSEC = 300;
 
-#define	FRAMETIME			100					// msec
-#define	EVENT_VALID_MSEC	300
-#define	CARNAGE_REWARD_TIME	3000
 
-#define	INTERMISSION_DELAY_TIME	1000
-
-#define	START_TIME_LINK_ENTS		FRAMETIME*1 // time-delay after map start at which all ents have been spawned, so can link them
-#define	START_TIME_FIND_LINKS		FRAMETIME*2 // time-delay after map start at which you can find linked entities
-#define	START_TIME_MOVERS_SPAWNED	FRAMETIME*2 // time-delay after map start at which all movers should be spawned
-#define	START_TIME_REMOVE_ENTS		FRAMETIME*3 // time-delay after map start to remove temporary ents
-#define	START_TIME_NAV_CALC			FRAMETIME*4 // time-delay after map start to connect waypoints and calc routes
-#define	START_TIME_FIND_WAYPOINT	FRAMETIME*5 // time-delay after map start after which it's okay to try to find your best waypoint
+inline constexpr int START_TIME_LINK_ENTS = FRAMETIME*1; // time-delay after map start at which all ents have been spawned, so can link them
+inline constexpr int START_TIME_FIND_LINKS = FRAMETIME*2; // time-delay after map start at which you can find linked entities
+inline constexpr int START_TIME_MOVERS_SPAWNED = FRAMETIME*2; // time-delay after map start at which all movers should be spawned
+inline constexpr int START_TIME_REMOVE_ENTS = FRAMETIME*3; // time-delay after map start to remove temporary ents
 
 // gentity->flags
 enum class gentityFlags_t
@@ -129,7 +123,7 @@ public:
 
 //Interest points
 
-#define MAX_INTEREST_POINTS		64
+inline constexpr int MAX_INTEREST_POINTS = 64;
 
 typedef struct
 {
@@ -139,7 +133,7 @@ typedef struct
 
 //Combat points
 
-#define MAX_COMBAT_POINTS		512
+inline constexpr int MAX_COMBAT_POINTS = 512;
 
 enum class combatPointFlags_t;	// b_local.h
 
@@ -156,7 +150,7 @@ typedef struct
 
 // Alert events
 
-#define	MAX_ALERT_EVENTS	32
+inline constexpr int MAX_ALERT_EVENTS = 32;
 
 enum class alertEventType_e
 {
@@ -227,8 +221,8 @@ public:
 // this structure is cleared as each map is entered
 //
 
-#define	MAX_SPAWN_VARS			64
-#define	MAX_SPAWN_VARS_CHARS	2048
+inline constexpr int MAX_SPAWN_VARS = 64;
+inline constexpr int MAX_SPAWN_VARS_CHARS = 2048;
 
 typedef struct
 {
@@ -488,14 +482,13 @@ void G_RunMissile( gentity_t *ent );
 //
 // g_mover.cpp
 //
-#define MOVER_START_ON		1
-#define MOVER_FORCE_ACTIVATE	2
-#define MOVER_CRUSHER		4
-#define MOVER_TOGGLE		8
-#define MOVER_LOCKED		16
-#define MOVER_GOODIE		32
-#define MOVER_PLAYER_USE	64
-#define MOVER_INACTIVE		128
+inline constexpr int MOVER_FORCE_ACTIVATE = 2;
+inline constexpr int MOVER_CRUSHER = 4;
+inline constexpr int MOVER_TOGGLE = 8;
+inline constexpr int MOVER_LOCKED = 16;
+inline constexpr int MOVER_GOODIE = 32;
+inline constexpr int MOVER_PLAYER_USE = 64;
+inline constexpr int MOVER_INACTIVE = 128;
 void G_RunMover( gentity_t *ent );
 
 
@@ -540,11 +533,6 @@ void FireWeapon( gentity_t *ent, bool alt_fire );
 void MoveClientToIntermission (gentity_t *client);
 void G_SetStats (gentity_t *ent);
 void DeathmatchScoreboardMessage (gentity_t *client);
-
-//
-// g_cmds.cpp
-//
-void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message );
 
 //
 // g_pweapon.c
@@ -655,11 +643,9 @@ extern bool G_ClearLOS( gentity_t *self, const vec3_t end );
 
 // Reference tags
 
-#define MAX_REFTAGS	128		// Probably more than we'll ever need
-#define MAX_REFNAME	32
+inline constexpr int MAX_REFNAME = 32;
 
-#define	RTF_NONE	0
-#define	RTF_NAVGOAL	0x00000001
+inline constexpr int RTF_NAVGOAL = 0x00000001;
 
 typedef struct reference_tag_s
 {

@@ -43,7 +43,7 @@ extern	cvar_t	*g_spskill;
 extern	cvar_t	*g_sex;
 extern cvar_t	*g_saberPickuppableDroppedSabers;
 
-#define MAX_BACTA_HEAL_AMOUNT		25
+constexpr int MAX_BACTA_HEAL_AMOUNT = 25;
 
 /*
 
@@ -59,15 +59,14 @@ extern cvar_t	*g_saberPickuppableDroppedSabers;
 */
 
 // Item Spawn flags
-#define ITMSF_SUSPEND		1
-#define ITMSF_NOPLAYER		2
-#define ITMSF_ALLOWNPC		4
-#define ITMSF_NOTSOLID		8
-#define ITMSF_VERTICAL		16
-#define ITMSF_INVISIBLE		32
-#define ITMSF_NOGLOW		64
-#define ITMSF_USEPICKUP		128
-#define ITMSF_STATIONARY	2048
+constexpr int ITMSF_SUSPEND = 1;
+constexpr int ITMSF_NOPLAYER = 2;
+constexpr int ITMSF_ALLOWNPC = 4;
+constexpr int ITMSF_NOTSOLID = 8;
+constexpr int ITMSF_INVISIBLE = 32;
+[[maybe_unused]] constexpr int ITMSF_NOGLOW = 64;
+constexpr int ITMSF_USEPICKUP = 128;
+constexpr int ITMSF_STATIONARY = 2048;
 
 //======================================================================
 

@@ -650,7 +650,7 @@ void WP_RocketLock( gentity_t *ent, float lockDist )
 	}
 }
 
-#define VEH_HOMING_MISSILE_THINK_TIME		100
+constexpr int VEH_HOMING_MISSILE_THINK_TIME = 100;
 void WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWeaponInfo_t *vehWeapon )
 {
 	if ( !vehWeapon )

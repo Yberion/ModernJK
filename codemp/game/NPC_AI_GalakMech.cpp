@@ -34,14 +34,14 @@ extern void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *so
 
 extern bool BG_CrouchAnim( animNumber_t anim );
 
-#define MELEE_DIST_SQUARED 6400//80*80
-#define MIN_LOB_DIST_SQUARED 65536//256*256
-#define MAX_LOB_DIST_SQUARED 200704//448*448
-#define REPEATER_ALT_SIZE				3	// half of bbox size
-#define	GENERATOR_HEALTH	25
+constexpr int MELEE_DIST_SQUARED = 6400; //80*80
+constexpr int MIN_LOB_DIST_SQUARED = 65536; //256*256
+constexpr int MAX_LOB_DIST_SQUARED = 200704; //448*448
+constexpr int REPEATER_ALT_SIZE = 3;	// half of bbox size
+constexpr int GENERATOR_HEALTH = 25;
 constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
 constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
-#define GALAK_SHIELD_HEALTH	500
+constexpr int GALAK_SHIELD_HEALTH = 500;
 
 static vec3_t shieldMins = {-60, -60, -24 };
 static vec3_t shieldMaxs = {60, 60, 80};

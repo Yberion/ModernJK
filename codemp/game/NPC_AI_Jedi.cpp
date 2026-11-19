@@ -31,21 +31,9 @@ extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, entity_event_t event, int speakDebounceTime );
 extern void ForceJump( gentity_t *self, usercmd_t *ucmd );
 
-#define	MAX_VIEW_DIST		2048
-#define MAX_VIEW_SPEED		100
-#define	JEDI_MAX_LIGHT_INTENSITY 64
-#define	JEDI_MIN_LIGHT_THRESHOLD 10
-#define	JEDI_MAX_LIGHT_THRESHOLD 50
 
-#define	DISTANCE_SCALE		0.25f
-#define	SPEED_SCALE			0.25f
-#define	FOV_SCALE			0.5f
-#define	LIGHT_SCALE			0.25f
 
-#define	REALIZE_THRESHOLD	0.6f
-#define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.3 )
 
-#define	MAX_CHECK_THRESHOLD	1
 
 extern void NPC_ClearLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
@@ -4434,9 +4422,8 @@ static bool Jedi_AttackDecide( int enemy_dist )
 	return false;
 }
 
-#define	APEX_HEIGHT		200.0f
+constexpr float APEX_HEIGHT = 200.0f;
 #define	PARA_WIDTH		(Q_sqrt(APEX_HEIGHT)+Q_sqrt(APEX_HEIGHT))
-#define	JUMP_SPEED		200.0f
 
 static bool Jedi_Jump( vec3_t dest, int goalEntNum )
 {//FIXME: if land on enemy, knock him down & jump off again

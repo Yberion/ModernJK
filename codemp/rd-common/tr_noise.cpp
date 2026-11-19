@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_noise.c
 #include "tr_common.h"
 
-#define NOISE_SIZE 256
-#define NOISE_MASK ( NOISE_SIZE - 1 )
+constexpr int NOISE_SIZE = 256;
+constexpr int NOISE_MASK = NOISE_SIZE - 1;
 
 #define VAL( a ) s_noise_perm[ ( a ) & ( NOISE_MASK )]
 #define INDEX( x, y, z, t ) VAL( x + VAL( y + VAL( z + VAL( t ) ) ) )

@@ -32,7 +32,6 @@ cvar_t	*fx_freeze;
 cvar_t	*fx_countScale;
 cvar_t	*fx_nearCull;
 
-#define DEFAULT_EXPLOSION_RADIUS	512
 
 // Stuff for the FxHelper
 //------------------------------------------------------

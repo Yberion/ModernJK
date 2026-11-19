@@ -626,7 +626,7 @@ RB_RenderDrawSurfList
 //number of possible surfs we can postrender.
 //note that postrenders lack much of the optimization that the standard sort-render crap does,
 //so it's slower.
-#define MAX_POST_RENDERS	128
+constexpr int MAX_POST_RENDERS = 128;
 
 typedef struct
 {

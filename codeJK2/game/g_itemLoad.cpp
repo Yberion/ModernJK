@@ -54,7 +54,7 @@ typedef struct itemParms_s {
 	void (*func)(const char **holdBuf);
 } itemParms_t;
 
-#define IT_PARM_MAX 10
+constexpr int IT_PARM_MAX = 10;
 
 itemParms_t ItemParms[IT_PARM_MAX] = {
 	{ "itemname",		IT_Name },

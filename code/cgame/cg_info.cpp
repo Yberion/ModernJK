@@ -49,8 +49,8 @@ const char *showLoadPowersName[] =
 	nullptr,
 };
 
-#define MAX_OBJ_GRAPHICS 4
-#define OBJ_GRAPHIC_SIZE 240
+constexpr int MAX_OBJ_GRAPHICS = 4;
+constexpr int OBJ_GRAPHIC_SIZE = 240;
 int obj_graphics[MAX_OBJ_GRAPHICS];
 
 bool CG_ForcePower_Valid(int forceKnownBits, int index);

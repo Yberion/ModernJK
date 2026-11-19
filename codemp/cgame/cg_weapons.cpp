@@ -911,9 +911,9 @@ WEAPON SELECTION
 
 ==============================================================================
 */
-#define ICON_WEAPONS	0
-#define ICON_FORCE		1
-#define ICON_INVENTORY	2
+[[maybe_unused]] constexpr int ICON_WEAPONS = 0;
+[[maybe_unused]] constexpr int ICON_FORCE = 1;
+[[maybe_unused]] constexpr int ICON_INVENTORY = 2;
 
 
 void CG_DrawIconBackground(void)

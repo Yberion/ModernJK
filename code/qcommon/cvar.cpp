@@ -31,11 +31,11 @@ cvar_t		*cvar_vars = nullptr;
 cvar_t		*cvar_cheats;
 cvarFlags_t	cvar_modifiedFlags;
 
-#define	MAX_CVARS	8192
+constexpr int MAX_CVARS = 8192;
 cvar_t		cvar_indexes[MAX_CVARS];
 int			cvar_numIndexes;
 
-#define FILE_HASH_SIZE		512
+constexpr int FILE_HASH_SIZE = 512;
 static	cvar_t*		hashTable[FILE_HASH_SIZE];
 static	bool cvar_sort = false;
 

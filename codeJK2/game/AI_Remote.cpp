@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire = false );
 void Remote_Strafe( void );
 
-#define VELOCITY_DECAY	0.85f
+constexpr float VELOCITY_DECAY = 0.85f;
 
 
 void Remote_Idle( void );
@@ -145,9 +145,9 @@ void Remote_MaintainHeight( void )
 	}
 }
 
-#define REMOTE_STRAFE_VEL	256
-#define REMOTE_STRAFE_DIS	200
-#define REMOTE_UPWARD_PUSH	32
+constexpr int REMOTE_STRAFE_VEL = 256;
+constexpr int REMOTE_STRAFE_DIS = 200;
+constexpr int REMOTE_UPWARD_PUSH = 32;
 
 /*
 -------------------------
@@ -185,8 +185,8 @@ void Remote_Strafe( void )
 	}
 }
 
-#define REMOTE_FORWARD_BASE_SPEED	10
-#define REMOTE_FORWARD_MULTIPLIER	5
+constexpr int REMOTE_FORWARD_BASE_SPEED = 10;
+constexpr int REMOTE_FORWARD_MULTIPLIER = 5;
 
 /*
 -------------------------
@@ -293,11 +293,11 @@ void Remote_Ranged( bool visible, bool advance, bool retreat )
 	}
 }
 
-#define	MIN_MELEE_RANGE		320
-#define	MIN_MELEE_RANGE_SQR	( MIN_MELEE_RANGE * MIN_MELEE_RANGE )
+constexpr int MIN_MELEE_RANGE = 320;
+[[maybe_unused]] constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;
 
-#define MIN_DISTANCE		80
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 80;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 /*
 -------------------------

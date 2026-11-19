@@ -31,7 +31,7 @@ CONSOLE LOG
 
 ========================================================================
 */
-#define MAX_CONSOLE_LOG_SIZE (65535)
+constexpr int MAX_CONSOLE_LOG_SIZE = 65535;
 
 struct ConsoleLog
 {

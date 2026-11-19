@@ -85,7 +85,7 @@ static itemDef_t *g_bindItem = nullptr;
 static itemDef_t *g_editItem = nullptr;
 static itemDef_t *itemCapture = nullptr;   // item that has the mouse captured ( if any )
 
-#define DOUBLE_CLICK_DELAY 300
+constexpr int DOUBLE_CLICK_DELAY = 300;
 static int lastListBoxClickTime = 0;
 
 static void (*captureFunc) (void *p) = nullptr;
@@ -93,15 +93,15 @@ static void *captureData = nullptr;
 
 //const char defaultString[10] = {"default"};
 #ifdef CGAME
-#define MEM_POOL_SIZE  (128 * 1024)
+constexpr int MEM_POOL_SIZE = 128 * 1024;
 #else
-#define MEM_POOL_SIZE  (4 * 1024 * 1024)
+constexpr int MEM_POOL_SIZE = 4 * 1024 * 1024;
 #endif
 
-#define SCROLL_TIME_START				500
-#define SCROLL_TIME_ADJUST				150
-#define SCROLL_TIME_ADJUSTOFFSET		40
-#define SCROLL_TIME_FLOOR				20
+constexpr int SCROLL_TIME_START = 500;
+constexpr int SCROLL_TIME_ADJUST = 150;
+constexpr int SCROLL_TIME_ADJUSTOFFSET = 40;
+constexpr int SCROLL_TIME_FLOOR = 20;
 
 typedef struct scrollInfo_s {
 	int nextScrollTime;
@@ -135,7 +135,7 @@ typedef struct stringDef_s {
 	const char *str;
 } stringDef_t;
 
-#define HASH_TABLE_SIZE 2048
+constexpr int HASH_TABLE_SIZE = 2048;
 
 static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
@@ -1159,7 +1159,7 @@ bool MenuParse_itemDef( itemDef_t *item )
 	return true;
 }
 
-#define KEYWORDHASH_SIZE	512
+constexpr int KEYWORDHASH_SIZE = 512;
 
 typedef struct keywordHash_s
 {

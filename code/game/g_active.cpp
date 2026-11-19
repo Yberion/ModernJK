@@ -34,8 +34,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include <float.h>
 #endif //_DEBUG
 
-#define	SLOWDOWN_DIST	128.0f
-#define	MIN_NPC_SPEED	16.0f
+constexpr float SLOWDOWN_DIST = 128.0f;
+constexpr float MIN_NPC_SPEED = 16.0f;
 
 extern void VehicleExplosionDelay( gentity_t *self );
 extern bool Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
@@ -4181,10 +4181,6 @@ static int NPC_GetWalkSpeed( gentity_t *ent )
 NPC_GetRunSpeed
 -------------------------
 */
-#define	BORG_RUN_INCR		25
-#define SPECIES_RUN_INCR	25
-#define STASIS_RUN_INCR		20
-#define	WARBOT_RUN_INCR		20
 
 static int NPC_GetRunSpeed( gentity_t *ent )
 {

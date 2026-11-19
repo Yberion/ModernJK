@@ -345,7 +345,7 @@ void AAS_DData(unsigned char *data, int size)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadAASFile(char *filename)
+botlibError_t AAS_LoadAASFile(char *filename)
 {
 	fileHandle_t fp;
 	aas_header_t header;
@@ -500,7 +500,7 @@ int AAS_LoadAASFile(char *filename)
 //===========================================================================
 static int AAS_WriteAASLump_offset;
 
-int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, int lumpnum, void *data, int length)
+int AAS_WriteAASLump(fileHandle_t fp, aas_header_t *h, aasLump_t lumpnum, void *data, int length)
 {
 	aas_lump_t *lump;
 

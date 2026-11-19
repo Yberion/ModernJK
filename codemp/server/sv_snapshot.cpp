@@ -667,7 +667,7 @@ Return the number of msec a given size message is supposed
 to take to clear, based on the current rate
 ====================
 */
-#define	HEADER_RATE_BYTES	48		// include our header, IP header, and some overhead
+constexpr int HEADER_RATE_BYTES = 48;		// include our header, IP header, and some overhead
 static int SV_RateMsec( int messageSize ) {
 	// individual messages will never be larger than fragment size
 	if ( messageSize > 1500 ) {

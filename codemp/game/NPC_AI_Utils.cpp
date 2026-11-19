@@ -28,8 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-#define	MAX_RADIUS_ENTS		128
-#define	DEFAULT_RADIUS		45
+constexpr int MAX_RADIUS_ENTS = 128;
+[[maybe_unused]] constexpr int DEFAULT_RADIUS = 45;
 
 bool AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member );
 
@@ -1049,7 +1049,6 @@ AI_DistributeAttack
 -------------------------
 */
 
-#define	MAX_RADIUS_ENTS		128
 
 gentity_t *AI_DistributeAttack( gentity_t *attacker, gentity_t *enemy, npcteam_t team, int threshold )
 {

@@ -47,11 +47,10 @@ to the new value before sending out any replies.
 
 #include "qcommon/qcommon.h"
 
-#define	MAX_PACKETLEN			1400		// max size of a network packet
-#define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
-#define	PACKET_HEADER			10			// two ints and a short
+constexpr int MAX_PACKETLEN = 1400;		// max size of a network packet
+constexpr int FRAGMENT_SIZE = MAX_PACKETLEN - 100;
 
-#define	FRAGMENT_BIT	(1<<31)
+constexpr int FRAGMENT_BIT = 1<<31;
 
 cvar_t		*showpackets;
 cvar_t		*showdrop;
@@ -497,7 +496,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 
 // there needs to be enough loopback messages to hold a complete
 // gamestate of maximum size
-#define	MAX_LOOPBACK	16
+constexpr int MAX_LOOPBACK = 16;
 
 typedef struct loopmsg_s {
 	byte	data[MAX_PACKETLEN];

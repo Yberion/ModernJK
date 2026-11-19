@@ -58,11 +58,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		MAX_TROOPS				100
-#define		MAX_ENTS_PER_TROOP		7
-#define		MAX_TROOP_JOIN_DIST2	1000000  //1000 units
-#define		MAX_TROOP_MERGE_DIST2	250000   //500 units
-#define		TARGET_POS_VISITED		10000    //100 units
+constexpr int MAX_TROOPS = 100;
+constexpr int MAX_ENTS_PER_TROOP = 7;
+constexpr int MAX_TROOP_JOIN_DIST2 = 1000000;  //1000 units
+constexpr int MAX_TROOP_MERGE_DIST2 = 250000;   //500 units
+constexpr int TARGET_POS_VISITED = 10000;    //100 units
 
 
 bool NPC_IsTrooper(gentity_t* actor);

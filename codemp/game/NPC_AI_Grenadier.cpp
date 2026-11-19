@@ -34,19 +34,8 @@ extern bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t m
 extern void NPC_AimAdjust( int change );
 extern bool FlyingCreature( gentity_t *ent );
 
-#define	MAX_VIEW_DIST		1024
-#define MAX_VIEW_SPEED		250
-#define	MAX_LIGHT_INTENSITY 255
-#define	MIN_LIGHT_THRESHOLD	0.1
 
-#define	DISTANCE_SCALE		0.25f
-#define	DISTANCE_THRESHOLD	0.075f
-#define	SPEED_SCALE			0.25f
-#define	FOV_SCALE			0.5f
-#define	LIGHT_SCALE			0.25f
 
-#define	REALIZE_THRESHOLD	0.6f
-#define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
 
 bool NPC_CheckPlayerTeamStealth( void );
 

@@ -58,13 +58,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif //RANDOMIZE
 #define DROPPEDWEIGHT
 //minimum avoid goal time
-#define AVOID_MINIMUM_TIME		10
+constexpr int AVOID_MINIMUM_TIME = 10;
 //default avoid goal time
-#define AVOID_DEFAULT_TIME		30
+constexpr int AVOID_DEFAULT_TIME = 30;
 //avoid dropped goal time
-#define AVOID_DROPPED_TIME		10
+constexpr int AVOID_DROPPED_TIME = 10;
 //
-#define TRAVELTIME_SCALE		0.01
+constexpr double TRAVELTIME_SCALE = 0.01;
 //item flags
 enum class levelItemFlags_t
 {
@@ -1676,7 +1676,7 @@ void BotResetGoalState(int goalstate)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadItemWeights(int goalstate, char *filename)
+botlibError_t BotLoadItemWeights(int goalstate, char *filename)
 {
 	bot_goalstate_t *gs;
 
@@ -1760,7 +1760,7 @@ void BotFreeGoalState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupGoalAI(void)
+botlibError_t BotSetupGoalAI(void)
 {
 	char *filename;
 

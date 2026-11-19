@@ -753,9 +753,9 @@ void CG_InitGlass( void )
 	}
 }
 
-#define TIME_DECAY_SLOW		0.1f
-#define TIME_DECAY_MED		0.04f
-#define TIME_DECAY_FAST		0.009f
+constexpr float TIME_DECAY_SLOW = 0.1f;
+constexpr float TIME_DECAY_MED = 0.04f;
+[[maybe_unused]] constexpr float TIME_DECAY_FAST = 0.009f;
 
 void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius )
 {

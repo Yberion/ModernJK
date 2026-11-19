@@ -33,8 +33,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "../../code/rd-common/mdx_format.h"
 
-#define ACT_ACTIVE		true
-#define ACT_INACTIVE	false
+constexpr bool ACT_ACTIVE = true;
+constexpr bool ACT_INACTIVE = false;
 extern void NPC_UseResponse ( gentity_t *self, gentity_t *user, bool useWhenDone );
 extern bool PM_CrouchAnim( animNumber_t anim );
 /*
@@ -114,7 +114,7 @@ int G_EffectIndex( const char *name )
 	return G_FindConfigstringIndex( temp, CS_EFFECTS, MAX_FX, true );
 }
 
-#define FX_ENT_RADIUS 32
+constexpr int FX_ENT_RADIUS = 32;
 
 //-----------------------------
 // Effect playing utilities
@@ -230,7 +230,7 @@ void G_PlayEffect( const char *name,  const int modelIndex, const int boltIndex,
 
 extern void cgi_S_StartSound( vec3_t origin, int entityNum, soundChannel_t entchannel, sfxHandle_t sfx );
 #include "../cgame/cg_media.h"	//access to cgs
-extern void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet );
+extern void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, customSoundSet_t customSoundSet );
 //NOTE: Do NOT Try to use this before the cgame DLL is valid, it will NOT work!
 void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *soundPath)
 {
@@ -248,7 +248,7 @@ void G_SoundOnEnt (gentity_t *ent, soundChannel_t channel, const char *soundPath
 	}
 	else
 	{
-		CG_TryPlayCustomSound( nullptr, ent->s.number, channel, soundPath, -1 );
+		CG_TryPlayCustomSound( nullptr, ent->s.number, channel, soundPath, CS_TRY_ALL );
 	}
 }
 
@@ -515,7 +515,7 @@ G_PickTarget
 Selects a random entity from among the targets
 =============
 */
-#define MAXCHOICES	32
+constexpr int MAXCHOICES = 32;
 
 gentity_t *G_PickTarget (char *targetname)
 {
@@ -1268,7 +1268,7 @@ Try and use an entity in the world, directly ahead of us
 ==============
 */
 
-#define USE_DISTANCE	64.0f
+constexpr float USE_DISTANCE = 64.0f;
 
 void TryUse( gentity_t *ent )
 {

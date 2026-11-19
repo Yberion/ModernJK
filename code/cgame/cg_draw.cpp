@@ -599,10 +599,10 @@ static void CG_DrawArmor(const int x,const int y,const int w,const int h)
 
 }
 
-#define MAX_VHUD_SHIELD_TICS 12
-#define MAX_VHUD_SPEED_TICS 5
-#define MAX_VHUD_ARMOR_TICS 5
-#define MAX_VHUD_AMMO_TICS 5
+constexpr int MAX_VHUD_SHIELD_TICS = 12;
+constexpr int MAX_VHUD_SPEED_TICS = 5;
+constexpr int MAX_VHUD_ARMOR_TICS = 5;
+constexpr int MAX_VHUD_AMMO_TICS = 5;
 
 static void CG_DrawVehicleSheild( const centity_t *cent, const Vehicle_t *pVeh )
 {
@@ -2471,11 +2471,11 @@ void CG_DrawHealthBar(centity_t *cent, float chX, float chY, float chW, float ch
 	CG_FillRect(x+(percent*chW), y+1.0f, chW-(percent*chW)-1.0f, chH-1.0f, cColor);
 }
 
-#define MAX_HEALTH_BAR_ENTS 32
+constexpr int MAX_HEALTH_BAR_ENTS = 32;
 int cg_numHealthBarEnts = 0;
 int cg_healthBarEnts[MAX_HEALTH_BAR_ENTS];
-#define HEALTH_BAR_WIDTH	50
-#define HEALTH_BAR_HEIGHT	5
+constexpr int HEALTH_BAR_WIDTH = 50;
+constexpr int HEALTH_BAR_HEIGHT = 5;
 
 void CG_DrawHealthBars( void )
 {
@@ -2497,7 +2497,7 @@ void CG_DrawHealthBars( void )
 	}
 }
 
-#define HEALTHBARRANGE 422
+constexpr int HEALTHBARRANGE = 422;
 void CG_AddHealthBarEnt( int entNum )
 {
 	if ( cg_numHealthBarEnts >= MAX_HEALTH_BAR_ENTS )
@@ -3403,7 +3403,7 @@ static float CG_DrawSnapshot( float y ) {
 CG_DrawFPS
 ==================
 */
-#define	FPS_FRAMES	16
+constexpr int FPS_FRAMES = 16;
 static float CG_DrawFPS( float y ) {
 	char		*s;
 	static unsigned short previousTimes[FPS_FRAMES];

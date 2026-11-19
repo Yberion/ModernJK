@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef AASINTERN
 //loads the given BSP file
-int AAS_LoadBSPFile(void);
+botlibError_t AAS_LoadBSPFile(void);
 //dump the loaded BSP data
 void AAS_DumpBSPData(void);
 //unlink the given entity from the bsp tree leaves
@@ -61,7 +61,7 @@ void AAS_PrintFreeBSPLinks(char *str);
 //
 #endif //AASINTERN
 
-#define MAX_EPAIRKEY		128
+inline constexpr int MAX_EPAIRKEY = 128;
 
 //trace through the world
 bsp_trace_t AAS_Trace(	vec3_t start,

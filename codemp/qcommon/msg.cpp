@@ -1052,8 +1052,8 @@ netField_t	entityStateFields[] =
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
-#define	FLOAT_INT_BITS	13
-#define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
+constexpr int FLOAT_INT_BITS = 13;
+constexpr int FLOAT_INT_BIAS = 1<<(FLOAT_INT_BITS-1);
 
 /*
 ==================
@@ -2105,10 +2105,6 @@ void MSG_CheckNETFPSFOverrides(bool psfOverrides)
 	}
 }
 
-//MAKE SURE THIS MATCHES THE ENUM IN BG_PUBLIC.H!!!
-//This is in caps, because it is important.
-#define STAT_WEAPONS 4
-
 /*
 =============
 MSG_WriteDeltaPlayerstate
@@ -2275,7 +2271,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		{
 			if (statsbits & (1<<i) )
 			{
-				if (i == STAT_WEAPONS)
+				if (i == to_underlying( STAT_WEAPONS ))
 				{ //ugly.. but we're gonna need it anyway -rww
 					//(just send this one in MAX_WEAPONS bits, so that we can add up to MAX_WEAPONS weaps without hassle)
 					MSG_WriteBits(msg, to->stats.data()[i], MAX_WEAPONS);
@@ -2477,7 +2473,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			for (i=0 ; i<MAX_STATS ; i++) {
 				if (bits & (1<<i) )
 				{
-					if (i == STAT_WEAPONS)
+					if (i == to_underlying( STAT_WEAPONS ))
 					{ //ugly.. but we're gonna need it anyway -rww
 						to->stats.data()[i] = MSG_ReadBits(msg, MAX_WEAPONS);
 					}

@@ -94,19 +94,21 @@ typedef struct bot_movestate_s
 
 //used to avoid reachability links for some time after being used
 #define AVOIDREACH
-#define AVOIDREACH_TIME			6		//avoid links for 6 seconds after use
-#define AVOIDREACH_TRIES		4
+constexpr int AVOIDREACH_TIME = 6;		//avoid links for 6 seconds after use
+constexpr int AVOIDREACH_TRIES = 4;
 //prediction times
-#define PREDICTIONTIME_JUMP	3		//in seconds
-#define PREDICTIONTIME_MOVE	2		//in seconds
+constexpr int PREDICTIONTIME_JUMP = 3;		//in seconds
 //weapon indexes for weapon jumping
-#define WEAPONINDEX_ROCKET_LAUNCHER		5
-#define WEAPONINDEX_BFG					9
 
-#define MODELTYPE_FUNC_PLAT		1
-#define MODELTYPE_FUNC_BOB		2
-#define MODELTYPE_FUNC_DOOR		3
-#define MODELTYPE_FUNC_STATIC	4
+enum class brushModelType_t
+{
+	MODELTYPE_NONE,
+	MODELTYPE_FUNC_PLAT,
+	MODELTYPE_FUNC_BOB,
+	MODELTYPE_FUNC_DOOR,
+	MODELTYPE_FUNC_STATIC,
+};
+using enum brushModelType_t;
 
 libvar_t *sv_maxstep;
 libvar_t *sv_maxbarrier;
@@ -119,7 +121,7 @@ libvar_t *offhandgrapple;
 libvar_t *cmd_grappleoff;
 libvar_t *cmd_grappleon;
 //type of model, func_plat or func_bobbing
-int modeltypes[MAX_MODELS];
+brushModelType_t modeltypes[MAX_MODELS];
 
 bot_movestate_t *botmovestates[MAX_CLIENTS+1];
 
@@ -305,7 +307,8 @@ int BotFuzzyPointReachabilityArea(vec3_t origin)
 //===========================================================================
 int BotReachabilityArea(vec3_t origin, int client)
 {
-	int modelnum, modeltype, reachnum, areanum;
+	int modelnum, reachnum, areanum;
+	brushModelType_t modeltype;
 	aas_reachability_t reach;
 	vec3_t org, end, mins, maxs, up = {0, 0, 1};
 	bsp_trace_t bsptrace;
@@ -520,7 +523,7 @@ void BotSetBrushModelTypes(void)
 	int ent, modelnum;
 	char classname[MAX_EPAIRKEY], model[MAX_EPAIRKEY];
 
-	Com_Memset(modeltypes, 0, MAX_MODELS * sizeof(int));
+	Com_Memset(modeltypes, 0, MAX_MODELS * sizeof(brushModelType_t));
 	//
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
@@ -655,9 +658,10 @@ float VectorDistanceSquared(vec3_t p1, vec3_t p2)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avoidspots, int numavoidspots)
+avoidSpotType_t BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avoidspots, int numavoidspots)
 {
-	int checkbetween, i, type;
+	int checkbetween, i;
+	avoidSpotType_t type;
 	float squareddist, squaredradius;
 
 	switch(reach->traveltype & TRAVELTYPE_MASK)
@@ -721,7 +725,7 @@ int BotAvoidSpots(vec3_t origin, aas_reachability_t *reach, bot_avoidspot_t *avo
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void BotAddAvoidSpot(int movestate, vec3_t origin, float radius, int type)
+void BotAddAvoidSpot(int movestate, vec3_t origin, float radius, avoidSpotType_t type)
 {
 	bot_movestate_t *ms;
 
@@ -799,7 +803,7 @@ int BotGetReachabilityToGoal(vec3_t origin, int areanum,
 		//if the goal area isn't reachable from the reachable area
 		if (!t) continue;
 		//if the bot should not use this reachability to avoid bad spots
-		if (BotAvoidSpots(origin, &reach, avoidspots, numavoidspots)) {
+		if (BotAvoidSpots(origin, &reach, avoidspots, numavoidspots) != AVOID_CLEAR) {
 			if (flags) {
 				*flags |= MOVERESULT_BLOCKEDBYAVOIDSPOT;
 			}
@@ -3050,7 +3054,8 @@ void BotMoveToGoal(bot_moveresult_t *result, int movestate, bot_goal_t *goal, tr
 	//
 	if (Any( ms->moveflags & MFL_ONGROUND ))
 	{
-		int modeltype, modelnum;
+		brushModelType_t modeltype;
+		int modelnum;
 
 		ent = BotOnTopOfEntity(ms);
 
@@ -3534,7 +3539,7 @@ void BotResetMoveState(int movestate)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupMoveAI(void)
+botlibError_t BotSetupMoveAI(void)
 {
 	BotSetBrushModelTypes();
 	sv_maxstep = LibVar("sv_step", "18");

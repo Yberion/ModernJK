@@ -49,20 +49,15 @@ to the new value before sending out any replies.
 */
 
 
-#define	MAX_PACKETLEN			(MAX_MSGLEN)	//(1400)		// max size of a network packet
-#define MAX_LOOPDATA            16 * 1024
+constexpr int MAX_PACKETLEN = MAX_MSGLEN;	//(1400)		// max size of a network packet
+constexpr int MAX_LOOPDATA = 16 * 1024;
 
-#if (MAX_PACKETLEN > MAX_MSGLEN)
-#error MAX_PACKETLEN must be <= MAX_MSGLEN
-#endif
-#if (MAX_LOOPDATA > MAX_MSGLEN)
-#error MAX_LOOPDATA must be <= MAX_MSGLEN
-#endif
+static_assert( MAX_PACKETLEN <= MAX_MSGLEN, "MAX_PACKETLEN must be <= MAX_MSGLEN" );
+static_assert( MAX_LOOPDATA <= MAX_MSGLEN, "MAX_LOOPDATA must be <= MAX_MSGLEN" );
 
-#define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
-#define	PACKET_HEADER			10			// two ints and a short
+constexpr int FRAGMENT_SIZE = MAX_PACKETLEN - 100;
 
-#define	FRAGMENT_BIT	(1<<31)
+constexpr int FRAGMENT_BIT = 1<<31;
 
 cvar_t		*showpackets;
 cvar_t		*showdrop;

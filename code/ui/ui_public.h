@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../client/keycodes.h"
 
 
-#define UI_API_VERSION	3
+inline constexpr int UI_API_VERSION = 3;
 
 
 enum class dpTypes_t;	// below

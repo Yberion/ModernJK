@@ -44,7 +44,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define DOLLAR
 
 //maximum token length
-#define MAX_TOKEN					1024
+inline constexpr int MAX_TOKEN = 1024;
 
 #if defined(BSPC) && !defined(QDECL)
 #define QDECL
@@ -66,12 +66,7 @@ enum class scriptParseFlags_t
 using enum scriptParseFlags_t;
 template <> inline constexpr bool enableEnumFlags<scriptParseFlags_t> = true;
 
-//token types
-#define TT_STRING						1			// string
-#define TT_LITERAL					2			// literal
-#define TT_NUMBER						3			// number
-#define TT_NAME						4			// name
-#define TT_PUNCTUATION				5			// punctuation
+//token types: tokenType_t, in q_shared.h
 
 //string sub type
 //---------------
@@ -81,80 +76,84 @@ template <> inline constexpr bool enableEnumFlags<scriptParseFlags_t> = true;
 //		the ASCII code of the literal
 //number sub type
 //---------------
-#define TT_DECIMAL					0x0008	// decimal number
-#define TT_HEX							0x0100	// hexadecimal number
-#define TT_OCTAL						0x0200	// octal number
+inline constexpr int TT_DECIMAL = 0x0008;	// decimal number
+inline constexpr int TT_HEX = 0x0100;	// hexadecimal number
+inline constexpr int TT_OCTAL = 0x0200;	// octal number
 #ifdef BINARYNUMBERS
-#define TT_BINARY						0x0400	// binary number
+inline constexpr int TT_BINARY = 0x0400;	// binary number
 #endif //BINARYNUMBERS
-#define TT_FLOAT						0x0800	// floating point number
-#define TT_INTEGER					0x1000	// integer number
-#define TT_LONG						0x2000	// long number
-#define TT_UNSIGNED					0x4000	// unsigned number
+inline constexpr int TT_FLOAT = 0x0800;	// floating point number
+inline constexpr int TT_INTEGER = 0x1000;	// integer number
+inline constexpr int TT_LONG = 0x2000;	// long number
+inline constexpr int TT_UNSIGNED = 0x4000;	// unsigned number
 //punctuation sub type
 //--------------------
-#define P_RSHIFT_ASSIGN				1
-#define P_LSHIFT_ASSIGN				2
-#define P_PARMS						3
-#define P_PRECOMPMERGE				4
+enum class punctuationId_t
+{
+	P_RSHIFT_ASSIGN = 1,
+	P_LSHIFT_ASSIGN,
+	P_PARMS,
+	P_PRECOMPMERGE,
 
-#define P_LOGIC_AND					5
-#define P_LOGIC_OR					6
-#define P_LOGIC_GEQ					7
-#define P_LOGIC_LEQ					8
-#define P_LOGIC_EQ					9
-#define P_LOGIC_UNEQ					10
+	P_LOGIC_AND,
+	P_LOGIC_OR,
+	P_LOGIC_GEQ,
+	P_LOGIC_LEQ,
+	P_LOGIC_EQ,
+	P_LOGIC_UNEQ,
 
-#define P_MUL_ASSIGN					11
-#define P_DIV_ASSIGN					12
-#define P_MOD_ASSIGN					13
-#define P_ADD_ASSIGN					14
-#define P_SUB_ASSIGN					15
-#define P_INC							16
-#define P_DEC							17
+	P_MUL_ASSIGN,
+	P_DIV_ASSIGN,
+	P_MOD_ASSIGN,
+	P_ADD_ASSIGN,
+	P_SUB_ASSIGN,
+	P_INC,
+	P_DEC,
 
-#define P_BIN_AND_ASSIGN			18
-#define P_BIN_OR_ASSIGN				19
-#define P_BIN_XOR_ASSIGN			20
-#define P_RSHIFT						21
-#define P_LSHIFT						22
+	P_BIN_AND_ASSIGN,
+	P_BIN_OR_ASSIGN,
+	P_BIN_XOR_ASSIGN,
+	P_RSHIFT,
+	P_LSHIFT,
 
-#define P_POINTERREF					23
-#define P_CPP1							24
-#define P_CPP2							25
-#define P_MUL							26
-#define P_DIV							27
-#define P_MOD							28
-#define P_ADD							29
-#define P_SUB							30
-#define P_ASSIGN						31
+	P_POINTERREF,
+	P_CPP1,
+	P_CPP2,
+	P_MUL,
+	P_DIV,
+	P_MOD,
+	P_ADD,
+	P_SUB,
+	P_ASSIGN,
 
-#define P_BIN_AND						32
-#define P_BIN_OR						33
-#define P_BIN_XOR						34
-#define P_BIN_NOT						35
+	P_BIN_AND,
+	P_BIN_OR,
+	P_BIN_XOR,
+	P_BIN_NOT,
 
-#define P_LOGIC_NOT					36
-#define P_LOGIC_GREATER				37
-#define P_LOGIC_LESS					38
+	P_LOGIC_NOT,
+	P_LOGIC_GREATER,
+	P_LOGIC_LESS,
 
-#define P_REF							39
-#define P_COMMA						40
-#define P_SEMICOLON					41
-#define P_COLON						42
-#define P_QUESTIONMARK				43
+	P_REF,
+	P_COMMA,
+	P_SEMICOLON,
+	P_COLON,
+	P_QUESTIONMARK,
 
-#define P_PARENTHESESOPEN			44
-#define P_PARENTHESESCLOSE			45
-#define P_BRACEOPEN					46
-#define P_BRACECLOSE					47
-#define P_SQBRACKETOPEN				48
-#define P_SQBRACKETCLOSE			49
-#define P_BACKSLASH					50
+	P_PARENTHESESOPEN,
+	P_PARENTHESESCLOSE,
+	P_BRACEOPEN,
+	P_BRACECLOSE,
+	P_SQBRACKETOPEN,
+	P_SQBRACKETCLOSE,
+	P_BACKSLASH,
 
-#define P_PRECOMP						51
-#define P_DOLLAR						52
-#define	P_ATSIGN						53
+	P_PRECOMP,
+	P_DOLLAR,
+	P_ATSIGN,
+};
+using enum punctuationId_t;
 //name sub type
 //-------------
 //		the length of the name
@@ -163,7 +162,7 @@ template <> inline constexpr bool enableEnumFlags<scriptParseFlags_t> = true;
 typedef struct punctuation_s
 {
 	const char *p;					//punctuation character(s)
-	int n;							//punctuation indication
+	punctuationId_t n;				//punctuation indication
 	struct punctuation_s *next;		//next punctuation
 } punctuation_t;
 
@@ -171,7 +170,7 @@ typedef struct punctuation_s
 typedef struct token_s
 {
 	char string[MAX_TOKEN];			//available token
-	int type;						//last read token type
+	tokenType_t type;				//last read token type
 	int subtype;					//last read token sub type
 #ifdef NUMBERVALUE
 	unsigned long int intvalue;	//integer value
@@ -183,6 +182,10 @@ typedef struct token_s
 	int linescrossed;				//lines crossed in white space
 	struct token_s *next;			//next token in chain
 } token_t;
+
+// the punctuation of a TT_PUNCTUATION token, kept in its sub type (a field that holds other things for the other types)
+[[nodiscard]] inline punctuationId_t Token_Punctuation( const token_t &token ) { return static_cast<punctuationId_t>( token.subtype ); }
+inline void Token_SetPunctuation( token_t &token, punctuationId_t punctuation ) { token.subtype = to_underlying( punctuation ); }
 
 //script file
 typedef struct script_s
@@ -210,13 +213,13 @@ int PS_ReadToken(script_t *script, token_t *token);
 //expect a certain token
 int PS_ExpectTokenString(script_t *script, char *string);
 //expect a certain token type
-int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token);
+int PS_ExpectTokenType(script_t *script, tokenType_t type, int subtype, token_t *token);
 //expect a token
 int PS_ExpectAnyToken(script_t *script, token_t *token);
 //returns true when the token is available
 int PS_CheckTokenString(script_t *script, char *string);
 //returns true and reads the token when a token with the given type is available
-int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token);
+int PS_CheckTokenType(script_t *script, tokenType_t type, int subtype, token_t *token);
 //skip tokens until the given token string is read
 int PS_SkipUntilString(script_t *script, char *string);
 //unread the last token read from the script
@@ -244,7 +247,7 @@ void ResetScript(script_t *script);
 //returns true if at the end of the script
 int EndOfScript(script_t *script);
 //returns a pointer to the punctuation with the given number
-const char *PunctuationFromNum(script_t *script, int num);
+const char *PunctuationFromNum(script_t *script, punctuationId_t num);
 //load a script from the given file at the given offset with the given length
 script_t *LoadScriptFile(const char *filename);
 //load a script from the given memory with the given length

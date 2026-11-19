@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 //typedef map		< string, int >	timer_m;
 
-#define MAX_GTIMERS	16384
+constexpr int MAX_GTIMERS = 16384;
 
 typedef struct gtimer_s
 {

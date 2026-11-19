@@ -59,7 +59,7 @@ struct PointAndLeaf
 // hopefully getting rid of water checks on maps with no water will leave us less
 // reliant on this cache. -gwg
 
-#define MAX_POINTS_TO_LEAVES	16
+constexpr int MAX_POINTS_TO_LEAVES = 16;
 
 static PointAndLeaf	pointToLeaf[MAX_POINTS_TO_LEAVES];
 static int	oldestPointToLeaf = 0, sizePointToLeaf = 0;
@@ -102,8 +102,8 @@ int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local ) {
 		node = local->nodes + num;
 		plane = node->plane;
 
-		if (plane->type < 3)
-			d = p[plane->type] - plane->dist;
+		if (plane->type < PLANE_NON_AXIAL)
+			d = p[PlaneAxis( plane->type )] - plane->dist;
 		else
 			d = DotProduct (plane->normal, p) - plane->dist;
 		if (d < 0)

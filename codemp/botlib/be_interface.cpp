@@ -138,9 +138,9 @@ bool BotLibSetup(const char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibSetup(void)
+botlibError_t Export_BotLibSetup(void)
 {
-	int		errnum;
+	botlibError_t	errnum;
 
 	botDeveloper = LibVarGetValue("bot_developer");
   memset( &botlibglobals, 0, sizeof(botlibglobals) ); // bk001207 - init
@@ -201,7 +201,7 @@ int Export_BotLibSetup(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibShutdown(void)
+botlibError_t Export_BotLibShutdown(void)
 {
 	if (!BotLibSetup("BotLibShutdown")) return BLERR_LIBRARYNOTSETUP;
 #ifndef DEMO
@@ -244,7 +244,7 @@ int Export_BotLibShutdown(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarSet(const char *var_name, const char *value)
+botlibError_t Export_BotLibVarSet(const char *var_name, const char *value)
 {
 	LibVarSet(var_name, value);
 	return BLERR_NOERROR;
@@ -255,7 +255,7 @@ int Export_BotLibVarSet(const char *var_name, const char *value)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarGet(const char *var_name, char *value, int size)
+botlibError_t Export_BotLibVarGet(const char *var_name, char *value, int size)
 {
 	const char *varvalue;
 
@@ -270,7 +270,7 @@ int Export_BotLibVarGet(const char *var_name, char *value, int size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibStartFrame(float time)
+botlibError_t Export_BotLibStartFrame(float time)
 {
 	if (!BotLibSetup("BotStartFrame")) return BLERR_LIBRARYNOTSETUP;
 	return AAS_StartFrame(time);
@@ -281,12 +281,12 @@ int Export_BotLibStartFrame(float time)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibLoadMap(const char *mapname)
+botlibError_t Export_BotLibLoadMap(const char *mapname)
 {
 #ifdef DEBUG
 	int starttime = Sys_MilliSeconds();
 #endif
-	int errnum;
+	botlibError_t errnum;
 
 	if (!BotLibSetup("BotLoadMap")) return BLERR_LIBRARYNOTSETUP;
 	//
@@ -311,7 +311,7 @@ int Export_BotLibLoadMap(const char *mapname)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state)
+botlibError_t Export_BotLibUpdateEntity(int ent, bot_entitystate_t *state)
 {
 	if (!BotLibSetup("BotUpdateEntity")) return BLERR_LIBRARYNOTSETUP;
 	if (!ValidEntityNumber(ent, "BotUpdateEntity")) return BLERR_INVALIDENTITYNUMBER;
@@ -534,7 +534,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	*/
 	AAS_ClearShownPolygons();
 	AAS_ClearShownDebugLines();
-	AAS_ShowAreaPolygons(newarea, 1, parm0 & 4);
+	AAS_ShowAreaPolygons(newarea, LINECOLOR_RED, parm0 & 4);
 	if (parm0 & 2) AAS_ShowReachableAreas(area);
 	else
 	{

@@ -37,7 +37,7 @@
    else no check is done (which is less robust)
 */
 #define USE_EPSILON_TEST 1
-#define EPSILON 0.000001
+constexpr double EPSILON = 0.000001;
 
 
 /* some macros */

@@ -72,19 +72,18 @@ class	CRailMover;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		MAX_TRACKS			4
-#define		MAX_LANES			8
-#define		MAX_MOVERS			150
-#define		MAX_MOVER_ENTS		10
-#define		MAX_MOVERS_TRACK	80
-#define		MAX_COLS			32
-#define		MAX_ROWS			96
-#define		MAX_ROW_HISTORY		10
+constexpr int MAX_TRACKS = 4;
+constexpr int MAX_LANES = 8;
+constexpr int MAX_MOVERS = 150;
+constexpr int MAX_MOVERS_TRACK = 80;
+constexpr int MAX_COLS = 32;
+constexpr int MAX_ROWS = 96;
+constexpr int MAX_ROW_HISTORY = 10;
 
-#define		WOOSH_DEBUG			0
-#define		WOOSH_ALL_RANGE		1500.0f
-#define		WOOSH_SUPPORT_RANGE	2500.0f
-#define		WOOSH_TUNNEL_RANGE	3000.0f
+constexpr int WOOSH_DEBUG = 0;
+constexpr float WOOSH_ALL_RANGE = 1500.0f;
+constexpr float WOOSH_SUPPORT_RANGE = 2500.0f;
+constexpr float WOOSH_TUNNEL_RANGE = 3000.0f;
 
 
 bool		mRailSystemActive = false;

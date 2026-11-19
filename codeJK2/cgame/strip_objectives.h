@@ -31,7 +31,7 @@ the objectives... duh...
 ********************************************************************************/
 
 
-#define PACKAGE_OBJECTIVES		0x08
+inline constexpr int PACKAGE_OBJECTIVES = 0x08;
 
 
 #endif // __strip_objectives_h

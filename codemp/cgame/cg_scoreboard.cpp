@@ -26,40 +26,35 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_shared.h"
 #include "game/bg_saga.h"
 
-#define	SCOREBOARD_X		(0)
+constexpr int SCOREBOARD_X = 0;
 
-#define SB_HEADER			86
+constexpr int SB_HEADER = 86;
 #define SB_TOP				(SB_HEADER+32)
 
 // Where the status bar starts, so we don't overwrite it
-#define SB_STATUSBAR		420
+constexpr int SB_STATUSBAR = 420;
 
-#define SB_NORMAL_HEIGHT	25
-#define SB_INTER_HEIGHT		15 // interleaved height
+constexpr int SB_NORMAL_HEIGHT = 25;
+constexpr int SB_INTER_HEIGHT = 15; // interleaved height
 
-#define SB_MAXCLIENTS_NORMAL  ((SB_STATUSBAR - SB_TOP) / SB_NORMAL_HEIGHT)
-#define SB_MAXCLIENTS_INTER   ((SB_STATUSBAR - SB_TOP) / SB_INTER_HEIGHT - 1)
+constexpr int SB_MAXCLIENTS_NORMAL = (SB_STATUSBAR - SB_TOP) / SB_NORMAL_HEIGHT;
+constexpr int SB_MAXCLIENTS_INTER = (SB_STATUSBAR - SB_TOP) / SB_INTER_HEIGHT - 1;
 
 // Used when interleaved
 
 
 
-#define SB_LEFT_BOTICON_X	(SCOREBOARD_X+0)
-#define SB_LEFT_HEAD_X		(SCOREBOARD_X+32)
-#define SB_RIGHT_BOTICON_X	(SCOREBOARD_X+64)
-#define SB_RIGHT_HEAD_X		(SCOREBOARD_X+96)
 // Normal
-#define SB_BOTICON_X		(SCOREBOARD_X+32)
-#define SB_HEAD_X			(SCOREBOARD_X+64)
+constexpr int SB_BOTICON_X = SCOREBOARD_X+32;
 
-#define SB_SCORELINE_X		100
-#define SB_SCORELINE_WIDTH	(640 - SB_SCORELINE_X * 2)
+constexpr int SB_SCORELINE_X = 100;
+constexpr int SB_SCORELINE_WIDTH = 640 - SB_SCORELINE_X * 2;
 
-#define SB_RATING_WIDTH	    0 // (6 * BIGCHAR_WIDTH)
-#define SB_NAME_X			(SB_SCORELINE_X)
-#define SB_SCORE_X			(SB_SCORELINE_X + .55 * SB_SCORELINE_WIDTH)
-#define SB_PING_X			(SB_SCORELINE_X + .70 * SB_SCORELINE_WIDTH)
-#define SB_TIME_X			(SB_SCORELINE_X + .85 * SB_SCORELINE_WIDTH)
+constexpr int SB_RATING_WIDTH = 0; // (6 * BIGCHAR_WIDTH)
+constexpr int SB_NAME_X = SB_SCORELINE_X;
+constexpr double SB_SCORE_X = SB_SCORELINE_X + .55 * SB_SCORELINE_WIDTH;
+constexpr double SB_PING_X = SB_SCORELINE_X + .70 * SB_SCORELINE_WIDTH;
+constexpr double SB_TIME_X = SB_SCORELINE_X + .85 * SB_SCORELINE_WIDTH;
 
 // The new and improved score board
 //

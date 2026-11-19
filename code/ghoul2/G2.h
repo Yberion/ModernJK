@@ -29,17 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 class CMiniHeap;
 
 // defines to setup the
-#define		ENTITY_WIDTH 12
-#define		MODEL_WIDTH	10
-#define		BOLT_WIDTH	10
+#include "qcommon/q_renderer.h"
 
-#define		MODEL_AND	((1<<MODEL_WIDTH)-1)
-#define		BOLT_AND	((1<<BOLT_WIDTH)-1)
-#define		ENTITY_AND	((1<<ENTITY_WIDTH)-1)
 
-#define		BOLT_SHIFT	0
-#define		MODEL_SHIFT	(BOLT_SHIFT + BOLT_WIDTH)
-#define		ENTITY_SHIFT (MODEL_SHIFT + MODEL_WIDTH)
 
 //rww - RAGDOLL_BEGIN
 class CRagDollUpdateParams;

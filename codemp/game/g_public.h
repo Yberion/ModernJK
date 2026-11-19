@@ -32,9 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MDXABONEDEF
 #include "rd-common/mdx_format.h"
 
-#define Q3_INFINITE			16777216
-
-#define	GAME_API_VERSION	1
+inline constexpr int GAME_API_VERSION = 1;
 
 enum class itemType_t;	// bg_public.h
 enum class variableType_t;	// icarus/Q3_Registers.h
@@ -46,6 +44,8 @@ enum class altRouteGoalFlags_t;	// botlib/be_aas.h
 enum class routeStopEventFlags_t;	// botlib/be_aas.h
 enum class moveTypeFlags_t;	// botlib/be_ai_move.h
 enum class actionFlags_t;	// botlib/botlib.h
+enum class botlibError_t;	// botlib/botlib.h
+enum class avoidSpotType_t;	// botlib/be_ai_move.h
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -235,13 +235,13 @@ enum class bSet_t //# bSet_e
 using enum bSet_t;
 template <> inline constexpr bool enableEnumArithmetic<bSet_t> = true;
 
-#define	MAX_PARMS	16
-#define	MAX_PARM_STRING_LENGTH	MAX_QPATH//was 16, had to lengthen it so they could take a valid file path
+inline constexpr int MAX_PARMS = 16;
+inline constexpr int MAX_PARM_STRING_LENGTH = MAX_QPATH; //was 16, had to lengthen it so they could take a valid file path
 typedef struct parms_s {
 	char	parm[MAX_PARMS][MAX_PARM_STRING_LENGTH];
 } parms_t;
 
-#define MAX_FAILED_NODES 8
+inline constexpr int MAX_FAILED_NODES = 8;
 
 #if (!defined(MACOS_X) && !defined(__GCC__) && !defined(__GNUC__))
 typedef struct Vehicle_s Vehicle_t;
@@ -569,7 +569,7 @@ typedef struct gameImport_s {
 	void		(*BotMatchVariable)						( void *match, int variable, char *buf, int size );
 	void		(*UnifyWhiteSpaces)						( char *string );
 	void		(*BotReplaceSynonyms)					( char *string, unsigned long int context );
-	int			(*BotLoadChatFile)						( int chatstate, char *chatfile, char *chatname );
+	botlibError_t	(*BotLoadChatFile)						( int chatstate, char *chatfile, char *chatname );
 	void		(*BotSetChatGender)						( int chatstate, int gender );
 	void		(*BotSetChatName)						( int chatstate, char *name, int client );
 	void		(*BotResetGoalState)					( int goalstate );
@@ -590,7 +590,7 @@ typedef struct gameImport_s {
 	float		(*BotAvoidGoalTime)						( int goalstate, int number );
 	void		(*BotInitLevelItems)					( void );
 	void		(*BotUpdateEntityItems)					( void );
-	int			(*BotLoadItemWeights)					( int goalstate, char *filename );
+	botlibError_t	(*BotLoadItemWeights)					( int goalstate, char *filename );
 	void		(*BotFreeItemWeights)					( int goalstate );
 	void		(*BotSaveGoalFuzzyLogic)				( int goalstate, char *filename );
 	int			(*BotAllocGoalState)					( int state );
@@ -607,7 +607,7 @@ typedef struct gameImport_s {
 	void		(*BotInitMoveState)						( int handle, void *initmove );
 	int			(*BotChooseBestFightWeapon)				( int weaponstate, int *inventory );
 	void		(*BotGetWeaponInfo)						( int weaponstate, int weapon, void *weaponinfo );
-	int			(*BotLoadWeaponWeights)					( int weaponstate, char *filename );
+	botlibError_t	(*BotLoadWeaponWeights)					( int weaponstate, char *filename );
 	int			(*BotAllocWeaponState)					( void );
 	void		(*BotFreeWeaponState)					( int weaponstate );
 	void		(*BotResetWeaponState)					( int weaponstate );
@@ -621,15 +621,15 @@ typedef struct gameImport_s {
 	void		(*BotRemoveFromAvoidGoals)				( int goalstate, int number );
 	int			(*BotPredictVisiblePosition)			( vec3_t origin, int areanum, void *goal, travelFlags_t travelflags, vec3_t target );
 	void		(*BotSetAvoidGoalTime)					( int goalstate, int number, float avoidtime );
-	void		(*BotAddAvoidSpot)						( int movestate, vec3_t origin, float radius, int type );
-	int			(*BotLibSetup)							( void );
-	int			(*BotLibShutdown)						( void );
-	int			(*BotLibVarSet)							( const char *var_name, const char *value );
-	int			(*BotLibVarGet)							( const char *var_name, char *value, int size );
+	void		(*BotAddAvoidSpot)						( int movestate, vec3_t origin, float radius, avoidSpotType_t type );
+	botlibError_t	(*BotLibSetup)							( void );
+	botlibError_t	(*BotLibShutdown)						( void );
+	botlibError_t	(*BotLibVarSet)							( const char *var_name, const char *value );
+	botlibError_t	(*BotLibVarGet)							( const char *var_name, char *value, int size );
 	int			(*BotLibDefine)							( char *string );
-	int			(*BotLibStartFrame)						( float time );
-	int			(*BotLibLoadMap)						( const char *mapname );
-	int			(*BotLibUpdateEntity)					( int ent, void *bue );
+	botlibError_t	(*BotLibStartFrame)						( float time );
+	botlibError_t	(*BotLibLoadMap)						( const char *mapname );
+	botlibError_t	(*BotLibUpdateEntity)					( int ent, void *bue );
 	int			(*BotLibTest)							( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 );
 	int			(*BotGetSnapshotEntity)					( int clientNum, int sequence );
 	int			(*BotGetServerCommand)					( int clientNum, char *message, int size );

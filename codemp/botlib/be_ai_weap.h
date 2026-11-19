@@ -37,7 +37,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 //weapon flags
-#define WFL_FIRERELEASED			1		//set when projectile is fired with key-up event
 
 typedef struct projectileinfo_s
 {
@@ -86,7 +85,7 @@ typedef struct weaponinfo_s
 } weaponinfo_t;
 
 //setup the weapon AI
-int BotSetupWeaponAI(void);
+botlibError_t BotSetupWeaponAI(void);
 //shut down the weapon AI
 void BotShutdownWeaponAI(void);
 //returns the best weapon to fight with
@@ -94,7 +93,7 @@ int BotChooseBestFightWeapon(int weaponstate, int *inventory);
 //returns the information of the current weapon
 void BotGetWeaponInfo(int weaponstate, int weapon, weaponinfo_t *weaponinfo);
 //loads the weapon weights
-int BotLoadWeaponWeights(int weaponstate, char *filename);
+botlibError_t BotLoadWeaponWeights(int weaponstate, char *filename);
 //returns a handle to a newly allocated weapon state
 int BotAllocWeaponState(void);
 //frees the weapon state

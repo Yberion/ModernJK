@@ -36,17 +36,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define MAX_MESSAGE_SIZE		256
-#define MAX_CHATTYPE_NAME		32
-#define MAX_MATCHVARIABLES		8
+inline constexpr int MAX_MESSAGE_SIZE = 256;
+inline constexpr int MAX_CHATTYPE_NAME = 32;
+inline constexpr int MAX_MATCHVARIABLES = 8;
 
-#define CHAT_GENDERLESS			0
-#define CHAT_GENDERFEMALE		1
-#define CHAT_GENDERMALE			2
+inline constexpr int CHAT_GENDERLESS = 0;
+inline constexpr int CHAT_GENDERFEMALE = 1;
+inline constexpr int CHAT_GENDERMALE = 2;
 
-#define CHAT_ALL					0
-#define CHAT_TEAM					1
-#define CHAT_TELL					2
+inline constexpr int CHAT_ALL = 0;
+inline constexpr int CHAT_TEAM = 1;
+inline constexpr int CHAT_TELL = 2;
 
 //a console message
 typedef struct bot_consolemessage_s
@@ -74,7 +74,7 @@ typedef struct bot_match_s
 } bot_match_t;
 
 //setup the chat AI
-int BotSetupChatAI(void);
+botlibError_t BotSetupChatAI(void);
 //shutdown the chat AI
 void BotShutdownChatAI(void);
 //returns the handle to a newly allocated chat state
@@ -112,7 +112,7 @@ void UnifyWhiteSpaces(char *string);
 //replace all the context related synonyms in the string
 void BotReplaceSynonyms(char *string, unsigned long int context);
 //loads a chat file for the chat state
-int BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
+botlibError_t BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
 //store the gender of the bot in the chat state
 void BotSetChatGender(int chatstate, int gender);
 //store the bot name in the chat state

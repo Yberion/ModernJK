@@ -90,8 +90,8 @@ extern sfxHandle_t	trap_S_RegisterSound( const char *sample);		// returns buzz i
 
 // These buffers are filled in with the same contents and then just read from in
 // a few places. We only need one copy on Xbox.
-#define MAX_VEH_WEAPON_DATA_SIZE 0x40000
-#define MAX_VEHICLE_DATA_SIZE 0x100000
+constexpr int MAX_VEH_WEAPON_DATA_SIZE = 0x40000;
+constexpr int MAX_VEHICLE_DATA_SIZE = 0x100000;
 
 #if defined(QAGAME)
 	char	VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE];

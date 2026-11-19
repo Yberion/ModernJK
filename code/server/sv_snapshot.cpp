@@ -220,7 +220,7 @@ Build a client snapshot structure
 =============================================================================
 */
 
-#define	MAX_SNAPSHOT_ENTITIES	1024
+constexpr int MAX_SNAPSHOT_ENTITIES = 1024;
 typedef struct {
 	int		numSnapshotEntities;
 	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];
@@ -629,7 +629,6 @@ SV_SendMessageToClient
 Called by SV_SendClientSnapshot and SV_SendClientGameState
 =======================
 */
-#define	HEADER_RATE_BYTES	48		// include our header, IP header, and some overhead
 void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	// record information about the message
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;

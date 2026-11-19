@@ -26,13 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 // cg_camera.cpp
 
-#define MAX_CAMERA_GROUP_SUBJECTS	16
-#define MAX_ACCEL_PER_FRAME			10.0f
-#define MAX_SHAKE_INTENSITY			16.0f
-#define	CAMERA_DEFAULT_FOV			90.0f
-#define CAMERA_WIDESCREEN_FOV		120.0f
-#define	BAR_DURATION				1000.0f
-#define BAR_RATIO					48.0f
+inline constexpr int MAX_CAMERA_GROUP_SUBJECTS = 16;
+inline constexpr float MAX_ACCEL_PER_FRAME = 10.0f;
+inline constexpr float MAX_SHAKE_INTENSITY = 16.0f;
+inline constexpr float CAMERA_DEFAULT_FOV = 90.0f;
+inline constexpr float BAR_DURATION = 1000.0f;
 
 enum class cameraStateFlags_t
 {

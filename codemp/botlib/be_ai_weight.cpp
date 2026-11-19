@@ -49,10 +49,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "be_interface.h"
 #include "be_ai_weight.h"
 
-#define MAX_INVENTORYVALUE			999999
+constexpr int MAX_INVENTORYVALUE = 999999;
 #define EVALUATERECURSIVELY
 
-#define MAX_WEIGHT_FILES			128
+constexpr int MAX_WEIGHT_FILES = 128;
 weightconfig_t	*weightFileList[MAX_WEIGHT_FILES];
 
 //===========================================================================

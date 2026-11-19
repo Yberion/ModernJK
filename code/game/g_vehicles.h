@@ -49,7 +49,7 @@ using enum EWeaponPose;
 
 extern stringID_table_t VehicleTable[to_underlying( VH_NUM_VEHICLES ) + 1];
 
-#define NO_PILOT_DIE_TIME 10000
+inline constexpr int NO_PILOT_DIE_TIME = 10000;
 
 //===========================================================================================================
 //START VEHICLE WEAPONS
@@ -86,9 +86,9 @@ typedef struct
 
 #define	VWFOFS(x) offsetof(vehWeaponInfo_t, x)
 
-#define MAX_VEH_WEAPONS	16	//sigh... no more than 16 different vehicle weapons
-#define VEH_WEAPON_BASE	0
-#define VEH_WEAPON_NONE	-1
+inline constexpr int MAX_VEH_WEAPONS = 16;	//sigh... no more than 16 different vehicle weapons
+inline constexpr int VEH_WEAPON_BASE = 0;
+inline constexpr int VEH_WEAPON_NONE = -1;
 
 extern vehWeaponInfo_t g_vehWeaponInfo[MAX_VEH_WEAPONS];
 extern int	numVehicleWeapons;
@@ -98,15 +98,15 @@ extern int	numVehicleWeapons;
 //===========================================================================================================
 
 // The maximum number of muzzles a vehicle may have.
-#define		MAX_VEHICLE_MUZZLES			10
+inline constexpr int MAX_VEHICLE_MUZZLES = 10;
 
 // The maximum number of exhausts a vehicle may have.
-#define		MAX_VEHICLE_EXHAUSTS		4
+inline constexpr int MAX_VEHICLE_EXHAUSTS = 4;
 
 // The maxiumum number of different weapons a vehicle may have
-#define		MAX_VEHICLE_WEAPONS			2
-#define		MAX_VEHICLE_TURRETS			2
-#define		MAX_VEHICLE_TURRET_MUZZLES	2
+inline constexpr int MAX_VEHICLE_WEAPONS = 2;
+inline constexpr int MAX_VEHICLE_TURRETS = 2;
+inline constexpr int MAX_VEHICLE_TURRET_MUZZLES = 2;
 
 typedef struct
 {
@@ -375,7 +375,7 @@ typedef struct
 
 #define	VFOFS(x) offsetof(vehicleInfo_t, x)
 
-#define MAX_VEHICLES	16	//sigh... no more than 64 individual vehicles
+inline constexpr int MAX_VEHICLES = 16;	//sigh... no more than 64 individual vehicles
 extern vehicleInfo_t g_vehicleInfo[MAX_VEHICLES];
 extern int	numVehicles;
 
@@ -394,39 +394,39 @@ extern void G_CreateAnimalNPC( Vehicle_t **pVeh, const char *strType );
 extern void G_CreateFighterNPC( Vehicle_t **pVeh, const char *strType );
 extern void G_CreateWalkerNPC( Vehicle_t **pVeh, const char *strType );
 
-#define VEH_DEFAULT_SPEED_MAX		800.0f
-#define VEH_DEFAULT_ACCEL			10.0f
-#define VEH_DEFAULT_DECEL			10.0f
-#define VEH_DEFAULT_STRAFE_PERC		0.5f
-#define VEH_DEFAULT_BANKING_SPEED	0.5f
-#define VEH_DEFAULT_ROLL_LIMIT		60.0f
-#define VEH_DEFAULT_PITCH_LIMIT		90.0f
-#define VEH_DEFAULT_BRAKING			10.0f
-#define VEH_DEFAULT_TURNING_SPEED	1.0f
-#define VEH_DEFAULT_TRACTION		8.0f
-#define VEH_DEFAULT_FRICTION		1.0f
-#define VEH_DEFAULT_MAX_SLOPE		0.85f
-#define VEH_DEFAULT_MASS			200
-#define VEH_DEFAULT_MAX_ARMOR		200
-#define VEH_DEFAULT_TOUGHNESS		2.5f
-#define VEH_DEFAULT_GRAVITY			800
-#define VEH_DEFAULT_HOVER_HEIGHT	64.0f
-#define VEH_DEFAULT_HOVER_STRENGTH	10.0f
-#define VEH_DEFAULT_VISIBILITY		0
-#define VEH_DEFAULT_LOUDNESS		0
-#define VEH_DEFAULT_EXP_RAD			400.0f
-#define VEH_DEFAULT_EXP_DMG			1000
-#define VEH_MAX_PASSENGERS			10
+inline constexpr float VEH_DEFAULT_SPEED_MAX = 800.0f;
+inline constexpr float VEH_DEFAULT_ACCEL = 10.0f;
+inline constexpr float VEH_DEFAULT_DECEL = 10.0f;
+inline constexpr float VEH_DEFAULT_STRAFE_PERC = 0.5f;
+inline constexpr float VEH_DEFAULT_BANKING_SPEED = 0.5f;
+inline constexpr float VEH_DEFAULT_ROLL_LIMIT = 60.0f;
+inline constexpr float VEH_DEFAULT_PITCH_LIMIT = 90.0f;
+inline constexpr float VEH_DEFAULT_BRAKING = 10.0f;
+inline constexpr float VEH_DEFAULT_TURNING_SPEED = 1.0f;
+inline constexpr float VEH_DEFAULT_TRACTION = 8.0f;
+inline constexpr float VEH_DEFAULT_FRICTION = 1.0f;
+inline constexpr float VEH_DEFAULT_MAX_SLOPE = 0.85f;
+inline constexpr int VEH_DEFAULT_MASS = 200;
+inline constexpr int VEH_DEFAULT_MAX_ARMOR = 200;
+inline constexpr float VEH_DEFAULT_TOUGHNESS = 2.5f;
+inline constexpr int VEH_DEFAULT_GRAVITY = 800;
+inline constexpr float VEH_DEFAULT_HOVER_HEIGHT = 64.0f;
+inline constexpr float VEH_DEFAULT_HOVER_STRENGTH = 10.0f;
+inline constexpr int VEH_DEFAULT_VISIBILITY = 0;
+inline constexpr int VEH_DEFAULT_LOUDNESS = 0;
+inline constexpr float VEH_DEFAULT_EXP_RAD = 400.0f;
+inline constexpr int VEH_DEFAULT_EXP_DMG = 1000;
+inline constexpr int VEH_MAX_PASSENGERS = 10;
 
-#define VEH_MOUNT_THROW_LEFT		-5
-#define	VEH_MOUNT_THROW_RIGHT		-6
+inline constexpr int VEH_MOUNT_THROW_LEFT = -5;
+inline constexpr int VEH_MOUNT_THROW_RIGHT = -6;
 
-#define MAX_STRAFE_TIME				2000.0f//FIXME: extern?
-#define	MIN_LANDING_SPEED			200//equal to or less than this and close to ground = auto-slow-down to land
-#define	MIN_LANDING_SLOPE			0.8f//must be pretty flat to land on the surf
+inline constexpr float MAX_STRAFE_TIME = 2000.0f; //FIXME: extern?
+inline constexpr int MIN_LANDING_SPEED = 200; //equal to or less than this and close to ground = auto-slow-down to land
+inline constexpr float MIN_LANDING_SLOPE = 0.8f; //must be pretty flat to land on the surf
 
-#define VEHICLE_BASE				0
-#define VEHICLE_NONE				-1
+inline constexpr int VEHICLE_BASE = 0;
+inline constexpr int VEHICLE_NONE = -1;
 
 enum class vehEject_t
 {
@@ -495,19 +495,19 @@ struct Muzzle
 };
 
 //defines for impact damage surface stuff
-#define	SHIPSURF_FRONT		1
-#define	SHIPSURF_BACK		2
-#define	SHIPSURF_RIGHT		3
-#define	SHIPSURF_LEFT		4
+inline constexpr int SHIPSURF_FRONT = 1;
+inline constexpr int SHIPSURF_BACK = 2;
+inline constexpr int SHIPSURF_RIGHT = 3;
+inline constexpr int SHIPSURF_LEFT = 4;
 
-#define	SHIPSURF_DAMAGE_FRONT_LIGHT		1
-#define	SHIPSURF_DAMAGE_BACK_LIGHT		2
-#define	SHIPSURF_DAMAGE_RIGHT_LIGHT		3
-#define	SHIPSURF_DAMAGE_LEFT_LIGHT		4
-#define	SHIPSURF_DAMAGE_FRONT_HEAVY		5
-#define	SHIPSURF_DAMAGE_BACK_HEAVY		6
-#define	SHIPSURF_DAMAGE_RIGHT_HEAVY		7
-#define	SHIPSURF_DAMAGE_LEFT_HEAVY		8
+inline constexpr int SHIPSURF_DAMAGE_FRONT_LIGHT = 1;
+inline constexpr int SHIPSURF_DAMAGE_BACK_LIGHT = 2;
+inline constexpr int SHIPSURF_DAMAGE_RIGHT_LIGHT = 3;
+inline constexpr int SHIPSURF_DAMAGE_LEFT_LIGHT = 4;
+inline constexpr int SHIPSURF_DAMAGE_FRONT_HEAVY = 5;
+inline constexpr int SHIPSURF_DAMAGE_BACK_HEAVY = 6;
+inline constexpr int SHIPSURF_DAMAGE_RIGHT_HEAVY = 7;
+inline constexpr int SHIPSURF_DAMAGE_LEFT_HEAVY = 8;
 
 //generic part bits
 enum class shipSurfaceFlags_t

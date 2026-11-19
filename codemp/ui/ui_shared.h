@@ -30,16 +30,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/menudef.h"
 
-#define MAX_MENUNAME				32
-#define MAX_ITEMTEXT				64
-#define MAX_ITEMACTION				64
-#define MAX_MENUDEFFILE				8192 //4096
-#define MAX_MENUFILE				65536 //32768
-#define MAX_MENUS					128 //64
-#define MAX_MENUITEMS				512 //256
-#define MAX_COLOR_RANGES			10
-#define MAX_OPEN_MENUS				64 //16
-#define	MAX_TEXTSCROLL_LINES		256
+inline constexpr int MAX_MENUDEFFILE = 8192; //4096
+inline constexpr int MAX_MENUFILE = 65536; //32768
+inline constexpr int MAX_MENUS = 128; //64
+inline constexpr int MAX_MENUITEMS = 512; //256
+inline constexpr int MAX_COLOR_RANGES = 10;
+inline constexpr int MAX_OPEN_MENUS = 64; //16
+inline constexpr int MAX_TEXTSCROLL_LINES = 256;
 
 enum class windowFlags_t
 {
@@ -78,15 +75,16 @@ template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 
 
 // cgame cursor type bits
-#define CURSOR_NONE					0x00000001
-#define CURSOR_ARROW				0x00000002
-#define CURSOR_SIZER				0x00000004
+enum class cursorType_t {
+	CURSOR_ARROW				= 0x00000002,
+	CURSOR_SIZER				= 0x00000004
+};
+using enum cursorType_t;
 
-#define STRING_POOL_SIZE (2*1024*1024)
+inline constexpr int STRING_POOL_SIZE = 2*1024*1024;
 
-#define MAX_STRING_HANDLES 4096
-#define MAX_SCRIPT_ARGS 12
-#define MAX_EDITFIELD 256
+inline constexpr int MAX_SCRIPT_ARGS = 12;
+inline constexpr int MAX_EDITFIELD = 256;
 
 #define ART_FX_BASE			"menu/art/fx_base"
 #define ART_FX_BLUE			"menu/art/fx_blue"
@@ -108,12 +106,11 @@ template <> inline constexpr bool enableEnumFlags<windowFlags_t> = true;
 #define ASSET_SCROLL_THUMB          "gfx/menus/scrollbar_thumb.tga"
 #define ASSET_SLIDER_BAR			"menu/new/slider"
 #define ASSET_SLIDER_THUMB			"menu/new/sliderthumb"
-#define SCROLLBAR_SIZE 16.0
-#define SLIDER_WIDTH 96.0
-#define SLIDER_HEIGHT 16.0
-#define SLIDER_THUMB_WIDTH 12.0
-#define SLIDER_THUMB_HEIGHT 20.0
-#define	NUM_CROSSHAIRS			9
+inline constexpr double SCROLLBAR_SIZE = 16.0;
+inline constexpr double SLIDER_WIDTH = 96.0;
+inline constexpr double SLIDER_HEIGHT = 16.0;
+inline constexpr double SLIDER_THUMB_WIDTH = 12.0;
+inline constexpr double SLIDER_THUMB_HEIGHT = 20.0;
 
 enum class screenshotFormat_t {
 	SSF_JPEG = 0,
@@ -178,7 +175,7 @@ typedef struct colorRangeDef_s {
 // the benefits of c++ in DOOM will greatly help crap like this
 // FIXME: need to put a type ptr that points to specific type info per type
 //
-#define MAX_LB_COLUMNS 16
+inline constexpr int MAX_LB_COLUMNS = 16;
 
 typedef struct columnInfo_s {
 	int pos;
@@ -212,7 +209,7 @@ typedef struct editFieldDef_s {
 	int paintOffset;		//
 } editFieldDef_t;
 
-#define MAX_MULTI_CVARS 64//32
+inline constexpr int MAX_MULTI_CVARS = 64; //32
 
 typedef struct multiDef_s {
 	const char *cvarList[MAX_MULTI_CVARS];
@@ -256,9 +253,6 @@ typedef struct textScrollDef_s
 
 } textScrollDef_t;
 
-#define ITEM_ALIGN_LEFT		0		// left alignment
-#define ITEM_ALIGN_CENTER	1		// center alignment
-#define ITEM_ALIGN_RIGHT	2		// right alignment
 
 enum class itemCvarFlags_t
 {
@@ -545,7 +539,7 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *
 displayContextDef_t *Display_GetContext();
 void *Display_CaptureItem(int x, int y);
 bool Display_MouseMove(void *p, int x, int y);
-int Display_CursorType(int x, int y);
+cursorType_t Display_CursorType(int x, int y);
 bool Display_KeyBindPending();
 void Menus_OpenByName(const char *p);
 menuDef_t *Menus_FindByName(const char *p);

@@ -163,7 +163,7 @@ void NPC_BSAnimal_Default( void );
 
 //Utilities
 //Group AI
-#define	MAX_FRAME_GROUPS	32
+inline constexpr int MAX_FRAME_GROUPS = 32;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class AIGroupMember_t
 {
@@ -193,7 +193,7 @@ public:
 	}
 }; // AIGroupMember_t
 
-#define MAX_GROUP_MEMBERS 32
+inline constexpr int MAX_GROUP_MEMBERS = 32;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 class AIGroupInfo_t
 {

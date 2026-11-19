@@ -34,12 +34,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_public.h"
 #include "ui/ui_public.h"
 
-#define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
-#define	CL_PACKET_DUP		2		// each packet repeats the usercmds of the 2 previous packets (plan step 11)
+inline constexpr int RETRANSMIT_TIMEOUT = 3000;	// time between connection packet retransmits
+inline constexpr int CL_PACKET_DUP = 2;		// each packet repeats the usercmds of the 2 previous packets (plan step 11)
 
 // file full of random crap that gets used to create ja_guid
 #define QKEY_FILE "jakey"
-#define QKEY_SIZE 2048
+inline constexpr int QKEY_SIZE = 2048;
 
 // Wind
 extern vec3_t cl_windVec;
@@ -90,22 +90,22 @@ typedef struct outPacket_s {
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
 // it can be un-deltad from the original
-#define	MAX_PARSE_ENTITIES	( PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES )
+inline constexpr int MAX_PARSE_ENTITIES = PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES;
 
 // the packets sent the client's ping is measured over (2.56 s of round trip at a packet per tick; plan step 14)
-#define	OUT_PACKET_BACKUP	256
-#define	OUT_PACKET_MASK		( OUT_PACKET_BACKUP - 1 )
+inline constexpr int OUT_PACKET_BACKUP = 256;
+inline constexpr int OUT_PACKET_MASK = OUT_PACKET_BACKUP - 1;
 
 // The client's clocks (CL_AdjustTimeDelta, plan step 14, part 4e): a window keeps the smallest sample of each of
 // its last CLOCK_SLOTS slots of CLOCK_SLOT_MSEC of real time
-#define	CLOCK_SLOTS			64
-#define	CLOCK_SLOT_MSEC		32
-#define	CLOCK_MIN_SLOTS		8	// with fewer slots filled the target is the smallest sample, not the second
-#define	CLOCK_SAFETY_MSEC	2	// kept between the target and the second smallest sample
-#define	CLOCK_MAX_GAP_MSEC	100	// a longer interval without a snapshot is an interruption: no sample
-#define	CLOCK_SPEEDUP_MSEC	16	// a clock gains at most 1 ms per 16 ms of real time (about 6 %)
-#define	CLOCK_SLOWDOWN_MSEC	14	// and loses at most 1 ms per 14 ms (about 7 %)
-#define	CMD_MARGIN_MSEC		3	// the input margin the command clock keeps above the second smallest of its window
+inline constexpr int CLOCK_SLOTS = 64;
+inline constexpr int CLOCK_SLOT_MSEC = 32;
+inline constexpr int CLOCK_MIN_SLOTS = 8;	// with fewer slots filled the target is the smallest sample, not the second
+inline constexpr int CLOCK_SAFETY_MSEC = 2;	// kept between the target and the second smallest sample
+inline constexpr int CLOCK_MAX_GAP_MSEC = 100;	// a longer interval without a snapshot is an interruption: no sample
+inline constexpr int CLOCK_SPEEDUP_MSEC = 16;	// a clock gains at most 1 ms per 16 ms of real time (about 6 %)
+inline constexpr int CLOCK_SLOWDOWN_MSEC = 14;	// and loses at most 1 ms per 14 ms (about 7 %)
+inline constexpr int CMD_MARGIN_MSEC = 3;	// the input margin the command clock keeps above the second smallest of its window
 
 typedef struct clockWindow_s {
 	int			low[CLOCK_SLOTS];	// INT_MAX: no sample in the slot
@@ -205,7 +205,6 @@ typedef struct clientActive_s {
 
 extern	clientActive_t		cl;
 
-#define MAX_HEIGHTMAP_SIZE	16000
 
 typedef struct
 {
@@ -215,7 +214,6 @@ typedef struct
 
 } rmAutomapSymbol_t;
 
-#define	MAX_AUTOMAP_SYMBOLS	512
 
 /*
 =============================================================================
@@ -367,7 +365,7 @@ typedef struct clientStatic_s {
 	int			numfavoriteservers;
 	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
 
-	int pingUpdateSource;		// source currently pinging or updating
+	lanSource_t pingUpdateSource;		// source currently pinging or updating
 
 	// update server info
 	netadr_t	updateServer;
@@ -393,8 +391,8 @@ typedef struct clientStatic_s {
 	int			menuFont;
 } clientStatic_t;
 
-#define	CON_TEXTSIZE	0x30000 //was 32768
-#define	NUM_CON_TIMES	4
+inline constexpr int CON_TEXTSIZE = 0x30000; //was 32768
+#include "qcommon/q_limits.h"
 
 typedef union {
 	struct {
@@ -594,7 +592,7 @@ void	CL_LocalServers_f( void );
 void	CL_GlobalServers_f( void );
 void	CL_FavoriteServers_f( void );
 void	CL_Ping_f( void );
-bool CL_UpdateVisiblePings_f( int source );
+bool CL_UpdateVisiblePings_f( lanSource_t source );
 
 
 //

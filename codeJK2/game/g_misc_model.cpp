@@ -280,9 +280,9 @@ void SP_misc_model_ghoul( gentity_t *ent )
 }
 
 
-#define RACK_BLASTER	1
-#define RACK_REPEATER	2
-#define RACK_ROCKET		4
+constexpr int RACK_BLASTER = 1;
+constexpr int RACK_REPEATER = 2;
+constexpr int RACK_ROCKET = 4;
 
 /*QUAKED misc_model_gun_rack (1 0 0.25) (-14 -14 -4) (14 14 30) BLASTER REPEATER ROCKET
 #MODELNAME="models/map_objects/kejim/weaponsrack.md3"
@@ -478,12 +478,12 @@ void SP_misc_model_gun_rack( gentity_t *ent )
 	gi.linkentity( ent );
 }
 
-#define RACK_METAL_BOLTS	2
-#define RACK_ROCKETS		4
-#define RACK_WEAPONS		8
-#define RACK_HEALTH			16
-#define RACK_PWR_CELL		32
-#define RACK_NO_FILL		64
+constexpr int RACK_METAL_BOLTS = 2;
+constexpr int RACK_ROCKETS = 4;
+constexpr int RACK_WEAPONS = 8;
+constexpr int RACK_HEALTH = 16;
+constexpr int RACK_PWR_CELL = 32;
+constexpr int RACK_NO_FILL = 64;
 
 /*QUAKED misc_model_ammo_rack (1 0 0.25) (-14 -14 -4) (14 14 30) BLASTER METAL_BOLTS ROCKETS WEAPON HEALTH PWR_CELL NO_FILL
 #MODELNAME="models/map_objects/kejim/weaponsrung.md3"
@@ -706,10 +706,10 @@ void spawn_rack_goods( gentity_t *ent )
 	gi.linkentity( ent );
 }
 
-#define DROP_MEDPACK	1
-#define DROP_SHIELDS	2
-#define DROP_BACTA		4
-#define DROP_BATTERIES	8
+constexpr int DROP_MEDPACK = 1;
+constexpr int DROP_SHIELDS = 2;
+constexpr int DROP_BACTA = 4;
+constexpr int DROP_BATTERIES = 8;
 
 /*QUAKED misc_model_cargo_small (1 0 0.25) (-14 -14 -4) (14 14 30) MEDPACK SHIELDS BACTA BATTERIES
 #MODELNAME="models/map_objects/kejim/cargo_small.md3"

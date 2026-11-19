@@ -27,12 +27,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, bool breakSaberLock );
 
-#define MIN_ATTACK_DIST_SQ	128
-#define MIN_MISS_DIST		100
-#define MIN_MISS_DIST_SQ	(MIN_MISS_DIST*MIN_MISS_DIST)
-#define MAX_MISS_DIST		500
-#define MAX_MISS_DIST_SQ	(MAX_MISS_DIST*MAX_MISS_DIST)
-#define MIN_SCORE			-37500 //speed of (50*50) - dist of (200*200)
+constexpr int MIN_ATTACK_DIST_SQ = 128;
+constexpr int MIN_MISS_DIST = 100;
+constexpr int MIN_MISS_DIST_SQ = MIN_MISS_DIST*MIN_MISS_DIST;
+constexpr int MAX_MISS_DIST = 500;
+constexpr int MAX_MISS_DIST_SQ = MAX_MISS_DIST*MAX_MISS_DIST;
+constexpr int MIN_SCORE = -37500; //speed of (50*50) - dist of (200*200)
 
 void SandCreature_Precache( void )
 {

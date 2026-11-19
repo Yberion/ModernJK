@@ -105,7 +105,7 @@ EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleB
 "BOTH_SABERSTAFF_STANCE",
 };
 
-#define MAX_MOVES 16
+constexpr int MAX_MOVES = 16;
 
 typedef struct datpadmovedata_s
 {
@@ -572,19 +572,27 @@ static const char *GetMonthAbbrevString( int iMonth )
 	return p ? p : "Jan";	// sanity
 }
 
-#define UIAS_LOCAL				0
-#define UIAS_GLOBAL1			1
-#define UIAS_GLOBAL2			2
-#define UIAS_GLOBAL3			3
-#define UIAS_GLOBAL4			4
-#define UIAS_GLOBAL5			5
-#define UIAS_FAVORITES			6
+// the server browser's source as the UI sees it (ui_netSource), one per master server
+enum class uiNetSource_t {
+	UIAS_LOCAL,
+	UIAS_GLOBAL1,
+	UIAS_GLOBAL2,
+	UIAS_GLOBAL3,
+	UIAS_GLOBAL4,
+	UIAS_GLOBAL5,
+	UIAS_FAVORITES
+};
+using enum uiNetSource_t;
+template <> inline constexpr bool enableEnumArithmetic<uiNetSource_t> = true;
 
-#define UI_MAX_MASTER_SERVERS	5
+// ui_netSource's number, converted once
+static uiNetSource_t UI_NetSource( void ) {
+	return static_cast<uiNetSource_t>( ui_netSource.integer );
+}
 
 // Convert ui's net source to AS_* used by trap calls.
-int UI_SourceForLAN( void ) {
-	switch ( ui_netSource.integer ) {
+lanSource_t UI_SourceForLAN( void ) {
+	switch ( UI_NetSource() ) {
 	default:
 	case UIAS_LOCAL:
 		return AS_LOCAL;
@@ -609,14 +617,14 @@ static const char *netSources[] = {
 static const int numNetSources = ARRAY_LEN(netSources);
 */
 static const int numNetSources = 7;	// now hard-entered in StringEd file
-static const char *GetNetSourceString(int iSource)
+static const char *GetNetSourceString(uiNetSource_t iSource)
 {
 	static char result[256] = {0};
 
-	Q_strncpyz( result, GetCRDelineatedString( "MP_INGAME", "NET_SOURCES", UI_SourceForLAN() ), sizeof(result) );
+	Q_strncpyz( result, GetCRDelineatedString( "MP_INGAME", "NET_SOURCES", to_underlying( UI_SourceForLAN() ) ), sizeof(result) );
 
 	if ( iSource >= UIAS_GLOBAL1 && iSource <= UIAS_GLOBAL5 ) {
-		Q_strcat( result, sizeof(result), va( " %d", iSource ) );
+		Q_strcat( result, sizeof(result), va( " %d", to_underlying( iSource ) ) );
 	}
 
 	return result;
@@ -2325,7 +2333,7 @@ static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int tex
 
 	trap->SE_GetStringTextString("MENUS_SOURCE", holdSPString, sizeof(holdSPString) );
 	Text_Paint(rect->x, rect->y, scale, color, va("%s %s",holdSPString,
-		GetNetSourceString(ui_netSource.integer)), 0, 0, textStyle, iMenuFont);
+		GetNetSourceString(UI_NetSource())), 0, 0, textStyle, iMenuFont);
 }
 
 static void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vec4_t color) {
@@ -2766,7 +2774,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 				trap->Cvar_Update(&ui_netSource);
 			}
 			trap->SE_GetStringTextString("MENUS_SOURCE", holdSPString, sizeof(holdSPString));
-			s = va("%s %s", holdSPString, GetNetSourceString(ui_netSource.integer));
+			s = va("%s %s", holdSPString, GetNetSourceString(UI_NetSource()));
 			break;
 		case UI_NETFILTER:
 			trap->SE_GetStringTextString("MENUS_GAME", holdSPString, sizeof(holdSPString));
@@ -3304,14 +3312,14 @@ static bool UI_OwnerDrawVisible(int flags) {
 		}
 		if (flags & UI_SHOW_FAVORITESERVERS) {
 			// this assumes you only put this type of display flag on something showing in the proper context
-			if (ui_netSource.integer != UIAS_FAVORITES) {
+			if (UI_NetSource() != UIAS_FAVORITES) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_FAVORITESERVERS;
 		}
 		if (flags & UI_SHOW_NOTFAVORITESERVERS) {
 			// this assumes you only put this type of display flag on something showing in the proper context
-			if (ui_netSource.integer == UIAS_FAVORITES) {
+			if (UI_NetSource() == UIAS_FAVORITES) {
 				vis = false;
 			}
 			flags &= ~UI_SHOW_NOTFAVORITESERVERS;
@@ -3950,7 +3958,7 @@ static bool UI_TeamMember_HandleKey(int flags, float *special, fakeAscii_t key, 
 
 static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) {
-		int value = ui_netSource.integer;
+		uiNetSource_t value = UI_NetSource();
 
 		if (key == A_MOUSE2) {
 			value--;
@@ -3964,7 +3972,7 @@ static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 
 			while(value >= UIAS_GLOBAL1 && value <= UIAS_GLOBAL5)
 			{
-				Com_sprintf(cvarname, sizeof(cvarname), "sv_master%d", value);
+				Com_sprintf(cvarname, sizeof(cvarname), "sv_master%d", to_underlying( value ));
 				trap->Cvar_VariableStringBuffer(cvarname, masterstr, sizeof(masterstr));
 				if(*masterstr)
 					break;
@@ -3977,17 +3985,17 @@ static bool UI_NetSource_HandleKey(int flags, float *special, fakeAscii_t key) {
 			}
 		}
 
-		if (value >= numNetSources) {
-			value = 0;
-		} else if (value < 0) {
-			value = numNetSources - 1;
+		if (value > UIAS_FAVORITES) {
+			value = UIAS_LOCAL;
+		} else if (value < UIAS_LOCAL) {
+			value = UIAS_FAVORITES;
 		}
 
-		trap->Cvar_Set( "ui_netSource", va("%d", value));
+		trap->Cvar_Set( "ui_netSource", va("%d", to_underlying( value )));
 		trap->Cvar_Update(&ui_netSource);
 
 		UI_BuildServerDisplayList(true);
-		if (!(ui_netSource.integer >= UIAS_GLOBAL1 && ui_netSource.integer <= UIAS_GLOBAL5)) {
+		if (!(UI_NetSource() >= UIAS_GLOBAL1 && UI_NetSource() <= UIAS_GLOBAL5)) {
 			UI_StartServerRefresh(true);
 		}
 		return true;
@@ -4340,7 +4348,7 @@ static int QDECL UI_ServersQsortCompare( const void *arg1, const void *arg2 ) {
 UI_ServersSort
 =================
 */
-void UI_ServersSort(int column, bool force) {
+void UI_ServersSort(serverSortKey_t column, bool force) {
 	if ( !force ) {
 		if ( uiInfo.serverStatus.sortKey == column ) {
 			return;
@@ -4351,7 +4359,7 @@ void UI_ServersSort(int column, bool force) {
 	qsort( &uiInfo.serverStatus.displayServers[0], uiInfo.serverStatus.numDisplayServers, sizeof(int), UI_ServersQsortCompare);
 }
 
-#define MODSBUFSIZE (MAX_MODS * MAX_QPATH)
+constexpr int MODSBUFSIZE = MAX_MODS * MAX_QPATH;
 
 /*
 ===============
@@ -4429,7 +4437,7 @@ static void UI_LoadMovies() {
 UI_LoadDemos
 ===============
 */
-#define MAX_DEMO_FOLDER_DEPTH (8)
+constexpr int MAX_DEMO_FOLDER_DEPTH = 8;
 typedef struct loadDemoContext_s
 {
 	int depth;
@@ -6064,7 +6072,7 @@ static void UI_RunMenuScript(char **args)
 			uiInfo.nextFindPlayerRefresh = 0;
 		} else if (Q_stricmp(name, "UpdateFilter") == 0) {
 			trap->Cvar_Update( &ui_netSource );
-			if (ui_netSource.integer == UIAS_LOCAL || !uiInfo.serverStatus.numDisplayServers) {
+			if (UI_NetSource() == UIAS_LOCAL || !uiInfo.serverStatus.numDisplayServers) {
 				UI_StartServerRefresh(true);
 			}
 			UI_BuildServerDisplayList(true);
@@ -6145,12 +6153,13 @@ static void UI_RunMenuScript(char **args)
 		{
 			int sortColumn;
 			if (Int_Parse(args, &sortColumn)) {
+				const serverSortKey_t sortKey = static_cast<serverSortKey_t>( sortColumn );	// the menu script's number
 				// if same column we're already sorting on then flip the direction
-				if (sortColumn == uiInfo.serverStatus.sortKey) {
+				if (sortKey == uiInfo.serverStatus.sortKey) {
 					uiInfo.serverStatus.sortDir = !uiInfo.serverStatus.sortDir;
 				}
 				// make sure we sort again
-				UI_ServersSort(sortColumn, true);
+				UI_ServersSort(sortKey, true);
 			}
 		} else if (Q_stricmp(name, "nextSkirmish") == 0) {
 			UI_StartSkirmish(true);
@@ -6186,7 +6195,7 @@ static void UI_RunMenuScript(char **args)
 			}
 		} else if (Q_stricmp(name, "addFavorite") == 0)
 		{
-			if (ui_netSource.integer != UIAS_FAVORITES)
+			if (UI_NetSource() != UIAS_FAVORITES)
 			{
 				char name[MAX_HOSTNAMELENGTH] = {0};
 				char addr[MAX_ADDRESSLENGTH] = {0};
@@ -6219,7 +6228,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "deleteFavorite") == 0)
 		{
-			if (ui_netSource.integer == UIAS_FAVORITES)
+			if (UI_NetSource() == UIAS_FAVORITES)
 			{
 				char addr[MAX_ADDRESSLENGTH] = {0};
 				trap->LAN_GetServerInfo(AS_FAVORITES, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
@@ -6233,7 +6242,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "createFavorite") == 0)
 		{
-			//	if (ui_netSource.integer == UIAS_FAVORITES)
+			//	if (UI_NetSource() == UIAS_FAVORITES)
 			//rww - don't know why this check was here.. why would you want to only add new favorites when the filter was favorites?
 			{
 				char name[MAX_HOSTNAMELENGTH] = {0};
@@ -7402,7 +7411,7 @@ static void UI_BuildServerDisplayList(int force) {
 	bool answered;
 	char info[MAX_STRING_CHARS];
 //	bool startRefresh = true; TTimo: unused
-	int	lanSource;
+	lanSource_t	lanSource;
 
 	if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
 		return;
@@ -7438,7 +7447,7 @@ static void UI_BuildServerDisplayList(int force) {
 
 	// get the server count (comes from the master)
 	count = trap->LAN_GetServerCount(lanSource);
-	if (count == -1 || (ui_netSource.integer == UIAS_LOCAL && count == 0) ) {
+	if (count == -1 || (UI_NetSource() == UIAS_LOCAL && count == 0) ) {
 		// still waiting on a response from the master
 		uiInfo.serverStatus.numDisplayServers = 0;
 		uiInfo.serverStatus.numPlayersOnServers = 0;
@@ -7462,7 +7471,7 @@ static void UI_BuildServerDisplayList(int force) {
 //		visible = true;
 		// has this server answered
 		answered = (trap->ext.LAN_GetServerState(lanSource, i) == LANSERVER_ANSWERED);
-		if (answered || ui_netSource.integer == UIAS_FAVORITES) {
+		if (answered || UI_NetSource() == UIAS_FAVORITES) {
 
 			trap->LAN_GetServerInfo(lanSource, i, info, MAX_STRING_CHARS);
 
@@ -7513,7 +7522,7 @@ static void UI_BuildServerDisplayList(int force) {
 				}
 			}
 			// make sure we never add a favorite server twice
-			if (ui_netSource.integer == UIAS_FAVORITES) {
+			if (UI_NetSource() == UIAS_FAVORITES) {
 				UI_RemoveServerFromDisplayList(i);
 			}
 			// insert the server into the list
@@ -7695,7 +7704,7 @@ static void UI_BuildFindPlayerList(bool force) {
 	serverStatusInfo_t info;
 	char name[MAX_NAME_LENGTH+2];
 	char infoString[MAX_STRING_CHARS];
-	int  lanSource;
+	lanSource_t  lanSource;
 
 	if (!force) {
 		if (!uiInfo.nextFindPlayerRefresh || uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
@@ -8283,7 +8292,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 				lastTime = uiInfo.uiDC.realTime;
 			}
 			answered = (trap->ext.LAN_GetServerState(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[index]) == LANSERVER_ANSWERED);
-			switch (column) {
+			switch (static_cast<serverSortKey_t>( column )) {	// the feeder's column in the menu file
 				case SORT_HOST :
 					if (!answered) {
 						return Info_ValueForKey(info, "addr");
@@ -8342,7 +8351,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 								}
 							}
 						}
-						if ( ui_netSource.integer == UIAS_LOCAL ) {
+						if ( UI_NetSource() == UIAS_LOCAL ) {
 							int nettype = atoi(Info_ValueForKey(info, "nettype"));
 
 							if (nettype < 0 || nettype >= numNetNames) {
@@ -9987,7 +9996,7 @@ void UI_Init( bool inGameLoad ) {
 	trap->Cvar_Update(&ui_actualNetGametype);
 }
 
-#define	UI_FPS_FRAMES	4
+constexpr int UI_FPS_FRAMES = 4;
 void UI_Refresh( int realtime )
 {
 	static int index;
@@ -10467,8 +10476,8 @@ static void UI_DoServerRefresh( void )
 	if (!uiInfo.serverStatus.refreshActive) {
 		return;
 	}
-	if (ui_netSource.integer != UIAS_FAVORITES) {
-		if (ui_netSource.integer == UIAS_LOCAL) {
+	if (UI_NetSource() != UIAS_FAVORITES) {
+		if (UI_NetSource() == UIAS_LOCAL) {
 			if (!trap->LAN_GetServerCount(AS_LOCAL)) {
 				wait = true;
 			}
@@ -10506,7 +10515,7 @@ UI_StartServerRefresh
 static void UI_StartServerRefresh(bool full)
 {
 	char	*ptr;
-	int		lanSource;
+	lanSource_t	lanSource;
 
 	qtime_t q;
 	trap->RealTime(&q);
@@ -10528,20 +10537,20 @@ static void UI_StartServerRefresh(bool full)
 	// reset all the pings
 	trap->LAN_ResetPings(lanSource);
 	//
-	if( ui_netSource.integer == UIAS_LOCAL ) {
+	if( UI_NetSource() == UIAS_LOCAL ) {
 		trap->Cmd_ExecuteText( EXEC_NOW, "localservers\n" );
 		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
 		return;
 	}
 
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-	if( ui_netSource.integer >= UIAS_GLOBAL1 && ui_netSource.integer <= UIAS_GLOBAL5 ) {
+	if( UI_NetSource() >= UIAS_GLOBAL1 && UI_NetSource() <= UIAS_GLOBAL5 ) {
 		ptr = UI_Cvar_VariableString("debug_protocol");
 		if (strlen(ptr)) {
-			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource.integer-1, ptr));
+			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", ui_netSource.integer, ptr));	// Internet n asks sv_master<n>
 		}
 		else {
-			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource.integer-1, (int)trap->Cvar_VariableValue( "protocol" ) ) );
+			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource.integer, (int)trap->Cvar_VariableValue( "protocol" ) ) );
 		}
 	}
 }

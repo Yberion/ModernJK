@@ -24,11 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __STRIPPUB_H
 
 
-#define STRIP_VERSION	1
+inline constexpr int STRIP_VERSION = 1;
 
-#define MAX_LANGUAGES	10
-#define MAX_STRINGS		256
-#define MAX_ID			255
+inline constexpr int MAX_STRINGS = 256;
 
 enum class spLanguage_t
 {
@@ -48,8 +46,8 @@ enum class spLanguage_t
 using enum spLanguage_t;
 
 
-#define SP_PACKAGE		0xff00
-#define SP_STRING		0x00ff
+inline constexpr int SP_PACKAGE = 0xff00;
+inline constexpr int SP_STRING = 0x00ff;
 
 #define SP_GET_PACKAGE(x) ( (x & SP_PACKAGE) >> 8 )
 

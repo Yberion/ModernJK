@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "w_saber.h"
 #include "qcommon/q_shared.h"
 
-#define	MISSILE_PRESTEP_TIME	50
+[[maybe_unused]] constexpr int MISSILE_PRESTEP_TIME = 50;
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 extern void Jedi_Decloak( gentity_t *self );

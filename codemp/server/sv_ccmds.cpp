@@ -1202,7 +1202,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %-15.15s ^7%39s\n",
 				i,
-				ps->persistant.data()[PERS_SCORE],
+				ps->persistant[PERS_SCORE],
 				state,
 				cl->name,
 				s
@@ -1212,7 +1212,7 @@ static void SV_Status_f( void )
 		{
 			Com_Printf ("%2i %5i %s %s ^7%39s\n",
 				i,
-				ps->persistant.data()[PERS_SCORE],
+				ps->persistant[PERS_SCORE],
 				state,
 				cl->name,
 				s

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 
-#define MAXPRINTMSG 4096
+inline constexpr int MAXPRINTMSG = 4096;
 
 enum class netadrtype_t
 {

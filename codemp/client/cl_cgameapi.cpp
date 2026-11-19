@@ -135,7 +135,7 @@ void CGVM_G2Mark( void ) {
 	cge->G2Mark();
 }
 
-int CGVM_RagCallback( int callType ) {
+int CGVM_RagCallback( ragCallbackType_t callType ) {
 	VMSwap v( cgvm );
 
 	return cge->RagCallback( callType );

@@ -78,10 +78,10 @@ template <class T> T	Max(const T& a, const T& b)	{return (b<a)?(a):(b);}
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		RAVL_VEC_UDF					(1.234567E-10f)						// Undefined Vector Value (for debugging)
-#define		RAVL_VEC_PI						(3.1415926535f)						// Pi
-#define		RAVL_VEC_DEGTORADCONST			(0.0174532925f)						// (RAVL_VEC_PI / 180.0f)
-#define		RAVL_VEC_RADTODEGCONST			(57.295779514f)						// (180.0f / RAVL_VEC_PI)
+inline constexpr float RAVL_VEC_UDF = 1.234567E-10f;						// Undefined Vector Value (for debugging)
+inline constexpr float RAVL_VEC_PI = 3.1415926535f;						// Pi
+inline constexpr float RAVL_VEC_DEGTORADCONST = 0.0174532925f;						// (RAVL_VEC_PI / 180.0f)
+inline constexpr float RAVL_VEC_RADTODEGCONST = 57.295779514f;						// (180.0f / RAVL_VEC_PI)
 #define		RAVL_VEC_DEGTORAD( a )			( (a) * RAVL_VEC_DEGTORADCONST )	// Quick Macro For Degrees -> Radians
 #define		RAVL_VEC_RADTODEG( a )			( (a) * RAVL_VEC_RADTODEGCONST )	// Quick Macro For Radians -> Degrees
 

@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define JK2_RAGDOLL_GRIPNOHEALTH
 
-#define MAX_SABER_VICTIMS 16
+constexpr int MAX_SABER_VICTIMS = 16;
 static int		victimEntityNum[MAX_SABER_VICTIMS];
 static float	totalDmg[MAX_SABER_VICTIMS];
 static vec3_t	dmgDir[MAX_SABER_VICTIMS];
@@ -2442,7 +2442,7 @@ bool G_InCinematicSaberAnim( gentity_t *self )
 	return false;
 }
 
-#define SABER_COLLISION_DIST 6//was 2//was 4//was 8//was 16
+constexpr int SABER_COLLISION_DIST = 6; //was 2//was 4//was 8//was 16
 extern bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 								vec3_t bladeDir, bool noGhoul, forcePowerLevels_t attackStrength,
@@ -2943,9 +2943,9 @@ bool WP_SaberDamageForTrace( int ignore, vec3_t start, vec3_t end, float dmg,
 	return false;
 }
 
-#define LOCK_IDEAL_DIST_TOP 32.0f
-#define LOCK_IDEAL_DIST_CIRCLE 48.0f
-#define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
+constexpr float LOCK_IDEAL_DIST_TOP = 32.0f;
+constexpr float LOCK_IDEAL_DIST_CIRCLE = 48.0f;
+constexpr float LOCK_IDEAL_DIST_JKA = 46.0f; //all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 extern void PM_SetAnimFrame( gentity_t *gent, int frame, bool torso, bool legs );
 extern bool ValidAnimFileIndex ( int index );
 animNumber_t G_SaberLockAnim( saber_styles_t attackerSaberStyle, saber_styles_t defenderSaberStyle, saberLockType_t topOrSide, saberLockType_t lockOrBreakOrSuperBreak, saberLockType_t winOrLose )
@@ -4495,7 +4495,7 @@ void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
   FIXME: if the dot product of the old muzzle dir and the new muzzle dir is < 0.75, subdivide it and do multiple traces so we don't flatten out the arc!
 ---------------------------------------------------------
 */
-#define MAX_SABER_SWING_INC 0.33f
+constexpr float MAX_SABER_SWING_INC = 0.33f;
 void WP_SaberDamageTrace( gentity_t *ent, int saberNum, int bladeNum )
 {
 	vec3_t		mp1, mp2, md1, md2, baseOld, baseNew, baseDiff, endOld, endNew, bladePointOld, bladePointNew;
@@ -8170,7 +8170,7 @@ void WP_SaberUpdate( gentity_t *self, usercmd_t *ucmd )
 #endif
 }
 
-#define	MAX_RADIUS_ENTS			256	//NOTE: This can cause entities to be lost
+constexpr int MAX_RADIUS_ENTS = 256;	//NOTE: This can cause entities to be lost
 bool G_CheckEnemyPresence( gentity_t *ent, direction_t dir, float radius, float tolerance )
 {
 	gentity_t	*radiusEnts[ MAX_RADIUS_ENTS ];

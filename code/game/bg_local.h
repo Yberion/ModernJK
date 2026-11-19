@@ -26,10 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef _BG_LOCAL_H
 #define _BG_LOCAL_H
 
-#define	TIMER_LAND		130
-#define	TIMER_GESTURE	(34*66+50)
 
-#define	OVERCLIP		1.001F
+inline constexpr float OVERCLIP = 1.001F;
 
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have

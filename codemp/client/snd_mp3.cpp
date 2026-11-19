@@ -148,13 +148,13 @@ float MP3Stream_GetRemainingTimeInSeconds( LP_MP3STREAM lpMP3Stream )
 // expects data already loaded, filename arg is for error printing only
 //
 bool MP3_FakeUpWAVInfo( const char *psLocalFilename, void *pvData, int iDataLen, int iUnpackedDataLength,
-						   int &format, int &rate, int &width, int &channels, int &samples, int &dataofs,
+						   wavFormat_t &format, int &rate, int &width, int &channels, int &samples, int &dataofs,
 						   bool bStereoDesired /* = false */
 						   )
 {
 	// some things can be done instantly...
 	//
-	format = 1;		// 1 for MS format
+	format = WAV_FORMAT_PCM;		// 1 for MS format
 	dataofs= 0;		// will be 0 for me (since there's no header in the unpacked data)
 
 	// some things need to be read...  (though the whole stereo flag thing is crap)
@@ -238,7 +238,7 @@ bool MP3_ReadSpecialTagInfo(byte *pbLoadedFile, int iLoadedFileLen,
 
 
 
-#define FUZZY_AMOUNT (5*1024)	// so it has to be significantly over, not just break even, because of
+constexpr int FUZZY_AMOUNT = 5*1024;	// so it has to be significantly over, not just break even, because of
 								// the xtra CPU time versus memory saving
 
 cvar_t* cv_MP3overhead = nullptr;

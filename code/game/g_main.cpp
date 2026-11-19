@@ -61,7 +61,6 @@ int		eventClearTime = 0;
 extern bool g_bCollidableRoffs;
 
 
-#define	STEPSIZE		18
 
 level_locals_t	level;
 game_import_t	gi;

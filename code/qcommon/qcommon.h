@@ -117,15 +117,14 @@ NET
 */
 
 
-#define	PACKET_BACKUP	16	// number of old messages that must be kept on client and
+inline constexpr int PACKET_BACKUP = 16;	// number of old messages that must be kept on client and
 													// server for delta comrpession and ping estimation
-#define	PACKET_MASK		(PACKET_BACKUP-1)
+inline constexpr int PACKET_MASK = PACKET_BACKUP-1;
 
-#define	MAX_PACKET_USERCMDS		32		// max number of usercmd_t in a packet
+#include "qcommon/q_limits.h"
 
-#define	PORT_ANY			-1
 
-#define	MAX_RELIABLE_COMMANDS	64			// max string commands buffered for restransmit
+inline constexpr int MAX_RELIABLE_COMMANDS = 64;			// max string commands buffered for restransmit
 
 enum class netsrc_t {
 	NS_CLIENT,
@@ -155,7 +154,7 @@ bool	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
 
-#define	MAX_MSGLEN				(1*17408)		// max length of a message, which may
+inline constexpr int MAX_MSGLEN = 1*17408;		// max length of a message, which may
 //#define	MAX_MSGLEN				(3*16384)		// max length of a message, which may
 											// be fragmented into multiple packets
 
@@ -199,9 +198,8 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	40
+inline constexpr int PROTOCOL_VERSION = 40;
 
-#define	PORT_SERVER			27960
 
 // the svc_strings[] array in cl_parse.c should mirror this
 //
@@ -448,9 +446,6 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
-#define CONSOLE_PROMPT_CHAR ']'
-#define	MAX_EDIT_LINE		256
-#define COMMAND_HISTORY		32
 
 typedef struct {
 	int		cursor;

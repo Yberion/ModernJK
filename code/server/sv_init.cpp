@@ -372,8 +372,8 @@ void SV_SpawnServer( const char *server, ForceReload_e eForceReload, bool bAllow
 	Com_Printf ("-----------------------------------\n");
 }
 
-#define G2_VERT_SPACE_SIZE 256
-#define G2_MINIHEAP_SIZE	G2_VERT_SPACE_SIZE*1024
+constexpr int G2_VERT_SPACE_SIZE = 256;
+constexpr int G2_MINIHEAP_SIZE = G2_VERT_SPACE_SIZE*1024;
 
 /*
 ===============

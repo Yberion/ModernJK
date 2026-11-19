@@ -1130,7 +1130,7 @@ image_t	*R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, bool 
 R_CreateDlightImage
 ================
 */
-#define	DLIGHT_SIZE	16
+constexpr int DLIGHT_SIZE = 16;
 static void R_CreateDlightImage( void )
 {
 	int		width, height;
@@ -1231,8 +1231,8 @@ float	R_FogFactor( float s, float t ) {
 R_CreateFogImage
 ================
 */
-#define	FOG_S	256
-#define	FOG_T	32
+constexpr int FOG_S = 256;
+constexpr int FOG_T = 32;
 static void R_CreateFogImage( void ) {
 	int		x,y;
 	byte	*data;
@@ -1271,7 +1271,7 @@ static void R_CreateFogImage( void ) {
 R_CreateDefaultImage
 ==================
 */
-#define	DEFAULT_SIZE	16
+constexpr int DEFAULT_SIZE = 16;
 static void R_CreateDefaultImage( void ) {
 	int		x;
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];

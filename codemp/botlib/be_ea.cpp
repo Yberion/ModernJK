@@ -43,8 +43,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "be_interface.h"
 #include "be_ea.h"
 
-#define MAX_USERMOVE				400
-#define MAX_COMMANDARGUMENTS		10
+constexpr int MAX_USERMOVE = 400;
 
 bot_input_t *botinputs;
 
@@ -490,7 +489,7 @@ void EA_ResetInput(int client)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int EA_Setup(void)
+botlibError_t EA_Setup(void)
 {
 	//initialize the bot inputs
 	botinputs = (bot_input_t *) GetClearedHunkMemory(

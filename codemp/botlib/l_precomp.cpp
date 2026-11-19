@@ -93,7 +93,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //#define DEBUG_EVAL
 
-#define MAX_DEFINEPARMS			128
+constexpr int MAX_DEFINEPARMS = 128;
 
 #define DEFINEHASHING			1
 
@@ -104,9 +104,9 @@ typedef struct directive_s
 	int (*func)(source_t *source);
 } directive_t;
 
-#define DEFINEHASHSIZE		1024
+constexpr int DEFINEHASHSIZE = 1024;
 
-#define TOKEN_HEAP_SIZE		4096
+[[maybe_unused]] constexpr int TOKEN_HEAP_SIZE = 4096;
 
 int numtokens;
 /*
@@ -517,7 +517,7 @@ void PC_PrintDefine(define_t *define)
 {
 	printf("define->name = %s\n", define->name);
 	printf("define->flags = %d\n", define->flags);
-	printf("define->builtin = %d\n", define->builtin);
+	printf("define->builtin = %d\n", to_underlying( define->builtin ));
 	printf("define->numparms = %d\n", define->numparms);
 //	token_t *parms;					//define parameters
 //	token_t *tokens;					//macro tokens (possibly containing parm tokens)
@@ -687,14 +687,14 @@ void PC_AddBuiltinDefines(source_t *source)
 	struct builtin
 	{
 		const char *string;
-		int mBuiltin;
+		builtinDefine_t mBuiltin;
 	} builtin[] = { // bk001204 - brackets
 		{ "__LINE__",	BUILTIN_LINE },
 		{ "__FILE__",	BUILTIN_FILE },
 		{ "__DATE__",	BUILTIN_DATE },
 		{ "__TIME__",	BUILTIN_TIME },
 //		{ "__STDC__", BUILTIN_STDC },
-		{ nullptr, 0 }
+		{ nullptr, BUILTIN_NONE }
 	};
 
 	for (i = 0; builtin[i].string; i++)
@@ -760,7 +760,6 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strncat(token->string, curtime+4, 7);
 			strncat(token->string+7, curtime+20, 4);
 			strcat(token->string, "\"");
-			free(curtime);
 			token->type = TT_NAME;
 			token->subtype = strlen(token->string);
 			*firsttoken = token;
@@ -774,7 +773,6 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strcpy(token->string, "\"");
 			strncat(token->string, curtime+11, 8);
 			strcat(token->string, "\"");
-			free(curtime);
 			token->type = TT_NAME;
 			token->subtype = strlen(token->string);
 			*firsttoken = token;
@@ -805,7 +803,7 @@ int PC_ExpandDefine(source_t *source, token_t *deftoken, define_t *define,
 	int parmnum, i;
 
 	//if it is a builtin define
-	if (define->builtin)
+	if (define->builtin != BUILTIN_NONE)
 	{
 		return PC_ExpandBuiltinDefine(source, deftoken, define, firsttoken, lasttoken);
 	} //end if
@@ -1671,7 +1669,7 @@ int PC_Directive_endif(source_t *source)
 //============================================================================
 typedef struct operator_s
 {
-	int mOperator;
+	punctuationId_t mOperator;
 	int priority;
 	int parentheses;
 	struct operator_s *prev, *next;
@@ -1685,7 +1683,7 @@ typedef struct value_s
 	struct value_s *prev, *next;
 } value_t;
 
-int PC_OperatorPriority(int op)
+int PC_OperatorPriority(punctuationId_t op)
 {
 	switch(op)
 	{
@@ -1716,12 +1714,13 @@ int PC_OperatorPriority(int op)
 
 		case P_COLON: return 5;
 		case P_QUESTIONMARK: return 5;
+		default: break;
 	} //end switch
 	return false;
 } //end of the function PC_OperatorPriority
 
-#define MAX_VALUES		64
-#define MAX_OPERATORS	64
+constexpr int MAX_VALUES = 64;
+constexpr int MAX_OPERATORS = 64;
 #define AllocValue(val)									\
 	if (numvalues >= MAX_VALUES) {						\
 		SourceError(source, "out of value space");		\
@@ -1867,18 +1866,19 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 			} //end case
 			case TT_PUNCTUATION:
 			{
+				const punctuationId_t punctuation = Token_Punctuation(*t);
 				if (negativevalue)
 				{
 					SourceError(source, "misplaced minus sign in #if/#elif");
 					error = 1;
 					break;
 				} //end if
-				if (t->subtype == P_PARENTHESESOPEN)
+				if (punctuation == P_PARENTHESESOPEN)
 				{
 					parentheses++;
 					break;
 				} //end if
-				else if (t->subtype == P_PARENTHESESCLOSE)
+				else if (punctuation == P_PARENTHESESCLOSE)
 				{
 					parentheses--;
 					if (parentheses < 0)
@@ -1891,17 +1891,17 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 				//check for invalid operators on floating point values
 				if (!integer)
 				{
-					if (t->subtype == P_BIN_NOT || t->subtype == P_MOD ||
-						t->subtype == P_RSHIFT || t->subtype == P_LSHIFT ||
-						t->subtype == P_BIN_AND || t->subtype == P_BIN_OR ||
-						t->subtype == P_BIN_XOR)
+					if (punctuation == P_BIN_NOT || punctuation == P_MOD ||
+						punctuation == P_RSHIFT || punctuation == P_LSHIFT ||
+						punctuation == P_BIN_AND || punctuation == P_BIN_OR ||
+						punctuation == P_BIN_XOR)
 					{
 						SourceError(source, "illigal operator %s on floating point operands", t->string);
 						error = 1;
 						break;
 					} //end if
 				} //end if
-				switch(t->subtype)
+				switch(punctuation)
 				{
 					case P_LOGIC_NOT:
 					case P_BIN_NOT:
@@ -1973,8 +1973,8 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 				{
 					//o = (operator_t *) GetClearedMemory(sizeof(operator_t));
 					AllocOperator(o);
-					o->mOperator = t->subtype;
-					o->priority = PC_OperatorPriority(t->subtype);
+					o->mOperator = punctuation;
+					o->priority = PC_OperatorPriority(punctuation);
 					o->parentheses = parentheses;
 					o->next = nullptr;
 					o->prev = lastoperator;
@@ -2138,6 +2138,7 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 				gotquestmarkvalue = true;
 				break;
 			} //end if
+			default: break;
 		} //end switch
 #ifdef DEBUG_EVAL
 		if (integer) Log_Write("result value = %d", v1->intvalue);
@@ -2490,7 +2491,7 @@ void UnreadSignToken(source_t *source)
 	token.linescrossed = 0;
 	strcpy(token.string, "-");
 	token.type = TT_PUNCTUATION;
-	token.subtype = P_SUB;
+	Token_SetPunctuation(token, P_SUB);
 	PC_UnreadSourceToken(source, &token);
 } //end of the function UnreadSignToken
 //============================================================================
@@ -2886,7 +2887,7 @@ int PC_ExpectTokenString(source_t *source, const char *string)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token)
+int PC_ExpectTokenType(source_t *source, tokenType_t type, int subtype, token_t *token)
 {
 	char str[MAX_TOKEN];
 
@@ -2975,7 +2976,7 @@ int PC_CheckTokenString(source_t *source, const char *string)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token)
+int PC_CheckTokenType(source_t *source, tokenType_t type, int subtype, token_t *token)
 {
 	token_t tok;
 
@@ -3209,7 +3210,7 @@ void FreeSource(source_t *source)
 // Changes Globals:		-
 //============================================================================
 
-#define MAX_SOURCEFILES		64
+constexpr int MAX_SOURCEFILES = 64;
 
 source_t *sourceFiles[MAX_SOURCEFILES];
 

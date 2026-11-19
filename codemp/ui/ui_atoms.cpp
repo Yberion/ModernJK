@@ -28,8 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 **********************************************************************/
 #include "ui_local.h"
 
-#define NUM_UI_ARGSTRS (4)
-#define UI_ARGSTR_MASK (NUM_UI_ARGSTRS-1)
+constexpr int NUM_UI_ARGSTRS = 4;
+constexpr int UI_ARGSTR_MASK = NUM_UI_ARGSTRS-1;
 static char tempArgStrs[NUM_UI_ARGSTRS][MAX_STRING_CHARS];
 
 static char *UI_Argv( int arg ) {
@@ -39,8 +39,7 @@ static char *UI_Argv( int arg ) {
 	return s;
 }
 
-#define NUM_UI_CVARSTRS (4)
-#define UI_CVARSTR_MASK (NUM_UI_CVARSTRS-1)
+constexpr int NUM_UI_CVARSTRS = 4;
 static char tempCvarStrs[NUM_UI_CVARSTRS][MAX_CVAR_VALUE_STRING];
 
 char *UI_Cvar_VariableString( const char *name ) {

@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys/sys_loadlib.h"
 #include "qcommon/ojk_saved_game.h"
 
-#define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
+constexpr int RETRANSMIT_TIMEOUT = 3000;	// time between connection packet retransmits
 
 cvar_t	*cl_renderer;
 

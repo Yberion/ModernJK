@@ -189,8 +189,8 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, vec_t dist, vec_t eps
 {
 	winding_t	*in;
 	float	dists[MAX_POINTS_ON_WINDING+4] = { 0 };
-	int		sides[MAX_POINTS_ON_WINDING+4] = { 0 };
-	int		counts[3];
+	planeSide_t	sides[MAX_POINTS_ON_WINDING+4] = {};
+	EnumArray<int, planeSide_t, 3>	counts;
 	static	float	dot;		// VC 4.2 optimizer bug if not static
 	int		i, j;
 	float	*p1, *p2;
@@ -199,7 +199,7 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, vec_t dist, vec_t eps
 	int		maxpts;
 
 	in = *inout;
-	counts[0] = counts[1] = counts[2] = 0;
+	counts[SIDE_FRONT] = counts[SIDE_BACK] = counts[SIDE_ON] = 0;
 
 // determine sides for each point
 	for (i=0 ; i<in->numpoints ; i++)
@@ -220,16 +220,16 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, vec_t dist, vec_t eps
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	if (!counts[0])
+	if (!counts[SIDE_FRONT])
 	{
 		FreeWinding (in);
 		*inout = nullptr;
 		return;
 	}
-	if (!counts[1])
+	if (!counts[SIDE_BACK])
 		return;		// inout stays the same
 
-	maxpts = in->numpoints+4;	// cant use counts[0]+2 because
+	maxpts = in->numpoints+4;	// cant use counts[SIDE_FRONT]+2 because
 								// of fp grouping errors
 
 	f = AllocWinding (maxpts);

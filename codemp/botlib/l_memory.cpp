@@ -44,8 +44,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //#define MEMDEBUG
 //#define MEMORYMANEGER
 
-#define MEM_ID		0x12345678l
-#define HUNK_ID		0x87654321l
+constexpr long MEM_ID = 0x12345678l;
+constexpr unsigned long HUNK_ID = 0x87654321l;
 
 int allocatedmemory;
 int totalmemorysize;

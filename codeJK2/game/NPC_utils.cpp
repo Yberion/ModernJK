@@ -33,7 +33,7 @@ EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamNumbers;
 EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamStrength;
 EnumArray<int, team_t, TEAM_NUM_TEAMS>	teamCounter;
 
-#define	VALID_ATTACK_CONE	2.0f	//Degrees
+constexpr float VALID_ATTACK_CONE = 2.0f;	//Degrees
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
 extern void Q3_DebugPrint( WL_e level, const char *format, ... );
 
@@ -1033,8 +1033,7 @@ NPC_FindNearestEnemy
 -------------------------
 */
 
-#define	MAX_RADIUS_ENTS			256	//NOTE: This can cause entities to be lost
-#define NEAR_DEFAULT_RADIUS		256
+constexpr int MAX_RADIUS_ENTS = 256;	//NOTE: This can cause entities to be lost
 
 int NPC_FindNearestEnemy( gentity_t *ent )
 {

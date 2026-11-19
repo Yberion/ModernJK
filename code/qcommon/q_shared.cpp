@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // q_shared.cpp -- stateless support routines that are included in each code dll
 
-#include "../game/common_headers.h"
+#include "q_shared.h"
 
 /*
 ============
@@ -655,8 +655,8 @@ varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
 */
-#define	MAX_VA_STRING	32000
-#define MAX_VA_BUFFERS 4
+constexpr int MAX_VA_STRING = 32000;
+constexpr int MAX_VA_BUFFERS = 4;
 
 char * QDECL va( const char *format, ... )
 {

@@ -277,7 +277,7 @@ void SP_info_player_intermission_blue( gentity_t *ent ) {
 
 }
 
-#define JMSABER_RESPAWN_TIME 20000 //in case it gets stuck somewhere no one can reach
+constexpr int JMSABER_RESPAWN_TIME = 20000; //in case it gets stuck somewhere no one can reach
 
 void ThrowSaberToAttacker(gentity_t *self, gentity_t *attacker)
 {
@@ -611,7 +611,7 @@ SelectNearestDeathmatchSpawnPoint
 Find the spot that we DON'T want to use
 ================
 */
-#define	MAX_SPAWN_POINTS	128
+constexpr int MAX_SPAWN_POINTS = 128;
 gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -643,7 +643,6 @@ SelectRandomDeathmatchSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-#define	MAX_SPAWN_POINTS	128
 gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 	gentity_t	*spot;
 	int			count;
@@ -1000,7 +999,7 @@ BODYQUE
 =======================================================================
 */
 
-#define BODY_SINK_TIME		30000//45000
+constexpr int BODY_SINK_TIME = 30000; //45000
 
 /*
 ===============

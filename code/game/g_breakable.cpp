@@ -740,13 +740,11 @@ void misc_model_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 	misc_model_breakable_die( self, other, activator, self->health, MOD_UNKNOWN );
 }
 
-#define MDL_OTHER			0
-#define MDL_ARMOR_HEALTH	1
-#define MDL_AMMO			2
+#include "qcommon/q_spsets.h"
 
 void misc_model_breakable_init( gentity_t *ent )
 {
-	int		type;
+	breakableModelType_t	type;
 
 	type = MDL_OTHER;
 
@@ -977,7 +975,7 @@ void TouchTieBomb( gentity_t *self, gentity_t *other, trace_t *trace )
 	G_RadiusDamage( self->currentOrigin, self, 900, 500, self, MOD_EXPLOSIVE_SPLASH );
 }
 
-#define		MIN_PLAYER_DIST			1600
+constexpr int MIN_PLAYER_DIST = 1600;
 
 void TieBomberThink( gentity_t *self )
 {

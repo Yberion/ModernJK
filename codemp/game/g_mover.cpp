@@ -43,14 +43,13 @@ typedef struct pushed_s {
 } pushed_t;
 pushed_t	pushed[MAX_GENTITIES], *pushed_p;
 
-#define MOVER_START_ON		1
-#define MOVER_FORCE_ACTIVATE	2
-#define MOVER_CRUSHER		4
-#define MOVER_TOGGLE		8
-#define MOVER_LOCKED		16
-#define MOVER_GOODIE		32
-#define MOVER_PLAYER_USE	64
-#define MOVER_INACTIVE		128
+constexpr int MOVER_FORCE_ACTIVATE = 2;
+constexpr int MOVER_CRUSHER = 4;
+constexpr int MOVER_TOGGLE = 8;
+constexpr int MOVER_LOCKED = 16;
+[[maybe_unused]] constexpr int MOVER_GOODIE = 32;
+constexpr int MOVER_PLAYER_USE = 64;
+constexpr int MOVER_INACTIVE = 128;
 
 int	BMS_START = 0;
 int	BMS_MID = 1;
@@ -1751,9 +1750,7 @@ TRAIN
 */
 
 
-#define TRAIN_START_ON		1
-#define TRAIN_TOGGLE		2
-#define TRAIN_BLOCK_STOPS	4
+constexpr int TRAIN_BLOCK_STOPS = 4;
 
 /*
 ===============
@@ -3264,7 +3261,7 @@ void use_wall( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	}
 }
 
-#define FUNC_WALL_OFF	1
+constexpr int FUNC_WALL_OFF = 1;
 
 /*QUAKED func_wall (0 .5 .8) ? START_OFF x x x x x PLAYER_USE INACTIVE
 PLAYER_USE	Player can use it with the use button

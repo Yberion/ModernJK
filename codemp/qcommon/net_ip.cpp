@@ -98,7 +98,7 @@ static struct sockaddr_in	socksRelayAddr;
 static SOCKET	ip_socket = INVALID_SOCKET;
 static SOCKET	socks_socket = INVALID_SOCKET;
 
-#define	MAX_IPS		16
+constexpr int MAX_IPS = 16;
 static	int		numIP;
 static	byte	localIP[MAX_IPS][4];
 

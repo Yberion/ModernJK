@@ -27,8 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern bool G_EntIsUnlockedDoor( int entityNum );
 extern bool FlyingCreature( gentity_t *ent );
 
-#define	MIN_DOOR_BLOCK_DIST			16
-#define	MIN_DOOR_BLOCK_DIST_SQR		( MIN_DOOR_BLOCK_DIST * MIN_DOOR_BLOCK_DIST )
+constexpr int MIN_DOOR_BLOCK_DIST = 16;
+constexpr int MIN_DOOR_BLOCK_DIST_SQR = MIN_DOOR_BLOCK_DIST * MIN_DOOR_BLOCK_DIST;
 /*
 -------------------------
 NAV_HitNavGoal

@@ -25,8 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-#define MAX_LOADING_PLAYER_ICONS	16
-#define MAX_LOADING_ITEM_ICONS		26
+[[maybe_unused]] constexpr int MAX_LOADING_PLAYER_ICONS = 16;
 
 //static int			loadingPlayerIconCount;
 //static qhandle_t	loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];

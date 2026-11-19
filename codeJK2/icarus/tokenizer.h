@@ -37,7 +37,7 @@ typedef unsigned char byte;
 typedef unsigned short word;
 
 #define MAX_STRING_LENGTH		256
-#define MAX_IDENTIFIER_LENGTH	128
+#include "qcommon/q_icarusflags.h"
 
 #include "qcommon/q_icarusflags.h"
 

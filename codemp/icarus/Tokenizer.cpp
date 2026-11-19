@@ -1668,7 +1668,7 @@ CToken* CTokenizer::GetToEndOfLine(icarusToken_t tokenType)
 	//
 	if (tokenType == TK_STRING)
 	{
-		#define iRETURN_STRING_SIZE 2048
+		constexpr int iRETURN_STRING_SIZE = 2048;
 		char theString[iRETURN_STRING_SIZE];
 		theString[0] = ' ';
 

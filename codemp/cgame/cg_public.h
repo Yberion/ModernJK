@@ -27,19 +27,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ghoul2/G2.h"
 
-#define	CGAME_API_VERSION		2
+inline constexpr int CGAME_API_VERSION = 2;
 
 enum class uiMenuCommand_t;		// ui_public.h
 enum class fakeAscii_t;			// ui/keycodes.h
 
-#define	CMD_BACKUP			256		// 2.56 s of commands at one per tick (plan step 14)
-#define	CMD_MASK			(CMD_BACKUP - 1)
+inline constexpr int CMD_BACKUP = 256;		// 2.56 s of commands at one per tick (plan step 14)
+inline constexpr int CMD_MASK = CMD_BACKUP - 1;
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
 // needs to be larger than PACKET_BACKUP
 
 
-#define	MAX_ENTITIES_IN_SNAPSHOT	256
+inline constexpr int MAX_ENTITIES_IN_SNAPSHOT = 256;
 
 // snapshots are a view of the server at a given time
 
@@ -149,15 +149,23 @@ typedef struct TCGPositionOnBolt_s {
 } TCGPositionOnBolt;
 
 //ragdoll callback structs -rww
-#define RAG_CALLBACK_NONE				0
-#define RAG_CALLBACK_DEBUGBOX			1
+// the type of a ragdoll callback, each with its structure in the shared buffer
+enum class ragCallbackType_t {
+	RAG_CALLBACK_DEBUGBOX			= 1,	// ragCallbackDebugBox_t
+	RAG_CALLBACK_DEBUGLINE,				// ragCallbackDebugLine_t
+	RAG_CALLBACK_BONESNAP,				// ragCallbackBoneSnap_t
+	RAG_CALLBACK_BONEIMPACT,			// ragCallbackBoneImpact_t
+	RAG_CALLBACK_BONEINSOLID,			// ragCallbackBoneInSolid_t
+	RAG_CALLBACK_TRACELINE				// ragCallbackTraceLine_t
+};
+using enum ragCallbackType_t;
+
 typedef struct ragCallbackDebugBox_s {
 	vec3_t			mins;
 	vec3_t			maxs;
 	int				duration;
 } ragCallbackDebugBox_t;
 
-#define RAG_CALLBACK_DEBUGLINE			2
 typedef struct ragCallbackDebugLine_s {
 	vec3_t			start;
 	vec3_t			end;
@@ -166,26 +174,22 @@ typedef struct ragCallbackDebugLine_s {
 	int				radius;
 } ragCallbackDebugLine_t;
 
-#define RAG_CALLBACK_BONESNAP			3
 typedef struct ragCallbackBoneSnap_s {
 	char			boneName[128]; //name of the bone in question
 	int				entNum; //index of entity who owns the bone in question
 } ragCallbackBoneSnap_t;
 
-#define RAG_CALLBACK_BONEIMPACT			4
 typedef struct ragCallbackBoneImpact_s {
 	char			boneName[128]; //name of the bone in question
 	int				entNum; //index of entity who owns the bone in question
 } ragCallbackBoneImpact_t;
 
-#define RAG_CALLBACK_BONEINSOLID		5
 typedef struct ragCallbackBoneInSolid_s {
 	vec3_t			bonePos; //world coordinate position of the bone
 	int				entNum; //index of entity who owns the bone in question
 	int				solidCount; //higher the count, the longer we've been in solid (the worse off we are)
 } ragCallbackBoneInSolid_t;
 
-#define RAG_CALLBACK_TRACELINE			6
 typedef struct ragCallbackTraceLine_s {
 	trace_t			tr;
 	vec3_t			start;
@@ -196,7 +200,7 @@ typedef struct ragCallbackTraceLine_s {
 	contentsFlags_t	mask;
 } ragCallbackTraceLine_t;
 
-#define	MAX_CG_SHARED_BUFFER_SIZE		2048
+inline constexpr int MAX_CG_SHARED_BUFFER_SIZE = 2048;
 
 typedef struct cgameImport_s {
 	// common
@@ -460,7 +464,7 @@ typedef struct cgameExport_s {
 	void			(*Trace)					( void );
 	void			(*G2Trace)					( void );
 	void			(*G2Mark)					( void );
-	int				(*RagCallback)				( int callType );
+	int				(*RagCallback)				( ragCallbackType_t callType );
 	bool		(*IncomingConsoleCommand)	( void );
 	bool		(*NoUseableForce)			( void );
 	void			(*GetOrigin)				( int entID, vec3_t out );

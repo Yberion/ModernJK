@@ -1044,7 +1044,7 @@ levelshots are specialized 256*256 thumbnails for
 the menu system, sampled down from full screen distorted images
 ====================
 */
-#define LEVELSHOTSIZE 256
+constexpr int LEVELSHOTSIZE = 256;
 static void R_LevelShot( void ) {
 	char		checkname[MAX_OSPATH];
 	byte		*buffer;
@@ -1546,11 +1546,11 @@ static consoleCommand_t	commands[] = {
 static const size_t numCommands = ARRAY_LEN( commands );
 
 #ifdef _DEBUG
-#define MIN_PRIMITIVES -1
+constexpr int MIN_PRIMITIVES = -1;
 #else
-#define MIN_PRIMITIVES 0
+constexpr int MIN_PRIMITIVES = 0;
 #endif
-#define MAX_PRIMITIVES 3
+constexpr int MAX_PRIMITIVES = 3;
 
 /*
 ===============

@@ -40,7 +40,7 @@ extern bool PM_InGetUp( playerState_t *ps );
 
 extern	cvar_t	*g_spskill;
 
-#define MAX_BACTA_HEAL_AMOUNT		25
+constexpr int MAX_BACTA_HEAL_AMOUNT = 25;
 
 /*
 
@@ -56,12 +56,11 @@ extern	cvar_t	*g_spskill;
 */
 
 // Item Spawn flags
-#define ITMSF_SUSPEND		1
-#define ITMSF_TEAM			2
-#define ITMSF_MONSTER		4
-#define ITMSF_NOTSOLID		8
-#define ITMSF_VERTICAL		16
-#define ITMSF_INVISIBLE		32
+constexpr int ITMSF_SUSPEND = 1;
+constexpr int ITMSF_TEAM = 2;
+constexpr int ITMSF_MONSTER = 4;
+constexpr int ITMSF_NOTSOLID = 8;
+constexpr int ITMSF_INVISIBLE = 32;
 
 //======================================================================
 

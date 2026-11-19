@@ -1026,8 +1026,8 @@ Also gets stuck inside thrower if looking down when thrown
 
 ==================
 */
-#define	MAX_CLIP_PLANES	5
-#define	BUMPCLIP		1.5f
+constexpr int MAX_CLIP_PLANES = 5;
+constexpr float BUMPCLIP = 1.5f;
 void G_RollMissile( gentity_t *ent )
 {
 	int			bumpcount, numbumps;

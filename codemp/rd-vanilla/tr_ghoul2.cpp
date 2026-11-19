@@ -787,7 +787,7 @@ public:
 };
 
 #ifdef _G2_GORE
-#define MAX_RENDER_SURFACES (2048)
+constexpr int MAX_RENDER_SURFACES = 2048;
 static CRenderableSurface RSStorage[MAX_RENDER_SURFACES];
 static unsigned int NextRS=0;
 
@@ -818,7 +818,7 @@ frame.
 R_ACullModel
 =============
 */
-static int R_GCullModel( trRefEntity_t *ent ) {
+static cullResult_t R_GCullModel( trRefEntity_t *ent ) {
 
 	// scale the radius if need be
 	float largestScale = ent->e.modelScale[0];
@@ -2153,7 +2153,7 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 }
 
 
-#define MDX_TAG_ORIGIN 2
+constexpr int MDX_TAG_ORIGIN = 2;
 
 //======================================================================
 //
@@ -3218,7 +3218,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 #endif
 	int				fogNum = 0;
 	bool		personalModel;
-	int				cull;
+	cullResult_t	cull;
 	int				i, whichLod, j;
 	skin_t			*skin;
 	int				modelCount;
@@ -4424,11 +4424,11 @@ bool R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAlread
 
 #ifdef CREATE_LIMB_HIERARCHY
 
-#define NUM_ROOTPARENTS				4
-#define NUM_OTHERPARENTS			12
-#define NUM_BOTTOMBONES				4
+constexpr int NUM_ROOTPARENTS = 4;
+constexpr int NUM_OTHERPARENTS = 12;
+constexpr int NUM_BOTTOMBONES = 4;
 
-#define CHILD_PADDING				4 //I don't know, I guess this can be changed.
+constexpr int CHILD_PADDING = 4; //I don't know, I guess this can be changed.
 
 static const char *rootParents[NUM_ROOTPARENTS] =
 {

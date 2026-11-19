@@ -76,7 +76,7 @@ extern void NPC_GalakMech_Init( gentity_t *ent );
 extern void NPC_Protocol_Precache( void );
 extern int WP_SetSaberModel( gclient_t *client, class_t npcClass );
 
-#define	NSF_DROP_TO_FLOOR	16
+constexpr int NSF_DROP_TO_FLOOR = 16;
 
 
 //void HirogenAlpha_Precache( void );
@@ -1440,9 +1440,9 @@ NPC_ShySpawn
 -------------------------
 */
 
-#define SHY_THINK_TIME			1000
-#define SHY_SPAWN_DISTANCE		128
-#define SHY_SPAWN_DISTANCE_SQR	( SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE )
+constexpr int SHY_THINK_TIME = 1000;
+constexpr int SHY_SPAWN_DISTANCE = 128;
+constexpr int SHY_SPAWN_DISTANCE_SQR = SHY_SPAWN_DISTANCE * SHY_SPAWN_DISTANCE;
 
 void NPC_ShySpawn( gentity_t *ent )
 {

@@ -47,11 +47,10 @@ extern void			SetViewportAndScissor( void );
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define	MAX_WIND_ZONES			12
-#define MAX_WEATHER_ZONES		50	// so we can more zones that are smaller
-#define	MAX_PUFF_SYSTEMS		2
-#define	MAX_PARTICLE_CLOUDS		5
-#define POINTCACHE_CELL_SIZE	32.0f
+constexpr int MAX_WIND_ZONES = 12;
+constexpr int MAX_WEATHER_ZONES = 50;	// so we can more zones that are smaller
+constexpr int MAX_PARTICLE_CLOUDS = 5;
+constexpr float POINTCACHE_CELL_SIZE = 32.0f;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Globals
@@ -430,7 +429,7 @@ bool R_GetWindGusting(vec3_t atpoint)
 ////////////////////////////////////////////////////////////////////////////////////////
 class COutside
 {
-#define COUTSIDE_STRUCT_VERSION 1	// you MUST increase this any time you change any binary (fields) inside this class, or cahced files will fuck up
+static constexpr int COUTSIDE_STRUCT_VERSION = 1;	// you MUST increase this any time you change any binary (fields) inside this class, or cahced files will fuck up
 public:
 	////////////////////////////////////////////////////////////////////////////////////
 	//Global Public Outside Variables

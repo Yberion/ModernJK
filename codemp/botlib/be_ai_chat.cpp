@@ -52,7 +52,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 //escape character
-#define ESCAPE_CHAR				0x01	//'_'
+constexpr int ESCAPE_CHAR = 0x01;	//'_'
 //
 // "hi ", people, " ", 0, " entered the game"
 //becomes:
@@ -60,8 +60,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
 //match piece types
-#define MT_VARIABLE					1		//variable match piece
-#define MT_STRING					2		//string match piece
+constexpr int MT_VARIABLE = 1;		//variable match piece
+constexpr int MT_STRING = 2;		//string match piece
 //reply chat key flags
 enum class replyChatKeyFlags_t
 {
@@ -79,7 +79,7 @@ enum class replyChatKeyFlags_t
 using enum replyChatKeyFlags_t;
 template <> inline constexpr bool enableEnumFlags<replyChatKeyFlags_t> = true;
 //time to ignore a chat message after using it
-#define CHATMESSAGE_RECENTTIME	20
+constexpr int CHATMESSAGE_RECENTTIME = 20;
 
 //the actuall chat messages
 typedef struct bot_chatmessage_s
@@ -2232,7 +2232,7 @@ void BotFreeChatFile(int chatstate)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadChatFile(int chatstate, char *chatfile, char *chatname)
+botlibError_t BotLoadChatFile(int chatstate, char *chatfile, char *chatname)
 {
 	bot_chatstate_t *cs;
 	int n, avail = 0;
@@ -2981,7 +2981,7 @@ void BotFreeChatState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupChatAI(void)
+botlibError_t BotSetupChatAI(void)
 {
 	char *file;
 

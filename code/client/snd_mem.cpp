@@ -157,13 +157,13 @@ wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength)
 		return info;
 	}
 	data_p += 8;
-	info.format = GetLittleShort();
+	info.format = static_cast<wavFormat_t>( GetLittleShort() );
 	info.channels = GetLittleShort();
 	info.rate = GetLittleLong();
 	data_p += 4+2;
 	info.width = GetLittleShort() / 8;
 
-	if (info.format != 1)
+	if (info.format != WAV_FORMAT_PCM)
 	{
 		Com_Printf("Microsoft PCM format only\n");
 		return info;
@@ -709,7 +709,7 @@ static bool S_LoadSound_FileLoadAndNameAdjuster(char *psFilename, byte **pData, 
 //	but doors etc could be anything. Sigh...)
 //
 #define SOUND_CHARS_DIR "sound/chars/"
-#define SOUND_CHARS_DIR_LENGTH 12 // strlen( SOUND_CHARS_DIR )
+constexpr int SOUND_CHARS_DIR_LENGTH = 12; // strlen( SOUND_CHARS_DIR )
 static bool S_LoadSound_DirIsAllowedToKeepMP3s( const char *psFilename )
 {
 	if ( Q_stricmpn( psFilename, SOUND_CHARS_DIR, SOUND_CHARS_DIR_LENGTH ) == 0 )

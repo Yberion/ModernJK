@@ -366,7 +366,7 @@ void BotFreeWeaponWeights(int weaponstate)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadWeaponWeights(int weaponstate, char *filename)
+botlibError_t BotLoadWeaponWeights(int weaponstate, char *filename)
 {
 	bot_weaponstate_t *ws;
 
@@ -506,7 +506,7 @@ void BotFreeWeaponState(int handle)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int BotSetupWeaponAI(void)
+botlibError_t BotSetupWeaponAI(void)
 {
 	char *file;
 

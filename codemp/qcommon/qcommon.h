@@ -114,15 +114,15 @@ NET
 ==============================================================
 */
 
-#define NET_ENABLEV4		0x01
+inline constexpr int NET_ENABLEV4 = 0x01;
 
 // The input margin of a snapshot (plan step 14, part 4c): how early the client's command of the snapshot's tick reached
 // the server, in ms (negative: after its tick). It travels as a byte: to the millisecond up to INPUT_MARGIN_FINE
 // either way, in steps of INPUT_MARGIN_STEP beyond (up to 568 ms), so that a client sets its command clock in one
 // round trip after a connection or a hitch.
-#define	INPUT_MARGIN_NONE	( -128 )	// on the wire: the server measured no margin since its last snapshot
-#define	INPUT_MARGIN_FINE	64
-#define	INPUT_MARGIN_STEP	8
+inline constexpr int INPUT_MARGIN_NONE = -128;	// on the wire: the server measured no margin since its last snapshot
+inline constexpr int INPUT_MARGIN_FINE = 64;
+inline constexpr int INPUT_MARGIN_STEP = 8;
 static inline int Net_MarginToWire( int msec ) {
 	const int a = msec < 0 ? -msec : msec;
 	int w = a <= INPUT_MARGIN_FINE ? a : INPUT_MARGIN_FINE + ( a - INPUT_MARGIN_FINE + INPUT_MARGIN_STEP / 2 ) / INPUT_MARGIN_STEP;
@@ -137,24 +137,24 @@ static inline int Net_MarginFromWire( int w ) {
 	return w < 0 ? -msec : msec;
 }
 
-#define	PACKET_BACKUP	128	// number of old messages that must be kept on client and
+inline constexpr int PACKET_BACKUP = 128;	// number of old messages that must be kept on client and
 							// server for delta comrpession: a snapshot is coded against one the
 							// client holds up to 125 messages back, 1.25 s of round trip at a
 							// message per tick (32 in OpenJK; plan step 14, part 5)
-#define	PACKET_MASK		(PACKET_BACKUP-1)
+inline constexpr int PACKET_MASK = PACKET_BACKUP-1;
 
-#define	MAX_PACKET_USERCMDS		32		// max number of usercmd_t in a packet
+#include "qcommon/q_limits.h"
 
 // Network settings fixed rather than set by cvars (plan step 11, docs_rewrite/modernization/surveys/network-settings.md)
-#define	MAX_PACKET_RATE			100		// client packets per second: one per tick (TICK_MSEC); the server decodes no more
-#define	TIMEOUT_CONNECTING		60		// seconds without a packet before either side drops a connection not yet in the game
-#define	TIMEOUT_ACTIVE			30		// seconds without a packet before either side drops a connection in the game
+inline constexpr int MAX_PACKET_RATE = 100;		// client packets per second: one per tick (TICK_MSEC); the server decodes no more
+inline constexpr int TIMEOUT_CONNECTING = 60;		// seconds without a packet before either side drops a connection not yet in the game
+inline constexpr int TIMEOUT_ACTIVE = 30;		// seconds without a packet before either side drops a connection in the game
 
-#define	MAX_SNAPSHOT_ENTITIES	256
+inline constexpr int MAX_SNAPSHOT_ENTITIES = 256;
 
-#define	PORT_ANY			-1
+inline constexpr int PORT_ANY = -1;
 
-#define	MAX_RELIABLE_COMMANDS	256			// max string commands buffered for restransmit; the message codec codes the
+inline constexpr int MAX_RELIABLE_COMMANDS = 256;			// max string commands buffered for restransmit; the message codec codes the
 										// server commands against earlier ones and needs both sides to keep 256 (netcodec::engine::kMinCommands)
 
 enum class netsrc_t {
@@ -188,13 +188,13 @@ bool	Sys_IsLANAddress (const netadr_t *adr);
 void		Sys_ShowIP(void);
 
 
-#define	MAX_MSGLEN				49152		// max length of a message, which may
+inline constexpr int MAX_MSGLEN = 49152;		// max length of a message, which may
 											// be fragmented into multiple packets
 
 //rww - 6/28/02 - Changed from 16384 to match sof2's. This does seem rather huge, but I guess it doesn't really hurt anything.
 
-#define MAX_DOWNLOAD_WINDOW			8		// max of eight download frames
-#define MAX_DOWNLOAD_BLKSIZE		2048	// 2048 byte block chunks
+inline constexpr int MAX_DOWNLOAD_WINDOW = 8;		// max of eight download frames
+inline constexpr int MAX_DOWNLOAD_BLKSIZE = 2048;	// 2048 byte block chunks
 
 
 /*
@@ -243,7 +243,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	26
+inline constexpr int PROTOCOL_VERSION = 26;
 
 #define	UPDATE_SERVER_NAME			"updatejk3.ravensoft.com"
 #define MASTER_SERVER_NAME			"masterjk3.ravensoft.com"
@@ -251,10 +251,10 @@ PROTOCOL
 #define JKHUB_MASTER_SERVER_NAME	"master.jkhub.org"
 #define JKHUB_UPDATE_SERVER_NAME	"update.jkhub.org"
 
-#define	PORT_MASTER			29060
-#define	PORT_UPDATE			29061
+inline constexpr int PORT_MASTER = 29060;
+inline constexpr int PORT_UPDATE = 29061;
 #define	PORT_SERVER			29070	//...+9 more for multiple servers
-#define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
+inline constexpr int NUM_SERVER_PORTS = 4;		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
 
 // the svc_strings[] array in cl_parse.c should mirror this
 //
@@ -568,9 +568,6 @@ Edit fields and command line history/completion
 ==============================================================
 */
 
-#define CONSOLE_PROMPT_CHAR ']'
-#define	MAX_EDIT_LINE		256
-#define COMMAND_HISTORY		32
 
 typedef struct field_s {
 	int		cursor;
@@ -831,7 +828,7 @@ void S_ClearSoundBuffer( void );
 void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
 
 // AVI files have the start of pixel lines 4 byte-aligned
-#define AVI_LINE_PADDING 4
+inline constexpr int AVI_LINE_PADDING = 4;
 
 
 //
@@ -854,8 +851,9 @@ bool UI_GameCommand( void );
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
-#define NYT HMAX					/* NYT = Not Yet Transmitted */
-#define INTERNAL_NODE (HMAX+1)
+inline constexpr int HMAX = 256; /* Maximum symbol */
+inline constexpr int NYT = HMAX;					/* NYT = Not Yet Transmitted */
+inline constexpr int INTERNAL_NODE = HMAX+1;
 
 typedef struct nodetype {
 	struct	nodetype *left, *right, *parent; /* tree structure */
@@ -865,7 +863,6 @@ typedef struct nodetype {
 	int		symbol;
 } node_t;
 
-#define HMAX 256 /* Maximum symbol */
 
 typedef struct huff_s {
 	int			blocNode;

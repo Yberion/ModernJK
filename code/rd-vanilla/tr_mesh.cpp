@@ -71,7 +71,7 @@ float ProjectRadius( float r, vec3_t location )
 R_CullModel
 =============
 */
-static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
+static cullResult_t R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	vec3_t		bounds[2];
 	md3Frame_t	*oldFrame, *newFrame;
 	int			i;
@@ -102,7 +102,7 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 		}
 		else
 		{
-			int sphereCull, sphereCullB;
+			cullResult_t sphereCull, sphereCullB;
 
 			sphereCull  = R_CullLocalPointAndRadius( newFrame->localOrigin, newFrame->radius );
 			if ( newFrame == oldFrame ) {
@@ -306,7 +306,7 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	md3Shader_t		*md3Shader = nullptr;
 	shader_t		*shader = nullptr;
 	shader_t		*main_shader = nullptr;
-	int				cull;
+	cullResult_t	cull;
 	int				lod;
 	int				fogNum;
 	bool		personalModel;

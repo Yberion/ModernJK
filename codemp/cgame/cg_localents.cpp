@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-#define	MAX_LOCAL_ENTITIES	2048 // 512
+constexpr int MAX_LOCAL_ENTITIES = 2048; // 512
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
@@ -649,7 +649,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 CG_AddScorePlum
 ===================
 */
-#define NUMBER_SIZE		8
+constexpr int NUMBER_SIZE = 8;
 
 void CG_AddScorePlum( localEntity_t *le ) {
 	refEntity_t	*re;

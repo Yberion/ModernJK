@@ -37,8 +37,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );
 
-#define MAX_FORCE_CONFIGS		128
-#define MAX_SABER_HILTS			256 //64
+inline constexpr int MAX_FORCE_CONFIGS = 128;
+inline constexpr int MAX_SABER_HILTS = 256; //64
 
 //
 // ui_main.cpp
@@ -124,30 +124,29 @@ typedef struct playerInfo_s {
 } playerInfo_t;
 
 // new ui stuff
-#define MAX_ALIASES				64
-#define MAX_TEAMS				64
-#define MAX_GAMETYPES			16
-#define MAX_MAPS				512 // 128
-#define PLAYERS_PER_TEAM		8 //5
-#define MAX_PINGREQUESTS		32
-#define MAX_DISPLAY_SERVERS		2048
-#define MAX_SERVERSTATUS_LINES	128
-#define MAX_SERVERSTATUS_TEXT	4096 //1024
-#define MAX_FOUNDPLAYER_SERVERS	16
-#define TEAM_MEMBERS			8//5
-#define MAPS_PER_TIER			3
-#define MAX_TIERS				16
-#define MAX_MODS				64
-#define MAX_DEMOS				2048 // 256
-#define MAX_MOVIES				2048 // 256
-#define MAX_Q3PLAYERMODELS		1024 //256
+inline constexpr int MAX_ALIASES = 64;
+inline constexpr int MAX_TEAMS = 64;
+inline constexpr int MAX_GAMETYPES = 16;
+inline constexpr int MAX_MAPS = 512; // 128
+inline constexpr int PLAYERS_PER_TEAM = 8; //5
+inline constexpr int MAX_DISPLAY_SERVERS = 2048;
+inline constexpr int MAX_SERVERSTATUS_LINES = 128;
+inline constexpr int MAX_SERVERSTATUS_TEXT = 4096; //1024
+inline constexpr int MAX_FOUNDPLAYER_SERVERS = 16;
+inline constexpr int TEAM_MEMBERS = 8; //5
+inline constexpr int MAPS_PER_TIER = 3;
+inline constexpr int MAX_TIERS = 16;
+inline constexpr int MAX_MODS = 64;
+inline constexpr int MAX_DEMOS = 2048; // 256
+inline constexpr int MAX_MOVIES = 2048; // 256
+inline constexpr int MAX_Q3PLAYERMODELS = 1024; //256
 
 #define DEMO_DIRECTORY "demos"
 #define DEMO_EXTENSION "dm_"
-#define MAX_DEMOLIST (MAX_DEMOS * MAX_QPATH)
+inline constexpr int MAX_DEMOLIST = MAX_DEMOS * MAX_QPATH;
 
-#define MAX_SCROLLTEXT_SIZE		4096
-#define MAX_SCROLLTEXT_LINES	64
+inline constexpr int MAX_SCROLLTEXT_SIZE = 4096;
+inline constexpr int MAX_SCROLLTEXT_LINES = 64;
 
 typedef struct aliasInfo_s {
 	const char *name;
@@ -208,7 +207,7 @@ typedef struct serverStatus_s {
 	int		maxservers;
 	int		refreshtime;
 	int		numServers;
-	int		sortKey;
+	serverSortKey_t	sortKey;
 	int		sortDir;
 	int		lastCount;
 	bool refreshActive;
@@ -255,8 +254,8 @@ typedef struct modInfo_s {
 	const char *modDescr;
 } modInfo_t;
 
-#define SKIN_LENGTH			16
-#define ACTION_BUFFER_SIZE	128
+inline constexpr int SKIN_LENGTH = 16;
+inline constexpr int ACTION_BUFFER_SIZE = 128;
 
 typedef struct {
 	char name[SKIN_LENGTH];

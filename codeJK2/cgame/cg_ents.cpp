@@ -1147,10 +1147,6 @@ CG_Mover
 ===============
 */
 
-#define DOOR_OPENING	1
-#define DOOR_CLOSING	2
-#define DOOR_OPEN		3
-#define DOOR_CLOSED		4
 
 static void CG_Mover( centity_t *cent ) {
 	refEntity_t			ent;

@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef CM_LOCAL_H
 #define CM_LOCAL_H
 
-#define	BOX_MODEL_HANDLE	(MAX_SUBMODELS-1)
+inline constexpr int BOX_MODEL_HANDLE = MAX_SUBMODELS-1;
 
 struct Point
 {
@@ -149,7 +149,7 @@ typedef struct {
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
-#define	SURFACE_CLIP_EPSILON	(0.125)
+#include "qcommon/q_collision.h"
 
 extern	clipMap_t	cmg;
 extern	int			c_pointcontents;

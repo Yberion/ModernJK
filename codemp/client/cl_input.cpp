@@ -47,9 +47,9 @@ bool cl_bUseFighterPitch = false;
 bool cl_crazyShipControls = false;
 
 #ifdef VEH_CONTROL_SCHEME_4
-#define	OVERRIDE_MOUSE_SENSITIVITY 5.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
+constexpr float OVERRIDE_MOUSE_SENSITIVITY = 5.0f; //20.0f = 180 degree turn in one mouse swipe across keyboard
 #else// VEH_CONTROL_SCHEME_4
-#define	OVERRIDE_MOUSE_SENSITIVITY 10.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
+constexpr float OVERRIDE_MOUSE_SENSITIVITY = 10.0f; //20.0f = 180 degree turn in one mouse swipe across keyboard
 #endif// VEH_CONTROL_SCHEME_4
 /*
 ===============================================================================
@@ -77,7 +77,7 @@ kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
 kbutton_t	in_strafe, in_speed;
 kbutton_t	in_up, in_down;
 
-#define MAX_KBUTTONS 16
+constexpr int MAX_KBUTTONS = 16;
 
 kbutton_t	in_buttons[MAX_KBUTTONS];
 
@@ -520,16 +520,20 @@ float CL_KeyState( kbutton_t *key, unsigned span ) {
 	return val;
 }
 
-#define		AUTOMAP_KEY_FORWARD			1
-#define		AUTOMAP_KEY_BACK			2
-#define		AUTOMAP_KEY_YAWLEFT			3
-#define		AUTOMAP_KEY_YAWRIGHT		4
-#define		AUTOMAP_KEY_PITCHUP			5
-#define		AUTOMAP_KEY_PITCHDOWN		6
-#define		AUTOMAP_KEY_DEFAULTVIEW		7
+enum class autoMapKey_t
+{
+	AUTOMAP_KEY_FORWARD			= 1,
+	AUTOMAP_KEY_BACK,
+	AUTOMAP_KEY_YAWLEFT,
+	AUTOMAP_KEY_YAWRIGHT,
+	AUTOMAP_KEY_PITCHUP,
+	AUTOMAP_KEY_PITCHDOWN,
+	AUTOMAP_KEY_DEFAULTVIEW,
+};
+using enum autoMapKey_t;
 static autoMapInput_t			g_clAutoMapInput;
 //intercept certain keys during automap mode
-static void CL_AutoMapKey(int autoMapKey, bool up)
+static void CL_AutoMapKey(autoMapKey_t autoMapKey, bool up)
 {
 	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
 

@@ -44,12 +44,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define	MAX_WIND_ZONES			10
-#define MAX_WEATHER_ZONES		10
-#define	MAX_PUFF_SYSTEMS		2
-#define	MAX_PARTICLE_CLOUDS		5
+constexpr int MAX_WIND_ZONES = 10;
+constexpr int MAX_WEATHER_ZONES = 10;
+constexpr int MAX_PARTICLE_CLOUDS = 5;
 
-#define POINTCACHE_CELL_SIZE	96.0f
+constexpr float POINTCACHE_CELL_SIZE = 96.0f;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////

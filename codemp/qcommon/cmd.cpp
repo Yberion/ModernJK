@@ -29,8 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <algorithm>
 
-#define	MAX_CMD_BUFFER	128*1024
-#define	MAX_CMD_LINE	1024
+constexpr int MAX_CMD_BUFFER = 128*1024;
+constexpr int MAX_CMD_LINE = 1024;
 
 typedef struct cmd_s {
 	byte	*data;

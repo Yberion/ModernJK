@@ -23,14 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_nav.h"
 
-#define AMMO_POD_HEALTH				1
+constexpr int AMMO_POD_HEALTH = 1;
 constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
-#define VELOCITY_DECAY		0.25
-#define MAX_DISTANCE		256
-#define MAX_DISTANCE_SQR	( MAX_DISTANCE * MAX_DISTANCE )
-#define MIN_DISTANCE		24
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 24;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 extern gitem_t	*BG_FindItemForAmmo( ammo_t ammo );
 

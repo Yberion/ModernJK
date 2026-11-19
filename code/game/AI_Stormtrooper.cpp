@@ -46,26 +46,24 @@ extern bool RT_Flying( gentity_t *self );
 
 extern	cvar_t		*d_asynchronousGroupAI;
 
-#define	MAX_VIEW_DIST		1024
-#define MAX_VIEW_SPEED		250
-#define	MAX_LIGHT_INTENSITY 255
-#define	MIN_LIGHT_THRESHOLD	0.1
-#define	ST_MIN_LIGHT_THRESHOLD 30
-#define	ST_MAX_LIGHT_THRESHOLD 180
-#define	DISTANCE_THRESHOLD	0.075f
-#define	MIN_TURN_AROUND_DIST_SQ	(10000)	//(100 squared) don't stop running backwards if your goal is less than 100 away
-#define SABER_AVOID_DIST	128.0f//256.0f
-#define SABER_AVOID_DIST_SQ (SABER_AVOID_DIST*SABER_AVOID_DIST)
+constexpr int MAX_VIEW_DIST = 1024;
+constexpr int MAX_VIEW_SPEED = 250;
+constexpr int MAX_LIGHT_INTENSITY = 255;
+constexpr double MIN_LIGHT_THRESHOLD = 0.1;
+constexpr int ST_MIN_LIGHT_THRESHOLD = 30;
+constexpr int ST_MAX_LIGHT_THRESHOLD = 180;
+constexpr float DISTANCE_THRESHOLD = 0.075f;
+constexpr int MIN_TURN_AROUND_DIST_SQ = 10000;	//(100 squared) don't stop running backwards if your goal is less than 100 away
 
-#define	DISTANCE_SCALE		0.35f	//These first three get your base detection rating, ideally add up to 1
-#define	FOV_SCALE			0.40f	//
-#define	LIGHT_SCALE			0.25f	//
+constexpr float DISTANCE_SCALE = 0.35f;	//These first three get your base detection rating, ideally add up to 1
+constexpr float FOV_SCALE = 0.40f;	//
+constexpr float LIGHT_SCALE = 0.25f;	//
 
-#define	SPEED_SCALE			0.25f	//These next two are bonuses
-#define	TURNING_SCALE		0.25f	//
+constexpr float SPEED_SCALE = 0.25f;	//These next two are bonuses
+constexpr float TURNING_SCALE = 0.25f;	//
 
-#define	REALIZE_THRESHOLD	0.6f
-#define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
+constexpr float REALIZE_THRESHOLD = 0.6f;
+constexpr double CAUTIOUS_THRESHOLD = REALIZE_THRESHOLD * 0.75;
 
 bool NPC_CheckPlayerTeamStealth( void );
 
@@ -848,7 +846,6 @@ NPC_ST_InvestigateEvent
 -------------------------
 */
 
-#define	MAX_CHECK_THRESHOLD	1
 
 static bool NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 {

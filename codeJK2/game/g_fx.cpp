@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int	G_FindConfigstringIndex( const char *name, int start, int max, bool create );
 
-#define FX_ENT_RADIUS 32
+constexpr int FX_ENT_RADIUS = 32;
 
 extern int	BMS_START;
 extern int	BMS_MID;
@@ -51,7 +51,6 @@ Runs the specified effect, can also be targeted at an info_notnull to orient the
 	"splashDamage" - only works when damage is checked ( default 5 )
 	"soundset"	- bmodel set to use, plays start sound when toggled on, loop sound while on ( doesn't play on a oneshot), and a stop sound when turned off
 */
-#define FX_RUNNER_RESERVED 0x800000
 
 //----------------------------------------------------------
 void fx_runner_think( gentity_t *ent )

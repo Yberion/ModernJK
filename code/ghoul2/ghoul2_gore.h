@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef _G2_GORE
 
-#define MAX_LODS (8)
+#include "qcommon/q_renderer.h"
 struct GoreTextureCoordinates
 {
 	float *tex[MAX_LODS];

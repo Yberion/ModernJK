@@ -25,16 +25,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 
 
-#define	MIN_MELEE_RANGE		640
-#define	MIN_MELEE_RANGE_SQR	( MIN_MELEE_RANGE * MIN_MELEE_RANGE )
+constexpr int MIN_MELEE_RANGE = 640;
+constexpr int MIN_MELEE_RANGE_SQR = MIN_MELEE_RANGE * MIN_MELEE_RANGE;
 
-#define MIN_DISTANCE		128
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 128;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
 constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 
-#define LEFT_ARM_HEALTH 40
-#define RIGHT_ARM_HEALTH 40
+constexpr int LEFT_ARM_HEALTH = 40;
+constexpr int RIGHT_ARM_HEALTH = 40;
 
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 /*

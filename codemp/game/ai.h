@@ -153,7 +153,7 @@ void NPC_BSRancor_Default( void );
 
 //Utilities
 //Group AI
-#define	MAX_FRAME_GROUPS	32
+inline constexpr int MAX_FRAME_GROUPS = 32;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct AIGroupMember_s
 {
@@ -163,7 +163,7 @@ typedef struct AIGroupMember_s
 	int	closestBuddy;
 } AIGroupMember_t;
 
-#define MAX_GROUP_MEMBERS 32
+inline constexpr int MAX_GROUP_MEMBERS = 32;
 // !!!!!!!!!! LOADSAVE-affecting structure !!!!!!!!!!
 typedef struct AIGroupInfo_s
 {

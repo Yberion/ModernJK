@@ -408,7 +408,7 @@ static int PowerOf2(int iArg)
 }
 
 Dissolve_t Dissolve={0};
-#define fDISSOLVE_SECONDS 0.75f
+constexpr float fDISSOLVE_SECONDS = 0.75f;
 
 // leave the UV stuff in for now as comments in case I ever need to do some sneaky stuff, but for now...
 //
@@ -473,7 +473,7 @@ static void RE_KillDissolve(void)
 //
 // return = true while still processing, for those interested...
 //
-#define iSAFETY_SPRITE_OVERLAP 2	// #pixels to overlap blit region by, in case some drivers leave onscreen seams
+constexpr int iSAFETY_SPRITE_OVERLAP = 2;	// #pixels to overlap blit region by, in case some drivers leave onscreen seams
 bool RE_ProcessDissolve(void)
 {
 	if (Dissolve.iStartTime)

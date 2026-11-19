@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../cgame/cg_local.h"
 #include "g_shared.h"
 
-#define	NUM_CROSSHAIRS		9
+inline constexpr int NUM_CROSSHAIRS = 9;
 
 enum class footstep_t {
 	FOOTSTEP_STONEWALK,
@@ -62,11 +62,9 @@ enum class footstep_t {
 };
 using enum footstep_t;
 
-#define ICON_WEAPONS	0
-#define ICON_FORCE		1
-#define ICON_INVENTORY	2
+#include "qcommon/q_spsets.h"
 
-#define MAX_HUD_TICS	4
+inline constexpr int MAX_HUD_TICS = 4;
 
 
 typedef struct HUDMenuItem_s
@@ -105,7 +103,7 @@ using enum otherhudbits_t;
 template <> inline constexpr bool enableEnumArithmetic<otherhudbits_t> = true;
 extern EnumArray<HUDMenuItem_t, otherhudbits_t, OHB_MAX> otherHUDBits;
 
-#define NUM_CHUNK_MODELS	4
+inline constexpr int NUM_CHUNK_MODELS = 4;
 
 enum class chunkType_t
 {
@@ -141,7 +139,7 @@ typedef struct {
 	qhandle_t	loadTickCap;
 
 	//			HUD artwork
-	int			currentBackground;
+	iconBackground_t	currentBackground;
 	qhandle_t	weaponbox;
 	qhandle_t	weaponIconBackground;
 	qhandle_t	forceIconBackground;
@@ -374,7 +372,7 @@ typedef struct
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
 // all clients to begin playing instantly
-#define STRIPED_LEVELNAME_VARIATIONS 3	// sigh, to cope with levels that use text from >1 SP file (plus 1 for common)
+inline constexpr int STRIPED_LEVELNAME_VARIATIONS = 3;	// sigh, to cope with levels that use text from >1 SP file (plus 1 for common)
 typedef struct {
 	gameState_t		gameState;			// gamestate from server
 	glconfig_t		glconfig;			// rendering configuration

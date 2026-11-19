@@ -29,7 +29,7 @@ typedef struct persisentData_t
 	char name[MAX_QPATH];
 } persisentData_t;
 
-#define MAX_PERSISENT_DATA_STORES (16)
+constexpr int MAX_PERSISENT_DATA_STORES = 16;
 static persisentData_t persistentData[MAX_PERSISENT_DATA_STORES];
 
 static persisentData_t *FindEmptyStore ( persisentData_t *stores, size_t count )

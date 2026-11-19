@@ -396,7 +396,7 @@ RB_SurfaceCylinder
 ==============
 */
 
-#define NUM_CYLINDER_SEGMENTS 40
+constexpr int NUM_CYLINDER_SEGMENTS = 40;
 
 // e->origin holds the bottom point
 // e->oldorigin holds the top point
@@ -1056,7 +1056,7 @@ RB_SurfaceBeam
 */
 static void RB_SurfaceBeam( void )
 {
-#define NUM_BEAM_SEGS 6
+constexpr int NUM_BEAM_SEGS = 6;
 	refEntity_t *e;
 	int	i;
 	vec3_t perpvec;
@@ -1580,8 +1580,8 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 	}
 }
 
-#define LATHE_SEG_STEP	10
-#define BEZIER_STEP		0.05f	// must be in the range of 0 to 1
+constexpr int LATHE_SEG_STEP = 10;
+constexpr float BEZIER_STEP = 0.05f;	// must be in the range of 0 to 1
 
 // FIXME: This function is horribly expensive
 static void RB_SurfaceLathe()
@@ -1734,8 +1734,8 @@ static void RB_SurfaceLathe()
 	}
 }
 
-#define DISK_DEF	4
-#define TUBE_DEF	6
+constexpr int DISK_DEF = 4;
+constexpr int TUBE_DEF = 6;
 
 static void RB_SurfaceClouds()
 {

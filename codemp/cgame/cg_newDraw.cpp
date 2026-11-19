@@ -323,7 +323,7 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 
 
 
-#define PIC_WIDTH 12
+constexpr int PIC_WIDTH = 12;
 
 extern const char *CG_GetLocationString(const char *loc); //cg_main.cpp
 void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale, vec4_t color, qhandle_t shader) {
@@ -747,7 +747,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 }
 
 void CG_MouseEvent(int x, int y) {
-	int n;
+	cursorType_t n;
 
 	/*
 	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == false) {

@@ -84,9 +84,9 @@ typedef struct vehWeaponInfo_s {
 
 #define	VWFOFS(x) offsetof(vehWeaponInfo_t, x)
 
-#define MAX_VEH_WEAPONS	16	//sigh... no more than 16 different vehicle weapons
-#define VEH_WEAPON_BASE	0
-#define VEH_WEAPON_NONE	-1
+inline constexpr int MAX_VEH_WEAPONS = 16;	//sigh... no more than 16 different vehicle weapons
+inline constexpr int VEH_WEAPON_BASE = 0;
+inline constexpr int VEH_WEAPON_NONE = -1;
 
 extern vehWeaponInfo_t g_vehWeaponInfo[MAX_VEH_WEAPONS];
 extern int	numVehicleWeapons;
@@ -95,11 +95,11 @@ extern int	numVehicleWeapons;
 //END VEHICLE WEAPONS
 //===========================================================================================================
 
-#define		MAX_VEHICLE_MUZZLES			12
-#define		MAX_VEHICLE_EXHAUSTS		12
-#define		MAX_VEHICLE_WEAPONS			2
-#define		MAX_VEHICLE_TURRETS			2
-#define		MAX_VEHICLE_TURRET_MUZZLES	2
+inline constexpr int MAX_VEHICLE_MUZZLES = 12;
+inline constexpr int MAX_VEHICLE_EXHAUSTS = 12;
+inline constexpr int MAX_VEHICLE_WEAPONS = 2;
+inline constexpr int MAX_VEHICLE_TURRETS = 2;
+inline constexpr int MAX_VEHICLE_TURRET_MUZZLES = 2;
 
 typedef struct turretStats_s {
 	int			iWeapon;	//what vehWeaponInfo index to use
@@ -374,43 +374,43 @@ typedef struct vehicleInfo_s {
 
 #define	VFOFS(x) offsetof(vehicleInfo_t, x)
 
-#define MAX_VEHICLES	16	//sigh... no more than 64 individual vehicles
-#define VEHICLE_BASE	0
-#define VEHICLE_NONE	-1
+inline constexpr int MAX_VEHICLES = 16;	//sigh... no more than 64 individual vehicles
+inline constexpr int VEHICLE_BASE = 0;
+inline constexpr int VEHICLE_NONE = -1;
 
 extern vehicleInfo_t g_vehicleInfo[MAX_VEHICLES];
 extern int	numVehicles;
 
-#define VEH_DEFAULT_SPEED_MAX		800.0f
-#define VEH_DEFAULT_ACCEL			10.0f
-#define VEH_DEFAULT_DECEL			10.0f
-#define VEH_DEFAULT_STRAFE_PERC		0.5f
-#define VEH_DEFAULT_BANKING_SPEED	0.5f
-#define VEH_DEFAULT_ROLL_LIMIT		60.0f
-#define VEH_DEFAULT_PITCH_LIMIT		90.0f
-#define VEH_DEFAULT_BRAKING			10.0f
-#define VEH_DEFAULT_TURNING_SPEED	1.0f
-#define VEH_DEFAULT_TRACTION		8.0f
-#define VEH_DEFAULT_FRICTION		1.0f
-#define VEH_DEFAULT_MAX_SLOPE		0.85f
-#define VEH_DEFAULT_MASS			200
-#define VEH_DEFAULT_MAX_ARMOR		200
-#define VEH_DEFAULT_TOUGHNESS		2.5f
-#define VEH_DEFAULT_GRAVITY			800
-#define VEH_DEFAULT_HOVER_HEIGHT	64.0f
-#define VEH_DEFAULT_HOVER_STRENGTH	10.0f
-#define VEH_DEFAULT_VISIBILITY		0
-#define VEH_DEFAULT_LOUDNESS		0
-#define VEH_DEFAULT_EXP_RAD			400.0f
-#define VEH_DEFAULT_EXP_DMG			1000
-#define VEH_MAX_PASSENGERS			10
+inline constexpr float VEH_DEFAULT_SPEED_MAX = 800.0f;
+inline constexpr float VEH_DEFAULT_ACCEL = 10.0f;
+inline constexpr float VEH_DEFAULT_DECEL = 10.0f;
+inline constexpr float VEH_DEFAULT_STRAFE_PERC = 0.5f;
+inline constexpr float VEH_DEFAULT_BANKING_SPEED = 0.5f;
+inline constexpr float VEH_DEFAULT_ROLL_LIMIT = 60.0f;
+inline constexpr float VEH_DEFAULT_PITCH_LIMIT = 90.0f;
+inline constexpr float VEH_DEFAULT_BRAKING = 10.0f;
+inline constexpr float VEH_DEFAULT_TURNING_SPEED = 1.0f;
+inline constexpr float VEH_DEFAULT_TRACTION = 8.0f;
+inline constexpr float VEH_DEFAULT_FRICTION = 1.0f;
+inline constexpr float VEH_DEFAULT_MAX_SLOPE = 0.85f;
+inline constexpr int VEH_DEFAULT_MASS = 200;
+inline constexpr int VEH_DEFAULT_MAX_ARMOR = 200;
+inline constexpr float VEH_DEFAULT_TOUGHNESS = 2.5f;
+inline constexpr int VEH_DEFAULT_GRAVITY = 800;
+inline constexpr float VEH_DEFAULT_HOVER_HEIGHT = 64.0f;
+inline constexpr float VEH_DEFAULT_HOVER_STRENGTH = 10.0f;
+inline constexpr int VEH_DEFAULT_VISIBILITY = 0;
+inline constexpr int VEH_DEFAULT_LOUDNESS = 0;
+inline constexpr float VEH_DEFAULT_EXP_RAD = 400.0f;
+inline constexpr int VEH_DEFAULT_EXP_DMG = 1000;
+inline constexpr int VEH_MAX_PASSENGERS = 10;
 
-#define MAX_STRAFE_TIME				2000.0f//FIXME: extern?
-#define	MIN_LANDING_SPEED			200//equal to or less than this and close to ground = auto-slow-down to land
-#define	MIN_LANDING_SLOPE			0.8f//must be pretty flat to land on the surf
+inline constexpr float MAX_STRAFE_TIME = 2000.0f; //FIXME: extern?
+inline constexpr int MIN_LANDING_SPEED = 200; //equal to or less than this and close to ground = auto-slow-down to land
+inline constexpr float MIN_LANDING_SLOPE = 0.8f; //must be pretty flat to land on the surf
 
-#define VEH_MOUNT_THROW_LEFT		-5
-#define	VEH_MOUNT_THROW_RIGHT		-6
+inline constexpr int VEH_MOUNT_THROW_LEFT = -5;
+inline constexpr int VEH_MOUNT_THROW_RIGHT = -6;
 
 
 enum class vehEject_t
@@ -438,19 +438,19 @@ using enum vehFlags_t;
 template <> inline constexpr bool enableEnumFlags<vehFlags_t> = true;
 
 //defines for impact damage surface stuff
-#define	SHIPSURF_FRONT		0
-#define	SHIPSURF_BACK		1
-#define	SHIPSURF_RIGHT		2
-#define	SHIPSURF_LEFT		3
+inline constexpr int SHIPSURF_FRONT = 0;
+inline constexpr int SHIPSURF_BACK = 1;
+inline constexpr int SHIPSURF_RIGHT = 2;
+inline constexpr int SHIPSURF_LEFT = 3;
 
-#define	SHIPSURF_DAMAGE_FRONT_LIGHT		0
-#define	SHIPSURF_DAMAGE_BACK_LIGHT		1
-#define	SHIPSURF_DAMAGE_RIGHT_LIGHT		2
-#define	SHIPSURF_DAMAGE_LEFT_LIGHT		3
-#define	SHIPSURF_DAMAGE_FRONT_HEAVY		4
-#define	SHIPSURF_DAMAGE_BACK_HEAVY		5
-#define	SHIPSURF_DAMAGE_RIGHT_HEAVY		6
-#define	SHIPSURF_DAMAGE_LEFT_HEAVY		7
+inline constexpr int SHIPSURF_DAMAGE_FRONT_LIGHT = 0;
+inline constexpr int SHIPSURF_DAMAGE_BACK_LIGHT = 1;
+inline constexpr int SHIPSURF_DAMAGE_RIGHT_LIGHT = 2;
+inline constexpr int SHIPSURF_DAMAGE_LEFT_LIGHT = 3;
+inline constexpr int SHIPSURF_DAMAGE_FRONT_HEAVY = 4;
+inline constexpr int SHIPSURF_DAMAGE_BACK_HEAVY = 5;
+inline constexpr int SHIPSURF_DAMAGE_RIGHT_HEAVY = 6;
+inline constexpr int SHIPSURF_DAMAGE_LEFT_HEAVY = 7;
 
 //generic part bits
 enum class shipSurfaceFlags_t

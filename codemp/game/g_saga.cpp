@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "bg_saga.h"
 
-#define SIEGEITEM_STARTOFFRADAR 8
+constexpr int SIEGEITEM_STARTOFFRADAR = 8;
 
 static char		team1[512];
 static char		team2[512];
@@ -1360,7 +1360,7 @@ void SP_target_siege_end (gentity_t *ent)
 	ent->use = siegeEndUse;
 }
 
-#define SIEGE_ITEM_RESPAWN_TIME 20000
+constexpr int SIEGE_ITEM_RESPAWN_TIME = 20000;
 
 void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier)
 {

@@ -32,8 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/g_vehicles.h"
 #include "../Rufl/hstring.h"
 
-#define	LOOK_SWING_SCALE	0.5f
-#define	CG_SWINGSPEED		0.3f
+constexpr float LOOK_SWING_SCALE = 0.5f;
+constexpr float CG_SWINGSPEED = 0.3f;
 
 #include "animtable.h"
 
@@ -373,7 +373,7 @@ CG_CustomSound
 
 ================
 */
-static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, int customSoundSet )
+static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, customSoundSet_t customSoundSet )
 {
 	clientInfo_t *ci;
 	int			i;
@@ -497,7 +497,7 @@ static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, int cus
 	return 0;
 }
 
-bool CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet )
+bool CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, customSoundSet_t customSoundSet )
 {
 	sfxHandle_t	soundIndex = CG_CustomSound( entityNum, soundName, customSoundSet );
 	if ( !soundIndex )
@@ -1709,8 +1709,8 @@ static void CG_BreathPuffs( centity_t *cent, vec3_t angles, vec3_t origin )
 	}
 }
 
-#define LOOK_DEFAULT_SPEED	0.15f
-#define LOOK_TALKING_SPEED	0.15f
+constexpr float LOOK_DEFAULT_SPEED = 0.15f;
+constexpr float LOOK_TALKING_SPEED = 0.15f;
 
 static bool CG_CheckLookTarget( centity_t *cent, vec3_t	lookAngles, float *lookingSpeed )
 {
@@ -3442,7 +3442,7 @@ static void CG_PlayerPowerups( centity_t *cent )
 	}*/
 }
 
-#define	SHADOW_DISTANCE		128
+constexpr int SHADOW_DISTANCE = 128;
 static bool _PlayerShadow( const vec3_t origin, const float orientation, float *const shadowPlane, const float radius, qhandle_t markShader ) {
 	vec3_t		end, mins = {-7, -7, 0}, maxs = {7, 7, 2};
 	trace_t		trace;
@@ -3561,7 +3561,7 @@ static bool CG_PlayerShadow( centity_t *const cent, float *const shadowPlane ) {
 
 }
 
-void CG_LandingEffect( vec3_t origin, vec3_t normal, int material )
+void CG_LandingEffect( vec3_t origin, vec3_t normal, surfaceMaterial_t material )
 {
 	int	effectID = -1;
 	switch ( material )
@@ -3581,6 +3581,8 @@ void CG_LandingEffect( vec3_t origin, vec3_t normal, int material )
 	case MATERIAL_GRAVEL:
 		effectID = cgs.effects.landingGravel;
 		break;
+	default:
+		break;
 	}
 
 	if ( effectID != -1 )
@@ -3588,7 +3590,7 @@ void CG_LandingEffect( vec3_t origin, vec3_t normal, int material )
 		theFxScheduler.PlayEffect( effectID, origin, normal );
 	}
 }
-#define	FOOTSTEP_DISTANCE	32
+constexpr int FOOTSTEP_DISTANCE = 32;
 static void _PlayerFootStep( const vec3_t origin,
 								const vec3_t traceDir,
 								const float orientation,
@@ -4040,7 +4042,7 @@ extern void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //bool sp
 #endif
 
 //-------------------------------------------
-#define REFRACT_EFFECT_DURATION		500
+constexpr int REFRACT_EFFECT_DURATION = 500;
 void CG_ForcePushBlur( const vec3_t org, bool darkSide = false );
 static void CG_ForcePushRefraction( vec3_t org, centity_t *cent )
 {
@@ -5847,8 +5849,8 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 	cgi_R_AddRefEntityToScene( &saber );
 }
 
-#define	MAX_MARK_FRAGMENTS	128
-#define	MAX_MARK_POINTS		384
+constexpr int MAX_MARK_FRAGMENTS = 128;
+constexpr int MAX_MARK_POINTS = 384;
 extern markPoly_t *CG_AllocMark();
 
 static void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
@@ -6581,7 +6583,7 @@ Ghoul2 Insert End
 	{//okay to draw the trail
 		saberTrail_t	*saberTrail = &client->ps.saber[saberNum].blade[bladeNum].trail;
 
-#define SABER_TRAIL_TIME	40.0f
+constexpr float SABER_TRAIL_TIME = 40.0f;
 
 		// if we happen to be timescaled or running in a high framerate situation, we don't want to flood
 		//	the system with very small trail slices...but perhaps doing it by distance would yield better results?

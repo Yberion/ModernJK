@@ -39,7 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __G_NAVIGATOR__
 
 
-#define	USENEWNAVSYSTEM	1
+inline constexpr int USENEWNAVSYSTEM = 1;
 
 
 #if !defined(RAVL_VEC_INC)

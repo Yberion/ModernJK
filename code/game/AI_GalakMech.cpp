@@ -45,16 +45,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
 ////////////////////////////////////////////////////////////////////////////////////////
-#define			MAX_VEHICLES_REGISTERED	100
+constexpr int MAX_VEHICLES_REGISTERED = 100;
 
-#define			ATTACK_FWD				0.95f
-#define			ATTACK_SIDE				0.20f
-#define			AIM_SIDE				0.60f
-#define			FUTURE_PRED_DIST		20.0f
-#define			FUTURE_SIDE_DIST		60.0f
-#define			ATTACK_FLANK_SLOWING	1000.0f
-#define			RAM_DIST				150.0f
-#define			MIN_STAY_VIEWABLE_TIME	20000
+constexpr float ATTACK_FWD = 0.95f;
+constexpr float ATTACK_SIDE = 0.20f;
+constexpr float AIM_SIDE = 0.60f;
+constexpr float FUTURE_PRED_DIST = 20.0f;
+constexpr float FUTURE_SIDE_DIST = 60.0f;
+constexpr float ATTACK_FLANK_SLOWING = 1000.0f;
+constexpr float RAM_DIST = 150.0f;
+constexpr int MIN_STAY_VIEWABLE_TIME = 20000;
 
 
 

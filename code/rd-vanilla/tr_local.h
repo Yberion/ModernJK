@@ -42,8 +42,8 @@ extern refimport_t ri;
 // 13 bits
 // can't be increased without changing bit packing for drawsurfs
 // see QSORT_SHADERNUM_SHIFT
-#define SHADERNUM_BITS	13
-#define MAX_SHADERS		(1<<SHADERNUM_BITS)
+inline constexpr int SHADERNUM_BITS = 13;
+inline constexpr int MAX_SHADERS = 1<<SHADERNUM_BITS;
 
 
 typedef struct dlight_s {
@@ -172,7 +172,7 @@ enum class shaderSort_t {
 using enum shaderSort_t;
 
 
-#define MAX_SHADER_STAGES 8
+#include "qcommon/q_renderer.h"
 
 enum class genFunc_t {
 	GF_NONE,
@@ -288,7 +288,6 @@ typedef struct {
 	float frequency;
 } waveForm_t;
 
-#define TR_MAX_TEXMODS 4
 
 enum class texMod_t {
 	TMOD_NONE,
@@ -302,7 +301,6 @@ enum class texMod_t {
 };
 using enum texMod_t;
 
-#define	MAX_SHADER_DEFORMS	3
 typedef struct {
 	deform_t	deformation;			// vertex coordinate modification type
 
@@ -342,17 +340,7 @@ typedef struct {
 } texModInfo_t;
 
 
-#define SURFSPRITE_NONE			0
-#define SURFSPRITE_VERTICAL		1
-#define SURFSPRITE_ORIENTED		2
-#define SURFSPRITE_EFFECT		3
-#define SURFSPRITE_WEATHERFX	4
-#define SURFSPRITE_FLATTENED	5
 
-#define SURFSPRITE_FACING_NORMAL	0
-#define SURFSPRITE_FACING_UP		1
-#define SURFSPRITE_FACING_DOWN		2
-#define SURFSPRITE_FACING_ANY		3
 
 typedef struct surfaceSprite_s
 {
@@ -382,7 +370,6 @@ typedef struct {
 	int				videoMapHandle;
 } textureBundle_t;
 
-#define NUM_TEXTURE_BUNDLES 2
 
 #include "qcommon/q_glstate.h"
 
@@ -416,10 +403,6 @@ typedef struct {
 
 struct shaderCommands_s;
 
-#define LIGHTMAP_2D			-4		// shader is for 2D rendering
-#define LIGHTMAP_BY_VERTEX	-3		// pre-lit triangle models
-#define LIGHTMAP_WHITEIMAGE	-2
-#define	LIGHTMAP_NONE		-1
 
 enum class cullType_t {
 	CT_UNSET = -1,	// not set yet: the next GL_Cull applies its value
@@ -605,10 +588,8 @@ typedef struct drawSurf_s {
 	surfaceType_t		*surface;		// any of surface*_t
 } drawSurf_t;
 
-#define	MAX_FACE_POINTS		64
 
-#define	MAX_PATCH_SIZE		32			// max dimensions of a patch mesh in map file
-#define	MAX_GRID_SIZE		65			// max dimensions of a grid mesh in memory
+inline constexpr int MAX_GRID_SIZE = 65;			// max dimensions of a grid mesh in memory
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
@@ -657,12 +638,8 @@ typedef struct srfGridMesh_s {
 } srfGridMesh_t;
 
 
-#define	VERTEXSIZE			(6+(MAXLIGHTMAPS*3))
-#define VERTEX_LM			5
-#define	VERTEX_COLOR		(5+(MAXLIGHTMAPS*2))
 
 
-#define	VERTEX_FINAL_COLOR	(5+(MAXLIGHTMAPS*3))
 
 typedef struct {
 	surfaceType_t	surfaceType;
@@ -716,9 +693,7 @@ BRUSH MODELS
 // in memory representation
 //
 
-#define	SIDE_FRONT	0
-#define	SIDE_BACK	1
-#define	SIDE_ON		2
+#include "qcommon/q_math.h"
 
 typedef struct msurface_s {
 	int					viewCount;		// if == tr.viewCount, already added
@@ -730,7 +705,6 @@ typedef struct msurface_s {
 
 
 
-#define	CONTENTS_NODE		-1
 
 typedef struct mnode_s {
 	// common with leaf and node
@@ -847,7 +821,6 @@ Ghoul2 Insert End
 } model_t;
 
 
-#define	MAX_MOD_KNOWN	1024
 
 void		R_ModelInit (void);
 model_t		*R_GetModelByHandle( qhandle_t hModel );
@@ -858,13 +831,11 @@ void		R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 void		R_Modellist_f (void);
 
 //====================================================
-#define	MAX_DRAWIMAGES			2048
-#define	MAX_LIGHTMAPS			256
-#define	MAX_SKINS				512	//1024
+inline constexpr int MAX_SKINS = 512;	//1024
 
 
-#define	MAX_DRAWSURFS			0x10000
-#define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
+inline constexpr int MAX_DRAWSURFS = 0x10000;
+inline constexpr int DRAWSURF_MASK = MAX_DRAWSURFS-1;
 
 /*
 
@@ -890,14 +861,9 @@ the bits are allocated as follows:
 0-1   : dlightmap index
 */
 
-#define	QSORT_FOGNUM_SHIFT		2
-#define	QSORT_REFENTITYNUM_SHIFT	7
-#define	QSORT_SHADERNUM_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
 // Note: 32nd bit is reserved for RF_ALPHA_FADE voodoo magic
 // see R_AddEntitySurfaces tr.shiftedEntityNum
-#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 31
-	#error "Need to update sorting, too many bits."
-#endif
+static_assert( QSORT_SHADERNUM_SHIFT + SHADERNUM_BITS <= 31, "Need to update sorting, too many bits." );
 
 extern	int			gl_filter_min, gl_filter_max;
 
@@ -915,10 +881,6 @@ typedef struct {
 	int		c_dlightSurfacesCulled;
 } frontEndCounters_t;
 
-#define	FOG_TABLE_SIZE		256
-#define FUNCTABLE_SIZE		1024
-#define FUNCTABLE_SIZE2		10
-#define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
 
 
 // the renderer front end should never modify glstate_t
@@ -971,7 +933,6 @@ typedef struct {
 ** but may read fields that aren't dynamically modified
 ** by the frontend.
 */
-#define NUM_SCRATCH_IMAGES 16
 
 typedef struct {
 	bool				registered;		// cleared at shutdown, set at beginRegistration
@@ -1261,15 +1222,12 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fogIndex, int dlightMap );
 
 
-#define	CULL_IN		0		// completely unclipped
-#define	CULL_CLIP	1		// clipped by one or more planes
-#define	CULL_OUT	2		// completely outside the clipping planes
 void R_LocalNormalToWorld (const vec3_t local, vec3_t world);
 void R_LocalPointToWorld (const vec3_t local, vec3_t world);
 void R_WorldNormalToEntity (const vec3_t localVec, vec3_t world);
-int R_CullLocalBox (const vec3_t bounds[2]);
-int R_CullPointAndRadius( const vec3_t pt, float radius );
-int R_CullLocalPointAndRadius( const vec3_t pt, float radius );
+cullResult_t R_CullLocalBox (const vec3_t bounds[2]);
+cullResult_t R_CullPointAndRadius( const vec3_t pt, float radius );
+cullResult_t R_CullLocalPointAndRadius( const vec3_t pt, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
 
@@ -1385,7 +1343,6 @@ typedef struct stageVars
 	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
-#define	NUM_TEX_COORDS		(MAXLIGHTMAPS+1)
 
 struct shaderCommands_s
 {
@@ -1676,7 +1633,7 @@ RENDERER BACK END COMMAND QUEUE
 =============================================================
 */
 
-#define	MAX_RENDER_COMMANDS	0x80000
+inline constexpr int MAX_RENDER_COMMANDS = 0x80000;
 
 typedef struct {
 	byte	cmds[MAX_RENDER_COMMANDS];
@@ -1768,8 +1725,8 @@ using enum renderCommand_t;
 // these are sort of arbitrary limits.
 // the limits apply to the sum of all scenes in a frame --
 // the main view, all the 3D icons, etc
-#define	MAX_POLYS		2048
-#define	MAX_POLYVERTS	( MAX_POLYS * 4 )
+inline constexpr int MAX_POLYS = 2048;
+inline constexpr int MAX_POLYVERTS = MAX_POLYS * 4;
 
 // all of the information needed by the back end must be
 // contained in a backEndData_t.

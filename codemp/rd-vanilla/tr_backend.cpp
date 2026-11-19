@@ -559,7 +559,6 @@ void RB_BeginDrawingView (void) {
 	}
 }
 
-#define	MAC_EVENT_PUMP_MSEC		5
 
 //used by RF_DISTORTION
 static inline bool R_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
@@ -619,7 +618,7 @@ RB_RenderDrawSurfList
 //number of possible surfs we can postrender.
 //note that postrenders lack much of the optimization that the standard sort-render crap does,
 //so it's slower.
-#define MAX_POST_RENDERS	128
+constexpr int MAX_POST_RENDERS = 128;
 
 typedef struct postRender_s {
 	int			fogNum;

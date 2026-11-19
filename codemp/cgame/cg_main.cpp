@@ -62,7 +62,7 @@ static void C_GetLerpData(void);
 static void C_Trace(void);
 static void C_G2Trace(void);
 static void C_G2Mark(void);
-static int	CG_RagCallback(int callType);
+static int	CG_RagCallback(ragCallbackType_t callType);
 
 extern autoMapInput_t cg_autoMapInput; //cg_view.cpp
 extern int cg_autoMapInputTime;
@@ -225,7 +225,7 @@ static void CG_DebugBoxLines( vec3_t mins, vec3_t maxs, int duration ) {
 }
 
 //handle ragdoll callbacks, for events and debugging -rww
-static int CG_RagCallback(int callType)
+static int CG_RagCallback(ragCallbackType_t callType)
 {
 	switch(callType)
 	{

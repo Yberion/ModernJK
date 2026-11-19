@@ -26,17 +26,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern gitem_t	*BG_FindItemForAmmo( ammo_t ammo );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-#define MIN_DISTANCE		256
-#define MIN_DISTANCE_SQR	( MIN_DISTANCE * MIN_DISTANCE )
+constexpr int MIN_DISTANCE = 256;
+constexpr int MIN_DISTANCE_SQR = MIN_DISTANCE * MIN_DISTANCE;
 
-#define SENTRY_FORWARD_BASE_SPEED	10
-#define SENTRY_FORWARD_MULTIPLIER	5
+constexpr int SENTRY_FORWARD_BASE_SPEED = 10;
+constexpr int SENTRY_FORWARD_MULTIPLIER = 5;
 
-#define SENTRY_VELOCITY_DECAY	0.85f
-#define SENTRY_STRAFE_VEL		256
-#define SENTRY_STRAFE_DIS		200
-#define SENTRY_UPWARD_PUSH		32
-#define SENTRY_HOVER_HEIGHT		24
+constexpr float SENTRY_VELOCITY_DECAY = 0.85f;
+constexpr int SENTRY_STRAFE_VEL = 256;
+constexpr int SENTRY_STRAFE_DIS = 200;
+constexpr int SENTRY_UPWARD_PUSH = 32;
+constexpr int SENTRY_HOVER_HEIGHT = 24;
 
 //Local state enums
 enum class sentryLocalState_t

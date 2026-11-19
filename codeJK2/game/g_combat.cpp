@@ -513,8 +513,8 @@ G_DeathAlert
 -------------------------
 */
 
-#define	DEATH_ALERT_RADIUS			512
-#define	DEATH_ALERT_SOUND_RADIUS	512
+constexpr int DEATH_ALERT_RADIUS = 512;
+constexpr int DEATH_ALERT_SOUND_RADIUS = 512;
 
 void G_DeathAlert( gentity_t *victim, gentity_t *attacker )
 {//FIXME: with all the other alert stuff, do we really need this?

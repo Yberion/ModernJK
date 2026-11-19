@@ -1501,7 +1501,7 @@ during times of significant packet loss.
 =================
 */
 
-#define	RESET_TIME	300
+constexpr int RESET_TIME = 300;
 
 void CL_AdjustTimeDelta( void ) {
 /*

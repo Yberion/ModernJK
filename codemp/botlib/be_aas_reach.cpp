@@ -56,14 +56,13 @@ extern botlib_import_t botimport;
 
 //NOTE: all travel times are in hundreth of a second
 //maximum number of reachability links
-#define AAS_MAX_REACHABILITYSIZE			65536
+constexpr int AAS_MAX_REACHABILITYSIZE = 65536;
 //number of areas reachability is calculated for each frame
-#define REACHABILITYAREASPERCYCLE			15
 //number of units reachability points are placed inside the areas
-#define INSIDEUNITS							2
-#define INSIDEUNITS_WALKEND					5
-#define INSIDEUNITS_WALKSTART				0.1
-#define INSIDEUNITS_WATERJUMP				15
+constexpr int INSIDEUNITS = 2;
+constexpr int INSIDEUNITS_WALKEND = 5;
+constexpr double INSIDEUNITS_WALKSTART = 0.1;
+constexpr int INSIDEUNITS_WATERJUMP = 15;
 //number of reachabilities of each type
 int reach_swim;			//swim
 int reach_equalfloor;	//walk on floors with equal height
@@ -251,7 +250,7 @@ int AAS_GetJumpPadInfo(int ent, vec3_t areastart, vec3_t absmins, vec3_t absmaxs
 	} //end else
 	areastart[2] += 0.125;
 	//
-	//AAS_DrawPermanentCross(origin, 4, 4);
+	//AAS_DrawPermanentCross(origin, 4, LINECOLOR_YELLOW);
 	//get the target entity
 	AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 	for (ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))
@@ -3262,8 +3261,8 @@ aas_lreachability_t *AAS_FindFaceReachabilities(vec3_t *facepoints, int numpoint
 		lreach->next = lreachabilities;
 		lreachabilities = lreach;
 #ifndef BSPC
-		if (towardsface) AAS_PermanentLine(lreach->start, lreach->end, 1);
-		else AAS_PermanentLine(lreach->start, lreach->end, 2);
+		if (towardsface) AAS_PermanentLine(lreach->start, lreach->end, LINECOLOR_RED);
+		else AAS_PermanentLine(lreach->start, lreach->end, LINECOLOR_GREEN);
 #endif
 	} //end for
 	return lreachabilities;
@@ -3337,8 +3336,8 @@ void AAS_Reachability_FuncBobbing(void)
 		//
 #ifndef BSPC
 		/*
-		AAS_DrawPermanentCross(move_start, 4, 1);
-		AAS_DrawPermanentCross(move_end, 4, 2);
+		AAS_DrawPermanentCross(move_start, 4, LINECOLOR_RED);
+		AAS_DrawPermanentCross(move_end, 4, LINECOLOR_GREEN);
 		*/
 #endif
 		//
@@ -3382,8 +3381,8 @@ void AAS_Reachability_FuncBobbing(void)
 #if 0
 		for (i = 0; i < 4; i++)
 		{
-			AAS_PermanentLine(start_edgeverts[i], start_edgeverts[(i+1)%4], 1);
-			AAS_PermanentLine(end_edgeverts[i], end_edgeverts[(i+1)%4], 1);
+			AAS_PermanentLine(start_edgeverts[i], start_edgeverts[(i+1)%4], LINECOLOR_RED);
+			AAS_PermanentLine(end_edgeverts[i], end_edgeverts[(i+1)%4], LINECOLOR_RED);
 		} //end for
 #endif
 #endif
@@ -3455,7 +3454,7 @@ void AAS_Reachability_FuncBobbing(void)
 					VectorCopy(endreach->end, lreach->end);
 #ifndef BSPC
 //					AAS_DrawArrow(lreach->start, lreach->end, LINECOLOR_BLUE, LINECOLOR_YELLOW);
-//					AAS_PermanentLine(lreach->start, lreach->end, 1);
+//					AAS_PermanentLine(lreach->start, lreach->end, LINECOLOR_RED);
 #endif
 					lreach->traveltype = TRAVEL_FUNCBOB;
 					lreach->traveltype |= AAS_TravelFlagsForTeam(ent);
@@ -3555,7 +3554,7 @@ void AAS_Reachability_JumpPad(void)
 		} //end else
 		areastart[2] += 0.125;
 		//
-		//AAS_DrawPermanentCross(origin, 4, 4);
+		//AAS_DrawPermanentCross(origin, 4, LINECOLOR_YELLOW);
 		//get the target entity
 		AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 		for (ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))

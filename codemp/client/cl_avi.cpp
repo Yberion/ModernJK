@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define INDEX_FILE_EXTENSION ".index.dat"
 
-#define MAX_RIFF_CHUNKS 16
+constexpr int MAX_RIFF_CHUNKS = 16;
 
 typedef struct audioFormat_s
 {
   int rate;
-  int format;
+  wavFormat_t format;
   int channels;
   int bits;
 
@@ -69,7 +69,7 @@ typedef struct aviFileData_s
 
 static aviFileData_t afd;
 
-#define MAX_AVI_BUFFER 2048
+constexpr int MAX_AVI_BUFFER = 2048;
 
 static byte buffer[ MAX_AVI_BUFFER ];
 static int  bufIndex;
@@ -300,7 +300,7 @@ void CL_WriteAVIHeader( void )
 
             WRITE_STRING( "strf" );
             WRITE_4BYTES( 18 );                 //"strf" "chunk" size
-            WRITE_2BYTES( afd.a.format );       //wFormatTag
+            WRITE_2BYTES( to_underlying( afd.a.format ) );       //wFormatTag
             WRITE_2BYTES( afd.a.channels );     //nChannels
             WRITE_4BYTES( afd.a.rate );         //nSamplesPerSec
             WRITE_4BYTES( afd.a.sampleSize *
@@ -371,7 +371,7 @@ bool CL_OpenAVIForWriting( const char *fileName )
   // Buffers only need to store RGB pixels.
   // Allocate a bit more space for the capture buffer to account for possible
   // padding at the end of pixel lines, and padding for alignment
-  #define MAX_PACK_LEN 16
+  constexpr int MAX_PACK_LEN = 16;
   afd.cBuffer = (byte *)Z_Malloc((afd.width * 3 + MAX_PACK_LEN - 1) * afd.height + MAX_PACK_LEN - 1, TAG_AVI, true);
   // raw avi files have pixel lines start on 4-byte boundaries
   afd.eBuffer = (byte *)Z_Malloc(PAD(afd.width * 3, AVI_LINE_PADDING) * afd.height, TAG_AVI, true);
@@ -502,7 +502,7 @@ void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size )
   afd.numIndices++;
 }
 
-#define PCM_BUFFER_SIZE 44100
+constexpr int PCM_BUFFER_SIZE = 44100;
 
 /*
 ===============

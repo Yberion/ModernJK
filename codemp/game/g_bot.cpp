@@ -25,10 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 
-#define BOT_BEGIN_DELAY_BASE		2000
-#define BOT_BEGIN_DELAY_INCREMENT	1500
+[[maybe_unused]] constexpr int BOT_BEGIN_DELAY_INCREMENT = 1500;
 
-#define BOT_SPAWN_QUEUE_DEPTH	16
+constexpr int BOT_SPAWN_QUEUE_DEPTH = 16;
 
 static struct botSpawnQueue_s {
 	int		clientNum;
@@ -299,8 +298,8 @@ G_LoadArenas
 ===============
 */
 
-#define MAX_MAPS 256
-#define MAPSBUFSIZE (MAX_MAPS * 64)
+constexpr int MAX_MAPS = 256;
+constexpr int MAPSBUFSIZE = MAX_MAPS * 64;
 
 void G_LoadArenas( void ) {
 #if 0

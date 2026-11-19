@@ -53,15 +53,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ROUTING_DEBUG
 
 //travel time in hundreths of a second = distance * 100 / speed
-#define DISTANCEFACTOR_CROUCH		1.3f		//crouch speed = 100
-#define DISTANCEFACTOR_SWIM			1		//should be 0.66, swim speed = 150
-#define DISTANCEFACTOR_WALK			0.33f	//walk speed = 300
+constexpr float DISTANCEFACTOR_CROUCH = 1.3f;		//crouch speed = 100
+constexpr int DISTANCEFACTOR_SWIM = 1;		//should be 0.66, swim speed = 150
+constexpr float DISTANCEFACTOR_WALK = 0.33f;	//walk speed = 300
 
 //cache refresh time
-#define CACHE_REFRESHTIME		15.0f	//15 seconds refresh time
 
 //maximum number of routing updates each frame
-#define MAX_FRAMEROUTINGUPDATES		10
+[[maybe_unused]] constexpr int MAX_FRAMEROUTINGUPDATES = 10;
 
 
 /*
@@ -934,8 +933,8 @@ typedef struct routecacheheader_s
 	int numareacache;
 } routecacheheader_t;
 
-#define RCID						(('C'<<24)+('R'<<16)+('E'<<8)+'M')
-#define RCVERSION					2
+constexpr int RCID = ('C'<<24)+('R'<<16)+('E'<<8)+'M';
+constexpr int RCVERSION = 2;
 
 void AAS_WriteRouteCache(void)
 {
@@ -1144,7 +1143,7 @@ int AAS_ReadRouteCache(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-#define MAX_REACHABILITYPASSAREAS		32
+constexpr int MAX_REACHABILITYPASSAREAS = 32;
 
 void AAS_InitReachabilityAreas(void)
 {

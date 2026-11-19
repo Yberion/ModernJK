@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	//both_crouch2stand1 - uncrouch
 	//both_death4 - running death
 
-#define	ASSASSIN_SHIELD_SIZE	75
+constexpr int ASSASSIN_SHIELD_SIZE = 75;
 constexpr g2SurfaceFlags_t TURN_ON = G2SURFACEFLAG_NONE;
 constexpr g2SurfaceFlags_t TURN_OFF = G2SURFACEFLAG_NODESCENDANTS;
 

@@ -88,7 +88,7 @@ const vidmode_t r_vidModes[] = {
 };
 static const int	s_numVidModes = ARRAY_LEN( r_vidModes );
 
-#define R_MODE_FALLBACK (4) // 640x480
+constexpr int R_MODE_FALLBACK = 4; // 640x480
 
 bool R_GetModeInfo( int *width, int *height, int mode ) {
 	const vidmode_t	*vm;

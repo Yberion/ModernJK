@@ -82,7 +82,7 @@ void TouchStringPool(void);
 ////////////
 // MapPool
 ////////////
-#define MAP_NODE_SIZE (32)
+inline constexpr int MAP_NODE_SIZE = 32;
 
 class CMapBlock;
 class CMapPoolLow

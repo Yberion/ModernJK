@@ -44,9 +44,8 @@ extern cvar_t	*g_navSafetyChecks;
 extern bool Boba_Flying( gentity_t *self );
 extern bool PM_InRoll( playerState_t *ps );
 
-#define	APEX_HEIGHT		200.0f
+[[maybe_unused]] constexpr float APEX_HEIGHT = 200.0f;
 #define	PARA_WIDTH		(sqrt(APEX_HEIGHT)+sqrt(APEX_HEIGHT))
-#define	JUMP_SPEED		200.0f
 
 
 
@@ -264,7 +263,7 @@ static bool NPC_Jump( vec3_t dest, int goalEntNum )
 
 
 
-#define NPC_JUMP_PREP_BACKUP_DIST 34.0f
+constexpr float NPC_JUMP_PREP_BACKUP_DIST = 34.0f;
 
 trace_t		mJumpTrace;
 

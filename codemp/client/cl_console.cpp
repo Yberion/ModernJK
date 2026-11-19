@@ -43,13 +43,12 @@ cvar_t		*con_height;
 cvar_t		*con_scale;
 cvar_t		*con_timestamps;
 
-#define	DEFAULT_CONSOLE_WIDTH	78
+constexpr int DEFAULT_CONSOLE_WIDTH = 78;
 
-#define CON_BLANK_CHAR			' '
-#define CON_SCROLL_L_CHAR		'$'
-#define CON_SCROLL_R_CHAR		'$'
-#define CON_TIMESTAMP_LEN		11 // "[13:37:00] "
-#define CON_MIN_WIDTH			20
+constexpr char CON_BLANK_CHAR = ' ';
+constexpr char CON_SCROLL_L_CHAR = '$';
+constexpr char CON_SCROLL_R_CHAR = '$';
+constexpr int CON_TIMESTAMP_LEN = 11; // "[13:37:00] "
 
 
 static const conChar_t CON_WRAP = { { ColorIndex(COLOR_GREY), '\\' } };

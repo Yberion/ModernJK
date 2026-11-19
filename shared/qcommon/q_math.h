@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "q_platform.h"
 #include "q_libm.h"
 #include "q_rand.h"
+#include "q_enum.h"
 
 
 #if defined(__cplusplus)
@@ -42,8 +43,9 @@ typedef	int	fixed4_t, fixed8_t, fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
-#define	MAX_QINT			0x7fffffff
-#define	MIN_QINT			(-MAX_QINT-1)
+inline constexpr int Q3_INFINITE = 16777216;	// the engine's, ICARUS's and the games' "infinite" time or distance
+
+inline constexpr int MAX_QINT = 0x7fffffff;
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -72,8 +74,8 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] );
 #define minimum( x, y ) ((x) < (y) ? (x) : (y))
 #define maximum( x, y ) ((x) > (y) ? (x) : (y))
 
-#define PI_DIV_180		0.017453292519943295769236907684886f
-#define INV_PI_DIV_180	57.295779513082320876798154814105f
+inline constexpr float PI_DIV_180 = 0.017453292519943295769236907684886f;
+inline constexpr float INV_PI_DIV_180 = 57.295779513082320876798154814105f;
 
 #define DEG2RAD( a ) ( ( (a) * PI_DIV_180 ) )
 #define RAD2DEG( a ) ( ( (a) * INV_PI_DIV_180 ) )
@@ -120,9 +122,9 @@ float AngleDelta( float angle1, float angle2 );
 //
 ///////////////////////////////////////////////////////////////////////////
 // angle indexes
-#define	PITCH	0		// up / down
-#define	YAW		1		// left / right
-#define	ROLL	2		// fall over
+inline constexpr int PITCH = 0;		// up / down
+inline constexpr int YAW = 1;		// left / right
+inline constexpr int ROLL = 2;		// fall over
 
 bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees );
@@ -153,22 +155,31 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 ///////////////////////////////////////////////////////////////////////////
 // plane types are used to speed some tests
 // 0-2 are axial planes
-#define	PLANE_X			0
-#define	PLANE_Y			1
-#define	PLANE_Z			2
-#define	PLANE_NON_AXIAL	3
+enum class planeType_t : uint8_t {	// a byte of cplane_t
+	PLANE_X,
+	PLANE_Y,
+	PLANE_Z,
+	PLANE_NON_AXIAL,
+};
+using enum planeType_t;
+
+// the axis of an axial plane, PLANE_X to PLANE_Z: the index of its normal's one component
+[[nodiscard]] constexpr int PlaneAxis( planeType_t type ) {
+	assert( type < PLANE_NON_AXIAL );
+	return to_underlying( type );
+}
 
 // plane_t structure
 typedef struct cplane_s {
 	vec3_t	normal;
 	float	dist;
-	byte	type;			// for fast side tests: 0,1,2 = axial, 3 = nonaxial
+	planeType_t	type;	// for fast side tests: 0,1,2 = axial, 3 = nonaxial
 	byte	signbits;		// signx + (signy<<1) + (signz<<2), used as lookup during collision
 	byte	pad[2];
 } cplane_t;
+static_assert( sizeof( cplane_t ) == 20 );
 
 void SetPlaneSignbits( cplane_t *out );
-int	PlaneTypeForNormal( const vec3_t normal );
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p);
 
 
@@ -344,3 +355,14 @@ void VectorSet5( vec5_t vec, float x, float y, float z, float w, float u );
 #if defined(__cplusplus)
 } // extern "C"
 #endif
+
+// with C++ linkage: a function of C linkage that returns a class enum is a warning for MSVC (C4190)
+planeType_t PlaneTypeForNormal( const vec3_t normal );
+
+enum class planeSide_t {
+	SIDE_FRONT,
+	SIDE_BACK,
+	SIDE_ON,
+	SIDE_CROSS,
+};
+using enum planeSide_t;

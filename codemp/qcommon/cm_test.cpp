@@ -39,8 +39,8 @@ int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local ) {
 		node = local->nodes + num;
 		plane = node->plane;
 
-		if (plane->type < 3)
-			d = p[plane->type] - plane->dist;
+		if (plane->type < PLANE_NON_AXIAL)
+			d = p[PlaneAxis( plane->type )] - plane->dist;
 		else
 			d = DotProduct (plane->normal, p) - plane->dist;
 		if (d < 0)

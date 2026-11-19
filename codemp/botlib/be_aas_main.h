@@ -47,13 +47,13 @@ void QDECL AAS_Error(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)
 //set AAS initialized
 void AAS_SetInitialized(void);
 //setup AAS with the given number of entities and clients
-int AAS_Setup(void);
+botlibError_t AAS_Setup(void);
 //shutdown AAS
 void AAS_Shutdown(void);
 //start a new map
-int AAS_LoadMap(const char *mapname);
+botlibError_t AAS_LoadMap(const char *mapname);
 //start a new time frame
-int AAS_StartFrame(float time);
+botlibError_t AAS_StartFrame(float time);
 
 #endif //AASINTERN
 

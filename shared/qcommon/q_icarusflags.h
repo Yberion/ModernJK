@@ -20,8 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// q_icarusflags.h -- the flags of ICARUS's blocks and tokenizer: one definition for the trees that share them
-// (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
+// q_icarusflags.h -- the flags of ICARUS's blocks and tokenizer, and its limits: one definition for the trees that
+// share them (multiplayer, and Jedi Academy's and Jedi Outcast's single player).
 
 #include "qcommon/q_enum.h"
 
@@ -52,3 +52,11 @@ enum class tokenizerFlags_t
 };
 using enum tokenizerFlags_t;
 template <> inline constexpr bool enableEnumFlags<tokenizerFlags_t> = true;
+
+inline constexpr int IBI_HEADER_ID_LENGTH = 4; // Length of IBI_HEADER_ID + 1 for the null terminating byte.
+
+inline constexpr double ICARUS_VERSION = 1.33;
+inline constexpr int MAX_STRING_SIZE = 256;
+inline constexpr int MAX_VAR_NAME = 64;
+
+inline constexpr int MAX_IDENTIFIER_LENGTH = 128;

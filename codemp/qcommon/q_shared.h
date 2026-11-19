@@ -41,8 +41,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
 
-#define MAX_TEAMNAME 32
-#define MAX_MASTER_SERVERS      5	// number of supported master servers
+inline constexpr int MAX_TEAMNAME = 32;
+inline constexpr int MAX_MASTER_SERVERS = 5;	// number of supported master servers
 
 #include "qcommon/q_enum.h"
 #include "qcommon/q_math.h"
@@ -52,9 +52,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/teams.h" //npc team stuff
 
-#define MAX_WORLD_COORD		( 64 * 1024 )
-#define MIN_WORLD_COORD		( -64 * 1024 )
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+inline constexpr int MAX_WORLD_COORD = 64 * 1024;
+inline constexpr int MIN_WORLD_COORD = -64 * 1024;
+inline constexpr int WORLD_SIZE = MAX_WORLD_COORD - MIN_WORLD_COORD;
 
 //Pointer safety utilities
 #define VALID( a )		( a != nullptr )
@@ -135,7 +135,7 @@ typedef union fileBuffer_u {
 
 typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, clipHandle_t;
 
-#define NULL_HANDLE ((qhandle_t)0)
+inline constexpr qhandle_t NULL_HANDLE = 0;
 #define NULL_SOUND ((sfxHandle_t)0)
 #define NULL_FX ((fxHandle_t)0)
 #define NULL_SFX ((sfxHandle_t)0)
@@ -157,37 +157,29 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
-#define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
-#define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
-#define	MAX_TOKEN_CHARS		1024	// max length of an individual token
+#include "qcommon/q_limits.h"
 
-#define	MAX_INFO_STRING		1024
-#define	MAX_INFO_KEY		1024
-#define	MAX_INFO_VALUE		1024
 
-#define	BIG_INFO_STRING		8192  // used for system info key only
-#define	BIG_INFO_KEY		  8192
-#define	BIG_INFO_VALUE		8192
+inline constexpr int BIG_INFO_KEY = 8192;
+inline constexpr int BIG_INFO_VALUE = 8192;
 
-#define NET_ADDRSTRMAXLEN 48 // maximum length of an IPv6 address string including trailing '\0'
+inline constexpr int NET_ADDRSTRMAXLEN = 48; // maximum length of an IPv6 address string including trailing '\0'
 
 // moved these from ui_local.h so we can access them everywhere
-#define MAX_ADDRESSLENGTH		256//64
-#define MAX_HOSTNAMELENGTH		256//22
-#define MAX_MAPNAMELENGTH		256//16
-#define MAX_STATUSLENGTH		256//64
+inline constexpr int MAX_ADDRESSLENGTH = 256; //64
+inline constexpr int MAX_HOSTNAMELENGTH = 256; //22
 
 #define	MAX_QPATH			64		// max length of a quake game pathname
 #ifdef PATH_MAX
 #define MAX_OSPATH			PATH_MAX
 #else
-#define	MAX_OSPATH			256		// max length of a filesystem pathname
+inline constexpr int MAX_OSPATH = 256;		// max length of a filesystem pathname
 #endif
 
 #define	MAX_NAME_LENGTH		32		// max length of a client name
-#define MAX_NETNAME			36
+inline constexpr int MAX_NETNAME = 36;
 
-#define	MAX_SAY_TEXT	150
+inline constexpr int MAX_SAY_TEXT = 150;
 
 // paramters for command buffer stuffing
 enum class cbufExec_t {
@@ -202,13 +194,8 @@ using enum cbufExec_t;
 //
 // these aren't needed by any of the VMs.  put in another header?
 //
-#define	MAX_MAP_AREA_BYTES		32		// bit vector of area visibility
 
 
-#define LS_STYLES_START			0
-#define LS_NUM_STYLES			32
-#define	LS_SWITCH_START			(LS_STYLES_START+LS_NUM_STYLES)
-#define LS_NUM_SWITCH			32
 #if !defined MAX_LIGHT_STYLES
 #define MAX_LIGHT_STYLES		64
 #endif
@@ -256,25 +243,15 @@ using enum errorParm_t;
 #define PROP_HEIGHT				27
 #define PROP_SMALL_SIZE_SCALE	0.75*/
 
-#define PROP_GAP_WIDTH			2 // 3
-#define PROP_SPACE_WIDTH		4
-#define PROP_HEIGHT				16
+inline constexpr int PROP_GAP_WIDTH = 2; // 3
+inline constexpr int PROP_SPACE_WIDTH = 4;
+inline constexpr int PROP_HEIGHT = 16;
 
-#define PROP_TINY_SIZE_SCALE	1
-#define PROP_SMALL_SIZE_SCALE	1
-#define PROP_BIG_SIZE_SCALE		1
-#define PROP_GIANT_SIZE_SCALE	2
+inline constexpr int PROP_SMALL_SIZE_SCALE = 1;
 
-#define PROP_TINY_HEIGHT		10
-#define PROP_GAP_TINY_WIDTH		1
-#define PROP_SPACE_TINY_WIDTH	3
 
-#define PROP_BIG_HEIGHT			24
-#define PROP_GAP_BIG_WIDTH		3
-#define PROP_SPACE_BIG_WIDTH	6
 
-#define BLINK_DIVISOR			200
-#define PULSE_DIVISOR			75
+inline constexpr int BLINK_DIVISOR = 200;
 
 enum class textStyleFlags_t
 {
@@ -486,13 +463,12 @@ enum class material_t //# material_e
 using enum material_t;
 
 //rww - bot stuff that needs to be shared
-#define MAX_WPARRAY_SIZE 4096
-#define MAX_NEIGHBOR_SIZE 32
+inline constexpr int MAX_WPARRAY_SIZE = 4096;
+inline constexpr int MAX_NEIGHBOR_SIZE = 32;
 
-#define MAX_NEIGHBOR_LINK_DISTANCE 128
-#define MAX_NEIGHBOR_FORCEJUMP_LINK_DISTANCE 400
+inline constexpr int MAX_NEIGHBOR_LINK_DISTANCE = 128;
 
-#define DEFAULT_GRID_SPACING 400
+inline constexpr int DEFAULT_GRID_SPACING = 400;
 
 typedef struct wpneighbor_s
 {
@@ -520,20 +496,15 @@ typedef struct wpobject_s
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
-#define	SCREEN_WIDTH		640
-#define	SCREEN_HEIGHT		480
 
-#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
-#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
 
-#define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	16
+inline constexpr int TINYCHAR_WIDTH = SMALLCHAR_WIDTH;
+inline constexpr int TINYCHAR_HEIGHT = SMALLCHAR_HEIGHT/2;
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
 
-#define	GIANTCHAR_WIDTH		32
-#define	GIANTCHAR_HEIGHT	48
+inline constexpr int GIANTCHAR_WIDTH = 32;
+
+inline constexpr int NUM_CROSSHAIRS = 9;	// the crosshairs cgame draws and the UI offers
 
 //=============================================
 
@@ -557,20 +528,22 @@ bool COM_ParseFloat( const char **data, float *f );
 bool COM_ParseVec4( const char **buffer, vec4_t *c);
 //int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 
-#define MAX_TOKENLENGTH		1024
+inline constexpr int MAX_TOKENLENGTH = 1024;
 
-#ifndef TT_STRING
 //token types
-#define TT_STRING					1			// string
-#define TT_LITERAL					2			// literal
-#define TT_NUMBER					3			// number
-#define TT_NAME						4			// name
-#define TT_PUNCTUATION				5			// punctuation
-#endif
+enum class tokenType_t
+{
+	TT_STRING					= 1,			// string
+	TT_LITERAL,								// literal
+	TT_NUMBER,								// number
+	TT_NAME,								// name
+	TT_PUNCTUATION,							// punctuation
+};
+using enum tokenType_t;
 
 typedef struct pc_token_s
 {
-	int type;
+	tokenType_t type;
 	int subtype;
 	int intvalue;
 	float floatvalue;
@@ -631,7 +604,6 @@ int FloatAsInt( float f );
 
 char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
-#define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
 
 //=============================================
@@ -720,7 +692,6 @@ typedef struct cvar_s {
 	int				hashIndex;
 } cvar_t;
 
-#define	MAX_CVAR_VALUE_STRING	256
 
 typedef int	cvarHandle_t;
 
@@ -762,7 +733,6 @@ typedef struct CollisionRecord_s {
 	float		mBarycentricJ; // K = 1-I-J
 } CollisionRecord_t;
 
-#define MAX_G2_COLLISIONS 16
 
 typedef CollisionRecord_t G2Trace_t[MAX_G2_COLLISIONS];	// map that describes all of the parts of ghoul2 models that got hit
 
@@ -874,18 +844,14 @@ template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 // The fixed simulation tick in milliseconds, shared by the server, the client and the game module (plan step 14; it
 // replaces the sv_fps cvar): the server runs a game frame and sends a snapshot every tick, and every 20 Hz instant, where
 // the game's logic runs (game/g_local.h), is a tick.
-#define	TICK_MSEC				10
+inline constexpr int TICK_MSEC = 10;
 
 //
 // per-level limits
 //
 #define	MAX_CLIENTS			32		// absolute limit
-#define MAX_RADAR_ENTITIES	MAX_GENTITIES
-#define MAX_TERRAINS		1//32 //rwwRMG: inserted
-#define MAX_LOCATIONS		64
+inline constexpr int MAX_LOCATIONS = 64;
 
-#define	GENTITYNUM_BITS	10		// don't need to send any more
-#define	MAX_GENTITIES	(1<<GENTITYNUM_BITS)
 
 //I am reverting. I guess. For now.
 /*
@@ -903,39 +869,31 @@ template <> inline constexpr bool enableEnumFlags<snapFlags_t> = true;
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values thatare going to be communcated over the net need to
 // also be in this range
-#define	ENTITYNUM_NONE		(MAX_GENTITIES-1)
-#define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
-#define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
 
 // these are also in be_aas_def.h - argh (rjr)
-#define	MAX_MODELS			512		// these are sent over the net as -12 bits
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
-#define MAX_ICONS			64		// max registered icons you can have per map
-#define MAX_FX				64		// max effects strings, I'm hoping that 64 will be plenty
+inline constexpr int MAX_MODELS = 512;		// these are sent over the net as -12 bits
+inline constexpr int MAX_SOUNDS = 256;		// so they cannot be blindly increased
+inline constexpr int MAX_ICONS = 64;		// max registered icons you can have per map
+inline constexpr int MAX_FX = 64;		// max effects strings, I'm hoping that 64 will be plenty
 
-#define MAX_SUB_BSP			32 //rwwRMG - added
 
 /*
 Ghoul2 Insert Start
 */
-#define	MAX_G2BONES		64		//rww - changed from MAX_CHARSKINS to MAX_G2BONES. value still equal.
+inline constexpr int MAX_G2BONES = 64;		//rww - changed from MAX_CHARSKINS to MAX_G2BONES. value still equal.
 /*
 Ghoul2 Insert End
 */
 
-#define MAX_AMBIENT_SETS		256 //rww - ambient soundsets must be sent over in config strings.
+inline constexpr int MAX_AMBIENT_SETS = 256; //rww - ambient soundsets must be sent over in config strings.
 
-#define	MAX_CONFIGSTRINGS	1700 //this is getting pretty high. Try not to raise it anymore than it already is.
+inline constexpr int MAX_CONFIGSTRINGS = 1700; //this is getting pretty high. Try not to raise it anymore than it already is.
 
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication
-#define	CS_SERVERINFO		0		// an info string with all the serverinfo cvars
-#define	CS_SYSTEMINFO		1		// an info string for server system to client system configuration (timescale, etc)
 
-#define	RESERVED_CONFIGSTRINGS	2	// game can't modify below this, only the system can
 
-#define	MAX_GAMESTATE_CHARS	16000
 typedef struct gameState_s {
 	int			stringOffsets[MAX_CONFIGSTRINGS];
 	char		stringData[MAX_GAMESTATE_CHARS];
@@ -957,7 +915,7 @@ enum class trackchan_t {
 using enum trackchan_t;
 template <> inline constexpr bool enableEnumArithmetic<trackchan_t> = true;
 
-#define TRACK_CHANNEL_MAX (NUM_TRACK_CHANNELS - TRACK_CHANNEL_NONE)
+inline constexpr int TRACK_CHANNEL_MAX = NUM_TRACK_CHANNELS - TRACK_CHANNEL_NONE;
 
 enum class saber_styles_t;	// bg_public.h
 typedef struct forcedata_s {
@@ -1027,21 +985,17 @@ enum class itemUseFail_t {
 using enum itemUseFail_t;
 
 // bit field limits
-#define	MAX_STATS				16
-#define	MAX_PERSISTANT			16
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				19
-#define MAX_AMMO_TRANSMIT		16 // This is needed because the ammo array is 19 but only 16 sized array is networked
-#define MAX_AMMO				MAX_WEAPONS
+inline constexpr int MAX_WEAPONS = 19;
+inline constexpr int MAX_AMMO_TRANSMIT = 16; // This is needed because the ammo array is 19 but only 16 sized array is networked
+inline constexpr int MAX_AMMO = MAX_WEAPONS;
 
-#define	MAX_PS_EVENTS			2
 
-#define PS_PMOVEFRAMECOUNTBITS	6
+inline constexpr int PS_PMOVEFRAMECOUNTBITS = 6;
 
-#define FORCE_LIGHTSIDE			1
-#define FORCE_DARKSIDE			2
+inline constexpr int FORCE_LIGHTSIDE = 1;
+inline constexpr int FORCE_DARKSIDE = 2;
 
-#define FALL_FADE_TIME			3000
+inline constexpr int FALL_FADE_TIME = 3000;
 
 //#define _ONEBIT_COMBO
 //Crazy optimization attempt to take all those 1 bit values and shove them into a single
@@ -1401,7 +1355,6 @@ enum class buttonFlags_t
 using enum buttonFlags_t;
 template <> inline constexpr bool enableEnumFlags<buttonFlags_t> = true;
 
-#define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
 
 enum class genCmds_t
@@ -1647,7 +1600,7 @@ typedef struct addElectricityArgStruct_s {
 } addElectricityArgStruct_t;
 
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
-#define	SOLID_BMODEL	0xffffff
+inline constexpr int SOLID_BMODEL = 0xffffff;
 
 enum class trType_t {
 	TR_STATIONARY,
@@ -1874,11 +1827,14 @@ typedef struct qtime_s {
 
 
 // server browser sources
-#define AS_LOCAL			0
-#define AS_GLOBAL			1
-#define AS_FAVORITES		2
+enum class lanSource_t {
+	AS_LOCAL,
+	AS_GLOBAL,
+	AS_FAVORITES,
 
-#define AS_MPLAYER			3 // (Obsolete)
+	AS_MPLAYER, // (Obsolete)
+};
+using enum lanSource_t;
 
 // cinematic states
 enum class e_status {
@@ -1892,14 +1848,18 @@ enum class e_status {
 };
 using enum e_status;
 
-#define	MAX_GLOBAL_SERVERS			2048
-#define	MAX_OTHER_SERVERS			128
-#define MAX_PINGREQUESTS			32
-#define MAX_SERVERSTATUSREQUESTS	16
+inline constexpr int MAX_GLOBAL_SERVERS = 2048;
+inline constexpr int MAX_OTHER_SERVERS = 128;
+inline constexpr int MAX_PINGREQUESTS = 32;
+inline constexpr int MAX_SERVERSTATUSREQUESTS = 16;
 
-#define SAY_ALL		0
-#define SAY_TEAM	1
-#define SAY_TELL	2
+// the mode of a chat message
+enum class sayMode_t {
+	SAY_ALL,
+	SAY_TEAM,
+	SAY_TELL
+};
+using enum sayMode_t;
 
 /*
 Ghoul2 Insert Start

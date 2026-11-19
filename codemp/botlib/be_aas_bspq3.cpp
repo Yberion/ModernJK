@@ -51,7 +51,7 @@ extern botlib_import_t botimport;
 
 #define ON_EPSILON		0.005
 
-#define MAX_BSPENTITIES		2048
+constexpr int MAX_BSPENTITIES = 2048;
 
 typedef struct rgb_s
 {
@@ -479,7 +479,7 @@ void AAS_DumpBSPData(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_LoadBSPFile(void)
+botlibError_t AAS_LoadBSPFile(void)
 {
 	AAS_DumpBSPData();
 	bspworld.entdatasize = strlen(botimport.BSPEntityData()) + 1;

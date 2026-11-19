@@ -188,14 +188,14 @@ struct ThaiCodes_t
 };
 
 
-#define GLYPH_MAX_KOREAN_SHADERS	3
-#define GLYPH_MAX_TAIWANESE_SHADERS 4
-#define GLYPH_MAX_JAPANESE_SHADERS	3
-#define GLYPH_MAX_CHINESE_SHADERS	3
-#define GLYPH_MAX_THAI_SHADERS		3
-#define GLYPH_MAX_ASIAN_SHADERS		4	// this MUST equal the larger of the above defines
+constexpr int GLYPH_MAX_KOREAN_SHADERS = 3;
+constexpr int GLYPH_MAX_TAIWANESE_SHADERS = 4;
+constexpr int GLYPH_MAX_JAPANESE_SHADERS = 3;
+constexpr int GLYPH_MAX_CHINESE_SHADERS = 3;
+constexpr int GLYPH_MAX_THAI_SHADERS = 3;
+constexpr int GLYPH_MAX_ASIAN_SHADERS = 4;	// this MUST equal the larger of the above defines
 
-#define MAX_FONT_VARIANTS 8
+constexpr int MAX_FONT_VARIANTS = 8;
 
 class CFontInfo
 {
@@ -287,11 +287,11 @@ int g_iNonScaledCharRange;	// this is used with auto-scaling of asian fonts, any
 
 // =============================== some korean stuff =======================================
 
-#define KSC5601_HANGUL_HIBYTE_START		0xB0	// range is...
-#define KSC5601_HANGUL_HIBYTE_STOP		0xC8	// ... inclusive
-#define KSC5601_HANGUL_LOBYTE_LOBOUND	0xA0	// range is...
-#define KSC5601_HANGUL_LOBYTE_HIBOUND	0xFF	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
-#define KSC5601_HANGUL_CODES_PER_ROW	96		// 2 more than the number of glyphs
+constexpr int KSC5601_HANGUL_HIBYTE_START = 0xB0;	// range is...
+constexpr int KSC5601_HANGUL_HIBYTE_STOP = 0xC8;	// ... inclusive
+constexpr int KSC5601_HANGUL_LOBYTE_LOBOUND = 0xA0;	// range is...
+constexpr int KSC5601_HANGUL_LOBYTE_HIBOUND = 0xFF;	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
+constexpr int KSC5601_HANGUL_CODES_PER_ROW = 96;		// 2 more than the number of glyphs
 
 extern bool Language_IsKorean( void );
 
@@ -338,15 +338,15 @@ static int Korean_InitFields(int &iGlyphTPs, const char *&psLang)
 
 // (all ranges inclusive for Big5)...
 //
-#define BIG5_HIBYTE_START0		0xA1	// (misc chars + level 1 hanzi)
-#define BIG5_HIBYTE_STOP0		0xC6	//
-#define BIG5_HIBYTE_START1		0xC9	// (level 2 hanzi)
-#define BIG5_HIBYTE_STOP1		0xF9	//
-#define BIG5_LOBYTE_LOBOUND0	0x40	//
-#define BIG5_LOBYTE_HIBOUND0	0x7E	//
-#define BIG5_LOBYTE_LOBOUND1	0xA1	//
-#define BIG5_LOBYTE_HIBOUND1	0xFE	//
-#define BIG5_CODES_PER_ROW		160		// 3 more than the number of glyphs
+constexpr int BIG5_HIBYTE_START0 = 0xA1;	// (misc chars + level 1 hanzi)
+constexpr int BIG5_HIBYTE_STOP0 = 0xC6;	//
+constexpr int BIG5_HIBYTE_START1 = 0xC9;	// (level 2 hanzi)
+constexpr int BIG5_HIBYTE_STOP1 = 0xF9;	//
+constexpr int BIG5_LOBYTE_LOBOUND0 = 0x40;	//
+constexpr int BIG5_LOBYTE_HIBOUND0 = 0x7E;	//
+constexpr int BIG5_LOBYTE_LOBOUND1 = 0xA1;	//
+constexpr int BIG5_LOBYTE_HIBOUND1 = 0xFE;	//
+constexpr int BIG5_CODES_PER_ROW = 160;		// 3 more than the number of glyphs
 
 extern bool Language_IsTaiwanese( void );
 
@@ -421,16 +421,16 @@ static int Taiwanese_InitFields(int &iGlyphTPs, const char *&psLang)
 
 // ( all ranges inclusive for Shift-JIS )
 //
-#define SHIFTJIS_HIBYTE_START0	0x81
-#define SHIFTJIS_HIBYTE_STOP0	0x9F
-#define SHIFTJIS_HIBYTE_START1	0xE0
-#define SHIFTJIS_HIBYTE_STOP1	0xEF
+constexpr int SHIFTJIS_HIBYTE_START0 = 0x81;
+constexpr int SHIFTJIS_HIBYTE_STOP0 = 0x9F;
+constexpr int SHIFTJIS_HIBYTE_START1 = 0xE0;
+constexpr int SHIFTJIS_HIBYTE_STOP1 = 0xEF;
 //
-#define SHIFTJIS_LOBYTE_START0	0x40
-#define SHIFTJIS_LOBYTE_STOP0	0x7E
-#define SHIFTJIS_LOBYTE_START1	0x80
-#define SHIFTJIS_LOBYTE_STOP1	0xFC
-#define SHIFTJIS_CODES_PER_ROW	(((SHIFTJIS_LOBYTE_STOP0-SHIFTJIS_LOBYTE_START0)+1)+((SHIFTJIS_LOBYTE_STOP1-SHIFTJIS_LOBYTE_START1)+1))
+constexpr int SHIFTJIS_LOBYTE_START0 = 0x40;
+constexpr int SHIFTJIS_LOBYTE_STOP0 = 0x7E;
+constexpr int SHIFTJIS_LOBYTE_START1 = 0x80;
+constexpr int SHIFTJIS_LOBYTE_STOP1 = 0xFC;
+constexpr int SHIFTJIS_CODES_PER_ROW = ((SHIFTJIS_LOBYTE_STOP0-SHIFTJIS_LOBYTE_START0)+1)+((SHIFTJIS_LOBYTE_STOP1-SHIFTJIS_LOBYTE_START1)+1);
 
 
 extern bool Language_IsJapanese( void );
@@ -513,11 +513,11 @@ static int Japanese_InitFields(int &iGlyphTPs, const char *&psLang)
 
 // ======================== some Chinese stuff ==============================
 
-#define GB_HIBYTE_START		0xA1	// range is...
-#define GB_HIBYTE_STOP		0xF7	// ... inclusive
-#define GB_LOBYTE_LOBOUND	0xA0	// range is...
-#define GB_LOBYTE_HIBOUND	0xFF	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
-#define GB_CODES_PER_ROW	95		// 1 more than the number of glyphs
+constexpr int GB_HIBYTE_START = 0xA1;	// range is...
+constexpr int GB_HIBYTE_STOP = 0xF7;	// ... inclusive
+constexpr int GB_LOBYTE_LOBOUND = 0xA0;	// range is...
+constexpr int GB_LOBYTE_HIBOUND = 0xFF;	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
+constexpr int GB_CODES_PER_ROW = 95;		// 1 more than the number of glyphs
 
 extern bool Language_IsChinese( void );
 
@@ -582,8 +582,8 @@ static int Chinese_InitFields(int &iGlyphTPs, const char *&psLang)
 
 //TIS 620-2533
 
-#define TIS_GLYPHS_START	160
-#define TIS_SARA_AM			0xD3		// special case letter, both a new letter and a trailing accent for the prev one
+constexpr int TIS_GLYPHS_START = 160;
+constexpr int TIS_SARA_AM = 0xD3;		// special case letter, both a new letter and a trailing accent for the prev one
 ThaiCodes_t g_ThaiCodes;	// the one and only instance of this object
 
 extern bool Language_IsThai( void );

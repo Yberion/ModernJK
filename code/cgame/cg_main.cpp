@@ -48,7 +48,6 @@ const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 								const char *psText, int iFontHandle, float fScale,
 								const vec4_t v4Color);
 
-#define NUM_CHUNKS		6
 /*
 Ghoul2 Insert Start
 */
@@ -89,7 +88,7 @@ EnumArray<int, forcePowers_t, NUM_FORCE_POWERS>	force_icons;
 
 void CG_DrawDataPadHUD( centity_t *cent );
 void CG_DrawDataPadObjectives(const centity_t *cent );
-void CG_DrawDataPadIconBackground(const int backgroundType);
+void CG_DrawDataPadIconBackground(const iconBackground_t backgroundType);
 void CG_DrawDataPadWeaponSelect( void );
 void CG_DrawDataPadForceSelect( void );
 
@@ -1944,7 +1943,7 @@ void CG_Init_CG(void)
 }
 
 
-#define MAX_MISC_ENTS	2000
+constexpr int MAX_MISC_ENTS = 2000;
 
 typedef struct cgMiscEntData_s
 {
@@ -2535,7 +2534,7 @@ void CG_DrawAlert( vec3_t origin, float rating )
 }
 
 
-#define MAX_MENUDEFFILE				4096
+constexpr int MAX_MENUDEFFILE = 4096;
 
 //
 // ==============================

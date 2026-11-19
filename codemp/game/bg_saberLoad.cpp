@@ -47,7 +47,7 @@ int BG_SoundIndex( const char *sound ) {
 
 extern stringID_table_t FPTable[];
 
-#define MAX_SABER_DATA_SIZE (1024*1024) // 1mb, was 512kb
+constexpr int MAX_SABER_DATA_SIZE = 1024*1024; // 1mb, was 512kb
 static char saberParms[MAX_SABER_DATA_SIZE];
 
 stringID_table_t saberTable[] = {
@@ -1729,7 +1729,7 @@ Keyword Hash
 ===============
 */
 
-#define KEYWORDHASH_SIZE (512)
+constexpr int KEYWORDHASH_SIZE = 512;
 
 typedef struct keywordHash_s {
 	const char	*keyword;

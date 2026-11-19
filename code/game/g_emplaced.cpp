@@ -144,11 +144,11 @@ void EWebPositionUser(gentity_t *owner, gentity_t *eweb)
 //===============================================
 
 // spawnflag
-#define	EMPLACED_INACTIVE	1
-#define EMPLACED_FACING		2
-#define EMPLACED_VULNERABLE	4
-#define EWEB_INVULNERABLE	4
-#define EMPLACED_PLAYERUSE	8
+constexpr int EMPLACED_INACTIVE = 1;
+constexpr int EMPLACED_FACING = 2;
+constexpr int EMPLACED_VULNERABLE = 4;
+constexpr int EWEB_INVULNERABLE = 4;
+constexpr int EMPLACED_PLAYERUSE = 8;
 
 /*QUAKED emplaced_eweb (0 0 1) (-12 -12 -24) (12 12 24) INACTIVE FACING INVULNERABLE PLAYERUSE
 

@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef DEBUG_ZONE_ALLOCS
 #include "sstring.h"
 int giZoneSnaphotNum=0;
-#define DEBUG_ZONE_ALLOC_OPTIONAL_LABEL_SIZE 256
+constexpr int DEBUG_ZONE_ALLOC_OPTIONAL_LABEL_SIZE = 256;
 typedef sstring<DEBUG_ZONE_ALLOC_OPTIONAL_LABEL_SIZE> sDebugString_t;
 #endif
 
@@ -48,7 +48,7 @@ static const EnumArray<const char *, memtag, to_underlying( TAG_COUNT ) + 1> psT
 // This handles zone memory allocation.
 // It is a wrapper around malloc with a tag id and a magic number at the start
 
-#define ZONE_MAGIC			0x21436587
+constexpr int ZONE_MAGIC = 0x21436587;
 
 // if you change ANYTHING in this structure, be sure to update the tables below using DEF_STATIC...
 //

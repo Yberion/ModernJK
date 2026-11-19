@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../game/anims.h"
 #include "../game/wp_saber.h"
 
-#define	LOOK_SWING_SCALE	0.5
+constexpr double LOOK_SWING_SCALE = 0.5;
 
 #include "animtable.h"
 
@@ -271,7 +271,7 @@ CG_CustomSound
 
 ================
 */
-static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, int customSoundSet )
+static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, customSoundSet_t customSoundSet )
 {
 	clientInfo_t *ci;
 	int			i;
@@ -388,7 +388,7 @@ static sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName, int cus
 	return 0;
 }
 
-void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, int customSoundSet )
+void CG_TryPlayCustomSound( vec3_t origin, int entityNum, soundChannel_t channel, const char *soundName, customSoundSet_t customSoundSet )
 {
 	sfxHandle_t	soundIndex = CG_CustomSound( entityNum, soundName, customSoundSet );
 	if ( !soundIndex )
@@ -1569,8 +1569,8 @@ float CG_EyePointOfsForRace[RACE_HOLOGRAM+1][2] =
 	4, 8//RACE_HOLOGRAM
 };
 */
-#define LOOK_DEFAULT_SPEED	0.15f
-#define LOOK_TALKING_SPEED	0.15f
+constexpr float LOOK_DEFAULT_SPEED = 0.15f;
+constexpr float LOOK_TALKING_SPEED = 0.15f;
 
 static bool CG_CheckLookTarget( centity_t *cent, vec3_t	lookAngles, float *lookingSpeed )
 {
@@ -2862,7 +2862,7 @@ void CG_PlayerPowerups( centity_t *cent )
 	}*/
 }
 
-#define	SHADOW_DISTANCE		128
+constexpr int SHADOW_DISTANCE = 128;
 static bool _PlayerShadow( const vec3_t origin, const float orientation, float *const shadowPlane, const float radius ) {
 	vec3_t		end, mins = {-7, -7, 0}, maxs = {7, 7, 2};
 	trace_t		trace;
@@ -4282,8 +4282,8 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, saber
 	cgi_R_AddRefEntityToScene( &saber );
 }
 
-#define	MAX_MARK_FRAGMENTS	128
-#define	MAX_MARK_POINTS		384
+constexpr int MAX_MARK_FRAGMENTS = 128;
+constexpr int MAX_MARK_POINTS = 384;
 extern markPoly_t *CG_AllocMark();
 
 void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
@@ -4623,7 +4623,7 @@ Ghoul2 Insert End
 
 	saberTrail_t	*saberTrail = &client->saberTrail;
 
-#define SABER_TRAIL_TIME	40.0f
+constexpr float SABER_TRAIL_TIME = 40.0f;
 
 	// if we happen to be timescaled or running in a high framerate situation, we don't want to flood
 	//	the system with very small trail slices...but perhaps doing it by distance would yield better results?

@@ -55,7 +55,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
+botlibError_t AAS_UpdateEntity(int entnum, bot_entitystate_t *state)
 {
 	int relink;
 	aas_entity_t *ent;

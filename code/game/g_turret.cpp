@@ -33,11 +33,8 @@ void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 //special routine for tracking angles between client and server -rww
 void turret_SetBoneAngles(gentity_t *ent, const char *bone, const vec3_t angles);
 
-#define	ARM_ANGLE_RANGE		60
-#define	HEAD_ANGLE_RANGE	90
 
-#define SPF_TURRETG2_TURBO		4
-#define SPF_TURRETG2_LEAD_ENEMY	8
+constexpr int SPF_TURRETG2_TURBO = 4;
 
 #define name "models/map_objects/imp_mine/turret_canon.glm"
 #define name2 "models/map_objects/imp_mine/turret_damage.md3"
@@ -157,7 +154,7 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 		(BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
 }
 
-#define START_DIS 15
+constexpr int START_DIS = 15;
 
 extern void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir );
 
@@ -1389,7 +1386,7 @@ void SP_laser_arm (gentity_t *base)
 // PERSONAL ASSAULT SENTRY
 //--------------------------
 
-#define PAS_DAMAGE	2
+constexpr int PAS_DAMAGE = 2;
 
 //-----------------------------------------------------------------------------
 void pas_use( gentity_t *self, gentity_t *other, gentity_t *activator )

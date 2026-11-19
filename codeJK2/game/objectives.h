@@ -142,21 +142,19 @@ using enum statusText_t;
 
 extern bool	missionInfo_Updated;
 
-#define SET_TACTICAL_OFF	0
-#define SET_TACTICAL_ON		1
 
-#define SET_OBJ_HIDE		0
-#define SET_OBJ_SHOW		1
-#define SET_OBJ_PENDING		2
-#define SET_OBJ_SUCCEEDED	3
-#define SET_OBJ_FAILED		4
+inline constexpr int SET_OBJ_HIDE = 0;
+inline constexpr int SET_OBJ_SHOW = 1;
+inline constexpr int SET_OBJ_PENDING = 2;
+inline constexpr int SET_OBJ_SUCCEEDED = 3;
+inline constexpr int SET_OBJ_FAILED = 4;
 
-#define OBJECTIVE_HIDE 0
-#define OBJECTIVE_SHOW 1
+inline constexpr int OBJECTIVE_HIDE = 0;
+inline constexpr int OBJECTIVE_SHOW = 1;
 
-#define OBJECTIVE_STAT_PENDING		0
-#define OBJECTIVE_STAT_SUCCEEDED	1
-#define OBJECTIVE_STAT_FAILED		2
+inline constexpr int OBJECTIVE_STAT_PENDING = 0;
+inline constexpr int OBJECTIVE_STAT_SUCCEEDED = 1;
+inline constexpr int OBJECTIVE_STAT_FAILED = 2;
 
 extern int statusTextIndex;
 

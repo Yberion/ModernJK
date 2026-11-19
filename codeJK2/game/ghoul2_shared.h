@@ -41,9 +41,6 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-#define G2T_SV_TIME (0)
-#define G2T_CG_TIME (1)
-#define NUM_G2T_TIME (2)
 
 void		G2API_SetTime(int currentTime,int clock);
 int			G2API_GetTime(int argTime); // this may or may not return arg depending on ghoul2_time cvar
@@ -92,7 +89,7 @@ enum class boneFlags_t
 using enum boneFlags_t;
 template <> inline constexpr bool enableEnumFlags<boneFlags_t> = true;
 
-#define BONE_INDEX_INVALID			-1
+inline constexpr int BONE_INDEX_INVALID = -1;
 
 /*#define MDXABONEDEF				// used in the mdxformat.h file to stop redefinitions of the bone struct.
 
@@ -157,7 +154,6 @@ struct boltInfo_t{
 };
 
 
-#define MAX_GHOUL_COUNT_BITS 8 // bits required to send across the MAX_G2_MODELS inside of the networking - this is the only restriction on ghoul models possible per entity
 
 typedef vector <surfaceInfo_t> surfaceInfo_v;
 typedef vector <boneInfo_t> boneInfo_v;
@@ -403,8 +399,8 @@ public:
 
 
 // collision detection stuff
-#define G2_FRONTFACE 1
-#define	G2_BACKFACE	 0
+inline constexpr int G2_FRONTFACE = 1;
+inline constexpr int G2_BACKFACE = 0;
 
 
 class CCollisionRecord

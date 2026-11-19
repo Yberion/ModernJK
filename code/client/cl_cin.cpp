@@ -44,23 +44,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_local.h"
 #include "qcommon/stringed_ingame.h"
 
-#define MAXSIZE				8
-#define MINSIZE				4
+constexpr int MAXSIZE = 8;
+constexpr int MINSIZE = 4;
 
-#define DEFAULT_CIN_WIDTH	512
-#define DEFAULT_CIN_HEIGHT	512
+constexpr int DEFAULT_CIN_WIDTH = 512;
+constexpr int DEFAULT_CIN_HEIGHT = 512;
 
-#define ROQ_QUAD			0x1000
-#define ROQ_QUAD_INFO		0x1001
-#define ROQ_CODEBOOK		0x1002
-#define ROQ_QUAD_VQ			0x1011
-#define ROQ_QUAD_JPEG		0x1012
-#define ROQ_QUAD_HANG		0x1013
-#define ROQ_PACKET			0x1030
-#define ZA_SOUND_MONO		0x1020
-#define ZA_SOUND_STEREO		0x1021
+constexpr int ROQ_QUAD_INFO = 0x1001;
+constexpr int ROQ_CODEBOOK = 0x1002;
+constexpr int ROQ_QUAD_VQ = 0x1011;
+constexpr int ROQ_QUAD_JPEG = 0x1012;
+constexpr int ROQ_QUAD_HANG = 0x1013;
+constexpr int ROQ_PACKET = 0x1030;
+constexpr int ZA_SOUND_MONO = 0x1020;
+constexpr int ZA_SOUND_STEREO = 0x1021;
 
-#define MAX_VIDEO_HANDLES	16
+constexpr int MAX_VIDEO_HANDLES = 16;
 
 extern void S_CIN_StopSound(sfxHandle_t sfxHandle);
 static void RoQ_init( void );
@@ -1594,14 +1593,14 @@ void CIN_SetLooping(int handle, bool loop) {
 }
 
 // Text crawl defines
-#define TC_PLANE_WIDTH	250
-#define TC_PLANE_NEAR	90
-#define TC_PLANE_FAR	715
-#define TC_PLANE_TOP	0
-#define TC_PLANE_BOTTOM	1100
+constexpr int TC_PLANE_WIDTH = 250;
+constexpr int TC_PLANE_NEAR = 90;
+constexpr int TC_PLANE_FAR = 715;
+constexpr int TC_PLANE_TOP = 0;
+constexpr int TC_PLANE_BOTTOM = 1100;
 
-#define TC_DELAY 9000
-#define TC_STOPTIME 81000
+constexpr int TC_DELAY = 9000;
+constexpr int TC_STOPTIME = 81000;
 static void CIN_AddTextCrawl()
 {
 	refdef_t	refdef;

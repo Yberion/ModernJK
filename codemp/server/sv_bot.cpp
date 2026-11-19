@@ -279,7 +279,7 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 BotImport_Print
 ==================
 */
-void QDECL BotImport_Print(int type, const char *fmt, ...)
+void QDECL BotImport_Print(printType_t type, const char *fmt, ...)
 {
 	char str[2048];
 	va_list ap;
@@ -555,7 +555,7 @@ void BotImport_DebugLineDelete(int line) {
 BotImport_DebugLineShow
 ==================
 */
-void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
+void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, lineColor_t color) {
 	vec3_t points[4], dir, cross, up = {0, 0, 1};
 	float dot;
 
@@ -580,7 +580,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	VectorMA(points[2], -2, cross, points[2]);
 	VectorMA(points[3], 2, cross, points[3]);
 
-	BotImport_DebugPolygonShow(line, color, 4, points);
+	BotImport_DebugPolygonShow(line, to_underlying( color ), 4, points);	// the polygon keeps the renderer's colour
 }
 
 /*
@@ -604,41 +604,6 @@ void SV_BotFrame( int time ) {
 	if (!svs.gameStarted)
 		return;
 	GVM_BotAIStartFrame( time );
-}
-
-/*
-===============
-SV_BotLibSetup
-===============
-*/
-int SV_BotLibSetup( void ) {
-	if (!bot_enable) {
-		return 0;
-	}
-
-	if ( !botlib_export ) {
-		Com_Printf( S_COLOR_RED "Error: SV_BotLibSetup without SV_BotInitBotLib\n" );
-		return -1;
-	}
-
-	return botlib_export->BotLibSetup();
-}
-
-/*
-===============
-SV_ShutdownBotLib
-
-Called when either the entire server is being killed, or
-it is changing to a different game directory.
-===============
-*/
-int SV_BotLibShutdown( void ) {
-
-	if ( !botlib_export ) {
-		return -1;
-	}
-
-	return botlib_export->BotLibShutdown();
 }
 
 /*

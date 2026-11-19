@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_sky.c
 #include "tr_local.h"
 
-#define SKY_SUBDIVISIONS		8
-#define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
+constexpr int SKY_SUBDIVISIONS = 8;
+constexpr int HALF_SKY_SUBDIVISIONS = SKY_SUBDIVISIONS/2;
 
 static float s_cloudTexCoords[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
 static float s_cloudTexP[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1];
@@ -145,7 +145,7 @@ static void AddSkyPolygon (int nump, vec3_t vecs)
 }
 
 #define	ON_EPSILON		0.1f			// point on plane side epsilon
-#define	MAX_CLIP_VERTS	64
+constexpr int MAX_CLIP_VERTS = 64;
 /*
 ================
 ClipSkyPolygon
@@ -158,7 +158,7 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 	bool	front, back;
 	float	d, e;
 	float	dists[MAX_CLIP_VERTS];
-	int		sides[MAX_CLIP_VERTS];
+	planeSide_t	sides[MAX_CLIP_VERTS];
 	vec3_t	newv[2][MAX_CLIP_VERTS];
 	int		newc[2];
 	int		i, j;
@@ -220,6 +220,8 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 			newc[0]++;
 			VectorCopy (v, newv[1][newc[1]]);
 			newc[1]++;
+			break;
+		case SIDE_CROSS:	// the collision's, never computed here
 			break;
 		}
 

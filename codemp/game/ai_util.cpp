@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ai_main.h"
 
 #ifdef BOT_ZMALLOC
-#define MAX_BALLOC 8192
+constexpr int MAX_BALLOC = 8192;
 
 void *BAllocList[MAX_BALLOC];
 #endif

@@ -22,23 +22,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define		MAX_SIEGE_INFO_SIZE					16384
+inline constexpr int MAX_SIEGE_INFO_SIZE = 16384;
 
 inline constexpr team_t SIEGETEAM_TEAM1 = TEAM_RED;
 inline constexpr team_t SIEGETEAM_TEAM2 = TEAM_BLUE;
 
-#define		SIEGE_POINTS_OBJECTIVECOMPLETED		20
-#define		SIEGE_POINTS_FINALOBJECTIVECOMPLETED	30
-#define		SIEGE_POINTS_TEAMWONROUND			10
+inline constexpr int SIEGE_POINTS_OBJECTIVECOMPLETED = 20;
+inline constexpr int SIEGE_POINTS_FINALOBJECTIVECOMPLETED = 30;
+inline constexpr int SIEGE_POINTS_TEAMWONROUND = 10;
 
-#define		SIEGE_ROUND_BEGIN_TIME				5000 //delay 5 secs after players are in game.
+inline constexpr int SIEGE_ROUND_BEGIN_TIME = 5000; //delay 5 secs after players are in game.
 
-#define		MAX_SIEGE_CLASSES					128 //up to 128 classes
-#define		MAX_SIEGE_CLASSES_PER_TEAM			16
+inline constexpr int MAX_SIEGE_CLASSES = 128; //up to 128 classes
+inline constexpr int MAX_SIEGE_CLASSES_PER_TEAM = 16;
 
-#define		MAX_SIEGE_TEAMS						16 //up to 16 diffent teams
+inline constexpr int MAX_SIEGE_TEAMS = 16; //up to 16 diffent teams
 
-#define		MAX_EXDATA_ENTS_TO_SEND				MAX_CLIENTS //max number of extended data for ents to send
+inline constexpr int MAX_EXDATA_ENTS_TO_SEND = MAX_CLIENTS; //max number of extended data for ents to send
 
 // The basic siege player classes
 enum class siegePlayerClassFlags_t
@@ -68,7 +68,7 @@ enum class siegeClassFlags_t
 using enum siegeClassFlags_t;
 
 
-#define SIEGE_CLASS_DESC_LEN  4096
+inline constexpr int SIEGE_CLASS_DESC_LEN = 4096;
 typedef struct siegeClassDesc_s {
 	char		desc[SIEGE_CLASS_DESC_LEN];
 } siegeClassDesc_t;

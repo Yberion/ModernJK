@@ -30,10 +30,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ROFF Defines
 //-------------------
-#define ROFF_VERSION				1
-#define ROFF_NEW_VERSION			2
+inline constexpr int ROFF_VERSION = 1;
+inline constexpr int ROFF_NEW_VERSION = 2;
 #define ROFF_STRING					"ROFF"
-#define ROFF_SAMPLE_RATE			10	// 10hz
+inline constexpr int ROFF_SAMPLE_RATE = 10;	// 10hz
 #define ROFF_AUTO_FIX_BAD_ANGLES	// exporter can mess up angles,
 									//	defining this attempts to detect and fix these problems
 

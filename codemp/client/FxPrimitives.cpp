@@ -1342,7 +1342,7 @@ void CEmitter::Draw(void)
 		float	ftime, time2, step;
 		int		t, dif;
 
-#define TRAIL_RATE		12 // we "think" at about a 60hz rate
+constexpr int TRAIL_RATE = 12; // we "think" at about a 60hz rate
 
 		// Pick a target step distance and square it
 		step = mDensity + Q_flrand(-mVariance, mVariance);
@@ -1677,10 +1677,10 @@ void CLight::UpdateRGB(void)
 // Derived Trail Class
 //
 //--------------------------
-#define NEW_MUZZLE	0
-#define NEW_TIP		1
-#define OLD_TIP		2
-#define OLD_MUZZLE	3
+constexpr int NEW_MUZZLE = 0;
+constexpr int NEW_TIP = 1;
+constexpr int OLD_TIP = 2;
+constexpr int OLD_MUZZLE = 3;
 
 //----------------------------
 void CTrail::Draw()

@@ -54,7 +54,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // the most pixels an image may have: four bytes each must fit the int of the renderer's allocator
-#define MAX_IMAGE_PIXELS 0x1FFFFFFF
+constexpr int MAX_IMAGE_PIXELS = 0x1FFFFFFF;
 
 // the deleter of memory the engine frees itself
 static void KeepPixels( void * ) noexcept {}

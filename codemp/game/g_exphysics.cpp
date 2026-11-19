@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 #include "g_local.h"
 
-#define MAX_GRAVITY_PULL 512
+constexpr int MAX_GRAVITY_PULL = 512;
 
 //Run physics on the object (purely origin-related) using custom epVelocity entity
 //state value. Origin smoothing on the client is expected to compensate for choppy

@@ -35,7 +35,7 @@ extern bool PM_SaberInAttack( saberMoveName_t move );
 
 extern stringID_table_t FPTable[];
 
-#define MAX_SABER_DATA_SIZE (1024*1024) // 1mb, was 512kb
+constexpr int MAX_SABER_DATA_SIZE = 1024*1024; // 1mb, was 512kb
 char	SaberParms[MAX_SABER_DATA_SIZE];
 
 void Saber_SithSwordPrecache( void )
@@ -1702,7 +1702,7 @@ Keyword Hash
 ===============
 */
 
-#define KEYWORDHASH_SIZE (512)
+constexpr int KEYWORDHASH_SIZE = 512;
 
 typedef struct keywordHash_s {
 	const char	*keyword;

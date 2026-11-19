@@ -48,7 +48,7 @@ PM_SlideMove
 Returns true if the velocity was clipped in some way
 ==================
 */
-#define	MAX_CLIP_PLANES	5
+constexpr int MAX_CLIP_PLANES = 5;
 extern bool PM_GroundSlideOkay( float zNormal );
 extern bool PM_InSpecialJump( animNumber_t anim );
 bool	PM_SlideMove( float gravMod ) {

@@ -129,8 +129,8 @@ typedef struct aas_settings_s
 	float rs_maxjumpfallheight;
 } aas_settings_t;
 
-#define CACHETYPE_PORTAL		0
-#define CACHETYPE_AREA			1
+inline constexpr int CACHETYPE_PORTAL = 0;
+inline constexpr int CACHETYPE_AREA = 1;
 
 //routing cache
 typedef struct aas_routingcache_s

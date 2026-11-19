@@ -30,13 +30,11 @@ void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator );
 
 
-#define SPF_TURRETG2_CANRESPAWN	4
-#define SPF_TURRETG2_TURBO		8
-#define SPF_TURRETG2_LEAD_ENEMY	16
-#define SPF_SHOWONRADAR			32
+constexpr int SPF_TURRETG2_CANRESPAWN = 4;
+constexpr int SPF_TURRETG2_TURBO = 8;
+constexpr int SPF_TURRETG2_LEAD_ENEMY = 16;
+constexpr int SPF_SHOWONRADAR = 32;
 
-#define	ARM_ANGLE_RANGE		60
-#define	HEAD_ANGLE_RANGE	90
 
 #define name "models/map_objects/imp_mine/turret_canon.glm"
 #define name2 "models/map_objects/imp_mine/turret_damage.md3"
@@ -325,7 +323,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	}
 }
 
-#define START_DIS 15
+constexpr int START_DIS = 15;
 
 //start an animation on model_root both server side and client side
 void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)

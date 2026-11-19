@@ -369,7 +369,6 @@ extern	void		Q3_SetVelocity( int entID, vec3_t angles );
 /*		BEGIN Almost useless tokenizer and interpreter constants BEGIN	*/
 //////////////////////////////////////////////////////////////////////////
 #define MAX_STRING_LENGTH		256
-#define MAX_IDENTIFIER_LENGTH	128
 
 //////////////////////////////////////////////////////////////////////////
 /*						END Constants END								*/
@@ -379,7 +378,7 @@ extern	void		Q3_SetVelocity( int entID, vec3_t angles );
 // NOTE! A '/' (forward slash) should be checked for along with the script dir.
 #define Q3_SCRIPT_DIR	"scripts"
 
-#define MAX_FILENAME_LENGTH	256
+inline constexpr int MAX_FILENAME_LENGTH = 256;
 
 #define	IBI_EXT			".IBI"	//(I)nterpreted (B)lock (I)nstructions
 #define IBI_HEADER_ID	"IBI"

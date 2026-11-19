@@ -36,12 +36,10 @@ typedef unsigned int glIndex_t;
 // 14 bits
 // can't be increased without changing bit packing for drawsurfs
 // see QSORT_SHADERNUM_SHIFT
-#define SHADERNUM_BITS	14
-#define MAX_SHADERS		(1<<SHADERNUM_BITS)
+inline constexpr int SHADERNUM_BITS = 14;
+inline constexpr int MAX_SHADERS = 1<<SHADERNUM_BITS;
 
 //#define MAX_SHADER_STATES 2048
-#define MAX_STATES_PER_SHADER 32
-#define MAX_STATE_NAME 32
 
 enum class eDLightTypes
 {
@@ -162,7 +160,7 @@ enum class shaderSort_t {
 using enum shaderSort_t;
 
 
-#define MAX_SHADER_STAGES 8
+#include "qcommon/q_renderer.h"
 
 enum class genFunc_t {
 	GF_NONE,
@@ -277,7 +275,6 @@ typedef struct waveForm_s {
 	float frequency;
 } waveForm_t;
 
-#define TR_MAX_TEXMODS 4
 
 enum class texMod_t {
 	TMOD_NONE,
@@ -291,7 +288,6 @@ enum class texMod_t {
 };
 using enum texMod_t;
 
-#define	MAX_SHADER_DEFORMS	3
 typedef struct deformStage_s {
 	deform_t	deformation;			// vertex coordinate modification type
 
@@ -333,17 +329,7 @@ typedef struct texModInfo_s {
 } texModInfo_t;
 
 
-#define SURFSPRITE_NONE			0
-#define SURFSPRITE_VERTICAL		1
-#define SURFSPRITE_ORIENTED		2
-#define SURFSPRITE_EFFECT		3
-#define SURFSPRITE_WEATHERFX	4
-#define SURFSPRITE_FLATTENED	5
 
-#define SURFSPRITE_FACING_NORMAL	0
-#define SURFSPRITE_FACING_UP		1
-#define SURFSPRITE_FACING_DOWN		2
-#define SURFSPRITE_FACING_ANY		3
 
 
 typedef struct surfaceSprite_s
@@ -375,7 +361,6 @@ typedef struct textureBundle_s {
 } textureBundle_t;
 
 
-#define NUM_TEXTURE_BUNDLES 2
 
 #include "qcommon/q_glstate.h"
 
@@ -410,10 +395,6 @@ typedef struct shaderStage_s {
 
 struct shaderCommands_s;
 
-#define LIGHTMAP_2D			-4		// shader is for 2D rendering
-#define LIGHTMAP_BY_VERTEX	-3		// pre-lit triangle models
-#define LIGHTMAP_WHITEIMAGE	-2
-#define	LIGHTMAP_NONE		-1
 
 enum class cullType_t {
 	CT_FRONT_SIDED,
@@ -503,7 +484,7 @@ typedef struct hitMatReg_s {
 	char	name[MAX_QPATH];
 } hitMatReg_t;
 
-#define MAX_HITMAT_ENTRIES 1000
+inline constexpr int MAX_HITMAT_ENTRIES = 1000;
 
 extern hitMatReg_t		hitMatReg[MAX_HITMAT_ENTRIES];
 
@@ -626,10 +607,9 @@ typedef struct drawSurf_s {
 	surfaceType_t		*surface;		// any of surface*_t
 } drawSurf_t;
 
-#define	MAX_FACE_POINTS		64
+inline constexpr int MAX_FACE_POINTS = 64;
 
-#define	MAX_PATCH_SIZE		32			// max dimensions of a patch mesh in map file
-#define	MAX_GRID_SIZE		65			// max dimensions of a grid mesh in memory
+inline constexpr int MAX_GRID_SIZE = 65;			// max dimensions of a grid mesh in memory
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t
 // as soon as it is called
@@ -653,11 +633,7 @@ typedef struct srfFlare_s {
 	vec3_t			color;
 } srfFlare_t;
 
-#define	VERTEXSIZE			(6+(MAXLIGHTMAPS*3))
-#define VERTEX_LM			5
-#define	VERTEX_COLOR		(5+(MAXLIGHTMAPS*2))
 
-#define	VERTEX_FINAL_COLOR	(5+(MAXLIGHTMAPS*3))
 
 typedef struct srfGridMesh_s {
 	surfaceType_t	surfaceType;
@@ -751,10 +727,6 @@ BRUSH MODELS
 // in memory representation
 //
 
-#define	SIDE_FRONT	0
-#define	SIDE_BACK	1
-#define	SIDE_ON		2
-
 typedef struct msurface_s {
 	int					viewCount;		// if == tr.viewCount, already added
 	struct shader_s		*shader;
@@ -765,7 +737,6 @@ typedef struct msurface_s {
 
 
 
-#define	CONTENTS_NODE		-1
 
 typedef struct mnode_s {
 	// common with leaf and node
@@ -894,7 +865,6 @@ Ghoul2 Insert End
 } model_t;
 
 
-#define	MAX_MOD_KNOWN	1024
 
 void		R_ModelInit (void);
 void		R_InitDecals	(void);
@@ -909,13 +879,12 @@ void		R_Modellist_f (void);
 //====================================================
 
 
-#define	MAX_DRAWIMAGES			2048
-#define	MAX_LIGHTMAPS			256
-#define	MAX_SKINS				1024
+inline constexpr int MAX_DRAWIMAGES = 2048;
+inline constexpr int MAX_SKINS = 1024;
 
 
-#define	MAX_DRAWSURFS			0x10000
-#define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
+inline constexpr int MAX_DRAWSURFS = 0x10000;
+inline constexpr int DRAWSURF_MASK = MAX_DRAWSURFS-1;
 
 /*
 
@@ -929,12 +898,7 @@ the bits are allocated as follows:
 2-6   : fog index
 0-1   : dlightmap index
 */
-#define	QSORT_FOGNUM_SHIFT		2
-#define	QSORT_REFENTITYNUM_SHIFT	7
-#define	QSORT_SHADERNUM_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
-#if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
-	#error "Need to update sorting, too many bits."
-#endif
+static_assert( QSORT_SHADERNUM_SHIFT + SHADERNUM_BITS <= 32, "Need to update sorting, too many bits." );
 
 extern	int			gl_filter_min, gl_filter_max;
 
@@ -952,10 +916,6 @@ typedef struct frontEndCounters_s {
 	int		c_dlightSurfacesCulled;
 } frontEndCounters_t;
 
-#define	FOG_TABLE_SIZE		256
-#define FUNCTABLE_SIZE		1024
-#define FUNCTABLE_SIZE2		10
-#define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
 
 
 // the renderer front end should never modify glstate_t
@@ -1009,7 +969,6 @@ typedef struct backEndState_s {
 ** by the frontend.
 */
 
-#define NUM_SCRATCH_IMAGES 16
 
 typedef struct trGlobals_s {
 	bool				registered;		// cleared at shutdown, set at beginRegistration
@@ -1307,15 +1266,12 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, int *fog
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
 
-#define	CULL_IN		0		// completely unclipped
-#define	CULL_CLIP	1		// clipped by one or more planes
-#define	CULL_OUT	2		// completely outside the clipping planes
 void R_LocalNormalToWorld (const vec3_t local, vec3_t world);
 void R_LocalPointToWorld (const vec3_t local, vec3_t world);
 void R_WorldNormalToEntity (const vec3_t localVec, vec3_t world);
-int R_CullLocalBox ( const vec3_t bounds[2]);
-int R_CullPointAndRadius( const vec3_t origin, float radius );
-int R_CullLocalPointAndRadius( const vec3_t origin, float radius );
+cullResult_t R_CullLocalBox ( const vec3_t bounds[2]);
+cullResult_t R_CullPointAndRadius( const vec3_t origin, float radius );
+cullResult_t R_CullLocalPointAndRadius( const vec3_t origin, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
 
@@ -1442,7 +1398,6 @@ typedef struct stageVars
 	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
-#define	NUM_TEX_COORDS		(MAXLIGHTMAPS+1)
 
 struct shaderCommands_s
 {
@@ -1723,7 +1678,7 @@ RENDERER BACK END COMMAND QUEUE
 =============================================================
 */
 
-#define	MAX_RENDER_COMMANDS	0x40000
+inline constexpr int MAX_RENDER_COMMANDS = 0x40000;
 
 typedef struct renderCommandList_s {
 	byte	cmds[MAX_RENDER_COMMANDS];
@@ -1857,8 +1812,8 @@ void		RE_InsertModelIntoHash(const char *name, model_t *mod);
 Ghoul2 Insert End
 */
 
-#define	MAX_VERTS_ON_DECAL_POLY	10
-#define	MAX_DECAL_POLYS			500
+inline constexpr int MAX_VERTS_ON_DECAL_POLY = 10;
+inline constexpr int MAX_DECAL_POLYS = 500;
 
 typedef struct decalPoly_s
 {

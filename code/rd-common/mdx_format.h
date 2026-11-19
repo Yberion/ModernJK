@@ -39,23 +39,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MDX_FORMAT_H
 
 
-#define MDXM_IDENT			(('M'<<24)+('G'<<16)+('L'<<8)+'2')
-#define MDXA_IDENT			(('A'<<24)+('G'<<16)+('L'<<8)+'2')
+inline constexpr int MDXM_IDENT = ('M'<<24)+('G'<<16)+('L'<<8)+'2';
+inline constexpr int MDXA_IDENT = ('A'<<24)+('G'<<16)+('L'<<8)+'2';
 
-#define MAX_TAGNAME_BYTES	32	// matches MDR, can be changed if nec.
 
 //
 // normal version numbers...
 //
-#define MDXM_VERSION 6
-#define MDXA_VERSION 6
+#include "qcommon/q_fileformats.h"
 
 // (Note that since there is now a "<modelname>_info.txt" file written out by carcass any changes made in here that
 //		introduce new data should also be reflected in the info-output)
 
 // 32 bit-flags for ghoul2 bone properties...  (all undefined fields will be blank)
 //
-#define G2BONEFLAG_ALWAYSXFORM	0x00000001
 
 #include "qcommon/q_ghoul2flags.h"
 
@@ -64,17 +61,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // triangle side-ordering stuff for tags...
 //
-#define iG2_TRISIDE_MIDDLE				1
-#define iG2_TRISIDE_LONGEST				0
-#define iG2_TRISIDE_SHORTEST			2
 
-#define fG2_BONEWEIGHT_RECIPROCAL_MULT	((float)(1.0f/1023.0f))
-#define iG2_BITS_PER_BONEREF			5
-#define iMAX_G2_BONEREFS_PER_SURFACE	(1<<iG2_BITS_PER_BONEREF)	// (32)
-#define iMAX_G2_BONEWEIGHTS_PER_VERT	4	// can't just be blindly increased, affects cache size etc
+inline constexpr float fG2_BONEWEIGHT_RECIPROCAL_MULT = 1.0f/1023.0f;
 
-#define iG2_BONEWEIGHT_TOPBITS_SHIFT	((iG2_BITS_PER_BONEREF * iMAX_G2_BONEWEIGHTS_PER_VERT) - 8)	// 8 bits because of 8 in the BoneWeight[] array entry
-#define iG2_BONEWEIGHT_TOPBITS_AND		0x300	// 2 bits, giving 10 total, or 10 bits, for 1023/1024 above
+inline constexpr int iG2_BONEWEIGHT_TOPBITS_AND = 0x300;	// 2 bits, giving 10 total, or 10 bits, for 1023/1024 above
 
 
 #define sDEFAULT_GLA_NAME "*default"	// used when making special simple ghoul2 models, usually from MD3 files

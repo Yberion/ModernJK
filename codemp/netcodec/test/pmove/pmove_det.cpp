@@ -75,7 +75,7 @@ static void BuildWorld(void) {
 	AddBox(-1200, 600, 0, -1000, 800, 120, nullptr);         // a pillar
 }
 
-#define SURF_EPS 0.125f   // SURFACE_CLIP_EPSILON of the engine's collision code
+constexpr float SURF_EPS = 0.125f;   // SURFACE_CLIP_EPSILON of the engine's collision code
 
 // box trace against the brushes, as the engine's CM_TraceThroughBrush
 static void World_Trace(trace_t *tr, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum,

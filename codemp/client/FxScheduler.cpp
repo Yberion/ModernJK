@@ -657,7 +657,7 @@ void	CFxScheduler::MaterialImpact(trace_t *tr, CEffect *effect)
 		// only want to play this for the first impact
 		effect->SetMatImpactFX(MATIMPACTFX_NONE);
 
-		int	material = SURF_Material( tr->surfaceFlags );
+		surfaceMaterial_t	material = SURF_Material( tr->surfaceFlags );
 		const char *ammoName = CWeaponSystem::GetAmmoName(impactParm);
 
 		if(ammoName && materials[material].HasShellSound(ammoName))

@@ -159,7 +159,7 @@ punctuation_t default_punctuations[] =
 #endif //DOLLAR
 	// StringEd key
 	{"@",P_ATSIGN, nullptr},
-	{nullptr, 0}
+	{nullptr, {}}
 };
 
 #ifdef BSPC
@@ -214,7 +214,7 @@ void PS_CreatePunctuationTable(script_t *script, punctuation_t *punctuations)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-const char *PunctuationFromNum(script_t *script, int num)
+const char *PunctuationFromNum(script_t *script, punctuationId_t num)
 {
 	int i;
 
@@ -810,7 +810,7 @@ int PS_ReadPunctuation(script_t *script, token_t *token)
 				script->script_p += len;
 				token->type = TT_PUNCTUATION;
 				//sub type is the number of the punctuation
-				token->subtype = punc->n;
+				Token_SetPunctuation(*token, punc->n);
 				return 1;
 			} //end if
 		} //end if
@@ -946,7 +946,7 @@ int PS_ExpectTokenString(script_t *script, char *string)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
+int PS_ExpectTokenType(script_t *script, tokenType_t type, int subtype, token_t *token)
 {
 	char str[MAX_TOKEN];
 
@@ -994,7 +994,7 @@ int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 		if (token->subtype != subtype)
 		{
 			ScriptError(script, "expected %s, found %s",
-							script->punctuations[subtype].p, token->string);
+							PunctuationFromNum(script, static_cast<punctuationId_t>(subtype)), token->string);	// the mixed subtype parameter holds a punctuation here
 			return 0;
 		} //end if
 	} //end else if
@@ -1041,7 +1041,7 @@ int PS_CheckTokenString(script_t *script, char *string)
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token)
+int PS_CheckTokenType(script_t *script, tokenType_t type, int subtype, token_t *token)
 {
 	token_t tok;
 

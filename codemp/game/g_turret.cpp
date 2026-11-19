@@ -144,7 +144,7 @@ void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 	}
 }
 
-#define START_DIS 15
+constexpr int START_DIS = 15;
 
 //----------------------------------------------------------------
 static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )

@@ -32,7 +32,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../qcommon/qcommon.h"
 #include "../ghoul2/ghoul2_shared.h"
 
-#define	REF_API_VERSION 9
+enum class ragCallbackType_t;	// cgame/cg_public.h
+
+inline constexpr int REF_API_VERSION = 9;
 
 //
 // these are the functions exported by the refresh module
@@ -323,7 +325,7 @@ typedef struct refimport_s {
 	// (c)g vm callbacks
 	vm_t *			(*GetCurrentVM)						( void );
 	bool		(*CGVMLoaded)						( void );
-	int				(*CGVM_RagCallback)					( int callType );
+	int				(*CGVM_RagCallback)					( ragCallbackType_t callType );
 
 	// window handling
 	window_t		(*WIN_Init)                         ( const windowDesc_t *desc, glconfig_t *glConfig );

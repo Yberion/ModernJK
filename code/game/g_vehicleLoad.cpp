@@ -385,7 +385,7 @@ void G_VehicleLoadParms( void )
 	char		*buffer, *holdChar, *marker;
 	char		vehExtensionListBuf[2048];			//	The list of file names read in
 
-	#define MAX_VEHICLE_DATA_SIZE 0x20000
+	constexpr int MAX_VEHICLE_DATA_SIZE = 0x20000;
 	char	VehicleParms[MAX_VEHICLE_DATA_SIZE]={0};
 
 	//	gi.Printf( "Parsing *.veh vehicle definitions\n" );

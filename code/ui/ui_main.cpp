@@ -58,7 +58,7 @@ extern void UI_SaberAttachToChar( itemDef_t *item );
 
 extern bool PC_Script_Parse(const char **out);
 
-#define LISTBUFSIZE 10240
+constexpr int LISTBUFSIZE = 10240;
 
 static struct
 {
@@ -74,8 +74,8 @@ static struct
 	int				savegameFromFlag;
 } s_savegame;
 
-#define MAX_SAVELOADFILES	100
-#define MAX_SAVELOADNAME	32
+constexpr int MAX_SAVELOADFILES = 100;
+constexpr int MAX_SAVELOADNAME = 32;
 
 #ifdef JK2_MODE
 byte screenShotBuf[SG_SCR_WIDTH * SG_SCR_HEIGHT * 4];
@@ -202,7 +202,7 @@ EnumArray<const char *, datapadMoveTitle_t, MD_MOVE_TITLE_MAX> datapadMoveTitleB
 "BOTH_SABERSTAFF_STANCE",
 };
 
-#define MAX_MOVES 16
+constexpr int MAX_MOVES = 16;
 
 typedef struct
 {
@@ -459,14 +459,14 @@ static cvarTable_t cvarTable[] =
 	{ &ui_screenshotType,		"ui_screenshotType",	"jpg", UI_UpdateScreenshot, CVAR_ARCHIVE }
 };
 
-#define FP_UPDATED_NONE -1
+constexpr int FP_UPDATED_NONE = -1;
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, int iMaxPixelWidth, int style, int iFontIndex);
 keyCatchFlags_t Key_GetCatcher( void );
 
-#define	UI_FPS_FRAMES	4
+constexpr int UI_FPS_FRAMES = 4;
 void _UI_Refresh( int realtime )
 {
 	static int index;
@@ -534,7 +534,7 @@ void _UI_Refresh( int realtime )
 	}
 }
 
-#define MODSBUFSIZE (MAX_MODS * MAX_QPATH)
+constexpr int MODSBUFSIZE = MAX_MODS * MAX_QPATH;
 
 /*
 ===============
@@ -3712,7 +3712,7 @@ UI_DrawKeyBindStatus
 */
 static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iFontIndex)
 {
-#define MAX_LINES 64
+constexpr int MAX_LINES = 64;
 	char buff[4096];
 	char * eptr = buff;
 	const char *lines[MAX_LINES];
@@ -4456,7 +4456,7 @@ static void UI_UpdateFightingStyleChoices ( void )
 }
 #endif // !JK2_MODE
 
-#define MAX_POWER_ENUMS 16
+constexpr int MAX_POWER_ENUMS = 16;
 
 typedef struct {
 	const char	*title;

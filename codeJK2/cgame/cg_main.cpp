@@ -48,7 +48,6 @@ const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 								const char *psText, int iFontHandle, float fScale,
 								const vec4_t v4Color);
 
-#define NUM_CHUNKS		6
 /*
 Ghoul2 Insert Start
 */
@@ -91,7 +90,7 @@ int cgi_UI_GetMenuInfo(const char *menuFile,int *x,int *y);
 void CG_DrawDataPadHUD( centity_t *cent );
 void MissionInformation_Draw( centity_t *cent );
 void CG_DrawIconBackground(void);
-void CG_DrawDataPadIconBackground(int backgroundType);
+void CG_DrawDataPadIconBackground(iconBackground_t backgroundType);
 void CG_DrawDataPadWeaponSelect( void );
 void CG_DrawDataPadForceSelect( void );
 
@@ -2001,7 +2000,7 @@ void CG_DrawAlert( vec3_t origin, float rating )
 }
 
 
-#define MAX_MENUDEFFILE				4096
+constexpr int MAX_MENUDEFFILE = 4096;
 
 //
 // ==============================

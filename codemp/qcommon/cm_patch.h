@@ -63,8 +63,7 @@ properly.
 */
 
 
-#define	MAX_FACETS			1024
-#define	MAX_PATCH_PLANES	4096 // Was 2048 on vanilla jka
+#include "qcommon/q_collision.h"
 
 typedef struct patchPlane_s {
 	float	plane[4];
@@ -87,7 +86,7 @@ typedef struct patchCollide_s {
 	facet_t	*facets;
 } patchCollide_t;
 
-#define	MAX_GRID_SIZE	129
+inline constexpr int MAX_GRID_SIZE = 129;
 
 typedef struct cGrid_s {
 	int			width;
@@ -97,8 +96,5 @@ typedef struct cGrid_s {
 	vec3_t	points[MAX_GRID_SIZE][MAX_GRID_SIZE];	// [width][height]
 } cGrid_t;
 
-#define	SUBDIVIDE_DISTANCE	16	//4	// never more than this units away from curve
-#define	PLANE_TRI_EPSILON	0.1
-#define	WRAP_POINT_EPSILON	0.1
 
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points );

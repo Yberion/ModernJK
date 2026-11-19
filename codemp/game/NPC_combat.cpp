@@ -63,8 +63,8 @@ NPC_AngerAlert
 -------------------------
 */
 
-#define	ANGER_ALERT_RADIUS			512
-#define	ANGER_ALERT_SOUND_RADIUS	256
+constexpr int ANGER_ALERT_RADIUS = 512;
+constexpr int ANGER_ALERT_SOUND_RADIUS = 256;
 
 void G_AngerAlert( gentity_t *self )
 {
@@ -2612,10 +2612,10 @@ NPC_FindCombatPoint
 -------------------------
 */
 
-#define	MIN_AVOID_DOT				0.75f
-#define MIN_AVOID_DISTANCE			128
-#define MIN_AVOID_DISTANCE_SQUARED	( MIN_AVOID_DISTANCE * MIN_AVOID_DISTANCE )
-#define	CP_COLLECT_RADIUS			512.0f
+constexpr float MIN_AVOID_DOT = 0.75f;
+constexpr int MIN_AVOID_DISTANCE = 128;
+constexpr int MIN_AVOID_DISTANCE_SQUARED = MIN_AVOID_DISTANCE * MIN_AVOID_DISTANCE;
+constexpr float CP_COLLECT_RADIUS = 512.0f;
 
 int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3_t enemyPosition, const combatPointSearchFlags_t flags, const float avoidDist, const int ignorePoint )
 {

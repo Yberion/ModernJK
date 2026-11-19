@@ -2112,7 +2112,7 @@ static float CG_DrawSnapshot( float y ) {
 CG_DrawFPS
 ==================
 */
-#define	FPS_FRAMES	16
+constexpr int FPS_FRAMES = 16;
 static float CG_DrawFPS( float y ) {
 	char		*s;
 	static unsigned short previousTimes[FPS_FRAMES];

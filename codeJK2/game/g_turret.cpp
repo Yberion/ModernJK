@@ -33,8 +33,6 @@ void finish_spawning_turret( gentity_t *base );
 void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, meansOfDeath_t meansOfDeath );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-#define	ARM_ANGLE_RANGE		60
-#define	HEAD_ANGLE_RANGE	90
 
 //------------------------------------------------------------------------------------------------------------
 void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int damage, meansOfDeath_t mod, hitLocation_t hitLoc )
@@ -116,7 +114,7 @@ void turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 	}
 }
 
-#define START_DIS 15
+constexpr int START_DIS = 15;
 
 //----------------------------------------------------------------
 static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
@@ -1002,7 +1000,7 @@ void SP_laser_arm (gentity_t *base)
 // PERSONAL ASSAULT SENTRY
 //--------------------------
 
-#define PAS_DAMAGE	2
+constexpr int PAS_DAMAGE = 2;
 
 //-----------------------------------------------------------------------------
 void pas_use( gentity_t *self, gentity_t *other, gentity_t *activator )

@@ -1384,7 +1384,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
 			footstep_t	soundType;
-			switch( es->eventParm )
+			switch( static_cast<surfaceMaterial_t>( es->eventParm ) )
 			{
 			case MATERIAL_MUD:
 				soundType = FOOTSTEP_MUDWALK;

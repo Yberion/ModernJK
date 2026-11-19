@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
 
-#define	BOTLIB_API_VERSION		2
+inline constexpr int BOTLIB_API_VERSION = 2;
 
 struct aas_clientmove_s;
 struct aas_entityinfo_s;
@@ -58,41 +58,53 @@ enum class stopEventFlags_t;				// be_aas.h
 enum class altRouteGoalFlags_t;				// be_aas.h
 enum class routeStopEventFlags_t;			// be_aas.h
 enum class moveTypeFlags_t;					// be_ai_move.h
+enum class avoidSpotType_t;					// be_ai_move.h
 
 #define BOTFILESBASEFOLDER		"botfiles"
 //debug line colors
-#define LINECOLOR_NONE			-1
-#define LINECOLOR_RED			1//0xf2f2f0f0L
-#define LINECOLOR_GREEN			2//0xd0d1d2d3L
-#define LINECOLOR_BLUE			3//0xf3f3f1f1L
-#define LINECOLOR_YELLOW		4//0xdcdddedfL
-#define LINECOLOR_ORANGE		5//0xe0e1e2e3L
+enum class lineColor_t
+{
+	LINECOLOR_NONE			= -1,
+	// R_DebugPolygon reads a colour as three bits: 1 red, 2 green, 4 blue
+	LINECOLOR_RED			= 1,//0xf2f2f0f0L
+	LINECOLOR_GREEN			= 2,//0xd0d1d2d3L
+	LINECOLOR_BLUE			= 4,//0xf3f3f1f1L
+	LINECOLOR_YELLOW		= 3,//0xdcdddedfL
+	LINECOLOR_MAGENTA		= 5,//0xe0e1e2e3L, orange in Quake 3's palette, which three bits cannot draw
+};
+using enum lineColor_t;
 
 //Print types
-#define PRT_MESSAGE				1
-#define PRT_WARNING				2
-#define PRT_ERROR				3
-#define PRT_FATAL				4
-#define PRT_EXIT				5
+enum class printType_t
+{
+	PRT_MESSAGE				= 1,
+	PRT_WARNING,
+	PRT_ERROR,
+	PRT_FATAL,
+	PRT_EXIT,
+};
+using enum printType_t;
 
 //console message types
-#define CMS_NORMAL				0
-#define CMS_CHAT				1
 
 //botlib error codes
-#define BLERR_NOERROR					0	//no error
-#define BLERR_LIBRARYNOTSETUP			1	//library not setup
-#define BLERR_INVALIDENTITYNUMBER		2	//invalid entity number
-#define BLERR_NOAASFILE					3	//no AAS file available
-#define BLERR_CANNOTOPENAASFILE			4	//cannot open AAS file
-#define BLERR_WRONGAASFILEID			5	//incorrect AAS file id
-#define BLERR_WRONGAASFILEVERSION		6	//incorrect AAS file version
-#define BLERR_CANNOTREADAASLUMP			7	//cannot read AAS file lump
-#define BLERR_CANNOTLOADICHAT			8	//cannot load initial chats
-#define BLERR_CANNOTLOADITEMWEIGHTS		9	//cannot load item weights
-#define BLERR_CANNOTLOADITEMCONFIG		10	//cannot load item config
-#define BLERR_CANNOTLOADWEAPONWEIGHTS	11	//cannot load weapon weights
-#define BLERR_CANNOTLOADWEAPONCONFIG	12	//cannot load weapon config
+enum class botlibError_t
+{
+	BLERR_NOERROR,					//no error
+	BLERR_LIBRARYNOTSETUP,			//library not setup
+	BLERR_INVALIDENTITYNUMBER,		//invalid entity number
+	BLERR_NOAASFILE,				//no AAS file available
+	BLERR_CANNOTOPENAASFILE,		//cannot open AAS file
+	BLERR_WRONGAASFILEID,			//incorrect AAS file id
+	BLERR_WRONGAASFILEVERSION,		//incorrect AAS file version
+	BLERR_CANNOTREADAASLUMP,		//cannot read AAS file lump
+	BLERR_CANNOTLOADICHAT,			//cannot load initial chats
+	BLERR_CANNOTLOADITEMWEIGHTS,	//cannot load item weights
+	BLERR_CANNOTLOADITEMCONFIG,		//cannot load item config
+	BLERR_CANNOTLOADWEAPONWEIGHTS,	//cannot load weapon weights
+	BLERR_CANNOTLOADWEAPONCONFIG,	//cannot load weapon config
+};
+using enum botlibError_t;
 
 //action flags
 enum class actionFlags_t
@@ -196,7 +208,7 @@ typedef struct bot_entitystate_s
 typedef struct botlib_import_s
 {
 	//print messages from the bot library
-	void		(QDECL *Print)(int type, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
+	void		(QDECL *Print)(printType_t type, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	//trace a bbox through the world
 	void		(*Trace)(bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, contentsFlags_t contentmask);
 	//trace a bbox against a specific entity
@@ -225,7 +237,7 @@ typedef struct botlib_import_s
 	//debug visualisation stuff
 	int			(*DebugLineCreate)(void);
 	void		(*DebugLineDelete)(int line);
-	void		(*DebugLineShow)(int line, vec3_t start, vec3_t end, int color);
+	void		(*DebugLineShow)(int line, vec3_t start, vec3_t end, lineColor_t color);
 	//
 	int			(*DebugPolygonCreate)(int color, int numPoints, vec3_t *points);
 	void		(*DebugPolygonDelete)(int id);
@@ -357,7 +369,7 @@ typedef struct ai_export_s
 	void	(*BotMatchVariable)(struct bot_match_s *match, int variable, char *buf, int size);
 	void	(*UnifyWhiteSpaces)(char *string);
 	void	(*BotReplaceSynonyms)(char *string, unsigned long int context);
-	int		(*BotLoadChatFile)(int chatstate, char *chatfile, char *chatname);
+	botlibError_t	(*BotLoadChatFile)(int chatstate, char *chatfile, char *chatname);
 	void	(*BotSetChatGender)(int chatstate, int gender);
 	void	(*BotSetChatName)(int chatstate, char *name, int client);
 	//-----------------------------------
@@ -386,7 +398,7 @@ typedef struct ai_export_s
 	void	(*BotSetAvoidGoalTime)(int goalstate, int number, float avoidtime);
 	void	(*BotInitLevelItems)(void);
 	void	(*BotUpdateEntityItems)(void);
-	int		(*BotLoadItemWeights)(int goalstate, char *filename);
+	botlibError_t	(*BotLoadItemWeights)(int goalstate, char *filename);
 	void	(*BotFreeItemWeights)(int goalstate);
 	void	(*BotInterbreedGoalFuzzyLogic)(int parent1, int parent2, int child);
 	void	(*BotSaveGoalFuzzyLogic)(int goalstate, char *filename);
@@ -407,13 +419,13 @@ typedef struct ai_export_s
 	int		(*BotAllocMoveState)(void);
 	void	(*BotFreeMoveState)(int handle);
 	void	(*BotInitMoveState)(int handle, struct bot_initmove_s *initmove);
-	void	(*BotAddAvoidSpot)(int movestate, vec3_t origin, float radius, int type);
+	void	(*BotAddAvoidSpot)(int movestate, vec3_t origin, float radius, avoidSpotType_t type);
 	//-----------------------------------
 	// be_ai_weap.h
 	//-----------------------------------
 	int		(*BotChooseBestFightWeapon)(int weaponstate, int *inventory);
 	void	(*BotGetWeaponInfo)(int weaponstate, int weapon, struct weaponinfo_s *weaponinfo);
-	int		(*BotLoadWeaponWeights)(int weaponstate, char *filename);
+	botlibError_t	(*BotLoadWeaponWeights)(int weaponstate, char *filename);
 	int		(*BotAllocWeaponState)(void);
 	void	(*BotFreeWeaponState)(int weaponstate);
 	void	(*BotResetWeaponState)(int weaponstate);
@@ -433,13 +445,13 @@ typedef struct botlib_export_s
 	//AI functions
 	ai_export_t ai;
 	//setup the bot library, returns BLERR_
-	int (*BotLibSetup)(void);
+	botlibError_t (*BotLibSetup)(void);
 	//shutdown the bot library, returns BLERR_
-	int (*BotLibShutdown)(void);
+	botlibError_t (*BotLibShutdown)(void);
 	//sets a library variable returns BLERR_
-	int (*BotLibVarSet)(const char *var_name, const char *value);
+	botlibError_t (*BotLibVarSet)(const char *var_name, const char *value);
 	//gets a library variable returns BLERR_
-	int (*BotLibVarGet)(const char *var_name, char *value, int size);
+	botlibError_t (*BotLibVarGet)(const char *var_name, char *value, int size);
 
 	//sets a C-like define returns BLERR_
 	int (*PC_AddGlobalDefine)(char *string);
@@ -451,11 +463,11 @@ typedef struct botlib_export_s
 	void (*PC_RemoveAllGlobalDefines) ( void );
 
 	//start a frame in the bot library
-	int (*BotLibStartFrame)(float time);
+	botlibError_t (*BotLibStartFrame)(float time);
 	//load a new map in the bot library
-	int (*BotLibLoadMap)(const char *mapname);
+	botlibError_t (*BotLibLoadMap)(const char *mapname);
 	//entity updates
-	int (*BotLibUpdateEntity)(int ent, bot_entitystate_t *state);
+	botlibError_t (*BotLibUpdateEntity)(int ent, bot_entitystate_t *state);
 	//just for testing
 	int (*Test)(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);
 } botlib_export_t;

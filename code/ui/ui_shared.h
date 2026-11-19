@@ -31,26 +31,16 @@ enum class screenshotFormat_t {
 };
 using enum screenshotFormat_t;
 
-#define MAX_TOKENLENGTH		1024
-#define MAX_OPEN_MENUS 16
-#define	MAX_TEXTSCROLL_LINES		256
+inline constexpr int MAX_OPEN_MENUS = 16;
+inline constexpr int MAX_TEXTSCROLL_LINES = 256;
 
-#define MAX_EDITFIELD 256
+inline constexpr int MAX_EDITFIELD = 256;
 
-#ifndef TT_STRING
-//token types
-#define TT_STRING					1			// string
-#define TT_LITERAL					2			// literal
-#define TT_NUMBER					3			// number
-#define TT_NAME						4			// name
-#define TT_PUNCTUATION				5			// punctuation
-#endif
-
-#define SLIDER_WIDTH 128.0
-#define SLIDER_HEIGHT 16.0
-#define SLIDER_THUMB_WIDTH 12.0
-#define SLIDER_THUMB_HEIGHT 16.0
-#define SCROLLBAR_SIZE 16.0
+inline constexpr double SLIDER_WIDTH = 128.0;
+inline constexpr double SLIDER_HEIGHT = 16.0;
+inline constexpr double SLIDER_THUMB_WIDTH = 12.0;
+inline constexpr double SLIDER_THUMB_HEIGHT = 16.0;
+inline constexpr double SCROLLBAR_SIZE = 16.0;
 
 // FIXME: combine flags into bitfields to save space
 // FIXME: consolidate all of the common stuff in one structure for menus and items
@@ -62,7 +52,7 @@ using enum screenshotFormat_t;
 // the benefits of c++ in DOOM will greatly help crap like this
 // FIXME: need to put a type ptr that points to specific type info per type
 //
-#define MAX_LB_COLUMNS 16
+inline constexpr int MAX_LB_COLUMNS = 16;
 
 typedef struct columnInfo_s {
 	int			pos;
@@ -97,7 +87,7 @@ typedef struct editFieldDef_s {
 	int			paintOffset;				//
 } editFieldDef_t;
 
-#define MAX_MULTI_CVARS 64//32
+inline constexpr int MAX_MULTI_CVARS = 64; //32
 
 typedef struct multiDef_s {
 	const char *cvarList[MAX_MULTI_CVARS];
@@ -119,9 +109,9 @@ enum class itemCvarFlags_t
 using enum itemCvarFlags_t;
 template <> inline constexpr bool enableEnumFlags<itemCvarFlags_t> = true;
 
-#define STRING_POOL_SIZE (2*1024*1024)
+inline constexpr int STRING_POOL_SIZE = 2*1024*1024;
 
-#define	NUM_CROSSHAIRS			9
+inline constexpr int NUM_CROSSHAIRS = 9;
 
 typedef struct {
 	qhandle_t	qhMediumFont;
@@ -259,9 +249,9 @@ typedef struct {
 void UI_InitMemory( void );
 
 
-#define MAX_COLOR_RANGES	10
-#define MAX_MENUITEMS		150
-#define MAX_MENUS			64
+inline constexpr int MAX_COLOR_RANGES = 10;
+inline constexpr int MAX_MENUITEMS = 150;
+inline constexpr int MAX_MENUS = 64;
 
 
 

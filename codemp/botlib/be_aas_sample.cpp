@@ -53,11 +53,11 @@ extern botlib_import_t botimport;
 
 //#define AAS_SAMPLE_DEBUG
 
-#define BBOX_NORMAL_EPSILON		0.001
+constexpr double BBOX_NORMAL_EPSILON = 0.001;
 
 #define ON_EPSILON					0 //0.0005
 
-#define TRACEPLANE_EPSILON			0.125
+constexpr double TRACEPLANE_EPSILON = 0.125;
 
 typedef struct aas_tracestack_s
 {
@@ -611,7 +611,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, presenceFlags_t presen
 		//the current node plane
 		plane = &aasworld.planes[aasnode->planenum];
 
-//		switch(plane->type)
+//		switch(static_cast<planeType_t>( plane->type ))
 		{/*FIXME: wtf doesn't this work? obviously the axial node planes aren't always facing positive!!!
 			//check for axial planes
 			case PLANE_X:
@@ -802,7 +802,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t *points, int max
 		//the current node plane
 		plane = &aasworld.planes[aasnode->planenum];
 
-//		switch(plane->type)
+//		switch(static_cast<planeType_t>( plane->type ))
 		{/*FIXME: wtf doesn't this work? obviously the node planes aren't always facing positive!!!
 			//check for axial planes
 			case PLANE_X:

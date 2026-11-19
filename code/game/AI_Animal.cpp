@@ -28,12 +28,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 #include "../Ratl/vector_vs.h"
 
-#define MAX_PACKS			10
+constexpr int MAX_PACKS = 10;
 
-#define	LEAVE_PACK_DISTANCE	1000
-#define	JOIN_PACK_DISTANCE	800
-#define	WANDER_RANGE		1000
-#define	FRIGHTEN_DISTANCE	300
+constexpr int LEAVE_PACK_DISTANCE = 1000;
+constexpr int JOIN_PACK_DISTANCE = 800;
+[[maybe_unused]] constexpr int WANDER_RANGE = 1000;
+[[maybe_unused]] constexpr int FRIGHTEN_DISTANCE = 300;
 
 extern bool G_PlayerSpawned( void );
 

@@ -33,11 +33,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define FX_FILE_PATH	"effects"
 
-#define FX_MAX_TRACE_DIST		16384	// SOF2 uses a larger scale
-#define FX_MAX_EFFECTS				256		// how many effects the system can store
-#define FX_MAX_2DEFFECTS			64		// how many 2d effects the system can store
-#define FX_MAX_EFFECT_COMPONENTS	24		// how many primitives an effect can hold, this should be plenty
-#define FX_MAX_PRIM_NAME			32
+inline constexpr int FX_MAX_TRACE_DIST = 16384;	// SOF2 uses a larger scale
+inline constexpr int FX_MAX_EFFECTS = 256;		// how many effects the system can store
+inline constexpr int FX_MAX_2DEFFECTS = 64;		// how many 2d effects the system can store
+inline constexpr int FX_MAX_EFFECT_COMPONENTS = 24;		// how many primitives an effect can hold, this should be plenty
+inline constexpr int FX_MAX_PRIM_NAME = 32;
 
 //-----------------------------------------------
 // These are spawn flags for primitiveTemplates
@@ -581,7 +581,7 @@ private:
 	};
 
 /* Looped Effects get stored and reschedule at mRepeatRate */
-	#define MAX_LOOPED_FX 32
+	static constexpr int MAX_LOOPED_FX = 32;
 	// We hold a looped effect here
 	struct SLoopedEffect
 	{
