@@ -30,6 +30,8 @@ The check is met.
 | Width not matching the C type | the 12 `user*` fields in every table (1 bit); `rocketLockTime`, `rocketTargetTime` (float sent as a 32-bit integer) in ps, pilot, veh; `fd.forceGripCripple` (int, 1 bit) in ps and pilot |
 | Decoder tables after schema 2 | unchanged (same names and widths as the pickled caches) |
 | Caches `bdata.pkl` and `fullmsgs.pkl` rebuilt with the new decoder | identical to the old ones |
+
+Note (19 November 2026, plan step 18 part 4): the schema hash is now `c1c564ea5a70ac60790fb00d9e1be298f37def3d98b9bad2da0073c305f3e209`. The fields that hold a class enum since step 18 have the C type `enum` (52 entries: `eType`, `weapon`, `eFlags`, `saberMove`, the animations, the events, `pm_flags`, the force levels, ...); the names, widths, offsets and sizes are unchanged (a boolean is one byte since step 18 parts 1 and 3). `gen_fields.py` reads `msg.cpp`'s `PSF_FP` entries (the cells of the force tables) and `fieldinfo` reaches an array's element through `.elems`, the arrays being `EnumArray`s ([step-18-cxx.md](step-18-cxx.md) section 5).
 | `run_full.py` | 139.1, 0 failures (unchanged) |
 | `run_pred.py pi --fuzz` | 107.3, 0 failures, fuzz seeds 1 to 5 with 0 failures (unchanged) |
 

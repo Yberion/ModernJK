@@ -53,12 +53,12 @@ int Encode(const MessageView &m, const SnapshotView *base, const uint8_t *const 
 	MSG_Init(&msg, out, capacity);
 	MSG_WriteLong(&msg, m.ack);                       // SV_SendClientSnapshot: lastClientCommand
 	for (int i = 0; i < m.numCommands; i++) {         // SV_UpdateServerCommandsToClient
-		MSG_WriteByte(&msg, svc_ops_e::svc_serverCommand);
+		MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_serverCommand));
 		MSG_WriteLong(&msg, m.commands[i].seq);
 		MSG_WriteString(&msg, m.commands[i].text);
 	}
 	if (m.hasSnapshot) {                              // SV_WriteSnapshotToClient
-		MSG_WriteByte(&msg, svc_ops_e::svc_snapshot);
+		MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_snapshot));
 		MSG_WriteLong(&msg, m.serverTime);
 		MSG_WriteByte(&msg, m.delta);
 		MSG_WriteByte(&msg, m.flags);
@@ -78,7 +78,7 @@ int Encode(const MessageView &m, const SnapshotView *base, const uint8_t *const 
 		}
 		EmitPacketEntities(&msg, base, m.snap, baselines);
 	}
-	MSG_WriteByte(&msg, svc_ops_e::svc_EOF);
+	MSG_WriteByte(&msg, to_underlying(svc_ops_e::svc_EOF));
 	return msg.overflowed ? 0 : msg.cursize;
 }
 
@@ -90,7 +90,7 @@ bool Decode(const uint8_t *data, int size, const SnapshotView *base, const uint8
 	MSG_ReadLong(&msg);                               // CL_ParseServerMessage: reliableAcknowledge
 	out.numEntities = 0;
 	for (;;) {
-		const int cmd = MSG_ReadByte(&msg);
+		const auto cmd = static_cast<svc_ops_e>(MSG_ReadByte(&msg));  // a byte of the message
 		if (cmd == svc_ops_e::svc_EOF || msg.readcount > msg.cursize) break;
 		if (cmd == svc_ops_e::svc_serverCommand) {
 			MSG_ReadLong(&msg);
@@ -165,12 +165,12 @@ int EncodeClientPacket(const ClientPacketView &p, uint8_t *out, int capacity) {
 	MSG_WriteLong(&msg, p.messageAck);
 	MSG_WriteLong(&msg, p.reliableAck);
 	for (int i = 0; i < p.numCommands; i++) {
-		MSG_WriteByte(&msg, clc_ops_e::clc_clientCommand);
+		MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_clientCommand));
 		MSG_WriteLong(&msg, p.commands[i].seq);
 		MSG_WriteString(&msg, p.commands[i].text);
 	}
 	if (p.move != Move::kNone) {
-		MSG_WriteByte(&msg, p.move == Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta);
+		MSG_WriteByte(&msg, to_underlying(p.move == Move::kDelta ? clc_ops_e::clc_move : clc_ops_e::clc_moveNoDelta));
 		MSG_WriteByte(&msg, p.numUserCmds);
 		usercmd_t nullcmd;
 		std::memset(&nullcmd, 0, sizeof(nullcmd));
@@ -181,7 +181,7 @@ int EncodeClientPacket(const ClientPacketView &p, uint8_t *out, int capacity) {
 			oldcmd = cmd;
 		}
 	}
-	MSG_WriteByte(&msg, clc_ops_e::clc_EOF);
+	MSG_WriteByte(&msg, to_underlying(clc_ops_e::clc_EOF));
 	return msg.overflowed ? 0 : msg.cursize;
 }
 
@@ -199,9 +199,9 @@ bool DecodeClientPacket(const uint8_t *data, int size, int32_t key, ClientPacket
 	out.numUserCmds = 0;
 	if (out.messageAck < 0) return false;
 	int textUsed = 0;
-	int c;
+	clc_ops_e c{};
 	for (;;) {
-		c = MSG_ReadByte(&msg);
+		c = static_cast<clc_ops_e>(MSG_ReadByte(&msg));  // a byte of the packet
 		if (c != clc_ops_e::clc_clientCommand || msg.readcount > msg.cursize) break;
 		if (out.numCommands == ClientPacketOut::kMaxCommands) return false;
 		Command &command = out.commands[out.numCommands++];

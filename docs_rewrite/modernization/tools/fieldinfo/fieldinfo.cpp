@@ -19,10 +19,15 @@ template <class T> static const char *TypeName() {
 
 #define S(type) std::printf("S\t" #type "\t%u\n", (unsigned)sizeof(type));
 #define C(name) std::printf("C\t" #name "\t%d\n", (int)(name));
+// the four arrays are EnumArrays, indexed by their enumeration only: an element through .elems
 #define A(name, count) std::printf("A\t" #name "\t%d\t%u\t%u\n", (int)(count), \
-	(unsigned)offsetof(playerState_t, name), (unsigned)sizeof(((playerState_t *)0)->name[0]));
+	(unsigned)offsetof(playerState_t, name), (unsigned)sizeof(((playerState_t *)0)->name.elems[0]));
 #define F(tab, type, member, bits) std::printf("F\t" #tab "\t" #member "\t%d\t%u\t%u\t%s\n", (int)(bits), \
 	(unsigned)offsetof(type, member), (unsigned)sizeof(((type *)0)->member), TYPE_OF(type, member));
+// a cell of a force table (an EnumArray by forcePowers_t), named member[FP_X] as msg.cpp's PSF_FP names it
+#define FP(tab, type, member, fp, bits) std::printf("F\t" #tab "\t" #member "[" #fp "]\t%d\t%u\t%u\t%s\n", (int)(bits), \
+	(unsigned)offsetof(type, member.elems[to_underlying( forcePowers_t::fp )]), \
+	(unsigned)sizeof(((type *)0)->member.elems[0]), TYPE_OF(type, member.elems[0]));
 
 int main() {
 #include "fields.inc"

@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "schema_hash": "007482d1162a52c69b0d17418749ecd093008b6d8dd4fc1ab6a5e42c37aa5c32",
+ "schema_hash": "c1c564ea5a70ac60790fb00d9e1be298f37def3d98b9bad2da0073c305f3e209",
  "source": "codemp/qcommon/msg.cpp",
  "sizeof": {
   "entityState_t": 524,
@@ -67,7 +67,7 @@
    {
     "name": "eType",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 4,
     "size": 4
    },
@@ -109,7 +109,7 @@
    {
     "name": "weapon",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 292,
     "size": 4
    },
@@ -144,7 +144,7 @@
    {
     "name": "eFlags",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 8,
     "size": 4
    },
@@ -312,7 +312,7 @@
    {
     "name": "saberMove",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 248,
     "size": 4
    },
@@ -627,7 +627,7 @@
    {
     "name": "NPC_class",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 468,
     "size": 4
    },
@@ -683,7 +683,7 @@
    {
     "name": "eFlags2",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 12,
     "size": 4
    },
@@ -1028,7 +1028,7 @@
    {
     "name": "legsAnim",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 108,
     "size": 4
    },
@@ -1042,7 +1042,7 @@
    {
     "name": "torsoAnim",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 116,
     "size": 4
    },
@@ -1056,7 +1056,7 @@
    {
     "name": "eFlags",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 128,
     "size": 4
    },
@@ -1098,7 +1098,7 @@
    {
     "name": "fd.saberAnimLevel",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 1236,
     "size": 4
    },
@@ -1112,7 +1112,7 @@
    {
     "name": "fd.saberDrawAnimLevel",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 1240,
     "size": 4
    },
@@ -1126,14 +1126,14 @@
    {
     "name": "events[0]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 140,
     "size": 4
    },
    {
     "name": "events[1]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 144,
     "size": 4
    },
@@ -1168,14 +1168,14 @@
    {
     "name": "weaponstate",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 176,
     "size": 4
    },
    {
     "name": "saberMove",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 544,
     "size": 4
    },
@@ -1203,7 +1203,7 @@
    {
     "name": "pm_flags",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 12,
     "size": 4
    },
@@ -1266,7 +1266,7 @@
    {
     "name": "weapon",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 172,
     "size": 4
    },
@@ -1301,7 +1301,7 @@
    {
     "name": "fd.forcePowerLevel[FP_LEVITATION]",
     "bits": 2,
-    "type": "int",
+    "type": "enum",
     "offset": 964,
     "size": 4
    },
@@ -1315,7 +1315,7 @@
    {
     "name": "fd.forcePowerSelected",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 868,
     "size": 4
    },
@@ -1378,7 +1378,7 @@
    {
     "name": "pm_type",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 4,
     "size": 4
    },
@@ -1476,7 +1476,7 @@
    {
     "name": "saberBlocked",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 552,
     "size": 4
    },
@@ -1497,7 +1497,7 @@
    {
     "name": "forceHandExtend",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 1256,
     "size": 4
    },
@@ -1658,7 +1658,7 @@
    {
     "name": "eFlags2",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 132,
     "size": 4
    },
@@ -1700,7 +1700,7 @@
    {
     "name": "fd.forcePowerLevel[FP_SEE]",
     "bits": 2,
-    "type": "int",
+    "type": "enum",
     "offset": 1016,
     "size": 4
    },
@@ -1961,7 +1961,7 @@
    {
     "name": "eFlags",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 128,
     "size": 4
    },
@@ -1982,28 +1982,28 @@
    {
     "name": "events[0]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 140,
     "size": 4
    },
    {
     "name": "events[1]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 144,
     "size": 4
    },
    {
     "name": "weaponstate",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 176,
     "size": 4
    },
    {
     "name": "pm_flags",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 12,
     "size": 4
    },
@@ -2024,7 +2024,7 @@
    {
     "name": "weapon",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 172,
     "size": 4
    },
@@ -2059,7 +2059,7 @@
    {
     "name": "pm_type",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 4,
     "size": 4
    },
@@ -2129,21 +2129,21 @@
    {
     "name": "eFlags2",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 132,
     "size": 4
    },
    {
     "name": "legsAnim",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 108,
     "size": 4
    },
    {
     "name": "torsoAnim",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 116,
     "size": 4
    },
@@ -2269,7 +2269,7 @@
    {
     "name": "fd.forcePowerLevel[FP_SEE]",
     "bits": 2,
-    "type": "int",
+    "type": "enum",
     "offset": 1016,
     "size": 4
    },
@@ -2339,14 +2339,14 @@
    {
     "name": "fd.saberAnimLevel",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 1236,
     "size": 4
    },
    {
     "name": "fd.saberDrawAnimLevel",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 1240,
     "size": 4
    },
@@ -2388,7 +2388,7 @@
    {
     "name": "saberMove",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 544,
     "size": 4
    },
@@ -2451,14 +2451,14 @@
    {
     "name": "fd.forcePowerLevel[FP_LEVITATION]",
     "bits": 2,
-    "type": "int",
+    "type": "enum",
     "offset": 964,
     "size": 4
    },
    {
     "name": "fd.forcePowerSelected",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 868,
     "size": 4
    },
@@ -2570,14 +2570,14 @@
    {
     "name": "saberBlocked",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 552,
     "size": 4
    },
    {
     "name": "forceHandExtend",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 1256,
     "size": 4
    },
@@ -2964,7 +2964,7 @@
    {
     "name": "legsAnim",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 108,
     "size": 4
    },
@@ -2985,7 +2985,7 @@
    {
     "name": "eFlags",
     "bits": 32,
-    "type": "int",
+    "type": "enum",
     "offset": 128,
     "size": 4
    },
@@ -3013,28 +3013,28 @@
    {
     "name": "events[0]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 140,
     "size": 4
    },
    {
     "name": "events[1]",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 144,
     "size": 4
    },
    {
     "name": "weaponstate",
     "bits": 4,
-    "type": "int",
+    "type": "enum",
     "offset": 176,
     "size": 4
    },
    {
     "name": "pm_flags",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 12,
     "size": 4
    },
@@ -3062,7 +3062,7 @@
    {
     "name": "weapon",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 172,
     "size": 4
    },
@@ -3097,7 +3097,7 @@
    {
     "name": "pm_type",
     "bits": 8,
-    "type": "int",
+    "type": "enum",
     "offset": 4,
     "size": 4
    },
@@ -3230,7 +3230,7 @@
    {
     "name": "eFlags2",
     "bits": 10,
-    "type": "int",
+    "type": "enum",
     "offset": 132,
     "size": 4
    },
@@ -3258,7 +3258,7 @@
    {
     "name": "vehSurfaces",
     "bits": 16,
-    "type": "int",
+    "type": "enum",
     "offset": 1440,
     "size": 4
    },

@@ -32,13 +32,16 @@ ARRAYS = (("stats", "MAX_STATS", -16), ("persistant", "MAX_PERSISTANT", -16),
 
 
 def parse_msg(src):
-    """Field entries of the four tables, widths as written in the source (a number or a macro)."""
+    """Field entries of the four tables, widths as written in the source (a number or a macro): (name, bits, force
+    power), the force power set for a cell of a force table (PSF_FP, named member[FP_X] as msg.cpp names it)."""
     out = {}
+    entry = re.compile(r"\{\s*(?:(?:NETF|PSF)\((.+?)\)|PSF_FP\(\s*([\w.]+)\s*,\s*(\w+)\s*\)),\s*([-\w]+)\s*\}")
     for key, name, _ in TABLES:
         idx = re.search(r"netField_t\s+" + name + r"\[\]\s*=", src).start()
         body = src[idx:src.index("\n};", idx)]
         body = re.sub(r"/\*.*?\*/", "", re.sub(r"//[^\n]*", "", body), flags=re.S)
-        out[key] = re.findall(r"\{\s*(?:NETF|PSF)\((.+?)\),\s*([-\w]+)\s*\}", body)
+        out[key] = [(m[0], m[3], None) if m[0] else ("%s[%s]" % (m[1], m[2]), m[3], (m[1], m[2]))
+                    for m in entry.findall(body)]
     # msg.cpp uses statIndex_t's STAT_WEAPONS (game/bg_public.h), which fieldinfo, built on q_shared.h alone, cannot see
     with open(os.path.join(ROOT, "codemp", "game", "bg_public.h"), encoding="latin-1") as f:
         stat_weapons = re.search(r"\bSTAT_WEAPONS\s*=\s*(\d+)", f.read()).group(1)
@@ -52,8 +55,11 @@ def write_inc(tables, stat_weapons):
     for name, count, _ in ARRAYS:
         L.append("A(%s, %s)" % (name, count))
     for key, _, struct in TABLES:
-        for fname, bits in tables[key]:
-            L.append("F(%s, %s, %s, %s)" % (key, struct, fname, bits))
+        for fname, bits, fp in tables[key]:
+            if fp:
+                L.append("FP(%s, %s, %s, %s, %s)" % (key, struct, fp[0], fp[1], bits))
+            else:
+                L.append("F(%s, %s, %s, %s)" % (key, struct, fname, bits))
     with open(INC, "w", newline="\n") as f:
         f.write("\n".join(L) + "\n")
 
@@ -71,7 +77,7 @@ def build_json(tables, exe):
             fields[p[1]].append(dict(name=p[2], bits=int(p[3]), type=p[6], offset=int(p[4]), size=int(p[5])))
         else: raise ValueError("unexpected line from %s: %r" % (exe, l))
     for key, _, _ in TABLES:
-        if [f["name"] for f in fields[key]] != [n for n, b in tables[key]]:
+        if [f["name"] for f in fields[key]] != [n for n, _, _ in tables[key]]:
             raise SystemExit("%s: table %s differs from fields.inc; rebuild the program" % (exe, key))
         for f in fields[key]:
             assert f["size"] == (1 if f["type"] == "bool" else 4), f   # a bool is one byte, every other field a 32-bit word

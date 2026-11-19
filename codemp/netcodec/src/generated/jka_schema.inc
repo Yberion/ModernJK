@@ -22,17 +22,17 @@ inline constexpr std::array<FieldDesc, 132> kEntityFields{ {
 	{ .offset = 68, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kAngle, .ctx = 7, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // apos.trBase[1]
 	{ .offset = 36, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kPos, .ctx = 8, .relType = 16, .relTime = 20, .relVel = 48, .relKind = 0 }, // pos.trBase[2]
 	{ .offset = 64, .bits = 0, .ctype = CType::kFloat, .absolute = true, .pmode = PredMode::kAngle, .ctx = 9, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // apos.trBase[0]
-	{ .offset = 4, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 10, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eType
+	{ .offset = 4, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 10, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eType
 	{ .offset = 124, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kAngle, .ctx = 11, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // angles[1]
 	{ .offset = 96, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 12, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // origin[0]
 	{ .offset = 100, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 13, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // origin[1]
 	{ .offset = 104, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 14, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // origin[2]
-	{ .offset = 292, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 15, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
+	{ .offset = 292, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 15, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
 	{ .offset = 52, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 16, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // apos.trType
 	{ .offset = 296, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 17, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
 	{ .offset = 300, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 18, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoAnim
 	{ .offset = 176, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 19, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // genericenemyindex
-	{ .offset = 8, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 20, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
+	{ .offset = 8, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 20, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
 	{ .offset = 24, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 21, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pos.trDuration
 	{ .offset = 280, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 22, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // teamowner
 	{ .offset = 196, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 23, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // groundEntityNum
@@ -55,7 +55,7 @@ inline constexpr std::array<FieldDesc, 132> kEntityFields{ {
 	{ .offset = 276, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // owner
 	{ .offset = 228, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 41, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // modelindex2
 	{ .offset = 272, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 42, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParm
-	{ .offset = 248, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 43, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
+	{ .offset = 248, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 43, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
 	{ .offset = 80, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kAngle, .ctx = 44, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // apos.trDelta[1]
 	{ .offset = 424, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 45, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // boneAngles1[1]
 	{ .offset = 224, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // modelindex
@@ -100,7 +100,7 @@ inline constexpr std::array<FieldDesc, 132> kEntityFields{ {
 	{ .offset = 308, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 85, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // forceFrame
 	{ .offset = 312, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 86, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // generic1
 	{ .offset = 400, .bits = 6, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 87, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // boneIndex1
-	{ .offset = 468, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 88, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // NPC_class
+	{ .offset = 468, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 88, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // NPC_class
 	{ .offset = 60, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 89, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // apos.trDuration
 	{ .offset = 416, .bits = 9, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 90, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // boneOrient
 	{ .offset = 144, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 91, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // bolt1
@@ -108,7 +108,7 @@ inline constexpr std::array<FieldDesc, 132> kEntityFields{ {
 	{ .offset = 472, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 93, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // m_iVehicleNum
 	{ .offset = 164, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // trickedentindex4
 	{ .offset = 396, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 95, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // surfacesOff
-	{ .offset = 12, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 96, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
+	{ .offset = 12, .bits = 10, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 96, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
 	{ .offset = 260, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 97, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // isJediMaster
 	{ .offset = 261, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 98, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // isPortalEnt
 	{ .offset = 316, .bits = 6, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 99, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // heldByClient
@@ -159,32 +159,32 @@ inline constexpr std::array<FieldDesc, 201> kPlayerFields{ {
 	{ .offset = 56, .bits = -16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 210, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponTime
 	{ .offset = 84, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 34, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[1]
 	{ .offset = 72, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 157, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // speed
-	{ .offset = 108, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
+	{ .offset = 108, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
 	{ .offset = 80, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 33, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[0]
-	{ .offset = 116, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 175, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoAnim
+	{ .offset = 116, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 175, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoAnim
 	{ .offset = 100, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 75, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // groundEntityNum
-	{ .offset = 128, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
+	{ .offset = 128, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
 	{ .offset = 948, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 57, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePower
 	{ .offset = 136, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 45, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventSequence
 	{ .offset = 112, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 177, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoTimer
 	{ .offset = 104, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 96, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsTimer
 	{ .offset = 192, .bits = -8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 206, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // viewheight
-	{ .offset = 1236, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 66, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberAnimLevel
+	{ .offset = 1236, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 66, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberAnimLevel
 	{ .offset = 620, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 143, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // rocketLockIndex
-	{ .offset = 1240, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 67, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberDrawAnimLevel
+	{ .offset = 1240, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 67, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberDrawAnimLevel
 	{ .offset = 652, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 73, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // genericEnemyIndex
-	{ .offset = 140, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
-	{ .offset = 144, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
+	{ .offset = 140, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
+	{ .offset = 144, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
 	{ .offset = 1396, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 24, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[0]
 	{ .offset = 124, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 103, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // movementDir
 	{ .offset = 584, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 149, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberEntityNum
 	{ .offset = 1408, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 27, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[3]
-	{ .offset = 176, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
-	{ .offset = 544, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 156, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
+	{ .offset = 176, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
+	{ .offset = 544, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 156, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
 	{ .offset = 1412, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 158, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // standheight
 	{ .offset = 1416, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 23, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // crouchheight
 	{ .offset = 76, .bits = -16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 17, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // basespeed
-	{ .offset = 12, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
+	{ .offset = 12, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
 	{ .offset = 1480, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 89, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // jetpackFuel
 	{ .offset = 1484, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 21, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // cloakFuel
 	{ .offset = 16, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 124, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_time
@@ -193,14 +193,14 @@ inline constexpr std::array<FieldDesc, 201> kPlayerFields{ {
 	{ .offset = 1304, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 37, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // duelIndex
 	{ .offset = 1404, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 26, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[2]
 	{ .offset = 68, .bits = 16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 74, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // gravity
-	{ .offset = 172, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
+	{ .offset = 172, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
 	{ .offset = 88, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 35, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[2]
 	{ .offset = 600, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 148, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberCanThrow
 	{ .offset = 188, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 205, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // viewangles[2]
 	{ .offset = 860, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 63, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowersKnown
-	{ .offset = 964, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 59, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_LEVITATION]
+	{ .offset = 964, .bits = 2, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 59, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_LEVITATION]
 	{ .offset = 792, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 58, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerDebounce[FP_LEVITATION]
-	{ .offset = 868, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 61, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerSelected
+	{ .offset = 868, .bits = 8, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 61, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerSelected
 	{ .offset = 121, .bits = 32, .ctype = CType::kBool, .absolute = true, .pmode = PredMode::kNone, .ctx = 176, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoFlip
 	{ .offset = 156, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 48, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEvent
 	{ .offset = 200, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 32, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damageYaw
@@ -209,7 +209,7 @@ inline constexpr std::array<FieldDesc, 201> kPlayerFields{ {
 	{ .offset = 152, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 44, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[1]
 	{ .offset = 1192, .bits = 2, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 65, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceSide
 	{ .offset = 1316, .bits = 4, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 146, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberAttackChainCount
-	{ .offset = 4, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
+	{ .offset = 4, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
 	{ .offset = 160, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 49, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEventParm
 	{ .offset = 148, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 43, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[0]
 	{ .offset = 1392, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 97, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // lookTarget
@@ -223,10 +223,10 @@ inline constexpr std::array<FieldDesc, 201> kPlayerFields{ {
 	{ .offset = 1108, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kAngle, .ctx = 52, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceJumpZStart
 	{ .offset = 512, .bits = 16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 98, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // loopSound
 	{ .offset = 1388, .bits = 32, .ctype = CType::kBool, .absolute = true, .pmode = PredMode::kNone, .ctx = 79, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hasLookTarget
-	{ .offset = 552, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 147, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberBlocked
+	{ .offset = 552, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 147, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberBlocked
 	{ .offset = 212, .bits = 2, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 31, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damageType
 	{ .offset = 628, .bits = 32, .ctype = CType::kFloat, .absolute = true, .pmode = PredMode::kNone, .ctx = 144, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // rocketLockTime
-	{ .offset = 1256, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 70, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // forceHandExtend
+	{ .offset = 1256, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 70, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // forceHandExtend
 	{ .offset = 1320, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 150, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberHolstered
 	{ .offset = 864, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 62, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowersActive
 	{ .offset = 204, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 30, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damagePitch
@@ -249,13 +249,13 @@ inline constexpr std::array<FieldDesc, 201> kPlayerFields{ {
 	{ .offset = 1368, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 93, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // lastHitLoc[2]
 	{ .offset = 1168, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 55, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceMindtrickTargetIndex3
 	{ .offset = 1360, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 91, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // lastHitLoc[0]
-	{ .offset = 132, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
+	{ .offset = 132, .bits = 10, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
 	{ .offset = 1172, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 56, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceMindtrickTargetIndex4
 	{ .offset = 1364, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 92, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // lastHitLoc[1]
 	{ .offset = 1228, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 68, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.sentryDeployed
 	{ .offset = 556, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 155, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberLockTime
 	{ .offset = 564, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 154, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberLockFrame
-	{ .offset = 1016, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 60, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_SEE]
+	{ .offset = 1016, .bits = 2, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 60, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_SEE]
 	{ .offset = 560, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 153, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberLockEnemy
 	{ .offset = 1136, .bits = 1, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 51, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceGripCripple
 	{ .offset = 636, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 42, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // emplacedIndex
@@ -361,21 +361,21 @@ inline constexpr std::array<FieldDesc, 204> kPilotFields{ {
 	{ .offset = 56, .bits = -16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 210, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponTime
 	{ .offset = 84, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 34, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[1]
 	{ .offset = 80, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 33, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[0]
-	{ .offset = 128, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
+	{ .offset = 128, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
 	{ .offset = 136, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 45, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventSequence
 	{ .offset = 620, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 143, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // rocketLockIndex
-	{ .offset = 140, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
-	{ .offset = 144, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
-	{ .offset = 176, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
-	{ .offset = 12, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
+	{ .offset = 140, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
+	{ .offset = 144, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
+	{ .offset = 176, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
+	{ .offset = 12, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
 	{ .offset = 16, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 124, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_time
 	{ .offset = 168, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 20, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // clientNum
-	{ .offset = 172, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
+	{ .offset = 172, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
 	{ .offset = 88, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 35, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[2]
 	{ .offset = 188, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 205, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // viewangles[2]
 	{ .offset = 156, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 48, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEvent
 	{ .offset = 152, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 44, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[1]
-	{ .offset = 4, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
+	{ .offset = 4, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
 	{ .offset = 160, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 49, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEventParm
 	{ .offset = 148, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 43, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[0]
 	{ .offset = 64, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 208, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponChargeSubtractTime
@@ -385,9 +385,9 @@ inline constexpr std::array<FieldDesc, 204> kPilotFields{ {
 	{ .offset = 628, .bits = 32, .ctype = CType::kFloat, .absolute = true, .pmode = PredMode::kNone, .ctx = 144, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // rocketLockTime
 	{ .offset = 1420, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 99, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // m_iVehicleNum
 	{ .offset = 508, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 72, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // generic1
-	{ .offset = 132, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
-	{ .offset = 108, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
-	{ .offset = 116, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 175, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoAnim
+	{ .offset = 132, .bits = 10, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
+	{ .offset = 108, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
+	{ .offset = 116, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 175, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoAnim
 	{ .offset = 112, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 177, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // torsoTimer
 	{ .offset = 104, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 96, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsTimer
 	{ .offset = 1480, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 89, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // jetpackFuel
@@ -405,21 +405,21 @@ inline constexpr std::array<FieldDesc, 204> kPilotFields{ {
 	{ .offset = 1168, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 55, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceMindtrickTargetIndex3
 	{ .offset = 1172, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 56, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forceMindtrickTargetIndex4
 	{ .offset = 1228, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 68, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.sentryDeployed
-	{ .offset = 1016, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 60, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_SEE]
+	{ .offset = 1016, .bits = 2, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 60, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_SEE]
 	{ .offset = 752, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 81, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // holocronBits
 	{ .offset = 948, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 57, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePower
 	{ .offset = 8, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 18, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // bobCycle
 	{ .offset = 72, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 157, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // speed
 	{ .offset = 100, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 75, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // groundEntityNum
 	{ .offset = 192, .bits = -8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 206, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // viewheight
-	{ .offset = 1236, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 66, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberAnimLevel
-	{ .offset = 1240, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 67, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberDrawAnimLevel
+	{ .offset = 1236, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 66, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberAnimLevel
+	{ .offset = 1240, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 67, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.saberDrawAnimLevel
 	{ .offset = 652, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 73, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // genericEnemyIndex
 	{ .offset = 1396, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 24, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[0]
 	{ .offset = 124, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 103, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // movementDir
 	{ .offset = 584, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 149, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberEntityNum
 	{ .offset = 1408, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 27, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[3]
-	{ .offset = 544, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 156, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
+	{ .offset = 544, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 156, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberMove
 	{ .offset = 1412, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 158, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // standheight
 	{ .offset = 1416, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 23, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // crouchheight
 	{ .offset = 76, .bits = -16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 17, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // basespeed
@@ -428,8 +428,8 @@ inline constexpr std::array<FieldDesc, 204> kPilotFields{ {
 	{ .offset = 1404, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 26, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // customRGBA[2]
 	{ .offset = 68, .bits = 16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 74, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // gravity
 	{ .offset = 860, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 63, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowersKnown
-	{ .offset = 964, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 59, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_LEVITATION]
-	{ .offset = 868, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 61, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerSelected
+	{ .offset = 964, .bits = 2, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 59, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerLevel[FP_LEVITATION]
+	{ .offset = 868, .bits = 8, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 61, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // fd.forcePowerSelected
 	{ .offset = 200, .bits = 8, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 32, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damageYaw
 	{ .offset = 208, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 28, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damageCount
 	{ .offset = 1356, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 87, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // inAirAnim
@@ -445,8 +445,8 @@ inline constexpr std::array<FieldDesc, 204> kPilotFields{ {
 	{ .offset = 212, .bits = 2, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 31, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damageType
 	{ .offset = 512, .bits = 16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 98, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // loopSound
 	{ .offset = 1388, .bits = 32, .ctype = CType::kBool, .absolute = true, .pmode = PredMode::kNone, .ctx = 79, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hasLookTarget
-	{ .offset = 552, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 147, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberBlocked
-	{ .offset = 1256, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 70, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // forceHandExtend
+	{ .offset = 552, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 147, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberBlocked
+	{ .offset = 1256, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 70, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // forceHandExtend
 	{ .offset = 1320, .bits = 2, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 150, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // saberHolstered
 	{ .offset = 204, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 30, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // damagePitch
 	{ .offset = 516, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 90, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // jumppad_ent
@@ -567,26 +567,26 @@ inline constexpr std::array<FieldDesc, 133> kVehicleFields{ {
 	{ .offset = 56, .bits = -16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 210, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponTime
 	{ .offset = 84, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 34, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[1]
 	{ .offset = 72, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 157, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // speed
-	{ .offset = 108, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
+	{ .offset = 108, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 94, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsAnim
 	{ .offset = 80, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 33, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[0]
 	{ .offset = 100, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 75, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // groundEntityNum
-	{ .offset = 128, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
+	{ .offset = 128, .bits = 32, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 39, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags
 	{ .offset = 136, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 45, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventSequence
 	{ .offset = 104, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 96, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // legsTimer
 	{ .offset = 620, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 143, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // rocketLockIndex
-	{ .offset = 140, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
-	{ .offset = 144, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
-	{ .offset = 176, .bits = 4, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
-	{ .offset = 12, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
+	{ .offset = 140, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 46, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[0]
+	{ .offset = 144, .bits = 10, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 47, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // events[1]
+	{ .offset = 176, .bits = 4, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 211, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weaponstate
+	{ .offset = 12, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 123, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_flags
 	{ .offset = 16, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 124, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_time
 	{ .offset = 168, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 20, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // clientNum
 	{ .offset = 68, .bits = 16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 74, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // gravity
-	{ .offset = 172, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
+	{ .offset = 172, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 207, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // weapon
 	{ .offset = 88, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 35, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // delta_angles[2]
 	{ .offset = 188, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 205, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // viewangles[2]
 	{ .offset = 156, .bits = 10, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 48, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEvent
 	{ .offset = 152, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 44, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[1]
-	{ .offset = 4, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
+	{ .offset = 4, .bits = 8, .ctype = CType::kEnum, .absolute = true, .pmode = PredMode::kNone, .ctx = 125, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // pm_type
 	{ .offset = 160, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 49, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // externalEventParm
 	{ .offset = 148, .bits = -16, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 43, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eventParms[0]
 	{ .offset = 1424, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kAngle, .ctx = 193, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehOrientation[0]
@@ -605,11 +605,11 @@ inline constexpr std::array<FieldDesc, 133> kVehicleFields{ {
 	{ .offset = 1384, .bits = 8, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 19, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // brokenLimbs
 	{ .offset = 1452, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 199, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehWeaponsLinked
 	{ .offset = 1456, .bits = 32, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 85, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hyperSpaceTime
-	{ .offset = 132, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
+	{ .offset = 132, .bits = 10, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 40, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // eFlags2
 	{ .offset = 1464, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 83, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hyperSpaceAngles[1]
 	{ .offset = 1436, .bits = 32, .ctype = CType::kBool, .absolute = false, .pmode = PredMode::kNone, .ctx = 192, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehBoarding
 	{ .offset = 1444, .bits = 10, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 197, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehTurnaroundIndex
-	{ .offset = 1440, .bits = 16, .ctype = CType::kInt, .absolute = false, .pmode = PredMode::kNone, .ctx = 196, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehSurfaces
+	{ .offset = 1440, .bits = 16, .ctype = CType::kEnum, .absolute = false, .pmode = PredMode::kNone, .ctx = 196, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // vehSurfaces
 	{ .offset = 1460, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 82, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hyperSpaceAngles[0]
 	{ .offset = 1468, .bits = 0, .ctype = CType::kFloat, .absolute = false, .pmode = PredMode::kNone, .ctx = 84, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // hyperSpaceAngles[2]
 	{ .offset = 1488, .bits = 32, .ctype = CType::kInt, .absolute = true, .pmode = PredMode::kNone, .ctx = 183, .relType = 65535, .relTime = 65535, .relVel = 65535, .relKind = 65535 }, // userInt1
