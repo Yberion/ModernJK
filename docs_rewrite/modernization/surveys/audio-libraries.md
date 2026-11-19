@@ -4,6 +4,8 @@ Written on 15 November 2026 for plan step 15, part 3 ([../PLAN.md](../PLAN.md)),
 
 Each source is labelled as in the other surveys: **primary** (the project's own documentation or source code), **secondary**, **community**.
 
+Note of 19 November 2026: the sound is now plan step 21, after step 19 and before step 15, in every tree (the single player of Jedi Academy and Jedi Outcast too, whose sound this survey did not read); the decoder beside OpenAL Soft (dr_mp3 proposed in section 6, never measured) is chosen by a survey of its own, [audio-decoders.md](audio-decoders.md), for MP3, WAV, FLAC, Ogg Vorbis and Opus.
+
 ## 1. Summary
 
 - The client's sound today is about 11,400 lines of its own (`codemp/client/snd_*.cpp`) plus a 1995 MP3 decoder (`codemp/mp3code`, 8,325 lines): a software mixer of 32 channels that paints 150 ms of sound ahead at every frame, so that it mixes 15 to 50 times what is played (100 to 333 frames per second) and a sound is heard about 70 ms after it starts (estimated from the code). The reverb exists only in a path compiled for 32-bit MSVC, off by default, which needs Creative's EAX drivers and Creative's `EAXMan.dll`: in practice no player of this build hears it.

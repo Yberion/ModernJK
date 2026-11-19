@@ -96,7 +96,7 @@ So the ports that exist are mechanical ones, and gamma is where they all stop. N
 
 1. One module, the client's only door to the system: window and context, input, sound device, gamepad, clipboard, message box. It does not know the game; the engine does not know SDL.
 2. Written new, in C++20 as `codemp/netcodec` is, by the C++ Core Guidelines, with a public header the engine's C++11 can include. No code copied from the present files except the tables that hold knowledge (the key translation, the character set).
-3. A place of its own (`codemp/platform/`), for the multiplayer client only. `shared/sdl/` stays as it is for the single-player and Jedi Outcast trees, which this work does not touch.
+3. A place of its own (`codemp/platform/`), for the multiplayer client only. `shared/sdl/` stays as it is for the single-player and Jedi Outcast trees, which this work does not touch. (Note of 19 November 2026: revised, the layer serves every tree from `shared/platform/`, and the sound device is no longer its part: the sound is plan step 21, done before step 15 on OpenAL Soft, which opens the device itself.)
 4. No fallback for hardware that no longer exists, no setting for what can be asked from the system. A setting is kept when a player has a reason to choose (the rule for the network settings, applied here).
 5. Everything the layer reports carries the time it happened at, on one clock.
 6. The same features for the player. What is dropped is listed and decided (section 7), not dropped silently.
