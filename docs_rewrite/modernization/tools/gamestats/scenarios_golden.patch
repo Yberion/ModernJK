@@ -1,0 +1,467 @@
+diff --git a/codemp/game/g_local.h b/codemp/game/g_local.h
+index dcbef7cb..189377a1 100644
+--- a/codemp/game/g_local.h
++++ b/codemp/game/g_local.h
+@@ -1542,6 +1542,7 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd );
+ void G_ScenarioFrame( void );
+ void G_ScenarioTrace( void );
+ void G_ScenarioDamageTrace( gentity_t *targ, gentity_t *inflictor, const vec3_t point, int take, int mod );
++void G_ScenarioPrintStats( void );
+ void Svcmd_Scenario_f( void );
+ 
+ #define	FOFS(x) offsetof(gentity_t, x)
+diff --git a/codemp/game/g_scenario.c b/codemp/game/g_scenario.c
+index 004cab64..26dea4f2 100644
+--- a/codemp/game/g_scenario.c
++++ b/codemp/game/g_scenario.c
+@@ -6,9 +6,13 @@
+ // the bots (powerups, pain timers and damage sums, walking direction), and the corpses, missiles, events and dropped
+ // items are removed when the counted repetitions start, so that every run plays the same game; the statistics of the
+ // counted repetitions are printed at the end (gamestats), and the bots then stand still until "scenario off".
++// In a team game a third bot, a teammate of the attacker, stands beside it as the ally the team powers act on; the
++// defender is the first bot that is not the attacker's teammate.
+ //
+ // scenario saber <reps> <fast|medium|strong|dual|staff> <idle|attack> [distance]
+-// scenario force <reps> <lightning|grip|drain|rage|protect|absorb> [distance]
++// scenario force <reps> <power> [level 1 to 3, 3] [distance] [the defender's level 0 to 3 in push or pull, 0]
++//   power: lightning grip drain rage protect absorb heal levitation speed push pull telepathy teamheal teamforce see
++//   saberthrow (teamheal and teamforce need the ally; against saberthrow the defender holds no saber)
+ // scenario weapon <reps> <weapon number> <0|1 alternate> [distance]
+ // scenario off
+ 
+@@ -38,10 +42,13 @@ static struct {
+ 	int				rep;			// the current repetition: 0 is the warm-up, then 1 to reps
+ 	qboolean		done;			// all repetitions played: the bots stand still
+ 	int				repStart;		// level.time of the current repetition's reset, 0 before the first
+-	int				client[2];		// attacker, defender
++	int				client[3];		// attacker, defender, ally (a teammate of the attacker, in team games)
++	int				numClients;		// 2, or 3 with the ally
+ 	int				style;			// the attacker's saber style
+ 	qboolean		counter;		// the defender attacks at the same time
+ 	forcePowers_t	power;
++	int				level;			// the attacker's level in that power
++	int				defenderLevel;	// push and pull: the defender's level in the same power, which resists it
+ 	int				weapon;
+ 	qboolean		alt;
+ 	float			dist;			// between the two origins
+@@ -50,13 +57,44 @@ static struct {
+ 	int				traceReps;		// repetitions traced at every 20 Hz instant (cvar scenario_trace), to diff two rates
+ } scn;
+ 
++// what each bot of the scenario did in the counted repetitions, by role, sampled at the 20 Hz instants: what the counters
++// of gamestats do not see (the health and force given, the movement, the states a power puts a player in)
++static struct {
++	int		healthGained[3], healthLost[3], forceGained[3], forceSpent[3];
++	int		airborne[3];		// instants off the ground
++	int		knockedDown[3];		// instants knocked down (HANDEXTEND_KNOCKDOWN)
++	int		mindTricked[3];		// instants in the attacker's mind trick
++	float	path[3];			// distance moved
++	int		end[3][3];			// the place at the end of each repetition against the place at its start, rounded to the unit
++	// the previous instant's values, from the reset on
++	int		health[3], force[3];
++	vec3_t	origin[3], start[3];
++} scnStats;
++
+ // the eight attack directions, as forward and right moves
+ static const signed char scnDirs[8][2] = {
+ 	{ 127, 0 }, { -127, 0 }, { 0, -127 }, { 0, 127 }, { 127, -127 }, { 127, 127 }, { -127, -127 }, { -127, 127 }
+ };
+ 
+ qboolean G_ScenarioControls( int clientNum ) {
+-	return ( scn.type != SCN_NONE && ( clientNum == scn.client[0] || clientNum == scn.client[1] ) ) ? qtrue : qfalse;
++	int i;
++
++	if ( scn.type == SCN_NONE ) {
++		return qfalse;
++	}
++	for ( i = 0; i < scn.numClients; i++ ) {
++		if ( clientNum == scn.client[i] ) {
++			return qtrue;
++		}
++	}
++	return qfalse;
++}
++
++// the ally's place: beside the attacker, on its right
++static void G_ScenarioAllyPlace( const vec3_t origin, float yaw, vec3_t out ) {
++	const vec3_t right = { Q_sinpif( yaw / 180.0f ), -Q_cospif( yaw / 180.0f ), 0 };
++
++	VectorMA( origin, 64, right, out );
+ }
+ 
+ // a place where the attacker stands on a spawn point and the defender on the floor in front of it
+@@ -84,6 +122,21 @@ static qboolean G_ScenarioFindPlace( void ) {
+ 		if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
+ 			continue;	// no floor at the attacker's height in front
+ 		}
++		if ( scn.numClients == 3 ) { // the ally's place: open from the attacker's, with a floor at its height
++			vec3_t ally;
++
++			G_ScenarioAllyPlace( start, spot->s.angles[YAW], ally );
++			trap->Trace( &tr, start, mins, maxs, ally, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0 );
++			if ( tr.fraction < 1.0f || tr.startsolid || tr.allsolid ) {
++				continue;
++			}
++			VectorCopy( ally, below );
++			below[2] -= 48;
++			trap->Trace( &tr, ally, mins, maxs, below, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0 );
++			if ( tr.fraction >= 1.0f || tr.startsolid || tr.endpos[2] < start[2] - 24 ) {
++				continue;
++			}
++		}
+ 		{ // away from doors and lifts, which crush the bots standing in their way
+ 			int e;
+ 			qboolean nearMover = qfalse;
+@@ -213,13 +266,18 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+ 	client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
+ 	client->ps.fd.forcePowersKnown |= ( 1 << FP_SABER_OFFENSE ) | ( 1 << FP_SABER_DEFENSE );
+ 	if ( scn.type == SCN_FORCE && attacker ) {
+-		client->ps.fd.forcePowerLevel[scn.power] = FORCE_LEVEL_3;
++		client->ps.fd.forcePowerLevel[scn.power] = scn.level;
+ 		client->ps.fd.forcePowersKnown |= ( 1 << scn.power );
+-		client->ps.fd.forceSide = ( scn.power == FP_PROTECT || scn.power == FP_ABSORB ) ? FORCE_LIGHTSIDE : FORCE_DARKSIDE;
++		// the side the power needs; the neutral powers on the dark side
++		client->ps.fd.forceSide = ( forcePowerDarkLight[scn.power] == FORCE_LIGHTSIDE ) ? FORCE_LIGHTSIDE : FORCE_DARKSIDE;
++	}
++	if ( scn.type == SCN_FORCE && !attacker && ( scn.power == FP_PUSH || scn.power == FP_PULL ) ) {
++		client->ps.fd.forcePowerLevel[scn.power] = scn.defenderLevel;
+ 	}
+ 
+-	if ( scn.type == SCN_WEAPON ) {
+-		const int weapon = attacker ? scn.weapon : WP_MELEE;	// the defender cannot block with a saber
++	if ( scn.type == SCN_WEAPON || ( scn.type == SCN_FORCE && scn.power == FP_SABERTHROW && !attacker ) ) {
++		// the defender cannot block with a saber
++		const int weapon = ( attacker && scn.type == SCN_WEAPON ) ? scn.weapon : WP_MELEE;
+ 
+ 		client->ps.stats[STAT_WEAPONS] |= ( 1 << weapon );
+ 		client->ps.ammo[weaponData[weapon].ammoIndex] = 999;
+@@ -243,7 +301,96 @@ static void G_ScenarioEquip( gentity_t *ent, qboolean attacker ) {
+ 	}
+ }
+ 
+-// called at the start of every server frame: resets the two bots at the start of each repetition
++// the end of a repetition: where each bot stands against its place at the start
++static void G_ScenarioEndRepetition( void ) {
++	int n, k;
++
++	for ( n = 0; n < scn.numClients; n++ ) {
++		const gentity_t *ent = &g_entities[scn.client[n]];
++
++		if ( !ent->inuse || !ent->client ) {
++			continue;
++		}
++		for ( k = 0; k < 3; k++ ) {
++			scnStats.end[n][k] += (int)Q_roundf( ent->client->ps.origin[k] - scnStats.start[n][k] );
++		}
++	}
++}
++
++// the bots' values after the reset, from which the instants of the repetition are counted
++static void G_ScenarioStartSampling( void ) {
++	int n;
++
++	for ( n = 0; n < scn.numClients; n++ ) {
++		const gentity_t *ent = &g_entities[scn.client[n]];
++
++		scnStats.health[n] = ent->health;
++		scnStats.force[n] = ent->client->ps.fd.forcePower;
++		VectorCopy( ent->client->ps.origin, scnStats.origin[n] );
++		VectorCopy( ent->client->ps.origin, scnStats.start[n] );
++	}
++}
++
++extern qboolean G_IsMindTricked( forcedata_t *fd, int client );
++
++// at the end of each 20 Hz instant of a counted repetition
++static void G_ScenarioSample( void ) {
++	int n;
++
++	for ( n = 0; n < scn.numClients; n++ ) {
++		const gentity_t *ent = &g_entities[scn.client[n]];
++		const playerState_t *ps = &ent->client->ps;
++		const int health = ent->health - scnStats.health[n];
++		const int force = ps->fd.forcePower - scnStats.force[n];
++
++		if ( health > 0 ) {
++			scnStats.healthGained[n] += health;
++		}
++		else {
++			scnStats.healthLost[n] -= health;
++		}
++		if ( force > 0 ) {
++			scnStats.forceGained[n] += force;
++		}
++		else {
++			scnStats.forceSpent[n] -= force;
++		}
++		if ( ps->groundEntityNum == ENTITYNUM_NONE ) {
++			scnStats.airborne[n]++;
++		}
++		if ( ps->forceHandExtend == HANDEXTEND_KNOCKDOWN ) {
++			scnStats.knockedDown[n]++;
++		}
++		if ( n && G_IsMindTricked( &g_entities[scn.client[0]].client->ps.fd, scn.client[n] ) ) {
++			scnStats.mindTricked[n]++;
++		}
++		scnStats.path[n] += Distance( ps->origin, scnStats.origin[n] );
++		scnStats.health[n] = ent->health;
++		scnStats.force[n] = ps->fd.forcePower;
++		VectorCopy( ps->origin, scnStats.origin[n] );
++	}
++}
++
++// with the gamestats of a scenario: what each bot did, by role
++void G_ScenarioPrintStats( void ) {
++	static const char *roles[] = { "attacker", "defender", "ally" };
++	char line[MAX_STRING_CHARS] = "scenario statistics: health gained and lost, force gained and spent, instants off the ground, "
++		"knocked down and mind tricked, distance moved, end place against the start, by role:";
++	int n;
++
++	if ( scn.type == SCN_NONE ) {
++		return;
++	}
++	for ( n = 0; n < scn.numClients; n++ ) {
++		Q_strcat( line, sizeof( line ), va( "%s %s %d %d %d %d %d %d %d %.0f %d %d %d", n ? "," : "", roles[n],
++			scnStats.healthGained[n], scnStats.healthLost[n], scnStats.forceGained[n], scnStats.forceSpent[n],
++			scnStats.airborne[n], scnStats.knockedDown[n], scnStats.mindTricked[n], scnStats.path[n],
++			scnStats.end[n][0], scnStats.end[n][1], scnStats.end[n][2] ) );
++	}
++	trap->Print( "%s\n", line );
++}
++
++// called at the start of every server frame: resets the bots at the start of each repetition
+ void G_ScenarioFrame( void ) {
+ 	vec3_t fwd, front;
+ 	int seed, i;
+@@ -254,16 +401,21 @@ void G_ScenarioFrame( void ) {
+ 	if ( scn.repStart && level.time < scn.repStart + SCN_REP_MSEC ) {
+ 		return;
+ 	}
++	if ( scn.repStart && scn.rep >= 1 ) {
++		G_ScenarioEndRepetition();
++	}
+ 	if ( scn.rep >= scn.reps ) {
+ 		trap->Print( "scenario done: %d repetitions\n", scn.rep );
+ 		Svcmd_GameStats_f();
+ 		scn.done = qtrue;
+ 		return;
+ 	}
+-	if ( !g_entities[scn.client[0]].inuse || !g_entities[scn.client[1]].inuse ) {
+-		trap->Print( "scenario stopped: a bot left\n" );
+-		scn.type = SCN_NONE;
+-		return;
++	for ( i = 0; i < scn.numClients; i++ ) {
++		if ( !g_entities[scn.client[i]].inuse ) {
++			trap->Print( "scenario stopped: a bot left\n" );
++			scn.type = SCN_NONE;
++			return;
++		}
+ 	}
+ 
+ 	// the same random numbers at the start of a repetition at any rate, from before the bots are placed: a bot killed in
+@@ -278,10 +430,31 @@ void G_ScenarioFrame( void ) {
+ 	G_ScenarioPlace( &g_entities[scn.client[1]], front, AngleNormalize360( scn.yaw + 180 ) );
+ 	G_ScenarioEquip( &g_entities[scn.client[0]], qtrue );
+ 	G_ScenarioEquip( &g_entities[scn.client[1]], qfalse );
++	if ( scn.numClients == 3 ) {
++		vec3_t ally;
++
++		G_ScenarioAllyPlace( scn.origin, scn.yaw, ally );
++		G_ScenarioPlace( &g_entities[scn.client[2]], ally, scn.yaw );
++		G_ScenarioEquip( &g_entities[scn.client[2]], qfalse );
++	}
++	if ( scn.type == SCN_FORCE ) { // what the healing and replenishing powers act on
++		gentity_t *attacker = &g_entities[scn.client[0]];
++		gentity_t *ally = &g_entities[scn.client[scn.numClients - 1]];
++
++		if ( scn.power == FP_HEAL ) {
++			attacker->health = attacker->client->ps.stats[STAT_HEALTH] = 40;
++		}
++		if ( scn.numClients == 3 && scn.power == FP_TEAM_HEAL ) {
++			ally->health = ally->client->ps.stats[STAT_HEALTH] = 40;
++		}
++		if ( scn.numClients == 3 && scn.power == FP_TEAM_FORCE ) {
++			ally->client->ps.fd.forcePower = 20;
++		}
++	}
+ 	// the animations restart from the weapon's ready pose: a still bot keeps its torso and legs animations (the choke of
+ 	// a grip still held, the slope stance of the legs), so the warm-up's, shaped by the free play, carried into every
+ 	// repetition; the ghoul2 animations restart with them (G_UpdateClientAnims)
+-	for ( i = 0; i < 2; i++ ) {
++	for ( i = 0; i < scn.numClients; i++ ) {
+ 		gclient_t *client = g_entities[scn.client[i]].client;
+ 
+ 		client->ps.torsoAnim = client->ps.legsAnim = WeaponReadyAnim[client->ps.weapon];
+@@ -292,6 +465,7 @@ void G_ScenarioFrame( void ) {
+ 	scn.rep++;
+ 	if ( scn.rep == 1 ) {
+ 		memset( &g_stats, 0, sizeof( g_stats ) );	// the counted repetitions start
++		memset( &scnStats, 0, sizeof( scnStats ) );
+ 		// without the corpses left by the free play or the warm-up, the body queue from its first slot (as BodySink
+ 		// leaves a body at its end)
+ 		for ( i = 0; i < BODY_QUEUE_SIZE; i++ ) {
+@@ -316,23 +490,28 @@ void G_ScenarioFrame( void ) {
+ 			}
+ 		}
+ 	}
++	G_ScenarioStartSampling();
+ }
+ 
+-// called at the end of the 20 Hz instants: the two bots' state, printed for the first scenario_trace repetitions, so that
+-// runs at two rates can be diffed line by line
++// called at the end of the 20 Hz instants: the scenario's statistics, and the two bots' state, printed for the first
++// scenario_trace repetitions, so that runs at two rates can be diffed line by line
+ void G_ScenarioTrace( void ) {
+ 	int n;
+ 
+-	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 || scn.rep > scn.traceReps ) {
++	if ( scn.type == SCN_NONE || scn.done || scn.rep < 1 ) {
++		return;
++	}
++	G_ScenarioSample();
++	if ( scn.rep > scn.traceReps ) {
+ 		return;
+ 	}
+-	for ( n = 0; n < 2; n++ ) {
++	for ( n = 0; n < scn.numClients; n++ ) {
+ 		const gentity_t *ent = &g_entities[scn.client[n]];
+ 		const playerState_t *ps = &ent->client->ps;
+ 		const bladeInfo_t *blade = &ent->client->saber[0].blade[0];
+ 
+-		trap->Print( "SCN %d %4d %c cmd%+d hp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n",
+-			scn.rep, level.time - scn.repStart, n ? 'D' : 'A', ps->commandTime - level.time, ent->health, ps->saberMove,
++		trap->Print( "SCN %d %4d %c cmd%+d hp%d fp%d mv%d blk%d wt%d ta%d tt%d la%d lt%d o%.1f,%.1f,%.1f m%.1f,%.1f,%.1f\n",
++			scn.rep, level.time - scn.repStart, "ADT"[n], ps->commandTime - level.time, ent->health, ps->fd.forcePower, ps->saberMove,
+ 			ps->saberBlocked, ps->weaponTime, ps->torsoAnim, ps->torsoTimer, ps->legsAnim, ps->legsTimer,
+ 			ps->origin[0], ps->origin[1], ps->origin[2], blade->muzzlePoint[0], blade->muzzlePoint[1], blade->muzzlePoint[2] );
+ 	}
+@@ -398,6 +577,31 @@ qboolean G_ScenarioCommand( int clientNum, int t, usercmd_t *ucmd ) {
+ 		case FP_DRAIN:
+ 			if ( phase < 1000 ) ucmd->buttons = BUTTON_FORCE_DRAIN;
+ 			break;
++		case FP_HEAL:
++		case FP_PUSH:
++		case FP_PULL:
++		case FP_TELEPATHY:
++		case FP_TEAM_HEAL:
++		case FP_TEAM_FORCE:	// instant powers: used three times, the button released in between
++			ucmd->forcesel = scn.power;
++			ent->client->ps.fd.forcePowerSelected = scn.power;
++			if ( phase < 1250 && phase % 600 < 50 ) ucmd->buttons = BUTTON_FORCEPOWER;
++			break;
++		case FP_LEVITATION:	// a force jump to the right, the jump held
++			if ( phase < 1000 ) {
++				ucmd->upmove = 127;
++				ucmd->rightmove = 127;
++			}
++			break;
++		case FP_SPEED:	// switched on, then a run to the right
++			ucmd->forcesel = scn.power;
++			ent->client->ps.fd.forcePowerSelected = scn.power;
++			if ( phase < 50 ) ucmd->buttons = BUTTON_FORCEPOWER;
++			if ( phase < 1000 ) ucmd->rightmove = 127;
++			break;
++		case FP_SABERTHROW:	// the saber thrown and held out
++			if ( phase < 1000 ) ucmd->buttons = BUTTON_ALT_ATTACK;
++			break;
+ 		default:	// powers used on oneself: switched on once, held until the next reset
+ 			ucmd->forcesel = scn.power;
+ 			ent->client->ps.fd.forcePowerSelected = scn.power;
+@@ -442,15 +646,33 @@ void Svcmd_Scenario_f( void ) {
+ 
+ 	memset( &scn, 0, sizeof( scn ) );
+ 	scn.rep = -1;	// the first reset starts the warm-up, repetition 0
+-	for ( i = 0; i < MAX_CLIENTS && n < 2; i++ ) {
+-		if ( g_entities[i].inuse && g_entities[i].client && ( g_entities[i].r.svFlags & SVF_BOT )
+-			&& g_entities[i].client->pers.connected == CON_CONNECTED ) {
+-			scn.client[n++] = i;
++	{ // the attacker, the first bot that is not its teammate as the defender, and a teammate as the ally
++		qboolean defender = qfalse, ally = qfalse;
++
++		for ( i = 0; i < MAX_CLIENTS; i++ ) {
++			gentity_t *e = &g_entities[i];
++
++			if ( !e->inuse || !e->client || !( e->r.svFlags & SVF_BOT ) || e->client->pers.connected != CON_CONNECTED ) {
++				continue;
++			}
++			if ( !n ) {
++				scn.client[0] = i;
++				n = 1;
++			}
++			else if ( !defender && !OnSameTeam( &g_entities[scn.client[0]], e ) ) {
++				scn.client[1] = i;
++				defender = qtrue;
++			}
++			else if ( !ally && OnSameTeam( &g_entities[scn.client[0]], e ) ) {
++				scn.client[2] = i;
++				ally = qtrue;
++			}
+ 		}
+-	}
+-	if ( n < 2 ) {
+-		trap->Print( "scenario: needs two bots\n" );
+-		return;
++		if ( !defender ) {
++			trap->Print( "scenario: needs two bots\n" );
++			return;
++		}
++		scn.numClients = ally ? 3 : 2;
+ 	}
+ 	scn.reps = G_ScenarioArgInt( 2, 100 );
+ 	trap->Argv( 3, arg, sizeof( arg ) );
+@@ -471,8 +693,10 @@ void Svcmd_Scenario_f( void ) {
+ 		scn.type = SCN_SABER;
+ 	}
+ 	else if ( !Q_stricmp( type, "force" ) ) {
+-		static const char *powers[] = { "lightning", "grip", "drain", "rage", "protect", "absorb" };
+-		static const forcePowers_t powerValues[] = { FP_LIGHTNING, FP_GRIP, FP_DRAIN, FP_RAGE, FP_PROTECT, FP_ABSORB };
++		static const char *powers[] = { "lightning", "grip", "drain", "rage", "protect", "absorb", "heal", "levitation", "speed",
++			"push", "pull", "telepathy", "teamheal", "teamforce", "see", "saberthrow" };
++		static const forcePowers_t powerValues[] = { FP_LIGHTNING, FP_GRIP, FP_DRAIN, FP_RAGE, FP_PROTECT, FP_ABSORB,
++			FP_HEAL, FP_LEVITATION, FP_SPEED, FP_PUSH, FP_PULL, FP_TELEPATHY, FP_TEAM_HEAL, FP_TEAM_FORCE, FP_SEE, FP_SABERTHROW };
+ 
+ 		scn.power = FP_LIGHTNING;
+ 		for ( i = 0; i < (int)ARRAY_LEN( powers ); i++ ) {
+@@ -480,7 +704,13 @@ void Svcmd_Scenario_f( void ) {
+ 				scn.power = powerValues[i];
+ 			}
+ 		}
+-		scn.dist = (float)G_ScenarioArgInt( 4, 128 );
++		if ( ( scn.power == FP_TEAM_HEAL || scn.power == FP_TEAM_FORCE ) && scn.numClients < 3 ) {
++			trap->Print( "scenario: the team powers need a team game and a third bot, a teammate of the first\n" );
++			return;
++		}
++		scn.level = Q_max( 1, Q_min( 3, G_ScenarioArgInt( 4, 3 ) ) );
++		scn.dist = (float)G_ScenarioArgInt( 5, 128 );
++		scn.defenderLevel = Q_max( 0, Q_min( 3, G_ScenarioArgInt( 6, 0 ) ) );
+ 		scn.type = SCN_FORCE;
+ 	}
+ 	else if ( !Q_stricmp( type, "weapon" ) ) {
+diff --git a/codemp/game/g_svcmds.c b/codemp/game/g_svcmds.c
+index 78617f85..a4f715ed 100644
+--- a/codemp/game/g_svcmds.c
++++ b/codemp/game/g_svcmds.c
+@@ -554,7 +554,23 @@ void Svcmd_GameStats_f( void ) {
+ 		}
+ 		trap->Print( "%s\n", line );
+ 	}
++	{ // the other powers, which have no periodic events (plan step 20)
++		static const struct { forcePowers_t power; const char *name; } shown[] = {
++			{ FP_HEAL, "heal" }, { FP_LEVITATION, "levitation" }, { FP_SPEED, "speed" },
++			{ FP_PUSH, "push" }, { FP_PULL, "pull" }, { FP_TELEPATHY, "telepathy" },
++			{ FP_TEAM_HEAL, "team heal" }, { FP_TEAM_FORCE, "team energize" }, { FP_SEE, "sight" },
++			{ FP_SABERTHROW, "saber throw" },
++		};
++		char line[MAX_STRING_CHARS] = "force statistics of the other powers: starts and milliseconds held per power:";
++		size_t i;
++		for ( i = 0; i < ARRAY_LEN( shown ); i++ ) {
++			const forcePowers_t f = shown[i].power;
++			Q_strcat( line, sizeof( line ), va( "%s %s %d %d", i ? "," : "", shown[i].name, s->forceStarts[f], s->forceActiveMsec[f] ) );
++		}
++		trap->Print( "%s\n", line );
++	}
+ 	G_PrintCentralStats();
++	G_ScenarioPrintStats();
+ 	memset( &g_stats, 0, sizeof( g_stats ) );
+ }
+ 

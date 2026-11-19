@@ -1,0 +1,69 @@
+#!/bin/bash
+# The scripted scenarios (plan steps 14 and 20), SEED=1 and FAST=1, several servers at a time, a server playing one or
+# several scenarios one after the other (gamestats_cfg.sh); every scenario's statistics in one file
+# (<runs>/scenarios_<prefix>.txt) to compare two platforms or two builds with diff, and against the recorded counts
+# (scenarios_golden.txt, recorded at step 14 part 4b, the commit the 40 first scenarios' counts come from, with the
+# later scenarios ported to it: plan step 20).
+# Usage (Windows, Git Bash; gamestats_windows.sh's build and game folders, BUILD and DED_EXE for another build):
+#   scenarios.sh <prefix> <jampgame dll> [servers at a time, 30]
+# Usage (Linux; gamestats.sh's arguments in the environment):
+#   DED=<modernjkded> BASE=<fs_basepath> scenarios.sh <prefix> <jampgame .so> [servers at a time, 4]
+# 30 servers at a time on the development machine, 4 on the VPS (1 vCPU, 2 GB).
+set -u
+PREFIX=$1
+MODULE=$2
+HERE=$(cd "$(dirname "$0")" && pwd)
+case "$(uname -s)" in
+	MINGW*|MSYS*) WINDOWS=1; PAR=${3:-30}; RUNS="${GAMESTATS_DIR:-C:/Users/$USERNAME/AppData/Local/Temp/gamestats}" ;;
+	*) WINDOWS=0; PAR=${3:-4}; RUNS="${GAMESTATS_DIR:-/tmp/gamestats}" ;;
+esac
+PYTHON=$(command -v python3 || command -v python)
+
+# one server per line: <name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenario>[;<scenario>...]
+cases() {
+	local ffa="mp/ffa3|0|Jedi Reborn" team="mp/ffa3|6|Jedi:red Reborn:blue Jedi:red" force="g_forcePowerDisable 0"
+	local s d f w l
+	# the 40 of step 14, one server each
+	for s in fast medium strong dual staff; do for d in idle attack; do echo "saber_${s}_${d}|$ffa||saber 96 $s $d"; done; done
+	for f in lightning grip drain rage protect absorb; do echo "force_${f}|$ffa|$force|force 48 $f"; done
+	for w in 4 5 6 7 8 9 10 11 12 13 14 15; do for a in 0 1; do echo "weapon_${w}_${a}|$ffa|g_weaponDisable 0|weapon 48 $w $a"; done; done
+	# step 20, the force powers: the six of step 14 at levels 1 and 2, the others at levels 1 to 3, a server per power
+	for f in lightning grip drain rage protect absorb; do echo "force_${f}_levels|$ffa|$force|force 48 $f 1;force 48 $f 2"; done
+	for f in heal levitation speed push pull telepathy see saberthrow; do
+		l="force 48 $f 1;force 48 $f 2;force 48 $f 3"
+		# push and pull: the defender at level 0 in the power, then at level 3, which resists a push of level 3
+		case $f in push|pull) l="$l;force 48 $f 3 128 3" ;; esac
+		echo "force_${f}_levels|$ffa|$force|$l"
+	done
+	for f in teamheal teamforce; do echo "force_${f}_levels|$team|$force|force 48 $f 1;force 48 $f 2;force 48 $f 3"; done
+}
+
+one() {
+	local name map gametype bots pre scn
+	IFS='|' read -r name map gametype bots pre scn <<< "$1"
+	if [ "$WINDOWS" = 1 ]; then
+		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" \
+			bash "$HERE/gamestats_windows.sh" 1 "${PREFIX}_${name}|$MODULE" > /dev/null 2>&1
+	else
+		SEED=1 FAST=1 MAP="$map" GAMETYPE="$gametype" BOTS="$bots" PREMAP="$pre" SCENARIO="$scn" \
+			bash "$HERE/gamestats.sh" "$DED" "$BASE" "$MODULE" 1 "${PREFIX}_${name}" > /dev/null 2>&1
+	fi
+	echo "done $name"
+}
+export -f one
+export PREFIX MODULE HERE WINDOWS DED="${DED:-}" BASE="${BASE:-}"
+
+# the servers with the most scenarios first, so that the last ones to start are short
+cases | awk -F'|' '{ s = $6; print gsub( /;/, "", s ) "\t" $0 }' | sort -s -rn -k1,1 | cut -f2- | xargs -P "$PAR" -I{} bash -c 'one "$@"' _ {}
+tags=()
+for c in $(cases | cut -d'|' -f1); do
+	tags+=("${PREFIX}_${c}")
+done
+"$PYTHON" -I "$HERE/gamestats_scn.py" --dump "$RUNS" "${PREFIX}_" "${tags[@]}" > "$RUNS/scenarios_${PREFIX}.txt"
+echo "statistics: $RUNS/scenarios_${PREFIX}.txt"
+# the recorded counts (scenarios_golden.txt): the same on Windows and Linux, with clang, GCC and MSVC
+if diff <(tr -d '\r' < "$HERE/scenarios_golden.txt") <(tr -d '\r' < "$RUNS/scenarios_${PREFIX}.txt") > /dev/null; then
+	echo "golden: SAME"
+else
+	echo "golden: DIFF (diff $HERE/scenarios_golden.txt $RUNS/scenarios_${PREFIX}.txt)"
+fi
