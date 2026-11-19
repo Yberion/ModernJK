@@ -1,0 +1,1040 @@
+saber_fast_idle:  96 saber swings; per swing: 1.375 wounds, 11.62 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 132, damage 1116, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 132 saber hit effects on clients
+saber_fast_idle: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_fast_idle: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_fast_idle: event statistics: EV_SABER_HIT 132 EV_PAIN 60
+saber_fast_idle: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 1140 0
+saber_fast_idle: shot statistics (primary and alternate fire, by weapon number):
+saber_fast_idle: saber style statistics (attacks started, moves bounced or deflected): fast 96 0
+saber_fast_idle: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 192 0 0 3444 288 0 -864, defender 0 1140 0 0 192 0 0 864 0 0 -864
+saber_fast_attack:  180 saber swings; per swing: 0.467 wounds, 8.07 damage, 0.467 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.067 idle touches (wounds 84, damage 1452, saber against saber 84, parried 0, locks 0, touches 12); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 96 saber hit effects on clients
+saber_fast_attack: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_fast_attack: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_fast_attack: event statistics: EV_SABER_HIT 96 EV_SABER_BLOCK 84 EV_GRENADE_BOUNCE 6 EV_PAIN 36
+saber_fast_attack: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 1152 0
+saber_fast_attack: shot statistics (primary and alternate fire, by weapon number):
+saber_fast_attack: saber style statistics (attacks started, moves bounced or deflected): fast 96 0 medium 84 0
+saber_fast_attack: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 744 0 0 192 0 0 3139 -108 0 -864, defender 0 408 0 0 192 0 0 3124 108 0 -864
+saber_medium_idle:  96 saber swings; per swing: 0.625 wounds, 13.50 damage, 0.625 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.250 idle touches (wounds 60, damage 1296, saber against saber 60, parried 0, locks 0, touches 24); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 84 saber hit effects on clients
+saber_medium_idle: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_medium_idle: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_medium_idle: event statistics: EV_SABER_HIT 84 EV_SABER_BLOCK 60 EV_PAIN 36
+saber_medium_idle: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 1200 0
+saber_medium_idle: shot statistics (primary and alternate fire, by weapon number):
+saber_medium_idle: saber style statistics (attacks started, moves bounced or deflected): medium 96 0
+saber_medium_idle: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 192 0 0 3444 288 0 -864, defender 0 1200 0 0 192 0 0 864 0 0 -864
+saber_medium_attack:  192 saber swings; per swing: 0.000 wounds, 0.19 damage, 0.438 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.188 idle touches (wounds 0, damage 36, saber against saber 84, parried 0, locks 0, touches 36); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 36 saber hit effects on clients
+saber_medium_attack: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_medium_attack: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_medium_attack: event statistics: EV_SABER_HIT 36 EV_SABER_BLOCK 84
+saber_medium_attack: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 36 0
+saber_medium_attack: shot statistics (primary and alternate fire, by weapon number):
+saber_medium_attack: saber style statistics (attacks started, moves bounced or deflected): medium 192 14
+saber_medium_attack: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 24 0 0 192 0 0 3139 -108 0 -864, defender 0 12 0 0 192 0 0 3124 108 0 -864
+saber_strong_idle:  96 saber swings; per swing: 1.750 wounds, 33.75 damage, 0.500 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.125 idle touches (wounds 168, damage 3240, saber against saber 48, parried 0, locks 0, touches 12); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 180 saber hit effects on clients
+saber_strong_idle: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_strong_idle: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_strong_idle: event statistics: EV_SABER_HIT 180 EV_SABER_BLOCK 48 EV_GRENADE_BOUNCE 1 EV_PAIN 72
+saber_strong_idle: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 3048 0
+saber_strong_idle: shot statistics (primary and alternate fire, by weapon number):
+saber_strong_idle: saber style statistics (attacks started, moves bounced or deflected): strong 96 0
+saber_strong_idle: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 192 0 0 3444 288 0 -864, defender 0 3048 0 0 192 0 0 864 0 0 -864
+saber_strong_attack:  168 saber swings; per swing: 1.065 wounds, 19.53 damage, 0.250 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.214 idle touches (wounds 179, damage 3281, saber against saber 42, parried 0, locks 0, touches 36); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 215 saber hit effects on clients
+saber_strong_attack: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_strong_attack: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_strong_attack: event statistics: EV_SABER_HIT 215 EV_SABER_BLOCK 42 EV_PAIN 83
+saber_strong_attack: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 2933 0
+saber_strong_attack: shot statistics (primary and alternate fire, by weapon number):
+saber_strong_attack: saber style statistics (attacks started, moves bounced or deflected): medium 96 0 strong 72 0
+saber_strong_attack: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 888 0 0 192 0 0 3139 -108 0 -864, defender 0 2045 0 0 192 0 0 3124 108 0 -864
+saber_dual_idle:  96 saber swings; per swing: 0.000 wounds, 0.12 damage, 0.750 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.125 idle touches (wounds 0, damage 12, saber against saber 72, parried 0, locks 0, touches 12); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 12 saber hit effects on clients
+saber_dual_idle: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_dual_idle: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_dual_idle: event statistics: EV_SABER_HIT 12 EV_SABER_BLOCK 108
+saber_dual_idle: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 12 0
+saber_dual_idle: shot statistics (primary and alternate fire, by weapon number):
+saber_dual_idle: saber style statistics (attacks started, moves bounced or deflected): dual 96 0
+saber_dual_idle: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 192 0 0 3444 288 0 -864, defender 0 12 0 0 192 0 0 864 0 0 -864
+saber_dual_attack:  189 saber swings; per swing: 0.254 wounds, 11.75 damage, 0.556 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.127 idle touches (wounds 48, damage 2220, saber against saber 105, parried 0, locks 0, touches 24); 0 missiles blocked by sabers, 0 force damage, 12 deaths, 72 saber hit effects on clients
+saber_dual_attack: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_dual_attack: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_dual_attack: event statistics: EV_SABER_HIT 72 EV_SABER_BLOCK 141 EV_PLAYER_TELEPORT_IN 12 EV_MUTE_SOUND 12 EV_PAIN 12 EV_OBITUARY 12
+saber_dual_attack: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 1884 12
+saber_dual_attack: shot statistics (primary and alternate fire, by weapon number):
+saber_dual_attack: saber style statistics (attacks started, moves bounced or deflected): medium 96 9 dual 96 8
+saber_dual_attack: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 540 0 0 192 0 0 3139 -108 0 -864, defender 0 1344 0 0 204 0 0 3124 108 0 -864
+saber_staff_idle:  96 saber swings; per swing: 0.375 wounds, 11.38 damage, 0.500 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 36, damage 1092, saber against saber 48, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 36 saber hit effects on clients
+saber_staff_idle: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_staff_idle: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_staff_idle: event statistics: EV_SABER_HIT 36 EV_SABER_BLOCK 96 EV_PAIN 24
+saber_staff_idle: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 996 0
+saber_staff_idle: shot statistics (primary and alternate fire, by weapon number):
+saber_staff_idle: saber style statistics (attacks started, moves bounced or deflected): staff 96 0
+saber_staff_idle: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 192 0 0 3444 288 0 -864, defender 0 996 0 0 192 0 0 864 0 0 -864
+saber_staff_attack:  163 saber swings; per swing: 0.294 wounds, 5.15 damage, 0.571 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 48, damage 840, saber against saber 93, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 48 saber hit effects on clients
+saber_staff_attack: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+saber_staff_attack: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+saber_staff_attack: event statistics: EV_SABER_HIT 48 EV_SABER_BLOCK 129 EV_PAIN 36
+saber_staff_attack: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 660 0
+saber_staff_attack: shot statistics (primary and alternate fire, by weapon number):
+saber_staff_attack: saber style statistics (attacks started, moves bounced or deflected): medium 84 7 staff 84 0
+saber_staff_attack: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 432 0 0 192 0 0 3139 -108 0 -864, defender 0 228 0 0 192 0 0 3124 108 0 -864
+force_lightning:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 1430 force damage, 0 deaths, 0 saber hit effects on clients
+force_lightning: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 48 960 48000, drain 0 0 0
+force_lightning: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_lightning: event statistics: EV_PAIN 48
+force_lightning: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 1430 0
+force_lightning: shot statistics (primary and alternate fire, by weapon number):
+force_lightning: saber style statistics (attacks started, moves bounced or deflected):
+force_lightning: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 144 1008 96 0 0 432 0 0 -432, defender 0 1430 0 0 226 0 0 3969 3372 0 -816
+force_grip:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 48 force damage, 0 deaths, 0 saber hit effects on clients
+force_grip: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 24 168 22800, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_grip: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_grip: event statistics: EV_PREDEFSOUND 24 EV_ENTITY_SOUND 23
+force_grip: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 48 0
+force_grip: shot statistics (primary and alternate fire, by weapon number):
+force_grip: saber style statistics (attacks started, moves bounced or deflected):
+force_grip: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 888 96 0 0 432 0 0 -432, defender 0 48 0 0 576 0 0 3302 0 0 480
+force_drain:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_drain: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 48 768 38400
+force_drain: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_drain: event statistics: EV_FORCE_DRAINED 96
+force_drain: damage statistics (health taken from clients and deaths, by cause):
+force_drain: shot statistics (primary and alternate fire, by weapon number):
+force_drain: saber style statistics (attacks started, moves bounced or deflected):
+force_drain: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 48 3840 96 0 0 432 0 0 -432, defender 0 0 0 3072 96 0 0 432 0 0 -432
+force_rage:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_rage: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 48 144 69600, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_rage: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_rage: event statistics: EV_MUTE_SOUND 94
+force_rage: damage statistics (health taken from clients and deaths, by cause):
+force_rage: shot statistics (primary and alternate fire, by weapon number):
+force_rage: saber style statistics (attacks started, moves bounced or deflected):
+force_rage: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 288 0 2400 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_protect:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_protect: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 48 240 69600, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_protect: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_protect: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_protect: damage statistics (health taken from clients and deaths, by cause):
+force_protect: shot statistics (primary and alternate fire, by weapon number):
+force_protect: saber style statistics (attacks started, moves bounced or deflected):
+force_protect: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 720 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_absorb:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_absorb: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 48 144 69600, lightning 0 0 0, drain 0 0 0
+force_absorb: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_absorb: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_absorb: damage statistics (health taken from clients and deaths, by cause):
+force_absorb: shot statistics (primary and alternate fire, by weapon number):
+force_absorb: saber style statistics (attacks started, moves bounced or deflected):
+force_absorb: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 624 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+weapon_4_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_0: event statistics: EV_MISSILE_HIT 96 EV_PAIN 96
+weapon_4_0: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL 1248 0
+weapon_4_0: shot statistics (primary and alternate fire, by weapon number): w4 96 0
+weapon_4_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1248 0 0 96 0 0 1013 576 0 -432
+weapon_4_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_4_1: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 4224 0
+weapon_4_1: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4224 0 0 384 0 0 6929 7392 0 -2064
+weapon_5_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_5_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_5_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_5_0: event statistics: EV_MISSILE_HIT 96 EV_MISSILE_MISS 47 EV_PAIN 48
+weapon_5_0: damage statistics (health taken from clients and deaths, by cause): MOD_BLASTER 2064 0
+weapon_5_0: shot statistics (primary and alternate fire, by weapon number): w5 144 0
+weapon_5_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_5_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2064 0 0 288 0 0 3059 2304 48 -1248
+weapon_5_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_5_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_5_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_5_1: event statistics: EV_MISSILE_HIT 117 EV_MISSILE_MISS 216 EV_PAIN 49
+weapon_5_1: damage statistics (health taken from clients and deaths, by cause): MOD_BLASTER 2543 0
+weapon_5_1: shot statistics (primary and alternate fire, by weapon number): w5 0 336
+weapon_5_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_5_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2543 0 0 321 0 0 4580 3823 72 -1675
+weapon_6_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_6_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_0: event statistics: EV_DISRUPTOR_MAIN_SHOT 96 EV_DISRUPTOR_SNIPER_MISS 48 EV_DISRUPTOR_HIT 48 EV_PAIN 48
+weapon_6_0: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR 1872 0
+weapon_6_0: shot statistics (primary and alternate fire, by weapon number): w6 96 0
+weapon_6_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1872 0 0 288 0 0 3816 3072 -48 -1440
+weapon_6_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_6_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_1: event statistics: EV_DISRUPTOR_SNIPER_SHOT 96 EV_DISRUPTOR_SNIPER_MISS 48 EV_DISRUPTOR_HIT 48 EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_MISS 48 EV_OBITUARY 48
+weapon_6_1: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR_SNIPER 6720 48
+weapon_6_1: shot statistics (primary and alternate fire, by weapon number): w6 0 48
+weapon_6_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 6672 0 0 144 0 0 432 0 0 -432
+weapon_7_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0: event statistics: EV_MISSILE_HIT 48 EV_MISSILE_MISS 94 EV_PAIN 48
+weapon_7_0: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 2104 0
+weapon_7_0: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2104 0 0 300 0 0 3144 3017 -1 -1271
+weapon_7_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 46 deaths, 0 saber hit effects on clients
+weapon_7_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_1: event statistics: EV_PLAYER_TELEPORT_IN 45 EV_GRENADE_BOUNCE 47 EV_MUTE_SOUND 46 EV_MISSILE_HIT 94 EV_PAIN 48 EV_OBITUARY 46
+weapon_7_1: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 5390 46
+weapon_7_1: shot statistics (primary and alternate fire, by weapon number): w7 0 96
+weapon_7_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 5390 0 0 293 0 0 2977 -958 0 -892
+weapon_8_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_8_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_8_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_8_0: event statistics: EV_MISSILE_HIT 186 EV_MISSILE_MISS 289 EV_PAIN 50
+weapon_8_0: damage statistics (health taken from clients and deaths, by cause): MOD_REPEATER 2848 0
+weapon_8_0: shot statistics (primary and alternate fire, by weapon number): w8 480 0
+weapon_8_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_8_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2848 0 0 349 0 0 5025 4236 67 -1824
+weapon_8_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_8_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_8_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_8_1: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 96 EV_PAIN 48 EV_OBITUARY 48
+weapon_8_1: damage statistics (health taken from clients and deaths, by cause): MOD_REPEATER_ALT 6192 48
+weapon_8_1: shot statistics (primary and alternate fire, by weapon number): w8 0 96
+weapon_8_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_8_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 6192 0 0 720 0 0 10759 9840 96 -4176
+weapon_9_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_0: event statistics: EV_MISSILE_HIT 96 EV_PAIN 48
+weapon_9_0: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 864 0
+weapon_9_0: shot statistics (primary and alternate fire, by weapon number): w9 96 0
+weapon_9_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 864 0 0 288 0 0 4371 3600 48 -1632
+weapon_9_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_1: event statistics: EV_PLAY_EFFECT 48 EV_PAIN 48
+weapon_9_1: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 624 0
+weapon_9_1: shot statistics (primary and alternate fire, by weapon number): w9 0 48
+weapon_9_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 624 0 0 144 0 0 1575 1440 576 -480
+weapon_10_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_10_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_10_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_10_0: event statistics: EV_MISSILE_HIT 187 EV_MISSILE_MISS 3 EV_PAIN 48
+weapon_10_0: damage statistics (health taken from clients and deaths, by cause): MOD_FLECHETTE 2072 0
+weapon_10_0: shot statistics (primary and alternate fire, by weapon number): w10 96 0
+weapon_10_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_10_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2072 0 0 255 0 0 3215 2525 81 -1223
+weapon_10_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 2 deaths, 0 saber hit effects on clients
+weapon_10_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_10_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_10_1: event statistics: EV_PLAYER_TELEPORT_IN 2 EV_GRENADE_BOUNCE 487 EV_PLAY_EFFECT 188 EV_MUTE_SOUND 2 EV_MISSILE_HIT 32 EV_PAIN 30 EV_OBITUARY 2
+weapon_10_1: damage statistics (health taken from clients and deaths, by cause): MOD_TRIP_MINE_SPLASH 2271 2
+weapon_10_1: shot statistics (primary and alternate fire, by weapon number): w10 0 96
+weapon_10_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_10_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2241 0 0 440 0 0 8775 5878 1534 -3871
+weapon_11_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_11_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_0: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 96 EV_PAIN 48 EV_OBITUARY 48
+weapon_11_0: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET 8160 48
+weapon_11_0: shot statistics (primary and alternate fire, by weapon number): w11 96 0
+weapon_11_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 6672 0 0 432 0 0 6594 6768 0 -2400
+weapon_11_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_11_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1: event statistics: EV_MISSILE_HIT 47 EV_PAIN 47
+weapon_11_1: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 3980 0
+weapon_11_1: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 3980 0 0 896 0 0 26605 22975 293 -11336
+weapon_12_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_0: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_12_0: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL 4368 0
+weapon_12_0: shot statistics (primary and alternate fire, by weapon number): w12 48 0
+weapon_12_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4368 0 0 288 0 0 4843 5472 0 -1104
+weapon_12_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_1: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_12_1: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL 4368 0
+weapon_12_1: shot statistics (primary and alternate fire, by weapon number): w12 0 48
+weapon_12_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4368 0 0 288 0 0 4843 5472 0 -1104
+weapon_13_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_13_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_13_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_13_0: event statistics: EV_PLAY_EFFECT 96 EV_MISSILE_MISS 96 EV_PAIN 96
+weapon_13_0: damage statistics (health taken from clients and deaths, by cause): MOD_TRIP_MINE_SPLASH 3936 0
+weapon_13_0: shot statistics (primary and alternate fire, by weapon number): w13 96 0
+weapon_13_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_13_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 1728 0 0 384 0 0 1929 -1200 0 -96, defender 0 2208 0 0 384 0 0 3227 3216 0 -1296
+weapon_13_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_13_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_13_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_13_1: event statistics: EV_PLAY_EFFECT 143 EV_MISSILE_MISS 143 EV_PAIN 96
+weapon_13_1: damage statistics (health taken from clients and deaths, by cause): MOD_TRIP_MINE_SPLASH 3888 0
+weapon_13_1: shot statistics (primary and alternate fire, by weapon number): w13 0 144
+weapon_13_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_13_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 720 0 0 144 0 0 1630 -1200 0 -432, defender 0 3168 0 0 1008 0 0 14272 12048 480 -5424
+weapon_14_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_14_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_14_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_14_0: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_PLAY_EFFECT 96 EV_MUTE_SOUND 48 EV_MISSILE_MISS 48 EV_PAIN 96 EV_OBITUARY 48
+weapon_14_0: damage statistics (health taken from clients and deaths, by cause): MOD_DET_PACK_SPLASH 9696 48
+weapon_14_0: shot statistics (primary and alternate fire, by weapon number): w14 96 0
+weapon_14_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_14_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 4176 0 0 432 0 0 3388 -1200 0 1824, defender 0 5520 0 0 432 0 0 7454 8304 0 -336
+weapon_14_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_14_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_14_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_14_1: event statistics: EV_PLAY_EFFECT 48 EV_MISSILE_MISS 48 EV_PAIN 96
+weapon_14_1: damage statistics (health taken from clients and deaths, by cause): MOD_DET_PACK_SPLASH 6096 0
+weapon_14_1: shot statistics (primary and alternate fire, by weapon number): w14 48 48
+weapon_14_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_14_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 2352 0 0 480 0 0 2967 -1200 0 -432, defender 0 3744 0 0 603 0 0 9478 9391 0 -2801
+weapon_15_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_15_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_15_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_15_0: event statistics: EV_MISSILE_HIT 48 EV_MISSILE_MISS 47 EV_PAIN 48
+weapon_15_0: damage statistics (health taken from clients and deaths, by cause): MOD_CONC 3024 0
+weapon_15_0: shot statistics (primary and alternate fire, by weapon number): w15 96 0
+weapon_15_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_15_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 3024 0 0 480 0 0 9573 8496 96 -3168
+weapon_15_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_15_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_15_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_15_1: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_CONC_ALT_IMPACT 48 EV_PAIN 48 EV_OBITUARY 48
+weapon_15_1: damage statistics (health taken from clients and deaths, by cause): MOD_CONC_ALT 1200 0 MOD_FALLING 4128 48
+weapon_15_1: shot statistics (primary and alternate fire, by weapon number): w15 0 48
+weapon_15_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_15_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 144 0 0 1560 -1104 0 -432, defender 0 5328 0 0 1248 1104 0 21714 13680 0 -11568
+force_lightning_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 528 force damage, 0 deaths, 0 saber hit effects on clients
+force_lightning_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 48 528 26400, drain 0 0 0
+force_lightning_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_lightning_1: event statistics: EV_PAIN 48
+force_lightning_1: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 528 0
+force_lightning_1: shot statistics (primary and alternate fire, by weapon number):
+force_lightning_1: saber style statistics (attacks started, moves bounced or deflected):
+force_lightning_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 240 576 96 0 0 432 0 0 -432, defender 0 528 0 0 112 0 0 713 244 0 -480
+force_lightning_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 1009 force damage, 0 deaths, 0 saber hit effects on clients
+force_lightning_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 48 960 48000, drain 0 0 0
+force_lightning_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_lightning_2: event statistics: EV_PAIN 48
+force_lightning_2: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 1009 0
+force_lightning_2: shot statistics (primary and alternate fire, by weapon number):
+force_lightning_2: saber style statistics (attacks started, moves bounced or deflected):
+force_lightning_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 144 1008 96 0 0 432 0 0 -432, defender 0 1009 0 0 198 0 0 1314 698 0 -720
+force_grip_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 48 force damage, 0 deaths, 0 saber hit effects on clients
+force_grip_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 24 168 22800, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_grip_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_grip_1: event statistics: EV_PREDEFSOUND 24
+force_grip_1: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 48 0
+force_grip_1: shot statistics (primary and alternate fire, by weapon number):
+force_grip_1: saber style statistics (attacks started, moves bounced or deflected):
+force_grip_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 888 96 0 0 432 0 0 -432, defender 0 48 0 0 96 0 0 432 0 0 -432
+force_grip_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 50 force damage, 0 deaths, 0 saber hit effects on clients
+force_grip_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 24 171 23300, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_grip_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_grip_2: event statistics: EV_PREDEFSOUND 25 EV_ENTITY_SOUND 24
+force_grip_2: damage statistics (health taken from clients and deaths, by cause): MOD_FORCE_DARK 50 0
+force_grip_2: shot statistics (primary and alternate fire, by weapon number):
+force_grip_2: saber style statistics (attacks started, moves bounced or deflected):
+force_grip_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 891 96 0 0 432 0 0 -432, defender 0 50 0 0 586 0 0 1119 0 0 279
+force_drain_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_drain_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 48 528 26400
+force_drain_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_drain_1: event statistics: EV_FORCE_DRAINED 96
+force_drain_1: damage statistics (health taken from clients and deaths, by cause):
+force_drain_1: shot statistics (primary and alternate fire, by weapon number):
+force_drain_1: saber style statistics (attacks started, moves bounced or deflected):
+force_drain_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 144 2640 96 0 0 432 0 0 -432, defender 0 0 48 1056 96 0 0 432 0 0 -432
+force_drain_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_drain_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 48 768 38400
+force_drain_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_drain_2: event statistics: EV_FORCE_DRAINED 96
+force_drain_2: damage statistics (health taken from clients and deaths, by cause):
+force_drain_2: shot statistics (primary and alternate fire, by weapon number):
+force_drain_2: saber style statistics (attacks started, moves bounced or deflected):
+force_drain_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 48 3840 96 0 0 432 0 0 -432, defender 0 0 0 2304 96 0 0 432 0 0 -432
+force_rage_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_rage_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 48 384 69600, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_rage_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_rage_1: event statistics: EV_MUTE_SOUND 94
+force_rage_1: damage statistics (health taken from clients and deaths, by cause):
+force_rage_1: shot statistics (primary and alternate fire, by weapon number):
+force_rage_1: saber style statistics (attacks started, moves bounced or deflected):
+force_rage_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 768 0 2400 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_rage_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_rage_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 48 240 69600, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_rage_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_rage_2: event statistics: EV_MUTE_SOUND 94
+force_rage_2: damage statistics (health taken from clients and deaths, by cause):
+force_rage_2: shot statistics (primary and alternate fire, by weapon number):
+force_rage_2: saber style statistics (attacks started, moves bounced or deflected):
+force_rage_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 480 0 2400 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_protect_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_protect_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 48 240 69600, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_protect_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_protect_1: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_protect_1: damage statistics (health taken from clients and deaths, by cause):
+force_protect_1: shot statistics (primary and alternate fire, by weapon number):
+force_protect_1: saber style statistics (attacks started, moves bounced or deflected):
+force_protect_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 2640 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_protect_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_protect_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 48 240 69600, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_protect_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_protect_2: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_protect_2: damage statistics (health taken from clients and deaths, by cause):
+force_protect_2: shot statistics (primary and alternate fire, by weapon number):
+force_protect_2: saber style statistics (attacks started, moves bounced or deflected):
+force_protect_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 1440 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_absorb_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_absorb_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 48 144 69600, lightning 0 0 0, drain 0 0 0
+force_absorb_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_absorb_1: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_absorb_1: damage statistics (health taken from clients and deaths, by cause):
+force_absorb_1: shot statistics (primary and alternate fire, by weapon number):
+force_absorb_1: saber style statistics (attacks started, moves bounced or deflected):
+force_absorb_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 2544 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_absorb_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_absorb_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 48 144 69600, lightning 0 0 0, drain 0 0 0
+force_absorb_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_absorb_2: event statistics: EV_PREDEFSOUND 48 EV_MUTE_SOUND 47
+force_absorb_2: damage statistics (health taken from clients and deaths, by cause):
+force_absorb_2: shot statistics (primary and alternate fire, by weapon number):
+force_absorb_2: saber style statistics (attacks started, moves bounced or deflected):
+force_absorb_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 1344 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_heal_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_heal_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_heal_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_heal_1: event statistics:
+force_heal_1: damage statistics (health taken from clients and deaths, by cause):
+force_heal_1: shot statistics (primary and alternate fire, by weapon number):
+force_heal_1: saber style statistics (attacks started, moves bounced or deflected):
+force_heal_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 240 0 336 3120 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_heal_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_heal_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_heal_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_heal_2: event statistics:
+force_heal_2: damage statistics (health taken from clients and deaths, by cause):
+force_heal_2: shot statistics (primary and alternate fire, by weapon number):
+force_heal_2: saber style statistics (attacks started, moves bounced or deflected):
+force_heal_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 480 0 336 2880 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_heal_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_heal_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_heal_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_heal_3: event statistics:
+force_heal_3: damage statistics (health taken from clients and deaths, by cause):
+force_heal_3: shot statistics (primary and alternate fire, by weapon number):
+force_heal_3: saber style statistics (attacks started, moves bounced or deflected):
+force_heal_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 2400 0 336 4800 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_levitation_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_levitation_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_levitation_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 48000, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_levitation_1: event statistics: EV_PREDEFSOUND 48
+force_levitation_1: damage statistics (health taken from clients and deaths, by cause):
+force_levitation_1: shot statistics (primary and alternate fire, by weapon number):
+force_levitation_1: saber style statistics (attacks started, moves bounced or deflected):
+force_levitation_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 96 1824 1200 0 0 13148 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_levitation_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_levitation_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_levitation_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 45600, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_levitation_2: event statistics: EV_PREDEFSOUND 48
+force_levitation_2: damage statistics (health taken from clients and deaths, by cause):
+force_levitation_2: shot statistics (primary and alternate fire, by weapon number):
+force_levitation_2: saber style statistics (attacks started, moves bounced or deflected):
+force_levitation_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 96 864 1152 0 0 14044 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_levitation_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_levitation_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_levitation_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 43200, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_levitation_3: event statistics: EV_PREDEFSOUND 48
+force_levitation_3: damage statistics (health taken from clients and deaths, by cause):
+force_levitation_3: shot statistics (primary and alternate fire, by weapon number):
+force_levitation_3: saber style statistics (attacks started, moves bounced or deflected):
+force_levitation_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 144 576 1104 0 0 14192 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_speed_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_speed_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_speed_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 48 69600, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_speed_1: event statistics: EV_MUTE_SOUND 47
+force_speed_1: damage statistics (health taken from clients and deaths, by cause):
+force_speed_1: shot statistics (primary and alternate fire, by weapon number):
+force_speed_1: saber style statistics (attacks started, moves bounced or deflected):
+force_speed_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 2400 96 0 0 3546 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_speed_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_speed_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_speed_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 48 69600, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_speed_2: event statistics: EV_MUTE_SOUND 47
+force_speed_2: damage statistics (health taken from clients and deaths, by cause):
+force_speed_2: shot statistics (primary and alternate fire, by weapon number):
+force_speed_2: saber style statistics (attacks started, moves bounced or deflected):
+force_speed_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 2400 96 0 0 3546 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_speed_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_speed_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_speed_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 48 69600, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_speed_3: event statistics: EV_MUTE_SOUND 47
+force_speed_3: damage statistics (health taken from clients and deaths, by cause):
+force_speed_3: shot statistics (primary and alternate fire, by weapon number):
+force_speed_3: saber style statistics (attacks started, moves bounced or deflected):
+force_speed_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 2400 96 0 0 3546 0 -3120 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_push_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_push_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_push_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 48 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_push_1: event statistics:
+force_push_1: damage statistics (health taken from clients and deaths, by cause):
+force_push_1: shot statistics (primary and alternate fire, by weapon number):
+force_push_1: saber style statistics (attacks started, moves bounced or deflected):
+force_push_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 960 96 0 0 432 0 0 -432, defender 0 0 0 0 432 0 0 4673 3888 0 -816
+force_push_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_push_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_push_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 48 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_push_2: event statistics:
+force_push_2: damage statistics (health taken from clients and deaths, by cause):
+force_push_2: shot statistics (primary and alternate fire, by weapon number):
+force_push_2: saber style statistics (attacks started, moves bounced or deflected):
+force_push_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 960 96 0 0 432 0 0 -432, defender 0 0 0 0 672 0 0 15342 14256 96 -3024
+force_push_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_push_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_push_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 48 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_push_3: event statistics:
+force_push_3: damage statistics (health taken from clients and deaths, by cause): MOD_FALLING 3696 0
+force_push_3: shot statistics (primary and alternate fire, by weapon number):
+force_push_3: saber style statistics (attacks started, moves bounced or deflected):
+force_push_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 960 96 0 0 432 0 0 -432, defender 0 3696 0 0 960 1440 0 38899 35328 0 -11568
+force_push_3_128_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_push_3_128_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_push_3_128_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 48 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_push_3_128_3: event statistics:
+force_push_3_128_3: damage statistics (health taken from clients and deaths, by cause):
+force_push_3_128_3: shot statistics (primary and alternate fire, by weapon number):
+force_push_3_128_3: saber style statistics (attacks started, moves bounced or deflected):
+force_push_3_128_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 960 96 0 0 432 0 0 -432, defender 0 0 0 0 384 0 0 1459 240 0 -432
+force_pull_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_pull_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_pull_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 96 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_pull_1: event statistics:
+force_pull_1: damage statistics (health taken from clients and deaths, by cause):
+force_pull_1: shot statistics (primary and alternate fire, by weapon number):
+force_pull_1: saber style statistics (attacks started, moves bounced or deflected):
+force_pull_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1920 96 0 0 432 0 0 -432, defender 0 0 0 0 672 0 0 5588 -4704 0 -336
+force_pull_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_pull_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_pull_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 96 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_pull_2: event statistics:
+force_pull_2: damage statistics (health taken from clients and deaths, by cause):
+force_pull_2: shot statistics (primary and alternate fire, by weapon number):
+force_pull_2: saber style statistics (attacks started, moves bounced or deflected):
+force_pull_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1920 96 0 0 432 0 0 -432, defender 0 0 0 0 384 0 0 5526 -4704 0 -432
+force_pull_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_pull_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_pull_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 96 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_pull_3: event statistics:
+force_pull_3: damage statistics (health taken from clients and deaths, by cause):
+force_pull_3: shot statistics (primary and alternate fire, by weapon number):
+force_pull_3: saber style statistics (attacks started, moves bounced or deflected):
+force_pull_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1920 96 0 0 432 0 0 -432, defender 0 0 0 0 384 1440 0 5650 -4704 0 -432
+force_pull_3_128_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_pull_3_128_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_pull_3_128_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 96 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_pull_3_128_3: event statistics:
+force_pull_3_128_3: damage statistics (health taken from clients and deaths, by cause):
+force_pull_3_128_3: shot statistics (primary and alternate fire, by weapon number):
+force_pull_3_128_3: saber style statistics (attacks started, moves bounced or deflected):
+force_pull_3_128_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1920 96 0 0 432 0 0 -432, defender 0 0 0 0 672 0 0 2145 -480 0 -336
+force_telepathy_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_telepathy_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_telepathy_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 48 69600, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_telepathy_1: event statistics:
+force_telepathy_1: damage statistics (health taken from clients and deaths, by cause):
+force_telepathy_1: shot statistics (primary and alternate fire, by weapon number):
+force_telepathy_1: saber style statistics (attacks started, moves bounced or deflected):
+force_telepathy_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 1440 432 0 0 -432
+force_telepathy_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_telepathy_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_telepathy_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 48 69600, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_telepathy_2: event statistics:
+force_telepathy_2: damage statistics (health taken from clients and deaths, by cause):
+force_telepathy_2: shot statistics (primary and alternate fire, by weapon number):
+force_telepathy_2: saber style statistics (attacks started, moves bounced or deflected):
+force_telepathy_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 1440 432 0 0 -432
+force_telepathy_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_telepathy_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_telepathy_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 48 69600, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_telepathy_3: event statistics:
+force_telepathy_3: damage statistics (health taken from clients and deaths, by cause):
+force_telepathy_3: shot statistics (primary and alternate fire, by weapon number):
+force_telepathy_3: saber style statistics (attacks started, moves bounced or deflected):
+force_telepathy_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 1440 432 0 0 -432
+force_see_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_see_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_see_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 48 69600, saber throw 0 0
+force_see_1: event statistics: EV_MUTE_SOUND 47
+force_see_1: damage statistics (health taken from clients and deaths, by cause):
+force_see_1: shot statistics (primary and alternate fire, by weapon number):
+force_see_1: saber style statistics (attacks started, moves bounced or deflected):
+force_see_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_see_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_see_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_see_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 48 69600, saber throw 0 0
+force_see_2: event statistics: EV_MUTE_SOUND 47
+force_see_2: damage statistics (health taken from clients and deaths, by cause):
+force_see_2: shot statistics (primary and alternate fire, by weapon number):
+force_see_2: saber style statistics (attacks started, moves bounced or deflected):
+force_see_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_see_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_see_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_see_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 48 69600, saber throw 0 0
+force_see_3: event statistics: EV_MUTE_SOUND 47
+force_see_3: damage statistics (health taken from clients and deaths, by cause):
+force_see_3: shot statistics (primary and alternate fire, by weapon number):
+force_see_3: saber style statistics (attacks started, moves bounced or deflected):
+force_see_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 960 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+force_saberthrow_1:  0 saber swings; per swing: 65.000 wounds, 456.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 65, damage 456, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 65 saber hit effects on clients
+force_saberthrow_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_saberthrow_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_saberthrow_1: event statistics: EV_SABER_HIT 161 EV_PAIN 96
+force_saberthrow_1: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 3336 0
+force_saberthrow_1: shot statistics (primary and alternate fire, by weapon number):
+force_saberthrow_1: saber style statistics (attacks started, moves bounced or deflected):
+force_saberthrow_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 96 1920 96 0 0 432 0 0 -432, defender 0 3336 0 0 96 0 0 432 0 0 -432
+force_saberthrow_2:  0 saber swings; per swing: 54.000 wounds, 1068.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 54, damage 1068, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 11 deaths, 54 saber hit effects on clients
+force_saberthrow_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_saberthrow_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_saberthrow_2: event statistics: EV_SABER_HIT 144 EV_PLAYER_TELEPORT_IN 11 EV_MUTE_SOUND 11 EV_PAIN 91 EV_OBITUARY 11
+force_saberthrow_2: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 3768 11
+force_saberthrow_2: shot statistics (primary and alternate fire, by weapon number):
+force_saberthrow_2: saber style statistics (attacks started, moves bounced or deflected):
+force_saberthrow_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 96 1920 96 0 0 432 0 0 -432, defender 0 3768 0 0 107 0 0 432 0 0 -432
+force_saberthrow_3:  0 saber swings; per swing: 11.000 wounds, 227.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 11, damage 227, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 11 saber hit effects on clients
+force_saberthrow_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_saberthrow_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_saberthrow_3: event statistics: EV_SABER_HIT 59 EV_PAIN 48
+force_saberthrow_3: damage statistics (health taken from clients and deaths, by cause): MOD_SABER 1692 0
+force_saberthrow_3: shot statistics (primary and alternate fire, by weapon number):
+force_saberthrow_3: saber style statistics (attacks started, moves bounced or deflected):
+force_saberthrow_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 192 960 96 0 0 432 0 0 -432, defender 0 1692 0 0 96 0 0 432 0 0 -432
+force_teamheal_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamheal_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamheal_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamheal_1: event statistics: EV_TEAM_POWER 48
+force_teamheal_1: damage statistics (health taken from clients and deaths, by cause):
+force_teamheal_1: shot statistics (primary and alternate fire, by weapon number):
+force_teamheal_1: saber style statistics (attacks started, moves bounced or deflected):
+force_teamheal_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 2400 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 2400 0 0 0 96 0 0 432 0 0 -432
+force_teamheal_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamheal_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamheal_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamheal_2: event statistics: EV_TEAM_POWER 48
+force_teamheal_2: damage statistics (health taken from clients and deaths, by cause):
+force_teamheal_2: shot statistics (primary and alternate fire, by weapon number):
+force_teamheal_2: saber style statistics (attacks started, moves bounced or deflected):
+force_teamheal_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1584 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 2400 0 0 0 96 0 0 432 0 0 -432
+force_teamheal_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamheal_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamheal_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamheal_3: event statistics: EV_TEAM_POWER 48
+force_teamheal_3: damage statistics (health taken from clients and deaths, by cause):
+force_teamheal_3: shot statistics (primary and alternate fire, by weapon number):
+force_teamheal_3: saber style statistics (attacks started, moves bounced or deflected):
+force_teamheal_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1200 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 2400 0 0 0 96 0 0 432 0 0 -432
+force_teamforce_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamforce_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamforce_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamforce_1: event statistics: EV_TEAM_POWER 48
+force_teamforce_1: damage statistics (health taken from clients and deaths, by cause):
+force_teamforce_1: shot statistics (primary and alternate fire, by weapon number):
+force_teamforce_1: saber style statistics (attacks started, moves bounced or deflected):
+force_teamforce_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 2400 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 0 0 2880 0 96 0 0 432 0 0 -432
+force_teamforce_2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamforce_2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamforce_2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamforce_2: event statistics: EV_TEAM_POWER 48
+force_teamforce_2: damage statistics (health taken from clients and deaths, by cause):
+force_teamforce_2: shot statistics (primary and alternate fire, by weapon number):
+force_teamforce_2: saber style statistics (attacks started, moves bounced or deflected):
+force_teamforce_2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1584 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 0 0 2880 0 96 0 0 432 0 0 -432
+force_teamforce_3:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+force_teamforce_3: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+force_teamforce_3: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+force_teamforce_3: event statistics: EV_TEAM_POWER 48
+force_teamforce_3: damage statistics (health taken from clients and deaths, by cause):
+force_teamforce_3: shot statistics (primary and alternate fire, by weapon number):
+force_teamforce_3: saber style statistics (attacks started, moves bounced or deflected):
+force_teamforce_3: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 336 1200 96 0 0 432 0 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432, ally 0 0 2880 0 96 0 0 432 0 0 -432
+weapon_1_0_40:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_1_0_40: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_1_0_40: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_1_0_40: event statistics: EV_PLAY_EFFECT 144 EV_PAIN 96
+weapon_1_0_40: damage statistics (health taken from clients and deaths, by cause): MOD_STUN_BATON 2880 0
+weapon_1_0_40: shot statistics (primary and alternate fire, by weapon number): w1 144 0
+weapon_1_0_40: saber style statistics (attacks started, moves bounced or deflected):
+weapon_1_0_40: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2880 0 0 96 0 0 432 0 0 -432
+weapon_1_1_40:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_1_1_40: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_1_1_40: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_1_1_40: event statistics: EV_PLAY_EFFECT 144 EV_PAIN 96
+weapon_1_1_40: damage statistics (health taken from clients and deaths, by cause): MOD_STUN_BATON 2880 0
+weapon_1_1_40: shot statistics (primary and alternate fire, by weapon number): w1 0 144
+weapon_1_1_40: saber style statistics (attacks started, moves bounced or deflected):
+weapon_1_1_40: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2880 0 0 96 0 0 432 0 0 -432
+weapon_2_0_40:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_2_0_40: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_2_0_40: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_2_0_40: event statistics: EV_PAIN 48
+weapon_2_0_40: damage statistics (health taken from clients and deaths, by cause): MOD_MELEE 1056 0
+weapon_2_0_40: shot statistics (primary and alternate fire, by weapon number): w2 144 0
+weapon_2_0_40: saber style statistics (attacks started, moves bounced or deflected):
+weapon_2_0_40: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1056 0 0 96 0 0 886 432 0 -432
+weapon_2_1_40:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_2_1_40: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_2_1_40: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_2_1_40: event statistics: EV_PAIN 60
+weapon_2_1_40: damage statistics (health taken from clients and deaths, by cause): MOD_MELEE 762 0
+weapon_2_1_40: shot statistics (primary and alternate fire, by weapon number): w2 0 144
+weapon_2_1_40: saber style statistics (attacks started, moves bounced or deflected):
+weapon_2_1_40: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 1581 -36 0 -432, defender 0 762 0 0 96 0 0 756 324 0 -432
+weapon_2_1_40:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_2_1_40: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_2_1_40: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_2_1_40: event statistics:
+weapon_2_1_40: damage statistics (health taken from clients and deaths, by cause): MOD_MELEE 12 0
+weapon_2_1_40: shot statistics (primary and alternate fire, by weapon number):
+weapon_2_1_40: saber style statistics (attacks started, moves bounced or deflected):
+weapon_2_1_40: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 459 6 0 -432, defender 0 12 0 0 150 132 0 850 250 8 -432
+weapon_2_2_40_rep6000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 24 deaths, 0 saber hit effects on clients
+weapon_2_2_40_rep6000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_2_2_40_rep6000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_2_2_40_rep6000: event statistics: EV_PLAYER_TELEPORT_IN 24 EV_MUTE_SOUND 24 EV_ENTITY_SOUND 24 EV_PAIN 120 EV_OBITUARY 24
+weapon_2_2_40_rep6000: damage statistics (health taken from clients and deaths, by cause): MOD_MELEE 2400 0 MOD_FALLING 1800 24
+weapon_2_2_40_rep6000: shot statistics (primary and alternate fire, by weapon number):
+weapon_2_2_40_rep6000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_2_2_40_rep6000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 457 24 0 -432, defender 0 4200 0 0 744 768 0 15249 11136 -144 -6000
+weapon_4_1_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_1_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1_256_hold100: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_4_1_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 912 0
+weapon_4_1_256_hold100: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 912 0 0 96 0 0 964 528 0 -432
+weapon_4_1_256_hold400:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_1_256_hold400: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1_256_hold400: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1_256_hold400: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_4_1_256_hold400: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 912 0
+weapon_4_1_256_hold400: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1_256_hold400: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1_256_hold400: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 912 0 0 96 0 0 964 528 0 -432
+weapon_4_1_256_hold600:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_1_256_hold600: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1_256_hold600: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1_256_hold600: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_4_1_256_hold600: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 2112 0
+weapon_4_1_256_hold600: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1_256_hold600: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1_256_hold600: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2112 0 0 288 0 0 5272 4464 48 -1824
+weapon_4_1_256_hold800:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_4_1_256_hold800: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1_256_hold800: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1_256_hold800: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_4_1_256_hold800: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 3168 0
+weapon_4_1_256_hold800: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1_256_hold800: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1_256_hold800: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 3168 0 0 384 0 0 8577 7968 48 -2976
+weapon_4_1_256_hold1400_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_4_1_256_hold1400_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_4_1_256_hold1400_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_4_1_256_hold1400_rep3000: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 48 EV_OBITUARY 48
+weapon_4_1_256_hold1400_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 5280 48
+weapon_4_1_256_hold1400_rep3000: shot statistics (primary and alternate fire, by weapon number): w4 0 48
+weapon_4_1_256_hold1400_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_4_1_256_hold1400_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 5280 0 0 912 0 0 23316 19056 0 -11568
+weapon_16_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_0: event statistics: EV_MISSILE_HIT 144 EV_PAIN 48
+weapon_16_0: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL 1632 0
+weapon_16_0: shot statistics (primary and alternate fire, by weapon number): w16 144 0
+weapon_16_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1632 0 0 96 0 0 1158 720 0 -432
+weapon_16_1_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold100: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_16_1_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 912 0
+weapon_16_1_256_hold100: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 912 0 0 96 0 0 964 528 0 -432
+weapon_16_1_256_hold400:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold400: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold400: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold400: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_16_1_256_hold400: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 912 0
+weapon_16_1_256_hold400: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold400: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold400: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 912 0 0 96 0 0 964 528 0 -432
+weapon_16_1_256_hold600:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold600: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold600: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold600: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_16_1_256_hold600: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 2112 0
+weapon_16_1_256_hold600: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold600: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold600: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2112 0 0 288 0 0 5272 4464 48 -1824
+weapon_16_1_256_hold800:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold800: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold800: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold800: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_16_1_256_hold800: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 3168 0
+weapon_16_1_256_hold800: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold800: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold800: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 3168 0 0 384 0 0 8577 7968 48 -2976
+weapon_16_1_256_hold1000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold1000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold1000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold1000: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_16_1_256_hold1000: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 4224 0
+weapon_16_1_256_hold1000: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold1000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold1000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4224 0 0 384 0 0 6929 7392 0 -2064
+weapon_16_1_256_hold1400_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_16_1_256_hold1400_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_16_1_256_hold1400_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_16_1_256_hold1400_rep3000: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 48 EV_OBITUARY 48
+weapon_16_1_256_hold1400_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_BRYAR_PISTOL_ALT 5280 48
+weapon_16_1_256_hold1400_rep3000: shot statistics (primary and alternate fire, by weapon number): w16 0 48
+weapon_16_1_256_hold1400_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_16_1_256_hold1400_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 5280 0 0 912 0 0 23316 19056 0 -11568
+weapon_6_1_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_6_1_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_1_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_1_256_hold100: event statistics: EV_DISRUPTOR_SNIPER_SHOT 48 EV_DISRUPTOR_HIT 48 EV_MISSILE_MISS 48 EV_PAIN 48
+weapon_6_1_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR_SNIPER 4464 0
+weapon_6_1_256_hold100: shot statistics (primary and alternate fire, by weapon number): w6 0 48
+weapon_6_1_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_1_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4464 0 0 96 0 0 432 0 0 -432
+weapon_6_1_256_hold500:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_6_1_256_hold500: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_1_256_hold500: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_1_256_hold500: event statistics: EV_DISRUPTOR_SNIPER_SHOT 96 EV_DISRUPTOR_SNIPER_MISS 48 EV_DISRUPTOR_HIT 48 EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_MISS 48 EV_OBITUARY 48
+weapon_6_1_256_hold500: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR_SNIPER 5472 48
+weapon_6_1_256_hold500: shot statistics (primary and alternate fire, by weapon number): w6 0 48
+weapon_6_1_256_hold500: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_1_256_hold500: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 5472 0 0 144 0 0 432 0 0 -432
+weapon_6_1_256_hold1700_rep3600:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_6_1_256_hold1700_rep3600: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_1_256_hold1700_rep3600: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_1_256_hold1700_rep3600: event statistics: EV_DISRUPTOR_SNIPER_SHOT 96 EV_DISRUPTOR_SNIPER_MISS 48 EV_DISRUPTOR_HIT 48 EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_MISS 48 EV_OBITUARY 48
+weapon_6_1_256_hold1700_rep3600: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR_SNIPER 8112 48
+weapon_6_1_256_hold1700_rep3600: shot statistics (primary and alternate fire, by weapon number): w6 0 48
+weapon_6_1_256_hold1700_rep3600: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_1_256_hold1700_rep3600: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 6672 0 0 144 0 0 432 0 0 -432
+weapon_6_1_256_hold2500_rep4400:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_6_1_256_hold2500_rep4400: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_6_1_256_hold2500_rep4400: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_6_1_256_hold2500_rep4400: event statistics: EV_DISRUPTOR_SNIPER_SHOT 96 EV_DISRUPTOR_SNIPER_MISS 48 EV_DISRUPTOR_HIT 48 EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_MISS 48 EV_OBITUARY 48
+weapon_6_1_256_hold2500_rep4400: damage statistics (health taken from clients and deaths, by cause): MOD_DISRUPTOR_SNIPER 8112 48
+weapon_6_1_256_hold2500_rep4400: shot statistics (primary and alternate fire, by weapon number): w6 0 48
+weapon_6_1_256_hold2500_rep4400: saber style statistics (attacks started, moves bounced or deflected):
+weapon_6_1_256_hold2500_rep4400: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 6672 0 0 144 0 0 432 0 0 -432
+weapon_7_0_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0_256_hold100: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_7_0_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 2790 0
+weapon_7_0_256_hold100: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2790 0 0 794 0 0 11782 9080 225 -6243
+weapon_7_0_256_hold400:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0_256_hold400: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0_256_hold400: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0_256_hold400: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_7_0_256_hold400: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 2745 0
+weapon_7_0_256_hold400: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0_256_hold400: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0_256_hold400: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2745 0 0 594 0 0 9072 8061 109 -3419
+weapon_7_0_256_hold600:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0_256_hold600: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0_256_hold600: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0_256_hold600: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_7_0_256_hold600: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 2745 0
+weapon_7_0_256_hold600: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0_256_hold600: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0_256_hold600: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2745 0 0 486 0 0 8363 7559 40 -2858
+weapon_7_0_256_hold800:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0_256_hold800: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0_256_hold800: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0_256_hold800: event statistics: EV_MISSILE_HIT 48 EV_MISSILE_MISS 94 EV_PAIN 48
+weapon_7_0_256_hold800: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 2104 0
+weapon_7_0_256_hold800: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0_256_hold800: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0_256_hold800: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2104 0 0 335 0 0 4949 4422 -55 -1840
+weapon_7_0_256_hold1400_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_7_0_256_hold1400_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_7_0_256_hold1400_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_7_0_256_hold1400_rep3000: event statistics: EV_MISSILE_HIT 48 EV_MISSILE_MISS 191 EV_PAIN 48
+weapon_7_0_256_hold1400_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_BOWCASTER 1431 0
+weapon_7_0_256_hold1400_rep3000: shot statistics (primary and alternate fire, by weapon number): w7 48 0
+weapon_7_0_256_hold1400_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_7_0_256_hold1400_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1431 0 0 240 0 0 2374 1689 -15 -978
+weapon_9_1_256_hold300:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_1_256_hold300: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_1_256_hold300: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_1_256_hold300: event statistics: EV_PLAY_EFFECT 48
+weapon_9_1_256_hold300: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 432 0
+weapon_9_1_256_hold300: shot statistics (primary and alternate fire, by weapon number): w9 0 48
+weapon_9_1_256_hold300: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_1_256_hold300: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 432 0 0 96 0 0 1133 672 240 -432
+weapon_9_1_256_hold1400_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_1_256_hold1400_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_1_256_hold1400_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_1_256_hold1400_rep3000: event statistics: EV_PLAY_EFFECT 48 EV_PAIN 48
+weapon_9_1_256_hold1400_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 912 0
+weapon_9_1_256_hold1400_rep3000: shot statistics (primary and alternate fire, by weapon number): w9 0 48
+weapon_9_1_256_hold1400_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_1_256_hold1400_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 912 0 0 672 0 0 9448 8352 3120 -3600
+weapon_9_1_256_hold2100_rep4000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_1_256_hold2100_rep4000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_1_256_hold2100_rep4000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_1_256_hold2100_rep4000: event statistics: EV_PLAY_EFFECT 48 EV_PAIN 48
+weapon_9_1_256_hold2100_rep4000: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 2544 0
+weapon_9_1_256_hold2100_rep4000: shot statistics (primary and alternate fire, by weapon number): w9 0 48
+weapon_9_1_256_hold2100_rep4000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_1_256_hold2100_rep4000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2544 0 0 912 0 0 30691 26688 10416 -11568
+weapon_9_1_256_hold2800_rep4500:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_9_1_256_hold2800_rep4500: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_9_1_256_hold2800_rep4500: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_9_1_256_hold2800_rep4500: event statistics: EV_PLAY_EFFECT 48 EV_PAIN 48
+weapon_9_1_256_hold2800_rep4500: damage statistics (health taken from clients and deaths, by cause): MOD_DEMP2 3552 0
+weapon_9_1_256_hold2800_rep4500: shot statistics (primary and alternate fire, by weapon number): w9 0 48
+weapon_9_1_256_hold2800_rep4500: saber style statistics (attacks started, moves bounced or deflected):
+weapon_9_1_256_hold2800_rep4500: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 3552 0 0 816 0 0 30903 28416 11280 -11568
+weapon_11_1_256_hold300:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_11_1_256_hold300: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1_256_hold300: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1_256_hold300: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_11_1_256_hold300: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 4080 0
+weapon_11_1_256_hold300: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1_256_hold300: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1_256_hold300: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4080 0 0 96 0 0 1045 624 0 -432
+weapon_11_1_256_hold700_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_11_1_256_hold700_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1_256_hold700_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1_256_hold700_rep3000: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_11_1_256_hold700_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 4080 0
+weapon_11_1_256_hold700_rep3000: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1_256_hold700_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1_256_hold700_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4080 0 0 96 0 0 1045 624 0 -432
+weapon_11_1_256_hold750_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_11_1_256_hold750_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1_256_hold750_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1_256_hold750_rep3000: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_11_1_256_hold750_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 4080 0
+weapon_11_1_256_hold750_rep3000: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1_256_hold750_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1_256_hold750_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4080 0 0 96 0 0 1045 624 0 -432
+weapon_11_1_256_hold900_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_11_1_256_hold900_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1_256_hold900_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1_256_hold900_rep3000: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 48 EV_OBITUARY 48
+weapon_11_1_256_hold900_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 4800 48
+weapon_11_1_256_hold900_rep3000: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1_256_hold900_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1_256_hold900_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4800 0 0 1104 0 0 21940 18384 720 -11568
+weapon_11_1_256_hold1400_rep3000:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+weapon_11_1_256_hold1400_rep3000: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_11_1_256_hold1400_rep3000: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_11_1_256_hold1400_rep3000: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_MUTE_SOUND 48 EV_MISSILE_HIT 48 EV_OBITUARY 48
+weapon_11_1_256_hold1400_rep3000: damage statistics (health taken from clients and deaths, by cause): MOD_ROCKET_HOMING 4800 48
+weapon_11_1_256_hold1400_rep3000: shot statistics (primary and alternate fire, by weapon number): w11 0 48
+weapon_11_1_256_hold1400_rep3000: saber style statistics (attacks started, moves bounced or deflected):
+weapon_11_1_256_hold1400_rep3000: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4800 0 0 624 0 0 10976 10704 432 -3744
+weapon_12_0_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_0_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_0_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_0_256_hold100: event statistics: EV_GRENADE_BOUNCE 331 EV_MISSILE_MISS 46 EV_PAIN 46
+weapon_12_0_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL_SPLASH 1978 0
+weapon_12_0_256_hold100: shot statistics (primary and alternate fire, by weapon number): w12 48 0
+weapon_12_0_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_0_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1978 0 0 510 0 0 6379 5336 0 -2180
+weapon_12_0_256_hold450:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_0_256_hold450: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_0_256_hold450: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_0_256_hold450: event statistics: EV_GRENADE_BOUNCE 48 EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_12_0_256_hold450: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL 2352 0
+weapon_12_0_256_hold450: shot statistics (primary and alternate fire, by weapon number): w12 48 0
+weapon_12_0_256_hold450: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_0_256_hold450: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2352 0 0 527 0 0 4708 4368 0 -1344
+weapon_12_0_256_hold1400_rep3500:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_0_256_hold1400_rep3500: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_0_256_hold1400_rep3500: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_0_256_hold1400_rep3500: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_12_0_256_hold1400_rep3500: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL 4368 0
+weapon_12_0_256_hold1400_rep3500: shot statistics (primary and alternate fire, by weapon number): w12 48 0
+weapon_12_0_256_hold1400_rep3500: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_0_256_hold1400_rep3500: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4368 0 0 816 0 0 25629 21264 0 -11568
+weapon_12_1_256_hold100:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_1_256_hold100: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_1_256_hold100: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_1_256_hold100: event statistics: EV_MISSILE_MISS 48 EV_PAIN 48
+weapon_12_1_256_hold100: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL_SPLASH 960 0
+weapon_12_1_256_hold100: shot statistics (primary and alternate fire, by weapon number): w12 0 48
+weapon_12_1_256_hold100: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_1_256_hold100: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 960 0 0 288 0 0 1920 -1200 0 -432, defender 0 0 0 0 96 0 0 432 0 0 -432
+weapon_12_1_256_hold450:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_1_256_hold450: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_1_256_hold450: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_1_256_hold450: event statistics: EV_MISSILE_MISS 48 EV_PAIN 48
+weapon_12_1_256_hold450: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL_SPLASH 2064 0
+weapon_12_1_256_hold450: shot statistics (primary and alternate fire, by weapon number): w12 0 48
+weapon_12_1_256_hold450: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_1_256_hold450: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2064 0 0 576 0 0 2982 1584 0 -336
+weapon_12_1_256_hold1400_rep3500:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_12_1_256_hold1400_rep3500: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_12_1_256_hold1400_rep3500: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_12_1_256_hold1400_rep3500: event statistics: EV_MISSILE_HIT 48 EV_PAIN 48
+weapon_12_1_256_hold1400_rep3500: damage statistics (health taken from clients and deaths, by cause): MOD_THERMAL 4368 0
+weapon_12_1_256_hold1400_rep3500: shot statistics (primary and alternate fire, by weapon number): w12 0 48
+weapon_12_1_256_hold1400_rep3500: saber style statistics (attacks started, moves bounced or deflected):
+weapon_12_1_256_hold1400_rep3500: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4368 0 0 816 0 0 25629 21264 0 -11568
+weapon_17_0:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_17_0: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_17_0: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_17_0: event statistics: EV_FIRE_WEAPON 432 EV_MISSILE_HIT 144 EV_MISSILE_MISS 284 EV_PAIN 48
+weapon_17_0: damage statistics (health taken from clients and deaths, by cause): MOD_VEHICLE 2880 0
+weapon_17_0: shot statistics (primary and alternate fire, by weapon number): w17 432 0
+weapon_17_0: saber style statistics (attacks started, moves bounced or deflected):
+weapon_17_0: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2880 0 0 288 0 0 3346 2640 -48 -1344
+weapon_17_1:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+weapon_17_1: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+weapon_17_1: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+weapon_17_1: event statistics: EV_FIRE_WEAPON 432 EV_MISSILE_HIT 144 EV_MISSILE_MISS 284 EV_PAIN 48
+weapon_17_1: damage statistics (health taken from clients and deaths, by cause): MOD_VEHICLE 2880 0
+weapon_17_1: shot statistics (primary and alternate fire, by weapon number): w17 432 0
+weapon_17_1: saber style statistics (attacks started, moves bounced or deflected):
+weapon_17_1: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 2880 0 0 288 0 0 3346 2640 -48 -1344
+turret_g2:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 0 deaths, 0 saber hit effects on clients
+turret_g2: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+turret_g2: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+turret_g2: event statistics: EV_PLAY_EFFECT_ID 248 EV_MISSILE_HIT 243 EV_MISSILE_MISS 5 EV_PAIN 63
+turret_g2: damage statistics (health taken from clients and deaths, by cause): MOD_TARGET_LASER 1215 0
+turret_g2: shot statistics (primary and alternate fire, by weapon number):
+turret_g2: saber style statistics (attacks started, moves bounced or deflected):
+turret_g2: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 1215 0 0 102 0 0 802 415 0 -432
+turret_hoth:  0 saber swings; per swing: 0.000 wounds, 0.00 damage, 0.000 saber against saber (blocks), 0.000 body hits parried without the sabers touching, 0.0000 saber locks, 0.000 idle touches (wounds 0, damage 0, saber against saber 0, parried 0, locks 0, touches 0); 0 missiles blocked by sabers, 0 force damage, 48 deaths, 0 saber hit effects on clients
+turret_hoth: force statistics: starts, periodic events (drains, rage health losses, shots) and milliseconds held per power: grip 0 0 0, rage 0 0 0, protect 0 0 0, absorb 0 0 0, lightning 0 0 0, drain 0 0 0
+turret_hoth: force statistics of the other powers: starts and milliseconds held per power: heal 0 0, levitation 0 0, speed 0 0, push 0 0, pull 0 0, telepathy 0 0, team heal 0 0, team energize 0 0, sight 0 0, saber throw 0 0
+turret_hoth: event statistics: EV_PLAYER_TELEPORT_IN 47 EV_PLAY_EFFECT_ID 50 EV_MUTE_SOUND 48 EV_MISSILE_HIT 48 EV_MISSILE_MISS 1 EV_OBITUARY 48
+turret_hoth: damage statistics (health taken from clients and deaths, by cause): MOD_TARGET_LASER 4800 48
+turret_hoth: shot statistics (primary and alternate fire, by weapon number):
+turret_hoth: saber style statistics (attacks started, moves bounced or deflected):
+turret_hoth: scenario statistics: health gained and lost, force gained and spent, instants off the ground, knocked down and mind tricked, distance moved, end place against the start, by role: attacker 0 0 0 0 96 0 0 432 0 0 -432, defender 0 4800 0 0 695 0 0 13984 11904 120 -6552

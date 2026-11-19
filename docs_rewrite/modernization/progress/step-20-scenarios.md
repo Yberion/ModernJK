@@ -28,7 +28,7 @@ Check before any change (19 November 2026): the 40 cases with that build, `golde
 - `gamestats_cfg.sh` (new): the `measure.cfg` that `gamestats.sh` (Linux) and `gamestats_windows.sh` give the server, written once for both (`measure_cfg`), with `MAP=`, `GAMETYPE=` and `BOTS=` (`"<name>[:<team>] ..."`) from the environment; `SCENARIO=` takes several scenarios separated by `;`, played one after the other on the same server, each printing its own statistics, the waits computed from their repetitions (the `<minutes>` argument is no longer used for scenarios); the watchdog counts one "game statistics" line per scenario (`measure_stats`). The cfg no longer calls `gamestats` once more after the scenario, which gave every case of the old golden a seventh line, all zeros or what happened after the scenario.
 - `measure_home`: an empty `modernjk_server.cfg` and `openjk_server.cfg` in each run's folder (section 4).
 - `gamestats_scn.py`: every scenario of a run, named from its command in the run's `measure.cfg` (`saber 96 fast idle` is `saber_fast_idle`, as before); the new statistics lines kept.
-- `scenarios.sh` (was `scenarios40.sh`), golden `scenarios_golden.txt` (was `scenarios40_golden.txt`): one server per line, `<name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenarios>`; the 40 cases of step 14 one per server as before, the new ones grouped; the servers with the most scenarios start first.
+- `scenarios.sh` (was `scenarios40.sh`), golden `scenarios_golden.txt` (was `scenarios40_golden.txt`): one server per line, `<name>|<map>|<g_gametype>|<bots>|<cvars before the map>|<scenarios>`; the 40 cases of step 14 one per server as before, the new ones grouped; the servers with the most scenarios start first. Since the charge's fix (section 9) two golden files: `scenarios_golden.txt`, the build of the day's counts once their differences with the old commit are explained, and `scenarios_golden_step14.txt`, the old commit's; `GOLDEN=<file>` compares a run with another file than the first (`GOLDEN=scenarios_golden_step14.txt` for the old commit's build).
 
 ## 4. Found: the test servers read the machine's settings
 
@@ -66,6 +66,8 @@ Recorded on 19 November 2026 at the old commit with `scenarios_golden.patch`: 84
 
 On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM (no warning; MSVC's build of the day none either), the widened set on the VPS (4 servers at a time): `golden: SAME`.
 
+Since the charge's fix (19 November 2026, section 9), the build of the day differs from the old commit by design, so the golden is two files. `scenarios_golden_step14.txt` holds the old commit's counts, the reference of this step's method; `scenarios_golden.txt` holds the build of the day's, the check after every change of the code (`golden: SAME` means nothing moved since the last state whose differences were explained). Each part from part 3 on: its scenarios run at the old commit go into the first file, compared with the build of the day, every difference explained (the decided fixes, as the charge, or a bug), then the build of the day's counts go into the second.
+
 ## 8. Part 2: the weapons
 
 12 servers, 45 scenarios of 48 repetitions (with the 40 of step 14 and part 1: 68 servers, 129 scenarios, about 1 min 40 s on the development machine). Two cases of step 14 changed meaning, since they tested nothing: `weapon_6_1`, the disruptor's alternate, only zoomed in and never fired (it is now the sniper shot: zoomed in for 300 ms, the zoom locked on release, then the shot charged for `hold=` ms), and `weapon_14_1` set off det packs that were never thrown (a pack is now thrown, then set off 800 ms later). The other cases of step 14 and part 1 give the same counts as before.
@@ -92,9 +94,30 @@ The module (section 5) gains:
 | emplaced gun (17) | primary, alternate | the alternate fires as the primary; a third of the bolts hit (below) |
 | turrets | `misc_turretG2`, `misc_turret` | the G2 turret's hits, the Hoth turret's kills |
 
-Found on the way (19 November 2026), none changed:
+Found on the way (19 November 2026), the first fixed the same night (section 9):
 
 - The weapons' charge is measured against the logic clock, not the command's time. The charge starts at the command that presses the button (`weaponChargeTime`, the command's time) and is counted when the shot is fired against `level.time`, the last 20 Hz instant, which in this branch is up to 50 ms before the command that releases the button (exactly 50 ms in the scenarios, since a bot's command for a 20 Hz instant runs on the tick before it). In game: the bryar's alternate held 400 ms fires a shot of 1 unit (19 damage on the body in the scenario) instead of 2 (44); held exactly 1 s, 4 units instead of 5. The same count for the old bryar, the bowcaster, the DEMP2, the disruptor's sniper shot, the thermal detonator's throw and the rocket launcher's lock. Measured against the releasing command's time, 400 ms would give 2 units. In OpenJK at `sv_fps` 20 the charge ends at the time of the server frame that fires, so it is the time held plus the gap between the server's clock and the time of the command that releases the button: none for a bot, whose commands carry the server's time (the time held, rounded to the 50 ms frames), but for a player it varies with the ping and the packets' timing (read from the code, not measured). Decided on 19 November 2026 (confirmed the same night after that comparison): counted to the time of the command that releases the button, exactly the time held for every player whatever the ping; to do at the start of the next session, before part 3.
 - The emplaced gun's two barrels fire 10 units left and right of the view, alternately: aimed at the middle of a defender 204 units away, every bolt passes beside its model (the trace of a missile against a player tests the model, not only its box); 2 degrees up, 15 of 41 hit, 4 degrees up 10, level, 6 up and 2, 3 or 5 down none. Where each weapon's shots start against the crosshair is to be reviewed (asked on 19 November 2026, its place not set).
 
 On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC, no warning; the 129 scenarios on the VPS: `golden: SAME`.
+
+## 9. The weapons' charge counted to the releasing command
+
+Decided on 19 November 2026 (section 8) and done the same night, before part 3 ([../CHANGES.md](../CHANGES.md) section 24). The charges and the rocket launcher's lock are counted to `ps.commandTime`, the time of the command that fires, in place of `level.time` (seven places of `g_weapon.cpp`: the bryars, the disruptor's sniper shot, the bowcaster, the DEMP2, the rocket's lock, the thermal detonator, the vehicles' homing missiles). Pmove sets `commandTime` to the command's time before `PM_Weapon`, and `ClientEvents` fires right after Pmove, for the players, the bots, the NPCs and the vehicles alike. A `misc_weapon_shooter` sends no command: its `commandTime` is set to `level.time` before it fires, so that its charge stays full (only single-player maps of the game have one). cgame counted to `cg.cmdTime` already.
+
+The old count's gap, for a bot: its command for a time runs on the tick before it, and `level.time` is the last 20 Hz instant at that tick, so the gap was 50 ms when the release falls on a 20 Hz instant (every case below, held a multiple of 50 ms), 30 ms held 780 ms, 10 ms held 760. An NPC's commands are dated 50 ms before the instant, so its charges were 50 ms longer than held; they are exact now (no NPC scenario yet: part 8).
+
+Against the old commit, 18 scenarios differ (44 of 1,040 lines), each by the charge counted 50 ms longer:
+
+| weapon | cases that change | why | cases that do not |
+|---|---|---|---|
+| bryar and old bryar, alternate (a unit per 200 ms, 1 to 5) | held 400, 600, 800 and 1,000 ms (`weapon_4_1`, `weapon_16_1_256_hold1000`) | a unit more: 19 to 44, 44 to 66, 66 to 88, 88 to 110 damage per shot; held 1 s, every shot kills | 100 and 1,400 ms (the minimum, the maximum) |
+| bowcaster, primary (1, 3 or 5 bolts, an even count taken one lower) | held 600 ms (1 bolt to 3), 1,000 ms (`weapon_7_0`, 3 to 5) | more bolts, each weaker (50, 40, 30): the middle one hits, the others miss (94 misses to 188) | 100, 400, 800, 1,400 ms |
+| disruptor, sniper shot (a unit per 50 ms, counted twice) | held 100, 500 and 1,000 ms (`weapon_6_1`) | 2 damage more, 3 with the head's factor of 1.3 | 1,700 and 2,500 ms (full charge) |
+| DEMP2, alternate (a unit per 700 ms) | held 1,400 ms (1 unit to 2), 2,100 ms (2 to 3) | a unit more | 300, 1,000, 2,800 ms |
+| thermal detonator (full speed at 900 ms) | held 450 ms | 0.44 to 0.50 of full speed: the primary hits without bouncing first, the alternate hits directly instead of by its splash (2,064 to 2,352 damage) | 100, 1,000, 1,400 ms (the minimum 0.15, the maximum) |
+| rocket launcher, alternate (homes from 10 of 16 units of 75 ms) | held 750 ms, a case added for it | locked: every rocket homes and kills (85 damage per hit and no kill before) | 300, 700, 900, 1,000, 1,400 ms (on the same side of the threshold either way) |
+
+The rocket's case: 780 ms, tried first, locks with both counts (30 ms of gap, 750 ms counted); 750 ms is the length on either side of the threshold. Two runs of the build of the day give the same file; the old commit's gives its former 1,032 lines and the new case's 8.
+
+On Linux (19 November 2026): the game module built by GCC 15 on the Linux VM and by MSVC; the 130 scenarios on the VPS: `golden: SAME` against the new `scenarios_golden.txt`.

@@ -234,7 +234,9 @@ static void WP_FireBryarPistol( gentity_t *ent, bool altFire )
 	{
 		float boxSize = 0;
 
-		count = ( level.time - ent->client->ps.weaponChargeTime ) / BRYAR_CHARGE_UNIT;
+		// a charge ends at the time of the command that fires, as it starts at the time of the command that presses the
+		// button: exactly the time held (level.time, the last 20 Hz instant, is up to 50 ms earlier; plan step 20)
+		count = ( ent->client->ps.commandTime - ent->client->ps.weaponChargeTime ) / BRYAR_CHARGE_UNIT;
 
 		if ( count < 1 )
 		{
@@ -701,7 +703,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		VectorCopy( ent->client->ps.origin, start );
 		start[2] += ent->client->ps.viewheight;//By eyes
 
-		count = ( level.time - ent->client->ps.weaponChargeTime ) / DISRUPTOR_CHARGE_UNIT;
+		count = ( ent->client->ps.commandTime - ent->client->ps.weaponChargeTime ) / DISRUPTOR_CHARGE_UNIT; // the command's time, as the bryar's
 		if ( level.gametype == gametype_t::GT_SIEGE )
 		{//maybe a full alt-charge should be a *bit* more dangerous in Siege mode?
 			//maxCount = Q_ceilf((200.0f-(float)damage)/2.0f);//cap at 200 damage total
@@ -1008,7 +1010,7 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 	}
 	else
 	{
-		count = ( level.time - ent->client->ps.weaponChargeTime ) / BOWCASTER_CHARGE_UNIT;
+		count = ( ent->client->ps.commandTime - ent->client->ps.weaponChargeTime ) / BOWCASTER_CHARGE_UNIT; // the command's time, as the bryar's
 	}
 
 	if ( count < 1 )
@@ -1398,7 +1400,7 @@ static void WP_DEMP2_AltFire( gentity_t *ent )
 
 	VectorMA( start, DEMP2_ALT_RANGE, forward, end );
 
-	count = ( level.time - ent->client->ps.weaponChargeTime ) / DEMP2_CHARGE_UNIT;
+	count = ( ent->client->ps.commandTime - ent->client->ps.weaponChargeTime ) / DEMP2_CHARGE_UNIT; // the command's time, as the bryar's
 
 	origcount = count;
 
@@ -1902,7 +1904,7 @@ static void WP_FireRocket( gentity_t *ent, bool altFire )
 		{
 			rTime = ent->client->ps.rocketLastValidTime;
 		}
-		dif = ( level.time - rTime ) / lockTimeInterval;
+		dif = ( ent->client->ps.commandTime - rTime ) / lockTimeInterval; // the command's time, as the bryar's charge
 
 		if (dif < 0)
 		{
@@ -2057,7 +2059,7 @@ gentity_t *WP_FireThermalDetonator( gentity_t *ent, bool altFire )
 
 	if ( ent->client )
 	{
-		chargeAmount = level.time - ent->client->ps.weaponChargeTime;
+		chargeAmount = ent->client->ps.commandTime - ent->client->ps.weaponChargeTime; // the command's time, as the bryar's
 	}
 
 	// get charge amount
@@ -3783,7 +3785,7 @@ gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWe
 				else
 				{
 					float lockTimeInterval = vehWeapon->iLockOnTime/16.0f;
-					dif = ( level.time - rTime ) / lockTimeInterval;
+					dif = ( ent->client->ps.commandTime - rTime ) / lockTimeInterval; // the command's time, as the bryar's charge
 				}
 
 				if (dif < 0)

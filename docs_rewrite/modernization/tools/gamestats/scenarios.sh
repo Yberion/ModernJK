@@ -1,11 +1,14 @@
 #!/bin/bash
 # The scripted scenarios (plan steps 14 and 20), SEED=1 and FAST=1, several servers at a time, a server playing one or
 # several scenarios one after the other (gamestats_cfg.sh); every scenario's statistics in one file
-# (<runs>/scenarios_<prefix>.txt) to compare two platforms or two builds with diff, and against the recorded counts
-# (scenarios_golden.txt, recorded at step 14 part 4b, the commit the 40 first scenarios' counts come from, with the
-# later scenarios ported to it: plan step 20).
+# (<runs>/scenarios_<prefix>.txt) to compare two platforms or two builds with diff, and against the recorded counts:
+# scenarios_golden.txt, the build of the day's once its differences with the old commit are explained, and
+# scenarios_golden_step14.txt, the old commit's (step 14 part 4b, the commit the 40 first scenarios' counts come from,
+# with the later scenarios ported to it: plan step 20); GOLDEN=<file> compares with another file than the first.
 # Usage (Windows, Git Bash; gamestats_windows.sh's build and game folders, BUILD and DED_EXE for another build):
 #   scenarios.sh <prefix> <jampgame dll> [servers at a time, 30]
+#   the old commit: BUILD=E:/Git/jka/ModernJK_golden/build-clang DED_EXE=openjkded.x86_64.exe
+#   GOLDEN=scenarios_golden_step14.txt scenarios.sh <prefix> E:/Git/jka/ModernJK_golden/build-clang/jampgamex86_64.dll
 # Usage (Linux; gamestats.sh's arguments in the environment):
 #   DED=<modernjkded> BASE=<fs_basepath> scenarios.sh <prefix> <jampgame .so> [servers at a time, 4]
 # 30 servers at a time on the development machine, 4 on the VPS (1 vCPU, 2 GB).
@@ -54,7 +57,10 @@ cases() {
 	l=""; for h in 100 400 600 800; do l="$l;weapon 48 7 0 256 hold=$h"; done
 	echo "weapon_7_charges|$ffa|$wd|${l#;};weapon 48 7 0 256 hold=1400 rep=3000"
 	echo "weapon_9_charges|$ffa|$wd|weapon 48 9 1 256 hold=300;weapon 48 9 1 256 hold=1400 rep=3000;weapon 48 9 1 256 hold=2100 rep=4000;weapon 48 9 1 256 hold=2800 rep=4500"
-	echo "weapon_11_charges|$ffa|$wd|weapon 48 11 1 256 hold=300;weapon 48 11 1 256 hold=700 rep=3000;weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000"
+	# the lock homes from 10 of its 16 units (750 ms held): held 750 ms, it locks with the charge counted to the releasing
+	# command, not with the charge counted to the last 20 Hz instant before it (700 ms: the bot's release runs on the tick
+	# before its time)
+	echo "weapon_11_charges|$ffa|$wd|weapon 48 11 1 256 hold=300;weapon 48 11 1 256 hold=700 rep=3000;weapon 48 11 1 256 hold=750 rep=3000;weapon 48 11 1 256 hold=900 rep=3000;weapon 48 11 1 256 hold=1400 rep=3000"
 	l=""; for a in 0 1; do for h in 100 450; do l="$l;weapon 48 12 $a 256 hold=$h"; done; l="$l;weapon 48 12 $a 256 hold=1400 rep=3500"; done
 	echo "weapon_12_charges|$ffa|$wd|${l#;}"
 	echo "weapon_17|$ffa|$wd|weapon 48 17 0;weapon 48 17 1"
@@ -84,9 +90,10 @@ for c in $(cases | cut -d'|' -f1); do
 done
 "$PYTHON" -I "$HERE/gamestats_scn.py" --dump "$RUNS" "${PREFIX}_" "${tags[@]}" > "$RUNS/scenarios_${PREFIX}.txt"
 echo "statistics: $RUNS/scenarios_${PREFIX}.txt"
-# the recorded counts (scenarios_golden.txt): the same on Windows and Linux, with clang, GCC and MSVC
-if diff <(tr -d '\r' < "$HERE/scenarios_golden.txt") <(tr -d '\r' < "$RUNS/scenarios_${PREFIX}.txt") > /dev/null; then
+# the recorded counts (GOLDEN, scenarios_golden.txt by default): the same on Windows and Linux, with clang, GCC and MSVC
+GOLDEN=${GOLDEN:-scenarios_golden.txt}
+if diff <(tr -d '\r' < "$HERE/$GOLDEN") <(tr -d '\r' < "$RUNS/scenarios_${PREFIX}.txt") > /dev/null; then
 	echo "golden: SAME"
 else
-	echo "golden: DIFF (diff $HERE/scenarios_golden.txt $RUNS/scenarios_${PREFIX}.txt)"
+	echo "golden: DIFF (diff $HERE/$GOLDEN $RUNS/scenarios_${PREFIX}.txt)"
 fi
